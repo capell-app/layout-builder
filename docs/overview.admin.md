@@ -2,6 +2,10 @@
 
 Layout Builder assembles public pages from reusable Widgets arranged in named Layout containers. Widgets hold translated content, media, visibility dates, and presentation settings; a Layout controls where each widget appears. A single Layout can be shared by several pages, so a structural edit can have a wider effect than the page currently open.
 
+## When to choose Layout Builder
+
+Use Layout Builder when the changing thing is page composition: which widgets appear in named areas and how those areas are arranged. Use [Content Sections](../../content-sections/README.md) when editors need to maintain a reusable, published section selected by several pages. Use [Structured Content Library](../../structured-content-library/README.md) for typed records such as testimonials, team members, services, and FAQs that pages can reuse. Those packages can be composed through Layout Builder. For a site with only a few fixed templates and no need for widget composition, the application's existing Laravel templates may be sufficient.
+
 ## Installation and setup
 
 Layout Builder requires Admin, Block Library, Core, and Frontend. `capell:layout-builder-install` publishes/runs the package migrations and publishes the admin assets. The application's package setup lifecycle then creates the widget blueprints, default widget catalogue, content types, and starter layouts; there is no separate `capell:layout-builder-setup` command. If the screens exist but standard widget types or layouts are missing, check that both install and package setup completed rather than creating replacement records by hand.

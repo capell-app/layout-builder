@@ -27,7 +27,7 @@
             ]
         },
         "teams": {
-            "text": "Teams can compose pages and reuse approved sections without asking a developer to build a new template for each page.",
+            "text": "Choose Layout Builder when page composition changes; use Content Sections for reusable published sections or Structured Content Library for typed records such as testimonials and FAQs. Both can feed a Layout Builder composition. If a site only needs a few fixed templates, its existing Laravel templates may be enough.",
             "evidence": [
                 "docs/overview.admin.md",
                 "src/Actions/CreateLinkedLayoutPresetAction.php",

@@ -14,6 +14,7 @@ use Filament\Facades\Filament;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Routing\Router;
+use Livewire\Livewire;
 use Override;
 use RuntimeException;
 
@@ -21,6 +22,11 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
 {
     public function test_it_renders_safe_public_layout_builder_screenshot_fixtures(): void
     {
+        // Livewire's auto-injected asset state is request-scoped, but the
+        // Testbench lifecycle does not flush it between ordinary HTTP tests.
+        // These routes intentionally render standalone public HTML.
+        Livewire::flushState();
+
         $fixtures = [
             '/screenshot-fixtures/layout-builder/main-sidebar' => [
                 'Main content with sidebar',
