@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Throwable;
@@ -119,9 +120,9 @@ final class RenderAdminLayoutPreviewAction
             hasPageAssets: $this->hasPageAssets($assets[$containerKey][$widgetIndex] ?? []),
         );
 
-        $view = $this->previewView($previewData->view);
-
         try {
+            $view = $this->previewView($previewData->view);
+
             return new HtmlString(resolve(Factory::class)->make($view, [
                 'previewData' => $previewData,
                 'widget' => $widget,
@@ -138,9 +139,14 @@ final class RenderAdminLayoutPreviewAction
         }
     }
 
+    /** @return view-string */
     private function previewView(string $view): string
     {
         if (Str::of($view)->contains('::filament.layout-builder.previews.')) {
+            if (! resolve(Factory::class)->exists($view)) {
+                throw new InvalidArgumentException("View [{$view}] not found.");
+            }
+
             return $view;
         }
 

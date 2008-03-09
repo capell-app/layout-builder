@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Filament\Configurators\Widgets;
 use Capell\LayoutBuilder\Enums\ModernAccentColor;
 use Capell\LayoutBuilder\Enums\ModernHeroHeight;
 use Capell\LayoutBuilder\Enums\ModernTextAlignment;
+use Capell\LayoutBuilder\Support\Media\BackgroundCompositionGuidance;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -98,7 +99,7 @@ class ModernHeroBannerConfigurator
                         ->default('tertiary')
                         ->helperText(__('capell-layout-builder::widgets.modern.hero_banner.accent_helper')),
 
-                    TextInput::make('data.backgroundImage')
+                    BackgroundCompositionGuidance::apply(TextInput::make('data.backgroundImage'))
                         ->label(__('capell-layout-builder::widgets.modern.hero_banner.background_image_label'))
                         ->placeholder(__('capell-layout-builder::widgets.modern.hero_banner.background_image_placeholder'))
                         ->url()

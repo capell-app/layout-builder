@@ -54,8 +54,8 @@ it('keeps the layout builder workspace and shadow preview dark with the admin th
     $adminStyles = (string) file_get_contents(dirname(__DIR__, 3) . '/resources/css/layout-builder/admin/capell-layout-filament.css');
 
     expect($adminStyles)
-        ->toContain(".dark .layout-builder-visual-canvas {\n    background: rgb(15, 23, 42);\n}")
-        ->toContain(".dark .layout-builder-shadow-preview {\n    background: rgb(17, 24, 39);")
+        ->toMatch('/\.dark\s+\.layout-builder-visual-canvas\s*\{\s*background\s*:\s*rgb\(\s*15\s*,\s*23\s*,\s*42\s*\);\s*\}/')
+        ->toMatch('/\.dark\s+\.layout-builder-shadow-preview\s*\{\s*background\s*:\s*rgb\(\s*17\s*,\s*24\s*,\s*39\s*\);/')
         ->toContain('.layout-builder-preview-context')
         ->toContain('@container (max-width: 72rem)')
         ->toContain('min-width: 5.75rem')
@@ -182,9 +182,9 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->toContain('(trigger) =>')
         ->toContain('treeCollapsed: false')
         ->toContain('const compactPanels = this.$el.offsetWidth <= 1152;')
-        ->toContain("if (compactPanels && !this.compactPanels) {\n                    this.selectedNode = null;")
+        ->toMatch('/if\s*\(\s*compactPanels\s*&&\s*!this\.compactPanels\s*\)\s*\{\s*this\.selectedNode\s*=\s*null;/')
         ->toContain('markSelectedTreeNode()')
-        ->toContain("selectPreviewNode(node, trigger = null) {\n                this.inspectorReturnFocus")
+        ->toMatch('/selectPreviewNode\s*\(\s*node\s*,\s*trigger\s*=\s*null\s*,?\s*\)\s*\{\s*this\.inspectorReturnFocus/')
         ->toContain('outline: 1px solid rgba(8,119,101,.42)')
         ->toContain('clb-preview-node-affordance')
         ->toContain('addPreviewNodeAffordance(node)')
@@ -212,7 +212,7 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->not->toContain('this.$wire.setActiveBreakpoint(this.activeBreakpoint)')
         ->not->toContain('togglePreviewFocused')
         ->not->toContain('{!! $this->visualPreviewHtml !!}')
-        ->not->toContain("selectPreviewNode(node) {\n                this.selectNode(node, () => this.\$wire.selectPreviewNode(node))");
+        ->not->toMatch('/selectPreviewNode\s*\(\s*node\s*\)\s*\{\s*this\.selectNode\s*\(\s*node\s*,\s*\(\s*\)\s*=>\s*this\.\$wire\.selectPreviewNode\s*\(\s*node\s*\)\s*\)/');
 
     $previewActionTriggerPattern = static fn (string $actionName): string => sprintf(
         "/this\\.runPreviewAction\\(\\s*'%s',[\\s\\S]*?\\{\\},\\s*trigger,\\s*\\)/",

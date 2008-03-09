@@ -18,6 +18,7 @@ use Capell\LayoutBuilder\Enums\WidgetConfiguratorEnum;
 use Capell\LayoutBuilder\Enums\WidgetTypeGroupEnum;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\ComponentSection;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetPresentationTabs;
+use Capell\LayoutBuilder\Support\Media\BackgroundCompositionGuidance;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs;
@@ -86,6 +87,12 @@ class WidgetTypeConfigurator extends DefaultBlueprintConfigurator
                     ->helperText(__('capell-admin::form.image_source_policy_helper'))
                     ->options(ImageSourcePresets::options())
                     ->placeholder(__('capell-admin::generic.default')),
+                Select::make(BackgroundCompositionGuidance::ADMIN_KEY . '.' . BackgroundCompositionGuidance::DEFAULT_FIELD)
+                    ->label(__('capell-layout-builder::form.background_composition_guidance'))
+                    ->helperText(__('capell-layout-builder::form.background_composition_guidance_helper'))
+                    ->options(BackgroundCompositionGuidance::options(...))
+                    ->visible(BackgroundCompositionGuidance::isAvailable(...))
+                    ->placeholder(__('capell-admin::generic.none')),
                 RequiredFields::make(),
             ]);
     }

@@ -190,6 +190,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     protected ?AdminLayoutPreviewData $visualPreview = null;
 
+    /** @var view-string */
     protected string $view = 'capell-layout-builder::livewire.filament.layout-builder.index';
 
     public static function getResource(): string

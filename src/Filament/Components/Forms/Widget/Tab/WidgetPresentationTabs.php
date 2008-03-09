@@ -17,6 +17,7 @@ use Capell\LayoutBuilder\Filament\Components\Forms\PaddingSelect;
 use Capell\LayoutBuilder\Filament\Components\Forms\ResponsiveLayoutPatternSchema;
 use Capell\LayoutBuilder\Filament\Components\Forms\SizeSelect;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\LayoutBuilder\Support\Media\BackgroundCompositionGuidance;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\ToggleButtons;
@@ -199,7 +200,7 @@ class WidgetPresentationTabs
                                 ),
                             ]),
 
-                        MediaLibraryFileUpload::make('background_image')
+                        BackgroundCompositionGuidance::apply(MediaLibraryFileUpload::make('background_image'))
                             ->label(__('capell-layout-builder::form.background_image'))
                             ->reactive()
                             ->visible(fn (Get $get): bool => in_array($get('background_mode'), ['image', 'color_image'], true)),

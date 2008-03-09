@@ -63,7 +63,7 @@ abstract class ModernDemoWidgetCreator extends StandardDemoWidgetCreator
             }
 
             $widget->assets()->firstOrCreate([
-                'asset_id' => $section->id,
+                'asset_id' => $section->getKey(),
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
@@ -146,7 +146,7 @@ abstract class ModernDemoWidgetCreator extends StandardDemoWidgetCreator
             }
 
             $widget->assets()->firstOrCreate([
-                'asset_id' => $section->id,
+                'asset_id' => $section->getKey(),
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
@@ -238,7 +238,7 @@ abstract class ModernDemoWidgetCreator extends StandardDemoWidgetCreator
             }
 
             $widget->assets()->firstOrCreate([
-                'asset_id' => $section->id,
+                'asset_id' => $section->getKey(),
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
@@ -298,7 +298,7 @@ abstract class ModernDemoWidgetCreator extends StandardDemoWidgetCreator
             }
 
             $widget->assets()->firstOrCreate([
-                'asset_id' => $section->id,
+                'asset_id' => $section->getKey(),
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
@@ -356,7 +356,7 @@ abstract class ModernDemoWidgetCreator extends StandardDemoWidgetCreator
             }
 
             $widget->assets()->firstOrCreate([
-                'asset_id' => $section->id,
+                'asset_id' => $section->getKey(),
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
@@ -413,7 +413,7 @@ abstract class ModernDemoWidgetCreator extends StandardDemoWidgetCreator
             }
 
             $widget->assets()->firstOrCreate([
-                'asset_id' => $section->id,
+                'asset_id' => $section->getKey(),
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
@@ -469,7 +469,7 @@ abstract class ModernDemoWidgetCreator extends StandardDemoWidgetCreator
             }
 
             $widget->assets()->firstOrCreate([
-                'asset_id' => $section->id,
+                'asset_id' => $section->getKey(),
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
@@ -526,7 +526,7 @@ abstract class ModernDemoWidgetCreator extends StandardDemoWidgetCreator
             }
 
             $widget->assets()->firstOrCreate([
-                'asset_id' => $section->id,
+                'asset_id' => $section->getKey(),
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }

@@ -64,6 +64,7 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
     #[Locked]
     public Builder|Closure $tableQuery;
 
+    /** @var view-string */
     protected string $view = 'capell-layout-builder::livewire.filament.layout-builder.widgets-table-select';
 
     public function mount(): void

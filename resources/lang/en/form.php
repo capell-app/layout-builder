@@ -38,6 +38,8 @@ return [
     'background_cover' => 'Cover',
     'background_fixed' => 'Fixed',
     'background_image' => 'Background Image',
+    'background_composition_guidance' => 'Background composition guide',
+    'background_composition_guidance_helper' => 'Shown above background image fields for widgets using this blueprint. Use a keyed map with variant_state and variants in the blueprint admin metadata to pick a guide per variant.',
     'background_mode' => 'Background',
     'background_mode_color' => 'Colour',
     'background_mode_color_image' => 'Colour + image',

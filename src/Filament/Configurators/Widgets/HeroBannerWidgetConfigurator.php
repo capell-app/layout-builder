@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Filament\Configurators\Widgets;
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
 use Capell\LayoutBuilder\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetPresentationTabs;
+use Capell\LayoutBuilder\Support\Media\BackgroundCompositionGuidance;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -55,7 +56,7 @@ class HeroBannerWidgetConfigurator extends DefaultWidgetConfigurator
                             ->label(__('capell-layout-builder::form.secondary_button_url'))
                             ->placeholder('/docs')
                             ->url(),
-                        MediaLibraryFileUpload::make('background_image')
+                        BackgroundCompositionGuidance::apply(MediaLibraryFileUpload::make('background_image'))
                             ->label(__('capell-layout-builder::form.background_image'))
                             ->columnSpanFull(),
                     ]),

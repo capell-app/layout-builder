@@ -57,6 +57,7 @@ final class RegisterMainContentLayoutHook implements RenderHookExtensionInterfac
         return is_string($output) && trim($output) !== '' ? $output : '';
     }
 
+    /** @return view-string|null */
     private function customMainContentView(MainContentRenderHookData $context): ?string
     {
         $viewName = data_get($context->theme, 'meta.main_content_file');

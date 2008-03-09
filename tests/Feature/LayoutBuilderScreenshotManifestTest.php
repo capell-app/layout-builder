@@ -26,7 +26,6 @@ it('separates inspected release evidence from optional replacement targets', fun
         'layout-builder-undo-redo-actions',
         'layout-builder-bulk-change-criteria',
         'layout-builder-bulk-change-review',
-        'layout-example-main-sidebar-admin',
         'layout-example-main-sidebar-public',
         'layout-example-full-width-public',
     ];
@@ -39,6 +38,7 @@ it('separates inspected release evidence from optional replacement targets', fun
     ];
 
     expect($entries->pluck('id')->all())
+        ->not->toContain('layout-example-main-sidebar-admin')
         ->toContain(...$requiredIds)
         ->toContain(...$optionalReplacementIds)
         ->toContain(...$deferredMarketplaceIds);

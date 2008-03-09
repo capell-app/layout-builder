@@ -14,6 +14,7 @@ final readonly class WidgetExtensionViewResolver
         private Factory $views,
     ) {}
 
+    /** @return view-string */
     public function resolve(WidgetExtensionDefinitionData $definition): string
     {
         if (! $this->views->exists($definition->fallbackView)) {

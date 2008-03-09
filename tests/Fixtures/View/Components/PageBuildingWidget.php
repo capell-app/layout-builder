@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Tests\Fixtures\View\Components;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
+use InvalidArgumentException;
 
 final class PageBuildingWidget extends Component
 {
@@ -20,6 +21,10 @@ final class PageBuildingWidget extends Component
 
         if (! is_string($viewFile) || $viewFile === '') {
             return '';
+        }
+
+        if (! app('view')->exists($viewFile)) {
+            throw new InvalidArgumentException("View [{$viewFile}] not found.");
         }
 
         $title = $this->widget->assets->first()?->asset?->translation?->title;

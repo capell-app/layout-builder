@@ -29,6 +29,7 @@ use Capell\LayoutBuilder\Console\Commands\InstallCommand;
 use Capell\LayoutBuilder\Console\Commands\LayoutBulkChangeCommand;
 use Capell\LayoutBuilder\Console\Commands\PruneLayoutBulkChangeRunsCommand;
 use Capell\LayoutBuilder\Console\Commands\PrunePublicWidgetSnapshotsCommand;
+use Capell\LayoutBuilder\Console\Commands\SeedLayoutBuilderScreenshotFixtureCommand;
 use Capell\LayoutBuilder\Console\Commands\WidgetVisualRegressionCommand;
 use Capell\LayoutBuilder\Contracts\Assets\PublicLayoutWidgetAssetsRenderer;
 use Capell\LayoutBuilder\Contracts\LayoutContainerThemePresentationProjector;
@@ -174,6 +175,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
                 LayoutBulkChangeCommand::class,
                 PruneLayoutBulkChangeRunsCommand::class,
                 PrunePublicWidgetSnapshotsCommand::class,
+                SeedLayoutBuilderScreenshotFixtureCommand::class,
             ]);
         }
     }

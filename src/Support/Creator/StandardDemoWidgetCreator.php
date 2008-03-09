@@ -324,7 +324,7 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
         foreach ($questions['en'] as $i => $question) {
             $content = $this->contentModel::query()->firstOrCreate([
                 'name' => $question,
-                'parent_id' => $parentContent->id,
+                'parent_id' => $parentContent->getKey(),
                 'blueprint_id' => $contentType->id,
             ]);
 
@@ -763,7 +763,7 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
             }
 
             $widget->assets()->firstOrCreate([
-                'asset_id' => $content->id,
+                'asset_id' => $content->getKey(),
                 'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }

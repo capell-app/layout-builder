@@ -11,6 +11,7 @@ use Capell\LayoutBuilder\Enums\BackgroundRepeat;
 use Capell\LayoutBuilder\Enums\BackgroundSize;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
+use Capell\LayoutBuilder\Support\Media\BackgroundCompositionGuidance;
 use Closure;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Field;
@@ -36,7 +37,7 @@ class BackgroundSchema
                     ),
                 ]),
 
-            MediaLibraryFileUpload::make($backgroundName)
+            BackgroundCompositionGuidance::apply(MediaLibraryFileUpload::make($backgroundName))
                 ->label(__('capell-layout-builder::form.background_image'))
                 ->reactive()
                 ->columnSpan(['md' => 2])

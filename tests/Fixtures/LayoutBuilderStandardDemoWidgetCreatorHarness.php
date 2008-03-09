@@ -27,7 +27,7 @@ final class LayoutBuilderStandardDemoWidgetCreatorHarness extends StandardDemoWi
     }
 
     /**
-     * @param  Collection<array-key, mixed>  $siteTree
+     * @param  Collection<array-key, Page>  $siteTree
      * @return array<array-key, mixed>
      */
     public function exposeNavigationPageItems(Collection $siteTree, Language $language): array

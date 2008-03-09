@@ -4,6 +4,7 @@
     "generatedFor": "deployment-screenshot-runner",
     "requiresInstalledPackage": true,
     "outputDirectory": "packages/layout-builder/docs/screenshots",
+    "fixtureCommands": ["capell:layout-builder-screenshot-fixture"],
     "entries": [
         {
             "id": "layout-builder-editor-main-sidebar",
@@ -33,18 +34,21 @@
             "surface": "admin",
             "scenario": "admin-form",
             "url": "/screenshot-fixtures/layout-builder-admin-editor",
-            "waitFor": ".layout-builder-visual-toolbar",
+            "waitFor": "[data-layout-builder-surface=\"content-editor\"]",
             "beforeWait": [
                 {
                     "type": "scrollIntoView",
                     "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "[x-on\\:click=\"returnToContentEditor()\"]"
                 }
             ],
             "targetType": "admin-surface",
             "target": "PageResource/EditPage",
             "required": false,
-            "sameCaptureAs": "layout-builder-editor-main-sidebar",
-            "notes": "Optional replacement target. The current capture duplicates the host Page form and does not show the content-first surface, so it is not release or Marketplace evidence.",
+            "notes": "Optional replacement target. Start from the populated layout-first fixture, activate the real return-to-content control, and wait for the content inventory. Do not capture the visual toolbar as proof of content-first editing.",
             "useCase": "An editor updates page content in existing widget slots before changing the underlying layout structure.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-editor-content-first.png"
         },
@@ -553,28 +557,6 @@
             "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-bulk-change-review.png"
         },
         {
-            "id": "layout-example-main-sidebar-admin",
-            "title": "Layout Builder main and sidebar admin example.",
-            "package": "layout-builder",
-            "surface": "admin",
-            "scenario": "admin-form",
-            "url": "/screenshot-fixtures/layout-builder-admin-editor",
-            "waitFor": ".layout-builder-visual-toolbar",
-            "beforeWait": [
-                {
-                    "type": "scrollIntoView",
-                    "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
-                }
-            ],
-            "targetType": "admin-surface",
-            "target": "PageResource/EditPage",
-            "required": false,
-            "sameCaptureAs": "layout-builder-editor-main-sidebar",
-            "notes": "Optional replacement target. The current capture stops at the host Page form before the populated layout is visible, so it is not release or Marketplace evidence.",
-            "useCase": "An editor verifies a complete main and sidebar page layout before checking the visitor render.",
-            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-example-main-sidebar-admin.png"
-        },
-        {
             "id": "layout-example-main-sidebar-public",
             "title": "Layout Builder main and sidebar public example.",
             "package": "layout-builder",
@@ -627,7 +609,7 @@
             "package": "layout-builder",
             "surface": "admin",
             "scenario": "admin-form",
-            "url": "/admin/layout-builder/widgets/create",
+            "url": "/admin/layout-builder/widgets/{first-record}/edit",
             "waitFor": "form",
             "targetType": "admin-surface",
             "target": "WidgetResource",
