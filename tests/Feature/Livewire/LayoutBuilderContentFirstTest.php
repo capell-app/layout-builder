@@ -121,12 +121,13 @@ it('uses the loaded layout page count for shared layout context', function (): v
         ->create(['layout_id' => $layout->getKey()]);
 
     $currentPageCountQueries = [];
+    $pageIdColumn = DB::connection()->getQueryGrammar()->wrap('pages.id');
 
-    DB::listen(function (QueryExecuted $query) use (&$currentPageCountQueries): void {
+    DB::listen(function (QueryExecuted $query) use (&$currentPageCountQueries, $pageIdColumn): void {
         if (
             str_contains($query->sql, 'count(*)')
             && str_contains($query->sql, 'pages')
-            && (str_contains($query->sql, '"pages"."id" !=') || str_contains($query->sql, '`pages`.`id` !='))
+            && str_contains($query->sql, $pageIdColumn . ' !=')
         ) {
             $currentPageCountQueries[] = $query->sql;
         }
@@ -157,6 +158,38 @@ it('renders a full width empty page preview when a layout has no containers', fu
 
     expect(file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/visual-editor.blade.php'))
         ->toContain('.clb-preview-empty-page { grid-column: 1 / -1; }');
+});
+
+it('inserts a positioned container after hydrating an empty layout', function (): void {
+    $layout = Layout::factory()->create(['containers' => []]);
+
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->call('insertContainerAtPosition', 0)
+        ->assertHasNoErrors()
+        ->call('saveLayout')
+        ->assertHasNoErrors();
+
+    expect(array_keys($component->get('containers')))->toBe(['container-1'])
+        ->and($component->get('containers')['container-1']['widgets'])->toBe([])
+        ->and($layout->refresh()->containers['container-1']['widgets'])->toBe([])
+        ->and(array_keys($layout->refresh()->containers))->toBe(['container-1']);
+});
+
+it('duplicates an empty container after hydrating the layout', function (): void {
+    $layout = Layout::factory()->create(['containers' => [
+        'main' => ['widgets' => []],
+    ]]);
+
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->call('duplicateContainer', 'main')
+        ->assertHasNoErrors()
+        ->call('saveLayout')
+        ->assertHasNoErrors();
+
+    expect(array_keys($component->get('containers')))->toBe(['main', 'container-2'])
+        ->and($component->get('containers')['container-2']['widgets'])->toBe([])
+        ->and($layout->refresh()->containers['container-2']['widgets'])->toBe([])
+        ->and(array_keys($layout->refresh()->containers))->toBe(['main', 'container-2']);
 });
 
 it('preloads the visual editor Alpine factory before dynamic mode changes', function (): void {
@@ -400,6 +433,11 @@ it('contributes frontend authoring regions for page layout widgets and widget as
 });
 
 it('renders the signed frontend authoring layout builder editor surface', function (): void {
+    $this->artisan('migrate', [
+        '--path' => dirname(__DIR__, 4) . '/frontend-authoring/database/migrations',
+        '--realpath' => true,
+    ])->assertExitCode(0);
+
     view()->addNamespace('capell', __DIR__ . '/../../../../frontend-authoring/resources/views');
 
     app()->instance(AdminAccessCheckerInterface::class, new readonly class implements AdminAccessCheckerInterface
@@ -459,16 +497,20 @@ it('renders the signed frontend authoring layout builder editor surface', functi
     $regions = (new LayoutBuilderEditableRegionContributor)($pageUrl);
     $signedUrl = resolve(EditableRegionSigner::class)->signedEditUrl($regions[1]);
 
-    $this->get($signedUrl)
+    $response = $this->get($signedUrl);
+
+    $response
         ->assertOk()
-        ->assertElementExists('html.fi[lang="en"]')
         ->assertSee('capell-layout-builder-authoring')
         ->assertSee('css/capell-layout-builder/capell-layout-builder-filament.css')
-        ->assertElementExists('[x-cloak]')
         ->assertSee('capell-authoring:editor-loaded')
         ->assertSee('capell-layout-builder-authoring-saved')
-        ->assertElementExists('[wire\:snapshot]')
         ->assertSee('Hero banner');
+
+    $response
+        ->assertElementExists('html.fi[lang="en"]')
+        ->assertElementExists('[x-cloak]')
+        ->assertElementExists('[wire\:snapshot]');
 });
 
 it('resolves the saved admin widget preview view without checking the filesystem', function (): void {

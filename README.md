@@ -69,7 +69,6 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - Layout Builder undo and redo actions fixture (frontend, supplementary evidence).
 - Layout Builder bulk change criteria fixture (frontend, supplementary evidence).
 - Layout Builder bulk change review fixture (frontend, supplementary evidence).
-- Layout Builder main and sidebar admin example (admin, supplementary evidence).
 - Layout Builder main and sidebar public example (frontend, supplementary evidence).
 - Layout Builder full-width public example (frontend, supplementary evidence).
 - Widgets admin index (admin, required evidence).
@@ -343,6 +342,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - `RunLinkedLayoutPresetSyncAction`
 - `SaveFormComponentRelationshipAction`
 - `SaveLayoutPresetAction`
+- `SeedLayoutBuilderScreenshotFixtureAction`
 - `SeedWidgetIntegrityScreenshotFixturesAction`
 - `SetupLayoutBuilderPackageAction`
 - `StripLayoutPresetLinkAction`
@@ -428,7 +428,10 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 ### Command signatures
 
 - `capell:layout-builder-install`
+- `capell:layout-builder-widget-visual-regression`
 - `capell:layout-builder:prune-bulk-change-runs`
+- `capell:layouts:bulk-change`
+- `capell:widget-snapshots:prune`
 
 ### Manifest action API
 
@@ -448,6 +451,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - `PruneLayoutBulkChangeRunsCommand`
 - `PrunePublicWidgetSnapshotsCommand`
 - `ResyncLayoutPresetCommand`
+- `SeedLayoutBuilderScreenshotFixtureCommand`
 - `WidgetVisualRegressionCommand`
 
 ### Manifest contributions
@@ -455,6 +459,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - `admin-resource: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`
 - `asset: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`
 - `configurator: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`
+- `console-command: Capell\LayoutBuilder\Manifest\LayoutBuilderConsoleCommandsContribution`
 - `migration: Capell\LayoutBuilder\Manifest\LayoutBuilderMigrationsContribution`
 - `model: Capell\LayoutBuilder\Manifest\LayoutBuilderModelsContribution`
 - `page-type: Capell\LayoutBuilder\Manifest\LayoutBuilderPageTypesContribution`
@@ -533,7 +538,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - Settings: no package settings declared.
 - Queues or schedules: scheduled commands `capell:layout-builder:prune-bulk-change-runs (daily; manifest declared)`, `capell:widget-snapshots:prune (daily; manifest declared)`; queue jobs `ApplyLayoutBulkChangeRunJob`, `SyncLinkedLayoutPresetJob`.
 - Cache tags: `layout-builder`.
-- Commands: `capell:layout-builder-install`, `capell:layout-builder:prune-bulk-change-runs`.
+- Commands: `capell:layout-builder-install`, `capell:layout-builder-widget-visual-regression`, `capell:layout-builder:prune-bulk-change-runs`, `capell:layouts:bulk-change`, `capell:widget-snapshots:prune`.
 
 ## Common Pitfalls
 

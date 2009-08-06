@@ -246,8 +246,9 @@ it('reuses public payload resolver contributor caches across page widgets', func
     $page->setRelation('site', $site);
 
     $themeQueries = 0;
-    DB::listen(function (QueryExecuted $query) use (&$themeQueries): void {
-        if (str_contains($query->sql, 'from "themes"') || str_contains($query->sql, 'from `themes`')) {
+    $themesTable = DB::connection()->getQueryGrammar()->wrapTable('themes');
+    DB::listen(function (QueryExecuted $query) use (&$themeQueries, $themesTable): void {
+        if (str_contains($query->sql, 'from ' . $themesTable)) {
             $themeQueries++;
         }
     });

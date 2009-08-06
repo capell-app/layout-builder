@@ -49,9 +49,10 @@ trait ManagesContainers
             [$key => $container] +
             array_slice($this->containers, $position, null, true);
 
-        $this->containerWidgets = array_slice($this->containerWidgets, 0, $position, true) +
+        $containerWidgets = $this->containerWidgets ?? [];
+        $this->containerWidgets = array_slice($containerWidgets, 0, $position, true) +
             [$key => []] +
-            array_slice($this->containerWidgets, $position, null, true);
+            array_slice($containerWidgets, $position, null, true);
 
         $this->assets = array_slice($this->assets, 0, $position, true) +
             [$key => []] +
@@ -145,9 +146,10 @@ trait ManagesContainers
             );
         }
 
-        $this->containerWidgets = array_slice($this->containerWidgets, 0, $insertPosition, true) +
-            [$newContainerKey => $this->containerWidgets[$containerKey] ?? []] +
-            array_slice($this->containerWidgets, $insertPosition, null, true);
+        $containerWidgets = $this->containerWidgets ?? [];
+        $this->containerWidgets = array_slice($containerWidgets, 0, $insertPosition, true) +
+            [$newContainerKey => $containerWidgets[$containerKey] ?? []] +
+            array_slice($containerWidgets, $insertPosition, null, true);
 
         $this->assets = array_slice($this->assets, 0, $insertPosition, true) +
             [$newContainerKey => $this->assets[$containerKey] ?? []] +

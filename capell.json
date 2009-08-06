@@ -160,6 +160,27 @@
             "class": "Capell\\LayoutBuilder\\Manifest\\LayoutBuilderBulkChangePruneScheduleContribution",
             "command": "capell:layout-builder:prune-bulk-change-runs",
             "frequency": "daily"
+        },
+        {
+            "type": "console-command",
+            "class": "Capell\\LayoutBuilder\\Manifest\\LayoutBuilderConsoleCommandsContribution",
+            "commands": [
+                "capell:layout-builder-install",
+                "capell:layout-builder-widget-visual-regression",
+                "capell:layout-builder:prune-bulk-change-runs",
+                "capell:layouts:bulk-change",
+                "capell:widget-snapshots:prune"
+            ],
+            "commandClasses": [
+                "Capell\\LayoutBuilder\\Console\\Commands\\InstallCommand",
+                "Capell\\LayoutBuilder\\Console\\Commands\\WidgetVisualRegressionCommand",
+                "Capell\\LayoutBuilder\\Console\\Commands\\PruneLayoutBulkChangeRunsCommand",
+                "Capell\\LayoutBuilder\\Console\\Commands\\LayoutBulkChangeCommand",
+                "Capell\\LayoutBuilder\\Console\\Commands\\PrunePublicWidgetSnapshotsCommand"
+            ],
+            "excludedCommands": {
+                "capell:layout-builder-screenshot-fixture": "Seeds disposable screenshot data only; not an operational command."
+            }
         }
     ],
     "database": {
@@ -184,7 +205,10 @@
         "setup": null,
         "demo": null,
         "doctor": null,
-        "prune": "capell:layout-builder:prune-bulk-change-runs"
+        "prune": "capell:layout-builder:prune-bulk-change-runs",
+        "visualRegression": "capell:layout-builder-widget-visual-regression",
+        "bulkChange": "capell:layouts:bulk-change",
+        "pruneSnapshots": "capell:widget-snapshots:prune"
     },
     "actions": {
         "install": "Capell\\LayoutBuilder\\Actions\\InstallLayoutBuilderPackageAction",

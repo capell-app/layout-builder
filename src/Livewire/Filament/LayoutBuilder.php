@@ -301,7 +301,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     public function getPagesUsingLayoutUrl(): string
     {
         return AdminSurfaceLookup::resource(ResourceEnum::Page)::getUrl(parameters: [
-            'tableFilters' => [
+            'filters' => [
                 'layout_id' => [
                     'value' => $this->layout->getKey(),
                 ],

@@ -489,11 +489,13 @@ function layoutBuilderTableComponents(mixed $components): array
  */
 function layoutBuilderWidgetUsageQueries(array $queries): array
 {
+    $widgetsTable = DB::connection()->getQueryGrammar()->wrapTable('widgets');
+
     return array_values(array_map(
         static fn (array $query): string => $query['query'],
         array_filter(
             $queries,
-            static fn (array $query): bool => str_contains($query['query'], 'from "widgets"')
+            static fn (array $query): bool => str_contains($query['query'], 'from ' . $widgetsTable)
                 && str_contains($query['query'], 'layouts_count'),
         ),
     ));
