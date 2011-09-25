@@ -112,6 +112,8 @@ class BackgroundSchema
             return null;
         }
 
-        return __('capell-layout-builder::generic.default_value', ['value' => $backgroundColor]);
+        return __('capell-layout-builder::generic.default_value', [
+            'value' => is_scalar($backgroundColor) ? (string) $backgroundColor : '',
+        ]);
     }
 }

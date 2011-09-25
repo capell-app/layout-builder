@@ -126,8 +126,12 @@ final class ResolveAdminWidgetPreviewDataAction
 
     private function image(Widget $widget, ?Pageable $page, bool $usesPageContent): ?Media
     {
-        if ($usesPageContent && $page instanceof Pageable && $page->image instanceof Media) {
-            return $page->image;
+        if ($usesPageContent && $page instanceof Pageable) {
+            $pageImage = $page->getAttribute('image');
+
+            if ($pageImage instanceof Media) {
+                return $pageImage;
+            }
         }
 
         $image = $this->loadedRelation($widget, 'image');

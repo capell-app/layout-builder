@@ -90,7 +90,7 @@ final class ResolvePublicWidgetRenderContextAction
 
         return new PublicWidgetRenderContextData(
             occurrence: $occurrence,
-            widgetDomId: 'layout-widget-' . hash('xxh128', $layoutKey . ':' . $containerKey . ':' . (string) $widgetIndex),
+            widgetDomId: 'layout-widget-' . hash('xxh128', $layoutKey . ':' . $containerKey . ':' . $widgetIndex),
             presentation: $presentation,
             isLazyFragment: $isLazyFragment,
             widgetReference: $widgetReference,
@@ -133,7 +133,7 @@ final class ResolvePublicWidgetRenderContextAction
         foreach ($triggers as $triggerKey => $trigger) {
             if (is_array($trigger)) {
                 /** @var array<string, mixed> $trigger */
-                $prepared[$triggerKey] = $this->withCurrentWidgetFragment($trigger, $widgetReference, $containerKey, $layoutKey, $occurrence, $widget, $widgetData, $widgetIndex);
+                $prepared[$triggerKey] = $this->withCurrentWidgetFragment($trigger, $widgetReference, $containerKey, $occurrence, $widget);
             } else {
                 $prepared[$triggerKey] = $trigger;
             }
@@ -144,18 +144,14 @@ final class ResolvePublicWidgetRenderContextAction
 
     /**
      * @param  array<string, mixed>  $trigger
-     * @param  array<string, mixed>  $widgetData
      * @return array<string, mixed>
      */
     private function withCurrentWidgetFragment(
         array $trigger,
         ?string &$widgetReference,
         string $containerKey,
-        string $layoutKey,
         int $occurrence,
         Widget $widget,
-        array $widgetData,
-        int|string $widgetIndex,
     ): array {
         $target = is_array($trigger['target'] ?? null) ? $trigger['target'] : null;
         $targetType = $trigger['target_type'] ?? $target['target_type'] ?? null;
@@ -240,7 +236,9 @@ final class ResolvePublicWidgetRenderContextAction
 
         return array_values($resourceGroups
             ->map(static fn (string $resourceGroup): string => LayoutBuilderLayoutWidgetResourceUsageContributor::publicId(
-                (string) ($widgetData['widget_key'] ?? $widget->key),
+                is_scalar($widgetData['widget_key'] ?? null)
+                    ? (string) $widgetData['widget_key']
+                    : $widget->key,
                 $resourceGroup,
                 $containerKey,
                 $occurrence,

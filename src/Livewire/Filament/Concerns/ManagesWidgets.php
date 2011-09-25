@@ -399,7 +399,17 @@ trait ManagesWidgets
 
         $occurrences = [];
 
-        foreach ($this->containers[$containerKey]['widgets'] as $widgetIndex => $containerWidget) {
+        $containerWidgets = $this->containers[$containerKey]['widgets'];
+
+        if (! is_iterable($containerWidgets)) {
+            return;
+        }
+
+        foreach ($containerWidgets as $widgetIndex => $containerWidget) {
+            if (! is_array($containerWidget) || ! is_string($containerWidget['widget_key'] ?? null)) {
+                continue;
+            }
+
             $widgetKey = $containerWidget['widget_key'];
             $occurrences[$widgetKey] = ($occurrences[$widgetKey] ?? 0) + 1;
             $occurrence = $occurrences[$widgetKey];
@@ -512,6 +522,10 @@ trait ManagesWidgets
                 $assets = $widget->assets;
             } else {
                 $assets = $this->loadWidgetAssets($widget, $containerKey, $widgetOccurrence);
+            }
+
+            if (! $assets instanceof Collection) {
+                $assets = new Collection(is_iterable($assets) ? [...$assets] : []);
             }
 
             $widget->setRelation(
@@ -665,7 +679,9 @@ trait ManagesWidgets
 
         if ($withAssets) {
             foreach ($allWidgetAssets as $widgetAssets) {
-                $hasPageAssets = $widgetAssets->assets->whereNotNull(['pageable_type', 'pageable_id'])->isNotEmpty();
+                $hasPageAssets = $widgetAssets->assets
+                    ->filter(fn (WidgetAsset $asset): bool => $asset->pageable_type !== null && $asset->pageable_id !== null)
+                    ->isNotEmpty();
 
                 if ($hasPageAssets) {
                     $widgetAssets->setRelation('assets', $widgetAssets->assets->filter(

@@ -1,0 +1,23 @@
+%% Canonical source for content-composition.svg.
+%% Source trails:
+%% - Core page inputs: sibling Core repository, capell-4/packages/core/src/Models/
+%%   {Page,Translation,Blueprint,Layout,Theme}.php, and this package README.
+%% - Layout Builder composition: src/Actions/BuildPublicLayoutGraphAction.php,
+%%   src/Support/LayoutWidgetData.php, and src/Support/Loader/LayoutLoader.php.
+%% - Widget and asset ownership: src/Models/{Widget,WidgetAsset}.php and
+%%   database/migrations/2026_05_10_190841_0{2,3}_create_{widgets,widget_assets}_table.php.
+%% - Public delivery boundary: sibling Core repository, capell-4/packages/frontend/
+%%   src/Actions/{BuildPublicPageRenderDataAction,AssertPublicRenderContractAction}.php.
+%%{init: {"flowchart": {"wrappingWidth": 560, "rankSpacing": 30}}}%%
+flowchart TB
+    content["1 · Content — Core models<br/>Article: A day on the coast<br/>Page + Blueprint schema + Translation<br/>Content edit: revise the article title or body"]
+    composition["2 · Composition — optional Layout Builder<br/>Selected Layout: main + sidebar areas<br/>main: article content widget<br/>sidebar: related-reading widget<br/>Layout edit: move or reorder widget placements"]
+    publicGraph["BuildPublicLayoutGraphAction<br/>Containers + ordered widgets + resolved assets<br/>become PublicLayoutGraphData"]
+    presentation["3 · Presentation — theme templates and styles<br/>Render the same article in main, related reading in sidebar<br/>Theme change: typography, spacing and area presentation<br/>Available areas and widget support depend on the theme"]
+    html["Core Frontend public render contract<br/>Ordinary article HTML"]
+    content -->|"article data and selected Layout"| composition
+    composition --> publicGraph
+    publicGraph --> presentation
+    presentation --> html
+    note["Illustrative article and widget choices, not seeded defaults.<br/>Page, Blueprint, Translation, Layout and Theme are Core models.<br/>Widget and WidgetAsset belong to optional Layout Builder."]
+    html ~~~ note

@@ -248,7 +248,13 @@ trait ManagesAssets
     {
         $this->assertCanUpdateLayout();
 
-        foreach ($this->selectedRecords[$containerKey][$widgetIndex] as $asset) {
+        $selectedRecords = $this->selectedRecords[$containerKey][$widgetIndex] ?? [];
+
+        if (! is_iterable($selectedRecords)) {
+            return;
+        }
+
+        foreach ($selectedRecords as $asset) {
             [$type, $uuid] = explode('.', (string) $asset);
 
             if (is_numeric($uuid)) {
@@ -309,7 +315,18 @@ trait ManagesAssets
         $widget = $this->getContainerWidget($containerKey, $widgetIndex);
 
         $assets = $widget->assets;
-        $assets[$index] = $assets[$index]->fresh();
+        $asset = $assets->get($index);
+
+        if (! $asset instanceof WidgetAsset) {
+            return;
+        }
+
+        $freshAsset = $asset->fresh();
+
+        if ($freshAsset instanceof WidgetAsset) {
+            $assets->put($index, $freshAsset);
+        }
+
         $widget->setRelation('assets', $assets);
     }
 
@@ -601,7 +618,9 @@ trait ManagesAssets
         }
 
         $widget->assets->load([
-            'asset' => fn (MorphTo $query): MorphTo => $query->morphWith($this->getAssetRelations()),
+            'asset' => fn (Relation $query): Relation => $query instanceof MorphTo
+                    ? $query->morphWith($this->getAssetRelations())
+                    : $query,
         ]);
 
         $this->containerWidgets[$containerKey][$widgetIndex] = $widget;
@@ -1010,20 +1029,21 @@ trait ManagesAssets
         $pageKey = $hasPageAssets ? $this->pageContext()->getKey() : null;
         $pageId = is_numeric($pageKey) ? max(0, (int) $pageKey) : null;
 
-        $widgetAsset = $widget->assets
-            ->where([
-                'asset_id' => $assetId,
-                'asset_type' => $type,
-                'occurrence' => $occurrence,
-            ])
-            ->when(
-                $pageId,
-                fn (SupportCollection $collection): SupportCollection => $collection
-                    ->where('container', $containerKey)
-                    ->where('pageable_id', $pageId)
-                    ->where('pageable_type', $this->pageContext()->getMorphClass()),
-            )
-            ->first();
+        $widgetAssets = $widget->assets->filter(
+            fn (WidgetAsset $candidate): bool => $candidate->asset_id === $assetId
+                && $candidate->asset_type === $type
+                && $candidate->occurrence === $occurrence,
+        );
+
+        if ($pageId !== null) {
+            $widgetAssets = $widgetAssets->filter(
+                fn (WidgetAsset $candidate): bool => $candidate->container === $containerKey
+                    && $candidate->pageable_id === $pageId
+                    && $candidate->pageable_type === $this->pageContext()->getMorphClass(),
+            );
+        }
+
+        $widgetAsset = $widgetAssets->first();
 
         if (! $widgetAsset instanceof WidgetAsset) {
             /** @var WidgetAsset $widgetAsset */

@@ -58,7 +58,7 @@ class AssetsRepeater extends Repeater
 
                         return __(
                             'capell-layout-builder::button.edit_asset_type',
-                            ['type' => $itemData['asset_type']],
+                            ['type' => is_scalar($itemData['asset_type'] ?? null) ? (string) $itemData['asset_type'] : ''],
                         );
                     })
                     ->icon(Heroicon::PencilSquare)

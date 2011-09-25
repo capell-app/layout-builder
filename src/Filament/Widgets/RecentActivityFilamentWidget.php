@@ -9,6 +9,7 @@ use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Data\Dashboard\ActivityItemData;
 use Capell\LayoutBuilder\Data\Dashboard\RecentActivityData;
+use Carbon\CarbonInterface;
 use Filament\Widgets\Widget;
 use Override;
 
@@ -49,7 +50,7 @@ final class RecentActivityFilamentWidget extends Widget implements CapellFilamen
             title: $page->title ?? $page->name,
             type: 'page',
             status: $this->resolveStatus($page),
-            updatedAt: $page->updated_at,
+            updatedAt: $page->updated_at instanceof CarbonInterface ? $page->updated_at : now(),
         ));
 
         return new RecentActivityData(

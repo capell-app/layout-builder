@@ -54,7 +54,11 @@ final class BuildLayoutBuilderTreeAction
                                 widgetKey: is_array($containerWidget) && is_string(data_get($containerWidget, 'widget_key'))
                                     ? data_get($containerWidget, 'widget_key')
                                     : null,
-                                label: (string) __('capell-admin::message.unknown_widget', ['widget' => data_get($containerWidget, 'widget_key', __('capell-admin::generic.unknown'))]),
+                                label: __('capell-admin::message.unknown_widget', [
+                                    'widget' => is_scalar($widgetKey = data_get($containerWidget, 'widget_key'))
+                                        ? (string) $widgetKey
+                                        : __('capell-admin::generic.unknown'),
+                                ]),
                                 typeLabel: null,
                                 icon: 'heroicon-o-question-mark-circle',
                                 assetCount: count($assets[$containerKey][$widgetIndex] ?? []),
@@ -128,12 +132,6 @@ final class BuildLayoutBuilderTreeAction
      */
     private function hasPageAssets(array $assets): bool
     {
-        foreach ($assets as $asset) {
-            if (isset($asset['pageable_type'], $asset['pageable_id'])) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($assets, fn (array $asset): bool => isset($asset['pageable_type'], $asset['pageable_id']));
     }
 }

@@ -133,7 +133,9 @@ class WidgetSelect extends Select
 
                         $name = $component->getSelectedRecord()?->getAttribute('name');
 
-                        return new HtmlString(__('capell-layout-builder::heading.edit_widget_record', ['name' => $name]));
+                        return new HtmlString(__('capell-layout-builder::heading.edit_widget_record', [
+                            'name' => is_scalar($name) ? (string) $name : '',
+                        ]));
                     })
                     ->modalWidth(Width::ScreenLarge)
                     ->slideOver()

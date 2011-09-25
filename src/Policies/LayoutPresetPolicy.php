@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Policies;
 
 use Capell\Admin\Policies\Concerns\ResolvesShieldPermission;
+use Capell\Admin\Support\SiteScope;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Illuminate\Foundation\Auth\User;
@@ -82,7 +83,7 @@ final class LayoutPresetPolicy
 
     private function isSuperAdmin(User $user): bool
     {
-        return $user->hasRole(config('capell.roles.super_admin', 'super_admin'));
+        return SiteScope::isGlobalActor($user);
     }
 
     private function allows(callable $callback): bool

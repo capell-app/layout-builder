@@ -19,7 +19,7 @@ class LayoutTab
     {
         return Tab::make(__('capell-admin::tab.layout'))
             ->icon(Heroicon::OutlinedViewColumns)
-            ->visible(fn (Get $get, ?Pageable $record = null): bool => (bool) ($get('layout_id') ?? $record?->layout_id))
+            ->visible(fn (Get $get, ?Pageable $record = null): bool => (bool) ($get('layout_id') ?? $record?->getAttribute('layout_id')))
             ->schema([
                 Livewire::make(
                     LivewireComponentsEnum::LayoutBuilder->value,
@@ -28,9 +28,12 @@ class LayoutTab
                             return [];
                         }
 
-                        $layoutId = $record->layout_id;
+                        $recordLayoutId = $record->getAttribute('layout_id');
+                        $layoutId = is_numeric($recordLayoutId) ? (int) $recordLayoutId : null;
 
-                        if ($get('layout_id') !== null && (int) $layoutId !== (int) $get('layout_id')) {
+                        $requestedLayoutId = $get('layout_id');
+
+                        if (is_numeric($requestedLayoutId) && $layoutId !== (int) $requestedLayoutId) {
                             /** @var class-string<Layout> $model */
                             $model = Layout::class;
 
@@ -40,7 +43,7 @@ class LayoutTab
                                         ->whereNull('site_id')
                                         ->orWhere('site_id', $record->site_id),
                                 )
-                                ->whereKey($get('layout_id'))
+                                ->whereKey($requestedLayoutId)
                                 ->value('id') ?? $layoutId;
                         }
 

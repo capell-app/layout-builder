@@ -353,9 +353,11 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                     $indicators = [];
 
                     if (isset($state['value']) && $state['value'] !== '') {
+                        $widgetName = Widget::query()->where('key', $state['value'])->value('name');
+
                         $indicators['widget_key'] = __(
                             'capell-layout-builder::filter.widget',
-                            ['search' => Widget::query()->where('key', $state['value'])->value('name')],
+                            ['search' => is_scalar($widgetName) ? (string) $widgetName : null],
                         );
                     }
 

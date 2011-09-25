@@ -15,6 +15,7 @@ use Capell\LayoutBuilder\Enums\ResourceEnum;
 use Capell\LayoutBuilder\Filament\Actions\CreateWidgetAction;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Tables\LayoutsTable;
 use Capell\LayoutBuilder\Models\Widget;
+use Carbon\CarbonInterface;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -118,7 +119,7 @@ class EditWidget extends EditRecord
 
     protected function afterSave(): void
     {
-        if ($this->record->isDirty('updated_at')) {
+        if ($this->record->isDirty('updated_at') && $this->record->updated_at instanceof CarbonInterface) {
             $this->dispatch(
                 'model-updated',
                 date: $this->record->updated_at->toDateTimeString(),

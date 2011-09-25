@@ -1442,7 +1442,8 @@ final class LayoutBuilderActionFactory
         }
 
         $workspace = $this->currentWorkspace();
-        $liveSnapshot = (int) $asset->getAttribute('workspace_id') === 0
+        $workspaceId = $asset->getAttribute('workspace_id');
+        $liveSnapshot = is_numeric($workspaceId) && (int) $workspaceId === 0
             ? $asset->getRawOriginal()
             : null;
         $liveRelationSnapshot = $liveSnapshot !== null

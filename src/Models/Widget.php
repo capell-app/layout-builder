@@ -27,6 +27,7 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Database\Factories\WidgetFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -41,6 +42,11 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
+/**
+ * @property array<string, mixed>|null $admin
+ * @property int $layouts_count
+ * @property-read Collection<int, Media> $media
+ */
 class Widget extends Model implements Blueprintable, HasMedia, Publishable, Statusable, Translatable, Userstampable
 {
     use Cloneable;
@@ -165,7 +171,7 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
             ?? ($blueprint instanceof CoreBlueprint ? $blueprint->component : null)
             ?? $blueprintMeta['component'];
 
-        return $value === null ? null : (string) $value;
+        return $this->nullableComponentString($value);
     }
 
     public function getComponentItem(): ?string
@@ -179,7 +185,7 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
             ?? ($blueprint instanceof CoreBlueprint ? $blueprint->component_item : null)
             ?? $blueprintMeta['component_item'];
 
-        return $value === null ? null : (string) $value;
+        return $this->nullableComponentString($value);
     }
 
     public function getViewFile(): ?string
@@ -193,7 +199,7 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
             ?? ($blueprint instanceof CoreBlueprint ? $blueprint->view_file : null)
             ?? $blueprintMeta['view_file'];
 
-        return $value === null ? null : (string) $value;
+        return $this->nullableComponentString($value);
     }
 
     /** @return MorphOne<Media, $this> */
