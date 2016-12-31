@@ -4,34 +4,73 @@
 
 ## What This Plugin Adds
 
-Layout Builder is an **Available**, **Schema-owning** Capell package in the **Capell Foundation** product group. It ships as `capell-app/layout-builder` and extends these surfaces: admin, frontend, console.
+Layout Builder owns the layout, widget, asset, preset, and public-snapshot state used to compose public pages. Core still owns the Page, Blueprint, and Theme records; Layout Builder works across that boundary rather than replacing Core's page model. It extends the admin, frontend, and console surfaces through `capell-app/layout-builder`.
 
-Layout Builder adds a visual page composition workflow with layout areas, widgets, reusable widgets, presets, and reversible layout edits.
+Reach for it when page structure needs to change without creating a new template for every variation. The package turns reusable widgets and named layout areas into a public layout graph, keeping authoring state out of the rendered output. The capabilities below are supporting detail for that boundary, not a replacement for Core's Page, Blueprint, or Theme responsibilities.
 
-Editors can add, reorder, resize, and edit page widgets in admin. Visitors receive the saved layout graph as ordinary public output without authoring markers.
+### Main benefits
 
-Evidence: [`src/LayoutBuilderServiceProvider.php`](src/LayoutBuilderServiceProvider.php), [`src/Actions/PersistLayoutBuilderStateAction.php`](src/Actions/PersistLayoutBuilderStateAction.php), [`src/Actions/SaveLayoutPresetAction.php`](src/Actions/SaveLayoutPresetAction.php), [`tests/Feature/Livewire/LayoutBuilderContentFirstTest.php`](tests/Feature/Livewire/LayoutBuilderContentFirstTest.php), [`src/Actions/BuildPublicLayoutGraphAction.php`](src/Actions/BuildPublicLayoutGraphAction.php), [`tests/Feature/Render/LayoutBuilderPublicRenderingSafetyTest.php`](tests/Feature/Render/LayoutBuilderPublicRenderingSafetyTest.php), [`tests/Feature/Livewire/LayoutPresetLivewireTest.php`](tests/Feature/Livewire/LayoutPresetLivewireTest.php).
+- **Compose pages visually.** Add, reorder, resize, and edit widgets inside named layout areas from the page editor.
+- **Edit content without rearranging the page.** Content-first mode lets editors update widget text and assets before making structural changes.
+- **Reuse approved patterns.** Save a container as a layout preset, insert it into another layout, or link a preset when several pages should share a pattern.
+- **Tune responsive presentation.** Set container width, spacing, padding, borders, responsive overrides, and active-theme settings without changing the theme's source files.
+- **Keep public rendering separate from authoring.** The public layout graph is built before rendering and excludes editor markers, signed editor URLs, and other authoring state.
 
-Status details:
+### Additional capabilities
 
-- Status: Available
-- Tier: free
-- Bundle: foundation
-- Composer package: `capell-app/layout-builder`
-- Namespace: `Capell\LayoutBuilder`
-- Theme key: not applicable
+- Undo and redo layout mutations, with stale-save protection when another editor has changed the layout.
+- Preview, approve, apply, and revert guided bulk changes to stored layout containers.
+- Maintain linked preset usage and synchronisation records when a shared pattern changes.
+- Serve lazy widget interaction targets from encrypted public snapshots with retention and revocation controls.
+- Inspect widget usage, unused or disabled widgets, asset integrity, and layout health from the admin surface.
+
+### Install first
+
+- Install the package with `composer require capell-app/layout-builder`.
+- Run `php artisan capell:layout-builder-install`.
+
+The install command publishes the package migrations, runs host migrations, and publishes the admin assets. The host package setup lifecycle then creates the widget catalogue, content types, and starter layouts; there is no separate `capell:layout-builder-setup` command.
+
+### Before you install
+
+- Layout Builder requires `capell-app/core`, `capell-app/admin`, `capell-app/block-library`, and `capell-app/frontend`.
+- It adds package migrations for layouts, widgets, assets, presets, bulk changes, and public widget snapshots.
+- Run the host queue worker and scheduler if you use queued preset synchronisation, bulk changes, or the declared snapshot and bulk-change pruning schedules.
+
+## Fair objections, answered honestly
+
+**"How is this different from Content Sections or Structured Content Library?"** The package docs do not define a formal decision matrix, but they do define different units of responsibility. Use Layout Builder when the thing that changes is page composition: which reusable widgets appear in which named containers, and how those containers are presented. Use Content Sections when the thing that changes is a reusable, publishable section record that other content surfaces select and receive; its documentation describes editing one published section and updating every page that resolves it. Use Structured Content Library when the thing that changes is a typed reusable record such as a testimonial, team member, service, or FAQ; its documentation explicitly says it does not add a page, widget, route, or public template by itself. These packages can work together: Content Sections and structured records can be consumed from a Layout Builder composition.
+
+**"Is the extension surface worth another dependency?"** The technical inventory lists 14 extension contracts. A new widget starts with `WidgetExtensionRegistrar`, a `WidgetExtensionDefinitionData`, a Filament widget, and typed input/render Data classes; batch payload, dependency, state-upcast, asset, and schema contracts are additional seams for cases that need them. That is a real interface surface to own and test. If your application only needs the package's built-in widgets and layouts, you may not touch most of those contracts, but installing Layout Builder still means taking on its migrations, models, admin surfaces, and public rendering boundary.
+
+**"What if we only need a couple of static layouts?"** The package documentation does not describe a reduced static-layout mode or a smaller install path. If the requirement is fixed templates with no reusable widget composition, this README cannot claim that Layout Builder is the simpler option; compare the host application's existing Core, theme, and page-template path instead.
 
 ## Why It Matters
 
-**For developers:** Registries and typed Actions provide stable extension points for widget definitions, layout widgets, presets, and public render data.
+**For developers:** Layout Builder keeps page and blueprint records in Core while owning the layout, widget, asset, preset, and public-snapshot boundary. Extend it through typed contracts, `LayoutWidgetRegistry`, `WidgetExtensionRegistry`, and package Actions; the [worked extension examples](docs/extension-contracts.md) show the registration context and required method shapes.
 
-**For teams:** Teams can compose pages and reuse approved sections without asking a developer to build a new template for each page.
+**For teams:** Editors and agencies can assemble pages from approved widgets and reusable patterns, then publish the saved composition through the host site's normal public rendering path. A shared layout can affect several pages, so review the affected pages before saving structural changes.
 
-Evidence: [`src/Support/LayoutWidgets/LayoutWidgetRegistry.php`](src/Support/LayoutWidgets/LayoutWidgetRegistry.php), [`src/Support/WidgetExtensions/WidgetExtensionRegistry.php`](src/Support/WidgetExtensions/WidgetExtensionRegistry.php), [`src/Actions/BuildPublicLayoutGraphAction.php`](src/Actions/BuildPublicLayoutGraphAction.php), [`tests/Integration/PublicLayoutGraphActionTest.php`](tests/Integration/PublicLayoutGraphActionTest.php), [`docs/overview.admin.md`](docs/overview.admin.md), [`src/Actions/CreateLinkedLayoutPresetAction.php`](src/Actions/CreateLinkedLayoutPresetAction.php), [`src/Actions/InsertLinkedLayoutPresetAction.php`](src/Actions/InsertLinkedLayoutPresetAction.php).
+Read [`docs/overview.admin.md`](docs/overview.admin.md) for the package boundary and [`docs/admin-guide.md`](docs/admin-guide.md) for editor tasks. The [widget extension guide](docs/widget-extensions.md) covers canonical widget registration, theme overrides, typed render data, and public-output boundaries.
 
 ## Screens And Workflow
 
-Screenshot contract: `docs/screenshots.json`.
+The committed screenshot contract is [`docs/screenshots.json`](docs/screenshots.json). These captures show the primary editor path and the public result:
+
+![Layout Builder editor with main and sidebar containers](docs/screenshots/layout-builder-editor-main-sidebar.png)
+
+![Content-first editing mode in Layout Builder](docs/screenshots/layout-builder-editor-content-first.png)
+
+![Active-theme container settings in Layout Builder](docs/screenshots/layout-builder-edit-container-theme-settings.png)
+
+![Main and sidebar layout rendered on the public page](docs/screenshots/layout-example-main-sidebar-public.png)
+
+### A typical workflow
+
+1. Open a page in the admin and use **Content first** to update existing widget content and assets.
+2. Switch to the visual layout view when you need to add a widget, reorder content, or change a named container.
+3. Set responsive or active-theme presentation values on the selected container, then preview the result.
+4. Save the page. Layout Builder persists the layout through a transaction and builds the public layout graph without authoring markers.
 
 ## Content Composition
 
@@ -81,12 +120,18 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 
 ## Works With
 
-- [Content Sections](../content-sections/README.md): optional integration backed by the interop evidence map.
-- [Frontend Authoring](../frontend-authoring/README.md): optional integration backed by the interop evidence map.
-- [Publishing Studio](../publishing-studio/README.md): optional integration backed by the interop evidence map.
-- [Structured Content Library](../structured-content-library/README.md): optional integration backed by the interop evidence map.
+- [Content Sections](../content-sections/README.md): place reusable, publishable sections in layouts.
+- [Frontend Authoring](../frontend-authoring/README.md): add authenticated in-page layout authoring to the frontend.
+- [Publishing Studio](../publishing-studio/README.md): connect layout snapshots to publishing workflows.
+- [Structured Content Library](../structured-content-library/README.md): place structured content records in layouts.
 
 ## Technical Shape
+
+The package's technical inventory is below for maintainers and integrators. Use the linked guides for extension recipes and editor-facing procedures rather than copying internal classes into application code.
+
+### At a glance
+
+The inventory below lists 12 migration files, 11 model entries, and 14 extension contracts. For a new widget, the documented starting points are `WidgetExtensionRegistrar` with `WidgetExtensionDefinitionData`, plus typed input/render Data classes. Add `WidgetExtensionBatchPayloadResolver` only when the widget needs custom public payload resolution; the other contracts cover narrower asset, schema, dependency, state, and snapshot seams.
 
 ### Service providers
 
@@ -563,6 +608,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 
 - [Package docs](docs/README.md)
 - [Overview](docs/overview.md)
+- [Worked extension examples](docs/extension-contracts.md)
 - [Admin guide](docs/admin-guide.md)
 - Configuration files: [`config/capell-layout-builder.php`](config/capell-layout-builder.php).
 - [Troubleshooting](#troubleshooting)
