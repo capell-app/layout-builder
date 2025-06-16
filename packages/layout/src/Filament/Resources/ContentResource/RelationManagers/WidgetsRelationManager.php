@@ -9,8 +9,8 @@ use Capell\Admin\Filament\Components\Tables\Columns\IdentifierColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Admin\Filament\Concerns\HasRelationManagerBadge;
 use Capell\Admin\Filament\Concerns\HideEmptyRelationManager;
-use Capell\Core\Models;
 use Capell\Layout\Filament\Resources\WidgetResource;
+use Capell\Layout\Models\Widget;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -45,10 +45,10 @@ class WidgetsRelationManager extends RelationManager
                 IdentifierColumn::make('id'),
                 NameColumn::make('name')
                     ->icon(fn ($record) => $record->type->admin['icon'] ?? '')
-                    ->description(fn (Models\Widget $record): ?string => $record->admin['notes'] ?? null)
+                    ->description(fn (Widget $record): ?string => $record->admin['notes'] ?? null)
                     ->suffixBadges([
                         Badge::make('type.name')
-                            ->label(fn (Models\Widget $record) => $record->type?->name)
+                            ->label(fn (Widget $record) => $record->type?->name)
                             ->color('gray'),
                     ]),
                 Tables\Columns\TextColumn::make('key')
@@ -57,6 +57,6 @@ class WidgetsRelationManager extends RelationManager
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->recordUrl(fn (Models\Widget $record): string => WidgetResource::getUrl('edit', ['record' => $record]));
+            ->recordUrl(fn (Widget $record): string => WidgetResource::getUrl('edit', ['record' => $record]));
     }
 }

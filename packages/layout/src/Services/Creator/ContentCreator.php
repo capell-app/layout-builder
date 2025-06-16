@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Services\Creator;
 
-use Capell\Core\Enums\TypeEnum;
+use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
+use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Models\Content;
 use Illuminate\Database\Eloquent\Collection;
 
 class ContentCreator
 {
     /**
-     * @var class-string<Models\Content>
+     * @var class-string<Content>
      */
     private readonly string $contentModel;
 
@@ -23,11 +25,11 @@ class ContentCreator
 
     public function __construct()
     {
-        $this->contentModel = CapellCore::getModel('content');
-        $this->typeModel = CapellCore::getModel('type');
+        $this->contentModel = CapellCore::getModel(LayoutModelEnum::Content->name);
+        $this->typeModel = CapellCore::getModel(ModelEnum::Type);
     }
 
-    public function createContent(array $data, ?Models\Site $site, Collection $languages): Models\Content
+    public function createContent(array $data, ?Models\Site $site, Collection $languages): Content
     {
         if (! empty($data['type'])) {
             $type = $this->typeModel::contentType()->where('key', $data['type'])->first();
@@ -68,7 +70,7 @@ class ContentCreator
     {
         $this->typeModel::firstOrCreate([
             'default' => true,
-            'type' => TypeEnum::Content,
+            'type' => \Capell\Layout\Enums\LayoutTypeEnum::Content,
         ], [
             'name' => __('capell-admin::generic.default'),
             'key' => 'default',

@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Capell\Layout\Services\Creator;
 
 use Capell\Admin\Services\Creator\NavigationCreator;
-use Capell\Core\Enums\TypeEnum;
+use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
 use Capell\Core\Models\Page;
+use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
@@ -33,11 +35,29 @@ class DemoCreator
      */
     private readonly string $typeModel;
 
+    /**
+     * @var class-string<Models\Media>
+     */
+    private readonly string $mediaModel;
+
+    /**
+     * @var class-string<Page>
+     */
+    private readonly string $pageModel;
+
+    /**
+     * @var class-string<Models\Tag>
+     */
+    private readonly string $tagModel;
+
     public function __construct()
     {
-        $this->contentModel = CapellCore::getModel('content');
-        $this->widgetModel = CapellCore::getModel('widget');
-        $this->typeModel = CapellCore::getModel('type');
+        $this->contentModel = CapellCore::getModel(LayoutModelEnum::Content->name);
+        $this->widgetModel = CapellCore::getModel(LayoutModelEnum::Widget->name);
+        $this->typeModel = CapellCore::getModel(ModelEnum::Type);
+        $this->mediaModel = CapellCore::getModel(ModelEnum::Media);
+        $this->pageModel = CapellCore::getModel(ModelEnum::Page);
+        $this->tagModel = CapellCore::getModel(ModelEnum::Tag);
     }
 
     /**
@@ -54,7 +74,7 @@ class DemoCreator
         $this->contentModel::factory()->type($contentType)->withTranslations($languages)->parent($parent)->count(10)->create();
     }
 
-    public function createStaticWidget(Collection $languages): Models\Widget
+    public function createStaticWidget(Collection $languages): Widget
     {
         $widget = $this->widgetModel::firstOrCreate(['key' => 'example-content'], [
             'name' => 'Example Static Contents',
@@ -82,7 +102,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createGalleryWidget($occurrence = 1): Models\Widget
+    public function createGalleryWidget($occurrence = 1): Widget
     {
         $widget = $this->widgetModel::where('key', 'gallery')->first();
 
@@ -106,7 +126,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createPageCardsWidget(Collection $languages, Page $page, int $occurrence = 1, ?string $title = null): Models\Widget
+    public function createPageCardsWidget(Collection $languages, Page $page, int $occurrence = 1, ?string $title = null): Widget
     {
         $widget = $this->widgetModel::firstWhere('key', 'pages-card');
 
@@ -158,7 +178,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createFaqWidget(Collection $languages): Models\Widget
+    public function createFaqWidget(Collection $languages): Widget
     {
         $widgetType = $this->typeModel::widgetType()->firstWhere('key', 'assets');
 
@@ -270,7 +290,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createMediaCarouselWidget(): Models\Widget
+    public function createMediaCarouselWidget(): Widget
     {
         $widget = $this->widgetModel::where('key', 'media-carousel')->first();
 
@@ -318,7 +338,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createArticlesCardWidget(Collection $languages, Page $page, int $occurrence = 1): Models\Widget
+    public function createArticlesCardWidget(Collection $languages, Page $page, int $occurrence = 1): Widget
     {
         $widget = $this->widgetModel::firstWhere('key', 'articles-card');
 
@@ -347,10 +367,10 @@ class DemoCreator
         return $widget;
     }
 
-    public function createStaticNavigationWidget(Collection $languages, Page $page): Models\Widget
+    public function createStaticNavigationWidget(Collection $languages, Page $page): Widget
     {
-        /* class-string<Models\Navigation */
-        $model = CapellCore::getModel('navigation');
+        /** @var class-string<Models\Navigation> $model */
+        $model = CapellCore::getModel(ModelEnum::Navigation);
 
         // Create menu + items
         $name = 'Example Menu';
@@ -385,7 +405,7 @@ class DemoCreator
         // Create widget
         $widget = $this->widgetModel::firstOrCreate(['key' => 'example-navigation'], [
             'name' => __('capell-admin::generic.navigation'),
-            'type_id' => $this->typeModel::firstWhere(['key' => 'navigation', 'type' => TypeEnum::Widget])->id,
+            'type_id' => $this->typeModel::firstWhere(['key' => 'navigation', 'type' => \Capell\Layout\Enums\LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'navigation' => $handle,
                 'margin' => ['lg'],

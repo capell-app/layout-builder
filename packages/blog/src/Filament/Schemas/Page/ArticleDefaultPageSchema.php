@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\Blog\Filament\Schemas\Page;
 
 use BezhanSalleh\FilamentShield\Support\Utils;
-use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Actions\FixCuratorMetaDataAction;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\ImageMediaPicker;
 use Capell\Admin\Filament\Components\Forms\Page\LayoutSelect;
@@ -60,7 +60,7 @@ class ArticleDefaultPageSchema extends DefaultPageSchema
                                         ->statePath('meta')
                                         ->mutateDehydratedStateUsing(function (array $state): array {
                                             if (isset($state['image_id'])) {
-                                                $state['image_id'] = CapellAdmin::fixMediaFormData($state['image_id']);
+                                                $state['image_id'] = FixCuratorMetaDataAction::run($state['image_id']);
                                             }
 
                                             return $state;
@@ -101,7 +101,7 @@ class ArticleDefaultPageSchema extends DefaultPageSchema
                                 ->statePath('meta')
                                 ->mutateDehydratedStateUsing(function (array $state): array {
                                     if (isset($state['image_id'])) {
-                                        $state['image_id'] = CapellAdmin::fixMediaFormData($state['image_id']);
+                                        $state['image_id'] = FixCuratorMetaDataAction::run($state['image_id']);
                                     }
 
                                     return $state;

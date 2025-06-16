@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Schemas\WidgetAsset;
 
 use Capell\Admin\Filament\Components\Forms\ActionsRepeater;
-use Capell\Admin\Filament\Components\Forms\BackgroundSettingsFieldset;
 use Capell\Admin\Filament\Components\Forms\ColorSchemeComponent;
-use Capell\Admin\Filament\Components\Forms\Content\ContentTranslationsRepeater;
-use Capell\Admin\Filament\Components\Forms\Content\RelatedRepeater;
 use Capell\Admin\Filament\Components\Forms\MediaRepeater;
-use Capell\Admin\Filament\Schemas\WidgetAsset\DefaultWidgetAssetSchema;
+use Capell\Layout\Filament\Components\Forms\BackgroundSettingsFieldset;
+use Capell\Layout\Filament\Components\Forms\Content\ContentTranslationsRepeater;
+use Capell\Layout\Filament\Components\Forms\Content\RelatedRepeater;
 use Filament\Forms;
 use Override;
 

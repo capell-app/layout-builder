@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Resources;
 
 use Awcodes\FilamentBadgeableColumn\Components\Badge;
-use Capell\Admin\Enums\SchemaEnum;
 use Capell\Admin\Filament\Components\Forms\TypeSchema;
-use Capell\Admin\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
 use Capell\Admin\Filament\Components\Tables\Actions\EditAction;
 use Capell\Admin\Filament\Components\Tables\Actions\ReplicateAction;
 use Capell\Admin\Filament\Components\Tables\Columns\DateColumn;
@@ -18,11 +16,15 @@ use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\StatusColumn;
 use Capell\Admin\Filament\Components\Tables\Filters\StatusFilter;
 use Capell\Admin\Filament\Components\Tables\Filters\TextFilter;
-use Capell\Admin\Filament\Schemas\Widget\DefaultWidgetSchema;
+use Capell\Admin\Filament\Resources\LayoutResource;
+use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models;
+use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
 use Capell\Layout\Filament\Resources\WidgetResource\Pages;
 use Capell\Layout\Filament\Resources\WidgetResource\RelationManagers;
+use Capell\Layout\Filament\Schemas\Widget\DefaultWidgetSchema;
+use Capell\Layout\Models\Widget;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\FontWeight;
@@ -45,11 +47,11 @@ class WidgetResource extends Resource
     protected static ?int $navigationSort = 2;
 
     /**
-     * @return class-string<Models\Widget>
+     * @return class-string<Widget>
      */
     public static function getModel(): string
     {
-        return CapellCore::getModel('widget');
+        return CapellCore::getModel(LayoutModelEnum::Widget->name);
     }
 
     public static function getNavigationLabel(): string
@@ -98,7 +100,7 @@ class WidgetResource extends Resource
                     fn (Forms\Get $get, TypeSchema $component): array => $component
                         ->getSchema(
                             $form,
-                            SchemaEnum::Widget,
+                            \Capell\Layout\Enums\SchemaEnum::Widget,
                             defaultSchema: DefaultWidgetSchema::getKey(),
                             key: $get('type_id')
                         )
@@ -130,7 +132,7 @@ class WidgetResource extends Resource
             )
             ->columns(self::getTableColumns())
             ->filters(self::getTableFilters())
-            ->recordClasses(fn (Models\Widget $record): ?string => match (true) {
+            ->recordClasses(fn (Widget $record): ?string => match (true) {
                 (bool) $record->deleted_at => 'table-row-warning',
                 default => null,
             })
@@ -171,10 +173,10 @@ class WidgetResource extends Resource
         return [
             IdentifierColumn::make('id'),
             NameColumn::make('name')
-                ->description(fn (Models\Widget $record): ?string => $record->admin['notes'] ?? null)
+                ->description(fn (Widget $record): ?string => $record->admin['notes'] ?? null)
                 ->suffixBadges([
                     Badge::make('type.name')
-                        ->label(fn (Models\Widget $record): ?string => $record->type?->name)
+                        ->label(fn (Widget $record): ?string => $record->type?->name)
                         ->color('gray'),
                 ])
                 ->searchable([
@@ -201,15 +203,15 @@ class WidgetResource extends Resource
                 ->html()
                 ->listWithLineBreaks()
                 ->formatStateUsing(
-                    fn (Pages\ListWidgets $livewire, Tables\Columns\TextColumn $column, Models\Widget $record): string => Str::limit(
+                    fn (Pages\ListWidgets $livewire, Tables\Columns\TextColumn $column, Widget $record): string => Str::limit(
                         $record->translation->title ?? '',
                         $column->getCharacterLimit(),
                         $column->getCharacterLimitEnd()
                     )
                 )
-                ->description(function (Pages\ListWidgets $livewire, Tables\Columns\TextColumn $column, Models\Widget $record): string {
+                ->description(function (Pages\ListWidgets $livewire, Tables\Columns\TextColumn $column, Widget $record): ?HtmlString {
                     if (! $record->translation?->contents) {
-                        return '';
+                        return null;
                     }
 
                     $contents = '';
@@ -255,7 +257,7 @@ class WidgetResource extends Resource
                 })
                 ->size('xs')
                 ->color('gray')
-                ->formatStateUsing(function (Models\Widget $record): ?HtmlString {
+                ->formatStateUsing(function (Widget $record): ?HtmlString {
                     $components = [
                         __('capell-admin::form.component') => $record->meta['component'] ?? '',
                         __('capell-admin::form.file') => $record->meta['file'] ?? '',
@@ -289,7 +291,7 @@ class WidgetResource extends Resource
                 ->alignCenter()
                 ->toggleable()
                 ->disabledClick()
-                ->formatStateUsing(fn (Models\Widget $record, $state): HtmlString => new HtmlString(Blade::render('capell-admin::components.tables.url', [
+                ->formatStateUsing(fn (Widget $record, $state): HtmlString => new HtmlString(Blade::render('capell-admin::components.tables.url', [
                     'state' => $state,
                     'url' => LayoutResource::getUrl('index', ['tableFilters[widget_id][value]' => $record->key]),
                 ]))),
@@ -331,8 +333,8 @@ class WidgetResource extends Resource
                     Forms\Components\Select::make('language_id')
                         ->label(__('capell-admin::table.language'))
                         ->options(function (): array {
-                            /* @var \Capell\Core\Models\Language $model */
-                            $model = CapellCore::getModel('language');
+                            /* @var class-string<\Capell\Core\Models\Language> $model */
+                            $model = CapellCore::getModel(ModelEnum::Language);
 
                             return $model::ordered()
                                 ->pluck('name', 'id')
@@ -345,7 +347,7 @@ class WidgetResource extends Resource
                     if (! empty($data['language_id'])) {
                         $indicators['language_id'] = __(
                             'capell-admin::filter.language',
-                            ['search' => CapellCore::getModel('language')::find($data['language_id'], 'name')?->name]
+                            ['search' => CapellCore::getModel(ModelEnum::Language)::find($data['language_id'], 'name')?->name]
                         );
                     }
 

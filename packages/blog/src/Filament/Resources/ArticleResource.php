@@ -6,9 +6,11 @@ namespace Capell\Blog\Filament\Resources;
 
 use Capell\Admin\Enums\SchemaEnum;
 use Capell\Admin\Filament\Resources\PageResource;
+use Capell\Blog\Enums\BlogModelEnum;
 use Capell\Blog\Filament\Resources\ArticleResource\Pages;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Services\Loader\BlogLoader;
+use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Override;
@@ -33,7 +35,7 @@ class ArticleResource extends PageResource
      */
     public static function getModel(): string
     {
-        return CapellCore::getModel('article');
+        return CapellCore::getModel(BlogModelEnum::Article->value);
     }
 
     public static function getLabel(): string
@@ -68,18 +70,21 @@ class ArticleResource extends PageResource
     #[Override]
     public static function mutateFormDataBeforeCreate(array &$data = [], array $formData = []): void
     {
-        /* @var \Capell\Layout\Models\Layout $model */
-        $model = CapellCore::getModel('layout');
+        /* @var class-string<\Capell\Core\Models\Layout> $model */
+        $model = CapellCore::getModel(ModelEnum::Layout);
 
         $data['layout_id'] = $model::query()->where('key', 'article')->value('id');
 
-        /* @var \Capell\Core\Models\Type $model */
-        $model = CapellCore::getModel('type');
+        /* @var class-string<\Capell\Core\Models\Type> $model */
+        $model = CapellCore::getModel(ModelEnum::Type);
 
         $data['type_id'] = $model::query()->pageType()->where('group', 'article')->value('id');
 
         if (empty($data['parent_uuid'])) {
-            $data['parent_uuid'] = BlogLoader::getBlogPage(CapellCore::getModel('site')::find($data['site_id']))?->uuid;
+            /* @var class-string<\Capell\Core\Models\Site> $model */
+            $model = CapellCore::getModel(ModelEnum::Site);
+
+            $data['parent_uuid'] = BlogLoader::getBlogPage($model::find($data['site_id']))?->uuid;
         }
     }
 

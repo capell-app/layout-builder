@@ -12,6 +12,7 @@ use Capell\Core\Models\Concerns\HasResources;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Layout\Database\Factories\WidgetAssetFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +22,29 @@ use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
 use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
 use Wildside\Userstamps\Userstamps;
 
+/**
+ * @property-read Model|Eloquent $asset
+ * @property-read \Illuminate\Foundation\Auth\User|null $creator
+ * @property-read \Illuminate\Foundation\Auth\User|null $destroyer
+ * @property-read \Illuminate\Foundation\Auth\User|null $editor
+ * @property-read string $asset_key
+ * @property-read Media|null $image
+ * @property-read Page|null $page
+ * @property-read Page|null $relatedPage
+ * @property-read Widget|null $widget
+ * @property-read \Illuminate\Database\Eloquent\Collection|Content[] $related
+ * @property-read int|null $related_count
+ *
+ * @method static \Capell\Layout\Database\Factories\WidgetAssetFactory factory($count = null, $state = [])
+ * @method static Builder<static>|WidgetAsset newModelQuery()
+ * @method static Builder<static>|WidgetAsset newQuery()
+ * @method static Builder<static>|WidgetAsset ordered(string $dir = 'asc')
+ * @method static Builder<static>|WidgetAsset query()
+ * @method static Builder<static>|WidgetAsset withResourceables(bool $withDrafts = true)
+ *
+ * @mixin \Eloquent
+ * @mixin Eloquent
+ */
 class WidgetAsset extends Model implements PageCacheable
 {
     /** @use HasFactory<WidgetAssetFactory> */

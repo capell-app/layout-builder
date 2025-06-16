@@ -42,8 +42,8 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->plugins([
-                CapellAdminPlugin::make()
-                    ->discoverSchemas(in: app_path('Filament/Schemas'), for: 'App\\Filament\\Schemas'),
+                CapellAdminPlugin::make(),
+                // ->discoverSchemas(in: app_path('Filament/Schemas'), for: 'App\\Filament\\Schemas'),
             ])
             ->pages([
                 Pages\Dashboard::class,

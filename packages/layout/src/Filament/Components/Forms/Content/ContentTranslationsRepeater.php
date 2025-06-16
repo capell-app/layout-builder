@@ -8,6 +8,7 @@ use Capell\Admin\Filament\Components\Forms\ContentEditorSection;
 use Capell\Admin\Filament\Components\Forms\RepeaterTabs;
 use Capell\Admin\Filament\Components\Forms\TranslationLanguageSelect;
 use Capell\Admin\Filament\Components\Forms\TranslationsRepeater;
+use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Filament\Forms;
 use Filament\Forms\Get;
@@ -20,7 +21,7 @@ final class ContentTranslationsRepeater
     {
         $languages_total = (int) Cache::rememberForever(
             'languages_total',
-            fn (): int => CapellCore::getModel('language')::count()
+            fn (): int => CapellCore::getModel(ModelEnum::Language)::count()
         );
 
         $operation = $form->getOperation();

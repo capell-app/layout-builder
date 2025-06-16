@@ -65,6 +65,8 @@ abstract class AbstractTestCase extends TestCase
     use WithFaker;
     use WithWorkbench;
 
+    protected array $packageMigrations = [];
+
     protected function setUp(): void
     {
         if (getenv('TEST_TOKEN')) {
@@ -75,7 +77,14 @@ abstract class AbstractTestCase extends TestCase
 
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
-        $this->loadPackageMigrations(CapellCoreManager::getMigrations());
+        $this->loadPackageMigrations(
+            __DIR__.'/../../vendor/capell-app/core/database/migrations',
+            CapellCoreManager::getMigrations()
+        );
+
+        if ($this->packageMigrations) {
+            $this->loadMigrationsFrom($this->packageMigrations);
+        }
 
         Http::preventStrayRequests();
 
@@ -205,13 +214,18 @@ abstract class AbstractTestCase extends TestCase
         $page->refresh();
     }
 
-    protected function loadPackageMigrations(array $migrations): void
+    protected function getPackageMigrations(string $path, array $migrations): array
     {
-        $path = realpath(__DIR__.'/../../packages/core/database/migrations');
+        $path = realpath($path);
 
         array_walk($migrations, fn (&$migration): string => $migration = sprintf('%s/%s.php', $path, $migration));
 
-        $this->loadMigrationsFrom($migrations);
+        return $migrations;
+    }
+
+    protected function loadPackageMigrations(string $path, array $migrations): void
+    {
+        $this->loadMigrationsFrom($this->getPackageMigrations($path, $migrations));
     }
 
     private function getPackageFile(array $package): string

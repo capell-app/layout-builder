@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Theme;
-use Capell\Layout\Models\Layout;
 
 it('has many layouts', function (): void {
     $theme = Theme::factory()->create();

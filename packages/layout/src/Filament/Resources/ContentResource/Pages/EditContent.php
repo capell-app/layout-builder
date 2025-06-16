@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Resources\ContentResource\Pages;
 
-use Capell\Admin\Actions\ReplicateContentAction;
+use Capell\Admin\Actions\FixCuratorMetaDataAction;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\DeleteAction;
 use Capell\Admin\Filament\Actions\Page\ChangeTypeAction;
-use Capell\Admin\Filament\Actions\Page\CreateContentAction;
 use Capell\Admin\Filament\Actions\ReplicateAction;
-use Capell\Admin\Filament\Components\Forms\Content\ContentTypeSelect;
 use Capell\Admin\Filament\Concerns\HasAncestorBreadcrumbs;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Admin\Filament\Concerns\HasTypeRelationManagers;
+use Capell\Layout\Actions\ReplicateContentAction;
+use Capell\Layout\Enums\LayoutResourceEnum;
+use Capell\Layout\Filament\Actions\Page\CreateContentAction;
+use Capell\Layout\Filament\Components\Forms\Content\ContentTypeSelect;
 use Capell\Layout\Filament\Resources\ContentResource;
 use Capell\Layout\Models\Content;
 use Filament\Actions;
@@ -38,7 +40,7 @@ class EditContent extends EditRecord
     /** @return class-string<ContentResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getFilamentResource('content');
+        return CapellAdmin::getResource(LayoutResourceEnum::Content->value);
     }
 
     public function getTitle(): string|Htmlable
@@ -90,7 +92,7 @@ class EditContent extends EditRecord
         $data = parent::mutateFormDataBeforeSave($data);
 
         if (isset($data['meta']['image_id'])) {
-            $data['meta']['image_id'] = CapellAdmin::fixMediaFormData($data['meta']['image_id']);
+            $data['meta']['image_id'] = FixCuratorMetaDataAction::run($data['meta']['image_id']);
         }
 
         return $data;

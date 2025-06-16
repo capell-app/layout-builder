@@ -10,6 +10,10 @@ use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\Page\PageSelect;
 use Capell\Admin\Filament\Schemas\AbstractSchema;
 use Capell\Layout\Enums\SchemaEnum;
+use Capell\Layout\Filament\Components\Forms\Content\ContentDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Content\ContentPublishSection;
+use Capell\Layout\Filament\Components\Forms\Content\ContentSettingsSchema;
+use Capell\Layout\Filament\Components\Forms\Content\ContentTranslationsRepeater;
 use Filament\Forms;
 
 class DefaultContentSchema extends AbstractSchema

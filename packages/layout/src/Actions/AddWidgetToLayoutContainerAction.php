@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Actions;
 
-use Capell\Layout\Models\Layout;
+use Capell\Core\Models\Layout;
 use Capell\Layout\Models\Widget;
 use Lorisleiva\Actions\Concerns\AsObject;
 use RuntimeException;

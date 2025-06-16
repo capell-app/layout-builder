@@ -6,8 +6,8 @@ namespace Capell\Layout\Filament\Schemas\Widget;
 
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\ImageMediaPicker;
-use Capell\Admin\Filament\Components\Forms\Widget\WidgetSettingsSchema;
-use Capell\Admin\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
+use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
 use Filament\Forms;
 
 class DefaultWidgetSchema extends AbstractWidgetSchema

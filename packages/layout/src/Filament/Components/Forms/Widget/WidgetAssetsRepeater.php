@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Components\Forms\Widget;
 
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Admin\Filament\Components\Forms\Content\ContentSelect;
 use Capell\Admin\Filament\Components\Forms\ImageMediaPicker;
 use Capell\Admin\Filament\Components\Forms\Page\PageSelect;
 use Capell\Core\Enums\TypeEnum;
 use Capell\Core\Models;
+use Capell\Layout\Filament\Components\Forms\Content\ContentSelect;
+use Capell\Layout\Models\Content;
 use Capell\Layout\Models\WidgetAsset;
 use Exception;
 use Filament\Forms;
@@ -70,14 +71,14 @@ class WidgetAssetsRepeater
                             $resource = match ($itemState['asset_type']) {
                                 'media' => is_array($assetId) ? reset($assetId)['id'] : Models\Media::findByUuid($assetId),
                                 'page' => Models\Page::findByUuid($assetId),
-                                'content' => Models\Content::findByUuid($assetId),
+                                'content' => Content::findByUuid($assetId),
                             };
 
                             if (! $resource) {
                                 throw new Exception(sprintf("Resource '%s' not found for ID '%s'", $itemState['asset_type'], $assetId));
                             }
 
-                            return CapellAdmin::getFilamentResource($itemState['asset_type'])::getUrl(
+                            return CapellAdmin::getResource($itemState['asset_type'])::getUrl(
                                 'edit',
                                 ['record' => $resource]
                             );
@@ -191,7 +192,7 @@ class WidgetAssetsRepeater
         return match ($itemState['asset_type']) {
             'media' => is_array($itemState['asset_id']) ? reset($itemState['asset_id'])['title'] : Models\Media::findByUuid($itemState['asset_id']),
             'page' => Models\Page::findByUuid($itemState['asset_id'])?->name,
-            'content' => Models\Content::findByUuid($itemState['asset_id'])?->name
+            'content' => Content::findByUuid($itemState['asset_id'])?->name
         };
     }
 }

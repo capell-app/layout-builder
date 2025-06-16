@@ -6,19 +6,24 @@ namespace Capell\Layout;
 
 use Capell\Admin\Actions\CreatedModelAction;
 use Capell\Admin\Actions\DeletedModelAction;
+use Capell\Admin\Data\AssetData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
 use Capell\Core\Packages\AbstractPackageServiceProvider;
+use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Enums\WidgetSchemaEnum;
 use Capell\Layout\Models\Content;
+use Capell\Layout\Models\ContentAsset;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Filament\Facades\Filament;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Spatie\LaravelPackageTools\Package;
 use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
 
@@ -28,9 +33,9 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     public function bootingPackage(): void
     {
-        self::registerModels();
+        $this->registerModels();
 
-        self::registerRelationships();
+        $this->registerRelationships();
 
         CapellAdmin::registerSchemas('Widget', WidgetSchemaEnum::getAllSchemas());
 
@@ -38,9 +43,16 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
         CapellCore::addDraftableRelations('page', 'widgetAssets');
 
+        Relation::morphMap([
+            'content' => Content::class,
+            'content_asset' => ContentAsset::class,
+            'widget' => Widget::class,
+            'widget_asset' => WidgetAsset::class,
+        ]);
+
         Filament::serving(function (): void {
             $createDeleteModels = [
-                CapellCore::getModel('content'),
+                CapellCore::getModel(LayoutModelEnum::Content->name),
             ];
 
             foreach ($createDeleteModels as $modelClass) {
@@ -58,17 +70,29 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
     public function configurePackage(Package $package): void
     {
         $package->name(self::$name)
+            ->hasViews(self::$name)
+            ->hasTranslations()
             ->hasMigrations(CapellLayoutManager::getMigrations());
     }
 
-    private static function registerModels(): void
+    public function registeringPackage(): void
     {
-        CapellCore::registerModel('content', Content::class);
-        CapellCore::registerModel('widget', Widget::class);
-        CapellCore::registerModel('widget_asset', WidgetAsset::class);
+        parent::registeringPackage();
+
+        CapellCore::registerPackage(self::$name, self::class);
+
+        CapellAdmin::registerAsset(new AssetData(name: 'content', model: Content::class, icon: 'heroicon-o-document-text'));
     }
 
-    private static function registerRelationships(): void
+    private function registerModels(): void
+    {
+        CapellCore::registerModel(LayoutModelEnum::Content, Content::class);
+        CapellCore::registerModel(LayoutModelEnum::ContentAsset, ContentAsset::class);
+        CapellCore::registerModel(LayoutModelEnum::Widget, Widget::class);
+        CapellCore::registerModel(LayoutModelEnum::WidgetAsset, WidgetAsset::class);
+    }
+
+    private function registerRelationships(): void
     {
         Models\Media::resolveRelationUsing('pages', fn (Models\Media $model): HasManyThrough => $model->hasManyThrough(Models\Page::class, WidgetAsset::class));
 
@@ -117,5 +141,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
         Models\Type::resolveRelationUsing('contents', fn (Models\Type $model): HasMany => $model->hasMany(Content::class, 'type_id'));
 
         Models\Type::resolveRelationUsing('widgets', fn (Models\Type $model): HasMany => $model->hasMany(Widget::class, 'type_id'));
+
+        Models\Type::resolveRelationUsing('widgetType', fn (Models\Type $model): Builder => $model->where('type', 'widget'));
     }
 }

@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 use Capell\Core\Models;
 use Capell\Layout\Filament\Resources\ContentResource;
+use Capell\Layout\Models\Content;
+use Capell\Layout\Models\ContentAsset;
 use Filament\Tables\Actions\CreateAction;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 
 it('can list content assets', function (): void {
-    $content = Models\Content::factory()
-        ->has(Models\ContentAsset::factory()->count(5), 'assets')
+    $content = Content::factory()
+        ->has(ContentAsset::factory()->count(5), 'assets')
         ->create();
 
     $resource = $content->assets->first()->load('asset');
@@ -27,12 +29,12 @@ it('can list content assets', function (): void {
 });
 
 it('can search content assets', function (): void {
-    $content = Models\Content::factory()
-        ->has(Models\ContentAsset::factory()->page(['name' => 'First']), 'assets')
-        ->has(Models\ContentAsset::factory()->content(['name' => 'Second']), 'assets')
-        ->has(Models\ContentAsset::factory()->media(['name' => 'Third']), 'assets')
-        ->has(Models\ContentAsset::factory()->page(['name' => 'Fourth']), 'assets')
-        ->has(Models\ContentAsset::factory()->content(['name' => 'Fifth']), 'assets')
+    $content = Content::factory()
+        ->has(ContentAsset::factory()->page(['name' => 'First']), 'assets')
+        ->has(ContentAsset::factory()->content(['name' => 'Second']), 'assets')
+        ->has(ContentAsset::factory()->media(['name' => 'Third']), 'assets')
+        ->has(ContentAsset::factory()->page(['name' => 'Fourth']), 'assets')
+        ->has(ContentAsset::factory()->content(['name' => 'Fifth']), 'assets')
         ->create();
 
     $resource = $content->assets->first()->load('asset');
@@ -49,7 +51,7 @@ it('can search content assets', function (): void {
 });
 
 test('can create a asset for a widget', function (string $assetType): void {
-    $content = Models\Content::factory()->create();
+    $content = Content::factory()->create();
 
     livewire(ContentResource\RelationManagers\ContentAssetsRelationManager::class, [
         'ownerRecord' => $content,
@@ -61,9 +63,9 @@ test('can create a asset for a widget', function (string $assetType): void {
         ->fillForm(
             match ($assetType) {
                 'content' => [
-                    'asset_type' => app(Models\Content::class)->getMorphClass(),
+                    'asset_type' => app(Content::class)->getMorphClass(),
                     'assets' => [
-                        (string) Models\Content::factory()->create()->uuid,
+                        (string) Content::factory()->create()->uuid,
                     ],
                 ],
                 'media' => [
@@ -85,7 +87,7 @@ test('can create a asset for a widget', function (string $assetType): void {
         ->assertHasNoTableActionErrors()
         ->assertCountTableRecords(1);
 
-    assertDatabaseHas(Models\ContentAsset::class, [
+    assertDatabaseHas(ContentAsset::class, [
         'content_id' => $content->id,
         'asset_type' => $assetType,
     ]);

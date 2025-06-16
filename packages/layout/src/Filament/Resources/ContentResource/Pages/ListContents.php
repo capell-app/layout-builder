@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Resources\ContentResource\Pages;
 
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Admin\Filament\Actions\Page\CreateContentAction;
 use Capell\Admin\Filament\Concerns\ApplySearchRelationsTable;
 use Capell\Admin\Filament\Concerns\HasSiteTableFilterTabs;
+use Capell\Layout\Enums\LayoutResourceEnum;
+use Capell\Layout\Filament\Actions\Page\CreateContentAction;
 use Capell\Layout\Filament\Resources\ContentResource;
 use Filament\Resources\Pages\ListRecords;
 
@@ -21,7 +22,7 @@ class ListContents extends ListRecords
     /** @return class-string<ContentResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getFilamentResource('content');
+        return CapellAdmin::getResource(LayoutResourceEnum::Content->value);
     }
 
     protected function getActions(): array

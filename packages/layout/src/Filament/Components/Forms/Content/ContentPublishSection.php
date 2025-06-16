@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Components\Forms\Content;
 
 use Capell\Admin\Filament\Components\Forms\PublishDates;
-use Capell\Core\Models;
+use Capell\Layout\Models\Content;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Infolists;
@@ -21,12 +21,12 @@ class ContentPublishSection extends Forms\Components\Section
         parent::setUp();
 
         $this->heading(__('capell-admin::generic.publish_settings'))
-            ->icon(fn (Forms\Get $get, ?Models\Content $record): string => match (true) {
+            ->icon(fn (Forms\Get $get, ?Content $record): string => match (true) {
                 $get('publish_from') && Carbon::parse($get('publish_from'))->isFuture(),
                 $get('publish_to') && Carbon::parse($get('publish_to'))->isPast() => 'heroicon-c-eye-slash',
                 default => 'heroicon-c-eye',
             })
-            ->iconColor(fn (Forms\Get $get, ?Models\Content $record): string => match (true) {
+            ->iconColor(fn (Forms\Get $get, ?Content $record): string => match (true) {
                 $get('publish_from') && Carbon::parse($get('publish_from'))->isFuture(),
                 $get('publish_to') && Carbon::parse($get('publish_to'))->isPast() => 'warning',
                 default => 'success',
@@ -42,8 +42,8 @@ class ContentPublishSection extends Forms\Components\Section
 
                 return ! $publishTo || Carbon::parse($publishTo)->isPast();
             })
-            ->schema(function (?Models\Content $record): array {
-                if (! $record instanceof Models\Content) {
+            ->schema(function (?Content $record): array {
+                if (! $record instanceof Content) {
                     return [];
                 }
 
@@ -58,9 +58,9 @@ class ContentPublishSection extends Forms\Components\Section
             ]);
     }
 
-    private function countDrafts(?Models\Content $record): int
+    private function countDrafts(?Content $record): int
     {
-        if (! $record instanceof Models\Content) {
+        if (! $record instanceof Content) {
             return 0;
         }
 
@@ -78,7 +78,7 @@ class ContentPublishSection extends Forms\Components\Section
             ->hiddenLabel()
             ->muted()
             ->visibleOn('edit')
-            ->content(function (?Models\Content $record): ?HtmlString {
+            ->content(function (?Content $record): ?HtmlString {
                 $contents = [
                     __('capell-admin::generic.created_by_at', [
                         'name' => $record->creator?->name,
@@ -109,15 +109,15 @@ class ContentPublishSection extends Forms\Components\Section
         return Forms\Components\Actions\Action::make('revisions')
             ->label(__('capell-admin::button.draft_revisions'))
             ->modal()
-            ->badge(fn (?Models\Content $record): int => $this->countDrafts($record))
+            ->badge(fn (?Content $record): int => $this->countDrafts($record))
             ->badgeColor('info')
             ->color('info')
             ->outlined()
             ->icon('heroicon-o-rectangle-stack')
             ->size(ActionSize::Small)
-            ->visible(fn (?Models\Content $record): bool => $this->countDrafts($record) > 1)
+            ->visible(fn (?Content $record): bool => $this->countDrafts($record) > 1)
             ->infolist(
-                fn (Infolists\Infolist $infolist, ?Models\Content $record): Infolists\Infolist => $infolist->record(
+                fn (Infolists\Infolist $infolist, ?Content $record): Infolists\Infolist => $infolist->record(
                     $record->load([
                         'revisions' => fn (BuilderContract $query) => $query->orderByRaw(
                             'CASE WHEN `is_published` THEN 1 WHEN `is_current` THEN 2 ELSE 3 END, `updated_at` DESC'
@@ -135,7 +135,7 @@ class ContentPublishSection extends Forms\Components\Section
                                     ->hiddenLabel()
                                     ->weight(FontWeight::SemiBold)
                                     ->suffix(
-                                        fn (Models\Content $record): ?string => match (true) {
+                                        fn (Content $record): ?string => match (true) {
                                             $record->isCurrent() => ' ('.__('capell-admin::generic.latest').')',
                                             $record->isPublished() => ' ('.__('capell-admin::generic.published').')',
                                             default => null,
@@ -149,9 +149,9 @@ class ContentPublishSection extends Forms\Components\Section
                                 Infolists\Components\Grid::make(3)
                                     ->schema([
                                         Infolists\Components\TextEntry::make('publisher.name')
-                                            ->visible(fn (Models\Content $record): bool => $record->isPublished()),
+                                            ->visible(fn (Content $record): bool => $record->isPublished()),
                                         Infolists\Components\TextEntry::make('published_at')
-                                            ->visible(fn (Models\Content $record): bool => $record->isPublished())
+                                            ->visible(fn (Content $record): bool => $record->isPublished())
                                             ->dateTime(),
                                         Infolists\Components\TextEntry::make('updated_at')
                                             ->since()
@@ -163,7 +163,7 @@ class ContentPublishSection extends Forms\Components\Section
                                         ->icon('heroicon-m-arrow-top-right-on-square')
                                         ->size(ActionSize::Small)
                                         ->url(
-                                            function (Models\Content $record): string {
+                                            function (Content $record): string {
                                                 $record->loadMissing('pageUrl.siteDomain');
 
                                                 return $record->pageUrl->full_url;
@@ -174,16 +174,16 @@ class ContentPublishSection extends Forms\Components\Section
                                         ->label(__('capell-admin::button.edit'))
                                         ->icon('heroicon-m-pencil-square')
                                         ->size(ActionSize::Small)
-                                        ->disabled(fn (Models\Content $record, $livewire): bool => $record->is($livewire->getRecord()))
+                                        ->disabled(fn (Content $record, $livewire): bool => $record->is($livewire->getRecord()))
                                         ->url(
-                                            fn (Models\Content $record, $livewire): string => $livewire::getResource()::getUrl('edit', ['record' => $record])
+                                            fn (Content $record, $livewire): string => $livewire::getResource()::getUrl('edit', ['record' => $record])
                                         ),
                                     Infolists\Components\Actions\Action::make('delete')
                                         ->label(__('capell-admin::button.delete'))
                                         ->icon('heroicon-m-trash')
                                         ->color('danger')
                                         ->size(ActionSize::Small)
-                                        ->disabled(fn (Models\Content $record, $livewire): bool => $record->is($livewire->getRecord()))
+                                        ->disabled(fn (Content $record, $livewire): bool => $record->is($livewire->getRecord()))
                                         ->requiresConfirmation(),
                                 ])
                                     ->alignRight(),
@@ -201,10 +201,10 @@ class ContentPublishSection extends Forms\Components\Section
             ->color('danger')
             ->outlined()
             ->size(ActionSize::Small)
-            ->visible(fn (?Models\Content $record): bool => (bool) $record?->isPublished())
+            ->visible(fn (?Content $record): bool => (bool) $record?->isPublished())
             ->requiresConfirmation()
             ->modalDescription(__('capell-admin::message.unpublish_page_confirmation'))
-            ->action(function (?Models\Content $record): void {
+            ->action(function (?Content $record): void {
                 $record->unpublish();
             });
     }

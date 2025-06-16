@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Services\Creator;
 
-use Capell\Admin\Enums\WidgetTypeEnum;
-use Capell\Core\Enums\TypeEnum;
-use Capell\Core\Enums\WidgetComponentEnum;
+use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Type;
+use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Enums\WidgetComponentEnum;
+use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Models\Widget;
 
 class WidgetCreator
@@ -26,22 +28,19 @@ class WidgetCreator
 
     public function __construct()
     {
-        $this->widgetModel = CapellCore::getModel('widget');
-        $this->typeModel = CapellCore::getModel('type');
+        $this->widgetModel = CapellCore::getModel(LayoutModelEnum::Widget->name);
+        $this->typeModel = CapellCore::getModel(ModelEnum::Type);
     }
 
     public function createWidgets(Language $language): void
     {
-        $this->widgetModel = CapellCore::getModel('widget');
-        $this->typeModel = CapellCore::getModel('type');
-
-        $contentsWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => TypeEnum::Widget]);
-        $mediaWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Media, 'type' => TypeEnum::Widget]);
-        $navigationWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Navigation, 'type' => TypeEnum::Widget]);
-        $pageContentWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::PageContents, 'type' => TypeEnum::Widget]);
-        $pageResultsWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::PageResults, 'type' => TypeEnum::Widget]);
-        $pagesWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Pages, 'type' => TypeEnum::Widget]);
-        $systemWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::System, 'type' => TypeEnum::Widget]);
+        $contentsWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget]);
+        $mediaWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Media, 'type' => LayoutTypeEnum::Widget]);
+        $navigationWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Navigation, 'type' => LayoutTypeEnum::Widget]);
+        $pageContentWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::PageContents, 'type' => LayoutTypeEnum::Widget]);
+        $pageResultsWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::PageResults, 'type' => LayoutTypeEnum::Widget]);
+        $pagesWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Pages, 'type' => LayoutTypeEnum::Widget]);
+        $systemWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::System, 'type' => LayoutTypeEnum::Widget]);
 
         $this->breadcrumbWidget($systemWidgetType);
         $this->childrenWidget($pageResultsWidgetType, $language);

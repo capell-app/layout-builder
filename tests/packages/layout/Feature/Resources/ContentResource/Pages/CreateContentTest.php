@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Filament\Resources\ContentResource\Pages\CreateContent;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
-use Capell\Core\Models\Type;
+use Capell\Layout\Database\Factories\ContentTypeFactory;
+use Capell\Layout\Filament\Resources\ContentResource\Pages\CreateContent;
 use Capell\Layout\Models\Content;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
@@ -21,7 +21,7 @@ beforeEach(function (): void {
 });
 
 test('required fields are required', function (): void {
-    Type::factory()->content()->create();
+    (new ContentTypeFactory())->create();
 
     livewire(CreateContent::class)
         ->assertSuccessful()
@@ -61,17 +61,17 @@ it('can create', function (string $type): void {
 })
     ->with(['default', 'with deleted site']);
 
-it('can create with translations', function (string $type): void {
+it('can create with translations', function (string $mode): void {
     Site::factory()->create();
 
-    $type = Type::factory()->content()->default()->create();
+    $type = (new ContentTypeFactory())->default()->create();
 
     $newData = Content::factory()
         ->type($type)
         ->parent(Content::factory()->create())
         ->make();
 
-    if ($type === 'with deleted site') {
+    if ($mode === 'with deleted site') {
         Site::factory()->deleted()->create();
     }
 

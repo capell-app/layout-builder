@@ -5,19 +5,22 @@ declare(strict_types=1);
 namespace Capell\Blog\Services;
 
 use Capell\Admin\Actions\AddPageToNavigationAction;
-use Capell\Admin\Enums\WidgetTypeEnum;
 use Capell\Admin\Filament\Schemas\Page\ResultsPageSchema;
 use Capell\Admin\Services\Creator\PageTypeCreator;
 use Capell\Blog\Filament\Schemas\Page\ArticleDefaultPageSchema;
 use Capell\Blog\Filament\Schemas\Widget\ArticleWidgetSchema;
 use Capell\Core\Enums\TypeEnum;
 use Capell\Core\Models\Language;
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Navigation;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
-use Capell\Layout\Models\Layout;
+use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Enums\WidgetComponentEnum;
+use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Models\Widget;
+use Capell\Layout\Services\Creator\LayoutCreator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -166,7 +169,7 @@ class BlogCreator
             'key' => 'archives',
         ], [
             'name' => __('capell-blog::generic.archive'),
-            'type_id' => Type::firstWhere(['key' => WidgetTypeEnum::System, 'type' => TypeEnum::Widget])?->id,
+            'type_id' => Type::firstWhere(['key' => WidgetTypeEnum::System, 'type' => LayoutTypeEnum::Widget])?->id,
             'meta' => [
                 'component' => 'capell-blog::widget.page.archives',
                 'page_group' => 'article',
@@ -325,7 +328,7 @@ class BlogCreator
     {
         return Type::firstOrCreate([
             'key' => 'article',
-            'type' => TypeEnum::Widget,
+            'type' => LayoutTypeEnum::Widget,
         ], [
             'name' => __('capell-blog::generic.article'),
             'group' => 'system',
@@ -428,7 +431,7 @@ class BlogCreator
             'key' => 'latest-articles',
         ], [
             'name' => __('capell-blog::generic.blog'),
-            'type_id' => Type::firstWhere(['key' => WidgetTypeEnum::PageResults, 'type' => TypeEnum::Widget])?->id,
+            'type_id' => Type::firstWhere(['key' => WidgetTypeEnum::PageResults, 'type' => LayoutTypeEnum::Widget])?->id,
             'meta' => [
                 'component' => WidgetComponentEnum::LivewirePages,
                 'limit' => 5,

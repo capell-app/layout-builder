@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Resources;
 
-use Capell\Admin\Actions\ReplicateContentAction;
-use Capell\Admin\Enums\SchemaEnum;
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Admin\Filament\Components\Forms\Content\ContentDetailsSchema;
 use Capell\Admin\Filament\Components\Forms\TypeSchema;
 use Capell\Admin\Filament\Components\Tables\Actions\EditAction;
 use Capell\Admin\Filament\Components\Tables\Actions\ReplicateAction;
 use Capell\Admin\Filament\Components\Tables\Columns\BadgeableColumn;
-use Capell\Admin\Filament\Components\Tables\Columns\Content\ContentNameColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\DateColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\IdentifierColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\ImageColumn;
@@ -22,15 +18,21 @@ use Capell\Admin\Filament\Components\Tables\Columns\SiteColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\StatusColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\TypeNameColumn;
 use Capell\Admin\Filament\Components\Tables\Filters\StatusFilter;
-use Capell\Admin\Filament\Resources\ContentResource\Pages;
-use Capell\Admin\Filament\Resources\ContentResource\RelationManagers\ContentAssetsRelationManager;
-use Capell\Admin\Filament\Resources\ContentResource\RelationManagers\PagesRelationManager;
-use Capell\Admin\Filament\Resources\ContentResource\RelationManagers\WidgetsRelationManager;
-use Capell\Admin\Filament\Schemas\Content\DefaultContentSchema;
-use Capell\Admin\Livewire\Assets\Table\ContentsTable;
+use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Enums\TagTypeEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
+use Capell\Layout\Actions\ReplicateContentAction;
+use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Filament\Components\Forms\Content\ContentDetailsSchema;
+use Capell\Layout\Filament\Components\Tables\Columns\Content\ContentNameColumn;
+use Capell\Layout\Filament\Resources\ContentResource\Pages;
+use Capell\Layout\Filament\Resources\ContentResource\RelationManagers\ContentAssetsRelationManager;
+use Capell\Layout\Filament\Resources\ContentResource\RelationManagers\PagesRelationManager;
+use Capell\Layout\Filament\Resources\ContentResource\RelationManagers\WidgetsRelationManager;
+use Capell\Layout\Filament\Schemas\Content\DefaultContentSchema;
+use Capell\Layout\Livewire\Assets\Table\ContentsTable;
+use Capell\Layout\Models\Content;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -72,7 +74,7 @@ class ContentResource extends Resource
                     fn (Get $get, TypeSchema $component): array => $component
                         ->getSchema(
                             $form,
-                            SchemaEnum::Content,
+                            \Capell\Layout\Enums\SchemaEnum::Content,
                             key: $get('type_id'),
                             defaultSchema: DefaultContentSchema::getKey()
                         )
@@ -87,7 +89,7 @@ class ContentResource extends Resource
 
     public static function getModel(): string
     {
-        return CapellCore::getModel('content');
+        return CapellCore::getModel(LayoutModelEnum::Content->name);
     }
 
     public static function getNavigationBadge(): ?string
@@ -120,7 +122,7 @@ class ContentResource extends Resource
 
     public static function getNavigationIcon(): ?string
     {
-        return CapellAdmin::getAssetIcon('content');
+        return CapellAdmin::getAsset('content')->getIcon();
     }
 
     public static function getPluralModelLabel(): string
@@ -143,8 +145,8 @@ class ContentResource extends Resource
             Tables\Filters\SelectFilter::make('site_id')
                 ->label(__('capell-admin::form.site'))
                 ->options(function (): array {
-                    /** @var Models\Site $model */
-                    $model = CapellCore::getModel('site');
+                    /** @var class-string<Models\Site> $model */
+                    $model = CapellCore::getModel(ModelEnum::Site);
 
                     return $model::query()
                         ->ordered()
@@ -180,8 +182,8 @@ class ContentResource extends Resource
                         ->options(function (Pages\ListContents|ContentsTable $livewire): array {
                             $siteId = self::getSiteId($livewire);
 
-                            /* @var \Capell\Core\Models\Language $model */
-                            $model = CapellCore::getModel('language');
+                            /* @var class-string<\Capell\Core\Models\Language> $model */
+                            $model = CapellCore::getModel(ModelEnum::Language);
 
                             return $model::when(
                                 $siteId,
@@ -200,7 +202,10 @@ class ContentResource extends Resource
                         ->options(function (Pages\ListContents|ContentsTable $livewire, Get $get) {
                             $siteId = self::getSiteId($livewire);
 
-                            $contents = CapellCore::getModel('content')::with([
+                            /** @var class-string<Content> $model */
+                            $model = CapellCore::getModel(LayoutModelEnum::Content->name);
+
+                            $contents = $model::with([
                                 'site',
                                 'ancestors',
                             ])
@@ -218,7 +223,7 @@ class ContentResource extends Resource
                                 ->orderBy('_lft')
                                 ->get();
 
-                            return $contents->mapWithKeys(function (Models\Content $content) use ($siteId) {
+                            return $contents->mapWithKeys(function (Content $content) use ($siteId) {
                                 $label = '';
 
                                 if (! $siteId && $content->site) {
@@ -254,7 +259,7 @@ class ContentResource extends Resource
                             }
 
                             if ($language_id = $get('language_id')) {
-                                $code = CapellCore::getModel('language')::find($language_id, 'code')->code;
+                                $code = CapellCore::getModel(ModelEnum::Language)::find($language_id, 'code')->code;
                                 $query->whereRaw('JSON_EXTRACT(`tags`.`name`, '.DB::getPdo()->quote('$.'.$code).') IS NOT NULL');
                             }
                         })
@@ -268,9 +273,9 @@ class ContentResource extends Resource
                             }
 
                             if ($language_id = $get('language_id')) {
-                                $code = CapellCore::getModel('language')::find($language_id, 'code')->code;
+                                $code = CapellCore::getModel(ModelEnum::Language)::find($language_id, 'code')->code;
 
-                                $label .= $record->getTranslation('name', $code, 'en');
+                                $label .= $record->getTranslation('name', $code);
                             } else {
                                 $label .= $record->getTranslation('name', 'en');
                             }
@@ -309,17 +314,23 @@ class ContentResource extends Resource
                     $indicators = [];
 
                     if (! empty($data['language_id'])) {
+                        /** @var class-string<Models\Language> $model */
+                        $model = CapellCore::getModel(ModelEnum::Language);
+
                         $indicators['language_id'] = __(
                             'capell-admin::filter.language',
-                            ['search' => CapellCore::getModel('language')::find($data['language_id'], 'name')?->name]
+                            ['search' => $model::find($data['language_id'], 'name')?->name]
                         );
                     }
 
                     if (! empty($data['parent_uuid'])) {
+                        /** @var class-string<Content> $model */
+                        $model = CapellCore::getModel(LayoutModelEnum::Content->name);
+
                         $indicators['parent_uuid'] = __(
                             'capell-admin::filter.parent',
                             [
-                                'search' => CapellCore::getModel('content')::select('name')->firstWhere(
+                                'search' => $model::select('name')->firstWhere(
                                     'uuid',
                                     $data['parent_uuid']
                                 )
@@ -329,9 +340,12 @@ class ContentResource extends Resource
                     }
 
                     if (! empty($data['tags'])) {
+                        /** @var class-string<Models\Tag> $model */
+                        $model = CapellCore::getModel(ModelEnum::Tag);
+
                         $indicators['tags'] = __(
                             'capell-admin::filter.tag',
-                            ['search' => CapellCore::getModel('tag')::find($data['tags'], 'name')?->name]
+                            ['search' => $model::find($data['tags'], 'name')?->name]
                         );
                     }
 
@@ -406,7 +420,7 @@ class ContentResource extends Resource
                 Tables\Actions\RestoreBulkAction::make(),
                 Tables\Actions\ForceDeleteBulkAction::make(),
             ])
-            ->recordClasses(fn (Models\Content $record): ?string => match (true) {
+            ->recordClasses(fn (Content $record): ?string => match (true) {
                 (bool) $record->deleted_at => 'table-row-warning',
                 default => null,
             });
@@ -456,7 +470,7 @@ class ContentResource extends Resource
                 ->toggleable()
                 ->color('primary')
                 ->url(
-                    fn (Models\Content $record, int $state): ?string => $state !== 0
+                    fn (Content $record, int $state): ?string => $state !== 0
                         ? self::getUrl('index', ['tableFilters' => ['filter' => ['parent_uuid' => $record->uuid]]])
                         : null
                 ),
@@ -467,7 +481,7 @@ class ContentResource extends Resource
                 ->sortable()
                 ->toggleable()
                 ->separator('')
-                ->formatStateUsing(fn (Models\Content $record): string => $record->assets_count ? '' : ' &mdash; '),
+                ->formatStateUsing(fn (Content $record): string => $record->assets_count ? '' : ' &mdash; '),
             SiteColumn::make('site.name')
                 ->hidden(
                     fn (Pages\ListContents $livewire): bool => $livewire->activeTab

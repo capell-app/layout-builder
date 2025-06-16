@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Livewire\LayoutBuilder;
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
-use Capell\Layout\Models\Layout;
+use Capell\Layout\Database\Factories\LayoutFactory;
+use Capell\Layout\Livewire\LayoutBuilder;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
@@ -26,7 +27,7 @@ beforeEach(function (): void {
 });
 
 test('Can save without affecting widget assets', function (bool $withPage): void {
-    $layout = Layout::factory()->containers()->create();
+    $layout = (new LayoutFactory())->containers()->create();
     $page = Page::factory()->layout($layout)->create();
 
     $containerKey = array_key_first($layout->containers);

@@ -10,6 +10,7 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Blog\Actions\CreateBlogPagesAction;
 use Capell\Blog\Actions\InstallBlogAction;
 use Capell\Blog\Commands\BlogDemoCommand;
+use Capell\Blog\Enums\BlogModelEnum;
 use Capell\Blog\Filament\Resources;
 use Capell\Blog\Filament\Schemas;
 use Capell\Blog\Services\BlogCreator;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Support\Facades\Blade;
 use Livewire\Livewire;
+use Lorisleiva\Actions\Facades\Actions;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 
@@ -37,7 +39,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             Livewire::component($name, $class);
         }
 
-        CapellCore::registerModel('article', Models\Article::class);
+        CapellCore::registerModel(BlogModelEnum::Article, Models\Article::class);
 
         Relation::morphMap([
             'article' => Models\Article::class,
@@ -51,9 +53,8 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             ]);
         }
 
-        CapellCore::serving(function (): void {
-            CapellCore::registerPackage(self::$name, self::class);
-        });
+        // TODO error does not work
+        // Actions::registerCommandsForAction(CreateBlogPagesAction::class);
 
         CapellAdmin::serving(function (): void {
             $this->registerDefaultPages();
@@ -70,7 +71,6 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             ->hasTranslations()
             ->hasCommands([
                 BlogDemoCommand::class,
-                CreateBlogPagesAction::class,
             ])
             ->hasInstallCommand(function (InstallCommand $command): void {
                 $command->startWith(function (): void {
@@ -82,10 +82,15 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             });
     }
 
+    public function registeringPackage(): void
+    {
+        parent::registeringPackage();
+
+        CapellCore::registerPackage(self::$name, self::class);
+    }
+
     private function registerDefaultPages(): void
     {
-        CapellCore::registerPackage(self::$name, self::class);
-
         CapellAdmin::registerResource(ResourceEnum::Page, 'article', Resources\ArticleResource::class);
 
         CapellCore::registerComponent('Widget', 'Article', 'capell-blog::widget.page.article');

@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Resources\WidgetResource\Pages;
 
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Admin\Filament\Actions\Page\CreateWidgetAction;
 use Capell\Admin\Filament\Concerns\ApplySearchRelationsTable;
+use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
+use Capell\Layout\Enums\LayoutResourceEnum;
+use Capell\Layout\Filament\Actions\Page\CreateWidgetAction;
 use Capell\Layout\Filament\Resources\WidgetResource;
-use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,7 +22,7 @@ class ListWidgets extends ListRecords
     /** @return class-string<WidgetResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getFilamentResource('widget');
+        return CapellAdmin::getResource(LayoutResourceEnum::Widget->value);
     }
 
     public function getFilteredTableQuery(): Builder
@@ -31,7 +32,7 @@ class ListWidgets extends ListRecords
         if (isset($this->getTableFilterState('filter')['language_id'])) {
             $language_id = $this->getTableFilterState('filter')['language_id'];
         } else {
-            $language_id = CapellCore::getModel('language')::query()->default()->value('id');
+            $language_id = CapellCore::getModel(ModelEnum::Language)::query()->default()->value('id');
         }
 
         $query->with([
@@ -45,9 +46,6 @@ class ListWidgets extends ListRecords
     {
         return [
             CreateWidgetAction::make(),
-            Actions\ActionGroup::make([
-
-            ]),
         ];
     }
 

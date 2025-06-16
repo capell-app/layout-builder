@@ -8,6 +8,7 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Tag;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
+use Capell\Layout\Database\Factories\ContentTypeFactory;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\ContentAsset;
 use Capell\Layout\Models\Widget;
@@ -22,7 +23,7 @@ it('belongs to a site', function (): void {
 });
 
 it('belongs to a type', function (): void {
-    $type = Type::factory()->content()->create();
+    $type = (new ContentTypeFactory())->create();
     $content = Content::factory()->create(['type_id' => $type->id]);
 
     expect($content->type)->toBeInstanceOf(Type::class)

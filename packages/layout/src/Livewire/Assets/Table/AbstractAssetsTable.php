@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Livewire\Assets\Table;
 
 use Capell\Admin\Filament\Actions\BulkSelectAction;
-use Capell\Admin\Livewire\LayoutBuilder;
+use Capell\Layout\Livewire\LayoutBuilder;
 use Closure;
 use Filament\Facades\Filament;
 use Filament\Forms;

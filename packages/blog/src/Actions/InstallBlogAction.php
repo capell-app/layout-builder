@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Capell\Blog\Actions;
 
 use Capell\Blog\Services\BlogCreator;
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
-use Capell\Layout\Models\Layout;
 use Exception;
 use Lorisleiva\Actions\Concerns\AsObject;
 

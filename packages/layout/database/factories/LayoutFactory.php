@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Database\Factories;
 
-use Capell\Layout\Models\Layout;
+use Capell\Core\Models\Layout;
 use Capell\Layout\Models\Widget;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,8 +17,11 @@ class LayoutFactory extends \Capell\Core\Database\Factories\LayoutFactory
     {
         return $this->state([
             'containers' => function (): array {
-                $firstWidget = Widget::firstWhere('key', 'first') ?: Widget::factory(['key' => 'first'])->create();
-                $secondWidget = Widget::firstWhere('key', 'second') ?: Widget::factory(['key' => 'second'])->create();
+                $firstWidget = Widget::firstWhere('key', 'first')
+                    ?: Widget::factory(['key' => 'first'])->create();
+
+                $secondWidget = Widget::firstWhere('key', 'second')
+                    ?: Widget::factory(['key' => 'second'])->create();
 
                 return [
                     'main' => [

@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms\Content;
 
-use Capell\Admin\Actions\CreateContentAction;
 use Capell\Admin\Filament\Actions\HintEditAction;
 use Capell\Admin\Filament\Concerns\HasCustomSelectOption;
+use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
+use Capell\Layout\Actions\CreateContentAction;
+use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Filament\Resources\ContentResource;
+use Capell\Layout\Models\Content;
 use Closure;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -52,8 +55,8 @@ class ContentSelect extends Forms\Components\Select
                 );
             })
             ->getOptionLabelUsing(fn (self $component, $value): ?string => $component->withUuid
-                ? Models\Content::findByUuid($value, ['name'])?->name
-                : Models\Content::find($value, ['name'])?->name)
+                ? Content::findByUuid($value, ['name'])?->name
+                : Content::find($value, ['name'])?->name)
             ->options(fn (self $component): array => $component->getContentOptions());
     }
 
@@ -85,11 +88,11 @@ class ContentSelect extends Forms\Components\Select
 
     public function withCreateForm(): self
     {
-        return $this->getOptionLabelFromRecordUsing(fn (Models\Content $record): string => static::getSelectOption($record))
+        return $this->getOptionLabelFromRecordUsing(fn (Content $record): string => static::getSelectOption($record))
             ->createOptionForm(
                 fn (mixed $state, Form $form): Form => $form->operation('createOption')
                     ->schema(ContentResource::getFormSchema($form))
-                    ->model(Models\Content::class)
+                    ->model(Content::class)
             )
             ->createOptionUsing(function (ContentSelect $component, array $data): string {
                 $content = CreateContentAction::run($data);
@@ -120,7 +123,7 @@ class ContentSelect extends Forms\Components\Select
                         $site = Models\Site::default()->first();
 
                         return [
-                            'type_id' => CapellCore::getModel('type')::contentType()->default()->value('id'),
+                            'type_id' => CapellCore::getModel(ModelEnum::Type)::contentType()->default()->value('id'),
                             'translations' => $site->translations->mapWithKeys(fn ($translation) => [
                                 (string) Str::uuid() => [
                                     'language_id' => $translation->language_id,
@@ -172,15 +175,15 @@ class ContentSelect extends Forms\Components\Select
                 })
             )
             ->fillEditOptionActionFormUsing(static function (self $component): array {
-                /** @var Models\Content $record */
+                /** @var Content $record */
                 $record = $component->getSelectedRecord();
 
                 return $record?->attributesToArray() ?? [];
             })
             ->getSelectedRecordUsing(
                 static fn (self $component, $state): ?Model => $component->withUuid
-                    ? Models\Content::findByUuid($state)
-                    : Models\Content::find($state)
+                    ? Content::findByUuid($state)
+                    : Content::find($state)
             )
             ->updateOptionUsing(static function (array $data, Form $form): void {
                 $form->getRecord()?->update($data);
@@ -209,7 +212,7 @@ class ContentSelect extends Forms\Components\Select
         return $this;
     }
 
-    private function getContentOptionLabel(Models\Content $content, ?int $siteId): string
+    private function getContentOptionLabel(Content $content, ?int $siteId): string
     {
         $label = '';
 
@@ -238,8 +241,8 @@ class ContentSelect extends Forms\Components\Select
 
         $parentContentType = $this->parentContentType;
 
-        /** @var Models\Content $model */
-        $model = CapellCore::getModel('content');
+        /** @var class-string<Content> $model */
+        $model = CapellCore::getModel(LayoutModelEnum::Content->name);
 
         /** @var \Kalnoy\Nestedset\Collection $content */
         $contents = $model::select('contents.*')
@@ -279,7 +282,7 @@ class ContentSelect extends Forms\Components\Select
             ->get();
 
         return $contents->mapWithKeys(
-            fn (Models\Content $content): array => [$content->{$this->getOptionKey()} => $this->getContentOptionLabel($content, $site_id)]
+            fn (Content $content): array => [$content->{$this->getOptionKey()} => $this->getContentOptionLabel($content, $site_id)]
         )
             ->toArray();
     }

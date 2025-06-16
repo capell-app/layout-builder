@@ -31,7 +31,7 @@ test('can list widgets', function (): void {
 
 test('can search widgets', function (): void {
     $widgets = Widget::factory()
-        ->sequence(fn (Sequence $sequence) => ['name' => "Language({$sequence->index})"])
+        ->sequence(fn (Sequence $sequence): array => ['name' => sprintf('Language(%d)', $sequence->index)])
         ->count(3)
         ->create();
 

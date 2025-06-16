@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 use Capell\Core\Models;
 use Capell\Layout\Filament\Resources\WidgetResource;
+use Capell\Layout\Models\Widget;
+use Capell\Layout\Models\WidgetAsset;
 use Filament\Tables\Actions\CreateAction;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 
 it('can list assets for a widget', function (): void {
-    $widget = Models\Widget::factory()
-        ->has(Models\WidgetAsset::factory()->count(5), 'assets')
+    $widget = Widget::factory()
+        ->has(WidgetAsset::factory()->count(5), 'assets')
         ->create();
 
     $resource = $widget->assets->first();
@@ -28,7 +30,7 @@ it('can list assets for a widget', function (): void {
 });
 
 test('can create a asset for a widget', function (string $assetType): void {
-    $widget = Models\Widget::factory()->create();
+    $widget = Widget::factory()->create();
 
     livewire(WidgetResource\RelationManagers\WidgetAssetsRelationManager::class, [
         'ownerRecord' => $widget,
@@ -40,9 +42,9 @@ test('can create a asset for a widget', function (string $assetType): void {
         ->fillForm(
             match ($assetType) {
                 'content' => [
-                    'asset_type' => app(Models\Content::class)->getMorphClass(),
+                    'asset_type' => app(Content::class)->getMorphClass(),
                     'assets' => [
-                        (string) Models\Content::factory()->create()->uuid,
+                        (string) Content::factory()->create()->uuid,
                     ],
                 ],
                 'media' => [
@@ -64,7 +66,7 @@ test('can create a asset for a widget', function (string $assetType): void {
         ->assertHasNoTableActionErrors()
         ->assertCountTableRecords(1);
 
-    assertDatabaseHas(Models\WidgetAsset::class, [
+    assertDatabaseHas(WidgetAsset::class, [
         'widget_id' => $widget->id,
         'asset_type' => $assetType,
     ]);

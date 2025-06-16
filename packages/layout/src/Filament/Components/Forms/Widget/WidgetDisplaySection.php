@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Components\Forms\Widget;
 
 use Capell\Admin\Filament\Components\Forms\AlignSelect;
-use Capell\Admin\Filament\Components\Forms\BackgroundSettingsFieldset;
 use Capell\Admin\Filament\Components\Forms\ContainerWidthSelect;
 use Capell\Admin\Filament\Components\Forms\CustomColorInput;
 use Capell\Admin\Filament\Components\Forms\MarginSelect;
 use Capell\Admin\Filament\Components\Forms\PaddingSelect;
 use Capell\Admin\Filament\Components\Forms\SizeSelect;
+use Capell\Layout\Filament\Components\Forms\BackgroundSettingsFieldset;
 use Filament\Forms;
 
 class WidgetDisplaySection

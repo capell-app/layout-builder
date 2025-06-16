@@ -18,8 +18,8 @@ class BlogTestCase extends AbstractTestCase
             ...parent::getPackageProviders($app),
             AdminServiceProvider::class,
             FrontendServiceProvider::class,
-            AdminPanelProvider::class,
             BlogServiceProvider::class,
+            AdminPanelProvider::class,
         ];
     }
 }

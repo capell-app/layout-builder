@@ -8,11 +8,12 @@ use Capell\Admin\Contracts\PageCacheNotifiable;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\DeleteAction;
 use Capell\Admin\Filament\Actions\Page\ChangeTypeAction;
-use Capell\Admin\Filament\Actions\Page\CreateWidgetAction;
 use Capell\Admin\Filament\Actions\ReplicateAction;
-use Capell\Admin\Filament\Components\Forms\Widget\WidgetTypeSelect;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Admin\Filament\Concerns\HasTypeRelationManagers;
+use Capell\Layout\Enums\LayoutResourceEnum;
+use Capell\Layout\Filament\Actions\Page\CreateWidgetAction;
+use Capell\Layout\Filament\Components\Forms\Widget\WidgetTypeSelect;
 use Capell\Layout\Filament\Resources\WidgetResource;
 use Capell\Layout\Filament\Resources\WidgetResource\RelationManagers;
 use Capell\Layout\Models\Widget;
@@ -40,7 +41,7 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
     /** @return class-string<WidgetResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getFilamentResource('widget');
+        return CapellAdmin::getResource(LayoutResourceEnum::Widget->value);
     }
 
     public function getRelationManagers(): array

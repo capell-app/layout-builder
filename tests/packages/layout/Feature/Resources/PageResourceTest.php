@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Capell\Admin\Filament\Resources\PageResource;
-use Capell\Admin\Livewire\LayoutBuilder;
 use Capell\Core\Models\Page;
+use Capell\Layout\Livewire\LayoutBuilder;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Laravel\get;

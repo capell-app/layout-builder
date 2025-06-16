@@ -6,6 +6,8 @@ namespace Capell\Layout\Filament\Concerns;
 
 use Capell\Core\Enums\TypeEnum;
 use Capell\Core\Models;
+use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Models\Content;
 use Filament\Forms;
 use Filament\Forms\Get;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -80,9 +82,9 @@ trait HasAssetsRelationManager
                     $record instanceof Models\Page,
                     fn (Builder $query) => $query->whereKeyNot($record->id)
                 ),
-            TypeEnum::Content->value => Models\Content::query()
+            LayoutTypeEnum::Content->value => Content::query()
                 ->when(
-                    $record instanceof Models\Content,
+                    $record instanceof Content,
                     fn (Builder $query) => $query->whereKeyNot($record->id)
                 ),
         };
@@ -93,7 +95,7 @@ trait HasAssetsRelationManager
                     ->from('content_assets')
                     ->where('content_assets.content_id', $record->id)
                     ->whereColumn('content_assets.asset_id', match ($type) {
-                        TypeEnum::Content->value => 'contents.id',
+                        LayoutTypeEnum::Content->value => 'contents.id',
                         TypeEnum::Media->value => 'media.id',
                         TypeEnum::Page->value => 'pages.id',
                     })

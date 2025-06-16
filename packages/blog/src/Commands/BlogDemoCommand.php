@@ -6,6 +6,7 @@ namespace Capell\Blog\Commands;
 
 use Capell\Admin\Services\Creator\DemoCreator;
 use Capell\Blog\Services\Loader\BlogLoader;
+use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
@@ -47,7 +48,7 @@ class BlogDemoCommand extends Command
         } else {
             $siteIds = multisearch(
                 'Select a site to insert demo pages',
-                options: fn (string $search) => CapellCore::getModel('site')::query()
+                options: fn (string $search) => CapellCore::getModel(ModelEnum::Site)::query()
                     ->when(
                         mb_strlen($search) > 0,
                         fn (Builder $query) => $query->where('name', 'like', sprintf('%%%s%%', $search))

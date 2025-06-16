@@ -28,7 +28,7 @@ class WidgetFactory extends Factory
             'name' => $name,
             'key' => $this->faker->unique()->slug,
             'type_id' => fn () => Type::factory()
-                ->widget()
+                ->type('widget')
                 ->state(
                     fn (): array => [
                         'default' => ! Type::widgetType()->default()->exists(),

@@ -1,0 +1,130 @@
+<?php
+
+declare(strict_types=1);
+
+?>
+
+@props([
+    'container',
+    'containerKey',
+    'containerWidgets',
+])
+@php
+    // Represent in two columns to ensure there's enough space
+    $colspan = (int) ($container['meta']['colspan'] ?? 12);
+
+    $containerTitle = str($containerKey)->title();
+
+    $widgetHasResourceTypes = ! empty(
+        array_filter($containerWidgets, fn ($widget) => ! empty($widget->type->admin['asset_types']))
+    );
+@endphp
+
+<div
+    x-data="{
+        isCollapsed: false,
+        toggleCollapse() {
+            this.isCollapsed = ! this.isCollapsed
+        },
+    }"
+    wire:key="container-{{ $containerKey }}"
+    x-sort:item="'{{ $containerKey }}'"
+    x-on:collapse-container.window="isCollapsed = $event.detail.isCollapsed"
+    x-cloak
+    @class([
+        'layout-container col-span-12',
+        'md:col-span-6' => $colspan < 12,
+    ])
+>
+    <div
+        class="rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-800 dark:ring-white/10"
+    >
+        <div
+            class="layout-container-header group/container flex min-h-12 cursor-pointer items-center gap-x-4 gap-y-2 rounded-lg bg-gray-100 px-4 dark:bg-white/5"
+            :class="{ '!rounded-b-none': !isCollapsed }"
+            x-on:click.self="toggleCollapse"
+        >
+            <div class="pointer-events-none flex grow items-center gap-x-3">
+                @if (count($this->containers) > 1)
+                    <div
+                        wire:loading.class="pointer-events-none opacity-40"
+                        x-sort:handle
+                        x-show="isReordering"
+                    >
+                        <x-filament::icon-button
+                            class="layout-container-handle pointer-events-auto"
+                            icon="heroicon-o-arrows-up-down"
+                            color="primary"
+                            size="sm"
+                        />
+                    </div>
+                @endif
+
+                <span
+                    class="pointer-events-auto break-words text-sm font-light uppercase leading-6 tracking-wide text-gray-700 dark:text-white"
+                    x-on:click.self="toggleCollapse"
+                    x-tooltip.raw="{{ __('capell-admin::generic.container_name', ['name' => $containerTitle]) }}"
+                >
+                    {{ $containerTitle }}
+                </span>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <x-filament::dropdown
+                    placement="bottom-end"
+                    width="!w-auto"
+                    teleport
+                >
+                    <x-slot name="trigger">
+                        <x-filament::icon-button
+                            icon="heroicon-o-ellipsis-vertical"
+                            size="sm"
+                            color="gray"
+                        />
+                    </x-slot>
+
+                    <x-filament::dropdown.list>
+                        {{ ($this->editContainerAction)(['containerKey' => $containerKey]) }}
+
+                        {{ ($this->removeContainerAction)(['containerKey' => $containerKey]) }}
+                    </x-filament::dropdown.list>
+                </x-filament::dropdown>
+            </div>
+        </div>
+
+        <div
+            x-show="! isCollapsed"
+            x-cloak
+            class="layout-container-widgets min-h-[52px] divide-y divide-gray-100 rounded-b-lg dark:divide-gray-800"
+            x-sort="$wire.reorderWidgets('{{ $containerKey }}', $item, $position)"
+            x-sort:group="widgets"
+        >
+            @foreach ($container['widgets'] as $widgetIndex => $containerWidget)
+                @continue(! isset($containerWidgets[$widgetIndex]))
+                <x-capell-layout::layout-builder.widget
+                    :$containerKey
+                    :$containerWidget
+                    :$loop
+                    :assets-count="$containerWidgets[$widgetIndex]->assets?->count()"
+                    :assets="$containerWidgets[$widgetIndex]->assets ?? []"
+                    :widget="$containerWidgets[$widgetIndex]"
+                    :$widgetIndex
+                />
+            @endforeach
+        </div>
+        <style>
+            .layout-container-widgets:empty::before {
+                content: '{{ __('capell-admin::generic.drag_and_drop_widgets_here') }}';
+                text-align: center;
+                display: block;
+                height: 100%;
+                padding: 20px;
+                font-style: italic;
+                color: #757575;
+                font-size: 0.9em;
+            }
+        </style>
+    </div>
+</div>
+
+<?php

@@ -11,8 +11,10 @@ use Capell\Admin\Filament\Concerns\HasRelationManagerBadge;
 use Capell\Admin\Filament\Resources\MediaResource;
 use Capell\Core\Enums\TypeEnum;
 use Capell\Core\Models;
+use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Filament\Concerns\HasAssetsRelationManager;
 use Capell\Layout\Filament\Resources\ContentResource;
+use Capell\Layout\Models\Content;
 use Capell\Layout\Models\WidgetAsset;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -59,9 +61,9 @@ class WidgetAssetsRelationManager extends RelationManager
                     ->withParents()
                     ->sortable(),
             ])
-            ->recordUrl(fn (Models\WidgetAsset $record): string => match ($record->asset_type) {
+            ->recordUrl(fn (WidgetAsset $record): string => match ($record->asset_type) {
                 // TODO: Implement for other asset types
-                TypeEnum::Content->value => ContentResource::getUrl('edit', ['record' => $record->asset]),
+                LayoutTypeEnum::Content->value => ContentResource::getUrl('edit', ['record' => $record->asset]),
                 TypeEnum::Media->value => MediaResource::getUrl('edit', ['record' => $record->asset]),
                 TypeEnum::Page->value => $record->asset->edit_url,
             })
@@ -79,7 +81,7 @@ class WidgetAssetsRelationManager extends RelationManager
                                     ->groupBy('page_id')
                                     ->get()
                                     ->mapWithKeys(
-                                        fn (Models\WidgetAsset $widgetAsset) => [$widgetAsset->page_id => $widgetAsset->page->name]
+                                        fn (WidgetAsset $widgetAsset) => [$widgetAsset->page_id => $widgetAsset->page->name]
                                     )
                                     ->toArray()
                             ),
@@ -94,7 +96,7 @@ class WidgetAssetsRelationManager extends RelationManager
                             ->label(__('capell-admin::form.type'))
                             ->visible(fn (Forms\Get $get): bool => ! empty($get('type')))
                             ->options(fn (Forms\Get $get): array => match ($get('type')) {
-                                TypeEnum::Content->value => Models\Content::getTypes(),
+                                LayoutTypeEnum::Content->value => Content::getTypes(),
                                 TypeEnum::Page->value => Models\Page::getTypes(),
                                 default => []
                             }),

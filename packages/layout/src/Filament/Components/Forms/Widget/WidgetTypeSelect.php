@@ -6,8 +6,9 @@ namespace Capell\Layout\Filament\Components\Forms\Widget;
 
 use Capell\Admin\Filament\Components\Forms\TypeSelect;
 use Capell\Core\Enums\TypeEnum;
+use Capell\Layout\Enums\LayoutTypeEnum;
 
 class WidgetTypeSelect extends TypeSelect
 {
-    protected ?TypeEnum $type = TypeEnum::Widget;
+    protected null|TypeEnum|string $type = LayoutTypeEnum::Widget->value;
 }

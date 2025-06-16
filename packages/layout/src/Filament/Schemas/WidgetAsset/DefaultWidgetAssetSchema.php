@@ -7,9 +7,9 @@ namespace Capell\Layout\Filament\Schemas\WidgetAsset;
 use Capell\Admin\Filament\Components\Forms\MediaSchema;
 use Capell\Admin\Filament\Resources\PageResource;
 use Capell\Admin\Filament\Schemas\AbstractSchema;
-use Capell\Core\Models;
 use Capell\Layout\Enums\SchemaEnum;
 use Capell\Layout\Filament\Resources\ContentResource;
+use Capell\Layout\Models\WidgetAsset;
 use Filament\Forms;
 
 class DefaultWidgetAssetSchema extends AbstractSchema
@@ -28,7 +28,7 @@ class DefaultWidgetAssetSchema extends AbstractSchema
         return ContentResource::getFormSchema($form);
     }
 
-    protected static function getFormSchema(Models\WidgetAsset $record, Forms\Form $form): array
+    protected static function getFormSchema(WidgetAsset $record, Forms\Form $form): array
     {
         return match ($record->asset_type) {
             'content' => static::getContentFormSchema($form),
@@ -58,7 +58,7 @@ class DefaultWidgetAssetSchema extends AbstractSchema
                     ->saveRelationshipsUsing(fn (): false => false),
             )
             ->mutateRelationshipDataBeforeCreateUsing(
-                function (Models\WidgetAsset $record, array $data, Forms\Get $get): array {
+                function (WidgetAsset $record, array $data, Forms\Get $get): array {
                     switch ($record->asset_type) {
                         case 'media':
                             if (blank($data['title'])) {
@@ -77,6 +77,6 @@ class DefaultWidgetAssetSchema extends AbstractSchema
                     return $data;
                 }
             )
-            ->schema(fn (Models\WidgetAsset $record): array => static::getFormSchema($record, $form));
+            ->schema(fn (WidgetAsset $record): array => static::getFormSchema($record, $form));
     }
 }

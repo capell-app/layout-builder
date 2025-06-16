@@ -7,6 +7,7 @@ namespace Capell\Blog\Services\Sitemap;
 use Capell\Blog\Services\Loader\BlogLoader;
 use Capell\Core\Data\ArchiveMonthData;
 use Capell\Core\Data\SitemapPageData;
+use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
@@ -54,7 +55,7 @@ class ArchivePageSitemap extends AbstractSitemapPages
     {
         return once(function () use ($site, $language): ?Page {
             /** @var class-string<Page> $model */
-            $model = CapellCore::getModel('page');
+            $model = CapellCore::getModel(ModelEnum::Page);
 
             return $model::getPageByType('archive', $site, $language);
         });

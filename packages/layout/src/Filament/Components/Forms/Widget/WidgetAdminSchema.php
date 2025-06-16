@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms\Widget;
 
-use Capell\Admin\Enums\SchemaEnum;
 use Capell\Admin\Filament\Components\Forms\AdminSchemaSelect;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\ImageUpload;
-use Capell\Admin\Filament\Schemas\Widget\DefaultWidgetSchema;
+use Capell\Layout\Enums\SchemaEnum;
+use Capell\Layout\Filament\Schemas\Widget\DefaultWidgetSchema;
 use Filament\Forms;
 
 class WidgetAdminSchema
@@ -23,17 +23,17 @@ class WidgetAdminSchema
 
             AdminSchemaSelect::make('schema')
                 ->default(fn (): string => DefaultWidgetSchema::getKey())
-                ->setupOptions(SchemaEnum::Widget),
+                ->setupOptions(SchemaEnum::Widget->value),
 
             AdminSchemaSelect::make('widget_asset_schema')
                 ->label(__('capell-admin::form.widget_asset_schema'))
                 ->helperText(__('capell-admin::generic.widget_asset_schema_info'))
-                ->setupOptions(SchemaEnum::WidgetAsset),
+                ->setupOptions(SchemaEnum::WidgetAsset->value),
 
             AdminSchemaSelect::make('layout_container_widget_schema')
                 ->label(__('capell-admin::form.container_widget_asset_schema'))
                 ->helperText(__('capell-admin::generic.container_widget_asset_schema_info'))
-                ->setupOptions(SchemaEnum::LayoutContainerWidget),
+                ->setupOptions(SchemaEnum::LayoutWidget->value),
 
             IconPicker::make('icon')
                 ->label(__('capell-admin::form.admin_icon')),

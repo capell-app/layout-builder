@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Commands\InstallCommand;
 use Capell\Admin\Filament\Resources\PageResource\Pages\EditPage;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Frontend\Http\Middleware\HtmlCacheMiddleware;
@@ -17,7 +16,7 @@ arch()
 
 arch()->preset()->security()
     ->ignoring([
-        InstallCommand::class,
+        Capell\Core\Commands\InstallCommand::class,
     ]);
 
 it('does not allow debug functions')

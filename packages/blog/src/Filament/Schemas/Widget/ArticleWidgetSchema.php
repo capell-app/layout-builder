@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Filament\Schemas\Widget;
 
-use Capell\Admin\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
-use Capell\Admin\Filament\Components\Forms\Widget\WidgetAdminSchema;
-use Capell\Admin\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Capell\Admin\Filament\Schemas\AbstractSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
+use Capell\Layout\Filament\Components\Forms\Widget\WidgetAdminSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Filament\Forms;
 
 class ArticleWidgetSchema extends AbstractSchema

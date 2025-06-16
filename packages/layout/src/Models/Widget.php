@@ -12,7 +12,6 @@ use Capell\Core\Models\Concerns\HasPublishDates;
 use Capell\Core\Models\Concerns\HasStatus;
 use Capell\Core\Models\Concerns\HasTranslations;
 use Capell\Core\Models\Contracts\Statusable;
-use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
@@ -21,7 +20,6 @@ use Capell\Layout\Database\Factories\WidgetFactory;
 use Capell\Layout\Observers\WidgetObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,42 +34,25 @@ use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
 use Wildside\Userstamps\Userstamps;
 
 /**
- * @property int $id
- * @property string $name
- * @property int $type_id
- * @property string $key
- * @property \Illuminate\Support\Carbon|null $publish_from
- * @property \Illuminate\Support\Carbon|null $publish_to
- * @property string|null $content
- * @property array<array-key, mixed>|null $meta
- * @property array<array-key, mixed>|null $admin
- * @property int $order
- * @property bool $status
- * @property int|null $created_by
- * @property int|null $updated_by
- * @property int|null $deleted_by
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, WidgetAsset> $assets
+ * @property-read int|null $assets_count
  * @property-read \Kalnoy\Nestedset\Collection<int, Content> $contents
  * @property-read int|null $contents_count
- * @property-read \App\Models\User|null $creator
- * @property-read \App\Models\User|null $destroyer
- * @property-read \App\Models\User|null $editor
+ * @property-read \Illuminate\Foundation\Auth\User|null $creator
+ * @property-read \Illuminate\Foundation\Auth\User|null $destroyer
+ * @property-read \Illuminate\Foundation\Auth\User|null $editor
  * @property-read \Capell\Core\Enums\PublishStatusEnum $publish_status
  * @property-read Media|null $image
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Language> $languages
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Capell\Core\Models\Language> $languages
  * @property-read int|null $languages_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Media> $media
  * @property-read int|null $media_count
  * @property-read \Kalnoy\Nestedset\Collection<int, Page> $pages
  * @property-read int|null $pages_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, WidgetAsset> $assets
- * @property-read int|null $assets_count
- * @property-read Translation|null $translation
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Translation> $translations
+ * @property-read \Capell\Core\Models\Translation|null $translation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Capell\Core\Models\Translation> $translations
  * @property-read int|null $translations_count
- * @property-read Type $type
+ * @property-read Type|null $type
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WidgetAsset> $widgetAssets
  * @property-read int|null $widget_assets_count
  * @property-read \Illuminate\Database\Eloquent\Collection|Layout[] $layouts
@@ -79,15 +60,16 @@ use Wildside\Userstamps\Userstamps;
  *
  * @method static Builder<static>|Widget disabled()
  * @method static Builder<static>|Widget enabled()
- * @method static Builder<static>|Widget expired()
- * @method static \Capell\Core\Database\Factories\WidgetFactory factory($count = null, $state = [])
+ * @method static Builder<static>|Widget expired(\Illuminate\Database\Eloquent\Model $model)
+ * @method static \Capell\Layout\Database\Factories\WidgetFactory factory($count = null, $state = [])
  * @method static Builder<static>|Widget newModelQuery()
  * @method static Builder<static>|Widget newQuery()
  * @method static Builder<static>|Widget onlyTrashed()
  * @method static Builder<static>|Widget ordered(string $dir = 'asc')
- * @method static Builder<static>|Widget pending()
- * @method static Builder<static>|Widget published()
+ * @method static Builder<static>|Widget pending(\Illuminate\Database\Eloquent\Model $model)
+ * @method static Builder<static>|Widget published(\Illuminate\Database\Eloquent\Model $model)
  * @method static Builder<static>|Widget query()
+ * @method static Builder<static>|Widget status(bool $enabled)
  * @method static Builder<static>|Widget withLayoutsCount()
  * @method static Builder<static>|Widget withTrashed()
  * @method static Builder<static>|Widget withWhereHasLanguage(int $language_id)

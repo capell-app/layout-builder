@@ -9,12 +9,29 @@ use Capell\Core\Contracts\PageCacheable;
 use Capell\Core\Enums\TypeEnum;
 use Capell\Core\Models\Concerns\HasPageCache;
 use Capell\Layout\Database\Factories\ContentAssetFactory;
+use Eloquent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Wildside\Userstamps\Userstamps;
 
+/**
+ * @property-read Model|Eloquent $asset
+ * @property-read Content|null $content
+ * @property-read \Illuminate\Foundation\Auth\User|null $creator
+ * @property-read \Illuminate\Foundation\Auth\User|null $destroyer
+ * @property-read \Illuminate\Foundation\Auth\User|null $editor
+ * @property-read string $asset_key
+ *
+ * @method static \Capell\Layout\Database\Factories\ContentAssetFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ContentAsset newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ContentAsset newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ContentAsset query()
+ *
+ * @mixin \Eloquent
+ * @mixin Eloquent
+ */
 class ContentAsset extends Model implements PageCacheable
 {
     /** @use HasFactory<ContentAssetFactory> */

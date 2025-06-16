@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Columns\Content;
+namespace Capell\Layout\Filament\Components\Tables\Columns\Content;
 
 use Awcodes\FilamentBadgeableColumn\Components\Badge;
 use Capell\Admin\Filament\Components\Tables\Columns\BadgeableColumn;

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Enums\WidgetTypeEnum;
 use Capell\Admin\Filament\Actions\ReplicateAction;
-use Capell\Admin\Services\Creator\WidgetTypeCreator;
 use Capell\Core\Models\Navigation;
+use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Filament\Resources\WidgetResource\Pages\EditWidget;
 use Capell\Layout\Models\Widget;
+use Capell\Layout\Services\Creator\WidgetTypeCreator;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\DeleteAction;
 

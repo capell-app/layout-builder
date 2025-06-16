@@ -15,9 +15,12 @@ class LayoutTestCase extends AbstractTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
+        $this->packageMigrations = $this->getPackageMigrations(
+            __DIR__.'/../../../packages/layout/database/migrations',
+            CapellLayoutManager::getMigrations()
+        );
 
-        $this->loadPackageMigrations(CapellLayoutManager::getMigrations());
+        parent::setUp();
     }
 
     protected function getPackageProviders($app): array
@@ -26,8 +29,8 @@ class LayoutTestCase extends AbstractTestCase
             ...parent::getPackageProviders($app),
             AdminServiceProvider::class,
             FrontendServiceProvider::class,
-            AdminPanelProvider::class,
             LayoutServiceProvider::class,
+            AdminPanelProvider::class,
         ];
     }
 }

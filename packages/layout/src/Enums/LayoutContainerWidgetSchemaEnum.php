@@ -8,6 +8,6 @@ use Capell\Layout\Filament\Schemas;
 
 enum LayoutContainerWidgetSchemaEnum: string
 {
-    case Default = Schemas\Layout\DefaultLayoutWidgetSchema::class;
-    case Page = Schemas\Layout\PageLayoutWidgetSchema::class;
+    case Default = Schemas\LayoutWidget\DefaultLayoutWidgetSchema::class;
+    case Page = Schemas\LayoutWidget\PageLayoutWidgetSchema::class;
 }

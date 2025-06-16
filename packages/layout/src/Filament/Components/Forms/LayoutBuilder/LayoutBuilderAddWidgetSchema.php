@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms\LayoutBuilder;
 
-use Capell\Admin\Filament\Components\Forms\Widget\WidgetSelect;
-use Capell\Core\Enums\TypeEnum;
+use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
+use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Filament\Components\Forms\Widget\WidgetSelect;
 use Filament\Forms;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
@@ -71,8 +73,8 @@ class LayoutBuilderAddWidgetSchema
 
     private static function getWidgetTypeGroupsOptions(): array
     {
-        /** @var Models\Type $model */
-        $model = CapellCore::getModel('type');
+        /** @var class-string<Models\Type> $model */
+        $model = CapellCore::getModel(ModelEnum::Type);
 
         return $model::select('group')
             ->orderByRaw(
@@ -87,7 +89,7 @@ class LayoutBuilderAddWidgetSchema
                     ELSE 0
                 END ASC'
             )
-            ->where('type', TypeEnum::Widget)
+            ->where('type', LayoutTypeEnum::Widget)
             ->whereNotNull('group')
             ->orderBy('group', 'asc')
             ->groupBy('group')
@@ -113,7 +115,7 @@ class LayoutBuilderAddWidgetSchema
 
     private static function getWidgetOptionsQuery(?array $typeId, ?array $groups): Builder
     {
-        return CapellCore::getModel('widget')::query()
+        return CapellCore::getModel(LayoutModelEnum::Widget->name)::query()
             ->with('type')
             ->when($typeId !== null && $typeId !== [], fn (Builder $query) => $query->whereIn('type_id', $typeId))
             ->when(

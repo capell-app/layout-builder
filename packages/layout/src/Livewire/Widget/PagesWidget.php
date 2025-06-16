@@ -33,7 +33,7 @@ class PagesWidget extends AbstractWidget
 
         $limit = $this->widget->meta['limit'] ?? config('capell-frontend.pagination_limit', 12);
 
-        $paginationKey = $this->containerKey.ucfirst($this->widget->key).$this->occurrence;
+        $paginationKey = $this->containerKey.ucfirst((string) $this->widget->key).$this->occurrence;
         $paginationPage = $this->getPage($paginationKey);
 
         $hasPageAssets = $this->widget
@@ -53,9 +53,6 @@ class PagesWidget extends AbstractWidget
             site: Frontend::getSite(),
             language: Frontend::getLanguage(),
             page: $page,
-            widget: $this->widget,
-            containerKey: $this->containerKey,
-            occurrence: $this->occurrence,
             limit: $limit,
             paginationPage: $paginationPage,
             ordering: $this->widget->meta['order'] ?? 'alphabetic',

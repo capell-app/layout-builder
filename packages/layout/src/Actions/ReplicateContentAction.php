@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Actions;
 
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
+use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Models\Content;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -65,10 +66,13 @@ class ReplicateContentAction
 
     private function getContentName(Content $content): string
     {
-        $name = CapellAdmin::incrementName($content->name);
+        $name = Str::incrementName($content->name);
 
-        while (CapellCore::getModel('content')::where('name', $name)->exists()) {
-            $name = CapellAdmin::incrementName($name);
+        /** @var class-string<Content> $model */
+        $model = CapellCore::getModel(LayoutModelEnum::Content->name);
+
+        while ($model::query()->where('name', $name)->exists()) {
+            $name = Str::incrementName($name);
         }
 
         return $name;

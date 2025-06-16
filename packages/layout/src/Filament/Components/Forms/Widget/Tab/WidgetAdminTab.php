@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms\Widget\Tab;
 
-use Capell\Admin\Filament\Components\Forms\Widget\WidgetAdminSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\WidgetAdminSchema;
 use Filament\Forms;
 
 class WidgetAdminTab

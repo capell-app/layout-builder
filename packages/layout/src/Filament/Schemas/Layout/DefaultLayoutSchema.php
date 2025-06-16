@@ -6,7 +6,9 @@ namespace Capell\Layout\Filament\Schemas\Layout;
 
 use Capell\Admin\Filament\Components\Forms\Layout\LayoutDetailsSchema;
 use Capell\Admin\Filament\Schemas\AbstractSchema;
+use Capell\Core\Models\Layout;
 use Capell\Layout\Enums\SchemaEnum;
+use Capell\Layout\Livewire\LayoutBuilder;
 use Filament\Forms;
 use Filament\Forms\Get;
 

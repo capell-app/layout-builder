@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Actions;
 
 use Capell\Core\Facades\CapellCore;
+use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Models\Content;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -28,8 +29,8 @@ class CreateContentAction
 
     public function handle(array $data): Content
     {
-        /** @var Content $model */
-        $model = CapellCore::getModel('content');
+        /** @var class-string<Content> $model */
+        $model = CapellCore::getModel(LayoutModelEnum::Content->name);
 
         if (empty($data['name']) && ! empty($data['translations'])) {
             $data['name'] = collect($data['translations'])->first()['title'];

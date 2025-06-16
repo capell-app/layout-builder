@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Actions\Page;
 
-use Capell\Admin\Actions\MutateContentDataBeforeCreateAction;
 use Capell\Admin\Enums\ModalWidthEnum;
-use Capell\Core\Models;
+use Capell\Layout\Actions\MutateContentDataBeforeCreateAction;
+use Capell\Layout\Models\Content;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Form;
 use Filament\Resources\Pages\Page;
@@ -17,7 +17,7 @@ class CreateContentAction extends CreateAction
     {
         parent::setUp();
 
-        $this->model(Models\Content::class)
+        $this->model(Content::class)
             ->url(null)
             ->modal()
             ->slideOver()
@@ -29,7 +29,7 @@ class CreateContentAction extends CreateAction
             ->modalWidth(ModalWidthEnum::Default->value)
             ->groupedIcon('heroicon-m-plus-circle')
             ->successRedirectUrl(
-                fn ($livewire, Models\Content $record): string => $livewire->getResource()::getUrl('edit', [$record])
+                fn ($livewire, Content $record): string => $livewire->getResource()::getUrl('edit', [$record])
             )
             ->fillForm(
                 data: function (Page $livewire): array {

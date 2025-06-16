@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Schemas\Widget;
 
-use Capell\Admin\Facades\CapellAdmin;
-use Capell\Admin\Filament\Components\Forms\BackgroundSettingsFieldset;
+use Capell\Admin\Actions\FixCuratorMetaDataAction;
 use Capell\Admin\Filament\Components\Forms\CarouselSettingsSchema;
 use Capell\Admin\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
-use Capell\Admin\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
-use Capell\Admin\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
-use Capell\Admin\Filament\Components\Forms\Widget\WidgetAssetsRepeater;
-use Capell\Admin\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
-use Capell\Admin\Filament\Components\Forms\Widget\WidgetSettingsSchema;
-use Capell\Admin\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
-use Capell\Admin\Filament\Schemas\Widget\AbstractWidgetSchema;
+use Capell\Layout\Filament\Components\Forms\BackgroundSettingsFieldset;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
+use Capell\Layout\Filament\Components\Forms\Widget\WidgetAssetsRepeater;
+use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
+use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
 use Filament\Forms;
 
 class HeroWidgetSchema extends AbstractWidgetSchema
@@ -76,7 +75,7 @@ class HeroWidgetSchema extends AbstractWidgetSchema
                         ->statePath('meta')
                         ->mutateDehydratedStateUsing(function (array $state): array {
                             if (isset($state['background_image_id'])) {
-                                $state['background_image_id'] = CapellAdmin::fixMediaFormData($state['background_image_id']);
+                                $state['background_image_id'] = FixCuratorMetaDataAction::run($state['background_image_id']);
                             }
 
                             return $state;

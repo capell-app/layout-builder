@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms\Widget;
 
-use Capell\Admin\Facades\CapellAdmin;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
 use Capell\Layout\Models\Widget;
 use Filament\Forms;
@@ -35,12 +35,12 @@ class WidgetComponentFilesSection
                     ->reactive()
                     ->preload()
                     ->when($componentRequired, fn (Forms\Components\Select $component): Forms\Components\Select => $component->required())
-                    ->options(function (null|Widget|Models\Type $record, Get $get): array {
+                    ->options(function (null|Widget|Models\Type $record): array {
                         if ($record === null) {
                             return [];
                         }
 
-                        return CapellAdmin::getComponents('Widget');
+                        return CapellCore::getComponents('widget');
                     }),
 
                 Forms\Components\TextInput::make('file_view')
@@ -51,7 +51,7 @@ class WidgetComponentFilesSection
                     ->label(__('capell-admin::form.component_item'))
                     ->helperText(__('capell-admin::generic.component_item_info'))
                     ->options(
-                        fn (null|Widget|Models\Type $record): array => CapellAdmin::getComponents('Resource')
+                        fn (null|Widget|Models\Type $record): array => CapellCore::getComponents('resource')
                     ),
             ]);
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Blog\Services\Loader;
 
 use Capell\Core\Data\ArchiveMonthData;
+use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
 use Capell\Core\Models\Page;
@@ -25,8 +26,8 @@ class BlogLoader
         $page = FrontendManager::cacheForever($cacheKey, function () use ($site, $language, &$fromCache): ?Models\Page {
             $fromCache = false;
 
-            /** @var Page $model */
-            $model = CapellCore::getModel('page');
+            /** @var class-string<Page> $model */
+            $model = CapellCore::getModel(ModelEnum::Page);
 
             return $model::getPageByType('archive', site: $site, language: $language);
         }) ?: null;
@@ -60,8 +61,8 @@ class BlogLoader
             $type,
             $pagination,
         ): Collection {
-            /* @var Models\Page $model */
-            $model = CapellCore::getModel('page');
+            /* @var class-string<Models\Page> $model */
+            $model = CapellCore::getModel(ModelEnum::Page);
 
             return $model::withoutEvents(fn () => $model::getPageArchivedDates(site: $site, language: $language, typeKey: $type)
                 ->when(! $pagination, fn (Builder $query): Collection => $query->limit($limit)->get())

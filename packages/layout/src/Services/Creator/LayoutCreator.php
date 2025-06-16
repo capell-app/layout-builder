@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Services\Creator;
 
+use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Layout\Models\Layout;
+use Capell\Core\Models\Layout;
 
 class LayoutCreator
 {
@@ -16,7 +17,7 @@ class LayoutCreator
 
     public function __construct()
     {
-        $this->layoutModel = CapellCore::getModel('layout');
+        $this->layoutModel = CapellCore::getModel(ModelEnum::Layout);
     }
 
     public function create(string $key): Layout

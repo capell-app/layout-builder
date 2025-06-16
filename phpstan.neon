@@ -12,10 +12,6 @@ parameters:
     checkExplicitMixedMissingReturn: true
     checkFunctionNameCase: true
     databaseMigrationsPath:
-        - packages/core/database/migrations
+        - packages/layout/database/migrations
     configDirectories:
-        - packages/admin/config
-        - packages/admin/publishes/config
         - packages/blog/config
-        - packages/core/config
-        - packages/frontend/config

@@ -6,6 +6,7 @@ namespace Capell\Layout\Livewire\Assets\Table;
 
 use Capell\Admin\Filament\Components\Tables\Columns\CuratorColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\DateColumn;
+use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Filament\Tables;
 use Illuminate\Database\Eloquent\Builder;
@@ -39,8 +40,8 @@ class MediaTable extends AbstractAssetsTable
 
     protected function getTableQuery(): Builder
     {
-        /* @var \Capell\Core\Models\Media $model */
-        $model = CapellCore::getModel('media');
+        /* @var class-string<\Capell\Core\Models\Media> $model */
+        $model = CapellCore::getModel(ModelEnum::Media);
 
         return $model::query();
     }

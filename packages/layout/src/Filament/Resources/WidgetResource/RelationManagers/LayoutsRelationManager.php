@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Resources\WidgetResource\RelationManagers;
 
+use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Tables\Columns\CuratorColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\DateColumn;
@@ -85,7 +86,7 @@ class LayoutsRelationManager extends RelationManager
                     ),
             ])
             ->recordUrl(
-                fn (Models\Layout $record): string => CapellAdmin::getFilamentResource('layout')::getUrl('edit', ['record' => $record]),
+                fn (Models\Layout $record): string => CapellAdmin::getResource(ResourceEnum::Layout)::getUrl('edit', ['record' => $record]),
             );
     }
 }

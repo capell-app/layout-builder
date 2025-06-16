@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\Layout\Filament\Resources\WidgetResource;
-use Capell\Layout\Models\Layout;
 use Capell\Layout\Models\Widget;
 
 use function Pest\Livewire\livewire;

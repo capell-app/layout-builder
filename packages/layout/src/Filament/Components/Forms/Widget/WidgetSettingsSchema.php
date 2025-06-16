@@ -7,6 +7,7 @@ namespace Capell\Layout\Filament\Components\Forms\Widget;
 use Capell\Admin\Filament\Components\Forms\NameInput;
 use Capell\Admin\Filament\Components\Forms\StatusToggle;
 use Capell\Core\Facades\CapellCore;
+use Capell\Layout\Enums\LayoutModelEnum;
 use Filament\Forms;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -41,7 +42,7 @@ class WidgetSettingsSchema
                 ->required()
                 ->maxLength(128)
                 ->unique(
-                    table: CapellCore::getModel('widget'),
+                    table: CapellCore::getModel(LayoutModelEnum::Widget->name),
                     ignoreRecord: $form->getOperation() !== 'replicate',
                     modifyRuleUsing: fn (Unique $rule) => $rule->withoutTrashed()
                 ),
