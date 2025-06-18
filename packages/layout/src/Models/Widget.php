@@ -17,6 +17,7 @@ use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\WidgetFactory;
+use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Observers\WidgetObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
@@ -172,7 +173,7 @@ class Widget extends Model implements PageCacheable, Statusable
 
     public function type(): BelongsTo
     {
-        return $this->belongsTo(Type::class)->where('type', 'widget');
+        return $this->belongsTo(Type::class)->where('type', LayoutTypeEnum::Widget);
     }
 
     public function assets(): HasMany

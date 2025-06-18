@@ -32,7 +32,7 @@ class ContentFactory extends Factory
             'name' => $this->faker->sentence,
             'parent_id' => null,
             'parent_uuid' => null,
-            'type_id' => (new ContentTypeFactory())->content(),
+            'type_id' => (new ContentTypeFactory()),
             'site_id' => null,
             'uuid' => $this->faker->uuid,
             'meta' => fn (array $attributes): array => [

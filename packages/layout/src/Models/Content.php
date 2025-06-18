@@ -6,11 +6,11 @@ namespace Capell\Layout\Models;
 
 use Bkwld\Cloner\Cloneable;
 use Capell\Core\Contracts\PageCacheable;
+use Capell\Core\Models\Concerns\HasAssets;
 use Capell\Core\Models\Concerns\HasDraftsAndNestedSet;
 use Capell\Core\Models\Concerns\HasMetaData;
 use Capell\Core\Models\Concerns\HasPageCache;
 use Capell\Core\Models\Concerns\HasPublishDates;
-use Capell\Core\Models\Concerns\HasResources;
 use Capell\Core\Models\Concerns\HasTags;
 use Capell\Core\Models\Concerns\HasTranslations;
 use Capell\Core\Models\Concerns\HasTypes;
@@ -21,6 +21,7 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Tag;
 use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\ContentFactory;
+use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Observers\ContentObserver;
 use Eloquent;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
@@ -136,7 +137,7 @@ use Wildside\Userstamps\Userstamps;
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Content withAnyTagsOfAnyType($tags)
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Content withAnyTagsOfType(array|string $type)
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Content withDepth(string $as = 'depth')
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Content withResourceables(bool $withDrafts = true)
+ * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Content withAssets(bool $withDrafts = true)
  * @method static Builder<static>|Content withTrashed()
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Content withWhereHasLanguage(int $language_id)
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Content withoutCurrent()
@@ -152,6 +153,7 @@ use Wildside\Userstamps\Userstamps;
 class Content extends Model implements Auditable, PageCacheable
 {
     use Cloneable;
+    use HasAssets;
     use HasDrafts {
         bootHasDrafts as protected;
     }
@@ -166,7 +168,6 @@ class Content extends Model implements Auditable, PageCacheable
     use HasMetaData;
     use HasPageCache;
     use HasPublishDates;
-    use HasResources;
     use HasTags;
     use HasTranslations;
     use HasTypes;
@@ -269,7 +270,7 @@ class Content extends Model implements Auditable, PageCacheable
     public function type(): BelongsTo
     {
         return $this->belongsTo(Type::class)
-            ->where('type', 'content');
+            ->where('type', LayoutTypeEnum::Content);
     }
 
     public function site(): BelongsTo

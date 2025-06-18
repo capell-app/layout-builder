@@ -41,7 +41,7 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
     /** @return class-string<WidgetResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(LayoutResourceEnum::Widget->value);
+        return CapellAdmin::getResource(LayoutResourceEnum::Widget->name);
     }
 
     public function getRelationManagers(): array

@@ -26,7 +26,8 @@ class LayoutLoader
         $layout = FrontendManager::cacheForever($key, function () use ($id, &$fromCache): ?Layout {
             $fromCache = false;
 
-            return Layout::with('layoutWidgets')->find($id);
+            // @phpstan-ignore-next-line
+            return Layout::with('layoutWidgets')->find($id); // TODO fix error larastan.relationExistence even though it's added via
         }) ?: null;
 
         if ($fromCache && $layout) {

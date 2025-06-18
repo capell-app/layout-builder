@@ -7,12 +7,12 @@ namespace Capell\Layout;
 use Capell\Admin\Actions\CreatedModelAction;
 use Capell\Admin\Actions\DeletedModelAction;
 use Capell\Admin\Data\AssetData;
+use Capell\Admin\Enums\SchemaEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
 use Capell\Core\Packages\AbstractPackageServiceProvider;
-use Capell\Layout\Enums\LayoutModelEnum;
-use Capell\Layout\Enums\WidgetSchemaEnum;
+use Capell\Layout\Filament\Schemas;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\ContentAsset;
 use Capell\Layout\Models\Widget;
@@ -34,14 +34,12 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     public function bootingPackage(): void
     {
-        $this->registerModels();
-
-        $this->registerRelationships();
-
-        CapellAdmin::registerSchemas('Widget', WidgetSchemaEnum::getAllSchemas());
+        $this->registerModels()
+            ->registerModelEvents()
+            ->registerRelationships()
+            ->registerSchemas();
 
         CapellCore::addCloneableRelations('page', 'widgetAssets');
-
         CapellCore::addDraftableRelations('page', 'widgetAssets');
 
         Relation::morphMap([
@@ -54,22 +52,6 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
         foreach (config('capell-layout.livewire_components', []) as $name => $class) {
             Livewire::component($name, $class);
         }
-
-        Filament::serving(function (): void {
-            $createDeleteModels = [
-                CapellCore::getModel(LayoutModelEnum::Content->name),
-            ];
-
-            foreach ($createDeleteModels as $modelClass) {
-                $modelClass::registerModelEvent('created', function (Model $model): void {
-                    CreatedModelAction::run($model);
-                });
-
-                $modelClass::registerModelEvent('deleted', function (Model $model): void {
-                    DeletedModelAction::run($model);
-                });
-            }
-        });
     }
 
     public function configurePackage(Package $package): void
@@ -87,67 +69,171 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
         CapellCore::registerPackage(self::$name, self::class);
 
-        CapellAdmin::registerAsset(new AssetData(name: 'content', model: Content::class, icon: 'heroicon-o-document-text'));
+        CapellAdmin::registerResource(
+            Enums\LayoutResourceEnum::Content->name,
+            class: Enums\LayoutResourceEnum::Content->value,
+        );
+
+        CapellAdmin::registerResource(
+            Enums\LayoutResourceEnum::Widget->name,
+            class: Enums\LayoutResourceEnum::Widget->value,
+        );
+
+        CapellAdmin::registerAsset(
+            new AssetData(name: 'content', model: Content::class, icon: 'heroicon-o-document-text')
+        );
     }
 
-    private function registerModels(): void
+    private function registerModels(): self
     {
-        CapellCore::registerModel(LayoutModelEnum::Content, Content::class);
-        CapellCore::registerModel(LayoutModelEnum::ContentAsset, ContentAsset::class);
-        CapellCore::registerModel(LayoutModelEnum::Widget, Widget::class);
-        CapellCore::registerModel(LayoutModelEnum::WidgetAsset, WidgetAsset::class);
+        CapellCore::registerModel(Enums\LayoutModelEnum::Content, Content::class);
+        CapellCore::registerModel(Enums\LayoutModelEnum::ContentAsset, ContentAsset::class);
+        CapellCore::registerModel(Enums\LayoutModelEnum::Widget, Widget::class);
+        CapellCore::registerModel(Enums\LayoutModelEnum::WidgetAsset, WidgetAsset::class);
+
+        return $this;
     }
 
-    private function registerRelationships(): void
+    private function registerModelEvents(): self
     {
-        Models\Media::resolveRelationUsing('pages', fn (Models\Media $model): HasManyThrough => $model->hasManyThrough(Models\Page::class, WidgetAsset::class));
+        Filament::serving(function (): void {
+            $createDeleteModels = [
+                CapellCore::getModel(Enums\LayoutModelEnum::Content->name),
+            ];
 
-        Models\Media::resolveRelationUsing('widgets', fn (Models\Media $model): MorphToMany => $model->morphToMany(Widget::class, 'asset', 'widget_assets'));
+            foreach ($createDeleteModels as $modelClass) {
+                $modelClass::registerModelEvent('created', function (Model $model): void {
+                    CreatedModelAction::run($model);
+                });
 
-        Models\Page::resolveRelationUsing('media', fn (Models\Page $model): HasManyThrough => $model->hasManyThrough(
-            Models\Media::class,
-            WidgetAsset::class,
-            'page_id',
-            'id',
-            'id',
-            'asset_id'
-        )
-            ->where('widget_assets.asset_type', Models\Media::class));
+                $modelClass::registerModelEvent('deleted', function (Model $model): void {
+                    DeletedModelAction::run($model);
+                });
+            }
+        });
 
-        Models\Page::resolveRelationUsing('pages', fn (Models\Page $model): HasManyThrough => $model->hasManyThrough(
-            Models\Page::class,
-            WidgetAsset::class,
-            'page_id',
-            'id',
-            'id',
-            'asset_id'
-        )
-            ->where('widget_assets.asset_type', Models\Page::class));
+        return $this;
+    }
 
-        Models\Page::resolveRelationUsing('widgetAssets', fn (Models\Page $model): HasMany => $model->hasMany(WidgetAsset::class));
+    private function registerRelationships(): self
+    {
+        Models\Media::resolveRelationUsing(
+            'pages',
+            fn (Models\Media $model): HasManyThrough => $model->hasManyThrough(
+                Models\Page::class,
+                WidgetAsset::class
+            )
+        );
 
-        Models\Layout::resolveRelationUsing('layoutWidgets', fn (Models\Layout $model): BelongsToJson => $model->belongsToJson(Widget::class, 'widgets', 'key'));
+        Models\Media::resolveRelationUsing(
+            'widgets',
+            fn (Models\Media $model): MorphToMany => $model->morphToMany(
+                Widget::class,
+                'asset',
+                'widget_assets'
+            )
+        );
 
-        Models\Page::resolveRelationUsing('widgets', fn (Models\Page $model): MorphToMany => $model->morphToMany(Widget::class, 'asset', 'widget_assets'));
+        Models\Page::resolveRelationUsing(
+            'media',
+            fn (Models\Page $model): HasManyThrough => $model->hasManyThrough(
+                Models\Media::class,
+                WidgetAsset::class,
+                'page_id',
+                'id',
+                'id',
+                'asset_id'
+            )
+                ->where('widget_assets.asset_type', Models\Media::class)
+        );
 
-        Models\Page::resolveRelationUsing('contents', fn (Models\Page $model): HasManyThrough => $model->hasManyThrough(
-            Content::class,
-            WidgetAsset::class,
-            'page_id',
-            'id',
-            'id',
-            'asset_id'
-        )
-            ->where('widget_assets.asset_type', Content::class));
+        Models\Page::resolveRelationUsing(
+            'pages',
+            fn (Models\Page $model): HasManyThrough => $model->hasManyThrough(
+                Models\Page::class,
+                WidgetAsset::class,
+                'page_id',
+                'id',
+                'id',
+                'asset_id'
+            )
+                ->where('widget_assets.asset_type', Models\Page::class)
+        );
 
-        Models\Tag::resolveRelationUsing('contents', fn (Models\Tag $model): MorphToMany => $model->morphedByMany(Content::class, 'taggable'));
+        Models\Page::resolveRelationUsing(
+            'widgetAssets',
+            fn (Models\Page $model): HasMany => $model->hasMany(WidgetAsset::class)
+        );
 
-        Models\Site::resolveRelationUsing('contents', fn (Models\Site $model): HasMany => $model->hasMany(Content::class, 'layout_id'));
+        Models\Layout::resolveRelationUsing(
+            'layoutWidgets',
+            fn (Models\Layout $model): BelongsToJson => $model->belongsToJson(
+                Widget::class,
+                'widgets',
+                'key'
+            )
+        );
 
-        Models\Type::resolveRelationUsing('contents', fn (Models\Type $model): HasMany => $model->hasMany(Content::class, 'type_id'));
+        Models\Page::resolveRelationUsing(
+            'widgets',
+            fn (Models\Page $model): MorphToMany => $model->morphToMany(
+                Widget::class,
+                'asset',
+                'widget_assets')
+        );
 
-        Models\Type::resolveRelationUsing('widgets', fn (Models\Type $model): HasMany => $model->hasMany(Widget::class, 'type_id'));
+        Models\Page::resolveRelationUsing(
+            'contents',
+            fn (Models\Page $model): HasManyThrough => $model->hasManyThrough(
+                Content::class,
+                WidgetAsset::class,
+                'page_id',
+                'id',
+                'id',
+                'asset_id'
+            )
+                ->where('widget_assets.asset_type', Content::class)
+        );
 
-        Models\Type::resolveRelationUsing('widgetType', fn (Models\Type $model): Builder => $model->where('type', 'widget'));
+        Models\Tag::resolveRelationUsing(
+            'contents',
+            fn (Models\Tag $model): MorphToMany => $model->morphedByMany(Content::class, 'taggable')
+        );
+
+        Models\Site::resolveRelationUsing(
+            'contents',
+            fn (Models\Site $model): HasMany => $model->hasMany(Content::class, 'site_id')
+        );
+
+        Models\Type::resolveRelationUsing(
+            'contents',
+            fn (Models\Type $model): HasMany => $model->hasMany(Content::class, 'type_id')
+        );
+
+        Models\Type::resolveRelationUsing(
+            'widgets',
+            fn (Models\Type $model): HasMany => $model->hasMany(Widget::class, 'type_id')
+        );
+
+        Models\Type::resolveRelationUsing(
+            'widgetType',
+            fn (Models\Type $model): Builder => $model->where('type', Enums\LayoutTypeEnum::Widget)
+        );
+
+        return $this;
+    }
+
+    private function registerSchemas(): self
+    {
+        CapellAdmin::registerSchemas('Content', Enums\ContentSchemaEnum::cases());
+        CapellAdmin::registerSchemas('Widget', Enums\WidgetSchemaEnum::cases());
+        CapellAdmin::registerSchemas('WidgetAsset', Enums\WidgetAssetSchemaEnum::cases());
+        CapellAdmin::registerSchemas('LayoutContainer', Enums\LayoutContainerSchemaEnum::cases());
+        CapellAdmin::registerSchemas('LayoutContainerWidget', Enums\LayoutContainerWidgetSchemaEnum::cases());
+        CapellAdmin::registerSchema(SchemaEnum::Page, Schemas\Page\DefaultPageSchema::class);
+        CapellAdmin::registerSchema(SchemaEnum::Page, Schemas\Page\LandingPageSchema::class);
+        CapellAdmin::registerSchema(SchemaEnum::Page, Schemas\Page\ResultsPageSchema::class);
+
+        return $this;
     }
 }

@@ -34,12 +34,12 @@ class ContentCreator
     {
         if (! empty($data['type'])) {
             $type = $this->typeModel::query()
-                ->where('type', LayoutTypeEnum::Content->value)
+                ->where('type', LayoutTypeEnum::Content)
                 ->where('key', $data['type'])
                 ->first();
         } else {
             $type = $this->typeModel::query()
-                ->where('type', LayoutTypeEnum::Content->value)
+                ->where('type', LayoutTypeEnum::Content)
                 ->default()
                 ->first();
         }

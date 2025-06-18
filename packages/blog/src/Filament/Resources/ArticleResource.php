@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Filament\Resources;
 
-use Capell\Admin\Enums\SchemaEnum;
 use Capell\Admin\Filament\Resources\PageResource;
 use Capell\Blog\Enums\BlogModelEnum;
+use Capell\Blog\Enums\BlogResourceEnum;
+use Capell\Blog\Enums\BlogTypeGroupEnum;
 use Capell\Blog\Filament\Resources\ArticleResource\Pages;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Services\Loader\BlogLoader;
@@ -17,7 +18,7 @@ use Override;
 
 class ArticleResource extends PageResource
 {
-    protected static string $adminResourceName = 'article';
+    protected static string $adminResourceName = BlogResourceEnum::Article->name;
 
     protected static ?int $navigationSort = 2;
 
@@ -25,17 +26,17 @@ class ArticleResource extends PageResource
 
     protected static bool $withParent = false;
 
-    public static function getResourceType(): SchemaEnum
-    {
-        return SchemaEnum::Page;
-    }
-
     /**
      * @return class-string<Article>
      */
     public static function getModel(): string
     {
-        return CapellCore::getModel(BlogModelEnum::Article->value);
+        return CapellCore::getModel(BlogModelEnum::Article->name);
+    }
+
+    public static function getResourceType(): string
+    {
+        return 'Page';
     }
 
     public static function getLabel(): string
@@ -78,7 +79,10 @@ class ArticleResource extends PageResource
         /* @var class-string<\Capell\Core\Models\Type> $model */
         $model = CapellCore::getModel(ModelEnum::Type);
 
-        $data['type_id'] = $model::query()->pageType()->where('group', 'article')->value('id');
+        $data['type_id'] = $model::query()
+            ->pageType()
+            ->where('group', BlogTypeGroupEnum::Article)
+            ->value('id');
 
         if (empty($data['parent_uuid'])) {
             /* @var class-string<\Capell\Core\Models\Site> $model */
@@ -91,6 +95,6 @@ class ArticleResource extends PageResource
     #[Override]
     protected static function applyTypeAdminResourceConstraint(BuilderContract $query, bool $showSystem = false): void
     {
-        $query->where('group', 'article');
+        $query->where('group', BlogTypeGroupEnum::Article);
     }
 }

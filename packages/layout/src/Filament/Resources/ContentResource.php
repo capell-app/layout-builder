@@ -25,6 +25,7 @@ use Capell\Core\Models;
 use Capell\Layout\Actions\ReplicateContentAction;
 use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Enums\SchemaEnum;
 use Capell\Layout\Filament\Components\Forms\Content\ContentDetailsSchema;
 use Capell\Layout\Filament\Components\Tables\Columns\Content\ContentNameColumn;
 use Capell\Layout\Filament\Resources\ContentResource\Pages;
@@ -49,6 +50,11 @@ use Illuminate\Support\Str;
 class ContentResource extends Resource
 {
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getResourceType(): string
+    {
+        return 'Content';
+    }
 
     public static function form(Form $form): Form
     {
@@ -75,9 +81,8 @@ class ContentResource extends Resource
                     fn (Get $get, TypeSchema $component): array => $component
                         ->getSchema(
                             $form,
-                            \Capell\Layout\Enums\SchemaEnum::Content,
-                            key: $get('type_id'),
-                            defaultSchema: DefaultContentSchema::getKey()
+                            SchemaEnum::Content->value,
+                            schema: DefaultContentSchema::getKey()
                         )
                 ),
         ];

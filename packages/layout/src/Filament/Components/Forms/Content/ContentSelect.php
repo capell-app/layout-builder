@@ -128,7 +128,7 @@ class ContentSelect extends Forms\Components\Select
 
                         return [
                             'type_id' => $model::query()
-                                ->where('type', LayoutTypeEnum::Content->value)
+                                ->where('type', LayoutTypeEnum::Content)
                                 ->default()
                                 ->value('id'),
                             'translations' => $site->translations->mapWithKeys(fn ($translation) => [

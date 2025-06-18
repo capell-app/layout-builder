@@ -115,7 +115,7 @@ use Eloquent;
  * @method static QueryBuilder<static>|Article withAnyTagsOfAnyType($tags)
  * @method static QueryBuilder<static>|Article withAnyTagsOfType(array|string $type)
  * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article withDepth(string $as = 'depth')
- * @method static QueryBuilder<static>|Article withResourceables(bool $withDrafts = true)
+ * @method static QueryBuilder<static>|Article withAssets(bool $withDrafts = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Article withTrashed()
  * @method static QueryBuilder<static>|Article withWhereHasLanguage(int $language_id)
  * @method static QueryBuilder<static>|Article withoutCurrent()

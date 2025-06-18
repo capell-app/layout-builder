@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Filament\Resources\ArticleResource\Pages;
 
+use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Resources\PageResource\Pages\CreatePage;
 use Capell\Blog\Enums\BlogResourceEnum;
 use Capell\Blog\Filament\Resources\ArticleResource;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Models\Widget;
 
 class CreateArticle extends CreatePage
@@ -18,7 +18,7 @@ class CreateArticle extends CreatePage
     /** @return class-string<ArticleResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(BlogResourceEnum::Article->value);
+        return CapellAdmin::getResource(ResourceEnum::Page, BlogResourceEnum::Article->name);
     }
 
     protected function afterFill(): void
@@ -31,7 +31,7 @@ class CreateArticle extends CreatePage
     private function getArticleLayoutId(): ?int
     {
         /** @var class-string<Widget> $model */
-        $model = CapellCore::getModel(LayoutModelEnum::Widget->name);
+        $model = CapellCore::getModel(ModelEnum::Layout);
 
         return $model::where('key', 'article')->value('id');
     }

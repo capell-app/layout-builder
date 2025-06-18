@@ -78,7 +78,7 @@ class BlogLoader
     public static function getBlogPage(Site $site, string $type = 'blog'): ?Page
     {
         return Page::where('site_id', $site->id)
-            ->isBlogPage($type)
+            ->whereRelation('type', 'key', $type)
             ->first();
     }
 }

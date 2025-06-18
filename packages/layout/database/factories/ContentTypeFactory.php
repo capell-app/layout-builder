@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Database\Factories;
 
 use Capell\Core\Database\Factories\TypeFactory;
+use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Models\Content;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -13,10 +14,11 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class ContentTypeFactory extends TypeFactory
 {
-    public function content(): self
+    public function definition(): array
     {
-        return $this->state([
-            'type' => 'content',
-        ]);
+        return [
+            ...parent::definition(),
+            'type' => LayoutTypeEnum::Content->value,
+        ];
     }
 }

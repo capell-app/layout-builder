@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Models;
 
-use Capell\Admin\Concerns\HasResources;
 use Capell\Core\Contracts\PageCacheable;
 use Capell\Core\Enums\TypeEnum;
+use Capell\Core\Models\Concerns\HasAssets;
 use Capell\Core\Models\Concerns\HasPageCache;
 use Capell\Layout\Database\Factories\ContentAssetFactory;
 use Eloquent;
@@ -34,11 +34,12 @@ use Wildside\Userstamps\Userstamps;
  */
 class ContentAsset extends Model implements PageCacheable
 {
+    use HasAssets;
+
     /** @use HasFactory<ContentAssetFactory> */
     use HasFactory;
 
     use HasPageCache;
-    use HasResources;
     use Userstamps;
 
     /**

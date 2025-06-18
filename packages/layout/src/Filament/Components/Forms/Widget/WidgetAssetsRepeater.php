@@ -42,7 +42,7 @@ class WidgetAssetsRepeater
                     return $label.__('capell-admin::generic.select_resource');
                 }
 
-                return $label.self::getResourceName($state).' ('.str($state['asset_type'])->title().')';
+                return $label.self::getAssetName($state).' ('.str($state['asset_type'])->title().')';
             })
             ->extraItemActions([
                 Action::make('editRecord')
@@ -187,7 +187,7 @@ class WidgetAssetsRepeater
         ];
     }
 
-    private static function getResourceName(array $itemState): ?string
+    private static function getAssetName(array $itemState): ?string
     {
         return match ($itemState['asset_type']) {
             'media' => is_array($itemState['asset_id']) ? reset($itemState['asset_id'])['title'] : Models\Media::findByUuid($itemState['asset_id']),

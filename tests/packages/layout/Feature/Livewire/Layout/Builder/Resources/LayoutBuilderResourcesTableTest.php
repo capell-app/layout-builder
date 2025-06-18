@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Livewire\Assets\Table\ContentsTable;
-use Capell\Admin\Livewire\Assets\Table\MediaTable;
-use Capell\Admin\Livewire\Assets\Table\PagesTable;
-use Capell\Core\Models\Layout;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Layout\Database\Factories\LayoutFactory;
+use Capell\Layout\Livewire\Assets\Table\ContentsTable;
+use Capell\Layout\Livewire\Assets\Table\MediaTable;
+use Capell\Layout\Livewire\Assets\Table\PagesTable;
 use Capell\Layout\Livewire\LayoutBuilder;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
@@ -27,7 +27,7 @@ beforeEach(function (): void {
 });
 
 it('can render assets table', function (string $assetType): void {
-    $layout = Layout::factory()->containers()->create();
+    $layout = (new LayoutFactory())->containers()->create();
 
     $containerKey = array_key_first($layout->containers);
     $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
@@ -53,7 +53,7 @@ it('can render assets table', function (string $assetType): void {
 
 describe('layout', function () use ($types): void {
     test('contents assets table can select assets', function (): void {
-        $layout = Layout::factory()->containers()->create();
+        $layout = (new LayoutFactory())->containers()->create();
         $containerKey = array_key_first($layout->containers);
         $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
 
@@ -75,7 +75,7 @@ describe('layout', function () use ($types): void {
     });
 
     test('media assets table can select assets', function (): void {
-        $layout = Layout::factory()->containers()->create();
+        $layout = (new LayoutFactory())->containers()->create();
         $containerKey = array_key_first($layout->containers);
         $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
 
@@ -92,7 +92,7 @@ describe('layout', function () use ($types): void {
     });
 
     test('page assets table can select assets', function (): void {
-        $layout = Layout::factory()->containers()->create();
+        $layout = (new LayoutFactory())->containers()->create();
         $containerKey = array_key_first($layout->containers);
         $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
 
@@ -113,7 +113,7 @@ describe('layout', function () use ($types): void {
     });
 
     test('sync selected assets to layout', function (string $assetType): void {
-        $layout = Layout::factory()->containers()->create();
+        $layout = (new LayoutFactory())->containers()->create();
         $containerKey = array_key_first($layout->containers);
         $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
 
@@ -152,7 +152,7 @@ describe('layout', function () use ($types): void {
     })->with($types);
 
     test('sync selected media assets to layout', function (string $assetType): void {
-        $layout = Layout::factory()->containers()->create();
+        $layout = (new LayoutFactory())->containers()->create();
         $containerKey = array_key_first($layout->containers);
         $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
 
@@ -193,7 +193,7 @@ describe('layout', function () use ($types): void {
 
 describe('page layout', function () use ($types): void {
     test('media assets table can be selected', function (): void {
-        $layout = Layout::factory()->containers()->create();
+        $layout = (new LayoutFactory())->containers()->create();
         $containerKey = array_key_first($layout->containers);
         $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
 
@@ -215,7 +215,7 @@ describe('page layout', function () use ($types): void {
     });
 
     test('page assets table can be selected', function (): void {
-        $layout = Layout::factory()->containers()->create();
+        $layout = (new LayoutFactory())->containers()->create();
         $containerKey = array_key_first($layout->containers);
         $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
 
@@ -255,7 +255,7 @@ describe('page layout', function () use ($types): void {
     });
 
     test('sync selected assets to layout', function (string $assetType): void {
-        $layout = Layout::factory()->containers()->create();
+        $layout = (new LayoutFactory())->containers()->create();
         $containerKey = array_key_first($layout->containers);
         $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
 

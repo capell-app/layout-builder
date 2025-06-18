@@ -102,7 +102,7 @@ it('can delete', function (): void {
     assertSoftDeleted($widget, ['id' => $widget->id]);
 });
 
-test('can edit widget type', function (WidgetTypeEnum $typeEum): void {
+test('can edit widget', function (WidgetTypeEnum $typeEum): void {
     $typeCreator = new WidgetTypeCreator;
 
     $type = match ($typeEum) {

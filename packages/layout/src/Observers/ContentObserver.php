@@ -14,7 +14,7 @@ class ContentObserver
     public function creating(Content $content): void
     {
         if (! $content->type_id) {
-            $content->type_id = Type::query()->where('type', LayoutTypeEnum::Content->value)->value('id');
+            $content->type_id = Type::query()->where('type', LayoutTypeEnum::Content)->value('id');
         }
     }
 

@@ -79,7 +79,7 @@ class DemoCreator
     {
         $widget = $this->widgetModel::firstOrCreate(['key' => 'example-content'], [
             'name' => 'Example Static Contents',
-            'type_id' => $this->typeModel::widgetType()->default()->first()->id,
+            'type_id' => $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)->default()->first()->id,
             'meta' => [
                 'size' => 'sm',
                 'margin' => ['lg'],
@@ -135,7 +135,7 @@ class DemoCreator
             $widget = $this->widgetModel::create([
                 'key' => 'pages-card',
                 'name' => __('capell-admin::generic.pages_tile'),
-                'type_id' => $this->typeModel::firstWhere('key', WidgetTypeEnum::Pages->value)->id,
+                'type_id' => $this->typeModel::firstWhere('key', WidgetTypeEnum::Pages)->id,
                 'meta' => [
                     'component' => WidgetComponentEnum::LivewirePages,
                     'columns' => 4,
@@ -181,7 +181,7 @@ class DemoCreator
 
     public function createFaqWidget(Collection $languages): Widget
     {
-        $widgetType = $this->typeModel::widgetType()->firstWhere('key', 'assets');
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)->firstWhere('key', 'assets');
 
         $widget = $this->widgetModel::firstOrCreate(['key' => 'faq'], [
             'key' => 'faq',
@@ -203,7 +203,7 @@ class DemoCreator
         }
 
         $contentType = $this->typeModel::query()
-            ->where('type', LayoutTypeEnum::Content->value)
+            ->where('type', LayoutTypeEnum::Content)
             ->default()
             ->first();
 
@@ -350,7 +350,7 @@ class DemoCreator
             $widget = $this->widgetModel::firstOrCreate([
                 'key' => 'articles-card',
                 'name' => __('capell-admin::generic.articles'),
-                'type_id' => $this->typeModel::firstWhere('key', WidgetTypeEnum::Pages->value)->id,
+                'type_id' => $this->typeModel::firstWhere('key', WidgetTypeEnum::Pages)->id,
                 'meta' => [
                     'limit' => 10,
                     'with_image' => true,

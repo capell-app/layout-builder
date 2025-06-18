@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Navigation;
-use Capell\Core\Models\Type;
+use Capell\Layout\Database\Factories\WidgetTypeFactory;
 use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Filament\Actions\Page\CreateWidgetAction;
 use Capell\Layout\Filament\Resources\WidgetResource\Pages\EditWidget;
@@ -91,7 +91,7 @@ describe('from list page', function (): void {
             WidgetTypeEnum::PageResults => $typeCreator->pageResultsWidgetType(),
             WidgetTypeEnum::Assets => $typeCreator->assetsWidgetType(),
             WidgetTypeEnum::System => $typeCreator->systemWidgetType(),
-            default => throw new Exception('Invalid widget type: '.$typeEum->value),
+            default => throw new Exception('Invalid widget type: '.$typeEum->name),
         };
 
         livewire(ListWidgets::class)
@@ -116,7 +116,7 @@ describe('from list page', function (): void {
         ->with(WidgetTypeEnum::cases());
 
     test('required fields are required', function (): void {
-        Type::factory()->widget()->default()->create();
+        (new WidgetTypeFactory())->default()->create();
 
         livewire(ListWidgets::class)
             ->assertSuccessful()

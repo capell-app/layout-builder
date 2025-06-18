@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Services\Creator;
 
+use Capell\Core\Enums\LayoutGroupEnum;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
@@ -35,7 +36,7 @@ class LayoutCreator
         return $this->layoutModel::firstOrCreate(['default' => true], [
             'key' => 'default',
             'name' => __('capell-admin::generic.default'),
-            'group' => 'default',
+            'group' => LayoutGroupEnum::Default,
             'containers' => [
                 'main' => [
                     'meta' => [
@@ -67,7 +68,7 @@ class LayoutCreator
     {
         return $this->layoutModel::firstOrCreate(['key' => 'home'], [
             'name' => __('capell-admin::generic.home'),
-            'group' => 'default',
+            'group' => LayoutGroupEnum::Default,
             'containers' => [
                 'main' => [
                     'widgets' => [
@@ -82,7 +83,7 @@ class LayoutCreator
     {
         return $this->layoutModel::firstOrCreate(['key' => 'results'], [
             'name' => __('capell-admin::generic.results_page'),
-            'group' => 'system',
+            'group' => LayoutGroupEnum::System,
             'containers' => [
                 'main' => [
                     'meta' => [
@@ -114,7 +115,7 @@ class LayoutCreator
     {
         return $this->layoutModel::firstOrCreate(['key' => 'tags'], [
             'name' => __('capell-admin::generic.tags_page'),
-            'group' => 'system',
+            'group' => LayoutGroupEnum::System,
             'containers' => [
                 'main' => [
                     'meta' => [

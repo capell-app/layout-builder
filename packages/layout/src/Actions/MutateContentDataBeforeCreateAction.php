@@ -31,7 +31,7 @@ class MutateContentDataBeforeCreateAction
         $model = CapellCore::getModel(ModelEnum::Type);
 
         $contentType = $model::query()
-            ->where('type', LayoutTypeEnum::Content->value)
+            ->where('type', LayoutTypeEnum::Content)
             ->orderBy('default', 'desc')
             ->orderBy('id')
             ->first();

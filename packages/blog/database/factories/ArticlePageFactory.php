@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Database\Factories;
 
+use Capell\Blog\Enums\BlogTypeGroupEnum;
 use Capell\Core\Database\Factories\PageFactory;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Type;
@@ -18,7 +19,7 @@ class ArticlePageFactory extends PageFactory
     {
         return [
             ...parent::definition(),
-            'type_id' => fn () => Type::factory()->page()->state(['group' => 'article']),
+            'type_id' => fn () => Type::factory()->page()->state(['group' => BlogTypeGroupEnum::Article->value]),
             'parent_uuid' => null,
         ];
     }

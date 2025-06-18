@@ -15,7 +15,7 @@ class CreateContent extends CreateRecord
     /** @return class-string<ContentResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(LayoutResourceEnum::Content->value);
+        return CapellAdmin::getResource(LayoutResourceEnum::Content->name);
     }
 
     protected function fillForm(): void

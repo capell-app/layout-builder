@@ -20,7 +20,8 @@
     "require": {
         "php": "^8.0|^8.1|^8.2",
         "capell-app/admin": "*",
-        "capell-app/frontend": "*"
+        "capell-app/frontend": "*",
+        "capell-app/layout": "*"
     },
     "autoload": {
         "psr-4": {

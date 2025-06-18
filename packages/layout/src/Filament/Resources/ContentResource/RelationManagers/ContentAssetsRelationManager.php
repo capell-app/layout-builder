@@ -8,6 +8,7 @@ use Capell\Admin\Filament\Components\Tables\Columns\CuratorColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Admin\Filament\Concerns\HasRelationManagerBadge;
 use Capell\Admin\Filament\Resources\MediaResource;
+use Capell\Core\Actions\EditPageUrlAction;
 use Capell\Core\Enums\TypeEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Filament\Concerns\HasAssetsRelationManager;
@@ -44,7 +45,7 @@ class ContentAssetsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->withResourceables(withDrafts: true))
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->withAssets(withDrafts: true))
             ->description(__('capell-admin::generic.content_assets_description'))
             ->columns([
                 Tables\Columns\TextColumn::make('asset_id')
@@ -64,7 +65,7 @@ class ContentAssetsRelationManager extends RelationManager
                 // TODO: Implement for other asset types
                 LayoutTypeEnum::Content->value => ContentResource::getUrl('edit', ['record' => $record->asset]),
                 TypeEnum::Media->value => MediaResource::getUrl('edit', ['record' => $record->asset]),
-                TypeEnum::Page->value => $record->asset->edit_url,
+                TypeEnum::Page->value => EditPageUrlAction::run($record->asset),
                 default => null,
             })
             ->filters([

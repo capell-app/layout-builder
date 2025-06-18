@@ -14,6 +14,7 @@ use Capell\Admin\Filament\Components\Forms\Page\PageSettingsSchema;
 use Capell\Admin\Filament\Components\Forms\Page\PageTagsInput;
 use Capell\Admin\Filament\Components\Forms\PublishToggle;
 use Capell\Admin\Filament\Schemas\Page\DefaultPageSchema;
+use Capell\Core\Enums\LayoutGroupEnum;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Illuminate\Database\Eloquent\Builder;
@@ -139,7 +140,7 @@ class ArticleDefaultPageSchema extends DefaultPageSchema
                         fn (Builder $query, Forms\Get $get): Builder => $query->when(
                             ! $get('is_system'),
                             fn (Builder $query): Builder => $query->where(
-                                fn (Builder $query) => $query->where('group', '!=', 'system')
+                                fn (Builder $query) => $query->where('group', '!=', LayoutGroupEnum::System)
                                     ->orWhereNull('group')
                             )
                         )

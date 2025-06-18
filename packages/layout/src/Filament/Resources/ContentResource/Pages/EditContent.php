@@ -40,7 +40,7 @@ class EditContent extends EditRecord
     /** @return class-string<ContentResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(LayoutResourceEnum::Content->value);
+        return CapellAdmin::getResource(LayoutResourceEnum::Content->name);
     }
 
     public function getTitle(): string|Htmlable

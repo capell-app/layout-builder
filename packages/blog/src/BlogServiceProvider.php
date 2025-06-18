@@ -10,6 +10,7 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Blog\Actions\InstallBlogAction;
 use Capell\Blog\Commands\BlogDemoCommand;
 use Capell\Blog\Enums\BlogModelEnum;
+use Capell\Blog\Enums\BlogResourceEnum;
 use Capell\Blog\Filament\Resources;
 use Capell\Blog\Filament\Schemas;
 use Capell\Blog\Services\BlogCreator;
@@ -92,7 +93,11 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
 
         CapellCore::registerPackage(self::$name, self::class);
 
-        CapellAdmin::registerResource(ResourceEnum::Page, 'article', Resources\ArticleResource::class);
+        CapellAdmin::registerResource(
+            ResourceEnum::Page,
+            class: Resources\ArticleResource::class,
+            name: BlogResourceEnum::Article->name
+        );
 
         CapellCore::registerComponent('Widget', 'Article', 'capell-blog::widget.page.article');
 

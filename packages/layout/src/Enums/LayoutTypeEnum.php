@@ -6,7 +6,7 @@ namespace Capell\Layout\Enums;
 
 enum LayoutTypeEnum: string
 {
-    case Content = 'Content';
-    case Layout = 'Layout';
-    case Widget = 'Widget';
+    case Content = 'content';
+    case Layout = 'layout';
+    case Widget = 'widget';
 }

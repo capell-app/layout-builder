@@ -19,12 +19,12 @@ class WidgetCreator
     /**
      * @var class-string<Type>
      */
-    private string $typeModel;
+    private readonly string $typeModel;
 
     /**
      * @var class-string<Widget>
      */
-    private string $widgetModel;
+    private readonly string $widgetModel;
 
     public function __construct()
     {

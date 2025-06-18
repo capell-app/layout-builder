@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Capell\Core\Models;
 use Capell\Layout\Filament\Resources\WidgetResource;
+use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Filament\Tables\Actions\CreateAction;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Database\Factories;
 
 use Capell\Core\Models\Type;
+use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Models\Widget;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -28,10 +29,10 @@ class WidgetFactory extends Factory
             'name' => $name,
             'key' => $this->faker->unique()->slug,
             'type_id' => fn () => Type::factory()
-                ->type('widget')
+                ->type(LayoutTypeEnum::Widget->value)
                 ->state(
                     fn (): array => [
-                        'default' => ! Type::widgetType()->default()->exists(),
+                        'default' => ! Type::query()->where('type', LayoutTypeEnum::Widget)->default()->exists(),
                     ]
                 ),
             'created_at' => $this->faker->dateTimeBetween('-1 year', '-6 month'),

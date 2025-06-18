@@ -258,10 +258,10 @@ class PagesTable extends AbstractAssetsTable
 
                                 return $model::pageType()
                                     ->whereNotNull('group')
-                                    ->whereNot('group', 'page')
+                                    ->whereNot('group', 'Page')
                                     ->get()
                                     ->mapWithKeys(fn (Models\Type $type) => [$type->group => str($type->group)->plural()->title()])
-                                    ->prepend(__('capell-admin::generic.pages'), 'page')
+                                    ->prepend(__('capell-admin::generic.pages'), 'Page')
                                     ->toArray();
                             }
                         ),

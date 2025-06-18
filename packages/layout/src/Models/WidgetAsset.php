@@ -6,9 +6,9 @@ namespace Capell\Layout\Models;
 
 use Capell\Core\Contracts\PageCacheable;
 use Capell\Core\Enums\TypeEnum;
+use Capell\Core\Models\Concerns\HasAssets;
 use Capell\Core\Models\Concerns\HasMetaData;
 use Capell\Core\Models\Concerns\HasPageCache;
-use Capell\Core\Models\Concerns\HasResources;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Layout\Database\Factories\WidgetAssetFactory;
@@ -40,20 +40,21 @@ use Wildside\Userstamps\Userstamps;
  * @method static Builder<static>|WidgetAsset newQuery()
  * @method static Builder<static>|WidgetAsset ordered(string $dir = 'asc')
  * @method static Builder<static>|WidgetAsset query()
- * @method static Builder<static>|WidgetAsset withResourceables(bool $withDrafts = true)
+ * @method static Builder<static>|WidgetAsset withAssets(bool $withDrafts = true)
  *
  * @mixin \Eloquent
  * @mixin Eloquent
  */
 class WidgetAsset extends Model implements PageCacheable
 {
+    use HasAssets;
+
     /** @use HasFactory<WidgetAssetFactory> */
     use HasFactory;
 
     use HasJsonRelationships;
     use HasMetaData;
     use HasPageCache;
-    use HasResources;
     use Userstamps;
 
     /**

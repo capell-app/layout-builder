@@ -7,9 +7,13 @@ namespace Capell\Blog\Services;
 use Capell\Admin\Actions\AddPageToNavigationAction;
 use Capell\Admin\Filament\Schemas\Page\ResultsPageSchema;
 use Capell\Admin\Services\Creator\PageTypeCreator;
+use Capell\Blog\Enums\BlogResourceEnum;
+use Capell\Blog\Enums\BlogTypeGroupEnum;
 use Capell\Blog\Filament\Schemas\Page\ArticleDefaultPageSchema;
 use Capell\Blog\Filament\Schemas\Widget\ArticleWidgetSchema;
+use Capell\Core\Enums\LayoutGroupEnum;
 use Capell\Core\Enums\TypeEnum;
+use Capell\Core\Enums\TypeGroupEnum;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Navigation;
@@ -108,7 +112,7 @@ class BlogCreator
             'type' => TypeEnum::Page,
         ], [
             'name' => __('capell-blog::generic.blog_archive_page'),
-            'group' => 'system',
+            'group' => TypeGroupEnum::System,
             'admin' => [
                 'schema' => ResultsPageSchema::getKey(),
                 'icon' => 'heroicon-o-archive-box',
@@ -131,7 +135,7 @@ class BlogCreator
     {
         return Layout::firstOrCreate(['key' => 'archives'], [
             'name' => __('capell-blog::generic.archives_page'),
-            'group' => 'system',
+            'group' => LayoutGroupEnum::System,
             'containers' => [
                 'main' => [
                     'meta' => [
@@ -256,7 +260,7 @@ class BlogCreator
         return Layout::firstOrCreate(['key' => 'article'], [
             'key' => 'article',
             'name' => __('capell-blog::generic.article'),
-            'group' => 'default',
+            'group' => LayoutGroupEnum::Default,
             'containers' => [
                 'main' => [
                     'meta' => [
@@ -292,13 +296,13 @@ class BlogCreator
             'type' => TypeEnum::Page,
         ], [
             'name' => __('capell-blog::generic.article'),
-            'group' => 'article',
+            'group' => BlogTypeGroupEnum::Article->value,
             'admin' => [
                 'accessible' => false,
                 'content_editor' => 'ContentEditor',
                 'icon' => 'heroicon-o-newspaper',
                 'schema' => ArticleDefaultPageSchema::getKey(),
-                'resource' => 'article',
+                'resource' => BlogResourceEnum::Article->name,
                 'with_tags' => true,
                 'exclude' => true,
             ],
@@ -331,7 +335,7 @@ class BlogCreator
             'type' => LayoutTypeEnum::Widget,
         ], [
             'name' => __('capell-blog::generic.article'),
-            'group' => 'system',
+            'group' => TypeGroupEnum::System,
             'admin' => [
                 'schema' => ArticleWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-newspaper',
@@ -402,7 +406,7 @@ class BlogCreator
             'type' => TypeEnum::Page,
         ], [
             'name' => __('capell-blog::generic.blog'),
-            'group' => 'system',
+            'group' => TypeGroupEnum::System,
             'admin' => [
                 'schema' => ResultsPageSchema::getKey(),
                 'icon' => 'heroicon-o-newspaper',

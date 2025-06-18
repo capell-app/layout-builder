@@ -9,6 +9,7 @@ use Capell\Admin\Enums\ModalWidthEnum;
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
+use Capell\Core\Actions\GetPageResourceAction;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
@@ -600,7 +601,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
 
                     $data['asset']['type_id'] = match ($arguments['type']) {
                         'content' => $model::query()
-                            ->where('type', LayoutTypeEnum::Content->value)
+                            ->where('type', LayoutTypeEnum::Content)
                             ->default()
                             ->value('id'),
                         'page' => $model::query()
@@ -987,7 +988,19 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
      */
     public function getPageResource(): string
     {
-        return $this->page?->admin_resource_class ?: CapellAdmin::getResource(ResourceEnum::Page);
+        return $this->page ? GetPageResourceAction::run($this->page) : CapellAdmin::getResource(ResourceEnum::Page);
+    }
+
+    /**
+     * @return class-string<resource>
+     */
+    public function getResource(): string
+    {
+        if ($this->page_id) {
+            return $this->getPageResource();
+        }
+
+        return CapellAdmin::getResource(ResourceEnum::Layout);
     }
 
     public function placeholder(array $params = []): View

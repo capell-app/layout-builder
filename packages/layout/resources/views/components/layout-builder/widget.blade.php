@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 ?>
 
-@use(Capell\Admin\Facades\CapellAdmin;use Capell\Layout\Enums\LayoutResourceEnum;use Capell\Layout\Models\Content;use Filament\Support\Enums\ActionSize;use Filament\Support\Enums\FontWeight;use Filament\Support\Enums\IconSize;use Illuminate\Support\HtmlString;use Illuminate\View\ComponentAttributeBag)
+@use(Capell\Admin\Facades\CapellAdmin;use Capell\Core\Models\Type;use Capell\Layout\Enums\LayoutResourceEnum;use Capell\Layout\Models\Content;use Filament\Support\Enums\ActionSize;use Filament\Support\Enums\FontWeight;use Filament\Support\Enums\IconSize;use Illuminate\Support\HtmlString;use Illuminate\View\ComponentAttributeBag)
 
 @props([
     'containerKey',
@@ -190,7 +190,7 @@ declare(strict_types=1);
                                 {{ ($this->removeWidgetAction)(['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex]) }}
 
                                 <x-filament::dropdown.list.item
-                                    href="{{ CapellAdmin::getResource(LayoutResourceEnum::Widget->value)::getUrl('edit', ['record' => $this->getContainerWidget($containerKey, $widgetIndex)]) }}"
+                                    href="{{ CapellAdmin::getResource(LayoutResourceEnum::Widget->name)::getUrl('edit', ['record' => $this->getContainerWidget($containerKey, $widgetIndex)]) }}"
                                     icon="heroicon-o-arrow-top-right-on-square"
                                     target="_blank"
                                     tag="a"

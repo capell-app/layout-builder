@@ -9,6 +9,7 @@ use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\Page\PageNameColumn;
 use Capell\Admin\Filament\Concerns\HasRelationManagerBadge;
 use Capell\Admin\Filament\Resources\MediaResource;
+use Capell\Core\Actions\EditPageUrlAction;
 use Capell\Core\Enums\TypeEnum;
 use Capell\Core\Models;
 use Capell\Layout\Enums\LayoutTypeEnum;
@@ -44,7 +45,7 @@ class WidgetAssetsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->withResourceables(withDrafts: true))
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->withAssets(withDrafts: true))
             ->heading(__('capell-admin::heading.widget_page_resources'))
             ->description(__('capell-admin::generic.widget_page_resources_description'))
             ->columns([
@@ -65,7 +66,7 @@ class WidgetAssetsRelationManager extends RelationManager
                 // TODO: Implement for other asset types
                 LayoutTypeEnum::Content->value => ContentResource::getUrl('edit', ['record' => $record->asset]),
                 TypeEnum::Media->value => MediaResource::getUrl('edit', ['record' => $record->asset]),
-                TypeEnum::Page->value => $record->asset->edit_url,
+                TypeEnum::Page->value => EditPageUrlAction::run($record->asset),
             })
             ->filters([
                 Tables\Filters\Filter::make('filter')

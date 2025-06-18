@@ -15,9 +15,4 @@ enum WidgetSchemaEnum: string
     case Assets = Schemas\Widget\AssetsWidgetSchema::class;
     case Results = Schemas\Widget\ResultsWidgetSchema::class;
     case System = Schemas\Widget\SystemWidgetSchema::class;
-
-    public static function getAllSchemas(): array
-    {
-        return collect(self::cases())->mapWithKeys(fn (self $case): array => [$case->name => $case->value])->all();
-    }
 }

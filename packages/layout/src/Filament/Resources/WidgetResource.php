@@ -20,6 +20,8 @@ use Capell\Admin\Filament\Resources\LayoutResource;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Enums\SchemaEnum;
 use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
 use Capell\Layout\Filament\Resources\WidgetResource\Pages;
 use Capell\Layout\Filament\Resources\WidgetResource\RelationManagers;
@@ -45,6 +47,11 @@ class WidgetResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?int $navigationSort = 2;
+
+    public static function getResourceType(): string
+    {
+        return 'Widget';
+    }
 
     /**
      * @return class-string<Widget>
@@ -100,9 +107,8 @@ class WidgetResource extends Resource
                     fn (Forms\Get $get, TypeSchema $component): array => $component
                         ->getSchema(
                             $form,
-                            \Capell\Layout\Enums\SchemaEnum::Widget,
-                            defaultSchema: DefaultWidgetSchema::getKey(),
-                            key: $get('type_id')
+                            SchemaEnum::Widget->name,
+                            schema: DefaultWidgetSchema::getKey(),
                         )
                 ),
         ];
@@ -310,7 +316,10 @@ class WidgetResource extends Resource
                 ->relationship(
                     name: 'type',
                     titleAttribute: 'name',
-                    modifyQueryUsing: fn (Builder $query): Builder => $query->enabled()->widgetType()
+                    modifyQueryUsing: fn (Builder $query): Builder => $query->where(
+                        'type',
+                        LayoutTypeEnum::Widget
+                    )
                 ),
 
             Tables\Filters\SelectFilter::make('layout_id')
