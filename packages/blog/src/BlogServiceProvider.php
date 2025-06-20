@@ -80,7 +80,8 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
                 BlogDemoCommand::class,
             ])
             ->hasInstallCommand(function (InstallCommand $command): void {
-                $command->startWith(function (): void {
+                $command->startWith(function (InstallCommand $command): void {
+                    $command->info('Installing Capell Blog Package...');
                     InstallBlogPackageAction::run();
                 });
             });

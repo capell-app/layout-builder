@@ -9,7 +9,6 @@ use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
 use Capell\Core\Models\Page;
-use Capell\Layout\Database\Factories\ContentTypeFactory;
 use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
@@ -60,20 +59,6 @@ class DemoCreator
         $this->mediaModel = CapellCore::getModel(ModelEnum::Media);
         $this->pageModel = CapellCore::getModel(ModelEnum::Page);
         $this->tagModel = CapellCore::getModel(ModelEnum::Tag);
-    }
-
-    /**
-     * @param  Collection|Models\Language[]  $languages
-     */
-    public function createContents(Collection $languages): void
-    {
-        $contentType = (new ContentTypeFactory())->create();
-
-        $this->contentModel::factory()->type($contentType)->withTranslations($languages)->count(10)->create();
-
-        $parent = $this->contentModel::factory()->type($contentType)->withTranslations($languages)->create();
-
-        $this->contentModel::factory()->type($contentType)->withTranslations($languages)->parent($parent)->count(10)->create();
     }
 
     public function createStaticWidget(Collection $languages): Widget
@@ -309,23 +294,25 @@ class DemoCreator
             ->limit(1)
             ->first();
 
-        $image = $this->mediaModel::query()
-            ->where('type', 'LIKE', 'image/%')
-            ->inRandomOrder()
-            ->first();
+        if ($video) {
+            $image = $this->mediaModel::query()
+                ->where('type', 'LIKE', 'image/%')
+                ->inRandomOrder()
+                ->first();
 
-        $widget->assets()->firstOrcreate(
-            [
-                'asset_id' => $video->uuid,
-                'asset_type' => app($this->mediaModel)->getMorphClass(),
-            ],
-            [
-                'meta' => [
-                    'media_type' => 'video',
-                    'image_id' => $image->id,
+            $widget->assets()->firstOrcreate(
+                [
+                    'asset_id' => $video->uuid,
+                    'asset_type' => app($this->mediaModel)->getMorphClass(),
                 ],
-            ]
-        );
+                [
+                    'meta' => [
+                        'media_type' => 'video',
+                        'image_id' => $image?->id,
+                    ],
+                ]
+            );
+        }
 
         $media = $this->mediaModel::query()
             ->where('type', 'LIKE', 'image/%')

@@ -24,8 +24,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Capell\\Layout\\": "src/",
-            "Capell\\Layout\\Database\\Factories\\": "packages/layout/database/factories"
+            "Capell\\Layout\\": "src/"
         }
     },
     "extra": {

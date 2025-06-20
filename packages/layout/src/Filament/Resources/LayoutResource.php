@@ -7,7 +7,6 @@ namespace Capell\Layout\Filament\Resources;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Layout\Enums\LayoutModelEnum;
-use Filament\Forms;
 use Filament\Infolists\Components\ViewEntry;
 use Filament\Tables;
 use Illuminate\Database\Eloquent\Builder;
@@ -43,29 +42,27 @@ class LayoutResource extends \Capell\Admin\Filament\Resources\LayoutResource
     protected static function getTableFilters(): array
     {
         return [
-            Tables\Filters\Filter::make('filter')
-                ->form([
-                    Forms\Components\Select::make('widget_key')
-                        ->label(__('capell-admin::form.widget'))
-                        ->options(fn () => CapellCore::getModel(LayoutModelEnum::Widget->name)::getOptions('key', 'name')),
-                ])
-                ->modifyBaseQueryUsing(fn (Builder $query, array $data) => $query
-                    ->when(
-                        $data['widget_key'],
-                        fn (Builder $query, $widgetKey): Builder => $query->whereJsonContains('widgets', $widgetKey),
-                    ))
-                ->indicateUsing(function (array $data): array {
+            Tables\Filters\SelectFilter::make('widget_key')
+                ->label(__('capell-admin::form.widget'))
+                ->options(fn () => CapellCore::getModel(LayoutModelEnum::Widget->name)::getOptions('key', 'name'))
+                ->indicateUsing(function (array $state): array {
                     $indicators = [];
 
-                    if (! empty($data['widget_id'])) {
-                        $indicators['widget_id'] = __(
+                    if (! empty($state['value'])) {
+                        $indicators['widget_key'] = __(
                             'capell-admin::filter.widget',
-                            ['search' => CapellCore::getModel(LayoutModelEnum::Widget->name)::find($data['widget_id'], 'name')?->name]
+                            ['search' => CapellCore::getModel(LayoutModelEnum::Widget->name)::firstWhere('key', $state['value'], 'name')?->name]
                         );
                     }
 
                     return $indicators;
-                }),
+                })
+                ->modifyQueryUsing(
+                    fn (Builder $query, $state) => $query->when(
+                        ! empty($state['value']),
+                        fn (Builder $query) => $query->whereJsonContains('widgets', $state['value'])
+                    )
+                ),
             ...parent::getTableFilters(),
         ];
     }

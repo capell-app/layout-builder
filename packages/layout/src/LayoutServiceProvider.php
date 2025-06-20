@@ -78,9 +78,19 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             ->hasCommands([
                 LayoutDemoCommand::class,
             ])
-            ->hasInstallCommand(fn (InstallCommand $command): InstallCommand => $command->endWith(function (): void {
-                InstallLayoutPackageAction::run();
-            }));
+            ->hasInstallCommand(
+                fn (InstallCommand $command): InstallCommand => $command
+                    ->startWith(function (InstallCommand $command): void {
+                        $command->info('Installing Capell Layout Package...');
+                    })
+                    ->publishAssets()
+                    ->publishMigrations()
+                    ->endWith(function (InstallCommand $command): void {
+                        $command->call('migrate');
+
+                        InstallLayoutPackageAction::run();
+                    })
+            );
     }
 
     public function registeringPackage(): void
@@ -144,10 +154,10 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     private function registerListeners(): self
     {
-        CapellCore::subscriberManager()->subscribe(new Listeners\AfterRecordSaved());
-        CapellCore::subscriberManager()->subscribe(new Listeners\SiteTreeRebuilt());
-        CapellCore::subscriberManager()->subscribe(new Listeners\TypeValidated());
-        CapellCore::subscriberManager()->subscribe(new Listeners\LayoutLoaded());
+        CapellCore::subscriberManager()->subscribe(Listeners\AfterRecordSaved::class);
+        CapellCore::subscriberManager()->subscribe(Listeners\SiteTreeRebuilt::class);
+        CapellCore::subscriberManager()->subscribe(Listeners\TypeValidated::class);
+        CapellCore::subscriberManager()->subscribe(Listeners\LayoutLoaded::class);
 
         return $this;
     }

@@ -6,7 +6,6 @@ namespace Capell\Layout\Commands;
 
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Layout\Models\Content;
@@ -66,18 +65,30 @@ class LayoutDemoCommand extends Command
             );
         }
 
-        $this->demoCreator->createContents(Language::all());
+        $demo_data = config('capell-demo.pages');
+
+        $contentCreator = app(ContentCreator::class);
+        $contentCreator->createContentTypes();
 
         $sites = Site::whereIn('id', $siteIds)->get();
 
         foreach ($sites as $site) {
             $this->info(sprintf('Selected site: %s', $site->name));
 
+            $languages = $site->languages;
+
             if (! $this->createDemoLayouts($site)) {
                 $this->error('Failed to create demo pages for the selected site.');
 
                 return Command::FAILURE;
             }
+
+            $this->line('Setting up content');
+
+            /** @var ContentCreator $contentCreator */
+            $contentCreator = app(ContentCreator::class);
+
+            $this->createContent($contentCreator, $demo_data[0], $site, $languages);
         }
 
         $this->info('Demo layouts have been successfully created.');
@@ -87,7 +98,6 @@ class LayoutDemoCommand extends Command
 
     public function createDemoLayouts(Site $site): bool
     {
-        $demo_data = config('capell-demo.pages');
 
         $this->newLine();
         $this->line('Setting up homepage extras for site: '.$site->name);
@@ -98,19 +108,16 @@ class LayoutDemoCommand extends Command
 
         $this->setupHomepage($homePage, $languages);
 
-        $this->line('Setting up content');
-
-        /** @var ContentCreator $contentCreator */
-        $contentCreator = app(ContentCreator::class);
-
-        $this->createContent($contentCreator, $demo_data, $site, $languages);
-
         return true;
     }
 
     public function setupHomepage(Page $page, Collection $languages): void
     {
         $layout = $page->layout;
+
+        if ($page->layout_id !== $layout->id) {
+            $page->update(['layout_id' => $layout->id]);
+        }
 
         $containers = $layout->containers;
 
@@ -126,10 +133,6 @@ class LayoutDemoCommand extends Command
 
         $layout->containers = $containers;
         $layout->update(['containers' => $containers]);
-
-        if ($page->layout_id !== $layout->id) {
-            $page->update(['layout_id' => $layout->id]);
-        }
     }
 
     private function createContent(ContentCreator $contentCreator, array $data, Site $site, Collection $languages, ?Content $parent = null): void

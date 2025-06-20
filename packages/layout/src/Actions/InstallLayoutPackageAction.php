@@ -9,6 +9,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\Layout\Enums\LayoutEnum;
+use Capell\Layout\Services\Creator\ContentCreator;
 use Capell\Layout\Services\Creator\LayoutCreator as LayoutCreatorService;
 use Capell\Layout\Services\Creator\LayoutUpdater;
 use Capell\Layout\Services\Creator\WidgetCreator;
@@ -26,6 +27,9 @@ class InstallLayoutPackageAction
     {
         $widgetTypeCreator = app(WidgetTypeCreator::class);
         $widgetTypeCreator->createWidgetTypes();
+
+        $contentCreator = app(ContentCreator::class);
+        $contentCreator->createContentTypes();
 
         $widgetCreator = app(WidgetCreator::class);
         $widgetCreator->createWidgets(Language::all());
