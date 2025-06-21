@@ -861,12 +861,12 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
         return Action::make('convertPageAssets')
             ->label(
                 function (self $livewire, array $arguments): string {
-                    $hasPageAsset = $livewire->widgetHasPageAssets(
+                    $hasPageAssets = $livewire->widgetHasPageAssets(
                         containerKey: $arguments['containerKey'],
                         widgetIndex: $arguments['widgetIndex']
                     );
 
-                    return $hasPageAsset
+                    return $hasPageAssets
                         ? __('capell-admin::button.convert_widget_resources')
                         : __('capell-admin::button.convert_page_resources');
                 }
@@ -880,12 +880,12 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
                     return false;
                 }
 
-                $hasPageAsset = $livewire->widgetHasPageAssets(
+                $hasPageAssets = $livewire->widgetHasPageAssets(
                     containerKey: $arguments['containerKey'],
                     widgetIndex: $arguments['widgetIndex']
                 );
 
-                if (! $hasPageAsset) {
+                if (! $hasPageAssets) {
                     return true;
                 }
 
@@ -896,18 +896,18 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             ->requiresConfirmation()
             ->modalDescription(
                 function (self $livewire, array $arguments): string {
-                    $hasPageAsset = $livewire->widgetHasPageAssets(
+                    $hasPageAssets = $livewire->widgetHasPageAssets(
                         containerKey: $arguments['containerKey'],
                         widgetIndex: $arguments['widgetIndex']
                     );
 
-                    return $hasPageAsset
+                    return $hasPageAssets
                         ? __('capell-admin::generic.convert_widget_resources')
                         : __('capell-admin::generic.convert_page_resources');
                 }
             )
             ->action(function (self $livewire, array $arguments, Action $action): void {
-                $hasPageAsset = $livewire->widgetHasPageAssets(
+                $hasPageAssets = $livewire->widgetHasPageAssets(
                     containerKey: $arguments['containerKey'],
                     widgetIndex: $arguments['widgetIndex']
                 );
@@ -915,7 +915,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
                 $livewire->togglePageAssets(
                     $arguments['containerKey'],
                     $arguments['widgetIndex'],
-                    pageId: $hasPageAsset ? null : $livewire->page_id
+                    pageId: $hasPageAssets ? null : $livewire->page_id
                 );
 
                 $action->success();

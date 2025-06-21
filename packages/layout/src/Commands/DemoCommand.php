@@ -6,18 +6,22 @@ namespace Capell\Layout\Commands;
 
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Layout\Actions\CreateThemeAction;
+use Capell\Layout\Enums\LayoutEnum;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Services\Creator\ContentCreator;
 use Capell\Layout\Services\Creator\DemoCreator;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 use function Laravel\Prompts\multisearch;
 
-class LayoutDemoCommand extends Command
+class DemoCommand extends Command
 {
     /**
      * The console command description.
@@ -31,7 +35,7 @@ class LayoutDemoCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'capell-layout:demo {--site= : The ID of the site to insert demo pages into}';
+    protected $signature = 'capell-layout:demo {--sites=}';
 
     protected DemoCreator $demoCreator;
 
@@ -42,8 +46,10 @@ class LayoutDemoCommand extends Command
     {
         $this->demoCreator = app(DemoCreator::class);
 
-        if ($this->option('site')) {
-            $siteIds = explode(',', (string) $this->option('site'));
+        if ($this->option('sites')) {
+            $siteIds = is_string($this->option('sites'))
+                ? [$this->option('sites')]
+                : $this->option('sites');
         } else {
             $siteIds = multisearch(
                 'Select a site to insert demo pages',
@@ -72,23 +78,31 @@ class LayoutDemoCommand extends Command
 
         $sites = Site::whereIn('id', $siteIds)->get();
 
+        if ($sites->isEmpty()) {
+            throw new Exception('Unable to find any sites');
+        }
+
         foreach ($sites as $site) {
             $this->info(sprintf('Selected site: %s', $site->name));
 
-            $languages = $site->languages;
+            $this->line('Associating theme with site: '.$site->name);
 
-            if (! $this->createDemoLayouts($site)) {
-                $this->error('Failed to create demo pages for the selected site.');
+            $theme = CreateThemeAction::run();
 
-                return Command::FAILURE;
-            }
+            $site->update(['theme_id' => $theme->id]);
 
             $this->line('Setting up content');
 
             /** @var ContentCreator $contentCreator */
             $contentCreator = app(ContentCreator::class);
 
-            $this->createContent($contentCreator, $demo_data[0], $site, $languages);
+            $this->createContent($contentCreator, $demo_data[0], $site);
+
+            if (! $this->createDemoLayouts($site)) {
+                $this->error('Failed to create demo pages for the selected site.');
+
+                return Command::FAILURE;
+            }
         }
 
         $this->info('Demo layouts have been successfully created.');
@@ -113,11 +127,13 @@ class LayoutDemoCommand extends Command
 
     public function setupHomepage(Page $page, Collection $languages): void
     {
-        $layout = $page->layout;
+        $layout = $this->getHomeLayout();
 
-        if ($page->layout_id !== $layout->id) {
-            $page->update(['layout_id' => $layout->id]);
+        if (! $layout instanceof Layout) {
+            throw new Exception('Unable to find homepage layout');
         }
+
+        $page->update(['layout_id' => $layout->id]);
 
         $containers = $layout->containers;
 
@@ -135,8 +151,12 @@ class LayoutDemoCommand extends Command
         $layout->update(['containers' => $containers]);
     }
 
-    private function createContent(ContentCreator $contentCreator, array $data, Site $site, Collection $languages, ?Content $parent = null): void
+    private function createContent(ContentCreator $contentCreator, array $data, Site $site, ?Collection $languages = null, ?Content $parent = null): void
     {
+        if (! $languages instanceof Collection) {
+            $languages = $site->languages;
+        }
+
         $contentData = [
             'name' => $data['name']['en'],
         ];
@@ -163,6 +183,12 @@ class LayoutDemoCommand extends Command
         foreach ($data['children'] as $child) {
             $this->createContent($contentCreator, $child, $site, $languages, $content);
         }
+    }
 
+    private function getHomeLayout(): ?Layout
+    {
+        $model = CapellCore::getModel(ModelEnum::Layout);
+
+        return $model::firstWhere('key', LayoutEnum::Home);
     }
 }

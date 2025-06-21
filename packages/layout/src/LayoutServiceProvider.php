@@ -13,14 +13,15 @@ use Capell\Core\Data\AssetData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
 use Capell\Core\Packages\AbstractPackageServiceProvider;
-use Capell\Layout\Actions\InstallLayoutPackageAction;
-use Capell\Layout\Commands\LayoutDemoCommand;
+use Capell\Layout\Actions\InstallPackageAction;
+use Capell\Layout\Commands\DemoCommand;
 use Capell\Layout\Filament\Resources\LayoutResource;
 use Capell\Layout\Filament\Schemas;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\ContentAsset;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
+use Exception;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -47,7 +48,8 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             ->registerEvents()
             ->registerListeners()
             ->registerRelationships()
-            ->registerSchemas();
+            ->registerSchemas()
+            ->registerPublishCommands();
 
         CapellCore::addCloneableRelations('page', 'widgetAssets');
         CapellCore::addDraftableRelations('page', 'widgetAssets');
@@ -66,6 +68,17 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
         foreach (config('capell-layout.blade_components') as $name => $component) {
             Blade::component($name, $component);
         }
+
+        $viewPath = base_path('vendor/capell-app/layout/resources/views/capell');
+
+        if (! is_dir($viewPath)) {
+            throw new Exception('Theme view path not found: '.$viewPath);
+        }
+
+        app('view')->prependNamespace('capell', $viewPath);
+
+        Blade::componentNamespace('Capell\\Layout\\View\\Components', 'capell');
+        Blade::anonymousComponentNamespace('Capell\\Layout\\View\\Components');
     }
 
     public function configurePackage(Package $package): void
@@ -76,7 +89,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             ->hasTranslations()
             ->hasMigrations(CapellLayoutManager::getMigrations())
             ->hasCommands([
-                LayoutDemoCommand::class,
+                DemoCommand::class,
             ])
             ->hasInstallCommand(
                 fn (InstallCommand $command): InstallCommand => $command
@@ -88,7 +101,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
                     ->endWith(function (InstallCommand $command): void {
                         $command->call('migrate');
 
-                        InstallLayoutPackageAction::run();
+                        InstallPackageAction::run();
                     })
             );
     }
@@ -97,7 +110,6 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
     {
         parent::registeringPackage();
 
-        // Register the CapellLayoutManager as a singleton
         App::singleton(CapellLayoutManager::class, fn (): CapellLayoutManager => new CapellLayoutManager());
 
         CapellCore::registerPackage(
@@ -106,6 +118,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             permissions: $this->getPackagePermissions(),
             demoCommand: true,
             demoParams: ['sites'],
+            publishAssetsCommand: true,
         );
 
         CapellAdmin::registerResource(
@@ -124,7 +137,12 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
         );
 
         CapellCore::registerAsset(
-            new AssetData(name: 'content', model: Content::class, icon: 'heroicon-o-document-text')
+            new AssetData(
+                name: 'content',
+                model: Content::class,
+                icon: 'heroicon-o-document-text',
+                component: Enums\AssetComponentEnum::Content->value
+            )
         );
     }
 
@@ -287,6 +305,16 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             'widgetType',
             fn (Models\Type $model): Builder => $model->where('type', Enums\LayoutTypeEnum::Widget)
         );
+
+        return $this;
+    }
+
+    private function registerPublishCommands(): self
+    {
+        $vendorAssets = $this->package->basePath('/../resources/dist');
+        $appAssets = public_path('vendor/'.$this->package->shortName());
+
+        $this->publishes([$vendorAssets => $appAssets], $this->package->shortName().'-assets');
 
         return $this;
     }

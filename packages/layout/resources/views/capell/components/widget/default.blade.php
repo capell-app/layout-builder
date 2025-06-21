@@ -30,7 +30,7 @@ declare(strict_types=1);
     <div class="@container flex-1">
         @if ($content || $title)
             <x-capell::content
-                class="@md:prose-xl @lg:prose-2xl @xl:prose-4xl mb-2"
+                class="mb-2"
                 :compact="true"
                 :$containerKey
                 :content="$content"

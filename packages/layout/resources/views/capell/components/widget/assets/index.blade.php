@@ -5,7 +5,8 @@ declare(strict_types=1);
 ?>
 
 @php
-    use Capell\Core\Enums\ResourceComponentEnum;
+    use Capell\Core\Enums\AssetComponentEnum;
+    use Capell\Core\Facades\CapellCore;
 @endphp
 
 @props([
@@ -52,13 +53,13 @@ declare(strict_types=1);
                 '2xl:grid-cols-4' => $total > 7,
             ])
         >
-            @foreach ($widget->assets as $resource)
+            @foreach ($widget->assets as $asset)
                 <x-dynamic-component
-                    :component="ResourceComponentEnum::fromResource($resource['asset_type'])->value"
-                    :component-item="$widget->meta['component_item'] ?? ResourceComponentEnum::Card->value"
+                    :component="CapellCore::getAsset($asset['asset_type'])->getComponent()"
+                    :component-item="$widget->meta['component_item'] ?? AssetComponentEnum::Card->value"
                     :$container
                     :$containerKey
-                    :resource="$resource->asset"
+                    :asset="$asset->asset"
                     :with-child-count="$withChildCount"
                     :with-image="$withImage"
                     :with-parent="$withParent"

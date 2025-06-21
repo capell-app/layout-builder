@@ -1,0 +1,47 @@
+@import 'tailwindcss';
+@import 'tippy.js/dist/tippy.css';
+@import '../../../../vendor/capell-app/frontend/resources/css/layout/theme.css';
+@import '../../../../vendor/capell-app/frontend/resources/css/utilities/embla-carousel.css';
+
+@plugin '@tailwindcss/typography';
+@source '../views';
+@source '../../../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../../../vendor/capell-app/frontend/resources/views';
+@source '../../packages/blog/resources/views';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@utility container {
+    margin-inline: auto;
+    padding-inline: 2rem;
+}
+
+@theme {
+    --container-2xs: 18rem;
+    --color-primary: rgb(var(--primary-color));
+    --color-secondary: rgb(var(--secondary-color));
+    --color-gray: rgb(var(--gray-color));
+    --color-light-gray: rgb(var(--light-gray-color));
+    --font-sans: var(--font-fmaily);
+    --font-heading: var(--font-family-heading);
+    --text-md: 1.2rem;
+    --text-lg: 1.35rem;
+    --text-xl: 1.455rem;
+    --text-2xl: 1.875rem;
+    --text-3xl: 2.5rem;
+    --text-4xl: 3rem;
+}
+
+html {
+    color: rgb(var(--base-color));
+}
+
+.highlight {
+    color: rgb(var(--primary-color));
+}
+
+@media (max-width: 1023px) {
+    body.menu-open {
+        overflow: hidden;
+    }
+}

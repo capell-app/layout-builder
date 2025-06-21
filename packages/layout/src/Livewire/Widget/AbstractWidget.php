@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Livewire\Widget;
 
-use Capell\Core\Enums\ResourceComponentEnum;
+use Capell\Core\Enums\AssetComponentEnum;
 use Capell\Core\Models;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Layout\Models\Widget;
@@ -100,7 +100,7 @@ abstract class AbstractWidget extends Component
 
     protected function getDefaultComponentItem(): string
     {
-        return ResourceComponentEnum::Card->value;
+        return AssetComponentEnum::Card->value;
     }
 
     protected function initializeWidget(): void

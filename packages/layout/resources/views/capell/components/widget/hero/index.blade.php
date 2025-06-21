@@ -49,7 +49,7 @@ declare(strict_types=1);
         'min-h-[300px] sm:min-h-[400px]' => $height === 'small',
     ])
 >
-    <x-capell-gizmo::hero.wrapper
+    <x-capell::hero.wrapper
         :key="$containerKey.'-widget-'.$widgetIndex"
         :total="$total"
         :carousel-arrows="$widget->meta['carousel_arrows'] ?? false"
@@ -64,7 +64,7 @@ declare(strict_types=1);
                 $content = $pageRecord->translation->meta['hero'] ?? $widget->translation->content;
             @endphp
 
-            <x-capell-gizmo::hero.slide
+            <x-capell::hero.slide
                 :background-image="$widget->image ?: $backgroundImage"
                 :background-color="$widget->meta['background_color'] ?? ($theme['meta']['background_color'] ?? '')"
                 :background-size="$widget->meta['background_size'] ?? 'cover'"
@@ -77,7 +77,7 @@ declare(strict_types=1);
                 container-class="container"
             >
                 <div class="@lg:py-16 flex select-text py-20">
-                    <x-capell-gizmo::hero.content
+                    <x-capell::hero.content
                         :title="
                             $widget->translation
                             ? ReplacePageDataAction::run($widget->translation->title, $pageRecordParams)
@@ -87,9 +87,9 @@ declare(strict_types=1);
                         size="lg"
                     >
                         {!! ReplacePageDataAction::run($content, $pageRecordParams) !!}
-                    </x-capell-gizmo::hero.content>
+                    </x-capell::hero.content>
                 </div>
-            </x-capell-gizmo::hero.slide>
+            </x-capell::hero.slide>
         @else
             @foreach ($widget->assets as $widgetAsset)
                 @php
@@ -127,7 +127,7 @@ declare(strict_types=1);
                     }
                 @endphp
 
-                <x-capell-gizmo::hero.slide
+                <x-capell::hero.slide
                     :background-image="$bgImage"
                     :background-color="($asset->meta['background_color'] ?? null) ?: $backgroundColor"
                     :background-size="
@@ -168,7 +168,7 @@ declare(strict_types=1);
                             ])
                         >
                             @if ($asset->translation)
-                                <x-capell-gizmo::hero.content
+                                <x-capell::hero.content
                                     :title="$asset->translation->title"
                                     :heading-size="$loop->first ? 'h1' : 'h2'"
                                     :$url
@@ -191,11 +191,11 @@ declare(strict_types=1);
                                     @if ($loop->first && $heroContent)
                                         {{ $heroContent }}
                                     @endif
-                                </x-capell-gizmo::hero.content>
+                                </x-capell::hero.content>
                             @endif
 
                             @if ($asset->related?->isNotEmpty())
-                                <x-capell-gizmo::hero.related
+                                <x-capell::hero.related
                                     class="w-full"
                                     :features="$asset->related"
                                     :key="$containerKey.'-widget-'.$widgetIndex.'-features'"
@@ -241,10 +241,10 @@ declare(strict_types=1);
                             </div>
                         @endif
                     </div>
-                </x-capell-gizmo::hero.slide>
+                </x-capell::hero.slide>
             @endforeach
         @endif
-    </x-capell-gizmo::hero.wrapper>
+    </x-capell::hero.wrapper>
 </section>
 
 <?php

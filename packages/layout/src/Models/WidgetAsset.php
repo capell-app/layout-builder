@@ -91,6 +91,15 @@ class WidgetAsset extends Model implements PageCacheable
         return TypeEnum::getResourceTypes();
     }
 
+    public static function totalWidgetPages(Widget $widget): int
+    {
+        return static::query()
+            ->where('widget_id', $widget->id)
+            ->whereNotNull('page_id')
+            ->distinct('page_id')
+            ->count('page_id');
+    }
+
     public function widget(): BelongsTo
     {
         return $this->belongsTo(Widget::class);

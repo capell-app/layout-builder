@@ -49,9 +49,11 @@ class LayoutLoaded implements EventSubscriber
             if (! isset($container['widgets'])) {
                 continue;
             }
+
             if (! is_array($container['widgets'])) {
                 continue;
             }
+
             foreach ($container['widgets'] as $widgetData) {
                 if (! isset($widgetData['widget_key'])) {
                     continue;

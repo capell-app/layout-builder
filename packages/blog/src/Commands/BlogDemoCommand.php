@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Capell\Blog\Commands;
 
 use Capell\Admin\Services\Creator\DemoCreator;
+use Capell\Blog\Enums\BlogResourceEnum;
 use Capell\Blog\Services\Loader\BlogLoader;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -32,7 +34,7 @@ class BlogDemoCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'capell-blog:demo {--site= : The ID of the site to insert demo pages into}';
+    protected $signature = 'capell-blog:demo {--sites=}';
 
     private DemoCreator $demoCreator;
 
@@ -43,8 +45,10 @@ class BlogDemoCommand extends Command
     {
         $this->demoCreator = app(DemoCreator::class);
 
-        if ($this->option('site')) {
-            $siteIds = explode(',', (string) $this->option('site'));
+        if ($this->option('sites')) {
+            $siteIds = is_string($this->option('sites'))
+                ? [$this->option('sites')]
+                : $this->option('sites');
         } else {
             $siteIds = multisearch(
                 'Select a site to insert demo pages',
@@ -67,6 +71,10 @@ class BlogDemoCommand extends Command
         }
 
         $sites = Site::whereIn('id', $siteIds)->get();
+
+        if ($sites->isEmpty()) {
+            throw new Exception('Unable to find any sites');
+        }
 
         foreach ($sites as $site) {
             $this->info(sprintf('Selected site: %s', $site->name));
@@ -140,7 +148,7 @@ class BlogDemoCommand extends Command
                 $site->languages,
                 $site->language,
                 parent: $blogPage,
-                type: 'article'
+                type: BlogResourceEnum::Article->name
             );
         }
 

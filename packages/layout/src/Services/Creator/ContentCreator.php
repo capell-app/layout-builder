@@ -50,11 +50,12 @@ class ContentCreator
             $meta['image_id'] = $data['image_id'];
         }
 
-        $content = $this->contentModel::create([
+        $content = $this->contentModel::firstOrCreate([
             'name' => $data['name'],
             'site_id' => $site?->id,
             'type_id' => $type->id,
             'parent_uuid' => $data['parent_uuid'] ?? null,
+        ], [
             'meta' => $meta !== [] ? $meta : null,
         ]);
 

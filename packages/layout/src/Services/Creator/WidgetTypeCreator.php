@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Services\Creator;
 
+use Capell\Core\Enums\AssetComponentEnum as CapellAssetComponentEnum;
 use Capell\Core\Enums\ModelEnum;
-use Capell\Core\Enums\ResourceComponentEnum as CapellResourceComponentEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Type;
+use Capell\Layout\Enums\AssetComponentEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Enums\ResourceComponentEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Filament\Schemas;
@@ -41,7 +41,7 @@ class WidgetTypeCreator
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::Resources,
-                'component_item' => ResourceComponentEnum::Content->value,
+                'component_item' => AssetComponentEnum::Content->value,
                 'margin' => ['lg'],
             ],
         ]);
@@ -93,7 +93,7 @@ class WidgetTypeCreator
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::Resources,
-                'component_item' => CapellResourceComponentEnum::Media,
+                'component_item' => CapellAssetComponentEnum::Media,
                 'file_view' => 'capell::components.widget.assets.media.index',
             ],
         ]);

@@ -21,6 +21,9 @@ declare(strict_types=1);
 ])
 @php
     use Capell\Admin\Facades\CapellAdmin;
+    use Capell\Core\Models\Media;
+    use Capell\Core\Models\Page;
+    use Capell\Layout\Models\Content;
     use Filament\Actions\Action;
 
     /** @var Action $editWidgetAssetAction */
@@ -39,8 +42,8 @@ declare(strict_types=1);
 
     if (! $image) {
         $image = match (get_class($asset)) {
-            Models\Page::class, Content::class => $asset->image,
-            Models\Media::class => $asset,
+            Page::class, Content::class => $asset->image,
+            Media::class => $asset,
             default => null,
         };
     }
@@ -62,15 +65,15 @@ declare(strict_types=1);
 
     if (! $name) {
         $name = match (get_class($asset)) {
-            Models\Page::class, Content::class => $asset->name,
-            Models\Media::class => $asset->title,
+            Page::class, Content::class => $asset->name,
+            Media::class => $asset->title,
             default => null,
         };
     }
 
     if (! $description) {
         $description = match (get_class($asset)) {
-            Models\Page::class, Content::class => $asset->translation?->title &&
+            Page::class, Content::class => $asset->translation?->title &&
             $asset->translation->title !== $asset->name
                 ? $asset->translation->title
                 : null,

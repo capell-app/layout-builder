@@ -6,8 +6,6 @@ namespace Capell\Layout\Actions;
 
 use Capell\Admin\Services\Creator\LayoutCreator;
 use Capell\Core\Models\Language;
-use Capell\Core\Models\Layout;
-use Capell\Core\Models\Site;
 use Capell\Layout\Enums\LayoutEnum;
 use Capell\Layout\Services\Creator\ContentCreator;
 use Capell\Layout\Services\Creator\LayoutCreator as LayoutCreatorService;
@@ -19,7 +17,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
 /**
  * @method static void run()
  */
-class InstallLayoutPackageAction
+class InstallPackageAction
 {
     use AsObject;
 
@@ -38,22 +36,11 @@ class InstallLayoutPackageAction
         $layoutCreator->setup();
 
         $layoutCreator = app(LayoutCreatorService::class);
+        $layoutCreator->create(LayoutEnum::Home->value);
 
-        $homeLayout = $layoutCreator->create(LayoutEnum::Home->value);
+        $layoutUpdater = app(LayoutUpdater::class);
+        $layoutUpdater->setup();
 
-        $defaultLayout = Layout::default()->first();
-
-        Site::all()->each(function (Site $site) use ($homeLayout, $defaultLayout): void {
-            $homePage = $site->pages()->isHomePage()->first();
-
-            if ($homePage->layout_id === $defaultLayout->id) {
-                return;
-            }
-
-            $homePage->update(['layout_id' => $homeLayout->id]);
-        });
-
-        $layoutCreator = app(LayoutUpdater::class);
-        $layoutCreator->setup();
+        CreateThemeAction::run();
     }
 }

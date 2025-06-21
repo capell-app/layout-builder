@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 @props(['containerKey', 'hasPageAssets', 'occurrence', 'assets', 'assetsCount', 'widget', 'widgetIndex'])
 @php
+    use Capell\Layout\Models\WidgetAsset;
+
     $removeAssetsAction = ($this->removeAssetsAction)([
         'containerKey' => $containerKey,
         'widgetIndex' => $widgetIndex,
@@ -124,7 +126,8 @@ declare(strict_types=1);
         <div
             class="py-3 text-center font-light tracking-tight text-gray-600 dark:text-gray-100"
         >
-            {{ __('capell-admin::message.widget_resources_empty') }}
+            @php($pagesWithAssets = WidgetAsset::totalWidgetPages($widget))
+            {{ $pagesWithAssets ? __('capell-layout::message.widget_has_page_assets', ['total' => $pagesWithAssets]) : __('capell-admin::message.widget_resources_empty') }}
         </div>
     @endif
 </div>

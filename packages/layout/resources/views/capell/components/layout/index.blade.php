@@ -25,7 +25,7 @@ declare(strict_types=1);
     'site' => Frontend::getSite(),
 ])
 <div
-    {{ $attributes->merge(['class' => 'flex flex-col min-h-screen']) }}
+    {{ $attributes->merge(['class' => 'flex flex-col min-h-screen bg-white dark:bg-gray-900']) }}
 >
     <a
         class="sr-only"

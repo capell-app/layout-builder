@@ -77,12 +77,15 @@ class ContentResource extends Resource
                 ->schema(ContentDetailsSchema::make()),
             TypeSchema::make()
                 ->schema(
-                    fn (Get $get, TypeSchema $component): array => $component
-                        ->getSchema(
-                            $form,
-                            SchemaEnum::Content->value,
-                            schema: DefaultContentSchema::getKey()
-                        )
+                    function (Get $get, TypeSchema $component) use ($form): array {
+                        $typeId = $get('type_id');
+
+                        $type = $typeId ? CapellCore::getModel(ModelEnum::Type)::find($typeId, ['admin']) : null;
+
+                        $adminSchema = $type->admin['schema'] ?? DefaultContentSchema::getKey();
+
+                        return $component->getSchema($form, SchemaEnum::Content->value, $adminSchema);
+                    }
                 ),
         ];
     }

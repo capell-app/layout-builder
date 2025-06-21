@@ -5,13 +5,13 @@ declare(strict_types=1);
 ?>
 
 @php
-    use Capell\Core\Enums\ResourceComponentEnum;
+    use Capell\Core\Enums\AssetComponentEnum;
     use Capell\Frontend\Facades\Frontend;
 @endphp
 
 @props([
     'columns' => $container['meta']['override_columns'] ?? ($widget->meta['columns'] ?? 3),
-    'componentItem' => ($widget->meta['component_item'] ?? ResourceComponentEnum::Card->value),
+    'componentItem' => ($widget->meta['component_item'] ?? AssetComponentEnum::Card->value),
     'container',
     'containerKey',
     'hideContent' => $widgetData['meta']['hide_content'] ?? false,
