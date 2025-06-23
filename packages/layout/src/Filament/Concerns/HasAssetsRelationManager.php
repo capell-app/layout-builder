@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Concerns;
 
 use Capell\Core\Enums\TypeEnum;
-use Capell\Core\Models;
-use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Models\Content;
+use Capell\Core\Facades\CapellCore;
 use Filament\Forms;
 use Filament\Forms\Get;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -55,50 +53,38 @@ trait HasAssetsRelationManager
                 ->multiple()
                 ->visible(fn (Get $get): bool => (bool) $get('asset_type'))
                 ->getSearchResultsUsing(
-                    static fn (Get $get, self $livewire, string $search): array => self::getResourceOptions(
+                    static fn (Get $get, self $livewire, string $search): array => self::getAssetOptions(
                         $livewire->ownerRecord,
                         $get('asset_type'),
                         search: $search
                     )
                 )
                 ->options(
-                    fn (Get $get, self $livewire): array => self::getResourceOptions(
+                    fn (Get $get, self $livewire): array => self::getAssetOptions(
                         $livewire->ownerRecord,
                         $get('asset_type'))
                 ),
         ];
     }
 
-    private static function getResourceOptions(Model $record, ?string $type, ?string $search = null): array
+    private static function getAssetOptions(Model $record, ?string $type, ?string $search = null): array
     {
         if ($type === null || $type === '' || $type === '0') {
             return [];
         }
 
-        $query = match ($type) {
-            TypeEnum::Media->value => Models\Media::query(),
-            TypeEnum::Page->value => Models\Page::query()
-                ->when(
-                    $record instanceof Models\Page,
-                    fn (Builder $query) => $query->whereKeyNot($record->id)
-                ),
-            LayoutTypeEnum::Content->value => Content::query()
-                ->when(
-                    $record instanceof Content,
-                    fn (Builder $query) => $query->whereKeyNot($record->id)
-                ),
-        };
+        $asset = CapellCore::getAsset($type);
 
-        return $query
+        /* @var class-string<Model> $model */
+        $model = $asset->model;
+
+        return $model::query()
+            ->whereKeyNot($record->id)
             ->whereNotExists(
                 fn (BuilderContract $query) => $query
                     ->from('content_assets')
                     ->where('content_assets.content_id', $record->id)
-                    ->whereColumn('content_assets.asset_id', match ($type) {
-                        LayoutTypeEnum::Content->value => 'contents.id',
-                        TypeEnum::Media->value => 'media.id',
-                        TypeEnum::Page->value => 'pages.id',
-                    })
+                    ->whereColumn('content_assets.asset_id', app($model)->qualifyColumn('id'))
                     ->where('asset_type', $type)
             )
             ->when(

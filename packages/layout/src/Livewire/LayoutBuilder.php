@@ -10,6 +10,7 @@ use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Core\Actions\GetPageResourceAction;
+use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
@@ -1689,17 +1690,13 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             ->filter()
             ->groupBy('asset_type')
             ->mapWithKeys(
-                function (\Illuminate\Support\Collection $assets, string $type): array {
-                    $model = CapellCore::getAsset($type)->getModel();
-
-                    return [
-                        $type => $model::query()
-                            ->with($this->getAssetRelations($type))
-                            ->whereIn('uuid', $assets->pluck('asset_id')->unique()->toArray())
-                            ->get()
-                            ->keyBy('uuid'),
-                    ];
-                }
+                fn (\Illuminate\Support\Collection $assets, string $type): array => [
+                    $type => CapellCore::getAsset($type)->model::query()
+                        ->with($this->getAssetRelations($type))
+                        ->whereIn('uuid', $assets->pluck('asset_id')->unique()->toArray())
+                        ->get()
+                        ->keyBy('uuid'),
+                ]
             );
 
         foreach ($this->assets as $containerKey => $widgets) {
@@ -1783,12 +1780,11 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
         $occurrence = $this->getLastContainerWidgetOccurrence($containerKey, $widget->key);
 
         foreach ($assets as $resourceUuid) {
-            $resource = $this->getWidgetAssetRecord($type, $resourceUuid);
+            $resource = $this->getWidgetAssetRecord(ucfirst($type), $resourceUuid);
 
             $meta = $assetsMeta[$resourceUuid] ?? [];
 
-            // TODO improve this static media code
-            if ($type === 'media') {
+            if ($type === AssetEnum::Media->name) {
                 $meta['type'] = $resource->getType();
                 $meta['alt'] = $resource->alt;
                 $meta['caption'] = $resource->caption;
@@ -1927,7 +1923,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
                 'meta' => $meta,
                 'order' => $order,
                 'widget_id' => $widget->id,
-                'asset_type' => $type,
+                'asset_type' => mb_strtolower($type),
                 'asset_id' => $resourceUuid,
             ]);
 
@@ -2037,7 +2033,8 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             return $this->cachedAssets[$type][$id];
         }
 
-        $model = CapellCore::getAsset($type)->getModel();
+        /** @var Model $model */
+        $model = CapellCore::getAsset($type)->model;
 
         $this->cachedAssets[$type][$id] = $model::findByUuid($id);
 

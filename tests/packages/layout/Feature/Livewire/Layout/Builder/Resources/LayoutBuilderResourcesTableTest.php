@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
@@ -229,7 +230,7 @@ describe('page layout', function () use ($types): void {
             ->count(2)
             ->widget($widget)
             ->page($page, $containerKey, $containerWidget['occurrence'])
-            ->asset('page')
+            ->asset(AssetEnum::Page)
             ->create();
 
         $pages = Page::factory()->count(4)->create();

@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Capell\Layout\Services\Creator;
 
 use Capell\Core\Enums\AssetComponentEnum as CapellAssetComponentEnum;
+use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Type;
 use Capell\Layout\Enums\AssetComponentEnum;
+use Capell\Layout\Enums\AssetEnum as LayoutAssetEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
@@ -37,7 +39,7 @@ class WidgetTypeCreator
             'admin' => [
                 'schema' => Schemas\Widget\AssetsWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-rectangle-stack',
-                'asset_types' => ['content'],
+                'asset_types' => [AssetComponentEnum::Content->name],
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::Resources,
@@ -88,8 +90,8 @@ class WidgetTypeCreator
             'group' => 'assets',
             'admin' => [
                 'schema' => Schemas\Widget\MediaWidgetSchema::getKey(),
-                'icon' => CapellCore::getAsset('media')->getIcon(),
-                'asset_types' => ['media'],
+                'icon' => CapellCore::getAsset(AssetEnum::Media->name)->getIcon(),
+                'asset_types' => [AssetEnum::Media->name],
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::Resources,
@@ -164,7 +166,7 @@ class WidgetTypeCreator
             'admin' => [
                 'schema' => Schemas\Widget\AssetsWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-document-text',
-                'asset_types' => ['page'],
+                'asset_types' => [AssetEnum::Page->name],
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::Resources,
@@ -183,7 +185,11 @@ class WidgetTypeCreator
             'admin' => [
                 'schema' => Schemas\Widget\AssetsWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-rectangle-stack',
-                'asset_types' => ['content', 'media', 'page'],
+                'asset_types' => [
+                    AssetEnum::Page->name,
+                    AssetEnum::Media->name,
+                    LayoutAssetEnum::Content->name,
+                ],
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::Resources,

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
@@ -99,7 +100,7 @@ test('Can sync new widget assets to page layout', function (): void {
             'syncSelectedAssets',
             containerKey: $containerKey,
             widgetIndex: $widgetIndex,
-            type: 'media',
+            type: AssetEnum::Media->name,
             hasPageAssets: true,
             assets: $media->map(fn (Media $record): string => (string) $record->uuid)->toArray()
         )
@@ -107,7 +108,7 @@ test('Can sync new widget assets to page layout', function (): void {
             'syncSelectedAssets',
             containerKey: $containerKey,
             widgetIndex: $widgetIndex,
-            type: 'page',
+            type: AssetEnum::Page->name,
             hasPageAssets: true,
             assets: $pages->map(fn (Page $record): string => (string) $record->uuid)->toArray()
         )
@@ -243,7 +244,7 @@ test('Can reorder assets', function (): void {
 
     $secondAsset = WidgetAsset::factory()
         ->widget($widget)
-        ->asset('media')
+        ->asset(AssetEnum::Media)
         ->state([
             'container' => 'test',
             'order' => 2,
@@ -253,7 +254,7 @@ test('Can reorder assets', function (): void {
 
     $firstAsset = WidgetAsset::factory()
         ->widget($widget)
-        ->asset('page')
+        ->asset(AssetEnum::Page)
         ->state([
             'container' => 'test',
             'order' => 1,
@@ -289,7 +290,7 @@ test('Can select all widget assets', function (): void {
 
     $widget = Widget::firstWhere('key', $containerWidget['widget_key']);
 
-    foreach (['media', 'page', 'content'] as $assetType) {
+    foreach ([AssetEnum::Media, AssetEnum::Page, Capell\Layout\Enums\AssetEnum::Content] as $assetType) {
         WidgetAsset::factory()
             ->count(2)
             ->widget($widget)
@@ -447,7 +448,7 @@ test('can add media asset to existing widget with page layout', function (): voi
     WidgetAsset::factory()
         ->widget($widget)
         ->page($pageLayout, $containerKey, $containerWidget['occurrence'])
-        ->asset('media')
+        ->asset(AssetEnum::Media)
         ->create();
 
     livewire(LayoutBuilder::class, [
@@ -698,7 +699,7 @@ test('can edit asset', function (): void {
     $layoutAsset = WidgetAsset::factory()
         ->widget($widget)
         ->container($containerKey)
-        ->asset('page')
+        ->asset(AssetEnum::Page)
         ->create();
 
     $page = $layoutAsset->asset()->with('translation')->first();

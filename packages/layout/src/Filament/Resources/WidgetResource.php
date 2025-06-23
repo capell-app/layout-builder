@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Resources;
 
 use Awcodes\FilamentBadgeableColumn\Components\Badge;
+use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Forms\TypeSchema;
 use Capell\Admin\Filament\Components\Tables\Actions\EditAction;
 use Capell\Admin\Filament\Components\Tables\Actions\ReplicateAction;
@@ -25,6 +26,7 @@ use Capell\Layout\Enums\SchemaEnum;
 use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
 use Capell\Layout\Filament\Resources\WidgetResource\Pages;
 use Capell\Layout\Filament\Resources\WidgetResource\RelationManagers;
+use Capell\Layout\Filament\Schemas\Widget\AbstractWidgetSchema;
 use Capell\Layout\Filament\Schemas\Widget\DefaultWidgetSchema;
 use Capell\Layout\Models\Widget;
 use Filament\Forms;
@@ -105,8 +107,11 @@ class WidgetResource extends Resource
             TypeSchema::make()
                 ->schema(
                     function (Forms\Get $get, TypeSchema $component, ?Widget $record) use ($form): array {
-                        if ($record?->admin['schema']) {
-                            return app($record->admin['schema'])::make($form);
+                        if ($record?->admin['schema'] ?? null) {
+                            /** @var class-string<AbstractWidgetSchema> $schema */
+                            $schema = CapellAdmin::getSchema(SchemaEnum::Widget->value, $record->admin['schema']);
+
+                            return app($schema)::make($form);
                         }
 
                         $typeId = $get('type_id');

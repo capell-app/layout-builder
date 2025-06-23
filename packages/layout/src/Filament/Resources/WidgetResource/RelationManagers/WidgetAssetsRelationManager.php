@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Resources\WidgetResource\RelationManagers;
 
+use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Tables\Columns\CuratorColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\Page\PageNameColumn;
 use Capell\Admin\Filament\Concerns\HasRelationManagerBadge;
-use Capell\Admin\Filament\Resources\MediaResource;
 use Capell\Core\Actions\EditPageUrlAction;
 use Capell\Core\Enums\TypeEnum;
 use Capell\Core\Models;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Filament\Concerns\HasAssetsRelationManager;
-use Capell\Layout\Filament\Resources\ContentResource;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\WidgetAsset;
 use Filament\Forms;
@@ -62,12 +61,15 @@ class WidgetAssetsRelationManager extends RelationManager
                     ->withParents()
                     ->sortable(),
             ])
-            ->recordUrl(fn (WidgetAsset $record): string => match ($record->asset_type) {
-                // TODO: Implement for other asset types
-                LayoutTypeEnum::Content->value => ContentResource::getUrl('edit', ['record' => $record->asset]),
-                TypeEnum::Media->value => MediaResource::getUrl('edit', ['record' => $record->asset]),
-                TypeEnum::Page->value => EditPageUrlAction::run($record->asset),
-            })
+            ->recordUrl(
+                fn (WidgetAsset $record): ?string => match ($record->asset_type) {
+                    TypeEnum::Page->value => EditPageUrlAction::run($record->asset),
+                    default => CapellAdmin::getResource(ucfirst($record->asset_type))::getUrl(
+                        'edit',
+                        ['record' => $record->asset]
+                    ),
+                }
+            )
             ->filters([
                 Tables\Filters\Filter::make('filter')
                     ->columnSpanFull()

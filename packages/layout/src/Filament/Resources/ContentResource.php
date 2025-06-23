@@ -130,7 +130,7 @@ class ContentResource extends Resource
 
     public static function getNavigationIcon(): ?string
     {
-        return CapellCore::getAsset('content')->getIcon();
+        return CapellCore::getAsset(LayoutTypeEnum::Content->name)->getIcon();
     }
 
     public static function getPluralModelLabel(): string

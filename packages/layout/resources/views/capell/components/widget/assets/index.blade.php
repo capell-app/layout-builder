@@ -55,7 +55,7 @@ declare(strict_types=1);
         >
             @foreach ($widget->assets as $asset)
                 <x-dynamic-component
-                    :component="CapellCore::getAsset($asset['asset_type'])->getComponent()"
+                    :component="CapellCore::getAsset($asset['asset_type'])->component"
                     :component-item="$widget->meta['component_item'] ?? AssetComponentEnum::Card->value"
                     :$container
                     :$containerKey

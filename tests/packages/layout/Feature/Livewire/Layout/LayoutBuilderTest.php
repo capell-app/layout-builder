@@ -9,6 +9,7 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Layout\Database\Factories\LayoutFactory;
 use Capell\Layout\Database\Factories\WidgetTypeFactory;
+use Capell\Layout\Enums\AssetEnum;
 use Capell\Layout\Filament\Schemas\LayoutWidget\DefaultLayoutWidgetSchema;
 use Capell\Layout\Livewire\LayoutBuilder;
 use Capell\Layout\Models\Widget;
@@ -84,7 +85,7 @@ test('Render layout without containers', function (): void {
         ->assertSeeHtml('Layout is empty. Add a container and widget(s) to get started');
 });
 
-test('Render layout with widget and assets', function (string $assetType): void {
+test('Render layout with widget and assets', function (AssetEnum|Capell\Core\Enums\AssetEnum $assetType): void {
     $widget = Widget::factory()
         ->for((new WidgetTypeFactory())->state([
             'admin' => [
@@ -100,7 +101,7 @@ test('Render layout with widget and assets', function (string $assetType): void 
         'layout_id' => $layout->id,
     ])
         ->assertSuccessful();
-})->with(['content', 'media', 'page']);
+})->with([AssetEnum::Content, ...Capell\Core\Enums\AssetEnum::cases()]);
 
 test('Save layout builder', function (): void {
     $layout = (new LayoutFactory())->containers()->create();

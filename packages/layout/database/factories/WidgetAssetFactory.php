@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Database\Factories;
 
+use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
+use Capell\Layout\Enums\AssetEnum as LayoutAssetEnum;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
@@ -32,16 +34,20 @@ class WidgetAssetFactory extends Factory
      */
     public function definition(): array
     {
-        $assetType = $this->faker->randomElement(['content', 'media', 'page']);
+        $assetType = $this->faker->randomElement([
+            AssetEnum::Page,
+            AssetEnum::Media,
+            LayoutAssetEnum::Content,
+        ]);
 
         return [
             'widget_id' => Widget::factory(),
             'page_id' => null,
-            'asset_type' => $assetType,
+            'asset_type' => $assetType->value,
             'asset_id' => fn (): string => match ($assetType) {
-                'content' => (string) Content::factory()->create()->uuid,
-                'media' => (string) Media::factory()->create()->uuid,
-                'page' => (string) Page::factory()->create()->uuid,
+                LayoutAssetEnum::Content => (string) Content::factory()->create()->uuid,
+                AssetEnum::Media => (string) Media::factory()->create()->uuid,
+                AssetEnum::Page => (string) Page::factory()->create()->uuid,
             },
             'occurrence' => null,
             'order' => $this->faker->randomNumber(1),
@@ -66,14 +72,14 @@ class WidgetAssetFactory extends Factory
         ]);
     }
 
-    public function asset($type): self
+    public function asset(AssetEnum|LayoutAssetEnum $type): self
     {
         return $this->state(fn (array $attributes): array => [
-            'asset_type' => $type,
+            'asset_type' => $type->value,
             'asset_id' => fn (): string => match ($type) {
-                'content' => (string) Content::factory()->withTranslations()->create()->uuid,
-                'media' => (string) Media::factory()->create()->uuid,
-                'page' => (string) Page::factory()->withTranslations()->create()->uuid,
+                LayoutAssetEnum::Content => (string) Content::factory()->withTranslations()->create()->uuid,
+                AssetEnum::Media => (string) Media::factory()->create()->uuid,
+                AssetEnum::Page => (string) Page::factory()->withTranslations()->create()->uuid,
             },
         ]);
     }
