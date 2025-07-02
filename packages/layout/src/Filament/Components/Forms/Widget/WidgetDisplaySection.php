@@ -6,7 +6,6 @@ namespace Capell\Layout\Filament\Components\Forms\Widget;
 
 use Capell\Admin\Filament\Components\Forms\AlignSelect;
 use Capell\Admin\Filament\Components\Forms\ContainerWidthSelect;
-use Capell\Admin\Filament\Components\Forms\CustomColorInput;
 use Capell\Admin\Filament\Components\Forms\MarginSelect;
 use Capell\Admin\Filament\Components\Forms\PaddingSelect;
 use Capell\Admin\Filament\Components\Forms\SizeSelect;
@@ -35,18 +34,6 @@ class WidgetDisplaySection
                 ContainerWidthSelect::make('container'),
 
                 AlignSelect::make('align'),
-
-                CustomColorInput::make(
-                    name: 'background_color',
-                    label: __('capell-admin::form.background_color'),
-                    options: [
-                        'primary' => __('capell-admin::generic.primary'),
-                        'secondary' => __('capell-admin::generic.secondary'),
-                        'gray' => __('capell-admin::generic.gray'),
-                        'light-gray' => __('capell-admin::generic.light_gray'),
-                        'custom' => __('capell-admin::generic.custom'),
-                    ]
-                ),
 
                 BackgroundSettingsFieldset::make(),
             ]);

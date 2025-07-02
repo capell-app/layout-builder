@@ -73,8 +73,9 @@ class DemoCreator
             'name' => 'Example Static Contents',
             'type_id' => $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)->default()->first()->id,
             'meta' => [
-                'size' => 'sm',
+                'size' => 'md',
                 'margin' => ['lg'],
+                'image_id' => $this->mediaModel::where('type', 'LIKE', 'image/%')->inRandomOrder()->value('id'),
             ],
         ]);
 
@@ -85,7 +86,7 @@ class DemoCreator
                     [
                         'type' => 'content',
                         'data' => [
-                            'content' => config('capell-demo.contents')[$language->code],
+                            'content' => Str::of(config('capell-demo.contents')[$language->code])->limit(end: ''),
                         ],
                     ],
                 ],
@@ -119,7 +120,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createPageCardsWidget(Collection $languages, Page $page, int $occurrence = 1, ?string $title = null): Widget
+    public function createPageCardsWidget(Page $page, int $occurrence = 1): Widget
     {
         $widget = $this->widgetModel::firstWhere('key', 'pages-card');
 
@@ -142,12 +143,8 @@ class DemoCreator
             ]);
         }
 
-        if ($title) {
-            foreach ($languages as $language) {
-                $widget->translations()->firstOrCreate(['language_id' => $language->id], [
-                    'title' => $title,
-                ]);
-            }
+        if ($widget->assets()->count() >= 3) {
+            return $widget;
         }
 
         $this->pageModel::query()
@@ -391,10 +388,10 @@ class DemoCreator
                     ->accessible()
             )
             ->with([
-                'children' => fn (BuilderContract $query) => $query->whereHas('type'),
+                'children' => fn (BuilderContract $query) => $query->whereHas('type')->limit(6),
             ])
             ->visible()
-            ->limit(6)
+            ->limit(4)
             ->get();
 
         $model::updateOrCreate([
@@ -476,11 +473,11 @@ class DemoCreator
                 'content' => '<p>Take the first step towards your goals. Join us today!</p>',
             ],
             [
-                'title' => 'Hero image',
+                'title' => 'Hero introduction',
                 'content' => '<p>Check out our latest projects and initiatives.</p>',
             ],
             [
-                'title' => 'Hero video',
+                'title' => 'Hero video introduction',
                 'content' => '<p>Watch our introduction video to learn more about us.</p>',
             ],
         ];
@@ -490,7 +487,7 @@ class DemoCreator
             $mediaId = $media->shuffle()->shift()?->id;
             $content = Content::factory()
                 ->site($page->site)
-                ->withTranslations($page->site->languages, ['content' => "<p>{$feature['title']}</p>"])
+                ->withTranslations($page->site->languages, ['content' => sprintf('<p>%s</p>', $feature['title'])])
                 ->state([
                     'meta' => fn ($attributes): array => array_merge_recursive((array) $attributes['meta'], [
                         'image_id' => $mediaId,
@@ -498,7 +495,7 @@ class DemoCreator
                         'actions' => [
                             [
                                 'type' => 'page',
-                                'page_id' => Page::where('site_id', $page->site->id)
+                                'page_uuid' => Page::where('site_id', $page->site->id)
                                     ->whereHas(
                                         'type',
                                         /** @param Models\Type $query */
@@ -510,7 +507,7 @@ class DemoCreator
                             ],
                             [
                                 'type' => 'page',
-                                'page_id' => Page::where('site_id', $page->site->id)
+                                'page_uuid' => Page::where('site_id', $page->site->id)
                                     ->whereHas(
                                         'type',
                                         /** @param Models\Type $query */
@@ -542,7 +539,7 @@ class DemoCreator
         }
     }
 
-    public function createBusinessFeatures(Site $site, Models\Layout $layout): void
+    public function createBusinessFeatures(Site $site, Models\Layout $layout): Widget
     {
         $title = 'Fundamental Capabilities That Set Us Apart';
         $content = '<p>We combine innovation, efficiency, and deep expertise to deliver exceptional results. Our adaptable, client-focused approach ensures measurable value and lasting impact.</p>';
@@ -560,7 +557,7 @@ class DemoCreator
             [
                 'icon' => 'heroicon-o-user-group',
                 'title' => 'Client-Centric Approach',
-                'content' => '<p>We prioritize our clients\' needs and work collaboratively to achieve their goals.</p>',
+                'content' => "<p>We prioritize our clients' needs and work collaboratively to achieve their goals.</p>",
             ],
             [
                 'icon' => 'heroicon-o-chart-bar',
@@ -581,11 +578,16 @@ class DemoCreator
 
         $widget = Widget::firstOrCreate([
             'key' => 'business-features',
+            'meta' => [
+                'align' => 'center',
+                'padding' => ['lg'],
+                'file_view' => 'capell-layout::widget.assets.features',
+            ],
         ]);
 
         AddWidgetToLayoutContainerAction::run($widget, $layout, 'main');
 
-        $site->languages->each(function (Models\Language $language) use ($widget, $title, $content) {
+        $site->languages->each(function (Models\Language $language) use ($widget, $title, $content): void {
             $widget->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
@@ -626,7 +628,7 @@ class DemoCreator
             ], [
                 'meta' => [
                     'icon' => $feature['icon'],
-                    'page_id' => $page->uuid,
+                    'page_uuid' => $page->uuid,
                 ],
             ]);
 
@@ -659,6 +661,8 @@ class DemoCreator
                 ]);
             });
         }
+
+        return $widget;
     }
 
     protected function navigationPageItems(\Illuminate\Support\Collection $siteTree, Models\Language $language): array

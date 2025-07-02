@@ -25,7 +25,7 @@ declare(strict_types=1);
     'withTags' => $widget->meta['with_tags'] ?? ($widget->type->meta['with_tags'] ?? true),
 ])
 <x-capell-layout::widget.wrapper
-    class="widget-assets widget-assets-grid spacing-y-6"
+    class="widget-assets widget-assets-features spacing-y-6"
     :$container
     :$containerKey
     :index="$loop->index"
@@ -44,33 +44,7 @@ declare(strict_types=1);
         />
     @endif
 
-    @if ($widget->assets->isNotEmpty())
-        <div
-            @class([
-                'grid gap-x-8 gap-y-6 lg:gap-x-10 lg:gap-y-10',
-                'md:grid-cols-2' => $total >= 2,
-                'lg:grid-cols-3' => $total >= 3,
-                '2xl:grid-cols-4' => $total > 7,
-            ])
-        >
-            @foreach ($widget->assets as $asset)
-                <x-dynamic-component
-                    :component="CapellCore::getAsset($asset['asset_type'])->component"
-                    :component-item="$widget->meta['component_item'] ?? AssetComponentEnum::Card->value"
-                    :$container
-                    :$containerKey
-                    :asset="$asset->asset"
-                    :with-child-count="$withChildCount"
-                    :with-image="$withImage"
-                    :with-parent="$withParent"
-                    :with-published="$withPublished"
-                    :with-summary="$withSummary"
-                    :with-tags="$withTags"
-                    :$loop
-                />
-            @endforeach
-        </div>
-    @endif
+    features
 </x-capell-layout::widget.wrapper>
 
 <?php

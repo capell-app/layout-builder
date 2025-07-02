@@ -186,7 +186,7 @@ class WidgetResource extends Resource
         ];
     }
 
-    private static function getTableColumns(): array
+    public static function getTableColumns(): array
     {
         return [
             IdentifierColumn::make('id'),
@@ -294,7 +294,7 @@ class WidgetResource extends Resource
                     return new HtmlString(implode('<br />', $components));
                 })
                 ->toggleable(isToggledHiddenByDefault: true),
-            Tables\Columns\TextColumn::make('widget_resources_count')
+            Tables\Columns\TextColumn::make('widget_assets_count')
                 ->label(__('capell-admin::table.total_resources'))
                 ->counts('widgetAssets')
                 ->sortable()

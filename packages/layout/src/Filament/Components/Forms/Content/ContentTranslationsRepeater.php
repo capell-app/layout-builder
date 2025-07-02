@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms\Content;
 
-use Capell\Admin\Filament\Components\Forms\ContentEditorSection;
+use Capell\Admin\Filament\Components\Forms\ContentEditor;
 use Capell\Admin\Filament\Components\Forms\RepeaterTabs;
 use Capell\Admin\Filament\Components\Forms\TranslationLanguageSelect;
 use Capell\Admin\Filament\Components\Forms\TranslationsRepeater;
@@ -74,7 +74,7 @@ final class ContentTranslationsRepeater
                         TranslationLanguageSelect::make(),
                     ]),
 
-                ContentEditorSection::make(),
+                ContentEditor::make(),
 
                 ...$schema,
             ]);

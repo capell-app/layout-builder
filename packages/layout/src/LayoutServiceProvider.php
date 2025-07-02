@@ -14,6 +14,7 @@ use Capell\Core\Data\TypeData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
 use Capell\Core\Packages\AbstractPackageServiceProvider;
+use Capell\Layout\Actions\InstallPackageAction;
 use Capell\Layout\Commands\DemoCommand;
 use Capell\Layout\Enums\AssetEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
@@ -25,6 +26,8 @@ use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Exception;
 use Filament\Facades\Filament;
+use Filament\Support\Assets\AlpineComponent;
+use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -34,9 +37,11 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
 use Livewire\Livewire;
+use RuntimeException;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
+use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
 
 class LayoutServiceProvider extends AbstractPackageServiceProvider
 {
@@ -79,8 +84,17 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
         app('view')->prependNamespace('capell', $viewPath);
 
-        Blade::componentNamespace('Capell\\Layout\\View\\Components', 'capell');
+        Blade::componentNamespace('Capell\\Layout\\View\\Components', 'capell-layout');
         Blade::anonymousComponentNamespace('Capell\\Layout\\View\\Components');
+
+        $publishDir = self::getPublishedDirectory();
+
+        FilamentAsset::register([
+            AlpineComponent::make('layout-builder', $publishDir.'/build/js/layout-builder.js')
+                ->loadedOnRequest(),
+        ],
+            package: 'capell-layout'
+        );
     }
 
     public function configurePackage(Package $package): void
@@ -89,7 +103,6 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             ->hasConfigFile()
             ->hasViews(self::$name)
             ->hasTranslations()
-            ->hasMigrations(CapellLayoutManager::getMigrations())
             ->hasCommands([
                 DemoCommand::class,
             ])
@@ -99,11 +112,15 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
                         $command->info('Installing Capell Layout Package...');
                     })
                     ->publishAssets()
-                    ->publishMigrations()
                     ->endWith(function (InstallCommand $command): void {
+                        $command->call(
+                            'capell:publish-migrations',
+                            ['--migrations' => CapellLayoutManager::getMigrations(), '--path' => __DIR__.'/../database/migrations']
+                        );
+
                         $command->call('migrate');
 
-                        $command->call('capell-layout:install');
+                        InstallPackageAction::run();
                     })
             );
     }
@@ -155,6 +172,17 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
                 component: Enums\AssetComponentEnum::Content->value,
             )
         );
+    }
+
+    protected function getPublishedDirectory(): string
+    {
+        $dir = realpath(__DIR__.'/../publishes');
+
+        if (! $dir) {
+            throw new RuntimeException('Publish directory not found.');
+        }
+
+        return $dir;
     }
 
     private function getPackagePermissions(): array
@@ -241,7 +269,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
                 'id',
                 'asset_id'
             )
-                ->where('widget_assets.asset_type', Models\Media::class)
+                ->where('widget_assets.asset_type', app(Models\Media::class)->getMorphClass())
         );
 
         Models\Page::resolveRelationUsing(
@@ -254,7 +282,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
                 'id',
                 'asset_id'
             )
-                ->where('widget_assets.asset_type', Models\Page::class)
+                ->where('widget_assets.asset_type', app(Models\Page::class)->getMorphClass())
         );
 
         Models\Page::resolveRelationUsing(
@@ -281,15 +309,11 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
         Models\Page::resolveRelationUsing(
             'contents',
-            fn (Models\Page $model): HasManyThrough => $model->hasManyThrough(
+            fn (Models\Page $model): HasManyJson => $model->hasManyJson(
                 Content::class,
-                WidgetAsset::class,
-                'page_id',
-                'id',
-                'id',
-                'asset_id'
+                'meta->page_uuid',
+                'uuid',
             )
-                ->where('widget_assets.asset_type', Content::class)
         );
 
         Models\Tag::resolveRelationUsing(

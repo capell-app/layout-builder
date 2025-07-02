@@ -12,7 +12,7 @@ use Capell\Admin\Services\Creator\PageTypeCreator;
 use Capell\Blog\Enums\BlogResourceEnum;
 use Capell\Blog\Enums\BlogTypeGroupEnum;
 use Capell\Blog\Enums\WidgetComponentEnum as BlogWidgetComponentEnum;
-use Capell\Blog\Filament\Schemas\Page\ArticleDefaultPageSchema;
+use Capell\Blog\Filament\Schemas\Page\ArticlePageSchema;
 use Capell\Blog\Filament\Schemas\Widget\ArticleWidgetSchema;
 use Capell\Core\Enums\LayoutGroupEnum;
 use Capell\Core\Enums\TypeEnum;
@@ -305,7 +305,7 @@ class BlogCreator
                 'content_editor' => 'ContentEditor',
                 'icon' => 'heroicon-o-newspaper',
                 'schema' => PageTypeSchema::getKey(),
-                'default_schema' => ArticleDefaultPageSchema::getKey(),
+                'default_schema' => ArticlePageSchema::getKey(),
                 'resource' => BlogResourceEnum::Article->name,
                 'with_tags' => true,
                 'exclude' => true,

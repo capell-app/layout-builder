@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Override;
 
-class ArticleDefaultPageSchema extends DefaultPageSchema
+class ArticlePageSchema extends DefaultPageSchema
 {
     public static function relationManagers(Model $record): array
     {

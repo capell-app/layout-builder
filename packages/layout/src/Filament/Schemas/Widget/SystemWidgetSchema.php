@@ -21,13 +21,13 @@ class SystemWidgetSchema extends AbstractWidgetSchema
 
         return match ($operation) {
             'create', 'createOption', 'replicate' => [
-                WidgetTranslationsRepeater::make($operation),
+                WidgetTranslationsRepeater::make($form),
                 ...self::getFilesSchema(),
             ],
             default => [
                 FixedWidthSidebar::make()
                     ->mainSchema([
-                        WidgetTranslationsRepeater::make($operation),
+                        WidgetTranslationsRepeater::make($form),
                     ])
                     ->sidebarSchema([
                         Forms\Components\Section::make()

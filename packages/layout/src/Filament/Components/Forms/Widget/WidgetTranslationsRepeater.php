@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms\Widget;
 
-use Capell\Admin\Filament\Components\Forms\ContentEditorSection;
+use Capell\Admin\Enums\ContentEditorEnum;
+use Capell\Admin\Filament\Components\Forms\ContentEditor;
 use Capell\Admin\Filament\Components\Forms\RepeaterTabs;
 use Capell\Admin\Filament\Components\Forms\TranslationLanguageSelect;
 use Capell\Admin\Filament\Components\Forms\TranslationsRepeater;
@@ -14,11 +15,13 @@ use Filament\Forms\Set;
 
 class WidgetTranslationsRepeater
 {
-    public static function make(string $operation, array $schema = []): RepeaterTabs
+    public static function make(Forms\Form $form, array $schema = []): RepeaterTabs
     {
+        $contentEditor = $form->getRecord()?->type->admin['content_editor'] ?? null;
+
         return TranslationsRepeater::make('translations')
             ->when(
-                $operation === 'replicate',
+                $form->getOperation() === 'replicate',
                 fn (TranslationsRepeater $repeater): TranslationsRepeater => $repeater->withoutRelationship()
             )
             ->schema([
@@ -39,7 +42,9 @@ class WidgetTranslationsRepeater
                         TranslationLanguageSelect::make(),
                     ]),
 
-                ContentEditorSection::make(),
+                ContentEditor::make(
+                    editor: $contentEditor ? ContentEditorEnum::tryFrom($contentEditor) : null
+                ),
 
                 ...$schema,
             ]);

@@ -24,20 +24,20 @@ class NavigationWidgetSchema extends AbstractWidgetSchema
             'create' => [
                 Forms\Components\Section::make()
                     ->schema([self::navigationSelect()]),
-                WidgetTranslationsRepeater::make($operation),
+                WidgetTranslationsRepeater::make($form),
             ],
             'createOption', 'replicate' => [
                 self::navigationSelect(),
-                WidgetTranslationsRepeater::make($operation),
+                WidgetTranslationsRepeater::make($form),
             ],
             'editOption' => [
                 self::navigationSelect(),
-                WidgetTranslationsRepeater::make($operation),
+                WidgetTranslationsRepeater::make($form),
             ],
             default => [
                 FixedWidthSidebar::make()
                     ->mainSchema([
-                        WidgetTranslationsRepeater::make($operation),
+                        WidgetTranslationsRepeater::make($form),
                     ])
                     ->sidebarSchema([
                         Forms\Components\Section::make()

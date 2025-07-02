@@ -61,7 +61,7 @@ declare(strict_types=1);
                     '[&>*:not(:first-child)]:pt-2 [&>*:not(:last-child)]:pb-2' => $spacing === 'sm' && ! $columns,
                     '[&>*:not(:first-child)]:pt-4 [&>*:not(:last-child)]:pb-4' => $spacing === 'lg' && ! $columns,
                     '[&>*:not(:first-child)]:pt-6 [&>*:not(:last-child)]:pb-6' => $spacing === 'md' && ! $columns,
-                    'gap-x-6 gap-y-10 lg:gap-x-10' => $columns,
+                    '@lg:gap-y-10 gap-x-6 gap-y-4 lg:gap-x-10' => $columns,
                     '@3xl:grid-cols-2' => $columns > 1 && count($pages) >= 2,
                     '@8xl/wrap:grid-cols-3' => $columns > 2 && count($pages) >= 3,
                 ],

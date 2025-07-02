@@ -45,7 +45,7 @@ declare(strict_types=1);
             'widgetData' => $widgetData,
             'widgetIndex' => $widgetIndex,
         ],
-        key($containerKey.$widget->key.$occurrence))
+        key($containerKey.'-'.$widget->key.'-'.$occurrence))
 @endif
 
 <?php

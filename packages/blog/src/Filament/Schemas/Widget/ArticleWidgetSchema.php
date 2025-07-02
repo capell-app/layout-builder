@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Filament\Schemas\Widget;
 
-use Capell\Admin\Filament\Schemas\AbstractSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetAdminSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
+use Capell\Layout\Filament\Schemas\Widget\AbstractWidgetSchema;
 use Filament\Forms;
 
-class ArticleWidgetSchema extends AbstractSchema
+class ArticleWidgetSchema extends AbstractWidgetSchema
 {
     public static function make(Forms\Form $form): array
     {

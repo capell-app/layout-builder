@@ -11,6 +11,7 @@ return [
     ],
     'livewire_components' => [
         'capell.layout.livewire.layout-builder' => Capell\Layout\Livewire\LayoutBuilder::class,
+        'capell.layout.filament.resources.page-resource.relation-managers.contents-relation-manager' => Capell\Layout\Filament\Resources\PageResource\RelationManagers\ContentsRelationManager::class,
         'capell-layout::layout-builder-assets-table-media' => Capell\Layout\Livewire\Assets\Table\MediaTable::class,
         'capell-layout::layout-builder-assets-table-page' => Capell\Layout\Livewire\Assets\Table\PagesTable::class,
         'capell-layout::layout-builder-assets-table-content' => Capell\Layout\Livewire\Assets\Table\ContentsTable::class,

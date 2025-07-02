@@ -23,12 +23,12 @@ class ResultsWidgetSchema extends AbstractWidgetSchema
 
         return match ($operation) {
             'create', 'createOption', 'replicate', 'editOption' => [
-                WidgetTranslationsRepeater::make($operation),
+                WidgetTranslationsRepeater::make($form),
             ],
             default => [
                 FixedWidthSidebar::make()
                     ->mainSchema([
-                        WidgetTranslationsRepeater::make($operation),
+                        WidgetTranslationsRepeater::make($form),
                     ])
                     ->sidebarSchema([
                         Forms\Components\Section::make()

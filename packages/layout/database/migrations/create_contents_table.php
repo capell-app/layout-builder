@@ -35,6 +35,16 @@ return new class extends Migration
             $table->userstamps();
             $table->timestamps();
             $table->softDeletes();
+            if (
+                Schema::getConnection()->getDriverName() === 'pgsql' ||
+                (
+                    Schema::getConnection()->getDriverName() === 'mysql' &&
+                    version_compare(DB::selectOne('select version() as v')->v, '5.8.0', '>=') &&
+                    ! str_contains(DB::selectOne('select version() as v')->v, 'MariaDB')
+                )
+            ) {
+                $table->index('meta->page_uuid', 'contents_page_uuid_index');
+            }
         });
     }
 

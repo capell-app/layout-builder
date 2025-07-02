@@ -19,8 +19,10 @@ declare(strict_types=1);
     <div
         x-load
         x-load-src="{{
-            Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('layout-builder',
-                'capell-admin')
+            Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc(
+                'layout-builder',
+                'capell-layout'
+            )
         }}"
         x-data="layoutBuilderComponent"
     >

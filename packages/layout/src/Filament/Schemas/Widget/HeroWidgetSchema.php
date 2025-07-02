@@ -68,7 +68,7 @@ class HeroWidgetSchema extends AbstractWidgetSchema
             ->tabs([
                 Forms\Components\Tabs\Tab::make(__('capell-admin::tab.content'))
                     ->schema([
-                        WidgetTranslationsRepeater::make($form->getOperation()),
+                        WidgetTranslationsRepeater::make($form),
                     ]),
                 WidgetSettingsTab::make([
                     Forms\Components\Grid::make()

@@ -111,12 +111,14 @@ class WidgetAssetsRepeater
                 ->visible(fn (Get $get): bool => $get('asset_type') === 'media')
                 ->schema([
                     ImageMediaPicker::make('asset_id')
+                        ->required()
                         ->withUuid(),
                 ]),
             Forms\Components\Group::make()
                 ->visible(fn (Get $get): bool => $get('asset_type') === 'page')
                 ->schema([
                     PageSelect::make('asset_id')
+                        ->required()
                         ->withUuid()
                         ->withCreateForm()
                         ->withEditForm(),
@@ -125,6 +127,7 @@ class WidgetAssetsRepeater
                 ->visible(fn (Get $get): bool => $get('asset_type') === 'content')
                 ->schema([
                     ContentSelect::make('asset_id')
+                        ->required()
                         ->withUuid()
                         ->withCreateForm()
                         ->withEditForm(),
@@ -171,10 +174,12 @@ class WidgetAssetsRepeater
                                 $component->state($items);
                             }),
                         'page' => PageSelect::make('asset_id')
+                            ->required()
                             ->withUuid()
                             ->withCreateForm()
                             ->withEditForm(),
                         'content' => ContentSelect::make('asset_id')
+                            ->required()
                             ->withUuid()
                             ->withCreateForm()
                             ->withEditForm(),

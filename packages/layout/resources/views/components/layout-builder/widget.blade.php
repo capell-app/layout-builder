@@ -47,6 +47,11 @@ declare(strict_types=1);
         'widgetIndex' => $widgetIndex,
     ]);
 
+    $editWidgetTypeAction = ($this->editWidgetTypeAction)([
+        'containerKey' => $containerKey,
+        'widgetIndex' => $widgetIndex,
+    ]);
+
     $convertPageAssetsAction = ($this->convertPageAssetsAction)([
         'containerKey' => $containerKey,
         'widgetIndex' => $widgetIndex,
@@ -196,6 +201,10 @@ declare(strict_types=1);
                             <x-filament::dropdown.list>
                                 @if ($editContainerWidgetAction?->isVisible())
                                     {{ $editContainerWidgetAction }}
+                                @endif
+
+                                @if ($editWidgetTypeAction?->isVisible())
+                                    {{ $editWidgetTypeAction }}
                                 @endif
 
                                 @if ($convertPageAssetsAction?->isVisible())

@@ -108,7 +108,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
 
         CapellCore::registerComponent('Widget', 'Article', 'capell-blog::widget.page.article');
 
-        CapellAdmin::registerSchema(SchemaEnum::Page, Schemas\Page\ArticleDefaultPageSchema::class);
+        CapellAdmin::registerSchema(SchemaEnum::Page, Schemas\Page\ArticlePageSchema::class);
     }
 
     private function getPackagePermissions(): array

@@ -7,7 +7,7 @@ namespace Capell\Blog\Database\Factories;
 use Capell\Admin\Filament\Schemas\Type\PageTypeSchema;
 use Capell\Blog\Enums\BlogResourceEnum;
 use Capell\Blog\Enums\BlogTypeGroupEnum;
-use Capell\Blog\Filament\Schemas\Page\ArticleDefaultPageSchema;
+use Capell\Blog\Filament\Schemas\Page\ArticlePageSchema;
 use Capell\Core\Database\Factories\TypeFactory;
 use Capell\Core\Models\Page;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -25,7 +25,7 @@ class ArticleTypeFactory extends TypeFactory
                 'admin',
                 [
                     'schema' => PageTypeSchema::getKey(),
-                    'default_schema' => ArticleDefaultPageSchema::getKey(),
+                    'default_schema' => ArticlePageSchema::getKey(),
                     'resource' => BlogResourceEnum::Article->name,
                 ]
             );

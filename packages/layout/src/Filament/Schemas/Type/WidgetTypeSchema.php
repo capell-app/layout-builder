@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Schemas\Type;
 
 use Capell\Admin\Filament\Components\Forms\AdminSchemaSelect;
+use Capell\Admin\Filament\Components\Forms\ContentEditorSelect;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\Type\TypeSettingsSchema;
 use Capell\Admin\Filament\Schemas\Type\DefaultTypeSchema;
@@ -58,16 +59,7 @@ class WidgetTypeSchema extends DefaultTypeSchema
                             ->toArray()
                     ),
 
-                Forms\Components\Select::make('content_editor')
-                    ->label(__('capell-admin::form.content_editor'))
-                    ->helperText(__('capell-admin::generic.content_editor_info'))
-                    ->placeholder(__('capell-admin::form.none'))
-                    ->default('ContentEditor')
-                    ->options(
-                        fn (): array => collect(config('capell-admin.editors', []))
-                            ->mapWithKeys(fn ($class, $key): array => [$key => $key])
-                            ->toArray()
-                    ),
+                ContentEditorSelect::make('content_editor'),
 
                 Forms\Components\Checkbox::make('exclude_from_selection')
                     ->label(__('capell-admin::form.exclude_from_selection')),

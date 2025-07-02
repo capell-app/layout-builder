@@ -71,6 +71,7 @@ declare(strict_types=1);
                 :background-position="$widget->meta['background_position'] ?? 'center'"
                 :background-attachment="$widget->meta['background_attachment'] ?? 'scroll'"
                 :background-repeat="$widget->meta['background_repeat'] ?? 'no-repeat'"
+                :carousel-type="$widget->meta['carousel_type'] ?? null"
                 :first="true"
                 :total="1"
                 :color-scheme="$colorScheme"

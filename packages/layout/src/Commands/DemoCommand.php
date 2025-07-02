@@ -162,11 +162,11 @@ class DemoCommand extends Command
 
         $containers['main']['widgets'] = [
             [
-                'widget_key' => $this->demoCreator->createPageCardsWidget($languages, $page)->key,
+                'widget_key' => $this->demoCreator->createPageCardsWidget($page)->key,
                 'occurrence' => 1,
             ],
             [
-                'widget_key' => $this->demoCreator->createPageCardsWidget($languages, $page, occurrence: 2)->key,
+                'widget_key' => $this->demoCreator->createPageCardsWidget($page, occurrence: 2)->key,
                 'occurrence' => 2,
             ],
             ['widget_key' => $this->demoCreator->createGalleryWidget()->key],
@@ -174,6 +174,7 @@ class DemoCommand extends Command
             ['widget_key' => $this->demoCreator->createFaqWidget($languages)->key],
             ['widget_key' => $this->demoCreator->createStaticNavigationWidget($languages, $page->site)->key],
             ['widget_key' => $this->demoCreator->createStaticWidget($languages)->key],
+            ['widget_key' => $this->demoCreator->createBusinessFeatures($page->site, $layout)->key],
         ];
 
         $layout->containers = $containers;

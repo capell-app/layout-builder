@@ -29,11 +29,11 @@ class DefaultContentSchema extends AbstractSchema
                 ->schema([
                     Forms\Components\Group::make()
                         ->schema([
-                            PageSelect::make('page_id')
+                            PageSelect::make('page_uuid')
                                 ->label(__('capell-admin::form.related_page'))
                                 ->reactive(),
                             CallToActionText::make('link_text')
-                                ->hidden(fn (Forms\Get $get): bool => $get('page_id') === null),
+                                ->hidden(fn (Forms\Get $get): bool => $get('page_uuid') === null),
                         ]),
                 ]),
         ];

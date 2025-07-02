@@ -290,7 +290,7 @@ class Content extends Model implements Auditable, PageCacheable
 
     public function page(): BelongsTo
     {
-        return $this->belongsTo(Page::class, 'meta->page_id');
+        return $this->belongsTo(Page::class, 'meta->page_uuid', 'uuid');
     }
 
     public function media(): BelongsToJson

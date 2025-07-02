@@ -27,7 +27,7 @@ class LayoutLoader
             $fromCache = false;
 
             // @phpstan-ignore-next-line
-            return Layout::with('layoutWidgets')->find($id); // TODO fix error larastan.relationExistence even though it's added via
+            return Layout::with('layoutWidgets')->find($id); // TODO fix error larastan.relationExistence even though it's added manually
         }) ?: null;
 
         if ($fromCache && $layout) {
@@ -49,7 +49,14 @@ class LayoutLoader
         string $containerKey,
         int $occurrence
     ): ?Widget {
-        $key = sprintf('layout-%d-widget-%s-lang-%d-container-%s-occurrence-%d', $layout->id, $widgetKey, $language->id, $containerKey, $occurrence)
+        $key = sprintf(
+            'layout-%d-widget-%s-lang-%d-container-%s-occurrence-%d',
+            $layout->id,
+            $widgetKey,
+            $language->id,
+            $containerKey,
+            $occurrence
+        )
             .($page instanceof Page ? '-page-'.$page->id : '');
 
         $fromCache = true;

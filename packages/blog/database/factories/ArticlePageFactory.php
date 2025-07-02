@@ -7,7 +7,7 @@ namespace Capell\Blog\Database\Factories;
 use Capell\Admin\Filament\Schemas\Type\PageTypeSchema;
 use Capell\Blog\Enums\BlogResourceEnum;
 use Capell\Blog\Enums\BlogTypeGroupEnum;
-use Capell\Blog\Filament\Schemas\Page\ArticleDefaultPageSchema;
+use Capell\Blog\Filament\Schemas\Page\ArticlePageSchema;
 use Capell\Core\Database\Factories\PageFactory;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Type;
@@ -31,7 +31,7 @@ class ArticlePageFactory extends PageFactory
                         'content_editor' => 'ContentEditor',
                         'icon' => 'heroicon-o-newspaper',
                         'schema' => PageTypeSchema::getKey(),
-                        'default_schema' => ArticleDefaultPageSchema::getKey(),
+                        'default_schema' => ArticlePageSchema::getKey(),
                         'resource' => BlogResourceEnum::Article->name,
                         'with_tags' => true,
                         'exclude' => true,

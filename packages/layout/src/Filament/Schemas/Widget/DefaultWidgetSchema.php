@@ -18,13 +18,13 @@ class DefaultWidgetSchema extends AbstractWidgetSchema
 
         return match ($operation) {
             'create', 'createOption', 'replicate' => [
-                WidgetTranslationsRepeater::make($operation),
+                WidgetTranslationsRepeater::make($form),
                 Forms\Components\Group::make()
                     ->statePath('meta')
                     ->schema(self::getExtraSchema()),
             ],
             'editOption' => [
-                WidgetTranslationsRepeater::make($operation),
+                WidgetTranslationsRepeater::make($form),
                 Forms\Components\Group::make()
                     ->statePath('meta')
                     ->schema(self::getExtraSchema()),
@@ -32,7 +32,7 @@ class DefaultWidgetSchema extends AbstractWidgetSchema
             default => [
                 FixedWidthSidebar::make()
                     ->mainSchema([
-                        WidgetTranslationsRepeater::make($operation),
+                        WidgetTranslationsRepeater::make($form),
                         Forms\Components\Group::make()
                             ->statePath('meta')
                             ->schema(self::getExtraSchema()),

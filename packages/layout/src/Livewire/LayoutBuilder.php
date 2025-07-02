@@ -9,6 +9,7 @@ use Capell\Admin\Enums\ModalWidthEnum;
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
+use Capell\Admin\Filament\Schemas\Type\DefaultTypeSchema;
 use Capell\Core\Actions\GetPageResourceAction;
 use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Enums\ModelEnum;
@@ -316,6 +317,35 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             });
     }
 
+    public function editWidgetTypeAction(): Action
+    {
+        return Action::make('editWidgetType')
+            ->label(__('capell-admin::button.edit_widget_type'))
+            ->groupedIcon('heroicon-o-pencil')
+            ->color('gray')
+            ->grouped()
+            ->record(
+                fn (array $arguments, self $livewire): Models\Type => $livewire->getWidgetType(
+                    $arguments['containerKey'],
+                    $arguments['widgetIndex']
+                )
+            )
+            ->form(
+                fn (array $arguments, self $livewire, Form $form): Form => $form->operation('editOption')
+                    ->schema(
+                        $livewire->getWidgetTypeSchema($form, $arguments['containerKey'], $arguments['widgetIndex'])
+                    )
+            )
+            ->fillForm(fn (Models\Type $record): array => $record->attributesToArray())
+            ->action(function (Action $action, Form $form, Models\Type $record, array $data): void {
+                $form->saveRelationships();
+
+                $record->update($data);
+
+                $action->success();
+            });
+    }
+
     public function editContainerWidgetAction(): Action
     {
         return Action::make('editContainerWidget')
@@ -505,13 +535,13 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
 
                 return new HtmlString(Blade::render(<<<'blade'
                 <livewire:is
-                    :actionId="$actionId"
+                    :$actionId
                     :component="$componentName"
                     :$containerKey
-                    :existingRecords="$existingRecords"
-                    : ="$hasPageAssets"
-                    :pageId="$pageId"
-                    :siteId="$siteId"
+                    :$existingRecords
+                    :$hasPageAssets
+                    :$pageId
+                    :$siteId
                     :$widgetIndex
                  />
             blade, [
@@ -1993,6 +2023,11 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
         return $this->containerWidgets[$containerKey][$widgetIndex];
     }
 
+    private function getWidgetType(string $containerKey, int $widgetIndex): ?Models\Type
+    {
+        return $this->getContainerWidget($containerKey, $widgetIndex)?->type;
+    }
+
     private function getWidgetAssets(string $containerKey, int $widgetIndex): array
     {
         return $this->assets[$containerKey][$widgetIndex];
@@ -2131,5 +2166,17 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
                 $this->assets[$containerKey][$index] = $assets;
             }
         }
+    }
+
+    private function getWidgetTypeSchema(Form $form, string $containerKey, int $widgetIndex): array
+    {
+        $name = $this->getContainerWidget($containerKey, $widgetIndex)
+            ?->type
+            ?->admin['schema']
+            ?? DefaultTypeSchema::getKey();
+
+        $schema = CapellAdmin::getSchema(\Capell\Admin\Enums\SchemaEnum::Type->value, $name);
+
+        return $schema::make($form);
     }
 }

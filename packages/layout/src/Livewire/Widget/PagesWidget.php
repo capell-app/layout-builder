@@ -6,7 +6,6 @@ namespace Capell\Layout\Livewire\Widget;
 
 use Capell\Frontend\Facades\Frontend;
 use Capell\Frontend\Services\Loader\PageLoader;
-use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -36,18 +35,7 @@ class PagesWidget extends AbstractWidget
         $paginationKey = $this->containerKey.ucfirst((string) $this->widget->key).$this->occurrence;
         $paginationPage = $this->getPage($paginationKey);
 
-        $hasPageAssets = $this->widget
-            ->pageAssets($page, $this->containerKey, $this->occurrence)
-            ->exists();
-
-        if ($hasPageAssets) {
-            $selection = $this->widget
-                ->pageAssets($page, $this->containerKey, $this->occurrence)
-                ->pluck('asset_id')
-                ->toArray();
-        } else {
-            $selection = $this->widget->widgetAssets->pluck('asset_id')->toArray();
-        }
+        $selection = $this->widget->assets->pluck('asset_id')->toArray();
 
         $this->pages = PageLoader::getPages(
             site: Frontend::getSite(),
@@ -69,13 +57,6 @@ class PagesWidget extends AbstractWidget
                 $selection,
                 fn (Builder $query) => $query->whereIn('uuid', $selection)
             )
-                ->with(
-                    'widgetAssets',
-                    fn (BuilderContract $query) => $query->where('page_id', $page->id)
-                        ->where('widget_id', $this->widget->id)
-                        ->where('container', $this->containerKey)
-                        ->where('occurrence', $this->occurrence)
-                )
         );
 
         if ($this->pages->isEmpty()) {
