@@ -7,7 +7,7 @@ namespace Capell\Layout\Filament\Schemas\Widget;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\NavigationSelect;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
-use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
@@ -24,7 +24,8 @@ class NavigationWidgetSchema extends AbstractWidgetSchema
             'create' => [
                 Forms\Components\Section::make()
                     ->schema([self::navigationSelect()]),
-                WidgetTranslationsRepeater::make($form),
+                WidgetTranslationsRepeater::make($form)
+                    ->section(true),
             ],
             'createOption', 'replicate' => [
                 self::navigationSelect(),
@@ -37,7 +38,8 @@ class NavigationWidgetSchema extends AbstractWidgetSchema
             default => [
                 FixedWidthSidebar::make()
                     ->mainSchema([
-                        WidgetTranslationsRepeater::make($form),
+                        WidgetTranslationsRepeater::make($form)
+                            ->section(true),
                     ])
                     ->sidebarSchema([
                         Forms\Components\Section::make()
@@ -48,7 +50,7 @@ class NavigationWidgetSchema extends AbstractWidgetSchema
                     ->visibleOn(['edit', 'editOption'])
                     ->columnSpanFull()
                     ->tabs([
-                        WidgetSettingsTab::make([
+                        WidgetDisplayTab::make([
                             Forms\Components\Group::make()
                                 ->statePath('meta')
                                 ->columns()

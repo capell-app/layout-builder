@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Blog\Services;
 
 use Capell\Admin\Actions\AddPageToNavigationAction;
+use Capell\Admin\Enums\ContentEditorEnum;
 use Capell\Admin\Filament\Schemas\Page\ResultsPageSchema;
 use Capell\Admin\Filament\Schemas\Type\PageTypeSchema;
 use Capell\Admin\Services\Creator\LayoutCreator;
@@ -302,7 +303,7 @@ class BlogCreator
             'group' => BlogTypeGroupEnum::Article->value,
             'admin' => [
                 'accessible' => false,
-                'content_editor' => 'ContentEditor',
+                'content_editor' => ContentEditorEnum::RichEditor->value,
                 'icon' => 'heroicon-o-newspaper',
                 'schema' => PageTypeSchema::getKey(),
                 'default_schema' => ArticlePageSchema::getKey(),

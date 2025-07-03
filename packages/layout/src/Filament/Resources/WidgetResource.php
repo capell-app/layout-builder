@@ -202,7 +202,7 @@ class WidgetResource extends Resource
                     'widgets.admin->notes',
                     'widgets.meta->component',
                     'widgets.meta->component_item',
-                    'widgets.meta->file_view',
+                    'widgets.meta->view_file',
                     'types.name',
                     'types.admin->notes',
                     'types.meta->component',

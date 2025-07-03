@@ -25,11 +25,12 @@ declare(strict_types=1);
     'withTags' => $widget->meta['with_tags'] ?? ($widget->type->meta['with_tags'] ?? true),
 ])
 <x-capell-layout::widget.wrapper
-    class="widget-assets widget-assets-grid spacing-y-6"
+    class="widget-assets widget-assets-grid"
     :$container
     :$containerKey
     :index="$loop->index"
     :$widget
+    container-class="space-y-6 md:space-y-10"
 >
     @if ($widget->translation)
         <x-capell::content
@@ -40,7 +41,6 @@ declare(strict_types=1);
             :color-scheme="$colorScheme"
             :title="$widget->translation->title"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
-            class="mb-4"
         />
     @endif
 

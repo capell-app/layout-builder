@@ -71,9 +71,9 @@ declare(strict_types=1);
     @class([
         'layout-container',
         $htmlClass => (bool) $htmlClass,
-        'space-y-4' => $spacing === 'tight',
-        'space-y-2' => $spacing === 'normal',
-        'space-y-10' => $spacing === 'loose',
+        'space-y-4' => $spacing === 'sm',
+        'space-y-2' => $spacing === 'md',
+        'space-y-10' => $spacing === 'lg',
         'py-4' => in_array('sm', $padding, true),
         'pt-4' => in_array('t-sm', $padding, true),
         'pb-4' => in_array('b-sm', $padding, true),

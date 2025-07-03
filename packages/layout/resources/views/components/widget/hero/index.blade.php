@@ -43,7 +43,7 @@ declare(strict_types=1);
         'bg-gray-50 dark:bg-gray-900' => $colorScheme === 'light',
         'bg-gray-800 dark:bg-gray-900' => $colorScheme === 'dark',
         'min-h-screen' => $height === 'full',
-        'max-h-screen' => $height !== 'full',
+        'lg:max-h-screen' => $height !== 'full',
         'min-h-[700px] lg:min-h-[900px]' => $height === 'large',
         'min-h-[500px] md:min-h-[600px]' => $height === 'medium',
         'min-h-[300px] sm:min-h-[400px]' => $height === 'small',
@@ -156,7 +156,8 @@ declare(strict_types=1);
                 >
                     <div
                         @class([
-                            '@container pb-22 grid min-h-full select-text gap-4 gap-x-10 gap-y-6 pt-8 lg:gap-x-16 lg:gap-y-8 lg:pt-16',
+                            '@container pb-22 grid select-text gap-4 gap-x-10 gap-y-8 pt-8 lg:min-h-full lg:gap-x-16 lg:pt-16',
+                            'lg:max-h-screen' => $height !== 'full',
                             'lg:grid-cols-12' => $images?->isNotEmpty(),
                         ])
                     >
@@ -164,7 +165,7 @@ declare(strict_types=1);
                             @class([
                                 'flex min-h-[20vh] flex-col justify-center',
                                 'items-center text-center' => ! $images?->isNotEmpty(),
-                                'md:col-span-8 lg:col-span-7' => $images?->isNotEmpty(),
+                                'lg:col-span-8 xl:col-span-7' => $images?->isNotEmpty(),
                                 'py-[4vh]' => ! $asset->image && ! $bgImage,
                             ])
                         >
@@ -214,7 +215,7 @@ declare(strict_types=1);
 
                         @if ($images?->isNotEmpty())
                             <div
-                                class="relative z-30 w-full md:col-span-4 lg:col-span-5"
+                                class="relative z-30 w-full lg:col-span-4 xl:col-span-5"
                             >
                                 @foreach ($images as $media)
                                     @capture($mediaContent)

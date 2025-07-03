@@ -40,7 +40,7 @@ return new class extends Migration
                 (
                     Schema::getConnection()->getDriverName() === 'mysql' &&
                     version_compare(DB::selectOne('select version() as v')->v, '5.8.0', '>=') &&
-                    ! str_contains(DB::selectOne('select version() as v')->v, 'MariaDB')
+                    ! str_contains((string) DB::selectOne('select version() as v')->v, 'MariaDB')
                 )
             ) {
                 $table->index('meta->page_uuid', 'contents_page_uuid_index');

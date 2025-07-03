@@ -6,7 +6,7 @@ namespace Capell\Layout\Filament\Schemas\Widget;
 
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
-use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
@@ -21,13 +21,15 @@ class SystemWidgetSchema extends AbstractWidgetSchema
 
         return match ($operation) {
             'create', 'createOption', 'replicate' => [
-                WidgetTranslationsRepeater::make($form),
+                WidgetTranslationsRepeater::make($form)
+                    ->section(fn (string $operation): bool => $operation === 'create'),
                 ...self::getFilesSchema(),
             ],
             default => [
                 FixedWidthSidebar::make()
                     ->mainSchema([
-                        WidgetTranslationsRepeater::make($form),
+                        WidgetTranslationsRepeater::make($form)
+                            ->section(true),
                     ])
                     ->sidebarSchema([
                         Forms\Components\Section::make()
@@ -37,7 +39,7 @@ class SystemWidgetSchema extends AbstractWidgetSchema
                 Forms\Components\Tabs::make('tabs')
                     ->columnSpanFull()
                     ->tabs([
-                        WidgetSettingsTab::make([
+                        WidgetDisplayTab::make([
                             ...self::getFilesSchema(),
                         ]),
                         WidgetAdminTab::make(),

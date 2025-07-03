@@ -21,7 +21,7 @@ use Capell\Layout\Enums\SchemaEnum;
 use Capell\Layout\Filament\Components\Forms\LayoutBuilder\LayoutBuilderAddWidgetSchema;
 use Capell\Layout\Filament\Resources\WidgetResource;
 use Capell\Layout\Filament\Schemas\LayoutContainer\DefaultLayoutContainerSchema;
-use Capell\Layout\Filament\Schemas\WidgetAsset\DefaultWidgetAssetSchema as WidgetResourceSchema;
+use Capell\Layout\Filament\Schemas\WidgetAsset\DefaultWidgetAssetSchema;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Closure;
@@ -782,7 +782,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
                 }
             )
             ->modalSubmitActionLabel(__('capell-admin::button.save_changes'))
-            ->successNotificationTitle(__('capell-admin::message.resource_updated'))
+            ->successNotificationTitle(__('capell-admin::message.asset_updated'))
             ->form(
                 fn (self $livewire, Form $form, array $arguments): Form => $form->operation('editOption')
                     ->schema(self::getLayoutWidgetAssetSchema($arguments['containerKey'], $arguments['widgetIndex'], $form))
@@ -804,10 +804,30 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
 
                 $asset = $this->getWidgetAsset($arguments['containerKey'], $arguments['widgetIndex'], $arguments['index']);
 
-                return $widget->assets
+                $widgetAsset = $widget->assets
                     ->where('asset_type', $arguments['assetType'])
                     ->where('asset_id', $asset['asset_id'])
                     ->first();
+
+                if (! $widgetAsset) {
+                    throw new Exception(
+                        'Widget asset not found for container: '.$arguments['containerKey'].
+                        ' widget: '.$arguments['widgetIndex'].
+                        ' (key: '.($widget->key ?? 'unknown').')'.
+                        ' index: '.$arguments['index']
+                    );
+                }
+
+                if (! $widgetAsset->exists) {
+                    throw new Exception(
+                        'Widget asset does not exist for container: '.$arguments['containerKey'].
+                        ' widget: '.$arguments['widgetIndex'].
+                        ' (key: '.($widget->key ?? 'unknown').')'.
+                        ' index: '.$arguments['index']
+                    );
+                }
+
+                return $widgetAsset;
             })
             ->action(function (WidgetAsset $record, array $data, self $livewire, array $arguments, Action $action, Form $form): void {
                 $form->saveRelationships();
@@ -1542,7 +1562,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
         $widget = $this->getContainerWidget($containerKey, $widgetIndex);
 
         $type = $widget->admin['widget_asset_schema'] ?? $widget->type->admin['widget_asset_schema'] ??
-            WidgetResourceSchema::getKey();
+            DefaultWidgetAssetSchema::getKey();
 
         return CapellAdmin::getSchema(SchemaEnum::WidgetAsset->value, $type)::make($form);
     }
@@ -1934,10 +1954,14 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
         int $order,
     ): WidgetAsset {
         $widgetAsset = $widget->assets()
-            ->where('container', $containerKey)
-            ->where('page_id', $pageId)
             ->where('asset_type', $type)
             ->where('asset_id', $resourceUuid)
+            ->when(
+                $pageId,
+                fn (Builder $query) => $query->where('container', $containerKey)
+                    ->where('occurrence', $occurrence)
+                    ->where('page_id', $pageId)
+            )
             ->first();
 
         if (! $widgetAsset) {

@@ -7,7 +7,7 @@ namespace Capell\Layout\Filament\Schemas\Widget;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\HeadingSizeSelect;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
-use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
@@ -40,7 +40,7 @@ class PageContentWidgetSchema extends AbstractWidgetSchema
         return Forms\Components\Tabs::make()
             ->columnSpanFull()
             ->tabs([
-                WidgetSettingsTab::make([
+                WidgetDisplayTab::make([
                     Forms\Components\Group::make()
                         ->statePath('meta')
                         ->columns()

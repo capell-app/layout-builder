@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Schemas\WidgetAsset;
 
-use Capell\Admin\Filament\Components\Forms\ActionsRepeater;
 use Capell\Admin\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\Admin\Filament\Components\Forms\MediaRepeater;
+use Capell\Layout\Filament\Components\Forms\ActionsRepeater;
 use Capell\Layout\Filament\Components\Forms\BackgroundSettingsFieldset;
 use Capell\Layout\Filament\Components\Forms\Content\ContentTranslationsRepeater;
 use Capell\Layout\Filament\Components\Forms\Content\RelatedRepeater;
@@ -44,7 +44,8 @@ class HeroWidgetAssetSchema extends DefaultWidgetAssetSchema
             ->badge(fn (Forms\Get $get): ?int => count($get('actions') ?: []) ?: null)
             ->icon('heroicon-o-link')
             ->schema([
-                ActionsRepeater::make('actions'),
+                ActionsRepeater::make('actions')
+                    ->hiddenLabel(),
             ]);
     }
 

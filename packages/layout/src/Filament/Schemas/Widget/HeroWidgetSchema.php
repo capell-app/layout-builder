@@ -10,7 +10,7 @@ use Capell\Admin\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Layout\Filament\Components\Forms\BackgroundSettingsFieldset;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
-use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetAssetsRepeater;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
@@ -70,7 +70,7 @@ class HeroWidgetSchema extends AbstractWidgetSchema
                     ->schema([
                         WidgetTranslationsRepeater::make($form),
                     ]),
-                WidgetSettingsTab::make([
+                WidgetDisplayTab::make([
                     Forms\Components\Grid::make()
                         ->statePath('meta')
                         ->mutateDehydratedStateUsing(function (array $state): array {

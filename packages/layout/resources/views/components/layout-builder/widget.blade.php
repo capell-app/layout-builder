@@ -163,7 +163,7 @@ declare(strict_types=1);
 
                 @if ($widget->image)
                     <x-curator-glider
-                        class="ml-auto max-h-12 object-contain"
+                        class="ml-4 max-h-12 object-contain"
                         format="webp"
                         view="capell-admin::components.media.glider"
                         :media="$widget->image"

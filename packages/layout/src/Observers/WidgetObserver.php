@@ -7,6 +7,7 @@ namespace Capell\Layout\Observers;
 use Capell\Core\Models\Type;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Models\Widget;
+use InvalidArgumentException;
 
 class WidgetObserver
 {
@@ -21,7 +22,11 @@ class WidgetObserver
         }
 
         if (! $widget->type_id) {
-            $widget->type_id = Type::query()->where('type', LayoutTypeEnum::Widget)->value('id');
+            $widget->type_id = Type::query()->where('type', LayoutTypeEnum::Widget)->default()->value('id');
+
+            if (! $widget->layout_type) {
+                throw new InvalidArgumentException('Unable to create widget without a type.');
+            }
         }
     }
 }

@@ -18,6 +18,7 @@ declare(strict_types=1);
     'container',
     'containerKey',
     'containerClass' => '',
+    'containerWidth' => $container['meta']['container'] ?? null,
     'defaultColors' => ['secondary', 'primary', 'gray', 'light-gray'],
     'index',
     'margin' => ! empty($widget->meta['margin']) ? (array) $widget->meta['margin'] : [],
@@ -78,7 +79,7 @@ declare(strict_types=1);
         style="{{ $backgroundColor && ! in_array($backgroundColor, $defaultColors, true) ? 'background-color:'.$backgroundColor.';' : '' }}{{ $backgroundImage ? 'background-image:url('.$backgroundImage->url.');' : '' }}"
     @endif
 >
-    @if (! isset($container['meta']['container']) || $container['meta']['container'] !== 'full')
+    @if ($containerWidth !== 'full')
         <div
             @class([
                 match ($pageContainer) {

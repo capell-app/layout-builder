@@ -43,9 +43,9 @@ class WidgetComponentFilesSection
                         return CapellCore::getComponents('widget');
                     }),
 
-                Forms\Components\TextInput::make('file_view')
-                    ->label(__('capell-admin::form.component_file_view'))
-                    ->helperText(__('capell-admin::generic.component_file_view_info')),
+                Forms\Components\TextInput::make('view_file')
+                    ->label(__('capell-admin::form.component_view_file'))
+                    ->helperText(__('capell-admin::generic.component_view_file_info')),
 
                 Forms\Components\Select::make('component_item')
                     ->label(__('capell-admin::form.component_item'))

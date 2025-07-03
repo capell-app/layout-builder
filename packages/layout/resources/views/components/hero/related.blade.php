@@ -60,12 +60,12 @@ declare(strict_types=1);
                                         class="text-link hover:text-primary-600 focus:text-primary-600 font-medium no-underline"
                                     >
                                         <strong class="font-semibold">
-                                            {{ $feature->translation->title }}
+                                            {!! $feature->translation->title !!}
                                         </strong>
                                     </a>
                                 @else
                                     <strong class="font-semibold">
-                                        {{ $feature->translation->title }}
+                                        {!! $feature->translation->title !!}
                                     </strong>
                                 @endif
                             </p>
@@ -81,7 +81,7 @@ declare(strict_types=1);
                             <a
                                 class="text-link hover:text-primary focus:text-primary font-medium no-underline focus:underline"
                                 href="{{ $url }}"
-                                title="{{ $feature->translation->title }}"
+                                title="{{ e(strip_tags($feature->translation->title)) }}"
                                 wire:navigate
                             >
                                 {{ $feature->meta['link_text'] }}

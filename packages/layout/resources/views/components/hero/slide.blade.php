@@ -41,7 +41,7 @@ declare(strict_types=1);
     <div
         {{
             $attributes->class([
-                'embla__slide_inner relative flex',
+                'embla__slide_inner relative flex min-h-full',
                 ...(
                     ! $backgroundColor && $colorScheme
                     ? [

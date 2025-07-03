@@ -83,12 +83,13 @@ declare(strict_types=1);
 
                     <div
                         @class([
-                            'embla__slide transform-opacity [:not(.is-snapped)]:opacity-20 group h-64 min-w-0 max-w-full shrink-0 grow-0 basis-auto select-none text-white duration-200 ease-in-out',
+                            'embla__slide transform-opacity [:not(.is-snapped)]:opacity-20 group relative h-64 min-w-0 max-w-full shrink-0 grow-0 basis-auto cursor-pointer select-none overflow-hidden text-white duration-200 ease-in-out',
                             'ml-[var(--carousel-spacing)]' => $carouselSpacing,
                         ])
+                        tabindex="0"
                     >
                         <x-capell::media
-                            :class="'embla__slide__img h-64 bg-gray-50 shadow'.($theme->withDarkMode ? 'dark:bg-gray-900' : '')"
+                            :class="'embla__slide__img h-64 bg-gray-50 shadow transition-transform duration-300 group-hover:scale-105 group-focus:scale-105'.($theme->withDarkMode ? ' dark:bg-gray-900' : '')"
                             :$loop
                             :media="$media"
                             :srcset="['400w', '200w']"
@@ -97,6 +98,13 @@ declare(strict_types=1);
                             sizes="(max-width: 640px) 80vw, 20w"
                             lightbox="true"
                         />
+                        @if ($media->name)
+                            <div
+                                class="pointer-events-none absolute inset-x-0 bottom-0 flex translate-y-full transform items-center justify-center break-words bg-gray-600/75 px-2 py-4 text-sm font-medium leading-none leading-tight text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100"
+                            >
+                                {{ $media->title }}
+                            </div>
+                        @endif
                     </div>
                 @endforeach
             </div>

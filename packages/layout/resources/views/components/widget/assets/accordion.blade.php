@@ -42,7 +42,7 @@ declare(strict_types=1);
         />
     @endif
 
-    @if ($widget->assets)
+    @if ($widget->assets->isNotEmpty())
         <div
             x-data="{
                 selected: 0,

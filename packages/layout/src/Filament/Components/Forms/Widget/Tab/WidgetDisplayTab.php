@@ -6,7 +6,7 @@ namespace Capell\Layout\Filament\Components\Forms\Widget\Tab;
 
 use Filament\Forms;
 
-class WidgetSettingsTab
+class WidgetDisplayTab
 {
     public static function make(array $schema = []): Forms\Components\Tabs\Tab
     {

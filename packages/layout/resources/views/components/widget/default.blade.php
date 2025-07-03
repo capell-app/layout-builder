@@ -7,6 +7,7 @@ declare(strict_types=1);
 @props([
     'headingSize' => $widget->meta['heading_size'] ?? 'h2',
     'size' => $widget->meta['size'] ?? null,
+    'reverseOrder' => $widget->meta['reverse_order'] ?? null,
     'title' => $widget->translation?->title,
     'content' => $widget->translation?->content,
     'container',
@@ -21,7 +22,7 @@ declare(strict_types=1);
 
 <x-capell-layout::widget.wrapper
     class="widget-default"
-    container-class="flex flex-col gap-x-5 gap-y-3 lg:flex-row lg:items-center"
+    :container-class="'flex flex-col gap-x-5 gap-y-3 md:items-center lg:gap-x-10 '.($reverseOrder ? 'md:flex-row-reverse' : 'md:flex-row')"
     :$container
     :$containerKey
     :index="$loop->index"
@@ -50,7 +51,7 @@ declare(strict_types=1);
     </div>
 
     @if ($hasImage)
-        <div class="flex-1">
+        <div class="flex-1 lg:max-w-[40%]">
             <x-capell::media
                 :$containerKey
                 :media="$widget->image"

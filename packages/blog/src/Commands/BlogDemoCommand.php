@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Blog\Commands;
 
 use Capell\Admin\Services\Creator\DemoCreator;
+use Capell\Blog\Actions\CreateBlogPagesAction;
 use Capell\Blog\Enums\BlogResourceEnum;
 use Capell\Blog\Services\Loader\BlogLoader;
 use Capell\Core\Enums\ModelEnum;
@@ -70,7 +71,7 @@ class BlogDemoCommand extends Command
             );
         }
 
-        $sites = Site::whereIn('id', $siteIds)->get();
+        $sites = Site::query()->with('languages')->whereIn('id', $siteIds)->get();
 
         if ($sites->isEmpty()) {
             throw new Exception('Unable to find any sites');
@@ -78,6 +79,8 @@ class BlogDemoCommand extends Command
 
         foreach ($sites as $site) {
             $this->info(sprintf('Selected site: %s', $site->name));
+
+            CreateBlogPagesAction::run($site);
 
             if (! $this->createDemoPages($site)) {
                 $this->error('Failed to create demo pages for the selected site.');

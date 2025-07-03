@@ -9,7 +9,7 @@ use Capell\Admin\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\ImageMediaPicker;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
-use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetAssetsRepeater;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
@@ -66,7 +66,21 @@ class AssetsWidgetSchema extends AbstractWidgetSchema
         return [
             Forms\Components\Section::make()
                 ->columns(1)
-                ->schema(WidgetSettingsSchema::make($form)),
+                ->schema([
+                    ...WidgetSettingsSchema::make($form),
+                    Forms\Components\Group::make()
+                        ->statePath('meta')
+                        ->mutateDehydratedStateUsing(function (array $state): array {
+                            if (! empty($state['image_id'])) {
+                                $state['image_id'] = FixCuratorMetaDataAction::run($state['image_id']);
+                            }
+
+                            return $state;
+                        })
+                        ->schema([
+                            ImageMediaPicker::make('image_id'),
+                        ]),
+                ]),
         ];
     }
 
@@ -76,8 +90,8 @@ class AssetsWidgetSchema extends AbstractWidgetSchema
             ->columnSpanFull()
             ->tabs([
                 static::getContentTab($form),
-                self::getSettingsTab($form),
-                self::getAdminTab($form),
+                static::getSettingsTab($form),
+                static::getAdminTab($form),
             ]);
     }
 
@@ -85,12 +99,7 @@ class AssetsWidgetSchema extends AbstractWidgetSchema
     {
         return Forms\Components\Tabs\Tab::make(__('capell-admin::tab.content'))
             ->schema([
-                WidgetTranslationsRepeater::make(
-                    $form,
-                    schema: [
-                        ImageMediaPicker::make('image_id'),
-                    ]
-                ),
+                WidgetTranslationsRepeater::make($form),
             ]);
     }
 
@@ -101,11 +110,11 @@ class AssetsWidgetSchema extends AbstractWidgetSchema
 
     protected static function getSettingsTab(Forms\Form $form): Forms\Components\Tabs\Tab
     {
-        return WidgetSettingsTab::make([
+        return WidgetDisplayTab::make([
             Forms\Components\Grid::make()
                 ->statePath('meta')
                 ->mutateDehydratedStateUsing(function (array $state): array {
-                    if (isset($state['background_image_id'])) {
+                    if (! empty($state['background_image_id'])) {
                         $state['background_image_id'] = FixCuratorMetaDataAction::run($state['background_image_id']);
                     }
 

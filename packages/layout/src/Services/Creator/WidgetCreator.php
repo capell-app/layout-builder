@@ -139,6 +139,7 @@ class WidgetCreator
                 'widget_theme' => 'masonry',
                 'spacing' => 'lg',
                 'margin' => ['lg'],
+                'container' => 'full',
             ],
             'admin' => [
                 'notes' => 'Displays a breadcrumb navigation trail',
@@ -193,7 +194,7 @@ class WidgetCreator
             'name' => __('capell-admin::generic.media_carousel'),
             'type_id' => $mediaWidgetType->id,
             'meta' => [
-                'file_view' => 'capell-layout::components.widget.assets.media.carousel',
+                'view_file' => 'capell-layout::components.widget.assets.media.carousel',
                 'limit' => 20,
                 'container' => 'full',
                 'background_color' => 'light-gray',

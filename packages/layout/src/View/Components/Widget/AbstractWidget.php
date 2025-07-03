@@ -37,10 +37,10 @@ abstract class AbstractWidget extends Component
             return '';
         }
 
-        if (! empty($this->widget->meta['file_view'])) {
-            $component = $this->widget->meta['file_view'];
-        } elseif (! empty($this->widget->type->meta['file_view'])) {
-            $component = $this->widget->type->meta['file_view'];
+        if (! empty($this->widget->meta['view_file'])) {
+            $component = $this->widget->meta['view_file'];
+        } elseif (! empty($this->widget->type->meta['view_file'])) {
+            $component = $this->widget->type->meta['view_file'];
         } else {
             $component = $this->defaultView;
         }

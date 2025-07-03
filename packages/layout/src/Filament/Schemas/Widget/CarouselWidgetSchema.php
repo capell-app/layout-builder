@@ -7,7 +7,7 @@ namespace Capell\Layout\Filament\Schemas\Widget;
 use Capell\Admin\Actions\FixCuratorMetaDataAction;
 use Capell\Admin\Filament\Components\Forms\CarouselSettingsSchema;
 use Capell\Admin\Filament\Components\Forms\ColorSchemeComponent;
-use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Filament\Forms;
@@ -18,7 +18,7 @@ class CarouselWidgetSchema extends AssetsWidgetSchema
     #[Override]
     protected static function getSettingsTab(Forms\Form $form): Forms\Components\Tabs\Tab
     {
-        return WidgetSettingsTab::make([
+        return WidgetDisplayTab::make([
             Forms\Components\Grid::make()
                 ->statePath('meta')
                 ->mutateDehydratedStateUsing(function (array $state): array {

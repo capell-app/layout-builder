@@ -170,6 +170,7 @@ class DemoCommand extends Command
                 'occurrence' => 2,
             ],
             ['widget_key' => $this->demoCreator->createGalleryWidget()->key],
+            ['widget_key' => $this->demoCreator->createBannerImageWidget($languages)->key],
             ['widget_key' => $this->demoCreator->createMediaCarouselWidget()->key],
             ['widget_key' => $this->demoCreator->createFaqWidget($languages)->key],
             ['widget_key' => $this->demoCreator->createStaticNavigationWidget($languages, $page->site)->key],

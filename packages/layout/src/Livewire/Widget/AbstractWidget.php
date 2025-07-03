@@ -90,7 +90,7 @@ abstract class AbstractWidget extends Component
 
     protected function getComponent(): string
     {
-        return $this->widget->meta['file_view'] ?? $this->widget->type->meta['file_view'] ?? $this->defaultView;
+        return $this->widget->meta['view_file'] ?? $this->widget->type->meta['view_file'] ?? $this->defaultView;
     }
 
     protected function getComponentItem(): string

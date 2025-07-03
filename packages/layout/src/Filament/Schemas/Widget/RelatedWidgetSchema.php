@@ -9,7 +9,7 @@ use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
-use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetResultsSettingsSchema;
@@ -25,7 +25,8 @@ class RelatedWidgetSchema extends AbstractWidgetSchema
 
         return match ($operation) {
             'create', 'createOption', 'replicate', 'editOption' => [
-                WidgetTranslationsRepeater::make($form),
+                WidgetTranslationsRepeater::make($form)
+                    ->section(fn (string $operation): bool => $operation === 'create'),
             ],
             default => [
                 FixedWidthSidebar::make()
@@ -41,7 +42,7 @@ class RelatedWidgetSchema extends AbstractWidgetSchema
                     ->visibleOn('edit')
                     ->columnSpanFull()
                     ->tabs([
-                        WidgetSettingsTab::make([
+                        WidgetDisplayTab::make([
                             Forms\Components\Group::make()
                                 ->statePath('meta')
                                 ->columns()

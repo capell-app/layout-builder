@@ -7,6 +7,7 @@ namespace Capell\Layout\Filament\Schemas\Content;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Capell\Admin\Filament\Components\Forms\CallToActionText;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
+use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\Page\PageSelect;
 use Capell\Admin\Filament\Schemas\AbstractSchema;
 use Capell\Layout\Enums\SchemaEnum;
@@ -23,18 +24,17 @@ class DefaultContentSchema extends AbstractSchema
     public static function getMetaSchema(): array
     {
         return [
+            IconPicker::make('icon')
+                ->label(__('capell-admin::form.icon')),
             CuratorPicker::make('image_id')
                 ->label(__('capell-admin::form.image')),
             Forms\Components\Group::make()
                 ->schema([
-                    Forms\Components\Group::make()
-                        ->schema([
-                            PageSelect::make('page_uuid')
-                                ->label(__('capell-admin::form.related_page'))
-                                ->reactive(),
-                            CallToActionText::make('link_text')
-                                ->hidden(fn (Forms\Get $get): bool => $get('page_uuid') === null),
-                        ]),
+                    PageSelect::make('page_uuid')
+                        ->label(__('capell-admin::form.related_page'))
+                        ->reactive(),
+                    CallToActionText::make('link_text')
+                        ->hidden(fn (Forms\Get $get): bool => $get('page_uuid') === null),
                 ]),
         ];
     }

@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Schemas\Widget;
 
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
+use Capell\Admin\Filament\Components\Forms\SpacingSelect;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
-use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetAssetsRepeater;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
@@ -70,12 +71,14 @@ class MediaWidgetSchema extends AbstractWidgetSchema
             ->visibleOn(['edit', 'editOption'])
             ->columnSpanFull()
             ->tabs([
-                WidgetSettingsTab::make([
+                WidgetDisplayTab::make([
                     Forms\Components\Group::make()
                         ->statePath('meta')
                         ->columns()
                         ->schema([
-                            WidgetDisplaySection::make(),
+                            WidgetDisplaySection::make([
+                                SpacingSelect::make('spacing'),
+                            ]),
                             WidgetComponentFilesSection::make(),
                         ]),
                 ]),

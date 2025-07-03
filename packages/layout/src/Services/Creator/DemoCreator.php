@@ -21,6 +21,7 @@ use Capell\Layout\Filament\Schemas\Widget\HeroWidgetSchema;
 use Capell\Layout\Filament\Schemas\WidgetAsset\HeroWidgetAssetSchema;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
+use Capell\Layout\Models\WidgetAsset;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Str;
@@ -69,13 +70,31 @@ class DemoCreator
 
     public function createStaticWidget(Collection $languages): Widget
     {
+        $siteId = Site::default()?->value('id');
         $widget = $this->widgetModel::firstOrCreate(['key' => 'example-content'], [
             'name' => 'Example Static Contents',
             'type_id' => $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)->default()->first()->id,
             'meta' => [
                 'size' => 'md',
                 'margin' => ['lg'],
+                'padding' => ['md'],
+                'reverse_order' => true,
+                'background_color' => 'light-gray',
                 'image_id' => $this->mediaModel::where('type', 'LIKE', 'image/%')->inRandomOrder()->value('id'),
+                'actions' => [
+                    [
+                        'type' => 'page',
+                        'page_uuid' => Page::where('site_id', $siteId)
+                            ->whereHas(
+                                'type',
+                                /** @param Models\Type $query */
+                                fn (BuilderContract $query) => $query->visible()->enabled()->accessible()
+                            )
+                            ->inRandomOrder()
+                            ->value('uuid'),
+                        'site_id' => $siteId,
+                    ],
+                ],
             ],
         ]);
 
@@ -86,7 +105,7 @@ class DemoCreator
                     [
                         'type' => 'content',
                         'data' => [
-                            'content' => Str::of(config('capell-demo.contents')[$language->code])->limit(end: ''),
+                            'content' => config('capell-demo.contents')[$language->code],
                         ],
                     ],
                 ],
@@ -96,7 +115,51 @@ class DemoCreator
         return $widget;
     }
 
-    public function createGalleryWidget($occurrence = 1): Widget
+    public function createBannerImageWidget(Collection $languages): Widget
+    {
+        $siteId = Site::default()?->value('id');
+        $widget = $this->widgetModel::firstOrCreate(['key' => 'banner-full-width'], [
+            'name' => 'Banner Full Width',
+            'type_id' => $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)->default()->first()->id,
+            'meta' => [
+                'component' => 'capell-layout::widget.banner-image',
+                'margin' => ['lg'],
+                'image_id' => $this->mediaModel::where('type', 'LIKE', 'image/%')->inRandomOrder()->value('id'),
+                'actions' => [
+                    [
+                        'type' => 'page',
+                        'page_uuid' => Page::where('site_id', $siteId)
+                            ->whereHas(
+                                'type',
+                                /** @param Models\Type $query */
+                                fn (BuilderContract $query) => $query->visible()->enabled()->accessible()
+                            )
+                            ->inRandomOrder()
+                            ->value('uuid'),
+                        'site_id' => $siteId,
+                    ],
+                ],
+            ],
+        ]);
+
+        foreach ($languages as $language) {
+            $widget->translations()->firstOrCreate(['language_id' => $language->id], [
+                'title' => 'Example Content',
+                'contents' => [
+                    [
+                        'type' => 'content',
+                        'data' => [
+                            'content' => config('capell-demo.contents')[$language->code],
+                        ],
+                    ],
+                ],
+            ]);
+        }
+
+        return $widget;
+    }
+
+    public function createGalleryWidget(): Widget
     {
         $widget = $this->widgetModel::where('key', 'gallery')->first();
 
@@ -120,7 +183,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createPageCardsWidget(Page $page, int $occurrence = 1): Widget
+    public function createPageCardsWidget(Page $page, string $container = 'main', int $occurrence = 1): Widget
     {
         $widget = $this->widgetModel::firstWhere('key', 'pages-card');
 
@@ -143,7 +206,14 @@ class DemoCreator
             ]);
         }
 
-        if ($widget->assets()->count() >= 3) {
+        if (
+            $widget->assets()
+                ->where([
+                    'container' => $container,
+                    'occurrence' => $occurrence,
+                ])
+                ->count() >= 3
+        ) {
             return $widget;
         }
 
@@ -155,15 +225,13 @@ class DemoCreator
             ->inRandomOrder()
             ->limit(3)
             ->pluck('uuid')
-            ->each(function ($related_page_uuid) use ($widget, $page, $occurrence): void {
-                $widget->assets()->firstOrcreate([
-                    'page_id' => $page->id,
-                    'asset_id' => $related_page_uuid,
-                    'asset_type' => app($this->pageModel)->getMorphClass(),
-                    'container' => 'main',
-                    'occurrence' => $occurrence,
-                ]);
-            });
+            ->each(fn ($related_page_uuid): WidgetAsset => $widget->assets()->firstOrcreate([
+                'page_id' => $page->id,
+                'asset_id' => $related_page_uuid,
+                'asset_type' => app($this->pageModel)->getMorphClass(),
+                'container' => $container,
+                'occurrence' => $occurrence,
+            ]));
 
         return $widget;
     }
@@ -565,7 +633,7 @@ class DemoCreator
                 'content' => '<p>We focus on delivering measurable results that drive growth and success.</p>',
             ],
             [
-                'icon' => 'heroicon-o-leaf',
+                'icon' => 'heroicon-o-sparkles',
                 'title' => 'Sustainable Practices',
                 'content' => '<p>We are committed to sustainable practices that benefit our clients and the environment.</p>',
             ],
@@ -578,10 +646,13 @@ class DemoCreator
 
         $widget = Widget::firstOrCreate([
             'key' => 'business-features',
+        ], [
+            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'align' => 'center',
                 'padding' => ['lg'],
-                'file_view' => 'capell-layout::widget.assets.features',
+                'view_file' => 'capell-layout::components.widget.assets.features',
+                'image_id' => $this->mediaModel::where('type', 'LIKE', 'image/%')->inRandomOrder()->value('id'),
             ],
         ]);
 
@@ -632,16 +703,6 @@ class DemoCreator
                 ],
             ]);
 
-            if ($widget->assets()->where('asset_id', $content->uuid)->exists()) {
-                continue;
-            }
-
-            $widget->assets()->create([
-                'occurrence' => 1,
-                'asset_type' => 'content',
-                'asset_id' => $content->uuid,
-            ]);
-
             $site->languages->each(function (Models\Language $language) use ($page, $content, $feature): void {
                 $title = Str::apiTranslate($feature['title'], $language->locale, 'en');
                 $contents = Str::apiTranslate($feature['content'], $language->locale, 'en');
@@ -660,6 +721,16 @@ class DemoCreator
                     'content' => $contents,
                 ]);
             });
+
+            if ($widget->assets()->where('asset_id', $content->uuid)->exists()) {
+                continue;
+            }
+
+            $widget->assets()->create([
+                'occurrence' => 1,
+                'asset_type' => 'content',
+                'asset_id' => $content->uuid,
+            ]);
         }
 
         return $widget;

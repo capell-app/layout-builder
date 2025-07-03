@@ -141,9 +141,6 @@ declare(strict_types=1);
                 <div
                     class="group-hover/asset:text-primary-600 dark:group-hover/asset:text-primary-400 line-clamp-1 text-sm font-medium text-gray-800 dark:text-gray-100"
                 >
-                    @svg($editWidgetAssetAction->getIcon(),
-                        'group-hover/asset:text-primary-500 dark:group-hover/asset:text-primary-400 mr-1.5 inline h-5 w-5 text-gray-400 dark:text-gray-500',
-                        ['x-tooltip.raw' => $editWidgetAssetAction->getTooltip()])
                     {{ $name }}
                 </div>
 
@@ -222,6 +219,10 @@ declare(strict_types=1);
                         </span>
                     </span>
                 @endif
+
+                @svg($editWidgetAssetAction->getIcon(),
+                    'group-hover/asset:text-primary-500 dark:group-hover/asset:text-primary-400 mr-1.5 inline h-5 w-5 text-gray-400 dark:text-gray-500',
+                    ['x-tooltip.raw' => $editWidgetAssetAction->getTooltip()])
             </div>
         </div>
     </div>

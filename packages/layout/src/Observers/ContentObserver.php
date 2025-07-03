@@ -8,13 +8,18 @@ use Capell\Core\Models\Type;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Models\Content;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 class ContentObserver
 {
     public function creating(Content $content): void
     {
         if (! $content->type_id) {
-            $content->type_id = Type::query()->where('type', LayoutTypeEnum::Content)->value('id');
+            $content->type_id = Type::query()->where('type', LayoutTypeEnum::Content)->default()->value('id');
+
+            if (! $content->type_id) {
+                throw new InvalidArgumentException('Unable to create content without a type.');
+            }
         }
     }
 
