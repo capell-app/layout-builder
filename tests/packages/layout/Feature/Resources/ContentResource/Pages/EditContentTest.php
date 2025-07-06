@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use Capell\Admin\Filament\Actions\DeleteAction;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Type;
+use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Filament\Resources\ContentResource\Pages\EditContent;
 use Capell\Layout\Models\Content;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
@@ -19,6 +21,7 @@ beforeEach(function (): void {
 });
 
 it('can save', function (): void {
+    $contentType = Type::factory()->type(LayoutTypeEnum::Content)->create();
     $content = Content::factory()->create();
     $newData = Content::factory()
         ->site(Site::factory()->create())
@@ -29,16 +32,22 @@ it('can save', function (): void {
         'record' => $content->getRouteKey(),
     ])
         ->assertSuccessful()
+        ->assertFormSet([
+            'name' => $content->name,
+            'type_id' => $content->type->getKey(),
+            'parent_uuid' => $content->parent?->uuid,
+            'site_id' => $content->site?->getKey(),
+        ])
         ->assertFormFieldExists('meta.image_id')
         ->fillForm([
-            'type_id' => $newData->type->getKey(),
+            'type_id' => $contentType->getKey(),
             'name' => $newData->name,
             'parent_uuid' => $newData->parent->uuid,
             'site_id' => $newData->site->getKey(),
         ])
         ->assertFormSet([
             'name' => $newData->name,
-            'type_id' => $newData->type->getKey(),
+            'type_id' => $contentType->getKey(),
             'parent_uuid' => $newData->parent->uuid,
             'site_id' => $newData->site->getKey(),
         ])

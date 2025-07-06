@@ -10,6 +10,7 @@ declare(strict_types=1);
     'containerColspan' => null,
     'containerKey',
     'containerIndex',
+    'containerWidth' => null,
     'loop',
     'occurrence' => $widgetData['occurrence'] ?? 1,
     'pageSlot' => null,
@@ -25,6 +26,7 @@ declare(strict_types=1);
         :$containerColspan
         :$containerKey
         :$containerIndex
+        :$containerWidth
         :$loop
         :$pageSlot
         :$occurrence
@@ -39,6 +41,7 @@ declare(strict_types=1);
             'containerColspan' => $containerColspan,
             'containerKey' => $containerKey,
             'containerIndex' => $containerIndex,
+            'containerWidth' => $containerWidth,
             'loop' => $loop,
             'pageSlot' => $pageSlot,
             'widget' => $widget,

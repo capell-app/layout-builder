@@ -8,6 +8,7 @@ declare(strict_types=1);
     'columns' => $container['meta']['override_columns'] ?? ($widget->meta['columns'] ?? 3),
     'container',
     'containerKey',
+    'containerWidth' => null,
     'hideContent' => $widgetData['meta']['hide_content'] ?? false,
     'items' => [],
     'loop',
@@ -17,6 +18,7 @@ declare(strict_types=1);
     class="widget-navigation-bar"
     :$container
     :$containerKey
+    :$containerWidth
     :index="$loop->index"
     :$widget
 >
@@ -25,7 +27,6 @@ declare(strict_types=1);
             class="mb-5"
             :title="$widget->translation->title"
             :compact="true"
-            :$containerKey
             :content="$widget->translation->content"
             :contents="$widget->translation->content ? null : $widget->translation->contents"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"

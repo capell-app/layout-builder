@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 @php
     use Capell\Frontend\Facades\Frontend;
+
+    $theme = Frontend::getTheme();
 @endphp
 
 @props([
@@ -24,7 +26,6 @@ declare(strict_types=1);
     'margin' => ! empty($widget->meta['margin']) ? (array) $widget->meta['margin'] : [],
     'padding' => ! empty($widget->meta['padding']) ? (array) $widget->meta['padding'] : [],
     'pageContainer' => $widget->meta['container'] ?? $theme->meta['container'] ?? null,
-    'theme' => Frontend::getTheme(),
     'widget' => '',
 ])
 @aware([
@@ -36,6 +37,7 @@ declare(strict_types=1);
         $attributes->class([
             '@container/wrap widget widget-'.$widget->key,
             $class => $class !== 'widget-'.$widget->key,
+            $containerClass => $containerWidth === 'full',
             'w-full' => $containerColspan === 12,
             'py-4' => in_array('sm', $padding, true),
             'pt-4' => in_array('t-sm', $padding, true),
@@ -43,9 +45,9 @@ declare(strict_types=1);
             'py-8' => in_array('md', $padding, true),
             'pt-8' => in_array('t-md', $padding, true),
             'pb-8' => in_array('b-md', $padding, true),
-            'py-10' => in_array('lg', $padding, true),
-            'pt-10' => in_array('t-lg', $padding, true),
-            'pb-10' => in_array('b-lg', $padding, true),
+            'py-10 lg:py-16' => in_array('lg', $padding, true),
+            'pt-10 lg:pt-16' => in_array('t-lg', $padding, true),
+            'pb-10 lg:pb-16' => in_array('b-lg', $padding, true),
             'pt-20' => in_array('t-xl', $padding, true),
             'pb-20' => in_array('b-xl', $padding, true),
             'my-4' => in_array('sm', $margin, true),
@@ -65,14 +67,14 @@ declare(strict_types=1);
             'bg-gray-600' => $backgroundColor === 'gray',
             'bg-gray-100' => $backgroundColor === 'light-gray',
             'dark:bg-gray-600' => $backgroundColor === 'light-gray' && $theme->withDarkMode,
-            'bg-cover' => $backgroundSize === 'cover',
-            'bg-contain' => $backgroundSize === 'contain',
-            'bg-repeat' => $backgroundRepeat === 'repeat',
-            'bg-repeat-x' => $backgroundRepeat === 'repeat-x',
-            'bg-repeat-y' => $backgroundRepeat === 'repeat-y',
-            'bg-no-repeat' => $backgroundRepeat === 'no-repeat',
-            'bg-fixed' => $backgroundAttachment === 'fixed',
-            'bg-scroll' => $backgroundAttachment === 'scroll',
+            'bg-cover' => $backgroundSize === 'cover' && $backgroundImage,
+            'bg-contain' => $backgroundSize === 'contain' && $backgroundImage,
+            'bg-repeat' => $backgroundRepeat === 'repeat' && $backgroundImage,
+            'bg-repeat-x' => $backgroundRepeat === 'repeat-x' && $backgroundImage,
+            'bg-repeat-y' => $backgroundRepeat === 'repeat-y' && $backgroundImage,
+            'bg-no-repeat' => $backgroundRepeat === 'no-repeat' && $backgroundImage,
+            'bg-fixed' => $backgroundAttachment === 'fixed' && $backgroundImage,
+            'bg-scroll' => $backgroundAttachment === 'scroll' && $backgroundImage,
         ])
     }}
     @if ($backgroundColor && ! in_array($backgroundColor, $defaultColors, true) || $backgroundImage)

@@ -7,6 +7,8 @@ declare(strict_types=1);
 @php
     use Capell\Core\Models\Media;
     use Capell\Frontend\Facades\Frontend;
+
+    $theme = Frontend::getTheme();
 @endphp
 
 @props([
@@ -14,7 +16,7 @@ declare(strict_types=1);
     'carouselArrows' => true,
     'carouselAuto' => true,
     'carouselAutoDelay' => 3000,
-    'carouselButtonClass' => 'text-primary hover:enabled:bg-primary active:enabled:bg-primary absolute top-0 z-10 flex h-full w-10 max-w-[8vw] cursor-pointer items-center justify-center hover:enabled:text-white active:enabled:text-white',
+    'carouselButtonClass' => 'text-primary hover:enabled:bg-primary active:enabled:bg-primary absolute top-0 z-10 flex h-full w-10 max-w-[8vw] cursor-pointer items-center justify-center bg-gray-400/75 hover:enabled:text-white active:enabled:text-white dark:bg-gray-900/60',
     'carouselDrag' => true,
     'carouselLoop' => true,
     'carouselPagination' => false,
@@ -23,9 +25,9 @@ declare(strict_types=1);
     'colorScheme' => $widget->meta['color_scheme'] ?? 'dark',
     'container',
     'containerKey',
+    'containerWidth' => null,
     'hideContent' => $widgetData['meta']['hide_content'] ?? false,
     'loop',
-    'theme' => Frontend::getTheme(),
     'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
     'widget',
 ])
@@ -33,6 +35,7 @@ declare(strict_types=1);
     class="widget-media-carousel"
     :$container
     :$containerKey
+    :$containerWidth
     :index="$loop->index"
     :$widget
 >
@@ -40,7 +43,6 @@ declare(strict_types=1);
         <div class="container mb-8">
             <x-capell::content
                 :compact="true"
-                :$containerKey
                 :content="$widget->translation->content"
                 :contents="$widget->translation->content ? null : $widget->translation->contents"
                 :color-scheme="$colorScheme"
@@ -58,7 +60,7 @@ declare(strict_types=1);
         data-align="{{ $carouselAlign }}"
         data-drag="{{ (int) $carouselDrag }}"
         data-wheel="{{ (int) $carouselWheel }}"
-        @class(['relative', 'embla' => $total > 1])
+        @class(['relative py-10', 'embla' => $total > 1])
         @style(["--carousel-spacing:{$carouselSpacing}" => $carouselSpacing])
     >
         <div class="embla__viewport w-full overflow-hidden px-8">

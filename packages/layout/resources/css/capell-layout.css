@@ -18,10 +18,18 @@
 
 @theme {
     --container-2xs: 18rem;
-    --color-primary: rgb(var(--primary-color));
-    --color-secondary: rgb(var(--secondary-color));
-    --color-gray: rgb(var(--gray-color));
-    --color-light-gray: rgb(var(--light-gray-color));
+    --color-black: rgb(var(--black-color, 0, 0, 0));
+    --color-danger: rgb(var(--danger-color, 220, 38, 38));
+    --color-dark-gray: rgb(var(--dark-gray-color, 55, 65, 81));
+    --color-gray: rgb(var(--gray-color, 107, 114, 128));
+    --color-info: rgb(var(--info-color, 59, 130, 246));
+    --color-light-gray: rgb(var(--light-gray-color, 229, 231, 235));
+    --color-primary: rgb(var(--primary-color, 59, 130, 246));
+    --color-secondary: rgb(var(--secondary-color, 156, 163, 175));
+    --color-success: rgb(var(--success-color, 16, 185, 129));
+    --color-warning: rgb(var(--warning-color, 251, 191, 36));
+    --color-white: rgb(var(--white-color, 255, 255, 255));
+    --color-link: rgb(var(--link-color, var(--primary-color)));
     --font-sans: var(--font-fmaily);
     --font-heading: var(--font-family-heading);
     --text-xs: 0.8rem;

@@ -149,7 +149,7 @@ declare(strict_types=1);
             </x-filament-simple-alert::simple-alert>
         @endif
 
-        <div class="space-y-6">
+        <div class="space-y-5">
             @if ($containers)
                 <div
                     class="layout-containers mb-4 grid grid-cols-12 gap-4 lg:gap-6 xl:gap-8"

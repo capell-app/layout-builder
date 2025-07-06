@@ -92,6 +92,13 @@ class DefaultContentSchema extends AbstractSchema
                     Forms\Components\Section::make()
                         ->columns()
                         ->statePath('meta')
+                        ->mutateDehydratedStateUsing(function (array $state): array {
+                            if (isset($state['image_id'])) {
+                                $state['image_id'] = FixCuratorMetaDataAction::run($state['image_id']);
+                            }
+
+                            return $state;
+                        })
                         ->schema(self::getMetaSchema()),
                 ])
                 ->sidebarSchema([
@@ -113,6 +120,13 @@ class DefaultContentSchema extends AbstractSchema
             ContentTranslationsRepeater::make($form),
             Forms\Components\Grid::make()
                 ->statePath('meta')
+                ->mutateDehydratedStateUsing(function (array $state): array {
+                    if (isset($state['image_id'])) {
+                        $state['image_id'] = FixCuratorMetaDataAction::run($state['image_id']);
+                    }
+
+                    return $state;
+                })
                 ->schema(self::getMetaSchema()),
             Forms\Components\Section::make(__('capell-admin::generic.settings'))
                 ->collapsed()

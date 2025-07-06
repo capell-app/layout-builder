@@ -21,10 +21,10 @@ declare(strict_types=1);
     @foreach ($features as $feature)
         @php
             $url = null;
-            if ($feature->page) {
+            if ($feature->linkedPage) {
                 $pageUrl = Capell\Frontend\Services\Loader\PageLoader::getPageUrlById(
-                    pageId: $feature->page->id,
-                    site: $feature->page->site,
+                    pageId: $feature->linkedPage->id,
+                    site: $feature->linkedPage->site,
                     language: $language,
                 );
 
@@ -53,7 +53,7 @@ declare(strict_types=1);
                     >
                         @if ($feature->translation->title)
                             <p class="text-md @2xs/item:text-lg mb-1 leading-6">
-                                @if ($url && empty($feature->meta['link_text']))
+                                @if ($url)
                                     <a
                                         href="{{ $url }}"
                                         wire:navigate

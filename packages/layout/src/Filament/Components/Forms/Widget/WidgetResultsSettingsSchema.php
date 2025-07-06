@@ -17,7 +17,7 @@ class WidgetResultsSettingsSchema
                 ->label(__('capell-admin::form.children_count')),
             Forms\Components\Checkbox::make('with_image')
                 ->label(__('capell-admin::form.image')),
-            Forms\Components\Checkbox::make('with_published')
+            Forms\Components\Checkbox::make('with_date')
                 ->label(__('capell-admin::form.published_date')),
             Forms\Components\Checkbox::make('with_summary')
                 ->label(__('capell-admin::form.summary')),

@@ -10,7 +10,6 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Layout\Actions\AddWidgetToLayoutContainerAction;
 use Capell\Layout\Enums\AssetEnum;
 use Capell\Layout\Enums\AssetEnum as LayoutAssetEnum;
 use Capell\Layout\Enums\LayoutModelEnum;
@@ -76,7 +75,7 @@ class DemoCreator
             'type_id' => $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)->default()->first()->id,
             'meta' => [
                 'size' => 'md',
-                'margin' => ['lg'],
+                'margin' => '',
                 'padding' => ['md'],
                 'reverse_order' => true,
                 'background_color' => 'light-gray',
@@ -662,56 +661,75 @@ class DemoCreator
         }
     }
 
-    public function createBusinessFeatures(Site $site, Models\Layout $layout): Widget
+    public function createClientLogosWidget(Collection $languages): Widget
     {
-        $title = 'Fundamental Capabilities That Set Us Apart';
-        $content = '<p>We combine innovation, efficiency, and deep expertise to deliver exceptional results. Our adaptable, client-focused approach ensures measurable value and lasting impact.</p>';
-        $features = [
-            [
-                'icon' => 'heroicon-o-light-bulb',
-                'title' => 'Innovative Solutions',
-                'content' => '<p>We leverage cutting-edge technology to create innovative solutions that drive success.</p>',
-            ],
-            [
-                'icon' => 'heroicon-o-academic-cap',
-                'title' => 'Expertise',
-                'content' => '<p>Our team of experts brings deep industry knowledge and experience to every project.</p>',
-            ],
-            [
-                'icon' => 'heroicon-o-user-group',
-                'title' => 'Client-Centric Approach',
-                'content' => "<p>We prioritize our clients' needs and work collaboratively to achieve their goals.</p>",
-            ],
-            [
-                'icon' => 'heroicon-o-chart-bar',
-                'title' => 'Measurable Results',
-                'content' => '<p>We focus on delivering measurable results that drive growth and success.</p>',
-            ],
-            [
-                'icon' => 'heroicon-o-sparkles',
-                'title' => 'Sustainable Practices',
-                'content' => '<p>We are committed to sustainable practices that benefit our clients and the environment.</p>',
-            ],
-            [
-                'icon' => 'heroicon-o-globe-alt',
-                'title' => 'Global Reach',
-                'content' => '<p>Our global presence allows us to serve clients across diverse markets and industries.</p>',
-            ],
-        ];
-
         $widget = Widget::firstOrCreate([
-            'key' => 'business-features',
+            'key' => 'client-logos',
         ], [
+            'name' => 'Client Logos',
             'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'align' => 'center',
-                'padding' => ['lg'],
+                'margin' => ['lg'],
+                'columns' => 6,
+                'spacing' => 'lg',
+                'max_width' => '3xl',
+            ],
+            'admin' => [
+                'icon' => 'heroicon-o-photo',
+            ],
+        ]);
+
+        if ($widget->assets()->exists()) {
+            return $widget;
+        }
+
+        $languages->each(function (Models\Language $language) use ($widget): void {
+            $widget->translations()->firstOrCreate([
+                'language_id' => $language->id,
+            ], [
+                'title' => 'Client Logos',
+                'content' => '<p>We are proud to work with these amazing partners.</p>',
+            ]);
+        });
+
+        $clientLogos = $this->mediaModel::query()
+            ->where('type', 'LIKE', 'image/%')
+            ->inRandomOrder()
+            ->limit(12)
+            ->get();
+
+        $clientLogos->each(function (Models\Media $logo) use ($widget): void {
+            $widget->assets()->firstOrCreate([
+                'asset_id' => $logo->uuid,
+                'asset_type' => app($this->mediaModel)->getMorphClass(),
+            ]);
+        });
+
+        return $widget;
+    }
+
+    public function createBusinessFeaturesWidget(Site $site): Widget
+    {
+        $widget = Widget::firstOrCreate([
+            'key' => 'business-features',
+        ], [
+            'name' => 'Business Features',
+            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
+            'meta' => [
+                'align' => 'center',
+                'margin' => ['lg'],
                 'view_file' => 'capell-layout::components.widget.assets.features',
                 'image_id' => $this->getExampleMedia()?->id,
             ],
         ]);
 
-        AddWidgetToLayoutContainerAction::run($widget, $layout, 'main');
+        if ($widget->assets()->exists()) {
+            return $widget;
+        }
+
+        $title = 'Fundamental Capabilities That Set Us Apart';
+        $content = '<p>We combine innovation, efficiency, and deep expertise to deliver exceptional results. Our adaptable, client-focused approach ensures measurable value and lasting impact.</p>';
 
         $site->languages->each(function (Models\Language $language) use ($widget, $title, $content): void {
             $widget->translations()->firstOrCreate([
@@ -722,58 +740,11 @@ class DemoCreator
             ]);
         });
 
-        $parentPage = Page::updateOrCreate([
-            'site_id' => $site->id,
-            'name' => 'Features',
-        ]);
+        $features = $this->createFeatures($site);
 
-        $site->languages->each(function (Models\Language $language) use ($parentPage): void {
-            $parentPage->translations()->firstOrCreate([
-                'language_id' => $language->id,
-            ], [
-                'title' => $parentPage->name,
-            ]);
-        });
-
-        foreach ($features as $feature) {
-            $page = Page::updateOrCreate([
-                'site_id' => $site->id,
-                'name' => $feature['title'],
-            ], [
-                'parent_id' => $parentPage->id,
-                'meta' => [
-                    'icon' => $feature['icon'],
-                    'image_id' => $this->getExampleMedia()?->id,
-                ],
-            ]);
-
-            $content = Content::updateOrCreate([
-                'name' => $feature['title'],
-            ], [
-                'meta' => [
-                    'icon' => $feature['icon'],
-                    'page_uuid' => $page->uuid,
-                ],
-            ]);
-
-            $site->languages->each(function (Models\Language $language) use ($page, $content, $feature): void {
-                $page->translations()->firstOrCreate([
-                    'language_id' => $language->id,
-                ], [
-                    'title' => $feature['title'],
-                    'content' => $feature['content'],
-                ]);
-
-                $content->translations()->firstOrCreate([
-                    'language_id' => $language->id,
-                ], [
-                    'title' => $feature['title'],
-                    'content' => $feature['content'],
-                ]);
-            });
-
+        $features->each(function (Content $content) use ($widget): void {
             if ($widget->assets()->where('asset_id', $content->uuid)->exists()) {
-                continue;
+                return;
             }
 
             $widget->assets()->create([
@@ -781,7 +752,40 @@ class DemoCreator
                 'asset_type' => 'content',
                 'asset_id' => $content->uuid,
             ]);
+        });
+
+        return $widget;
+    }
+
+    public function createBannerShowcase(): Widget
+    {
+        $widget = $this->widgetModel::firstOrCreate(['key' => 'banner-showcase'], [
+            'name' => 'Banner Showcase',
+            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget])->id,
+            'meta' => [
+                'view_file' => 'capell-layout::components.widget.assets.banner-showcase',
+            ],
+        ]);
+
+        if ($widget->assets()->exists()) {
+            return $widget;
         }
+
+        $site = Site::default()->first();
+
+        $features = $this->createFeatures($site);
+
+        $features->each(function (Content $content) use ($widget): void {
+            if ($widget->assets()->where('asset_id', $content->uuid)->exists()) {
+                return;
+            }
+
+            $widget->assets()->create([
+                'occurrence' => 1,
+                'asset_type' => 'content',
+                'asset_id' => $content->uuid,
+            ]);
+        });
 
         return $widget;
     }
@@ -793,10 +797,19 @@ class DemoCreator
             'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'component_item' => 'capell-layout::content.block',
+                'view_file' => 'capell-layout::components.widget.assets.blocks',
                 'spacing' => 'none',
                 'columns' => 'auto',
+                'margin' => '',
+            ],
+            'admin' => [
+                'icon' => 'heroicon-o-chart-bar',
             ],
         ]);
+
+        if ($widget->assets()->exists()) {
+            return $widget;
+        }
 
         $statistics = [
             [
@@ -809,13 +822,13 @@ class DemoCreator
                 'icon' => 'heroicon-o-chart-bar',
                 'title' => 'Revenue Increases',
                 'value' => '<p><b>300%</b></p>',
-                'color' => 'gray',
+                'color' => 'success',
             ],
             [
                 'icon' => 'heroicon-o-globe-alt',
                 'title' => 'Countries Reached',
                 'value' => '<p><b>50+</b></p>',
-                'color' => 'light-gray',
+                'color' => 'info',
             ],
             [
                 'icon' => 'heroicon-o-clock',
@@ -835,6 +848,7 @@ class DemoCreator
                     'content' => sprintf('<p>%s</p>', $statistic['value']),
                 ])
                 ->state([
+                    'name' => $statistic['title'],
                     'meta' => [
                         'icon' => $statistic['icon'],
                         'color' => $statistic['color'],
@@ -872,5 +886,101 @@ class DemoCreator
         }
 
         return $items;
+    }
+
+    private function createFeatures(Site $site): Collection
+    {
+        $features = [
+            [
+                'icon' => 'heroicon-o-light-bulb',
+                'title' => 'Innovative Solutions',
+                'content' => '<p>We leverage cutting-edge technology to create innovative solutions that drive success.</p>',
+            ],
+            [
+                'icon' => 'heroicon-o-academic-cap',
+                'title' => 'Expertise',
+                'content' => '<p>Our team of experts brings deep industry knowledge and experience to every project.</p>',
+            ],
+            [
+                'icon' => 'heroicon-o-user-group',
+                'title' => 'Client-Centric Approach',
+                'content' => "<p>We prioritize our clients' needs and work collaboratively to achieve their goals.</p>",
+            ],
+            [
+                'icon' => 'heroicon-o-chart-bar',
+                'title' => 'Measurable Results',
+                'content' => '<p>We focus on delivering measurable results that drive growth and success.</p>',
+            ],
+            [
+                'icon' => 'heroicon-o-sparkles',
+                'title' => 'Sustainable Practices',
+                'content' => '<p>We are committed to sustainable practices that benefit our clients and the environment.</p>',
+            ],
+            [
+                'icon' => 'heroicon-o-globe-alt',
+                'title' => 'Global Reach',
+                'content' => '<p>Our global presence allows us to serve clients across diverse markets and industries.</p>',
+            ],
+        ];
+
+        $parentPage = Page::updateOrCreate([
+            'site_id' => $site->id,
+            'name' => 'Features',
+        ]);
+
+        $site->languages->each(function (Models\Language $language) use ($parentPage): void {
+            $parentPage->translations()->firstOrCreate([
+                'language_id' => $language->id,
+            ], [
+                'title' => $parentPage->name,
+            ]);
+        });
+
+        $contentFeatures = new Collection();
+
+        foreach ($features as $feature) {
+            $featureImage = $this->getExampleMedia();
+
+            $page = Page::updateOrCreate([
+                'site_id' => $site->id,
+                'name' => $feature['title'],
+            ], [
+                'parent_id' => $parentPage->id,
+                'meta' => [
+                    'icon' => $feature['icon'],
+                    'image_id' => $featureImage?->id,
+                ],
+            ]);
+
+            $content = Content::updateOrCreate([
+                'name' => $feature['title'],
+            ], [
+                'meta' => [
+                    'icon' => $feature['icon'],
+                    'image_id' => $featureImage?->id,
+                    'page_uuid' => $page->uuid,
+                ],
+            ]);
+
+            $contentFeatures->push($content);
+
+            $site->languages->each(function (Models\Language $language) use ($page, $content, $feature): void {
+                $page->translations()->firstOrCreate([
+                    'language_id' => $language->id,
+                ], [
+                    'title' => $feature['title'],
+                    'content' => $feature['content'],
+                ]);
+
+                $content->translations()->firstOrCreate([
+                    'language_id' => $language->id,
+                ], [
+                    'title' => $feature['title'],
+                    'content' => $feature['content'],
+                ]);
+            });
+        }
+
+        return $contentFeatures;
     }
 }

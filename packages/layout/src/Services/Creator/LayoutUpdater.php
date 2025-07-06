@@ -37,7 +37,6 @@ class LayoutUpdater
                 'main' => [
                     'meta' => [
                         'colspan' => 9,
-                        'container' => 'full',
                     ],
                     'widgets' => [
                         ['widget_key' => 'breadcrumbs'],
@@ -81,7 +80,6 @@ class LayoutUpdater
                 'main' => [
                     'meta' => [
                         'colspan' => 9,
-                        'container' => 'full',
                     ],
                     'widgets' => [
                         ['widget_key' => 'breadcrumbs'],
@@ -112,7 +110,6 @@ class LayoutUpdater
                 'main' => [
                     'meta' => [
                         'colspan' => 9,
-                        'container' => 'full',
                     ],
                     'widgets' => [
                         ['widget_key' => 'breadcrumbs'],

@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Navigation;
+use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\WidgetTypeFactory;
+use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Filament\Actions\Page\CreateWidgetAction;
 use Capell\Layout\Filament\Resources\WidgetResource\Pages\EditWidget;
@@ -24,6 +26,8 @@ beforeEach(function (): void {
 
 describe('from edit page', function (): void {
     test('can create new widget', function (): void {
+        Type::factory()->type(LayoutTypeEnum::Widget)->create();
+
         $widget = Widget::factory()->create();
 
         $newData = Widget::factory()->make();
@@ -60,6 +64,7 @@ describe('from edit page', function (): void {
 
 describe('from list page', function (): void {
     test('can create new widget', function (): void {
+        Type::factory()->type(LayoutTypeEnum::Widget)->create();
         $newData = Widget::factory()->make();
 
         livewire(ListWidgets::class)

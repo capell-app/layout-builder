@@ -61,7 +61,6 @@ declare(strict_types=1);
     @if (! $previousColspan || $previousColspan === 12)
         <div
             @class([
-                "grow",
                 "container" => $containerWidth !== 'full',
             ])
         >
@@ -130,6 +129,11 @@ declare(strict_types=1);
             if (! $component) {
                 continue;
             }
+
+            $currentColspan = $previousColspan + $colspan;
+            if ($columnStart) {
+                $currentColspan += $columnStart - 1;
+            }
         @endphp
 
         {!! config('app.debug') ? "<!-- {$widget->key} Widget ({$widget->id}) - {$component} -->" : '' !!}
@@ -138,6 +142,7 @@ declare(strict_types=1);
             :$component
             :$container
             :containerColspan="$colspan"
+            :container-width="$colspan !== 12 ? 'full' : null"
             :$containerKey
             :$containerIndex
             :$loop
@@ -157,7 +162,7 @@ declare(strict_types=1);
 @if ($colspan !== 12)
     </div>
 
-    @if ($previousColspan && $previousColspan !== 12)
+    @if ($currentColspan === 12)
             </div>
         </div>
     @endif

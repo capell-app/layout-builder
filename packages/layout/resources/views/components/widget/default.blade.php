@@ -15,6 +15,7 @@ declare(strict_types=1);
     'container',
     'loop',
     'containerKey',
+    'containerWidth' => null,
     'widget',
 ])
 
@@ -33,6 +34,7 @@ declare(strict_types=1);
     "
     :$container
     :$containerKey
+    :$containerWidth
     :index="$loop->index"
     :$widget
 >
@@ -46,7 +48,6 @@ declare(strict_types=1);
             <x-capell::content
                 class="mb-2"
                 :compact="true"
-                :$containerKey
                 :content="$content"
                 :contents="$content ? null : $widget->translation?->contents"
                 :heading-size="$headingSize"

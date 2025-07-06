@@ -157,9 +157,10 @@ class WidgetCreator
                 'component' => WidgetComponentEnum::PageLatest,
                 'limit' => 6,
                 'pagination' => false,
-                'with_summary' => true,
+                'with_summary' => false,
                 'with_link_text' => true,
                 'with_image' => true,
+                'with_date' => true,
                 'columns' => 1,
             ],
             'admin' => [
@@ -188,7 +189,7 @@ class WidgetCreator
                 'limit' => 20,
                 'container' => 'full',
                 'background_color' => 'light-gray',
-                'padding' => ['lg'],
+                'margin' => 0,
             ],
             'admin' => [
                 'schema' => CarouselWidgetSchema::getKey(),

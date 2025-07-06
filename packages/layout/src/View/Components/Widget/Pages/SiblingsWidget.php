@@ -35,7 +35,7 @@ class SiblingsWidget extends AbstractPagesWidget
             withChildrenCount: $this->widget->meta['with_children_count'] ?? false,
             withImage: $this->widget->meta['with_image'] ?? false,
             withParent: $this->widget->meta['with_parent'] ?? false,
-            withPublished: $this->widget->meta['with_published'] ?? false,
+            withDate: $this->widget->meta['with_date'] ?? false,
             withTags: $this->widget->meta['with_tags'] ?? false,
             modifyQuery: fn (BuilderContract $query) => $query->whereKeyNot($pageRecord->id)
         );

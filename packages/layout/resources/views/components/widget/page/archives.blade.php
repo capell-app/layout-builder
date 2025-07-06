@@ -6,23 +6,27 @@ declare(strict_types=1);
 
 @php
     use Capell\Frontend\Facades\Frontend;
+
+    $site = Frontend::getSite();
+    $pageParams = Frontend::getPageParams();
 @endphp
 
 @props([
     'archives' => [],
     'container',
     'containerKey',
+    'containerWidth' => null,
     'hideContent' => $widgetData['meta']['hide_content'] ?? false,
     'loop',
     'results',
-    'site' => Frontend::getSite(),
-    'archiveDate' => Frontend::getPageParams()['archive_date'] ?? null,
+    'archiveDate' => $pageParams['archive_date'] ?? null,
     'widget',
 ])
 <x-capell-layout::widget.wrapper
     class="widget-archive"
     :$container
     :$containerKey
+    :$containerWidth
     :index="$loop->index"
     :$widget
 >
@@ -30,7 +34,6 @@ declare(strict_types=1);
         <x-capell::content
             class="mb-4"
             :compact="true"
-            :$containerKey
             :content="$widget->translation->content"
             :contents="$widget->translation->content ? null : $widget->translation->contents"
             :title="$widget->translation->title"

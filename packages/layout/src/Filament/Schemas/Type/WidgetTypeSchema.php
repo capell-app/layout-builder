@@ -6,12 +6,14 @@ namespace Capell\Layout\Filament\Schemas\Type;
 
 use Capell\Admin\Filament\Components\Forms\AdminSchemaSelect;
 use Capell\Admin\Filament\Components\Forms\ContentEditorSelect;
+use Capell\Admin\Filament\Components\Forms\CustomSelectGroup;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\Type\TypeSettingsSchema;
 use Capell\Admin\Filament\Schemas\Type\DefaultTypeSchema;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\SchemaEnum;
+use Capell\Layout\Enums\WidgetTypeGroupEnum;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Capell\Layout\Filament\Schemas\Widget\DefaultWidgetSchema;
@@ -31,6 +33,17 @@ class WidgetTypeSchema extends DefaultTypeSchema
                     static::getAdminTab(),
                 ]),
         ];
+    }
+
+    protected static function getGroupField(): Forms\Components\Component
+    {
+        return CustomSelectGroup::make(
+            'group',
+            options: fn (): array => collect(WidgetTypeGroupEnum::cases())
+                ->mapWithKeys(fn ($case) => [$case->value => $case->name])
+                ->toArray()
+        )
+            ->label(__('capell-admin::form.group'));
     }
 
     protected static function getAdminTab(): Forms\Components\Tabs\Tab

@@ -49,7 +49,7 @@ class PagesWidget extends AbstractWidget
             withImage: $this->widget->meta['with_image'] ?? false,
             withPagination: $this->widget->meta['pagination'] ?? false,
             withParent: $this->widget->meta['with_parent'] ?? false,
-            withPublished: $this->widget->meta['with_published'] ?? false,
+            withDate: $this->widget->meta['with_date'] ?? false,
             withTags: $this->widget->meta['with_tags'] ?? false,
             paginationKey: $paginationKey,
             cacheKeyPrepend: sprintf('page-%d-widget-%d-container-%s-%d', $page->id, $this->widget->id, $this->containerKey, $this->occurrence),

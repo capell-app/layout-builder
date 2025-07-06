@@ -145,8 +145,6 @@ class DemoCommand extends Command
 
         $this->demoCreator->createWidgetAssets($heroWidget, $page);
 
-        $this->demoCreator->createBusinessFeatures($page->site, $layout);
-
         $containers = ['hero' => [
             'meta' => [
                 'colspan' => 12,
@@ -200,7 +198,9 @@ class DemoCommand extends Command
                 ['widget_key' => $this->demoCreator->createBannerImageWidget($languages)->key],
                 ['widget_key' => $this->demoCreator->createContentWidget($languages)->key],
                 ['widget_key' => $this->demoCreator->createStatisticsWidget()->key],
-                ['widget_key' => $this->demoCreator->createBusinessFeatures($page->site, $layout)->key],
+                ['widget_key' => $this->demoCreator->createBusinessFeaturesWidget($page->site)->key],
+                ['widget_key' => $this->demoCreator->createBannerShowcase()->key],
+                ['widget_key' => $this->demoCreator->createClientLogosWidget($languages)->key],
             ],
         ];
 

@@ -147,6 +147,9 @@ use Wildside\Userstamps\Userstamps;
  * @method static Builder<static>|Content withoutTrashed()
  *
  * @mixin \Eloquent
+ *
+ * @property-read Page|null $linkedPage
+ *
  * @mixin Eloquent
  */
 #[ObservedBy(ContentObserver::class)]
@@ -288,7 +291,7 @@ class Content extends Model implements Auditable, PageCacheable
         return $this->belongsTo(Media::class, 'meta->image_id');
     }
 
-    public function page(): BelongsTo
+    public function linkedPage(): BelongsTo
     {
         return $this->belongsTo(Page::class, 'meta->page_uuid', 'uuid');
     }

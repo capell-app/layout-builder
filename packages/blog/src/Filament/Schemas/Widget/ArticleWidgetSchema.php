@@ -58,7 +58,7 @@ class ArticleWidgetSchema extends AbstractWidgetSchema
             ->columns(['default' => 1, 'md' => 2, 'lg' => 4])
             ->columnSpanFull()
             ->schema([
-                Forms\Components\Checkbox::make('with_published')
+                Forms\Components\Checkbox::make('with_date')
                     ->label(__('capell-admin::form.published_date')),
                 Forms\Components\Checkbox::make('with_next_prev')
                     ->label(__('capell-admin::form.next_prev')),

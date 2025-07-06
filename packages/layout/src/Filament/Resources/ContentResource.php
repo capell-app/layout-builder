@@ -456,7 +456,7 @@ class ContentResource extends Resource
                 ->limit(60)
                 ->linkRecord()
                 ->toggleable(isToggledHiddenByDefault: true),
-            PageNameColumn::make('page.name')
+            PageNameColumn::make('linkedPage.name')
                 ->label(__('capell-admin::table.page'))
                 ->withParents()
                 ->toggleable(isToggledHiddenByDefault: true),

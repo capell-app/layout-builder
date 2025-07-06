@@ -170,6 +170,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
                 model: Content::class,
                 icon: 'heroicon-o-document-text',
                 component: Enums\AssetComponentEnum::Content->value,
+                hasTranslation: true,
             )
         );
     }

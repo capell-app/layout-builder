@@ -8,6 +8,8 @@ declare(strict_types=1);
     use Capell\Core\Models\Media;
     use Capell\Frontend\Facades\Frontend;
     use Illuminate\Support\Facades\DB;
+
+    $theme = Frontend::getTheme();
 @endphp
 
 @props([
@@ -15,11 +17,11 @@ declare(strict_types=1);
     'columns' => $container['meta']['override_columns'] ?? ($widget->meta['columns'] ?? 4),
     'container',
     'containerKey',
+    'containerWidth' => null,
     'large' => false,
     'loop',
     'size' => $widget->meta['size'] ?? '',
     'spacing' => $widget->meta['spacing'] ?? null,
-    'theme' => Frontend::getTheme(),
     'widget',
     'widget_theme' => $widget->meta['widget_theme'] ?? '',
 ])
@@ -27,6 +29,7 @@ declare(strict_types=1);
     :class="'widget-media-gallery'.($widget->meta['container'] === 'full' ? ' px-4' : '')"
     :$container
     :$containerKey
+    :$containerWidth
     :index="$loop->index"
     :$widget
 >
@@ -34,7 +37,6 @@ declare(strict_types=1);
         <x-capell::content
             :class="'mb-5'.($widget->meta['container'] === 'full' ? ' container' : '')"
             :compact="true"
-            :$containerKey
             align="center"
             :content="$widget->translation->content"
             :contents="$widget->translation->content ? null : $widget->translation->contents"
@@ -56,7 +58,7 @@ declare(strict_types=1);
             @foreach ($widget->assets as $media)
                 <div
                     @class([
-                        'widget-media-item group relative h-full cursor-pointer overflow-hidden bg-gray-100 text-center',
+                        'widget-media-item group relative h-full cursor-pointer overflow-hidden text-center',
                         'md:col-span-1 md:row-span-2' => ($loop->iteration > 5 && $loop->iteration % 5 === 0) || $loop->iteration === 2,
                     ])
                     tabindex="0"

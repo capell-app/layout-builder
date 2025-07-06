@@ -9,16 +9,17 @@ $theme = Frontend::getTheme();
 ?>
 
 @props([
-    'headingSize' => $widget->meta['heading_size'] ?? 'h2',
     'backgroundColor' => $widget->meta['background_color'] ?? null,
-    'size' => $widget->meta['size'] ?? null,
-    'reverseOrder' => $widget->meta['reverse_order'] ?? null,
-    'title' => $widget->translation?->title,
-    'content' => $widget->translation?->content,
     'container',
-    'rounded' => $theme->meta['rounded_images'] ?? false,
-    'loop',
     'containerKey',
+    'containerWidth' => null,
+    'content' => $widget->translation?->content,
+    'headingSize' => $widget->meta['heading_size'] ?? 'h2',
+    'loop',
+    'reverseOrder' => $widget->meta['reverse_order'] ?? null,
+    'rounded' => $theme->meta['rounded_images'] ?? false,
+    'size' => $widget->meta['size'] ?? null,
+    'title' => $widget->translation?->title,
     'widget',
 ])
 
@@ -44,6 +45,7 @@ $theme = Frontend::getTheme();
     class="widget-banner-full-width relative"
     :$container
     :$containerKey
+    :$containerWidth
     :index="$loop->index"
     :background-color="$backgroundColor"
     :$widget
@@ -96,7 +98,6 @@ $theme = Frontend::getTheme();
                         <x-capell::content
                             class="mb-2"
                             :compact="true"
-                            :$containerKey
                             :content="$content"
                             :contents="$content ? null : $widget->translation?->contents"
                             :heading-size="$headingSize"

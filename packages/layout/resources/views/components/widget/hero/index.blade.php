@@ -9,6 +9,10 @@ declare(strict_types=1);
     use Capell\Frontend\Actions\ReplacePageDataAction;
     use Capell\Frontend\Facades\Frontend;
     use Capell\Frontend\Services\Loader\PageLoader;
+
+    $page = Frontend::getPage();
+    $pageParams = Frontend::getPageParams();
+    $theme = Frontend::getTheme();
 @endphp
 
 @props([
@@ -19,10 +23,7 @@ declare(strict_types=1);
     'colorScheme' => $widget->meta['color_scheme'] ?? $theme->meta['color_scheme'] ?? null,
     'heroContent' => null,
     'loop',
-    'pageRecord' => Frontend::getPage(),
-    'pageRecordParams' => Frontend::getPageParams(),
     'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
-    'theme' => Frontend::getTheme(),
     'slideClass' => '',
     'widget',
     'widgetIndex',

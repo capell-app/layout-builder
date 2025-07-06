@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Schemas\LayoutContainer;
 
 use Capell\Admin\Actions\FixCuratorMetaDataAction;
-use Capell\Admin\Filament\Components\Forms\ColumnSpanInput;
+use Capell\Admin\Filament\Components\Forms\ColumnInput;
 use Capell\Admin\Filament\Components\Forms\ContainerWidthSelect;
 use Capell\Admin\Filament\Components\Forms\HtmlClassInput;
 use Capell\Admin\Filament\Components\Forms\MarginSelect;
@@ -34,8 +34,11 @@ class DefaultLayoutContainerSchema extends AbstractSchema
                 })
                 ->columns()
                 ->schema([
-                    ColumnSpanInput::make(),
-                    ColumnSpanInput::make('column_start')
+                    ColumnInput::make('colspan')
+                        ->label(__('capell-admin::form.colspan'))
+                        ->helperText(__('capell-admin::generic.colspan_info'))
+                        ->default(12),
+                    ColumnInput::make('column_start')
                         ->label(__('capell-admin::form.column_start')),
                     Forms\Components\Grid::make(['md' => 2])
                         ->schema([

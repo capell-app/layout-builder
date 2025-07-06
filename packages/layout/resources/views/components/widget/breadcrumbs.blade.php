@@ -7,19 +7,21 @@ declare(strict_types=1);
 @php
     use Capell\Frontend\Actions\ReplacePageDataAction;
     use Capell\Frontend\Facades\Frontend;
+
+    $page = Frontend::getPage();
+    $pageParams = Frontend::getPageParams();
+    $site = Frontend::getSite();
 @endphp
 
 @props([
     'container',
     'containerKey',
+    'containerWidth' => null,
     'loop',
-    'pageRecord' => Frontend::getPage(),
-    'pageRecordParams' => Frontend::getPageParams(),
-    'site' => Frontend::getSite(),
     'widget',
 ])
 @php
-    $currentPageLabel = ReplacePageDataAction::run($pageRecord->translation->label, $pageRecordParams);
+    $currentPageLabel = ReplacePageDataAction::run($page->translation->label, $pageParams);
 @endphp
 
 <nav
@@ -29,6 +31,7 @@ declare(strict_types=1);
     <x-capell-layout::widget.wrapper
         :$container
         :$containerKey
+        :$containerWidth
         :index="$loop->index"
         :margin="[]"
         :$widget

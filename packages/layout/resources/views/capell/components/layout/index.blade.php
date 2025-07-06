@@ -10,6 +10,9 @@ declare(strict_types=1);
     use Capell\Layout\Models\Widget;
     use Illuminate\Support\Collection;
 
+    $layout = Frontend::getLayout();
+    $theme = Frontend::getTheme();
+
     $previousColspan = null;
 @endphp
 
@@ -17,12 +20,8 @@ declare(strict_types=1);
     'containerClass' => null,
     'footer' => null,
     'header' => null,
-    'layout' => Frontend::getLayout(),
     'mainClass' => null,
     'mainContainerClass' => null,
-    'pageRecord' => Frontend::getPage(),
-    'theme' => Frontend::getTheme(),
-    'site' => Frontend::getSite(),
 ])
 <div
     {{ $attributes->merge(['class' => 'flex flex-col min-h-screen bg-white dark:bg-gray-900']) }}
@@ -91,7 +90,7 @@ declare(strict_types=1);
 
                     $colspan = (int) ($container['meta']['colspan'] ?? 12);
 
-                    $column_start = (int) ($container['meta']['column_start'] ?? 0);
+                    $columnStart = (int) ($container['meta']['column_start'] ?? 0);
 
                     $htmlClass = $container['meta']['html_class'] ?? '';
 
@@ -109,7 +108,7 @@ declare(strict_types=1);
                     :$containerKey
                     :containerIndex="$loop->index"
                     :colspan="$colspan"
-                    :column-start="$column_start"
+                    :column-start="$columnStart"
                     :htmlClass="$htmlClass"
                     :pageSlot="$hasSlotWidget ? $slot : null"
                     :previousColspan="$previousColspan"
@@ -117,12 +116,16 @@ declare(strict_types=1);
 
                 @php
                     $previousColspan += $colspan;
+                    if ($columnStart) {
+                        $previousColspan += $columnStart - 1;
+                    }
                     $previousColspan = $previousColspan >= 12 ? 0 : $previousColspan;
                 @endphp
             @endforeach
 
             {{-- format-ignore-start --}}
             @if ($previousColspan && $previousColspan !== 12)
+                    </div>
                 </div>
             @endif
             {{-- format-ignore-end --}}

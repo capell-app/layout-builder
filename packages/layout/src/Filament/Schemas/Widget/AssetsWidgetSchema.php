@@ -66,21 +66,7 @@ class AssetsWidgetSchema extends AbstractWidgetSchema
         return [
             Forms\Components\Section::make()
                 ->columns(1)
-                ->schema([
-                    ...WidgetSettingsSchema::make($form),
-                    Forms\Components\Group::make()
-                        ->statePath('meta')
-                        ->mutateDehydratedStateUsing(function (array $state): array {
-                            if (! empty($state['image_id'])) {
-                                $state['image_id'] = FixCuratorMetaDataAction::run($state['image_id']);
-                            }
-
-                            return $state;
-                        })
-                        ->schema([
-                            ImageMediaPicker::make('image_id'),
-                        ]),
-                ]),
+                ->schema(WidgetSettingsSchema::make($form)),
         ];
     }
 
@@ -118,9 +104,14 @@ class AssetsWidgetSchema extends AbstractWidgetSchema
                         $state['background_image_id'] = FixCuratorMetaDataAction::run($state['background_image_id']);
                     }
 
+                    if (! empty($state['image_id'])) {
+                        $state['image_id'] = FixCuratorMetaDataAction::run($state['image_id']);
+                    }
+
                     return $state;
                 })
                 ->schema([
+                    ImageMediaPicker::make('image_id'),
                     WidgetDisplaySection::make([
                         ColorSchemeComponent::make('color_scheme'),
                     ]),

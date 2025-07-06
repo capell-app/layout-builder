@@ -31,7 +31,7 @@ class RelatedWidget extends AbstractPagesWidget
             withChildrenCount: $pageRecord->type->meta['with_children_count'] ?? true,
             withImage: $this->widget->meta['with_image'] ?? false,
             withParent: $this->widget->meta['with_parent'] ?? false,
-            withPublished: $this->widget->meta['with_published'] ?? false,
+            withDate: $this->widget->meta['with_date'] ?? false,
             cacheKeyPrepend: 'tags-'.implode('-', $tagIds),
             /**
              * @param  Page  $query

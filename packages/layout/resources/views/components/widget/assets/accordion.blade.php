@@ -7,6 +7,8 @@ declare(strict_types=1);
 @php
     use Capell\Core\Enums\AssetComponentEnum;
     use Capell\Frontend\Facades\Frontend;
+
+    $site = Frontend::getSite();
 @endphp
 
 @props([
@@ -14,19 +16,19 @@ declare(strict_types=1);
     'componentItem' => ($widget->meta['component_item'] ?? AssetComponentEnum::Card->value),
     'container',
     'containerKey',
+    'containerWidth' => null,
     'hideContent' => $widgetData['meta']['hide_content'] ?? false,
     'index',
     'loop',
     'size' => $widget->meta['size'] ?? null,
     'spacing' => $widget->meta['spacing'] ?? 'lg',
-    'site' => Frontend::getSite(),
-    'theme' => Frontend::getTheme(),
     'widget',
 ])
 <x-capell-layout::widget.wrapper
     class="widget-content-grid widget-content-accordion space-y-6"
-    :$containerKey
     :$container
+    :$containerKey
+    :$containerWidth
     :index="$loop->index"
     :$widget
 >
@@ -34,7 +36,6 @@ declare(strict_types=1);
         <x-capell::content
             class="mb-4"
             :compact="true"
-            :$containerKey
             :content="$widget->translation->content"
             :contents="$widget->translation->content ? null : $widget->translation->contents"
             :title="$widget->translation->title"
@@ -53,7 +54,7 @@ declare(strict_types=1);
             class="flex w-full flex-col divide-y divide-gray-200 rounded-lg border border-gray-200 dark:divide-gray-600 dark:border-gray-600"
         >
             @foreach ($widget->assets as $widgetAsset)
-                @php($linked_page_url = $widgetAsset->asset->linkedPage ? app('capell-frontend')->pageUrl($widgetAsset->asset->linkedPage->pageUrl->url, $site->siteDomain->url) : '')
+                @php($linkedPageUrl = $widgetAsset->asset->linkedPage ? $widgetAsset->asset->linkedPage->pageUrl?->full_url : '')
                 <section
                     class="flex flex-col gap-1 bg-gray-50 py-3 first:rounded-t-lg last:rounded-b-lg dark:bg-white/5"
                 >
@@ -96,7 +97,7 @@ declare(strict_types=1);
                                 @endif
 
                                 @if ($widgetAsset->asset->image)
-                                    <a href="{{ $linked_page_url }}">
+                                    <a href="{{ $linkedPageUrl }}">
                                         @if ($widgetAsset->asset->image->preview->hasCuration('thumbnail'))
                                             <x-curator-curation
                                                 curation="thumbnail"
@@ -123,18 +124,18 @@ declare(strict_types=1);
                                 @endif
                             </div>
 
-                            @if ($widgetAsset->asset->translation->actions || $linked_page_url)
+                            @if ($widgetAsset->asset->translation->actions || $linkedPageUrl)
                                 <x-capell::actions
                                     :actions="$widgetAsset->asset->translation->actions"
                                     class="mt-4"
                                 >
-                                    @if ($linked_page_url && ! empty($item->translation->meta['link_text']))
+                                    @if ($linkedPageUrl)
                                         <x-capell::button
-                                            :url="$linked_page_url"
+                                            :url="$linkedPageUrl"
                                             color="default"
                                             icon="heroicon-o-chevron-right"
                                         >
-                                            {{ $item->translation->meta['link_text'] }}
+                                            {{ $item->translation->link_text }}
                                         </x-capell::button>
                                     @endif
                                 </x-capell::actions>

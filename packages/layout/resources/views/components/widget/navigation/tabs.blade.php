@@ -6,11 +6,14 @@ declare(strict_types=1);
 
 @props([
     'container' => '',
+    'containerKey',
+    'containerWidth' => null,
 ])
 <x-capell-layout::widget.wrapper
     class="widget-navigation-bar"
     :$container
     :$containerKey
+    :$containerWidth
     :index="$loop->index"
     :$widget
 >

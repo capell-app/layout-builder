@@ -11,18 +11,20 @@ declare(strict_types=1);
 @props([
     'container',
     'containerKey',
+    'containerWidth' => null,
     'loop',
     'widget',
     'pageRecord' => Frontend::getPage(),
     'headingSize' => $widget->meta['heading_size'] ?? 'h1',
     'withAuthor' => $widget->meta['with_author'] ?? false,
-    'withPublished' => $widget->meta['with_published'] ?? false,
+    'withDate' => $widget->meta['with_date'] ?? false,
     'withTags' => $widget->meta['with_tags'] ?? false,
     'withNextPrev' => $widget->meta['with_next_prev'] ?? false,
 ])
 <x-capell-layout::widget.wrapper
     :$container
     :$containerKey
+    :$containerWidth
     :index="$loop->index"
     :margin="['t-md', 'b-lg']"
     :$widget
@@ -44,7 +46,7 @@ declare(strict_types=1);
                     :title="$pageRecord->translation->title"
                 />
 
-                @if ($withPublished)
+                @if ($withDate)
                     <x-capell::page.published_date
                         class="mt-4 whitespace-nowrap"
                         :date="$pageRecord->publish_from ?: $pageRecord->created_at"

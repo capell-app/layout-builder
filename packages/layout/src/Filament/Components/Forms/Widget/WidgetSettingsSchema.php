@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms\Widget;
 
-use Capell\Admin\Filament\Components\Forms\CustomSelectGroup;
 use Capell\Admin\Filament\Components\Forms\NameInput;
 use Capell\Admin\Filament\Components\Forms\StatusToggle;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\LayoutModelEnum;
-use Capell\Layout\Enums\WidgetTypeGroupEnum;
 use Filament\Forms;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -53,14 +51,6 @@ class WidgetSettingsSchema
                 ->withRelation()
                 ->withCreateForm()
                 ->withEditForm(),
-
-            CustomSelectGroup::make(
-                'group',
-                options: fn (): array => collect(WidgetTypeGroupEnum::cases())
-                    ->mapWithKeys(fn ($case) => [$case->value => $case->name])
-                    ->toArray()
-            )
-                ->label(__('capell-admin::form.group')),
 
             ...$schema,
 

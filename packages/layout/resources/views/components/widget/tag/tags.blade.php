@@ -6,21 +6,25 @@ declare(strict_types=1);
 
 @php
     use Capell\Frontend\Facades\Frontend;
+
+    $language = Frontend::getLanguage();
+    $site = Frontend::getSite();
 @endphp
 
 @props([
     'container',
     'containerKey',
+    'containerWidth' => null,
     'hideContent' => $widgetData['meta']['hide_content'] ?? false,
-    'language' => Frontend::getLanguage(),
     'loop',
-    'site' => Frontend::getSite(),
     'widget',
 ])
 <x-capell-layout::widget.wrapper
     class="widget-tags"
     :$container
     :$containerKey
+    :$containerWidth
+    :$containerWidth
     :index="$loop->index"
     :$widget
 >
@@ -28,7 +32,6 @@ declare(strict_types=1);
         <x-capell::content
             class="mb-4"
             :compact="true"
-            :$containerKey
             :content="$widget->translation->content"
             :contents="$widget->translation->content ? null : $widget->translation->contents"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"

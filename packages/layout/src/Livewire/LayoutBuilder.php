@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Livewire;
 
+use Capell\Admin\Actions\NotifyClearCachedPagesAction;
 use Capell\Admin\Actions\ReplicateLayoutAction;
 use Capell\Admin\Enums\ModalWidthEnum;
 use Capell\Admin\Enums\ResourceEnum;
@@ -149,6 +150,14 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
                 ->body(__('capell-admin::message.layout_saved'))
                 ->success()
                 ->send();
+
+            NotifyClearCachedPagesAction::run(
+                collect([$this->getLayout()])
+                    ->when(
+                        $this->getLayoutPage(),
+                        fn (Collection $collection, $page): Collection => $collection->push($page)
+                    )
+            );
         }
     }
 
@@ -462,6 +471,8 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             )
             ->action(
                 function (Action $action, Form $form, Widget $record, array $data): void {
+                    $form->mutateDehydratedState($data);
+
                     $form->saveRelationships();
 
                     $record->update($data);
@@ -1615,6 +1626,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             ->withCount(['layouts'])
             ->with([
                 'type',
+                'backgroundImage',
                 'image',
                 'translation' => fn (BuilderContract $query) => $query->orderBy('language_id'),
                 'assets' => fn (BuilderContract $query) => $query->when(

@@ -27,7 +27,6 @@ declare(strict_types=1);
     'slideBgImgClass' => '',
     'first' => false,
     'height' => '',
-    'theme' => Frontend::getTheme(),
 ])
 <div
     {{

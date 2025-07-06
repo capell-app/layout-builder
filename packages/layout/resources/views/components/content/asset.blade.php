@@ -6,12 +6,13 @@ declare(strict_types=1);
 
 @php
     use Capell\Frontend\Facades\Frontend;
+
+    $language = Frontend::getLanguage();
 @endphp
 
 @props([
     'asset',
     'componentItem',
-    'language' => Frontend::getLanguage(),
     'withLinkText' => false,
     'withImage' => false,
     'withSummary' => false,
@@ -30,7 +31,7 @@ declare(strict_types=1);
     :summary="$withSummary && $asset->translation ? $asset->translation->summary : null"
     :tags="$withTags ? $asset->tags : null"
     :title="$asset->translation?->label"
-    :url="$withUrl && $asset->page ? $asset->page->pageUrl?->full_url : null"
+    :url="$withUrl && $asset->linkedPage ? $asset->linkedPage->pageUrl?->full_url : null"
     :with-summary="$withSummary"
     class="content-asset"
 />
