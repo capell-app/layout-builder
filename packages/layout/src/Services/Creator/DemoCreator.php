@@ -24,6 +24,7 @@ use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class DemoCreator
@@ -58,8 +59,9 @@ class DemoCreator
      */
     private readonly string $tagModel;
 
-    public function __construct()
-    {
+    public function __construct(
+        protected readonly ?Model $user = null,
+    ) {
         $this->contentModel = CapellCore::getModel(LayoutModelEnum::Content->name);
         $this->widgetModel = CapellCore::getModel(LayoutModelEnum::Widget->name);
         $this->typeModel = CapellCore::getModel(ModelEnum::Type);
@@ -287,7 +289,7 @@ class DemoCreator
             'type_id' => $widgetType->id,
             'meta' => [
                 'icon' => 'heroicon-m-question-mark-circle',
-                'component' => WidgetComponentEnum::ResourcesAccordion,
+                'component' => WidgetComponentEnum::AssetAccordion,
                 'margin' => ['lg'],
                 'align' => 'center',
             ],
@@ -313,6 +315,7 @@ class DemoCreator
         $parentContent = $this->contentModel::firstOrCreate([
             'name' => 'FAQs',
             'type_id' => $contentType->id,
+        ], [
         ]);
 
         $questions = [
@@ -701,7 +704,7 @@ class DemoCreator
             'key' => 'business-features',
         ], [
             'name' => 'Business Features',
-            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
+            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
@@ -896,6 +899,50 @@ class DemoCreator
         return $this->mediaModel::where('type', 'LIKE', 'image/%')->inRandomOrder()->first();
     }
 
+    public function createTeamPortfolioWidget(Collection $languages): Widget
+    {
+        $widget = $this->widgetModel::firstOrCreate(['key' => 'team-portfolio'], [
+            'name' => 'Team Portfolio',
+            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget])->id,
+            'meta' => [
+                'align' => 'center',
+                'padding' => ['lg'],
+                'columns' => 4,
+                'spacing' => 'lg',
+                'background_color' => 'light-gray',
+                'carousel_fade' => true,
+                'carousel_arrows' => false,
+                'carousel_pagination' => true,
+                'carousel_loop' => true,
+                'carousel_auto' => true,
+                'carousel_auto_delay' => 50000,
+                'component_item' => 'capell-layout::content.team-member',
+            ],
+        ]);
+
+        $languages->each(function (Models\Language $language) use ($widget): void {
+            $widget->translations()->firstOrCreate(['language_id' => $language->id], [
+                'title' => 'Meet Our Team',
+                'content' => '<p>Discover the talented individuals behind our success.</p>',
+            ]);
+        });
+
+        $teamMembers = $this->createTeamMembers($languages);
+
+        $teamMembers->each(function (Content $content) use ($widget): void {
+            if ($widget->assets()->where('asset_id', $content->uuid)->exists()) {
+                return;
+            }
+
+            $widget->assets()->create([
+                'asset_type' => app($this->contentModel)->getMorphClass(),
+                'asset_id' => $content->uuid,
+            ]);
+        });
+
+        return $widget;
+    }
+
     protected function navigationPageItems(\Illuminate\Support\Collection $siteTree, Models\Language $language): array
     {
         $items = [];
@@ -952,6 +999,9 @@ class DemoCreator
         $parentPage = Page::updateOrCreate([
             'site_id' => $site->id,
             'name' => 'Features',
+            'meta' => [
+                'author_id' => $this->user?->id,
+            ],
         ]);
 
         $site->languages->each(function (Models\Language $language) use ($parentPage): void {
@@ -975,6 +1025,7 @@ class DemoCreator
                 'meta' => [
                     'icon' => $feature['icon'],
                     'image_id' => $featureImage?->id,
+                    'author_id' => $this->user?->id,
                 ],
             ]);
 
@@ -1012,7 +1063,7 @@ class DemoCreator
 
     private function createTestimonials(Collection $languages): Collection
     {
-        $testimonalContent = Content::create([
+        $testimonialContent = Content::create([
             'name' => 'Testimonials',
             'meta' => [
                 'icon' => 'heroicon-o-chat-bubble-left-right',
@@ -1057,7 +1108,7 @@ class DemoCreator
         foreach ($testimonials as $testimonial) {
             $content = Content::firstOrCreate([
                 'name' => $testimonial['name'],
-                'parent_uuid' => $testimonalContent->uuid,
+                'parent_uuid' => $testimonialContent->uuid,
                 'type_id' => $testimonialType->id,
             ], [
                 'meta' => [
@@ -1066,16 +1117,157 @@ class DemoCreator
                 ],
             ]);
 
-            $languages->each(function (Models\Language $language) use ($content, $testimonial): void {
-                $content->translations()->firstOrCreate(['language_id' => $language->id], [
-                    'title' => $testimonial['name'],
-                    'content' => sprintf('<p>%s</p>', $testimonial['content']),
-                ]);
-            });
+            $content->translations()->createMany(
+                $languages->map(function (Models\Language $language) use ($testimonial) {
+                    return [
+                        'language_id' => $language->id,
+                        'title' => $testimonial['name'],
+                        'content' => sprintf('<p>%s</p>', $testimonial['content']),
+                    ];
+                })->toArray()
+            );
 
             $testimonialsCollection->push($content);
         }
 
         return $testimonialsCollection;
+    }
+
+    private function createTeamMembers(Collection $languages): Collection
+    {
+        $teamMembers = [
+            [
+                'name' => 'Alice Johnson',
+                'position' => 'CEO',
+                'bio' => '<p>Alice is the visionary behind our success, leading the team with passion and expertise.</p>',
+                'image_id' => $this->getExampleMedia()?->id,
+            ],
+            [
+                'name' => 'Charlie Brown',
+                'position' => 'CFO',
+                'bio' => '<p>Charlie manages our finances with precision, ensuring sustainable growth and stability.</p>',
+                'image_id' => $this->getExampleMedia()?->id,
+            ],
+            [
+                'name' => 'Fiona Green',
+                'position' => 'Head of HR',
+                'bio' => '<p>Fiona is dedicated to building a strong team culture and supporting our employees\' growth.</p>',
+                'image_id' => $this->getExampleMedia()?->id,
+            ],
+            [
+                'name' => 'George White',
+                'position' => 'Lead Designer',
+                'bio' => '<p>George brings creativity and innovation to our design projects, making them visually stunning.</p>',
+                'image_id' => $this->getExampleMedia()?->id,
+            ],
+            [
+                'name' => 'Hannah Blue',
+                'position' => 'Senior Developer',
+                'bio' => '<p>Hannah is a coding wizard, turning complex problems into elegant solutions.</p>',
+                'image_id' => $this->getExampleMedia()?->id,
+            ],
+            [
+                'name' => 'Ian Black',
+                'position' => 'Project Manager',
+                'bio' => '<p>Ian keeps our projects on track, ensuring timely delivery and client satisfaction.</p>',
+                'image_id' => $this->getExampleMedia()?->id,
+            ],
+            [
+                'name' => 'Julia Red',
+                'position' => 'Content Strategist',
+                'bio' => '<p>Julia crafts compelling content strategies that engage and inform our audience.</p>',
+                'image_id' => $this->getExampleMedia()?->id,
+            ],
+            [
+                'name' => 'Kevin Yellow',
+                'position' => 'Data Analyst',
+                'bio' => '<p>Kevin turns data into insights, helping us make informed decisions for our clients.</p>',
+                'image_id' => $this->getExampleMedia()?->id,
+            ],
+            [
+                'name' => 'Laura Purple',
+                'position' => 'Customer Success Manager',
+                'bio' => '<p>Laura ensures our clients are happy and successful, building lasting relationships.</p>',
+                'image_id' => $this->getExampleMedia()?->id,
+            ],
+            [
+                'name' => 'Mike Orange',
+                'position' => 'Sales Director',
+                'bio' => '<p>Mike drives our sales strategy, helping us reach new heights in revenue.</p>',
+                'image_id' => $this->getExampleMedia()?->id,
+            ],
+            [
+                'name' => 'Nina Pink',
+                'position' => 'UX Researcher',
+                'bio' => '<p>Nina conducts research to understand user needs, shaping our products for better usability.</p>',
+                'image_id' => $this->getExampleMedia()?->id,
+            ],
+            [
+                'name' => 'Oscar Gray',
+                'position' => 'IT Support Specialist',
+                'bio' => '<p>Oscar keeps our systems running smoothly, providing technical support to our team.</p>',
+                'image_id' => $this->getExampleMedia()?->id,
+            ],
+            [
+                'name' => 'Quentin Silver',
+                'position' => 'Business Analyst',
+                'bio' => '<p>Quentin analyzes market trends, helping us identify new opportunities for growth.</p>',
+                'image_id' => $this->getExampleMedia()?->id,
+            ],
+            [
+                'name' => 'Sam White',
+                'position' => 'Quality Assurance Specialist',
+                'bio' => '<p>Sam ensures our products meet the highest quality standards before they reach our clients.</p>',
+                'image_id' => $this->getExampleMedia()?->id,
+            ],
+            [
+                'name' => 'Victor Blue',
+                'position' => 'Network Administrator',
+                'bio' => '<p>Victor manages our network infrastructure, ensuring reliable connectivity for our team.</p>',
+                'image_id' => $this->getExampleMedia()?->id,
+            ],
+            [
+                'name' => 'Zane Purple',
+                'position' => 'Research Scientist',
+                'bio' => '<p>Zane conducts research to develop innovative solutions that push the boundaries of technology.</p>',
+                'image_id' => $this->getExampleMedia()?->id,
+            ],
+        ];
+
+        $teamContent = Content::firstOrCreate([
+            'name' => 'Team Members',
+        ], [
+            'icon' => 'heroicon-o-user-circle',
+        ]);
+
+        $teamMembersCollection = new Collection();
+
+        foreach ($teamMembers as $member) {
+            $content = Content::firstOrCreate([
+                'name' => $member['name'],
+                'parent_uuid' => $teamContent->uuid,
+            ], [
+                'meta' => [
+                    'image_id' => $member['image_id'],
+                    'position' => $member['position'],
+                ],
+            ]);
+
+            $content->translations()->createMany(
+                $languages
+                    ->filter(fn (Models\Language $language) => ! $content->translations->contains('language_id', $language->id))
+                    ->map(function (Models\Language $language) use ($member) {
+                        return [
+                            'language_id' => $language->id,
+                            'title' => $member['name'],
+                            'content' => $member['bio'],
+                        ];
+                    })->toArray()
+            );
+
+            $teamMembersCollection->push($content);
+        }
+
+        return $teamMembersCollection;
     }
 }

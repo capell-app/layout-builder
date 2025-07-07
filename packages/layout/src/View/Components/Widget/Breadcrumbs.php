@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Capell\Layout\View\Components\Widget;
 
+use Capell\Core\Models\Page;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Frontend\Services\Loader\PageLoader;
 
 class Breadcrumbs extends AbstractWidget
 {
-    protected string $defaultView = 'capell-layout::components.widget.breadcrumbs';
+    protected string $defaultView = 'capell-layout::components.widget.page.breadcrumbs';
 
     protected array $pages = [];
 
@@ -24,7 +25,7 @@ class Breadcrumbs extends AbstractWidget
     {
         $page = Frontend::getPage();
 
-        if (! $page instanceof \Capell\Core\Models\Page) {
+        if (! $page instanceof Page) {
             $this->skipRender = true;
 
             return;

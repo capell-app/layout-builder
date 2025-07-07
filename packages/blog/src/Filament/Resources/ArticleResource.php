@@ -106,7 +106,7 @@ class ArticleResource extends PageResource
             $data['parent_uuid'] = BlogLoader::getBlogPage($site)?->uuid;
         }
 
-        if (empty($data['name'])) {
+        if (empty($data['name']) && ! empty($data['translations'])) {
             $data['name'] = GetNameFromTranslationsAction::run(collect($data['translations']), $site);
         }
     }

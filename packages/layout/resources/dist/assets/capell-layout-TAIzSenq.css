@@ -1859,6 +1859,9 @@
     .mt-1 {
         margin-top: calc(var(--spacing) * 1);
     }
+    .mt-2 {
+        margin-top: calc(var(--spacing) * 2);
+    }
     .mt-3 {
         margin-top: calc(var(--spacing) * 3);
     }
@@ -1939,6 +1942,9 @@
     }
     .-ml-px {
         margin-left: -1px;
+    }
+    .ml-1 {
+        margin-left: calc(var(--spacing) * 1);
     }
     .ml-2 {
         margin-left: calc(var(--spacing) * 2);
@@ -4549,9 +4555,6 @@
         .md\:h-full {
             height: 100%;
         }
-        .md\:max-h-\[32vh\] {
-            max-height: 32vh;
-        }
         .md\:min-h-\[600px\] {
             min-height: 600px;
         }
@@ -4639,9 +4642,6 @@
         .md\:py-7 {
             padding-block: calc(var(--spacing) * 7);
         }
-        .md\:py-10 {
-            padding-block: calc(var(--spacing) * 10);
-        }
         .md\:pr-10 {
             padding-right: calc(var(--spacing) * 10);
         }
@@ -4666,13 +4666,6 @@
         .md\:text-6xl {
             font-size: var(--text-6xl);
             line-height: var(--tw-leading, var(--text-6xl--line-height));
-        }
-        .md\:text-lg {
-            font-size: var(--text-lg);
-            line-height: var(--tw-leading, var(--text-lg--line-height));
-        }
-        .md\:text-md {
-            font-size: var(--text-md);
         }
     }
     @media (min-width: 64rem) {
@@ -6202,6 +6195,9 @@
         .\@md\:col-span-8 {
             grid-column: span 8 / span 8;
         }
+        .\@md\:mt-1 {
+            margin-top: calc(var(--spacing) * 1);
+        }
     }
     @container item (min-width:28rem) {
         .\@md\/item\:line-clamp-5 {
@@ -6796,10 +6792,9 @@ a {
     position: relative;
 }
 .embla__dot:after {
-    background-color: #6b7280;
-    background-color: rgb(var(--secondary-color, 107, 114, 128));
     content: '';
     opacity: 0.7;
+    background-color: #6b7280;
     border-radius: 3px;
     width: 20px;
     height: 6px;

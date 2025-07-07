@@ -8,7 +8,7 @@ use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Enums\SchemaEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Blog\Actions\InstallBlogPackageAction;
-use Capell\Blog\Commands\BlogDemoCommand;
+use Capell\Blog\Commands\DemoCommand;
 use Capell\Blog\Enums\BlogModelEnum;
 use Capell\Blog\Enums\BlogResourceEnum;
 use Capell\Blog\Filament\Resources;
@@ -77,7 +77,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             ->hasViews(self::$name)
             ->hasTranslations()
             ->hasCommands([
-                BlogDemoCommand::class,
+                DemoCommand::class,
             ])
             ->hasInstallCommand(function (InstallCommand $command): void {
                 $command->startWith(function (InstallCommand $command): void {
@@ -97,7 +97,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             sort: 9,
             permissions: $this->getPackagePermissions(),
             demoCommand: true,
-            demoParams: ['sites'],
+            demoParams: ['author', 'sites'],
         );
 
         CapellAdmin::registerResource(

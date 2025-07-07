@@ -35,7 +35,7 @@ class DemoCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'capell-layout:demo {--sites=}';
+    protected $signature = 'capell-layout:demo {--author} {--sites=}';
 
     protected DemoCreator $demoCreator;
 
@@ -44,8 +44,6 @@ class DemoCommand extends Command
      */
     public function handle(): int
     {
-        $this->demoCreator = app(DemoCreator::class);
-
         if ($this->option('sites')) {
             $siteIds = is_string($this->option('sites'))
                 ? [$this->option('sites')]
@@ -75,6 +73,10 @@ class DemoCommand extends Command
                 );
             }
         }
+
+        $user = $this->option('author') ? CapellCore::getModel('User')::first() : null;
+
+        $this->demoCreator = new DemoCreator(user: $user);
 
         $demo_data = config('capell-demo.pages');
 
@@ -195,6 +197,7 @@ class DemoCommand extends Command
                 'colspan' => 12,
             ],
             'widgets' => [
+                ['widget_key' => $this->demoCreator->createTeamPortfolioWidget($languages)->key],
                 ['widget_key' => $this->demoCreator->createBannerImageWidget($languages)->key],
                 ['widget_key' => $this->demoCreator->createContentWidget($languages)->key],
                 ['widget_key' => $this->demoCreator->createStatisticsWidget()->key],

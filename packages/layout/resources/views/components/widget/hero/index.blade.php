@@ -220,10 +220,8 @@ declare(strict_types=1);
                             >
                                 @foreach ($images as $media)
                                     @capture($mediaContent)
-                                        <x-dynamic-component
+                                        <x-capell::media
                                             format="webp"
-                                            :component="$media->hasCuration('thumbnail') ? 'curator-curation' : 'curator-glider'"
-                                            curation="thumbnail"
                                             :media="$media"
                                             class="h-full max-h-[400px] w-full object-cover object-center"
                                             loading="lazy"

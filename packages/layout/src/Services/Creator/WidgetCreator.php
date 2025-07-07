@@ -185,7 +185,7 @@ class WidgetCreator
             'name' => __('capell-admin::generic.media_carousel'),
             'type_id' => $mediaWidgetType->id,
             'meta' => [
-                'view_file' => 'capell-layout::components.widget.assets.media.carousel',
+                // 'view_file' => 'capell-layout::components.widget.assets.carousel',
                 'limit' => 20,
                 'container' => 'full',
                 'background_color' => 'light-gray',

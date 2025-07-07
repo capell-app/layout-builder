@@ -20,10 +20,14 @@ enum WidgetComponentEnum: string
     case PageSiblings = 'capell-layout::widget.pages.siblings';
     case PageSitemap = 'capell-layout::widget.page.sitemap';
 
-    case Resources = 'capell-layout::widget.assets';
-    case ResourcesAccordion = 'capell-layout::widget.assets.accordion';
-    case ResourcesMedia = 'capell-layout::widget.assets.media';
-    case ResourcesMediaCarousel = 'capell-layout::widget.assets.media.carousel';
+    case Assets = 'capell-layout::widget.assets';
+    case AssetAccordion = 'capell-layout::widget.assets.accordion';
+    case AssetBanner = 'capell-layout::widget.assets.banners';
+    case AssetBlock = 'capell-layout::widget.assets.blocks';
+    case AssetCarousel = 'capell-layout::widget.assets.carousel';
+    case AssetFeatures = 'capell-layout::widget.assets.features';
+    case AssetMedia = 'capell-layout::widget.assets.media';
+    case AssetTestimonials = 'capell-layout::widget.assets.testimonials';
 
     case Tags = 'capell-layout::widget.tag.tags';
 }

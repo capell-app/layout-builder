@@ -17,11 +17,12 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 use function Laravel\Prompts\multisearch;
 
-class BlogDemoCommand extends Command
+class DemoCommand extends Command
 {
     /**
      * The console command description.
@@ -35,7 +36,7 @@ class BlogDemoCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'capell-blog:demo {--sites=}';
+    protected $signature = 'capell-blog:demo {--author} {--sites=}';
 
     private DemoCreator $demoCreator;
 
@@ -44,8 +45,6 @@ class BlogDemoCommand extends Command
      */
     public function handle(): int
     {
-        $this->demoCreator = app(DemoCreator::class);
-
         if ($this->option('sites')) {
             $siteIds = is_string($this->option('sites'))
                 ? [$this->option('sites')]
@@ -71,6 +70,10 @@ class BlogDemoCommand extends Command
             );
         }
 
+        $user = $this->option('author') ? CapellCore::getModel('User')::find($this->option('author')) : null;
+
+        $this->demoCreator = new DemoCreator(author: $user);
+
         $sites = Site::query()->with('languages')->whereIn('id', $siteIds)->get();
 
         if ($sites->isEmpty()) {
@@ -82,7 +85,7 @@ class BlogDemoCommand extends Command
 
             CreateBlogPagesAction::run($site);
 
-            if (! $this->createDemoPages($site)) {
+            if (! $this->createDemoPages($site, $user)) {
                 $this->error('Failed to create demo pages for the selected site.');
 
                 return Command::FAILURE;
@@ -101,7 +104,8 @@ class BlogDemoCommand extends Command
         Language $defaultLanguage,
         null|bool|Page $parent = null,
         ?string $parent_name = '',
-        string $type = ''
+        string $type = '',
+        ?Model $author = null
     ): void {
         $name = Str::title($data['name'][$defaultLanguage->code]);
 
@@ -125,12 +129,13 @@ class BlogDemoCommand extends Command
                 defaultLanguage: $defaultLanguage,
                 parent: $parent === false ? false : $page,
                 parent_name: $full_name,
-                type: $type
+                type: $type,
+                author: $author
             );
         }
     }
 
-    private function createDemoPages(Site $site): bool
+    private function createDemoPages(Site $site, ?Model $user): bool
     {
         $blogPage = BlogLoader::getBlogPage($site);
 
@@ -151,7 +156,8 @@ class BlogDemoCommand extends Command
                 $site->languages,
                 $site->language,
                 parent: $blogPage,
-                type: BlogResourceEnum::Article->name
+                type: BlogResourceEnum::Article->name,
+                author: $user
             );
         }
 

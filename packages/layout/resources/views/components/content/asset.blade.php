@@ -13,12 +13,12 @@ declare(strict_types=1);
 @props([
     'asset',
     'componentItem',
-    'withLinkText' => false,
+    'loop',
     'withImage' => false,
+    'withLinkText' => false,
     'withSummary' => false,
     'withTags' => false,
     'withUrl' => true,
-    'loop',
 ])
 
 <x-dynamic-component
@@ -27,12 +27,12 @@ declare(strict_types=1);
     :image="$withImage ? $asset->image : null"
     :icon="$asset->meta['icon'] ?? null"
     :color="$asset->meta['color'] ?? null"
+    :meta="$asset->meta"
     :link-text="$withLinkText ? ($asset->translation->meta['link_text'] ?? __('Read more')) : null"
     :summary="$withSummary && $asset->translation ? $asset->translation->summary : null"
     :tags="$withTags ? $asset->tags : null"
     :title="$asset->translation?->label"
     :url="$withUrl && $asset->linkedPage ? $asset->linkedPage->pageUrl?->full_url : null"
-    :with-summary="$withSummary"
     class="content-asset"
 />
 

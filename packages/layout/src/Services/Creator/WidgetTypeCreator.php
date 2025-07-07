@@ -79,9 +79,9 @@ class WidgetTypeCreator
                 'asset_types' => [AssetEnum::Media->value],
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Resources,
+                'component' => WidgetComponentEnum::Assets,
                 'component_item' => CapellAssetComponentEnum::Media,
-                'view_file' => 'capell-layout::components.widget.assets.media.index',
+                'view_file' => 'capell-layout::components.widget.assets.media',
             ],
         ]);
     }
@@ -160,7 +160,7 @@ class WidgetTypeCreator
                 'asset_types' => [AssetEnum::Page->value],
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Resources,
+                'component' => WidgetComponentEnum::Assets,
             ],
         ]);
     }
@@ -184,7 +184,7 @@ class WidgetTypeCreator
                 ],
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Resources,
+                'component' => WidgetComponentEnum::Assets,
             ],
         ]);
     }
@@ -224,7 +224,7 @@ class WidgetTypeCreator
                 'asset_types' => [LayoutAssetEnum::Content->value],
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Resources,
+                'component' => WidgetComponentEnum::Assets,
                 'component_item' => AssetComponentEnum::Content->value,
                 'margin' => ['lg'],
             ],

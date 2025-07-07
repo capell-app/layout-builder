@@ -5,16 +5,16 @@ declare(strict_types=1);
 ?>
 
 @props([
-    'title',
-    'summary',
     'color' => null,
-    'image' => null,
     'icon' => null,
-    'loop' => null,
-    'tags' => null,
+    'image' => null,
     'linkText' => null,
+    'loop' => null,
+    'meta' => [],
+    'summary',
+    'tags' => null,
+    'title',
     'url' => null,
-    'withSummary' => true,
 ])
 <div
     @class([
@@ -44,7 +44,7 @@ declare(strict_types=1);
     @endif
 
     <h2 class="space-y-8">
-        @if ($withSummary && $summary)
+        @if ($summary)
             <span class="mb-1 block text-2xl font-bold tracking-tight">
                 {!! $summary !!}
             </span>
