@@ -1,0 +1,64 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\Layout;
+
+use Capell\Layout\Models\Widget;
+use Illuminate\Support\Collection;
+
+class CapellLayoutManager
+{
+    protected static array $containerWidgets = [];
+
+    public static function getMigrations(): array
+    {
+        return [
+            'create_widgets_table',
+            'create_contents_table',
+            'create_content_assets_table',
+            'create_widget_assets_table',
+        ];
+    }
+
+    /**
+     * Store widgets for a container
+     */
+    public static function storeContainerWidget(string $containerKey, string $widgetKey, Widget $widget, int $occurrence = 1): void
+    {
+        if (! isset(static::$containerWidgets[$containerKey])) {
+            static::$containerWidgets[$containerKey] = [];
+        }
+
+        if (! isset(static::$containerWidgets[$containerKey][$widgetKey])) {
+            static::$containerWidgets[$containerKey][$widgetKey] = [];
+        }
+
+        static::$containerWidgets[$containerKey][$widgetKey][$occurrence] = $widget;
+    }
+
+    /**
+     * Get a widget for a container
+     */
+    public static function getContainerWidget(string $containerKey, string $widgetKey, int $occurrence = 1): ?Widget
+    {
+        return static::$containerWidgets[$containerKey][$widgetKey][$occurrence] ?? null;
+    }
+
+    public static function getContainerWidgets(?string $containerKey = null): Collection
+    {
+        $widgets = $containerKey
+            ? (static::$containerWidgets[$containerKey] ?? [])
+            : static::$containerWidgets;
+
+        return collect($widgets);
+    }
+
+    /**
+     * Clear all stored widgets
+     */
+    public static function clearContainerWidgets(): void
+    {
+        static::$containerWidgets = [];
+    }
+}
