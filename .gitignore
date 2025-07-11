@@ -9,6 +9,8 @@
 /build
 Thumbs.db
 composer.lock
+composer.local.json
+composer.local.lock
 coverage
 docs
 node_modules

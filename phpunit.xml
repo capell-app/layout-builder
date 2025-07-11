@@ -27,11 +27,11 @@
             <directory suffix="Test.php">./tests/packages/layout/Feature</directory>
         </testsuite>
         <testsuite name="Arch">
-            <directory suffix="Test.php">./tests/packages/admin/Arch</directory>
+            <directory suffix="Test.php">./tests/packages/blog/Arch</directory>
             <directory suffix="Test.php">./tests/packages/layout/Arch</directory>
         </testsuite>
         <testsuite name="Integration">
-            <directory suffix="Test.php">./tests/packages/admin/Integration</directory>
+            <directory suffix="Test.php">./tests/packages/blog/Integration</directory>
             <directory suffix="Test.php">./tests/packages/layout/Integration</directory>
         </testsuite>
     </testsuites>
