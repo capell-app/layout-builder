@@ -24,6 +24,8 @@ class AddBlogPagesToNavigation
 
         $blogPage = BlogLoader::getBlogPage($event->navigation->site);
 
-        AddPageToNavigationAction::run($blogPage, $event->navigation);
+        if ($blogPage) {
+            AddPageToNavigationAction::run($blogPage, $event->navigation);
+        }
     }
 }
