@@ -31,18 +31,16 @@
     },
     "repositories": [
         {
-            "type": "path",
-            "url": "../capell/packages/*",
-            "options": {
-                "symlink": true
-            }
+            "type": "vcs",
+            "url": "https://github.com/capell-app/core"
         },
         {
-            "type": "path",
-            "url": "./packages/*",
-            "options": {
-                "symlink": true
-            }
+            "type": "vcs",
+            "url": "https://github.com/capell-app/admin"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/capell-app/frontend"
         }
     ],
     "require": {
