@@ -152,7 +152,7 @@ declare(strict_types=1);
         <div class="space-y-5">
             @if ($containers)
                 <div
-                    class="layout-containers mb-4 grid grid-cols-12 gap-4 lg:gap-6 xl:gap-8"
+                    class="layout-containers mb-4 grid grid-cols-12 gap-4 lg:gap-6"
                     x-sort="$wire.reorderContainers($item, $position)"
                     x-sort:config="{ forceFallback: true, fallbackClass: 'sortable-fallback' }"
                 >

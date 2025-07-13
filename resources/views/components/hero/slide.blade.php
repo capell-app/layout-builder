@@ -20,7 +20,6 @@ declare(strict_types=1);
     'backgroundAttachment' => '',
     'backgroundRepeat' => 'no-repeat',
     'backgroundOverlay' => null,
-    'carouselSpacing' => true,
     'carouselType' => 'slide',
     'colorScheme' => 'dark',
     'container_class' => 'container',
@@ -31,16 +30,15 @@ declare(strict_types=1);
 <div
     {{
         $attributes->class([
-            'embla__slide min-h-full w-full shrink-0 basis-full select-none',
-            'pl-4' => $carouselSpacing && $carouselType === 'slide',
-            'embla__slide--selected' => $first,
+            'swiper-slide',
+            'swiper-slide-selected' => $first,
         ])
     }}
 >
     <div
         {{
             $attributes->class([
-                'embla__slide_inner relative flex min-h-full',
+                'swiper-slide-inner relative flex min-h-full',
                 ...(
                     ! $backgroundColor && $colorScheme
                     ? [

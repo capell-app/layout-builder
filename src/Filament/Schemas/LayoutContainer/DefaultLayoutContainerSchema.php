@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Schemas\LayoutContainer;
 
 use Capell\Admin\Actions\FixCuratorMetaDataAction;
-use Capell\Admin\Filament\Components\Forms\ColumnInput;
-use Capell\Admin\Filament\Components\Forms\ContainerWidthSelect;
-use Capell\Admin\Filament\Components\Forms\HtmlClassInput;
-use Capell\Admin\Filament\Components\Forms\MarginSelect;
-use Capell\Admin\Filament\Components\Forms\PaddingSelect;
-use Capell\Admin\Filament\Components\Forms\SpacingSelect;
 use Capell\Layout\Filament\Components\Forms\BackgroundSettingsFieldset;
+use Capell\Layout\Filament\Components\Forms\ColumnInput;
+use Capell\Layout\Filament\Components\Forms\ContainerWidthSelect;
+use Capell\Layout\Filament\Components\Forms\HtmlClassInput;
+use Capell\Layout\Filament\Components\Forms\MarginSelect;
+use Capell\Layout\Filament\Components\Forms\PaddingSelect;
+use Capell\Layout\Filament\Components\Forms\SpacingSelect;
+use Capell\Layout\Filament\Components\Forms\TagSelect;
 use Capell\Layout\Filament\Schemas\AbstractLayoutContainerSchema;
 use Filament\Forms;
 
@@ -44,6 +45,7 @@ class DefaultLayoutContainerSchema extends AbstractLayoutContainerSchema
                             PaddingSelect::make('padding'),
                             MarginSelect::make('margin'),
                             SpacingSelect::make('spacing'),
+                            TagSelect::make('tag'),
                             Forms\Components\TextInput::make('override_columns')
                                 ->label(__('capell-admin::form.override_columns'))
                                 ->helperText(__('capell-admin::generic.override_columns_info')),

@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms;
 
-use Capell\Admin\Filament\Components\Forms\CustomColorInput;
-use Capell\Admin\Filament\Components\Forms\ImageMediaPicker;
+use Capell\Admin\Filament\Components\Forms\Media\ImageMediaPicker;
 use Capell\Layout\Models\WidgetAsset;
 use Filament\Forms;
 use Illuminate\Database\Eloquent\Model;

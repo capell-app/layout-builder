@@ -7,7 +7,6 @@ namespace Capell\Layout\Filament\Schemas\Content;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Capell\Admin\Actions\FixCuratorMetaDataAction;
 use Capell\Admin\Filament\Components\Forms\CallToActionText;
-use Capell\Admin\Filament\Components\Forms\CustomColorInput;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\Page\PageSelect;
@@ -15,6 +14,7 @@ use Capell\Layout\Filament\Components\Forms\Content\ContentDetailsSchema;
 use Capell\Layout\Filament\Components\Forms\Content\ContentPublishSection;
 use Capell\Layout\Filament\Components\Forms\Content\ContentSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Content\ContentTranslationsRepeater;
+use Capell\Layout\Filament\Components\Forms\CustomColorInput;
 use Capell\Layout\Filament\Schemas\AbstractContentSchema;
 use Filament\Forms;
 

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Schemas\WidgetAsset;
 
-use Capell\Admin\Filament\Components\Forms\MediaSchema;
 use Capell\Admin\Filament\Resources\PageResource;
+use Capell\Layout\Filament\Components\Forms\MediaSchema;
 use Capell\Layout\Filament\Resources\ContentResource;
 use Capell\Layout\Filament\Schemas\AbstractWidgetAssetSchema;
 use Capell\Layout\Models\WidgetAsset;

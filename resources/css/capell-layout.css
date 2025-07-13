@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 @import 'tippy.js/dist/tippy.css';
 @import '../../../../vendor/capell-app/frontend/resources/css/layout/theme.css';
-@import '../../../../vendor/capell-app/frontend/resources/css/utilities/embla-carousel.css';
+@import './utilities/swiper-carousel.css';
 
 @plugin '@tailwindcss/typography';
 @source '../views';

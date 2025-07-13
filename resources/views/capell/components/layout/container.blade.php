@@ -26,6 +26,7 @@ declare(strict_types=1);
     'htmlClass' => '',
     'previousColspan' => null,
     'pageSlot' => null,
+    'tag' => $container['meta']['tag'] ?? 'div',
 ])
 @php
     if (! empty($container['meta']['html_class'])) {

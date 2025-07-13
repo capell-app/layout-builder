@@ -13,7 +13,6 @@ declare(strict_types=1);
     'carouselAutDelay' => 8000,
     'carouselLoop' => false,
     'carouselPagination' => true,
-    'carouselSpacing' => true,
     'carouselType' => 'slide',
 ])
 
@@ -21,44 +20,39 @@ declare(strict_types=1);
     data-auto="{{ (int) $carouselAuto }}"
     data-loop="{{ (int) $carouselLoop }}"
     data-delay="{{ $carouselAutoDelay }}"
+    data-fade="{{ $carouselType === 'fade' }}"
+    style="
+        --swiper-pagination-bottom: 1.5rem;
+        --swiper-pagination-bullet-inactive-color: #fff;
+    "
     @class([
-        'grid min-h-full',
-        'embla relative' => $total > 1,
-        'embla__fade' => $carouselType === 'fade',
+        'grid min-h-full w-full',
+        'swiper relative' => $total > 1,
     ])
 >
-    <div class="embla__viewport min-h-full w-full overflow-hidden">
-        <div
-            @class([
-                'embla__container flex min-h-full touch-pan-y touch-pinch-zoom select-none',
-                '-ml-4' => $carouselSpacing && $carouselType === 'slide',
-            ])
-        >
-            {{ $slot }}
-        </div>
+    <div class="swiper-wrapper min-h-full w-full">
+        {{ $slot }}
     </div>
     @if ($total > 1)
-        <div class="embla__controls">
+        <div class="swiper-controls">
             @if ($carouselArrows)
                 <button
-                    class="{{ $carouselArrowClass }} embla__button embla__button--prev left-6"
+                    class="{{ $carouselArrowClass }} swiper-button-prev left-6"
                     aria-label="{{ __('generic.previous') }}"
-                    disabled=""
                 >
-                    @svg('heroicon-o-chevron-left', 'embla__button__svg')
+                    @svg('heroicon-o-chevron-left', 'swiper-button-svg')
                 </button>
                 <button
-                    class="{{ $carouselArrowClass }} embla__button embla__button--next right-6"
+                    class="{{ $carouselArrowClass }} swiper-button-next right-6"
                     aria-label="{{ __('generic.next') }}"
-                    disabled=""
                 >
-                    @svg('heroicon-o-chevron-right', 'embla__button__svg')
+                    @svg('heroicon-o-chevron-right', 'swiper-button-svg')
                 </button>
             @endif
 
             @if ($carouselPagination)
                 <div
-                    class="embla__dots absolute bottom-8 left-0 right-0 z-10 flex select-none justify-center gap-x-3"
+                    class="swiper-pagination absolute bottom-8 left-0 right-0 z-10 flex select-none justify-center"
                     wire:ignore
                 ></div>
             @endif

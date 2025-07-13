@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Components\Forms\Widget;
 
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Admin\Filament\Components\Forms\AssetTypeToggleButtons;
-use Capell\Admin\Filament\Components\Forms\ImageMediaPicker;
+use Capell\Admin\Filament\Components\Forms\Media\ImageMediaPicker;
 use Capell\Admin\Filament\Components\Forms\Page\PageSelect;
 use Capell\Core\Models;
+use Capell\Layout\Filament\Components\Forms\AssetTypeToggleButtons;
 use Capell\Layout\Filament\Components\Forms\Content\ContentSelect;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\WidgetAsset;

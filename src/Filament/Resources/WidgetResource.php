@@ -6,7 +6,7 @@ namespace Capell\Layout\Filament\Resources;
 
 use Awcodes\FilamentBadgeableColumn\Components\Badge;
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Admin\Filament\Components\Forms\TypeSchema;
+use Capell\Admin\Filament\Components\Forms\Type\TypeSchema;
 use Capell\Admin\Filament\Components\Tables\Actions\EditAction;
 use Capell\Admin\Filament\Components\Tables\Actions\ReplicateAction;
 use Capell\Admin\Filament\Components\Tables\Columns\DateColumn;

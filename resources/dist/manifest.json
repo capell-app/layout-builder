@@ -1,7 +1,14 @@
 {
     "resources/css/capell-layout.css": {
-        "file": "assets/capell-layout-BmOXUlrE.css",
+        "file": "assets/capell-layout-1dCXkDMk.css",
         "src": "resources/css/capell-layout.css",
         "isEntry": true
+    },
+    "resources/js/capell-layout.js": {
+        "file": "assets/capell-layout-Cd9rXQa5.js",
+        "name": "capell-layout",
+        "src": "resources/js/capell-layout.js",
+        "isEntry": true,
+        "css": ["assets/capell-layout-DI0IShbb.css"]
     }
 }

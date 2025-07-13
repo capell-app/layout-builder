@@ -190,6 +190,7 @@ class WidgetCreator
                 'container' => 'full',
                 'background_color' => 'light-gray',
                 'margin' => 0,
+                'padding' => ['md'],
             ],
             'admin' => [
                 'schema' => CarouselWidgetSchema::getKey(),

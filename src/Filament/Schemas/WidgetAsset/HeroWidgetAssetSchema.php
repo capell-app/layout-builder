@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Schemas\WidgetAsset;
 
-use Capell\Admin\Filament\Components\Forms\ColorSchemeComponent;
-use Capell\Admin\Filament\Components\Forms\MediaRepeater;
 use Capell\Layout\Filament\Components\Forms\ActionsRepeater;
 use Capell\Layout\Filament\Components\Forms\BackgroundSettingsFieldset;
+use Capell\Layout\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\Layout\Filament\Components\Forms\Content\ContentTranslationsRepeater;
 use Capell\Layout\Filament\Components\Forms\Content\RelatedRepeater;
+use Capell\Layout\Filament\Components\Forms\MediaRepeater;
 use Filament\Forms;
 use Override;
 

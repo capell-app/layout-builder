@@ -16,18 +16,18 @@ declare(strict_types=1);
     'carouselArrows' => true,
     'carouselAuto' => true,
     'carouselAutoDelay' => 3000,
-    'carouselButtonClass' => 'text-primary hover:enabled:bg-primary active:enabled:bg-primary absolute top-0 z-10 flex h-full w-10 max-w-[8vw] cursor-pointer items-center justify-center bg-gray-400/75 hover:enabled:text-white active:enabled:text-white dark:bg-gray-900/60',
+    'carouselButtonClass' => 'hover:bg-primary focus:bg-primary pointer-events-auto bg-white/80 shadow-md transition hover:text-white focus:text-white disabled:pointer-events-none disabled:opacity-50',
     'carouselDrag' => true,
     'carouselLoop' => true,
     'carouselPagination' => false,
     'carouselWheel' => true,
-    'carouselSpacing' => '1rem',
     'colorScheme' => $widget->meta['color_scheme'] ?? 'dark',
     'container',
     'containerKey',
     'containerWidth' => null,
     'hideContent' => $widgetData['meta']['hide_content'] ?? false,
     'loop',
+    'rounded' => $theme->meta['rounded_images'] ?? false,
     'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
     'widget',
 ])
@@ -60,88 +60,93 @@ declare(strict_types=1);
         data-align="{{ $carouselAlign }}"
         data-drag="{{ (int) $carouselDrag }}"
         data-wheel="{{ (int) $carouselWheel }}"
-        @class(['relative py-10', 'embla' => $total > 1])
-        @style(["--carousel-spacing:{$carouselSpacing}" => $carouselSpacing])
+        data-breakpoint='{
+            "992": {
+                "slidesPerView": "auto",
+                "spaceBetween": 36
+            },
+            "768": {
+                "slidesPerView": "auto",
+                "spaceBetween": 24
+            },
+            "320": {
+                "slidesPerView": 1,
+                "spaceBetween": 0
+            }
+        }'
+        @class(['relative py-10', 'swiper' => $total > 1])
+        style="--swiper-navigation-sides-offset: 0"
     >
-        <div class="embla__viewport w-full overflow-hidden px-8">
-            <div
-                @class([
-                    'embla__container flex touch-pan-y flex-row',
-                    'ml-[calc(var(--carousel-spacing)*-1)]' => $carouselSpacing,
-                ])
-            >
-                @foreach ($widget->assets as $widgetAsset)
-                    @php
-                        $resource = $widgetAsset->asset;
-                        $media = $widgetAsset->image ?? ($resource instanceof Media ? $resource : $resource->media);
-                        $width = 400;
-                    @endphp
+        <div class="swiper-wrapper w-full">
+            @foreach ($widget->assets as $widgetAsset)
+                @php
+                    $resource = $widgetAsset->asset;
+                    $media = $widgetAsset->image ?? ($resource instanceof Media ? $resource : $resource->media);
+                    $width = 400;
+                @endphp
 
-                    @continue(! $media?->width)
+                @continue(! $media?->width)
 
-                    @php
-                        $height = floor($width * ($media->height / $media->width));
-                    @endphp
+                @php
+                    $height = floor($width * ($media->height / $media->width));
+                @endphp
 
-                    <div
-                        @class([
-                            'embla__slide transform-opacity [:not(.is-snapped)]:opacity-20 group relative h-64 min-w-0 max-w-full shrink-0 grow-0 basis-auto cursor-pointer select-none overflow-hidden text-white duration-200 ease-in-out',
-                            'ml-[var(--carousel-spacing)]' => $carouselSpacing,
-                        ])
-                        tabindex="0"
-                    >
-                        <x-capell::media
-                            :class="'embla__slide__img h-64 bg-gray-50 shadow transition-transform duration-300 group-hover:scale-105 group-focus:scale-105'.($theme->withDarkMode ? ' dark:bg-gray-900' : '')"
-                            :$loop
-                            :media="$media"
-                            :srcset="['400w', '200w']"
-                            :width="$width"
-                            :height="$height"
-                            sizes="(max-width: 640px) 80vw, 20w"
-                            lightbox="true"
-                        />
-                        @if ($media->name)
-                            <div
-                                class="pointer-events-none absolute inset-x-0 bottom-0 flex translate-y-full transform items-center justify-center break-words bg-gray-600/75 px-2 py-4 text-sm font-medium leading-none leading-tight text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100"
-                            >
-                                {{ $media->title }}
-                            </div>
-                        @endif
-                    </div>
-                @endforeach
-            </div>
+                <div
+                    @class([
+                        'swiper-slide group relative h-64 !w-auto overflow-hidden text-white',
+                        'rounded-lg' => $rounded,
+                    ])
+                    tabindex="0"
+                >
+                    <x-capell::media
+                        :class="'swiper-slide-img h-64 bg-gray-50 transition-transform duration-300 group-hover:scale-105 group-focus:scale-105'.($theme->withDarkMode ? ' dark:bg-gray-900' : '')"
+                        :$loop
+                        :media="$media"
+                        :srcset="['400w', '200w']"
+                        :width="$width"
+                        :height="$height"
+                        sizes="(max-width: 640px) 80vw, 20w"
+                        lightbox="true"
+                        rounded="true"
+                    />
+                    @if ($media->name)
+                        <div
+                            class="pointer-events-none absolute inset-x-0 bottom-0 flex translate-y-full transform items-center justify-center break-words bg-gray-600/75 px-2 py-4 text-sm font-medium leading-none leading-tight text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100"
+                        >
+                            {{ $media->title }}
+                        </div>
+                    @endif
+                </div>
+            @endforeach
         </div>
 
         @if ($total > 1)
             <div
-                class="embla__controls pointer-events-none absolute inset-0 z-50"
+                class="swiper-controls pointer-events-none absolute inset-0 z-50 flex items-center justify-between"
             >
                 @if ($carouselArrows)
                     <button
                         aria-label="{{ __('capell-frontend::generic.previous') }}"
                         @class([
-                            'embla__button embla__button--prev [:is(.embla__button--disabled)]:hidden hover:text-primary focus:text-primary pointer-events-auto absolute bottom-0 left-0 top-0',
+                            'swiper-button-prev rounded-r-md',
                             $carouselButtonClass,
                         ])
-                        disabled
-                    >
-                        @svg('heroicon-o-chevron-left', 'embla__button__svg h-12 w-10')
-                    </button>
+                        style="width: 50px; height: 60px; margin-top: -30px"
+                    ></button>
                     <button
                         aria-label="{{ __('capell-frontend::generic.next') }}"
                         @class([
-                            'embla__button embla__button--next [:is(.embla__button--disabled)]:hidden hover:text-primary focus:text-primary pointer-events-auto absolute bottom-0 right-0 top-0',
+                            'swiper-button-next rounded-l-md',
                             $carouselButtonClass,
                         ])
-                        disabled
-                    >
-                        @svg('heroicon-o-chevron-right', 'embla__button__svg h-12 w-10')
-                    </button>
+                        style="width: 50px; height: 60px; margin-top: -30px"
+                    ></button>
                 @endif
 
                 @if ($carouselPagination)
                     <div
-                        class="embla__dots pointer-events-auto hidden select-none justify-center gap-x-3 pt-4 md:flex"
+                        class="swiper-pagination pointer-events-auto absolute bottom-2 left-1/2 flex -translate-x-1/2 select-none justify-center pt-4"
+                        wire:ignore
                     ></div>
                 @endif
             </div>

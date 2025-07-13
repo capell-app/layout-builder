@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Concerns;
 
-use Capell\Admin\Filament\Components\Forms\AssetTypeToggleButtons;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
+use Capell\Layout\Filament\Components\Forms\AssetTypeToggleButtons;
 use Filament\Forms;
 use Filament\Forms\Get;
 use Filament\Resources\RelationManagers\RelationManager;

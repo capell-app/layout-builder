@@ -42,6 +42,7 @@ declare(strict_types=1);
         :index="$loop->index"
         :$widget
         :class="'widget-page-contents'.($loop->last ? ' mb-20' : ' mb-10')"
+        tag="article"
     >
         <x-capell::content
             :content="in_array('content', $pageContents, true) ? $page->translation->content : null"

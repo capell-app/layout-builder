@@ -43,15 +43,24 @@ declare(strict_types=1);
             :title="$widget->translation->title"
             heading-weight="semibold"
             :text-align="$align"
+            class="mt-4"
         />
     @endif
 
     @if ($widget->assets->isNotEmpty())
-        <div class="embla embla__fade relative grid h-full w-full">
-            <div class="embla__viewport h-full w-full overflow-hidden">
-                <div
-                    class="embla__container flex h-full w-full touch-pan-y touch-pinch-zoom"
-                >
+        <div
+            @class([
+                'relative',
+                'pb-4' => $total > 1,
+            ])
+            style="
+                --swiper-pagination-bottom: auto;
+                --swiper-pagination-top: 100%;
+                --swiper-pagination-bullet-inactive-color: #fff;
+            "
+        >
+            <div class="swiper swiper-fade grid h-full w-full">
+                <div class="swiper-wrapper h-full w-full">
                     @foreach ($widget->assets as $widgetAsset)
                         @php
                             $title = '';
@@ -65,58 +74,82 @@ declare(strict_types=1);
                         @endphp
 
                         <div
-                            @class([
-                                'embla__slide relative flex w-full shrink-0 basis-full flex-col space-y-4',
-                                'items-center justify-center text-center' => $align === 'center',
-                                'items-start justify-start text-left' => $align === 'left',
-                                'items-end justify-end text-right' => $align === 'right',
-                            ])
+                            class="swiper-slide"
+                            itemscope
+                            itemtype="https://schema.org/Review"
                         >
-                            @if ($image)
-                                <x-capell::media
-                                    :media="$image"
-                                    rounded="full"
-                                    class="h-20 w-20"
-                                />
-                            @endif
+                            <div
+                                @class([
+                                    'relative flex w-full shrink-0 basis-full flex-col space-y-4',
+                                    'items-center justify-center text-center' => $align === 'center',
+                                    'items-start justify-start text-left' => $align === 'left',
+                                    'items-end justify-end text-right' => $align === 'right',
+                                ])
+                            >
+                                @if ($image)
+                                    <x-capell::media
+                                        :media="$image"
+                                        rounded="full"
+                                        class="h-20 w-20"
+                                        itemprop="image"
+                                    />
+                                @endif
 
-                            @if ($content)
-                                <div class="lg:text-md max-w-2xl text-white">
-                                    {!! $content !!}
-                                </div>
-                            @endif
-
-                            @if ($title)
-                                <div>
-                                    <div
-                                        class="text-sm font-bold text-white lg:text-base"
+                                @if ($content)
+                                    <blockquote
+                                        class="lg:text-md max-w-2xl italic text-white"
+                                        itemprop="reviewBody"
                                     >
-                                        {{ $title }}
-                                    </div>
+                                        {!! $content !!}
+                                    </blockquote>
+                                @endif
 
-                                    @if (! empty($widgetAsset->asset->translation->meta['position']) || ! empty($widgetAsset->asset->translation->meta['company']))
+                                @if ($title)
+                                    <div>
                                         <div
-                                            class="text-smaller block font-normal text-gray-300"
+                                            class="text-sm font-bold text-white lg:text-base"
+                                            itemprop="author"
+                                            itemscope
+                                            itemtype="https://schema.org/Person"
                                         >
-                                            {{ $widgetAsset->asset->translation->meta['position'] ?? '' }}
-                                            @if (! empty($widgetAsset->asset->translation->meta['company']))
-                                                @if (! empty($widgetAsset->asset->translation->meta['position']))
-                                                    <span class="mx-1">|</span>
-                                                @endif
-
-                                                {{ $widgetAsset->asset->translation->meta['company'] }}
-                                            @endif
+                                            <span itemprop="name">
+                                                {{ $title }}
+                                            </span>
                                         </div>
-                                    @endif
-                                </div>
-                            @endif
+
+                                        @if (! empty($widgetAsset->asset->translation->meta['position']) || ! empty($widgetAsset->asset->translation->meta['company']))
+                                            <div
+                                                class="text-smaller block font-normal text-gray-300"
+                                            >
+                                                <span itemprop="jobTitle">
+                                                    {{ $widgetAsset->asset->translation->meta['position'] ?? '' }}
+                                                </span>
+                                                @if (! empty($widgetAsset->asset->translation->meta['company']))
+                                                    @if (! empty($widgetAsset->asset->translation->meta['position']))
+                                                        <span class="mx-1">
+                                                            |
+                                                        </span>
+                                                    @endif
+
+                                                    <span itemprop="worksFor">
+                                                        {{ $widgetAsset->asset->translation->meta['company'] }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                     @endforeach
                 </div>
             </div>
             @if ($total > 1)
-                <div class="embla__controls mt-4">
-                    <div class="embla__dots flex justify-center gap-x-3"></div>
+                <div class="swiper-controls">
+                    <div
+                        class="swiper-pagination flex justify-center"
+                        wire:ignore
+                    ></div>
                 </div>
             @endif
         </div>

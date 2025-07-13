@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Resources\WidgetResource\RelationManagers;
 
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Admin\Filament\Components\Forms\AssetTypeToggleButtons;
 use Capell\Admin\Filament\Components\Tables\Columns\CuratorColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\Page\PageNameColumn;
@@ -14,6 +13,7 @@ use Capell\Core\Actions\EditPageUrlAction;
 use Capell\Core\Enums\TypeEnum;
 use Capell\Core\Models;
 use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Filament\Components\Forms\AssetTypeToggleButtons;
 use Capell\Layout\Filament\Concerns\HasAssetsRelationManager;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\WidgetAsset;

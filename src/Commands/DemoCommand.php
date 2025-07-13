@@ -182,7 +182,7 @@ class DemoCommand extends Command
             ],
         ];
 
-        $containers['faq-sidebar'] = [
+        $containers['faq-col'] = [
             'meta' => [
                 'colspan' => 4,
                 'container' => 'full',

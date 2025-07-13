@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Schemas\Widget;
 
 use Capell\Admin\Actions\FixCuratorMetaDataAction;
-use Capell\Admin\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
-use Capell\Admin\Filament\Components\Forms\ImageMediaPicker;
+use Capell\Admin\Filament\Components\Forms\Media\ImageMediaPicker;
+use Capell\Layout\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetAssetsRepeater;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Schemas\LayoutWidget;
 
-use Capell\Admin\Filament\Components\Forms\HtmlClassInput;
+use Capell\Layout\Filament\Components\Forms\HtmlClassInput;
 use Capell\Layout\Filament\Schemas\AbstractLayoutWidgetSchema;
 use Filament\Forms;
 

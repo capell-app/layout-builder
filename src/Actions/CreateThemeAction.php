@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Actions;
 
 use Capell\Admin\Services\Creator\ThemeCreator;
+use Capell\Core\Enums\DefaultColorEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Theme;
 use Capell\Layout\LayoutServiceProvider;
@@ -30,7 +31,7 @@ class CreateThemeAction
             return Theme::updateOrCreate(
                 ['key' => LayoutServiceProvider::$name],
                 [
-                    'name' => CapellCore::getPackage('capell-layout')->name,
+                    'name' => CapellCore::getPackage('capell-layout')->shortName,
                     'type_id' => $type->id,
                     'status' => true,
                     'default' => true,
@@ -41,12 +42,13 @@ class CreateThemeAction
                         ],
                         'assets' => [
                             'resources/css/capell-layout.css',
+                            'resources/js/capell-layout.js',
                         ],
                         'rounded_images' => true,
                         'header' => true,
                         'header_fixed' => true,
                         'footer' => true,
-                        'colors' => config('capell-admin.colors'),
+                        'colors' => DefaultColorEnum::getValues(),
                         'link_color' => 'rgb(91, 204, 228)',
                     ],
                 ]

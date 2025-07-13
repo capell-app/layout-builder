@@ -7,10 +7,12 @@ declare(strict_types=1);
 @php
     use Capell\Frontend\Actions\ReplacePageDataAction;
     use Capell\Frontend\Facades\Frontend;
+    use Capell\Frontend\Services\Loader\PageLoader;
 
     $page = Frontend::getPage();
     $pageParams = Frontend::getPageParams();
     $site = Frontend::getSite();
+    $language = Frontend::getLanguage();
 @endphp
 
 @props([
@@ -22,6 +24,12 @@ declare(strict_types=1);
 ])
 @php
     $currentPageLabel = ReplacePageDataAction::run($page->translation->label, $pageParams);
+
+    $ancestors = PageLoader::getPageAncestors($page, $language, $site);
+
+    if (! $ancestors) {
+        return;
+    }
 @endphp
 
 <nav
@@ -50,17 +58,17 @@ declare(strict_types=1);
                     </span>
                 </a>
             </li>
-            @foreach ($pages as $item)
+            @foreach ($ancestors as $ancestor)
                 <li>
                     <div class="flex items-center">
                         @svg('heroicon-m-chevron-right', 'mr-1 h-4 w-4 text-gray-400')
                         <a
                             class="hover:text-primary focus:text-primary text-gray line-clamp-1 text-sm font-medium dark:text-gray-400"
-                            href="{{ $item->pageUrl->full_url }}"
-                            title="{{ htmlspecialchars(strip_tags($item->translation->label)) }}"
+                            href="{{ $ancestor->pageUrl->full_url }}"
+                            title="{{ htmlspecialchars(strip_tags($ancestor->translation->label)) }}"
                             wire:navigate
                         >
-                            {{ str($item->translation->label)->limit(30) }}
+                            {{ str($ancestor->translation->label)->limit(30) }}
                         </a>
                     </div>
                 </li>

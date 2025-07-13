@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Schemas\Widget;
 
 use Capell\Admin\Actions\FixCuratorMetaDataAction;
-use Capell\Admin\Filament\Components\Forms\CarouselSettingsSchema;
-use Capell\Admin\Filament\Components\Forms\ColorSchemeComponent;
+use Capell\Layout\Filament\Components\Forms\CarouselSettingsSchema;
+use Capell\Layout\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;

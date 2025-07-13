@@ -28,6 +28,7 @@ declare(strict_types=1);
     'margin' => ! empty($widget->meta['margin']) ? (array) $widget->meta['margin'] : [],
     'padding' => ! empty($widget->meta['padding']) ? (array) $widget->meta['padding'] : [],
     'pageContainer' => $widget->meta['container'] ?? $theme->meta['container'] ?? null,
+    'tag' => 'section',
     'widget',
 ])
 @php
@@ -37,7 +38,7 @@ declare(strict_types=1);
 @aware([
     'containerColspan' => null,
 ])
-<div
+<{{ $tag }}
     id="{{ $containerKey.'-'.$widget->key."-$index" }}"
     {{
         $attributes->class([
@@ -62,9 +63,9 @@ declare(strict_types=1);
             'my-6 lg:my-10' => in_array('md', $margin, true),
             'mt-6' => in_array('t-md', $margin, true),
             'mb-6' => in_array('b-md', $margin, true),
-            'my-10' => in_array('lg', $margin, true),
-            'mt-10' => in_array('t-lg', $margin, true),
-            'mb-10' => in_array('b-lg', $margin, true),
+            'my-10 lg:my-16' => in_array('lg', $margin, true),
+            'mt-10 lg:mt-16' => in_array('t-lg', $margin, true),
+            'mb-10 lg:mb-16' => in_array('b-lg', $margin, true),
             'm-20' => in_array('xl', $margin, true),
             'mt-20' => in_array('t-xl', $margin, true),
             'mb-20' => in_array('b-xl', $margin, true),
@@ -124,6 +125,6 @@ declare(strict_types=1);
     @else
         {{ $slot }}
     @endif
-</div>
+</{{ $tag }}>
 
 <?php
