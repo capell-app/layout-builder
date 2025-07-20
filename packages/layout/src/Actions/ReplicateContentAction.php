@@ -47,7 +47,7 @@ class ReplicateContentAction
             $replica->published_at = now();
         }
 
-        $replica->uuid = null;
+        // $replica->uuid = null;
 
         $className::setupNewModel($replica);
 

@@ -7,6 +7,7 @@ namespace Capell\Layout\Services\Creator;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
+use Capell\Core\Models\Site;
 use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Models\Content;
@@ -30,7 +31,7 @@ class ContentCreator
         $this->typeModel = CapellCore::getModel(ModelEnum::Type);
     }
 
-    public function createContent(array $data, ?Models\Site $site, Collection $languages): Content
+    public function createContent(array $data, ?Site $site, Collection $languages): Content
     {
         if (! empty($data['type'])) {
             $type = $this->typeModel::query()
@@ -54,7 +55,7 @@ class ContentCreator
             'name' => $data['name'],
             'site_id' => $site?->id,
             'type_id' => $type->id,
-            'parent_uuid' => $data['parent_uuid'] ?? null,
+            'parent_id' => $data['parent_id'] ?? null,
         ], [
             'meta' => $meta !== [] ? $meta : null,
         ]);

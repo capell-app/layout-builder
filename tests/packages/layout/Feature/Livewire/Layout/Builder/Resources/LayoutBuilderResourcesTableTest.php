@@ -151,7 +151,7 @@ describe('layout', function () use ($types): void {
                 widgetIndex: $widgetIndex,
                 type: $assetType,
                 hasPageAssets: false,
-                assets: $records->map(fn (Model $record): string => (string) $record->uuid)->toArray(),
+                assets: $records->map(fn (Model $record): string => (string) $record->id)->toArray(),
             )
             ->assertDispatched('close-modal', id: 'select-assets');
     })->with($types);
@@ -191,7 +191,7 @@ describe('layout', function () use ($types): void {
                 widgetIndex: $widgetIndex,
                 type: $assetType,
                 hasPageAssets: false,
-                assets: $records->map(fn (Model $record): string => (string) $record->uuid)->toArray(),
+                assets: $records->map(fn (Model $record): string => (string) $record->id)->toArray(),
             )
             ->assertDispatched('close-modal', id: 'select-assets');
     })->with($types);
@@ -297,7 +297,7 @@ describe('page layout', function () use ($types): void {
                 widgetIndex: $widgetIndex,
                 type: $assetType,
                 hasPageAssets: true,
-                assets: $records->map(fn (Model $record): string => (string) $record->uuid)->toArray(),
+                assets: $records->map(fn (Model $record): string => (string) $record->id)->toArray(),
             )
             ->assertDispatched('close-modal', id: 'select-assets');
     })->with($types);

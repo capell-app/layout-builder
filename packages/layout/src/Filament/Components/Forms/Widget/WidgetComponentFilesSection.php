@@ -5,17 +5,20 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Components\Forms\Widget;
 
 use Capell\Admin\Filament\Components\Forms\ComponentSelect;
-use Capell\Core\Models;
+use Capell\Core\Models\Type;
 use Capell\Layout\Enums\ComponentTypeEnum;
 use Capell\Layout\Models\Widget;
-use Filament\Forms;
-use Filament\Forms\Get;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 
 class WidgetComponentFilesSection
 {
-    public static function make(bool $componentRequired = false): Forms\Components\Section
+    public static function make(bool $componentRequired = false): Section
     {
-        return Forms\Components\Section::make(function (Get $get, null|Widget|Models\Type $record): string {
+        return Section::make(function (Get $get, null|Widget|Type $record): string {
             if ($record === null) {
                 return '';
             }
@@ -30,18 +33,18 @@ class WidgetComponentFilesSection
             ->columns()
             ->columnSpanFull()
             ->schema([
-                Forms\Components\Group::make([
+                Group::make([
                     ComponentSelect::make('component')
-                        ->when($componentRequired, fn (Forms\Components\Select $component): Forms\Components\Select => $component->required())
+                        ->when($componentRequired, fn (Select $component): Select => $component->required())
                         ->setupType(ComponentTypeEnum::Widget),
-                    Forms\Components\TextInput::make('view_file')
+                    TextInput::make('view_file')
                         ->label(__('capell-admin::form.component_view_file'))
                         ->helperText(__('capell-admin::generic.component_view_file_info')),
                 ]),
 
                 ComponentSelect::make('component_item')
                     ->label(__('capell-admin::form.component_item'))
-                    ->when($componentRequired, fn (Forms\Components\Select $component): Forms\Components\Select => $component->required())
+                    ->when($componentRequired, fn (Select $component): Select => $component->required())
                     ->setupType(ComponentTypeEnum::Asset, hintLanguage: 'capell-admin::generic.component_item_info'),
             ]);
     }

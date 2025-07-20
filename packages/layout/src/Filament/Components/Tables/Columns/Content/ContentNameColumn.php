@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Tables\Columns\Content;
 
-use Awcodes\FilamentBadgeableColumn\Components\Badge;
+use Awcodes\BadgeableColumn\Components\Badge;
 use Capell\Admin\Filament\Components\Tables\Columns\BadgeableColumn;
 use Capell\Layout\Models\Content;
 
@@ -18,11 +18,13 @@ class ContentNameColumn extends BadgeableColumn
             ->sortable()
             ->weight('semibold')
             ->description(function (Content $record): ?string {
-                if ($record->ancestors->isEmpty()) {
+                $ancestors = $record->ancestors()->get();
+
+                if ($ancestors->isEmpty()) {
                     return null;
                 }
 
-                return '» '.$record->ancestors->pluck('name')->join(' » ');
+                return '» '.$ancestors->pluck('name')->join(' » ');
             })
             ->suffixBadges([
                 Badge::make('children')

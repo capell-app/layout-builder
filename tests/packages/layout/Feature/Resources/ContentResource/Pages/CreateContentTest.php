@@ -82,7 +82,7 @@ it('can create with translations', function (string $mode): void {
         ->fillForm([
             'type_id' => $type->getKey(),
             'name' => $newData->name,
-            'parent_uuid' => $newData->parent->uuid,
+            'parent_id' => $newData->parent?->id,
         ])
         ->set(
             'data.translations',
@@ -94,17 +94,17 @@ it('can create with translations', function (string $mode): void {
                 ]
             )->toArray()
         )
-        ->assertFormSet([
+        ->assertSchemaStateSet([
             'name' => $newData->name,
             'type_id' => $type->getKey(),
-            'parent_uuid' => $newData->parent->uuid,
+            'parent_id' => $newData->parent?->id,
         ])
         ->call('create')
         ->assertHasNoFormErrors();
 
     assertDatabaseHas(Content::class, [
         'name' => $newData->name,
-        'parent_uuid' => $newData->parent->uuid,
+        'parent_id' => $newData->parent?->id,
         'type_id' => $type->getKey(),
     ]);
 

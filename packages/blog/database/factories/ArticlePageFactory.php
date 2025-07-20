@@ -37,14 +37,14 @@ class ArticlePageFactory extends PageFactory
                         'exclude' => true,
                     ],
                 ]),
-            'parent_uuid' => null,
+            'parent_id' => null,
         ];
     }
 
     public function article(?Page $parent = null): self
     {
         return $this->state(fn (): array => [
-            'parent_uuid' => $parent?->getUuid(),
+            'parent_id' => $parent?->getKey(),
         ]);
     }
 }

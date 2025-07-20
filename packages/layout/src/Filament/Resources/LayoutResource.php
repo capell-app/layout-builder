@@ -7,8 +7,9 @@ namespace Capell\Layout\Filament\Resources;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Layout\Enums\LayoutModelEnum;
+use Filament\Actions\Action;
 use Filament\Infolists\Components\ViewEntry;
-use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 
 class LayoutResource extends \Capell\Admin\Filament\Resources\LayoutResource
@@ -21,14 +22,14 @@ class LayoutResource extends \Capell\Admin\Filament\Resources\LayoutResource
         ];
     }
 
-    protected static function getLayoutInfoAction(): Tables\Actions\Action
+    protected static function getLayoutInfoAction(): Action
     {
-        return Tables\Actions\Action::make('info')
+        return Action::make('info')
             ->label(__('capell-admin::button.info'))
             ->icon('heroicon-o-information-circle')
             ->iconButton()
             ->color('info')
-            ->infolist(fn (Layout $record): array => [
+            ->schema(fn (Layout $record): array => [
                 ViewEntry::make('widgets')
                     ->view(
                         'capell-layout::components.infolists.entries.layout-widgets',
@@ -42,7 +43,7 @@ class LayoutResource extends \Capell\Admin\Filament\Resources\LayoutResource
     protected static function getTableFilters(): array
     {
         return [
-            Tables\Filters\SelectFilter::make('widget_key')
+            SelectFilter::make('widget_key')
                 ->label(__('capell-admin::form.widget'))
                 ->options(fn () => CapellCore::getModel(LayoutModelEnum::Widget->name)::getOptions('key', 'name'))
                 ->indicateUsing(function (array $state): array {

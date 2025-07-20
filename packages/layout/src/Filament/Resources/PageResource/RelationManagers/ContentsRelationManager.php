@@ -15,9 +15,14 @@ use Capell\Core\Enums\TagTypeEnum;
 use Capell\Layout\Filament\Components\Tables\Columns\Content\ContentNameColumn;
 use Capell\Layout\Filament\Resources\ContentResource;
 use Capell\Layout\Models\Content;
-use Filament\Forms;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\SpatieTagsColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -36,9 +41,9 @@ class ContentsRelationManager extends RelationManager
         return __('capell-layout::tab.contents');
     }
 
-    public function form(Forms\Form $form): Forms\Form
+    public function form(Schema $schema): Schema
     {
-        return $form->schema(ContentResource::getFormSchema($form));
+        return $schema->components(ContentResource::getFormSchema($schema));
     }
 
     public function table(Table $table): Table
@@ -69,7 +74,7 @@ class ContentsRelationManager extends RelationManager
                     ->linkRecord()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TypeNameColumn::make('type.name'),
-                Tables\Columns\SpatieTagsColumn::make('tags')
+                SpatieTagsColumn::make('tags')
                     ->label(__('capell-admin::table.tags'))
                     ->type(TagTypeEnum::CONTENT->value)
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -82,18 +87,18 @@ class ContentsRelationManager extends RelationManager
                 (bool) $record->deleted_at => 'table-row-warning',
                 default => null,
             })
-            ->actions([
+            ->recordActions([
                 EditAction::make(),
-                Tables\Actions\ActionGroup::make([
+                ActionGroup::make([
                     ReplicateAction::make(),
-                    Tables\Actions\DeleteAction::make(),
+                    DeleteAction::make(),
                 ])
                     ->color('gray'),
             ])
-            ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
-                Tables\Actions\ForceDeleteBulkAction::make(),
-                Tables\Actions\RestoreBulkAction::make(),
+            ->toolbarActions([
+                DeleteBulkAction::make(),
+                ForceDeleteBulkAction::make(),
+                RestoreBulkAction::make(),
             ]);
     }
 }

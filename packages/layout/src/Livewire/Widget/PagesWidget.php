@@ -55,7 +55,7 @@ class PagesWidget extends AbstractWidget
             cacheKeyPrepend: sprintf('page-%d-widget-%d-container-%s-%d', $page->id, $this->widget->id, $this->containerKey, $this->occurrence),
             modifyQuery: fn (Builder $query) => $query->when(
                 $selection,
-                fn (Builder $query) => $query->whereIn('uuid', $selection)
+                fn (Builder $query) => $query->whereIn('id', $selection)
             )
         );
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Kalnoy\Nestedset\NestedSet;
 
 return new class extends Migration
 {
@@ -22,7 +23,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('contents', function (Blueprint $table): void {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('name');
             $table->foreignId('type_id')->constrained();
             $table->foreignId('site_id')->nullable()->constrained()->cascadeOnDelete();
@@ -30,8 +31,9 @@ return new class extends Migration
             $table->unsignedInteger('order')->default(0)->index();
             $table->publishDates('publish');
             $this->draftsCreateSchema($table);
-            $table->uuid('parent_uuid')->nullable()->constrained('contents', 'uuid')->nullOnDelete()->cascadeOnUpdate();
-            $table->nestedSet();
+            $table->foreignUuid('parent_id')->nullable()->constrained('contents')->nullOnDelete()->cascadeOnUpdate();
+            $table->unsignedInteger(NestedSet::LFT)->default(0);
+            $table->unsignedInteger(NestedSet::RGT)->default(0);
             $table->userstamps();
             $table->timestamps();
             $table->softDeletes();
@@ -43,20 +45,22 @@ return new class extends Migration
                     ! str_contains((string) DB::selectOne('select version() as v')->v, 'MariaDB')
                 )
             ) {
-                $table->index('meta->page_uuid', 'contents_page_uuid_index');
+                $table->index('meta->page_id', 'contents_page_id_index');
             }
+
+            $table->index(NestedSet::getDefaultColumns());
         });
     }
 
     private function draftsCreateSchema(Blueprint $table): void
     {
-        $uuid = config('drafts.column_names.uuid', 'uuid');
+        $uuid = 'draft_id';
         $publishedAt = config('drafts.column_names.published_at', 'published_at');
         $isPublished = config('drafts.column_names.is_published', 'is_published');
         $isCurrent = config('drafts.column_names.is_current', 'is_current');
         $publisherMorphName = config('drafts.column_names.publisher_morph_name', 'publisher');
 
-        $table->uuid($uuid)->index(); // custom not nullable
+        $table->uuid($uuid)->nullable()->index();
         $table->timestamp($publishedAt)->nullable();
         $table->boolean($isPublished)->default(false);
         $table->boolean($isCurrent)->default(false);

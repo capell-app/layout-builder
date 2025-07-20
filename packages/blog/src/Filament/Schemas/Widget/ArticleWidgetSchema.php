@@ -8,38 +8,43 @@ use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetAdminSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Capell\Layout\Filament\Schemas\AbstractWidgetSchema;
-use Filament\Forms;
+use Filament\Forms\Components\Checkbox;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Schema;
 
 class ArticleWidgetSchema extends AbstractWidgetSchema
 {
-    public static function make(Forms\Form $form): array
+    public static function make(Schema $schema): array
     {
-        $operation = $form->getOperation();
+        $operation = $schema->getOperation();
 
         return match ($operation) {
             'create', 'createOption', 'replicate' => [
                 self::getArticleSettingsSchema(),
             ],
             'editOption' => [
-                Forms\Components\Section::make(__('capell-admin::generic.settings'))
+                Section::make(__('capell-admin::generic.settings'))
                     ->columns()
                     ->compact()
                     ->collapsed()
                     ->schema([
-                        ...WidgetSettingsSchema::make($form),
+                        ...WidgetSettingsSchema::make($schema),
                         self::getArticleSettingsSchema(),
                     ]),
             ],
             default => [
-                Forms\Components\Tabs::make('tabs')
+                Tabs::make('tabs')
                     ->visibleOn(['edit', 'editOption'])
                     ->columnSpanFull()
                     ->tabs([
                         WidgetDisplayTab::make([
-                            ...WidgetSettingsSchema::make($form),
+                            ...WidgetSettingsSchema::make($schema),
                             self::getArticleSettingsSchema(),
                         ]),
-                        Forms\Components\Tabs\Tab::make(__('capell-admin::generic.admin'))
+                        Tab::make(__('capell-admin::generic.admin'))
                             ->statePath('admin')
                             ->icon('heroicon-o-cog-6-tooth')
                             ->columns(['md' => 2])
@@ -51,20 +56,20 @@ class ArticleWidgetSchema extends AbstractWidgetSchema
         };
     }
 
-    private static function getArticleSettingsSchema(): Forms\Components\Fieldset
+    private static function getArticleSettingsSchema(): Fieldset
     {
-        return Forms\Components\Fieldset::make(__('capell-blog::generic.article'))
+        return Fieldset::make(__('capell-blog::generic.article'))
             ->statePath('meta')
             ->columns(['default' => 1, 'md' => 2, 'lg' => 4])
             ->columnSpanFull()
             ->schema([
-                Forms\Components\Checkbox::make('with_date')
+                Checkbox::make('with_date')
                     ->label(__('capell-admin::form.published_date')),
-                Forms\Components\Checkbox::make('with_next_prev')
+                Checkbox::make('with_next_prev')
                     ->label(__('capell-admin::form.next_prev')),
-                Forms\Components\Checkbox::make('with_author')
+                Checkbox::make('with_author')
                     ->label(__('capell-admin::form.author')),
-                Forms\Components\Checkbox::make('with_tags')
+                Checkbox::make('with_tags')
                     ->label(__('capell-admin::form.tags')),
             ]);
     }

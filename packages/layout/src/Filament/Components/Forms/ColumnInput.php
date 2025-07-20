@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms;
 
-use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 
-class ColumnInput extends Forms\Components\TextInput
+class ColumnInput extends TextInput
 {
     protected function setUp(): void
     {

@@ -25,6 +25,6 @@ class ContentObserver
 
     public function replicating(Content $content): void
     {
-        $content->uuid = Str::uuid();
+        $content->id = Str::uuid();
     }
 }

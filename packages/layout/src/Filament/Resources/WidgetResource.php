@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Resources;
 
-use Awcodes\FilamentBadgeableColumn\Components\Badge;
+use Awcodes\BadgeableColumn\Components\Badge;
+use BackedEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Forms\Type\TypeSchema;
 use Capell\Admin\Filament\Components\Tables\Actions\EditAction;
@@ -21,18 +22,32 @@ use Capell\Admin\Filament\Resources\LayoutResource;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\LayoutResourceEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\SchemaEnum;
 use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
-use Capell\Layout\Filament\Resources\WidgetResource\Pages;
-use Capell\Layout\Filament\Resources\WidgetResource\RelationManagers;
+use Capell\Layout\Filament\Resources\WidgetResource\Pages\CreateWidget;
+use Capell\Layout\Filament\Resources\WidgetResource\Pages\EditWidget;
+use Capell\Layout\Filament\Resources\WidgetResource\Pages\ListWidgets;
+use Capell\Layout\Filament\Resources\WidgetResource\RelationManagers\LayoutsRelationManager;
+use Capell\Layout\Filament\Resources\WidgetResource\RelationManagers\WidgetAssetsRelationManager;
 use Capell\Layout\Filament\Schemas\AbstractWidgetSchema;
 use Capell\Layout\Filament\Schemas\Widget\DefaultWidgetSchema;
 use Capell\Layout\Models\Widget;
-use Filament\Forms;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Forms\Components\Select;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 use Filament\Support\Enums\FontWeight;
-use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Connection;
@@ -44,7 +59,7 @@ use Illuminate\Support\Str;
 
 class WidgetResource extends Resource
 {
-    protected static ?string $navigationIcon = 'heroicon-o-bolt';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-bolt';
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -52,7 +67,7 @@ class WidgetResource extends Resource
 
     public static function getResourceType(): string
     {
-        return 'Widget';
+        return LayoutResourceEnum::Widget->name;
     }
 
     /**
@@ -70,7 +85,7 @@ class WidgetResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_layouts'));
+        return (string) (__('capell-admin::navigation.group_resources'));
     }
 
     public static function getNavigationBadge(): ?string
@@ -100,18 +115,18 @@ class WidgetResource extends Resource
             ]);
     }
 
-    public static function getFormSchema(Forms\Form $form): array
+    public static function getFormSchema(Schema $schema): array
     {
         return [
-            ...CreateWidgetDetailsSchema::make($form),
+            ...CreateWidgetDetailsSchema::make($schema),
             TypeSchema::make()
                 ->schema(
-                    function (Forms\Get $get, TypeSchema $component, ?Widget $record) use ($form): array {
+                    function (Get $get, TypeSchema $component, ?Widget $record) use ($schema): array {
                         if ($record?->admin['schema'] ?? null) {
                             /** @var class-string<AbstractWidgetSchema> $schema */
                             $schema = CapellAdmin::getSchema(SchemaEnum::Widget->value, $record->admin['schema']);
 
-                            return app($schema)::make($form);
+                            return app($schema)::make($schema);
                         }
 
                         $typeId = $get('type_id');
@@ -120,15 +135,15 @@ class WidgetResource extends Resource
 
                         $adminSchema = $type->admin['schema'] ?? DefaultWidgetSchema::getKey();
 
-                        return $component->getSchema($form, SchemaEnum::Widget->name, $adminSchema);
+                        return $component->getSchema($schema, SchemaEnum::Widget->name, $adminSchema);
                     }
                 ),
         ];
     }
 
-    public static function form(Forms\Form $form): Forms\Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema(self::getFormSchema($form));
+        return $schema->components(self::getFormSchema($schema));
     }
 
     public static function table(Table $table): Table
@@ -154,35 +169,35 @@ class WidgetResource extends Resource
                 (bool) $record->deleted_at => 'table-row-warning',
                 default => null,
             })
-            ->actions([
+            ->recordActions([
                 EditAction::make(),
-                Tables\Actions\ActionGroup::make([
+                ActionGroup::make([
                     ReplicateAction::make(),
-                    Tables\Actions\DeleteAction::make(),
+                    DeleteAction::make(),
                 ])
                     ->color('gray'),
             ])
-            ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
-                Tables\Actions\ForceDeleteBulkAction::make(),
-                Tables\Actions\RestoreBulkAction::make(),
+            ->toolbarActions([
+                DeleteBulkAction::make(),
+                ForceDeleteBulkAction::make(),
+                RestoreBulkAction::make(),
             ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            RelationManagers\WidgetAssetsRelationManager::class,
-            RelationManagers\LayoutsRelationManager::class,
+            WidgetAssetsRelationManager::class,
+            LayoutsRelationManager::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListWidgets::route('/'),
-            'edit' => Pages\EditWidget::route('/{record}/edit'),
-            'create' => Pages\CreateWidget::route('/create'),
+            'index' => ListWidgets::route('/'),
+            'edit' => EditWidget::route('/{record}/edit'),
+            'create' => CreateWidget::route('/create'),
         ];
     }
 
@@ -210,7 +225,7 @@ class WidgetResource extends Resource
                 ->visibility('public')
                 ->toggleable(isToggledHiddenByDefault: true),
             LanguagesColumn::make('translations.language'),
-            Tables\Columns\TextColumn::make('translation.contents')
+            TextColumn::make('translation.contents')
                 ->label(__('capell-admin::table.content'))
                 ->sortable()
                 ->searchable()
@@ -221,13 +236,13 @@ class WidgetResource extends Resource
                 ->html()
                 ->listWithLineBreaks()
                 ->formatStateUsing(
-                    fn (Pages\ListWidgets $livewire, Tables\Columns\TextColumn $column, Widget $record): string => Str::limit(
+                    fn (ListWidgets $livewire, TextColumn $column, Widget $record): string => Str::limit(
                         $record->translation->title ?? '',
                         $column->getCharacterLimit(),
                         $column->getCharacterLimitEnd()
                     )
                 )
-                ->description(function (Pages\ListWidgets $livewire, Tables\Columns\TextColumn $column, Widget $record): ?HtmlString {
+                ->description(function (ListWidgets $livewire, TextColumn $column, Widget $record): ?HtmlString {
                     if (! $record->translation?->contents) {
                         return null;
                     }
@@ -249,13 +264,13 @@ class WidgetResource extends Resource
                     return new HtmlString(Str::limit($contents, $column->getCharacterLimit(), $column->getCharacterLimitEnd()));
                 })
                 ->toggleable(isToggledHiddenByDefault: true),
-            Tables\Columns\TextColumn::make('key')
+            TextColumn::make('key')
                 ->label(__('capell-admin::table.key'))
                 ->searchable()
                 ->sortable()
                 ->toggleable(isToggledHiddenByDefault: true)
                 ->searchable('widgets.key'),
-            Tables\Columns\TextColumn::make('meta.component')
+            TextColumn::make('meta.component')
                 ->label(__('capell-admin::table.component'))
                 ->searchable(query: function (Builder $query, $search): Builder {
                     /** @var Connection $databaseConnection */
@@ -293,7 +308,7 @@ class WidgetResource extends Resource
                     return new HtmlString(implode('<br />', $components));
                 })
                 ->toggleable(isToggledHiddenByDefault: true),
-            Tables\Columns\TextColumn::make('widget_assets_count')
+            TextColumn::make('widget_assets_count')
                 ->label(__('capell-admin::table.total_resources'))
                 ->counts('widgetAssets')
                 ->sortable()
@@ -301,7 +316,7 @@ class WidgetResource extends Resource
                 ->weight(FontWeight::SemiBold)
                 ->alignCenter()
                 ->toggleable(),
-            Tables\Columns\TextColumn::make('layouts_count')
+            TextColumn::make('layouts_count')
                 ->label(__('capell-admin::table.total_layouts'))
                 ->sortable()
                 ->numeric()
@@ -323,7 +338,7 @@ class WidgetResource extends Resource
     private static function getTableFilters(): array
     {
         return [
-            Tables\Filters\SelectFilter::make('type_id')
+            SelectFilter::make('type_id')
                 ->label(__('capell-admin::form.widget_type'))
                 ->relationship(
                     name: 'type',
@@ -334,7 +349,7 @@ class WidgetResource extends Resource
                     )
                 ),
 
-            Tables\Filters\SelectFilter::make('layout_id')
+            SelectFilter::make('layout_id')
                 ->label(__('capell-admin::form.layout'))
                 ->relationship(
                     name: 'layouts',
@@ -349,9 +364,9 @@ class WidgetResource extends Resource
                         $filter->applyQueryClause($query, $columns, $data['clause'], $data);
                     }
                 }),
-            Tables\Filters\Filter::make('filter')
-                ->form([
-                    Forms\Components\Select::make('language_id')
+            Filter::make('filter')
+                ->schema([
+                    Select::make('language_id')
                         ->label(__('capell-admin::table.language'))
                         ->options(function (): array {
                             /* @var class-string<\Capell\Core\Models\Language> $model */
@@ -389,7 +404,7 @@ class WidgetResource extends Resource
 
             StatusFilter::make('status'),
 
-            Tables\Filters\TrashedFilter::make(),
+            TrashedFilter::make(),
         ];
     }
 }

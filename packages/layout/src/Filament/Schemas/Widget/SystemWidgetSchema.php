@@ -12,32 +12,35 @@ use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
 use Capell\Layout\Filament\Schemas\AbstractWidgetSchema;
-use Filament\Forms;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Schema;
 
 class SystemWidgetSchema extends AbstractWidgetSchema
 {
-    public static function make(Forms\Form $form): array
+    public static function make(Schema $schema): array
     {
-        $operation = $form->getOperation();
+        $operation = $schema->getOperation();
 
         return match ($operation) {
             'create', 'createOption', 'replicate' => [
-                WidgetTranslationsRepeater::make($form)
+                WidgetTranslationsRepeater::make($schema)
                     ->section(fn (string $operation): bool => $operation === 'create'),
                 ...self::getFilesSchema(),
             ],
             default => [
                 FixedWidthSidebar::make()
                     ->mainSchema([
-                        WidgetTranslationsRepeater::make($form)
+                        WidgetTranslationsRepeater::make($schema)
                             ->section(),
                     ])
                     ->sidebarSchema([
-                        Forms\Components\Section::make()
+                        Section::make()
                             ->columns(1)
-                            ->schema(WidgetSettingsSchema::make($form)),
+                            ->schema(WidgetSettingsSchema::make($schema)),
                     ]),
-                Forms\Components\Tabs::make('tabs')
+                Tabs::make('tabs')
                     ->columnSpanFull()
                     ->tabs([
                         WidgetDisplayTab::make([
@@ -52,7 +55,7 @@ class SystemWidgetSchema extends AbstractWidgetSchema
     protected static function getFilesSchema(): array
     {
         return [
-            Forms\Components\Group::make()
+            Group::make()
                 ->statePath('meta')
                 ->columns()
                 ->schema([

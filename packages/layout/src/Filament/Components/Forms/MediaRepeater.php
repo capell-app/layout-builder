@@ -7,8 +7,9 @@ namespace Capell\Layout\Filament\Components\Forms;
 use Capell\Admin\Filament\Components\Forms\Media\ImageMediaPicker;
 use Capell\Core\Models\Media;
 use Exception;
-use Filament\Forms;
 use Filament\Forms\Components\Repeater;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -72,7 +73,7 @@ class MediaRepeater
                         $component->state($items);
                     }
                 )
-                    ->afterStateUpdated(function (?array $state, Forms\Set $set): void {
+                    ->afterStateUpdated(function (?array $state, Set $set): void {
                         if ($state !== null && $state !== []) {
                             $firstItem = array_shift($state);
 
@@ -96,9 +97,9 @@ class MediaRepeater
             );
     }
 
-    private static function getItemLabel(Forms\ComponentContainer $container, array $state, string $uuid): ?string
+    private static function getItemLabel(Schema $schema, array $state, string $uuid): ?string
     {
-        $order = collect($container->getParentComponent()->getState())
+        $order = collect($schema->getParentComponent()->getState())
             ->keys()
             ->search($uuid) + 1;
 

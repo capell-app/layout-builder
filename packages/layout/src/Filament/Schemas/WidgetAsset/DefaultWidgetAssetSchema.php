@@ -9,27 +9,29 @@ use Capell\Layout\Filament\Components\Forms\MediaSchema;
 use Capell\Layout\Filament\Resources\ContentResource;
 use Capell\Layout\Filament\Schemas\AbstractWidgetAssetSchema;
 use Capell\Layout\Models\WidgetAsset;
-use Filament\Forms;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 
 class DefaultWidgetAssetSchema extends AbstractWidgetAssetSchema
 {
-    public static function make(Forms\Form $form): array
+    public static function make(Schema $schema): array
     {
         return [
-            self::getAssetFormSchema($form),
+            self::getAssetFormSchema($schema),
         ];
     }
 
-    protected static function getContentFormSchema(Forms\Form $form): array
+    protected static function getContentFormSchema(Schema $schema): array
     {
-        return ContentResource::getFormSchema($form);
+        return ContentResource::getFormSchema($schema);
     }
 
-    protected static function getFormSchema(WidgetAsset $record, Forms\Form $form): array
+    protected static function getFormSchema(WidgetAsset $record, Schema $schema): array
     {
         return match ($record->asset_type) {
-            'content' => static::getContentFormSchema($form),
-            'page' => static::getPageFormSchema($form),
+            'content' => static::getContentFormSchema($schema),
+            'page' => static::getPageFormSchema($schema),
             'media' => static::getMediaFormSchema(),
         };
     }
@@ -39,23 +41,23 @@ class DefaultWidgetAssetSchema extends AbstractWidgetAssetSchema
         return MediaSchema::make();
     }
 
-    protected static function getPageFormSchema(Forms\Form $form): array
+    protected static function getPageFormSchema(Schema $schema): array
     {
-        return PageResource::getFormSchema($form);
+        return PageResource::getFormSchema($schema);
     }
 
-    protected static function getAssetFormSchema(Forms\Form $form): Forms\Components\Group
+    protected static function getAssetFormSchema(Schema $schema): Group
     {
-        return Forms\Components\Group::make()
+        return Group::make()
             ->relationship('asset')
             ->when(
-                in_array($form->getOperation(), ['create', 'createOption'], true),
-                fn (Forms\Components\Group $component): Forms\Components\Group => $component
+                in_array($schema->getOperation(), ['create', 'createOption'], true),
+                fn (Group $component): Group => $component
                     ->dehydrated()
                     ->saveRelationshipsUsing(fn (): false => false),
             )
             ->mutateRelationshipDataBeforeCreateUsing(
-                function (WidgetAsset $record, array $data, Forms\Get $get): array {
+                function (WidgetAsset $record, array $data, Get $get): array {
                     switch ($record->asset_type) {
                         case 'media':
                             if (blank($data['title'])) {
@@ -74,6 +76,6 @@ class DefaultWidgetAssetSchema extends AbstractWidgetAssetSchema
                     return $data;
                 }
             )
-            ->schema(fn (WidgetAsset $record): array => static::getFormSchema($record, $form));
+            ->schema(fn (WidgetAsset $record): array => static::getFormSchema($record, $schema));
     }
 }

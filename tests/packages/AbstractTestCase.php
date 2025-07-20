@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Tests\packages;
 
+use Awcodes\BadgeableColumn\BadgeableColumnServiceProvider;
 use Awcodes\Curator\CuratorServiceProvider;
-use Awcodes\FilamentBadgeableColumn\BadgeableColumnServiceProvider;
 use Awcodes\FilamentTableRepeater\FilamentTableRepeaterServiceProvider;
 use BezhanSalleh\FilamentShield\FilamentShieldServiceProvider;
 use BezhanSalleh\FilamentShield\Support\Utils;

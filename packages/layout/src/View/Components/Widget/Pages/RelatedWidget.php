@@ -11,6 +11,7 @@ use Capell\Frontend\Services\Loader\PageLoader;
 use Capell\Frontend\Services\Loader\TagLoader;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class RelatedWidget extends AbstractPagesWidget
 {
@@ -59,7 +60,7 @@ class RelatedWidget extends AbstractPagesWidget
                         )
                 )
                 ->when(
-                    $tags instanceof \Illuminate\Database\Eloquent\Collection && $tags->isNotEmpty(),
+                    $tags instanceof Collection && $tags->isNotEmpty(),
                     fn (Builder $query) => $query->whereHas(
                         'tags',
                         fn (BuilderContract $query) => $query->whereIn('taggables.tag_id', $tagIds)

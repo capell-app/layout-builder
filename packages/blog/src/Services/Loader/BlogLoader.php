@@ -8,6 +8,7 @@ use Capell\Core\Data\ArchiveMonthData;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
+use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Frontend\Facades\FrontendManager;
@@ -17,13 +18,13 @@ use Illuminate\Support\Collection;
 
 class BlogLoader
 {
-    public static function getArchivePage(Site $site, Models\Language $language): ?Page
+    public static function getArchivePage(Site $site, Language $language): ?Page
     {
         $cacheKey = sprintf('site-%d-%d-archive-page', $site->id, $language->id);
 
         $fromCache = true;
 
-        $page = FrontendManager::cacheForever($cacheKey, function () use ($site, $language, &$fromCache): ?Models\Page {
+        $page = FrontendManager::cacheForever($cacheKey, function () use ($site, $language, &$fromCache): ?Page {
             $fromCache = false;
 
             /** @var class-string<Page> $model */
@@ -44,7 +45,7 @@ class BlogLoader
      */
     public static function getArchives(
         Site $site,
-        Models\Language $language,
+        Language $language,
         string $type,
         ?int $limit = null,
         bool $pagination = true,

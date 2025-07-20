@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Enums;
 
-use Capell\Layout\Filament\Resources;
+use Capell\Layout\Filament\Resources\ContentResource;
+use Capell\Layout\Filament\Resources\WidgetResource;
 
 enum LayoutResourceEnum: string
 {
-    case Content = Resources\ContentResource::class;
-    case Widget = Resources\WidgetResource::class;
+    case Content = ContentResource::class;
+    case Widget = WidgetResource::class;
 }

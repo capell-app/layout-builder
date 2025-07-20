@@ -11,15 +11,21 @@ use Capell\Admin\Filament\Components\Tables\Columns\Page\PageNameColumn;
 use Capell\Admin\Filament\Concerns\HasRelationManagerBadge;
 use Capell\Core\Actions\EditPageUrlAction;
 use Capell\Core\Enums\TypeEnum;
-use Capell\Core\Models;
+use Capell\Core\Models\Page;
+use Capell\Core\Models\Type;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Filament\Components\Forms\AssetTypeToggleButtons;
 use Capell\Layout\Filament\Concerns\HasAssetsRelationManager;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\WidgetAsset;
-use Filament\Forms;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Forms\Components\Select;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -36,10 +42,10 @@ class WidgetAssetsRelationManager extends RelationManager
         return __('capell-admin::tab.resources');
     }
 
-    public function form(Forms\Form $form): Forms\Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema(static::getAssetForm());
+        return $schema
+            ->components(static::getAssetForm());
     }
 
     public function table(Table $table): Table
@@ -50,7 +56,7 @@ class WidgetAssetsRelationManager extends RelationManager
             ->description(__('capell-admin::generic.widget_page_assets_description'))
             ->columns([
                 NameColumn::make('asset.name'),
-                Tables\Columns\TextColumn::make('asset_type')
+                TextColumn::make('asset_type')
                     ->badge()
                     ->sortable(),
                 CuratorColumn::make('asset.image')
@@ -72,10 +78,10 @@ class WidgetAssetsRelationManager extends RelationManager
                 }
             )
             ->filters([
-                Tables\Filters\Filter::make('filter')
+                Filter::make('filter')
                     ->columnSpanFull()
-                    ->form([
-                        Forms\Components\Select::make('page_id')
+                    ->schema([
+                        Select::make('page_id')
                             ->label(__('capell-admin::form.page'))
                             ->options(
                                 fn (self $livewire): array => $livewire->getTable()->getQuery()
@@ -93,12 +99,12 @@ class WidgetAssetsRelationManager extends RelationManager
                         AssetTypeToggleButtons::make('type')
                             ->reactive(),
 
-                        Forms\Components\Select::make('type_id')
+                        Select::make('type_id')
                             ->label(__('capell-admin::form.type'))
-                            ->visible(fn (Forms\Get $get): bool => ! empty($get('type')))
-                            ->options(fn (Forms\Get $get): array => match ($get('type')) {
+                            ->visible(fn (Get $get): bool => ! empty($get('type')))
+                            ->options(fn (Get $get): array => match ($get('type')) {
                                 LayoutTypeEnum::Content->value => Content::getTypes(),
-                                TypeEnum::Page->value => Models\Page::getTypes(),
+                                TypeEnum::Page->value => Page::getTypes(),
                                 default => []
                             }),
                     ])
@@ -130,14 +136,14 @@ class WidgetAssetsRelationManager extends RelationManager
                         if (! empty($data['type_id'])) {
                             $indicators['type_id'] = __(
                                 'capell-admin::filter.type',
-                                ['search' => Models\Type::find($data['type_id'])->name]
+                                ['search' => Type::find($data['type_id'])->name]
                             );
                         }
 
                         if (! empty($data['page_id'])) {
                             $indicators['page_id'] = __(
                                 'capell-admin::filter.page',
-                                ['search' => Models\Page::query()->withDrafts()->find($data['page_id'])->name]
+                                ['search' => Page::query()->withDrafts()->find($data['page_id'])->name]
                             );
                         }
 
@@ -147,9 +153,9 @@ class WidgetAssetsRelationManager extends RelationManager
             ->headerActions([
                 self::createResourcesAction(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

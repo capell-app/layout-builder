@@ -12,9 +12,10 @@ use Capell\Blog\Commands\DemoCommand;
 use Capell\Blog\Enums\BlogModelEnum;
 use Capell\Blog\Enums\BlogResourceEnum;
 use Capell\Blog\Enums\WidgetComponentEnum;
-use Capell\Blog\Filament\Resources;
-use Capell\Blog\Filament\Schemas;
+use Capell\Blog\Filament\Resources\ArticleResource;
+use Capell\Blog\Filament\Schemas\Page\ArticlePageSchema;
 use Capell\Blog\Listeners\AddBlogPagesToNavigation;
+use Capell\Blog\Models\Article;
 use Capell\Blog\Services\BlogCreator;
 use Capell\Blog\Services\Loader\BlogLoader;
 use Capell\Blog\Services\Sitemap\ArchivePageSitemap;
@@ -35,7 +36,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
 {
     public static string $name = 'capell-blog';
 
-    public static string $description = 'Capell Blog Package';
+    public static string $description = 'Article page type with blog archives.';
 
     public function bootingPackage(): void
     {
@@ -45,10 +46,10 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             Livewire::component($name, $class);
         }
 
-        CapellCore::registerModel(BlogModelEnum::Article, Models\Article::class);
+        CapellCore::registerModel(BlogModelEnum::Article, Article::class);
 
         Relation::morphMap([
-            'article' => Models\Article::class,
+            'article' => Article::class,
         ]);
 
         CapellCore::addSitemapPages('archives', ArchivePageSitemap::class);
@@ -113,13 +114,13 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
 
         CapellAdmin::registerResource(
             ResourceEnum::Page,
-            class: Resources\ArticleResource::class,
+            class: ArticleResource::class,
             name: BlogResourceEnum::Article->name
         );
 
         CapellCore::registerComponents(ComponentTypeEnum::Widget->value, WidgetComponentEnum::cases());
 
-        CapellAdmin::registerSchema(SchemaEnum::Page, Schemas\Page\ArticlePageSchema::class);
+        CapellAdmin::registerSchema(SchemaEnum::Page, ArticlePageSchema::class);
     }
 
     private function getPackagePermissions(): array

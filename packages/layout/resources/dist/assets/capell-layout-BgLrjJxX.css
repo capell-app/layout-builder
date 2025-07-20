@@ -6704,6 +6704,7 @@ a {
     --swiper-pagination-bullet-width: 16px;
     --swiper-pagination-bullet-border-radius: 8px;
     --swiper-pagination-bullet-horizontal-gap: 6px;
+    --swiper-theme-color: var(--color-primary);
 }
 .swiper-pagination-bullet:hover:not(.swiper-pagination-bullet-active),
 .swiper-pagination-bullet:focus:not(.swiper-pagination-bullet-active) {

@@ -6,7 +6,6 @@ namespace Capell\Layout\Livewire;
 
 use Capell\Admin\Actions\NotifyClearCachedPagesAction;
 use Capell\Admin\Actions\ReplicateLayoutAction;
-use Capell\Admin\Enums\ModalWidthEnum;
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
@@ -14,7 +13,10 @@ use Capell\Core\Actions\GetPageResourceAction;
 use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models;
+use Capell\Core\Models\Layout;
+use Capell\Core\Models\Page;
+use Capell\Core\Models\Site;
+use Capell\Core\Models\Type;
 use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\SchemaEnum;
@@ -32,13 +34,18 @@ use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
 use Filament\Forms;
-use Filament\Forms\Components\Contracts\CanEntangleWithSingularRelationships;
-use Filament\Forms\Form;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Support\Enums\ActionSize;
+use Filament\Schemas\Components\Contracts\CanEntangleWithSingularRelationships;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Schema;
 use Filament\Support\Enums\IconSize;
-use Filament\Support\Enums\MaxWidth;
+use Filament\Support\Enums\Size;
+use Filament\Support\Enums\Width;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Contracts\View\View;
@@ -56,14 +63,14 @@ use Livewire\Component;
 use ReflectionProperty;
 
 /**
- * @property-read ?Models\Page $page
+ * @property-read ?Page $page
  */
 #[Isolate]
-class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasActions
+class LayoutBuilder extends Component implements HasActions, HasForms
 {
-    use Forms\Concerns\InteractsWithForms;
     use HasPageCacheNotification;
     use InteractsWithActions;
+    use InteractsWithForms;
 
     #[Locked]
     public ?int $page_id = null;
@@ -86,11 +93,11 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
 
     protected ?array $cachedAssets = null;
 
-    protected Models\Layout $layout;
+    protected Layout $layout;
 
-    protected ?Models\Page $layoutPage = null;
+    protected ?Page $layoutPage = null;
 
-    protected ?Models\Site $site = null;
+    protected ?Site $site = null;
 
     private string $view = 'capell-layout::livewire.layout-builder';
 
@@ -229,7 +236,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
         return Action::make('saveLayout')
             ->label(__('capell-admin::button.save_layout'))
             ->color('primary')
-            ->size(ActionSize::Small)
+            ->size(Size::Small)
             ->button()
             ->action(function (Action $action, self $livewire): void {
                 $livewire->saveLayout(withNotifications: true);
@@ -244,8 +251,8 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
         return Action::make('duplicateLayout')
             ->label(__('capell-admin::button.copy_layout'))
             ->groupedIcon('heroicon-o-square-2-stack')
-            ->modalWidth(MaxWidth::ScreenSmall)
-            ->record(fn (): ?Models\Page => $this->getLayoutPage())
+            ->modalWidth(Width::ScreenSmall)
+            ->record(fn (): ?Page => $this->getLayoutPage())
             ->requiresConfirmation()
             ->modalDescription(__('capell-admin::message.copy_layout_confirmation'))
             ->visible(fn (): bool => (bool) $this->page_id)
@@ -266,12 +273,12 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             ->icon('heroicon-m-plus')
             ->color('gray')
             ->outlined()
-            ->size(ActionSize::ExtraSmall)
-            ->modalWidth(MaxWidth::ScreenSmall)
+            ->size(Size::ExtraSmall)
+            ->modalWidth(Width::ScreenSmall)
             ->modalSubmitActionLabel(fn (Action $action): string => $action->getTooltip())
-            ->form(
-                static fn (self $livewire, Form $form, array $arguments): Form => $form->operation('createOption')
-                    ->schema($livewire->getContainerSchema($form, $arguments))
+            ->schema(
+                static fn (self $livewire, Schema $schema, array $arguments): Schema => $schema->operation('createOption')
+                    ->schema($livewire->getContainerSchema($schema, $arguments))
             )
             ->action(function (Action $action, self $livewire, array $data): void {
                 $livewire->saveContainer($data);
@@ -285,10 +292,10 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
         return Action::make('editContainer')
             ->label(__('capell-admin::button.edit_container'))
             ->groupedIcon('heroicon-o-pencil')
-            ->size(ActionSize::Small)
+            ->size(Size::Small)
             ->color('gray')
             ->grouped()
-            ->modalWidth(MaxWidth::ScreenLarge)
+            ->modalWidth(Width::ScreenLarge)
             ->modalHeading(
                 fn (array $arguments) => __(
                     'capell-admin::heading.edit_container',
@@ -296,9 +303,9 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
                 )
             )
             ->modalSubmitActionLabel(fn (Action $action): string => $action->getLabel())
-            ->form(
-                static fn (self $livewire, Form $form, array $arguments): Form => $form->operation('editOption')
-                    ->schema($livewire->getContainerSchema($form, $arguments))
+            ->schema(
+                static fn (self $livewire, Schema $schema, array $arguments): Schema => $schema->operation('editOption')
+                    ->schema($livewire->getContainerSchema($schema, $arguments))
             )
             ->fillForm(fn (self $livewire, $arguments): array => [
                 'key' => $arguments['containerKey'],
@@ -317,7 +324,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             ->label(__('capell-admin::button.remove_container'))
             ->groupedIcon('heroicon-m-trash')
             ->color('danger')
-            ->size(ActionSize::Small)
+            ->size(Size::Small)
             ->grouped()
             ->action(function (Action $action, self $livewire, array $arguments): void {
                 $livewire->removeContainer($arguments['containerKey']);
@@ -335,20 +342,20 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             ->grouped()
             ->slideOver()
             ->record(
-                fn (array $arguments, self $livewire): Models\Type => $livewire->getWidgetType(
+                fn (array $arguments, self $livewire): Type => $livewire->getWidgetType(
                     $arguments['containerKey'],
                     $arguments['widgetIndex']
                 )
             )
-            ->form(
-                fn (array $arguments, self $livewire, Form $form): Form => $form->operation('editOption')
+            ->schema(
+                fn (array $arguments, self $livewire, Schema $schema): Schema => $schema->operation('editOption')
                     ->schema(
-                        $livewire->getWidgetTypeSchema($form, $arguments['containerKey'], $arguments['widgetIndex'])
+                        $livewire->getWidgetTypeSchema($schema, $arguments['containerKey'], $arguments['widgetIndex'])
                     )
             )
-            ->fillForm(fn (Models\Type $record): array => $record->attributesToArray())
-            ->action(function (Action $action, Form $form, Models\Type $record, array $data): void {
-                $form->saveRelationships();
+            ->fillForm(fn (Type $record): array => $record->attributesToArray())
+            ->action(function (Action $action, Schema $schema, Type $record, array $data): void {
+                $schema->saveRelationships();
 
                 $record->update($data);
 
@@ -379,14 +386,14 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
                     ]
                 )
             )
-            ->modalWidth(MaxWidth::ScreenSmall)
-            ->form(
-                fn (array $arguments, self $livewire, Form $form): Form => $form->operation('editOption')
+            ->modalWidth(Width::ScreenSmall)
+            ->schema(
+                fn (array $arguments, self $livewire, Schema $schema): Schema => $schema->operation('editOption')
                     ->schema(
                         CapellAdmin::getSchema(
                             SchemaEnum::LayoutWidget->value,
                             $livewire->getContainerWidgetSchema($arguments['containerKey'], $arguments['widgetIndex'])
-                        )::make($form)
+                        )::make($schema)
                     )
             )
             ->fillForm(
@@ -406,14 +413,14 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             ->modalHeading(__('capell-admin::heading.add_widget_to_container'))
             ->modalSubmitActionLabel(__('capell-admin::button.add_widget'))
             ->icon('heroicon-c-plus')
-            ->size(ActionSize::ExtraSmall)
-            ->modalWidth(MaxWidth::ScreenLarge)
+            ->size(Size::ExtraSmall)
+            ->modalWidth(Width::ScreenLarge)
             ->color('gray')
             ->outlined()
             ->closeModalByClickingAway(false)
             ->visible(fn (): bool => (bool) $this->containers)
-            ->form(
-                fn (array $arguments, Form $form): Form => $form->operation('createOption')
+            ->schema(
+                fn (array $arguments, Schema $schema): Schema => $schema->operation('createOption')
                     ->schema(
                         LayoutBuilderAddWidgetSchema::schema(
                             empty($arguments['containerKey']) ? self::getContainerOptions() : null
@@ -447,8 +454,8 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             ->closeModalByClickingAway(false)
             ->icon('heroicon-o-pencil')
             ->color('gray')
-            ->size(ActionSize::ExtraSmall)
-            ->modalWidth(ModalWidthEnum::Default->value)
+            ->size(Size::ExtraSmall)
+            ->modalWidth(Width::SixExtraLarge)
             ->hiddenLabel()
             ->record(
                 fn (array $arguments): Widget => $this->getContainerWidget(
@@ -466,15 +473,15 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             ->modalSubmitActionLabel(__('capell-admin::button.save_changes'))
             ->successNotificationTitle(__('capell-admin::message.widget_updated'))
             ->fillForm(fn (Widget $record): array => $record->attributesToArray())
-            ->form(
-                fn (Form $form): Form => $form->operation('editOption')
-                    ->schema(WidgetResource::getFormSchema($form))
+            ->schema(
+                fn (Schema $schema): Schema => $schema->operation('editOption')
+                    ->schema(WidgetResource::getFormSchema($schema))
             )
             ->action(
-                function (Action $action, Form $form, Widget $record, array $data): void {
-                    $form->mutateDehydratedState($data);
+                function (Action $action, Schema $schema, Widget $record, array $data): void {
+                    $schema->mutateDehydratedState($data);
 
-                    $form->saveRelationships();
+                    $schema->saveRelationships();
 
                     $record->update($data);
 
@@ -526,8 +533,8 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             ->modal()
             ->icon('heroicon-c-magnifying-glass')
             ->iconSize(IconSize::Small)
-            ->size(ActionSize::Small)
-            ->modalWidth(ModalWidthEnum::Default->value)
+            ->size(Size::Small)
+            ->modalWidth(Width::SixExtraLarge)
             ->modalContent(function (Action $action, array $arguments): HtmlString {
                 /** @var self $livewire */
                 $livewire = $action->getLivewire();
@@ -583,12 +590,12 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             )
             ->icon('heroicon-o-plus-circle')
             ->iconSize(IconSize::Small)
-            ->size(ActionSize::Small)
+            ->size(Size::Small)
             ->modal()
             ->grouped()
             ->outlined()
             ->slideOver()
-            ->modalWidth(ModalWidthEnum::Default->value)
+            ->modalWidth(Width::SixExtraLarge)
             ->closeModalByClickingAway(false)
             ->modalHeading(
                 fn (array $arguments, self $livewire): string => __(
@@ -623,12 +630,12 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
                     ]);
                 }
             )
-            ->form(
-                fn (array $arguments, Form $form): Form => $form->operation('createOption')
-                    ->schema(self::getLayoutWidgetAssetSchema($arguments['containerKey'], $arguments['widgetIndex'], $form))
+            ->schema(
+                fn (array $arguments, Schema $schema): Schema => $schema->operation('createOption')
+                    ->schema(self::getLayoutWidgetAssetSchema($arguments['containerKey'], $arguments['widgetIndex'], $schema))
             )
             ->fillForm(function (array $arguments): array {
-                $site = $this->getSite() ?? Models\Site::default()->first();
+                $site = $this->getSite() ?? Site::default()->first();
 
                 $data = [
                     'asset_type' => $arguments['type'],
@@ -637,7 +644,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
                 ];
 
                 if (in_array($arguments['type'], ['content', 'page'], true)) {
-                    /** @var class-string<Models\Type> $model */
+                    /** @var class-string<Type> $model */
                     $model = CapellCore::getModel(ModelEnum::Type);
 
                     $data['asset']['type_id'] = match ($arguments['type']) {
@@ -661,10 +668,10 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
                 }
 
                 if ($arguments['type'] === 'page') {
-                    /** @var class-string<Models\Site> $layoutModel */
+                    /** @var class-string<Site> $layoutModel */
                     $layoutModel = CapellCore::getModel(ModelEnum::Layout);
 
-                    /** @var class-string<Models\Site> $sideModel */
+                    /** @var class-string<Site> $sideModel */
                     $sideModel = CapellCore::getModel(ModelEnum::Site);
 
                     $data['asset']['layout_id'] = $layoutModel::default()->value('id');
@@ -675,7 +682,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
 
                 return $data;
             })
-            ->action(function (self $livewire, Form $form, array $arguments, array $data, Action $action): void {
+            ->action(function (self $livewire, Schema $schema, array $arguments, array $data, Action $action): void {
                 $shouldAddPageAssets = $livewire->shouldAddPageAssets($arguments['containerKey'], $arguments['widgetIndex']);
 
                 /** @var WidgetAsset $record */
@@ -684,11 +691,11 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
 
                 $action->model($record::class);
 
-                $form->model($record);
+                $schema->model($record);
 
-                /** @var Forms\Components\Group $component */
-                $component = $form->getComponent(
-                    fn (Forms\Components\Component|CanEntangleWithSingularRelationships $component): bool => $component instanceof Forms\Components\Group
+                /** @var Group $component */
+                $component = $schema->getComponent(
+                    fn (\Filament\Schemas\Components\Component|CanEntangleWithSingularRelationships $component): bool => $component instanceof Group
                         && $component->getRelationshipName() === 'asset'
                 );
 
@@ -707,14 +714,14 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
                 $asset->fill($component->mutateRelationshipDataBeforeCreate($assetData));
                 $asset->save();
 
-                $uuid = (string) $asset->getUuid();
+                $uuid = (string) $asset->getKey();
 
                 $record->setRelation('asset', $asset);
 
                 $component->model($record);
 
                 /** @var Forms\ComponentContainer $container */
-                foreach ($component->getChildComponentContainers() as $container) {
+                foreach ($component->getChildSchemas() as $container) {
                     $container->model($asset)->saveRelationships();
                 }
 
@@ -751,7 +758,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             ->slideOver()
             ->closeModalByClickingAway(false)
             ->color('primary')
-            ->size(ActionSize::ExtraSmall)
+            ->size(Size::ExtraSmall)
             ->icon(fn (array $arguments): string => CapellCore::getAsset($arguments['assetType'])->getIcon())
             ->iconSize(IconSize::Small)
             ->tooltip(
@@ -760,7 +767,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
                     ['type' => $arguments['assetType']]
                 )
             )
-            ->modalWidth(ModalWidthEnum::Default->value)
+            ->modalWidth(Width::SixExtraLarge)
             ->modalHeading(
                 function (self $livewire, array $arguments): string {
                     $name = str($arguments['assetType'])->title();
@@ -795,9 +802,9 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             )
             ->modalSubmitActionLabel(__('capell-admin::button.save_changes'))
             ->successNotificationTitle(__('capell-admin::message.asset_updated'))
-            ->form(
-                fn (self $livewire, Form $form, array $arguments): Form => $form->operation('editOption')
-                    ->schema(self::getLayoutWidgetAssetSchema($arguments['containerKey'], $arguments['widgetIndex'], $form))
+            ->schema(
+                fn (self $livewire, Schema $schema, array $arguments): Schema => $schema->operation('editOption')
+                    ->schema(self::getLayoutWidgetAssetSchema($arguments['containerKey'], $arguments['widgetIndex'], $schema))
             )
             ->fillForm(fn (WidgetAsset $record, array $arguments): array => [
                 'meta' => $record->meta,
@@ -841,8 +848,8 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
 
                 return $widgetAsset;
             })
-            ->action(function (WidgetAsset $record, array $data, self $livewire, array $arguments, Action $action, Form $form): void {
-                $form->saveRelationships();
+            ->action(function (WidgetAsset $record, array $data, self $livewire, array $arguments, Action $action, Schema $schema): void {
+                $schema->saveRelationships();
 
                 if ($data !== []) {
                     $record->update($data);
@@ -866,7 +873,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             ->label(__('capell-admin::button.remove'))
             ->icon('heroicon-m-trash')
             ->color('danger')
-            ->size(ActionSize::ExtraSmall)
+            ->size(Size::ExtraSmall)
             ->extraAttributes(fn (array $arguments): array => [
                 'class' => 'whitespace-nowrap',
                 'x-cloak' => '',
@@ -896,14 +903,14 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             ->label(__('capell-admin::button.change'))
             ->tooltip(__('capell-admin::button.change_layout'))
             ->button()
-            ->size(ActionSize::ExtraSmall)
+            ->size(Size::ExtraSmall)
             ->icon('heroicon-o-cog-6-tooth')
             ->color('gray')
             ->modalHeading(__('capell-admin::button.change_layout'))
-            ->modalWidth(MaxWidth::Small)
+            ->modalWidth(Width::Small)
             ->visible(fn (): bool => (bool) $this->page_id)
-            ->form(
-                fn (Form $form, self $livewire): Form => $form->operation('editOption')
+            ->schema(
+                fn (Schema $schema, self $livewire): Schema => $schema->operation('editOption')
                     ->schema($livewire->getChangeLayoutSchema())
             )
             ->fillForm(fn (self $livewire): array => ['layout_id' => $livewire->layout_id])
@@ -935,7 +942,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             ->grouped()
             ->icon('heroicon-o-arrows-right-left')
             ->color('gray')
-            ->size(ActionSize::ExtraSmall)
+            ->size(Size::ExtraSmall)
             ->visible(function (self $livewire, array $arguments): bool {
                 if ($livewire->page_id === null || $livewire->page_id === 0) {
                     return false;
@@ -996,7 +1003,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
         $this->selectedRecords[$containerKey][$widgetIndex] = [];
     }
 
-    public function getLayout(): Models\Layout
+    public function getLayout(): Layout
     {
         return $this->layout;
     }
@@ -1026,10 +1033,10 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
     }
 
     #[Computed]
-    public function page(): ?Models\Page
+    public function page(): ?Page
     {
         if ($this->page_id) {
-            return Models\Page::find($this->page_id);
+            return Page::find($this->page_id);
         }
 
         return null;
@@ -1146,12 +1153,12 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
     private function getChangeLayoutSchema(): array
     {
         return [
-            Forms\Components\Select::make('layout_id')
+            Select::make('layout_id')
                 ->label(__('capell-admin::form.layout'))
                 ->required()
                 ->searchable()
                 ->options(
-                    Models\Layout::query()
+                    Layout::query()
                         ->withCount('pages')
                         ->when(
                             $this->site_id,
@@ -1163,7 +1170,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
                         ->orderBy('name')
                         ->get()
                         ->mapWithKeys(
-                            fn (Models\Layout $layout): array => [$layout->id => $layout->name.' ('.$layout->pages_count.')']
+                            fn (Layout $layout): array => [$layout->id => $layout->name.' ('.$layout->pages_count.')']
                         )
                         ->toArray()
                 )
@@ -1175,7 +1182,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
                             return null;
                         }
 
-                        $total = Models\Layout::find($state)->pages()->count();
+                        $total = Layout::find($state)->pages()->count();
 
                         return new HtmlString(
                             trans_choice(
@@ -1244,9 +1251,9 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             ->all();
     }
 
-    private function loadLayout(): Models\Layout
+    private function loadLayout(): Layout
     {
-        /** @var class-string<Models\Layout> $model */
+        /** @var class-string<Layout> $model */
         $model = CapellCore::getModel(ModelEnum::Layout);
 
         $layout = $model::withCount('pages')->find($this->layout_id);
@@ -1439,17 +1446,17 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
         return $occurrence;
     }
 
-    private function getLayoutPage(): ?Models\Page
+    private function getLayoutPage(): ?Page
     {
         if ($this->page_id === null || $this->page_id === 0) {
             return null;
         }
 
-        if ($this->layoutPage instanceof Models\Page) {
+        if ($this->layoutPage instanceof Page) {
             return $this->layoutPage;
         }
 
-        /** @var class-string<Models\Page> $model */
+        /** @var class-string<Page> $model */
         $model = CapellCore::getModel(ModelEnum::Page);
 
         $this->layoutPage = $model::withTrashed()->withDrafts()->find($this->page_id);
@@ -1457,13 +1464,13 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
         return $this->layoutPage;
     }
 
-    private function getSite(): ?Models\Site
+    private function getSite(): ?Site
     {
-        if ($this->site instanceof Models\Site) {
+        if ($this->site instanceof Site) {
             return $this->site;
         }
 
-        if ($this->getLayoutPage() instanceof Models\Page) {
+        if ($this->getLayoutPage() instanceof Page) {
             return $this->getLayoutPage()->site;
         }
 
@@ -1471,7 +1478,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             return null;
         }
 
-        /** @var class-string<Models\Site> $model */
+        /** @var class-string<Site> $model */
         $model = CapellCore::getModel(ModelEnum::Site);
 
         return $model::find($this->site_id);
@@ -1540,12 +1547,12 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
         }
     }
 
-    private function getContainerSchema(Form $form, array $arguments): array
+    private function getContainerSchema(Schema $schema, array $arguments): array
     {
         $containerKey = $arguments['containerKey'] ?? null;
 
         return [
-            Forms\Components\TextInput::make('key')
+            TextInput::make('key')
                 ->label(__('capell-admin::form.key'))
                 ->placeholder(__('capell-admin::generic.key_placeholder'))
                 ->helperText(__('Lowercase text, numbers, hyphens, and underscores only'))
@@ -1553,7 +1560,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
                 ->required()
                 ->maxLength(128)
                 ->afterStateHydrated(
-                    fn (Forms\Components\TextInput $component, $state): Forms\Components\TextInput => $component->state(
+                    fn (TextInput $component, $state): TextInput => $component->state(
                         str($state)->slug()->lower()->toString()
                     )
                 )
@@ -1570,18 +1577,18 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
             ...CapellAdmin::getSchema(
                 SchemaEnum::LayoutContainer->value,
                 $this->layout->admin['container_schema'][$containerKey] ?? DefaultLayoutContainerSchema::getKey()
-            )::make($form),
+            )::make($schema),
         ];
     }
 
-    private function getLayoutWidgetAssetSchema(string $containerKey, int $widgetIndex, Form $form): array
+    private function getLayoutWidgetAssetSchema(string $containerKey, int $widgetIndex, Schema $schema): array
     {
         $widget = $this->getContainerWidget($containerKey, $widgetIndex);
 
         $type = $widget->admin['widget_asset_schema'] ?? $widget->type->admin['widget_asset_schema'] ??
             DefaultWidgetAssetSchema::getKey();
 
-        return CapellAdmin::getSchema(SchemaEnum::WidgetAsset->value, $type)::make($form);
+        return CapellAdmin::getSchema(SchemaEnum::WidgetAsset->value, $type)::make($schema);
     }
 
     private function updateContainerKey(string $oldKey, string $newKey): string
@@ -1758,9 +1765,9 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
                 fn (\Illuminate\Support\Collection $assets, string $type): array => [
                     $type => CapellCore::getAsset($type)->model::query()
                         ->with($this->getAssetRelations($type))
-                        ->whereIn('uuid', $assets->pluck('asset_id')->unique()->toArray())
+                        ->whereIn('id', $assets->pluck('asset_id')->unique()->toArray())
                         ->get()
-                        ->keyBy('uuid'),
+                        ->keyBy('id'),
                 ]
             );
 
@@ -2038,7 +2045,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
 
     private function changePageLayout(int $layoutId): void
     {
-        if (! $this->getLayoutPage() instanceof Models\Page) {
+        if (! $this->getLayoutPage() instanceof Page) {
             return;
         }
 
@@ -2065,7 +2072,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
         return $this->containerWidgets[$containerKey][$widgetIndex];
     }
 
-    private function getWidgetType(string $containerKey, int $widgetIndex): ?Models\Type
+    private function getWidgetType(string $containerKey, int $widgetIndex): ?Type
     {
         return $this->getContainerWidget($containerKey, $widgetIndex)?->type;
     }
@@ -2210,7 +2217,7 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
         }
     }
 
-    private function getWidgetTypeSchema(Form $form, string $containerKey, int $widgetIndex): array
+    private function getWidgetTypeSchema(Schema $schema, string $containerKey, int $widgetIndex): array
     {
         $name = $this->getContainerWidget($containerKey, $widgetIndex)
             ?->type
@@ -2219,6 +2226,6 @@ class LayoutBuilder extends Component implements Forms\Contracts\HasForms, HasAc
 
         $schema = CapellAdmin::getSchema(\Capell\Admin\Enums\SchemaEnum::Type->value, $name);
 
-        return $schema::make($form);
+        return $schema::make($schema);
     }
 }

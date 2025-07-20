@@ -15,62 +15,68 @@ use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
 use Capell\Layout\Filament\Schemas\AbstractWidgetSchema;
-use Filament\Forms;
+use Filament\Forms\Components\Checkbox;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 
 class DefaultWidgetSchema extends AbstractWidgetSchema
 {
-    public static function make(Forms\Form $form): array
+    public static function make(Schema $schema): array
     {
-        $operation = $form->getOperation();
+        $operation = $schema->getOperation();
 
         return match ($operation) {
             'create', 'createOption', 'replicate' => [
-                WidgetTranslationsRepeater::make($form)
+                WidgetTranslationsRepeater::make($schema)
                     ->section(fn (string $operation): bool => $operation === 'create'),
-                ...self::getExtraSchema($form),
+                ...self::getExtraSchema($schema),
             ],
             'editOption' => [
-                WidgetTranslationsRepeater::make($form),
-                ...self::getExtraSchema($form, withSettingsTab: true),
+                WidgetTranslationsRepeater::make($schema),
+                ...self::getExtraSchema($schema, withSettingsTab: true),
             ],
             default => [
                 FixedWidthSidebar::make()
                     ->mainSchema([
-                        WidgetTranslationsRepeater::make($form)
+                        WidgetTranslationsRepeater::make($schema)
                             ->section(),
-                        ...self::getExtraSchema($form),
+                        ...self::getExtraSchema($schema),
                     ])
                     ->sidebarSchema([
-                        Forms\Components\Section::make()
+                        Section::make()
                             ->columns(1)
-                            ->schema(WidgetSettingsSchema::make($form)),
+                            ->schema(WidgetSettingsSchema::make($schema)),
                     ]),
             ],
         };
     }
 
-    protected static function getExtraSchema(Forms\Form $form, bool $withSettingsTab = false): array
+    protected static function getExtraSchema(Schema $schema, bool $withSettingsTab = false): array
     {
         return [
-            self::getTabs($form, $withSettingsTab),
+            self::getTabs($schema, $withSettingsTab),
         ];
     }
 
-    protected static function getTabs(Forms\Form $form, bool $withSettingsTab = false): Forms\Components\Tabs
+    protected static function getTabs(Schema $schema, bool $withSettingsTab = false): Tabs
     {
-        return Forms\Components\Tabs::make('tabs')
+        return Tabs::make('tabs')
             ->columnSpanFull()
             ->tabs([
                 static::getDetailsTab(),
-                static::getDisplayTab($form),
-                ...$withSettingsTab ? static::getSettingsTab($form) : [],
+                static::getDisplayTab($schema),
+                ...$withSettingsTab ? static::getSettingsTab($schema) : [],
             ]);
     }
 
-    protected static function getDisplayTab(Forms\Form $form): Forms\Components\Tabs\Tab
+    protected static function getDisplayTab(Schema $schema): Tab
     {
         return WidgetDisplayTab::make([
-            Forms\Components\Grid::make()
+            Grid::make()
                 ->statePath('meta')
                 ->mutateDehydratedStateUsing(function (array $state): array {
                     if (! empty($state['background_image_id'])) {
@@ -88,9 +94,9 @@ class DefaultWidgetSchema extends AbstractWidgetSchema
         ]);
     }
 
-    private static function getDetailsTab(): Forms\Components\Tabs\Tab
+    private static function getDetailsTab(): Tab
     {
-        return Forms\Components\Tabs\Tab::make('details')
+        return Tab::make('details')
             ->label(__('capell-admin::tab.details'))
             ->icon('heroicon-o-information-circle')
             ->statePath('meta')
@@ -102,26 +108,26 @@ class DefaultWidgetSchema extends AbstractWidgetSchema
                 return $state;
             })
             ->schema([
-                Forms\Components\Grid::make()
+                Grid::make()
                     ->schema([
                         ImageMediaPicker::make('image_id')
                             ->label(__('capell-admin::form.image'))
                             ->relationship(relationshipName: 'image', titleColumnName: 'name')
                             ->reactive(),
-                        Forms\Components\Checkbox::make('reverse_order')
+                        Checkbox::make('reverse_order')
                             ->label(__('capell-admin::form.reverse_order'))
-                            ->visible(fn (Forms\Get $get): bool => (bool) $get('image_id')),
+                            ->visible(fn (Get $get): bool => (bool) $get('image_id')),
                     ]),
                 ActionsRepeater::make('actions'),
             ]);
     }
 
-    private static function getSettingsTab(Forms\Form $form): Forms\Components\Tabs\Tab
+    private static function getSettingsTab(Schema $schema): Tab
     {
-        return Forms\Components\Tabs\Tab::make('settings')
+        return Tab::make('settings')
             ->label(__('capell-admin::tab.settings'))
             ->icon('heroicon-o-cog')
             ->statePath('settings')
-            ->schema(WidgetSettingsSchema::make($form));
+            ->schema(WidgetSettingsSchema::make($schema));
     }
 }

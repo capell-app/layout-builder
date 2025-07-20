@@ -20,7 +20,7 @@ class SiblingsWidget extends AbstractPagesWidget
             return;
         }
 
-        if (! $pageRecord->parent_uuid) {
+        if (! $pageRecord->parent_id) {
             $this->skipRender = true;
 
             return;

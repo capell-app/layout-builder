@@ -18,9 +18,9 @@
         }
     ],
     "require": {
-        "php": "^8.0|^8.1|^8.2",
-        "capell-app/admin": "^3.0",
-        "capell-app/frontend": "^3.0"
+        "php": "^8.2",
+        "capell-app/admin": "^4.0",
+        "capell-app/frontend": "^4.0"
     },
     "autoload": {
         "psr-4": {

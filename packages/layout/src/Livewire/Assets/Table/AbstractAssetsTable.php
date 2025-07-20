@@ -8,17 +8,21 @@ use Capell\Admin\Filament\Actions\BulkSelectAction;
 use Capell\Layout\Livewire\LayoutBuilder;
 use Closure;
 use Filament\Facades\Filament;
-use Filament\Forms;
-use Filament\Tables;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Livewire\Component;
+use Ramsey\Uuid\UuidInterface;
 
-abstract class AbstractAssetsTable extends Component implements Forms\Contracts\HasForms, Tables\Contracts\HasTable
+abstract class AbstractAssetsTable extends Component implements HasForms, HasTable
 {
-    use Forms\Concerns\InteractsWithForms;
-    use Tables\Concerns\InteractsWithTable;
+    use InteractsWithForms;
+    use InteractsWithTable;
 
     public string $actionId;
 
@@ -40,11 +44,11 @@ abstract class AbstractAssetsTable extends Component implements Forms\Contracts\
 
     abstract protected function getTableQuery(): Builder;
 
-    public function getTableRecordKey(Model $record): string
+    public function getTableRecordKey(Model|array $record): string
     {
-        return $record->uuid instanceof \Ramsey\Uuid\UuidInterface
-            ? $record->uuid->toString()
-            : (string) $record->uuid;
+        return $record->id instanceof UuidInterface
+            ? $record->id->toString()
+            : (string) $record->id;
     }
 
     public function mount(): void
@@ -64,14 +68,14 @@ abstract class AbstractAssetsTable extends Component implements Forms\Contracts\
         blade;
     }
 
-    public function table(Tables\Table $table): Tables\Table
+    public function table(Table $table): Table
     {
         return $table
             ->query(
                 $this->getTableQuery()
                     ->when(
                         $this->existingRecords,
-                        fn (Builder $query) => $query->whereNotIn('uuid', $this->existingRecords)
+                        fn (Builder $query) => $query->whereNotIn('id', $this->existingRecords)
                     )
             )
             ->columns($this->getTableColumns())
@@ -86,7 +90,7 @@ abstract class AbstractAssetsTable extends Component implements Forms\Contracts\
                 'sm' => 2,
                 'lg' => 3,
             ])
-            ->bulkActions($this->getTableBulkActions());
+            ->toolbarActions($this->getTableBulkActions());
     }
 
     protected function getTableBulkActions(): array

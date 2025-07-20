@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Resources\ContentResource\RelationManagers;
 
-use Awcodes\FilamentBadgeableColumn\Components\Badge;
+use Awcodes\BadgeableColumn\Components\Badge;
 use Capell\Admin\Filament\Components\Tables\Columns\IdentifierColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Admin\Filament\Concerns\HasRelationManagerBadge;
@@ -12,7 +12,7 @@ use Capell\Admin\Filament\Concerns\HideEmptyRelationManager;
 use Capell\Layout\Filament\Resources\WidgetResource;
 use Capell\Layout\Models\Widget;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -50,7 +50,7 @@ class WidgetsRelationManager extends RelationManager
                             ->label(fn (Widget $record) => $record->type?->name)
                             ->color('gray'),
                     ]),
-                Tables\Columns\TextColumn::make('key')
+                TextColumn::make('key')
                     ->label(__('capell-admin::table.key'))
                     ->searchable()
                     ->sortable()

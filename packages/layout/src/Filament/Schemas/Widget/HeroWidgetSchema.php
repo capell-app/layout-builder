@@ -16,63 +16,69 @@ use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
 use Capell\Layout\Filament\Schemas\AbstractWidgetSchema;
-use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Schema;
 
 class HeroWidgetSchema extends AbstractWidgetSchema
 {
-    public static function make(Forms\Form $form): array
+    public static function make(Schema $schema): array
     {
-        $operation = $form->getOperation();
+        $operation = $schema->getOperation();
 
         return [
             ...match ($operation) {
-                'create', 'createOption', 'replicate' => self::getCreateOptionSchema($form),
-                default => self::getEditFormSchema($form),
+                'create', 'createOption', 'replicate' => self::getCreateOptionSchema($schema),
+                default => self::getEditFormSchema($schema),
             },
         ];
     }
 
-    protected static function getCreateOptionSchema(Forms\Form $form): array
+    protected static function getCreateOptionSchema(Schema $schema): array
     {
         return [
-            WidgetAssetsRepeater::make($form),
+            WidgetAssetsRepeater::make($schema),
             ...static::getMetaSchema(),
         ];
     }
 
-    protected static function getEditFormSchema(Forms\Form $form): array
+    protected static function getEditFormSchema(Schema $schema): array
     {
         return [
             FixedWidthSidebar::make()
                 ->mainSchema([
-                    Forms\Components\Section::make(__('capell-admin::generic.widget_assets'))
+                    Section::make(__('capell-admin::generic.widget_assets'))
                         ->description(__('capell-admin::generic.widget_assets_info'))
                         ->compact()
                         ->schema([
-                            WidgetAssetsRepeater::make($form)
+                            WidgetAssetsRepeater::make($schema)
                                 ->hiddenLabel(),
                         ]),
                 ])
                 ->sidebarSchema([
-                    Forms\Components\Section::make()
+                    Section::make()
                         ->columns(1)
-                        ->schema(WidgetSettingsSchema::make($form)),
+                        ->schema(WidgetSettingsSchema::make($schema)),
                 ]),
-            self::getTabs($form),
+            self::getTabs($schema),
         ];
     }
 
-    protected static function getTabs(Forms\Form $form): Forms\Components\Tabs
+    protected static function getTabs(Schema $schema): Tabs
     {
-        return Forms\Components\Tabs::make('tabs')
+        return Tabs::make('tabs')
             ->columnSpanFull()
             ->tabs([
-                Forms\Components\Tabs\Tab::make(__('capell-admin::tab.content'))
+                Tab::make(__('capell-admin::tab.content'))
                     ->schema([
-                        WidgetTranslationsRepeater::make($form),
+                        WidgetTranslationsRepeater::make($schema),
                     ]),
                 WidgetDisplayTab::make([
-                    Forms\Components\Grid::make()
+                    Grid::make()
                         ->statePath('meta')
                         ->mutateDehydratedStateUsing(function (array $state): array {
                             if (isset($state['background_image_id'])) {
@@ -93,10 +99,10 @@ class HeroWidgetSchema extends AbstractWidgetSchema
     protected static function getMetaSchema(): array
     {
         return [
-            Forms\Components\Grid::make(['default' => 2, 'xl' => 3])
+            Grid::make(['default' => 2, 'xl' => 3])
                 ->schema([
                     ColorSchemeComponent::make('color_scheme'),
-                    Forms\Components\Select::make('height')
+                    Select::make('height')
                         ->label(__('capell-admin::form.height'))
                         ->options([
                             'small' => __('capell-admin::generic.small'),
@@ -109,7 +115,7 @@ class HeroWidgetSchema extends AbstractWidgetSchema
                     BackgroundSettingsFieldset::make(),
                 ]),
 
-            Forms\Components\Fieldset::make(__('capell-admin::generic.carousel_options'))
+            Fieldset::make(__('capell-admin::generic.carousel_options'))
                 ->columns(['default' => 2, 'xl' => 3])
                 ->schema(CarouselSettingsSchema::make()),
         ];

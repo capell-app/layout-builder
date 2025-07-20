@@ -16,7 +16,11 @@ use Capell\Layout\Filament\Components\Forms\Content\ContentSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Content\ContentTranslationsRepeater;
 use Capell\Layout\Filament\Components\Forms\CustomColorInput;
 use Capell\Layout\Filament\Schemas\AbstractContentSchema;
-use Filament\Forms;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 
 class DefaultContentSchema extends AbstractContentSchema
 {
@@ -31,44 +35,45 @@ class DefaultContentSchema extends AbstractContentSchema
                 name: 'color',
                 label: __('capell-admin::form.color'),
             ),
-            Forms\Components\Group::make()
+            Group::make()
                 ->schema([
-                    PageSelect::make('page_uuid')
+                    PageSelect::make('page_id')
                         ->label(__('capell-admin::form.related_page'))
                         ->reactive(),
                     CallToActionText::make('link_text')
-                        ->hidden(fn (Forms\Get $get): bool => $get('page_uuid') === null),
+                        ->hidden(fn (Get $get): bool => $get('page_id') === null),
                 ]),
         ];
     }
 
-    public static function make(Forms\Form $form): array
+    public static function make(Schema $schema): array
     {
-        return match ($form->getOperation()) {
-            'createOption', 'replicate' => self::getCreateOptionFormSchema($form),
-            'create' => self::getCreateFormSchema($form),
-            'editOption' => self::getEditOptionFormSchema($form),
-            default => self::getEditFormSchema($form),
+        return match ($schema->getOperation()) {
+            'createOption', 'replicate' => self::getCreateOptionFormSchema($schema),
+            'create' => self::getCreateFormSchema($schema),
+            'editOption' => self::getEditOptionFormSchema($schema),
+            default => self::getEditFormSchema($schema),
         };
     }
 
-    protected static function getCreateFormSchema(Forms\Form $form): array
+    protected static function getCreateFormSchema(Schema $schema): array
     {
         return [
-            Forms\Components\Section::make()
+            Section::make()
                 ->columns()
-                ->schema(ContentSettingsSchema::make($form)),
-            ContentTranslationsRepeater::make($form),
+                ->schema(ContentSettingsSchema::make($schema)),
+            ContentTranslationsRepeater::make($schema),
         ];
     }
 
-    protected static function getCreateOptionFormSchema(Forms\Form $form): array
+    protected static function getCreateOptionFormSchema(Schema $schema): array
     {
         return [
-            ...ContentSettingsSchema::make($form),
-            ContentTranslationsRepeater::make($form),
-            Forms\Components\Grid::make()
+            ...ContentSettingsSchema::make($schema),
+            ContentTranslationsRepeater::make($schema),
+            Grid::make()
                 ->statePath('meta')
+                ->columnSpanFull()
                 ->mutateDehydratedStateUsing(function (array $state): array {
                     if (isset($state['image_id'])) {
                         $state['image_id'] = FixCuratorMetaDataAction::run($state['image_id']);
@@ -80,13 +85,13 @@ class DefaultContentSchema extends AbstractContentSchema
         ];
     }
 
-    protected static function getEditFormSchema(Forms\Form $form): array
+    protected static function getEditFormSchema(Schema $schema): array
     {
         return [
             FixedWidthSidebar::make()
                 ->mainSchema([
-                    ContentTranslationsRepeater::make($form),
-                    Forms\Components\Section::make()
+                    ContentTranslationsRepeater::make($schema),
+                    Section::make()
                         ->columns()
                         ->statePath('meta')
                         ->mutateDehydratedStateUsing(function (array $state): array {
@@ -99,11 +104,11 @@ class DefaultContentSchema extends AbstractContentSchema
                         ->schema(self::getMetaSchema()),
                 ])
                 ->sidebarSchema([
-                    Forms\Components\Section::make()
+                    Section::make()
                         ->columns(1)
                         ->schema([
                             ...ContentDetailsSchema::make(),
-                            ...ContentSettingsSchema::make($form),
+                            ...ContentSettingsSchema::make($schema),
                         ]),
                     ContentPublishSection::make(),
                 ]),
@@ -111,11 +116,11 @@ class DefaultContentSchema extends AbstractContentSchema
 
     }
 
-    protected static function getEditOptionFormSchema(Forms\Form $form): array
+    protected static function getEditOptionFormSchema(Schema $schema): array
     {
         return [
-            ContentTranslationsRepeater::make($form),
-            Forms\Components\Grid::make()
+            ContentTranslationsRepeater::make($schema),
+            Grid::make()
                 ->statePath('meta')
                 ->mutateDehydratedStateUsing(function (array $state): array {
                     if (isset($state['image_id'])) {
@@ -125,14 +130,14 @@ class DefaultContentSchema extends AbstractContentSchema
                     return $state;
                 })
                 ->schema(self::getMetaSchema()),
-            Forms\Components\Section::make(__('capell-admin::generic.settings'))
+            Section::make(__('capell-admin::generic.settings'))
                 ->collapsed()
                 ->compact()
                 ->icon('heroicon-o-cog-6-tooth')
                 ->columns()
                 ->schema([
                     ...ContentDetailsSchema::make(),
-                    ...ContentSettingsSchema::make($form),
+                    ...ContentSettingsSchema::make($schema),
                     ContentPublishSection::make(),
                 ]),
         ];

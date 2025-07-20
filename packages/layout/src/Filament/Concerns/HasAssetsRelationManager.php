@@ -8,10 +8,11 @@ use Capell\Core\Data\AssetData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Capell\Layout\Filament\Components\Forms\AssetTypeToggleButtons;
-use Filament\Forms;
-use Filament\Forms\Get;
+use Filament\Actions\Action;
+use Filament\Actions\CreateAction;
+use Filament\Forms\Components\Select;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Components\Utilities\Get;
 use Illuminate\Contracts\Database\Query\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -25,9 +26,9 @@ use Kalnoy\Nestedset\NestedSet;
  */
 trait HasAssetsRelationManager
 {
-    protected static function createResourcesAction(): Tables\Actions\Action
+    protected static function createResourcesAction(): Action
     {
-        return Tables\Actions\CreateAction::make()
+        return CreateAction::make()
             ->label(__('capell-admin::button.add_asset'))
             ->color('primary')
             ->successNotificationTitle(__('capell-admin::messsage.asset_added'))
@@ -49,7 +50,7 @@ trait HasAssetsRelationManager
             AssetTypeToggleButtons::make('asset_type')
                 ->required()
                 ->reactive(),
-            Forms\Components\Select::make('assets')
+            Select::make('assets')
                 ->label(
                     fn (Get $get): string => $get('asset_type')
                         ? __('capell-layout::form.select_add_type', ['type' => $get('asset_type')])
@@ -60,7 +61,7 @@ trait HasAssetsRelationManager
                 ->multiple()
                 ->disabled(fn (Get $get): bool => ! $get('asset_type'))
                 ->getSearchResultsUsing(
-                    static fn (Forms\Components\Select $component, Get $get, self $livewire, string $search): array => self::getAssetOptions(
+                    static fn (Select $component, Get $get, self $livewire, string $search): array => self::getAssetOptions(
                         $component,
                         $livewire->ownerRecord,
                         $get('asset_type'),
@@ -69,7 +70,7 @@ trait HasAssetsRelationManager
                     )
                 )
                 ->options(
-                    fn (Forms\Components\Select $component, Get $get, self $livewire): array => self::getAssetOptions(
+                    fn (Select $component, Get $get, self $livewire): array => self::getAssetOptions(
                         $component,
                         $livewire->ownerRecord,
                         $get('asset_type'),
@@ -85,7 +86,7 @@ trait HasAssetsRelationManager
             return self::getPageAssetOptions($results);
         }
 
-        return $results->pluck('name', 'uuid');
+        return $results->pluck('name', 'id');
     }
 
     protected static function getPageAssetOptions($results): Collection
@@ -95,8 +96,10 @@ trait HasAssetsRelationManager
         $results->each(function (Page $page) use (&$options): void {
             $label = $page->site->name.' » ';
 
-            if ($page->ancestors->isNotEmpty()) {
-                $label .= $page->ancestors->pluck('name')
+            $ancestors = $page->ancestors()->get();
+
+            if ($ancestors->isNotEmpty()) {
+                $label .= $ancestors->pluck('name')
                     ->map(fn ($item) => Str::limit($item, 30))
                     ->implode(' » ')
                     .' » ';
@@ -104,13 +107,13 @@ trait HasAssetsRelationManager
 
             $label .= Str::limit($page->name, 40);
 
-            $options->put($page->uuid, $label);
+            $options->put($page->id, $label);
         });
 
         return $options;
     }
 
-    private static function getAssetOptions(Forms\Components\Select $component, Model $record, ?string $type, int $limit = 10, ?string $search = null): array
+    private static function getAssetOptions(Select $component, Model $record, ?string $type, int $limit = 10, ?string $search = null): array
     {
         if ($type === null || $type === '' || $type === '0') {
             return [];
@@ -124,7 +127,7 @@ trait HasAssetsRelationManager
         $query = $model::query()
             ->select([
                 'id',
-                'uuid',
+                'id',
                 'name',
             ])
             ->whereKeyNot($record->id)
@@ -132,7 +135,7 @@ trait HasAssetsRelationManager
                 fn (BuilderContract $query) => $query
                     ->from('content_assets')
                     ->where('content_assets.content_id', $record->id)
-                    ->whereColumn('content_assets.asset_id', app($model)->qualifyColumn('uuid'))
+                    ->whereColumn('content_assets.asset_id', app($model)->qualifyColumn('id'))
                     ->where('asset_type', $type)
             )
             ->when(
@@ -143,7 +146,7 @@ trait HasAssetsRelationManager
                 ])
                     ->addSelect([
                         'pages.site_id',
-                        'pages.parent_uuid',
+                        'pages.parent_id',
                         'pages._lft',
                         'pages._rgt',
                     ])

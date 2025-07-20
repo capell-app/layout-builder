@@ -9,6 +9,7 @@ use Capell\Core\Models;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Layout\Models\Widget;
 use Closure;
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\Drawer\Utils;
@@ -67,7 +68,7 @@ abstract class AbstractWidget extends Component
     /**
      * Get the view / contents that represent the component.
      *
-     * @return \Illuminate\Contracts\View\View|Closure|string
+     * @return View|Closure|string
      */
     public function render(array $data = [])
     {

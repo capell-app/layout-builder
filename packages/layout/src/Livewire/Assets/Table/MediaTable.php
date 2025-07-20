@@ -8,7 +8,7 @@ use Capell\Admin\Filament\Components\Tables\Columns\CuratorColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\DateColumn;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 
 class MediaTable extends AbstractAssetsTable
@@ -20,18 +20,18 @@ class MediaTable extends AbstractAssetsTable
         return [
             CuratorColumn::make('url')
                 ->selectableRow(),
-            Tables\Columns\TextColumn::make('name')
+            TextColumn::make('name')
                 ->label(__('curator::tables.columns.name'))
                 ->toggleable(isToggledHiddenByDefault: true)
                 ->selectableRow()
                 ->searchable()
                 ->sortable(),
-            Tables\Columns\TextColumn::make('title')
+            TextColumn::make('title')
                 ->label(__('capell-admin::table.title'))
                 ->selectableRow()
                 ->searchable()
                 ->sortable(),
-            Tables\Columns\TextColumn::make('ext')
+            TextColumn::make('ext')
                 ->label(__('curator::tables.columns.ext'))
                 ->sortable(),
             DateColumn::make('updated_at')->toggleable(),

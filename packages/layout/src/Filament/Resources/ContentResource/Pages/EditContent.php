@@ -18,7 +18,9 @@ use Capell\Layout\Filament\Actions\Page\CreateContentAction;
 use Capell\Layout\Filament\Components\Forms\Content\ContentTypeSelect;
 use Capell\Layout\Filament\Resources\ContentResource;
 use Capell\Layout\Models\Content;
-use Filament\Actions;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
 use Howdu\FilamentRecordSwitcher\Filament\Concerns\HasRecordSwitcher;
 use Illuminate\Contracts\Support\Htmlable;
@@ -70,13 +72,13 @@ class EditContent extends EditRecord
         ]);
     }
 
-    protected function getActions(): array
+    protected function getHeaderActions(): array
     {
         return [
-            Actions\RestoreAction::make(),
+            RestoreAction::make(),
             DeleteAction::make(),
-            Actions\ForceDeleteAction::make(),
-            Actions\ActionGroup::make([
+            ForceDeleteAction::make(),
+            ActionGroup::make([
                 CreateContentAction::make(),
                 ReplicateAction::make()
                     ->replicaModelAction(ReplicateContentAction::class)

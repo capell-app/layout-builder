@@ -7,25 +7,27 @@ namespace Capell\Layout\Filament\Schemas\Layout;
 use Capell\Admin\Filament\Components\Forms\Layout\Tab\LayoutSettingsTab;
 use Capell\Core\Models\Layout;
 use Capell\Layout\Livewire\LayoutBuilder;
-use Filament\Forms;
-use Filament\Forms\Get;
+use Filament\Schemas\Components\Livewire;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 
 class DefaultLayoutSchema extends \Capell\Admin\Filament\Schemas\Layout\DefaultLayoutSchema
 {
-    protected static function getTabs(Forms\Form $form): array
+    protected static function getTabs(Schema $schema): array
     {
         return [
             static::getBuilderTab(),
-            LayoutSettingsTab::make($form),
+            LayoutSettingsTab::make($schema),
         ];
     }
 
-    protected static function getBuilderTab(): Forms\Components\Tabs\Tab
+    protected static function getBuilderTab(): Tab
     {
-        return Forms\Components\Tabs\Tab::make(__('capell-admin::tab.layout_builder'))
+        return Tab::make(__('capell-admin::tab.layout_builder'))
             ->visibleOn('edit')
             ->schema([
-                Forms\Components\Livewire::make(
+                Livewire::make(
                     LayoutBuilder::class,
                     fn (Get $get, Layout $record): array => [
                         'site_id' => $record->site_id,

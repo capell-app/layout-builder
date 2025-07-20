@@ -17,7 +17,14 @@ use Capell\Admin\Filament\Resources\PageResource\RelationManagers\AuditsRelation
 use Capell\Admin\Filament\Schemas\Page\DefaultPageSchema;
 use Capell\Core\Enums\LayoutGroupEnum;
 use Filament\Facades\Filament;
-use Filament\Forms;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Override;
@@ -31,12 +38,12 @@ class ArticlePageSchema extends DefaultPageSchema
         ];
     }
 
-    protected static function getCreateFormSchema(Forms\Form $form): array
+    protected static function getCreateFormSchema(Schema $schema): array
     {
         return [
-            static::getTranslationFormSchema($form),
-            Forms\Components\Section::make()
-                ->contained($form->getOperation() !== 'create')
+            static::getTranslationFormSchema($schema),
+            Section::make()
+                ->contained(in_array($schema->getOperation(), ['create', 'edit']))
                 ->columns()
                 ->columnSpanFull()
                 ->schema([
@@ -45,28 +52,28 @@ class ArticlePageSchema extends DefaultPageSchema
         ];
     }
 
-    protected static function getCreateOptionFormSchema(Forms\Form $form): array
+    protected static function getCreateOptionFormSchema(Schema $schema): array
     {
-        return static::getCreateFormSchema($form);
+        return static::getCreateFormSchema($schema);
     }
 
-    protected static function getEditFormSchema(Forms\Form $form): array
+    protected static function getEditFormSchema(Schema $schema): array
     {
         return [
             FixedWidthSidebar::make()
                 ->mainSchema([
-                    static::getTranslationFormSchema($form),
+                    static::getTranslationFormSchema($schema),
                 ])
                 ->sidebarSchema([
-                    Forms\Components\Section::make()
+                    Section::make()
                         ->columns(['default' => 1, 'sm' => 2, 'lg' => 1])
                         ->schema([
                             ...PageSettingsSchema::make(
-                                $form,
-                                schema: [
+                                $schema,
+                                [
                                     PageTagsInput::make('tags'),
 
-                                    Forms\Components\Group::make()
+                                    Group::make()
                                         ->statePath('meta')
                                         ->mutateDehydratedStateUsing(function (array $state): array {
                                             if (isset($state['image_id'])) {
@@ -77,7 +84,7 @@ class ArticlePageSchema extends DefaultPageSchema
                                         })
                                         ->schema([
                                             ImageMediaPicker::make('image_id'),
-                                            Forms\Components\Select::make('author_id')
+                                            Select::make('author_id')
                                                 ->label(__('capell-admin::form.author'))
                                                 ->relationship(name: 'author', titleAttribute: 'name')
                                                 ->dehydrated()
@@ -85,7 +92,6 @@ class ArticlePageSchema extends DefaultPageSchema
                                         ]),
                                 ],
                                 resourceName: 'article',
-                                withParent: false,
                             ),
                             PagePublishSection::make(),
                         ]),
@@ -93,21 +99,21 @@ class ArticlePageSchema extends DefaultPageSchema
         ];
     }
 
-    protected static function getEditOptionFormSchema(Forms\Form $form): array
+    protected static function getEditOptionFormSchema(Schema $schema): array
     {
         return [
-            static::getTranslationFormSchema($form),
-            Forms\Components\Section::make(__('capell-admin::generic.settings'))
+            static::getTranslationFormSchema($schema),
+            Section::make(__('capell-admin::generic.settings'))
                 ->columns()
                 ->compact()
                 ->collapsed()
                 ->schema([
                     ...PageSettingsSchema::make(
-                        $form,
-                        schema: [
+                        $schema,
+                        [
                             PageTagsInput::make('tags'),
 
-                            Forms\Components\Group::make()
+                            Group::make()
                                 ->statePath('meta')
                                 ->mutateDehydratedStateUsing(function (array $state): array {
                                     if (isset($state['image_id'])) {
@@ -118,7 +124,7 @@ class ArticlePageSchema extends DefaultPageSchema
                                 })
                                 ->schema([
                                     ImageMediaPicker::make('image_id'),
-                                    Forms\Components\Select::make('author_id')
+                                    Select::make('author_id')
                                         ->label(__('capell-admin::form.author'))
                                         ->relationship(name: 'author', titleAttribute: 'name')
                                         ->dehydrated()
@@ -136,17 +142,17 @@ class ArticlePageSchema extends DefaultPageSchema
     protected static function getCreateExtraFor(): array
     {
         return [
-            Forms\Components\Group::make([
-                Forms\Components\Hidden::make('is_layout_changed_manually')
+            Group::make([
+                Hidden::make('is_layout_changed_manually')
                     ->default(false)
                     ->dehydrated(false),
 
                 LayoutSelect::make('layout_id')
-                    ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set, ?int $state): void {
+                    ->afterStateUpdated(function (Get $get, Set $set, ?int $state): void {
                         $set('is_layout_changed_manually', (bool) $state);
                     })
                     ->modifyQueryUsing(
-                        fn (Builder $query, Forms\Get $get): Builder => $query->when(
+                        fn (Builder $query, Get $get): Builder => $query->when(
                             ! $get('is_system'),
                             fn (Builder $query): Builder => $query->where(
                                 fn (Builder $query) => $query->where('group', '!=', LayoutGroupEnum::System)
@@ -155,9 +161,9 @@ class ArticlePageSchema extends DefaultPageSchema
                         )
                     ),
             ]),
-            Forms\Components\Group::make([
+            Group::make([
                 PublishToggle::make('is_published'),
-                Forms\Components\Toggle::make('is_system')
+                Toggle::make('is_system')
                     ->label(__('capell-admin::form.system_page'))
                     ->dehydrated(false)
                     ->default(false)

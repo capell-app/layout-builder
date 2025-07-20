@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Components\Forms;
 
 use Closure;
-use Filament\Forms;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Contracts\Support\Arrayable;
 
 class CustomColorInput
 {
-    public static function make(string $name, string $label, null|array|Arrayable|Closure $options = null): Forms\Components\Group
+    public static function make(string $name, string $label, null|array|Arrayable|Closure $options = null): Group
     {
         if ($options === null) {
             $options = [
@@ -29,9 +31,9 @@ class CustomColorInput
             ];
         }
 
-        return Forms\Components\Group::make()
+        return Group::make()
             ->schema([
-                Forms\Components\Select::make($name)
+                Select::make($name)
                     ->label($label)
                     ->searchable()
                     ->reactive()
@@ -61,7 +63,7 @@ class CustomColorInput
                         return $options;
                     }),
 
-                Forms\Components\ColorPicker::make($name.'_custom')
+                ColorPicker::make($name.'_custom')
                     ->label(__('capell-admin::form.custom'))
                     ->hiddenLabel()
                     ->placeholder(__('capell-admin::generic.custom'))

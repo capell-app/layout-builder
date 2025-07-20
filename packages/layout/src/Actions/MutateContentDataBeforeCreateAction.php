@@ -6,7 +6,7 @@ namespace Capell\Layout\Actions;
 
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models;
+use Capell\Core\Models\Type;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Exception;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -25,9 +25,9 @@ class MutateContentDataBeforeCreateAction
         return $data;
     }
 
-    private function getDefaultType(): Models\Type
+    private function getDefaultType(): Type
     {
-        /** @var class-string<Models\Type> $model */
+        /** @var class-string<Type> $model */
         $model = CapellCore::getModel(ModelEnum::Type);
 
         $contentType = $model::query()

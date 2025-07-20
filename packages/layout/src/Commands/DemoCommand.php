@@ -241,7 +241,7 @@ class DemoCommand extends Command
         ];
 
         if ($parent instanceof Content) {
-            $contentData['parent_uuid'] = $parent->uuid;
+            $contentData['parent_id'] = $parent->id;
         }
 
         foreach ($languages as $language) {

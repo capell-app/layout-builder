@@ -4,127 +4,143 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Models;
 
+use ArrayAccess;
+use Capell\Core\Database\Factories\PageFactory;
+use Capell\Core\Enums\PublishStatusEnum;
+use Capell\Core\Models\Language;
+use Capell\Core\Models\Layout;
+use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\PageTranslation;
+use Capell\Core\Models\PageUrl;
+use Capell\Core\Models\Site;
+use Capell\Core\Models\Tag;
+use Capell\Core\Models\Type;
 use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User;
+use Kalnoy\Nestedset\QueryBuilder;
+use OwenIt\Auditing\Models\Audit;
 
 /**
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \OwenIt\Auditing\Models\Audit> $audits
+ * @property-read Collection<int, Audit> $audits
  * @property-read int|null $audits_count
- * @property-read \Illuminate\Foundation\Auth\User|null $author
+ * @property-read User|null $author
  * @property-read Page|null $canonicalPage
  * @property-read \Kalnoy\Nestedset\Collection<int, Page> $canonicalPages
  * @property-read int|null $canonical_pages_count
  * @property-read \Kalnoy\Nestedset\Collection<int, Article> $children
  * @property-read int|null $children_count
- * @property-read \Illuminate\Foundation\Auth\User|null $creator
- * @property-read \Illuminate\Foundation\Auth\User|null $destroyer
+ * @property-read User|null $creator
+ * @property-read User|null $destroyer
  * @property-read \Kalnoy\Nestedset\Collection<int, Article> $draftRevisions
  * @property-read int|null $draft_revisions_count
- * @property-read \Illuminate\Foundation\Auth\User|null $editor
+ * @property-read User|null $editor
  * @property-read mixed $draft
  * @property-read bool $has_title_or_content
- * @property-read \Capell\Core\Enums\PublishStatusEnum $publish_status
+ * @property-read PublishStatusEnum $publish_status
  * @property-read Article|null $hasDraftsAndNestedSetParent
- * @property-read \Capell\Core\Models\Media|null $image
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Capell\Core\Models\Language> $languages
+ * @property-read Media|null $image
+ * @property-read Collection<int, Language> $languages
  * @property-read int|null $languages_count
- * @property-read \Capell\Core\Models\Layout|null $layout
+ * @property-read Layout|null $layout
  * @property-read Article|null $nodeTraitParent
- * @property-read \Capell\Core\Models\PageUrl $pageUrl
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Capell\Core\Models\PageUrl> $pageUrls
+ * @property-read PageUrl $pageUrl
+ * @property-read Collection<int, PageUrl> $pageUrls
  * @property-read int|null $page_urls_count
  * @property-read Article|null $parent
  * @property-read Article|null $publishedPage
- * @property-read \Illuminate\Database\Eloquent\Model|Eloquent $publisher
+ * @property-read Model|Eloquent $publisher
  * @property-read \Kalnoy\Nestedset\Collection<int, Article> $revisions
  * @property-read int|null $revisions_count
  * @property-write mixed $parent_id
- * @property \Illuminate\Database\Eloquent\Collection<int, \Capell\Core\Models\Tag> $tags
+ * @property Collection<int, Tag> $tags
  * @property-read \Kalnoy\Nestedset\Collection<int, Page> $siblings
  * @property-read int|null $siblings_count
- * @property-read \Capell\Core\Models\Site|null $site
+ * @property-read Site|null $site
  * @property-read int|null $tags_count
- * @property-read \Capell\Core\Models\PageTranslation|null $translation
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Capell\Core\Models\PageTranslation> $translations
+ * @property-read PageTranslation|null $translation
+ * @property-read Collection<int, PageTranslation> $translations
  * @property-read int|null $translations_count
- * @property-read \Capell\Core\Models\Type|null $type
+ * @property-read Type|null $type
  *
  * @method static \Kalnoy\Nestedset\Collection<int, static> all($columns = ['*'])
- * @method static QueryBuilder<static>|Article alphabetical(\Capell\Core\Models\Language $language, $direction = 'asc')
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article ancestorsAndSelf($id, array $columns = [])
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article ancestorsOf($id, array $columns = [])
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article applyNestedSetScope(?string $table = null)
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article countErrors()
+ * @method static QueryBuilder<static>|Article alphabetical(Language $language, $direction = 'asc')
+ * @method static QueryBuilder<static>|Article ancestorsAndSelf($id, array $columns = [])
+ * @method static QueryBuilder<static>|Article ancestorsOf($id, array $columns = [])
+ * @method static QueryBuilder<static>|Article applyNestedSetScope(?string $table = null)
+ * @method static QueryBuilder<static>|Article countErrors()
  * @method static QueryBuilder<static>|Article current()
  * @method static QueryBuilder<static>|Article d()
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article defaultOrder(string $dir = 'asc')
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article descendantsAndSelf($id, array $columns = [])
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article descendantsOf($id, array $columns = [], $andSelf = false)
+ * @method static QueryBuilder<static>|Article defaultOrder(string $dir = 'asc')
+ * @method static QueryBuilder<static>|Article descendantsAndSelf($id, array $columns = [])
+ * @method static QueryBuilder<static>|Article descendantsOf($id, array $columns = [], $andSelf = false)
  * @method static QueryBuilder<static>|Article disabled()
  * @method static QueryBuilder<static>|Article enabled()
- * @method static QueryBuilder<static>|Article excludeRevision(\Illuminate\Database\Eloquent\Model|int $exclude)
- * @method static QueryBuilder<static>|Article expired(\Illuminate\Database\Eloquent\Model $model)
- * @method static \Capell\Core\Database\Factories\PageFactory factory($count = null, $state = [])
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article fixSubtree($root)
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article fixTree($root = null)
+ * @method static QueryBuilder<static>|Article excludeRevision((Model|int) $exclude)
+ * @method static QueryBuilder<static>|Article expired(Model $model)
+ * @method static PageFactory factory($count = null, $state = [])
+ * @method static QueryBuilder<static>|Article fixSubtree($root)
+ * @method static QueryBuilder<static>|Article fixTree($root = null)
  * @method static \Kalnoy\Nestedset\Collection<int, static> get($columns = ['*'])
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article getNodeData($id, $required = false)
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article getPlainNodeData($id, $required = false)
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article getTotalErrors()
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article hasChildren()
+ * @method static QueryBuilder<static>|Article getNodeData($id, $required = false)
+ * @method static QueryBuilder<static>|Article getPlainNodeData($id, $required = false)
+ * @method static QueryBuilder<static>|Article getTotalErrors()
+ * @method static QueryBuilder<static>|Article hasChildren()
  * @method static QueryBuilder<static>|Article hasImage()
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article hasParent()
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article isBroken()
+ * @method static QueryBuilder<static>|Article hasParent()
+ * @method static QueryBuilder<static>|Article isBroken()
  * @method static QueryBuilder<static>|Article isHomePage()
  * @method static QueryBuilder<static>|Article isNotHomePage()
  * @method static QueryBuilder<static>|Article latest()
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article leaves(array $columns = [])
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article makeGap(int $cut, int $height)
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article moveNode($key, $position)
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article newModelQuery()
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Article onlyTrashed()
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article orWhereAncestorOf(bool $id, bool $andSelf = false)
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article orWhereDescendantOf($id)
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article orWhereNodeBetween($values)
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article orWhereNotDescendantOf($id)
+ * @method static QueryBuilder<static>|Article leaves(array $columns = [])
+ * @method static QueryBuilder<static>|Article makeGap(int $cut, int $height)
+ * @method static QueryBuilder<static>|Article moveNode($key, $position)
+ * @method static QueryBuilder<static>|Article newModelQuery()
+ * @method static QueryBuilder<static>|Article newQuery()
+ * @method static Builder<static>|Article onlyTrashed()
+ * @method static QueryBuilder<static>|Article orWhereAncestorOf(bool $id, bool $andSelf = false)
+ * @method static QueryBuilder<static>|Article orWhereDescendantOf($id)
+ * @method static QueryBuilder<static>|Article orWhereNodeBetween($values)
+ * @method static QueryBuilder<static>|Article orWhereNotDescendantOf($id)
  * @method static QueryBuilder<static>|Article ordered(string $dir = 'asc')
- * @method static QueryBuilder<static>|Article pending(\Illuminate\Database\Eloquent\Model $model)
- * @method static QueryBuilder<static>|Article published(\Illuminate\Database\Eloquent\Model $model)
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article query()
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article rebuildSubtree($root, array $data, $delete = false)
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article rebuildTree(array $data, $delete = false, $root = null)
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article reversed()
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article root(array $columns = [])
+ * @method static QueryBuilder<static>|Article pending(Model $model)
+ * @method static QueryBuilder<static>|Article published(Model $model)
+ * @method static QueryBuilder<static>|Article query()
+ * @method static QueryBuilder<static>|Article rebuildSubtree($root, array $data, $delete = false)
+ * @method static QueryBuilder<static>|Article rebuildTree(array $data, $delete = false, $root = null)
+ * @method static QueryBuilder<static>|Article reversed()
+ * @method static QueryBuilder<static>|Article root(array $columns = [])
  * @method static QueryBuilder<static>|Article status(bool $enabled)
  * @method static QueryBuilder<static>|Article visible()
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article whereAncestorOf($id, $andSelf = false, $boolean = 'and')
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article whereAncestorOrSelf($id)
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article whereDescendantOf($id, $boolean = 'and', $not = false, $andSelf = false)
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article whereDescendantOrSelf(string $id, string $boolean = 'and', string $not = false)
- * @method static QueryBuilder<static>|Article whereHasLanguage(\Capell\Core\Models\Language $language)
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article whereIsAfter($id, $boolean = 'and')
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article whereIsBefore($id, $boolean = 'and')
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article whereIsLeaf()
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article whereIsRoot()
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article whereNodeBetween($values, $boolean = 'and', $not = false, $query = null)
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article whereNotDescendantOf($id)
- * @method static QueryBuilder<static>|Article withAllTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static QueryBuilder<static>|Article whereAncestorOf($id, $andSelf = false, $boolean = 'and')
+ * @method static QueryBuilder<static>|Article whereAncestorOrSelf($id)
+ * @method static QueryBuilder<static>|Article whereDescendantOf($id, $boolean = 'and', $not = false, $andSelf = false)
+ * @method static QueryBuilder<static>|Article whereDescendantOrSelf(string $id, string $boolean = 'and', string $not = false)
+ * @method static QueryBuilder<static>|Article whereHasLanguage(Language $language)
+ * @method static QueryBuilder<static>|Article whereIsAfter($id, $boolean = 'and')
+ * @method static QueryBuilder<static>|Article whereIsBefore($id, $boolean = 'and')
+ * @method static QueryBuilder<static>|Article whereIsLeaf()
+ * @method static QueryBuilder<static>|Article whereIsRoot()
+ * @method static QueryBuilder<static>|Article whereNodeBetween($values, $boolean = 'and', $not = false, $query = null)
+ * @method static QueryBuilder<static>|Article whereNotDescendantOf($id)
+ * @method static QueryBuilder<static>|Article withAllTags((ArrayAccess|\Spatie\Tags\Tag|array|string) $tags, ?string $type = null)
  * @method static QueryBuilder<static>|Article withAllTagsOfAnyType($tags)
- * @method static QueryBuilder<static>|Article withAnyTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static QueryBuilder<static>|Article withAnyTags((ArrayAccess|\Spatie\Tags\Tag|array|string) $tags, ?string $type = null)
  * @method static QueryBuilder<static>|Article withAnyTagsOfAnyType($tags)
  * @method static QueryBuilder<static>|Article withAnyTagsOfType(array|string $type)
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article withDepth(string $as = 'depth')
+ * @method static QueryBuilder<static>|Article withDepth(string $as = 'depth')
  * @method static QueryBuilder<static>|Article withAssets(bool $withDrafts = true)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Article withTrashed()
+ * @method static Builder<static>|Article withTrashed()
  * @method static QueryBuilder<static>|Article withWhereHasLanguage(int $language_id)
  * @method static QueryBuilder<static>|Article withoutCurrent()
- * @method static \Kalnoy\Nestedset\QueryBuilder<static>|Article withoutRoot()
+ * @method static QueryBuilder<static>|Article withoutRoot()
  * @method static QueryBuilder<static>|Article withoutSelf()
- * @method static QueryBuilder<static>|Article withoutTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Article withoutTrashed()
+ * @method static QueryBuilder<static>|Article withoutTags((ArrayAccess|\Spatie\Tags\Tag|array|string) $tags, ?string $type = null)
+ * @method static Builder<static>|Article withoutTrashed()
  *
- * @mixin \Eloquent
  * @mixin Eloquent
  */
 class Article extends Page

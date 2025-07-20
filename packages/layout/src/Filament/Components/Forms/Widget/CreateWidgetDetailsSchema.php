@@ -7,40 +7,45 @@ namespace Capell\Layout\Filament\Components\Forms\Widget;
 use Capell\Admin\Filament\Components\Forms\NameInput;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\LayoutModelEnum;
-use Filament\Forms;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 
 class CreateWidgetDetailsSchema
 {
-    public static function make(Forms\Form $form): array
+    public static function make(Schema $schema): array
     {
         return [
-            Forms\Components\Grid::make()
+            Grid::make()
                 ->visibleOn(['create', 'createOption', 'replicate'])
-                ->schema(self::getSchema($form)),
+                ->schema(self::getSchema($schema)),
         ];
     }
 
-    private static function getSchema(Forms\Form $form): array
+    private static function getSchema(Schema $schema): array
     {
         return [
-            Forms\Components\Hidden::make('is_key_changed_manually')
+            Hidden::make('is_key_changed_manually')
                 ->default(false)
                 ->dehydrated(false),
 
             NameInput::make('name')
                 ->lazy()
-                ->afterStateUpdated(function ($record, Forms\Get $get, Forms\Set $set, ?string $state): void {
+                ->afterStateUpdated(function ($record, Get $get, Set $set, ?string $state): void {
                     if (! $record && ! $get('is_key_changed_manually') && filled($state)) {
                         $set('key', Str::slug($state));
                     }
                 }),
 
-            Forms\Components\TextInput::make('key')
+            TextInput::make('key')
                 ->label(__('capell-admin::form.key'))
                 ->placeholder(__('capell-admin::generic.key_placeholder'))
-                ->afterStateUpdated(function (Forms\Set $set, $state): void {
+                ->afterStateUpdated(function (Set $set, $state): void {
                     $set('is_key_changed_manually', (bool) $state);
                 })
                 ->alphaDash()
@@ -48,7 +53,7 @@ class CreateWidgetDetailsSchema
                 ->maxLength(128)
                 ->unique(
                     table: CapellCore::getModel(LayoutModelEnum::Widget->name),
-                    ignoreRecord: $form->getOperation() !== 'replicate',
+                    ignoreRecord: $schema->getOperation() !== 'replicate',
                     modifyRuleUsing: fn (Unique $rule) => $rule->withoutTrashed()
                 ),
 

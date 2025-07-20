@@ -29,12 +29,11 @@ class ContentFactory extends Factory
     public function definition(): array
     {
         return [
+            'id' => fake()->uuid,
             'name' => fake()->sentence,
             'parent_id' => null,
-            'parent_uuid' => null,
             'type_id' => (new ContentTypeFactory()),
             'site_id' => null,
-            'uuid' => fake()->uuid,
             'meta' => fn (array $attributes): array => [
                 'label' => fake()->optional()->sentence,
                 'image_id' => fake()->optional() ? Media::inRandomOrder()->first()?->getKey() : null,
@@ -50,7 +49,7 @@ class ContentFactory extends Factory
 
     public function parent(Content $parent): self
     {
-        return $this->set('parent_uuid', $parent->getUuid());
+        return $this->set('parent_id', $parent->getKey());
     }
 
     public function published(): self

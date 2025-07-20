@@ -15,11 +15,13 @@ use Capell\Layout\Enums\LayoutResourceEnum;
 use Capell\Layout\Filament\Actions\Page\CreateWidgetAction;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetTypeSelect;
 use Capell\Layout\Filament\Resources\WidgetResource;
-use Capell\Layout\Filament\Resources\WidgetResource\RelationManagers;
+use Capell\Layout\Filament\Resources\WidgetResource\RelationManagers\LayoutsRelationManager;
+use Capell\Layout\Filament\Resources\WidgetResource\RelationManagers\WidgetAssetsRelationManager;
 use Capell\Layout\Models\Widget;
-use Filament\Actions;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
-use Filament\Tables\Table;
 use Howdu\FilamentRecordSwitcher\Filament\Concerns\HasRecordSwitcher;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
@@ -46,11 +48,11 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
     {
         $relationManagers = $this->getTypeRelationManagers();
 
-        if (! in_array(RelationManagers\WidgetAssetsRelationManager::class, $relationManagers, true)) {
-            $relationManagers[] = RelationManagers\WidgetAssetsRelationManager::class;
+        if (! in_array(WidgetAssetsRelationManager::class, $relationManagers, true)) {
+            $relationManagers[] = WidgetAssetsRelationManager::class;
         }
 
-        $relationManagers[] = RelationManagers\LayoutsRelationManager::class;
+        $relationManagers[] = LayoutsRelationManager::class;
 
         return $relationManagers;
     }
@@ -87,7 +89,7 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
         if ($this->record->isDirty('updated_at')) {
             $this->dispatch(
                 'model-updated',
-                date: $this->record->updated_at->translatedFormat(Table::$defaultDateTimeDisplayFormat),
+                date: $this->record->updated_at->translatedFormat($this->getTable()->getDefaultDateTimeDisplayFormat()),
                 diffSeconds: now()->diffInSeconds($this->record->updated_at)
             );
         }
@@ -100,10 +102,10 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
     protected function getActions(): array
     {
         return [
-            Actions\RestoreAction::make(),
+            RestoreAction::make(),
             DeleteAction::make(),
-            Actions\ForceDeleteAction::make(),
-            Actions\ActionGroup::make([
+            ForceDeleteAction::make(),
+            ActionGroup::make([
                 CreateWidgetAction::make(),
                 ReplicateAction::make()
                     ->hidden($this->record->trashed()),

@@ -6,16 +6,21 @@ namespace Capell\Layout\Filament\Components\Forms;
 
 use Capell\Admin\Filament\Components\Forms\Media\ImageMediaPicker;
 use Capell\Layout\Models\WidgetAsset;
-use Filament\Forms;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Field;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
 use Illuminate\Database\Eloquent\Model;
 
 class BackgroundSettingsFieldset
 {
-    public static function make(): Forms\Components\Fieldset
+    public static function make(): Fieldset
     {
-        return Forms\Components\Fieldset::make(__('capell-admin::form.background_settings'))
+        return Fieldset::make(__('capell-admin::form.background_settings'))
             ->schema([
-                Forms\Components\Grid::make()
+                Grid::make()
                     ->columnSpan(1)
                     ->schema([
                         CustomColorInput::make(
@@ -23,11 +28,11 @@ class BackgroundSettingsFieldset
                             label: __('capell-admin::form.background_color'),
                         ),
 
-                        Forms\Components\Grid::make()
-                            ->visible(fn (Forms\Get $get): bool => (bool) $get('background_image_id'))
+                        Grid::make()
+                            ->visible(fn (Get $get): bool => (bool) $get('background_image_id'))
                             ->columnSpanFull()
                             ->schema([
-                                Forms\Components\Select::make('background_size')
+                                Select::make('background_size')
                                     ->label(__('capell-admin::form.background_size'))
                                     ->default('cover')
                                     ->options([
@@ -36,7 +41,7 @@ class BackgroundSettingsFieldset
                                     ])
                                     ->helperText(self::getHelperText(...)),
 
-                                Forms\Components\Select::make('background_position')
+                                Select::make('background_position')
                                     ->label(__('capell-admin::form.background_position'))
                                     ->default('center')
                                     ->helperText(self::getHelperText(...))
@@ -52,7 +57,7 @@ class BackgroundSettingsFieldset
                                         'bottom left' => __('capell-admin::form.background_bottom_left'),
                                     ]),
 
-                                Forms\Components\Select::make('background_repeat')
+                                Select::make('background_repeat')
                                     ->label(__('capell-admin::form.background_repeat'))
                                     ->default('no-repeat')
                                     ->helperText(self::getHelperText(...))
@@ -63,7 +68,7 @@ class BackgroundSettingsFieldset
                                         'repeat-y' => __('capell-admin::form.repeat_horizontal'),
                                     ]),
 
-                                Forms\Components\Select::make('background_attachment')
+                                Select::make('background_attachment')
                                     ->label(__('capell-admin::form.background_attachment'))
                                     ->helperText(self::getHelperText(...))
                                     ->options([
@@ -71,7 +76,7 @@ class BackgroundSettingsFieldset
                                         'scroll' => __('capell-admin::form.background_scroll'),
                                     ]),
 
-                                Forms\Components\Checkbox::make('background_overlay')
+                                Checkbox::make('background_overlay')
                                     ->label(__('capell-admin::form.background_overlay'))
                                     ->helperText(__('capell-admin::generic.background_overlay_helper_text')),
                             ]),
@@ -93,7 +98,7 @@ class BackgroundSettingsFieldset
             ]);
     }
 
-    private static function getHelperText(Forms\Components\Field $component, ?Model $record): ?string
+    private static function getHelperText(Field $component, ?Model $record): ?string
     {
         if (! $record instanceof Model) {
             return null;

@@ -7,23 +7,27 @@ namespace Capell\Layout\Filament\Components\Forms\Widget;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Forms\Media\ImageMediaPicker;
 use Capell\Admin\Filament\Components\Forms\Page\PageSelect;
-use Capell\Core\Models;
+use Capell\Core\Models\Media;
+use Capell\Core\Models\Page;
 use Capell\Layout\Filament\Components\Forms\AssetTypeToggleButtons;
 use Capell\Layout\Filament\Components\Forms\Content\ContentSelect;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\WidgetAsset;
 use Exception;
-use Filament\Forms;
-use Filament\Forms\Components\Actions\Action;
-use Filament\Forms\Get;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Repeater;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class WidgetAssetsRepeater
 {
-    public static function make(Forms\Form $form): Forms\Components\Repeater
+    public static function make(Schema $schema): Repeater
     {
-        return Forms\Components\Repeater::make('assets')
+        return Repeater::make('assets')
             ->label(__('capell-admin::form.assets'))
             ->relationship('widgetAssets')
             ->columnSpanFull()
@@ -31,8 +35,8 @@ class WidgetAssetsRepeater
             ->collapsed()
             ->defaultItems(0)
             ->addActionLabel(__('capell-admin::button.add_asset'))
-            ->itemLabel(function (Forms\ComponentContainer $container, array $state, string $uuid): string {
-                $order = collect($container->getParentComponent()->getState())
+            ->itemLabel(function (Schema $schema, array $state, string $uuid): string {
+                $order = collect($schema->getParentComponent()->getState())
                     ->keys()
                     ->search($uuid) + 1;
 
@@ -46,20 +50,20 @@ class WidgetAssetsRepeater
             })
             ->extraItemActions([
                 Action::make('editRecord')
-                    ->label(function (Forms\Components\Repeater $component, array $arguments): string {
+                    ->label(function (Repeater $component, array $arguments): string {
                         $itemState = $component->getRawItemState((string) $arguments['item']);
 
                         return __('capell-admin::button.edit_resource', ['type' => $itemState['asset_type']]);
                     })
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->tooltip(fn (Action $action): string => $action->getLabel())
-                    ->hidden(function (Forms\Components\Repeater $component, array $arguments): bool {
+                    ->hidden(function (Repeater $component, array $arguments): bool {
                         $itemState = $component->getRawItemState((string) $arguments['item']);
 
                         return empty($itemState['asset_id']);
                     })
                     ->url(
-                        function (array $arguments, Forms\Components\Repeater $component): ?string {
+                        function (array $arguments, Repeater $component): ?string {
                             $itemState = $component->getRawItemState((string) $arguments['item']);
 
                             $assetId = $itemState['asset_id'] ?? null;
@@ -69,8 +73,8 @@ class WidgetAssetsRepeater
                             }
 
                             $resource = match ($itemState['asset_type']) {
-                                'media' => is_array($assetId) ? reset($assetId)['id'] : Models\Media::findByUuid($assetId),
-                                'page' => Models\Page::findByUuid($assetId),
+                                'media' => is_array($assetId) ? reset($assetId)['id'] : Media::findByUuid($assetId),
+                                'page' => Page::findByUuid($assetId),
                                 'content' => Content::findByUuid($assetId),
                             };
 
@@ -87,7 +91,7 @@ class WidgetAssetsRepeater
                     ),
             ])
             ->schema([
-                Forms\Components\Group::make()
+                Group::make()
                     ->schema(function (?WidgetAsset $record): array {
                         if ($record instanceof WidgetAsset) {
                             return self::getEditResourceSchema($record);
@@ -104,31 +108,28 @@ class WidgetAssetsRepeater
             AssetTypeToggleButtons::make('asset_type')
                 ->required()
                 ->reactive()
-                ->afterStateUpdated(function (Forms\Set $set): void {
+                ->afterStateUpdated(function (Set $set): void {
                     $set('asset_id', null);
                 }),
-            Forms\Components\Group::make()
+            Group::make()
                 ->visible(fn (Get $get): bool => $get('asset_type') === 'media')
                 ->schema([
                     ImageMediaPicker::make('asset_id')
-                        ->required()
-                        ->withUuid(),
+                        ->required(),
                 ]),
-            Forms\Components\Group::make()
+            Group::make()
                 ->visible(fn (Get $get): bool => $get('asset_type') === 'page')
                 ->schema([
                     PageSelect::make('asset_id')
                         ->required()
-                        ->withUuid()
                         ->withCreateForm()
                         ->withEditForm(),
                 ]),
-            Forms\Components\Group::make()
+            Group::make()
                 ->visible(fn (Get $get): bool => $get('asset_type') === 'content')
                 ->schema([
                     ContentSelect::make('asset_id')
                         ->required()
-                        ->withUuid()
                         ->withCreateForm()
                         ->withEditForm(),
                 ]),
@@ -138,11 +139,10 @@ class WidgetAssetsRepeater
     private static function getEditResourceSchema(?WidgetAsset $record): array
     {
         return [
-            Forms\Components\Group::make()
+            Group::make()
                 ->schema([
                     match ($record->asset_type) {
                         'media' => ImageMediaPicker::make('asset_id')
-                            ->withUuid()
                             ->required()
                             ->afterStateHydrated(static function (ImageMediaPicker $component, array|int|string|null $state): void {
                                 if (blank($state)) {
@@ -163,7 +163,7 @@ class WidgetAssetsRepeater
                                     $state = Arr::wrap($state);
 
                                     // @custom
-                                    $media = Models\Media::query()->where('uuid', $state)->get()->toArray();
+                                    $media = Media::query()->where('id', $state)->get()->toArray();
                                 }
 
                                 foreach ($media as $itemData) {
@@ -174,12 +174,10 @@ class WidgetAssetsRepeater
                             }),
                         'page' => PageSelect::make('asset_id')
                             ->required()
-                            ->withUuid()
                             ->withCreateForm()
                             ->withEditForm(),
                         'content' => ContentSelect::make('asset_id')
                             ->required()
-                            ->withUuid()
                             ->withCreateForm()
                             ->withEditForm(),
                     },
@@ -190,8 +188,8 @@ class WidgetAssetsRepeater
     private static function getAssetName(array $itemState): ?string
     {
         return match ($itemState['asset_type']) {
-            'media' => is_array($itemState['asset_id']) ? reset($itemState['asset_id'])['title'] : Models\Media::findByUuid($itemState['asset_id']),
-            'page' => Models\Page::findByUuid($itemState['asset_id'])?->name,
+            'media' => is_array($itemState['asset_id']) ? reset($itemState['asset_id'])['title'] : Media::findByUuid($itemState['asset_id']),
+            'page' => Page::findByUuid($itemState['asset_id'])?->name,
             'content' => Content::findByUuid($itemState['asset_id'])?->name
         };
     }

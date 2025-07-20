@@ -32,9 +32,9 @@ class ContentAssetFactory extends Factory
             'order' => fake()->numberBetween(1, 10),
             'asset_type' => $type->value,
             'asset_id' => fn ($state): string => (match ($type) {
-                LayoutAssetEnum::Content => (string) Content::factory()->create()->uuid,
-                AssetEnum::Media => (string) Media::factory()->create()->uuid,
-                AssetEnum::Page => (string) Page::factory()->create()->uuid,
+                LayoutAssetEnum::Content => (string) Content::factory()->create()->id,
+                AssetEnum::Media => (string) Media::factory()->create()->id,
+                AssetEnum::Page => (string) Page::factory()->create()->id,
             }),
         ];
     }
@@ -43,7 +43,7 @@ class ContentAssetFactory extends Factory
     {
         return $this->state([
             'asset_type' => 'media',
-            'asset_id' => Media::factory($state)->create()->uuid,
+            'asset_id' => Media::factory($state)->create()->id,
         ]);
     }
 
@@ -51,7 +51,7 @@ class ContentAssetFactory extends Factory
     {
         return $this->state([
             'asset_type' => 'page',
-            'asset_id' => Page::factory($state)->create()->uuid,
+            'asset_id' => Page::factory($state)->create()->id,
         ]);
     }
 
@@ -59,7 +59,7 @@ class ContentAssetFactory extends Factory
     {
         return $this->state([
             'asset_type' => 'content',
-            'asset_id' => Content::factory($state)->create()->uuid,
+            'asset_id' => Content::factory($state)->create()->id,
         ]);
     }
 }

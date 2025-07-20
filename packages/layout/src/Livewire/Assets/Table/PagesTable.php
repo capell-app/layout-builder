@@ -18,8 +18,16 @@ use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Enums\TagTypeEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
-use Filament\Forms;
-use Filament\Tables;
+use Capell\Core\Models\Page;
+use Capell\Core\Models\Tag;
+use Capell\Core\Models\Type;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Tables\Columns\SpatieTagsColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -55,7 +63,7 @@ class PagesTable extends AbstractAssetsTable
             CuratorColumn::make('image')
                 ->relationship('image')
                 ->toggleable(),
-            Tables\Columns\TextColumn::make('translation.contents')
+            TextColumn::make('translation.contents')
                 ->label(__('capell-admin::table.content'))
                 ->sortable()
                 ->searchable()
@@ -65,7 +73,7 @@ class PagesTable extends AbstractAssetsTable
                 ->color('gray')
                 ->html()
                 ->listWithLineBreaks()
-                ->formatStateUsing(function (Tables\Columns\TextColumn $column, Models\Page $record): string {
+                ->formatStateUsing(function (TextColumn $column, Page $record): string {
                     if (! $record->translation->contents) {
                         return '';
                     }
@@ -90,7 +98,7 @@ class PagesTable extends AbstractAssetsTable
             LanguagesColumn::make('translations.language'),
             SiteColumn::make('site.name')
                 ->visible(fn ($livewire): bool => empty($livewire->getTableFilterState('filter')['site_id'])),
-            Tables\Columns\TextColumn::make('layout.name')
+            TextColumn::make('layout.name')
                 ->label(__('capell-admin::table.layout'))
                 ->sortable()
                 ->limit(30)
@@ -98,17 +106,17 @@ class PagesTable extends AbstractAssetsTable
                 ->visible(fn ($livewire): bool => empty($livewire->getTableFilterState('layout_id')['value']))
                 ->toggleable(isToggledHiddenByDefault: true),
             TypeNameColumn::make('type.name'),
-            Tables\Columns\TextColumn::make('tag.name')
+            TextColumn::make('tag.name')
                 ->label(__('capell-admin::table.tag'))
                 ->sortable()
                 ->limit(30)
                 ->visible(fn ($livewire): bool => empty($livewire->getTableFilterState('tag_id')['value']))
                 ->toggleable(isToggledHiddenByDefault: true),
-            Tables\Columns\SpatieTagsColumn::make('tags')
+            SpatieTagsColumn::make('tags')
                 ->label(__('capell-admin::table.tags'))
                 ->type(TagTypeEnum::PAGE->value)
                 ->toggleable(isToggledHiddenByDefault: true),
-            Tables\Columns\TextColumn::make('assets')
+            TextColumn::make('assets')
                 ->label(__('capell-admin::table.resources'))
                 ->alignCenter()
                 ->size('sm')
@@ -124,7 +132,7 @@ class PagesTable extends AbstractAssetsTable
     protected function getTableFilters(): array
     {
         return [
-            Tables\Filters\SelectFilter::make('layout_id')
+            SelectFilter::make('layout_id')
                 ->label(__('capell-admin::form.layout'))
                 ->searchable()
                 ->preload()
@@ -133,7 +141,7 @@ class PagesTable extends AbstractAssetsTable
                     titleAttribute: 'name',
                     modifyQueryUsing: fn (Builder $query) => $query->enabled()->ordered()
                 ),
-            Tables\Filters\SelectFilter::make('type_id')
+            SelectFilter::make('type_id')
                 ->label(__('capell-admin::form.page_type'))
                 ->searchable()
                 ->preload()
@@ -142,20 +150,20 @@ class PagesTable extends AbstractAssetsTable
                     titleAttribute: 'name',
                     modifyQueryUsing: fn (Builder $query) => $query->enabled()->pageType()
                 ),
-            Tables\Filters\Filter::make('filter')
+            Filter::make('filter')
                 ->columnSpan(['default' => 1, 'md' => 2])
                 ->columns(['default' => 1, 'md' => 2])
-                ->form([
-                    Forms\Components\Select::make('site_id')
+                ->schema([
+                    Select::make('site_id')
                         ->label(__('capell-admin::form.site'))
                         ->reactive()
                         ->searchable()
                         ->options(fn (): array => CapellCore::getModel(ModelEnum::Site)::getOptions()->toArray()),
 
-                    Forms\Components\Select::make('language_id')
+                    Select::make('language_id')
                         ->label(__('capell-admin::table.language'))
                         ->searchable()
-                        ->options(function (Forms\Get $get): array {
+                        ->options(function (Get $get): array {
                             $site_id = $this->siteId !== null && $this->siteId !== 0 ? $this->siteId : $get('site_id');
 
                             /* @var class-string<\Capell\Core\Models\Language> $model */
@@ -173,10 +181,10 @@ class PagesTable extends AbstractAssetsTable
                                 ->toArray();
                         }),
 
-                    Forms\Components\Select::make('parent_uuid')
+                    Select::make('parent_id')
                         ->label(__('capell-admin::form.parent_page'))
                         ->searchable()
-                        ->options(function (Forms\Get $get): array {
+                        ->options(function (Get $get): array {
                             $site_id = $this->siteId !== null && $this->siteId !== 0 ? $this->siteId : $get('site_id');
 
                             $pages = CapellCore::getModel(ModelEnum::Page)::with([
@@ -201,14 +209,16 @@ class PagesTable extends AbstractAssetsTable
 
                             $options = [];
 
-                            $pages->each(function (Models\Page $page) use (&$options, $site_id): void {
+                            $pages->each(function (Page $page) use (&$options, $site_id): void {
                                 $label = '';
                                 if (! $site_id && $page->site) {
                                     $label .= $page->site->name.' » ';
                                 }
 
-                                if ($page->ancestors->isNotEmpty()) {
-                                    $label .= $page->ancestors->pluck('name')
+                                $ancestors = $page->ancestors()->get();
+
+                                if ($ancestors->isNotEmpty()) {
+                                    $label .= $ancestors->pluck('name')
                                         ->map(fn ($item) => Str::limit($item, 30))
                                         ->implode(' » ')
                                         .' » ';
@@ -222,9 +232,9 @@ class PagesTable extends AbstractAssetsTable
                             return $options;
                         }),
 
-                    Forms\Components\Select::make('tags')
+                    Select::make('tags')
                         ->label(__('capell-admin::form.tags'))
-                        ->relationship(name: 'tags', titleAttribute: 'name', modifyQueryUsing: function (Builder $query, Forms\Get $get): Builder {
+                        ->relationship(name: 'tags', titleAttribute: 'name', modifyQueryUsing: function (Builder $query, Get $get): Builder {
                             $languageId = $get('language_id');
 
                             if (! $languageId) {
@@ -237,7 +247,7 @@ class PagesTable extends AbstractAssetsTable
                         })
                         ->searchable()
                         ->preload()
-                        ->getOptionLabelFromRecordUsing(function (Models\Tag $record, Forms\Get $get): string {
+                        ->getOptionLabelFromRecordUsing(function (Tag $record, Get $get): string {
                             if ($language_id = $get('language_id')) {
                                 $code = CapellCore::getModel(ModelEnum::Language)::find($language_id, 'code')->code;
 
@@ -247,20 +257,20 @@ class PagesTable extends AbstractAssetsTable
                             return $record->getTranslation('name', 'en');
                         }),
 
-                    Forms\Components\CheckboxList::make('filter_groups')
+                    CheckboxList::make('filter_groups')
                         ->label(__('capell-admin::form.page_type'))
                         ->default(['page'])
                         ->columns(3)
                         ->options(
                             function (): array {
-                                /** @var class-string<Models\Type> $model */
+                                /** @var class-string<Type> $model */
                                 $model = CapellCore::getModel(ModelEnum::Type);
 
                                 return $model::pageType()
                                     ->whereNotNull('group')
                                     ->whereNot('group', 'Page')
                                     ->get()
-                                    ->mapWithKeys(fn (Models\Type $type) => [$type->group => str($type->group)->plural()->title()])
+                                    ->mapWithKeys(fn (Type $type) => [$type->group => str($type->group)->plural()->title()])
                                     ->prepend(__('capell-admin::generic.pages'), 'Page')
                                     ->toArray();
                             }
@@ -290,8 +300,8 @@ class PagesTable extends AbstractAssetsTable
                             fn (Builder $query) => $query->where('site_id', (int) $data['site_id'])
                         )
                         ->when(
-                            ! empty($data['parent_uuid']),
-                            fn (Builder $query) => $query->where('parent_uuid', $data['parent_uuid'])
+                            ! empty($data['parent_id']),
+                            fn (Builder $query) => $query->where('parent_id', $data['parent_id'])
                         )
                         ->when(
                             $data['filter_groups'] ?? [],
@@ -328,16 +338,16 @@ class PagesTable extends AbstractAssetsTable
                         );
                     }
 
-                    if (! empty($data['parent_uuid'])) {
-                        /** @var class-string<Models\Page> $model */
+                    if (! empty($data['parent_id'])) {
+                        /** @var class-string<Page> $model */
                         $model = CapellCore::getModel(ModelEnum::Page);
 
-                        $indicators['parent_uuid'] = __(
+                        $indicators['parent_id'] = __(
                             'capell-admin::filter.parent',
                             [
                                 'search' => $model::select('name')->firstWhere(
-                                    'uuid',
-                                    $data['parent_uuid']
+                                    'id',
+                                    $data['parent_id']
                                 )
                                     ?->name,
                             ]
@@ -345,7 +355,7 @@ class PagesTable extends AbstractAssetsTable
                     }
 
                     if (! empty($data['tag_id'])) {
-                        /** @var class-string<Models\Tag> $model */
+                        /** @var class-string<Tag> $model */
                         $model = CapellCore::getModel(ModelEnum::Tag);
 
                         $indicators['tag_id'] = __(
@@ -355,7 +365,7 @@ class PagesTable extends AbstractAssetsTable
                     }
 
                     if (! empty($data['tags'])) {
-                        /** @var class-string<Models\Tag> $model */
+                        /** @var class-string<Tag> $model */
                         $model = CapellCore::getModel(ModelEnum::Tag);
 
                         $indicators['tags'] = __(

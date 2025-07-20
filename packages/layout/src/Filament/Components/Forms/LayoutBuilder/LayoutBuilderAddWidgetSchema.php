@@ -10,7 +10,11 @@ use Capell\Core\Models;
 use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSelect;
-use Filament\Forms;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -20,11 +24,11 @@ class LayoutBuilderAddWidgetSchema
     public static function schema(?Collection $containers): array
     {
         return [
-            Forms\Components\Fieldset::make(__('capell-admin::heading.select_widget'))
+            Fieldset::make(__('capell-admin::heading.select_widget'))
                 ->columns(1)
                 ->inlineLabel()
                 ->schema([
-                    Forms\Components\CheckboxList::make('filter_groups')
+                    CheckboxList::make('filter_groups')
                         ->label(__('capell-admin::form.widget_group'))
                         ->dehydrated(false)
                         ->reactive()
@@ -33,7 +37,7 @@ class LayoutBuilderAddWidgetSchema
                             'default' => __('capell-admin::generic.default'),
                             ...self::getWidgetTypeGroupsOptions(),
                         ])
-                        ->afterStateUpdated(function (Forms\Set $set): void {
+                        ->afterStateUpdated(function (Set $set): void {
                             $set('widgets', null);
                         }),
                     WidgetSelect::make('widgets')
@@ -45,7 +49,7 @@ class LayoutBuilderAddWidgetSchema
                         ->placeholder(__('capell-admin::form.select_widget'))
                         ->withCreateForm()
                         ->options(
-                            fn (WidgetSelect $component, Forms\Get $get): array => self::getWidgetOptions(
+                            fn (WidgetSelect $component, Get $get): array => self::getWidgetOptions(
                                 $get('type_id'),
                                 $get('filter_groups'),
                             )
@@ -61,7 +65,7 @@ class LayoutBuilderAddWidgetSchema
                         ),
                 ]),
             ...$containers instanceof Collection ? [
-                Forms\Components\Select::make('container')
+                Select::make('container')
                     ->label(__('capell-admin::form.add_widget_to_container'))
                     ->required()
                     ->inlineLabel()

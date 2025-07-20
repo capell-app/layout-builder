@@ -15,16 +15,20 @@ use Capell\Layout\Enums\WidgetTypeGroupEnum;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Capell\Layout\Filament\Schemas\Widget\DefaultWidgetSchema;
-use Filament\Forms;
+use Filament\Forms\Components\Checkbox;
+use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Schema;
 
 class WidgetTypeSchema extends DefaultTypeSchema
 {
-    public static function make(Forms\Form $form): array
+    public static function make(Schema $schema): array
     {
         return [
-            ...self::getSettingsSchema($form),
+            ...self::getSettingsSchema($schema),
             ...static::getStatusSchema(),
-            Forms\Components\Tabs::make()
+            Tabs::make()
                 ->columnSpanFull()
                 ->tabs([
                     static::getFrontendTab(),
@@ -33,7 +37,7 @@ class WidgetTypeSchema extends DefaultTypeSchema
         ];
     }
 
-    protected static function getGroupField(): Forms\Components\Component
+    protected static function getGroupField(): Component
     {
         return CustomSelectGroup::make(
             'group',
@@ -44,9 +48,9 @@ class WidgetTypeSchema extends DefaultTypeSchema
             ->label(__('capell-admin::form.group'));
     }
 
-    protected static function getAdminTab(): Forms\Components\Tabs\Tab
+    protected static function getAdminTab(): Tab
     {
-        return Forms\Components\Tabs\Tab::make(__('capell-admin::generic.admin'))
+        return Tab::make(__('capell-admin::generic.admin'))
             ->statePath('admin')
             ->icon('heroicon-o-cog-6-tooth')
             ->columnSpanFull()
@@ -64,14 +68,14 @@ class WidgetTypeSchema extends DefaultTypeSchema
 
                 ContentEditorSelect::make('content_editor'),
 
-                Forms\Components\Checkbox::make('exclude_from_selection')
+                Checkbox::make('exclude_from_selection')
                     ->label(__('capell-admin::form.exclude_from_selection')),
             ]);
     }
 
-    protected static function getFrontendTab(): Forms\Components\Tabs\Tab
+    protected static function getFrontendTab(): Tab
     {
-        return Forms\Components\Tabs\Tab::make(__('capell-admin::generic.frontend'))
+        return Tab::make(__('capell-admin::generic.frontend'))
             ->statePath('meta')
             ->icon('heroicon-m-building-storefront')
             ->columns()

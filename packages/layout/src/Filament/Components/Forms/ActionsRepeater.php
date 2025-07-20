@@ -7,11 +7,16 @@ namespace Capell\Layout\Filament\Components\Forms;
 use Capell\Admin\Filament\Components\Forms\Page\PageSelect;
 use Capell\Admin\Filament\Components\Forms\Site\SiteSelect;
 use Capell\Core\Models\Page;
-use Filament\Forms;
-use Filament\Forms\ComponentContainer;
-use Filament\Forms\Get;
+use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 
-class ActionsRepeater extends Forms\Components\Repeater
+class ActionsRepeater extends Repeater
 {
     protected function setUp(): void
     {
@@ -20,7 +25,7 @@ class ActionsRepeater extends Forms\Components\Repeater
         $this->label(__('capell-admin::generic.action'))
             ->statePath('actions')
             ->columnSpanFull()
-            ->collapsed(function (?ComponentContainer $item): bool {
+            ->collapsed(function (?Schema $item): bool {
                 $state = $item->getRawState();
 
                 return filled($state['page_id']) || filled($state['url']);
@@ -41,7 +46,7 @@ class ActionsRepeater extends Forms\Components\Repeater
                 } ?? __('capell-admin::generic.action');
             })
             ->schema([
-                Forms\Components\Radio::make('type')
+                Radio::make('type')
                     ->label(__('capell-admin::form.type'))
                     ->reactive()
                     ->required()
@@ -52,27 +57,26 @@ class ActionsRepeater extends Forms\Components\Repeater
                         'page' => __('capell-admin::generic.page'),
                         'url' => __('capell-admin::generic.url'),
                     ])
-                    ->afterStateUpdated(function (Get $get, Forms\Set $set): void {
+                    ->afterStateUpdated(function (Get $get, Set $set): void {
                         if ($get('type') === 'page') {
                             $set('url', null);
                         } else {
-                            $set('page_uuid', null);
+                            $set('page_id', null);
                         }
                     }),
-                Forms\Components\Grid::make(['md' => 2, 'lg' => 3])
+                Grid::make(['md' => 2, 'lg' => 3])
                     ->visible(fn (Get $get): bool => $get('type') === 'page')
                     ->schema([
-                        PageSelect::make('page_uuid')
+                        PageSelect::make('page_id')
                             ->required()
                             ->reactive()
-                            ->withUuid()
                             ->columnSpan(['lg' => 2]),
                         SiteSelect::make('site_id')
                             ->preload()
                             ->reactive(),
                     ]),
 
-                Forms\Components\TextInput::make('url')
+                TextInput::make('url')
                     ->label(__('capell-admin::form.url'))
                     ->visible(fn (Get $get): bool => $get('type') === 'url')
                     ->validationAttribute(__('capell-admin::form.url'))
@@ -80,25 +84,25 @@ class ActionsRepeater extends Forms\Components\Repeater
                     ->required()
                     ->lazy(),
 
-                Forms\Components\Grid::make()
+                Grid::make()
                     ->schema([
-                        Forms\Components\TextInput::make('label')
+                        TextInput::make('label')
                             ->label(__('capell-admin::form.label'))
                             ->helperText(
                                 fn (Get $get): ?string => $get('type') === 'page' || $get('page_id')
                                     ? __('capell-admin::generic.action_page_label_hint')
                                     : null
                             ),
-                        Forms\Components\TextInput::make('icon')
+                        TextInput::make('icon')
                             ->label(__('capell-admin::form.icon'))
                             ->placeholder('heroicon-o-clock'),
-                        Forms\Components\Select::make('color')
+                        Select::make('color')
                             ->label(__('capell-admin::form.color'))
                             ->options([
                                 'primary' => __('capell-admin::generic.primary'),
                                 'secondary' => __('capell-admin::generic.secondary'),
                             ]),
-                        Forms\Components\Select::make('target')
+                        Select::make('target')
                             ->label(__('capell-admin::form.url_target'))
                             ->options([
                                 '_blank' => __('capell-admin::generic.new_tab'),

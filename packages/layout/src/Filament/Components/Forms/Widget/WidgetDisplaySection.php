@@ -10,13 +10,14 @@ use Capell\Layout\Filament\Components\Forms\ContainerWidthSelect;
 use Capell\Layout\Filament\Components\Forms\MarginSelect;
 use Capell\Layout\Filament\Components\Forms\PaddingSelect;
 use Capell\Layout\Filament\Components\Forms\SizeSelect;
-use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Section;
 
 class WidgetDisplaySection
 {
-    public static function make(array $schema = []): Forms\Components\Section
+    public static function make(array $schema = []): Section
     {
-        return Forms\Components\Section::make(__('capell-admin::generic.display_settings'))
+        return Section::make(__('capell-admin::generic.display_settings'))
             ->icon('heroicon-o-adjustments-horizontal')
             ->collapsed()
             ->compact()
@@ -31,7 +32,7 @@ class WidgetDisplaySection
 
                 SizeSelect::make('size'),
 
-                Forms\Components\Select::make('max_width')
+                Select::make('max_width')
                     ->label(__('capell-admin::form.max_width'))
                     ->placeholder(__('capell-admin::generic.none'))
                     ->options([

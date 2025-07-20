@@ -13,67 +13,70 @@ use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Capell\Layout\Filament\Schemas\AbstractWidgetSchema;
-use Filament\Forms;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Schema;
 
 class MediaWidgetSchema extends AbstractWidgetSchema
 {
-    public static function make(Forms\Form $form): array
+    public static function make(Schema $schema): array
     {
-        $operation = $form->getOperation();
+        $operation = $schema->getOperation();
 
         return [
             ...match ($operation) {
-                'create', 'createOption', 'replicate' => self::getCreateSchema($form),
-                'editOption' => self::getEditOptionSchema($form),
-                default => self::getEditFormSchema($form),
+                'create', 'createOption', 'replicate' => self::getCreateSchema($schema),
+                'editOption' => self::getEditOptionSchema($schema),
+                default => self::getEditFormSchema($schema),
             },
         ];
     }
 
-    protected static function getCreateSchema(Forms\Form $form): array
+    protected static function getCreateSchema(Schema $schema): array
     {
         return [
-            WidgetAssetsRepeater::make($form),
+            WidgetAssetsRepeater::make($schema),
         ];
     }
 
-    protected static function getEditFormSchema(Forms\Form $form): array
+    protected static function getEditFormSchema(Schema $schema): array
     {
         return [
             FixedWidthSidebar::make()
                 ->mainSchema([
-                    Forms\Components\Section::make(__('capell-admin::generic.widget_assets'))
+                    Section::make(__('capell-admin::generic.widget_assets'))
                         ->description(__('capell-admin::generic.widget_assets_info'))
                         ->compact()
                         ->schema([
-                            WidgetAssetsRepeater::make($form)
+                            WidgetAssetsRepeater::make($schema)
                                 ->hiddenLabel(),
                         ]),
                 ])
                 ->sidebarSchema([
-                    Forms\Components\Section::make()
+                    Section::make()
                         ->columns(1)
-                        ->schema(WidgetSettingsSchema::make($form)),
+                        ->schema(WidgetSettingsSchema::make($schema)),
                 ]),
             self::getTabs(),
         ];
     }
 
-    protected static function getEditOptionSchema(Forms\Form $form): array
+    protected static function getEditOptionSchema(Schema $schema): array
     {
         return [
-            WidgetAssetsRepeater::make($form),
+            WidgetAssetsRepeater::make($schema),
         ];
     }
 
-    protected static function getTabs(): Forms\Components\Tabs
+    protected static function getTabs(): Tabs
     {
-        return Forms\Components\Tabs::make('tabs')
+        return Tabs::make('tabs')
             ->visibleOn(['edit', 'editOption'])
             ->columnSpanFull()
             ->tabs([
                 WidgetDisplayTab::make([
-                    Forms\Components\Group::make()
+                    Group::make()
                         ->statePath('meta')
                         ->columns()
                         ->schema([

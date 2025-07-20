@@ -45,9 +45,9 @@ class WidgetAssetFactory extends Factory
             'page_id' => null,
             'asset_type' => $assetType->value,
             'asset_id' => fn (): string => match ($assetType) {
-                LayoutAssetEnum::Content => (string) Content::factory()->create()->uuid,
-                AssetEnum::Media => (string) Media::factory()->create()->uuid,
-                AssetEnum::Page => (string) Page::factory()->create()->uuid,
+                LayoutAssetEnum::Content => (string) Content::factory()->create()->id,
+                AssetEnum::Media => (string) Media::factory()->create()->id,
+                AssetEnum::Page => (string) Page::factory()->create()->id,
             },
             'occurrence' => null,
             'order' => fake()->randomNumber(1),
@@ -77,9 +77,9 @@ class WidgetAssetFactory extends Factory
         return $this->state(fn (array $attributes): array => [
             'asset_type' => $type->value,
             'asset_id' => fn (): string => match ($type) {
-                LayoutAssetEnum::Content => (string) Content::factory()->withTranslations()->create()->uuid,
-                AssetEnum::Media => (string) Media::factory()->create()->uuid,
-                AssetEnum::Page => (string) Page::factory()->withTranslations()->create()->uuid,
+                LayoutAssetEnum::Content => (string) Content::factory()->withTranslations()->create()->id,
+                AssetEnum::Media => (string) Media::factory()->create()->id,
+                AssetEnum::Page => (string) Page::factory()->withTranslations()->create()->id,
             },
         ]);
     }

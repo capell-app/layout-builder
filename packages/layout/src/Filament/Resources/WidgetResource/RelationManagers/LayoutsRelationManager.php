@@ -13,10 +13,11 @@ use Capell\Admin\Filament\Components\Tables\Columns\SiteColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\StatusColumn;
 use Capell\Admin\Filament\Concerns\HasRelationManagerBadge;
 use Capell\Admin\Filament\Resources\PageResource;
-use Capell\Core\Models;
+use Capell\Core\Models\Layout;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Enums\FontWeight;
-use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -49,24 +50,24 @@ class LayoutsRelationManager extends RelationManager
             ->description(__('capell-admin::generic.widget_layouts_info'))
             ->columns([
                 NameColumn::make('name')
-                    ->weight(fn (Models\Layout $record): FontWeight => $record->default ? FontWeight::SemiBold : FontWeight::Medium),
+                    ->weight(fn (Layout $record): FontWeight => $record->default ? FontWeight::SemiBold : FontWeight::Medium),
                 CuratorColumn::make('image')
                     ->relationship('image')
                     ->toggleable(),
                 SiteColumn::make('site.name'),
-                Tables\Columns\TextColumn::make('theme.name')
+                TextColumn::make('theme.name')
                     ->label(__('capell-admin::table.theme'))
                     ->sortable()
                     ->limit(30)
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('pages_count')
+                TextColumn::make('pages_count')
                     ->label(__('capell-admin::table.total_pages'))
                     ->sortable()
                     ->alignCenter()
                     ->disabledClick()
                     ->toggleable()
                     ->formatStateUsing(
-                        fn (Models\Layout $record, $state): string|HtmlString => new HtmlString(Blade::render('capell-admin::components.tables.url', [
+                        fn (Layout $record, $state): string|HtmlString => new HtmlString(Blade::render('capell-admin::components.tables.url', [
                             'state' => $state,
                             'url' => PageResource::getUrl('index', ['tableFilters[layout_id][value]' => $record->id]),
                         ]))
@@ -76,7 +77,7 @@ class LayoutsRelationManager extends RelationManager
                 DateColumn::make('updated_at'),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('site_id')
+                SelectFilter::make('site_id')
                     ->label(__('capell-admin::form.site'))
                     ->relationship(
                         name: 'site',
@@ -85,7 +86,7 @@ class LayoutsRelationManager extends RelationManager
                     ),
             ])
             ->recordUrl(
-                fn (Models\Layout $record): string => CapellAdmin::getResource(ResourceEnum::Layout)::getUrl('edit', ['record' => $record]),
+                fn (Layout $record): string => CapellAdmin::getResource(ResourceEnum::Layout)::getUrl('edit', ['record' => $record]),
             );
     }
 }

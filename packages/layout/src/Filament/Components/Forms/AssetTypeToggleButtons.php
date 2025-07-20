@@ -6,9 +6,9 @@ namespace Capell\Layout\Filament\Components\Forms;
 
 use Capell\Core\Data\AssetData;
 use Capell\Core\Facades\CapellCore;
-use Filament\Forms;
+use Filament\Forms\Components\ToggleButtons;
 
-class AssetTypeToggleButtons extends Forms\Components\ToggleButtons
+class AssetTypeToggleButtons extends ToggleButtons
 {
     protected function setUp(): void
     {

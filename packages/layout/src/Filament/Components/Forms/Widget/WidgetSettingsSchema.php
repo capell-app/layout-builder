@@ -8,18 +8,21 @@ use Capell\Admin\Filament\Components\Forms\NameInput;
 use Capell\Admin\Filament\Components\Forms\StatusToggle;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\LayoutModelEnum;
-use Filament\Forms;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 
 class WidgetSettingsSchema
 {
-    public static function make(Forms\Form $form, array $schema = []): array
+    public static function make(Schema $schema, array $components = []): array
     {
         return [
-            Forms\Components\Hidden::make('is_key_changed_manually')
+            Hidden::make('is_key_changed_manually')
                 ->default(false)
                 ->dehydrated(false),
 
@@ -32,7 +35,7 @@ class WidgetSettingsSchema
                 ->lazy()
                 ->required(),
 
-            Forms\Components\TextInput::make('key')
+            TextInput::make('key')
                 ->label(__('capell-admin::form.key'))
                 ->placeholder(__('capell-admin::generic.key_placeholder'))
                 ->afterStateUpdated(function (Set $set, $state): void {
@@ -43,7 +46,7 @@ class WidgetSettingsSchema
                 ->maxLength(128)
                 ->unique(
                     table: CapellCore::getModel(LayoutModelEnum::Widget->name),
-                    ignoreRecord: $form->getOperation() !== 'replicate',
+                    ignoreRecord: $schema->getOperation() !== 'replicate',
                     modifyRuleUsing: fn (Unique $rule) => $rule->withoutTrashed()
                 ),
 
@@ -52,12 +55,12 @@ class WidgetSettingsSchema
                 ->withCreateForm()
                 ->withEditForm(),
 
-            ...$schema,
+            ...$components,
 
-            Forms\Components\Grid::make()
+            Grid::make()
                 ->columns(['default' => 1, 'md' => 2, '2xl' => 1])
                 ->schema([
-                    Forms\Components\Grid::make()
+                    Grid::make()
                         ->columnSpan(1)
                         ->schema([
                             StatusToggle::make('status'),

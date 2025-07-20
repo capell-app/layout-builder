@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Components\Forms\Widget\Tab;
 
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetAdminSchema;
-use Filament\Forms;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class WidgetAdminTab
 {
-    public static function make(array $schema = []): Forms\Components\Tabs\Tab
+    public static function make(array $schema = []): Tab
     {
-        return Forms\Components\Tabs\Tab::make(__('capell-admin::generic.admin'))
+        return Tab::make(__('capell-admin::generic.admin'))
             ->statePath('admin')
             ->icon('heroicon-o-cog-6-tooth')
             ->columns(['md' => 2])

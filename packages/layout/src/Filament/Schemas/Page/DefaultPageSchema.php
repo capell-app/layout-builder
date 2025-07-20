@@ -6,8 +6,8 @@ namespace Capell\Layout\Filament\Schemas\Page;
 
 use Capell\Layout\Filament\Components\Forms\Page\Tab\PageLayoutTab;
 use Capell\Layout\Filament\Resources\PageResource\RelationManagers\ContentsRelationManager;
-use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationGroup;
+use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 
 class DefaultPageSchema extends \Capell\Admin\Filament\Schemas\Page\DefaultPageSchema
@@ -22,11 +22,11 @@ class DefaultPageSchema extends \Capell\Admin\Filament\Schemas\Page\DefaultPageS
         ];
     }
 
-    protected static function getTabs(Forms\Form $form): array
+    protected static function getTabs(Schema $schema): array
     {
         return [
             PageLayoutTab::make(),
-            ...parent::getTabs($form),
+            ...parent::getTabs($schema),
         ];
     }
 }

@@ -15,9 +15,12 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Filament\Concerns\HasAssetsRelationManager;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\ContentAsset;
-use Filament\Forms;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -36,9 +39,9 @@ class ContentAssetsRelationManager extends RelationManager
         return __('capell-admin::tab.assets');
     }
 
-    public function form(Forms\Form $form): Forms\Form
+    public function form(Schema $schema): Schema
     {
-        return $form->schema(static::getAssetForm())->columns(1);
+        return $schema->components(static::getAssetForm())->columns(1);
     }
 
     public function table(Table $table): Table
@@ -47,7 +50,7 @@ class ContentAssetsRelationManager extends RelationManager
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->withAssets())
             ->description(__('capell-admin::generic.content_assets_description'))
             ->columns([
-                Tables\Columns\TextColumn::make('asset_id')
+                TextColumn::make('asset_id')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(
                         query: fn (Builder $query, string $search): Builder => $query->where('asset_id', $search),
@@ -57,7 +60,7 @@ class ContentAssetsRelationManager extends RelationManager
                     ->label(__('capell-admin::table.image'))
                     ->relationship('asset.image')
                     ->extraHeaderAttributes(['style' => 'width:1%']),
-                Tables\Columns\TextColumn::make('asset_type')
+                TextColumn::make('asset_type')
                     ->badge(),
             ])
             ->recordUrl(
@@ -70,7 +73,7 @@ class ContentAssetsRelationManager extends RelationManager
                 }
             )
             ->filters([
-                Tables\Filters\SelectFilter::make('asset_type')
+                SelectFilter::make('asset_type')
                     ->label(__('capell-admin::form.asset_type'))
                     ->options(
                         fn (): array => CapellCore::getAssets()
@@ -79,16 +82,16 @@ class ContentAssetsRelationManager extends RelationManager
                             )
                             ->toArray()
                     ),
-                Tables\Filters\SelectFilter::make('type_id')
+                SelectFilter::make('type_id')
                     ->label(__('capell-admin::form.type'))
                     ->options(fn (): array => Content::getTypes()),
             ])
             ->headerActions([
                 self::createResourcesAction(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

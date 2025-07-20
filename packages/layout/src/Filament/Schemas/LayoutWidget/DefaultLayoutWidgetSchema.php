@@ -6,14 +6,15 @@ namespace Capell\Layout\Filament\Schemas\LayoutWidget;
 
 use Capell\Layout\Filament\Components\Forms\HtmlClassInput;
 use Capell\Layout\Filament\Schemas\AbstractLayoutWidgetSchema;
-use Filament\Forms;
+use Filament\Forms\Components\Checkbox;
+use Filament\Schemas\Schema;
 
 class DefaultLayoutWidgetSchema extends AbstractLayoutWidgetSchema
 {
-    public static function make(Forms\Form $form): array
+    public static function make(Schema $schema): array
     {
         return [
-            Forms\Components\Checkbox::make('hide_content')
+            Checkbox::make('hide_content')
                 ->label(__('capell-admin::form.hide_content'))
                 ->helperText(__('capell-admin::generic.hide_content_info')),
             HtmlClassInput::make('html_class'),

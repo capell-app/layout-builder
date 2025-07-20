@@ -14,49 +14,56 @@ use Capell\Layout\Filament\Components\Forms\Widget\WidgetResultsSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
 use Capell\Layout\Filament\Schemas\AbstractWidgetSchema;
-use Filament\Forms;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Schema;
 
 class ResultsWidgetSchema extends AbstractWidgetSchema
 {
-    public static function make(Forms\Form $form): array
+    public static function make(Schema $schema): array
     {
-        $operation = $form->getOperation();
+        $operation = $schema->getOperation();
 
         return match ($operation) {
             'create', 'createOption', 'replicate', 'editOption' => [
-                WidgetTranslationsRepeater::make($form)
+                WidgetTranslationsRepeater::make($schema)
                     ->section(fn (string $operation): bool => $operation === 'create'),
             ],
             default => [
                 FixedWidthSidebar::make()
                     ->mainSchema([
-                        WidgetTranslationsRepeater::make($form)
+                        WidgetTranslationsRepeater::make($schema)
                             ->section(),
                     ])
                     ->sidebarSchema([
-                        Forms\Components\Section::make()
+                        Section::make()
                             ->columns(1)
-                            ->schema(WidgetSettingsSchema::make($form)),
+                            ->schema(WidgetSettingsSchema::make($schema)),
                     ]),
-                Forms\Components\Tabs::make('tabs')
+                Tabs::make('tabs')
                     ->visibleOn('edit')
                     ->columnSpanFull()
                     ->tabs([
                         WidgetDisplayTab::make([
-                            Forms\Components\Group::make()
+                            Group::make()
                                 ->statePath('meta')
                                 ->columns()
                                 ->schema([
-                                    Forms\Components\Grid::make(3)
+                                    Grid::make(3)
                                         ->schema([
-                                            Forms\Components\TextInput::make('limit')
+                                            TextInput::make('limit')
                                                 ->label(__('capell-admin::form.limit')),
-                                            Forms\Components\Checkbox::make('pagination')
+                                            Checkbox::make('pagination')
                                                 ->label(__('capell-admin::form.pagination'))
                                                 ->default(true),
                                             CacheFrequencySelect::make('cache_frequency'),
                                         ]),
-                                    Forms\Components\Fieldset::make(__('capell-admin::generic.display_settings'))
+                                    Fieldset::make(__('capell-admin::generic.display_settings'))
                                         ->columns(['default' => 1, 'md' => 2, 'lg' => 3, 'xl' => 4])
                                         ->columnSpanFull()
                                         ->schema(WidgetResultsSettingsSchema::make()),

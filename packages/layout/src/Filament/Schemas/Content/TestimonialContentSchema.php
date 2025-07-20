@@ -11,7 +11,11 @@ use Capell\Layout\Filament\Components\Forms\Content\ContentDetailsSchema;
 use Capell\Layout\Filament\Components\Forms\Content\ContentPublishSection;
 use Capell\Layout\Filament\Components\Forms\Content\ContentSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Content\ContentTranslationsRepeater;
-use Filament\Forms;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 class TestimonialContentSchema extends DefaultContentSchema
 {
@@ -20,42 +24,42 @@ class TestimonialContentSchema extends DefaultContentSchema
         return [
             CuratorPicker::make('image_id')
                 ->label(__('capell-admin::form.image')),
-            Forms\Components\Group::make()
+            Group::make()
                 ->schema([
-                    Forms\Components\TextInput::make('company')
+                    TextInput::make('company')
                         ->label(__('capell-layout::form.company')),
-                    Forms\Components\TextInput::make('position')
+                    TextInput::make('position')
                         ->label(__('capell-layout::form.position')),
                 ]),
         ];
     }
 
-    public static function make(Forms\Form $form): array
+    public static function make(Schema $schema): array
     {
-        return match ($form->getOperation()) {
-            'createOption', 'replicate' => self::getCreateOptionFormSchema($form),
-            'create' => self::getCreateFormSchema($form),
-            'editOption' => self::getEditOptionFormSchema($form),
-            default => self::getEditFormSchema($form),
+        return match ($schema->getOperation()) {
+            'createOption', 'replicate' => self::getCreateOptionFormSchema($schema),
+            'create' => self::getCreateFormSchema($schema),
+            'editOption' => self::getEditOptionFormSchema($schema),
+            default => self::getEditFormSchema($schema),
         };
     }
 
-    protected static function getCreateFormSchema(Forms\Form $form): array
+    protected static function getCreateFormSchema(Schema $schema): array
     {
         return [
-            Forms\Components\Section::make()
+            Section::make()
                 ->columns()
-                ->schema(ContentSettingsSchema::make($form)),
-            ContentTranslationsRepeater::make($form),
+                ->schema(ContentSettingsSchema::make($schema)),
+            ContentTranslationsRepeater::make($schema),
         ];
     }
 
-    protected static function getCreateOptionFormSchema(Forms\Form $form): array
+    protected static function getCreateOptionFormSchema(Schema $schema): array
     {
         return [
-            ...ContentSettingsSchema::make($form),
-            ContentTranslationsRepeater::make($form),
-            Forms\Components\Grid::make()
+            ...ContentSettingsSchema::make($schema),
+            ContentTranslationsRepeater::make($schema),
+            Grid::make()
                 ->statePath('meta')
                 ->mutateDehydratedStateUsing(function (array $state): array {
                     if (isset($state['image_id'])) {
@@ -68,13 +72,13 @@ class TestimonialContentSchema extends DefaultContentSchema
         ];
     }
 
-    protected static function getEditFormSchema(Forms\Form $form): array
+    protected static function getEditFormSchema(Schema $schema): array
     {
         return [
             FixedWidthSidebar::make()
                 ->mainSchema([
-                    ContentTranslationsRepeater::make($form),
-                    Forms\Components\Section::make()
+                    ContentTranslationsRepeater::make($schema),
+                    Section::make()
                         ->columns()
                         ->statePath('meta')
                         ->mutateDehydratedStateUsing(function (array $state): array {
@@ -87,11 +91,11 @@ class TestimonialContentSchema extends DefaultContentSchema
                         ->schema(self::getMetaSchema()),
                 ])
                 ->sidebarSchema([
-                    Forms\Components\Section::make()
+                    Section::make()
                         ->columns(1)
                         ->schema([
                             ...ContentDetailsSchema::make(),
-                            ...ContentSettingsSchema::make($form),
+                            ...ContentSettingsSchema::make($schema),
                         ]),
                     ContentPublishSection::make(),
                 ]),
@@ -99,11 +103,11 @@ class TestimonialContentSchema extends DefaultContentSchema
 
     }
 
-    protected static function getEditOptionFormSchema(Forms\Form $form): array
+    protected static function getEditOptionFormSchema(Schema $schema): array
     {
         return [
-            ContentTranslationsRepeater::make($form, hasTitle: false),
-            Forms\Components\Grid::make()
+            ContentTranslationsRepeater::make($schema, hasTitle: false),
+            Grid::make()
                 ->statePath('meta')
                 ->mutateDehydratedStateUsing(function (array $state): array {
                     if (isset($state['image_id'])) {
@@ -113,14 +117,14 @@ class TestimonialContentSchema extends DefaultContentSchema
                     return $state;
                 })
                 ->schema(self::getMetaSchema()),
-            Forms\Components\Section::make(__('capell-admin::generic.settings'))
+            Section::make(__('capell-admin::generic.settings'))
                 ->collapsed()
                 ->compact()
                 ->icon('heroicon-o-cog-6-tooth')
                 ->columns()
                 ->schema([
                     ...ContentDetailsSchema::make(),
-                    ...ContentSettingsSchema::make($form),
+                    ...ContentSettingsSchema::make($schema),
                     ContentPublishSection::make(),
                 ]),
         ];

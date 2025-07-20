@@ -129,7 +129,7 @@ describe('from list article', function (): void {
 
         assertDatabaseHas(Page::class, [
             'name' => $newData->name,
-            'parent_uuid' => $blogPage->getUuid(),
+            'parent_id' => $blogPage->getKey(),
         ]);
     });
 

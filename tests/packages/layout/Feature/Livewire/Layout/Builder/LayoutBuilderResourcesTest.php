@@ -102,7 +102,7 @@ test('Can sync new widget assets to page layout', function (): void {
             widgetIndex: $widgetIndex,
             type: AssetEnum::Media->name,
             hasPageAssets: true,
-            assets: $media->map(fn (Media $record): string => (string) $record->uuid)->toArray()
+            assets: $media->map(fn (Media $record): string => (string) $record->id)->toArray()
         )
         ->call(
             'syncSelectedAssets',
@@ -110,7 +110,7 @@ test('Can sync new widget assets to page layout', function (): void {
             widgetIndex: $widgetIndex,
             type: AssetEnum::Page->name,
             hasPageAssets: true,
-            assets: $pages->map(fn (Page $record): string => (string) $record->uuid)->toArray()
+            assets: $pages->map(fn (Page $record): string => (string) $record->id)->toArray()
         )
         ->call('saveLayout');
 
@@ -159,7 +159,7 @@ test('Can sync new widget assets to layout', function (): void {
             widgetIndex: $widgetIndex,
             type: 'media',
             hasPageAssets: false,
-            assets: $media->map(fn (Media $record): string => (string) $record->uuid)->toArray()
+            assets: $media->map(fn (Media $record): string => (string) $record->id)->toArray()
         )
         ->call(
             'syncSelectedAssets',
@@ -167,7 +167,7 @@ test('Can sync new widget assets to layout', function (): void {
             widgetIndex: $widgetIndex,
             type: 'page',
             hasPageAssets: false,
-            assets: $pages->map(fn (Page $record): string => (string) $record->uuid)->toArray()
+            assets: $pages->map(fn (Page $record): string => (string) $record->id)->toArray()
         )
         ->call('saveLayout');
 
@@ -209,7 +209,7 @@ test('Can sync new page assets', function (): void {
             widgetIndex: $widgetIndex,
             type: 'media',
             hasPageAssets: true,
-            assets: $media->map(fn (Media $record): string => (string) $record->uuid)->toArray()
+            assets: $media->map(fn (Media $record): string => (string) $record->id)->toArray()
         )
         ->call(
             'syncSelectedAssets',
@@ -217,7 +217,7 @@ test('Can sync new page assets', function (): void {
             widgetIndex: $widgetIndex,
             type: 'page',
             hasPageAssets: true,
-            assets: $pages->map(fn (Page $record): string => (string) $record->uuid)->toArray()
+            assets: $pages->map(fn (Page $record): string => (string) $record->id)->toArray()
         )
         ->call('saveLayout');
 
@@ -486,7 +486,7 @@ test('can add media asset to existing widget with page layout', function (): voi
         'container' => $containerKey,
         'occurrence' => $containerWidget['occurrence'],
         'asset_type' => 'media',
-        'asset_id' => $media->uuid,
+        'asset_id' => $media->id,
     ]);
 });
 
@@ -538,7 +538,7 @@ test('can add media asset to widget with page layout', function (): void {
         'container' => $containerKey,
         'occurrence' => $containerWidget['occurrence'],
         'asset_type' => 'media',
-        'asset_id' => $media->uuid,
+        'asset_id' => $media->id,
     ]);
 });
 

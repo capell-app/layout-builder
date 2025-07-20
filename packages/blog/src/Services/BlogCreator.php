@@ -77,7 +77,7 @@ class BlogCreator
             'layout_id' => $layout->id,
             'site_id' => $site->id,
             'type_id' => $type->id,
-            'parent_uuid' => $parent->uuid,
+            'parent_id' => $parent->id,
         ]);
 
         $page->forceFill([
@@ -228,7 +228,7 @@ class BlogCreator
             'layout_id' => $layout->id,
             'site_id' => $site->id,
             'type_id' => $type->id,
-            'parent_uuid' => $parent->uuid,
+            'parent_id' => $parent->id,
         ]);
 
         $page->forceFill([

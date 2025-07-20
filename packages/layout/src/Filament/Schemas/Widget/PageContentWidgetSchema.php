@@ -12,14 +12,19 @@ use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Capell\Layout\Filament\Schemas\AbstractWidgetSchema;
-use Filament\Forms;
-use Filament\Forms\Get;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 
 class PageContentWidgetSchema extends AbstractWidgetSchema
 {
-    public static function make(Forms\Form $form): array
+    public static function make(Schema $schema): array
     {
-        return match ($form->getOperation()) {
+        return match ($schema->getOperation()) {
             'create', 'editOption', 'createOption', 'replicate' => [
                 self::getTabs(),
             ],
@@ -29,26 +34,26 @@ class PageContentWidgetSchema extends AbstractWidgetSchema
                         self::getTabs(),
                     ])
                     ->sidebarSchema([
-                        Forms\Components\Section::make()
-                            ->schema(WidgetSettingsSchema::make($form)),
+                        Section::make()
+                            ->schema(WidgetSettingsSchema::make($schema)),
                     ]),
             ],
         };
     }
 
-    protected static function getTabs(): Forms\Components\Tabs
+    protected static function getTabs(): Tabs
     {
-        return Forms\Components\Tabs::make()
+        return Tabs::make()
             ->columnSpanFull()
             ->tabs([
                 WidgetDisplayTab::make([
-                    Forms\Components\Group::make()
+                    Group::make()
                         ->statePath('meta')
                         ->columns()
                         ->schema([
-                            Forms\Components\Grid::make()
+                            Grid::make()
                                 ->schema([
-                                    Forms\Components\CheckboxList::make('page_content')
+                                    CheckboxList::make('page_content')
                                         ->label(__('capell-admin::form.page_content'))
                                         ->helperText(__('capell-admin::generic.widget_page_content_helper'))
                                         ->reactive()

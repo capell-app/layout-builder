@@ -8,6 +8,7 @@ use Capell\Layout\Models\Content;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
+use Illuminate\Database\Eloquent\Model;
 
 enum AssetEnum: string implements HasColor, HasIcon, HasLabel
 {
@@ -35,7 +36,7 @@ enum AssetEnum: string implements HasColor, HasIcon, HasLabel
     }
 
     /**
-     * @return class-string<\Illuminate\Database\Eloquent\Model>
+     * @return class-string<Model>
      */
     public function getModel(): string
     {

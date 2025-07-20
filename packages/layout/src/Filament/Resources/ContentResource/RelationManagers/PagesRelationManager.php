@@ -6,9 +6,10 @@ namespace Capell\Layout\Filament\Resources\ContentResource\RelationManagers;
 
 use Capell\Admin\Filament\Concerns\HideEmptyRelationManager;
 use Capell\Admin\Filament\RelationManagers\AbstractPagesRelationManager;
+use Capell\Layout\Models\Content;
 
 /**
- * @property \Capell\Layout\Models\Content $ownerRecord
+ * @property Content $ownerRecord
  */
 class PagesRelationManager extends AbstractPagesRelationManager
 {

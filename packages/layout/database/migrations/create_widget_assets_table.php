@@ -24,7 +24,7 @@ return new class extends Migration
         Schema::create('widget_assets', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('widget_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('page_id')->nullable()->index()->constrained()->cascadeOnDelete();
+            $table->foreignUuid('page_id')->nullable()->index()->constrained()->cascadeOnDelete();
             $table->string('container')->nullable();
             $table->unsignedInteger('occurrence')->nullable();
             $table->uuidMorphs('asset');

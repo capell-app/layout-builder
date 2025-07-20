@@ -16,8 +16,15 @@ use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Enums\WidgetTypeGroupEnum;
-use Capell\Layout\Filament\Schemas;
+use Capell\Layout\Filament\Schemas\LayoutWidget\DefaultLayoutWidgetSchema;
+use Capell\Layout\Filament\Schemas\LayoutWidget\PageLayoutWidgetSchema;
 use Capell\Layout\Filament\Schemas\Type\WidgetTypeSchema;
+use Capell\Layout\Filament\Schemas\Widget\AssetsWidgetSchema;
+use Capell\Layout\Filament\Schemas\Widget\MediaWidgetSchema;
+use Capell\Layout\Filament\Schemas\Widget\NavigationWidgetSchema;
+use Capell\Layout\Filament\Schemas\Widget\PageContentWidgetSchema;
+use Capell\Layout\Filament\Schemas\Widget\ResultsWidgetSchema;
+use Capell\Layout\Filament\Schemas\Widget\SystemWidgetSchema;
 
 class WidgetTypeCreator
 {
@@ -73,7 +80,7 @@ class WidgetTypeCreator
             'name' => __('capell-admin::generic.media'),
             'group' => WidgetTypeGroupEnum::Asset->value,
             'admin' => [
-                'schema' => Schemas\Widget\MediaWidgetSchema::getKey(),
+                'schema' => MediaWidgetSchema::getKey(),
                 'icon' => CapellCore::getAsset(AssetEnum::Media->name)->getIcon(),
                 'asset_types' => [AssetEnum::Media->value],
             ],
@@ -95,7 +102,7 @@ class WidgetTypeCreator
             'group' => WidgetTypeGroupEnum::Page->value,
             'admin' => [
                 'type_schema' => WidgetTypeSchema::getKey(),
-                'schema' => Schemas\Widget\NavigationWidgetSchema::getKey(),
+                'schema' => NavigationWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-clipboard-document-list',
             ],
             'meta' => [
@@ -114,8 +121,8 @@ class WidgetTypeCreator
             'group' => WidgetTypeGroupEnum::Page->value,
             'admin' => [
                 'type_schema' => WidgetTypeSchema::getKey(),
-                'schema' => Schemas\Widget\PageContentWidgetSchema::getKey(),
-                'layout_container_widget_schema' => Schemas\LayoutWidget\PageLayoutWidgetSchema::getKey(),
+                'schema' => PageContentWidgetSchema::getKey(),
+                'layout_container_widget_schema' => PageLayoutWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-document-text',
             ],
             'meta' => [
@@ -135,7 +142,7 @@ class WidgetTypeCreator
             'group' => WidgetTypeGroupEnum::Asset->value,
             'admin' => [
                 'type_schema' => WidgetTypeSchema::getKey(),
-                'schema' => Schemas\Widget\ResultsWidgetSchema::getKey(),
+                'schema' => ResultsWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-list-bullet',
             ],
             'meta' => [
@@ -154,7 +161,7 @@ class WidgetTypeCreator
             'group' => WidgetTypeGroupEnum::Asset->value,
             'admin' => [
                 'type_schema' => WidgetTypeSchema::getKey(),
-                'schema' => Schemas\Widget\AssetsWidgetSchema::getKey(),
+                'schema' => AssetsWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-document-text',
                 'asset_types' => [AssetEnum::Page->value],
             ],
@@ -174,7 +181,7 @@ class WidgetTypeCreator
             'group' => WidgetTypeGroupEnum::Asset->value,
             'admin' => [
                 'type_schema' => WidgetTypeSchema::getKey(),
-                'schema' => Schemas\Widget\AssetsWidgetSchema::getKey(),
+                'schema' => AssetsWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-rectangle-stack',
                 'asset_types' => [
                     AssetEnum::Page->value,
@@ -198,8 +205,8 @@ class WidgetTypeCreator
             'group' => WidgetTypeGroupEnum::System->value,
             'admin' => [
                 'type_schema' => WidgetTypeSchema::getKey(),
-                'schema' => Schemas\Widget\SystemWidgetSchema::getKey(),
-                'layout_container_widget_schema' => Schemas\LayoutWidget\DefaultLayoutWidgetSchema::getKey(),
+                'schema' => SystemWidgetSchema::getKey(),
+                'layout_container_widget_schema' => DefaultLayoutWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-wrench',
             ],
             'meta' => [
@@ -218,7 +225,7 @@ class WidgetTypeCreator
             'group' => WidgetTypeGroupEnum::Asset->value,
             'admin' => [
                 'type_schema' => WidgetTypeSchema::getKey(),
-                'schema' => Schemas\Widget\AssetsWidgetSchema::getKey(),
+                'schema' => AssetsWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-rectangle-stack',
                 'asset_types' => [LayoutAssetEnum::Content->value],
             ],

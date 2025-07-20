@@ -14,7 +14,8 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Filament\Components\Tables\Columns\Content\ContentNameColumn;
 use Capell\Layout\Filament\Resources\ContentResource;
-use Filament\Tables;
+use Filament\Tables\Columns\SpatieTagsColumn;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -44,13 +45,13 @@ class ContentsTable extends AbstractAssetsTable
         return [
             IdentifierColumn::make('id'),
             ContentNameColumn::make('name'),
-            Tables\Columns\TextColumn::make('translation.title')
+            TextColumn::make('translation.title')
                 ->label(__('capell-admin::table.title'))
                 ->searchable()
                 ->html()
                 ->toggleable(isToggledHiddenByDefault: true),
             LanguagesColumn::make('translations.language'),
-            Tables\Columns\TextColumn::make('parent.name')
+            TextColumn::make('parent.name')
                 ->label(__('capell-admin::table.parent'))
                 ->searchable()
                 ->sortable()
@@ -58,7 +59,7 @@ class ContentsTable extends AbstractAssetsTable
                 ->linkRecord()
                 ->toggleable(isToggledHiddenByDefault: true),
             TypeNameColumn::make('type.name'),
-            Tables\Columns\SpatieTagsColumn::make('tags')
+            SpatieTagsColumn::make('tags')
                 ->label(__('capell-admin::table.tags'))
                 ->type(TagTypeEnum::CONTENT->value)
                 ->toggleable(isToggledHiddenByDefault: true),

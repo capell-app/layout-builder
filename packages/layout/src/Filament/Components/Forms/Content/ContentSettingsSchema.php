@@ -6,39 +6,29 @@ namespace Capell\Layout\Filament\Components\Forms\Content;
 
 use Capell\Admin\Filament\Components\Forms\Site\SiteSelect;
 use Capell\Layout\Models\Content;
-use Filament\Forms;
+use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 
 class ContentSettingsSchema
 {
-    public static function make(Forms\Form $form): array
+    public static function make(Schema $schema): array
     {
         return [
-            ...match ($form->getOperation()) {
-                'create', 'edit', 'editOption' => [
-                    ContentSelect::make('parent_uuid')
-                        ->label(__('capell-admin::form.parent'))
-                        ->withUuid()
-                        ->withEditForm()
-                        ->lazy()
-                        ->hiddenOn(['replicate', 'createOption'])
-                        ->modifySelectOptionsQueryUsing(function (Builder $query, ?Content $record): void {
-                            if ($record instanceof Content) {
-                                $query->where('contents.uuid', '!=', $record->uuid);
-                            }
-                        }),
+            ContentSelect::make('parent_id')
+                ->label(__('capell-admin::form.parent'))
+                ->withEditForm()
+                ->lazy()
+                ->modifySelectOptionsQueryUsing(function (Builder $query, ?Content $record): void {
+                    if ($record instanceof Content) {
+                        $query->where('contents.id', '!=', $record->id);
+                    }
+                }),
 
-                    SiteSelect::make('site_id')
-                        ->default(null)
-                        ->reactive(),
-                ],
-                default => [],
-            },
+            SiteSelect::make('site_id')
+                ->default(null)
+                ->reactive(),
 
-            ...match ($form->getOperation()) {
-                'edit', 'editOption' => [ContentTagsInput::make('tags')],
-                default => [],
-            },
+            ContentTagsInput::make('tags'),
         ];
     }
 }

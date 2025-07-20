@@ -9,28 +9,28 @@ use Capell\Core\Models\Concerns\HasAssets;
 use Capell\Core\Models\Concerns\HasPageCache;
 use Capell\Layout\Database\Factories\ContentAssetFactory;
 use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Foundation\Auth\User;
 use Wildside\Userstamps\Userstamps;
 
 /**
  * @property-read Model|Eloquent $asset
  * @property-read Content|null $content
- * @property-read \Illuminate\Foundation\Auth\User|null $creator
- * @property-read \Illuminate\Foundation\Auth\User|null $destroyer
- * @property-read \Illuminate\Foundation\Auth\User|null $editor
+ * @property-read User|null $creator
+ * @property-read User|null $destroyer
+ * @property-read User|null $editor
  * @property-read string $asset_key
  *
- * @method static \Capell\Layout\Database\Factories\ContentAssetFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ContentAsset newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ContentAsset newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ContentAsset query()
- *
- * @mixin \Eloquent
- *
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ContentAsset withAssets(bool $withDrafts = true)
+ * @method static ContentAssetFactory factory($count = null, $state = [])
+ * @method static Builder<static>|ContentAsset newModelQuery()
+ * @method static Builder<static>|ContentAsset newQuery()
+ * @method static Builder<static>|ContentAsset query()
+ * @method static Builder<static>|ContentAsset withAssets(bool $withDrafts = true)
  *
  * @mixin Eloquent
  */
@@ -65,11 +65,11 @@ class ContentAsset extends Model implements PageCacheable
 
     public function asset(): MorphTo
     {
-        return $this->morphTo('asset', 'asset_type', 'asset_id', 'uuid');
+        return $this->morphTo('asset', 'asset_type', 'asset_id', 'id');
     }
 
-    protected function assetKey(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function assetKey(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: fn (): string => $this->asset_type.'.'.$this->asset_id);
+        return Attribute::make(get: fn (): string => $this->asset_type.'.'.$this->asset_id);
     }
 }

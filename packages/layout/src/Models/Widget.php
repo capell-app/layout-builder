@@ -6,15 +6,18 @@ namespace Capell\Layout\Models;
 
 use Bkwld\Cloner\Cloneable;
 use Capell\Core\Contracts\PageCacheable;
+use Capell\Core\Enums\PublishStatusEnum;
 use Capell\Core\Models\Concerns\HasMetaData;
 use Capell\Core\Models\Concerns\HasPageCache;
 use Capell\Core\Models\Concerns\HasPublishDates;
 use Capell\Core\Models\Concerns\HasStatus;
 use Capell\Core\Models\Concerns\HasTranslations;
 use Capell\Core\Models\Contracts\Statusable;
+use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\WidgetFactory;
 use Capell\Layout\Enums\LayoutTypeEnum;
@@ -27,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
@@ -39,19 +43,19 @@ use Wildside\Userstamps\Userstamps;
  * @property-read int|null $assets_count
  * @property-read \Kalnoy\Nestedset\Collection<int, Content> $contents
  * @property-read int|null $contents_count
- * @property-read \Illuminate\Foundation\Auth\User|null $creator
- * @property-read \Illuminate\Foundation\Auth\User|null $destroyer
- * @property-read \Illuminate\Foundation\Auth\User|null $editor
- * @property-read \Capell\Core\Enums\PublishStatusEnum $publish_status
+ * @property-read User|null $creator
+ * @property-read User|null $destroyer
+ * @property-read User|null $editor
+ * @property-read PublishStatusEnum $publish_status
  * @property-read Media|null $image
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Capell\Core\Models\Language> $languages
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Language> $languages
  * @property-read int|null $languages_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Media> $media
  * @property-read int|null $media_count
  * @property-read \Kalnoy\Nestedset\Collection<int, Page> $pages
  * @property-read int|null $pages_count
- * @property-read \Capell\Core\Models\Translation|null $translation
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Capell\Core\Models\Translation> $translations
+ * @property-read Translation|null $translation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Translation> $translations
  * @property-read int|null $translations_count
  * @property-read Type|null $type
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WidgetAsset> $widgetAssets
@@ -61,14 +65,14 @@ use Wildside\Userstamps\Userstamps;
  *
  * @method static Builder<static>|Widget disabled()
  * @method static Builder<static>|Widget enabled()
- * @method static Builder<static>|Widget expired(\Illuminate\Database\Eloquent\Model $model)
- * @method static \Capell\Layout\Database\Factories\WidgetFactory factory($count = null, $state = [])
+ * @method static Builder<static>|Widget expired(Model $model)
+ * @method static WidgetFactory factory($count = null, $state = [])
  * @method static Builder<static>|Widget newModelQuery()
  * @method static Builder<static>|Widget newQuery()
  * @method static Builder<static>|Widget onlyTrashed()
  * @method static Builder<static>|Widget ordered(string $dir = 'asc')
- * @method static Builder<static>|Widget pending(\Illuminate\Database\Eloquent\Model $model)
- * @method static Builder<static>|Widget published(\Illuminate\Database\Eloquent\Model $model)
+ * @method static Builder<static>|Widget pending(Model $model)
+ * @method static Builder<static>|Widget published(Model $model)
  * @method static Builder<static>|Widget query()
  * @method static Builder<static>|Widget status(bool $enabled)
  * @method static Builder<static>|Widget withLayoutsCount()

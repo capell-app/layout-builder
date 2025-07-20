@@ -21,23 +21,38 @@ use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Enums\TagTypeEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
+use Capell\Core\Models\Tag;
 use Capell\Layout\Actions\ReplicateContentAction;
 use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\LayoutResourceEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\SchemaEnum;
 use Capell\Layout\Filament\Components\Forms\Content\ContentDetailsSchema;
 use Capell\Layout\Filament\Components\Tables\Columns\Content\ContentNameColumn;
-use Capell\Layout\Filament\Resources\ContentResource\Pages;
+use Capell\Layout\Filament\Resources\ContentResource\Pages\CreateContent;
+use Capell\Layout\Filament\Resources\ContentResource\Pages\EditContent;
+use Capell\Layout\Filament\Resources\ContentResource\Pages\ListContents;
 use Capell\Layout\Filament\Resources\ContentResource\RelationManagers\ContentAssetsRelationManager;
 use Capell\Layout\Filament\Resources\ContentResource\RelationManagers\PagesRelationManager;
 use Capell\Layout\Filament\Resources\ContentResource\RelationManagers\WidgetsRelationManager;
 use Capell\Layout\Filament\Schemas\Content\DefaultContentSchema;
 use Capell\Layout\Models\Content;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Forms\Components\Select;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\SpatieTagsColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
@@ -49,14 +64,16 @@ class ContentResource extends Resource
 {
     protected static ?string $recordTitleAttribute = 'name';
 
+    protected static ?int $navigationSort = 1;
+
     public static function getResourceType(): string
     {
-        return 'Content';
+        return LayoutResourceEnum::Content->name;
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema(self::getFormSchema($form));
+        return $schema->components(self::getFormSchema($schema));
     }
 
     public static function getEloquentQuery(): Builder
@@ -68,22 +85,22 @@ class ContentResource extends Resource
             ]);
     }
 
-    public static function getFormSchema(Form $form): array
+    public static function getFormSchema(Schema $schema): array
     {
         return [
-            Forms\Components\Grid::make()
+            Grid::make()
                 ->hiddenOn(['edit', 'editOption'])
                 ->schema(ContentDetailsSchema::make()),
             TypeSchema::make()
                 ->schema(
-                    function (Get $get, TypeSchema $component) use ($form): array {
+                    function (Get $get, TypeSchema $component) use ($schema): array {
                         $typeId = $get('type_id');
 
                         $type = $typeId ? CapellCore::getModel(ModelEnum::Type)::find($typeId, ['admin']) : null;
 
-                        $adminSchema = $type->admin['schema'] ?? DefaultContentSchema::getKey();
+                        $name = $type->admin['schema'] ?? DefaultContentSchema::getKey();
 
-                        return $component->getSchema($form, SchemaEnum::Content->value, $adminSchema);
+                        return $component->getSchema($schema, SchemaEnum::Content->value, $name);
                     }
                 ),
         ];
@@ -110,7 +127,7 @@ class ContentResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_library'));
+        return (string) (__('capell-admin::navigation.group_resources'));
     }
 
     public static function getNavigationLabel(): string
@@ -121,9 +138,9 @@ class ContentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListContents::route('/'),
-            'create' => Pages\CreateContent::route('/create'),
-            'edit' => Pages\EditContent::route('/{record}/edit'),
+            'index' => ListContents::route('/'),
+            'create' => CreateContent::route('/create'),
+            'edit' => EditContent::route('/{record}/edit'),
         ];
     }
 
@@ -149,7 +166,7 @@ class ContentResource extends Resource
     public static function getTableFilters(): array
     {
         return [
-            Tables\Filters\SelectFilter::make('site_id')
+            SelectFilter::make('site_id')
                 ->label(__('capell-admin::form.site'))
                 ->options(function (): array {
                     /** @var class-string<Models\Site> $model */
@@ -172,7 +189,7 @@ class ContentResource extends Resource
                         )
                 ),
 
-            Tables\Filters\SelectFilter::make('type_id')
+            SelectFilter::make('type_id')
                 ->label(__('capell-admin::form.type'))
                 ->relationship(
                     name: 'type',
@@ -185,13 +202,13 @@ class ContentResource extends Resource
                         ->enabled()
                 ),
 
-            Tables\Filters\Filter::make('filter')
+            Filter::make('filter')
                 ->columnSpan(['default' => 1, 'md' => 3])
                 ->columns(['default' => 1, 'md' => 3])
-                ->form([
-                    Forms\Components\Select::make('language_id')
+                ->schema([
+                    Select::make('language_id')
                         ->label(__('capell-admin::table.language'))
-                        ->options(function (Tables\Contracts\HasTable $livewire): array {
+                        ->options(function (HasTable $livewire): array {
                             $siteId = self::getSiteId($livewire);
 
                             /* @var class-string<\Capell\Core\Models\Language> $model */
@@ -209,9 +226,9 @@ class ContentResource extends Resource
                                 ->toArray();
                         }),
 
-                    Forms\Components\Select::make('parent_uuid')
+                    Select::make('parent_id')
                         ->label(__('capell-admin::form.parent'))
-                        ->options(function (Tables\Contracts\HasTable $livewire, Get $get) {
+                        ->options(function (HasTable $livewire, Get $get) {
                             $siteId = self::getSiteId($livewire);
 
                             /** @var class-string<Content> $model */
@@ -242,8 +259,10 @@ class ContentResource extends Resource
                                     $label .= $content->site->name.' » ';
                                 }
 
-                                if ($content->ancestors->isNotEmpty()) {
-                                    $label .= $content->ancestors->pluck('name')
+                                $ancestors = $content->ancestors()->get();
+
+                                if ($ancestors->isNotEmpty()) {
+                                    $label .= $ancestors->pluck('name')
                                         ->map(fn ($item) => Str::limit($item, 30))
                                         ->implode(' » ')
                                         .' » ';
@@ -251,13 +270,13 @@ class ContentResource extends Resource
 
                                 $label .= Str::limit($content->name, 40);
 
-                                return [$content->uuid => $label];
+                                return [$content->id => $label];
                             });
                         }),
 
-                    Forms\Components\Select::make('tags')
+                    Select::make('tags')
                         ->label(__('capell-admin::form.tags'))
-                        ->relationship(name: 'tags', titleAttribute: 'name', modifyQueryUsing: function (Builder $query, Tables\Contracts\HasTable $livewire, Get $get): void {
+                        ->relationship(name: 'tags', titleAttribute: 'name', modifyQueryUsing: function (Builder $query, HasTable $livewire, Get $get): void {
                             $siteId = self::getSiteId($livewire);
 
                             if (! $siteId) {
@@ -275,7 +294,7 @@ class ContentResource extends Resource
                                 $query->whereRaw('JSON_EXTRACT(`tags`.`name`, '.DB::getPdo()->quote('$.'.$code).') IS NOT NULL');
                             }
                         })
-                        ->getOptionLabelFromRecordUsing(function (Models\Tag $record, Tables\Contracts\HasTable $livewire, Get $get): string {
+                        ->getOptionLabelFromRecordUsing(function (Tag $record, HasTable $livewire, Get $get): string {
                             $label = '';
 
                             $siteId = self::getSiteId($livewire);
@@ -318,8 +337,8 @@ class ContentResource extends Resource
                             )
                         )
                         ->when(
-                            $data['parent_uuid'] ?? null,
-                            fn (Builder $query) => $query->where('parent_uuid', $data['parent_uuid'])
+                            $data['parent_id'] ?? null,
+                            fn (Builder $query) => $query->where('parent_id', $data['parent_id'])
                         );
                 })
                 ->indicateUsing(function (array $data): array {
@@ -335,16 +354,16 @@ class ContentResource extends Resource
                         );
                     }
 
-                    if (! empty($data['parent_uuid'])) {
+                    if (! empty($data['parent_id'])) {
                         /** @var class-string<Content> $model */
                         $model = CapellCore::getModel(LayoutModelEnum::Content->name);
 
-                        $indicators['parent_uuid'] = __(
+                        $indicators['parent_id'] = __(
                             'capell-admin::filter.parent',
                             [
                                 'search' => $model::select('name')->firstWhere(
-                                    'uuid',
-                                    $data['parent_uuid']
+                                    'id',
+                                    $data['parent_id']
                                 )
                                     ?->name,
                             ]
@@ -352,7 +371,7 @@ class ContentResource extends Resource
                     }
 
                     if (! empty($data['tags'])) {
-                        /** @var class-string<Models\Tag> $model */
+                        /** @var class-string<Tag> $model */
                         $model = CapellCore::getModel(ModelEnum::Tag);
 
                         $indicators['tags'] = __(
@@ -364,7 +383,7 @@ class ContentResource extends Resource
                     return $indicators;
                 }),
 
-            Tables\Filters\SelectFilter::make('publish_status')
+            SelectFilter::make('publish_status')
                 ->label(__('capell-admin::table.publish_status'))
                 ->placeholder(__('capell-admin::generic.all'))
                 ->options([
@@ -381,7 +400,7 @@ class ContentResource extends Resource
 
             StatusFilter::make('status'),
 
-            Tables\Filters\TrashedFilter::make(),
+            TrashedFilter::make(),
         ];
     }
 
@@ -418,19 +437,19 @@ class ContentResource extends Resource
                 'lg' => 3,
             ])
             ->columnToggleFormColumns(3)
-            ->actions([
+            ->recordActions([
                 EditAction::make(),
-                Tables\Actions\ActionGroup::make([
+                ActionGroup::make([
                     ReplicateAction::make()
                         ->replicaModelAction(ReplicateContentAction::class),
-                    Tables\Actions\DeleteAction::make(),
+                    DeleteAction::make(),
                 ])
                     ->color('gray'),
             ])
-            ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
-                Tables\Actions\RestoreBulkAction::make(),
-                Tables\Actions\ForceDeleteBulkAction::make(),
+            ->toolbarActions([
+                DeleteBulkAction::make(),
+                RestoreBulkAction::make(),
+                ForceDeleteBulkAction::make(),
             ])
             ->recordClasses(fn (Content $record): ?string => match (true) {
                 (bool) $record->deleted_at => 'table-row-warning',
@@ -443,13 +462,13 @@ class ContentResource extends Resource
         return [
             IdentifierColumn::make('id'),
             ContentNameColumn::make('name'),
-            Tables\Columns\TextColumn::make('translation.title')
+            TextColumn::make('translation.title')
                 ->label(__('capell-admin::table.title'))
                 ->searchable()
                 ->html()
                 ->toggleable(isToggledHiddenByDefault: true),
             LanguagesColumn::make('translations.language'),
-            Tables\Columns\TextColumn::make('parent.name')
+            TextColumn::make('parent.name')
                 ->label(__('capell-admin::table.parent'))
                 ->searchable()
                 ->sortable()
@@ -461,11 +480,11 @@ class ContentResource extends Resource
                 ->withParents()
                 ->toggleable(isToggledHiddenByDefault: true),
             TypeNameColumn::make('type.name'),
-            Tables\Columns\SpatieTagsColumn::make('tags')
+            SpatieTagsColumn::make('tags')
                 ->label(__('capell-admin::table.tags'))
                 ->type(TagTypeEnum::CONTENT->value)
                 ->toggleable(isToggledHiddenByDefault: true),
-            Tables\Columns\TextColumn::make('children_count')
+            TextColumn::make('children_count')
                 ->label(__('capell-admin::table.children'))
                 ->alignCenter()
                 ->numeric()
@@ -474,7 +493,7 @@ class ContentResource extends Resource
                 ->color('primary')
                 ->url(
                     fn (Content $record, int $state): ?string => $state !== 0
-                        ? self::getUrl('index', ['tableFilters' => ['filter' => ['parent_uuid' => $record->uuid]]])
+                        ? self::getUrl('index', ['tableFilters' => ['filter' => ['parent_id' => $record->id]]])
                         : null
                 ),
             BadgeableColumn::make('assets_count')
@@ -487,7 +506,7 @@ class ContentResource extends Resource
                 ->formatStateUsing(fn (Content $record): string => $record->assets_count ? '' : ' &mdash; '),
             SiteColumn::make('site.name')
                 ->hidden(
-                    fn (Tables\Contracts\HasTable $livewire): bool => $livewire->activeTab
+                    fn (HasTable $livewire): bool => $livewire->activeTab
                         || ! empty($livewire->getTableFilterState('filter')['site_id'])
                 ),
             CuratorColumn::make('asset.image_id')
@@ -507,10 +526,10 @@ class ContentResource extends Resource
         ];
     }
 
-    private static function getSiteId(Tables\Contracts\HasTable $livewire)
+    private static function getSiteId(HasTable $livewire)
     {
         return match (true) {
-            $livewire instanceof Pages\ListContents => $livewire->activeTab,
+            $livewire instanceof ListContents => $livewire->activeTab,
             default => $livewire->getTableFilterState('filter')['site_id'] ?? null,
         };
     }

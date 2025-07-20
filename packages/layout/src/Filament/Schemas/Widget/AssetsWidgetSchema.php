@@ -16,89 +16,93 @@ use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
 use Capell\Layout\Filament\Schemas\AbstractWidgetSchema;
-use Filament\Forms;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Schema;
 
 class AssetsWidgetSchema extends AbstractWidgetSchema
 {
-    public static function make(Forms\Form $form): array
+    public static function make(Schema $schema): array
     {
-        $operation = $form->getOperation();
+        $operation = $schema->getOperation();
 
         return [
             ...match ($operation) {
-                'create', 'createOption', 'replicate' => self::getCreateOptionSchema($form),
-                default => self::getEditFormSchema($form),
+                'create', 'createOption', 'replicate' => self::getCreateOptionSchema($schema),
+                default => self::getEditFormSchema($schema),
             },
         ];
     }
 
-    protected static function getCreateOptionSchema(Forms\Form $form): array
+    protected static function getCreateOptionSchema(Schema $schema): array
     {
         return [
-            WidgetAssetsRepeater::make($form),
+            WidgetAssetsRepeater::make($schema),
         ];
     }
 
-    protected static function getEditFormSchema(Forms\Form $form): array
+    protected static function getEditFormSchema(Schema $schema): array
     {
         return [
             FixedWidthSidebar::make()
-                ->mainSchema(self::getMainSchema($form))
-                ->sidebarSchema(self::getSidebarSchema($form)),
-            self::getTabs($form),
+                ->mainSchema(self::getMainSchema($schema))
+                ->sidebarSchema(self::getSidebarSchema($schema)),
+            self::getTabs($schema),
         ];
     }
 
-    protected static function getMainSchema(Forms\Form $form): array
+    protected static function getMainSchema(Schema $schema): array
     {
         return [
-            Forms\Components\Section::make(__('capell-admin::generic.widget_assets'))
+            Section::make(__('capell-admin::generic.widget_assets'))
                 ->description(__('capell-admin::generic.widget_assets_info'))
                 ->compact()
                 ->schema([
-                    WidgetAssetsRepeater::make($form)
+                    WidgetAssetsRepeater::make($schema)
                         ->hiddenLabel(),
                 ]),
         ];
     }
 
-    protected static function getSidebarSchema(Forms\Form $form): array
+    protected static function getSidebarSchema(Schema $schema): array
     {
         return [
-            Forms\Components\Section::make()
+            Section::make()
                 ->columns(1)
-                ->schema(WidgetSettingsSchema::make($form)),
+                ->schema(WidgetSettingsSchema::make($schema)),
         ];
     }
 
-    protected static function getTabs(Forms\Form $form): Forms\Components\Tabs
+    protected static function getTabs(Schema $schema): Tabs
     {
-        return Forms\Components\Tabs::make('tabs')
+        return Tabs::make('tabs')
             ->columnSpanFull()
             ->tabs([
-                static::getContentTab($form),
-                static::getSettingsTab($form),
-                static::getAdminTab($form),
+                static::getContentTab($schema),
+                static::getSettingsTab($schema),
+                static::getAdminTab($schema),
             ]);
     }
 
-    protected static function getContentTab(Forms\Form $form): Forms\Components\Tabs\Tab
+    protected static function getContentTab(Schema $schema): Tab
     {
-        return Forms\Components\Tabs\Tab::make(__('capell-admin::tab.content'))
+        return Tab::make(__('capell-admin::tab.content'))
             ->schema([
-                WidgetTranslationsRepeater::make($form),
+                WidgetTranslationsRepeater::make($schema),
             ]);
     }
 
-    protected static function getAdminTab(Forms\Form $form): Forms\Components\Tabs\Tab
+    protected static function getAdminTab(Schema $schema): Tab
     {
         return WidgetAdminTab::make();
     }
 
-    protected static function getSettingsTab(Forms\Form $form): Forms\Components\Tabs\Tab
+    protected static function getSettingsTab(Schema $schema): Tab
     {
         return WidgetDisplayTab::make([
-            Forms\Components\Grid::make()
+            Grid::make()
                 ->statePath('meta')
                 ->mutateDehydratedStateUsing(function (array $state): array {
                     if (! empty($state['background_image_id'])) {

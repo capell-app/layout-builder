@@ -10,16 +10,19 @@ use Capell\Layout\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
-use Filament\Forms;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Schema;
 use Override;
 
 class CarouselWidgetSchema extends AssetsWidgetSchema
 {
     #[Override]
-    protected static function getSettingsTab(Forms\Form $form): Forms\Components\Tabs\Tab
+    protected static function getSettingsTab(Schema $schema): Tab
     {
         return WidgetDisplayTab::make([
-            Forms\Components\Grid::make()
+            Grid::make()
                 ->statePath('meta')
                 ->mutateDehydratedStateUsing(function (array $state): array {
                     if (isset($state['background_image_id'])) {
@@ -29,7 +32,7 @@ class CarouselWidgetSchema extends AssetsWidgetSchema
                     return $state;
                 })
                 ->schema([
-                    Forms\Components\Fieldset::make(
+                    Fieldset::make(
                         __('capell-admin::generic.carousel_options')
                     )
                         ->columns(['default' => 2, 'xl' => 3])

@@ -11,7 +11,7 @@ use Capell\Admin\Filament\Components\Forms\SchemaSelect;
 use Capell\Layout\Enums\SchemaEnum;
 use Capell\Layout\Filament\Schemas\Widget\DefaultWidgetSchema;
 use Capell\Layout\Models\Widget;
-use Filament\Forms;
+use Filament\Schemas\Components\Fieldset;
 
 class WidgetAdminSchema
 {
@@ -32,7 +32,7 @@ class WidgetAdminSchema
             ImageUpload::make('image')
                 ->directory('widgets'),
 
-            Forms\Components\Fieldset::make(__('capell-admin::generic.assets'))
+            Fieldset::make(__('capell-admin::generic.assets'))
                 ->visible(fn (?Widget $record): bool => ! empty($record->type?->admin['asset_types']))
                 ->schema([
                     SchemaSelect::make('widget_asset_schema')

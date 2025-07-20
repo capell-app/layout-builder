@@ -25,7 +25,7 @@ return new class extends Migration
 
         $schema->create('telescope_entries', function (Blueprint $table): void {
             $table->bigIncrements('sequence');
-            $table->uuid('uuid');
+            $table->uuid('id');
             $table->uuid('batch_id');
             $table->string('family_hash')->nullable();
             $table->boolean('should_display_on_index')->default(true);
@@ -33,7 +33,7 @@ return new class extends Migration
             $table->longText('content');
             $table->dateTime('created_at')->nullable();
 
-            $table->unique('uuid');
+            $table->unique('id');
             $table->index('batch_id');
             $table->index('family_hash');
             $table->index('created_at');
@@ -48,7 +48,7 @@ return new class extends Migration
             $table->index('tag');
 
             $table->foreign('entry_uuid')
-                ->references('uuid')
+                ->references('id')
                 ->on('telescope_entries')
                 ->onDelete('cascade');
         });

@@ -14,14 +14,17 @@ use Capell\Layout\Filament\Components\Forms\PaddingSelect;
 use Capell\Layout\Filament\Components\Forms\SpacingSelect;
 use Capell\Layout\Filament\Components\Forms\TagSelect;
 use Capell\Layout\Filament\Schemas\AbstractLayoutContainerSchema;
-use Filament\Forms;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Schema;
 
 class DefaultLayoutContainerSchema extends AbstractLayoutContainerSchema
 {
-    public static function make(Forms\Form $form): array
+    public static function make(Schema $schema): array
     {
         return [
-            Forms\Components\Group::make()
+            Group::make()
                 ->statePath('meta')
                 ->mutateDehydratedStateUsing(function (array $state): array {
                     if (isset($state['background_image_id'])) {
@@ -38,7 +41,7 @@ class DefaultLayoutContainerSchema extends AbstractLayoutContainerSchema
                         ->default(12),
                     ColumnInput::make('column_start')
                         ->label(__('capell-admin::form.column_start')),
-                    Forms\Components\Grid::make(['md' => 2])
+                    Grid::make(['md' => 2])
                         ->schema([
                             ContainerWidthSelect::make('container'),
                             HtmlClassInput::make('html_class'),
@@ -46,7 +49,7 @@ class DefaultLayoutContainerSchema extends AbstractLayoutContainerSchema
                             MarginSelect::make('margin'),
                             SpacingSelect::make('spacing'),
                             TagSelect::make('tag'),
-                            Forms\Components\TextInput::make('override_columns')
+                            TextInput::make('override_columns')
                                 ->label(__('capell-admin::form.override_columns'))
                                 ->helperText(__('capell-admin::generic.override_columns_info')),
                             BackgroundSettingsFieldset::make(),

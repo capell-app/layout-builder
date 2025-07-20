@@ -14,24 +14,47 @@ use Capell\Core\Data\AssetData;
 use Capell\Core\Data\TypeData;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models;
+use Capell\Core\Models\Layout;
+use Capell\Core\Models\Media;
+use Capell\Core\Models\Page;
 use Capell\Core\Models\PageTranslation;
+use Capell\Core\Models\Site;
+use Capell\Core\Models\Tag;
+use Capell\Core\Models\Type;
 use Capell\Core\Packages\AbstractPackageServiceProvider;
 use Capell\Layout\Actions\InstallPackageAction;
 use Capell\Layout\Commands\DemoCommand;
+use Capell\Layout\Enums\AssetComponentEnum;
 use Capell\Layout\Enums\AssetEnum;
+use Capell\Layout\Enums\ComponentTypeEnum;
+use Capell\Layout\Enums\ContentSchemaEnum;
+use Capell\Layout\Enums\LayoutContainerSchemaEnum;
+use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\LayoutResourceEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Enums\LayoutWidgetSchemaEnum;
+use Capell\Layout\Enums\WidgetAssetSchemaEnum;
+use Capell\Layout\Enums\WidgetSchemaEnum;
 use Capell\Layout\Filament\Resources\LayoutResource;
-use Capell\Layout\Filament\Schemas;
+use Capell\Layout\Filament\Schemas\Layout\DefaultLayoutSchema;
+use Capell\Layout\Filament\Schemas\Page\DefaultPageSchema;
+use Capell\Layout\Filament\Schemas\Page\LandingPageSchema;
+use Capell\Layout\Filament\Schemas\Page\ResultsPageSchema;
+use Capell\Layout\Filament\Schemas\Type\WidgetTypeSchema;
+use Capell\Layout\Listeners\AfterRecordSaved;
+use Capell\Layout\Listeners\LayoutLoaded;
+use Capell\Layout\Listeners\SiteTreeRebuilt;
+use Capell\Layout\Listeners\TypeValidated;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\ContentAsset;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Exception;
 use Filament\Facades\Filament;
-use Filament\Forms;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 use Filament\Support\Assets\AlpineComponent;
-use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -52,7 +75,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 {
     public static string $name = 'capell-layout';
 
-    public static string $description = 'Capell Layout & Widgets Package';
+    public static string $description = 'Managing content and widgets.';
 
     public function bootingPackage(): void
     {
@@ -98,7 +121,6 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
         FilamentAsset::register([
             AlpineComponent::make('layout-builder', $publishDir.'/build/layout-builder.js')
                 ->loadedOnRequest(),
-            Css::make('capell-layout-filament', $publishDir.'/build/capell-layout-filament.css'),
         ],
             package: 'capell-layout'
         );
@@ -149,13 +171,13 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
         );
 
         CapellAdmin::registerResource(
-            Enums\LayoutResourceEnum::Content->name,
-            class: Enums\LayoutResourceEnum::Content->value,
+            LayoutResourceEnum::Content->name,
+            class: LayoutResourceEnum::Content->value,
         );
 
         CapellAdmin::registerResource(
-            Enums\LayoutResourceEnum::Widget->name,
-            class: Enums\LayoutResourceEnum::Widget->value,
+            LayoutResourceEnum::Widget->name,
+            class: LayoutResourceEnum::Widget->value,
         );
 
         CapellAdmin::registerResource(
@@ -172,7 +194,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             );
         }
 
-        foreach (Enums\ComponentTypeEnum::cases() as $componentType) {
+        foreach (ComponentTypeEnum::cases() as $componentType) {
             CapellCore::registerComponents($componentType->name, $componentType->value::cases());
         }
 
@@ -181,7 +203,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
                 name: AssetEnum::Content->name,
                 model: Content::class,
                 icon: 'heroicon-o-document-text',
-                component: Enums\AssetComponentEnum::Content->value,
+                component: AssetComponentEnum::Content->value,
                 hasTranslation: true,
             )
         );
@@ -214,20 +236,20 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     private function registerModels(): self
     {
-        CapellCore::registerModel(Enums\LayoutModelEnum::Content, Content::class);
-        CapellCore::registerModel(Enums\LayoutModelEnum::ContentAsset, ContentAsset::class);
-        CapellCore::registerModel(Enums\LayoutModelEnum::Widget, Widget::class);
-        CapellCore::registerModel(Enums\LayoutModelEnum::WidgetAsset, WidgetAsset::class);
+        CapellCore::registerModel(LayoutModelEnum::Content, Content::class);
+        CapellCore::registerModel(LayoutModelEnum::ContentAsset, ContentAsset::class);
+        CapellCore::registerModel(LayoutModelEnum::Widget, Widget::class);
+        CapellCore::registerModel(LayoutModelEnum::WidgetAsset, WidgetAsset::class);
 
         return $this;
     }
 
     private function registerListeners(): self
     {
-        CapellCore::subscriberManager()->subscribe(Listeners\AfterRecordSaved::class);
-        CapellCore::subscriberManager()->subscribe(Listeners\SiteTreeRebuilt::class);
-        CapellCore::subscriberManager()->subscribe(Listeners\TypeValidated::class);
-        CapellCore::subscriberManager()->subscribe(Listeners\LayoutLoaded::class);
+        CapellCore::subscriberManager()->subscribe(AfterRecordSaved::class);
+        CapellCore::subscriberManager()->subscribe(SiteTreeRebuilt::class);
+        CapellCore::subscriberManager()->subscribe(TypeValidated::class);
+        CapellCore::subscriberManager()->subscribe(LayoutLoaded::class);
 
         return $this;
     }
@@ -236,7 +258,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
     {
         Filament::serving(function (): void {
             $createDeleteModels = [
-                CapellCore::getModel(Enums\LayoutModelEnum::Content->name),
+                CapellCore::getModel(LayoutModelEnum::Content->name),
             ];
 
             foreach ($createDeleteModels as $modelClass) {
@@ -255,103 +277,103 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     private function registerRelationships(): self
     {
-        Models\Media::resolveRelationUsing(
+        Media::resolveRelationUsing(
             'pages',
-            fn (Models\Media $model): HasManyThrough => $model->hasManyThrough(
-                Models\Page::class,
+            fn (Media $model): HasManyThrough => $model->hasManyThrough(
+                Page::class,
                 WidgetAsset::class
             )
         );
 
-        Models\Media::resolveRelationUsing(
+        Media::resolveRelationUsing(
             'widgets',
-            fn (Models\Media $model): MorphToMany => $model->morphToMany(
+            fn (Media $model): MorphToMany => $model->morphToMany(
                 Widget::class,
                 'asset',
                 'widget_assets'
             )
         );
 
-        Models\Page::resolveRelationUsing(
+        Page::resolveRelationUsing(
             'media',
-            fn (Models\Page $model): HasManyThrough => $model->hasManyThrough(
-                Models\Media::class,
+            fn (Page $model): HasManyThrough => $model->hasManyThrough(
+                Media::class,
                 WidgetAsset::class,
                 'page_id',
                 'id',
                 'id',
                 'asset_id'
             )
-                ->where('widget_assets.asset_type', app(Models\Media::class)->getMorphClass())
+                ->where('widget_assets.asset_type', app(Media::class)->getMorphClass())
         );
 
-        Models\Page::resolveRelationUsing(
+        Page::resolveRelationUsing(
             'pages',
-            fn (Models\Page $model): HasManyThrough => $model->hasManyThrough(
-                Models\Page::class,
+            fn (Page $model): HasManyThrough => $model->hasManyThrough(
+                Page::class,
                 WidgetAsset::class,
                 'page_id',
                 'id',
                 'id',
                 'asset_id'
             )
-                ->where('widget_assets.asset_type', app(Models\Page::class)->getMorphClass())
+                ->where('widget_assets.asset_type', app(Page::class)->getMorphClass())
         );
 
-        Models\Page::resolveRelationUsing(
+        Page::resolveRelationUsing(
             'widgetAssets',
-            fn (Models\Page $model): HasMany => $model->hasMany(WidgetAsset::class)
+            fn (Page $model): HasMany => $model->hasMany(WidgetAsset::class)
         );
 
-        Models\Layout::resolveRelationUsing(
+        Layout::resolveRelationUsing(
             'layoutWidgets',
-            fn (Models\Layout $model): BelongsToJson => $model->belongsToJson(
+            fn (Layout $model): BelongsToJson => $model->belongsToJson(
                 Widget::class,
                 'widgets',
                 'key'
             )
         );
 
-        Models\Page::resolveRelationUsing(
+        Page::resolveRelationUsing(
             'widgets',
-            fn (Models\Page $model): MorphToMany => $model->morphToMany(
+            fn (Page $model): MorphToMany => $model->morphToMany(
                 Widget::class,
                 'asset',
                 'widget_assets')
         );
 
-        Models\Page::resolveRelationUsing(
+        Page::resolveRelationUsing(
             'contents',
-            fn (Models\Page $model): HasManyJson => $model->hasManyJson(
+            fn (Page $model): HasManyJson => $model->hasManyJson(
                 Content::class,
-                'meta->page_uuid',
-                'uuid',
+                'meta->page_id',
+                'id',
             )
         );
 
-        Models\Tag::resolveRelationUsing(
+        Tag::resolveRelationUsing(
             'contents',
-            fn (Models\Tag $model): MorphToMany => $model->morphedByMany(Content::class, 'taggable')
+            fn (Tag $model): MorphToMany => $model->morphedByMany(Content::class, 'taggable')
         );
 
-        Models\Site::resolveRelationUsing(
+        Site::resolveRelationUsing(
             'contents',
-            fn (Models\Site $model): HasMany => $model->hasMany(Content::class, 'site_id')
+            fn (Site $model): HasMany => $model->hasMany(Content::class, 'site_id')
         );
 
-        Models\Type::resolveRelationUsing(
+        Type::resolveRelationUsing(
             'contents',
-            fn (Models\Type $model): HasMany => $model->hasMany(Content::class, 'type_id')
+            fn (Type $model): HasMany => $model->hasMany(Content::class, 'type_id')
         );
 
-        Models\Type::resolveRelationUsing(
+        Type::resolveRelationUsing(
             'widgets',
-            fn (Models\Type $model): HasMany => $model->hasMany(Widget::class, 'type_id')
+            fn (Type $model): HasMany => $model->hasMany(Widget::class, 'type_id')
         );
 
-        Models\Type::resolveRelationUsing(
+        Type::resolveRelationUsing(
             'widgetType',
-            fn (Models\Type $model): Builder => $model->where('type', LayoutTypeEnum::Widget)
+            fn (Type $model): Builder => $model->where('type', LayoutTypeEnum::Widget)
         );
 
         return $this;
@@ -369,16 +391,16 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     private function registerSchemas(): self
     {
-        CapellAdmin::registerSchemas('Content', Enums\ContentSchemaEnum::cases());
-        CapellAdmin::registerSchemas('Widget', Enums\WidgetSchemaEnum::cases());
-        CapellAdmin::registerSchemas('WidgetAsset', Enums\WidgetAssetSchemaEnum::cases());
-        CapellAdmin::registerSchemas('LayoutContainer', Enums\LayoutContainerSchemaEnum::cases());
-        CapellAdmin::registerSchemas('LayoutWidget', Enums\LayoutWidgetSchemaEnum::cases());
-        CapellAdmin::registerSchema(SchemaEnum::Type, Schemas\Type\WidgetTypeSchema::class);
-        CapellAdmin::registerSchema(SchemaEnum::Layout, Schemas\Layout\DefaultLayoutSchema::class);
-        CapellAdmin::registerSchema(SchemaEnum::Page, Schemas\Page\DefaultPageSchema::class);
-        CapellAdmin::registerSchema(SchemaEnum::Page, Schemas\Page\LandingPageSchema::class);
-        CapellAdmin::registerSchema(SchemaEnum::Page, Schemas\Page\ResultsPageSchema::class);
+        CapellAdmin::registerSchemas('Content', ContentSchemaEnum::cases());
+        CapellAdmin::registerSchemas('Widget', WidgetSchemaEnum::cases());
+        CapellAdmin::registerSchemas('WidgetAsset', WidgetAssetSchemaEnum::cases());
+        CapellAdmin::registerSchemas('LayoutContainer', LayoutContainerSchemaEnum::cases());
+        CapellAdmin::registerSchemas('LayoutWidget', LayoutWidgetSchemaEnum::cases());
+        CapellAdmin::registerSchema(SchemaEnum::Type, WidgetTypeSchema::class);
+        CapellAdmin::registerSchema(SchemaEnum::Layout, DefaultLayoutSchema::class);
+        CapellAdmin::registerSchema(SchemaEnum::Page, DefaultPageSchema::class);
+        CapellAdmin::registerSchema(SchemaEnum::Page, LandingPageSchema::class);
+        CapellAdmin::registerSchema(SchemaEnum::Page, ResultsPageSchema::class);
 
         return $this;
     }
@@ -388,17 +410,17 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
         CapellAdmin::registerSchemaHook(
             SchemaEnum::Page->value,
             'translations.contents.before',
-            fn (Forms\Form $form, array $context = []): array => [
-                Forms\Components\Group::make()
+            fn (Schema $schema, array $context = []): array => [
+                Group::make()
                     ->statePath('meta')
                     ->visible(
-                        function (?PageTranslation $record, Forms\Get $get, string $operation) use ($form): bool {
+                        function (?PageTranslation $record, Get $get, string $operation) use ($schema): bool {
                             if (in_array($operation, ['create', 'createOption'], true)) {
                                 return false;
                             }
 
                             $layoutId = $get('../../../layout_id')
-                                ?: ($form?->getRawState()['layout_id'] ?? null)
+                                ?: ($schema?->getRawState()['layout_id'] ?? null)
                                     ?: $record?->page->layout_id
                                         ?: null;
 

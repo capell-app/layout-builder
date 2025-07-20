@@ -13,35 +13,37 @@ use Capell\Core\Models\Page;
 use Capell\Layout\Database\Factories\WidgetAssetFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Foundation\Auth\User;
 use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
 use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
 use Wildside\Userstamps\Userstamps;
 
 /**
  * @property-read Model|Eloquent $asset
- * @property-read \Illuminate\Foundation\Auth\User|null $creator
- * @property-read \Illuminate\Foundation\Auth\User|null $destroyer
- * @property-read \Illuminate\Foundation\Auth\User|null $editor
+ * @property-read User|null $creator
+ * @property-read User|null $destroyer
+ * @property-read User|null $editor
  * @property-read string $asset_key
  * @property-read Media|null $image
  * @property-read Page|null $page
  * @property-read Page|null $relatedPage
  * @property-read Widget|null $widget
- * @property-read \Illuminate\Database\Eloquent\Collection|Content[] $related
+ * @property-read Collection|Content[] $related
  * @property-read int|null $related_count
  *
- * @method static \Capell\Layout\Database\Factories\WidgetAssetFactory factory($count = null, $state = [])
+ * @method static WidgetAssetFactory factory($count = null, $state = [])
  * @method static Builder<static>|WidgetAsset newModelQuery()
  * @method static Builder<static>|WidgetAsset newQuery()
  * @method static Builder<static>|WidgetAsset ordered(string $dir = 'asc')
  * @method static Builder<static>|WidgetAsset query()
  * @method static Builder<static>|WidgetAsset withAssets(bool $withDrafts = true)
  *
- * @mixin \Eloquent
  * @mixin Eloquent
  */
 class WidgetAsset extends Model implements PageCacheable
@@ -95,7 +97,7 @@ class WidgetAsset extends Model implements PageCacheable
 
     public function asset(): MorphTo
     {
-        return $this->morphTo('asset', 'asset_type', 'asset_id', 'uuid');
+        return $this->morphTo('asset', 'asset_type', 'asset_id', 'id');
     }
 
     public function related(): BelongsToJson
@@ -118,9 +120,9 @@ class WidgetAsset extends Model implements PageCacheable
         $query->orderBy($this->qualifyColumn('order'), $dir);
     }
 
-    protected function assetKey(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function assetKey(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: fn (): string => $this->asset_type.'.'.$this->asset_id);
+        return Attribute::make(get: fn (): string => $this->asset_type.'.'.$this->asset_id);
     }
 
     /**

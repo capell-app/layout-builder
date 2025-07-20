@@ -7,6 +7,7 @@ namespace Capell\Layout\Actions;
 use Capell\Admin\Services\Creator\ThemeCreator;
 use Capell\Core\Enums\DefaultColorEnum;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
 use Capell\Layout\LayoutServiceProvider;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +26,7 @@ class CreateThemeAction
 
         $type = $themeCreator->createThemeTypes();
 
-        return DB::transaction(function () use ($type): Theme {
+        $theme = DB::transaction(function () use ($type): Theme {
             Theme::default()->update(['default' => false]);
 
             return Theme::updateOrCreate(
@@ -48,11 +49,19 @@ class CreateThemeAction
                         'header' => true,
                         'header_fixed' => true,
                         'footer' => true,
-                        'colors' => DefaultColorEnum::getValues(),
+                        'colors' => DefaultColorEnum::getKeyValues(),
                         'link_color' => 'rgb(91, 204, 228)',
                     ],
                 ]
             );
         });
+
+        if (Site::count() === 1) {
+            $site = Site::first();
+            $site->theme_id = $theme->id;
+            $site->save();
+        }
+
+        return $theme->refresh();
     }
 }

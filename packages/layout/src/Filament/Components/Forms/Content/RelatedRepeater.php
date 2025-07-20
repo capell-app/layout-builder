@@ -7,23 +7,24 @@ namespace Capell\Layout\Filament\Components\Forms\Content;
 use Capell\Layout\Actions\ReplicateContentAction;
 use Capell\Layout\Models\Content;
 use Exception;
-use Filament\Forms;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Repeater;
 
 class RelatedRepeater
 {
-    public static function make(): Forms\Components\Repeater
+    public static function make(): Repeater
     {
-        return Forms\Components\Repeater::make('related')
+        return Repeater::make('related')
             ->label(__('capell-admin::form.related_contents'))
             ->statePath('related')
             ->hiddenLabel()
             ->cloneable()
             ->cloneAction(
-                fn (Forms\Components\Actions\Action $action): Forms\Components\Actions\Action => $action
+                fn (Action $action): Action => $action
                     ->visible(
                         fn (array $state, array $arguments): bool => $state[$arguments['item']]['content_id'] ?? false
                     )
-                    ->action(function (Forms\Components\Repeater $component, array $arguments): void {
+                    ->action(function (Repeater $component, array $arguments): void {
                         $newUuid = $component->generateUuid();
 
                         $items = $component->getState();

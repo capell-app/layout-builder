@@ -35,20 +35,20 @@ it('can save', function (): void {
         ->assertFormSet([
             'name' => $content->name,
             'type_id' => $content->type->getKey(),
-            'parent_uuid' => $content->parent?->uuid,
+            'parent_id' => $content->parent?->id,
             'site_id' => $content->site?->getKey(),
         ])
         ->assertFormFieldExists('meta.image_id')
         ->fillForm([
             'type_id' => $contentType->getKey(),
             'name' => $newData->name,
-            'parent_uuid' => $newData->parent->uuid,
+            'parent_id' => $newData->parent->id,
             'site_id' => $newData->site->getKey(),
         ])
         ->assertFormSet([
             'name' => $newData->name,
             'type_id' => $contentType->getKey(),
-            'parent_uuid' => $newData->parent->uuid,
+            'parent_id' => $newData->parent->id,
             'site_id' => $newData->site->getKey(),
         ])
         ->call('save')
@@ -57,7 +57,7 @@ it('can save', function (): void {
     expect($content->refresh())
         ->name->toBe($newData->name)
         ->type_id->toBe($content->type->getKey())
-        ->parent_uuid->toBe($newData->parent->uuid)
+        ->parent_id->toBe($newData->parent->id)
         ->site_id->toBe($newData->site->getKey())
         ->meta->image_id->toBeNull();
 });

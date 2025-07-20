@@ -4,18 +4,21 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Filament\Resources;
 
+use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Filament\Resources\PageResource;
 use Capell\Blog\Actions\GetArticleLayoutAction;
 use Capell\Blog\Enums\BlogModelEnum;
 use Capell\Blog\Enums\BlogResourceEnum;
 use Capell\Blog\Enums\BlogTypeGroupEnum;
-use Capell\Blog\Filament\Resources\ArticleResource\Pages;
+use Capell\Blog\Filament\Resources\ArticleResource\Pages\CreateArticle;
+use Capell\Blog\Filament\Resources\ArticleResource\Pages\EditArticle;
+use Capell\Blog\Filament\Resources\ArticleResource\Pages\ListArticles;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Services\Loader\BlogLoader;
 use Capell\Core\Actions\GetNameFromTranslationsAction;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Override;
 
@@ -37,7 +40,7 @@ class ArticleResource extends PageResource
 
     public static function getResourceType(): string
     {
-        return 'Page';
+        return ResourceEnum::Page->name;
     }
 
     public static function getLabel(): string
@@ -58,9 +61,9 @@ class ArticleResource extends PageResource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListArticles::route('/'),
-            'create' => Pages\CreateArticle::route('/create'),
-            'edit' => Pages\EditArticle::route('/{record}/edit'),
+            'index' => ListArticles::route('/'),
+            'create' => CreateArticle::route('/create'),
+            'edit' => EditArticle::route('/{record}/edit'),
         ];
     }
 
@@ -70,9 +73,9 @@ class ArticleResource extends PageResource
     }
 
     #[Override]
-    public static function getFormSchema(Form $form): array
+    public static function getFormSchema(Schema $schema): array
     {
-        return static::getFormTypeSchema($form);
+        return static::getFormTypeSchema($schema);
     }
 
     #[Override]
@@ -103,8 +106,8 @@ class ArticleResource extends PageResource
             $data['site_id'] = $site->id;
         }
 
-        if (empty($data['parent_uuid'])) {
-            $data['parent_uuid'] = BlogLoader::getBlogPage($site)?->uuid;
+        if (empty($data['parent_id'])) {
+            $data['parent_id'] = BlogLoader::getBlogPage($site)?->id;
         }
 
         if (empty($data['name']) && ! empty($data['translations'])) {
