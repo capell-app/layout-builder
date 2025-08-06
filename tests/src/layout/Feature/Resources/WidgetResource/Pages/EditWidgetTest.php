@@ -7,7 +7,7 @@ use Capell\Core\Models\Navigation;
 use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Filament\Resources\WidgetResource\Pages\EditWidget;
 use Capell\Layout\Models\Widget;
-use Capell\Layout\Services\Creator\WidgetTypeCreator;
+use Capell\Layout\Services\Creator\TypeCreator;
 use Filament\Actions\DeleteAction;
 use src\Fixtures\Support\Concerns\CreatesAdminUser;
 
@@ -28,7 +28,7 @@ it('can retrieve data', function (): void {
         'record' => $widget->getRouteKey(),
     ])
         ->assertSuccessful()
-        ->assertFormSet([
+        ->assertSchemaStateSet([
             'name' => $widget->name,
             'key' => $widget->key,
         ]);
@@ -103,7 +103,7 @@ it('can delete', function (): void {
 });
 
 test('can edit widget', function (WidgetTypeEnum $typeEum): void {
-    $typeCreator = new WidgetTypeCreator;
+    $typeCreator = new TypeCreator;
 
     $type = match ($typeEum) {
         WidgetTypeEnum::Contents => $typeCreator->contentsWidgetType(),
@@ -133,7 +133,7 @@ test('can edit widget', function (WidgetTypeEnum $typeEum): void {
                 default => [],
             },
         ])
-        ->assertFormSet([
+        ->assertSchemaStateSet([
             'name' => $newData->name,
             'key' => $newData->key,
         ])

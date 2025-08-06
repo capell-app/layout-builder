@@ -24,7 +24,7 @@ class CreateThemeAction
     {
         $themeCreator = app(ThemeCreator::class);
 
-        $type = $themeCreator->createThemeTypes();
+        $type = $themeCreator->createDefaultThemeType();
 
         $theme = DB::transaction(function () use ($type): Theme {
             Theme::default()->update(['default' => false]);

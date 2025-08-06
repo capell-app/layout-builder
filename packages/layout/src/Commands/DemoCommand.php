@@ -81,7 +81,7 @@ class DemoCommand extends Command
         $demo_data = config('capell-demo.pages');
 
         $contentCreator = app(ContentCreator::class);
-        $contentCreator->createContentTypes();
+        $contentCreator->createDefaultContentType();
 
         $sites = Site::whereIn('id', $siteIds)->get();
 

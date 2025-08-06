@@ -105,7 +105,8 @@ class DefaultContentSchema extends AbstractContentSchema
                 ])
                 ->sidebarSchema([
                     Section::make()
-                        ->columns(1)
+                        ->gridContainer()
+                        ->columns(['default' => 1, '@lg' => 2])
                         ->schema([
                             ...ContentDetailsSchema::make(),
                             ...ContentSettingsSchema::make($schema),

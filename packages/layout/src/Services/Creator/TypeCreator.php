@@ -25,8 +25,9 @@ use Capell\Layout\Filament\Schemas\Widget\NavigationWidgetSchema;
 use Capell\Layout\Filament\Schemas\Widget\PageContentWidgetSchema;
 use Capell\Layout\Filament\Schemas\Widget\ResultsWidgetSchema;
 use Capell\Layout\Filament\Schemas\Widget\SystemWidgetSchema;
+use Exception;
 
-class WidgetTypeCreator
+class TypeCreator
 {
     /**
      * @var class-string<Type>
@@ -36,6 +37,31 @@ class WidgetTypeCreator
     public function __construct()
     {
         $this->typeModel = CapellCore::getModel(ModelEnum::Type);
+    }
+
+    public function create(string $key): void
+    {
+        switch ($key) {
+            case LayoutTypeEnum::Content->value:
+                $this->createDefaultContentType();
+                break;
+            case LayoutTypeEnum::Widget->value:
+                $this->defaultWidgetType();
+                break;
+            default:
+                throw new Exception('Invalid page type key: '.$key);
+        }
+    }
+
+    public function createDefaultContentType(): void
+    {
+        $this->typeModel::firstOrCreate([
+            'default' => true,
+            'type' => LayoutTypeEnum::Content,
+        ], [
+            'name' => __('capell-admin::generic.default'),
+            'key' => 'default',
+        ]);
     }
 
     public function createWidgetTypes(): void

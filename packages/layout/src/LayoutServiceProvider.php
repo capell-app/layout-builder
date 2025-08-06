@@ -24,7 +24,6 @@ use Capell\Core\Models\Type;
 use Capell\Core\Packages\AbstractPackageServiceProvider;
 use Capell\Layout\Actions\InstallPackageAction;
 use Capell\Layout\Commands\DemoCommand;
-use Capell\Layout\Enums\AssetComponentEnum;
 use Capell\Layout\Enums\AssetEnum;
 use Capell\Layout\Enums\ComponentTypeEnum;
 use Capell\Layout\Enums\ContentSchemaEnum;
@@ -189,7 +188,8 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             CapellCore::registerType(
                 new TypeData(
                     name: $layoutType->value,
-                    table: $layoutType->getTable()
+                    model: $layoutType->getModel(),
+                    creatorClass: $layoutType->getCreatorClass(),
                 )
             );
         }
@@ -198,12 +198,14 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             CapellCore::registerComponents($componentType->name, $componentType->value::cases());
         }
 
+        $contentAsset = AssetEnum::Content;
+
         CapellCore::registerAsset(
             new AssetData(
-                name: AssetEnum::Content->name,
-                model: Content::class,
-                icon: 'heroicon-o-document-text',
-                component: AssetComponentEnum::Content->value,
+                name: $contentAsset->name,
+                model: $contentAsset->getModel(),
+                icon: $contentAsset->getIcon(),
+                component: $contentAsset->getComponent(),
                 hasTranslation: true,
             )
         );

@@ -10,7 +10,7 @@ use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Fieldset;
-use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Utilities\Get;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,7 +20,7 @@ class BackgroundSettingsFieldset
     {
         return Fieldset::make(__('capell-admin::form.background_settings'))
             ->schema([
-                Grid::make()
+                Group::make()
                     ->columnSpan(1)
                     ->schema([
                         CustomColorInput::make(
@@ -28,7 +28,7 @@ class BackgroundSettingsFieldset
                             label: __('capell-admin::form.background_color'),
                         ),
 
-                        Grid::make()
+                        Group::make()
                             ->visible(fn (Get $get): bool => (bool) $get('background_image_id'))
                             ->columnSpanFull()
                             ->schema([

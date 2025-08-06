@@ -34,6 +34,7 @@ class DefaultLayoutContainerSchema extends AbstractLayoutContainerSchema
                     return $state;
                 })
                 ->columns()
+                ->columnSpanFull()
                 ->schema([
                     ColumnInput::make('colspan')
                         ->label(__('capell-admin::form.colspan'))
@@ -42,6 +43,7 @@ class DefaultLayoutContainerSchema extends AbstractLayoutContainerSchema
                     ColumnInput::make('column_start')
                         ->label(__('capell-admin::form.column_start')),
                     Grid::make(['md' => 2])
+                        ->columnSpanFull()
                         ->schema([
                             ContainerWidthSelect::make('container'),
                             HtmlClassInput::make('html_class'),
@@ -52,7 +54,8 @@ class DefaultLayoutContainerSchema extends AbstractLayoutContainerSchema
                             TextInput::make('override_columns')
                                 ->label(__('capell-admin::form.override_columns'))
                                 ->helperText(__('capell-admin::generic.override_columns_info')),
-                            BackgroundSettingsFieldset::make(),
+                            BackgroundSettingsFieldset::make()
+                                ->columnSpanFull(),
                         ]),
                 ]),
         ];

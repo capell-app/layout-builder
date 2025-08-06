@@ -10,8 +10,8 @@ use Capell\Layout\Enums\LayoutEnum;
 use Capell\Layout\Services\Creator\ContentCreator;
 use Capell\Layout\Services\Creator\LayoutCreator as LayoutCreatorService;
 use Capell\Layout\Services\Creator\LayoutUpdater;
+use Capell\Layout\Services\Creator\TypeCreator;
 use Capell\Layout\Services\Creator\WidgetCreator;
-use Capell\Layout\Services\Creator\WidgetTypeCreator;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -23,11 +23,11 @@ class InstallPackageAction
 
     public function handle(): void
     {
-        $widgetTypeCreator = app(WidgetTypeCreator::class);
+        $widgetTypeCreator = app(TypeCreator::class);
         $widgetTypeCreator->createWidgetTypes();
 
         $contentCreator = app(ContentCreator::class);
-        $contentCreator->createContentTypes();
+        $contentCreator->createDefaultContentType();
 
         $widgetCreator = app(WidgetCreator::class);
         $widgetCreator->createWidgets(Language::all());

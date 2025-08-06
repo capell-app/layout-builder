@@ -15,8 +15,8 @@ use Capell\Layout\Livewire\LayoutBuilder;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Capell\Layout\Services\Creator\LayoutUpdater;
+use Capell\Layout\Services\Creator\TypeCreator;
 use Capell\Layout\Services\Creator\WidgetCreator;
-use Capell\Layout\Services\Creator\WidgetTypeCreator;
 use src\Fixtures\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Livewire\livewire;
@@ -46,7 +46,7 @@ test('can edit layouts', function (LayoutEnum|Capell\Layout\Enums\LayoutEnum $la
         $layout = app(LayoutCreator::class)->create($layoutEnum->value);
     }
 
-    $widgetTypeCreator = app(WidgetTypeCreator::class);
+    $widgetTypeCreator = app(TypeCreator::class);
     $widgetTypeCreator->createWidgetTypes();
 
     $widgetCreator = app(WidgetCreator::class);

@@ -58,7 +58,7 @@ it('can save', function (): void {
         'record' => $page->getRouteKey(),
     ])
         ->assertSuccessful()
-        ->assertFormSet([
+        ->assertSchemaStateSet([
             'name' => $page->name,
             'layout_id' => $page->layout->getKey(),
             'type_id' => $page->type->getKey(),

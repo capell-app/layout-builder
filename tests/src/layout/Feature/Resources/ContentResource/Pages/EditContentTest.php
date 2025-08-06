@@ -32,7 +32,7 @@ it('can save', function (): void {
         'record' => $content->getRouteKey(),
     ])
         ->assertSuccessful()
-        ->assertFormSet([
+        ->assertSchemaStateSet([
             'name' => $content->name,
             'type_id' => $content->type->getKey(),
             'parent_id' => $content->parent?->id,
@@ -45,7 +45,7 @@ it('can save', function (): void {
             'parent_id' => $newData->parent->id,
             'site_id' => $newData->site->getKey(),
         ])
-        ->assertFormSet([
+        ->assertSchemaStateSet([
             'name' => $newData->name,
             'type_id' => $contentType->getKey(),
             'parent_id' => $newData->parent->id,

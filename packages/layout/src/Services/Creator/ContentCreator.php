@@ -74,15 +74,4 @@ class ContentCreator
 
         return $content;
     }
-
-    public function createContentTypes(): void
-    {
-        $this->typeModel::firstOrCreate([
-            'default' => true,
-            'type' => LayoutTypeEnum::Content,
-        ], [
-            'name' => __('capell-admin::generic.default'),
-            'key' => 'default',
-        ]);
-    }
 }

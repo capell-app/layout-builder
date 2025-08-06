@@ -59,7 +59,7 @@ use Illuminate\Support\Str;
 
 class WidgetResource extends Resource
 {
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-bolt';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-gift';
 
     protected static ?string $recordTitleAttribute = 'name';
 

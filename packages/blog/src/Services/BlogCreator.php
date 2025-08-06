@@ -9,7 +9,7 @@ use Capell\Admin\Enums\ContentEditorEnum;
 use Capell\Admin\Filament\Schemas\Page\ResultsPageSchema;
 use Capell\Admin\Filament\Schemas\Type\PageTypeSchema;
 use Capell\Admin\Services\Creator\LayoutCreator;
-use Capell\Admin\Services\Creator\PageTypeCreator;
+use Capell\Admin\Services\Creator\TypeCreator;
 use Capell\Blog\Enums\BlogResourceEnum;
 use Capell\Blog\Enums\BlogTypeGroupEnum;
 use Capell\Blog\Enums\WidgetComponentEnum as BlogWidgetComponentEnum;
@@ -217,7 +217,7 @@ class BlogCreator
 
         if (! $type instanceof Type) {
             $type = Type::where('key', 'system')->pageType()->first()
-                ?? app(PageTypeCreator::class)::systemPageType();
+                ?? app(TypeCreator::class)::systemPageType();
         }
 
         if (! $languages instanceof Collection) {

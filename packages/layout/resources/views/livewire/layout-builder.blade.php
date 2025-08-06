@@ -137,7 +137,7 @@ declare(strict_types=1);
         </div>
 
         @if ($this->layoutModified)
-            <x-filament-simple-alert::simple-alert
+            <x-capell-admin::alert
                 class="mb-5"
                 :color="AlertTypeEnum::Warning->value"
                 :actions="[$this->saveLayoutAction]"
@@ -146,7 +146,7 @@ declare(strict_types=1);
                 <x-slot:description>
                     {{ __('capell-admin::message.layout_unsaved') }}
                 </x-slot>
-            </x-filament-simple-alert::simple-alert>
+            </x-capell-admin::alert>
         @endif
 
         <div class="space-y-5">
@@ -166,7 +166,7 @@ declare(strict_types=1);
                 </div>
             @else
                 <div
-                    class="px-3 py-4 text-center text-base text-gray-600 dark:text-gray-100"
+                    class="px-3 text-center text-sm font-semibold text-gray-600 dark:text-gray-100"
                 >
                     {{ __('capell-admin::message.layout_empty') }}
                 </div>

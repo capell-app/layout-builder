@@ -65,11 +65,9 @@
         "capell-app/admin": "*",
         "capell-app/core": "*",
         "capell-app/frontend": "*",
-        "codewithdennis/filament-simple-alert": "^4.0",
         "filament/filament": "^4.0",
         "filament/spatie-laravel-tags-plugin": "^4.0",
         "guzzlehttp/guzzle": "^7.5",
-        "guava/filament-icon-picker": "^3.0|dev-3.x",
         "howdu/filament-record-switcher": "^4.0|dev-4.x",
         "icamys/php-sitemap-generator": "^4.4.1",
         "kalnoy/nestedset": "^6.0.2",
@@ -81,7 +79,6 @@
         "openai-php/laravel": "*",
         "owen-it/laravel-auditing": "^13.1|^14.0",
         "owenvoke/blade-fontawesome": "^2.8",
-        "ryangjchandler/filament-navigation": "^2.0|dev-feature/filament-v4",
         "silber/page-cache": "^1.0.9",
         "spatie/laravel-data": "^4.5",
         "spatie/laravel-package-tools": "^1.14.1",
@@ -96,7 +93,6 @@
         "tapp/filament-authentication-log": "^4.0",
         "torann/geoip": "^3.0",
         "voku/html-min": "^4.5",
-        "webbingbrasil/filament-advancedfilter": "^4.0|dev-4.x",
         "wildside/userstamps": "^2.3"
     },
     "require-dev": {

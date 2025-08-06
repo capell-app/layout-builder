@@ -8,7 +8,6 @@ use Capell\Admin\Filament\Components\Forms\PublishDates;
 use Capell\Layout\Models\Content;
 use Carbon\Carbon;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Placeholder;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Actions;
@@ -78,14 +77,13 @@ class ContentPublishSection extends Section
         return $record->revisions_count;
     }
 
-    private function modifiedDatePlaceholder(): Placeholder
+    private function modifiedDatePlaceholder(): TextEntry
     {
-        return Placeholder::make('modified-date')
+        return TextEntry::make('modified-date')
             ->label(__('capell-admin::generic.last_updated'))
             ->hiddenLabel()
-            ->muted()
             ->visibleOn('edit')
-            ->content(function (?Content $record): ?HtmlString {
+            ->state(function (?Content $record): ?HtmlString {
                 $contents = [
                     __('capell-admin::generic.created_by_at', [
                         'name' => $record->creator?->name,

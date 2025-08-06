@@ -48,7 +48,7 @@ it('can create', function (string $type): void {
             'type_id' => $newData->type->getKey(),
             'name' => $newData->name,
         ])
-        ->assertFormSet([
+        ->assertSchemaStateSet([
             'name' => $newData->name,
             'type_id' => $newData->type->getKey(),
         ])

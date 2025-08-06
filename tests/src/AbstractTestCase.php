@@ -6,7 +6,6 @@ namespace Capell\Tests;
 
 use Awcodes\BadgeableColumn\BadgeableColumnServiceProvider;
 use Awcodes\Curator\CuratorServiceProvider;
-use Awcodes\FilamentTableRepeater\FilamentTableRepeaterServiceProvider;
 use BezhanSalleh\FilamentShield\FilamentShieldServiceProvider;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use Bkwld\Cloner\ServiceProvider as ClonerServiceProvider;
@@ -17,18 +16,14 @@ use Capell\Core\CapellCoreManager;
 use Capell\Core\CapellServiceProvider;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\PageTranslation;
-use CodeWithDennis\SimpleAlert\SimpleAlertServiceProvider;
-use Dotswan\FilamentCodeEditor\FilamentCodeEditorServiceProvider;
 use Filament\Actions\ActionsServiceProvider;
 use Filament\FilamentServiceProvider;
 use Filament\Forms\FormsServiceProvider;
 use Filament\Notifications\NotificationsServiceProvider;
-use Filament\SpatieLaravelTranslatablePluginServiceProvider;
+use Filament\Schemas\SchemasServiceProvider;
 use Filament\Support\SupportServiceProvider;
 use Filament\Tables\TablesServiceProvider;
 use Filament\Widgets\WidgetsServiceProvider;
-use FilamentTiptapEditor\FilamentTiptapEditorServiceProvider;
-use Guava\FilamentIconPicker\FilamentIconPickerServiceProvider;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithSession;
@@ -39,13 +34,12 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use Intervention\Image\ImageServiceProvider;
 use Kalnoy\Nestedset\NestedSetServiceProvider;
+use LaraZeus\SpatieTranslatable\SpatieTranslatableServiceProvider;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase;
 use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
-use RyanChandler\FilamentNavigation\FilamentNavigationServiceProvider;
 use Silber\PageCache;
 use Spatie\LaravelData\LaravelDataServiceProvider;
 use Spatie\LaravelRay\RayServiceProvider;
@@ -128,19 +122,13 @@ abstract class AbstractTestCase extends TestCase
             BladeIconsServiceProvider::class,
             ClonerServiceProvider::class,
             CuratorServiceProvider::class,
-            SpatieLaravelTranslatablePluginServiceProvider::class,
+            SpatieTranslatableServiceProvider::class,
             FilamentAuthenticationLogServiceProvider::class,
-            FilamentCodeEditorServiceProvider::class,
-            FilamentNavigationServiceProvider::class,
-            FilamentTableRepeaterServiceProvider::class,
             FilamentServiceProvider::class,
             FilamentShieldServiceProvider::class,
-            FilamentTiptapEditorServiceProvider::class,
             FilamentTitleWithSlugServiceProvider::class,
             FormsServiceProvider::class,
-            SimpleAlertServiceProvider::class,
-            FilamentIconPickerServiceProvider::class,
-            ImageServiceProvider::class,
+            SchemasServiceProvider::class,
             LaravelDataServiceProvider::class,
             LivewireServiceProvider::class,
             NestedSetServiceProvider::class,

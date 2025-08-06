@@ -17,7 +17,7 @@ use Capell\Layout\View\Components\Widget\Pages\SiblingsWidget;
 return [
     'assets' => [
         'content' => [
-            'icon' => 'heroicon-o-document-text',
+            'icon' => 'heroicon-o-rectangle-stack',
             'model' => Content::class,
         ],
     ],

@@ -11,7 +11,7 @@ use Capell\Layout\Filament\Actions\Page\CreateWidgetAction;
 use Capell\Layout\Filament\Resources\WidgetResource\Pages\EditWidget;
 use Capell\Layout\Filament\Resources\WidgetResource\Pages\ListWidgets;
 use Capell\Layout\Models\Widget;
-use Capell\Layout\Services\Creator\WidgetTypeCreator;
+use Capell\Layout\Services\Creator\TypeCreator;
 use src\Fixtures\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Laravel\assertDatabaseHas;
@@ -84,7 +84,7 @@ describe('from list page', function (): void {
     test('can create new widget type', function (WidgetTypeEnum $typeEum): void {
         $newData = Widget::factory()->make();
 
-        $typeCreator = new WidgetTypeCreator;
+        $typeCreator = new TypeCreator;
 
         $type = match ($typeEum) {
             WidgetTypeEnum::Contents => $typeCreator->contentsWidgetType(),
