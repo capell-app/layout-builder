@@ -33,7 +33,6 @@ use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
-use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -427,10 +426,17 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                         )
                     )
             )
-            ->fillForm(fn (self $livewire, array $arguments): array => [
-                'container' => $arguments['containerKey'] ?? session('layout-builder.container'),
-                'filter_groups' => ['default', 'pages', 'assets'],
-            ])
+            ->fillForm(function (self $livewire, array $arguments): array {
+                /** @var class-string<Widget> $model */
+                $model = CapellCore::getModel(LayoutModelEnum::Widget->name);
+
+                return [
+                    'container' => $arguments['containerKey'] ?? session('layout-builder.container'),
+                    'filter_groups' => collect(['default'])
+                        ->concat($model::getTypeGroups()->reject(fn (string $group) => $group === 'system'))
+                        ->toArray(),
+                ];
+            })
             ->action(function (Action $action, self $livewire, array $arguments, array $data): void {
                 $containerKey = $data['container'] ?? $arguments['containerKey'];
 
@@ -614,30 +620,22 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             )
             ->successNotificationTitle(__('capell-admin::message.asset_added'))
             ->model(WidgetAsset::class)
-            ->record(
-                function (self $livewire, array $arguments): WidgetAsset {
-                    $widget = $this->getContainerWidget($arguments['containerKey'], $arguments['widgetIndex']);
-
-                    $occurrence = $this->getContainerWidgetOccurrence($arguments['containerKey'], $arguments['widgetIndex']);
-
-                    return new WidgetAsset([
-                        'widget_id' => $widget->id,
-                        'page_id' => $livewire->page_id,
-                        'container' => $arguments['containerKey'],
-                        'occurrence' => $occurrence,
-                        'asset_type' => $arguments['type'],
-                        'asset_id' => null,
-                    ]);
-                }
-            )
             ->schema(
                 fn (array $arguments, Schema $schema): Schema => $schema->operation('createOption')
                     ->schema(self::getLayoutWidgetAssetSchema($arguments['containerKey'], $arguments['widgetIndex'], $schema))
             )
-            ->fillForm(function (array $arguments): array {
+            ->fillForm(function (self $livewire, array $arguments): array {
+                $widget = $this->getContainerWidget($arguments['containerKey'], $arguments['widgetIndex']);
+
+                $occurrence = $this->getContainerWidgetOccurrence($arguments['containerKey'], $arguments['widgetIndex']);
+
                 $site = $this->getSite() ?? Site::default()->first();
 
                 $data = [
+                    'widget_id' => $widget->id,
+                    'page_id' => $livewire->page_id,
+                    'container' => $arguments['containerKey'],
+                    'occurrence' => $occurrence,
                     'asset_type' => $arguments['type'],
                     'asset_id' => null,
                     'asset' => [],
@@ -682,71 +680,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
 
                 return $data;
             })
-            ->action(function (self $livewire, Schema $schema, array $arguments, array $data, Action $action): void {
-                $shouldAddPageAssets = $livewire->shouldAddPageAssets($arguments['containerKey'], $arguments['widgetIndex']);
-
-                /** @var WidgetAsset $record */
-                $record = $action->getRecord();
-                $record->exists = true;
-
-                $action->model($record::class);
-
-                $schema->model($record);
-
-                /** @var Group $component */
-                $component = $schema->getComponent(
-                    fn (\Filament\Schemas\Components\Component|CanEntangleWithSingularRelationships $component): bool => $component instanceof Group
-                        && $component->getRelationshipName() === 'asset'
-                );
-
-                if (! $component) {
-                    throw new Exception('Asset component not found');
-                }
-
-                $relationship = $component->getRelationship();
-
-                // Remove non fillable
-                $assetData = collect($data['asset'])
-                    ->filter(fn ($value, $key): bool => $relationship->getRelated()->isFillable($key))
-                    ->toArray();
-
-                $asset = $relationship->getRelated();
-                $asset->fill($component->mutateRelationshipDataBeforeCreate($assetData));
-                $asset->save();
-
-                $uuid = (string) $asset->getKey();
-
-                $record->setRelation('asset', $asset);
-
-                $component->model($record);
-
-                /** @var Forms\ComponentContainer $container */
-                foreach ($component->getChildSchemas() as $container) {
-                    $container->model($asset)->saveRelationships();
-                }
-
-                $livewire->addAssets(
-                    containerKey: $arguments['containerKey'],
-                    widgetIndex: $arguments['widgetIndex'],
-                    hasPageAssets: $shouldAddPageAssets,
-                    type: $arguments['type'],
-                    assets: [$uuid],
-                    assetsMeta: [$uuid => $data['meta'] ?? []]
-                );
-
-                $livewire->syncDuplicateWidgets(
-                    containerKey: $arguments['containerKey'],
-                    widgetIndex: $arguments['widgetIndex']
-                );
-
-                $livewire->layoutUpdated();
-
-                $livewire->dispatch(
-                    'refresh-assets',
-                    containerKey: $arguments['containerKey'],
-                    widgetIndex: $arguments['widgetIndex']
-                );
-            });
+            ->action(self::addAssetFromAction(...));
     }
 
     public function editWidgetAssetAction(): Action
@@ -1127,6 +1061,72 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         foreach ($this->assets[$containerKey][$widgetIndex] as $assetIndex => $asset) {
             $this->assets[$containerKey][$widgetIndex][$assetIndex]['page_id'] = $hasPageAssets ? $this->page_id : null;
         }
+    }
+
+    protected function addAssetFromAction(Schema $schema, array $arguments, array $data, Action $action): void
+    {
+        $shouldAddPageAssets = $this->shouldAddPageAssets($arguments['containerKey'], $arguments['widgetIndex']);
+
+        /** @var WidgetAsset $record */
+        $record = $action->getRecord();
+        $record->exists = true;
+
+        $action->model($record::class);
+
+        $schema->model($record);
+
+        /** @var Group $component */
+        $component = $schema->getComponent(
+            fn (\Filament\Schemas\Components\Component|CanEntangleWithSingularRelationships $component): bool => $component instanceof Group
+                && $component->getRelationshipName() === 'asset'
+        );
+
+        if (! $component) {
+            throw new Exception('Asset component not found');
+        }
+
+        $relationship = $component->getRelationship();
+
+        // Remove non fillable
+        $assetData = collect($data['asset'])
+            ->filter(fn ($value, $key): bool => $relationship->getRelated()->isFillable($key))
+            ->toArray();
+
+        $asset = $relationship->getRelated();
+
+        $asset->save();
+
+        $uuid = (string) $asset->getKey();
+
+        $record->setRelation('asset', $asset);
+
+        $component->model($record);
+
+        foreach ($component->getChildSchemas() as $container) {
+            $container->model($asset)->saveRelationships();
+        }
+
+        $this->addAssets(
+            containerKey: $arguments['containerKey'],
+            widgetIndex: $arguments['widgetIndex'],
+            hasPageAssets: $shouldAddPageAssets,
+            type: $arguments['type'],
+            assets: [$uuid],
+            assetsMeta: [$uuid => $data['meta'] ?? []]
+        );
+
+        $this->syncDuplicateWidgets(
+            containerKey: $arguments['containerKey'],
+            widgetIndex: $arguments['widgetIndex']
+        );
+
+        $this->layoutUpdated();
+
+        $this->dispatch(
+            'refresh-assets',
+            containerKey: $arguments['containerKey'],
+            widgetIndex: $arguments['widgetIndex']
+        );
     }
 
     protected function moveContainerWidgetAssets(string $originalContainer, int $originalIndex, string $containerKey, int $widgetIndex): void

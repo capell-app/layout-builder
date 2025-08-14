@@ -66,7 +66,7 @@ declare(strict_types=1);
             x-show="{{ "selectedRecords['$containerKey'][$widgetIndex].length" }}"
             x-transition
         >
-            <x-filament-tables::selection.indicator
+            <x-capell-admin::tables.selection-indicator
                 class="flex-grow !bg-transparent !p-0"
                 :all-selectable-records-count="$assetsCount"
                 :selectedRecordsPropertyName="'selectedRecords[\''.$containerKey.'\']['.$widgetIndex.']'"

@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms\LayoutBuilder;
 
-use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models;
 use Capell\Layout\Enums\LayoutModelEnum;
-use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSelect;
+use Capell\Layout\Models\Widget;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Fieldset;
@@ -35,7 +33,7 @@ class LayoutBuilderAddWidgetSchema
                         ->columns(4)
                         ->options(fn (): array => [
                             'default' => __('capell-admin::generic.default'),
-                            ...self::getWidgetTypeGroupsOptions(),
+                            ...self::getWidgetTypeGroups(),
                         ])
                         ->afterStateUpdated(function (Set $set): void {
                             $set('widgets', null);
@@ -74,29 +72,12 @@ class LayoutBuilderAddWidgetSchema
         ];
     }
 
-    private static function getWidgetTypeGroupsOptions(): array
+    private static function getWidgetTypeGroups(): array
     {
-        /** @var class-string<Models\Type> $model */
-        $model = CapellCore::getModel(ModelEnum::Type);
+        /** @var class-string<Widget> $model */
+        $model = CapellCore::getModel(LayoutModelEnum::Widget->name);
 
-        return $model::select('group')
-            ->orderByRaw(
-                'CASE `group`
-                    WHEN "default" THEN 1
-                    ELSE 0
-                END DESC'
-            )
-            ->orderByRaw(
-                'CASE `group`
-                    WHEN "system" THEN 1
-                    ELSE 0
-                END ASC'
-            )
-            ->where('type', LayoutTypeEnum::Widget)
-            ->whereNotNull('group')
-            ->orderBy('group', 'asc')
-            ->groupBy('group')
-            ->pluck('group')
+        return $model::getTypeGroups()
             ->mapWithKeys(fn ($group): array => [$group => __('capell-admin::generic.'.$group)])
             ->toArray();
     }

@@ -6,7 +6,9 @@ use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\LayoutFactory;
+use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Livewire\LayoutBuilder;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
@@ -509,25 +511,27 @@ test('can add media asset to widget with page layout', function (): void {
         'page_id' => $pageLayout->id,
     ])
         ->assertSuccessful()
-        ->callAction(
-            'addAsset',
-            data: [
-                'asset' => [
-                    'file' => UploadedFile::fake()->image('test.jpg'),
-                    'alt' => $media->name,
-                    'originalFilename' => 'test.jpg',
-                ],
-            ],
-            arguments: [
-                'containerKey' => $containerKey,
-                'widgetIndex' => $widgetIndex,
-                'type' => 'media',
-            ]
+        ->mountAction(
+            TestAction::make('addAsset')
+                ->arguments([
+                    'containerKey' => $containerKey,
+                    'widgetIndex' => $widgetIndex,
+                    'type' => AssetEnum::Media->value,
+                ])
         )
+        ->fillForm([
+            'asset' => [
+                'file' => UploadedFile::fake()->image('test.jpg'),
+                'alt' => $media->name,
+            ],
+        ])
+        ->callMountedAction()
         ->assertHasNoFormErrors()
         ->call('saveLayout');
 
-    assertDatabaseHas('media', [
+    $tableName = app(config('curator.model'))->getTable();
+
+    assertDatabaseHas($tableName, [
         'alt' => $media->name,
     ]);
 
@@ -614,6 +618,9 @@ test('can add page asset to widget with page layout', function (): void {
         ->layout($layout)
         ->create();
 
+    Type::factory()->type(LayoutTypeEnum::Widget)->group('page')->create();
+    Type::factory()->type(LayoutTypeEnum::Widget)->group('assets')->create();
+
     $newData = Page::factory()->make();
 
     $containerKey = array_key_first($layout->containers);
@@ -636,7 +643,6 @@ test('can add page asset to widget with page layout', function (): void {
                 'type' => 'page',
             ]
         )
-        ->set('mountedActions.0.data.translations', [])
         ->fillForm([
             'asset' => [
                 'layout_id' => $newData->layout_id,
@@ -645,7 +651,7 @@ test('can add page asset to widget with page layout', function (): void {
             ],
         ])
         ->set(
-            'mountedActions.0.data.translations',
+            'mountedActions.0.data.asset.translations',
             [
                 (string) Str::uuid() => [
                     'title' => $newData->name,
@@ -679,13 +685,14 @@ test('can select assets', function (string $assetType): void {
     livewire(LayoutBuilder::class, ['layout_id' => $layout->id])
         ->assertSuccessful()
         ->mountAction(
-            'selectAsset',
-            arguments: [
-                'containerKey' => $containerKey,
-                'widgetIndex' => $widgetIndex,
-                'type' => $assetType,
-            ]
+            TestAction::make('selectAsset')
+                ->arguments([
+                    'containerKey' => $containerKey,
+                    'widgetIndex' => $widgetIndex,
+                    'type' => $assetType,
+                ])
         )
+        ->callMountedAction()
         ->assertHasNoFormErrors();
 })->with(['page', 'media', 'content']);
 

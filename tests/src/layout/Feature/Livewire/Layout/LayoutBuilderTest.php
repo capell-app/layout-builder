@@ -19,6 +19,7 @@ use Capell\Layout\Services\Creator\LayoutUpdater;
 use Capell\Layout\Services\Creator\TypeCreator;
 use Capell\Layout\Services\Creator\WidgetCreator;
 use Capell\Tests\Fixtures\Support\Concerns\CreatesAdminUser;
+use Filament\Actions\Testing\TestAction;
 
 use function Pest\Livewire\livewire;
 
@@ -400,11 +401,15 @@ test('Can edit container widget', function (): void {
             arguments: ['containerKey' => $containerKey]
         )
         ->assertHasNoFormErrors()
-        ->callAction(
-            'editContainerWidget',
-            data: ['html_class' => 'foo'],
-            arguments: ['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex],
+        ->mountAction(
+            TestAction::make('editContainerWidget')
+                ->arguments([
+                    'containerKey' => $containerKey,
+                    'widgetIndex' => $widgetIndex,
+                ])
         )
+        ->fillForm(['html_class' => 'foo'])
+        ->callMountedAction()
         ->assertHasNoFormErrors()
         ->call('saveLayout');
 

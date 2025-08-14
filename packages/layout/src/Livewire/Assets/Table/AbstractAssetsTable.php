@@ -7,6 +7,8 @@ namespace Capell\Layout\Livewire\Assets\Table;
 use Capell\Admin\Filament\Actions\BulkSelectAction;
 use Capell\Layout\Livewire\LayoutBuilder;
 use Closure;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -19,8 +21,9 @@ use Illuminate\Database\Eloquent\Model;
 use Livewire\Component;
 use Ramsey\Uuid\UuidInterface;
 
-abstract class AbstractAssetsTable extends Component implements HasForms, HasTable
+abstract class AbstractAssetsTable extends Component implements HasActions, HasForms, HasTable
 {
+    use InteractsWithActions;
     use InteractsWithForms;
     use InteractsWithTable;
 

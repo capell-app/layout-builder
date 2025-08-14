@@ -61,7 +61,7 @@ class DefaultWidgetAssetSchema extends AbstractWidgetAssetSchema
                 function (?WidgetAsset $record, array $data, Get $get): array {
                     switch ($record?->asset_type) {
                         case 'media':
-                            if (blank($data['title'])) {
+                            if (blank($data['title']) && isset($data['originalFilename'])) {
                                 $data['title'] = pathinfo((string) $data['originalFilename'], PATHINFO_FILENAME);
                             }
 

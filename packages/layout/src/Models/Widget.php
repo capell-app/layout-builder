@@ -139,6 +139,29 @@ class Widget extends Model implements PageCacheable, Statusable
         return self::query()->enabled()->ordered()->pluck($value, $key);
     }
 
+    public static function getTypeGroups(): Collection
+    {
+        return Type::query()
+            ->select('group')
+            ->orderByRaw(
+                'CASE `group`
+                    WHEN "default" THEN 1
+                    ELSE 0
+                END DESC'
+            )
+            ->orderByRaw(
+                'CASE `group`
+                    WHEN "system" THEN 1
+                    ELSE 0
+                END ASC'
+            )
+            ->where('type', LayoutTypeEnum::Widget)
+            ->whereNotNull('group')
+            ->orderBy('group', 'asc')
+            ->groupBy('group')
+            ->pluck('group');
+    }
+
     public function getComponent(): ?string
     {
         return $this->getMetaComponent()
