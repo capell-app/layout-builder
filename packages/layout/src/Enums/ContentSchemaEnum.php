@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Enums;
 
-use Capell\Layout\Filament\Schemas\Content\DefaultContentSchema;
-use Capell\Layout\Filament\Schemas\Content\TestimonialContentSchema;
+use Capell\Layout\Filament\Resources\Contents\Schemas\Types\DefaultContentSchema;
+use Capell\Layout\Filament\Resources\Contents\Schemas\Types\TestimonialContentSchema;
 
 enum ContentSchemaEnum: string
 {

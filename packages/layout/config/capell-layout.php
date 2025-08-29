@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Layout\Filament\Resources\PageResource\RelationManagers\ContentsRelationManager;
+use Capell\Layout\Filament\Resources\Pages\RelationManagers\ContentsRelationManager;
 use Capell\Layout\Livewire\Assets\Table\ContentsTable;
 use Capell\Layout\Livewire\Assets\Table\PagesTable;
 use Capell\Layout\Livewire\Filament\WidgetAssetsTable;

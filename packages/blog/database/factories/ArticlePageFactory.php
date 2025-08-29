@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Capell\Blog\Database\Factories;
 
 use Capell\Admin\Enums\ContentEditorEnum;
-use Capell\Admin\Filament\Schemas\Type\PageTypeSchema;
+use Capell\Admin\Filament\Forms\Type\PageTypeSchema;
 use Capell\Blog\Enums\BlogResourceEnum;
 use Capell\Blog\Enums\BlogTypeGroupEnum;
-use Capell\Blog\Filament\Schemas\Page\ArticlePageSchema;
+use Capell\Blog\Filament\Schemas\Page\ArticlePageForm;
 use Capell\Core\Database\Factories\PageFactory;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Type;
@@ -31,7 +31,7 @@ class ArticlePageFactory extends PageFactory
                         'content_editor' => ContentEditorEnum::RichEditor->value,
                         'icon' => 'heroicon-o-newspaper',
                         'type_schema' => PageTypeSchema::getKey(),
-                        'schema' => ArticlePageSchema::getKey(),
+                        'schema' => ArticlePageForm::getKey(),
                         'resource' => BlogResourceEnum::Article->name,
                         'with_tags' => true,
                         'exclude' => true,

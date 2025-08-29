@@ -6,14 +6,14 @@ namespace Capell\Blog\Services;
 
 use Capell\Admin\Actions\AddPageToNavigationAction;
 use Capell\Admin\Enums\ContentEditorEnum;
-use Capell\Admin\Filament\Schemas\Page\ResultsPageSchema;
-use Capell\Admin\Filament\Schemas\Type\PageTypeSchema;
+use Capell\Admin\Filament\Forms\Page\ResultsPageSchema;
+use Capell\Admin\Filament\Forms\Type\PageTypeSchema;
 use Capell\Admin\Services\Creator\LayoutCreator;
 use Capell\Admin\Services\Creator\TypeCreator;
 use Capell\Blog\Enums\BlogResourceEnum;
 use Capell\Blog\Enums\BlogTypeGroupEnum;
 use Capell\Blog\Enums\WidgetComponentEnum as BlogWidgetComponentEnum;
-use Capell\Blog\Filament\Schemas\Page\ArticlePageSchema;
+use Capell\Blog\Filament\Schemas\Page\ArticlePageForm;
 use Capell\Blog\Filament\Schemas\Widget\ArticleWidgetSchema;
 use Capell\Core\Enums\LayoutGroupEnum;
 use Capell\Core\Enums\TypeEnum;
@@ -305,7 +305,7 @@ class BlogCreator
                 'content_editor' => ContentEditorEnum::RichEditor->value,
                 'icon' => 'heroicon-o-newspaper',
                 'type_schema' => PageTypeSchema::getKey(),
-                'schema' => ArticlePageSchema::getKey(),
+                'schema' => ArticlePageForm::getKey(),
                 'resource' => BlogResourceEnum::Article->name,
                 'with_tags' => true,
             ],

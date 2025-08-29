@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Livewire;
 
+use Capell\Admin\Actions\BuildWidgetAssetDataAction;
 use Capell\Admin\Actions\NotifyClearCachedPagesAction;
 use Capell\Admin\Actions\ReplicateLayoutAction;
 use Capell\Admin\Enums\ResourceEnum;
@@ -17,13 +18,12 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Layout\Enums\LayoutModelEnum;
-use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\SchemaEnum;
 use Capell\Layout\Enums\WidgetAssetSchemaEnum;
 use Capell\Layout\Filament\Components\Forms\LayoutBuilder\LayoutBuilderAddWidgetSchema;
-use Capell\Layout\Filament\Resources\WidgetResource;
-use Capell\Layout\Filament\Schemas\LayoutContainer\DefaultLayoutContainerSchema;
-use Capell\Layout\Filament\Schemas\Type\WidgetTypeSchema;
+use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Containers\DefaultLayoutContainerSchema;
+use Capell\Layout\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\WidgetForm;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Closure;
@@ -50,7 +50,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
-use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Isolate;
 use Livewire\Attributes\Locked;
@@ -297,7 +296,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->grouped()
             ->modalWidth(Width::ScreenLarge)
             ->modalHeading(
-                fn (array $arguments) => __(
+                fn (array $arguments): string|array|null => __(
                     'capell-admin::heading.edit_container',
                     ['key' => str($arguments['containerKey'])->title()]
                 )
@@ -481,10 +480,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->modalSubmitActionLabel(__('capell-admin::button.save_changes'))
             ->successNotificationTitle(__('capell-admin::message.widget_updated'))
             ->fillForm(fn (Widget $record): array => $record->attributesToArray())
-            ->schema(
-                fn (Schema $schema): Schema => $schema->operation('editOption')
-                    ->schema(WidgetResource::getFormSchema($schema))
-            )
+            ->schema(fn (Schema $schema): Schema => WidgetForm::configure($schema->operation('editOption')))
             ->action(
                 function (Action $action, Schema $schema, Widget $record, array $data): void {
                     $schema->mutateDehydratedState($data);
@@ -638,14 +634,11 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                 )
             )
             ->successNotificationTitle(__('capell-admin::message.asset_added'))
-            ->model(fn (array $arguments): string => match ($arguments['type']) {
-                'content' => CapellCore::getModel(LayoutModelEnum::Content->name),
-                'page' => CapellCore::getModel(ModelEnum::Page),
-            })
+            ->model(fn (array $arguments): string => CapellCore::getAsset($arguments['type'])?->model)
             ->schema(
                 fn (array $arguments, Schema $schema): Schema => $schema->operation('createOption')
                     ->schema(
-                        self::getLayoutWidgetAssetSchema(
+                        self::getWidgetAssetSchema(
                             $arguments['containerKey'],
                             $arguments['widgetIndex'],
                             $arguments['type'],
@@ -653,48 +646,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                         )
                     )
             )
-            ->fillForm(function (self $livewire, array $arguments): array {
-                $site = $this->getSite() ?? Site::default()->first();
-
-                $data = [];
-
-                /** @var class-string<Type> $model */
-                $model = CapellCore::getModel(ModelEnum::Type);
-
-                $data['type_id'] = match ($arguments['type']) {
-                    'content' => $model::query()
-                        ->where('type', LayoutTypeEnum::Content)
-                        ->default()
-                        ->value('id'),
-                    'page' => $model::query()
-                        ->pageType()
-                        ->default()
-                        ->value('id'),
-                };
-
-                if ($site) {
-                    $data['translations'] = [
-                        (string) Str::uuid() => [
-                            'language_id' => $site->language_id,
-                        ],
-                    ];
-                }
-
-                if ($arguments['type'] === 'page') {
-                    /** @var class-string<Site> $layoutModel */
-                    $layoutModel = CapellCore::getModel(ModelEnum::Layout);
-
-                    /** @var class-string<Site> $sideModel */
-                    $sideModel = CapellCore::getModel(ModelEnum::Site);
-
-                    $data['layout_id'] = $layoutModel::default()->value('id');
-                    $data['site_id'] = $sideModel::default()->value('id');
-
-                    $data['is_published'] = true;
-                }
-
-                return $data;
-            })
+            ->fillForm(fn (self $livewire, array $arguments): array => BuildWidgetAssetDataAction::run($arguments['type']))
             ->action(self::addAssetFromAction(...));
     }
 
@@ -754,7 +706,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->schema(
                 fn (self $livewire, Schema $schema, array $arguments): Schema => $schema->operation('editOption')
                     ->schema(
-                        self::getLayoutWidgetAssetSchema(
+                        self::getWidgetAssetSchema(
                             $arguments['containerKey'],
                             $arguments['widgetIndex'],
                             $arguments['type'],
@@ -1015,7 +967,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         return view('capell-admin::components.placeholder', $params);
     }
 
-    public function render()
+    public function render(): string|\Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
         if (! isset($this->layout)) {
             $this->skipRender();
@@ -1562,7 +1514,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         ];
     }
 
-    private function getLayoutWidgetAssetSchema(string $containerKey, int $widgetIndex, string $assetType, Schema $schema): array
+    private function getWidgetAssetSchema(string $containerKey, int $widgetIndex, string $assetType, Schema $schema): array
     {
         $widget = $this->getContainerWidget($containerKey, $widgetIndex);
 

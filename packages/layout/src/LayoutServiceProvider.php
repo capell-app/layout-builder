@@ -6,7 +6,6 @@ namespace Capell\Layout;
 
 use Capell\Admin\Actions\CreatedModelAction;
 use Capell\Admin\Actions\DeletedModelAction;
-use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Enums\SchemaEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Forms\Editor\RichEditor;
@@ -33,12 +32,11 @@ use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\LayoutWidgetSchemaEnum;
 use Capell\Layout\Enums\WidgetAssetSchemaEnum;
 use Capell\Layout\Enums\WidgetSchemaEnum;
-use Capell\Layout\Filament\Resources\LayoutResource;
-use Capell\Layout\Filament\Schemas\Layout\DefaultLayoutSchema;
-use Capell\Layout\Filament\Schemas\Page\DefaultPageSchema;
-use Capell\Layout\Filament\Schemas\Page\LandingPageSchema;
-use Capell\Layout\Filament\Schemas\Page\ResultsPageSchema;
-use Capell\Layout\Filament\Schemas\Type\WidgetTypeSchema;
+use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\DefaultLayoutSchema;
+use Capell\Layout\Filament\Resources\Pages\Schemas\Types\DefaultPageSchema;
+use Capell\Layout\Filament\Resources\Pages\Schemas\Types\LandingPageSchema;
+use Capell\Layout\Filament\Resources\Pages\Schemas\Types\ResultsPageSchema;
+use Capell\Layout\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
 use Capell\Layout\Listeners\AfterRecordSaved;
 use Capell\Layout\Listeners\LayoutLoaded;
 use Capell\Layout\Listeners\SiteTreeRebuilt;
@@ -181,11 +179,6 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
         CapellAdmin::registerResource(
             LayoutResourceEnum::Widget->name,
             class: LayoutResourceEnum::Widget->value,
-        );
-
-        CapellAdmin::registerResource(
-            ResourceEnum::Layout,
-            class: LayoutResource::class,
         );
 
         foreach (LayoutTypeEnum::cases() as $layoutType) {
@@ -368,11 +361,11 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     private function registerSchemas(): self
     {
-        CapellAdmin::registerSchemas('Content', ContentSchemaEnum::cases());
-        CapellAdmin::registerSchemas('Widget', WidgetSchemaEnum::cases());
-        CapellAdmin::registerSchemas('WidgetAsset', WidgetAssetSchemaEnum::cases());
-        CapellAdmin::registerSchemas('LayoutContainer', LayoutContainerSchemaEnum::cases());
-        CapellAdmin::registerSchemas('LayoutWidget', LayoutWidgetSchemaEnum::cases());
+        CapellAdmin::registerSchemas(Enums\SchemaEnum::Content->value, ContentSchemaEnum::cases());
+        CapellAdmin::registerSchemas(Enums\SchemaEnum::Widget->value, WidgetSchemaEnum::cases());
+        CapellAdmin::registerSchemas(Enums\SchemaEnum::WidgetAsset->value, WidgetAssetSchemaEnum::cases());
+        CapellAdmin::registerSchemas(Enums\SchemaEnum::LayoutContainer->value, LayoutContainerSchemaEnum::cases());
+        CapellAdmin::registerSchemas(Enums\SchemaEnum::LayoutWidget->value, LayoutWidgetSchemaEnum::cases());
         CapellAdmin::registerSchema(SchemaEnum::Type, WidgetTypeSchema::class);
         CapellAdmin::registerSchema(SchemaEnum::Layout, DefaultLayoutSchema::class);
         CapellAdmin::registerSchema(SchemaEnum::Page, DefaultPageSchema::class);

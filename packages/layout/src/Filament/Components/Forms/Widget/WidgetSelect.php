@@ -7,7 +7,7 @@ namespace Capell\Layout\Filament\Components\Forms\Widget;
 use Capell\Admin\Filament\Concerns\HasCustomSelectOption;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\LayoutModelEnum;
-use Capell\Layout\Filament\Resources\WidgetResource;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\WidgetForm;
 use Capell\Layout\Models\Widget;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -40,12 +40,13 @@ class WidgetSelect extends Select
                     ->toArray()
             )
             ->createOptionForm(
-                fn (Select $component, Schema $schema): array|Schema|null => $schema->model(
-                    $component->getRelationship()
-                        ? $component->getRelationship()->getModel()::class
-                        : $component->getModel()
+                fn (Select $component, Schema $schema): array|Schema|null => WidgetForm::configure(
+                    $schema->model(
+                        $component->getRelationship()
+                            ? $component->getRelationship()->getModel()::class
+                            : $component->getModel()
+                    )
                 )
-                    ->schema(WidgetResource::getFormSchema($schema))
             )
             ->createOptionUsing(static function ($livewire, Select $component, array $data, Schema $schema) {
                 $record = $component->getRelationship()?->getRelated() ?? new ($component->getModel());
@@ -84,8 +85,9 @@ class WidgetSelect extends Select
 
     public function withEditForm(): self
     {
-        return $this->editOptionForm(fn ($state, Schema $schema): ?array => $state ? WidgetResource::getFormSchema($schema) :
-            null)
+        return $this->editOptionForm(
+            fn ($state, Schema $schema): ?Schema => $state ? WidgetForm::configure($schema) : null
+        )
             ->editOptionAction(
                 fn (Action $action): Action => $action
                     ->modalHeading(function (string $context, self $component, ?int $state): ?HtmlString {

@@ -13,8 +13,8 @@ use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Enums\WidgetSchemaEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
-use Capell\Layout\Filament\Schemas\Type\WidgetTypeSchema;
-use Capell\Layout\Filament\Schemas\Widget\CarouselWidgetSchema;
+use Capell\Layout\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\CarouselWidgetSchema;
 use Capell\Layout\Models\Widget;
 use Illuminate\Support\Collection;
 

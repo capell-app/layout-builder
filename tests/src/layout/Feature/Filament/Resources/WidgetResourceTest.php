@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Layout\Filament\Resources\WidgetResource;
+use Capell\Layout\Filament\Resources\Widgets\WidgetResource;
 use Capell\Layout\Models\Widget;
 use Capell\Tests\Fixtures\Support\Concerns\CreatesAdminUser;
 

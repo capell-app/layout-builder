@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Enums;
 
-use Capell\Layout\Filament\Schemas\WidgetAsset\ContentWidgetAssetSchema;
-use Capell\Layout\Filament\Schemas\WidgetAsset\PageWidgetAssetSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\Assets\ContentWidgetAssetForm;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\Assets\PageWidgetAssetForm;
 use InvalidArgumentException;
 
 enum WidgetAssetSchemaEnum: string
 {
-    case Content = ContentWidgetAssetSchema::class;
-    case Page = PageWidgetAssetSchema::class;
+    case Content = ContentWidgetAssetForm::class;
+    case Page = PageWidgetAssetForm::class;
 
     public static function fromName(string $name): self
     {

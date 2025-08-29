@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Enums;
 
-use Capell\Layout\Filament\Schemas\Widget\AssetsWidgetSchema;
-use Capell\Layout\Filament\Schemas\Widget\CarouselWidgetSchema;
-use Capell\Layout\Filament\Schemas\Widget\DefaultWidgetSchema;
-use Capell\Layout\Filament\Schemas\Widget\NavigationWidgetSchema;
-use Capell\Layout\Filament\Schemas\Widget\PageContentWidgetSchema;
-use Capell\Layout\Filament\Schemas\Widget\RelatedWidgetSchema;
-use Capell\Layout\Filament\Schemas\Widget\ResultsWidgetSchema;
-use Capell\Layout\Filament\Schemas\Widget\SystemWidgetSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\AssetsWidgetSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\CarouselWidgetSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\DefaultWidgetSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\NavigationWidgetSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\PageContentWidgetSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\RelatedWidgetSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\ResultsWidgetSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\SystemWidgetSchema;
 
 enum WidgetSchemaEnum: string
 {

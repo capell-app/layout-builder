@@ -9,7 +9,7 @@ use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\Media\MediaLibraryFileUpload;
 use Capell\Admin\Filament\Components\Forms\SchemaSelect;
 use Capell\Layout\Enums\SchemaEnum;
-use Capell\Layout\Filament\Schemas\Widget\DefaultWidgetSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\DefaultWidgetSchema;
 use Capell\Layout\Models\Widget;
 use Filament\Schemas\Components\Fieldset;
 

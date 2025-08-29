@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Capell\Layout\Livewire\Assets\Table;
 
 use Capell\Admin\Filament\Actions\BulkSelectAction;
-use Capell\Layout\Livewire\LayoutBuilder;
-use Closure;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
@@ -36,8 +34,6 @@ abstract class AbstractAssetsTable extends Component implements HasActions, HasF
     public string $type;
 
     public int $widgetIndex;
-
-    abstract protected function getTableColumns(): array;
 
     abstract protected function getTableQuery(): Builder;
 
@@ -75,8 +71,6 @@ abstract class AbstractAssetsTable extends Component implements HasActions, HasF
                         fn (Builder $query) => $query->whereNotIn('id', $this->existingRecords)
                     )
             )
-            ->columns($this->getTableColumns())
-            ->filters($this->getTableFilters())
             ->filtersFormWidth('4xl')
             ->filtersFormColumns([
                 'sm' => 2,
@@ -95,16 +89,6 @@ abstract class AbstractAssetsTable extends Component implements HasActions, HasF
         ];
     }
 
-    protected function getTableFilters(): array
-    {
-        return [];
-    }
-
-    protected function getTableRecordClassesUsing(): ?Closure
-    {
-        return fn (): string => 'hover:bg-primary-500/5 cursor-pointer';
-    }
-
     protected function shouldPersistTableFiltersInSession(): bool
     {
         return true;
@@ -117,8 +101,7 @@ abstract class AbstractAssetsTable extends Component implements HasActions, HasF
             arguments: $this->arguments,
             type: $this->type,
             assets: $livewire->selectedTableRecords,
-        )
-            ->to(LayoutBuilder::class);
+        );
 
         $this->dispatch('close-modal', id: $this->actionId);
 

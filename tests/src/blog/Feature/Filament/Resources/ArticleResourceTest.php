@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Blog\Database\Factories\ArticlePageFactory;
-use Capell\Blog\Filament\Resources\ArticleResource;
+use Capell\Blog\Filament\Resources\Articles\ArticleResource;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;

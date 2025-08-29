@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Capell\Layout\Listeners;
 
 use Capell\Admin\Enums\ListenerEnum;
-use Capell\Admin\Filament\Resources\LayoutResource\Pages\EditLayout;
-use Capell\Admin\Filament\Resources\PageResource\Pages\EditPage;
+use Capell\Admin\Filament\Resources\Layouts\Pages\EditLayout;
+use Capell\Admin\Filament\Resources\Pages\Pages\EditPage;
 use Capell\Core\Contracts\EventSubscriber;
 use Capell\Layout\Livewire\LayoutBuilder;
 

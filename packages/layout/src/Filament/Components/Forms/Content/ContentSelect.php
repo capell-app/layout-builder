@@ -13,7 +13,8 @@ use Capell\Core\Models\Site;
 use Capell\Layout\Actions\CreateContentAction;
 use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Filament\Resources\ContentResource;
+use Capell\Layout\Filament\Resources\Contents\ContentResource;
+use Capell\Layout\Filament\Resources\Contents\Schemas\ContentForm;
 use Capell\Layout\Models\Content;
 use Closure;
 use Filament\Actions\Action;
@@ -90,9 +91,9 @@ class ContentSelect extends Select
     {
         return $this->getOptionLabelFromRecordUsing(fn (Content $record): string => static::getSelectOption($record))
             ->createOptionForm(
-                fn (mixed $state, Schema $schema): Schema => $schema->operation('createOption')
-                    ->schema(ContentResource::getFormSchema($schema))
-                    ->model(Content::class)
+                fn (mixed $state, Schema $schema): Schema => ContentForm::configure(
+                    $schema->operation('createOption')->model(Content::class)
+                )
             )
             ->createOptionUsing(function (ContentSelect $component, array $data): string {
                 $content = CreateContentAction::run($data);
@@ -158,8 +159,7 @@ class ContentSelect extends Select
                 return $schema;
             }
 
-            return $schema->operation('editOption')
-                ->schema(ContentResource::getFormSchema($schema));
+            return ContentForm::configure($schema->operation('editOption'));
         })
             ->editOptionAction(
                 fn (Action $action): Action => $action

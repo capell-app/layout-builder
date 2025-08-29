@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Filament\Resources\PageResource\Pages\EditPage;
+use Capell\Admin\Filament\Resources\Pages\Pages\EditPage;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Frontend\Http\Middleware\HtmlCacheMiddleware;
 use Capell\Frontend\Livewire\Page\SitemapPage;

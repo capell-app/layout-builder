@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Capell\Admin\Filament\Components\Tables\Actions\ReplicateAction;
 use Capell\Core\Models\Type;
 use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Filament\Resources\ContentResource\Pages\ListContents;
+use Capell\Layout\Filament\Resources\Contents\Pages\ListContents;
 use Capell\Layout\Models\Content;
 use Capell\Tests\Fixtures\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\DeleteAction;

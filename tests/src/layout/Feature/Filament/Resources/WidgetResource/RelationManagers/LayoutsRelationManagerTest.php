@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
-use Capell\Layout\Filament\Resources\WidgetResource;
 use Capell\Layout\Models\Widget;
 
 use function Pest\Livewire\livewire;
@@ -27,9 +26,9 @@ it('can list layouts for a widget', function (): void {
 
     $layout = $widget->layouts->first();
 
-    livewire(WidgetResource\RelationManagers\LayoutsRelationManager::class, [
+    livewire(\Capell\Layout\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager::class, [
         'ownerRecord' => $widget,
-        'pageClass' => WidgetResource\Pages\EditWidget::class,
+        'pageClass' => \Capell\Layout\Filament\Resources\Widgets\Pages\EditWidget::class,
     ])
         ->assertSuccessful()
         ->assertCountTableRecords(5)
@@ -58,9 +57,9 @@ it('can filter layouts by site', function (): void {
         ->count(2)
         ->create();
 
-    livewire(WidgetResource\RelationManagers\LayoutsRelationManager::class, [
+    livewire(\Capell\Layout\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager::class, [
         'ownerRecord' => $widget,
-        'pageClass' => WidgetResource\Pages\EditWidget::class,
+        'pageClass' => \Capell\Layout\Filament\Resources\Widgets\Pages\EditWidget::class,
     ])
         ->assertSuccessful()
         ->assertCountTableRecords(2)

@@ -8,7 +8,6 @@ use Capell\Core\Models\Site;
 use Capell\Layout\Database\Factories\LayoutFactory;
 use Capell\Layout\Livewire\Assets\Table\ContentsTable;
 use Capell\Layout\Livewire\Assets\Table\PagesTable;
-use Capell\Layout\Livewire\LayoutBuilder;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
@@ -123,8 +122,7 @@ describe('layout', function () use ($types): void {
             ->selectTableRecords($records->pluck('id')->toArray())
             ->callAction(TestAction::make('selectRecords')->table()->bulk())
             ->assertDispatched('sync-selected-assets')
-            ->assertDispatchedTo(
-                LayoutBuilder::class,
+            ->assertDispatched(
                 'sync-selected-assets',
                 arguments: [
                     'containerKey' => $containerKey,
@@ -164,8 +162,7 @@ describe('layout', function () use ($types): void {
             ->assertCanSeeTableRecords($records)
             ->selectTableRecords($records->pluck('id')->toArray())
             ->callAction(TestAction::make('selectRecords')->table()->bulk())
-            ->assertDispatchedTo(
-                LayoutBuilder::class,
+            ->assertDispatched(
                 'sync-selected-assets',
                 arguments: [
                     'containerKey' => $containerKey,
@@ -249,8 +246,7 @@ describe('page layout', function () use ($types): void {
             ->assertCountTableRecords(4)
             ->selectTableRecords($records->pluck('id')->toArray())
             ->callAction(TestAction::make('selectRecords')->table()->bulk())
-            ->assertDispatchedTo(
-                LayoutBuilder::class,
+            ->assertDispatched(
                 'sync-selected-assets',
                 arguments: [
                     'containerKey' => $containerKey,

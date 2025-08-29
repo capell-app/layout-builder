@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Capell\Admin\Filament\Actions\ReplicateAction;
 use Capell\Core\Models\Navigation;
 use Capell\Layout\Enums\WidgetTypeEnum;
-use Capell\Layout\Filament\Resources\WidgetResource\Pages\EditWidget;
+use Capell\Layout\Filament\Resources\Widgets\Pages\EditWidget;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Services\Creator\TypeCreator;
 use Capell\Tests\Fixtures\Support\Concerns\CreatesAdminUser;

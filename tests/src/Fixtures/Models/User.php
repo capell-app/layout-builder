@@ -7,7 +7,6 @@ namespace Capell\Tests\Fixtures\Models;
 use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Capell\Core\Database\Factories\UserFactory;
 use Capell\Core\Models\Concerns\InteractsWithMedia;
-use Capell\Core\Models\Concerns\InteractsWithMedia;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;

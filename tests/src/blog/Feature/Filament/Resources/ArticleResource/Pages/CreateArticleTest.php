@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Capell\Admin\Filament\Actions\Page\CreatePageModalAction;
 use Capell\Blog\Database\Factories\ArticlePageFactory;
-use Capell\Blog\Filament\Resources\ArticleResource\Pages\EditArticle;
-use Capell\Blog\Filament\Resources\ArticleResource\Pages\ListArticles;
+use Capell\Blog\Filament\Resources\Articles\Pages\EditArticle;
+use Capell\Blog\Filament\Resources\Articles\Pages\ListArticles;
 use Capell\Blog\Services\BlogCreator;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;

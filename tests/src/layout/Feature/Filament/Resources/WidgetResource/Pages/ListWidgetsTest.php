@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Admin\Filament\Components\Tables\Actions\ReplicateAction;
-use Capell\Layout\Filament\Resources\WidgetResource\Pages\ListWidgets;
+use Capell\Layout\Filament\Resources\Widgets\Pages\ListWidgets;
 use Capell\Layout\Models\Widget;
 use Capell\Tests\Fixtures\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\DeleteAction;

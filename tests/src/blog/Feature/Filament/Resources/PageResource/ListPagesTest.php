@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Filament\Resources\PageResource\Pages\ListPages;
+use Capell\Admin\Filament\Resources\Pages\Pages\ListPages;
 use Capell\Blog\Database\Factories\ArticlePageFactory;
 use Capell\Core\Models\Page;
 use Capell\Tests\Fixtures\Support\Concerns\CreatesAdminUser;

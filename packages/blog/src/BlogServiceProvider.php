@@ -12,8 +12,9 @@ use Capell\Blog\Commands\DemoCommand;
 use Capell\Blog\Enums\BlogModelEnum;
 use Capell\Blog\Enums\BlogResourceEnum;
 use Capell\Blog\Enums\WidgetComponentEnum;
-use Capell\Blog\Filament\Resources\ArticleResource;
-use Capell\Blog\Filament\Schemas\Page\ArticlePageSchema;
+use Capell\Blog\Filament\Resources\Articles\ArticleResource;
+use Capell\Blog\Filament\Resources\Articles\Schemas\Types\ArticlePageSchema;
+use Capell\Blog\Filament\Resources\Widgets\Schemas\Types\ArticleDefaultWidgetSchema;
 use Capell\Blog\Listeners\AddBlogPagesToNavigation;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Services\BlogCreator;
@@ -112,6 +113,8 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
         CapellCore::registerComponents(ComponentTypeEnum::Widget->value, WidgetComponentEnum::cases());
 
         CapellAdmin::registerSchema(SchemaEnum::Page, ArticlePageSchema::class);
+
+        CapellAdmin::registerSchema(\Capell\Layout\Enums\SchemaEnum::Widget->value, ArticleDefaultWidgetSchema::class);
 
         CapellCore::registerModel(BlogModelEnum::Article, Article::class);
 

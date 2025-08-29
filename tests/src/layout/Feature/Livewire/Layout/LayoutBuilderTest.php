@@ -11,7 +11,7 @@ use Capell\Layout\Database\Factories\LayoutFactory;
 use Capell\Layout\Database\Factories\WidgetTypeFactory;
 use Capell\Layout\Enums\AssetEnum;
 use Capell\Layout\Enums\LayoutEnum;
-use Capell\Layout\Filament\Schemas\LayoutWidget\DefaultLayoutWidgetSchema;
+use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Widgets\DefaultLayoutWidgetSchema;
 use Capell\Layout\Livewire\LayoutBuilder;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;

@@ -18,9 +18,9 @@ use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
-use Capell\Layout\Filament\Schemas\Content\TestimonialContentSchema;
-use Capell\Layout\Filament\Schemas\Widget\HeroWidgetSchema;
-use Capell\Layout\Filament\Schemas\WidgetAsset\HeroWidgetAssetSchema;
+use Capell\Layout\Filament\Resources\Contents\Schemas\Types\TestimonialContentSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\Assets\HeroWidgetAssetForm;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\HeroWidgetSchema;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
@@ -520,7 +520,7 @@ class DemoCreator
                 'icon' => 'heroicon-o-gift',
                 'schema' => HeroWidgetSchema::getKey(),
                 'asset_types' => [LayoutAssetEnum::Content->value],
-                'widget_asset_schema' => HeroWidgetAssetSchema::getKey(),
+                'widget_asset_schema' => HeroWidgetAssetForm::getKey(),
             ],
         ]);
     }

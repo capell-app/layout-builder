@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Enums;
 
-use Capell\Layout\Filament\Schemas\LayoutContainer\DefaultLayoutContainerSchema;
+use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Containers\DefaultLayoutContainerSchema;
 
 enum LayoutContainerSchemaEnum: string
 {

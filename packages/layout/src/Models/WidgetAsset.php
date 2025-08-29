@@ -46,6 +46,9 @@ use Wildside\Userstamps\Userstamps;
  * @method static Builder<static>|WidgetAsset query()
  * @method static Builder<static>|WidgetAsset withAssets(bool $withDrafts = true)
  *
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
+ * @property-read int|null $media_count
+ *
  * @mixin Eloquent
  */
 class WidgetAsset extends Model implements HasMedia, PageCacheable

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Page;
-use Capell\Layout\Filament\Resources\ContentResource;
+use Capell\Layout\Filament\Resources\Contents\ContentResource;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;

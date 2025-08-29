@@ -16,14 +16,14 @@ use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Enums\WidgetTypeGroupEnum;
-use Capell\Layout\Filament\Schemas\LayoutWidget\DefaultLayoutWidgetSchema;
-use Capell\Layout\Filament\Schemas\LayoutWidget\PageLayoutWidgetSchema;
-use Capell\Layout\Filament\Schemas\Type\WidgetTypeSchema;
-use Capell\Layout\Filament\Schemas\Widget\AssetsWidgetSchema;
-use Capell\Layout\Filament\Schemas\Widget\NavigationWidgetSchema;
-use Capell\Layout\Filament\Schemas\Widget\PageContentWidgetSchema;
-use Capell\Layout\Filament\Schemas\Widget\ResultsWidgetSchema;
-use Capell\Layout\Filament\Schemas\Widget\SystemWidgetSchema;
+use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Widgets\DefaultLayoutWidgetSchema;
+use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Widgets\PageLayoutWidgetSchema;
+use Capell\Layout\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\AssetsWidgetSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\NavigationWidgetSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\PageContentWidgetSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\ResultsWidgetSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\SystemWidgetSchema;
 use Exception;
 
 class TypeCreator

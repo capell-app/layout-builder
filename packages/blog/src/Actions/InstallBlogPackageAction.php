@@ -57,7 +57,7 @@ class InstallBlogPackageAction
             $layout->update(['containers' => $containers]);
         }
 
-        // Page Types
+        // Page Forms
         BlogCreator::createArticlePageType();
         BlogCreator::createArchivePageType();
         BlogCreator::createBlogPageType();
