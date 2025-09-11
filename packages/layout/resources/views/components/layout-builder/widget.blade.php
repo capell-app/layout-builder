@@ -67,7 +67,7 @@ declare(strict_types=1);
         },
     }"
     {{
-        $attributes->class(['layout-container-widget group last:rounded-b-lg bg-white dark:bg-gray-900'])->when(
+        $attributes->class(['layout-container-widget group last:rounded-b-lg'])->when(
             $assetTypes,
             fn (ComponentAttributeBag $attributeBag): ComponentAttributeBag => $attributeBag->merge([
                 ':class' => "{ 'pb-4': ! isCollapsed }",
@@ -89,8 +89,9 @@ declare(strict_types=1);
         <div
             class="group/widget layout-builder-widget-heading !lg:px-4 flex flex-1 items-center gap-4 px-4 py-3 group-[&:last-child]:rounded-b-lg"
             :class="{
-                'pb-1 mb-2 !rounded-b-none' : ! isCollapsed,
-                {{ $assetTypes ? "'cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5' : ! isReordering," : '' }}
+                '!rounded-b-none' : ! isCollapsed,
+                {{ $assetTypes ? "'cursor-pointer' : ! isReordering," : '' }}
+                {{ $assetTypes ? "'hover:bg-gray-50 dark:hover:bg-white/5' : ! isReordering && isCollapsed," : '' }}
             }"
             @if ($assetTypes)
                 x-on:click.self="! isReordering ? toggleCollapse() : null"
@@ -125,6 +126,7 @@ declare(strict_types=1);
                             </x-filament::badge>
                         @endif
                     </span>
+
                     <div
                         wire:loading.class="pointer-events-none opacity-40"
                         x-cloak
@@ -210,7 +212,7 @@ declare(strict_types=1);
                                 {{ ($this->removeWidgetAction)(['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex]) }}
 
                                 <x-filament::dropdown.list.item
-                                    href="{{ CapellAdmin::getResource(LayoutResourceEnum::Widget->name)::getUrl('edit', ['record' => $this->getContainerWidget($containerKey, $widgetIndex)]) }}"
+                                    href="{{ CapellAdmin::getResource(LayoutResourceEnum::Widget)::getUrl('edit', ['record' => $this->getContainerWidget($containerKey, $widgetIndex)]) }}"
                                     icon="heroicon-o-arrow-top-right-on-square"
                                     target="_blank"
                                     tag="a"

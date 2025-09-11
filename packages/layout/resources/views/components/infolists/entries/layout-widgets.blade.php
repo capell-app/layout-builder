@@ -32,7 +32,7 @@ declare(strict_types=1);
                     </span>
                 </p>
                 <x-filament::link
-                    href="{{ CapellAdmin::getResource(LayoutResourceEnum::Widget->name)::getUrl('edit', ['record' => $widget]) }}"
+                    href="{{ CapellAdmin::getResource(LayoutResourceEnum::Widget)::getUrl('edit', ['record' => $widget]) }}"
                     color="info"
                 >
                     {{ __('capell-admin::button.edit') }}

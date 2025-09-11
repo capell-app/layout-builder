@@ -14,6 +14,6 @@ class CreateWidget extends CreateRecord
     /** @return class-string<WidgetResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(LayoutResourceEnum::Widget->name);
+        return CapellAdmin::getResource(LayoutResourceEnum::Widget);
     }
 }

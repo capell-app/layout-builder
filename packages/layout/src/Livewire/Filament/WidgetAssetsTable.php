@@ -241,12 +241,12 @@ class WidgetAssetsTable extends Component implements HasActions, HasForms, HasTa
 
                 return new HtmlString(Blade::render(<<<'blade'
                 <livewire:is
-                    :$actionId
+                    :$actionModalId
                     :component="$componentName"
                     :$existingRecords
                  />
             blade, [
-                    'actionId' => $livewire->getId() . '-associate-action-' . $asset->name,
+                    'actionModalId' => $livewire->getId() . '-associate-action-' . $asset->name,
                     'componentName' => $componentName,
                     'existingRecords' => $existingRecords,
                 ]));

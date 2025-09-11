@@ -13,6 +13,7 @@ use Capell\Admin\Filament\Concerns\HasTypeRelationManagers;
 use Capell\Layout\Actions\ReplicateContentAction;
 use Capell\Layout\Enums\LayoutResourceEnum;
 use Capell\Layout\Filament\Actions\Page\CreateContentModalAction;
+use Capell\Layout\Filament\Resources\Contents\ContentResource;
 use Capell\Layout\Models\Content;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\ForceDeleteAction;
@@ -38,7 +39,7 @@ class EditContent extends EditRecord
     /** @return class-string<ContentResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(LayoutResourceEnum::Content->name);
+        return CapellAdmin::getResource(LayoutResourceEnum::Content);
     }
 
     public function getTitle(): string|Htmlable

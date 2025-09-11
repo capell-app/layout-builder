@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Livewire\Assets\Table;
 
+use Capell\Admin\Enums\ResourceEnum;
+use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Filament\Tables\Table;
@@ -13,6 +15,11 @@ use Illuminate\Database\Eloquent\Builder;
 class PagesTable extends AbstractAssetsTable
 {
     public string $type = 'page';
+
+    public static function getResource(): string
+    {
+        return CapellAdmin::getResource(ResourceEnum::Page);
+    }
 
     public function table(Table $table): Table
     {

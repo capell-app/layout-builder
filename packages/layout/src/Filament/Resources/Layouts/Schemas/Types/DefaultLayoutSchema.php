@@ -35,9 +35,7 @@ class DefaultLayoutSchema extends \Capell\Admin\Filament\Resources\Layouts\Schem
                         'site_id' => $record->site_id,
                         'layout_id' => $record->id,
                     ]
-                )
-                    // TODO removing this breaks opening a selecting a 'widget content resource model' from the layout edit page.
-                    ->lazy(),
+                ),
             ]);
     }
 }

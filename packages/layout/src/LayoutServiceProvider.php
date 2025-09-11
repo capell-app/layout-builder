@@ -136,7 +136,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
                     ->endWith(function (InstallCommand $command): void {
                         $command->call(
                             'capell:publish-migrations',
-                            ['--migrations' => CapellLayoutManager::getMigrations(), '--path' => __DIR__ . '/../database/migrations']
+                            ['--items' => CapellLayoutManager::getMigrations(), '--path' => __DIR__ . '/../database/migrations']
                         );
 
                         $command->call('migrate');

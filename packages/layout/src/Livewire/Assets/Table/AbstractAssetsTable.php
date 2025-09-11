@@ -26,7 +26,7 @@ abstract class AbstractAssetsTable extends Component implements HasActions, HasF
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public string $actionId;
+    public string $actionModalId;
 
     public array $arguments = [];
 
@@ -40,6 +40,8 @@ abstract class AbstractAssetsTable extends Component implements HasActions, HasF
     public ?string $activeTab = null;
 
     abstract protected function getTableQuery(): Builder;
+
+    abstract public static function getResource(): string;
 
     public function getTableRecordKey(Model|array $record): string
     {
@@ -98,16 +100,18 @@ abstract class AbstractAssetsTable extends Component implements HasActions, HasF
         return true;
     }
 
-    protected function syncAssets(BulkSelectAction $action, $livewire): void
+    protected function syncAssets(BulkSelectAction $action, self $livewire): void
     {
+        $selectedRecords = $livewire->getSelectedTableRecordsQuery(shouldFetchSelectedRecords: false);
+
         $this->dispatch(
             'sync-selected-assets',
             arguments: $this->arguments,
             type: $this->type,
-            assets: $livewire->selectedTableRecords,
+            assets: $selectedRecords->pluck('id')->toArray(),
         );
 
-        $this->dispatch('close-modal', id: $this->actionId);
+        $this->dispatch('close-modal', id: $this->actionModalId);
 
         $action->success();
     }

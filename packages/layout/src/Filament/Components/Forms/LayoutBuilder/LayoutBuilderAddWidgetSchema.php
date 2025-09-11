@@ -10,9 +10,7 @@ use Capell\Layout\Filament\Components\Forms\Widget\WidgetSelect;
 use Capell\Layout\Models\Widget;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -22,51 +20,40 @@ class LayoutBuilderAddWidgetSchema
     public static function schema(?Collection $containers): array
     {
         return [
-            Fieldset::make(__('capell-admin::heading.select_widget'))
-                ->columns(1)
-                ->inlineLabel()
-                ->schema([
-                    CheckboxList::make('filter_groups')
-                        ->label(__('capell-admin::form.widget_group'))
-                        ->dehydrated(false)
-                        ->reactive()
-                        ->columns(4)
-                        ->options(fn (): array => [
-                            'default' => __('capell-admin::generic.default'),
-                            ...self::getWidgetTypeGroups(),
-                        ])
-                        ->afterStateUpdated(function (Set $set): void {
-                            $set('widgets', null);
-                        }),
-                    WidgetSelect::make('widgets')
-                        ->required()
-                        ->autofocus()
-                        ->multiple()
-                        ->searchable()
-                        ->allowHtml()
-                        ->placeholder(__('capell-admin::form.select_widget'))
-                        ->withCreateForm()
-                        ->options(
-                            fn (WidgetSelect $component, Get $get): array => self::getWidgetOptions(
-                                $get('type_id'),
-                                $get('filter_groups'),
-                            )
-                                ->mapWithKeys(function ($widget) use ($component): array {
-                                    $data = [
-                                        'label' => $widget->name,
-                                        'description' => ($widget->type->group ? str($widget->type->group)->title()->append(' - ') : ''),
-                                    ];
+            CheckboxList::make('filter_groups')
+                ->label(__('capell-admin::generic.filter_widgets'))
+                ->dehydrated(false)
+                ->lazy()
+                ->columns(4)
+                ->options(fn (): array => self::getWidgetTypeGroups())
+                ->bulkToggleable(),
+            WidgetSelect::make('widgets')
+                ->placeholder(__('capell-admin::form.select_widget'))
+                ->required()
+                ->autofocus()
+                ->multiple()
+                ->searchable()
+                ->allowHtml()
+                ->withCreateForm()
+                ->options(
+                    fn (WidgetSelect $component, Get $get): array => self::getWidgetOptions(
+                        $get('type_id'),
+                        $get('filter_groups'),
+                    )
+                        ->mapWithKeys(function ($widget) use ($component): array {
+                            $data = [
+                                'label' => $widget->name,
+                                'description' => ($widget->type->group ? str($widget->type->group)->title()->append(' - ') : ''),
+                            ];
 
-                                    return [$widget->getKey() => $component::getSelectOption($widget, $data)];
-                                })
-                                ->toArray()
-                        ),
-                ]),
+                            return [$widget->getKey() => $component::getSelectOption($widget, $data)];
+                        })
+                        ->toArray()
+                ),
             ...$containers instanceof Collection ? [
                 Select::make('container')
-                    ->label(__('capell-admin::form.add_widget_to_container'))
+                    ->label(__('capell-admin::form.container'))
                     ->required()
-                    ->inlineLabel()
                     ->options($containers),
             ] : [],
         ];

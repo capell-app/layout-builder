@@ -37,10 +37,10 @@ declare(strict_types=1);
     ])
 >
     <div
-        class="rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-800 dark:ring-white/10"
+        class="rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10"
     >
         <div
-            class="layout-container-header group/container flex min-h-11 cursor-pointer items-center gap-x-4 gap-y-2 rounded-lg bg-gray-100 px-4 dark:bg-white/5"
+            class="layout-container-header group/container flex min-h-11 cursor-pointer items-center gap-x-4 gap-y-2 rounded-lg border-b border-gray-100 px-4 hover:bg-gray-50 dark:border-white/5 dark:hover:bg-white/5"
             :class="{ '!rounded-b-none': !isCollapsed }"
             x-on:click.self="toggleCollapse"
         >
@@ -61,11 +61,10 @@ declare(strict_types=1);
                 @endif
 
                 <span
-                    class="pointer-events-auto break-words text-sm font-light uppercase leading-6 tracking-wide text-gray-700 dark:text-white"
+                    class="group-hover/container:text-primary-600 pointer-events-auto break-words text-sm leading-6 text-gray-500 dark:text-gray-100"
                     x-on:click.self="toggleCollapse"
-                    x-tooltip.raw="{{ __('capell-admin::generic.container_name', ['name' => $containerTitle]) }}"
                 >
-                    {{ $containerTitle }}
+                    {{ __('capell-admin::generic.container_name', ['name' => $containerTitle]) }}
                 </span>
             </div>
 

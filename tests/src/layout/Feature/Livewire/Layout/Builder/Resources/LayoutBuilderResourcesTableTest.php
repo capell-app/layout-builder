@@ -38,7 +38,7 @@ it('can render assets table', function (string $assetType): void {
     };
 
     livewire($component, [
-        'actionId' => 'select-assets',
+        'actionModalId' => 'select-assets',
         'containerKey' => $containerKey,
         'pageId' => $page->id,
         'siteId' => $page->site_id,
@@ -60,7 +60,7 @@ describe('layout', function () use ($types): void {
         $contents = Content::factory()->site($site)->count(4)->create();
 
         livewire(ContentsTable::class, [
-            'actionId' => 'select-assets',
+            'actionModalId' => 'select-assets',
             'containerKey' => $containerKey,
             'widgetIndex' => $widgetIndex,
             'hasPageAssets' => false,
@@ -83,7 +83,7 @@ describe('layout', function () use ($types): void {
         $pages = Page::factory()->count(4)->site($site)->create();
 
         livewire(PagesTable::class, [
-            'actionId' => 'select-assets',
+            'actionModalId' => 'select-assets',
             'containerKey' => $containerKey,
             'widgetIndex' => $widgetIndex,
             'hasPageAssets' => false,
@@ -112,7 +112,7 @@ describe('layout', function () use ($types): void {
         };
 
         livewire($component, [
-            'actionId' => 'select-assets',
+            'actionModalId' => 'select-assets',
             'containerKey' => $containerKey,
             'widgetIndex' => $widgetIndex,
             'hasPageAssets' => false,
@@ -152,7 +152,7 @@ describe('layout', function () use ($types): void {
         };
 
         livewire($component, [
-            'actionId' => 'select-assets',
+            'actionModalId' => 'select-assets',
             'containerKey' => $containerKey,
             'widgetIndex' => $widgetIndex,
             'hasPageAssets' => false,
@@ -199,7 +199,7 @@ describe('page layout', function () use ($types): void {
         $otherSitePage = Page::factory()->create();
 
         livewire(PagesTable::class, [
-            'actionId' => 'select-assets',
+            'actionModalId' => 'select-assets',
             'containerKey' => $containerKey,
             'pageId' => $page->id,
             'siteId' => $page->site_id,
@@ -235,7 +235,7 @@ describe('page layout', function () use ($types): void {
         };
 
         livewire($component, [
-            'actionId' => 'select-assets',
+            'actionModalId' => 'select-assets',
             'containerKey' => $containerKey,
             'widgetIndex' => $widgetIndex,
             'hasPageAssets' => true,

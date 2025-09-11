@@ -34,7 +34,7 @@ class WidgetAssetForm implements FormConfigurator
 
                     $adminSchema = null;
 
-                    if ($record) {
+                    if ($record instanceof \Capell\Layout\Models\WidgetAsset) {
                         $widget = $record->widget;
 
                         $adminSchema = $widget->admin['widget_asset_schema'][$assetType]

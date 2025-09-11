@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Tests;
 
+use AmidEsfahani\FilamentTinyEditor\TinyeditorServiceProvider;
 use Awcodes\BadgeableColumn\BadgeableColumnServiceProvider;
 use BezhanSalleh\FilamentShield\FilamentShieldServiceProvider;
 use BezhanSalleh\FilamentShield\Support\Utils;
@@ -22,6 +23,7 @@ use Filament\FilamentServiceProvider;
 use Filament\Forms\FormsServiceProvider;
 use Filament\Notifications\NotificationsServiceProvider;
 use Filament\Schemas\SchemasServiceProvider;
+use Filament\SpatieLaravelSettingsPluginServiceProvider;
 use Filament\Support\SupportServiceProvider;
 use Filament\Tables\TablesServiceProvider;
 use Filament\Widgets\WidgetsServiceProvider;
@@ -128,6 +130,8 @@ abstract class AbstractTestCase extends TestCase
             BladeIconsServiceProvider::class,
             ClonerServiceProvider::class,
             SpatieTranslatableServiceProvider::class,
+            SpatieLaravelSettingsPluginServiceProvider::class,
+            TinyeditorServiceProvider::class,
             FilamentAuthenticationLogServiceProvider::class,
             FilamentServiceProvider::class,
             FilamentAdjacencyListServiceProvider::class,

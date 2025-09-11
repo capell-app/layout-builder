@@ -78,6 +78,7 @@
         "capell-app/frontend": "^4.0|dev-4.x",
         "filament/filament": "^4.0",
         "filament/spatie-laravel-media-library-plugin": "^4.0",
+        "filament/spatie-laravel-settings-plugin": "^4.0",
         "filament/spatie-laravel-tags-plugin": "^4.0",
         "guzzlehttp/guzzle": "^7.5",
         "howdu/filament-record-switcher": "^2.0",

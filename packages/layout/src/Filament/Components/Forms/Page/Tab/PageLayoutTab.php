@@ -21,12 +21,11 @@ class PageLayoutTab
                 Livewire::make(
                     LayoutBuilder::class,
                     fn (Get $get, Page $record): array => [
-                        'site_id' => (int) $record->site_id,
+                        'site_id' => $record->site_id,
                         'layout_id' => $get('layout_id') ?: $record->layout_id,
-                        'page_id' => (int) $record->id,
+                        'page_id' => $record->id,
                     ]
                 )
-                    ->lazy()
                     ->columnSpanFull(),
             ]);
     }

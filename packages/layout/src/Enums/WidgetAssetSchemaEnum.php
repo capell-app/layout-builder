@@ -15,7 +15,7 @@ enum WidgetAssetSchemaEnum: string
 
     public static function fromName(string $name): self
     {
-        if (! $name) {
+        if ($name === '' || $name === '0') {
             throw new InvalidArgumentException('WidgetAssetSchemaEnum name cannot be empty');
         }
 

@@ -174,38 +174,36 @@ declare(strict_types=1);
         </div>
 
         <div class="mt-6 flex items-center justify-center gap-4">
-            {{ $this->addContainerAction }}
-
             @if ($addWidgetAction->isVisible())
                 {{ $addWidgetAction }}
             @endif
 
-            @if (count($containers) > 1 || collect($this->containerWidgets)->flatten(1)->count() > 1)
-                <x-filament::button
-                    color="gray"
-                    size="xs"
-                    outlined
-                    x-on:click="toggleReordering"
-                    x-bind:class="isReordering ? '!bg-primary-500/5 !ring-primary-600 !text-primary-600' : ''"
-                >
-                    @svg('heroicon-o-arrows-up-down',
-                        'inline-block h-4 w-4 text-gray-400 transition duration-75 dark:text-gray-500',
-                        ['x-show' => '! isReordering'])
-                    @svg('heroicon-o-x-mark',
-                        'fi-btn-icon inline-block h-4 w-4 text-gray-400 transition duration-75 dark:text-gray-500',
-                        [
-                            'x-show' => 'isReordering',
-                            'x-cloak' => '',
-                        ])
-                    <span
-                        x-text="
-                            ! isReordering
-                                ? '{{ __('capell-admin::button.reorder') }}'
-                                : '{{ __('capell-admin::button.cancel_reorder') }}'
-                        "
-                    ></span>
-                </x-filament::button>
-            @endif
+            {{ $this->addContainerAction }}
+
+            <x-filament::button
+                color="gray"
+                :size="Size::Small"
+                outlined
+                x-on:click="toggleReordering"
+                x-bind:class="isReordering ? '!bg-primary-500/5 !ring-primary-600 !text-primary-600' : ''"
+            >
+                @svg('heroicon-o-arrows-up-down',
+                    'inline-block h-4 w-4 text-gray-400 transition duration-75 dark:text-gray-500',
+                    ['x-show' => '! isReordering'])
+                @svg('heroicon-o-x-mark',
+                    'fi-btn-icon inline-block h-4 w-4 text-gray-400 transition duration-75 dark:text-gray-500',
+                    [
+                        'x-show' => 'isReordering',
+                        'x-cloak' => '',
+                    ])
+                <span
+                    x-text="
+                        ! isReordering
+                            ? '{{ __('capell-admin::button.reorder') }}'
+                            : '{{ __('capell-admin::button.cancel_reorder') }}'
+                    "
+                ></span>
+            </x-filament::button>
         </div>
     </div>
 

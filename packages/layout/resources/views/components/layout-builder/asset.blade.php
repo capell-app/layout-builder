@@ -21,6 +21,7 @@ declare(strict_types=1);
 ])
 @php
     use Capell\Admin\Facades\CapellAdmin;
+    use Capell\Core\Actions\GetResourceFromTypeAction;
     use Capell\Core\Models\Page;
     use Capell\Layout\Models\Content;
     use Filament\Actions\Action;
@@ -155,7 +156,8 @@ declare(strict_types=1);
                     {{ $label }}
 
                     @svg($editWidgetAssetAction->getIcon(),
-                        'group-hover/asset:text-primary-500 dark:group-hover/asset:text-primary-400 inline h-4 w-4 align-text-bottom text-gray-400 dark:text-gray-500', )
+                        'group-hover/asset:text-primary-500 dark:group-hover/asset:text-primary-400 inline h-4 w-4
+                    align-text-bottom text-gray-400 dark:text-gray-500', )
                 </div>
 
                 @if (! empty($description) && ! $description !== $name)
@@ -247,7 +249,7 @@ declare(strict_types=1);
                     icon="heroicon-o-arrow-top-right-on-square"
                     target="_blank"
                     tag="a"
-                    :href="CapellAdmin::getResource(ucwords($assetType))::getUrl('edit', ['record' => $asset->getKey()])"
+                    :href="GetResourceFromTypeAction::run(ucfirst($assetType), $asset->type)::getUrl('edit', ['record' => $asset->getKey()])"
                 >
                     {{ __('capell-admin::button.edit_resource', ['type' => $assetType]) }}
                 </x-filament::dropdown.list.item>

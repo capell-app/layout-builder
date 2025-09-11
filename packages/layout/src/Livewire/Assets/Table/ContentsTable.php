@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Livewire\Assets\Table;
 
+use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\LayoutResourceEnum;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,6 +16,11 @@ use Illuminate\Database\Eloquent\Builder;
 class ContentsTable extends AbstractAssetsTable
 {
     public string $type = 'content';
+
+    public static function getResource(): string
+    {
+        return CapellAdmin::getResource(LayoutResourceEnum::Content);
+    }
 
     public function table(Table $table): Table
     {

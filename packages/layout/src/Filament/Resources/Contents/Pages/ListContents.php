@@ -9,6 +9,7 @@ use Capell\Admin\Filament\Concerns\ApplySearchRelationsTable;
 use Capell\Admin\Filament\Concerns\HasSiteTableFilterTabs;
 use Capell\Layout\Enums\LayoutResourceEnum;
 use Capell\Layout\Filament\Actions\Page\CreateContentModalAction;
+use Capell\Layout\Filament\Resources\Contents\ContentResource;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Contracts\Support\Htmlable;
 
@@ -22,7 +23,7 @@ class ListContents extends ListRecords
     /** @return class-string<ContentResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(LayoutResourceEnum::Content->name);
+        return CapellAdmin::getResource(LayoutResourceEnum::Content);
     }
 
     public function getSubheading(): string|Htmlable|null

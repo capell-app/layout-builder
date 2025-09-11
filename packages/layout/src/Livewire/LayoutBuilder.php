@@ -10,7 +10,7 @@ use Capell\Admin\Actions\ReplicateLayoutAction;
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
-use Capell\Core\Actions\GetPageResourceAction;
+use Capell\Core\Actions\GetResourceFromTypeAction;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
@@ -273,8 +273,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->icon('heroicon-m-plus')
             ->color('gray')
             ->outlined()
-            ->size(Size::ExtraSmall)
-            ->modalWidth(Width::ScreenSmall)
+            ->slideOver()
+            ->size(Size::Small)
+            ->modalWidth(Width::Large)
             ->modalSubmitActionLabel(fn (Action $action): string => $action->getTooltip())
             ->schema(
                 static fn (self $livewire, Schema $schema, array $arguments): Schema => $schema->operation('createOption')
@@ -413,8 +414,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->modalHeading(__('capell-admin::heading.add_widget_to_container'))
             ->modalSubmitActionLabel(__('capell-admin::button.add_widget'))
             ->icon('heroicon-c-plus')
-            ->size(Size::ExtraSmall)
-            ->modalWidth(Width::ScreenLarge)
+            ->size(Size::Small)
+            ->modalWidth(Width::ExtraLarge)
             ->color('gray')
             ->outlined()
             ->closeModalByClickingAway(false)
@@ -433,8 +434,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
 
                 return [
                     'container' => $arguments['containerKey'] ?? session('layout-builder.container'),
-                    'filter_groups' => collect(['default'])
-                        ->concat($model::getTypeGroups()->reject(fn (string $group): bool => $group === 'system'))
+                    'filter_groups' => collect($model::getTypeGroups()->reject(fn (string $group): bool => $group === 'system'))
                         ->toArray(),
                 ];
             })
@@ -572,13 +572,13 @@ class LayoutBuilder extends Component implements HasActions, HasForms
 
                 return new HtmlString(Blade::render(<<<'blade'
                 <livewire:is
-                    :$actionId
+                    :$actionModalId
                     :component="$componentName"
                     :$arguments
                     :$existingRecords
                  />
             blade, [
-                    'actionId' => $livewire->getId() . '-action',
+                    'actionModalId' => sprintf('fi-%s-action-%s', $livewire->getId(), $action->getNestingIndex()),
                     'componentName' => $componentName,
                     'arguments' => [
                         'containerKey' => $arguments['containerKey'],
@@ -735,6 +735,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                 $widget = $this->getContainerWidget($arguments['containerKey'], $arguments['widgetIndex']);
 
                 $asset = $this->getWidgetAsset($arguments['containerKey'], $arguments['widgetIndex'], $arguments['index']);
+
+                if (! $asset) {
+                    return null;
+                }
 
                 $widgetAsset = $widget->assets
                     ->where('asset_type', $arguments['type'])
@@ -952,7 +956,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
      */
     public function getPageResource(): string
     {
-        return $this->page ? GetPageResourceAction::run($this->page) : CapellAdmin::getResource(ResourceEnum::Page);
+        return $this->page ? GetResourceFromTypeAction::run($this->page) : CapellAdmin::getResource(ResourceEnum::Page);
     }
 
     /**
@@ -1685,6 +1689,37 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         return $relations[$type] ?? [];
     }
 
+    private function loadMorphAssetRelations(Collection $widgets): Collection
+    {
+        $widgetAssets = $widgets->pluck('assets')
+            ->flatten()
+            ->filter()
+            ->groupBy('asset_type')
+            ->each(
+                fn ($models, string $morphType): Collection => Collection::make($models)
+                    ->load([
+                        'asset' => fn (BuilderContract $query) => $query->with(
+                            $this->getAssetRelations($morphType)
+                        ),
+                    ])
+            );
+
+        return $widgets->each(
+            fn (Widget $widget) => $widget->setRelation(
+                'assets',
+                $widget->assets->map(
+                    function (WidgetAsset $resource) use ($widgetAssets) {
+                        $asset = $widgetAssets[$resource->asset_type]
+                            ->firstWhere('asset_id', $resource->asset_id)
+                            ->asset;
+
+                        return $resource->setRelation('asset', $asset);
+                    }
+                )
+            )
+        );
+    }
+
     private function loadWidgetAssetsFromStore(): void
     {
         if ($this->assets === null || $this->assets === []) {
@@ -1817,10 +1852,6 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             $widget->assets->add($widgetAsset);
         }
 
-        $widget->assets->load([
-            'asset' => fn (BuilderContract $query) => $query->morphWith($this->getAssetRelations()),
-        ]);
-
         $this->containerWidgets[$containerKey][$widgetIndex] = $widget;
     }
 
@@ -1937,6 +1968,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                 $widgetAsset->occurrence = $occurrence;
             }
         }
+
+        $widgetAsset->load([
+            'asset' => fn (BuilderContract $query) => $query->with($this->getAssetRelations($type)),
+        ]);
 
         return $widgetAsset;
     }
