@@ -60,8 +60,18 @@ declare(strict_types=1);
 <div
     x-data="{
         isCollapsed: true,
+        id: '{{ $widgetIndex }}',
+        containerKey: '{{ $containerKey }}',
+        notify() {
+            this.$dispatch('widget-collapsed-changed', {
+                id: this.id,
+                containerKey: this.containerKey,
+                isCollapsed: this.isCollapsed,
+            })
+        },
         toggleCollapse() {
             this.isCollapsed = ! this.isCollapsed
+            this.notify()
         },
     }"
     {{
@@ -74,12 +84,27 @@ declare(strict_types=1);
     }}
     wire:key="{{ "{$containerKey}.{$widgetIndex}" }}"
     x-sort:item="'{{ $containerKey . '.' . $widgetIndex }}'"
-    x-on:collapse-widget.window="isCollapsed = $event.detail.isCollapsed"
+    x-init="
+        $nextTick(() =>
+            $dispatch('widget-collapsed-register', {
+                id: id,
+                containerKey: containerKey,
+                isCollapsed: isCollapsed,
+            }),
+        )
+    "
+    x-on:collapse-widget.window="
+        if ($event.detail.containerKey && $event.detail.containerKey !== containerKey)
+            return
+        if ($event.detail.id && $event.detail.id !== id) return
+        isCollapsed = $event.detail.isCollapsed
+        notify()
+    "
     x-on:refresh-assets.window="
         $event.detail.containerKey === '{{ $containerKey }}' &&
         $event.detail.widgetIndex === {{ $widgetIndex }} &&
         isCollapsed === true
-            ? (isCollapsed = false)
+            ? ((isCollapsed = false), notify())
             : null
     "
 >

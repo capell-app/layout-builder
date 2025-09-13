@@ -40,12 +40,13 @@ declare(strict_types=1);
     x-init="
         $nextTick(() =>
             $dispatch('container-collapsed-register', {
-                id: '{{ $containerKey }}',
+                id: id,
                 isCollapsed: isCollapsed,
             }),
         )
     "
     x-on:collapse-container.window="
+        if ($event.detail.id && $event.detail.id !== id) return
         isCollapsed = $event.detail.isCollapsed
         notify()
     "
@@ -88,6 +89,41 @@ declare(strict_types=1);
             </div>
 
             <div class="flex items-center gap-3">
+                <div
+                    class="flex justify-end gap-2"
+                    x-show="! isReordering"
+                    x-cloak
+                >
+                    <x-filament::link
+                        class="whitespace-nowrap"
+                        color="gray"
+                        icon="heroicon-m-plus"
+                        iconSize="sm"
+                        size="xs"
+                        tag="button"
+                        weight="normal"
+                        x-on:click="collapseAllContainerWidgets(id, false)"
+                        x-show="isAllWidgetsCollapsed(id) !== false"
+                        x-tooltip.raw="{{ __('capell-admin::button.expend_all') }}"
+                    >
+                        {{ __('capell-admin::button.expand') }}
+                    </x-filament::link>
+                    <x-filament::link
+                        class="whitespace-nowrap"
+                        color="gray"
+                        icon="heroicon-o-minus"
+                        iconSize="sm"
+                        size="xs"
+                        tag="button"
+                        weight="normal"
+                        x-on:click="collapseAllContainerWidgets(id, true)"
+                        x-show="isAllWidgetsCollapsed(id) !== true"
+                        x-tooltip.raw="{{ __('capell-admin::button.collapse_all') }}"
+                    >
+                        {{ __('capell-admin::button.collapse') }}
+                    </x-filament::link>
+                </div>
+
                 <x-filament::dropdown
                     placement="bottom-end"
                     width="!w-auto"

@@ -138,7 +138,7 @@ declare(strict_types=1);
         >
             <div @class(['py-3', 'lg:col-span-3' => $image])>
                 <div
-                    class="group-hover/asset:text-primary-600 dark:group-hover/asset:text-primary-400 line-clamp-1 text-sm font-medium text-gray-800 dark:text-gray-100"
+                    class="group-hover/asset:text-primary-600 dark:group-hover/asset:text-primary-400 line-clamp-1 text-sm text-gray-800 dark:text-gray-100"
                     x-tooltip.raw="{{ $editWidgetAssetAction->getTooltip() }}"
                 >
                     {{ $label }}

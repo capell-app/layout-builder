@@ -5,7 +5,6 @@ declare(strict_types=1);
 ?>
 
 @php
-    /** @var LayoutBuilder $this */
     use Capell\Admin\Enums\AlertTypeEnum;
     use Capell\Admin\Enums\ResourceEnum;
     use Capell\Admin\Facades\CapellAdmin;
@@ -27,8 +26,8 @@ declare(strict_types=1);
             )
         }}"
         x-data="layoutBuilderComponent"
-        x-on:lb-expand-all.window="expandAll"
-        x-on:lb-collapse-all.window="collapseAll"
+        x-on:expand-all-containers.window="expandAll"
+        x-on:collapse-all-containers.window="collapseAll"
     >
         <div
             class="mb-4 flex flex-wrap justify-between gap-4 pl-1 pr-4 sm:flex-nowrap lg:justify-end"
@@ -112,10 +111,11 @@ declare(strict_types=1);
                         size="xs"
                         tag="button"
                         weight="normal"
-                        x-on:click="$dispatch('lb-expand-all')"
-                        x-show="isAllCollapsed !== false"
+                        x-on:click="$dispatch('expand-all-containers')"
+                        x-show="isContainersAllCollapsed !== false"
+                        x-tooltip.raw="{{ __('capell-admin::button.expand_all') }}"
                     >
-                        {{ __('capell-admin::button.expand_all') }}
+                        {{ __('capell-admin::button.expand') }}
                     </x-filament::link>
                     <x-filament::link
                         class="whitespace-nowrap"
@@ -125,10 +125,11 @@ declare(strict_types=1);
                         size="xs"
                         tag="button"
                         weight="normal"
-                        x-on:click="$dispatch('lb-collapse-all')"
-                        x-show="isAllCollapsed !== true"
+                        x-on:click="$dispatch('collapse-all-containers')"
+                        x-show="isContainersAllCollapsed !== true"
+                        x-tooltip.raw="{{ __('capell-admin::button.collapse_all') }}"
                     >
-                        {{ __('capell-admin::button.collapse_all') }}
+                        {{ __('capell-admin::button.collapse') }}
                     </x-filament::link>
                 </div>
             </div>

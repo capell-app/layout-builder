@@ -10,9 +10,11 @@ export default function layoutBuilderComponent() {
 
         isLoading: false,
 
-        isAllCollapsed: null, // true = all collapsed, false = all expanded, null = mixed
+        isContainersAllCollapsed: null, // true = all collapsed, false = all expanded, null = mixed
 
         collapsedContainers: new Map(), // id => isCollapsed
+
+        collapsedWidgets: {}, // containerKey => { id => isCollapsed }
 
         selectedRecords: this.$wire.$entangle('selectedRecords'),
 
@@ -30,20 +32,40 @@ export default function layoutBuilderComponent() {
                 this.isReorderingResources = []
             })
 
-            window.addEventListener('container-collapsed-register', (e) => {
+            const handleContainerCollapsed = (e) => {
                 this.collapsedContainers.set(
                     e.detail.id,
                     !!e.detail.isCollapsed,
                 )
-                this.updateIsAllCollapsed()
-            })
-            window.addEventListener('container-collapsed-changed', (e) => {
-                this.collapsedContainers.set(
-                    e.detail.id,
-                    !!e.detail.isCollapsed,
-                )
-                this.updateIsAllCollapsed()
-            })
+                this.updateIsAllContainersCollapsed()
+            }
+
+            window.addEventListener(
+                'container-collapsed-register',
+                handleContainerCollapsed,
+            )
+            window.addEventListener(
+                'container-collapsed-changed',
+                handleContainerCollapsed,
+            )
+
+            const handleWidgetCollapsed = (e) => {
+                const containerKey = e.detail.containerKey
+                if (!this.collapsedWidgets[containerKey]) {
+                    this.collapsedWidgets[containerKey] = {}
+                }
+                this.collapsedWidgets[containerKey][e.detail.id] =
+                    !!e.detail.isCollapsed
+            }
+
+            window.addEventListener(
+                'widget-collapsed-register',
+                handleWidgetCollapsed,
+            )
+            window.addEventListener(
+                'widget-collapsed-changed',
+                handleWidgetCollapsed,
+            )
         },
 
         selectAllRecords: async function (containerKey, widgetIndex) {
@@ -67,29 +89,69 @@ export default function layoutBuilderComponent() {
             this.collapseAllComponents(false)
         },
 
-        collapseAllWidgets: function (collapse) {
-            this.$dispatch('collapse-widget', { isCollapsed: collapse })
+        collapseAllComponents: function (isCollapsed) {
+            this.collapseAllWidgets(isCollapsed)
+            this.collapseAllContainers(isCollapsed)
         },
 
-        collapseAllContainers: function (collapse) {
-            this.$dispatch('collapse-container', { isCollapsed: collapse })
+        collapseAllContainerWidgets: function (containerKey, isCollapsed) {
+            if (!isCollapsed) {
+                this.collapseContainer(containerKey, isCollapsed)
+            }
+            this.$dispatch('collapse-widget', {
+                containerKey: containerKey,
+                isCollapsed: isCollapsed,
+            })
         },
 
-        collapseAllComponents: function (collapse) {
-            this.collapseAllWidgets(collapse)
-            this.collapseAllContainers(collapse)
+        collapseContainer: function (containerKey, isCollapsed) {
+            this.$dispatch('collapse-container', {
+                id: containerKey,
+                isCollapsed: isCollapsed,
+            })
         },
 
-        updateIsAllCollapsed: function () {
+        collapseAllWidgets: function (isCollapsed) {
+            this.$dispatch('collapse-widget', { isCollapsed: isCollapsed })
+        },
+
+        collapseAllContainers: function (isCollapsed) {
+            this.$dispatch('collapse-container', { isCollapsed: isCollapsed })
+        },
+
+        updateIsAllContainersCollapsed: function () {
             const values = Array.from(this.collapsedContainers.values())
             if (values.length === 0) {
-                this.isAllCollapsed = null
+                this.isContainersAllCollapsed = null
             } else if (values.every((v) => v === true)) {
-                this.isAllCollapsed = true
+                this.isContainersAllCollapsed = true
             } else if (values.every((v) => v === false)) {
-                this.isAllCollapsed = false
+                this.isContainersAllCollapsed = false
             } else {
-                this.isAllCollapsed = null
+                this.isContainersAllCollapsed = null
+            }
+
+            console.log('collapsedContainers', this.collapsedContainers)
+            console.log('values', values)
+            console.log(
+                'isContainersAllCollapsed',
+                this.isContainersAllCollapsed,
+            )
+        },
+
+        isAllWidgetsCollapsed: function (containerKey) {
+            if (!this.collapsedWidgets[containerKey]) {
+                return null
+            }
+            const values = Object.values(this.collapsedWidgets[containerKey])
+            if (values.length === 0) {
+                return null
+            } else if (values.every((v) => v === true)) {
+                return true
+            } else if (values.every((v) => v === false)) {
+                return false
+            } else {
+                return null
             }
         },
 
