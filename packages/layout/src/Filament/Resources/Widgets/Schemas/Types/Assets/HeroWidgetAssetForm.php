@@ -21,7 +21,7 @@ use Override;
 class HeroWidgetAssetForm extends AbstractWidgetAssetSchema
 {
     #[Override]
-    protected static function getAssetSchema(Schema $schema): array
+    protected function getAssetSchema(Schema $schema): array
     {
         return [
             ContentTranslationsRepeater::make($schema, titleRequired: false)
@@ -42,7 +42,7 @@ class HeroWidgetAssetForm extends AbstractWidgetAssetSchema
         ];
     }
 
-    protected static function getActionsTab(): Tab
+    protected function getActionsTab(): Tab
     {
         return Tab::make('actions')
             ->label(__('capell-admin::generic.links'))
@@ -54,7 +54,7 @@ class HeroWidgetAssetForm extends AbstractWidgetAssetSchema
             ]);
     }
 
-    protected static function getMediaTab(Schema $schema): Tab
+    protected function getMediaTab(Schema $schema): Tab
     {
 
         return Tab::make('media')
@@ -66,7 +66,7 @@ class HeroWidgetAssetForm extends AbstractWidgetAssetSchema
             ]);
     }
 
-    protected static function getRelatedTab(): Tab
+    protected function getRelatedTab(): Tab
     {
         return Tab::make('related')
             ->label(__('capell-admin::generic.related'))
@@ -77,7 +77,7 @@ class HeroWidgetAssetForm extends AbstractWidgetAssetSchema
             ]);
     }
 
-    protected static function getSettingsTab(): Tab
+    protected function getSettingsTab(): Tab
     {
         return Tab::make('settings')
             ->label(__('capell-admin::generic.settings'))
@@ -88,7 +88,7 @@ class HeroWidgetAssetForm extends AbstractWidgetAssetSchema
             ]);
     }
 
-    protected static function getAssetsComponent(Schema $schema): Component
+    protected function getAssetsComponent(Schema $schema): Component
     {
         return AssetsRepeater::make('assets')
             ->hiddenLabel();

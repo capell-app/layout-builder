@@ -26,30 +26,30 @@ use Override;
 class AssetsWidgetSchema extends DefaultWidgetSchema
 {
     #[Override]
-    public static function make(Schema $schema): array
+    public function make(Schema $schema): array
     {
         return match ($schema->getOperation()) {
-            'createOption', 'editOption', 'replicate' => static::getOptionSchema($schema),
-            default => static::getFormSchema($schema),
+            'createOption', 'editOption', 'replicate' => $this->getOptionSchema($schema),
+            default => $this->getFormSchema($schema),
         };
     }
 
-    protected static function getOptionSchema(Schema $schema): array
+    protected function getOptionSchema(Schema $schema): array
     {
         return [
             CreateWidgetDetailsSchema::make($schema),
             Tabs::make()
                 ->columnSpanFull()
                 ->tabs([
-                    static::getContentTab($schema),
-                    static::getAssetsTab($schema),
-                    static::getSettingsTab($schema),
-                    static::getAdminTab($schema),
+                    $this->getContentTab($schema),
+                    $this->getAssetsTab($schema),
+                    $this->getSettingsTab($schema),
+                    $this->getAdminTab($schema),
                 ]),
         ];
     }
 
-    protected static function getFormSchema(Schema $schema): array
+    protected function getFormSchema(Schema $schema): array
     {
         return [
             CreateWidgetDetailsSchema::make($schema),
@@ -58,10 +58,10 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
                     Tabs::make()
                         ->columnSpanFull()
                         ->tabs([
-                            static::getAssetsTab($schema),
-                            static::getContentTab($schema),
-                            static::getSettingsTab($schema),
-                            static::getAdminTab($schema),
+                            $this->getAssetsTab($schema),
+                            $this->getContentTab($schema),
+                            $this->getSettingsTab($schema),
+                            $this->getAdminTab($schema),
                         ]),
                 ])
                 ->sidebarSchema(
@@ -71,7 +71,7 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
         ];
     }
 
-    protected static function getAssetsTab(Schema $schema): Tab
+    protected function getAssetsTab(Schema $schema): Tab
     {
         return Tab::make(__('capell-admin::tab.assets'))
             ->schema([
@@ -79,7 +79,7 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
             ]);
     }
 
-    protected static function getContentTab(Schema $schema): Tab
+    protected function getContentTab(Schema $schema): Tab
     {
         return Tab::make(__('capell-admin::tab.content'))
             ->icon(Heroicon::Language)
@@ -89,12 +89,12 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
             ]);
     }
 
-    protected static function getAdminTab(Schema $schema): Tab
+    protected function getAdminTab(Schema $schema): Tab
     {
         return WidgetAdminTab::make();
     }
 
-    protected static function getSettingsTab(Schema $schema): Tab
+    protected function getSettingsTab(Schema $schema): Tab
     {
         return WidgetDisplayTab::make([
             Grid::make()
@@ -110,7 +110,7 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
         ]);
     }
 
-    protected static function getAssetsComponent(Schema $schema): Component
+    protected function getAssetsComponent(Schema $schema): Component
     {
         return AssetsRepeater::make('assets')
             ->hiddenLabel();

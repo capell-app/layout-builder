@@ -99,6 +99,8 @@ describe('from list article', function (): void {
 
         $newData = Page::factory()->recycle($site)->type($type)->make();
 
+        BlogCreator::createArticleLayout();
+
         $blogPage = BlogCreator::createBlogPage($site);
 
         livewire(ListArticles::class)

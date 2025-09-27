@@ -29,17 +29,17 @@ use Override;
 class RelatedWidgetSchema extends DefaultWidgetSchema
 {
     #[Override]
-    public static function make(Schema $schema): array
+    public function make(Schema $schema): array
     {
         $operation = $schema->getOperation();
 
         return match ($operation) {
-            'createOption', 'editOption', 'replicate' => static::getOptionSchema($schema),
-            default => static::getFormSchema($schema),
+            'createOption', 'editOption', 'replicate' => $this->getOptionSchema($schema),
+            default => $this->getFormSchema($schema),
         };
     }
 
-    protected static function getOptionSchema(Schema $schema): array
+    protected function getOptionSchema(Schema $schema): array
     {
         return [
             CreateWidgetDetailsSchema::make($schema),
@@ -48,7 +48,7 @@ class RelatedWidgetSchema extends DefaultWidgetSchema
         ];
     }
 
-    protected static function getFormSchema(Schema $schema): array
+    protected function getFormSchema(Schema $schema): array
     {
         return [
             CreateWidgetDetailsSchema::make($schema),

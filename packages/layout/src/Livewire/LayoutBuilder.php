@@ -52,6 +52,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Livewire\Attributes\Computed;
@@ -190,8 +191,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         unset($containers[$containerKey]);
 
         $containers = array_slice($containers, 0, $position, true) +
-                      [$containerKey => $container] +
-                      array_slice($containers, $position, null, true);
+            [$containerKey => $container] +
+            array_slice($containers, $position, null, true);
 
         $this->containers = $containers;
 
@@ -396,7 +397,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                     $livewire->getContainerWidgetSchema($arguments['containerKey'], $arguments['widgetIndex'])
                 );
 
-                return $schema->operation('editOption')->components(app($adminSchema)::make($schema));
+                $typeSchema = app($adminSchema)->make($schema);
+
+                return $schema->operation('editOption')->components($typeSchema);
             })
             ->fillForm(
                 fn (self $livewire, array $arguments): array => $livewire->containers[$arguments['containerKey']]['widgets'][$arguments['widgetIndex']]['meta'] ?? []
@@ -1566,6 +1569,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             $this->layout->admin['container_schema'][$containerKey] ?? DefaultLayoutContainerSchema::getKey()
         );
 
+        $typeSchema = app($adminSchema)->make($schema);
+
         return [
             TextInput::make('key')
                 ->label(__('capell-admin::form.key'))
@@ -1589,7 +1594,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                         $fail(__('capell-admin::message.layout_container_key_not_unique', ['key' => $value]));
                     },
                 ]),
-            ...app($adminSchema)::make($schema),
+            ...$typeSchema,
         ];
     }
 
@@ -1988,7 +1993,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->where('asset_id', $widgetAssetUuid)
             ->when(
                 $pageId,
-                fn (Builder $query) => $query->where('container', $containerKey)
+                fn (SupportCollection $collection) => $collection->where('container', $containerKey)
                     ->where('occurrence', $occurrence)
                     ->where('page_id', $pageId)
             )

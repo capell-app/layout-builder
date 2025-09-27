@@ -14,7 +14,7 @@ declare(strict_types=1);
 ])
 @php
     use Capell\Admin\Facades\CapellAdmin;
-    use Capell\Layout\Enums\LayoutResourceEnum;
+    use Capell\Layout\Enums\ResourceEnum;
     use Capell\Layout\Livewire\LayoutBuilder;
     use Filament\Support\Enums\IconSize;
     use Filament\Support\Enums\Size;
@@ -235,7 +235,7 @@ declare(strict_types=1);
                                 {{ ($this->removeWidgetAction)(['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex]) }}
 
                                 <x-filament::dropdown.list.item
-                                    href="{{ CapellAdmin::getResource(LayoutResourceEnum::Widget)::getUrl('edit', ['record' => $this->getContainerWidget($containerKey, $widgetIndex)]) }}"
+                                    href="{{ CapellAdmin::getResource(ResourceEnum::Widget)::getUrl('edit', ['record' => $this->getContainerWidget($containerKey, $widgetIndex)]) }}"
                                     icon="heroicon-o-arrow-top-right-on-square"
                                     target="_blank"
                                     tag="a"

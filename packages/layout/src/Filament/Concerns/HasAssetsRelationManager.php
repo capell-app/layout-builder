@@ -8,7 +8,7 @@ use Capell\Admin\Actions\ModifyPageSelectCreateAction;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Enums\TypeGroupEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models\Concerns\HasDraftsAndNestedSet;
+use Capell\Core\Models\Contracts\Draftable;
 use Capell\Core\Models\Page;
 use Capell\Layout\Actions\ModifyContentSelectCreateAction;
 use Capell\Layout\Models\Content;
@@ -89,7 +89,7 @@ trait HasAssetsRelationManager
                             ->where('related_id', $record->getKey())
                     )
                     ->when(
-                        in_array(HasDraftsAndNestedSet::class, class_uses_recursive($model), true),
+                        in_array(Draftable::class, class_implements($model), true),
                         fn (Builder $query) => $query->withDrafts()
                     )
                     ->when(

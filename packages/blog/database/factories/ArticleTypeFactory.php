@@ -26,7 +26,7 @@ class ArticleTypeFactory extends TypeFactory
                 [
                     'type_schema' => PageTypeSchema::getKey(),
                     'schema' => ArticlePageSchema::getKey(),
-                    'resource' => BlogResourceEnum::Article->name,
+                    'resource' => BlogResourceEnum::Article->value,
                 ]
             );
     }

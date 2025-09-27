@@ -100,18 +100,22 @@ test('Can sync new widget assets to page layout', function (): void {
         ->assertSuccessful()
         ->call(
             'syncSelectedAssets',
-            containerKey: $containerKey,
-            widgetIndex: $widgetIndex,
-            type: \Capell\Layout\Enums\AssetEnum::Content->name,
-            hasPageAssets: true,
+            arguments: [
+                'containerKey' => $containerKey,
+                'widgetIndex' => $widgetIndex,
+                'hasPageAssets' => true,
+            ],
+            type: \Capell\Layout\Enums\AssetEnum::Content->value,
             assets: $contents->map(fn (Content $record): string => (string) $record->id)->toArray()
         )
         ->call(
             'syncSelectedAssets',
-            containerKey: $containerKey,
-            widgetIndex: $widgetIndex,
-            type: AssetEnum::Page->name,
-            hasPageAssets: true,
+            arguments: [
+                'containerKey' => $containerKey,
+                'widgetIndex' => $widgetIndex,
+                'hasPageAssets' => true,
+            ],
+            type: AssetEnum::Page->value,
             assets: $pages->map(fn (Page $record): string => (string) $record->id)->toArray()
         )
         ->call('saveLayout');
@@ -157,18 +161,22 @@ test('Can sync new widget assets to layout', function (): void {
         ->assertSuccessful()
         ->call(
             'syncSelectedAssets',
-            containerKey: $containerKey,
-            widgetIndex: $widgetIndex,
-            type: 'media',
-            hasPageAssets: false,
+            arguments: [
+                'containerKey' => $containerKey,
+                'widgetIndex' => $widgetIndex,
+                'hasPageAssets' => false,
+            ],
+            type: \Capell\Layout\Enums\AssetEnum::Content->value,
             assets: $contents->map(fn (Content $record): string => (string) $record->id)->toArray()
         )
         ->call(
             'syncSelectedAssets',
-            containerKey: $containerKey,
-            widgetIndex: $widgetIndex,
-            type: 'page',
-            hasPageAssets: false,
+            arguments: [
+                'containerKey' => $containerKey,
+                'widgetIndex' => $widgetIndex,
+                'hasPageAssets' => false,
+            ],
+            type: AssetEnum::Page->value,
             assets: $pages->map(fn (Page $record): string => (string) $record->id)->toArray()
         )
         ->call('saveLayout');
@@ -207,18 +215,22 @@ test('Can sync new page assets', function (): void {
         ->assertSuccessful()
         ->call(
             'syncSelectedAssets',
-            containerKey: $containerKey,
-            widgetIndex: $widgetIndex,
-            type: 'media',
-            hasPageAssets: true,
+            arguments: [
+                'containerKey' => $containerKey,
+                'widgetIndex' => $widgetIndex,
+                'hasPageAssets' => true,
+            ],
+            type: \Capell\Layout\Enums\AssetEnum::Content->value,
             assets: $contents->map(fn (Content $record): string => (string) $record->id)->toArray()
         )
         ->call(
             'syncSelectedAssets',
-            containerKey: $containerKey,
-            widgetIndex: $widgetIndex,
-            type: 'page',
-            hasPageAssets: true,
+            arguments: [
+                'containerKey' => $containerKey,
+                'widgetIndex' => $widgetIndex,
+                'hasPageAssets' => true,
+            ],
+            type: AssetEnum::Page->value,
             assets: $pages->map(fn (Page $record): string => (string) $record->id)->toArray()
         )
         ->call('saveLayout');
@@ -550,24 +562,20 @@ test('can edit asset', function (): void {
         'layout_id' => $layout->id,
     ])
         ->assertSuccessful()
-        ->callAction(
+        ->mountAction(
             'editWidgetAsset',
             arguments: [
                 'containerKey' => $containerKey,
                 'widgetIndex' => $widgetIndex,
                 'index' => 0,
                 'type' => $layoutAsset['asset_type'],
-            ],
-            data: [
-                'asset' => [
-                    'translations' => [
-                        'record-' . $page->translation->id => [
-                            'title' => 'testing',
-                        ],
-                    ],
-                ],
-            ],
-        );
+            ]
+        )
+        ->fillForm([
+            'asset.translations.record-' . $page->translation->id . '.title' => 'testing',
+        ])
+        ->callMountedAction()
+        ->assertHasNoFormErrors();
 
     expect($layoutAsset->refresh())
         ->asset->translation->title->toBe('testing');

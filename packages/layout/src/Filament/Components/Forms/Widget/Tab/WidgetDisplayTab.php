@@ -12,6 +12,7 @@ class WidgetDisplayTab
     {
         return Tab::make(__('capell-admin::tab.settings'))
             ->icon('heroicon-o-wrench')
+            ->columns()
             ->schema($schema);
     }
 }

@@ -156,7 +156,7 @@ class DemoCommand extends Command
                 $site->languages,
                 $site->language,
                 parent: $blogPage,
-                type: BlogResourceEnum::Article->name,
+                type: BlogResourceEnum::Article->value,
                 author: $user
             );
         }

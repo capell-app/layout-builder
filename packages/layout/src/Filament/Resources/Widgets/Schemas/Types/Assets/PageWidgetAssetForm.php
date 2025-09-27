@@ -13,10 +13,10 @@ use Override;
 class PageWidgetAssetForm extends AbstractWidgetAssetSchema
 {
     #[Override]
-    protected static function getAssetSchema(Schema $schema): array
+    protected function getAssetSchema(Schema $schema): array
     {
         $adminSchema = CapellAdmin::getSchema(SchemaTypeEnum::Page, DefaultContentSchema::getKey());
 
-        return app($adminSchema)::make($schema);
+        return app($adminSchema)->make($schema);
     }
 }

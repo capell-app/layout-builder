@@ -10,8 +10,8 @@ use Capell\Admin\Filament\Actions\DeleteAction;
 use Capell\Admin\Filament\Actions\ReplicateAction;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Admin\Filament\Concerns\HasTypeRelationManagers;
-use Capell\Layout\Enums\LayoutResourceEnum;
-use Capell\Layout\Filament\Actions\Page\CreateWidgetModalAction;
+use Capell\Layout\Enums\ResourceEnum;
+use Capell\Layout\Filament\Actions\CreateWidgetModalAction;
 use Capell\Layout\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager;
 use Capell\Layout\Filament\Resources\Widgets\WidgetResource;
 use Capell\Layout\Models\Widget;
@@ -38,7 +38,7 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
     /** @return class-string<WidgetResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(LayoutResourceEnum::Widget);
+        return CapellAdmin::getResource(ResourceEnum::Widget);
     }
 
     public function getRelationManagers(): array
@@ -63,15 +63,26 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
 
     public function getSubheading(): string|Htmlable|null
     {
+        $subheading = '';
+
         $type = $this->record->type;
 
-        if (! $type) {
-            return null;
+        if ($type) {
+            $subheading .= __('capell-admin::heading.widget_type', [
+                'type' => $type->name,
+            ]);
         }
 
-        return __('capell-admin::heading.widget_type', [
-            'type' => $type->name,
-        ]);
+        if ($this->record->isDisabled()) {
+            if (! empty($subheading)) {
+                $subheading .= ' | ';
+            }
+
+            $subheading .= '<span class="text-red-600 dark:text-red-400 font-medium">'
+                . __('capell-admin::generic.disabled') . '</span>';
+        }
+
+        return new HtmlString($subheading);
     }
 
     protected static function getRecordSwitcherSearchColumns(): array

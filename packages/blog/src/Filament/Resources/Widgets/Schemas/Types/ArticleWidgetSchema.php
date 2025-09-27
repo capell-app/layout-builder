@@ -17,13 +17,13 @@ use Filament\Schemas\Schema;
 
 class ArticleWidgetSchema extends DefaultWidgetSchema
 {
-    protected static function getFormSchema(Schema $schema): array
+    protected function getFormSchema(Schema $schema): array
     {
         $operation = $schema->getOperation();
 
         return match ($operation) {
             'create', 'createOption', 'replicate' => [
-                self::getArticleSettingsSchema(),
+                $this->getArticleSettingsSchema(),
             ],
             'editOption' => [
                 Section::make(__('capell-admin::generic.settings'))
@@ -32,7 +32,7 @@ class ArticleWidgetSchema extends DefaultWidgetSchema
                     ->collapsed()
                     ->schema([
                         ...WidgetSettingsSchema::make($schema),
-                        self::getArticleSettingsSchema(),
+                        $this->getArticleSettingsSchema(),
                     ]),
             ],
             default => [
@@ -42,21 +42,19 @@ class ArticleWidgetSchema extends DefaultWidgetSchema
                     ->tabs([
                         WidgetDisplayTab::make([
                             ...WidgetSettingsSchema::make($schema),
-                            self::getArticleSettingsSchema(),
+                            $this->getArticleSettingsSchema(),
                         ]),
                         Tab::make(__('capell-admin::generic.admin'))
                             ->statePath('admin')
                             ->icon(config('capell-admin.icon.admin'))
                             ->columns(['md' => 2])
-                            ->schema([
-                                WidgetAdminSchema::make(),
-                            ]),
+                            ->schema(WidgetAdminSchema::make()),
                     ]),
             ],
         };
     }
 
-    private static function getArticleSettingsSchema(): Fieldset
+    protected function getArticleSettingsSchema(): Fieldset
     {
         return Fieldset::make(__('capell-blog::generic.article'))
             ->statePath('meta')

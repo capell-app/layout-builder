@@ -18,26 +18,27 @@ use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Override;
 
 class WidgetTypeSchema extends DefaultTypeSchema
 {
     #[Override]
-    public static function make(Schema $schema): array
+    public function make(Schema $schema): array
     {
         return [
-            ...self::getSettingsSchema($schema),
-            ...static::getStatusSchema(),
+            ...$this->getSettingsSchema($schema),
+            ...$this->getStatusSchema(),
             Tabs::make()
                 ->columnSpanFull()
                 ->tabs([
-                    static::getFrontendTab(),
-                    static::getAdminTab(),
+                    $this->getFrontendTab(),
+                    $this->getAdminTab(),
                 ]),
         ];
     }
 
-    protected static function getGroupField(): Component
+    protected function getGroupField(): Component
     {
         return CustomSelectGroup::make(
             'group',
@@ -47,7 +48,7 @@ class WidgetTypeSchema extends DefaultTypeSchema
         );
     }
 
-    protected static function getAdminTab(): Tab
+    protected function getAdminTab(): Tab
     {
         return Tab::make(__('capell-admin::generic.admin'))
             ->statePath('admin')
@@ -69,11 +70,11 @@ class WidgetTypeSchema extends DefaultTypeSchema
             ]);
     }
 
-    protected static function getFrontendTab(): Tab
+    protected function getFrontendTab(): Tab
     {
         return Tab::make(__('capell-admin::generic.frontend'))
             ->statePath('meta')
-            ->icon('heroicon-m-cog-6-tooth')
+            ->icon(Heroicon::OutlinedCog6Tooth)
             ->columns()
             ->schema([
                 WidgetDisplaySection::make(),

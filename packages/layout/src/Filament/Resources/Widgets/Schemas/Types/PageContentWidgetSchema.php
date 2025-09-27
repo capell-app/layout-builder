@@ -27,22 +27,22 @@ class PageContentWidgetSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    protected static string $schemaType = SchemaTypeEnum::Widget->value;
+    public static string $schemaType = SchemaTypeEnum::Widget->value;
 
     public static function getExtenders(): iterable
     {
         return app()->tagged(SchemaExtenderEnum::Widget->value);
     }
 
-    public static function make(Schema $schema): array
+    public function make(Schema $schema): array
     {
         return match ($schema->getOperation()) {
-            'createOption', 'editOption', 'replicate' => static::getOptionSchema($schema),
-            default => static::getFormSchema($schema),
+            'createOption', 'editOption', 'replicate' => $this->getOptionSchema($schema),
+            default => $this->getFormSchema($schema),
         };
     }
 
-    protected static function getTabs(): Tabs
+    protected function getTabs(): Tabs
     {
         return Tabs::make()
             ->columnSpanFull()
@@ -81,13 +81,13 @@ class PageContentWidgetSchema implements TypeSchemaInterface
             ]);
     }
 
-    protected static function getFormSchema(Schema $schema): array
+    protected function getFormSchema(Schema $schema): array
     {
         return [
             CreateWidgetDetailsSchema::make($schema),
             FixedWidthSidebar::make()
                 ->mainSchema([
-                    static::getTabs(),
+                    $this->getTabs(),
                 ])
                 ->sidebarSchema(
                     WidgetSettingsSchema::make($schema),
@@ -96,11 +96,11 @@ class PageContentWidgetSchema implements TypeSchemaInterface
         ];
     }
 
-    protected static function getOptionSchema(Schema $schema): array
+    protected function getOptionSchema(Schema $schema): array
     {
         return [
             CreateWidgetDetailsSchema::make($schema),
-            static::getTabs(),
+            $this->getTabs(),
         ];
     }
 }

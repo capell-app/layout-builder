@@ -16,14 +16,14 @@ class DefaultLayoutWidgetSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    protected static string $schemaType = SchemaTypeEnum::LayoutWidget->value;
+    public static string $schemaType = SchemaTypeEnum::LayoutWidget->value;
 
     public static function getExtenders(): iterable
     {
         return app()->tagged(SchemaExtenderEnum::LayoutWidget->value);
     }
 
-    public static function make(Schema $schema): array
+    public function make(Schema $schema): array
     {
         return [
             Checkbox::make('hide_content')

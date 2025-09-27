@@ -8,5 +8,12 @@ use Capell\Blog\Filament\Resources\Articles\ArticleResource;
 
 enum BlogResourceEnum: string
 {
-    case Article = ArticleResource::class;
+    case Article = 'article';
+
+    public function getResource(): string
+    {
+        return match ($this) {
+            self::Article => ArticleResource::class,
+        };
+    }
 }

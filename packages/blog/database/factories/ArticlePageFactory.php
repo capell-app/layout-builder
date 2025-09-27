@@ -32,7 +32,7 @@ class ArticlePageFactory extends PageFactory
                         'icon' => 'heroicon-o-newspaper',
                         'type_schema' => PageTypeSchema::getKey(),
                         'schema' => ArticlePageSchema::getKey(),
-                        'resource' => BlogResourceEnum::Article->name,
+                        'resource' => BlogResourceEnum::Article->value,
                         'with_tags' => true,
                         'exclude' => true,
                     ],

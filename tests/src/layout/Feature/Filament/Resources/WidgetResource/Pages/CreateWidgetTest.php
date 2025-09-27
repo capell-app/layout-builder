@@ -7,7 +7,7 @@ use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\WidgetTypeFactory;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
-use Capell\Layout\Filament\Actions\Page\CreateWidgetModalAction;
+use Capell\Layout\Filament\Actions\CreateWidgetModalAction;
 use Capell\Layout\Filament\Resources\Widgets\Pages\EditWidget;
 use Capell\Layout\Filament\Resources\Widgets\Pages\ListWidgets;
 use Capell\Layout\Models\Widget;

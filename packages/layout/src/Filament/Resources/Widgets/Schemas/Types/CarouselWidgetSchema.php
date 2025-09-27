@@ -18,7 +18,7 @@ use Override;
 class CarouselWidgetSchema extends AssetsWidgetSchema
 {
     #[Override]
-    protected static function getSettingsTab(Schema $schema): Tab
+    protected function getSettingsTab(Schema $schema): Tab
     {
         return WidgetDisplayTab::make([
             Grid::make()

@@ -8,9 +8,9 @@ use Capell\Admin\Filament\Components\Forms\ContentEditor;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
+use Capell\Core\Models\Page;
 use Capell\Core\Models\PageTranslation;
 use Filament\Schemas\Components\Group;
-use Filament\Schemas\Components\Utilities\Get;
 
 class HeroEditor extends Group
 {
@@ -20,10 +20,14 @@ class HeroEditor extends Group
 
         $this->statePath('meta')
             ->visible(
-                function (?PageTranslation $record, Get $get): bool {
-                    $layoutId = ($this->getRootContainer()->getRawState()['layout_id'] ?? null)
-                        ?: $record?->page->layout_id
-                        ?: null;
+                function (null|PageTranslation|Page $record): bool {
+                    $layoutId = $this->getRootContainer()->getRawState()['layout_id'] ?? null;
+
+                    if ($record !== null) {
+                        $layoutId = $record instanceof PageTranslation
+                            ? $record->page->layout_id
+                            : $record->layout_id;
+                    }
 
                     if (! $layoutId) {
                         return false;

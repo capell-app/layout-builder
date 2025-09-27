@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Capell\Core\Models\AssetRelation;
 use Capell\Core\Models\Page;
+use Capell\Layout\Enums\AssetEnum;
 use Capell\Layout\Filament\Resources\Contents\Pages\EditContent;
 use Capell\Layout\Filament\Resources\Contents\RelationManagers\ContentAssetsRelationManager;
 use Capell\Layout\Models\Content;
@@ -15,7 +16,7 @@ use function Pest\Livewire\livewire;
 
 it('can list content assets', function (): void {
     $content = Content::factory()
-        ->has(AssetRelation::factory()->count(5), 'assets')
+        ->has(AssetRelation::factory(['related_type' => AssetEnum::Content->value])->count(5), 'assets')
         ->create();
 
     $resource = $content->assets->first()->load('asset');
@@ -32,10 +33,38 @@ it('can list content assets', function (): void {
 
 it('can search content assets', function (): void {
     $content = Content::factory()
-        ->has(AssetRelation::factory()->page(['name' => 'First']), 'assets')
-        ->has(AssetRelation::factory()->content(['name' => 'Second']), 'assets')
-        ->has(AssetRelation::factory()->page(['name' => 'Third']), 'assets')
-        ->has(AssetRelation::factory()->content(['name' => 'Fourth']), 'assets')
+        ->has(
+            AssetRelation::factory(['related_type' => AssetEnum::Content->value])
+                ->asset(
+                    \Capell\Core\Enums\AssetEnum::Page,
+                    ['name' => 'First'],
+                ),
+            'assets'
+        )
+        ->has(
+            AssetRelation::factory([
+                'related_type' => AssetEnum::Content->value,
+                'asset_type' => AssetEnum::Content->value,
+                'asset_id' => Content::factory(['name' => 'Second']),
+            ]),
+            'assets'
+        )
+        ->has(
+            AssetRelation::factory(['related_type' => AssetEnum::Content->value])
+                ->asset(
+                    \Capell\Core\Enums\AssetEnum::Page,
+                    ['name' => 'First'],
+                ),
+            'assets'
+        )
+        ->has(
+            AssetRelation::factory([
+                'related_type' => AssetEnum::Content->value,
+                'asset_type' => AssetEnum::Content->value,
+                'asset_id' => Content::factory(['name' => 'Fourth']),
+            ]),
+            'assets'
+        )
         ->create();
 
     $resource = $content->assets->first()->load('asset');
@@ -45,7 +74,7 @@ it('can search content assets', function (): void {
         'pageClass' => EditContent::class,
     ])
         ->assertSuccessful()
-        ->assertCountTableRecords(5)
+        ->assertCountTableRecords(4)
         ->searchTable($resource->asset->name)
         ->assertCountTableRecords(1)
         ->assertCanSeeTableRecords([$resource]);

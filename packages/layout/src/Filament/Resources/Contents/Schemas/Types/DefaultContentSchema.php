@@ -31,22 +31,22 @@ class DefaultContentSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    protected static string $schemaType = SchemaTypeEnum::Content->value;
+    public static string $schemaType = SchemaTypeEnum::Content->value;
 
     public static function getExtenders(): iterable
     {
         return app()->tagged(SchemaExtenderEnum::Content->value);
     }
 
-    public static function make(Schema $schema): array
+    public function make(Schema $schema): array
     {
         return match ($schema->getOperation()) {
-            'createOption', 'editOption', 'replicate' => self::getOptionFormSchema($schema),
-            default => self::getFormSchema($schema),
+            'createOption', 'editOption', 'replicate' => $this->getOptionFormSchema($schema),
+            default => $this->getFormSchema($schema),
         };
     }
 
-    protected static function getMetaSchema(): array
+    protected function getMetaSchema(): array
     {
         return [
             IconPicker::make('icon')
@@ -68,7 +68,7 @@ class DefaultContentSchema implements TypeSchemaInterface
         ];
     }
 
-    protected static function getOptionFormSchema(Schema $schema): array
+    protected function getOptionFormSchema(Schema $schema): array
     {
         return [
             ...ContentDetailsSchema::make($schema),
@@ -81,7 +81,7 @@ class DefaultContentSchema implements TypeSchemaInterface
         ];
     }
 
-    protected static function getFormSchema(Schema $schema): array
+    protected function getFormSchema(Schema $schema): array
     {
         return [
             Section::make()
@@ -94,8 +94,8 @@ class DefaultContentSchema implements TypeSchemaInterface
                 ->mainSchema([
                     Tabs::make()
                         ->tabs([
-                            self::getContentTab($schema),
-                            self::getSettingsTab($schema),
+                            $this->getContentTab($schema),
+                            $this->getSettingsTab($schema),
                         ]),
                 ])
                 ->sidebarSchema([
@@ -111,16 +111,16 @@ class DefaultContentSchema implements TypeSchemaInterface
         ];
     }
 
-    protected static function getSettingsTab(Schema $schema): Tab
+    protected function getSettingsTab(Schema $schema): Tab
     {
         return Tab::make('settings')
             ->label(__('capell-admin::generic.settings'))
             ->statePath('meta')
             ->columns()
-            ->schema(self::getMetaSchema());
+            ->schema($this->getMetaSchema());
     }
 
-    protected static function getContentTab(Schema $schema): Tab
+    protected function getContentTab(Schema $schema): Tab
     {
         return Tab::make(__('capell-admin::tab.content'))
             ->icon(Heroicon::Language)

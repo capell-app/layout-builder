@@ -31,35 +31,35 @@ class HeroWidgetSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    protected static string $schemaType = SchemaTypeEnum::Widget->value;
+    public static string $schemaType = SchemaTypeEnum::Widget->value;
 
     public static function getExtenders(): iterable
     {
         return app()->tagged(SchemaExtenderEnum::Widget->value);
     }
 
-    public static function make(Schema $schema): array
+    public function make(Schema $schema): array
     {
         $operation = $schema->getOperation();
 
         return [
             ...match ($operation) {
-                'editOption', 'createOption', 'replicate' => static::getOptionSchema($schema),
-                default => static::getFormSchema($schema),
+                'editOption', 'createOption', 'replicate' => $this->getOptionSchema($schema),
+                default => $this->getFormSchema($schema),
             },
         ];
     }
 
-    protected static function getOptionSchema(Schema $schema): array
+    protected function getOptionSchema(Schema $schema): array
     {
         return [
             CreateWidgetDetailsSchema::make($schema),
             self::getAssetsComponent($schema),
-            ...static::getMetaSchema(),
+            ...$this->getMetaSchema(),
         ];
     }
 
-    protected static function getFormSchema(Schema $schema): array
+    protected function getFormSchema(Schema $schema): array
     {
         return [
             CreateWidgetDetailsSchema::make($schema),
@@ -71,11 +71,11 @@ class HeroWidgetSchema implements TypeSchemaInterface
                     WidgetSettingsSchema::make($schema),
                     contained: true
                 ),
-            static::getTabs($schema),
+            $this->getTabs($schema),
         ];
     }
 
-    protected static function getTabs(Schema $schema): Tabs
+    protected function getTabs(Schema $schema): Tabs
     {
         return Tabs::make()
             ->columnSpanFull()
@@ -90,7 +90,7 @@ class HeroWidgetSchema implements TypeSchemaInterface
                     Grid::make()
                         ->statePath('meta')
                         ->schema([
-                            ...static::getMetaSchema(),
+                            ...$this->getMetaSchema(),
                             WidgetComponentFilesSection::make(),
                         ]),
                 ]),
@@ -98,7 +98,7 @@ class HeroWidgetSchema implements TypeSchemaInterface
             ]);
     }
 
-    protected static function getMetaSchema(): array
+    protected function getMetaSchema(): array
     {
         return [
             Grid::make(['default' => 2, 'xl' => 3])
@@ -123,7 +123,7 @@ class HeroWidgetSchema implements TypeSchemaInterface
         ];
     }
 
-    protected static function getAssetsComponent(Schema $schema): Component
+    protected function getAssetsComponent(Schema $schema): Component
     {
         return AssetsRepeater::make('assets')
             ->hiddenLabel();

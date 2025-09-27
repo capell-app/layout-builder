@@ -11,7 +11,7 @@ use Capell\Admin\Filament\Concerns\HasRelationManagerBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
-use Capell\Layout\Enums\LayoutResourceEnum;
+use Capell\Layout\Enums\ResourceEnum;
 use Capell\Layout\Filament\Resources\Contents\Schemas\ContentForm;
 use Capell\Layout\Filament\Resources\Contents\Tables\ContentsTable;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -42,7 +42,7 @@ class ContentsRelationManager extends RelationManager
 
     public static function getIcon(Model $ownerRecord, string $pageClass): string|BackedEnum|null
     {
-        return CapellAdmin::getResource(LayoutResourceEnum::Content)::getNavigationIcon();
+        return CapellAdmin::getResource(ResourceEnum::Content)::getNavigationIcon();
     }
 
     public function form(Schema $schema): Schema

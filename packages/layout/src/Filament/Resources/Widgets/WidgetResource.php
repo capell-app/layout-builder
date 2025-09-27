@@ -11,7 +11,7 @@ use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\LayoutModelEnum;
-use Capell\Layout\Enums\LayoutResourceEnum;
+use Capell\Layout\Enums\ResourceEnum;
 use Capell\Layout\Filament\Resources\Widgets\Pages\CreateWidget;
 use Capell\Layout\Filament\Resources\Widgets\Pages\EditWidget;
 use Capell\Layout\Filament\Resources\Widgets\Pages\ListWidgets;
@@ -53,7 +53,7 @@ class WidgetResource extends Resource
 
     public static function getResourceType(): string
     {
-        return LayoutResourceEnum::Widget->name;
+        return ResourceEnum::Widget->name;
     }
 
     /**

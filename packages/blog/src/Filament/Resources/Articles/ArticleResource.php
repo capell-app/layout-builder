@@ -25,7 +25,7 @@ use Override;
 
 class ArticleResource extends PageResource
 {
-    protected static string $adminResourceName = BlogResourceEnum::Article->name;
+    protected static string $adminResourceName = BlogResourceEnum::Article->value;
 
     protected static ?int $navigationSort = 2;
 
@@ -74,7 +74,7 @@ class ArticleResource extends PageResource
     }
 
     #[Override]
-    public static function mutateFormDataBeforeCreate(array &$data = [], array $formData = []): void
+    public static function mutateFormDataBeforeCreate(array &$data, array $formData): void
     {
         $data['layout_id'] = GetArticleLayoutAction::run()?->id;
 
@@ -86,7 +86,7 @@ class ArticleResource extends PageResource
             ->where('group', BlogTypeGroupEnum::Article)
             ->value('id');
 
-        $siteId = $data['site_id'] ?? $formData['site_id'] ?? null;
+        $siteId = $data['site_id'] ?? null;
 
         /* @var class-string<\Capell\Core\Models\Site> $model */
         $model = CapellCore::getModel(ModelEnum::Site);
@@ -105,8 +105,8 @@ class ArticleResource extends PageResource
             $data['parent_id'] = BlogLoader::getBlogPage($site)?->id;
         }
 
-        if (empty($data['name']) && ! empty($data['translations'])) {
-            $data['name'] = GetNameFromTranslationsAction::run(collect($data['translations']), $site);
+        if (empty($data['name']) && ! empty($formData['translations'])) {
+            $data['name'] = GetNameFromTranslationsAction::run(collect($formData['translations']), $site);
         }
     }
 

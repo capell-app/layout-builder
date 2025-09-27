@@ -6,7 +6,6 @@ namespace Capell\Blog\Filament\Resources\Articles\Schemas\Types;
 
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\Media\MediaLibraryFileUpload;
-use Capell\Admin\Filament\Components\Forms\Page\CreatePageSchema;
 use Capell\Admin\Filament\Components\Forms\Page\LayoutSelect;
 use Capell\Admin\Filament\Components\Forms\Page\PagePublishSection;
 use Capell\Admin\Filament\Components\Forms\Page\PageSettingsSchema;
@@ -18,7 +17,6 @@ use Capell\Blog\Filament\Components\Forms\Page\PageTagsInput;
 use Capell\Blog\Services\Loader\BlogLoader;
 use Closure;
 use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
@@ -27,26 +25,32 @@ use Override;
 
 class ArticlePageSchema extends DefaultPageSchema
 {
-    #[Override]
-    protected static function getFormSchema(Schema $schema): array
+    protected bool $hasCreatePageSchema = false;
+
+    protected static function modifyParentQueryUsing(Schema $schema): Closure
     {
-        return [
-            static::getTranslationFormSchema($schema),
-            Section::make()
-                ->contained(in_array($schema->getOperation(), ['create', 'edit']))
-                ->columns()
-                ->columnSpanFull()
-                ->schema(static::getCreateExtraFor($schema)),
-        ];
+        return function (Builder $query) use ($schema) {
+            $site = $schema->getLivewire()->getSite($schema);
+
+            $blogPage = $site ? BlogLoader::getBlogPage($site) : null;
+
+            return $query->adminResource(
+                $schema->getLivewire()->getResource()::getResourceName()
+            )
+                ->when(
+                    $blogPage,
+                    fn (Builder $query) => $query->orWhere('id', $blogPage->id)
+                );
+        };
     }
 
     #[Override]
-    protected static function getEditFormSchema(Schema $schema): array
+    protected function getEditFormSchema(Schema $schema): array
     {
         return [
             FixedWidthSidebar::make()
                 ->mainSchema([
-                    static::getTranslationFormSchema($schema),
+                    $this->getTranslationFormSchema($schema),
                 ])
                 ->sidebarSchema(
                     PageSettingsSchema::make(
@@ -62,15 +66,15 @@ class ArticlePageSchema extends DefaultPageSchema
                 ),
             Tabs::make()
                 ->columnSpanFull()
-                ->tabs(static::getTabs($schema)),
+                ->tabs($this->getTabs($schema)),
         ];
     }
 
     #[Override]
-    protected static function getEditOptionFormSchema(Schema $schema): array
+    protected function getEditOptionFormSchema(Schema $schema): array
     {
         return [
-            static::getTranslationFormSchema($schema),
+            $this->getTranslationFormSchema($schema),
             Section::make(__('capell-admin::generic.settings'))
                 ->compact()
                 ->schema([
@@ -91,11 +95,11 @@ class ArticlePageSchema extends DefaultPageSchema
     }
 
     #[Override]
-    protected static function getCreateExtraFor(Schema $schema): array
+    protected function getCreateExtraFor(Schema $schema): array
     {
         return [
             PageSiteSelect::make(),
-            static::getParentPageSelect($schema),
+            $this->getParentPageSelect($schema),
             LayoutSelect::make('layout_id')
                 ->reactive()
                 ->withEditLink(),
@@ -104,29 +108,12 @@ class ArticlePageSchema extends DefaultPageSchema
     }
 
     #[Override]
-    protected static function getParentPageSelect(Schema $schema): Select
+    protected function getParentPageSelect(Schema $schema): Select
     {
         return ParentPageSelect::make('parent_id')
             ->label(__('capell-admin::form.parent_page'))
             ->setupRelation('parent', $schema)
             ->pageGroup(static::modifyParentQueryUsing($schema))
             ->reactive();
-    }
-
-    protected static function modifyParentQueryUsing(Schema $schema): Closure
-    {
-        return function (Builder $query) use ($schema) {
-            $site = $schema->getLivewire()->getSite();
-
-            $blogPage = $site ? BlogLoader::getBlogPage($site) : null;
-
-            return $query->adminResource(
-                $schema->getLivewire()->getResource()::getResourceName()
-            )
-                ->when(
-                    $blogPage,
-                    fn (Builder $query) => $query->orWhere('id', 'blog')
-                );
-        };
     }
 }

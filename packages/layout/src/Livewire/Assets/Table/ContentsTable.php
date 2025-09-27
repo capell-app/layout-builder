@@ -8,7 +8,7 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\LayoutModelEnum;
-use Capell\Layout\Enums\LayoutResourceEnum;
+use Capell\Layout\Enums\ResourceEnum;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,7 +19,7 @@ class ContentsTable extends AbstractAssetsTable
 
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(LayoutResourceEnum::Content);
+        return CapellAdmin::getResource(ResourceEnum::Content);
     }
 
     public function table(Table $table): Table

@@ -12,7 +12,6 @@ use Capell\Blog\Commands\DemoCommand;
 use Capell\Blog\Enums\BlogModelEnum;
 use Capell\Blog\Enums\BlogResourceEnum;
 use Capell\Blog\Enums\WidgetComponentEnum;
-use Capell\Blog\Filament\Resources\Articles\ArticleResource;
 use Capell\Blog\Filament\Resources\Articles\Schemas\Extenders\BlogPageSchemaExtender;
 use Capell\Blog\Filament\Resources\Articles\Schemas\Types\ArticlePageSchema;
 use Capell\Blog\Filament\Resources\Widgets\Schemas\Types\ArticleWidgetSchema;
@@ -112,8 +111,8 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
 
         CapellAdmin::registerResource(
             ResourceEnum::Page,
-            class: ArticleResource::class,
-            name: BlogResourceEnum::Article->name
+            class: BlogResourceEnum::Article->getResource(),
+            name: BlogResourceEnum::Article->value
         );
 
         CapellCore::registerComponents(ComponentTypeEnum::Widget->value, WidgetComponentEnum::cases());

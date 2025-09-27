@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Database\Factories\MediaFactory;
 use Capell\Core\Models\AssetRelation;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
@@ -31,8 +32,13 @@ it('belongs to a type', function (): void {
 });
 
 it('belongs to an image', function (): void {
-    $media = Media::factory()->create();
-    $content = Content::factory()->create(['meta' => ['image_id' => $media->id]]);
+    $content = Content::factory()->create();
+
+    $media = MediaFactory::new([
+        'model_type' => app(Content::class)->getMorphClass(),
+        'model_id' => $content->id,
+    ])
+        ->create();
 
     expect($content->image)->toBeInstanceOf(Media::class)
         ->and($content->image->id)->toBe($media->id);
@@ -50,7 +56,7 @@ it('has many translations', function (): void {
 
 it('has many assets', function (): void {
     $content = Content::factory()->create();
-    $resource = AssetRelation::factory()->related($content);
+    $resource = AssetRelation::factory()->related($content)->create();
 
     expect($content->assets->pluck('id'))->toContain($resource->id);
 });

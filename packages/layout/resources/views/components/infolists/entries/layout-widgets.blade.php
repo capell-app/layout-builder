@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 @php
     use Capell\Admin\Facades\CapellAdmin;
-    use Capell\Layout\Enums\LayoutResourceEnum;
+    use Capell\Layout\Enums\ResourceEnum;
 @endphp
 
 <ul class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -32,7 +32,7 @@ declare(strict_types=1);
                     </span>
                 </p>
                 <x-filament::link
-                    href="{{ CapellAdmin::getResource(LayoutResourceEnum::Widget)::getUrl('edit', ['record' => $widget]) }}"
+                    href="{{ CapellAdmin::getResource(ResourceEnum::Widget)::getUrl('edit', ['record' => $widget]) }}"
                     color="info"
                 >
                     {{ __('capell-admin::button.edit') }}

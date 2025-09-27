@@ -11,9 +11,10 @@ use Capell\Admin\Filament\Concerns\HasAncestorBreadcrumbs;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Admin\Filament\Concerns\HasTypeRelationManagers;
 use Capell\Layout\Actions\ReplicateContentAction;
-use Capell\Layout\Enums\LayoutResourceEnum;
-use Capell\Layout\Filament\Actions\Page\CreateContentModalAction;
+use Capell\Layout\Enums\ResourceEnum;
+use Capell\Layout\Filament\Actions\CreateContentModalAction;
 use Capell\Layout\Filament\Resources\Contents\ContentResource;
+use Capell\Layout\Filament\Resources\Contents\Widgets\ContentAlertsWidget;
 use Capell\Layout\Models\Content;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\ForceDeleteAction;
@@ -39,7 +40,7 @@ class EditContent extends EditRecord
     /** @return class-string<ContentResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(LayoutResourceEnum::Content);
+        return CapellAdmin::getResource(ResourceEnum::Content);
     }
 
     public function getTitle(): string|Htmlable
@@ -88,6 +89,8 @@ class EditContent extends EditRecord
     protected function afterSave(): void
     {
         $this->notifyPageCached($this->record);
+
+        $this->dispatch('update-alerts')->to(ContentAlertsWidget::class);
 
         $this->recordSwitcherAfterSave();
     }

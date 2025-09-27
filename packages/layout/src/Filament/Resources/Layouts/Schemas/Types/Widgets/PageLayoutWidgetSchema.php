@@ -11,7 +11,7 @@ use Override;
 class PageLayoutWidgetSchema extends DefaultLayoutWidgetSchema
 {
     #[Override]
-    public static function make(Schema $schema): array
+    public function make(Schema $schema): array
     {
         return [
             Checkbox::make('hide_title')

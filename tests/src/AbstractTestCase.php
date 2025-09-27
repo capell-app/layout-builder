@@ -42,6 +42,7 @@ use Illuminate\Support\Str;
 use Kalnoy\Nestedset\NestedSetServiceProvider;
 use LaraZeus\SpatieTranslatable\SpatieTranslatableServiceProvider;
 use Livewire\LivewireServiceProvider;
+use Oddvalue\LaravelDrafts\LaravelDraftsServiceProvider;
 use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase;
 use Orchestra\Workbench\WorkbenchServiceProvider;
@@ -143,6 +144,7 @@ abstract class AbstractTestCase extends TestCase
             LaravelServiceProvider::class,
             PermissionServiceProvider::class,
             IconPickerServiceProvider::class,
+            LaravelDraftsServiceProvider::class,
             RayServiceProvider::class,
             SupportServiceProvider::class,
             SchemasServiceProvider::class,
@@ -172,7 +174,7 @@ abstract class AbstractTestCase extends TestCase
         }
 
         // config('filament-shield.register_role_policy.enabled', false);
-        Config::set('filament-shield.auth_provider_model.fqcn', User::class);
+        Config::set('filament-shield.auth_provider_model', User::class);
 
         // Prevent role being assigned to created user
         Config::set('filament-shield.panel_user.enabled', false);

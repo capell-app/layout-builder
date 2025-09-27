@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Actions\Page;
+namespace Capell\Layout\Filament\Actions;
 
 use Capell\Admin\Actions\BuildDefaultTranslationsAction;
 use Capell\Admin\Filament\Actions\CreateModalAction;

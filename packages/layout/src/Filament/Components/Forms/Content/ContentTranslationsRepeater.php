@@ -26,6 +26,7 @@ final class ContentTranslationsRepeater
         $operation = $schema->getOperation();
 
         return TranslationsRepeater::make('translations')
+            ->contained(false)
             ->when(
                 $operation === 'replicate',
                 fn (TranslationsRepeater $repeater): TranslationsRepeater => $repeater->withoutRelationship()

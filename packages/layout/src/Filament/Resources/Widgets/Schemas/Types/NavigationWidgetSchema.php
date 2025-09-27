@@ -22,29 +22,29 @@ use Override;
 class NavigationWidgetSchema extends DefaultWidgetSchema
 {
     #[Override]
-    public static function make(Schema $schema): array
+    public function make(Schema $schema): array
     {
         $operation = $schema->getOperation();
 
         return match ($operation) {
-            'createOption' => static::getCreateOptionSchema($schema),
-            'editOption', 'replicate' => static::getEditOptionSchema($schema),
-            default => static::getFormSchema($schema),
+            'createOption' => $this->getCreateOptionSchema($schema),
+            'editOption', 'replicate' => $this->getEditOptionSchema($schema),
+            default => $this->getFormSchema($schema),
         };
     }
 
-    protected static function getCreateOptionSchema(Schema $schema): array
+    protected function getCreateOptionSchema(Schema $schema): array
     {
         return [
             CreateWidgetDetailsSchema::make($schema),
             Section::make()
-                ->schema([static::navigationSelect()]),
+                ->schema([$this->navigationSelect()]),
             WidgetTranslationsRepeater::make($schema)
                 ->section(),
         ];
     }
 
-    protected static function navigationSelect(): Group
+    protected function navigationSelect(): Group
     {
         return Group::make()
             ->statePath('meta')
@@ -54,15 +54,15 @@ class NavigationWidgetSchema extends DefaultWidgetSchema
             ]);
     }
 
-    protected static function getEditOptionSchema(Schema $schema): array
+    protected function getEditOptionSchema(Schema $schema): array
     {
         return [
-            static::navigationSelect(),
+            $this->navigationSelect(),
             WidgetTranslationsRepeater::make($schema),
         ];
     }
 
-    protected static function getFormSchema(Schema $schema): array
+    protected function getFormSchema(Schema $schema): array
     {
         return [
             CreateWidgetDetailsSchema::make($schema),
@@ -72,7 +72,7 @@ class NavigationWidgetSchema extends DefaultWidgetSchema
                         ->section(),
                 ])
                 ->sidebarSchema(
-                    WidgetSettingsSchema::make($schema, [static::navigationSelect()]),
+                    WidgetSettingsSchema::make($schema, [$this->navigationSelect()]),
                     contained: true
                 ),
             Tabs::make()

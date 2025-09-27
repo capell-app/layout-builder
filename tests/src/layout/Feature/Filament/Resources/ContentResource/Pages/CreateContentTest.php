@@ -79,23 +79,23 @@ it('can create with translations', function (string $mode): void {
 
     livewire(CreateContent::class)
         ->assertSuccessful()
+        ->set('data.translations', [])
         ->fillForm([
             'type_id' => $type->getKey(),
             'name' => $newData->name,
             'parent_id' => $newData->parent?->id,
+            'translations' => $site->languages
+                ->mapWithKeys(
+                    fn (Language $language): array => [
+                        (string) Str::uuid() => [
+                            'language_id' => $language->getKey(),
+                            'title' => $newData->name . ' - ' . $language->name,
+                            'contents' => $newData->name . ' - ' . $language->name,
+                        ],
+                    ]
+                )
+                ->toArray(),
         ])
-        ->set(
-            'data.translations',
-            $site->languages->mapWithKeys(
-                fn (Language $language): array => [
-                    (string) Str::uuid() => [
-                        'language_id' => $language->getKey(),
-                        'title' => $newData->name . ' - ' . $language->name,
-                        'contents' => $newData->name . ' - ' . $language->name,
-                    ],
-                ]
-            )->toArray()
-        )
         ->assertSchemaStateSet([
             'name' => $newData->name,
             'type_id' => $type->getKey(),
@@ -114,7 +114,7 @@ it('can create with translations', function (string $mode): void {
         fn (Language $language) => assertDatabaseHas(Translation::class, [
             'language_id' => $language->getKey(),
             'title' => $newData->name . ' - ' . $language->name,
-            'contents' => json_encode(['type' => 'doc', 'content' => [['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => $newData->name . ' - ' . $language->name]]]]]),
+            'contents' => '"<p>' . $newData->name . ' - ' . $language->name . '<\\/p>"',
             'translatable_type' => 'content',
         ])
     );

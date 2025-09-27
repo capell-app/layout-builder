@@ -11,8 +11,8 @@ use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\LayoutModelEnum;
-use Capell\Layout\Enums\LayoutResourceEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Enums\ResourceEnum;
 use Capell\Layout\Filament\Resources\Contents\Pages\CreateContent;
 use Capell\Layout\Filament\Resources\Contents\Pages\EditContent;
 use Capell\Layout\Filament\Resources\Contents\Pages\ListContents;
@@ -21,6 +21,7 @@ use Capell\Layout\Filament\Resources\Contents\RelationManagers\PagesRelationMana
 use Capell\Layout\Filament\Resources\Contents\RelationManagers\WidgetsRelationManager;
 use Capell\Layout\Filament\Resources\Contents\Schemas\ContentForm;
 use Capell\Layout\Filament\Resources\Contents\Tables\ContentsTable;
+use Capell\Layout\Filament\Resources\Contents\Widgets\ContentAlertsWidget;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
@@ -55,7 +56,7 @@ class ContentResource extends Resource
 
     public static function getResourceType(): string
     {
-        return LayoutResourceEnum::Content->name;
+        return ResourceEnum::Content->name;
     }
 
     public static function getEloquentQuery(): Builder
@@ -121,6 +122,13 @@ class ContentResource extends Resource
             ContentAssetsRelationManager::class,
             WidgetsRelationManager::class,
             PagesRelationManager::class,
+        ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            ContentAlertsWidget::class,
         ];
     }
 }

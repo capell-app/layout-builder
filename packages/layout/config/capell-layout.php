@@ -13,11 +13,12 @@ use Capell\Layout\View\Components\Widget\Pages\ChildrenWidget;
 use Capell\Layout\View\Components\Widget\Pages\LatestWidget;
 use Capell\Layout\View\Components\Widget\Pages\RelatedWidget;
 use Capell\Layout\View\Components\Widget\Pages\SiblingsWidget;
+use Filament\Support\Icons\Heroicon;
 
 return [
     'assets' => [
         'content' => [
-            'icon' => 'heroicon-o-gift',
+            'icon' => Heroicon::OutlinedRectangleStack,
             'model' => Content::class,
         ],
     ],

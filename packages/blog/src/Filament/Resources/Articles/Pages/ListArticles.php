@@ -15,6 +15,6 @@ class ListArticles extends ListPages
     /** @return class-string<ArticleResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Page, BlogResourceEnum::Article->name);
+        return CapellAdmin::getResource(ResourceEnum::Page, BlogResourceEnum::Article->value);
     }
 }

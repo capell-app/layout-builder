@@ -13,13 +13,13 @@ use Override;
 class ContentWidgetAssetForm extends AbstractWidgetAssetSchema
 {
     #[Override]
-    protected static function getAssetSchema(Schema $schema): array
+    protected function getAssetSchema(Schema $schema): array
     {
         $adminSchema = CapellAdmin::getSchema(
             SchemaTypeEnum::Content->value,
             DefaultContentSchema::getKey()
         );
 
-        return app($adminSchema)::make($schema);
+        return app($adminSchema)->make($schema);
     }
 }

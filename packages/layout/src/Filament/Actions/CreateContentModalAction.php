@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Actions\Page;
+namespace Capell\Layout\Filament\Actions;
 
 use Capell\Admin\Filament\Actions\CreateModalAction;
 use Capell\Layout\Actions\MutateContentDataBeforeFillAction;

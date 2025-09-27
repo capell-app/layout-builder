@@ -7,7 +7,7 @@ namespace Capell\Layout\Enums;
 use Capell\Layout\Filament\Resources\Contents\ContentResource;
 use Capell\Layout\Filament\Resources\Widgets\WidgetResource;
 
-enum LayoutResourceEnum: string
+enum ResourceEnum: string
 {
     case Content = ContentResource::class;
     case Widget = WidgetResource::class;

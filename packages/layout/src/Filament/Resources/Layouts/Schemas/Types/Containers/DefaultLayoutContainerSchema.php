@@ -25,14 +25,14 @@ class DefaultLayoutContainerSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    protected static string $schemaType = SchemaTypeEnum::LayoutContainer->value;
+    public static string $schemaType = SchemaTypeEnum::LayoutContainer->value;
 
     public static function getExtenders(): iterable
     {
         return app()->tagged(SchemaExtenderEnum::LayoutContainer->value);
     }
 
-    public static function make(Schema $schema): array
+    public function make(Schema $schema): array
     {
         return [
             Group::make()

@@ -30,23 +30,23 @@ class DefaultWidgetSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    protected static string $schemaType = SchemaTypeEnum::Widget->value;
-
-    public static function make(Schema $schema): array
-    {
-        return match ($schema->getOperation()) {
-            'createOption', 'replicate' => static::getCreateOptionSchema($schema),
-            'editOption' => static::getEditOptionSchema($schema),
-            default => static::getFormSchema($schema),
-        };
-    }
+    public static string $schemaType = SchemaTypeEnum::Widget->value;
 
     public static function getExtenders(): iterable
     {
         return app()->tagged(SchemaExtenderEnum::Widget->value);
     }
 
-    protected static function getFormSchema(Schema $schema): array
+    public function make(Schema $schema): array
+    {
+        return match ($schema->getOperation()) {
+            'createOption', 'replicate' => $this->getCreateOptionSchema($schema),
+            'editOption' => $this->getEditOptionSchema($schema),
+            default => $this->getFormSchema($schema),
+        };
+    }
+
+    protected function getFormSchema(Schema $schema): array
     {
         return [
             CreateWidgetDetailsSchema::make($schema),
@@ -54,7 +54,7 @@ class DefaultWidgetSchema implements TypeSchemaInterface
                 ->mainSchema([
                     WidgetTranslationsRepeater::make($schema)
                         ->section(),
-                    ...static::getExtraSchema($schema),
+                    ...$this->getExtraSchema($schema),
                 ])
                 ->sidebarSchema(
                     WidgetSettingsSchema::make($schema),
@@ -63,42 +63,42 @@ class DefaultWidgetSchema implements TypeSchemaInterface
         ];
     }
 
-    protected static function getEditOptionSchema(Schema $schema): array
+    protected function getEditOptionSchema(Schema $schema): array
     {
         return [
             WidgetTranslationsRepeater::make($schema),
-            ...static::getExtraSchema($schema, withSettingsTab: true),
+            ...$this->getExtraSchema($schema, withSettingsTab: true),
         ];
     }
 
-    protected static function getCreateOptionSchema(Schema $schema): array
+    protected function getCreateOptionSchema(Schema $schema): array
     {
         return [
             CreateWidgetDetailsSchema::make($schema),
             WidgetTranslationsRepeater::make($schema),
-            ...static::getExtraSchema($schema),
+            ...$this->getExtraSchema($schema),
         ];
     }
 
-    protected static function getExtraSchema(Schema $schema, bool $withSettingsTab = false): array
+    protected function getExtraSchema(Schema $schema, bool $withSettingsTab = false): array
     {
         return [
-            static::getTabs($schema, $withSettingsTab),
+            $this->getTabs($schema, $withSettingsTab),
         ];
     }
 
-    protected static function getTabs(Schema $schema, bool $withSettingsTab = false): Tabs
+    protected function getTabs(Schema $schema, bool $withSettingsTab = false): Tabs
     {
         return Tabs::make()
             ->columnSpanFull()
             ->tabs([
-                static::getDetailsTab(),
-                static::getDisplayTab($schema),
-                ...$withSettingsTab ? static::getSettingsTab($schema) : [],
+                $this->getDetailsTab(),
+                $this->getDisplayTab($schema),
+                ...$withSettingsTab ? $this->getSettingsTab($schema) : [],
             ]);
     }
 
-    protected static function getDisplayTab(Schema $schema): Tab
+    protected function getDisplayTab(Schema $schema): Tab
     {
         return WidgetDisplayTab::make([
             Grid::make()
@@ -112,7 +112,7 @@ class DefaultWidgetSchema implements TypeSchemaInterface
         ]);
     }
 
-    protected static function getDetailsTab(): Tab
+    protected function getDetailsTab(): Tab
     {
         return Tab::make('details')
             ->label(__('capell-admin::tab.details'))
@@ -136,12 +136,12 @@ class DefaultWidgetSchema implements TypeSchemaInterface
             ]);
     }
 
-    protected static function getSettingsTab(Schema $schema): Tab
+    protected function getSettingsTab(Schema $schema): Tab
     {
         return Tab::make('settings')
             ->label(__('capell-admin::tab.settings'))
             ->icon('heroicon-o-cog')
-            ->statePath('settings')
+            ->columns()
             ->schema(WidgetSettingsSchema::make($schema));
     }
 }

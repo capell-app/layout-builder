@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Filament\Resources\Articles\Pages;
 
+use Capell\Admin\Actions\BuildDefaultTranslationsAction;
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Resources\Pages\Pages\CreatePage;
@@ -19,15 +20,19 @@ class CreateArticle extends CreatePage
     /** @return class-string<ArticleResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Page, BlogResourceEnum::Article->name);
+        return CapellAdmin::getResource(ResourceEnum::Page, BlogResourceEnum::Article->value);
     }
 
-    protected function beforeFill(): void
+    protected function afterFill(): void
     {
         $this->data['site_id'] ??= request('site_id', Site::getDefault()?->id);
 
         $this->data['layout_id'] = GetArticleLayoutAction::run()?->id;
 
         $this->data['type_id'] = CapellCore::getModel(ModelEnum::Type)::pageType()->where('key', 'article')->value('id');
+
+        if (empty($this->data['translations']) && ! empty($this->data['site_id'])) {
+            $this->data['translations'] = BuildDefaultTranslationsAction::run($this->data['site_id']);
+        }
     }
 }

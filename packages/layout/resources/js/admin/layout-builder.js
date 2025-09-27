@@ -130,13 +130,6 @@ export default function layoutBuilderComponent() {
             } else {
                 this.isContainersAllCollapsed = null
             }
-
-            console.log('collapsedContainers', this.collapsedContainers)
-            console.log('values', values)
-            console.log(
-                'isContainersAllCollapsed',
-                this.isContainersAllCollapsed,
-            )
         },
 
         isAllWidgetsCollapsed: function (containerKey) {

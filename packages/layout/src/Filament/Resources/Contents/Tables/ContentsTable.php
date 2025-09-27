@@ -240,7 +240,7 @@ class ContentsTable implements TableConfigurator
                 ->schema([
                     Select::make('language_id')
                         ->label(__('capell-admin::table.language'))
-                        ->options(function (ListContents|RelationManager $livewire): array {
+                        ->options(function (ContentsTable|ListContents|RelationManager $livewire): array {
                             $siteId = static::getSiteId($livewire);
 
                             /* @var class-string<\Capell\Core\Models\Language> $model */
@@ -260,7 +260,7 @@ class ContentsTable implements TableConfigurator
 
                     Select::make('parent_id')
                         ->label(__('capell-admin::form.parent'))
-                        ->options(function (ListContents|RelationManager $livewire, Get $get) {
+                        ->options(function (ContentsTable|ListContents|RelationManager $livewire, Get $get) {
                             $siteId = static::getSiteId($livewire);
 
                             /** @var class-string<Content> $model */
@@ -311,7 +311,7 @@ class ContentsTable implements TableConfigurator
                         ->relationship(
                             name: 'tags',
                             titleAttribute: 'name',
-                            modifyQueryUsing: function (Builder $query, ListContents|RelationManager $livewire, Get $get): void {
+                            modifyQueryUsing: function (Builder $query, ContentsTable|ListContents|RelationManager $livewire, Get $get): void {
                                 $siteId = static::getSiteId($livewire);
 
                                 if (! $siteId) {
@@ -330,7 +330,7 @@ class ContentsTable implements TableConfigurator
                                 }
                             }
                         )
-                        ->getOptionLabelFromRecordUsing(function (Tag $record, ListContents|RelationManager $livewire, Get $get): string {
+                        ->getOptionLabelFromRecordUsing(function (Tag $record, ContentsTable|ListContents|RelationManager $livewire, Get $get): string {
                             $label = '';
 
                             $siteId = static::getSiteId($livewire);
