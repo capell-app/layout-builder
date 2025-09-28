@@ -78,11 +78,6 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
         CapellCore::addCloneableRelations('page', 'widgetAssets');
         CapellCore::addDraftableRelations('page', 'widgetAssets');
 
-        Relation::morphMap([
-            'content' => Content::class,
-            'widget' => Widget::class,
-        ]);
-
         foreach (config('capell-layout.livewire_components', []) as $name => $class) {
             Livewire::component($name, $class);
         }
@@ -226,6 +221,12 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     private function registerModels(): self
     {
+        Relation::morphMap([
+            'content' => Content::class,
+            'widget' => Widget::class,
+            'widget_asset' => WidgetAsset::class,
+        ]);
+
         CapellCore::registerModel(LayoutModelEnum::Content, Content::class);
         CapellCore::registerModel(LayoutModelEnum::Widget, Widget::class);
         CapellCore::registerModel(LayoutModelEnum::WidgetAsset, WidgetAsset::class);

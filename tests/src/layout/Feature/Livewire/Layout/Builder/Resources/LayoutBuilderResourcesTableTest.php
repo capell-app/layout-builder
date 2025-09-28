@@ -37,14 +37,18 @@ it('can render assets table', function (string $assetType): void {
         'page' => PagesTable::class,
     };
 
-    livewire($component, [
-        'actionModalId' => 'select-assets',
+    $arguments = [
         'containerKey' => $containerKey,
+        'hasPageAssets' => false,
         'pageId' => $page->id,
         'siteId' => $page->site_id,
-        'type' => $assetType,
         'widgetIndex' => $widgetIndex,
-        'hasPageAssets' => false,
+    ];
+
+    livewire($component, [
+        'actionModalId' => 'select-assets',
+        'arguments' => $arguments,
+        'type' => $assetType,
     ])
         ->assertSuccessful();
 })->with($types);
@@ -59,11 +63,15 @@ describe('layout', function () use ($types): void {
         $site = Site::factory()->create();
         $contents = Content::factory()->site($site)->count(4)->create();
 
+        $arguments = [
+            'containerKey' => $containerKey,
+            'hasPageAssets' => false,
+            'widgetIndex' => $widgetIndex,
+        ];
+
         livewire(ContentsTable::class, [
             'actionModalId' => 'select-assets',
-            'containerKey' => $containerKey,
-            'widgetIndex' => $widgetIndex,
-            'hasPageAssets' => false,
+            'arguments' => $arguments,
         ])
             ->assertSuccessful()
             ->assertCountTableRecords(5)
@@ -82,16 +90,20 @@ describe('layout', function () use ($types): void {
         $site = Site::factory()->create();
         $pages = Page::factory()->count(4)->site($site)->create();
 
+        $arguments = [
+            'containerKey' => $containerKey,
+            'hasPageAssets' => false,
+            'widgetIndex' => $widgetIndex,
+        ];
+
         livewire(PagesTable::class, [
             'actionModalId' => 'select-assets',
-            'containerKey' => $containerKey,
-            'widgetIndex' => $widgetIndex,
-            'hasPageAssets' => false,
+            'arguments' => $arguments,
         ])
             ->assertSuccessful()
             ->assertCountTableRecords(5)
             ->assertCanSeeTableRecords($pages)
-            ->filterTable('filter', ['site_id' => $site->id])
+            ->filterTable('site_id', $site->id)
             ->assertCanNotSeeTableRecords([$otherSitePages]);
     });
 
@@ -111,11 +123,15 @@ describe('layout', function () use ($types): void {
             'page' => PagesTable::class,
         };
 
+        $arguments = [
+            'containerKey' => $containerKey,
+            'hasPageAssets' => false,
+            'widgetIndex' => $widgetIndex,
+        ];
+
         livewire($component, [
             'actionModalId' => 'select-assets',
-            'containerKey' => $containerKey,
-            'widgetIndex' => $widgetIndex,
-            'hasPageAssets' => false,
+            'arguments' => $arguments,
         ])
             ->assertSuccessful()
             ->assertCountTableRecords(4)
@@ -124,11 +140,7 @@ describe('layout', function () use ($types): void {
             ->assertDispatched('sync-selected-assets')
             ->assertDispatched(
                 'sync-selected-assets',
-                arguments: [
-                    'containerKey' => $containerKey,
-                    'widgetIndex' => $widgetIndex,
-                    'hasPageAssets' => false,
-                ],
+                arguments: $arguments,
                 type: $assetType,
                 assets: $records->pluck('id')->toArray(),
             )
@@ -151,11 +163,15 @@ describe('layout', function () use ($types): void {
             'page' => PagesTable::class,
         };
 
+        $arguments = [
+            'containerKey' => $containerKey,
+            'hasPageAssets' => false,
+            'widgetIndex' => $widgetIndex,
+        ];
+
         livewire($component, [
             'actionModalId' => 'select-assets',
-            'containerKey' => $containerKey,
-            'widgetIndex' => $widgetIndex,
-            'hasPageAssets' => false,
+            'arguments' => $arguments,
         ])
             ->assertSuccessful()
             ->assertCountTableRecords(4)
@@ -164,11 +180,7 @@ describe('layout', function () use ($types): void {
             ->callAction(TestAction::make('selectRecords')->table()->bulk())
             ->assertDispatched(
                 'sync-selected-assets',
-                arguments: [
-                    'containerKey' => $containerKey,
-                    'widgetIndex' => $widgetIndex,
-                    'hasPageAssets' => false,
-                ],
+                arguments: $arguments,
                 type: $assetType,
                 assets: $records->pluck('id')->toArray(),
             )
@@ -198,19 +210,23 @@ describe('page layout', function () use ($types): void {
         $pages = Page::factory()->count(4)->create();
         $otherSitePage = Page::factory()->create();
 
-        livewire(PagesTable::class, [
-            'actionModalId' => 'select-assets',
+        $arguments = [
             'containerKey' => $containerKey,
+            'hasPageAssets' => true,
             'pageId' => $page->id,
             'siteId' => $page->site_id,
             'widgetIndex' => $widgetIndex,
+        ];
+
+        livewire(PagesTable::class, [
+            'actionModalId' => 'select-assets',
+            'arguments' => $arguments,
             'existingRecords' => $existingAssets->pluck('asset_id')->toArray(),
-            'hasPageAssets' => true,
         ])
             ->assertSuccessful()
             ->assertCountTableRecords(5)
             ->assertCanSeeTableRecords($pages)
-            ->filterTable('filter', ['site_id' => $page->site_id])
+            ->filterTable('site_id', $page->site_id)
             ->assertCanNotSeeTableRecords([$otherSitePage])
             ->removeTableFilters()
             ->searchTable($pages->first()->id)
@@ -234,13 +250,17 @@ describe('page layout', function () use ($types): void {
             'page' => PagesTable::class,
         };
 
-        livewire($component, [
-            'actionModalId' => 'select-assets',
+        $arguments = [
             'containerKey' => $containerKey,
-            'widgetIndex' => $widgetIndex,
             'hasPageAssets' => true,
             'pageId' => $page->id,
             'siteId' => $page->site_id,
+            'widgetIndex' => $widgetIndex,
+        ];
+
+        livewire($component, [
+            'actionModalId' => 'select-assets',
+            'arguments' => $arguments,
         ])
             ->assertSuccessful()
             ->assertCountTableRecords(4)
@@ -248,11 +268,7 @@ describe('page layout', function () use ($types): void {
             ->callAction(TestAction::make('selectRecords')->table()->bulk())
             ->assertDispatched(
                 'sync-selected-assets',
-                arguments: [
-                    'containerKey' => $containerKey,
-                    'widgetIndex' => $widgetIndex,
-                    'hasPageAssets' => true,
-                ],
+                arguments: $arguments,
                 type: $assetType,
                 assets: $records->pluck('id')->toArray(),
             )

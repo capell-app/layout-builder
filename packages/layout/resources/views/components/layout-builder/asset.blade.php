@@ -23,6 +23,8 @@ declare(strict_types=1);
     use Capell\Core\Models\Page;
     use Capell\Layout\Models\Content;
     use Filament\Actions\Action;
+    use Filament\Support\Contracts\ScalableIcon;
+    use Filament\Support\Enums\IconSize;
     use Filament\Support\Enums\Size;
     use Illuminate\Support\Str;
     use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -86,6 +88,13 @@ declare(strict_types=1);
             default => null,
         };
     }
+
+    $icon = $editWidgetAssetAction->getIcon();
+    if ($icon instanceof ScalableIcon) {
+        $icon = $icon->getIconForSize(IconSize::Small);
+    } elseif ($icon instanceof BackedEnum) {
+        $icon = $icon->value;
+    }
 @endphp
 
 <div
@@ -143,7 +152,7 @@ declare(strict_types=1);
                 >
                     {{ $label }}
 
-                    @svg($editWidgetAssetAction->getIcon(),
+                    @svg($icon,
                         'group-hover/asset:text-primary-500 dark:group-hover/asset:text-primary-400 inline h-4 w-4 align-text-bottom text-gray-400 dark:text-gray-500')
                 </div>
 

@@ -13,6 +13,7 @@ use Capell\Layout\Filament\Resources\Widgets\Pages\ListWidgets;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Services\Creator\TypeCreator;
 use Capell\Tests\Fixtures\Support\Concerns\CreatesAdminUser;
+use Filament\Actions\Testing\TestAction;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
@@ -24,25 +25,32 @@ beforeEach(function (): void {
     test()->actingAsAdmin();
 });
 
-describe('from edit page', function (): void {
+describe('from edit widget', function (): void {
     test('can create new widget', function (): void {
-        Type::factory()->type(LayoutTypeEnum::Widget)->create();
-
+        $newType = Type::factory()->type(LayoutTypeEnum::Widget)->create();
         $widget = Widget::factory()->create();
-
         $newData = Widget::factory()->make();
 
         livewire(EditWidget::class, ['record' => $widget->getRouteKey()])
             ->assertSuccessful()
-            ->callAction(CreateWidgetModalAction::class, [
-                'name' => $newData->name,
-                'key' => $newData->key,
+            ->assertSchemaStateSet([
+                'name' => $widget->name,
+                'type_id' => $widget->type_id,
+                'key' => $widget->key,
             ])
+            ->mountAction(TestAction::make(CreateWidgetModalAction::class))
+            ->assertFormFieldDoesNotExist('key')
+            ->fillForm([
+                'name' => $newData->name,
+                'type_id' => $newType->id,
+            ])
+            ->callMountedAction()
             ->assertHasNoFormErrors();
 
         assertDatabaseHas(Widget::class, [
             'name' => $newData->name,
-            'key' => $newData->key,
+            'key' => str($newData->name)->slug()->toString(),
+            'type_id' => $newType->id,
         ]);
     });
 
@@ -53,31 +61,37 @@ describe('from edit page', function (): void {
             ->assertSuccessful()
             ->callAction(CreateWidgetModalAction::class, [
                 'name' => '',
-                'key' => '',
+                'type_id' => '',
             ])
             ->assertHasFormErrors([
                 'name' => 'required',
-                'key' => 'required',
+                'type_id' => 'required',
             ]);
     });
 });
 
-describe('from list page', function (): void {
+describe('from list widgets', function (): void {
     test('can create new widget', function (): void {
-        Type::factory()->type(LayoutTypeEnum::Widget)->create();
         $newData = Widget::factory()->make();
 
         livewire(ListWidgets::class)
             ->assertSuccessful()
-            ->callAction(CreateWidgetModalAction::class, [
-                'name' => $newData->name,
-                'key' => $newData->key,
+            ->mountAction(TestAction::make(CreateWidgetModalAction::class))
+            ->assertSchemaStateSet([
+                'type_id' => $newData->type_id,
             ])
+            ->assertFormFieldDoesNotExist('key')
+            ->fillForm([
+                'name' => $newData->name,
+                'type_id' => $newData->type_id,
+            ])
+            ->callMountedAction()
             ->assertHasNoFormErrors();
 
         assertDatabaseHas(Widget::class, [
             'name' => $newData->name,
-            'key' => $newData->key,
+            'key' => str($newData->name)->slug()->toString(),
+            'type_id' => $newData->type_id,
         ]);
     });
 
@@ -103,7 +117,6 @@ describe('from list page', function (): void {
             ->assertSuccessful()
             ->callAction(CreateWidgetModalAction::class, [
                 'name' => $newData->name,
-                'key' => $newData->key,
                 'type_id' => $type->id,
                 ...match ($typeEum) {
                     WidgetTypeEnum::Navigation => ['meta' => ['navigation' => Navigation::factory()->create()->id]],
@@ -114,7 +127,7 @@ describe('from list page', function (): void {
 
         assertDatabaseHas(Widget::class, [
             'name' => $newData->name,
-            'key' => $newData->key,
+            'key' => str($newData->name)->slug()->toString(),
             'type_id' => $type->id,
         ]);
     })
@@ -127,11 +140,11 @@ describe('from list page', function (): void {
             ->assertSuccessful()
             ->callAction(CreateWidgetModalAction::class, [
                 'name' => '',
-                'key' => '',
+                'type_id' => '',
             ])
             ->assertHasFormErrors([
                 'name' => 'required',
-                'key' => 'required',
+                'type_id' => 'required',
             ]);
     });
 });

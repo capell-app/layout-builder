@@ -368,11 +368,13 @@ test('can add page asset', function (): void {
                 ])
         )
         ->fillForm([
-            'layout_id' => $newData->layout_id,
-            'site_id' => $newData->site_id,
-            'name' => $newData->name,
+            'asset' => [
+                'layout_id' => $newData->layout_id,
+                'site_id' => $newData->site_id,
+                'name' => $newData->name,
+            ],
         ])
-        ->set('mountedActions.0.data.translations', [
+        ->set('mountedActions.0.data.asset.translations', [
             (string) Str::uuid() => [
                 'title' => $newData->name,
                 'slug' => Str::slug($newData->name),
@@ -432,11 +434,13 @@ test('can add page asset to existing widget with page layout', function (): void
             )
         )
         ->fillForm([
-            'layout_id' => $newData->layout_id,
-            'site_id' => $newData->site_id,
-            'name' => $newData->name,
+            'asset' => [
+                'layout_id' => $newData->layout_id,
+                'site_id' => $newData->site_id,
+                'name' => $newData->name,
+            ],
         ])
-        ->set('mountedActions.0.data.translations', [
+        ->set('mountedActions.0.data.asset.translations', [
             (string) Str::uuid() => [
                 'title' => $newData->name,
                 'slug' => Str::slug($newData->name),
@@ -492,20 +496,19 @@ test('can add page asset to widget with page layout', function (): void {
             ]
         )
         ->fillForm([
-            'layout_id' => $newData->layout_id,
-            'site_id' => $newData->site_id,
-            'name' => $newData->name,
+            'asset' => [
+                'layout_id' => $newData->layout_id,
+                'site_id' => $newData->site_id,
+                'name' => $newData->name,
+            ],
         ])
-        ->set(
-            'mountedActions.0.data.translations',
-            [
-                (string) Str::uuid() => [
-                    'title' => $newData->name,
-                    'slug' => Str::slug($newData->name),
-                    'language_id' => $newData->site->language_id,
-                ],
-            ]
-        )
+        ->set('mountedActions.0.data.asset.translations', [
+            (string) Str::uuid() => [
+                'title' => $newData->name,
+                'slug' => Str::slug($newData->name),
+                'language_id' => $newData->site->language_id,
+            ],
+        ])
         ->callMountedAction()
         ->assertHasNoFormErrors()
         ->call('saveLayout');

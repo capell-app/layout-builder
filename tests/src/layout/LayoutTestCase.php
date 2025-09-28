@@ -23,10 +23,10 @@ class LayoutTestCase extends AbstractTestCase
     {
         return [
             ...parent::getPackageProviders($app),
-            AdminServiceProvider::class,
-            BlogServiceProvider::class,
             LayoutServiceProvider::class,
+            BlogServiceProvider::class,
             AdminPanelProvider::class,
+            AdminServiceProvider::class,
         ];
     }
 }

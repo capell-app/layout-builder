@@ -51,6 +51,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\MissingAttributeException;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Blade;
@@ -690,7 +691,16 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ])
             ->record(fn (array $arguments): ?WidgetAsset => $this->resolveEditableWidgetAsset($arguments))
             ->disabled(fn (WidgetAsset $record): bool => ! $record->exists)
-            ->action(fn (WidgetAsset $record, array $data, self $livewire, array $arguments, Action $action, Schema $schema) => $this->applyWidgetAssetUpdate($record, $data, $livewire, $arguments, $action, $schema));
+            ->action(
+                fn (WidgetAsset $record, array $data, self $livewire, array $arguments, Action $action, Schema $schema) => $this->applyWidgetAssetUpdate(
+                    record: $record,
+                    data: $data,
+                    livewire: $livewire,
+                    arguments: $arguments,
+                    action: $action,
+                    schema: $schema
+                )
+            );
     }
 
     public function removeAssetsAction(): Action
@@ -873,7 +883,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms
      */
     public function getPageResource(): string
     {
-        return $this->page ? GetResourceFromTypeAction::run($this->page) : CapellAdmin::getResource(ResourceEnum::Page);
+        return $this->page
+            ? GetResourceFromTypeAction::run(ResourceEnum::Page, $this->page->type)
+            : CapellAdmin::getResource(ResourceEnum::Page);
     }
 
     /**
@@ -914,6 +926,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
 
         // Fake exists to ensure assets relations are saved correctly
         $record->exists = true;
+        $record->wasRecentlyCreated = true; // prevent MissingAttributeException
 
         $data['widget_id'] = $widget->id;
 

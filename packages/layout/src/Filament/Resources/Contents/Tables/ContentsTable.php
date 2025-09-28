@@ -29,7 +29,6 @@ use Capell\Layout\Actions\ReplicateContentAction;
 use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Filament\Components\Tables\Columns\Content\ContentNameColumn;
-use Capell\Layout\Filament\Resources\Contents\Pages\ListContents;
 use Capell\Layout\Models\Content;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
@@ -38,7 +37,6 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\Select;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
@@ -110,11 +108,11 @@ class ContentsTable implements TableConfigurator
             });
     }
 
-    public static function getSiteId(ListRecords|RelationManager $livewire)
+    public static function getSiteId(HasTable $livewire)
     {
         return match (true) {
             $livewire instanceof ListRecords => $livewire->activeTab,
-            $livewire instanceof RelationManager => $livewire->getTableFilterState('filter')['site_id'] ?? null,
+            default => $livewire->getTableFilterState('filter')['site_id'] ?? null,
         };
     }
 
@@ -240,7 +238,7 @@ class ContentsTable implements TableConfigurator
                 ->schema([
                     Select::make('language_id')
                         ->label(__('capell-admin::table.language'))
-                        ->options(function (ContentsTable|ListContents|RelationManager $livewire): array {
+                        ->options(function (HasTable $livewire): array {
                             $siteId = static::getSiteId($livewire);
 
                             /* @var class-string<\Capell\Core\Models\Language> $model */
@@ -260,7 +258,7 @@ class ContentsTable implements TableConfigurator
 
                     Select::make('parent_id')
                         ->label(__('capell-admin::form.parent'))
-                        ->options(function (ContentsTable|ListContents|RelationManager $livewire, Get $get) {
+                        ->options(function (HasTable $livewire, Get $get) {
                             $siteId = static::getSiteId($livewire);
 
                             /** @var class-string<Content> $model */
@@ -311,7 +309,7 @@ class ContentsTable implements TableConfigurator
                         ->relationship(
                             name: 'tags',
                             titleAttribute: 'name',
-                            modifyQueryUsing: function (Builder $query, ContentsTable|ListContents|RelationManager $livewire, Get $get): void {
+                            modifyQueryUsing: function (Builder $query, HasTable $livewire, Get $get): void {
                                 $siteId = static::getSiteId($livewire);
 
                                 if (! $siteId) {
@@ -330,7 +328,7 @@ class ContentsTable implements TableConfigurator
                                 }
                             }
                         )
-                        ->getOptionLabelFromRecordUsing(function (Tag $record, ContentsTable|ListContents|RelationManager $livewire, Get $get): string {
+                        ->getOptionLabelFromRecordUsing(function (Tag $record, HasTable $livewire, Get $get): string {
                             $label = '';
 
                             $siteId = static::getSiteId($livewire);

@@ -132,11 +132,7 @@ declare(strict_types=1);
                         <x-filament::icon
                             :class="'h-5 w-5' . ($assetTypes ? ' text-primary-600' : ' text-gray-400')"
                             :x-tooltip.raw="$widget->type?->name"
-                            :icon="
-                                $assetTypes
-                                ? str_replace('heroicon-o-', 'heroicon-s-', $widgetIcon)
-                                : $widgetIcon
-                            "
+                            :icon="$assetTypes ? $widgetIcon : null"
                         />
 
                         @if ($assetTypes)

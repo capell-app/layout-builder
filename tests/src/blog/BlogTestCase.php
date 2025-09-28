@@ -8,11 +8,9 @@ use Capell\Admin\AdminServiceProvider;
 use Capell\Blog\BlogServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Capell\Tests\Fixtures\Support\Filament\AdminPanelProvider;
-use Override;
 
 class BlogTestCase extends AbstractTestCase
 {
-    #[Override]
     protected function getPackageProviders($app): array
     {
         return [

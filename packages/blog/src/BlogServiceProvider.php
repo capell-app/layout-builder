@@ -53,10 +53,6 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             ]);
         }
 
-        Relation::morphMap([
-            'article' => Article::class,
-        ]);
-
         Event::listen(
             NavigationCreating::class,
             AddBlogPagesToNavigation::class,
@@ -120,6 +116,10 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
         CapellAdmin::registerSchema(SchemaTypeEnum::Page, ArticlePageSchema::class);
 
         CapellAdmin::registerSchema(\Capell\Layout\Enums\SchemaTypeEnum::Widget->value, ArticleWidgetSchema::class);
+
+        Relation::morphMap([
+            'article' => Article::class,
+        ]);
 
         CapellCore::registerModel(BlogModelEnum::Article, Article::class);
 
