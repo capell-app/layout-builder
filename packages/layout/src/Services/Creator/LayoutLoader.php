@@ -23,7 +23,7 @@ class LayoutLoader
 
         $fromCache = true;
 
-        $layout = CapellFrontend::cacheForever($key, function () use ($id, &$fromCache): ?Layout {
+        $layout = CapellFrontend::cache($key, function () use ($id, &$fromCache): ?Layout {
             $fromCache = false;
 
             // @phpstan-ignore-next-line
@@ -61,7 +61,7 @@ class LayoutLoader
 
         $fromCache = true;
 
-        $widget = CapellFrontend::cacheForever(
+        $widget = CapellFrontend::cache(
             $key,
             function () use ($layout, $widgetKey, $language, $page, $containerKey, $occurrence, &$fromCache): ?Widget {
                 $fromCache = false;

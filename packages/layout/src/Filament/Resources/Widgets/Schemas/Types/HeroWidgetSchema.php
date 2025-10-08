@@ -16,6 +16,7 @@ use Capell\Layout\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
@@ -95,6 +96,7 @@ class HeroWidgetSchema implements TypeSchemaInterface
                         ]),
                 ]),
                 WidgetAdminTab::make(),
+                $this->getSettingsTab($schema),
             ]);
     }
 
@@ -129,5 +131,10 @@ class HeroWidgetSchema implements TypeSchemaInterface
             ->compact()
             ->hiddenLabel()
             ->hint(__('capell-admin::generic.widget_assets_repeater_hint'));
+    }
+
+    protected function getSettingsTab(Schema $schema): Tab
+    {
+        return WidgetSettingsTab::make($schema);
     }
 }

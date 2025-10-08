@@ -11,12 +11,14 @@ use Capell\Layout\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
+use Capell\Layout\Filament\Components\Forms\Widget\WidgetResultsSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
 use Filament\Schemas\Components\Component;
-use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
@@ -43,8 +45,9 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
                 ->tabs([
                     $this->getAssetsTab($schema),
                     $this->getTranslationsTab($schema),
-                    $this->getSettingsTab($schema),
+                    $this->getDisplayTab($schema),
                     $this->getAdminTab($schema),
+                    $this->getSettingsTab($schema),
                 ]),
         ];
     }
@@ -60,7 +63,7 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
                         ->tabs([
                             $this->getAssetsTab($schema),
                             $this->getTranslationsTab($schema),
-                            $this->getSettingsTab($schema),
+                            $this->getDisplayTab($schema),
                             $this->getAdminTab($schema),
                         ]),
                 ])
@@ -96,18 +99,23 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
 
     protected function getSettingsTab(Schema $schema): Tab
     {
+        return WidgetSettingsTab::make($schema);
+    }
+
+    protected function getDisplayTab(Schema $schema): Tab
+    {
         return WidgetDisplayTab::make([
-            Grid::make()
-                ->statePath('meta')
-                ->schema([
-                    MediaLibraryFileUpload::make('image')
-                        ->imageDefaults(),
-                    WidgetDisplaySection::make([
-                        ColorSchemeComponent::make('color_scheme'),
-                    ]),
-                    WidgetComponentFilesSection::make(),
-                ]),
-        ]);
+            MediaLibraryFileUpload::make('image')
+                ->imageDefaults(),
+            WidgetDisplaySection::make([
+                ColorSchemeComponent::make('color_scheme'),
+            ]),
+            WidgetComponentFilesSection::make(),
+            Section::make(__('capell-admin::section.results_settings'))
+                ->collapsible()
+                ->schema(WidgetResultsSettingsSchema::make()),
+        ])
+            ->statePath('meta');
     }
 
     protected function getAssetsComponent(Schema $schema): Component

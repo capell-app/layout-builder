@@ -50,6 +50,7 @@ class SystemWidgetSchema extends DefaultWidgetSchema
             WidgetTranslationsRepeater::make($schema)
                 ->contained(fn (string $operation): bool => $operation === 'create'),
             ...$this->getFilesSchema(),
+            ...WidgetSettingsSchema::make($schema),
         ];
     }
 

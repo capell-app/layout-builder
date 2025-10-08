@@ -24,7 +24,7 @@ class BlogLoader
 
         $fromCache = true;
 
-        $page = CapellFrontend::cacheForever($cacheKey, function () use ($site, $language, &$fromCache): ?Page {
+        $page = CapellFrontend::cache($cacheKey, function () use ($site, $language, &$fromCache): ?Page {
             $fromCache = false;
 
             /** @var class-string<Page> $model */
@@ -54,7 +54,7 @@ class BlogLoader
     ): Collection {
         $cacheKey = sprintf('site-%d-%d-%s-%s-page-%s', $site->id, $language->id, $type, $limit, $paginationPage);
 
-        return CapellFrontend::cacheForever($cacheKey, function () use (
+        return CapellFrontend::cache($cacheKey, function () use (
             $language,
             $limit,
             $paginationKey,

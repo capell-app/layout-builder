@@ -214,7 +214,7 @@ class DemoCreator
             return $widget;
         }
 
-        for ($i = 0; $i < 6; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             $this->createMedia($widget);
         }
 
@@ -365,7 +365,7 @@ class DemoCreator
         $languages->skip(1)
             ->each(fn (Language $language) => $this->tagModel::findOrCreate('faq', 'content', $language->code));
 
-        for ($i = 0; $i < 6; $i++) {
+        for ($i = 1; $i <= 6; $i++) {
             $content = $this->contentModel::firstOrCreate([
                 'name' => $questions['en'][$i],
                 'parent_id' => $parentContent->id,
@@ -407,7 +407,7 @@ class DemoCreator
             return $widget;
         }
 
-        for ($i = 0; $i < 7; $i++) {
+        for ($i = 1; $i <= 7; $i++) {
             $this->createMedia($widget);
         }
 
@@ -493,7 +493,6 @@ class DemoCreator
         foreach ($languages as $language) {
             $widget->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'Example Navigation',
-                'content' => config('capell-demo.contents')[$language->code],
             ]);
         }
 
@@ -612,7 +611,7 @@ class DemoCreator
             ]);
         });
 
-        for ($i = 0; $i < 12; $i++) {
+        for ($i = 1; $i <= 12; $i++) {
             $this->createMedia($widget);
         }
 
@@ -821,13 +820,19 @@ class DemoCreator
     {
         $widget = $this->widgetModel::firstOrCreate(['key' => 'team-portfolio'], [
             'name' => 'Team Portfolio',
-            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget])->id,
+            'type_id' => $this->typeModel::query()
+                ->where([
+                    'key' => WidgetTypeEnum::Contents,
+                    'type' => LayoutTypeEnum::Widget,
+                ])
+                ->value('id'),
             'meta' => [
                 'align' => 'center',
                 'padding' => ['lg'],
                 'columns' => 4,
                 'spacing' => 'lg',
                 'background_color' => 'light-gray',
+                'with_summary' => true,
                 'carousel_fade' => true,
                 'carousel_arrows' => false,
                 'carousel_pagination' => true,

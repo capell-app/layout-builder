@@ -108,10 +108,10 @@ declare(strict_types=1);
     >
         <label
             x-on:click.stop
-            class="group/asset flex h-full w-14 cursor-pointer items-center justify-center"
+            class="group/asset flex h-full w-12 cursor-pointer items-center justify-center"
         >
             <x-capell-admin::forms.checkbox
-                class="group-hover/asset:border-primary-500 group/asset-focus:border-primary-500 h-4 w-4 cursor-pointer border-gray-600"
+                class="group-hover/asset:border-primary-500 group/asset-focus:border-primary-500 ml-1 h-4 w-4 cursor-pointer border-gray-600"
                 :label="__('tables::table.fields.bulk_select_asset.label', ['key' => $name])"
                 :value="$assetKey"
                 :wire:key="'selectedRecords' . $containerKey . '-' . $widgetIndex . '-' . $assetKey"
@@ -145,7 +145,7 @@ declare(strict_types=1);
                 'lg:!grid lg:grid-cols-4 lg:gap-4' => $image,
             ])
         >
-            <div @class(['py-3', 'lg:col-span-3' => $image])>
+            <div @class(['py-4', 'lg:col-span-3' => $image])>
                 <div
                     class="group-hover/asset:text-primary-600 dark:group-hover/asset:text-primary-400 line-clamp-1 text-sm text-gray-800 dark:text-gray-100"
                     x-tooltip.raw="{{ $editWidgetAssetAction->getTooltip() }}"

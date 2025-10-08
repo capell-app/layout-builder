@@ -50,7 +50,6 @@ declare(strict_types=1);
         isCollapsed = $event.detail.isCollapsed
         notify()
     "
-    x-cloak
     @class([
         'layout-container col-span-12',
         'md:col-span-6' => $colspan < 12,
@@ -148,7 +147,6 @@ declare(strict_types=1);
 
         <div
             x-show="! isCollapsed"
-            x-cloak
             class="layout-container-widgets min-h-[52px] divide-y divide-gray-100 rounded-b-lg dark:divide-gray-800"
             x-sort="$wire.reorderWidgets('{{ $containerKey }}', $item, $position)"
             x-sort:group="widgets"

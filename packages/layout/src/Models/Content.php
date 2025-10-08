@@ -243,7 +243,7 @@ class Content extends Model implements Draftable, HasMedia, PageCacheable
         return [
             'ancestors',
             'image',
-            // 'media',
+            'media',
             'related',
             'site',
             'translation',

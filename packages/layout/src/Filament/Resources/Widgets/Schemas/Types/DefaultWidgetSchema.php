@@ -14,6 +14,7 @@ use Capell\Layout\Filament\Components\Forms\ActionsRepeater;
 use Capell\Layout\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
@@ -138,10 +139,6 @@ class DefaultWidgetSchema implements TypeSchemaInterface
 
     protected function getSettingsTab(Schema $schema): Tab
     {
-        return Tab::make('settings')
-            ->label(__('capell-admin::tab.settings'))
-            ->icon('heroicon-o-cog')
-            ->columns()
-            ->schema(WidgetSettingsSchema::make($schema));
+        return WidgetSettingsTab::make($schema);
     }
 }

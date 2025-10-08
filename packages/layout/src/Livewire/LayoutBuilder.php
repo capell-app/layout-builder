@@ -487,8 +487,6 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->schema(fn (Schema $schema): Schema => WidgetForm::configure($schema->operation('editOption')))
             ->action(
                 function (Action $action, Schema $schema, Widget $record, array $data): void {
-                    $schema->mutateDehydratedState($data);
-
                     $schema->saveRelationships();
 
                     $record->update($data);
@@ -1793,7 +1791,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
 
                 $widget = $this->getContainerWidget($containerKey, $widgetIndex);
 
-                $widgetAssets = collect();
+                $widgetAssets = new Collection;
 
                 foreach ($assets as $order => $widgetAsset) {
                     $type = $widgetAsset['asset_type'];

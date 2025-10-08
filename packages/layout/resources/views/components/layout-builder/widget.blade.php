@@ -164,8 +164,8 @@ declare(strict_types=1);
 
                 <span
                     @class([
-                        'text-sm text-gray-600 dark:text-gray-100',
-                        'group-hover/widget:text-primary-600 font-medium' => $assetTypes,
+                        'text-sm font-medium text-gray-600 dark:text-gray-100',
+                        'group-hover/widget:text-primary-600' => $assetTypes,
                     ])
                 >
                     {{ $widget->name }}

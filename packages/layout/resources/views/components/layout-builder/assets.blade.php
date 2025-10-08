@@ -22,7 +22,7 @@ declare(strict_types=1);
 @endphp
 
 <div
-    class="layout-builder-widget-assets shadow-xs mx-3 mt-0.5 rounded ring-1 ring-gray-950/5 dark:ring-white/10"
+    class="layout-builder-widget-assets shadow-xs mx-4 mt-0.5 rounded ring-1 ring-gray-950/5 dark:ring-white/10"
     x-show="! isCollapsed"
     x-cloak
 >

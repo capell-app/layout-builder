@@ -45,6 +45,7 @@ class RelatedWidgetSchema extends DefaultWidgetSchema
             CreateWidgetDetailsSchema::make($schema),
             WidgetTranslationsRepeater::make($schema)
                 ->contained(fn (string $operation): bool => $operation === 'create'),
+            ...WidgetSettingsSchema::make($schema),
         ];
     }
 

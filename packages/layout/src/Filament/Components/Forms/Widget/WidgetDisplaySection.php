@@ -10,6 +10,7 @@ use Capell\Layout\Filament\Components\Forms\ContainerWidthSelect;
 use Capell\Layout\Filament\Components\Forms\MarginSelect;
 use Capell\Layout\Filament\Components\Forms\PaddingSelect;
 use Capell\Layout\Filament\Components\Forms\SizeSelect;
+use Capell\Layout\Filament\Components\Forms\SpacingSelect;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Section;
 
@@ -29,6 +30,8 @@ class WidgetDisplaySection
                 PaddingSelect::make('padding'),
 
                 MarginSelect::make('margin'),
+
+                SpacingSelect::make('spacing'),
 
                 SizeSelect::make('size'),
 
