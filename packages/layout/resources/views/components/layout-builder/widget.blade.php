@@ -55,6 +55,8 @@ declare(strict_types=1);
     ]);
 
     $image = $widget->image ?: $widget->backgroundImage;
+
+    $title = $widget->translation?->title;
 @endphp
 
 <div
@@ -162,17 +164,24 @@ declare(strict_types=1);
                     </div>
                 </div>
 
-                <span
-                    @class([
-                        'text-sm font-medium text-gray-600 dark:text-gray-100',
-                        'group-hover/widget:text-primary-600' => $assetTypes,
-                    ])
-                >
-                    {{ $widget->name }}
+                <span class="text-sm text-gray-600 dark:text-gray-100">
+                    <span
+                        @class([
+                            'font-medium',
+                            'group-hover/widget:text-primary-600' => $assetTypes,
+                        ])
+                    >
+                        {{ $widget->name }}
+                    </span>
 
                     @if (! empty($containerWidget['meta']['name']))
                         -
                         <b>{{ $containerWidget['meta']['name'] }}</b>
+                    @endif
+
+                    @if ($title && $title !== $widget->name)
+                        <br />
+                        {{ $title }}
                     @endif
                 </span>
 
@@ -245,10 +254,6 @@ declare(strict_types=1);
                         <x-filament::dropdown.list>
                             @if ($editContainerWidgetAction?->isVisible())
                                 {{ $editContainerWidgetAction }}
-                            @endif
-
-                            @if ($editWidgetTypeAction?->isVisible())
-                                {{ $editWidgetTypeAction }}
                             @endif
 
                             @if ($convertPageAssetsAction?->isVisible())

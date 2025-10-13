@@ -17,13 +17,11 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Core\Models\Type;
 use Capell\Layout\Actions\SaveFormComponentRelationshipAction;
 use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Enums\SchemaTypeEnum;
 use Capell\Layout\Filament\Components\Forms\LayoutBuilder\LayoutBuilderAddWidgetSchema;
 use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Containers\DefaultLayoutContainerSchema;
-use Capell\Layout\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
 use Capell\Layout\Filament\Resources\Widgets\Schemas\WidgetAssetForm;
 use Capell\Layout\Filament\Resources\Widgets\Schemas\WidgetForm;
 use Capell\Layout\Models\Widget;
@@ -329,36 +327,6 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->grouped()
             ->action(function (Action $action, self $livewire, array $arguments): void {
                 $livewire->removeContainer($arguments['containerKey']);
-
-                $action->success();
-            });
-    }
-
-    public function editWidgetTypeAction(): Action
-    {
-        return Action::make('editWidgetType')
-            ->label(__('capell-admin::button.edit_widget_type'))
-            ->groupedIcon('heroicon-o-pencil')
-            ->color('gray')
-            ->grouped()
-            ->slideOver()
-            ->record(
-                fn (array $arguments, self $livewire): Type => $livewire->getWidgetType(
-                    $arguments['containerKey'],
-                    $arguments['widgetIndex']
-                )
-            )
-            ->schema(
-                fn (array $arguments, self $livewire, Schema $schema): Schema => $schema->operation('editOption')
-                    ->schema(
-                        $livewire->getWidgetTypeSchema($schema, $arguments['containerKey'], $arguments['widgetIndex'])
-                    )
-            )
-            ->fillForm(fn (Type $record): array => $record->attributesToArray())
-            ->action(function (Action $action, Schema $schema, Type $record, array $data): void {
-                $schema->saveRelationships();
-
-                $record->update($data);
 
                 $action->success();
             });
@@ -2106,11 +2074,6 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         return $this->containerWidgets[$containerKey][$widgetIndex];
     }
 
-    private function getWidgetType(string $containerKey, int $widgetIndex): ?Type
-    {
-        return $this->getContainerWidget($containerKey, $widgetIndex)?->type;
-    }
-
     private function getWidgetAssets(string $containerKey, int $widgetIndex): array
     {
         return $this->assets[$containerKey][$widgetIndex];
@@ -2231,17 +2194,5 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                 $this->assets[$containerKey][$index] = $assets;
             }
         }
-    }
-
-    private function getWidgetTypeSchema(Schema $schema, string $containerKey, int $widgetIndex): array
-    {
-        $name = $this->getContainerWidget($containerKey, $widgetIndex)
-            ?->type
-            ?->admin['type_schema']
-            ?? WidgetTypeSchema::getKey();
-
-        $adminSchema = CapellAdmin::getSchema(\Capell\Admin\Enums\SchemaTypeEnum::Type->value, $name);
-
-        return app($adminSchema)::make($schema);
     }
 }
