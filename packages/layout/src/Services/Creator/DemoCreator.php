@@ -621,10 +621,6 @@ class DemoCreator
 
         $this->createMedia($widget);
 
-        if ($widget->assets()->exists()) {
-            return $widget;
-        }
-
         $title = 'Fundamental Capabilities That Set Us Apart';
         $content = '<p>We combine innovation, efficiency, and deep expertise to deliver exceptional results. Our adaptable, client-focused approach ensures measurable value and lasting impact.</p>';
 
@@ -665,10 +661,6 @@ class DemoCreator
             ],
         ]);
 
-        if ($widget->assets()->exists()) {
-            return $widget;
-        }
-
         $site = Site::default()->first();
 
         $features = $this->createFeatures($site);
@@ -701,10 +693,6 @@ class DemoCreator
         ]);
 
         $this->createMedia($widget, collection: 'backgroundImage');
-
-        if ($widget->assets()->exists()) {
-            return $widget;
-        }
 
         $languages->each(function (Language $language) use ($widget): void {
             $widget->translations()->firstOrCreate(['language_id' => $language->id], [

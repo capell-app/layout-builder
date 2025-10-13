@@ -44,11 +44,6 @@ declare(strict_types=1);
         'widgetIndex' => $widgetIndex,
     ]);
 
-    $editWidgetTypeAction = ($this->editWidgetTypeAction)([
-        'containerKey' => $containerKey,
-        'widgetIndex' => $widgetIndex,
-    ]);
-
     $convertPageAssetsAction = ($this->convertPageAssetsAction)([
         'containerKey' => $containerKey,
         'widgetIndex' => $widgetIndex,

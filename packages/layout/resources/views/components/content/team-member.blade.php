@@ -35,7 +35,7 @@ declare(strict_types=1);
     @endif
 
     @if ($title)
-        <h3 class="text-xl font-semibold text-gray-800">{!! $title !!}</h3>
+        <h3 class="text-xl font-semibold">{!! $title !!}</h3>
     @endif
 
     @if (! empty($meta['position']))
@@ -43,7 +43,7 @@ declare(strict_types=1);
     @endif
 
     @if (filled($summary))
-        <div class="mt-2 text-sm text-gray-600">
+        <div class="mt-2 text-sm text-gray-600 dark:text-gray-300">
             {!! $summary !!}
         </div>
     @endif
