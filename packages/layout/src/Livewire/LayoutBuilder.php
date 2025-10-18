@@ -269,6 +269,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->color('gray')
             ->outlined()
             ->size(Size::Small)
+            ->record(fn (): Layout => $this->getLayout())
             ->modalWidth(Width::ThreeExtraLarge)
             ->modalSubmitActionLabel(fn (Action $action): string => $action->getTooltip())
             ->schema(
@@ -290,6 +291,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->size(Size::Small)
             ->color('gray')
             ->grouped()
+            ->record(fn (): Layout => $this->getLayout())
             ->modalWidth(Width::ScreenLarge)
             ->modalHeading(
                 fn (array $arguments): string|array|null => __(
@@ -300,7 +302,6 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->modalSubmitActionLabel(fn (Action $action): string => $action->getLabel())
             ->schema(
                 static fn (self $livewire, Schema $schema, array $arguments): Schema => $schema->operation('editOption')
-                    ->extraAttributes($arguments, merge: true)
                     ->schema($livewire->getContainerSchema($schema, $arguments))
             )
             ->fillForm(fn (self $livewire, $arguments): array => [
@@ -817,6 +818,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms
 
     public function getLayout(): Layout
     {
+        if (! isset($this->layout)) {
+            $this->loadLayout();
+        }
+
         return $this->layout;
     }
 

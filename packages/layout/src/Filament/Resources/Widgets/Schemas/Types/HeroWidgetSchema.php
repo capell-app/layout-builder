@@ -10,7 +10,7 @@ use Capell\Admin\Filament\Concerns\HasTypeSchema;
 use Capell\Layout\Enums\SchemaExtenderEnum;
 use Capell\Layout\Enums\SchemaTypeEnum;
 use Capell\Layout\Filament\Components\Forms\AssetsRepeater;
-use Capell\Layout\Filament\Components\Forms\BackgroundSettingsFieldset;
+use Capell\Layout\Filament\Components\Forms\BackgroundSchema;
 use Capell\Layout\Filament\Components\Forms\CarouselSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
@@ -24,6 +24,7 @@ use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
@@ -89,10 +90,10 @@ class HeroWidgetSchema implements TypeSchemaInterface
                     ]),
                 WidgetDisplayTab::make([
                     Grid::make()
-                        ->statePath('meta')
                         ->schema([
                             ...$this->getMetaSchema(),
-                            WidgetComponentFilesSection::make(),
+                            WidgetComponentFilesSection::make()
+                                ->statePath('meta'),
                         ]),
                 ]),
                 WidgetAdminTab::make(),
@@ -105,22 +106,27 @@ class HeroWidgetSchema implements TypeSchemaInterface
         return [
             Grid::make(['default' => 2, 'xl' => 3])
                 ->schema([
-                    ColorSchemeComponent::make('color_scheme'),
-                    Select::make('height')
-                        ->label(__('capell-admin::form.height'))
-                        ->options([
-                            'small' => __('capell-admin::generic.small'),
-                            'medium' => __('capell-admin::generic.medium'),
-                            'large' => __('capell-admin::generic.large'),
-                            'full' => __('capell-admin::generic.full'),
-                        ])
-                        ->default('medium')
-                        ->required(),
-                    BackgroundSettingsFieldset::make(),
+                    Group::make()
+                        ->statePath('meta')
+                        ->schema([
+                            ColorSchemeComponent::make('color_scheme'),
+                            Select::make('height')
+                                ->label(__('capell-admin::form.height'))
+                                ->options([
+                                    'small' => __('capell-admin::generic.small'),
+                                    'medium' => __('capell-admin::generic.medium'),
+                                    'large' => __('capell-admin::generic.large'),
+                                    'full' => __('capell-admin::generic.full'),
+                                ])
+                                ->default('medium')
+                                ->required(),
+                        ]),
+                    ...BackgroundSchema::make(),
                 ]),
 
             Fieldset::make(__('capell-admin::generic.carousel_options'))
                 ->columns(['default' => 2, 'xl' => 3])
+                ->statePath('meta')
                 ->schema(CarouselSettingsSchema::make()),
         ];
     }

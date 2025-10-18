@@ -39,7 +39,7 @@ class InstallBlogPackageAction
         foreach ($layouts as $layoutKey) {
             $layout = Layout::query()->firstWhere('key', $layoutKey);
 
-            throw_unless($layout, new Exception(sprintf('Layout with key %s not found.', $layoutKey)));
+            throw_unless($layout, new Exception(sprintf('Layout with key %s not found.', $layoutKey->value)));
 
             $containers = $layout->containers;
 

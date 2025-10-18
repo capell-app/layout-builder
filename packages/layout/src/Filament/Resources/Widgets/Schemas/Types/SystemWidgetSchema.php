@@ -12,7 +12,7 @@ use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
-use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 use Override;
@@ -33,12 +33,11 @@ class SystemWidgetSchema extends DefaultWidgetSchema
     protected function getFilesSchema(): array
     {
         return [
-            Group::make()
-                ->statePath('meta')
-                ->columns()
+            Grid::make()
                 ->schema([
                     WidgetDisplaySection::make(),
-                    WidgetComponentFilesSection::make(),
+                    WidgetComponentFilesSection::make()
+                        ->statePath('meta'),
                 ]),
         ];
     }

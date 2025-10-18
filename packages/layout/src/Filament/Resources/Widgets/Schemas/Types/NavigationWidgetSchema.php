@@ -81,11 +81,11 @@ class NavigationWidgetSchema extends DefaultWidgetSchema
                 ->tabs([
                     WidgetDisplayTab::make([
                         Group::make()
-                            ->statePath('meta')
                             ->columns()
                             ->schema([
                                 WidgetDisplaySection::make(),
-                                WidgetComponentFilesSection::make(),
+                                WidgetComponentFilesSection::make()
+                                    ->statePath('meta'),
                             ]),
                     ]),
                     WidgetAdminTab::make(),

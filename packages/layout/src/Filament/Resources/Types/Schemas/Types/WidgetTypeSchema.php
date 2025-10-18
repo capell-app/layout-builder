@@ -74,12 +74,12 @@ class WidgetTypeSchema extends DefaultTypeSchema
     protected function getFrontendTab(): Tab
     {
         return Tab::make(__('capell-admin::generic.frontend'))
-            ->statePath('meta')
             ->icon(Heroicon::OutlinedCog6Tooth)
             ->columns()
             ->schema([
                 WidgetDisplaySection::make(),
-                WidgetComponentFilesSection::make(),
+                WidgetComponentFilesSection::make()
+                    ->statePath('meta'),
             ]);
     }
 }

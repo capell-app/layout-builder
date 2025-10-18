@@ -74,9 +74,9 @@ class ResultsWidgetSchema extends DefaultWidgetSchema
                                 ->columnSpanFull()
                                 ->schema(WidgetResultsSchema::make()),
                         ]),
-                        WidgetComponentFilesSection::make(),
-                    ])
-                        ->statePath('meta'),
+                        WidgetComponentFilesSection::make()
+                            ->statePath('meta'),
+                    ]),
                     WidgetAdminTab::make(),
                 ]),
         ];

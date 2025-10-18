@@ -49,10 +49,10 @@ class PageContentWidgetSchema implements TypeSchemaInterface
             ->tabs([
                 WidgetDisplayTab::make([
                     Group::make()
-                        ->statePath('meta')
                         ->columns()
                         ->schema([
                             Grid::make()
+                                ->statePath('meta')
                                 ->schema([
                                     CheckboxList::make('page_content')
                                         ->label(__('capell-admin::form.page_content'))
@@ -74,7 +74,8 @@ class PageContentWidgetSchema implements TypeSchemaInterface
                                         ),
                                 ]),
                             WidgetDisplaySection::make(),
-                            WidgetComponentFilesSection::make(),
+                            WidgetComponentFilesSection::make()
+                                ->statePath('meta'),
                         ]),
                 ]),
                 WidgetAdminTab::make(),

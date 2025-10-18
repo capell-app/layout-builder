@@ -22,17 +22,18 @@ class CarouselWidgetSchema extends AssetsWidgetSchema
     {
         return WidgetDisplayTab::make([
             Grid::make()
-                ->statePath('meta')
                 ->schema([
                     Fieldset::make(
                         __('capell-admin::generic.carousel_options')
                     )
+                        ->statePath('meta')
                         ->columns(['default' => 2, 'xl' => 3])
                         ->schema(CarouselSettingsSchema::make()),
                     WidgetDisplaySection::make([
                         ColorSchemeComponent::make('color_scheme'),
                     ]),
-                    WidgetComponentFilesSection::make(),
+                    WidgetComponentFilesSection::make()
+                        ->statePath('meta'),
                 ]),
         ]);
     }

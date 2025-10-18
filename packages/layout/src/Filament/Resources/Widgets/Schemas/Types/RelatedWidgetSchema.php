@@ -91,13 +91,14 @@ class RelatedWidgetSchema extends DefaultWidgetSchema
                                     CacheFrequencySelect::make('cache_frequency'),
                                 ]),
                             Fieldset::make(__('capell-admin::generic.display_settings'))
+                                ->statePath('meta')
                                 ->columns(['default' => 1, 'md' => 2, 'lg' => 3, 'xl' => 4])
                                 ->columnSpanFull()
                                 ->schema(WidgetResultsSchema::make()),
                         ]),
-                        WidgetComponentFilesSection::make(),
-                    ])
-                        ->statePath('meta'),
+                        WidgetComponentFilesSection::make()
+                            ->statePath('meta'),
+                    ]),
                     WidgetAdminTab::make(),
                 ]),
         ];

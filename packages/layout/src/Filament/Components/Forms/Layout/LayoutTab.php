@@ -19,7 +19,7 @@ class LayoutTab extends Tab
 
         $this->label(__('capell-admin::tab.layout_builder'))
             ->visibleOn(['edit', 'editOption'])
-            ->icon(Heroicon::RectangleGroup)
+            ->icon(Heroicon::OutlinedPuzzlePiece)
             ->schema([
                 Livewire::make(
                     LayoutBuilder::class,

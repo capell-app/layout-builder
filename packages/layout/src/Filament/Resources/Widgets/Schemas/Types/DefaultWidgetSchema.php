@@ -103,12 +103,12 @@ class DefaultWidgetSchema implements TypeSchemaInterface
     {
         return WidgetDisplayTab::make([
             Grid::make()
-                ->statePath('meta')
                 ->schema([
                     WidgetDisplaySection::make([
                         ColorSchemeComponent::make('color_scheme'),
                     ]),
-                    WidgetComponentFilesSection::make(),
+                    WidgetComponentFilesSection::make()
+                        ->statePath('meta'),
                 ]),
         ]);
     }

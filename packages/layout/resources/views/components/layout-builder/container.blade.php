@@ -38,12 +38,10 @@ declare(strict_types=1);
     wire:key="container-{{ $containerKey }}"
     x-sort:item="'{{ $containerKey }}'"
     x-init="
-        $nextTick(() =>
-            $dispatch('container-collapsed-register', {
-                id: id,
-                isCollapsed: isCollapsed,
-            }),
-        )
+        $dispatch('container-collapsed-register', {
+            id: id,
+            isCollapsed: isCollapsed,
+        })
     "
     x-on:collapse-container.window="
         if ($event.detail.id && $event.detail.id !== id) return
@@ -91,7 +89,6 @@ declare(strict_types=1);
                 <div
                     class="flex justify-end gap-2"
                     x-show="! isReordering"
-                    x-cloak
                 >
                     <x-filament::link
                         class="whitespace-nowrap"
@@ -102,6 +99,7 @@ declare(strict_types=1);
                         tag="button"
                         weight="normal"
                         x-on:click="collapseAllContainerWidgets(id, false)"
+                        x-cloak
                         x-show="isAllWidgetsCollapsed(id) !== false"
                         x-tooltip.raw="{{ __('capell-admin::button.expand_all') }}"
                     >
@@ -116,6 +114,7 @@ declare(strict_types=1);
                         tag="button"
                         weight="normal"
                         x-on:click="collapseAllContainerWidgets(id, true)"
+                        x-cloak
                         x-show="isAllWidgetsCollapsed(id) !== true"
                         x-tooltip.raw="{{ __('capell-admin::button.collapse_all') }}"
                     >

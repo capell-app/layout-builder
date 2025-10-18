@@ -109,14 +109,15 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
             WidgetDisplaySection::make([
                 ColorSchemeComponent::make('color_scheme'),
             ]),
-            WidgetComponentFilesSection::make(),
+            WidgetComponentFilesSection::make()
+                ->statePath('meta'),
             Section::make(__('capell-admin::generic.results_settings'))
                 ->collapsible()
                 ->columnSpanFull()
                 ->columns(['md' => 2, 'lg' => 3, 'xl' => 4])
+                ->statePath('meta')
                 ->schema(WidgetResultsSchema::make()),
-        ])
-            ->statePath('meta');
+        ]);
     }
 
     protected function getAssetsComponent(Schema $schema): Component

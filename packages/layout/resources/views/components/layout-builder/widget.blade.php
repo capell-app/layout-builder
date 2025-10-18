@@ -82,13 +82,11 @@ declare(strict_types=1);
     wire:key="{{ "{$containerKey}.{$widgetIndex}" }}"
     x-sort:item="'{{ $containerKey . '.' . $widgetIndex }}'"
     x-init="
-        $nextTick(() =>
-            $dispatch('widget-collapsed-register', {
-                id: id,
-                containerKey: containerKey,
-                isCollapsed: isCollapsed,
-            }),
-        )
+        $dispatch('widget-collapsed-register', {
+            id: id,
+            containerKey: containerKey,
+            isCollapsed: isCollapsed,
+        })
     "
     x-on:collapse-widget.window="
         if ($event.detail.containerKey && $event.detail.containerKey !== containerKey)
@@ -162,7 +160,7 @@ declare(strict_types=1);
                 <span class="text-sm text-gray-600 dark:text-gray-100">
                     <span
                         @class([
-                            'font-medium',
+                            'font-semibold',
                             'group-hover/widget:text-primary-600' => $assetTypes,
                         ])
                     >

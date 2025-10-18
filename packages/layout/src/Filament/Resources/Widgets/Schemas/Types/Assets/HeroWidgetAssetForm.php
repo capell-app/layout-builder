@@ -6,7 +6,7 @@ namespace Capell\Layout\Filament\Resources\Widgets\Schemas\Types\Assets;
 
 use Capell\Layout\Filament\Components\Forms\ActionsRepeater;
 use Capell\Layout\Filament\Components\Forms\AssetsRepeater;
-use Capell\Layout\Filament\Components\Forms\BackgroundSettingsFieldset;
+use Capell\Layout\Filament\Components\Forms\BackgroundSchema;
 use Capell\Layout\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\Layout\Filament\Components\Forms\Content\ContentTranslationsRepeater;
 use Capell\Layout\Filament\Components\Forms\Content\RelatedRepeater;
@@ -28,14 +28,16 @@ class HeroWidgetAssetForm extends AbstractWidgetAssetSchema
                 ->columnSpanFull(),
 
             Group::make()
-                ->statePath('meta')
                 ->schema([
                     Tabs::make()
                         ->columnSpanFull()
                         ->tabs([
-                            self::getMediaTab($schema),
-                            self::getRelatedTab(),
-                            self::getActionsTab(),
+                            self::getMediaTab($schema)
+                                ->statePath('meta'),
+                            self::getRelatedTab()
+                                ->statePath('meta'),
+                            self::getActionsTab()
+                                ->statePath('meta'),
                             self::getSettingsTab(),
                         ]),
                 ]),
@@ -82,8 +84,12 @@ class HeroWidgetAssetForm extends AbstractWidgetAssetSchema
         return Tab::make('settings')
             ->label(__('capell-admin::generic.settings'))
             ->schema([
-                ColorSchemeComponent::make('color_scheme'),
-                BackgroundSettingsFieldset::make()
+                Group::make()
+                    ->statePath('meta')
+                    ->schema([
+                        ColorSchemeComponent::make(),
+                    ]),
+                ...BackgroundSchema::make()
                     ->columnSpanFull(),
             ]);
     }
