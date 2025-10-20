@@ -42,6 +42,7 @@ class CreateHeroWidgetAction
             'meta' => [
                 'component' => WidgetComponentEnum::Hero->value,
                 'heading_size' => 'h1',
+                'height' => 'full',
                 'carousel_fade' => true,
                 'carousel_arrows' => false,
                 'carousel_pagination' => true,

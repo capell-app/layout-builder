@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace Capell\Hero;
 
+use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Packages\AbstractPackageServiceProvider;
 use Capell\Hero\Commands\DemoCommand;
 use Capell\Hero\Commands\InstallCommand;
 use Capell\Hero\Enums\WidgetComponentEnum;
+use Capell\Hero\Enums\WidgetSchemaEnum;
 use Capell\Hero\Filament\Extenders\Page\HeroPageSchemaExtender;
 use Capell\Layout\Enums\ComponentTypeEnum;
+use Capell\Layout\Enums\SchemaTypeEnum;
 use Illuminate\Support\Facades\Blade;
 use Spatie\LaravelPackageTools\Package;
 
@@ -48,11 +51,12 @@ class HeroServiceProvider extends AbstractPackageServiceProvider
             sort: 10,
             installCommand: true,
             demoCommand: true,
-            installParams: ['sites'],
             demoParams: ['sites']
         );
 
         CapellCore::registerComponents(ComponentTypeEnum::Widget->value, WidgetComponentEnum::cases());
+
+        CapellAdmin::registerSchemas(SchemaTypeEnum::Widget->value, WidgetSchemaEnum::cases());
 
         $this->registerSchemaExtender(HeroPageSchemaExtender::TAG, HeroPageSchemaExtender::class);
     }

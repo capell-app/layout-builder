@@ -22,8 +22,8 @@ use Capell\Core\Models\Type;
 use Capell\Core\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Data\FrontendAssetData;
 use Capell\Frontend\Facades\CapellFrontend;
-use Capell\Layout\Actions\InstallPackageAction;
 use Capell\Layout\Commands\DemoCommand;
+use Capell\Layout\Commands\InstallCommand;
 use Capell\Layout\Commands\UpgradeCommand;
 use Capell\Layout\Enums\AssetEnum;
 use Capell\Layout\Enums\ComponentTypeEnum;
@@ -64,7 +64,6 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 use RuntimeException;
-use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
 use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
@@ -123,24 +122,8 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             ->hasCommands([
                 DemoCommand::class,
                 UpgradeCommand::class,
-            ])
-            ->hasInstallCommand(
-                fn (InstallCommand $command): InstallCommand => $command
-                    ->startWith(function (InstallCommand $command): void {
-                        $command->info('Installing Capell Layout Package...');
-                    })
-                    ->publishAssets()
-                    ->endWith(function (InstallCommand $command): void {
-                        $command->call(
-                            'capell:publish-migrations',
-                            ['--items' => CapellLayoutManager::getMigrations(), '--path' => __DIR__ . '/../database/migrations']
-                        );
-
-                        $command->call('migrate');
-
-                        InstallPackageAction::run();
-                    })
-            );
+                InstallCommand::class,
+            ]);
     }
 
     public function registeringPackage(): void

@@ -49,7 +49,6 @@ class ActionsRepeater extends Repeater
             ->schema([
                 Radio::make('type')
                     ->label(__('capell-admin::form.type'))
-                    ->reactive()
                     ->required()
                     ->inline()
                     ->default('page')
@@ -66,7 +65,9 @@ class ActionsRepeater extends Repeater
                         }
                     }),
                 Grid::make(['md' => 2, 'lg' => 3])
-                    ->visible(fn (Get $get): bool => $get('type') === 'page')
+                    ->visibleJs(<<<'JS'
+                         $get('type') === 'page'
+                    JS)
                     ->schema([
                         PageSelect::make('page_id')
                             ->required()
@@ -79,7 +80,9 @@ class ActionsRepeater extends Repeater
 
                 TextInput::make('url')
                     ->label(__('capell-admin::form.url'))
-                    ->visible(fn (Get $get): bool => $get('type') === 'url')
+                    ->visibleJs(<<<'JS'
+                         $get('type') === 'url'
+                    JS)
                     ->validationAttribute(__('capell-admin::form.url'))
                     ->columnSpan(2)
                     ->required()
@@ -88,12 +91,7 @@ class ActionsRepeater extends Repeater
                 Grid::make()
                     ->schema([
                         TextInput::make('label')
-                            ->label(__('capell-admin::form.label'))
-                            ->helperText(
-                                fn (Get $get): ?string => $get('type') === 'page' || $get('page_id')
-                                    ? __('capell-admin::generic.action_page_label_hint')
-                                    : null
-                            ),
+                            ->label(__('capell-admin::form.label')),
                         IconPicker::make('icon')
                             ->label(__('capell-admin::form.icon')),
                         Select::make('color')

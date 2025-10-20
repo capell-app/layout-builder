@@ -23,7 +23,6 @@ use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 
@@ -59,10 +58,11 @@ class DefaultContentSchema implements TypeSchemaInterface
             Group::make()
                 ->schema([
                     PageSelect::make('page_id')
-                        ->label(__('capell-admin::form.related_page'))
-                        ->reactive(),
+                        ->label(__('capell-admin::form.related_page')),
                     CallToActionText::make('link_text')
-                        ->hidden(fn (Get $get): bool => $get('page_id') === null),
+                        ->hiddenJs(<<<'JS'
+                             ! $get('page_id')
+                        JS),
                 ]),
         ];
     }

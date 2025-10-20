@@ -13,6 +13,7 @@ use Capell\Layout\Filament\Components\Forms\PaddingSelect;
 use Capell\Layout\Filament\Components\Forms\SizeSelect;
 use Capell\Layout\Filament\Components\Forms\SpacingSelect;
 use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 
@@ -25,6 +26,7 @@ class WidgetDisplaySection
             ->collapsed()
             ->compact()
             ->columnSpanFull()
+            ->columns(1)
             ->schema([
                 Grid::make(3)
                     ->statePath('meta')
@@ -49,7 +51,9 @@ class WidgetDisplaySection
                         ContainerWidthSelect::make(),
                         AlignSelect::make('align'),
                     ]),
-                ...BackgroundSchema::make(),
+                Fieldset::make(__('capell-admin::generic.background_settings'))
+                    ->columns(3)
+                    ->schema(BackgroundSchema::make()),
             ]);
     }
 }

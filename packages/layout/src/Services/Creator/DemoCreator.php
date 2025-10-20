@@ -491,20 +491,20 @@ class DemoCreator
 
         $features = [
             [
-                'title' => 'Welcome to Our Platform',
-                'content' => '<p>Welcome to our website! We are glad to have you here.</p>',
+                'title' => 'Empower Your Vision',
+                'content' => 'Step into a world where your ideas become reality. Experience innovation and growth with us.',
             ],
             [
-                'title' => 'Get Started Today',
-                'content' => '<p>Take the first step towards your goals. Join us today!</p>',
+                'title' => 'Start Your Journey',
+                'content' => 'Begin your adventure today and unlock new opportunities for success.',
             ],
             [
-                'title' => 'Discover Our Projects',
-                'content' => '<p>Check out our latest projects and initiatives.</p>',
+                'title' => 'Explore Our Achievements',
+                'content' => 'Discover the groundbreaking projects and milestones that define our excellence.',
             ],
             [
-                'title' => 'Watch Our Story',
-                'content' => '<p>Watch our introduction video to learn more about us.</p>',
+                'title' => 'See Our Story Unfold',
+                'content' => 'Watch our journey and learn how we create impact through passion and expertise.',
             ],
         ];
 
@@ -543,6 +543,8 @@ class DemoCreator
                             'type' => 'url',
                             'url' => 'https://example.com',
                             'label' => 'External',
+                            'hidden_label' => true,
+                            'icon' => 'heroicon-o-arrow-top-right-on-square',
                             'color' => 'default',
                         ],
                     ],
@@ -553,7 +555,8 @@ class DemoCreator
                 $content->translations()->updateOrCreate([
                     'language_id' => $language->id,
                 ], [
-                    'content' => sprintf('<p>%s</p>', $feature['title']),
+                    'title' => $feature['title'],
+                    'content' => sprintf('<p>%s</p>', $feature['content']),
                 ]);
             }
 

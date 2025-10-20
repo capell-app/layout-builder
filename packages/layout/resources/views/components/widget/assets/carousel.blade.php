@@ -16,7 +16,7 @@ declare(strict_types=1);
     'carouselAlign' => 'center',
     'carouselArrows' => true,
     'carouselAuto' => true,
-    'carouselAutoDelay' => 3000,
+    'carouselAutoDelay' => 5000,
     'carouselButtonClass' => 'hover:bg-primary focus:bg-primary pointer-events-auto bg-white/80 shadow-md transition hover:text-white focus:text-white disabled:pointer-events-none disabled:opacity-50',
     'carouselDrag' => true,
     'carouselLoop' => true,
@@ -112,13 +112,13 @@ declare(strict_types=1);
 
                 <div
                     @class([
-                        'swiper-slide group relative h-64 !w-auto overflow-hidden text-white',
+                        'swiper-slide group relative h-64 overflow-hidden text-center text-white',
                         'rounded-lg' => $rounded,
                     ])
                     tabindex="0"
                 >
                     <x-capell::media
-                        :class="'swiper-slide-img object-cover h-64 bg-gray-50 transition-transform duration-300 group-hover:scale-105 group-focus:scale-105' . ($theme->withDarkMode ? ' dark:bg-gray-900' : '')"
+                        :class="'swiper-slide-img object-cover h-64 mx-auto bg-gray-50 transition-transform duration-300 group-hover:scale-105 group-focus:scale-105' . ($theme->withDarkMode ? ' dark:bg-gray-900' : '')"
                         :$loop
                         :media="$media"
                         :width="$width"

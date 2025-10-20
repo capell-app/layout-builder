@@ -24,7 +24,6 @@ use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class DefaultWidgetSchema implements TypeSchemaInterface
@@ -122,11 +121,12 @@ class DefaultWidgetSchema implements TypeSchemaInterface
             ->schema([
                 Grid::make()
                     ->schema([
-                        MediaLibraryFileUpload::make('image')
-                            ->reactive(),
+                        MediaLibraryFileUpload::make('image'),
                         Checkbox::make('reverse_order')
                             ->label(__('capell-admin::form.reverse_order'))
-                            ->visible(fn (Get $get): bool => (bool) $get('image')),
+                            ->visibleJs(<<<'JS'
+                                 $get('image')
+                            JS),
                     ]),
                 Fieldset::make(__('capell-admin::form.actions'))
                     ->schema([

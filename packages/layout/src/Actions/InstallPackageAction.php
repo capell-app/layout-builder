@@ -34,7 +34,5 @@ class InstallPackageAction
 
         $layoutUpdater = app(LayoutUpdater::class);
         $layoutUpdater->setup();
-
-        CreateThemeAction::run();
     }
 }

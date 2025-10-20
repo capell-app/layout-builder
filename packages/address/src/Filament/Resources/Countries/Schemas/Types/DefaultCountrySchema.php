@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Capell\Address\Filament\Resources\Countries\Schemas\Types;
 
+use Capell\Address\Enums\ModelEnum;
+use Capell\Address\Enums\SchemaTypeEnum;
 use Capell\Admin\Contracts\TypeSchemaInterface;
 use Capell\Admin\Enums\SchemaExtenderEnum;
-use Capell\Admin\Enums\SchemaTypeEnum;
 use Capell\Admin\Filament\Components\Forms\DefaultToggle;
 use Capell\Admin\Filament\Components\Forms\LanguageSelect;
 use Capell\Admin\Filament\Components\Forms\StatusToggle;
 use Capell\Admin\Filament\Concerns\HasTypeSchema;
-use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;

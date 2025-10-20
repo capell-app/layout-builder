@@ -568,7 +568,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->label(fn (array $arguments): string => __('capell-admin::button.add_new_asset'))
             ->icon('heroicon-o-plus-circle')
             ->iconSize(IconSize::Small)
-            ->size(Size::Small)
+            ->size(Size::ExtraSmall)
             ->modal()
             ->grouped()
             ->outlined()

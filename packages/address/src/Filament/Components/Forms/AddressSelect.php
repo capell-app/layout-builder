@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Address\Filament\Components\Forms;
 
+use Capell\Address\Enums\ModelEnum;
 use Capell\Address\Filament\Resources\Addresses\Schemas\AddressForm;
 use Capell\Address\Models\Address;
-use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;

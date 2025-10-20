@@ -30,9 +30,17 @@ class WidgetForm implements FormConfigurator
                     function (Get $get, TypeSchema $component) use ($schema): array {
                         $typeId = $get('type_id');
 
-                        $type = $typeId ? CapellCore::getModel(ModelEnum::Type)::find($typeId, ['admin']) : null;
+                        $record = $component->getRecord();
 
-                        $adminSchema = $type?->admin['schema'] ?? DefaultWidgetSchema::getKey();
+                        if ($record?->admin['schema'] ?? false) {
+                            $adminSchema = $record->admin['schema'];
+                        }
+
+                        if (! $adminSchema) {
+                            $type = $typeId ? CapellCore::getModel(ModelEnum::Type)::find($typeId, ['admin']) : null;
+
+                            $adminSchema = $type?->admin['schema'] ?? DefaultWidgetSchema::getKey();
+                        }
 
                         return $component->getTypeSchema($schema, SchemaTypeEnum::Widget->name, $adminSchema);
                     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Address\Filament\Resources\Addresses;
 
 use BackedEnum;
+use Capell\Address\Enums\ModelEnum;
 use Capell\Address\Filament\Resources\Addresses\Pages\ManageAddresses;
 use Capell\Address\Filament\Resources\Addresses\Schemas\AddressForm;
 use Capell\Address\Filament\Resources\Addresses\Tables\AddressesTable;
@@ -14,7 +15,6 @@ use Capell\Admin\Filament\Concerns\HasNavigationBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
-use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -63,7 +63,7 @@ class AddressResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return (string) (__('capell-admin::navigation.addresses'));
+        return (string) (__('capell-address::generic.addresses'));
     }
 
     public static function getNavigationGroup(): ?string

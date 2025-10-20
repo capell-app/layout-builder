@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Address\Filament\Resources\Addresses\Pages;
 
+use Capell\Address\Enums\ResourceEnum;
 use Capell\Address\Filament\Resources\Addresses\AddressResource;
-use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;

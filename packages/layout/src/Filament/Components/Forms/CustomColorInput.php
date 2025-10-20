@@ -68,7 +68,7 @@ class CustomColorInput
                     ->hiddenLabel()
                     ->placeholder(__('capell-admin::generic.custom'))
                     ->dehydrated(false)
-                    ->format('rgba')
+                    ->autoFormat()
                     ->visible(function (Get $get, $livewire, $state) use ($name, $options): bool {
                         if ($get($name) !== 'custom') {
                             return false;

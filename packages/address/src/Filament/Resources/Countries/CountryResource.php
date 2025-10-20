@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Address\Filament\Resources\Countries;
 
 use BackedEnum;
+use Capell\Address\Enums\ModelEnum;
 use Capell\Address\Filament\Resources\Countries\Pages\ManageCountries;
 use Capell\Address\Filament\Resources\Countries\Schemas\CountryForm;
 use Capell\Address\Filament\Resources\Countries\Tables\CountriesTable;
@@ -14,7 +15,6 @@ use Capell\Admin\Filament\Concerns\HasNavigationBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
-use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Address\Filament\Resources\Addresses\Schemas\Types;
 
+use Capell\Address\Enums\SchemaTypeEnum;
 use Capell\Address\Filament\Components\Forms\CountrySelect;
 use Capell\Admin\Contracts\TypeSchemaInterface;
 use Capell\Admin\Enums\SchemaExtenderEnum;
-use Capell\Admin\Enums\SchemaTypeEnum;
 use Capell\Admin\Filament\Components\Forms\DefaultToggle;
 use Capell\Admin\Filament\Components\Forms\StatusToggle;
 use Capell\Admin\Filament\Concerns\HasTypeSchema;
@@ -40,17 +40,22 @@ class DefaultAddressSchema implements TypeSchemaInterface
                 ->columnSpanFull(),
             TextInput::make('line1')
                 ->label(__('capell-address::form.address_line_1'))
+                ->maxLength(128)
                 ->required(),
             TextInput::make('line2')
-                ->label(__('capell-address::form.address_line_2')),
+                ->label(__('capell-address::form.address_line_2'))
+                ->maxLength(128),
             TextInput::make('city')
                 ->label(__('capell-address::form.city'))
+                ->maxLength(64)
                 ->required(),
             TextInput::make('state')
                 ->label(__('capell-address::form.state'))
+                ->maxLength(32)
                 ->required(),
             TextInput::make('postal_code')
                 ->label(__('capell-address::form.postal_code'))
+                ->maxLength(16)
                 ->required(),
             CountrySelect::make('country_id')
                 ->when(

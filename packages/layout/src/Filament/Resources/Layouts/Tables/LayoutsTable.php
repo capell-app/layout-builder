@@ -16,6 +16,11 @@ use Illuminate\Database\Eloquent\Builder;
 
 class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\LayoutsTable
 {
+    protected static function getTableQueryModifier(Builder $query): Builder
+    {
+        return parent::getTableQueryModifier($query)->with('layoutWidgets');
+    }
+
     protected static function getTableActions(): array
     {
         return [
@@ -49,10 +54,13 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
         $nameColumnIndex = array_search(NameColumn::class, array_map(fn ($col): string|false => $col::class, $columns), true);
         if ($nameColumnIndex !== false) {
             array_splice($columns, $nameColumnIndex + 1, 0, [
-                TextColumn::make('widgets')
+                TextColumn::make('layoutWidgets.name')
                     ->label(__('capell-admin::table.container_widgets'))
                     ->wrap()
                     ->color('gray')
+                    ->bulleted()
+                    ->limitList()
+                    ->expandableLimitedList()
                     ->toggleable(),
             ]);
         }

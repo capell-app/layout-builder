@@ -37,7 +37,7 @@ declare(strict_types=1);
     @if ($title)
         <{{ $headingSize }}
             @class([
-                'mb-6',
+                '!my-4',
                 'text-2xl md:text-4xl' => $size === 'sm',
                 'text-3xl md:text-5xl' => $size === 'md',
                 'text-4xl md:text-6xl' => $size === 'lg',

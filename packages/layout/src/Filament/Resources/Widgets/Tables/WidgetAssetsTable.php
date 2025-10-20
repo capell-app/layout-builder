@@ -104,13 +104,12 @@ class WidgetAssetsTable implements TableConfigurator
                                 )
                                 ->all()
                         ),
-
-                    AssetTypeSelect::make('type')
-                        ->reactive(),
-
+                    AssetTypeSelect::make('type'),
                     Select::make('type_id')
                         ->label(__('capell-admin::form.type'))
-                        ->visible(fn (Get $get): bool => ! empty($get('type')))
+                        ->visibleJs(<<<'JS'
+                             $get('type')
+                        JS)
                         ->options(fn (Get $get): array => match ($get('type')) {
                             LayoutTypeEnum::Content->value => Content::getTypes(),
                             TypeEnum::Page->value => Page::getTypes(),

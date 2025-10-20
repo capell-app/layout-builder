@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Capell\Address;
 
 use Capell\Address\Commands\DemoCommand;
-use Capell\Address\Enums\AddressModelEnum;
+use Capell\Address\Commands\InstallCommand;
 use Capell\Address\Enums\AddressSchemaEnum;
 use Capell\Address\Enums\CountrySchemaEnum;
+use Capell\Address\Enums\ModelEnum;
 use Capell\Address\Enums\ResourceEnum;
 use Capell\Address\Enums\SchemaTypeEnum;
 use Capell\Address\Filament\Resources\Sites\Schemas\Extenders\SiteSchemaExtender;
@@ -40,9 +41,9 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
     public function configurePackage(Package $package): void
     {
         $package->name(self::$name)
-            ->hasViews(self::$name)
             ->hasCommands([
                 DemoCommand::class,
+                InstallCommand::class,
             ])
             ->hasTranslations();
     }
@@ -60,13 +61,14 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
             class: self::class,
             path: __DIR__,
             sort: 10,
+            installCommand: true,
             demoCommand: true,
             demoParams: ['sites']
         );
 
         Relation::morphMap(
-            collect(AddressModelEnum::cases())
-                ->mapWithKeys(fn (AddressModelEnum $model): array => [Str::snake($model->name) => $model->value])
+            collect(ModelEnum::cases())
+                ->mapWithKeys(fn (ModelEnum $model): array => [Str::snake($model->name) => $model->value])
                 ->all()
         );
 
@@ -107,7 +109,7 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
 
     private function registerModels(): self
     {
-        CapellCore::registerModels(AddressModelEnum::cases());
+        CapellCore::registerModels(ModelEnum::cases());
 
         return $this;
     }
