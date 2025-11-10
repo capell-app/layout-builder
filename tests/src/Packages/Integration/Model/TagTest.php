@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Core\Models\Tag;
+use Capell\Blog\Models\Tag;
 use Capell\Layout\Models\Content;
 
 it('can be attached to contents', function (): void {

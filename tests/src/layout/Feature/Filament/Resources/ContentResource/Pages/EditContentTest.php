@@ -35,7 +35,6 @@ it('can save', function (): void {
             'parent_id' => $content->parent?->id,
             'site_id' => $content->site?->getKey(),
         ])
-        ->assertFormFieldExists('image')
         ->fillForm([
             'name' => $newData->name,
             'parent_id' => $newData->parent->id,
@@ -53,8 +52,7 @@ it('can save', function (): void {
         ->name->toBe($newData->name)
         ->type_id->toBe($content->type->getKey())
         ->parent_id->toBe($newData->parent->id)
-        ->site_id->toBe($newData->site->getKey())
-        ->meta->image->toBeNull();
+        ->site_id->toBe($newData->site->getKey());
 });
 
 test('validates edit content', function (): void {

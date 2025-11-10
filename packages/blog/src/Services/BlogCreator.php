@@ -34,6 +34,7 @@ use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
+use Capell\Layout\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
 use Capell\Layout\Models\Widget;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Builder;
@@ -71,7 +72,7 @@ class BlogCreator
 
     public function createTagPage(Site $site, ?Page $parent, Collection $languages): Page
     {
-        $type = $this->getPageType(BlogPageTypeEnum::TagPage->value);
+        $type = $this->createTagPageType();
         $layout = $this->getLayout(LayoutEnum::Results);
 
         $pageModel = CapellCore::getModel(ModelEnum::Page);
@@ -377,13 +378,13 @@ class BlogCreator
         $widgetModel = CapellCore::getModel(LayoutModelEnum::Widget);
         $typeModel = CapellCore::getModel(ModelEnum::Type);
 
-        $systemWidgetType = $typeModel::firstWhere(['key' => WidgetTypeEnum::System, 'type' => LayoutTypeEnum::Widget]);
+        $type = $typeModel::firstWhere(['key' => WidgetTypeEnum::System, 'type' => LayoutTypeEnum::Widget]);
 
         $widget = $widgetModel::firstOrCreate([
             'key' => 'tags',
         ], [
             'name' => __('capell-admin::generic.tags'),
-            'type_id' => $systemWidgetType->id,
+            'type_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::Tags,
                 'size' => 'sm',
@@ -519,6 +520,40 @@ class BlogCreator
                 'with_next_prev' => true,
             ],
         ]);
+    }
+
+    public function relatedPagesWidget(Type $type, \Illuminate\Support\Collection $languages): void
+    {
+        $widget = Widget::query()::firstOrCreate([
+            'key' => 'related-pages',
+        ], [
+            'name' => __('capell-admin::generic.related_pages'),
+            'type_id' => $type->id,
+            'meta' => [
+                'component' => BlogWidgetComponentEnum::PageRelated,
+                'limit' => 6,
+                'pagination' => false,
+                'exclude_types' => ['home'],
+                'exclude_parent' => true,
+                'with_summary' => true,
+                'with_link_text' => true,
+                'with_image' => true,
+                'columns' => 1,
+            ],
+            'admin' => [
+                'icon' => 'heroicon-c-link',
+                'type_schema' => WidgetTypeSchema::getKey(),
+                'schema' => \Capell\Blog\Enums\WidgetSchemaEnum::Related->value,
+            ],
+        ]);
+
+        $languages->each(function (Language $language) use ($widget): void {
+            $widget->translations()->firstOrCreate([
+                'language_id' => $language->id,
+            ], [
+                'title' => __('capell-admin::heading.related_pages'),
+            ]);
+        });
     }
 
     public function createArticleWidgetType(): Type

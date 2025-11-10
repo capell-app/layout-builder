@@ -18,7 +18,6 @@ enum WidgetComponentEnum: string
 
     case PageChildren = 'capell-layout::widget.pages.children';
     case PageLatest = 'capell-layout::widget.pages.latest';
-    case PageRelated = 'capell-layout::widget.pages.related';
     case PageSiblings = 'capell-layout::widget.pages.siblings';
 
     case Archives = 'capell-layout::widget.page.archives';

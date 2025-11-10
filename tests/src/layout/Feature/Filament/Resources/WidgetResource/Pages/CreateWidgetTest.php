@@ -3,9 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Navigation;
-use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\WidgetTypeFactory;
-use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Filament\Actions\CreateWidgetModalAction;
 use Capell\Layout\Filament\Resources\Widgets\Pages\EditWidget;
@@ -27,7 +25,6 @@ beforeEach(function (): void {
 
 describe('from edit widget', function (): void {
     test('can create new widget', function (): void {
-        $newType = Type::factory()->type(LayoutTypeEnum::Widget)->create();
         $widget = Widget::factory()->create();
         $newData = Widget::factory()->make();
 
@@ -42,7 +39,6 @@ describe('from edit widget', function (): void {
             ->assertFormFieldDoesNotExist('key')
             ->fillForm([
                 'name' => $newData->name,
-                'type_id' => $newType->id,
             ])
             ->callMountedAction()
             ->assertHasNoFormErrors();
@@ -50,7 +46,7 @@ describe('from edit widget', function (): void {
         assertDatabaseHas(Widget::class, [
             'name' => $newData->name,
             'key' => str($newData->name)->slug()->toString(),
-            'type_id' => $newType->id,
+            'type_id' => $widget->type_id,
         ]);
     });
 
@@ -110,19 +106,25 @@ describe('from list widgets', function (): void {
             WidgetTypeEnum::PageResults => $typeCreator->pageResultsWidgetType(),
             WidgetTypeEnum::Assets => $typeCreator->assetsWidgetType(),
             WidgetTypeEnum::System => $typeCreator->systemWidgetType(),
+            WidgetTypeEnum::ContentBuilder => $typeCreator->contentBuilderWidgetType(),
             default => throw new Exception('Invalid widget type: ' . $typeEum->name),
         };
 
         livewire(ListWidgets::class)
             ->assertSuccessful()
-            ->callAction(CreateWidgetModalAction::class, [
+            ->mountAction(CreateWidgetModalAction::class)
+            ->fillForm([
                 'name' => $newData->name,
+                'key' => str($newData->name)->slug()->toString(),
                 'type_id' => $type->id,
                 ...match ($typeEum) {
                     WidgetTypeEnum::Navigation => ['meta' => ['navigation' => Navigation::factory()->create()->id]],
                     default => [],
                 },
             ])
+            ->callMountedAction()
+            ->assertHasNoFormErrors()
+            ->callMountedAction()
             ->assertHasNoFormErrors();
 
         assertDatabaseHas(Widget::class, [

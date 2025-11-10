@@ -8,6 +8,9 @@ use Capell\Admin\Enums\LayoutEnum;
 use Capell\Blog\Services\BlogCreator;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Type;
+use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Enums\WidgetTypeEnum;
 use Exception;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -72,8 +75,12 @@ class InstallBlogPackageAction
         $blogCreator->createBlogPageType();
         $blogCreator->createTagPageType();
 
-        Site::with('languages')->each(function (Site $site) use ($blogCreator): void {
+        $resultsWidgetType = Type::query()->firstWhere(['key' => WidgetTypeEnum::PageResults, 'type' => LayoutTypeEnum::Widget])?->id;
+
+        Site::with('languages')->each(function (Site $site) use ($blogCreator, $resultsWidgetType): void {
             $blogCreator->createTagsWidget($site->languages);
+
+            $blogCreator->relatedPagesWidget(type: $resultsWidgetType, languages: $site->languages);
 
             CreateBlogPagesAction::run($site);
         });

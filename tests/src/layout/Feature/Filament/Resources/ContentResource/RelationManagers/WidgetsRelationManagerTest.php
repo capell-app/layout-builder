@@ -13,21 +13,36 @@ use function Pest\Livewire\livewire;
 it('can list widgets for a content model', function (): void {
     $content = Content::factory()->create();
 
-    Widget::factory()
-        ->count(5)
-        ->has(WidgetAsset::factory()->state(['asset_type' => 'content', 'asset_id' => $content->getKey()]), 'assets')
+    $widget = Widget::factory()
+        ->has(
+            WidgetAsset::factory([
+                'asset_type' => 'content',
+                'asset_id' => $content->getKey(),
+            ]),
+            'assets'
+        )
         ->create();
 
-    $widget = $content->widgets->first();
+    Widget::factory()
+        ->has(
+            WidgetAsset::factory([
+                'asset_type' => 'content',
+                'asset_id' => $content->getKey(),
+            ]),
+            'assets'
+        )
+        ->create();
+
+    $widgetAsset = $widget->assets()->first();
 
     livewire(WidgetsRelationManager::class, [
         'ownerRecord' => $content,
         'pageClass' => EditContent::class,
     ])
         ->assertSuccessful()
-        ->assertCountTableRecords(5)
+        ->assertCountTableRecords(2)
         ->assertCanSeeTableRecords($content->widgets)
-        ->assertTableColumnStateSet('name', [$widget->name], record: $widget);
+        ->assertTableColumnStateSet('widget.name', [$widget->name], record: $widgetAsset);
 });
 
 it('can search widgets for a content model', function (): void {
@@ -38,14 +53,16 @@ it('can search widgets for a content model', function (): void {
         ->has(WidgetAsset::factory()->state(['asset_type' => 'content', 'asset_id' => $content->getKey()]), 'assets')
         ->create();
 
-    $widget = $content->widgets->random();
+    $widgetAssets = $content->widgets()->with('widget')->get();
+
+    $widgetAsset = $widgetAssets->random();
 
     livewire(WidgetsRelationManager::class, [
         'ownerRecord' => $content,
         'pageClass' => EditContent::class,
     ])
         ->assertSuccessful()
-        ->searchTable($widget->key)
+        ->searchTable($widgetAsset->widget->key)
         ->assertCountTableRecords(1)
-        ->assertCanSeeTableRecords([$widget]);
+        ->assertCanSeeTableRecords([$widgetAsset]);
 });

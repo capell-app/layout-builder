@@ -9,7 +9,6 @@ use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\CarouselWidgetSchema;
 use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\DefaultWidgetSchema;
 use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\NavigationWidgetSchema;
 use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\PageContentWidgetSchema;
-use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\RelatedWidgetSchema;
 use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\ResultsWidgetSchema;
 use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\SystemWidgetSchema;
 
@@ -21,6 +20,5 @@ enum WidgetSchemaEnum: string
     case Carousel = CarouselWidgetSchema::class;
     case Assets = AssetsWidgetSchema::class;
     case Results = ResultsWidgetSchema::class;
-    case Related = RelatedWidgetSchema::class;
     case System = SystemWidgetSchema::class;
 }

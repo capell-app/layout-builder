@@ -20,4 +20,9 @@ class BlogTestCase extends AbstractTestCase
             AdminPanelProvider::class,
         ];
     }
+
+    protected function getPackageName(): string
+    {
+        return 'blog';
+    }
 }

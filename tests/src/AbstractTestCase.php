@@ -14,6 +14,8 @@ use BladeUI\Icons\BladeIconsServiceProvider;
 use Camya\Filament\FilamentTitleWithSlugServiceProvider;
 use Capell\Core\CapellCoreManager;
 use Capell\Core\CapellServiceProvider;
+use Capell\Core\Data\PackageData;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\PageTranslation;
 use Capell\Tests\Fixtures\Models\User;
@@ -88,8 +90,10 @@ abstract class AbstractTestCase extends TestCase
         $this->loadMigrationsFrom($migrations);
 
         // Automatically discover package migrations if not manually set.
-        if ($this->packageMigrations === []) {
-            $this->packageMigrations = $this->discoverPackageMigrations();
+        if ($this->getPackageName() === 'packages') {
+            $this->packageMigrations = $this->discoverPackagesMigrations();
+        } elseif ($this->packageMigrations === []) {
+            $this->packageMigrations = $this->discoverPackageMigrations($this->getPackageName());
         }
 
         if ($this->packageMigrations !== []) {
@@ -110,6 +114,8 @@ abstract class AbstractTestCase extends TestCase
 
         $this->withoutVite();
     }
+
+    abstract protected function getPackageName(): string;
 
     /**
      * @param  Application  $app
@@ -289,11 +295,18 @@ abstract class AbstractTestCase extends TestCase
         }
     }
 
-    private function discoverPackageMigrations(): array
+    private function discoverPackagesMigrations(): array
     {
-        preg_match('/\\\\src\\\\([^\\\\]+)/', static::class, $matches);
+        return CapellCore::getPackages()->map(function (PackageData $package) use (&$files): array {
+            return $this->discoverPackageMigrations($package->key);
+        })
+            ->flatten()
+            ->all();
+    }
 
-        $path = realpath(__DIR__ . '/../../packages/' . ($matches[1] ?? null) . '/database/migrations');
+    private function discoverPackageMigrations(string $package): array
+    {
+        $path = realpath(__DIR__ . '/../../packages/' . $package . '/database/migrations');
         $files = glob($path . '/*.php');
 
         return $files === false ? [] : $files;

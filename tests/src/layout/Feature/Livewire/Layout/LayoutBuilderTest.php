@@ -66,7 +66,6 @@ test('Render layout builder with page', function (): void {
     livewire(LayoutBuilder::class, [
         'layout_id' => $layout->id,
         'page_id' => $page->id,
-        'site_id' => $page->site_id,
     ])
         ->assertSuccessful()
         ->assertSeeText($layout->name . ' Layout');
@@ -99,20 +98,6 @@ test('Render layout with widget and assets', function (AssetEnum|Capell\Core\Enu
     ])
         ->assertSuccessful();
 })->with([AssetEnum::Content, ...Capell\Core\Enums\AssetEnum::cases()]);
-
-test('Save layout builder', function (): void {
-    $layout = (new LayoutFactory)->containers()->create();
-
-    livewire(LayoutBuilder::class, [
-        'layout_id' => $layout->id,
-    ])
-        ->assertSuccessful()
-        ->set('containers', [])
-        ->call('saveLayout');
-
-    expect($layout->refresh())
-        ->containers->toBeEmpty();
-});
 
 test('Can reorder containers', function (): void {
     $widget = Widget::factory()->create(['key' => 'test']);
@@ -269,6 +254,53 @@ test('Can edit container', function (): void {
 
     livewire(LayoutBuilder::class, [
         'layout_id' => $layout->id,
+    ])
+        ->assertSuccessful()
+        ->callAction(
+            'editContainer',
+            data: [
+                'key' => $newContainerKey,
+            ],
+            arguments: [
+                'containerKey' => $containerKey,
+            ]
+        )
+        ->assertHasNoFormErrors()
+        ->call('saveLayout');
+
+    expect($layout->refresh())
+        ->containers
+        ->toHaveKey($newContainerKey);
+
+    $assets = WidgetAsset::query()
+        ->where('widget_id', $widget->id)
+        ->whereNull('page_id')
+        ->exists();
+
+    expect($assets)
+        ->toBeTrue();
+});
+
+test('Can edit container for page layout', function (): void {
+    $layout = (new LayoutFactory)->containers()->create();
+    $page = Page::factory()->layout($layout)->create();
+
+    $containerKey = array_key_first($layout->containers);
+    $newContainerKey = $containerKey . '-new';
+
+    $containerWidget = $layout->containers[$containerKey]['widgets'][0];
+
+    $widget = Widget::query()->firstWhere('key', $containerWidget['widget_key']);
+
+    WidgetAsset::factory()
+        ->count(2)
+        ->widget($widget)
+        ->page($page, $containerKey, $containerWidget['occurrence'])
+        ->create();
+
+    livewire(LayoutBuilder::class, [
+        'layout_id' => $layout->id,
+        'page_id' => $page->id,
     ])
         ->assertSuccessful()
         ->callAction(

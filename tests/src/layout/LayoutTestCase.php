@@ -22,4 +22,9 @@ class LayoutTestCase extends AbstractTestCase
             AdminServiceProvider::class,
         ];
     }
+
+    protected function getPackageName(): string
+    {
+        return 'layout';
+    }
 }

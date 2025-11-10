@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\Hero\Commands;
 
-use Capell\Blog\Enums\BlogResourceEnum;
 use Capell\Core\Commands\Concerns\HasSitesOption;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\Site;
 use Capell\Hero\Actions\AddHeroToLayoutAction;
 use Capell\Hero\Actions\CreateHeroContentTypeAction;
 use Capell\Hero\Actions\CreateHeroWidgetAction;
@@ -90,20 +90,9 @@ class DemoCommand extends Command
                     }
                 }
 
-                $articlePages = CapellCore::getModel(ModelEnum::Page)::query()
-                    ->with('translations')
-                    ->where('site_id', $site->id)
-                    ->whereRelation('type', 'key', BlogResourceEnum::Article->value)
-                    ->get();
-
-                $articlePages->each(function (Page $page): void {
-                    foreach ($page->translations as $translation) {
-                        $meta = $translation->meta;
-                        $meta['hero'] = '<h1>' . $translation->title . '</h1>';
-
-                        $translation->update(['meta' => $meta]);
-                    }
-                });
+                if (CapellCore::hasPackage('capell-blog')) {
+                    $this->addHeroToArticlePages($site);
+                }
             }
 
             $this->line('Demo hero content has been successfully created for site: ' . $site->name);
@@ -112,5 +101,23 @@ class DemoCommand extends Command
         $this->line('Hero demo content inserted successfully.');
 
         return Command::SUCCESS;
+    }
+
+    private function addHeroToArticlePages(Site $site): void
+    {
+        $articlePages = CapellCore::getModel(ModelEnum::Page)::query()
+            ->with('translations')
+            ->where('site_id', $site->id)
+            ->whereRelation('type', 'key', 'article')
+            ->get();
+
+        $articlePages->each(function (Page $page): void {
+            foreach ($page->translations as $translation) {
+                $meta = $translation->meta;
+                $meta['hero'] = '<h1>' . $translation->title . '</h1>';
+
+                $translation->update(['meta' => $meta]);
+            }
+        });
     }
 }

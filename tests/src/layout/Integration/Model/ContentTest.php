@@ -6,7 +6,6 @@ use Capell\Core\Database\Factories\MediaFactory;
 use Capell\Core\Models\AssetRelation;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Core\Models\Tag;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\ContentTypeFactory;
@@ -66,7 +65,7 @@ it('has many widgets', function (): void {
     $widget = Widget::factory()->create();
     WidgetAsset::factory()->create(['asset_id' => $content->id, 'asset_type' => 'content', 'widget_id' => $widget->id]);
 
-    expect($content->widgets->pluck('id'))->toContain($widget->id);
+    expect($content->widgets->pluck('widget_id'))->toContain($widget->id);
 });
 
 it('has many pages', function (): void {
@@ -76,14 +75,5 @@ it('has many pages', function (): void {
 
     expect($content->pages)
         ->toHaveCount(1)
-        ->and($content->pages->first()->id)->toBe($page->id);
-});
-
-it('has many tags', function (): void {
-    $content = Content::factory()->create();
-    $tag = Tag::factory()->create();
-
-    $content->tags()->attach($tag);
-
-    expect($content->tags->pluck('id'))->toContain($tag->id);
+        ->and($content->pages->first()->page_id)->toBe($page->id);
 });

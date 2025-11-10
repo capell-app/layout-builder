@@ -375,6 +375,21 @@ class Content extends Model implements Draftable, HasMedia, PageCacheable
             ->where('asset_type', $this->getMorphClass());
     }
 
+    public function pages(): HasMany
+    {
+        return $this->widgetAssets()
+            ->select('widget_assets.page_id')
+            ->whereNotNull('widget_assets.page_id')
+            ->groupBy('widget_assets.page_id');
+    }
+
+    public function widgets(): HasMany
+    {
+        return $this->widgetAssets()
+            ->select('widget_assets.widget_id')
+            ->groupBy('widget_assets.widget_id');
+    }
+
     protected static function bootNodeTrait(): void
     {
         // Handled in boot

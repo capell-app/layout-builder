@@ -113,7 +113,7 @@ trait HasAssetsRelationManager
                     )
             )
             ->getOptionLabelFromRecordUsing(
-                fn (Model $record): string => match ($record::class) {
+                fn (Model $record): string|HtmlString => match ($record::class) {
                     Page::class => self::getPageOptionLabel($record),
                     default => $record->getAttributeValue($asset->getTitleKey()),
                 },

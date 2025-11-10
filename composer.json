@@ -136,9 +136,9 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "Capell\\Address\\Database\\Factories\\": "packages/address/database/factories",
             "Capell\\Blog\\Database\\Factories\\": "packages/blog/database/factories",
             "Capell\\Layout\\Database\\Factories\\": "packages/layout/database/factories",
-            "Capell\\Address\\Database\\Factories\\": "packages/address/database/factories",
             "Capell\\Tests\\": "tests/src"
         }
     },

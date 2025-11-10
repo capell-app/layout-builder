@@ -11,8 +11,8 @@ use Capell\Blog\Actions\InstallBlogPackageAction;
 use Capell\Blog\Enums\BlogModelEnum;
 use Capell\Blog\Enums\BlogResourceEnum;
 use Capell\Blog\Enums\WidgetComponentEnum;
+use Capell\Blog\Enums\WidgetSchemaEnum;
 use Capell\Blog\Filament\Resources\Articles\Schemas\Types\ArticlePageSchema;
-use Capell\Blog\Filament\Resources\Widgets\Schemas\Types\ArticleWidgetSchema;
 use Capell\Blog\Listeners\AddBlogPagesToNavigation;
 use Capell\Blog\Models\Tag;
 use Capell\Blog\Services\BlogCreator;
@@ -146,11 +146,13 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             name: BlogResourceEnum::Article->value
         );
 
+        CapellAdmin::registerResource(BlogResourceEnum::Tag->name, class: BlogResourceEnum::Tag->getResource());
+
         CapellCore::registerComponents(ComponentTypeEnum::Widget->value, WidgetComponentEnum::cases());
 
         CapellAdmin::registerSchema(SchemaTypeEnum::Page, ArticlePageSchema::class);
 
-        CapellAdmin::registerSchema(\Capell\Layout\Enums\SchemaTypeEnum::Widget->value, ArticleWidgetSchema::class);
+        CapellAdmin::registerSchemas(\Capell\Layout\Enums\SchemaTypeEnum::Widget->value, WidgetSchemaEnum::cases());
 
         CapellCore::registerModels(BlogModelEnum::cases());
 
@@ -191,12 +193,20 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             fn (Page $model): MorphToMany => $model->morphToMany(Tag::class, 'taggable', 'taggables')
         );
 
-        Site::resolveRelationUsing('tags', fn (Page $model): HasMany => $model->hasMany(Tag::class, 'site_id'));
+        Site::resolveRelationUsing(
+            'tags',
+            fn (Site $model): HasMany => $model->hasMany(Tag::class, 'site_id')
+        );
 
         if (class_exists(Content::class)) {
             Content::resolveRelationUsing(
                 'tags',
                 fn (Content $model): MorphToMany => $model->morphToMany(Tag::class, 'taggable', 'taggables')
+            );
+
+            Tag::resolveRelationUsing(
+                'contents',
+                fn (Tag $model): MorphToMany => $model->morphedByMany(Content::class, 'taggable', 'taggables')
             );
         }
 

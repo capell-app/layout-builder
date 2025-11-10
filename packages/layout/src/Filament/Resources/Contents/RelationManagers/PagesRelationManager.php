@@ -32,7 +32,7 @@ class PagesRelationManager extends AbstractPagesRelationManager
 {
     use HideEmptyRelationManager;
 
-    protected static string $relationship = 'widgetAssets';
+    protected static string $relationship = 'pages';
 
     #[Override]
     public static function getTitle(Model $ownerRecord, string $pageClass): string
@@ -63,9 +63,6 @@ class PagesRelationManager extends AbstractPagesRelationManager
                         'pageUrl.siteDomain',
                     ],
                 ])
-                    ->select('widget_assets.page_id')
-                    ->whereNotNull('widget_assets.page_id')
-                    ->groupBy('widget_assets.page_id')
             )
             ->description(fn (self $livewire, Table $table): ?string => $livewire->getDescription($table))
             ->columns([

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Widgets\Schemas\Types;
+namespace Capell\Blog\Filament\Resources\Widgets\Schemas\Types;
 
 use Capell\Admin\Filament\Components\Forms\CacheFrequencySelect;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
@@ -16,6 +16,7 @@ use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetResultsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\DefaultWidgetSchema;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;

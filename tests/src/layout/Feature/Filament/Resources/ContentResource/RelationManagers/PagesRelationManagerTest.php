@@ -15,7 +15,7 @@ it('can list pages for a content model', function (): void {
     $page = Page::factory()->create();
     $content = Content::factory()->create();
 
-    Widget::factory()
+    $widget = Widget::factory()
         ->has(
             WidgetAsset::factory([
                 'asset_type' => 'content',
@@ -23,16 +23,15 @@ it('can list pages for a content model', function (): void {
                 'page_id' => $page->id,
                 'container' => 'main',
             ])
-                ->sequence(
+                ->forEachSequence(
                     ['occurrence' => 1],
                     ['occurrence' => 2],
-                )
-                ->count(2),
+                ),
             'assets'
         )
         ->create();
 
-    $page = $content->pages->first();
+    $widgetAsset = $widget->assets()->first();
 
     livewire(PagesRelationManager::class, [
         'ownerRecord' => $content,
@@ -41,7 +40,7 @@ it('can list pages for a content model', function (): void {
         ->assertSuccessful()
         ->assertCountTableRecords(1)
         ->assertCanSeeTableRecords($content->pages)
-        ->assertTableColumnStateSet('name', [$page->name], record: $page);
+        ->assertTableColumnStateSet('page.name', [$page->name], record: $widgetAsset);
 });
 
 it('can search pages for a content model', function (): void {
@@ -66,8 +65,6 @@ it('can search pages for a content model', function (): void {
             'assets'
         )
         ->create();
-
-    $page = $content->pages->random();
 
     livewire(PagesRelationManager::class, [
         'ownerRecord' => $content,

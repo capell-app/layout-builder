@@ -25,13 +25,9 @@ class WidgetsRelationManager extends RelationManager
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static string $relationship = 'widgetAssets';
+    protected static string $relationship = 'widgets';
 
-    /**
-     * Allows customizing which relationship is counted for the badge.
-     * This can be changed independently from $relationship if desired.
-     */
-    protected static string $badgeRelationship = 'widgetAssets';
+    protected static string $badgeRelationship = 'widgets';
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
@@ -49,8 +45,6 @@ class WidgetsRelationManager extends RelationManager
                         'type',
                     ],
                 ])
-                    ->select('widget_assets.widget_id')
-                    ->groupBy('widget_assets.widget_id')
             )
             ->columns([
                 IdentifierColumn::make('widget.id'),
