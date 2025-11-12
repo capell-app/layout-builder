@@ -11,13 +11,11 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
-    env:
-      COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.ACCESS_TOKEN }}"} }'
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
         with:
-          ref: 3.x
+          ref: 4.x
           fetch-depth: 0 # ensure full history so commits/pushes work reliably
 
       - name: Update Changelog
@@ -30,7 +28,7 @@ jobs:
       - name: Commit updated CHANGELOG
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          branch: 3.x
+          branch: 4.x
           commit_message: Update CHANGELOG
           file_pattern: CHANGELOG.md
           # Use a Personal Access Token (PAT) with proper permissions to avoid 403 on push
