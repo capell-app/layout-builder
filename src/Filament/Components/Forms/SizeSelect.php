@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms;
 
-use Filament\Forms;
+use Filament\Forms\Components\Select;
 
-class SizeSelect extends Forms\Components\Select
+class SizeSelect extends Select
 {
     protected function setUp(): void
     {

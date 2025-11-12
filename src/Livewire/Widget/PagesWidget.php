@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Livewire\Widget;
 
-use Capell\Frontend\Facades\Frontend;
+use Capell\Frontend\Facades\FrontendLoader;
 use Capell\Frontend\Services\Loader\PageLoader;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,18 +28,18 @@ class PagesWidget extends AbstractWidget
 
     protected function mountWidget(): void
     {
-        $page = Frontend::getPage();
+        $page = FrontendLoader::getPage();
 
         $limit = $this->widget->meta['limit'] ?? config('capell-frontend.pagination_limit', 12);
 
-        $paginationKey = $this->containerKey.ucfirst((string) $this->widget->key).$this->occurrence;
+        $paginationKey = $this->containerKey . ucfirst((string) $this->widget->key) . $this->occurrence;
         $paginationPage = $this->getPage($paginationKey);
 
         $selection = $this->widget->assets->pluck('asset_id')->toArray();
 
         $this->pages = PageLoader::getPages(
-            site: Frontend::getSite(),
-            language: Frontend::getLanguage(),
+            site: FrontendLoader::getSite(),
+            language: FrontendLoader::getLanguage(),
             page: $page,
             limit: $limit,
             paginationPage: $paginationPage,
@@ -50,16 +50,15 @@ class PagesWidget extends AbstractWidget
             withPagination: $this->widget->meta['pagination'] ?? false,
             withParent: $this->widget->meta['with_parent'] ?? false,
             withDate: $this->widget->meta['with_date'] ?? false,
-            withTags: $this->widget->meta['with_tags'] ?? false,
             paginationKey: $paginationKey,
             cacheKeyPrepend: sprintf('page-%d-widget-%d-container-%s-%d', $page->id, $this->widget->id, $this->containerKey, $this->occurrence),
             modifyQuery: fn (Builder $query) => $query->when(
                 $selection,
-                fn (Builder $query) => $query->whereIn('uuid', $selection)
-            )
+                fn (Builder $query) => $query->whereIn('id', $selection),
+            ),
         );
 
-        if ($this->pages->isEmpty()) {
+        if ($this->pages->isEmpty() && config('capell-layout.widget.hide_empty')) {
             $this->skipRender = true;
         }
     }

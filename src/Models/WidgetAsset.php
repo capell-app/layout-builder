@@ -5,46 +5,76 @@ declare(strict_types=1);
 namespace Capell\Layout\Models;
 
 use Capell\Core\Contracts\PageCacheable;
+use Capell\Core\Enums\MediaCollectionEnum;
+use Capell\Core\Models\AssetRelation;
 use Capell\Core\Models\Concerns\HasAssets;
 use Capell\Core\Models\Concerns\HasMetaData;
 use Capell\Core\Models\Concerns\HasPageCache;
-use Capell\Core\Models\Media;
+use Capell\Core\Models\Concerns\InteractsWithMedia;
 use Capell\Core\Models\Page;
 use Capell\Layout\Database\Factories\WidgetAssetFactory;
-use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Foundation\Auth\User;
+use Illuminate\Support\Carbon;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
-use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
 use Wildside\Userstamps\Userstamps;
 
 /**
- * @property-read Model|Eloquent $asset
- * @property-read \Illuminate\Foundation\Auth\User|null $creator
- * @property-read \Illuminate\Foundation\Auth\User|null $destroyer
- * @property-read \Illuminate\Foundation\Auth\User|null $editor
+ * Capell\Layout\Models\WidgetAsset
+ *
+ * @property int $id
+ * @property string $container
+ * @property int|null $page_id
+ * @property array|null $meta
+ * @property int|null $occurrence
+ * @property int|null $order
+ * @property int|null $asset_id
+ * @property string|null $asset_type
+ * @property int|null $widget_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property int|null $created_by
+ * @property int|null $updated_by
+ * @property int|null $deleted_by
+ * @property-read Model $asset
+ * @property-read User|null $creator
+ * @property-read User|null $destroyer
+ * @property-read User|null $editor
  * @property-read string $asset_key
  * @property-read Media|null $image
  * @property-read Page|null $page
  * @property-read Page|null $relatedPage
  * @property-read Widget|null $widget
- * @property-read \Illuminate\Database\Eloquent\Collection|Content[] $related
+ * @property-read Collection|Content[] $related
  * @property-read int|null $related_count
+ * @property-read MediaCollection<int, Media> $media
+ * @property-read int|null $media_count
  *
- * @method static \Capell\Layout\Database\Factories\WidgetAssetFactory factory($count = null, $state = [])
+ * @method static WidgetAssetFactory factory($count = null, $state = [])
  * @method static Builder<static>|WidgetAsset newModelQuery()
  * @method static Builder<static>|WidgetAsset newQuery()
  * @method static Builder<static>|WidgetAsset ordered(string $dir = 'asc')
  * @method static Builder<static>|WidgetAsset query()
  * @method static Builder<static>|WidgetAsset withAssets(bool $withDrafts = true)
  *
- * @mixin \Eloquent
- * @mixin Eloquent
+ * @property-read Collection<int, AssetRelation> $assetRelations
+ * @property-read int|null $asset_relations_count
+ * @property-read Collection<int, AssetRelation> $assets
+ * @property-read int|null $assets_count
+ *
+ * @mixin Model
  */
-class WidgetAsset extends Model implements PageCacheable
+class WidgetAsset extends Model implements HasMedia, PageCacheable
 {
     use HasAssets;
 
@@ -54,6 +84,7 @@ class WidgetAsset extends Model implements PageCacheable
     use HasJsonRelationships;
     use HasMetaData;
     use HasPageCache;
+    use InteractsWithMedia;
     use Userstamps;
 
     /**
@@ -72,15 +103,17 @@ class WidgetAsset extends Model implements PageCacheable
         'widget_id',
     ];
 
+    protected $casts = [
+        'meta' => 'json',
+        'order' => 'integer',
+        'occurrence' => 'integer',
+    ];
+
     protected static string $factory = WidgetAssetFactory::class;
 
-    public static function totalWidgetPages(Widget $widget): int
+    public function registerMediaCollections(): void
     {
-        return static::query()
-            ->where('widget_id', $widget->id)
-            ->whereNotNull('page_id')
-            ->distinct('page_id')
-            ->count('page_id');
+        $this->addMediaCollection(MediaCollectionEnum::Image->value)->singleFile();
     }
 
     public function widget(): BelongsTo
@@ -95,45 +128,16 @@ class WidgetAsset extends Model implements PageCacheable
 
     public function asset(): MorphTo
     {
-        return $this->morphTo('asset', 'asset_type', 'asset_id', 'uuid');
+        return $this->morphTo();
     }
 
-    public function related(): BelongsToJson
-    {
-        return $this->belongsToJson(Content::class, 'meta->related');
-    }
-
-    public function image(): BelongsTo
-    {
-        return $this->belongsTo(Media::class, 'meta->image_id');
-    }
-
-    public function relatedPage(): BelongsTo
-    {
-        return $this->belongsTo(Page::class, 'meta->related_page_id');
-    }
-
-    public function scopeOrdered(Builder $query, string $dir = 'asc'): void
+    protected function scopeOrdered(Builder $query, string $dir = 'asc'): void
     {
         $query->orderBy($this->qualifyColumn('order'), $dir);
     }
 
-    protected function assetKey(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function assetKey(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: fn (): string => $this->asset_type.'.'.$this->asset_id);
-    }
-
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'meta' => 'json',
-            'order' => 'integer',
-            'occurrence' => 'integer',
-        ];
+        return Attribute::make(get: fn (): string => $this->asset_type . '.' . $this->asset_id);
     }
 }

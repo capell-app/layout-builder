@@ -5,28 +5,22 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Components\Forms\Content;
 
 use Capell\Admin\Filament\Components\Forms\NameInput;
-use Capell\Admin\Filament\Components\Forms\SyncNameWithTitle;
-use Filament\Forms;
+use Filament\Schemas\Schema;
 
 class ContentDetailsSchema
 {
-    public static function make(): array
+    public static function make(Schema $schema): array
     {
         return [
-            Forms\Components\Group::make()
-                ->extraAttributes(['class' => 'filament-form-compact'])
-                ->schema([
-                    NameInput::make('name')
-                        ->withTitleUpdater(),
-
-                    SyncNameWithTitle::make('sync_name_title'),
-                ]),
-
+            NameInput::make('name')
+                ->withTitleUpdater(),
             ContentTypeSelect::make('type_id')
-                ->live()
                 ->withRelation()
-                ->withCreateForm()
-                ->withEditForm(),
+                ->when(
+                    $schema->isCreating(),
+                    fn (ContentTypeSelect $component): ContentTypeSelect => $component->withCreateForm(),
+                    fn (ContentTypeSelect $component): ContentTypeSelect => $component->withEditForm(),
+                ),
         ];
     }
 }

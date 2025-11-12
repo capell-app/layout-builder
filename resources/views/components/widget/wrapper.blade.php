@@ -6,15 +6,16 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Enums\DefaultColorEnum;
-    use Capell\Frontend\Facades\Frontend;
+    use Capell\Frontend\Facades\FrontendLoader;
+    use Capell\Layout\Enums\ContainerWidthEnum;
 
-    $theme = Frontend::getTheme();
+    $theme = FrontendLoader::getTheme();
 @endphp
 
 @props([
     'backgroundAttachment' => $widget->meta['background_attachment'] ?? '',
     'backgroundColor' => $widget->meta['background_color'] ?? '',
-    'backgroundImage' => ! empty($widget->meta['background_image_id']) ? Capell\Core\Models\Media::find($widget->meta['background_image_id']) : null,
+    'backgroundImage' => $widget->backgroundImage,
     'backgroundRepeat' => $widget->meta['background_repeat'] ?? 'no-repeat',
     'backgroundOverlay' => $widget->meta['background_overlay'] ?? false,
     'backgroundPosition' => $widget->meta['background_position'] ?? 'center',
@@ -39,11 +40,11 @@ declare(strict_types=1);
     'containerColspan' => null,
 ])
 <{{ $tag }}
-    id="{{ $containerKey.'-'.$widget->key."-$index" }}"
+    id="{{ $containerKey . '-' . $widget->key . "-{$index}" }}"
     {{
         $attributes->class([
-            '@container/wrap widget widget-'.$widget->key,
-            $class => $class !== 'widget-'.$widget->key,
+            '@container widget widget-' . $widget->key,
+            $class => $class !== 'widget-' . $widget->key,
             $containerClass => $containerWidth === 'full',
             'w-full' => $containerColspan === 12,
             'py-4' => in_array('sm', $padding, true),
@@ -52,20 +53,20 @@ declare(strict_types=1);
             'py-8' => in_array('md', $padding, true),
             'pt-8' => in_array('t-md', $padding, true),
             'pb-8' => in_array('b-md', $padding, true),
-            'py-10 lg:py-16' => in_array('lg', $padding, true),
-            'pt-10 lg:pt-16' => in_array('t-lg', $padding, true),
-            'pb-10 lg:pb-16' => in_array('b-lg', $padding, true),
+            'py-10' => in_array('lg', $padding, true),
+            'pt-10' => in_array('t-lg', $padding, true),
+            'pb-10' => in_array('b-lg', $padding, true),
             'pt-20' => in_array('t-xl', $padding, true),
             'pb-20' => in_array('b-xl', $padding, true),
             'my-4' => in_array('sm', $margin, true),
             'mt-4' => in_array('t-sm', $margin, true),
             'mb-4' => in_array('b-sm', $margin, true),
-            'my-6 lg:my-10' => in_array('md', $margin, true),
+            'my-6' => in_array('md', $margin, true),
             'mt-6' => in_array('t-md', $margin, true),
             'mb-6' => in_array('b-md', $margin, true),
-            'my-10 lg:my-16' => in_array('lg', $margin, true),
-            'mt-10 lg:mt-16' => in_array('t-lg', $margin, true),
-            'mb-10 lg:mb-16' => in_array('b-lg', $margin, true),
+            'my-10' => in_array('lg', $margin, true),
+            'mt-10' => in_array('t-lg', $margin, true),
+            'mb-10' => in_array('b-lg', $margin, true),
             'm-20' => in_array('xl', $margin, true),
             'mt-20' => in_array('t-xl', $margin, true),
             'mb-20' => in_array('b-xl', $margin, true),
@@ -98,7 +99,7 @@ declare(strict_types=1);
         ])
     }}
     @if ($backgroundColor && ! $isDefaultColor || $backgroundImage)
-        style="{{ $backgroundColor && ! $isDefaultColor ? 'background-color:'.$backgroundColor.';' : '' }}{{ $backgroundImage ? 'background-image:url('.$backgroundImage->url.');' : '' }}"
+        style="{{ $backgroundColor && ! $isDefaultColor ? 'background-color:' . $backgroundColor . ';' : '' }}{{ $backgroundImage ? 'background-image:url(' . $backgroundImage->getAvailableUrl(['large']) . ');' : '' }}"
     @endif
 >
     @if ($backgroundOverlay)
@@ -111,10 +112,11 @@ declare(strict_types=1);
         <div
             @class([
                 match ($pageContainer) {
-                    'sm' => 'sm:container',
-                    'md' => 'md:container',
-                    'lg' => 'lg:container',
-                    'full' => '',
+                    ContainerWidthEnum::Full->value => 'w-full',
+                    ContainerWidthEnum::Small->value => 'sm:container',
+                    ContainerWidthEnum::Medium->value => 'md:container',
+                    ContainerWidthEnum::Large->value => 'lg:container',
+                    ContainerWidthEnum::ExtraLarge->value => 'xl:container',
                     default => 'container',
                 },
                 $containerClass ?: '' => $containerClass,

@@ -6,18 +6,18 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Enums\AssetComponentEnum;
-    use Capell\Frontend\Facades\Frontend;
+    use Capell\Frontend\Facades\FrontendLoader;
 
-    $site = Frontend::getSite();
+    $site = FrontendLoader::getSite();
 @endphp
 
 @props([
     'columns' => $container['meta']['override_columns'] ?? ($widget->meta['columns'] ?? 3),
-    'componentItem' => ($widget->meta['component_item'] ?? AssetComponentEnum::Card->value),
     'container',
     'containerKey',
     'containerWidth' => null,
-    'hideContent' => $widgetData['meta']['hide_content'] ?? false,
+    'showPageContent' => $widgetData['meta']['show_page_content'] ?? false,
+    'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
     'index',
     'loop',
     'size' => $widget->meta['size'] ?? null,
@@ -37,7 +37,7 @@ declare(strict_types=1);
             class="mb-4"
             :compact="true"
             :content="$widget->translation->content"
-            :contents="$widget->translation->content ? null : $widget->translation->contents"
+            :presenter="$widget->type->meta['content_presenter'] ?? null"
             :title="$widget->translation->title"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
         />
@@ -70,11 +70,11 @@ declare(strict_types=1);
                         <div class="ml-2 flex w-10 justify-center">
                             @svg('heroicon-o-chevron-right', [
                                 'class' => 'text-link group-hover:text-primary group-focus:text-primary h-6 w-6',
-                                ':class' => "{ 'rotate-90': isActive(".$loop->iteration."), 'rotate-0': !isActive(".$loop->iteration.') }',
+                                ':class' => "{ 'rotate-90': isActive(" . $loop->iteration . "), 'rotate-0': !isActive(" . $loop->iteration . ') }',
                             ])
                         </div>
                         <div class="font-medium">
-                            {!! $widgetAsset->asset->translation->title !!}
+                            {!! $widgetAsset->asset->translation?->title !!}
                         </div>
                     </button>
 
@@ -92,41 +92,27 @@ declare(strict_types=1);
                                     <x-capell::content
                                         :compact="true"
                                         :content="$widgetAsset->asset->translation->content"
-                                        :contents="$widgetAsset->asset->translation->contents"
+                                        :presenter="$widgetAsset->asset->type->meta['content_presenter'] ?? null"
                                     />
                                 @endif
 
                                 @if ($widgetAsset->asset->image)
                                     <a href="{{ $linkedPageUrl }}">
-                                        @if ($widgetAsset->asset->image->preview->hasCuration('thumbnail'))
-                                            <x-curator-curation
-                                                curation="thumbnail"
-                                                :media="$widgetAsset->asset->image->preview"
-                                                :width="120"
-                                                :height="120"
-                                                fit="crop"
-                                                format="webp"
-                                                class="h-10 w-10 rounded-full object-cover object-center"
-                                                loading="lazy"
-                                            />
-                                        @else
-                                            <x-curator-glider
-                                                :media="$widgetAsset->asset->image->preview"
-                                                :width="120"
-                                                :height="120"
-                                                fit="crop"
-                                                format="webp"
-                                                class="h-10 w-10 rounded-full object-cover object-center"
-                                                loading="lazy"
-                                            />
-                                        @endif
+                                        <x-capell::media
+                                            :media="$widgetAsset->asset->image"
+                                            :width="120"
+                                            :height="120"
+                                            fit="crop"
+                                            class="h-10 w-10 rounded-full object-cover object-center"
+                                            loading="lazy"
+                                        />
                                     </a>
                                 @endif
                             </div>
 
-                            @if ($widgetAsset->asset->translation->actions || $linkedPageUrl)
+                            @if (! empty($widgetAsset->asset->meta['actions']) || $linkedPageUrl)
                                 <x-capell::actions
-                                    :actions="$widgetAsset->asset->translation->actions"
+                                    :actions="$widgetAsset->asset->meta['actions'] ?? []"
                                     class="mt-4"
                                 >
                                     @if ($linkedPageUrl)
@@ -135,7 +121,7 @@ declare(strict_types=1);
                                             color="default"
                                             icon="heroicon-o-chevron-right"
                                         >
-                                            {{ $item->translation->link_text }}
+                                            {{ $item->translation?->link_text }}
                                         </x-capell::button>
                                     @endif
                                 </x-capell::actions>

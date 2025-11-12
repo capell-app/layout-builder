@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Capell\Layout\Database\Factories;
 
 use Capell\Core\Enums\AssetEnum;
-use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Layout\Enums\AssetEnum as LayoutAssetEnum;
 use Capell\Layout\Models\Content;
@@ -20,13 +19,6 @@ class WidgetAssetFactory extends Factory
 {
     protected $model = WidgetAsset::class;
 
-    public function container(?string $containerKey): self
-    {
-        return $this->state(fn (array $attributes): array => [
-            'container' => $containerKey,
-        ]);
-    }
-
     /**
      * Define the model's default state.
      *
@@ -36,7 +28,6 @@ class WidgetAssetFactory extends Factory
     {
         $assetType = fake()->randomElement([
             AssetEnum::Page,
-            AssetEnum::Media,
             LayoutAssetEnum::Content,
         ]);
 
@@ -45,15 +36,21 @@ class WidgetAssetFactory extends Factory
             'page_id' => null,
             'asset_type' => $assetType->value,
             'asset_id' => fn (): string => match ($assetType) {
-                LayoutAssetEnum::Content => (string) Content::factory()->create()->uuid,
-                AssetEnum::Media => (string) Media::factory()->create()->uuid,
-                AssetEnum::Page => (string) Page::factory()->create()->uuid,
+                LayoutAssetEnum::Content => (string) Content::factory()->create()->id,
+                AssetEnum::Page => (string) Page::factory()->create()->id,
             },
-            'occurrence' => null,
+            'occurrence' => 1,
             'order' => fake()->randomNumber(1),
             'created_at' => fake()->dateTimeBetween('-1 year', '-6 month'),
             'updated_at' => fake()->dateTimeBetween('-5 month'),
         ];
+    }
+
+    public function container(?string $containerKey): self
+    {
+        return $this->state(fn (array $attributes): array => [
+            'container' => $containerKey,
+        ]);
     }
 
     public function occurrence(int $occurrence): self
@@ -77,9 +74,8 @@ class WidgetAssetFactory extends Factory
         return $this->state(fn (array $attributes): array => [
             'asset_type' => $type->value,
             'asset_id' => fn (): string => match ($type) {
-                LayoutAssetEnum::Content => (string) Content::factory()->withTranslations()->create()->uuid,
-                AssetEnum::Media => (string) Media::factory()->create()->uuid,
-                AssetEnum::Page => (string) Page::factory()->withTranslations()->create()->uuid,
+                LayoutAssetEnum::Content => (string) Content::factory()->withTranslations()->create()->id,
+                AssetEnum::Page => (string) Page::factory()->withTranslations()->create()->id,
             },
         ]);
     }

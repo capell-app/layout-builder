@@ -5,13 +5,12 @@ declare(strict_types=1);
 ?>
 
 @php
-    use Capell\Frontend\Facades\Frontend;
-    use Capell\Frontend\Services\Loader\LayoutLoader;
+    use Capell\Frontend\Facades\FrontendLoader;
     use Capell\Layout\Models\Widget;
     use Illuminate\Support\Collection;
 
-    $layout = Frontend::getLayout();
-    $theme = Frontend::getTheme();
+    $layout = FrontendLoader::getLayout();
+    $theme = FrontendLoader::getTheme();
 
     $previousColspan = null;
 @endphp
@@ -62,7 +61,7 @@ declare(strict_types=1);
                 $slotRendered = false;
             @endphp
 
-            @foreach ($layout->containers as $containerKey => $container)
+            @foreach ((array) $layout->containers as $containerKey => $container)
                 @php
                     $widgets = collect($container['widgets'])
                         ->map(
@@ -96,9 +95,9 @@ declare(strict_types=1);
 
                     if ($containerClass) {
                         if (is_string($containerClass)) {
-                            $htmlClass .= ' '.$containerClass;
+                            $htmlClass .= ' ' . $containerClass;
                         } elseif (! empty($containerClass[$containerKey])) {
-                            $htmlClass .= ' '.$containerClass[$containerKey];
+                            $htmlClass .= ' ' . $containerClass[$containerKey];
                         }
                     }
                 @endphp
@@ -106,6 +105,7 @@ declare(strict_types=1);
                 <x-capell::layout.container
                     :$container
                     :$containerKey
+                    :$layout
                     :containerIndex="$loop->index"
                     :colspan="$colspan"
                     :column-start="$columnStart"

@@ -17,10 +17,10 @@ class LayoutFactory extends \Capell\Core\Database\Factories\LayoutFactory
     {
         return $this->state([
             'containers' => function (): array {
-                $firstWidget = Widget::firstWhere('key', 'first')
+                $firstWidget = Widget::query()->firstWhere('key', 'first')
                     ?: Widget::factory(['key' => 'first'])->create();
 
-                $secondWidget = Widget::firstWhere('key', 'second')
+                $secondWidget = Widget::query()->firstWhere('key', 'second')
                     ?: Widget::factory(['key' => 'second'])->create();
 
                 return [

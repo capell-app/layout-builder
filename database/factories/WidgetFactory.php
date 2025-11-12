@@ -27,13 +27,13 @@ class WidgetFactory extends Factory
 
         return [
             'name' => $name,
-            'key' => fake()->unique()->slug,
+            'key' => fake()->unique()->slug(),
             'type_id' => fn () => Type::factory()
                 ->type(LayoutTypeEnum::Widget->value)
                 ->state(
                     fn (): array => [
                         'default' => ! Type::query()->where('type', LayoutTypeEnum::Widget)->default()->exists(),
-                    ]
+                    ],
                 ),
             'created_at' => fake()->dateTimeBetween('-1 year', '-6 month'),
             'updated_at' => fake()->dateTimeBetween('-5 month'),

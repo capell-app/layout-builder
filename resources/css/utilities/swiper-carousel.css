@@ -1,7 +1,7 @@
 :root {
-    --swiper-pagination-bullet-width: 16px;
-    --swiper-pagination-bullet-border-radius: 8px;
-    --swiper-pagination-bullet-horizontal-gap: 6px;
+    --swiper-pagination-bullet-width: 1.5rem;
+    --swiper-pagination-bullet-border-radius: 1rem;
+    --swiper-pagination-bullet-horizontal-gap: 0.3rem;
     --swiper-theme-color: var(--color-primary);
 }
 

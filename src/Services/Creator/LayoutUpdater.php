@@ -13,20 +13,18 @@ class LayoutUpdater
     public function setup(?string $key = null): void
     {
         if ($key === null) {
-            $this->defaultLayout(Layout::firstWhere('default', true));
-            $this->homeLayout(Layout::firstWhere('key', \Capell\Layout\Enums\LayoutEnum::Home));
-            $this->resultsLayout(Layout::firstWhere('key', LayoutEnum::Results));
-            $this->tagsLayout(Layout::firstWhere('key', LayoutEnum::Tags));
+            $this->defaultLayout(Layout::query()->firstWhere('key', LayoutEnum::Default));
+            $this->homeLayout(Layout::query()->firstWhere('key', LayoutEnum::Home));
+            $this->resultsLayout(Layout::query()->firstWhere('key', LayoutEnum::Results));
 
             return;
         }
 
         match ($key) {
-            \Capell\Layout\Enums\LayoutEnum::Home->value => $this->homeLayout(Layout::firstWhere('key', \Capell\Layout\Enums\LayoutEnum::Home)),
-            LayoutEnum::Results->value => $this->resultsLayout(Layout::firstWhere('key', LayoutEnum::Results)),
-            LayoutEnum::Tags->value => $this->tagsLayout(Layout::firstWhere('key', LayoutEnum::Tags)),
-            LayoutEnum::Default->value => $this->defaultLayout(Layout::firstWhere('default', true)),
-            default => throw new InvalidArgumentException('Invalid layout key: '.$key)
+            LayoutEnum::Home->value => $this->homeLayout(Layout::query()->firstWhere('key', LayoutEnum::Home)),
+            LayoutEnum::Results->value => $this->resultsLayout(Layout::query()->firstWhere('key', LayoutEnum::Results)),
+            LayoutEnum::Default->value => $this->defaultLayout(Layout::query()->firstWhere('key', LayoutEnum::Default)),
+            default => throw new InvalidArgumentException('Invalid layout key: ' . $key)
         };
     }
 
@@ -34,29 +32,14 @@ class LayoutUpdater
     {
         $layout->update([
             'containers' => [
-                'main' => [
-                    'meta' => [
-                        'colspan' => 9,
-                    ],
-                    'widgets' => [
-                        ['widget_key' => 'breadcrumbs'],
-                        ['widget_key' => 'page-content'],
-                        ['widget_key' => 'children'],
-                    ],
-                ],
-                'sidebar' => [
-                    'meta' => [
-                        'colspan' => 3,
-                        'override_columns' => 1,
-                        'container' => 'full',
-                        'tag' => 'aside',
-                        'padding' => ['md'],
-                        'html_class' => 'sidebar-sticky space-y-10 pt-10 pb-20',
-                    ],
-                    'widgets' => [
-                        ['widget_key' => 'latest-pages'],
-                    ],
-                ],
+                'main' => $this->mainContainer([
+                    ['widget_key' => 'breadcrumbs'],
+                    ['widget_key' => 'page-content'],
+                    ['widget_key' => 'children'],
+                ]),
+                'sidebar' => $this->sidebarContainer([
+                    ['widget_key' => 'latest-pages'],
+                ]),
             ],
         ]);
     }
@@ -78,60 +61,40 @@ class LayoutUpdater
     {
         $layout->update([
             'containers' => [
-                'main' => [
-                    'meta' => [
-                        'colspan' => 9,
-                    ],
-                    'widgets' => [
-                        ['widget_key' => 'breadcrumbs'],
-                        ['widget_key' => 'page-content'],
-                        ['widget_key' => 'page-slot'],
-                    ],
-                ],
-                'sidebar' => [
-                    'meta' => [
-                        'colspan' => 3,
-                        'override_columns' => 1,
-                        'container' => 'full',
-                        'tag' => 'aside',
-                        'padding' => ['md'],
-                        'html_class' => 'sidebar-sticky space-y-10 pt-10 pb-20',
-                    ],
-                    'widgets' => [
-                        ['widget_key' => 'latest-pages'],
-                    ],
-                ],
+                'main' => $this->mainContainer([
+                    ['widget_key' => 'breadcrumbs'],
+                    ['widget_key' => 'page-content'],
+                    ['widget_key' => 'page-slot'],
+                ]),
+                'sidebar' => $this->sidebarContainer([
+                    ['widget_key' => 'latest-pages'],
+                ]),
             ],
         ]);
     }
 
-    public function tagsLayout(Layout $layout): void
+    private function sidebarContainer(array $widgets): array
     {
-        $layout->update([
-            'containers' => [
-                'main' => [
-                    'meta' => [
-                        'colspan' => 9,
-                    ],
-                    'widgets' => [
-                        ['widget_key' => 'breadcrumbs'],
-                        ['widget_key' => 'tags', 'meta' => ['hide_content' => true]],
-                    ],
-                ],
-                'sidebar' => [
-                    'meta' => [
-                        'colspan' => 3,
-                        'override_columns' => 1,
-                        'container' => 'full',
-                        'tag' => 'aside',
-                        'padding' => ['md'],
-                        'html_class' => 'sidebar-sticky space-y-10 pt-10 pb-20',
-                    ],
-                    'widgets' => [
-                        ['widget_key' => 'latest-pages'],
-                    ],
-                ],
+        return [
+            'meta' => [
+                'colspan' => 3,
+                'override_columns' => 1,
+                'container' => 'full',
+                'tag' => 'aside',
+                'padding' => ['md'],
+                'html_class' => 'sidebar-sticky space-y-10',
             ],
-        ]);
+            'widgets' => $widgets,
+        ];
+    }
+
+    private function mainContainer(array $widgets): array
+    {
+        return [
+            'meta' => [
+                'colspan' => 9,
+            ],
+            'widgets' => $widgets,
+        ];
     }
 }

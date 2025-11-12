@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Actions;
 
-use Capell\Core\Facades\CapellCore;
-use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Models\Content;
-use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -34,20 +31,17 @@ class ReplicateContentAction
 
         $model->fill($data);
 
-        $replica = $model->duplicate();
-
-        if ($model->isClean('name')) {
-            $replica->name = $this->getContentName($content);
-        }
+        $replica = $model->duplicate([
+            'uuid',
+        ]);
 
         $replica->created_at = now();
         $replica->updated_at = now();
 
-        if ($replica->isPublished()) {
+        if ($content->isPublished()) {
+            $replica->is_published = true;
             $replica->published_at = now();
         }
-
-        $replica->uuid = null;
 
         $className::setupNewModel($replica);
 
@@ -62,19 +56,5 @@ class ReplicateContentAction
         }
 
         return $replica;
-    }
-
-    private function getContentName(Content $content): string
-    {
-        $name = Str::incrementName($content->name);
-
-        /** @var class-string<Content> $model */
-        $model = CapellCore::getModel(LayoutModelEnum::Content->name);
-
-        while ($model::query()->where('name', $name)->exists()) {
-            $name = Str::incrementName($name);
-        }
-
-        return $name;
     }
 }

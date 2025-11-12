@@ -2,26 +2,42 @@
 
 declare(strict_types=1);
 
+use Capell\Layout\Filament\Resources\Pages\RelationManagers\ContentsRelationManager;
+use Capell\Layout\Filament\Resources\Widgets\RelationManagers\WidgetAssetsRelationManager;
+use Capell\Layout\Livewire\Assets\Table\ContentsTable;
+use Capell\Layout\Livewire\Assets\Table\PagesTable;
+use Capell\Layout\Livewire\LayoutBuilder;
+use Capell\Layout\Livewire\Widget\PagesWidget;
+use Capell\Layout\Models\Content;
+use Capell\Layout\View\Components\Widget\Pages\ChildrenWidget;
+use Capell\Layout\View\Components\Widget\Pages\LatestWidget;
+use Capell\Layout\View\Components\Widget\Pages\SiblingsWidget;
+use Filament\Support\Icons\Heroicon;
+
 return [
     'assets' => [
         'content' => [
-            'icon' => 'heroicon-o-document-text',
-            'model' => Capell\Layout\Models\Content::class,
+            'icon' => Heroicon::OutlinedRectangleStack,
+            'model' => Content::class,
         ],
     ],
     'livewire_components' => [
-        'capell.layout.livewire.layout-builder' => Capell\Layout\Livewire\LayoutBuilder::class,
-        'capell.layout.filament.resources.page-resource.relation-managers.contents-relation-manager' => Capell\Layout\Filament\Resources\PageResource\RelationManagers\ContentsRelationManager::class,
-        'capell-layout::layout-builder-assets-table-media' => Capell\Layout\Livewire\Assets\Table\MediaTable::class,
-        'capell-layout::layout-builder-assets-table-page' => Capell\Layout\Livewire\Assets\Table\PagesTable::class,
-        'capell-layout::layout-builder-assets-table-content' => Capell\Layout\Livewire\Assets\Table\ContentsTable::class,
-        'capell-layout::livewire.widget.pages' => Capell\Layout\Livewire\Widget\PagesWidget::class,
+        'capell.layout.livewire.layout-builder' => LayoutBuilder::class,
+        'capell.layout.filament.resources.page-resource.relation-managers.contents-relation-manager' => ContentsRelationManager::class,
+        'capell.layout.filament.resources.widget-resource.relation-managers.widget-assets-relation-manager' => WidgetAssetsRelationManager::class,
+        'capell-layout::livewire.assets.table.page' => PagesTable::class,
+        'capell-layout::livewire.assets.table.content' => ContentsTable::class,
+        'capell-layout::livewire.widget.pages' => PagesWidget::class,
     ],
-
     'blade_components' => [
-        'capell-layout::widget.pages.related' => Capell\Layout\View\Components\Widget\Pages\RelatedWidget::class,
-        'capell-layout::widget.pages.children' => Capell\Layout\View\Components\Widget\Pages\ChildrenWidget::class,
-        'capell-layout::widget.pages.siblings' => Capell\Layout\View\Components\Widget\Pages\SiblingsWidget::class,
-        'capell-layout::widget.pages.latest' => Capell\Layout\View\Components\Widget\Pages\LatestWidget::class,
+        'capell-layout::widget.pages.children' => ChildrenWidget::class,
+        'capell-layout::widget.pages.siblings' => SiblingsWidget::class,
+        'capell-layout::widget.pages.latest' => LatestWidget::class,
+    ],
+    'widget' => [
+        'hide_empty' => false,
+    ],
+    'layout_builder' => [
+        'lazy' => env('CAPELL_LAYOUT_BUILDER_LAZY', true),
     ],
 ];

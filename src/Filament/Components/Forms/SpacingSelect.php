@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms;
 
-use Filament\Forms;
+use Filament\Forms\Components\Select;
 
-class SpacingSelect extends Forms\Components\Select
+class SpacingSelect extends Select
 {
     protected function setUp(): void
     {
@@ -14,8 +14,8 @@ class SpacingSelect extends Forms\Components\Select
 
         $this->label(__('capell-admin::form.spacing'))
             ->helperText(__('capell-admin::generic.spacing_help'))
-            ->placeholder(__('capell-admin::form.none'))
             ->options([
+                'none' => __('capell-admin::generic.none'),
                 'sm' => __('capell-admin::generic.small'),
                 'md' => __('capell-admin::generic.medium'),
                 'lg' => __('capell-admin::generic.large'),

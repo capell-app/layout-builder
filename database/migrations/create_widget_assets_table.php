@@ -9,14 +9,6 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('widget_assets');
-    }
-
-    /**
      * Run the migrations.
      */
     public function up(): void
@@ -26,7 +18,7 @@ return new class extends Migration
             $table->foreignId('widget_id')->constrained()->cascadeOnDelete();
             $table->foreignId('page_id')->nullable()->index()->constrained()->cascadeOnDelete();
             $table->string('container')->nullable();
-            $table->unsignedInteger('occurrence')->nullable();
+            $table->unsignedInteger('occurrence')->nullable()->default(1);
             $table->uuidMorphs('asset');
             $table->unsignedInteger('order')->default(0)->index();
             $table->json('meta')->nullable();
@@ -37,5 +29,13 @@ return new class extends Migration
             $table->index(['asset_type', 'asset_id'], 'resource_index');
             $table->unique(['page_id', 'widget_id', 'container', 'occurrence', 'asset_type', 'asset_id'], 'page_widget_asset_index');
         });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('widget_assets');
     }
 };

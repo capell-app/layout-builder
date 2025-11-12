@@ -7,7 +7,6 @@ namespace Capell\Layout\Observers;
 use Capell\Core\Models\Type;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Models\Content;
-use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 class ContentObserver
@@ -16,15 +15,7 @@ class ContentObserver
     {
         if (! $content->type_id) {
             $content->type_id = Type::query()->where('type', LayoutTypeEnum::Content)->default()->value('id');
-
-            if (! $content->type_id) {
-                throw new InvalidArgumentException('Unable to create content without a type.');
-            }
+            throw_unless($content->type_id, InvalidArgumentException::class, 'Unable to create content without a type.');
         }
-    }
-
-    public function replicating(Content $content): void
-    {
-        $content->uuid = Str::uuid();
     }
 }

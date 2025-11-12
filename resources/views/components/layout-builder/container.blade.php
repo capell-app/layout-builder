@@ -23,24 +23,41 @@ declare(strict_types=1);
 <div
     x-data="{
         isCollapsed: false,
+        id: '{{ $containerKey }}',
+        notify() {
+            this.$dispatch('container-collapsed-changed', {
+                id: this.id,
+                isCollapsed: this.isCollapsed,
+            })
+        },
         toggleCollapse() {
             this.isCollapsed = ! this.isCollapsed
+            this.notify()
         },
     }"
     wire:key="container-{{ $containerKey }}"
     x-sort:item="'{{ $containerKey }}'"
-    x-on:collapse-container.window="isCollapsed = $event.detail.isCollapsed"
-    x-cloak
+    x-init="
+        $dispatch('container-collapsed-register', {
+            id: id,
+            isCollapsed: isCollapsed,
+        })
+    "
+    x-on:collapse-container.window="
+        if ($event.detail.id && $event.detail.id !== id) return
+        isCollapsed = $event.detail.isCollapsed
+        notify()
+    "
     @class([
         'layout-container col-span-12',
         'md:col-span-6' => $colspan < 12,
     ])
 >
     <div
-        class="rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-800 dark:ring-white/10"
+        class="rounded-lg bg-white ring-1 ring-gray-950/10 dark:bg-gray-900 dark:ring-white/10"
     >
         <div
-            class="layout-container-header group/container flex min-h-11 cursor-pointer items-center gap-x-4 gap-y-2 rounded-lg bg-gray-100 px-4 dark:bg-white/5"
+            class="layout-container-header group/container flex min-h-11 cursor-pointer items-center gap-x-4 gap-y-2 rounded-lg border-b border-gray-100 bg-gray-50 px-4 hover:bg-gray-50 dark:border-white/5 dark:bg-gray-800 dark:hover:bg-white/5"
             :class="{ '!rounded-b-none': !isCollapsed }"
             x-on:click.self="toggleCollapse"
         >
@@ -61,15 +78,50 @@ declare(strict_types=1);
                 @endif
 
                 <span
-                    class="pointer-events-auto break-words text-sm font-light uppercase leading-6 tracking-wide text-gray-700 dark:text-white"
+                    class="group-hover/container:text-primary-600 pointer-events-auto break-words text-sm leading-6 text-gray-500 dark:text-gray-100"
                     x-on:click.self="toggleCollapse"
-                    x-tooltip.raw="{{ __('capell-admin::generic.container_name', ['name' => $containerTitle]) }}"
                 >
-                    {{ $containerTitle }}
+                    {{ __('capell-admin::generic.container_name', ['name' => $containerTitle]) }}
                 </span>
             </div>
 
             <div class="flex items-center gap-3">
+                <div
+                    class="flex justify-end gap-2"
+                    x-show="! isReordering"
+                >
+                    <x-filament::link
+                        class="whitespace-nowrap"
+                        color="gray"
+                        icon="heroicon-m-plus"
+                        iconSize="sm"
+                        size="xs"
+                        tag="button"
+                        weight="normal"
+                        x-on:click="collapseAllContainerWidgets(id, false)"
+                        x-cloak
+                        x-show="isAllWidgetsCollapsed(id) !== false"
+                        x-tooltip.raw="{{ __('capell-admin::button.expand_all') }}"
+                    >
+                        {{ __('capell-admin::button.expand') }}
+                    </x-filament::link>
+                    <x-filament::link
+                        class="whitespace-nowrap"
+                        color="gray"
+                        icon="heroicon-o-minus"
+                        iconSize="sm"
+                        size="xs"
+                        tag="button"
+                        weight="normal"
+                        x-on:click="collapseAllContainerWidgets(id, true)"
+                        x-cloak
+                        x-show="isAllWidgetsCollapsed(id) !== true"
+                        x-tooltip.raw="{{ __('capell-admin::button.collapse_all') }}"
+                    >
+                        {{ __('capell-admin::button.collapse') }}
+                    </x-filament::link>
+                </div>
+
                 <x-filament::dropdown
                     placement="bottom-end"
                     width="!w-auto"
@@ -94,7 +146,6 @@ declare(strict_types=1);
 
         <div
             x-show="! isCollapsed"
-            x-cloak
             class="layout-container-widgets min-h-[52px] divide-y divide-gray-100 rounded-b-lg dark:divide-gray-800"
             x-sort="$wire.reorderWidgets('{{ $containerKey }}', $item, $position)"
             x-sort:group="widgets"
@@ -105,8 +156,6 @@ declare(strict_types=1);
                     :$containerKey
                     :$containerWidget
                     :$loop
-                    :assets-count="$containerWidgets[$widgetIndex]->assets?->count()"
-                    :assets="$containerWidgets[$widgetIndex]->assets ?? []"
                     :widget="$containerWidgets[$widgetIndex]"
                     :$widgetIndex
                 />

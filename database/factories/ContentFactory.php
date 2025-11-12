@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Capell\Layout\Database\Factories;
 
 use Capell\Core\Models\Language;
-use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
@@ -29,16 +28,13 @@ class ContentFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->sentence,
+            'name' => fake()->sentence(),
             'parent_id' => null,
-            'parent_uuid' => null,
-            'type_id' => (new ContentTypeFactory()),
+            'type_id' => (new ContentTypeFactory),
             'site_id' => null,
-            'uuid' => fake()->uuid,
             'meta' => fn (array $attributes): array => [
-                'label' => fake()->optional()->sentence,
-                'image_id' => fake()->optional() ? Media::inRandomOrder()->first()?->getKey() : null,
-                'page_id' => fake()->optional() && $attributes['site_id'] ? Page::where('site_id', $attributes['site_id'])->inRandomOrder()->first()?->getKey() : null,
+                'label' => fake()->optional()->sentence(),
+                'page_id' => fake()->optional() && $attributes['site_id'] ? Page::query()->where('site_id', $attributes['site_id'])->inRandomOrder()->first()?->getKey() : null,
             ],
             'order' => fake()->numberBetween(1, 100),
             'publish_from' => fake()->dateTimeBetween('-1 year', '-6 month'),
@@ -50,7 +46,7 @@ class ContentFactory extends Factory
 
     public function parent(Content $parent): self
     {
-        return $this->set('parent_uuid', $parent->getUuid());
+        return $this->set('parent_id', $parent->getKey());
     }
 
     public function published(): self
@@ -79,7 +75,11 @@ class ContentFactory extends Factory
             $languages ??= $content->site?->languages ?? Language::all();
 
             $languages->each(function (Language $language) use ($content, $data): void {
-                $title = $content->name.' '.$language->locale;
+                if ($content->translations()->where('language_id', $language->id)->exists()) {
+                    return;
+                }
+
+                $title = $content->name . ' ' . $language->locale;
 
                 $translation = Translation::factory()
                     ->make([
@@ -91,7 +91,7 @@ class ContentFactory extends Factory
                     ]);
 
                 $content->translations()->create(
-                    $translation->only($translation->getFillable())
+                    $translation->only($translation->getFillable()),
                 );
             });
         });

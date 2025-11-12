@@ -6,58 +6,53 @@ namespace Capell\Layout\Filament\Components\Forms\Widget;
 
 use Capell\Admin\Filament\Components\Forms\NameInput;
 use Capell\Admin\Filament\Components\Forms\StatusToggle;
+use Capell\Admin\Services\SlugGenerator;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\LayoutModelEnum;
-use Filament\Forms;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use Illuminate\Support\Str;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Schema;
 use Illuminate\Validation\Rules\Unique;
 
 class WidgetSettingsSchema
 {
-    public static function make(Forms\Form $form, array $schema = []): array
+    public static function make(Schema $schema, array $components = []): array
     {
         return [
-            Forms\Components\Hidden::make('is_key_changed_manually')
-                ->default(false)
-                ->dehydrated(false),
-
             NameInput::make('name')
-                ->afterStateUpdated(function ($record, Get $get, Set $set, ?string $state): void {
-                    if (! $record && ! $get('is_key_changed_manually') && filled($state)) {
-                        $set('key', Str::slug($state));
-                    }
-                })
-                ->lazy()
-                ->required(),
+                ->required()
+                ->afterStateUpdatedJs(
+                    fn (NameInput $component, string $operation): string => in_array($operation, ['create', 'createOption'], true)
+                        ? SlugGenerator::slugifyState("\$state ?? ''", 'key')
+                        : '',
+                ),
 
-            Forms\Components\TextInput::make('key')
+            TextInput::make('key')
                 ->label(__('capell-admin::form.key'))
                 ->placeholder(__('capell-admin::generic.key_placeholder'))
-                ->afterStateUpdated(function (Set $set, $state): void {
-                    $set('is_key_changed_manually', (bool) $state);
-                })
                 ->alphaDash()
                 ->required()
                 ->maxLength(128)
                 ->unique(
                     table: CapellCore::getModel(LayoutModelEnum::Widget->name),
-                    ignoreRecord: $form->getOperation() !== 'replicate',
-                    modifyRuleUsing: fn (Unique $rule) => $rule->withoutTrashed()
+                    ignoreRecord: $schema->getOperation() !== 'replicate',
+                    modifyRuleUsing: fn (Unique $rule) => $rule->withoutTrashed(),
                 ),
 
             WidgetTypeSelect::make('type_id')
                 ->withRelation()
-                ->withCreateForm()
-                ->withEditForm(),
+                ->when(
+                    $schema->isCreating(),
+                    fn (WidgetTypeSelect $component): WidgetTypeSelect => $component->withCreateForm(),
+                    fn (WidgetTypeSelect $component): WidgetTypeSelect => $component->withEditForm(),
+                ),
 
-            ...$schema,
+            ...$components,
 
-            Forms\Components\Grid::make()
+            Grid::make()
                 ->columns(['default' => 1, 'md' => 2, '2xl' => 1])
                 ->schema([
-                    Forms\Components\Grid::make()
+                    Grid::make()
                         ->columnSpan(1)
                         ->schema([
                             StatusToggle::make('status'),

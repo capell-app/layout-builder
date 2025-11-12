@@ -8,7 +8,8 @@ declare(strict_types=1);
     use Capell\Admin\Enums\AlertTypeEnum;
     use Capell\Admin\Enums\ResourceEnum;
     use Capell\Admin\Facades\CapellAdmin;
-    use Filament\Support\Enums\ActionSize;
+    use Capell\Layout\Livewire\LayoutBuilder;
+    use Filament\Support\Enums\Size;
 
     $changeLayoutAction = $this->changeLayoutAction;
     $duplicateLayoutAction = $this->duplicateLayoutAction;
@@ -25,13 +26,15 @@ declare(strict_types=1);
             )
         }}"
         x-data="layoutBuilderComponent"
+        x-on:expand-all-containers.window="expandAll"
+        x-on:collapse-all-containers.window="collapseAll"
     >
         <div
             class="mb-4 flex flex-wrap justify-between gap-4 pl-1 pr-4 sm:flex-nowrap lg:justify-end"
         >
             <div class="flex-grow">
                 <div class="text-lg font-semibold">
-                    {{ __('capell-admin::heading.layout_record', ['name' => $this->layout->name]) }}
+                    {{ __('capell-admin::heading.layout_record', ['name' => $this->layoutRecord->name]) }}
                 </div>
 
                 <div class="mt-3 text-sm text-gray-500 dark:text-gray-400">
@@ -39,10 +42,10 @@ declare(strict_types=1);
 
                     <span class="text-gray-800 dark:text-gray-300">
                         {!!
-                            trans_choice('capell-admin::message.layout_count_on_pages', $this->layout->pages_count, [
-                                'count' => $this->layout->pages_count,
+                            trans_choice('capell-admin::message.layout_count_on_pages', $this->layoutRecord->pages_count, [
+                                'count' => $this->layoutRecord->pages_count,
                                 'url' => CapellAdmin::getResource(ResourceEnum::Page)::getUrl('index', [
-                                    'tableFilters' => ['layout_id' => ['value' => $this->layout->id]],
+                                    'tableFilters' => ['layout_id' => ['value' => $this->layoutRecord->id]],
                                 ]),
                             ])
                         !!}
@@ -50,7 +53,7 @@ declare(strict_types=1);
 
                     @if ($duplicateLayoutAction->isVisible())
                         <span class="font-medium">
-                            {!! __('capell-admin::generic.copy_page_layout', ['link' => $duplicateLayoutAction->link()->size(ActionSize::Small)->render()]) !!}
+                            {!! __('capell-admin::generic.copy_page_layout', ['link' => $duplicateLayoutAction->link()->size(Size::Small)->toHtml()]) !!}
                         </span>
                     @endif
                 </div>
@@ -58,16 +61,6 @@ declare(strict_types=1);
             <div class="ml-auto mt-auto space-y-4 text-right">
                 @if ($this->page_id || $changeLayoutAction->isVisible())
                     <div class="flex flex-wrap items-center justify-end gap-4">
-                        {{--
-                            @if ($this->page_id)
-                            <x-capell-admin::forms.toggle-button
-                            toggleState="isEditing"
-                            toggleMethod="toggleEditMode"
-                            :label="__('capell-admin::button.toggle_edit_mode')"
-                            />
-                            @endif
-                        --}}
-
                         <div class="fi-btn-group flex items-center">
                             {{ $this->changeLayoutAction }}
 
@@ -105,7 +98,11 @@ declare(strict_types=1);
                     </div>
                 @endif
 
-                <div class="flex justify-end gap-2">
+                <div
+                    class="flex justify-end gap-2"
+                    x-show="! isReordering"
+                    x-cloak
+                >
                     <x-filament::link
                         class="whitespace-nowrap"
                         color="gray"
@@ -114,10 +111,11 @@ declare(strict_types=1);
                         size="xs"
                         tag="button"
                         weight="normal"
-                        x-on:click="expandAll"
-                        x-show="! isReordering"
+                        x-on:click="$dispatch('expand-all-containers')"
+                        x-show="isContainersAllCollapsed !== false"
+                        x-tooltip.raw="{{ __('capell-admin::button.expand_all') }}"
                     >
-                        {{ __('capell-admin::button.expand_all') }}
+                        {{ __('capell-admin::button.expand') }}
                     </x-filament::link>
                     <x-filament::link
                         class="whitespace-nowrap"
@@ -127,17 +125,18 @@ declare(strict_types=1);
                         size="xs"
                         tag="button"
                         weight="normal"
-                        x-on:click="collapseAll"
-                        x-show="! isReordering"
+                        x-on:click="$dispatch('collapse-all-containers')"
+                        x-show="isContainersAllCollapsed !== true"
+                        x-tooltip.raw="{{ __('capell-admin::button.collapse_all') }}"
                     >
-                        {{ __('capell-admin::button.collapse_all') }}
+                        {{ __('capell-admin::button.collapse') }}
                     </x-filament::link>
                 </div>
             </div>
         </div>
 
         @if ($this->layoutModified)
-            <x-filament-simple-alert::simple-alert
+            <x-capell-admin::alert
                 class="mb-5"
                 :color="AlertTypeEnum::Warning->value"
                 :actions="[$this->saveLayoutAction]"
@@ -146,7 +145,7 @@ declare(strict_types=1);
                 <x-slot:description>
                     {{ __('capell-admin::message.layout_unsaved') }}
                 </x-slot>
-            </x-filament-simple-alert::simple-alert>
+            </x-capell-admin::alert>
         @endif
 
         <div class="space-y-5">
@@ -166,7 +165,7 @@ declare(strict_types=1);
                 </div>
             @else
                 <div
-                    class="px-3 py-4 text-center text-base text-gray-600 dark:text-gray-100"
+                    class="px-3 text-center text-sm font-semibold text-gray-600 dark:text-gray-100"
                 >
                     {{ __('capell-admin::message.layout_empty') }}
                 </div>
@@ -174,38 +173,36 @@ declare(strict_types=1);
         </div>
 
         <div class="mt-6 flex items-center justify-center gap-4">
-            {{ $this->addContainerAction }}
-
             @if ($addWidgetAction->isVisible())
                 {{ $addWidgetAction }}
             @endif
 
-            @if (count($containers) > 1 || collect($this->containerWidgets)->flatten(1)->count() > 1)
-                <x-filament::button
-                    color="gray"
-                    size="xs"
-                    outlined
-                    x-on:click="toggleReordering"
-                    x-bind:class="isReordering ? '!bg-primary-500/5 !ring-primary-600 !text-primary-600' : ''"
-                >
-                    @svg('heroicon-o-arrows-up-down',
-                        'inline-block h-4 w-4 text-gray-400 transition duration-75 dark:text-gray-500',
-                        ['x-show' => '! isReordering'])
-                    @svg('heroicon-o-x-mark',
-                        'fi-btn-icon inline-block h-4 w-4 text-gray-400 transition duration-75 dark:text-gray-500',
-                        [
-                            'x-show' => 'isReordering',
-                            'x-cloak' => '',
-                        ])
-                    <span
-                        x-text="
-                            ! isReordering
-                                ? '{{ __('capell-admin::button.reorder') }}'
-                                : '{{ __('capell-admin::button.cancel_reorder') }}'
-                        "
-                    ></span>
-                </x-filament::button>
-            @endif
+            {{ $this->addContainerAction }}
+
+            <x-filament::button
+                color="gray"
+                :size="Size::Small"
+                outlined
+                x-on:click="toggleReordering"
+                x-bind:class="isReordering ? '!bg-primary-500/5 !ring-primary-600 !text-primary-600' : ''"
+            >
+                @svg('heroicon-o-arrows-up-down',
+                    'inline-block h-4 w-4 text-gray-400 transition duration-75 dark:text-gray-500',
+                    ['x-show' => '! isReordering'])
+                @svg('heroicon-o-x-mark',
+                    'fi-btn-icon inline-block h-4 w-4 text-gray-400 transition duration-75 dark:text-gray-500',
+                    [
+                        'x-show' => 'isReordering',
+                        'x-cloak' => '',
+                    ])
+                <span
+                    x-text="
+                        ! isReordering
+                            ? '{{ __('capell-admin::button.reorder') }}'
+                            : '{{ __('capell-admin::button.cancel_reorder') }}'
+                    "
+                ></span>
+            </x-filament::button>
         </div>
     </div>
 

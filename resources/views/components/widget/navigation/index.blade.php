@@ -9,7 +9,8 @@ declare(strict_types=1);
     'container',
     'containerKey',
     'containerWidth' => null,
-    'hideContent' => $widgetData['meta']['hide_content'] ?? false,
+    'showPageContent' => $widgetData['meta']['show_page_content'] ?? false,
+    'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
     'items' => [],
     'loop',
     'widget',
@@ -22,14 +23,16 @@ declare(strict_types=1);
     :index="$loop->index"
     :$widget
 >
-    @if ($widget->translation && ! $hideContent)
+    @if (($widget->translation && ($widget->translation->title || $widget->translation->content))
+         || ($showPageContent && $page->translation->title)
+         || ($showPageTitle && $page->translation->content))
         <x-capell::content
             class="mb-5"
-            :title="$widget->translation->title"
             :compact="true"
-            :content="$widget->translation->content"
-            :contents="$widget->translation->content ? null : $widget->translation->contents"
+            :content="$widget->translation->content ?? ($showPageContent ? $page->translation->content : null)"
+            :presenter="$widget->type->meta['content_presenter'] ?? null"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
+            :title="$widget->translation->title ?? ($showPageTitle ? $page->translation->title : null)"
         />
     @endif
 

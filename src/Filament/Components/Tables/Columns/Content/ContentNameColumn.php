@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Tables\Columns\Content;
 
-use Awcodes\FilamentBadgeableColumn\Components\Badge;
+use Awcodes\BadgeableColumn\Components\Badge;
 use Capell\Admin\Filament\Components\Tables\Columns\BadgeableColumn;
 use Capell\Layout\Models\Content;
+use Filament\Support\Enums\FontWeight;
+use Illuminate\Support\HtmlString;
 
 class ContentNameColumn extends BadgeableColumn
 {
@@ -16,21 +18,24 @@ class ContentNameColumn extends BadgeableColumn
 
         $this->searchable()
             ->sortable()
-            ->weight('semibold')
-            ->description(function (Content $record): ?string {
-                if ($record->ancestors->isEmpty()) {
+            ->wrap()
+            ->weight(FontWeight::Medium)
+            ->description(function (Content $record): ?HtmlString {
+                $ancestors = $record->ancestors()->get();
+
+                if ($ancestors->isEmpty()) {
                     return null;
                 }
 
-                return '» '.$record->ancestors->pluck('name')->join(' » ');
+                return new HtmlString($ancestors->pluck('name')->join(' &raquo; '));
             })
             ->suffixBadges([
                 Badge::make('children')
                     ->label(
-                        fn (Content $record) => __(
+                        fn (Content $record): string|array|null => __(
                             'capell-admin::generic.total_children',
-                            ['total' => $this->getChildCount($record)]
-                        )
+                            ['total' => $this->getChildCount($record)],
+                        ),
                     )
                     ->color('gray')
                     ->visible(fn (Content $record): bool => (bool) $this->getChildCount($record)),

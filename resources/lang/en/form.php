@@ -9,7 +9,6 @@ return [
     'select_add_asset_type' => 'Select asset type',
     'position' => 'Position',
     'company' => 'Company',
-    'hero' => 'Hero',
     'tag' => 'Tag',
     'tag_div' => 'Div',
     'tag_section' => 'Section',

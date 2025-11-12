@@ -27,7 +27,7 @@ declare(strict_types=1);
     class="widget-default"
     :container-class="
         'flex flex-col gap-x-5 gap-y-3 lg:gap-x-10 '
-        .(match ($style) {
+        . (match ($style) {
             'row' => ($reverseOrder ? 'md:flex-row-reverse' : 'md:flex-row'),
             default => null,
         })
@@ -49,8 +49,9 @@ declare(strict_types=1);
                 class="mb-2"
                 :compact="true"
                 :content="$content"
-                :contents="$content ? null : $widget->translation?->contents"
+                :contents="$content ? null : $widget->translation?->content"
                 :heading-size="$headingSize"
+                :presenter="$widget->type->meta['content_presenter'] ?? null"
                 :title="$title"
                 :text-align="$align"
             />
@@ -76,7 +77,7 @@ declare(strict_types=1);
         >
             <x-capell::media
                 :media="$widget->image"
-                class="h-full w-full"
+                class="h-full w-full object-cover"
             />
         </div>
     @endif

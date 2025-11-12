@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Capell\Frontend\Facades\Frontend;
+use Capell\Frontend\Facades\FrontendLoader;
 
-$theme = Frontend::getTheme();
+$theme = FrontendLoader::getTheme();
 
 ?>
 
@@ -24,11 +24,7 @@ $theme = Frontend::getTheme();
 ])
 
 @php
-    $hasImage = $widget->meta['image_id'] ?? false && $widget->image;
-
-    if (! $hasImage) {
-        throw new Exception('Widget image is required for banner full width widget.');
-    }
+    $backgroundImage = $widget->backgroundImage ?? $widget->image ?? $widget->assets->first()?->asset?->image;
 
     $hasContent = $content || $title || ! empty($widget->meta['actions']);
 
@@ -51,23 +47,25 @@ $theme = Frontend::getTheme();
     :$widget
     container-width="full"
 >
-    <div
-        @class([
-            'w-full',
-            'md:w-1/2' => $hasContent,
-            'md:absolute' => $hasContent,
-            'md:inset-y-0' => $hasContent,
-            'md:left-0' => $hasContent && $reverseOrder,
-            'md:right-0' => $hasContent && ! $reverseOrder,
-        ])
-    >
-        <x-capell::media
-            :media="$widget->image"
-            size="xxl"
-            :rounded="false"
-            :class="'h-auto w-full object-cover md:h-full'.$imgRounded"
-        />
-    </div>
+    @if ($backgroundImage)
+        <div
+            @class([
+                'w-full',
+                'md:w-1/2' => $hasContent,
+                'md:absolute' => $hasContent,
+                'md:inset-y-0' => $hasContent,
+                'md:left-0' => $hasContent && $reverseOrder,
+                'md:right-0' => $hasContent && ! $reverseOrder,
+            ])
+        >
+            <x-capell::media
+                :media="$backgroundImage"
+                size="xxl"
+                :rounded="false"
+                :class="'h-auto w-full object-cover md:h-full' . $imgRounded"
+            />
+        </div>
+    @endif
 
     @if ($hasContent)
         <div
@@ -98,8 +96,9 @@ $theme = Frontend::getTheme();
                             class="mb-2"
                             :compact="true"
                             :content="$content"
-                            :contents="$content ? null : $widget->translation?->contents"
+                            :contents="$content ? null : $widget->translation?->content"
                             :heading-size="$headingSize"
+                            :presenter="$widget->type->meta['content_presenter'] ?? null"
                             :title="$title"
                             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
                         />

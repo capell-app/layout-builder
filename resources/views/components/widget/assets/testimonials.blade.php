@@ -5,12 +5,12 @@ declare(strict_types=1);
 ?>
 
 @php
-    use Awcodes\Curator\Models\Media;
     use Capell\Core\Facades\CapellCore;
-    use Capell\Frontend\Facades\Frontend;
+    use Capell\Frontend\Facades\FrontendLoader;
+    use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-    $page = Frontend::getPage();
-    $theme = Frontend::getTheme();
+    $page = FrontendLoader::getPage();
+    $theme = FrontendLoader::getTheme();
 @endphp
 
 @props([
@@ -38,8 +38,8 @@ declare(strict_types=1);
         <x-capell::content
             :compact="true"
             :content="$widget->translation->content"
-            :contents="$widget->translation->content ? null : $widget->translation->contents"
             :color-scheme="$colorScheme"
+            :presenter="$widget->type->meta['content_presenter'] ?? null"
             :title="$widget->translation->title"
             heading-weight="semibold"
             :text-align="$align"
@@ -67,7 +67,7 @@ declare(strict_types=1);
                             $content = '';
                             $image = $widgetAsset->asset instanceof Media ? $widgetAsset->asset : $widgetAsset->asset->image;
 
-                            if (CapellCore::getAsset($widgetAsset->asset_type)->hasTranslation()) {
+                            if (CapellCore::getAsset($widgetAsset->asset_type)->hasTranslations) {
                                 $title = $widgetAsset->asset->translation?->title;
                                 $content = $widgetAsset->asset->translation?->content;
                             }
@@ -90,7 +90,7 @@ declare(strict_types=1);
                                     <x-capell::media
                                         :media="$image"
                                         rounded="full"
-                                        class="h-20 w-20"
+                                        class="h-20 w-20 object-cover"
                                         itemprop="image"
                                     />
                                 @endif

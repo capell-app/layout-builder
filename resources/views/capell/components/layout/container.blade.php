@@ -6,10 +6,10 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Facades\CapellCore;
-    use Capell\Core\Models\Media;
-    use Capell\Frontend\Facades\Frontend;
-    use Capell\Frontend\Services\Loader\LayoutLoader;
-    use Capell\Layout\Facades\Layout;
+    use Capell\Core\Models\Layout;
+    use Capell\Frontend\Facades\FrontendLoader;
+    use Capell\Layout\Facades\CapellLayout;
+    use Spatie\MediaLibrary\MediaCollections\Models\Media;
 @endphp
 
 @props([
@@ -30,14 +30,11 @@ declare(strict_types=1);
 ])
 @php
     if (! empty($container['meta']['html_class'])) {
-        $htmlClass .= ' '.$container['meta']['html_class'];
+        $htmlClass .= ' ' . $container['meta']['html_class'];
     }
 
-    if ($container['meta']['background_image_id'] ?? false) {
-        $backgroundImage = Media::find($container['meta']['background_image_id']);
-    } else {
-        $backgroundImage = null;
-    }
+    /** @var ?Media $backgroundImage */
+    $backgroundImage = $layout->getFirstMedia($containerKey . '-background');
 
     $currentColspan = $colspan;
 @endphp
@@ -50,15 +47,15 @@ declare(strict_types=1);
 {{-- format-ignore-start --}}
 @if ($backgroundImage)
     <div class="relative">
-    <div
-        @if ($backgroundImage)
-            style="{{ $backgroundImage ? 'background-image:url('.$backgroundImage->url.');' : '' }}"
-        @endif
-        @class([
-            "absolute top-0 bottom-0 left-0 w-1/2 -z-1 h-full bg-cover bg-center bg-no-repeat",
-        ])
-    >
-    </div>
+        <div
+                @if ($backgroundImage)
+                    style="{{ $backgroundImage ? 'background-image:url('.$backgroundImage->getAvailableUrl(['large']).');' : '' }}"
+                @endif
+                @class([
+                    "absolute top-0 bottom-0 left-0 w-1/2 -z-1 h-full bg-cover bg-center bg-no-repeat",
+                ])
+        >
+        </div>
 @endif
 
 @if ($colspan !== 12)
@@ -72,11 +69,11 @@ declare(strict_types=1);
     @endif
 
     <div
-        style="--colspan: {{ $colspan }}; --column-start: {{ $columnStart }};"
         @class([
             "lg:col-span-[var(--colspan)]",
             "lg:col-start-[var(--column-start)]",
         ])
+        style="--colspan: {{ $colspan }}; --column-start: {{ $columnStart }};"
     >
 @endif
 {{-- format-ignore-end --}}
@@ -116,7 +113,7 @@ declare(strict_types=1);
 >
     @foreach ($container['widgets'] as $widgetIndex => $widgetData)
         @php
-            $widget = Layout::getContainerWidget(
+            $widget = CapellLayout::getContainerWidget(
                 $containerKey,
                 $widgetData['widget_key'],
                 $widgetData['occurrence'] ?? 1
@@ -125,8 +122,8 @@ declare(strict_types=1);
             if (! $widget) {
                 CapellCore::log(
                     'Unable to find container widget',
-                    'error',
-                    ['containerKey' => $containerKey, 'widgetData' => $widgetData]
+                    context: ['containerKey' => $containerKey, 'widgetData' => $widgetData],
+                    type: 'error',
                 );
 
                 continue;
@@ -137,7 +134,7 @@ declare(strict_types=1);
             $component = $widget->getComponent();
 
             if (! $component) {
-                CapellCore::log("Unable to find component for widget {$widget->key} ({$widget->id})", 'error');
+                CapellCore::log("Unable to find component for widget {$widget->key} ({$widget->id})", type: 'error');
 
                 continue;
             }

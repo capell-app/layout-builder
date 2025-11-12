@@ -4,25 +4,25 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Commands;
 
+use Capell\Admin\Enums\LayoutEnum;
+use Capell\Core\Commands\Concerns\HasSitesOption;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Layout\Actions\CreateThemeAction;
-use Capell\Layout\Enums\LayoutEnum;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Services\Creator\ContentCreator;
 use Capell\Layout\Services\Creator\DemoCreator;
+use Capell\Layout\Services\Creator\TypeCreator;
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-
-use function Laravel\Prompts\multisearch;
 
 class DemoCommand extends Command
 {
+    use HasSitesOption;
+
     /**
      * The console command description.
      *
@@ -45,65 +45,42 @@ class DemoCommand extends Command
     public function handle(): int
     {
         if ($this->option('sites')) {
-            $siteIds = is_string($this->option('sites'))
-                ? [$this->option('sites')]
-                : $this->option('sites');
+            $siteOptions = is_string($this->option('sites'))
+                ? explode(',', $this->option('sites'))
+                : (is_array($this->option('sites')) ? $this->option('sites') : null);
         } else {
-            $sites = CapellCore::getModel(ModelEnum::Site)::query()
-                ->limit(10)
-                ->select(['id', 'name']);
+            $siteOptions = $this->getSelectedSites();
+        }
 
-            if ($sites->count() === 1) {
-                $siteIds = $sites->pluck('id')->toArray();
-            } else {
-                $siteIds = multisearch(
-                    'Select a site to insert demo pages',
-                    options: fn (string $search) => $sites->when(
-                        mb_strlen($search) > 0,
-                        fn (Builder $query) => $query->where('name', 'like', sprintf('%%%s%%', $search))
-                    )
-                        ->get()
-                        ->mapWithKeys(fn (Site $site) => [$site->id => $site->name])
-                        ->toArray(),
-                    validate: [
-                        'required',
-                        'array',
-                        'min:1',
-                    ],
-                );
-            }
+        $sites = CapellCore::getModel(ModelEnum::Site)::query()->with(['languages'])->whereIn('name', $siteOptions)->get();
+
+        if ($sites->isEmpty()) {
+            $this->error('Unable to find any sites for: ' . implode(', ', (array) $siteOptions));
+
+            return Command::FAILURE;
         }
 
         $user = $this->option('author') ? CapellCore::getModel('User')::first() : null;
 
         $this->demoCreator = new DemoCreator(user: $user);
 
-        $demo_data = config('capell-demo.pages');
+        $data = config('capell-demo.pages');
 
-        $contentCreator = app(ContentCreator::class);
-        $contentCreator->createContentTypes();
-
-        $sites = Site::whereIn('id', $siteIds)->get();
-
-        if ($sites->isEmpty()) {
-            throw new Exception('Unable to find any sites');
-        }
+        $typeCreator = app(TypeCreator::class);
+        $typeCreator->createDefaultContentType();
+        $typeCreator->createBuilderContentType();
 
         foreach ($sites as $site) {
+            $this->newLine();
             $this->info(sprintf('Selected site: %s', $site->name));
-
-            $this->line('Associating theme with site: '.$site->name);
-
-            $theme = CreateThemeAction::run();
-
-            $site->update(['theme_id' => $theme->id]);
 
             $this->line('Setting up content');
 
             /** @var ContentCreator $contentCreator */
             $contentCreator = app(ContentCreator::class);
 
-            $this->createSiteContents($contentCreator, $demo_data[0], $site);
+            // $this->createSiteContents($contentCreator, $data[0], $site);
+            $this->createSiteContents($contentCreator, $data[0], $site);
 
             if (! $this->createDemoLayouts($site)) {
                 $this->error('Failed to create demo pages for the selected site.');
@@ -119,13 +96,14 @@ class DemoCommand extends Command
 
     public function createDemoLayouts(Site $site): bool
     {
-
         $this->newLine();
-        $this->line('Setting up homepage extras for site: '.$site->name);
+        $this->line('Setting up homepage extras for site: ' . $site->name);
+        $this->newLine();
 
         $languages = $site->languages;
 
-        $homePage = $site->pages()->isHomePage()->first();
+        /** @var Page $homePage */
+        $homePage = $site->pages()->homePage()->first();
 
         $this->setupHomepage($homePage, $languages);
 
@@ -135,52 +113,51 @@ class DemoCommand extends Command
     public function setupHomepage(Page $page, Collection $languages): void
     {
         $layout = $this->getHomeLayout();
-        if (! $layout instanceof Layout) {
-            throw new Exception('Unable to find homepage layout');
-        }
+        throw_unless($layout instanceof Layout, Exception::class, 'Unable to find homepage layout');
 
         $page->update(['layout_id' => $layout->id]);
 
         $containers = $layout->containers;
 
-        $heroWidget = $this->demoCreator->createHeroWidget();
+        $pageCardsWidget = $this->demoCreator->createPageCardsWidget($page);
+        $this->line('Created page cards widgets');
 
-        $this->demoCreator->createWidgetAssets($heroWidget, $page, container: 'hero');
+        $galleryWidget = $this->demoCreator->createGalleryWidget();
+        $this->line('Created gallery widget');
 
-        $containers = ['hero' => [
-            'meta' => [
-                'colspan' => 12,
-                'container' => 'full',
-            ],
-            'widgets' => [
-                [
-                    'widget_key' => $heroWidget->key,
-                    'occurrence' => 1,
-                ],
-            ],
-        ]] + $containers;
+        $pageCardsWidget2 = $this->demoCreator->createPageCardsWidget($page, occurrence: 2);
+        $this->line('Created page cards widgets');
+
+        $mediaCarouselWidget = $this->demoCreator->createMediaCarouselWidget();
+        $this->line('Created media carousel widget');
 
         $containers['main']['widgets'] = [
             [
-                'widget_key' => $this->demoCreator->createPageCardsWidget($page)->key,
+                'widget_key' => $pageCardsWidget->key,
                 'occurrence' => 1,
             ],
-            ['widget_key' => $this->demoCreator->createGalleryWidget()->key],
+            ['widget_key' => $galleryWidget->key],
             [
-                'widget_key' => $this->demoCreator->createPageCardsWidget($page, occurrence: 2)->key,
+                'widget_key' => $pageCardsWidget2->key,
                 'occurrence' => 2,
             ],
-            ['widget_key' => $this->demoCreator->createMediaCarouselWidget()->key],
+            ['widget_key' => $mediaCarouselWidget->key],
         ];
+
+        $faqWidget = $this->demoCreator->createFaqWidget($languages);
+        $this->line('Created FAQ widget');
 
         $containers['faq-main'] = [
             'meta' => [
                 'colspan' => 8,
             ],
             'widgets' => [
-                ['widget_key' => $this->demoCreator->createFaqWidget($languages)->key],
+                ['widget_key' => $faqWidget->key],
             ],
         ];
+
+        $faqColWidget = $this->demoCreator->createStaticNavigationWidget($languages, $page->site);
+        $this->line('Created static FAQ widget: ' . $faqColWidget->key);
 
         $containers['faq-col'] = [
             'meta' => [
@@ -188,25 +165,52 @@ class DemoCommand extends Command
                 'container' => 'full',
             ],
             'widgets' => [
-                ['widget_key' => $this->demoCreator->createStaticNavigationWidget($languages, $page->site)->key],
+                ['widget_key' => $faqColWidget->key],
             ],
         ];
+
+        $teamPortfolioWidget = $this->demoCreator->createTeamPortfolioWidget($languages);
+        $this->line('Created team portfolio widget: ' . $teamPortfolioWidget->key);
+
+        $bannerImageWidget = $this->demoCreator->createBannerImageWidget($languages);
+        $this->line('Created banner image widget: ' . $bannerImageWidget->key);
+
+        $contentWidget = $this->demoCreator->createContentWidget($languages);
+        $this->line('Created content widget: ' . $contentWidget->key);
+
+        $statisticsWidget = $this->demoCreator->createStatisticsWidget();
+        $this->line('Created statistics widget: ' . $statisticsWidget->key);
+
+        $businessFeaturesWidget = $this->demoCreator->createBusinessFeaturesWidget($page->site);
+        $this->line('Created business features widget: ' . $businessFeaturesWidget->key);
+
+        $bannersWidget = $this->demoCreator->createBannersWidget();
+        $this->line('Created banners widget: ' . $bannersWidget->key);
+
+        $clientLogosWidget = $this->demoCreator->createClientLogosWidget($languages);
+        $this->line('Created client logos widget: ' . $clientLogosWidget->key);
+
+        $testimonialsWidget = $this->demoCreator->createTestimonialsWidget($languages);
+        $this->line('Created testimonials widget: ' . $testimonialsWidget->key);
 
         $containers['secondary'] = [
             'meta' => [
                 'colspan' => 12,
             ],
             'widgets' => [
-                ['widget_key' => $this->demoCreator->createTeamPortfolioWidget($languages)->key],
-                ['widget_key' => $this->demoCreator->createBannerImageWidget($languages)->key],
-                ['widget_key' => $this->demoCreator->createContentWidget($languages)->key],
-                ['widget_key' => $this->demoCreator->createStatisticsWidget()->key],
-                ['widget_key' => $this->demoCreator->createBusinessFeaturesWidget($page->site)->key],
-                ['widget_key' => $this->demoCreator->createBannersWidget()->key],
-                ['widget_key' => $this->demoCreator->createClientLogosWidget($languages)->key],
-                ['widget_key' => $this->demoCreator->createTestimonialsWidget($languages)->key],
+                ['widget_key' => $teamPortfolioWidget->key],
+                ['widget_key' => $bannerImageWidget->key],
+                ['widget_key' => $contentWidget->key],
+                ['widget_key' => $statisticsWidget->key],
+                ['widget_key' => $businessFeaturesWidget->key],
+                ['widget_key' => $bannersWidget->key],
+                ['widget_key' => $clientLogosWidget->key],
+                ['widget_key' => $testimonialsWidget->key],
             ],
         ];
+
+        $splitContentWidget = $this->demoCreator->createSplitContentWidget($languages);
+        $this->line('Created split content widget: ' . $splitContentWidget->key);
 
         $containers['split-two'] = [
             'meta' => [
@@ -215,14 +219,19 @@ class DemoCommand extends Command
                 'spacing' => 'none',
                 'html_class' => 'relative',
                 'background_color' => 'light-gray',
-                'background_image_id' => $this->demoCreator->getExampleMedia()?->id,
             ],
             'widgets' => [
-                ['widget_key' => $this->demoCreator->createSplitContentWidget($languages)->key],
+                ['widget_key' => $splitContentWidget->key],
             ],
         ];
 
+        $this->line('Adding background media to split container');
+        if ($layout->getMedia('split-two-background')->isEmpty()) {
+            app(\Capell\Admin\Services\Creator\DemoCreator::class)->createMedia($layout, collection: 'split-two-background');
+        }
+
         $layout->containers = $containers;
+
         $layout->update(['containers' => $containers]);
     }
 
@@ -241,7 +250,7 @@ class DemoCommand extends Command
         ];
 
         if ($parent instanceof Content) {
-            $contentData['parent_uuid'] = $parent->uuid;
+            $contentData['parent_id'] = $parent->id;
         }
 
         foreach ($languages as $language) {
@@ -249,7 +258,7 @@ class DemoCommand extends Command
 
             $contentData['translations'][$language->code] = [
                 'title' => $name,
-                'contents' => $name,
+                'content' => $name,
             ];
         }
 

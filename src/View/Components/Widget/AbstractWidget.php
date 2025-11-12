@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Layout\View\Components\Widget;
 
-use Capell\Layout\Models;
+use Capell\Layout\Models\Widget;
 use Closure;
+use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 use stdClass;
 
@@ -20,7 +21,7 @@ abstract class AbstractWidget extends Component
         public string $containerKey,
         public int $widgetIndex,
         public stdClass $loop,
-        public Models\Widget $widget,
+        public Widget $widget,
         public array $widgetData = [],
     ) {
         $this->mountWidget();
@@ -29,7 +30,7 @@ abstract class AbstractWidget extends Component
     /**
      * Get the view / contents that represent the component.
      *
-     * @return \Illuminate\Contracts\View\View|Closure|string
+     * @return View|Closure|string
      */
     public function render(array $data = [])
     {

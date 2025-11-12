@@ -7,23 +7,25 @@ namespace Capell\Layout\Filament\Components\Forms\Content;
 use Capell\Layout\Actions\ReplicateContentAction;
 use Capell\Layout\Models\Content;
 use Exception;
-use Filament\Forms;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Repeater;
+use Filament\Schemas\Schema;
 
 class RelatedRepeater
 {
-    public static function make(): Forms\Components\Repeater
+    public static function make(Schema $schema): Repeater
     {
-        return Forms\Components\Repeater::make('related')
+        return Repeater::make('related')
             ->label(__('capell-admin::form.related_contents'))
             ->statePath('related')
             ->hiddenLabel()
             ->cloneable()
             ->cloneAction(
-                fn (Forms\Components\Actions\Action $action): Forms\Components\Actions\Action => $action
+                fn (Action $action): Action => $action
                     ->visible(
-                        fn (array $state, array $arguments): bool => $state[$arguments['item']]['content_id'] ?? false
+                        fn (array $state, array $arguments): bool => $state[$arguments['item']]['content_id'] ?? false,
                     )
-                    ->action(function (Forms\Components\Repeater $component, array $arguments): void {
+                    ->action(function (Repeater $component, array $arguments): void {
                         $newUuid = $component->generateUuid();
 
                         $items = $component->getState();
@@ -32,15 +34,13 @@ class RelatedRepeater
 
                         $existingContent = Content::query()->withDrafts()->find($newData['content_id']);
 
-                        if (! $existingContent) {
-                            throw new Exception('Content not found with ID: '.$newData['content_id']);
-                        }
+                        throw_unless($existingContent, Exception::class, 'Content not found with ID: ' . $newData['content_id']);
 
                         $newContent = ReplicateContentAction::run($existingContent);
 
                         $newData['content_id'] = $newContent->id;
 
-                        if ($newUuid) {
+                        if (! in_array($newUuid, [null, '', '0'], true)) {
                             $items[$newUuid] = $newData;
                         } else {
                             $items[] = $newData;
@@ -51,15 +51,18 @@ class RelatedRepeater
                         $component->collapsed(false, shouldMakeComponentCollapsible: false);
 
                         $component->callAfterStateUpdated();
-                    })
+                    }),
             )
             ->simple(
                 ContentSelect::make('content_id')
                     ->hiddenLabel()
                     ->required()
                     ->preload(fn (string $operation): bool => in_array($operation, ['create', 'createOption'], true))
-                    ->withEditForm()
-                    ->withCreateForm(),
+                    ->when(
+                        $schema->isCreating(),
+                        fn (ContentSelect $component): ContentSelect => $component->withCreateForm(),
+                        fn (ContentSelect $component): ContentSelect => $component->withEditForm(),
+                    ),
             );
     }
 }

@@ -7,6 +7,8 @@ declare(strict_types=1);
 @php
     use Capell\Core\Enums\AssetComponentEnum;
     use Capell\Core\Facades\CapellCore;
+    use Capell\Frontend\CapellFrontendManager;
+    use Capell\Frontend\Facades\CapellFrontend;
 @endphp
 
 @props([
@@ -24,7 +26,6 @@ declare(strict_types=1);
     'withParent' => $widget->meta['with_parent'] ?? ($widget->type->meta['with_parent'] ?? false),
     'withDate' => $widget->meta['with_date'] ?? ($widget->type->meta['with_date'] ?? true),
     'withSummary' => $widget->meta['with_summary'] ?? ($widget->type->meta['with_summary'] ?? true),
-    'withTags' => $widget->meta['with_tags'] ?? ($widget->type->meta['with_tags'] ?? true),
     'spacing' => $widget->meta['spacing'] ?? ($widget->type->meta['spacing'] ?? true),
     'columns' => $widget->meta['columns'] ?? ($widget->type->meta['columns'] ?? null),
 ])
@@ -41,8 +42,8 @@ declare(strict_types=1);
         <x-capell::content
             :compact="true"
             :content="$widget->translation->content"
-            :contents="$widget->translation->content ? null : $widget->translation->contents"
             :color-scheme="$colorScheme"
+            :presenter="$widget->type->meta['content_presenter'] ?? null"
             :title="$widget->translation->title"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
         />
@@ -50,7 +51,9 @@ declare(strict_types=1);
 
     @if ($widget->assets->isNotEmpty())
         <div
-            @if ($columns) style="--columns: {{ $columns === 'auto' ? $widget->assets->count() : $columns }};" @endif
+            @if ($columns)
+                style="--columns: {{ $columns === 0 ? $widget->assets->count() : $columns }};"
+            @endif
             @if ($maxWidth && ! in_array($maxWidth, ['none', 'sm', 'md', 'lg', 'xl'], true)) style="--max-max-width: {{ $maxWidth }};" @endif
             @class([
                 'grid',
@@ -67,25 +70,24 @@ declare(strict_types=1);
                 } : '',
                 'gap-x-8 gap-y-6 lg:gap-x-10 lg:gap-y-10' => $spacing && $spacing !== 'none',
                 'md:grid-cols-[repeat(var(--columns),minmax(0,1fr))]' => $columns,
-                'md:grid-cols-2' => $total >= 2 && ! $columns,
-                'lg:grid-cols-3' => $total >= 3 && ! $columns,
-                '2xl:grid-cols-4' => $total > 7 && ! $columns,
+                'md:grid-cols-2' => $total >= 2 && (! $columns && $columns !== 0),
+                'lg:grid-cols-3' => $total >= 3 && (! $columns && $columns !== 0),
+                '2xl:grid-cols-4' => $total > 7 && (! $columns && $columns !== 0),
             ])
         >
             @foreach ($widget->assets as $asset)
                 <x-dynamic-component
-                    :component="CapellCore::getAsset($asset['asset_type'])->component"
+                    :component="CapellFrontend::getAsset($asset['asset_type'])->component"
                     :component-item="$widget->meta['component_item'] ?? AssetComponentEnum::Card->value"
                     :$container
                     :$containerKey
+                    :$loop
                     :asset="$asset->asset"
                     :with-child-count="$withChildCount"
+                    :with-date="$withDate"
                     :with-image="$withImage"
                     :with-parent="$withParent"
-                    :with-date="$withDate"
                     :with-summary="$withSummary"
-                    :with-tags="$withTags"
-                    :$loop
                 />
             @endforeach
         </div>

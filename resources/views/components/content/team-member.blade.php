@@ -5,9 +5,9 @@ declare(strict_types=1);
 ?>
 
 @php
-    use Capell\Frontend\Facades\Frontend;
+    use Capell\Frontend\Facades\FrontendLoader;
 
-    $language = Frontend::getLanguage();
+    $language = FrontendLoader::getLanguage();
 @endphp
 
 @props([
@@ -23,25 +23,27 @@ declare(strict_types=1);
     'url' => null,
 ])
 
-<div class="rounded-2xl bg-gray-50 p-6 text-center shadow-md">
+<div
+    class="rounded-2xl bg-white p-6 text-center text-gray-800 shadow-md dark:bg-gray-900/60 dark:text-white"
+>
     @if ($image)
         <img
             class="mx-auto mb-4 h-36 w-64 object-cover"
-            src="{{ $image->url }}"
+            src="{{ $image->getUrl('thumb') }}"
             alt="{{ e(strip_tags($title ?? '')) }}"
         />
     @endif
 
     @if ($title)
-        <h3 class="text-xl font-semibold text-gray-800">{!! $title !!}</h3>
+        <h3 class="text-xl font-semibold">{!! $title !!}</h3>
     @endif
 
     @if (! empty($meta['position']))
-        <p class="text-sm text-indigo-600">{{ $meta['position'] }}</p>
+        <p class="text-sm">{{ $meta['position'] }}</p>
     @endif
 
     @if (filled($summary))
-        <div class="mt-2 text-sm text-gray-600">
+        <div class="mt-2 text-sm text-gray-600 dark:text-gray-300">
             {!! $summary !!}
         </div>
     @endif

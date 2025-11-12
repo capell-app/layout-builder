@@ -4,21 +4,26 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Services\Creator;
 
+use BackedEnum;
+use Capell\Admin\Services\Creator\DemoCreator as AdminDemoCreator;
 use Capell\Admin\Services\Creator\NavigationCreator;
+use Capell\Core\Enums\DefaultColorEnum;
+use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
+use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Type;
 use Capell\Layout\Enums\AssetEnum;
-use Capell\Layout\Enums\AssetEnum as LayoutAssetEnum;
+use Capell\Layout\Enums\ContainerWidthEnum;
+use Capell\Layout\Enums\ContentTypeEnum;
 use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
-use Capell\Layout\Filament\Schemas\Content\TestimonialContentSchema;
-use Capell\Layout\Filament\Schemas\Widget\HeroWidgetSchema;
-use Capell\Layout\Filament\Schemas\WidgetAsset\HeroWidgetAssetSchema;
+use Capell\Layout\Filament\Resources\Contents\Schemas\Types\TestimonialContentSchema;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
@@ -26,6 +31,9 @@ use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use RuntimeException;
+use Spatie\Image\Image;
+use Spatie\MediaLibrary\HasMedia;
 
 class DemoCreator
 {
@@ -40,24 +48,14 @@ class DemoCreator
     private readonly string $widgetModel;
 
     /**
-     * @var class-string<Models\Type>
+     * @var class-string<Type>
      */
     private readonly string $typeModel;
-
-    /**
-     * @var class-string<Models\Media>
-     */
-    private readonly string $mediaModel;
 
     /**
      * @var class-string<Page>
      */
     private readonly string $pageModel;
-
-    /**
-     * @var class-string<Models\Tag>
-     */
-    private readonly string $tagModel;
 
     public function __construct(
         protected readonly ?Model $user = null,
@@ -65,44 +63,45 @@ class DemoCreator
         $this->contentModel = CapellCore::getModel(LayoutModelEnum::Content->name);
         $this->widgetModel = CapellCore::getModel(LayoutModelEnum::Widget->name);
         $this->typeModel = CapellCore::getModel(ModelEnum::Type);
-        $this->mediaModel = CapellCore::getModel(ModelEnum::Media);
         $this->pageModel = CapellCore::getModel(ModelEnum::Page);
-        $this->tagModel = CapellCore::getModel(ModelEnum::Tag);
     }
 
     public function createContentWidget(Collection $languages): Widget
     {
         $siteId = Site::default()?->value('id');
+
         $widget = $this->widgetModel::firstOrCreate(['key' => 'example-content'], [
             'name' => 'Example Content',
+            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::ContentBuilder, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'size' => 'md',
                 'margin' => '',
                 'padding' => ['md'],
                 'reverse_order' => true,
                 'background_color' => 'light-gray',
-                'image_id' => $this->getExampleMedia()?->id,
                 'actions' => [
                     [
                         'type' => 'page',
-                        'page_uuid' => Page::where('site_id', $siteId)
+                        'page_id' => Page::query()->where('site_id', $siteId)
                             ->whereHas(
                                 'type',
-                                /** @param Models\Type $query */
-                                fn (BuilderContract $query) => $query->listable()->enabled()->accessible()
+                                /** @param Type $query */
+                                fn (BuilderContract $query) => $query->listable()->enabled()->accessible(),
                             )
                             ->inRandomOrder()
-                            ->value('uuid'),
+                            ->value('id'),
                         'site_id' => $siteId,
                     ],
                 ],
             ],
         ]);
 
+        $this->createWidgetMedia($widget);
+
         foreach ($languages as $language) {
             $widget->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'Example Content',
-                'contents' => [
+                'content' => [
                     [
                         'type' => 'content',
                         'data' => [
@@ -122,33 +121,35 @@ class DemoCreator
 
         $widget = $this->widgetModel::firstOrCreate(['key' => 'example-split-content'], [
             'name' => 'Example Split Content',
+            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::ContentBuilder, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'align' => 'center',
                 'size' => 'md',
                 'style' => 'column',
                 'padding' => ['md'],
-                'image_id' => $this->getExampleMedia()?->id,
                 'actions' => [
                     [
                         'type' => 'page',
-                        'page_uuid' => Page::where('site_id', $siteId)
+                        'page_id' => Page::query()->where('site_id', $siteId)
                             ->whereHas(
                                 'type',
-                                /** @param Models\Type $query */
-                                fn (BuilderContract $query) => $query->listable()->enabled()->accessible()
+                                /** @param Type $query */
+                                fn (BuilderContract $query) => $query->listable()->enabled()->accessible(),
                             )
                             ->inRandomOrder()
-                            ->value('uuid'),
+                            ->value('id'),
                         'site_id' => $siteId,
                     ],
                 ],
             ],
         ]);
 
+        $this->createWidgetMedia($widget);
+
         foreach ($languages as $language) {
             $widget->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'Example Content',
-                'contents' => [
+                'content' => [
                     [
                         'type' => 'content',
                         'data' => [
@@ -167,31 +168,33 @@ class DemoCreator
         $siteId = Site::default()?->value('id');
         $widget = $this->widgetModel::firstOrCreate(['key' => 'banner-full-width'], [
             'name' => 'Banner Full Width',
+            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::ContentBuilder, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'component' => 'capell-layout::widget.banner-image',
                 'margin' => ['lg'],
-                'image_id' => $this->getExampleMedia()?->id,
                 'actions' => [
                     [
                         'type' => 'page',
-                        'page_uuid' => Page::where('site_id', $siteId)
+                        'page_id' => Page::query()->where('site_id', $siteId)
                             ->whereHas(
                                 'type',
-                                /** @param Models\Type $query */
-                                fn (BuilderContract $query) => $query->listable()->enabled()->accessible()
+                                /** @param Type $query */
+                                fn (BuilderContract $query) => $query->listable()->enabled()->accessible(),
                             )
                             ->inRandomOrder()
-                            ->value('uuid'),
+                            ->value('id'),
                         'site_id' => $siteId,
                     ],
                 ],
             ],
         ]);
 
+        $this->createWidgetMedia($widget);
+
         foreach ($languages as $language) {
             $widget->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'Example Content',
-                'contents' => [
+                'content' => [
                     [
                         'type' => 'content',
                         'data' => [
@@ -213,17 +216,8 @@ class DemoCreator
             return $widget;
         }
 
-        $media = $this->mediaModel::query()
-            ->where('type', 'LIKE', 'image/%')
-            ->inRandomOrder()
-            ->limit(5)
-            ->pluck('uuid');
-
-        foreach ($media as $mediaUuid) {
-            $widget->assets()->firstOrcreate([
-                'asset_id' => $mediaUuid,
-                'asset_type' => app($this->mediaModel)->getMorphClass(),
-            ]);
+        for ($i = 1; $i <= 5; $i++) {
+            $this->createWidgetMedia($widget);
         }
 
         return $widget;
@@ -252,36 +246,41 @@ class DemoCreator
         if (
             $widget->assets()
                 ->where([
+                    'page_id' => $page->id,
                     'container' => $container,
                     'occurrence' => $occurrence,
                 ])
-                ->count() >= 3
+                ->exists()
         ) {
             return $widget;
         }
 
-        $this->pageModel::query()
+        $pages = $this->pageModel::query()
             ->whereHas('type', fn (BuilderContract $query) => $query->default())
+            ->whereHas('image')
             ->where('site_id', $page->site_id)
-            ->hasImage()
-            ->isNotHomePage()
+            ->notHomePage()
             ->inRandomOrder()
             ->limit(3)
-            ->pluck('uuid')
-            ->each(fn ($related_page_uuid): WidgetAsset => $widget->assets()->firstOrcreate([
-                'page_id' => $page->id,
-                'asset_id' => $related_page_uuid,
-                'asset_type' => app($this->pageModel)->getMorphClass(),
-                'container' => $container,
-                'occurrence' => $occurrence,
-            ]));
+            ->pluck('id');
+
+        throw_if($pages->isEmpty(), RuntimeException::class, 'No pages found to associate with the widget.');
+
+        $pages->each(fn ($related_page_id): WidgetAsset => $widget->assets()->create([
+            'page_id' => $page->id,
+            'asset_id' => $related_page_id,
+            'asset_type' => app($this->pageModel)->getMorphClass(),
+            'container' => $container,
+            'occurrence' => $occurrence,
+        ]));
 
         return $widget;
     }
 
     public function createFaqWidget(Collection $languages): Widget
     {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)->firstWhere('key', 'assets');
+        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
+            ->firstWhere('key', 'assets');
 
         $widget = $this->widgetModel::firstOrCreate(['key' => 'faq'], [
             'key' => 'faq',
@@ -309,7 +308,7 @@ class DemoCreator
 
         $contentType = $this->typeModel::query()
             ->where('type', LayoutTypeEnum::Content)
-            ->default()
+            ->where('key', ContentTypeEnum::Builder)
             ->first();
 
         $parentContent = $this->contentModel::firstOrCreate([
@@ -361,22 +360,15 @@ class DemoCreator
             ],
         ];
 
-        $faqTag = $this->tagModel::findOrCreate('faq', 'content', $languages->first()->code);
-
-        $languages->skip(1)
-            ->each(fn (Models\Language $language) => $this->tagModel::findOrCreate('faq', 'content', $language->code));
-
-        for ($i = 0; $i < 6; ++$i) {
+        foreach ($questions['en'] as $i => $question) {
             $content = $this->contentModel::firstOrCreate([
-                'name' => $questions['en'][$i],
-                'parent_uuid' => $parentContent->uuid,
+                'name' => $question,
+                'parent_id' => $parentContent->id,
                 'type_id' => $contentType->id,
             ]);
 
-            $content->tags()->syncWithoutDetaching([$faqTag->id]);
-
             $widget->assets()->firstOrcreate([
-                'asset_id' => $content->uuid,
+                'asset_id' => $content->id,
                 'asset_type' => app($this->contentModel)->getMorphClass(),
             ]);
 
@@ -385,7 +377,7 @@ class DemoCreator
 
                 $content->translations()->firstOrCreate(['language_id' => $language->id], [
                     'title' => Str::title($questions[$language->code][$i]),
-                    'contents' => [
+                    'content' => [
                         [
                             'type' => 'content',
                             'data' => [
@@ -408,73 +400,11 @@ class DemoCreator
             return $widget;
         }
 
-        $video = $this->mediaModel::query()
-            ->where('type', 'LIKE', 'video/%')
-            ->inRandomOrder()
-            ->limit(1)
-            ->first();
-
-        if ($video) {
-            $image = $this->mediaModel::query()
-                ->where('type', 'LIKE', 'image/%')
-                ->inRandomOrder()
-                ->first();
-
-            $widget->assets()->firstOrcreate(
-                [
-                    'asset_id' => $video->uuid,
-                    'asset_type' => app($this->mediaModel)->getMorphClass(),
-                ],
-                [
-                    'meta' => [
-                        'media_type' => 'video',
-                        'image_id' => $image?->id,
-                    ],
-                ]
-            );
+        for ($i = 1; $i <= 7; $i++) {
+            $this->createWidgetMedia($widget);
         }
 
-        $media = $this->mediaModel::query()
-            ->where('type', 'LIKE', 'image/%')
-            ->inRandomOrder()
-            ->limit(8)
-            ->pluck('uuid');
-
-        foreach ($media as $mediaUuid) {
-            $widget->assets()->firstOrcreate([
-                'asset_id' => $mediaUuid,
-                'asset_type' => app($this->mediaModel)->getMorphClass(),
-            ]);
-        }
-
-        return $widget;
-    }
-
-    public function createArticlesCardWidget(Collection $languages, Page $page, int $occurrence = 1): Widget
-    {
-        $widget = $this->widgetModel::firstWhere('key', 'articles-card');
-
-        if (! $widget) {
-            $widget = $this->widgetModel::firstOrCreate([
-                'key' => 'articles-card',
-                'name' => __('capell-admin::generic.articles'),
-                'type_id' => $this->typeModel::firstWhere('key', WidgetTypeEnum::Pages)->id,
-                'meta' => [
-                    'limit' => 10,
-                    'with_image' => true,
-                    'with_summary' => true,
-                    'with_link_text' => true,
-                    'spacing' => 'lg',
-                    'padding' => ['t-lg'],
-                ],
-            ]);
-        }
-
-        foreach ($languages as $language) {
-            $widget->translations()->firstOrCreate(['language_id' => $language->id], [
-                'title' => __('Article - Cards'),
-            ]);
-        }
+        $this->createWidgetMedia($widget, type: 'video');
 
         return $widget;
     }
@@ -486,28 +416,31 @@ class DemoCreator
 
         // Create menu + items
         $name = 'Example Menu';
-        $handle = Str::slug($name);
+        $key = Str::slug($name);
 
-        $pages = Page::where([
+        $pages = Page::query()->where([
             'site_id' => $site->id,
         ])
             ->whereHas(
                 'type',
-                /** @param  Models\Type  $query */
+                /** @param  Type  $query */
                 fn (BuilderContract $query) => $query->where('type', 'page')
                     ->enabled()
                     ->listable()
                     ->accessible()
+                    ->hiddenSystemGroup(),
             )
-            ->with([
-                'children' => fn (BuilderContract $query) => $query->whereHas('type')->limit(2),
-            ])
+            ->withWhereHas(
+                'children',
+                fn (BuilderContract $query) => $query->whereHas('type')->limit(2),
+            )
             ->limit(4)
             ->get();
 
         $model::updateOrCreate([
-            'handle' => $handle,
+            'key' => $key,
             'site_id' => $site->id,
+            'type_id' => $this->typeModel::navigationType()->default()->first()->id,
         ], [
             'name' => $name,
             'items' => $this->navigationPageItems($pages, $languages->first()),
@@ -518,7 +451,7 @@ class DemoCreator
             'name' => __('Example Navigation'),
             'type_id' => $this->typeModel::firstWhere(['key' => 'navigation', 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
-                'navigation' => $handle,
+                'navigation' => $key,
                 'margin' => ['lg'],
             ],
         ]);
@@ -526,132 +459,119 @@ class DemoCreator
         foreach ($languages as $language) {
             $widget->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'Example Navigation',
-                'contents' => [
-                    [
-                        'type' => 'title',
-                        'data' => [
-                            'content' => config('capell-demo.contents')[$language->code],
-                        ],
-                    ],
-                ],
             ]);
         }
 
         return $widget;
     }
 
-    public function createHeroWidget(): Widget
+    public function createContentsWidget(Widget $widget, Page $page, string $container, int $occurrence = 1, ?Type $type = null): void
     {
-        return $this->widgetModel::firstOrCreate([
-            'key' => 'hero',
-        ], [
-            'name' => __('capell-layout::generic.hero'),
-            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget])->id,
-            'meta' => [
-                'component' => 'capell-layout::widget.hero',
-                'heading_size' => 'h1',
-                'carousel_fade' => true,
-                'carousel_arrows' => false,
-                'carousel_pagination' => true,
-                'carousel_loop' => true,
-                'carousel_auto' => true,
-                'carousel_auto_delay' => 50000,
-                'color_scheme' => 'dark',
-            ],
-            'admin' => [
-                'icon' => 'heroicon-o-gift',
-                'schema' => HeroWidgetSchema::getKey(),
-                'asset_types' => [LayoutAssetEnum::Content->value],
-                'widget_asset_schema' => HeroWidgetAssetSchema::getKey(),
-            ],
-        ]);
-    }
+        $pageWidgetAssets = $widget->assets()->where([
+            'page_id' => $page->id,
+            'container' => $container,
+            'occurrence' => $occurrence,
+        ])
+            ->exists();
 
-    public function createWidgetAssets(Widget $widget, Page $page, string $container, int $occurrence = 1): void
-    {
-        if ($widget->assets()->exists()) {
+        if ($pageWidgetAssets) {
             return;
+        }
+
+        if (! $type instanceof Type) {
+            $type = $this->typeModel::query()
+                ->where('type', LayoutTypeEnum::Content)
+                ->default()
+                ->first();
         }
 
         $features = [
             [
-                'title' => 'Welcome to Our Platform',
-                'content' => '<p>Welcome to our website! We are glad to have you here.</p>',
+                'title' => 'Empower Your Vision',
+                'content' => 'Step into a world where your ideas become reality. Experience innovation and growth with us.',
             ],
             [
-                'title' => 'Get Started Today',
-                'content' => '<p>Take the first step towards your goals. Join us today!</p>',
+                'title' => 'Start Your Journey',
+                'content' => 'Begin your adventure today and unlock new opportunities for success.',
             ],
             [
-                'title' => 'Discover Our Projects',
-                'content' => '<p>Check out our latest projects and initiatives.</p>',
+                'title' => 'Explore Our Achievements',
+                'content' => 'Discover the groundbreaking projects and milestones that define our excellence.',
             ],
             [
-                'title' => 'Watch Our Story',
-                'content' => '<p>Watch our introduction video to learn more about us.</p>',
+                'title' => 'See Our Story Unfold',
+                'content' => 'Watch our journey and learn how we create impact through passion and expertise.',
             ],
         ];
 
         foreach ($features as $feature) {
-            $media = $this->mediaModel::where('type', 'LIKE', 'image/%')->inRandomOrder()->limit(6)->get();
-            $mediaId = $media->shuffle()->shift()?->id;
-            $content = Content::factory()
-                ->site($page->site)
-                ->withTranslations($page->site->languages, ['content' => sprintf('<p>%s</p>', $feature['title'])])
-                ->state([
-                    'meta' => fn ($attributes): array => array_merge_recursive((array) $attributes['meta'], [
-                        'image_id' => $mediaId,
-                        'media' => $media?->take(2)->pluck('id')->toArray(),
-                        'actions' => [
-                            [
-                                'type' => 'page',
-                                'page_uuid' => Page::where('site_id', $page->site->id)
-                                    ->whereHas(
-                                        'type',
-                                        /** @param Models\Type $query */
-                                        fn (BuilderContract $query) => $query->listable()->enabled()->accessible()
-                                    )
-                                    ->inRandomOrder()
-                                    ->value('uuid'),
-                                'site_id' => $page->site->id,
-                            ],
-                            [
-                                'type' => 'page',
-                                'page_uuid' => Page::where('site_id', $page->site->id)
-                                    ->whereHas(
-                                        'type',
-                                        /** @param Models\Type $query */
-                                        fn (BuilderContract $query) => $query->listable()->enabled()->accessible()
-                                    )
-                                    ->inRandomOrder()
-                                    ->value('uuid'),
-                                'site_id' => $page->site->id,
-                                'color' => 'secondary',
-                            ],
-                            [
-                                'type' => 'url',
-                                'url' => 'https://example.com',
-                                'label' => 'External',
-                                'color' => 'default',
-                            ],
+            $content = Content::query()->firstOrCreate([
+                'name' => $feature['title'],
+                'type_id' => $type->getKey(),
+            ], [
+                'meta' => [
+                    'actions' => [
+                        [
+                            'type' => 'page',
+                            'page_id' => Page::query()->where('site_id', $page->site->id)
+                                ->whereHas(
+                                    'type',
+                                    /** @param Type $query */
+                                    fn (BuilderContract $query) => $query->listable()->enabled()->accessible(),
+                                )
+                                ->inRandomOrder()
+                                ->value('id'),
+                            'site_id' => $page->site->id,
                         ],
-                    ]),
-                ])
-                ->create();
+                        [
+                            'type' => 'page',
+                            'page_id' => Page::query()->where('site_id', $page->site->id)
+                                ->whereHas(
+                                    'type',
+                                    /** @param Type $query */
+                                    fn (BuilderContract $query) => $query->listable()->enabled()->accessible(),
+                                )
+                                ->inRandomOrder()
+                                ->value('id'),
+                            'site_id' => $page->site->id,
+                            'color' => 'secondary',
+                        ],
+                        [
+                            'type' => 'url',
+                            'url' => 'https://example.com',
+                            'label' => 'External',
+                            'hidden_label' => true,
+                            'icon' => 'heroicon-o-arrow-top-right-on-square',
+                            'color' => 'default',
+                        ],
+                    ],
+                ],
+            ]);
+
+            foreach ($page->site->languages as $language) {
+                $content->translations()->updateOrCreate([
+                    'language_id' => $language->id,
+                ], [
+                    'title' => $feature['title'],
+                    'content' => sprintf('<p>%s</p>', $feature['content']),
+                ]);
+            }
+
+            $this->createMedia($content);
 
             $widget->assets()->create([
                 'page_id' => $page->id,
                 'container' => $container,
                 'occurrence' => $occurrence,
                 'asset_type' => app($this->contentModel)->getMorphClass(),
-                'asset_id' => $content->uuid,
+                'asset_id' => $content->id,
             ]);
         }
     }
 
     public function createClientLogosWidget(Collection $languages): Widget
     {
-        $widget = Widget::firstOrCreate([
+        $widget = Widget::query()->firstOrCreate([
             'key' => 'client-logos',
         ], [
             'name' => 'Client Logos',
@@ -672,7 +592,7 @@ class DemoCreator
             return $widget;
         }
 
-        $languages->each(function (Models\Language $language) use ($widget): void {
+        $languages->each(function (Language $language) use ($widget): void {
             $widget->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
@@ -681,25 +601,16 @@ class DemoCreator
             ]);
         });
 
-        $clientLogos = $this->mediaModel::query()
-            ->where('type', 'LIKE', 'image/%')
-            ->inRandomOrder()
-            ->limit(12)
-            ->get();
-
-        $clientLogos->each(function (Models\Media $logo) use ($widget): void {
-            $widget->assets()->firstOrCreate([
-                'asset_id' => $logo->uuid,
-                'asset_type' => app($this->mediaModel)->getMorphClass(),
-            ]);
-        });
+        for ($i = 1; $i <= 12; $i++) {
+            $this->createWidgetMedia($widget);
+        }
 
         return $widget;
     }
 
     public function createBusinessFeaturesWidget(Site $site): Widget
     {
-        $widget = Widget::firstOrCreate([
+        $widget = Widget::query()->firstOrCreate([
             'key' => 'business-features',
         ], [
             'name' => 'Business Features',
@@ -708,18 +619,15 @@ class DemoCreator
                 'align' => 'center',
                 'margin' => ['lg'],
                 'view_file' => 'capell-layout::components.widget.assets.features',
-                'image_id' => $this->getExampleMedia()?->id,
             ],
         ]);
 
-        if ($widget->assets()->exists()) {
-            return $widget;
-        }
+        $this->createMedia($widget);
 
         $title = 'Fundamental Capabilities That Set Us Apart';
         $content = '<p>We combine innovation, efficiency, and deep expertise to deliver exceptional results. Our adaptable, client-focused approach ensures measurable value and lasting impact.</p>';
 
-        $site->languages->each(function (Models\Language $language) use ($widget, $title, $content): void {
+        $site->languages->each(function (Language $language) use ($widget, $title, $content): void {
             $widget->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
@@ -731,13 +639,13 @@ class DemoCreator
         $features = $this->createFeatures($site);
 
         $features->each(function (Content $content) use ($widget): void {
-            if ($widget->assets()->where('asset_id', $content->uuid)->exists()) {
+            if ($widget->assets()->where('asset_id', $content->id)->exists()) {
                 return;
             }
 
             $widget->assets()->create([
                 'asset_type' => app($this->contentModel)->getMorphClass(),
-                'asset_id' => $content->uuid,
+                'asset_id' => $content->id,
             ]);
         });
 
@@ -756,22 +664,18 @@ class DemoCreator
             ],
         ]);
 
-        if ($widget->assets()->exists()) {
-            return $widget;
-        }
-
         $site = Site::default()->first();
 
         $features = $this->createFeatures($site);
 
         $features->each(function (Content $content) use ($widget): void {
-            if ($widget->assets()->where('asset_id', $content->uuid)->exists()) {
+            if ($widget->assets()->where('asset_id', $content->id)->exists()) {
                 return;
             }
 
             $widget->assets()->create([
                 'asset_type' => app($this->contentModel)->getMorphClass(),
-                'asset_id' => $content->uuid,
+                'asset_id' => $content->id,
             ]);
         });
 
@@ -786,17 +690,14 @@ class DemoCreator
             'meta' => [
                 'align' => 'center',
                 'background_overlay' => true,
-                'background_color' => 'dark-gray',
-                'background_image_id' => $this->getExampleMedia()?->id,
+                'background_color' => DefaultColorEnum::Gray->value,
                 'view_file' => 'capell-layout::components.widget.assets.testimonials',
             ],
         ]);
 
-        if ($widget->assets()->exists()) {
-            return $widget;
-        }
+        $this->createMedia($widget, collection: MediaCollectionEnum::BackgroundImage);
 
-        $languages->each(function (Models\Language $language) use ($widget): void {
+        $languages->each(function (Language $language) use ($widget): void {
             $widget->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'What Our Clients Say',
             ]);
@@ -805,13 +706,13 @@ class DemoCreator
         $testimonials = $this->createTestimonials($languages);
 
         $testimonials->each(function (Content $content) use ($widget): void {
-            if ($widget->assets()->where('asset_id', $content->uuid)->exists()) {
+            if ($widget->assets()->where('asset_id', $content->id)->exists()) {
                 return;
             }
 
             $widget->assets()->create([
                 'asset_type' => app($this->contentModel)->getMorphClass(),
-                'asset_id' => $content->uuid,
+                'asset_id' => $content->id,
             ]);
         });
 
@@ -827,8 +728,9 @@ class DemoCreator
                 'component_item' => 'capell-layout::content.block',
                 'view_file' => 'capell-layout::components.widget.assets.blocks',
                 'spacing' => 'none',
-                'columns' => 'auto',
+                'columns' => 0,
                 'margin' => '',
+                'container' => ContainerWidthEnum::Small->value,
             ],
             'admin' => [
                 'icon' => 'heroicon-o-chart-bar',
@@ -869,23 +771,25 @@ class DemoCreator
         $site = Site::default()->first();
 
         foreach ($statistics as $statistic) {
-            $content = Content::factory()
-                ->site($site)
-                ->withTranslations($site->languages, [
+            $content = Content::query()->firstOrCreate([
+                'name' => $statistic['title'],
+            ], [
+                'meta' => [
+                    'icon' => $statistic['icon'],
+                    'color' => $statistic['color'],
+                ],
+            ]);
+
+            foreach ($site->languages as $language) {
+                $content->translations()->create([
+                    'language_id' => $language->id,
                     'title' => $statistic['title'],
                     'content' => sprintf('<p>%s</p>', $statistic['value']),
-                ])
-                ->state([
-                    'name' => $statistic['title'],
-                    'meta' => [
-                        'icon' => $statistic['icon'],
-                        'color' => $statistic['color'],
-                    ],
-                ])
-                ->create();
+                ]);
+            }
 
             $widget->assets()->firstOrCreate([
-                'asset_id' => $content->uuid,
+                'asset_id' => $content->id,
                 'asset_type' => app($this->contentModel)->getMorphClass(),
             ]);
         }
@@ -893,22 +797,23 @@ class DemoCreator
         return $widget;
     }
 
-    public function getExampleMedia(): Models\Media
-    {
-        return $this->mediaModel::where('type', 'LIKE', 'image/%')->inRandomOrder()->first();
-    }
-
     public function createTeamPortfolioWidget(Collection $languages): Widget
     {
         $widget = $this->widgetModel::firstOrCreate(['key' => 'team-portfolio'], [
             'name' => 'Team Portfolio',
-            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget])->id,
+            'type_id' => $this->typeModel::query()
+                ->where([
+                    'key' => WidgetTypeEnum::Contents,
+                    'type' => LayoutTypeEnum::Widget,
+                ])
+                ->value('id'),
             'meta' => [
                 'align' => 'center',
                 'padding' => ['lg'],
                 'columns' => 4,
                 'spacing' => 'lg',
                 'background_color' => 'light-gray',
+                'with_summary' => true,
                 'carousel_fade' => true,
                 'carousel_arrows' => false,
                 'carousel_pagination' => true,
@@ -919,7 +824,7 @@ class DemoCreator
             ],
         ]);
 
-        $languages->each(function (Models\Language $language) use ($widget): void {
+        $languages->each(function (Language $language) use ($widget): void {
             $widget->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'Meet Our Team',
                 'content' => '<p>Discover the talented individuals behind our success.</p>',
@@ -929,20 +834,20 @@ class DemoCreator
         $teamMembers = $this->createTeamMembers($languages);
 
         $teamMembers->each(function (Content $content) use ($widget): void {
-            if ($widget->assets()->where('asset_id', $content->uuid)->exists()) {
+            if ($widget->assets()->where('asset_id', $content->id)->exists()) {
                 return;
             }
 
             $widget->assets()->create([
                 'asset_type' => app($this->contentModel)->getMorphClass(),
-                'asset_id' => $content->uuid,
+                'asset_id' => $content->id,
             ]);
         });
 
         return $widget;
     }
 
-    protected function navigationPageItems(\Illuminate\Support\Collection $siteTree, Models\Language $language): array
+    protected function navigationPageItems(\Illuminate\Support\Collection $siteTree, Language $language): array
     {
         $items = [];
 
@@ -951,7 +856,7 @@ class DemoCreator
                 'label' => NavigationCreator::getPageNavigationLabel($page, $language),
                 'type' => 'page',
                 'data' => [
-                    'page_uuid' => $page->uuid,
+                    'page_id' => $page->id,
                 ],
                 'children' => $page->relationLoaded('children') ? $this->navigationPageItems($page->children, $language) : [],
             ];
@@ -995,15 +900,16 @@ class DemoCreator
             ],
         ];
 
-        $parentPage = Page::updateOrCreate([
+        $parentPage = Page::query()->updateOrCreate([
             'site_id' => $site->id,
             'name' => 'Features',
+        ], [
             'meta' => [
                 'author_id' => $this->user?->id,
             ],
         ]);
 
-        $site->languages->each(function (Models\Language $language) use ($parentPage): void {
+        $site->languages->each(function (Language $language) use ($parentPage): void {
             $parentPage->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
@@ -1011,36 +917,36 @@ class DemoCreator
             ]);
         });
 
-        $contentFeatures = new Collection();
+        $contentFeatures = new Collection;
 
         foreach ($features as $feature) {
-            $featureImage = $this->getExampleMedia();
-
-            $page = Page::updateOrCreate([
+            $page = Page::query()->updateOrCreate([
                 'site_id' => $site->id,
                 'name' => $feature['title'],
             ], [
                 'parent_id' => $parentPage->id,
                 'meta' => [
                     'icon' => $feature['icon'],
-                    'image_id' => $featureImage?->id,
                     'author_id' => $this->user?->id,
                 ],
             ]);
 
-            $content = Content::updateOrCreate([
+            $this->createMedia($page);
+
+            $content = Content::query()->updateOrCreate([
                 'name' => $feature['title'],
             ], [
                 'meta' => [
                     'icon' => $feature['icon'],
-                    'image_id' => $featureImage?->id,
-                    'page_uuid' => $page->uuid,
+                    'page_id' => $page->id,
                 ],
             ]);
 
+            $this->createMedia($content);
+
             $contentFeatures->push($content);
 
-            $site->languages->each(function (Models\Language $language) use ($page, $content, $feature): void {
+            $site->languages->each(function (Language $language) use ($page, $content, $feature): void {
                 $page->translations()->firstOrCreate([
                     'language_id' => $language->id,
                 ], [
@@ -1062,38 +968,37 @@ class DemoCreator
 
     private function createTestimonials(Collection $languages): Collection
     {
-        $testimonialContent = Content::create([
+        $testimonialContent = Content::query()->firstOrCreate([
             'name' => 'Testimonials',
+        ], [
             'meta' => [
                 'icon' => 'heroicon-o-chat-bubble-left-right',
-                'image_id' => $this->getExampleMedia()?->id,
             ],
         ]);
+
+        $this->createMedia($testimonialContent);
 
         $testimonials = [
             [
                 'name' => 'John Doe',
                 'position' => 'CEO of Example Corp',
-                'content' => '<p>Capell has transformed our business with their innovative solutions and exceptional service.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
+                'content' => 'Capell has transformed our business with their innovative solutions and exceptional service.',
             ],
             [
                 'name' => 'Jane Smith',
                 'position' => 'CTO of Tech Innovations',
-                'content' => '<p>The team at Capell is incredibly knowledgeable and always goes the extra mile for us.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
+                'content' => 'The team at Capell is incredibly knowledgeable and always goes the extra mile for us.',
             ],
             [
-                'name' => 'Alice Johnson',
+                'name' => 'Jeff Wilson',
                 'position' => 'Marketing Director at Creative Agency',
-                'content' => '<p>We have seen significant growth since partnering with Capell. Their expertise is unmatched.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
+                'content' => 'We have seen significant growth since partnering with Capell. Their expertise is unmatched.',
             ],
         ];
 
-        $testimonialsCollection = new Collection();
+        $testimonialsCollection = new Collection;
 
-        $testimonialType = Models\Type::updateOrCreate([
+        $testimonialType = Type::query()->updateOrCreate([
             'key' => 'testimonial',
             'type' => LayoutTypeEnum::Content,
         ], [
@@ -1105,23 +1010,27 @@ class DemoCreator
         ]);
 
         foreach ($testimonials as $testimonial) {
-            $content = Content::firstOrCreate([
+            $content = Content::query()->firstOrCreate([
                 'name' => $testimonial['name'],
-                'parent_uuid' => $testimonialContent->uuid,
+                'parent_id' => $testimonialContent->id,
                 'type_id' => $testimonialType->id,
             ], [
                 'meta' => [
-                    'image_id' => $testimonial['image_id'],
                     'position' => $testimonial['position'],
                 ],
             ]);
 
+            $this->createMedia($content);
+
             $content->translations()->createMany(
-                $languages->map(fn (Models\Language $language): array => [
-                    'language_id' => $language->id,
-                    'title' => $testimonial['name'],
-                    'content' => sprintf('<p>%s</p>', $testimonial['content']),
-                ])->toArray()
+                $languages
+                    ->reject(fn (Language $language): bool => (bool) $content->translations->contains('language_id', $language->id))
+                    ->map(fn (Language $language): array => [
+                        'language_id' => $language->id,
+                        'title' => $testimonial['name'],
+                        'content' => sprintf('<p>%s</p>', $testimonial['content']),
+                    ])
+                    ->all(),
             );
 
             $testimonialsCollection->push($content);
@@ -1137,132 +1046,204 @@ class DemoCreator
                 'name' => 'Alice Johnson',
                 'position' => 'CEO',
                 'bio' => '<p>Alice is the visionary behind our success, leading the team with passion and expertise.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
             ],
             [
                 'name' => 'Charlie Brown',
                 'position' => 'CFO',
                 'bio' => '<p>Charlie manages our finances with precision, ensuring sustainable growth and stability.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
             ],
             [
                 'name' => 'Fiona Green',
                 'position' => 'Head of HR',
                 'bio' => "<p>Fiona is dedicated to building a strong team culture and supporting our employees' growth.</p>",
-                'image_id' => $this->getExampleMedia()?->id,
             ],
             [
                 'name' => 'George White',
                 'position' => 'Lead Designer',
                 'bio' => '<p>George brings creativity and innovation to our design projects, making them visually stunning.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
             ],
             [
                 'name' => 'Hannah Blue',
                 'position' => 'Senior Developer',
                 'bio' => '<p>Hannah is a coding wizard, turning complex problems into elegant solutions.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
             ],
             [
                 'name' => 'Ian Black',
                 'position' => 'Project Manager',
                 'bio' => '<p>Ian keeps our projects on track, ensuring timely delivery and client satisfaction.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
             ],
             [
                 'name' => 'Julia Red',
                 'position' => 'Content Strategist',
                 'bio' => '<p>Julia crafts compelling content strategies that engage and inform our audience.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
             ],
             [
                 'name' => 'Kevin Yellow',
                 'position' => 'Data Analyst',
                 'bio' => '<p>Kevin turns data into insights, helping us make informed decisions for our clients.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
             ],
             [
                 'name' => 'Laura Purple',
                 'position' => 'Customer Success Manager',
                 'bio' => '<p>Laura ensures our clients are happy and successful, building lasting relationships.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
             ],
             [
                 'name' => 'Mike Orange',
                 'position' => 'Sales Director',
                 'bio' => '<p>Mike drives our sales strategy, helping us reach new heights in revenue.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
             ],
             [
                 'name' => 'Nina Pink',
                 'position' => 'UX Researcher',
                 'bio' => '<p>Nina conducts research to understand user needs, shaping our products for better usability.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
             ],
             [
                 'name' => 'Oscar Gray',
                 'position' => 'IT Support Specialist',
                 'bio' => '<p>Oscar keeps our systems running smoothly, providing technical support to our team.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
             ],
             [
                 'name' => 'Quentin Silver',
                 'position' => 'Business Analyst',
                 'bio' => '<p>Quentin analyzes market trends, helping us identify new opportunities for growth.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
             ],
             [
                 'name' => 'Sam White',
                 'position' => 'Quality Assurance Specialist',
                 'bio' => '<p>Sam ensures our products meet the highest quality standards before they reach our clients.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
             ],
             [
                 'name' => 'Victor Blue',
                 'position' => 'Network Administrator',
                 'bio' => '<p>Victor manages our network infrastructure, ensuring reliable connectivity for our team.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
             ],
             [
                 'name' => 'Zane Purple',
                 'position' => 'Research Scientist',
                 'bio' => '<p>Zane conducts research to develop innovative solutions that push the boundaries of technology.</p>',
-                'image_id' => $this->getExampleMedia()?->id,
             ],
         ];
 
-        $teamContent = Content::firstOrCreate([
+        $teamContent = Content::query()->firstOrNew([
             'name' => 'Team Members',
-        ], [
-            'icon' => 'heroicon-o-user-circle',
         ]);
 
-        $teamMembersCollection = new Collection();
+        $meta = $teamContent->meta ?? [];
+        $meta['icon'] = 'heroicon-o-users';
+        $teamContent->meta = $meta;
+
+        $teamContent->save();
+
+        $teamMembersCollection = new Collection;
 
         foreach ($teamMembers as $member) {
-            $content = Content::firstOrCreate([
+            $content = Content::query()->firstOrCreate([
                 'name' => $member['name'],
-                'parent_uuid' => $teamContent->uuid,
+                'parent_id' => $teamContent->id,
             ], [
                 'meta' => [
-                    'image_id' => $member['image_id'],
                     'position' => $member['position'],
                 ],
             ]);
 
+            $this->createMedia($content);
+
             $content->translations()->createMany(
                 $languages
-                    ->filter(fn (Models\Language $language): bool => ! $content->translations->contains('language_id', $language->id))
-                    ->map(fn (Models\Language $language): array => [
+                    ->reject(fn (Language $language): bool => (bool) $content->translations->contains('language_id', $language->id))
+                    ->map(fn (Language $language): array => [
                         'language_id' => $language->id,
                         'title' => $member['name'],
                         'content' => $member['bio'],
-                    ])->toArray()
+                    ])
+                    ->all(),
             );
 
             $teamMembersCollection->push($content);
         }
 
         return $teamMembersCollection;
+    }
+
+    private function createMedia(HasMedia $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): void
+    {
+        app(AdminDemoCreator::class)->createMedia($model, $name, $type, $collection);
+    }
+
+    private function createWidgetMedia(HasMedia $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): void
+    {
+        if ($type === 'video') {
+            $ext = 'mp4';
+            $demo_path = AdminDemoCreator::getDemoResourcePath('video');
+            $filename = $name ?? 'SampleVideo_1280x720_1mb';
+            $collection = MediaCollectionEnum::Video;
+        } else {
+            $ext = 'jpg';
+            $demo_path = AdminDemoCreator::getDemoResourcePath('img');
+            $filename = in_array($name, [null, '', '0'], true) ? null : Str::slug($name);
+        }
+
+        if ($filename !== null) {
+            $filename = pathinfo($filename, PATHINFO_FILENAME);
+        }
+
+        $demo_file = sprintf('%s/%s.%s', $demo_path, $filename, $ext);
+
+        if (in_array($filename, ['', '0', [], null], true) || ! file_exists($demo_file)) {
+            $demo_path = AdminDemoCreator::getDemoResourcePath('img');
+
+            $filename = $this->getRandomDemoImage($demo_path);
+
+            $demo_file = sprintf('%s/%s.%s', $demo_path, $filename, $ext);
+        }
+
+        // Create content and add via WidgetAsset
+        $content = Content::create([
+            'name' => str($filename)->title(),
+        ]);
+
+        $model->assets()->create([
+            'asset_id' => $content->getKey(),
+            'asset_type' => app(Content::class)->getMorphClass(),
+        ]);
+
+        $image = null;
+        if ($type !== 'video') {
+            $image = Image::load($demo_file);
+        }
+
+        $content->addMedia($demo_file)
+            ->preservingOriginal()
+            ->withCustomProperties([
+                ...(
+                    $image instanceof Image
+                ? ['width' => $image->getWidth(), 'height' => $image->getHeight()]
+                : []
+                ),
+            ])
+            ->toMediaCollection($collection instanceof BackedEnum ? $collection->value : $collection);
+
+        if ($type === 'video') {
+            $demo_path = AdminDemoCreator::getDemoResourcePath('img');
+
+            $filename = $this->getRandomDemoImage($demo_path);
+
+            $demo_file = sprintf('%s/%s.%s', $demo_path, $filename, 'jpg');
+
+            $image = Image::load($demo_file);
+
+            $content->addMedia($demo_file)
+                ->preservingOriginal()
+                ->withCustomProperties([
+                    'width' => $image->getWidth(),
+                    'height' => $image->getHeight(),
+                ])
+                ->toMediaCollection(MediaCollectionEnum::Image->value);
+        }
+    }
+
+    private function getRandomDemoImage(string $demo_path): string
+    {
+        return app(AdminDemoCreator::class)->getRandomDemoImage($demo_path);
     }
 }

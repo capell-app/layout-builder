@@ -9,44 +9,40 @@ use Capell\Admin\Filament\Components\Forms\ContentEditor;
 use Capell\Admin\Filament\Components\Forms\RepeaterTabs;
 use Capell\Admin\Filament\Components\Forms\TranslationLanguageSelect;
 use Capell\Admin\Filament\Components\Forms\TranslationsRepeater;
-use Filament\Forms;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 
 class WidgetTranslationsRepeater
 {
-    public static function make(Forms\Form $form, array $schema = []): RepeaterTabs
+    public static function make(Schema $schema, array $components = []): RepeaterTabs
     {
-        $contentEditor = $form->getRecord()?->type->admin['content_editor'] ?? null;
+        $contentEditor = $schema->getRecord()?->type->admin['content_editor'] ?? null;
 
         return TranslationsRepeater::make('translations')
             ->when(
-                $form->getOperation() === 'replicate',
-                fn (TranslationsRepeater $repeater): TranslationsRepeater => $repeater->withoutRelationship()
+                $schema->getOperation() === 'replicate',
+                fn (TranslationsRepeater $repeater): TranslationsRepeater => $repeater->withoutRelationship(),
             )
             ->schema([
-                Forms\Components\Hidden::make('is_title_changed_manually')
-                    ->default(false)
-                    ->dehydrated(false),
-
-                Forms\Components\Grid::make(3)
+                Grid::make(3)
                     ->columnSpanFull()
                     ->schema([
-                        Forms\Components\TextInput::make('title')
+                        TextInput::make('title')
                             ->label(__('capell-admin::form.title'))
-                            ->columnSpan(fn (Get $get): int => $get('language_id') ? 3 : 2)
-                            ->afterStateUpdated(
-                                fn (Set $set, $state): mixed => $set('is_title_changed_manually', (bool) $state)
-                            ),
+                            ->columnSpan(fn (Get $get): int => $get('language_id') ? 3 : 2),
 
-                        TranslationLanguageSelect::make(),
+                        TranslationLanguageSelect::make()
+                            ->dehydratedWhenHidden()
+                            ->hidden(fn (?int $state): bool => (bool) $state),
                     ]),
 
                 ContentEditor::make(
-                    editor: $contentEditor ? ContentEditorEnum::tryFrom($contentEditor) : null
+                    editor: $contentEditor ? ContentEditorEnum::tryFrom($contentEditor) : null,
                 ),
 
-                ...$schema,
+                ...$components,
             ]);
     }
 }

@@ -6,26 +6,28 @@ namespace Capell\Layout\Filament\Components\Forms\Page\Tab;
 
 use Capell\Core\Models\Page;
 use Capell\Layout\Livewire\LayoutBuilder;
-use Filament\Forms;
-use Filament\Forms\Get;
+use Filament\Schemas\Components\Livewire;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Support\Icons\Heroicon;
 
 class PageLayoutTab
 {
-    public static function make(): Forms\Components\Tabs\Tab
+    public static function make(): Tab
     {
-        return Forms\Components\Tabs\Tab::make(__('capell-admin::tab.layout'))
-            ->icon('heroicon-o-puzzle-piece')
+        return Tab::make(__('capell-admin::tab.layout'))
+            ->icon(Heroicon::OutlinedPuzzlePiece)
             ->visible(fn (Get $get, Page $record): bool => (bool) ($get('layout_id') ?: $record->layout_id))
             ->schema([
-                Forms\Components\Livewire::make(
+                Livewire::make(
                     LayoutBuilder::class,
                     fn (Get $get, Page $record): array => [
                         'site_id' => $record->site_id,
                         'layout_id' => $get('layout_id') ?: $record->layout_id,
                         'page_id' => $record->id,
-                    ]
+                    ],
                 )
-                    ->lazy()
+                    ->lazy(config('capell-layout.layout_builder.lazy', true))
                     ->columnSpanFull(),
             ]);
     }

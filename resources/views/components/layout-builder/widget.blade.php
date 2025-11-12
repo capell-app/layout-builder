@@ -9,23 +9,22 @@ declare(strict_types=1);
     'containerWidget',
     'loop',
     'occurrence',
-    'assets',
-    'assetsCount',
     'widget',
     'widgetIndex',
 ])
 @php
     use Capell\Admin\Facades\CapellAdmin;
     use Capell\Core\Facades\CapellCore;
-    use Capell\Core\Models\Type;
-    use Capell\Layout\Enums\LayoutResourceEnum;
-    use Capell\Layout\Models\Content;
-    use Filament\Support\Enums\ActionSize;
+    use Capell\Layout\Enums\ResourceEnum;
+    use Capell\Layout\Livewire\LayoutBuilder;
     use Filament\Support\Enums\FontWeight;
     use Filament\Support\Enums\IconSize;
-    use Illuminate\Support\HtmlString;
+    use Filament\Support\Enums\Size;
     use Illuminate\View\ComponentAttributeBag;
 
+    /**
+     * @var LayoutBuilder $this
+     */
     $occurrence = $containerWidget['occurrence'] ?? 1;
 
     $type = $widget->admin['type'] ?? ($widget->type->admin['type'] ?? []);
@@ -34,9 +33,7 @@ declare(strict_types=1);
         ? $widget->admin['asset_types']
         : ($widget->type->admin['asset_types'] ?? []);
 
-    $widgetIcon = ! empty($widget->admin['icon'])
-        ? $widget->admin['icon']
-        : ($widget->type->admin['icon'] ?? 'heroicon-o-document-text');
+    $widgetIcon = $widget->admin['icon'] ?? ($widget->type->admin['icon'] ?? null);
 
     $hasPageAssets = $this->hasPageAssets($containerKey, $widgetIndex);
 
@@ -47,50 +44,73 @@ declare(strict_types=1);
         'widgetIndex' => $widgetIndex,
     ]);
 
-    $editWidgetTypeAction = ($this->editWidgetTypeAction)([
-        'containerKey' => $containerKey,
-        'widgetIndex' => $widgetIndex,
-    ]);
-
-    $convertPageAssetsAction = ($this->convertPageAssetsAction)([
+    $togglePageAssetsAction = ($this->togglePageAssetsAction)([
         'containerKey' => $containerKey,
         'widgetIndex' => $widgetIndex,
     ]);
 
     $image = $widget->image ?: $widget->backgroundImage;
+
+    $title = $widget->translation?->title;
 @endphp
 
 <div
     x-data="{
         isCollapsed: true,
+        id: '{{ $widgetIndex }}',
+        containerKey: '{{ $containerKey }}',
+        notify() {
+            this.$dispatch('widget-collapsed-changed', {
+                id: this.id,
+                containerKey: this.containerKey,
+                isCollapsed: this.isCollapsed,
+            })
+        },
         toggleCollapse() {
             this.isCollapsed = ! this.isCollapsed
+            this.notify()
         },
     }"
     {{
-        $attributes->class(['layout-container-widget group last:rounded-b-lg bg-white dark:bg-gray-900'])->when(
+        $attributes->class(['layout-container-widget group last:rounded-b-lg'])->when(
             $assetTypes,
             fn (ComponentAttributeBag $attributeBag): ComponentAttributeBag => $attributeBag->merge([
                 ':class' => "{ 'pb-4': ! isCollapsed }",
             ]),
         )
     }}
-    wire:key="{{ "$containerKey.$widgetIndex" }}"
-    x-sort:item="'{{ $containerKey.'.'.$widgetIndex }}'"
-    x-on:collapse-widget.window="isCollapsed = $event.detail.isCollapsed"
+    wire:key="{{ "{$containerKey}.{$widgetIndex}" }}"
+    x-sort:item="'{{ $containerKey . '.' . $widgetIndex }}'"
+    x-init="
+        $dispatch('widget-collapsed-register', {
+            id: id,
+            containerKey: containerKey,
+            isCollapsed: isCollapsed,
+        })
+    "
+    x-on:collapse-widget.window="
+        if ($event.detail.containerKey && $event.detail.containerKey !== containerKey)
+            return
+        if ($event.detail.id && $event.detail.id !== id) return
+        isCollapsed = $event.detail.isCollapsed
+        notify()
+    "
     x-on:refresh-assets.window="
         $event.detail.containerKey === '{{ $containerKey }}' &&
         $event.detail.widgetIndex === {{ $widgetIndex }} &&
         isCollapsed === true
-            ? (isCollapsed = false)
+            ? ((isCollapsed = false), notify())
             : null
     "
 >
     <div class="flex">
         <div
             class="group/widget layout-builder-widget-heading !lg:px-4 flex flex-1 items-center gap-4 px-4 py-3 group-[&:last-child]:rounded-b-lg"
+            :class="{
+                '!rounded-b-none pb-2' : ! isCollapsed,
+                {{ $assetTypes ? "'cursor-pointer' : ! isReordering," : '' }}
+            }"
             @if ($assetTypes)
-                :class="!isReordering ? 'cursor-pointer' : ''"
                 x-on:click.self="! isReordering ? toggleCollapse() : null"
             @endif
         >
@@ -98,31 +118,28 @@ declare(strict_types=1);
                 class="flex grow items-center"
                 @if ($assetTypes) x-on:click="! isReordering ? toggleCollapse() : null" @endif
             >
-                <div class="mr-1 flex w-7 items-center gap-3">
+                <div class="mr-1 flex w-7 shrink-0 items-center gap-3">
                     <span
                         class="relative"
                         x-show="! isReordering"
                     >
                         <x-filament::icon
-                            :class="'h-5 w-5'.($assetTypes ? ' text-primary-600' : ' text-gray-400')"
+                            :class="'h-5 w-5' . ($assetTypes ? ' text-primary-600' : ' text-gray-400')"
                             :x-tooltip.raw="$widget->type?->name"
-                            :icon="
-                                $assetTypes
-                                ? str_replace('heroicon-o-', 'heroicon-s-', $widgetIcon)
-                                : $widgetIcon
-                            "
+                            :icon="$widgetIcon"
                         />
 
                         @if ($assetTypes)
                             <x-filament::badge
                                 :color="$hasPageAssets ? 'primary' : 'gray'"
-                                :size="ActionSize::ExtraSmall"
+                                :size="Size::ExtraSmall"
                                 class="absolute -right-2 -top-2 inline-flex"
                             >
-                                {{ $assetsCount }}
+                                {{ $widget->assets?->count() ?? 0 }}
                             </x-filament::badge>
                         @endif
                     </span>
+
                     <div
                         wire:loading.class="pointer-events-none opacity-40"
                         x-cloak
@@ -139,17 +156,24 @@ declare(strict_types=1);
                     </div>
                 </div>
 
-                <span
-                    @class([
-                        'text-sm text-gray-600 dark:text-gray-100',
-                        'group-hover/widget:text-primary-600 font-medium' => $assetTypes,
-                    ])
-                >
-                    {{ $widget->name }}
+                <span class="text-sm text-gray-600 dark:text-gray-100">
+                    <span
+                        @class([
+                            'font-semibold',
+                            'group-hover/widget:text-primary-600' => $assetTypes,
+                        ])
+                    >
+                        {{ $widget->name }}
+                    </span>
 
                     @if (! empty($containerWidget['meta']['name']))
                         -
                         <b>{{ $containerWidget['meta']['name'] }}</b>
+                    @endif
+
+                    @if ($title && $title !== $widget->name)
+                        <br />
+                        {{ $title }}
                     @endif
                 </span>
 
@@ -163,16 +187,7 @@ declare(strict_types=1);
                 @endif
 
                 @if ($image)
-                    <x-curator-glider
-                        class="ml-auto max-h-12 object-contain"
-                        format="webp"
-                        view="capell-admin::components.media.glider"
-                        :media="$image"
-                        :width="80"
-                        :height="80"
-                        fit="fit"
-                        loading="lazy"
-                    />
+                    {{ $image->img('thumb')->lazy()->attributes(['class' => 'ml-auto max-h-12 max-w-12 object-contain']) }}
                 @endif
             </div>
 
@@ -180,86 +195,78 @@ declare(strict_types=1);
                 class="ml-auto grid shrink flex-wrap items-center justify-end gap-x-4 gap-y-2 md:flex"
                 x-show="! isReordering"
             >
-                <div class="flex flex-wrap justify-end gap-3 md:order-2">
-                    <div class="fi-btn-group flex items-center">
-                        {{ $editWidgetAction }}
-
-                        <x-filament::dropdown
-                            class="fi-btn-group-dropdown"
-                            placement="bottom-end"
-                            teleport
-                        >
-                            <x-slot name="trigger">
-                                <x-filament::button
-                                    class="fi-btn-outlined"
-                                    icon="heroicon-o-ellipsis-vertical"
-                                    size="sm"
-                                    color="gray"
-                                    :label-sr-only="true"
-                                />
-                            </x-slot>
-
-                            <x-filament::dropdown.list>
-                                @if ($editContainerWidgetAction?->isVisible())
-                                    {{ $editContainerWidgetAction }}
-                                @endif
-
-                                @if ($editWidgetTypeAction?->isVisible())
-                                    {{ $editWidgetTypeAction }}
-                                @endif
-
-                                @if ($convertPageAssetsAction?->isVisible())
-                                    {{ $convertPageAssetsAction }}
-                                @endif
-
-                                {{ ($this->duplicateWidgetAction)(['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex]) }}
-
-                                {{ ($this->removeWidgetAction)(['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex]) }}
-
-                                <x-filament::dropdown.list.item
-                                    href="{{ CapellAdmin::getResource(LayoutResourceEnum::Widget->name)::getUrl('edit', ['record' => $this->getContainerWidget($containerKey, $widgetIndex)]) }}"
-                                    icon="heroicon-o-arrow-top-right-on-square"
-                                    target="_blank"
-                                    tag="a"
-                                >
-                                    {{ __('capell-admin::button.open_edit_widget') }}
-                                </x-filament::dropdown.list.item>
-                            </x-filament::dropdown.list>
-                        </x-filament::dropdown>
-                    </div>
-                </div>
-
                 @if ($assetTypes)
-                    <div class="flex flex-wrap justify-end gap-1 md:order-1">
-                        <x-filament::dropdown placement="bottom-end">
-                            <x-slot name="trigger">
-                                <x-filament::link
-                                    :iconSize="IconSize::Small"
-                                    :weight="FontWeight::Medium"
-                                    size="xs"
-                                    color="primary"
-                                    icon="heroicon-c-plus-circle"
-                                    :outlined="true"
+                    <x-filament::dropdown placement="bottom-end">
+                        <x-slot name="trigger">
+                            <x-filament::link
+                                :iconSize="IconSize::Small"
+                                :weight="FontWeight::Medium"
+                                :size="Size::ExtraSmall"
+                                color="primary"
+                                icon="heroicon-c-plus-circle"
+                                :outlined="true"
+                            >
+                                {{ __('capell-admin::button.assets') }}
+                            </x-filament::link>
+                        </x-slot>
+                        @foreach ($assetTypes as $assetType)
+                            <x-filament::dropdown.list>
+                                <x-filament::dropdown.header
+                                    class="cursor-default font-semibold"
+                                    color="gray"
+                                    :icon="CapellCore::getAsset($assetType)->getIcon()"
                                 >
-                                    {{ __('capell-admin::button.assets') }}
-                                </x-filament::link>
-                            </x-slot>
-                            @foreach ($assetTypes as $assetType)
-                                <x-filament::dropdown.list>
-                                    <x-filament::dropdown.header
-                                        class="cursor-default font-semibold"
-                                        color="gray"
-                                        :icon="CapellCore::getAsset($assetType)->getIcon()"
-                                    >
-                                        {{ CapellCore::getAsset($assetType)->getLabel() }}
-                                    </x-filament::dropdown.header>
-                                    {{ ($this->addAssetAction)(['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex, 'type' => $assetType, 'types' => $assetTypes]) }}
-                                    {{ ($this->selectAssetAction)(['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex, 'type' => $assetType, 'types' => $assetTypes]) }}
-                                </x-filament::dropdown.list>
-                            @endforeach
-                        </x-filament::dropdown>
-                    </div>
+                                    {{ CapellCore::getAsset($assetType)->getLabel() }}
+                                </x-filament::dropdown.header>
+                                {{ ($this->selectAssetAction)(['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex, 'type' => $assetType, 'types' => $assetTypes]) }}
+                                {{ ($this->addAssetAction)(['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex, 'type' => $assetType, 'types' => $assetTypes]) }}
+                            </x-filament::dropdown.list>
+                        @endforeach
+                    </x-filament::dropdown>
                 @endif
+
+                <div class="fi-btn-group flex items-center">
+                    {{ $editWidgetAction }}
+
+                    <x-filament::dropdown
+                        class="fi-btn-group-dropdown"
+                        placement="bottom-end"
+                        teleport
+                    >
+                        <x-slot name="trigger">
+                            <x-filament::button
+                                class="fi-btn-outlined"
+                                icon="heroicon-o-ellipsis-vertical"
+                                size="sm"
+                                color="gray"
+                                :label-sr-only="true"
+                            />
+                        </x-slot>
+
+                        <x-filament::dropdown.list>
+                            @if ($editContainerWidgetAction?->isVisible())
+                                {{ $editContainerWidgetAction }}
+                            @endif
+
+                            @if ($togglePageAssetsAction?->isVisible())
+                                {{ $togglePageAssetsAction }}
+                            @endif
+
+                            {{ ($this->duplicateWidgetAction)(['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex]) }}
+
+                            {{ ($this->removeWidgetAction)(['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex]) }}
+
+                            <x-filament::dropdown.list.item
+                                href="{{ CapellAdmin::getResource(ResourceEnum::Widget)::getUrl('edit', ['record' => $this->getContainerWidget($containerKey, $widgetIndex)]) }}"
+                                icon="heroicon-o-arrow-top-right-on-square"
+                                target="_blank"
+                                tag="a"
+                            >
+                                {{ __('capell-admin::button.open_edit_widget') }}
+                            </x-filament::dropdown.list.item>
+                        </x-filament::dropdown.list>
+                    </x-filament::dropdown>
+                </div>
             </div>
         </div>
     </div>
@@ -269,8 +276,7 @@ declare(strict_types=1);
             :$containerKey
             :$hasPageAssets
             :$occurrence
-            :$assets
-            :$assetsCount
+            :$assetTypes
             :$widget
             :$widgetIndex
         />

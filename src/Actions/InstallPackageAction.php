@@ -6,12 +6,9 @@ namespace Capell\Layout\Actions;
 
 use Capell\Admin\Services\Creator\LayoutCreator;
 use Capell\Core\Models\Language;
-use Capell\Layout\Enums\LayoutEnum;
-use Capell\Layout\Services\Creator\ContentCreator;
-use Capell\Layout\Services\Creator\LayoutCreator as LayoutCreatorService;
 use Capell\Layout\Services\Creator\LayoutUpdater;
+use Capell\Layout\Services\Creator\TypeCreator;
 use Capell\Layout\Services\Creator\WidgetCreator;
-use Capell\Layout\Services\Creator\WidgetTypeCreator;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -23,11 +20,11 @@ class InstallPackageAction
 
     public function handle(): void
     {
-        $widgetTypeCreator = app(WidgetTypeCreator::class);
-        $widgetTypeCreator->createWidgetTypes();
+        $typeCreator = app(TypeCreator::class);
+        $typeCreator->createWidgetTypes();
 
-        $contentCreator = app(ContentCreator::class);
-        $contentCreator->createContentTypes();
+        $typeCreator->createDefaultContentType();
+        $typeCreator->createBuilderContentType();
 
         $widgetCreator = app(WidgetCreator::class);
         $widgetCreator->createWidgets(Language::all());
@@ -35,12 +32,7 @@ class InstallPackageAction
         $layoutCreator = app(LayoutCreator::class);
         $layoutCreator->setup();
 
-        $layoutCreator = app(LayoutCreatorService::class);
-        $layoutCreator->create(LayoutEnum::Home->value);
-
         $layoutUpdater = app(LayoutUpdater::class);
         $layoutUpdater->setup();
-
-        CreateThemeAction::run();
     }
 }

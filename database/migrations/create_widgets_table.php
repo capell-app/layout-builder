@@ -9,14 +9,6 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('widgets');
-    }
-
-    /**
      * Run the migrations.
      */
     public function up(): void
@@ -37,5 +29,13 @@ return new class extends Migration
             $table->unique(['key', 'deleted_at']);
             $table->softDeletes();
         });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('widgets');
     }
 };

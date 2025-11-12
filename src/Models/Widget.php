@@ -6,15 +6,20 @@ namespace Capell\Layout\Models;
 
 use Bkwld\Cloner\Cloneable;
 use Capell\Core\Contracts\PageCacheable;
+use Capell\Core\Enums\MediaCollectionEnum;
+use Capell\Core\Enums\PublishStatusEnum;
+use Capell\Core\Models\Concerns\CloneableExcept;
 use Capell\Core\Models\Concerns\HasMetaData;
 use Capell\Core\Models\Concerns\HasPageCache;
 use Capell\Core\Models\Concerns\HasPublishDates;
 use Capell\Core\Models\Concerns\HasStatus;
 use Capell\Core\Models\Concerns\HasTranslations;
+use Capell\Core\Models\Concerns\InteractsWithMedia;
 use Capell\Core\Models\Contracts\Statusable;
+use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
-use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\WidgetFactory;
 use Capell\Layout\Enums\LayoutTypeEnum;
@@ -25,10 +30,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
 use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
@@ -39,19 +51,19 @@ use Wildside\Userstamps\Userstamps;
  * @property-read int|null $assets_count
  * @property-read \Kalnoy\Nestedset\Collection<int, Content> $contents
  * @property-read int|null $contents_count
- * @property-read \Illuminate\Foundation\Auth\User|null $creator
- * @property-read \Illuminate\Foundation\Auth\User|null $destroyer
- * @property-read \Illuminate\Foundation\Auth\User|null $editor
- * @property-read \Capell\Core\Enums\PublishStatusEnum $publish_status
+ * @property-read User|null $creator
+ * @property-read User|null $destroyer
+ * @property-read User|null $editor
+ * @property-read PublishStatusEnum $publish_status
  * @property-read Media|null $image
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Capell\Core\Models\Language> $languages
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Language> $languages
  * @property-read int|null $languages_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Media> $media
  * @property-read int|null $media_count
  * @property-read \Kalnoy\Nestedset\Collection<int, Page> $pages
  * @property-read int|null $pages_count
- * @property-read \Capell\Core\Models\Translation|null $translation
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Capell\Core\Models\Translation> $translations
+ * @property-read Translation|null $translation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Translation> $translations
  * @property-read int|null $translations_count
  * @property-read Type|null $type
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WidgetAsset> $widgetAssets
@@ -61,14 +73,14 @@ use Wildside\Userstamps\Userstamps;
  *
  * @method static Builder<static>|Widget disabled()
  * @method static Builder<static>|Widget enabled()
- * @method static Builder<static>|Widget expired(\Illuminate\Database\Eloquent\Model $model)
- * @method static \Capell\Layout\Database\Factories\WidgetFactory factory($count = null, $state = [])
+ * @method static Builder<static>|Widget expired(Model $model)
+ * @method static WidgetFactory factory($count = null, $state = [])
  * @method static Builder<static>|Widget newModelQuery()
  * @method static Builder<static>|Widget newQuery()
  * @method static Builder<static>|Widget onlyTrashed()
  * @method static Builder<static>|Widget ordered(string $dir = 'asc')
- * @method static Builder<static>|Widget pending(\Illuminate\Database\Eloquent\Model $model)
- * @method static Builder<static>|Widget published(\Illuminate\Database\Eloquent\Model $model)
+ * @method static Builder<static>|Widget pending(Model $model)
+ * @method static Builder<static>|Widget published(Model $model)
  * @method static Builder<static>|Widget query()
  * @method static Builder<static>|Widget status(bool $enabled)
  * @method static Builder<static>|Widget withLayoutsCount()
@@ -77,13 +89,19 @@ use Wildside\Userstamps\Userstamps;
  * @method static Builder<static>|Widget withoutTrashed()
  *
  * @property-read Media|null $backgroundImage
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, WidgetAsset> $widgetPageAssets
+ * @property-read int|null $widget_page_assets_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Activity> $activities
+ * @property-read int|null $activities_count
+ * @property-read string|null $title
  *
- * @mixin \Eloquent
+ * @mixin Model
  */
 #[ObservedBy(WidgetObserver::class)]
-class Widget extends Model implements PageCacheable, Statusable
+class Widget extends Model implements HasMedia, PageCacheable, Statusable
 {
     use Cloneable;
+    use CloneableExcept;
 
     /** @use HasFactory<WidgetFactory> */
     use HasFactory;
@@ -95,6 +113,8 @@ class Widget extends Model implements PageCacheable, Statusable
     use HasRelationships;
     use HasStatus;
     use HasTranslations;
+    use InteractsWithMedia;
+    use LogsActivity;
     use SoftDeletes;
     use Userstamps;
 
@@ -116,6 +136,14 @@ class Widget extends Model implements PageCacheable, Statusable
         'type_id',
     ];
 
+    protected $casts = [
+        'admin' => 'json',
+        'meta' => 'json',
+        'publish_from' => 'datetime',
+        'publish_to' => 'datetime',
+        'status' => 'boolean',
+    ];
+
     /**
      * Relations on this model that should be cloned
      *
@@ -131,6 +159,45 @@ class Widget extends Model implements PageCacheable, Statusable
     public static function getOptions(string $key = 'id', string $value = 'name'): Collection
     {
         return self::query()->enabled()->ordered()->pluck($value, $key);
+    }
+
+    public static function getTypeGroups(): Collection
+    {
+        return Type::query()
+            ->select('group')
+            ->orderByRaw(
+                'CASE `group`
+                    WHEN "default" THEN 1
+                    ELSE 0
+                END DESC',
+            )
+            ->orderByRaw(
+                'CASE `group`
+                    WHEN "system" THEN 1
+                    ELSE 0
+                END ASC',
+            )
+            ->where('type', LayoutTypeEnum::Widget)
+            ->whereNotNull('group')
+            ->orderBy('group', 'asc')
+            ->groupBy('group')
+            ->pluck('group');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('widget')
+            ->logAll()
+            ->logExcept(['updated_at', 'created_at', 'deleted_at'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection(MediaCollectionEnum::Image->value)->singleFile();
+        $this->addMediaCollection(MediaCollectionEnum::BackgroundImage->value)->singleFile();
     }
 
     public function getComponent(): ?string
@@ -155,14 +222,14 @@ class Widget extends Model implements PageCacheable, Statusable
         return 'blade';
     }
 
-    public function image(): BelongsTo
+    public function image(): MorphOne
     {
-        return $this->belongsTo(Media::class, 'meta->image_id');
+        return $this->morphOneMedia(MediaCollectionEnum::Image->value);
     }
 
-    public function backgroundImage(): BelongsTo
+    public function backgroundImage(): MorphOne
     {
-        return $this->belongsTo(Media::class, 'meta->background_image_id');
+        return $this->morphOneMedia(MediaCollectionEnum::BackgroundImage->value);
     }
 
     public function type(): BelongsTo
@@ -172,13 +239,20 @@ class Widget extends Model implements PageCacheable, Statusable
 
     public function assets(): HasMany
     {
-        return $this->hasMany(WidgetAsset::class);
+        return $this->hasMany(WidgetAsset::class)
+            ->chaperone();
     }
 
     public function widgetAssets(): HasMany
     {
         return $this->assets()
             ->whereNull('page_id');
+    }
+
+    public function widgetPageAssets(): HasMany
+    {
+        return $this->assets()
+            ->whereNotNull('page_id');
     }
 
     public function pageAssets(Page $page, string $container, int $occurrence): HasMany
@@ -193,17 +267,6 @@ class Widget extends Model implements PageCacheable, Statusable
     {
         return $this->morphedByMany(
             Page::class,
-            'asset',
-            'widget_assets',
-            'widget_id',
-            'asset_id',
-        );
-    }
-
-    public function media(): MorphToMany
-    {
-        return $this->morphedByMany(
-            Media::class,
             'asset',
             'widget_assets',
             'widget_id',
@@ -227,15 +290,15 @@ class Widget extends Model implements PageCacheable, Statusable
         return $this->hasManyJson(Layout::class, 'widgets', 'key');
     }
 
-    public function scopeOrdered(Builder $query, string $dir = 'asc'): void
+    protected function scopeOrdered(Builder $query, string $dir = 'asc'): void
     {
         $query->orderBy($this->qualifyColumn('order'), $dir)
             ->orderBy($this->qualifyColumn('name'), $dir);
     }
 
-    public function scopeWithLayoutsCount(Builder $query): void
+    protected function scopeWithLayoutsCount(Builder $query): void
     {
-        $query->addRawSelect(
+        $query->addSelect(DB::raw(
             match (DB::getDriverName()) {
                 'sqlite' => <<<'SQL'
                     (SELECT COUNT(*) FROM layouts WHERE EXISTS (SELECT 1 FROM json_each(layouts.widgets) WHERE value = widgets.key))
@@ -243,23 +306,7 @@ class Widget extends Model implements PageCacheable, Statusable
                 default => <<<'SQL'
                     (SELECT COUNT(*) FROM layouts WHERE JSON_CONTAINS(layouts.widgets, JSON_QUOTE(widgets.key)))
                 SQL,
-            }.' AS layouts_count'
-        );
-    }
-
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'admin' => 'json',
-            'meta' => 'json',
-            'publish_from' => 'datetime',
-            'publish_to' => 'datetime',
-            'status' => 'boolean',
-        ];
+            } . ' AS layouts_count',
+        ));
     }
 }

@@ -8,91 +8,68 @@ use Capell\Admin\Filament\Components\Forms\ContentEditor;
 use Capell\Admin\Filament\Components\Forms\RepeaterTabs;
 use Capell\Admin\Filament\Components\Forms\TranslationLanguageSelect;
 use Capell\Admin\Filament\Components\Forms\TranslationsRepeater;
+use Capell\Admin\Filament\Components\Forms\TranslationTitle;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Filament\Forms;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use Illuminate\Support\Facades\Cache;
+use Capell\Layout\Enums\TypeEnum;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 
-final class ContentTranslationsRepeater
+class ContentTranslationsRepeater
 {
     public static function make(
-        Forms\Form $form,
-        array $schema = [],
+        Schema $schema,
+        array $components = [],
         bool $hasTitle = true,
         bool $hasContent = true,
-        bool $titleRequired = true
+        bool $titleRequired = true,
     ): RepeaterTabs {
-        $totalLanguages = (int) Cache::rememberForever(
-            'languages_total',
-            fn (): int => CapellCore::getModel(ModelEnum::Language)::count()
-        );
-
-        $operation = $form->getOperation();
+        $operation = $schema->getOperation();
 
         return TranslationsRepeater::make('translations')
             ->when(
                 $operation === 'replicate',
-                fn (TranslationsRepeater $repeater): TranslationsRepeater => $repeater->withoutRelationship()
+                fn (TranslationsRepeater $repeater): TranslationsRepeater => $repeater->withoutRelationship(),
             )
             ->schema([
-                ...($hasTitle ? self::getTitleSchema($titleRequired, $totalLanguages) : []),
-                ...($hasContent ? self::getContentSchema() : []),
-                ...$schema,
+                ...($hasTitle ? self::getTitleSchema($titleRequired) : []),
+                ...($hasContent ? self::getContentSchema($schema) : []),
+                ...$components,
             ]);
     }
 
-    private static function getContentSchema(): array
+    private static function getContentSchema(Schema $schema): array
     {
+        $type = $schema->getRecord()?->type ?? null;
+
+        if (! $type && $typeId = $schema->getRawState()['type_id'] ?? null) {
+            $type = CapellCore::getModel(ModelEnum::Type)::query()
+                ->where('type', TypeEnum::Content)
+                ->whereKey($typeId)
+                ->first();
+        }
+
         return [
-            ContentEditor::make(),
+            ContentEditor::make(editor: $type?->admin['content_editor'] ?? null),
         ];
     }
 
-    private static function getTitleSchema(bool $titleRequired, int $totalLanguages): array
+    private static function getTitleSchema(bool $titleRequired): array
     {
         return [
-            Forms\Components\Hidden::make('is_title_changed_manually')
-                ->default(false)
-                ->dehydrated(false),
-
-            Forms\Components\Grid::make($totalLanguages === 1 ? 1 : 3)
+            Grid::make(3)
                 ->columnSpanFull()
                 ->schema([
-                    Forms\Components\TextInput::make('title')
-                        ->label(__('capell-admin::form.title'))
-                        ->required($titleRequired)
-                        ->columnSpan(fn ($operation, $record): int => $totalLanguages === 1 ? 1 : 3)
-                        ->afterStateUpdated(
-                            function (Get $get, Set $set, $state, Forms\Components\TextInput $component): void {
-                                $namePath = '../../name';
+                    ...TranslationTitle::make(
+                        modifyTitle: fn (TextInput $component): TextInput => $component->required($titleRequired)
+                            ->columnSpan(fn (Get $get): int => $get('language_id') ? 3 : 2),
+                    ),
 
-                                $livewire = $component->getLivewire();
-
-                                $segment = $component->generateRelativeStatePath($namePath);
-
-                                if (! isset($livewire->$segment)) {
-                                    return;
-                                }
-
-                                $set('is_title_changed_manually', (bool) $state);
-
-                                if (! $get($namePath)) {
-                                    $set($namePath, $state);
-
-                                    return;
-                                }
-
-                                if (! $get('../../sync_name_title')) {
-                                    return;
-                                }
-
-                                $set($namePath, $state);
-                            }
-                        ),
-
-                    TranslationLanguageSelect::make(),
+                    TranslationLanguageSelect::make()
+                        ->dehydratedWhenHidden()
+                        ->hidden(fn (?int $state): bool => (bool) $state),
                 ]),
         ];
     }

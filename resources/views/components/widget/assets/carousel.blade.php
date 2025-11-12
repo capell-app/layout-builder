@@ -5,17 +5,18 @@ declare(strict_types=1);
 ?>
 
 @php
-    use Capell\Core\Models\Media;
-    use Capell\Frontend\Facades\Frontend;
+    use Capell\Frontend\Facades\FrontendLoader;
+    use Spatie\Image\Image;
+    use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-    $theme = Frontend::getTheme();
+    $theme = FrontendLoader::getTheme();
 @endphp
 
 @props([
     'carouselAlign' => 'center',
     'carouselArrows' => true,
     'carouselAuto' => true,
-    'carouselAutoDelay' => 3000,
+    'carouselAutoDelay' => 5000,
     'carouselButtonClass' => 'hover:bg-primary focus:bg-primary pointer-events-auto bg-white/80 shadow-md transition hover:text-white focus:text-white disabled:pointer-events-none disabled:opacity-50',
     'carouselDrag' => true,
     'carouselLoop' => true,
@@ -25,7 +26,8 @@ declare(strict_types=1);
     'container',
     'containerKey',
     'containerWidth' => null,
-    'hideContent' => $widgetData['meta']['hide_content'] ?? false,
+    'showPageContent' => $widgetData['meta']['show_page_content'] ?? false,
+    'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
     'loop',
     'rounded' => $theme->meta['rounded_images'] ?? false,
     'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
@@ -39,14 +41,16 @@ declare(strict_types=1);
     :index="$loop->index"
     :$widget
 >
-    @if ($widget->translation && ! $hideContent)
+    @if (($widget->translation && ($widget->translation->title || $widget->translation->content))
+         || ($showPageContent && $page->translation->title)
+         || ($showPageTitle && $page->translation->content))
         <div class="container mb-8">
             <x-capell::content
                 :compact="true"
-                :content="$widget->translation->content"
-                :contents="$widget->translation->content ? null : $widget->translation->contents"
+                :content="$widget->translation->content ?? ($showPageContent ? $page->translation->content : null)"
                 :color-scheme="$colorScheme"
-                :title="$widget->translation->title"
+                :presenter="$widget->type->meta['content_presenter'] ?? null"
+                :title="$widget->translation->title ?? ($showPageTitle ? $page->translation->title : null)"
                 :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
             />
         </div>
@@ -80,40 +84,54 @@ declare(strict_types=1);
         <div class="swiper-wrapper w-full">
             @foreach ($widget->assets as $widgetAsset)
                 @php
-                    $resource = $widgetAsset->asset;
-                    $media = $widgetAsset->image ?? ($resource instanceof Media ? $resource : $resource->media);
+                    $asset = $widgetAsset->asset;
+
+                    /** @var Media|null $media */
+                    $media = $asset->image;
+
+                    if (! $media) {
+                        continue;
+                    }
+
+                    $mediaWidth = $media->getCustomProperty('width');
+                    $mediaHeight = $media->getCustomProperty('height');
+
+                    if (Str::startsWith($media->mime_type, 'image/') && (! $mediaWidth || ! $mediaHeight)) {
+                        $image = Image::load($media->getPath());
+
+                        $mediaWidth = $image->getWidth();
+                        $mediaHeight = $image->getHeight();
+                    } else {
+                        $mediaHeight = 400;
+                        $mediaWidth = 400;
+                    }
+
                     $width = 400;
-                @endphp
-
-                @continue(! $media?->width)
-
-                @php
-                    $height = floor($width * ($media->height / $media->width));
+                    $height = floor($width * ($mediaHeight / $mediaWidth));
                 @endphp
 
                 <div
                     @class([
-                        'swiper-slide group relative h-64 !w-auto overflow-hidden text-white',
+                        'swiper-slide group relative h-64 overflow-hidden text-center text-white',
                         'rounded-lg' => $rounded,
                     ])
                     tabindex="0"
                 >
                     <x-capell::media
-                        :class="'swiper-slide-img h-64 bg-gray-50 transition-transform duration-300 group-hover:scale-105 group-focus:scale-105'.($theme->withDarkMode ? ' dark:bg-gray-900' : '')"
+                        :class="'swiper-slide-img object-cover h-64 mx-auto bg-gray-50 transition-transform duration-300 group-hover:scale-105 group-focus:scale-105' . ($theme->withDarkMode ? ' dark:bg-gray-900' : '')"
                         :$loop
                         :media="$media"
-                        :srcset="['400w', '200w']"
                         :width="$width"
                         :height="$height"
                         sizes="(max-width: 640px) 80vw, 20w"
                         lightbox="true"
                         rounded="true"
                     />
-                    @if ($media->name)
+                    @if ($asset->translation?->title)
                         <div
                             class="pointer-events-none absolute inset-x-0 bottom-0 flex translate-y-full transform items-center justify-center break-words bg-gray-600/75 px-2 py-4 text-sm font-medium leading-none leading-tight text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100"
                         >
-                            {{ $media->title }}
+                            {{ $asset->translation->title }}
                         </div>
                     @endif
                 </div>

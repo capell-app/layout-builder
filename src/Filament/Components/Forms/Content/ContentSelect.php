@@ -4,29 +4,30 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms\Content;
 
+use Capell\Admin\Actions\ModifyCreateAction;
+use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\HintEditAction;
 use Capell\Admin\Filament\Concerns\HasCustomSelectOption;
-use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models;
-use Capell\Layout\Actions\CreateContentAction;
 use Capell\Layout\Enums\LayoutModelEnum;
-use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Filament\Resources\ContentResource;
+use Capell\Layout\Filament\Resources\Contents\ContentResource;
 use Capell\Layout\Models\Content;
 use Closure;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
-use Filament\Support\Enums\MaxWidth;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use Kalnoy\Nestedset\Collection;
 use Kalnoy\Nestedset\NestedSet;
 
-class ContentSelect extends Forms\Components\Select
+class ContentSelect extends Select
 {
     use HasCustomSelectOption;
 
@@ -35,8 +36,6 @@ class ContentSelect extends Forms\Components\Select
     private ?Closure $modifySelectOptionsQueryUsing = null;
 
     private ?string $parentContentType = null;
-
-    private bool $withUuid = false;
 
     protected function setUp(): void
     {
@@ -52,12 +51,10 @@ class ContentSelect extends Forms\Components\Select
 
                 return $component->getContentOptions(
                     site_id: $site_id,
-                    search: $search
+                    search: $search,
                 );
             })
-            ->getOptionLabelUsing(fn (self $component, $value): ?string => $component->withUuid
-                ? Content::findByUuid($value, ['name'])?->name
-                : Content::find($value, ['name'])?->name)
+            ->getOptionLabelUsing(fn (self $component, $value): ?string => Content::query()->find($value, ['name'])?->name)
             ->options(fn (self $component): array => $component->getContentOptions());
     }
 
@@ -87,99 +84,68 @@ class ContentSelect extends Forms\Components\Select
         return $this;
     }
 
-    public function withCreateForm(): self
+    public function withCreateForm(): Select
     {
-        return $this->getOptionLabelFromRecordUsing(fn (Content $record): string => static::getSelectOption($record))
+        $asset = CapellCore::getAsset(LayoutModelEnum::Content->name);
+
+        $adminAsset = CapellAdmin::getAsset(LayoutModelEnum::Content);
+
+        $createOptionUsing = $this->getCreateOptionUsing();
+
+        return $this->createOptionAction(
+            fn (Action $action): Action => ModifyCreateAction::run($action)
+                ->fillForm(fn (): array => in_array($adminAsset->defaultDataAction, [null, '', '0'], true) ? [] : $adminAsset->defaultDataAction::run()),
+        )
             ->createOptionForm(
-                fn (mixed $state, Form $form): Form => $form->operation('createOption')
-                    ->schema(ContentResource::getFormSchema($form))
-                    ->model(Content::class)
+                fn (Schema $schema): Schema => $adminAsset->formClass::configure(
+                    $schema->operation('createOption')->model($asset->model),
+                ),
             )
-            ->createOptionUsing(function (ContentSelect $component, array $data): string {
-                $content = CreateContentAction::run($data);
+            ->createOptionUsing(function (Select $component, array $data) use ($asset, $adminAsset, $createOptionUsing): int|string {
+                $record = in_array($adminAsset->createAction, [null, '', '0'], true)
+                    ? $component->evaluate($createOptionUsing)
+                    : $adminAsset->createAction::run($data);
 
                 Notification::make()
-                    ->title(__('capell-admin::message.content_created_successfully'))
-                    ->body($content->name)
+                    ->title(__('capell-admin::message.asset_created_successfully', ['name' => $asset->name]))
+                    ->body($record->name)
                     ->send();
 
-                return $content->{$component->getOptionKey()};
+                return $record->getKey();
             })
-            ->createOptionAction(
-                fn (Forms\Components\Actions\Action $action): Forms\Components\Actions\Action => $action
-                    ->modal()
-                    ->modalHeading(__('capell-admin::generic.type'))
-                    ->modalDescription(function (string $context, self $component, mixed $state): ?string {
-                        if ($context !== 'create') {
-                            return null;
-                        }
-
-                        if (! $state) {
-                            return null;
-                        }
-
-                        return Str::title($component->getContentType());
-                    })
-                    ->fillForm(function (): array {
-                        $site = Models\Site::default()->first();
-
-                        /** @var class-string<Models\Type> $model */
-                        $model = CapellCore::getModel(ModelEnum::Type);
-
-                        return [
-                            'type_id' => $model::query()
-                                ->where('type', LayoutTypeEnum::Content)
-                                ->default()
-                                ->value('id'),
-                            'translations' => $site->translations->mapWithKeys(fn ($translation) => [
-                                (string) Str::uuid() => [
-                                    'language_id' => $translation->language_id,
-                                ],
-                            ])->toArray(),
-                        ];
-                    })
-                    ->modalWidth(MaxWidth::ScreenLarge)
-                    ->visible(fn (mixed $state, $record): bool => ! $state)
-                    ->successNotificationTitle(
-                        fn (Forms\Components\Actions\Action $action): string => __(
-                            'capell-admin::notification.created_successfully',
-                            ['name' => $action->getModalHeading()]
-                        )
-                    )
-                    ->after(function (Forms\Components\Actions\Action $action): void {
-                        $action->success();
-                    })
-            );
+            ->getOptionLabelFromRecordUsing(fn (Content $record): string => static::getSelectOption($record));
     }
 
     public function withEditForm(): self
     {
-        return $this->editOptionForm(function (mixed $state, Form $form): ?Form {
+        $asset = CapellAdmin::getAsset(LayoutModelEnum::Content);
+
+        return $this->editOptionForm(function (mixed $state, Schema $schema) use ($asset): Schema {
             if (! $state) {
-                return $form;
+                return $schema;
             }
 
-            return $form->operation('editOption')
-                ->schema(ContentResource::getFormSchema($form));
+            return $asset->formClass::configure($schema->operation('editOption'));
         })
-            ->editOptionAction(fn (Forms\Components\Actions\Action $action): Forms\Components\Actions\Action => $action
-                ->modalHeading(
-                    fn (self $component): string => __(
-                        'capell-admin::heading.edit_content_record',
-                        ['name' => $component->getSelectedRecord()->name]
+            ->editOptionAction(
+                fn (Action $action): Action => $action
+                    ->modalHeading(
+                        fn (self $component): string => __(
+                            'capell-admin::heading.edit_content_record',
+                            ['name' => $component->getSelectedRecord()->name],
+                        ),
                     )
-                )
-                ->modalWidth(MaxWidth::ScreenExtraLarge)
-                ->visible(fn (mixed $state): bool => (bool) $state)
-                ->successNotificationTitle(
-                    fn (Forms\Components\Actions\Action $action): string => __(
-                        'capell-admin::notification.updated_successfully',
-                        ['name' => $action->getModalHeading()]
+                    ->modalWidth(Width::ScreenExtraLarge)
+                    ->visible(fn (mixed $state): bool => (bool) $state)
+                    ->successNotificationTitle(
+                        fn (Action $action): string => __(
+                            'capell-admin::notification.updated_successfully',
+                            ['name' => $action->getModalHeading()],
+                        ),
                     )
-                )
-                ->after(function (Forms\Components\Actions\Action $action): void {
-                    $action->success();
-                })
+                    ->after(function (Action $action): void {
+                        $action->success();
+                    }),
             )
             ->fillEditOptionActionFormUsing(static function (self $component): array {
                 /** @var Content $record */
@@ -187,13 +153,9 @@ class ContentSelect extends Forms\Components\Select
 
                 return $record?->attributesToArray() ?? [];
             })
-            ->getSelectedRecordUsing(
-                static fn (self $component, $state): ?Model => $component->withUuid
-                    ? Content::findByUuid($state)
-                    : Content::find($state)
-            )
-            ->updateOptionUsing(static function (array $data, Form $form): void {
-                $form->getRecord()?->update($data);
+            ->getSelectedRecordUsing(static fn (self $component, $state): ?Model => Content::query()->find($state))
+            ->updateOptionUsing(static function (array $data, Schema $schema): void {
+                $schema->getRecord()->update($data);
             });
     }
 
@@ -208,33 +170,28 @@ class ContentSelect extends Forms\Components\Select
                     }
 
                     return ContentResource::getUrl('edit', ['record' => $state]);
-                })
+                }),
         );
     }
 
-    public function withUuid(bool $withUuid = true): static
-    {
-        $this->withUuid = $withUuid;
-
-        return $this;
-    }
-
-    private function getContentOptionLabel(Content $content, ?int $siteId): string
+    private function getContentOptionLabel(Content $record, ?int $siteId): HtmlString
     {
         $label = '';
 
-        if (($siteId === null || $siteId === 0) && $content->site) {
-            $label .= $content->site->name.' » ';
+        if (($siteId === null || $siteId === 0) && $record->site) {
+            $label .= $record->site->name . ' &raquo; ';
         }
 
-        if ($content->ancestors->isNotEmpty()) {
-            $label .= $content->ancestors->pluck('name')
+        $ancestors = $record->ancestors()->get();
+
+        if ($ancestors->isNotEmpty()) {
+            $label .= $ancestors->pluck('name')
                 ->map(fn ($item) => Str::limit($item, 30))
-                ->implode(' » ')
-                .' » ';
+                ->implode(' &raquo; ')
+                . ' &raquo; ';
         }
 
-        return $label.Str::limit($content->name, 40);
+        return new HtmlString($label . Str::limit($record->name, 40));
     }
 
     private function getContentOptions(?int $site_id = null, ?string $search = null): array
@@ -251,7 +208,7 @@ class ContentSelect extends Forms\Components\Select
         /** @var class-string<Content> $model */
         $model = CapellCore::getModel(LayoutModelEnum::Content->name);
 
-        /** @var \Kalnoy\Nestedset\Collection $content */
+        /** @var Collection $content */
         $contents = $model::select('contents.*')
             ->with($relations)
             ->withDrafts()
@@ -261,41 +218,36 @@ class ContentSelect extends Forms\Components\Select
                 fn (Builder $query): mixed => $this->evaluate($this->modifySelectOptionsQueryUsing, [
                     'query' => $query,
                     'record' => $this->getRecord(),
-                ])
+                ]),
             )
             ->when(
                 $contentType,
-                fn (Builder $query) => $query->whereHas('type', fn (BuilderContract $query) => $query->where('key', $contentType))
+                fn (Builder $query) => $query->whereHas('type', fn (BuilderContract $query) => $query->where('key', $contentType)),
             )
             ->when(
                 $site_id,
-                fn (Builder $query) => $query->where('site_id', $site_id)
+                fn (Builder $query) => $query->where('site_id', $site_id),
             )
             ->when(
                 $parentContentType,
                 fn (Builder $query) => $query->whereHas(
                     'parent.type',
-                    fn (BuilderContract $query) => $query->where('key', $parentContentType)
-                )
+                    fn (BuilderContract $query) => $query->where('key', $parentContentType),
+                ),
             )
             ->when(
                 $search,
-                fn (Builder $query, $search) => $query->where('contents.name', 'like', sprintf('%%%s%%', $search))
+                fn (Builder $query, string $search) => $query->where('contents.name', 'like', sprintf('%%%s%%', $search))
                     ->orderByRaw('CASE WHEN contents.name = ? THEN 1 ELSE 0 END DESC, INSTR(contents.name, ?), contents.name', [$search, $search]),
-                fn (Builder $query) => $query->limit(10)
+                fn (Builder $query) => $query->limit(10),
             )
             ->orderBy('site_id')
             ->orderBy(NestedSet::LFT, 'ASC')
             ->get();
 
         return $contents->mapWithKeys(
-            fn (Content $content): array => [$content->{$this->getOptionKey()} => $this->getContentOptionLabel($content, $site_id)]
+            fn (Content $content): array => [$content->getKey() => $this->getContentOptionLabel($content, $site_id)],
         )
             ->toArray();
-    }
-
-    private function getOptionKey(): string
-    {
-        return $this->withUuid ? 'uuid' : 'id';
     }
 }

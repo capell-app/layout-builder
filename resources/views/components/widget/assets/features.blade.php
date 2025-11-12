@@ -23,7 +23,6 @@ declare(strict_types=1);
     'withParent' => $widget->meta['with_parent'] ?? ($widget->type->meta['with_parent'] ?? false),
     'withDate' => $widget->meta['with_date'] ?? ($widget->type->meta['with_date'] ?? true),
     'withSummary' => $widget->meta['with_summary'] ?? ($widget->type->meta['with_summary'] ?? true),
-    'withTags' => $widget->meta['with_tags'] ?? ($widget->type->meta['with_tags'] ?? true),
 ])
 
 @capture($assetBlock, $asset, $column)
@@ -55,54 +54,23 @@ declare(strict_types=1);
                 @endif
             </div>
         @elseif ($asset->image)
+            @capture($imageBlock)
+                <x-capell::media
+                    :media="$asset->image"
+                    :width="120"
+                    :height="120"
+                    fit="crop"
+                    class="h-10 w-10 rounded-full object-cover object-center"
+                    loading="lazy"
+                />
+            @endcapture
+
             @if ($linkedPageUrl)
                 <a href="{{ $linkedPageUrl }}">
-                    @if ($asset->image->preview->hasCuration('thumbnail'))
-                        <x-curator-curation
-                            curation="thumbnail"
-                            :media="$asset->image->preview"
-                            :width="120"
-                            :height="120"
-                            fit="crop"
-                            format="webp"
-                            class="h-10 w-10 rounded-full object-cover object-center"
-                            loading="lazy"
-                        />
-                    @else
-                        <x-curator-glider
-                            :media="$asset->image->preview"
-                            :width="120"
-                            :height="120"
-                            fit="crop"
-                            format="webp"
-                            class="h-10 w-10 rounded-full object-cover object-center"
-                            loading="lazy"
-                        />
-                    @endif
+                    {{ $imageBlock() }}
                 </a>
             @else
-                @if ($asset->image->preview->hasCuration('thumbnail'))
-                    <x-curator-curation
-                        curation="thumbnail"
-                        :media="$asset->image->preview"
-                        :width="120"
-                        :height="120"
-                        fit="crop"
-                        format="webp"
-                        class="h-10 w-10 rounded-full object-cover object-center"
-                        loading="lazy"
-                    />
-                @else
-                    <x-curator-glider
-                        :media="$asset->image->preview"
-                        :width="120"
-                        :height="120"
-                        fit="crop"
-                        format="webp"
-                        class="h-10 w-10 rounded-full object-cover object-center"
-                        loading="lazy"
-                    />
-                @endif
+                {{ $imageBlock() }}
             @endif
         @endif
         @if ($asset->translation)
@@ -113,7 +81,8 @@ declare(strict_types=1);
                 :title="$asset->translation->title"
                 :heading-tag="$asset->meta['heading_size'] ?? 'h3'"
                 :heading-weight="$asset->meta['heading_weight'] ?? 'medium'"
-                :text-align="$asset->meta['align'] ?? $asset->type->meta['align'] ?? ('text-left'.($column === 1 && $widget->image ? ' lg:text-right' : ''))"
+                :presenter="$asset->type->meta['content_presenter'] ?? null"
+                :text-align="$asset->meta['align'] ?? $asset->type->meta['align'] ?? ('text-left' . ($column === 1 && $widget->image ? ' lg:text-right' : ''))"
                 size="sm"
                 class="prose-h3:mb-1 lg:prose-base lg:leading-snug"
             />
@@ -134,8 +103,8 @@ declare(strict_types=1);
         <x-capell::content
             :compact="true"
             :content="$widget->translation->content"
-            :contents="$widget->translation->content ? null : $widget->translation->contents"
             :color-scheme="$colorScheme"
+            :presenter="$widget->type->meta['content_presenter'] ?? null"
             :title="$widget->translation->title"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
             align="center"
@@ -159,6 +128,7 @@ declare(strict_types=1);
                         size="xl"
                         fit="fit"
                         loading="lazy"
+                        class="object-cover"
                     />
                 </div>
             @endif

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\View\Components\Widget;
 
 use Capell\Core\Models;
-use Capell\Frontend\Facades\Frontend;
+use Capell\Frontend\Facades\FrontendLoader;
 use Capell\Frontend\Services\Loader\NavigationItemsLoader;
 use Capell\Frontend\Services\Loader\NavigationLoader;
 
@@ -33,9 +33,9 @@ class Navigation extends AbstractWidget
 
         $navigationLoader = new NavigationItemsLoader(
             navigation: $this->menu,
-            site: Frontend::getSite(),
-            language: Frontend::getLanguage(),
-            siteDomain: Frontend::getSite()->siteDomain
+            site: FrontendLoader::getSite(),
+            language: FrontendLoader::getLanguage(),
+            siteDomain: FrontendLoader::getSite()->siteDomain,
         );
 
         $this->items = $navigationLoader->fetchMenuItems();
@@ -55,8 +55,8 @@ class Navigation extends AbstractWidget
 
         $menu = NavigationLoader::getNavigation(
             $this->widget->meta['navigation'],
-            Frontend::getSite(),
-            Frontend::getLanguage()
+            FrontendLoader::getSite(),
+            FrontendLoader::getLanguage(),
         );
 
         if ($menu instanceof Models\Navigation) {
@@ -65,7 +65,7 @@ class Navigation extends AbstractWidget
 
         return NavigationLoader::getNavigation(
             $this->widget->meta['navigation'],
-            Frontend::getSite()
+            FrontendLoader::getSite(),
         );
     }
 }

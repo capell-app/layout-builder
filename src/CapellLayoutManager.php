@@ -14,9 +14,8 @@ class CapellLayoutManager
     public static function getMigrations(): array
     {
         return [
-            'create_widgets_table',
             'create_contents_table',
-            'create_content_assets_table',
+            'create_widgets_table',
             'create_widget_assets_table',
         ];
     }
@@ -47,9 +46,9 @@ class CapellLayoutManager
 
     public static function getContainerWidgets(?string $containerKey = null): Collection
     {
-        $widgets = $containerKey
-            ? (static::$containerWidgets[$containerKey] ?? [])
-            : static::$containerWidgets;
+        $widgets = in_array($containerKey, [null, '', '0'], true)
+            ? (static::$containerWidgets)
+            : static::$containerWidgets[$containerKey] ?? [];
 
         return collect($widgets);
     }

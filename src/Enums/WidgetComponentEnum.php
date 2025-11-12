@@ -16,11 +16,8 @@ enum WidgetComponentEnum: string
 
     case NavigationTabs = 'capell-layout::widget.navigation.tabs';
 
-    case Hero = 'capell-layout::widget.hero';
-
     case PageChildren = 'capell-layout::widget.pages.children';
     case PageLatest = 'capell-layout::widget.pages.latest';
-    case PageRelated = 'capell-layout::widget.pages.related';
     case PageSiblings = 'capell-layout::widget.pages.siblings';
 
     case Archives = 'capell-layout::widget.page.archives';

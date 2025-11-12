@@ -11,10 +11,8 @@ use Capell\Core\Models\Type;
 use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
-use Capell\Layout\Enums\WidgetSchemaEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
-use Capell\Layout\Filament\Schemas\Type\WidgetTypeSchema;
-use Capell\Layout\Filament\Schemas\Widget\CarouselWidgetSchema;
+use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\CarouselWidgetSchema;
 use Capell\Layout\Models\Widget;
 use Illuminate\Support\Collection;
 
@@ -55,9 +53,7 @@ class WidgetCreator
         $this->pageContentWidget($pageContentWidgetType);
         $this->pageSlotWidget($systemWidgetType);
         $this->pagesCardWidget($pagesWidgetType);
-        $this->relatedPagesWidget($systemWidgetType, $languages);
         $this->siblingsWidget($pageResultsWidgetType, $languages);
-        $this->tagsWidget($systemWidgetType, $languages);
     }
 
     private function breadcrumbWidget(Type $systemWidgetType): void
@@ -208,7 +204,7 @@ class WidgetCreator
             'meta' => [
                 'component' => WidgetComponentEnum::PageContent,
                 'margin' => ['t-lg'],
-                'page_content' => ['title', 'content', 'contents'],
+                'page_content' => ['title', 'content'],
             ],
         ]);
     }
@@ -245,40 +241,6 @@ class WidgetCreator
         ]);
     }
 
-    private function relatedPagesWidget(Type $systemWidgetType, Collection $languages): void
-    {
-        $widget = $this->widgetModel::firstOrCreate([
-            'key' => 'related-pages',
-        ], [
-            'name' => __('capell-admin::generic.related_pages'),
-            'type_id' => $systemWidgetType->id,
-            'meta' => [
-                'component' => WidgetComponentEnum::PageRelated,
-                'limit' => 6,
-                'pagination' => false,
-                'exclude_types' => ['home'],
-                'exclude_parent' => true,
-                'with_summary' => true,
-                'with_link_text' => true,
-                'with_image' => true,
-                'columns' => 1,
-            ],
-            'admin' => [
-                'icon' => 'heroicon-c-link',
-                'type_schema' => WidgetTypeSchema::getKey(),
-                'schema' => WidgetSchemaEnum::Related->value,
-            ],
-        ]);
-
-        $languages->each(function (Language $language) use ($widget): void {
-            $widget->translations()->firstOrCreate([
-                'language_id' => $language->id,
-            ], [
-                'title' => __('capell-admin::heading.related_pages'),
-            ]);
-        });
-    }
-
     private function siblingsWidget(Type $pageResultsWidgetType, Collection $languages): void
     {
         $widget = $this->widgetModel::firstOrCreate([
@@ -302,29 +264,6 @@ class WidgetCreator
                 'language_id' => $language->id,
             ], [
                 'title' => __('capell-admin::heading.page_siblings'),
-            ]);
-        });
-    }
-
-    private function tagsWidget(Type $systemWidgetType, Collection $languages): void
-    {
-        $widget = $this->widgetModel::firstOrCreate([
-            'key' => 'tags',
-        ], [
-            'name' => __('capell-admin::generic.tags'),
-            'type_id' => $systemWidgetType->id,
-            'meta' => [
-                'component' => WidgetComponentEnum::Tags,
-                'size' => 'sm',
-                'margin' => ['lg'],
-            ],
-        ]);
-
-        $languages->each(function (Language $language) use ($widget): void {
-            $widget->translations()->firstOrCreate([
-                'language_id' => $language->id,
-            ], [
-                'title' => __('capell-admin::generic.tags'),
             ]);
         });
     }

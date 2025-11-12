@@ -5,12 +5,12 @@ declare(strict_types=1);
 ?>
 
 @php
-    use Awcodes\Curator\Models\Media;
     use Capell\Core\Facades\CapellCore;
-    use Capell\Frontend\Facades\Frontend;
+    use Capell\Frontend\Facades\FrontendLoader;
+    use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-    $page = Frontend::getPage();
-    $theme = Frontend::getTheme();
+    $page = FrontendLoader::getPage();
+    $theme = FrontendLoader::getTheme();
 @endphp
 
 @props([
@@ -40,7 +40,7 @@ declare(strict_types=1);
                     }
                     $title = '';
                     $content = '';
-                    if (CapellCore::getAsset($widgetAsset->asset_type)->hasTranslation()) {
+                    if (CapellCore::getAsset($widgetAsset->asset_type)->hasTranslations) {
                         $title = $widgetAsset->asset->translation?->title;
                         $content = $widgetAsset->asset->translation?->content;
                     }
@@ -55,12 +55,10 @@ declare(strict_types=1);
                     ])
                 >
                     @if ($backgroundImage)
-                        <x-dynamic-component
+                        <x-capell::media
                             format="webp"
-                            component="capell::media.background.glider"
                             curation="hero"
                             :media="$backgroundImage"
-                            :srcset="['1680w', '1024w', '640w']"
                             height="100vh"
                             :loading="$loop->first ? 'eager' : 'lazy'"
                             :class="

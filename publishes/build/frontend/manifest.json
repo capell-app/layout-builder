@@ -1,0 +1,11 @@
+{
+  "resources/js/capell-layout.js": {
+    "file": "assets/capell-layout-Cd9rXQa5.js",
+    "name": "capell-layout",
+    "src": "resources/js/capell-layout.js",
+    "isEntry": true,
+    "css": [
+      "assets/capell-layout-DI0IShbb.css"
+    ]
+  }
+}

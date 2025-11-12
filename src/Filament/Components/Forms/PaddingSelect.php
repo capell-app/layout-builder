@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms;
 
-use Filament\Forms;
+use Filament\Forms\Components\Select;
 
-class PaddingSelect extends Forms\Components\Select
+class PaddingSelect extends Select
 {
     protected function setUp(): void
     {

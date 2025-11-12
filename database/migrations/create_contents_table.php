@@ -4,18 +4,12 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Kalnoy\Nestedset\NestedSet;
 
 return new class extends Migration
 {
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('contents');
-    }
-
     /**
      * Run the migrations.
      */
@@ -30,8 +24,9 @@ return new class extends Migration
             $table->unsignedInteger('order')->default(0)->index();
             $table->publishDates('publish');
             $this->draftsCreateSchema($table);
-            $table->uuid('parent_uuid')->nullable()->constrained('contents', 'uuid')->nullOnDelete()->cascadeOnUpdate();
-            $table->nestedSet();
+            $table->foreignId('parent_id')->nullable()->constrained('contents')->nullOnDelete()->cascadeOnUpdate();
+            $table->unsignedInteger(NestedSet::LFT)->default(0);
+            $table->unsignedInteger(NestedSet::RGT)->default(0);
             $table->userstamps();
             $table->timestamps();
             $table->softDeletes();
@@ -43,9 +38,19 @@ return new class extends Migration
                     ! str_contains((string) DB::selectOne('select version() as v')->v, 'MariaDB')
                 )
             ) {
-                $table->index('meta->page_uuid', 'contents_page_uuid_index');
+                $table->index('meta->page_id', 'contents_page_id_index');
             }
+
+            $table->index(NestedSet::getDefaultColumns());
         });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('contents');
     }
 
     private function draftsCreateSchema(Blueprint $table): void
@@ -56,7 +61,7 @@ return new class extends Migration
         $isCurrent = config('drafts.column_names.is_current', 'is_current');
         $publisherMorphName = config('drafts.column_names.publisher_morph_name', 'publisher');
 
-        $table->uuid($uuid)->index(); // custom not nullable
+        $table->uuid($uuid)->nullable()->index();
         $table->timestamp($publishedAt)->nullable();
         $table->boolean($isPublished)->default(false);
         $table->boolean($isCurrent)->default(false);

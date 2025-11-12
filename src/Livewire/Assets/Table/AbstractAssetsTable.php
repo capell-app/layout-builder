@@ -5,53 +5,56 @@ declare(strict_types=1);
 namespace Capell\Layout\Livewire\Assets\Table;
 
 use Capell\Admin\Filament\Actions\BulkSelectAction;
-use Capell\Layout\Livewire\LayoutBuilder;
-use Closure;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
-use Filament\Forms;
-use Filament\Tables;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Livewire\Attributes\Url;
 use Livewire\Component;
+use Ramsey\Uuid\UuidInterface;
 
-abstract class AbstractAssetsTable extends Component implements Forms\Contracts\HasForms, Tables\Contracts\HasTable
+abstract class AbstractAssetsTable extends Component implements HasActions, HasForms, HasTable
 {
-    use Forms\Concerns\InteractsWithForms;
-    use Tables\Concerns\InteractsWithTable;
+    use InteractsWithActions;
+    use InteractsWithForms;
+    use InteractsWithTable;
 
-    public string $actionId;
+    public string $actionModalId;
 
-    public string $containerKey;
+    public array $arguments = [];
 
-    public ?array $existingRecords = [];
-
-    public bool $hasPageAssets;
-
-    public ?int $pageId = null;
-
-    public ?int $siteId = null;
+    public array $existingRecords = [];
 
     public string $type;
 
     public int $widgetIndex;
 
-    abstract protected function getTableColumns(): array;
+    #[Url(as: 'tab')]
+    public ?string $activeTab = null;
 
     abstract protected function getTableQuery(): Builder;
 
-    public function getTableRecordKey(Model $record): string
+    abstract public static function getResource(): string;
+
+    public function getTableRecordKey(Model|array $record): string
     {
-        return $record->uuid instanceof \Ramsey\Uuid\UuidInterface
-            ? $record->uuid->toString()
-            : (string) $record->uuid;
+        return $record->id instanceof UuidInterface
+            ? $record->id->toString()
+            : (string) $record->id;
     }
 
     public function mount(): void
     {
         throw_if(
             ! Filament::auth()->check(),
-            AuthenticationException::class
+            AuthenticationException::class,
         );
     }
 
@@ -64,29 +67,22 @@ abstract class AbstractAssetsTable extends Component implements Forms\Contracts\
         blade;
     }
 
-    public function table(Tables\Table $table): Tables\Table
+    public function table(Table $table): Table
     {
         return $table
             ->query(
                 $this->getTableQuery()
                     ->when(
                         $this->existingRecords,
-                        fn (Builder $query) => $query->whereNotIn('uuid', $this->existingRecords)
-                    )
+                        fn (Builder $query) => $query->whereNotIn('id', $this->existingRecords),
+                    ),
             )
-            ->columns($this->getTableColumns())
-            ->description(
-                fn (self $livewire): string => $livewire->hasPageAssets
-                    ? __('capell-admin::generic.select_page_widget_asset_description', ['type' => $this->type])
-                    : __('capell-admin::generic.select_widget_asset_description', ['type' => $this->type])
-            )
-            ->filters($this->getTableFilters())
             ->filtersFormWidth('4xl')
             ->filtersFormColumns([
                 'sm' => 2,
                 'lg' => 3,
             ])
-            ->bulkActions($this->getTableBulkActions());
+            ->toolbarActions($this->getTableBulkActions());
     }
 
     protected function getTableBulkActions(): array
@@ -99,34 +95,25 @@ abstract class AbstractAssetsTable extends Component implements Forms\Contracts\
         ];
     }
 
-    protected function getTableFilters(): array
-    {
-        return [];
-    }
-
-    protected function getTableRecordClassesUsing(): ?Closure
-    {
-        return fn (): string => 'hover:bg-primary-500/5 cursor-pointer';
-    }
-
     protected function shouldPersistTableFiltersInSession(): bool
     {
         return true;
     }
 
-    protected function syncAssets(BulkSelectAction $action, $livewire): void
+    protected function syncAssets(BulkSelectAction $action, self $livewire): void
     {
+        $selectedRecords = $livewire->getSelectedTableRecordsQuery(shouldFetchSelectedRecords: false);
+
         $this->dispatch(
             'sync-selected-assets',
-            containerKey: $this->containerKey,
-            widgetIndex: $this->widgetIndex,
+            arguments: $this->arguments,
             type: $this->type,
-            hasPageAssets: $this->hasPageAssets,
-            assets: $livewire->selectedTableRecords,
-        )
-            ->to(LayoutBuilder::class);
+            assets: $selectedRecords->pluck('id')->toArray(),
+        );
 
-        $this->dispatch('close-modal', id: $this->actionId);
+        $this->resetPage();
+
+        $this->dispatch('close-modal', id: $this->actionModalId);
 
         $action->success();
     }

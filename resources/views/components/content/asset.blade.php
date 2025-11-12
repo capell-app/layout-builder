@@ -5,9 +5,9 @@ declare(strict_types=1);
 ?>
 
 @php
-    use Capell\Frontend\Facades\Frontend;
+    use Capell\Frontend\Facades\FrontendLoader;
 
-    $language = Frontend::getLanguage();
+    $language = FrontendLoader::getLanguage();
 @endphp
 
 @props([
@@ -17,7 +17,6 @@ declare(strict_types=1);
     'withImage' => false,
     'withLinkText' => false,
     'withSummary' => false,
-    'withTags' => false,
     'withUrl' => true,
 ])
 
@@ -30,7 +29,6 @@ declare(strict_types=1);
     :meta="$asset->meta"
     :link-text="$withLinkText ? ($asset->translation->meta['link_text'] ?? __('Read more')) : null"
     :summary="$withSummary && $asset->translation ? $asset->translation->summary : null"
-    :tags="$withTags ? $asset->tags : null"
     :title="$asset->translation?->label"
     :url="$withUrl && $asset->linkedPage ? $asset->linkedPage->pageUrl?->full_url : null"
     class="content-asset"

@@ -5,11 +5,12 @@ declare(strict_types=1);
 ?>
 
 @php
-    use Capell\Core\Models\Media;
-    use Capell\Frontend\Facades\Frontend;
+    use Capell\Frontend\Facades\FrontendLoader;
     use Illuminate\Support\Facades\DB;
+    use Illuminate\Support\Str;
+    use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-    $theme = Frontend::getTheme();
+    $theme = FrontendLoader::getTheme();
 @endphp
 
 @props([
@@ -20,13 +21,14 @@ declare(strict_types=1);
     'containerWidth' => null,
     'large' => false,
     'loop',
+    'pageContainer' => $widget->meta['container'] ?? $theme->meta['container'] ?? null,
     'size' => $widget->meta['size'] ?? '',
     'spacing' => $widget->meta['spacing'] ?? null,
     'widget',
     'widget_theme' => $widget->meta['widget_theme'] ?? '',
 ])
 <x-capell-layout::widget.wrapper
-    :class="'widget-media-gallery'.($widget->meta['container'] === 'full' ? ' px-4' : '')"
+    :class="'widget-media-gallery' . ($pageContainer === 'full' ? ' px-4' : '')"
     :$container
     :$containerKey
     :$containerWidth
@@ -35,12 +37,12 @@ declare(strict_types=1);
 >
     @if ($widget->translation)
         <x-capell::content
-            :class="'mb-5'.($widget->meta['container'] === 'full' ? ' container' : '')"
+            :class="'mb-5' . ($pageContainer === 'full' ? ' container' : '')"
             :compact="true"
             align="center"
             :content="$widget->translation->content"
-            :contents="$widget->translation->content ? null : $widget->translation->contents"
             :color-scheme="$colorScheme"
+            :presenter="$widget->type->meta['content_presenter'] ?? null"
             :title="$widget->translation->title"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? 'center'"
         />
@@ -55,7 +57,15 @@ declare(strict_types=1);
                 'gap-6' => $spacing === 'lg',
             ])
         >
-            @foreach ($widget->assets as $media)
+            @foreach ($widget->assets as $widgetAsset)
+                @php
+                    $asset = $widgetAsset->asset;
+                    $media = $asset->image;
+                    if (! $media) {
+                        throw new RuntimeException('Media not found for asset ID ' . $asset->id);
+                    }
+                @endphp
+
                 <div
                     @class([
                         'widget-media-item group relative h-full cursor-pointer overflow-hidden text-center',
@@ -63,12 +73,12 @@ declare(strict_types=1);
                     ])
                     tabindex="0"
                 >
-                    @if (($media->meta['media_type'] ?? null) === 'video')
+                    @if (Str::startsWith($media->mime_type, 'video/'))
                         <x-capell::media
-                            :class="'h-full w-full bg-gray-50 shadow transition-transform duration-300 group-hover:scale-105 group-focus-within:scale-105'.($theme->withDarkMode ? ' dark:bg-gray-800' : '')"
+                            :class="'h-full w-full bg-gray-50 object-cover shadow transition-transform duration-300 group-hover:scale-105 group-focus-within:scale-105' . ($theme->withDarkMode ? ' dark:bg-gray-800' : '')"
                             :height="$large ? 600 : 300"
                             :$loop
-                            :media="$media->asset"
+                            :media="$media"
                             :preview="(int) $media->meta['image_id']"
                             :width="440"
                             media_type="video"
@@ -77,17 +87,17 @@ declare(strict_types=1);
                         />
                     @else
                         <x-capell::media
-                            :class="'h-full w-full bg-gray-50 shadow transition-transform duration-300 group-hover:scale-105 group-focus-within:scale-105'.($theme->withDarkMode ? ' dark:bg-gray-800' : '')"
+                            :class="'h-full w-full bg-gray-50 object-cover shadow transition-transform duration-300 group-hover:scale-105 group-focus-within:scale-105' . ($theme->withDarkMode ? ' dark:bg-gray-800' : '')"
                             :height="$large ? 600 : 300"
                             :$loop
-                            :media="$media->asset"
+                            :media="$media"
                             :width="440"
                             fit="crop-center"
                             lightbox="true"
                         />
                     @endif
 
-                    @if ($media->asset->name)
+                    @if ($asset->translation?->title)
                         <div
                             @class([
                                 'pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-center
@@ -100,7 +110,7 @@ declare(strict_types=1);
                                 'rounded-b' => $theme->meta['rounded_images'] ?? false,
                             ])
                         >
-                            {{ $media->asset->title }}
+                            {{ $asset->translation->title }}
                         </div>
                     @endif
                 </div>

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Services\Creator;
 
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Translation;
-use Capell\Frontend\Facades\FrontendManager;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
@@ -19,11 +19,11 @@ class LayoutLoader
 {
     public static function getLayout(int $id): ?Layout
     {
-        $key = 'layout-'.$id;
+        $key = 'layout-' . $id;
 
         $fromCache = true;
 
-        $layout = FrontendManager::cacheForever($key, function () use ($id, &$fromCache): ?Layout {
+        $layout = CapellCore::rememberCache($key, function () use ($id, &$fromCache): ?Layout {
             $fromCache = false;
 
             // @phpstan-ignore-next-line
@@ -31,10 +31,10 @@ class LayoutLoader
         }) ?: null;
 
         if ($fromCache && $layout) {
-            event('eloquent.retrieved: '.Layout::class, $layout);
+            event('eloquent.retrieved: ' . Layout::class, $layout);
 
             $layout->layoutWidgets->each(function (Widget $widget): void {
-                event('eloquent.retrieved: '.$widget::class, $widget);
+                event('eloquent.retrieved: ' . $widget::class, $widget);
             });
         }
 
@@ -47,7 +47,7 @@ class LayoutLoader
         Language $language,
         ?Page $page,
         string $containerKey,
-        int $occurrence
+        int $occurrence,
     ): ?Widget {
         $key = sprintf(
             'layout-%d-widget-%s-lang-%d-container-%s-occurrence-%d',
@@ -55,13 +55,13 @@ class LayoutLoader
             $widgetKey,
             $language->id,
             $containerKey,
-            $occurrence
+            $occurrence,
         )
-            .($page instanceof Page ? '-page-'.$page->id : '');
+            . ($page instanceof Page ? '-page-' . $page->id : '');
 
         $fromCache = true;
 
-        $widget = FrontendManager::cacheForever(
+        $widget = CapellCore::rememberCache(
             $key,
             function () use ($layout, $widgetKey, $language, $page, $containerKey, $occurrence, &$fromCache): ?Widget {
                 $fromCache = false;
@@ -76,6 +76,8 @@ class LayoutLoader
                 $widget->load([
                     'type',
                     'image',
+                    'backgroundImage',
+                    'media',
                     'translation' => fn (BuilderContract $query) => $query->where('language_id', $language->id),
                 ]);
 
@@ -85,48 +87,12 @@ class LayoutLoader
 
                 $resourceRelationsCallback = function (MorphTo $morphTo) use ($language): void {
                     $morphTo->morphWith([
-                        Content::class => [
-                            'image',
-                            'media',
-                            'linkedPage' => fn (BuilderContract $query) => $query->with([
-                                'translation' => fn (BuilderContract $query) => $query->with('language')->where('language_id', $language->id),
-                                'pageUrl' => fn (BuilderContract $query) => $query->with('siteDomain')->where('language_id', $language->id),
-                            ]),
-                            'translation' => fn (BuilderContract $query) => $query->with('language')->where('language_id', $language->id),
-                            'related' => fn (BuilderContract $query) => $query->with([
-                                'image',
-                                'page' => fn (BuilderContract $query) => $query->with([
-                                    'translation' => fn (BuilderContract $query) => $query->with('language')->where('language_id', $language->id),
-                                    'pageUrl' => fn (BuilderContract $query) => $query->with('siteDomain')->where('language_id', $language->id),
-                                    'site',
-                                ]),
-                            ])
-                                ->withWhereHas('translation', fn (BuilderContract $query) => $query->with('language')),
-                            'tags',
-                            'type',
-                        ],
-                        Page::class => [
-                            'image',
-                            'translation' => fn (BuilderContract $query) => $query->with('language')->where('language_id', $language->id),
-                            'type',
-                            'tags',
-                            'pageUrl' => fn (BuilderContract $query) => $query->with('siteDomain')->where('language_id', $language->id),
-                        ],
+                        Content::class => Content::getMorphRelations($language),
+                        Page::class => Page::getMorphRelations($language),
                     ]);
                 };
 
-                $relations = [
-                    'image',
-                    'related' => fn (BuilderContract $query) => $query->with('image')
-                        ->withWhereHas('translation'),
-                    'relatedPage' => fn (BuilderContract $query) => $query->with([
-                        'translation' => fn (BuilderContract $query) => $query->where('language_id', $language->id),
-                        'pageUrl' => fn (BuilderContract $query) => $query->with('siteDomain')->where('language_id', $language->id),
-                    ]),
-                ];
-
                 $widgetAssets = $layoutWidget->pageAssets($page, $containerKey, $occurrence)
-                    ->with($relations)
                     ->whereHas('asset')
                     ->with('asset', $resourceRelationsCallback)
                     ->ordered()
@@ -134,7 +100,6 @@ class LayoutLoader
 
                 if ($widgetAssets->isEmpty()) {
                     $widgetAssets = $layoutWidget->widgetAssets()
-                        ->with($relations)
                         ->whereHas('asset')
                         ->with('asset', $resourceRelationsCallback)
                         ->ordered()
@@ -144,19 +109,19 @@ class LayoutLoader
                 $layoutWidget->setRelation('assets', $widgetAssets);
 
                 return $layoutWidget;
-            }
+            },
         ) ?: null;
 
         if ($fromCache && $widget) {
-            event('eloquent.retrieved: '.Widget::class, $widget);
+            event('eloquent.retrieved: ' . Widget::class, $widget);
 
             $widget->assets->each(function (WidgetAsset $resource): void {
-                event('eloquent.retrieved: '.$resource::class, $resource);
+                event('eloquent.retrieved: ' . $resource::class, $resource);
             });
 
             if ($widget->translation) {
-                event('eloquent.retrieved: '.Translation::class, $widget->translation);
-                event('eloquent.retrieved: '.Language::class, $widget->translation->language);
+                event('eloquent.retrieved: ' . Translation::class, $widget->translation);
+                event('eloquent.retrieved: ' . Language::class, $widget->translation->language);
             }
         }
 
