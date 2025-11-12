@@ -4,26 +4,32 @@ on:
   release:
     types: [released, prereleased]
 
+# Grant the GITHUB_TOKEN write access so the workflow can push commits
+permissions:
+  contents: write
+
 jobs:
   update:
     runs-on: ubuntu-latest
-    env:
-      COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.ACCESS_TOKEN }}"} }'
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
         with:
-          ref: 3.x
+          ref: 4.x
+          fetch-depth: 0 # ensure full history so commits/pushes work reliably
 
       - name: Update Changelog
         uses: stefanzweifel/changelog-updater-action@v1
         with:
-          latest-version: ${{ github.event.release.name }}
+          # Use the tag name instead of the release display name for semantic correctness
+          latest-version: ${{ github.event.release.tag_name }}
           release-notes: ${{ github.event.release.body }}
 
       - name: Commit updated CHANGELOG
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          branch: 3.x
+          branch: 4.x
           commit_message: Update CHANGELOG
           file_pattern: CHANGELOG.md
+          # Use a Personal Access Token (PAT) with proper permissions to avoid 403 on push
+          token: ${{ secrets.ACCESS_TOKEN }}
