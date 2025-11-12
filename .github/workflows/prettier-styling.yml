@@ -38,6 +38,6 @@ jobs:
         run: npx prettier --write 'packages/**/*.{css,js,yml,blade.php}' '!packages/**/node_modules/**'
 
       - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v6
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: Prettier code styling fixes 🎨
