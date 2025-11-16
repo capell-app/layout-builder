@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Containers;
 
+use Capell\Admin\Contracts\SchemaTypeEnumInterface;
 use Capell\Admin\Contracts\TypeSchemaInterface;
 use Capell\Admin\Filament\Concerns\HasTypeSchema;
 use Capell\Layout\Enums\SchemaExtenderEnum;
@@ -25,7 +26,7 @@ class DefaultLayoutContainerSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    public static string $schemaType = SchemaTypeEnum::LayoutContainer->name;
+    public static SchemaTypeEnumInterface $schemaType = SchemaTypeEnum::LayoutContainer;
 
     public static function getExtenders(): iterable
     {

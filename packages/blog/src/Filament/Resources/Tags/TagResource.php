@@ -67,7 +67,7 @@ class TagResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_resources'));
+        return (string) (__('capell-admin::navigation.group_assets'));
     }
 
     public static function getNavigationLabel(): string

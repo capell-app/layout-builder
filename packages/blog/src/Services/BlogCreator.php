@@ -525,7 +525,7 @@ class BlogCreator
 
     public function relatedPagesWidget(Type $type, \Illuminate\Support\Collection $languages): void
     {
-        $widget = Widget::query()::firstOrCreate([
+        $widget = Widget::query()->firstOrCreate([
             'key' => 'related-pages',
         ], [
             'name' => __('capell-admin::generic.related_pages'),

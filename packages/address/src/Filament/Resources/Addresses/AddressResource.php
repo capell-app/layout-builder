@@ -71,6 +71,11 @@ class AddressResource extends Resource
         return (string) (__('capell-admin::navigation.group_system'));
     }
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return CapellCore::getPackage('capell-app/address')->isInstalled();
+    }
+
     #[Override]
     public static function getEloquentQuery(): Builder
     {

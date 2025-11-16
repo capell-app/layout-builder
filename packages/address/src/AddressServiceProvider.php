@@ -14,11 +14,13 @@ use Capell\Address\Enums\SchemaTypeEnum;
 use Capell\Address\Filament\Resources\Sites\Schemas\Extenders\SiteSchemaExtender;
 use Capell\Address\Models\Address;
 use Capell\Address\Models\Country;
+use Capell\Admin\AdminServiceProvider;
 use Capell\Admin\Enums\SchemaExtenderEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;
 use Capell\Core\Packages\AbstractPackageServiceProvider;
+use Composer\InstalledVersions;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -30,10 +32,23 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
 {
     public static string $name = 'capell-address';
 
+    public static string $packageName = 'capell-app/address';
+
     public static string $description = 'Address and country field components for forms.';
 
     public function bootingPackage(): void
     {
+        if (CapellCore::getPackage(static::$packageName)->isInstalled() !== true) {
+            return;
+        }
+
+        $this->registerSchemas();
+
+        CapellAdmin::registerResource(ResourceEnum::Address->name, class: ResourceEnum::Address->value);
+        CapellAdmin::registerResource(ResourceEnum::Country->name, class: ResourceEnum::Country->value);
+
+        $this->registerSchemaExtender(SchemaExtenderEnum::Site->value, SiteSchemaExtender::class);
+
         Blade::componentNamespace('Capell\\Address\\View\\Components', 'capell-address');
         Blade::anonymousComponentNamespace('Capell\\Address\\View\\Components');
     }
@@ -52,30 +67,30 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
     {
         parent::registeringPackage();
 
-        $this->registerModels()
-            ->registerRelationships()
-            ->registerSchemas();
-
         CapellCore::registerPackage(
-            self::$name,
-            class: self::class,
+            static::$packageName,
+            type: static::getType(),
+            description: static::getDescription(),
             path: __DIR__,
             sort: 10,
-            installCommand: true,
-            demoCommand: true,
+            installCommand: 'capell-address:install',
+            demoCommand: 'capell-address:demo',
             demoParams: ['sites'],
+            requirements: [
+                AdminServiceProvider::$packageName,
+            ],
+            version: InstalledVersions::getPrettyVersion(static::$packageName),
+            url: 'https://capell.app',
         );
+
+        $this->registerModels()
+            ->registerRelationships();
 
         Relation::morphMap(
             collect(ModelEnum::cases())
                 ->mapWithKeys(fn (ModelEnum $model): array => [Str::snake($model->name) => $model->value])
                 ->all(),
         );
-
-        CapellAdmin::registerResource(ResourceEnum::Address->name, class: ResourceEnum::Address->value);
-        CapellAdmin::registerResource(ResourceEnum::Country->name, class: ResourceEnum::Country->value);
-
-        $this->registerSchemaExtender(SchemaExtenderEnum::Site->value, SiteSchemaExtender::class);
     }
 
     private function registerSchemaExtender(string $tag, string $class): void
@@ -116,8 +131,9 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
 
     private function registerSchemas(): self
     {
-        CapellAdmin::registerSchemas(SchemaTypeEnum::Address->name, AddressSchemaEnum::cases());
-        CapellAdmin::registerSchemas(SchemaTypeEnum::Country->name, CountrySchemaEnum::cases());
+        foreach (SchemaTypeEnum::getAllSchemas() as $type => $schemas) {
+            CapellAdmin::registerSchemas($type, $schemas, defaultSchemas: true);
+        }
 
         return $this;
     }

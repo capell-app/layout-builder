@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Capell\Blog;
 
+use Capell\Admin\AdminServiceProvider;
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Enums\SchemaTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Blog\Actions\CreateBlogPagesAction;
+use Capell\Blog\Actions\DemoAction;
 use Capell\Blog\Actions\InstallBlogPackageAction;
 use Capell\Blog\Enums\BlogModelEnum;
 use Capell\Blog\Enums\BlogResourceEnum;
@@ -26,6 +29,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Core\Packages\AbstractPackageServiceProvider;
+use Capell\Frontend\FrontendServiceProvider;
 use Capell\Layout\Enums\ComponentTypeEnum;
 use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Models\Content;
@@ -46,10 +50,16 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
 {
     public static string $name = 'capell-blog';
 
+    public static string $packageName = 'capell-app/blog';
+
     public static string $description = 'Article page type with blog archives.';
 
     public function bootingPackage(): void
     {
+        if (CapellCore::getPackage(static::$packageName)->isInstalled() !== true) {
+            return;
+        }
+
         Blade::componentNamespace('Capell\\Blog\\View\\Components', 'capell-blog');
         Blade::anonymousComponentNamespace('Capell\\Blog\\View\\Components');
 
@@ -74,6 +84,33 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
 
         $this->registerPublishCommands();
 
+        $this->registerRelationships();
+
+        Relation::morphMap(
+            collect(BlogModelEnum::cases())
+                ->mapWithKeys(fn (BlogModelEnum $model): array => [Str::snake($model->name) => $model->value])
+                ->all(),
+        );
+
+        CapellAdmin::registerResource(
+            ResourceEnum::Page,
+            class: BlogResourceEnum::Article->getResource(),
+            name: BlogResourceEnum::Article->value,
+        );
+
+        CapellAdmin::registerResource(BlogResourceEnum::Tag->name, class: BlogResourceEnum::Tag->getResource());
+
+        CapellCore::registerComponents(ComponentTypeEnum::Widget->value, WidgetComponentEnum::cases());
+
+        CapellAdmin::registerSchema(SchemaTypeEnum::Page, ArticlePageSchema::class);
+
+        foreach (\Capell\Layout\Enums\SchemaTypeEnum::getAllSchemas() as $type => $schemas) {
+            CapellAdmin::registerSchemas($type, $schemas, defaultSchemas: true);
+        }
+
+        CapellCore::addSitemapPages('archives', ArchivePageSitemap::class);
+        CapellCore::addSitemapPages('tags', TagPageSitemap::class);
+
         CapellAdmin::serving(function (): void {
             CapellCore::addDefaultPage('blog', 'Blog', function (Site $site, ?Type $languages): void {
                 (new BlogCreator)->createBlogPage($site, languages: $languages);
@@ -96,72 +133,39 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             ->hasConfigFile()
             ->hasViews(self::$name)
             ->hasTranslations()
-            ->hasInstallCommand(function (InstallCommand $command): void {
-                $command->startWith(function (InstallCommand $command): void {
-                    $command->info('Installing Capell Blog Package...');
-
-                    InstallBlogPackageAction::run();
-
-                    $command->call(
-                        'capell:publish-migrations',
-                        [
-                            '--items' => [
-                                'alter_tags_table',
-                            ],
-                            '--path' => __DIR__ . '/../database/migrations',
-                        ],
-                    );
-
-                    $command->info('Publishing Capell Blog...');
-                    $command->call('vendor:publish', ['--tag' => 'capell-blog-config']);
-                });
-            });
+            ->hasCommands([
+                Commands\InstallCommand::class,
+                DemoAction::class,
+                CreateBlogPagesAction::class,
+            ]);
     }
 
-    public function registeringPackage(): void
+    public function registeringPackage()
     {
         parent::registeringPackage();
 
-        $this->registerRelationships();
-
         CapellCore::registerPackage(
-            self::$name,
-            class: self::class,
+            static::$packageName,
+            type: static::getType(),
+            description: static::getDescription(),
             path: __DIR__,
             sort: 9,
             permissions: $this->getPackagePermissions(),
-            installCommand: true,
-            demoCommand: true,
+            installCommand: 'capell-blog:install',
+            demoCommand: 'capell-blog:demo',
             demoParams: ['author', 'sites'],
+            requirements: [
+                AdminServiceProvider::$packageName,
+                FrontendServiceProvider::$packageName,
+            ],
+            version: InstalledVersions::getPrettyVersion(static::$packageName),
+            url: 'https://capell.app',
         );
-
-        Relation::morphMap(
-            collect(BlogModelEnum::cases())
-                ->mapWithKeys(fn (BlogModelEnum $model): array => [Str::snake($model->name) => $model->value])
-                ->all(),
-        );
-
-        CapellAdmin::registerResource(
-            ResourceEnum::Page,
-            class: BlogResourceEnum::Article->getResource(),
-            name: BlogResourceEnum::Article->value,
-        );
-
-        CapellAdmin::registerResource(BlogResourceEnum::Tag->name, class: BlogResourceEnum::Tag->getResource());
-
-        CapellCore::registerComponents(ComponentTypeEnum::Widget->value, WidgetComponentEnum::cases());
-
-        CapellAdmin::registerSchema(SchemaTypeEnum::Page, ArticlePageSchema::class);
-
-        CapellAdmin::registerSchemas(\Capell\Layout\Enums\SchemaTypeEnum::Widget->name, WidgetSchemaEnum::cases());
 
         CapellCore::registerModels(BlogModelEnum::cases());
 
         CapellCore::registerModelRelations(ModelEnum::Page, 'tags');
         CapellCore::registerModelRelations(LayoutModelEnum::Content, 'tags');
-
-        CapellCore::addSitemapPages('archives', ArchivePageSitemap::class);
-        CapellCore::addSitemapPages('tags', TagPageSitemap::class);
     }
 
     private function getPackagePermissions(): array

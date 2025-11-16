@@ -75,7 +75,8 @@ class InstallBlogPackageAction
         $blogCreator->createBlogPageType();
         $blogCreator->createTagPageType();
 
-        $resultsWidgetType = Type::query()->firstWhere(['key' => WidgetTypeEnum::PageResults, 'type' => LayoutTypeEnum::Widget])?->id;
+        $resultsWidgetType = Type::query()
+            ->firstWhere(['key' => WidgetTypeEnum::PageResults, 'type' => LayoutTypeEnum::Widget]);
 
         Site::with('languages')->each(function (Site $site) use ($blogCreator, $resultsWidgetType): void {
             $blogCreator->createTagsWidget($site->languages);

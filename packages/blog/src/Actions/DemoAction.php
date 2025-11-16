@@ -87,7 +87,13 @@ class DemoAction
         }
 
         $authorOption = $command->option('author');
+
         $author = $authorOption ? CapellCore::getModel('User')::find($authorOption) : null;
+
+        if (! $author && auth()->check()) {
+            $author = auth()->user();
+        }
+
         $limit = $command->option('limit') ? (int) $command->option('limit') : null;
 
         $sites->each(fn (Site $site) => $this->handle($site, $author, $limit));

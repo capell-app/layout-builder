@@ -6,6 +6,7 @@ namespace Capell\Address\Filament\Resources\Addresses\Schemas\Types;
 
 use Capell\Address\Enums\SchemaTypeEnum;
 use Capell\Address\Filament\Components\Forms\CountrySelect;
+use Capell\Admin\Contracts\SchemaTypeEnumInterface;
 use Capell\Admin\Contracts\TypeSchemaInterface;
 use Capell\Admin\Enums\SchemaExtenderEnum;
 use Capell\Admin\Filament\Components\Forms\DefaultToggle;
@@ -19,7 +20,7 @@ class DefaultAddressSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    public static string $schemaType = SchemaTypeEnum::Address->name;
+    public static SchemaTypeEnumInterface $schemaType = SchemaTypeEnum::Address;
 
     public static function getExtenders(): iterable
     {

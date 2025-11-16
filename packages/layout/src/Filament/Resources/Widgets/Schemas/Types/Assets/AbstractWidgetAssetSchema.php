@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Resources\Widgets\Schemas\Types\Assets;
 
+use Capell\Admin\Contracts\SchemaTypeEnumInterface;
 use Capell\Admin\Contracts\TypeSchemaInterface;
 use Capell\Admin\Filament\Concerns\HasTypeSchema;
 use Capell\Layout\Enums\SchemaExtenderEnum;
@@ -15,7 +16,7 @@ abstract class AbstractWidgetAssetSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    public static string $schemaType = SchemaTypeEnum::WidgetAsset->name;
+    public static SchemaTypeEnumInterface $schemaType = SchemaTypeEnum::WidgetAsset;
 
     abstract protected function getAssetSchema(Schema $schema): array;
 

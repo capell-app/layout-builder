@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Widgets;
 
+use Capell\Admin\Contracts\SchemaTypeEnumInterface;
 use Capell\Admin\Contracts\TypeSchemaInterface;
 use Capell\Admin\Filament\Concerns\HasTypeSchema;
 use Capell\Layout\Enums\SchemaExtenderEnum;
@@ -16,7 +17,7 @@ class DefaultLayoutWidgetSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    public static string $schemaType = SchemaTypeEnum::LayoutWidget->name;
+    public static SchemaTypeEnumInterface $schemaType = SchemaTypeEnum::LayoutWidget;
 
     public static function getExtenders(): iterable
     {

@@ -45,7 +45,7 @@ class WidgetAssetForm implements FormConfigurator
                         $adminSchema = WidgetAssetSchemaEnum::fromName(ucfirst($assetType))->value::getKey();
                     }
 
-                    return $component->getTypeSchema($schema, SchemaTypeEnum::WidgetAsset->name, name: $adminSchema);
+                    return $component->getTypeSchema($schema, SchemaTypeEnum::WidgetAsset, name: $adminSchema);
                 }),
         ];
     }

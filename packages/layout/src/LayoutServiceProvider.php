@@ -6,6 +6,7 @@ namespace Capell\Layout;
 
 use Capell\Admin\Actions\CreatedModelAction;
 use Capell\Admin\Actions\DeletedModelAction;
+use Capell\Admin\AdminServiceProvider;
 use Capell\Admin\Data\AdminAssetData;
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Enums\SchemaExtenderEnum;
@@ -21,6 +22,7 @@ use Capell\Core\Models\Type;
 use Capell\Core\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Data\FrontendAssetData;
 use Capell\Frontend\Facades\CapellFrontend;
+use Capell\Frontend\FrontendServiceProvider;
 use Capell\Layout\Commands\DemoCommand;
 use Capell\Layout\Commands\InstallCommand;
 use Capell\Layout\Commands\UpgradeCommand;
@@ -46,6 +48,7 @@ use Capell\Layout\Listeners\TypeValidated;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
+use Composer\InstalledVersions;
 use Exception;
 use Filament\Facades\Filament;
 use Filament\Support\Assets\AlpineComponent;
@@ -71,14 +74,68 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 {
     public static string $name = 'capell-layout';
 
+    public static string $packageName = 'capell-app/layout';
+
     public static string $description = 'Managing content and widgets.';
 
     public function bootingPackage(): void
     {
-        $this
-            ->registerEvents()
-            ->registerListeners()
-            ->registerPublishCommands();
+        if (CapellCore::getPackage(static::$packageName)->isInstalled() !== true) {
+            return;
+        }
+
+        $this->registerPublishCommands()
+            ->registerListeners();
+
+        Filament::serving(function (): void {
+            $this->registerEvents();
+        });
+
+        CapellAdmin::registerResource(LayoutResourceEnum::Content->name, class: LayoutResourceEnum::Content->value);
+        CapellAdmin::registerResource(LayoutResourceEnum::Widget->name, class: LayoutResourceEnum::Widget->value);
+        CapellAdmin::registerResource(ResourceEnum::Layout, class: LayoutResource::class);
+
+        foreach (LayoutTypeEnum::cases() as $type) {
+            CapellCore::registerType(
+                new TypeData(
+                    name: $type->value,
+                    model: $type->getModel(),
+                    creatorClass: $type->getCreatorClass(),
+                ),
+            );
+        }
+
+        foreach (ComponentTypeEnum::cases() as $componentType) {
+            CapellCore::registerComponents($componentType->name, $componentType->value::cases());
+        }
+
+        $contentAsset = AssetEnum::Content;
+
+        CapellCore::registerAsset(
+            new AssetData(
+                name: $contentAsset->name,
+                model: $contentAsset->getModel(),
+                icon: $contentAsset->getIcon(),
+                hasTranslations: $contentAsset->hasTranslations(),
+            ),
+        );
+
+        CapellAdmin::registerAsset(
+            $contentAsset,
+            new AdminAssetData(
+                formClass: $contentAsset->getFormClass(),
+                createAction: $contentAsset->getCreateActionClass(),
+                defaultDataAction: $contentAsset->getDefaultDataActionClass(),
+            ),
+        );
+
+        CapellFrontend::registerAsset($contentAsset, new FrontendAssetData(
+            component: $contentAsset->getComponent(),
+        ));
+
+        $this->registerSchemaExtender(SchemaExtenderEnum::Page->value, PageSchemaExtender::class);
+
+        $this->registerSchemaExtender(SchemaExtenderEnum::Layout->value, LayoutSchemaExtender::class);
 
         CapellCore::addCloneableRelations('page', 'widgetAssets');
         CapellCore::addDraftableRelations('page', 'widgetAssets');
@@ -129,74 +186,34 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
     {
         parent::registeringPackage();
 
+        CapellCore::registerPackage(
+            static::$packageName,
+            type: static::getType(),
+            path: __DIR__,
+            description: static::getDescription(),
+            permissions: $this->getPackagePermissions(),
+            installCommand: 'capell-layout:install',
+            demoCommand: 'capell-layout:demo',
+            upgradeCommand: 'capell-layout:upgrade',
+            demoParams: ['author', 'sites'],
+            requirements: [
+                AdminServiceProvider::$packageName,
+                FrontendServiceProvider::$packageName,
+            ],
+            version: InstalledVersions::getPrettyVersion(static::$packageName),
+            url: 'https://capell.app',
+        );
+
         $this->registerModels()
-            ->registerRelationships()
             ->registerSchemas();
 
         App::singleton(CapellLayoutManager::class, fn (): CapellLayoutManager => new CapellLayoutManager);
-
-        CapellCore::registerPackage(
-            self::$name,
-            class: self::class,
-            path: __DIR__,
-            permissions: $this->getPackagePermissions(),
-            installCommand: true,
-            demoCommand: true,
-            upgradeCommand: true,
-            demoParams: ['author', 'sites'],
-        );
 
         Relation::morphMap(
             collect(LayoutModelEnum::cases())
                 ->mapWithKeys(fn (LayoutModelEnum $model): array => [Str::snake($model->name) => $model->value])
                 ->all(),
         );
-
-        CapellAdmin::registerResource(LayoutResourceEnum::Content->name, class: LayoutResourceEnum::Content->value);
-        CapellAdmin::registerResource(LayoutResourceEnum::Widget->name, class: LayoutResourceEnum::Widget->value);
-        CapellAdmin::registerResource(ResourceEnum::Layout, class: LayoutResource::class);
-
-        foreach (LayoutTypeEnum::cases() as $layoutType) {
-            CapellCore::registerType(
-                new TypeData(
-                    name: $layoutType->value,
-                    model: $layoutType->getModel(),
-                    creatorClass: $layoutType->getCreatorClass(),
-                ),
-            );
-        }
-
-        foreach (ComponentTypeEnum::cases() as $componentType) {
-            CapellCore::registerComponents($componentType->name, $componentType->value::cases());
-        }
-
-        $contentAsset = AssetEnum::Content;
-
-        CapellCore::registerAsset(
-            new AssetData(
-                name: $contentAsset->name,
-                model: $contentAsset->getModel(),
-                icon: $contentAsset->getIcon(),
-                hasTranslations: $contentAsset->hasTranslations(),
-            ),
-        );
-
-        CapellAdmin::registerAsset(
-            $contentAsset,
-            new AdminAssetData(
-                formClass: $contentAsset->getFormClass(),
-                createAction: $contentAsset->getCreateActionClass(),
-                defaultDataAction: $contentAsset->getDefaultDataActionClass(),
-            ),
-        );
-
-        CapellFrontend::registerAsset($contentAsset, new FrontendAssetData(
-            component: $contentAsset->getComponent(),
-        ));
-
-        $this->registerSchemaExtender(SchemaExtenderEnum::Page->value, PageSchemaExtender::class);
-
-        $this->registerSchemaExtender(SchemaExtenderEnum::Layout->value, LayoutSchemaExtender::class);
     }
 
     protected function getPublishedDirectory(): string
@@ -241,21 +258,19 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     private function registerEvents(): self
     {
-        Filament::serving(function (): void {
-            $createDeleteModels = [
-                CapellCore::getModel(LayoutModelEnum::Content->name),
-            ];
+        $createDeleteModels = [
+            CapellCore::getModel(LayoutModelEnum::Content->name),
+        ];
 
-            foreach ($createDeleteModels as $modelClass) {
-                $modelClass::registerModelEvent('created', function (Model $model): void {
-                    CreatedModelAction::run($model);
-                });
+        foreach ($createDeleteModels as $modelClass) {
+            $modelClass::registerModelEvent('created', function (Model $model): void {
+                CreatedModelAction::run($model);
+            });
 
-                $modelClass::registerModelEvent('deleted', function (Model $model): void {
-                    DeletedModelAction::run($model);
-                });
-            }
-        });
+            $modelClass::registerModelEvent('deleted', function (Model $model): void {
+                DeletedModelAction::run($model);
+            });
+        }
 
         return $this;
     }
@@ -342,11 +357,9 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     private function registerSchemas(): self
     {
-        CapellAdmin::registerSchemas(Enums\SchemaTypeEnum::Content->name, ContentSchemaEnum::cases());
-        CapellAdmin::registerSchemas(Enums\SchemaTypeEnum::Widget->name, WidgetSchemaEnum::cases());
-        CapellAdmin::registerSchemas(Enums\SchemaTypeEnum::WidgetAsset->name, WidgetAssetSchemaEnum::cases());
-        CapellAdmin::registerSchemas(Enums\SchemaTypeEnum::LayoutContainer->name, LayoutContainerSchemaEnum::cases());
-        CapellAdmin::registerSchemas(Enums\SchemaTypeEnum::LayoutWidget->name, LayoutWidgetSchemaEnum::cases());
+        foreach (Enums\SchemaTypeEnum::getAllSchemas() as $type => $schemas) {
+            CapellAdmin::registerSchemas($type, $schemas, defaultSchemas: true);
+        }
         CapellAdmin::registerSchema(SchemaTypeEnum::Type, ContentTypeSchema::class);
         CapellAdmin::registerSchema(SchemaTypeEnum::Type, WidgetTypeSchema::class);
 

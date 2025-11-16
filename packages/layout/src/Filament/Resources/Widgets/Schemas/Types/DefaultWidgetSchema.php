@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Resources\Widgets\Schemas\Types;
 
+use Capell\Admin\Contracts\SchemaTypeEnumInterface;
 use Capell\Admin\Contracts\TypeSchemaInterface;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
@@ -30,7 +31,7 @@ class DefaultWidgetSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    public static string $schemaType = SchemaTypeEnum::Widget->name;
+    public static SchemaTypeEnumInterface $schemaType = SchemaTypeEnum::Widget;
 
     public static function getExtenders(): iterable
     {

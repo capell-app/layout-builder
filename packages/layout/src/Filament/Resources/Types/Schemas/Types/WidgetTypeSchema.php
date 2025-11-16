@@ -59,7 +59,7 @@ class WidgetTypeSchema extends DefaultTypeSchema
             ->schema([
                 SchemaSelect::make('schema')
                     ->default(fn (): string => WidgetSchemaEnum::Default->name)
-                    ->setupOptions(SchemaTypeEnum::Widget->name),
+                    ->setupOptions(SchemaTypeEnum::Widget),
 
                 IconPicker::make('icon')
                     ->label(__('capell-admin::form.admin_icon')),
