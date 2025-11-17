@@ -11,16 +11,13 @@ use Capell\Core\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\FrontendServiceProvider;
 use Capell\Hero\Commands\DemoCommand;
 use Capell\Hero\Commands\InstallCommand;
-use Capell\Hero\Enums\ContentSchemaEnum;
 use Capell\Hero\Enums\WidgetComponentEnum;
-use Capell\Hero\Enums\WidgetSchemaEnum;
 use Capell\Hero\Filament\Extenders\Page\HeroPageSchemaExtender;
 use Capell\Layout\Enums\ComponentTypeEnum;
 use Capell\Layout\Enums\SchemaTypeEnum;
 use Capell\Layout\LayoutServiceProvider;
 use Composer\InstalledVersions;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\DB;
 use Spatie\LaravelPackageTools\Package;
 
 class HeroServiceProvider extends AbstractPackageServiceProvider
@@ -33,20 +30,14 @@ class HeroServiceProvider extends AbstractPackageServiceProvider
 
     public function bootingPackage(): void
     {
-        if (CapellCore::getPackage(static::$packageName)->isInstalled() !== true) {
+        if (! $this->isPackageInstalled()) {
             return;
         }
 
-        CapellCore::registerComponents(ComponentTypeEnum::Widget->value, WidgetComponentEnum::cases());
-
-        foreach (SchemaTypeEnum::getAllSchemas() as $type => $schemas) {
-            CapellAdmin::registerSchemas($type, $schemas, defaultSchemas: true);
+        // Skip boot-time registration chain when running unit tests; it will be executed earlier in registeringPackage().
+        if (! $this->app->runningUnitTests()) {
+            $this->registerAll();
         }
-
-        $this->registerSchemaExtender(HeroPageSchemaExtender::TAG, HeroPageSchemaExtender::class);
-
-        Blade::componentNamespace('Capell\\Hero\\View\\Components', 'capell-hero');
-        Blade::anonymousComponentNamespace('Capell\\Hero\\View\\Components');
     }
 
     public function configurePackage(Package $package): void
@@ -64,12 +55,36 @@ class HeroServiceProvider extends AbstractPackageServiceProvider
     {
         parent::registeringPackage();
 
+        $this->registerPackageMetadata();
+
+        // During unit tests we need the registration chain earlier so the environment is fully prepared.
+        if ($this->app->runningUnitTests()) {
+            $this->registerAll();
+        }
+    }
+
+    private function isPackageInstalled(): bool
+    {
+        return CapellCore::getPackage(static::$packageName)->isInstalled();
+    }
+
+    private function registerAll(): self
+    {
+        return $this
+            ->registerComponents()
+            ->registerSchemas()
+            ->registerSchemaExtenders()
+            ->registerBladeComponents();
+    }
+
+    private function registerPackageMetadata(): self
+    {
         CapellCore::registerPackage(
             static::$packageName,
             type: static::getType(),
-            description: static::getDescription(),
             path: __DIR__,
             sort: 10,
+            description: static::getDescription(),
             installCommand: 'capell-hero:install',
             demoCommand: 'capell-hero:demo',
             demoParams: ['sites'],
@@ -78,9 +93,55 @@ class HeroServiceProvider extends AbstractPackageServiceProvider
                 FrontendServiceProvider::$packageName,
                 LayoutServiceProvider::$packageName,
             ],
-            version: InstalledVersions::getPrettyVersion(static::$packageName),
+            version: $this->getVersion(),
             url: 'https://capell.app',
         );
+
+        return $this;
+    }
+
+    private function getVersion(): string
+    {
+        if (! class_exists(InstalledVersions::class)) {
+            return 'dev';
+        }
+
+        if (! InstalledVersions::isInstalled(static::$packageName)) {
+            return 'dev';
+        }
+
+        return InstalledVersions::getPrettyVersion(static::$packageName) ?? 'dev';
+    }
+
+    private function registerComponents(): self
+    {
+        CapellCore::registerComponents(ComponentTypeEnum::Widget->value, WidgetComponentEnum::cases());
+
+        return $this;
+    }
+
+    private function registerSchemas(): self
+    {
+        foreach (SchemaTypeEnum::getAllSchemas() as $type => $schemas) {
+            CapellAdmin::registerSchemas($type, $schemas, defaultSchemas: true);
+        }
+
+        return $this;
+    }
+
+    private function registerSchemaExtenders(): self
+    {
+        $this->registerSchemaExtender(HeroPageSchemaExtender::TAG, HeroPageSchemaExtender::class);
+
+        return $this;
+    }
+
+    private function registerBladeComponents(): self
+    {
+        Blade::componentNamespace('Capell\\Hero\\View\\Components', 'capell-hero');
+        Blade::anonymousComponentNamespace('Capell\\Hero\\View\\Components');
+
+        return $this;
     }
 
     private function registerSchemaExtender(string $tag, string $class): void

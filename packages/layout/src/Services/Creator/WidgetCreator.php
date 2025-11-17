@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Services\Creator;
 
-use Capell\Core\Enums\ModelEnum;
+use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Type;
-use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
@@ -30,8 +30,8 @@ class WidgetCreator
 
     public function __construct()
     {
-        $this->widgetModel = CapellCore::getModel(LayoutModelEnum::Widget->name);
-        $this->typeModel = CapellCore::getModel(ModelEnum::Type);
+        $this->widgetModel = CapellCore::getModel(ModelEnum::Widget->name);
+        $this->typeModel = CapellCore::getModel(CoreModelEnum::Type);
     }
 
     public function createWidgets(Collection $languages): void

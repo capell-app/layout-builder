@@ -9,7 +9,7 @@ use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidadminTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
@@ -100,7 +100,7 @@ class RelatedWidgetSchema extends DefaultWidgetSchema
                         WidgetComponentFilesSection::make()
                             ->statePath('meta'),
                     ]),
-                    WidgetAdminTab::make(),
+                    WidadminTab::make(),
                 ]),
         ];
     }

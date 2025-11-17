@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Tests\Fixtures\Support\Filament;
 
-use Capell\Admin\CapellAdminPlugin;
 use Capell\Admin\Enums\FilamentColorEnum;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Filament\CapellAdminPlugin;
 use Capell\Admin\Filament\Widgets\AlertsWidget;
 use Capell\Admin\Filament\Widgets\AuthenticationLogsWidget;
 use Capell\Admin\Filament\Widgets\LatestPagesWidget;

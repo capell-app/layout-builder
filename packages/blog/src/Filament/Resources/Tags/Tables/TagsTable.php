@@ -88,7 +88,7 @@ class TagsTable implements TableConfigurator
                 ->label(__('capell-admin::table.total_pages'))
                 ->counts('pages')
                 ->sortable()
-                ->alignRight()
+                ->alignCenter()
                 ->numeric()
                 ->disabledClick()
                 ->toggleable()

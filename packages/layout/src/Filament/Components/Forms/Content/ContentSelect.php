@@ -9,7 +9,7 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\HintEditAction;
 use Capell\Admin\Filament\Concerns\HasCustomSelectOption;
 use Capell\Core\Facades\CapellCore;
-use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Filament\Resources\Contents\ContentResource;
 use Capell\Layout\Models\Content;
 use Closure;
@@ -86,9 +86,9 @@ class ContentSelect extends Select
 
     public function withCreateForm(): Select
     {
-        $asset = CapellCore::getAsset(LayoutModelEnum::Content->name);
+        $asset = CapellCore::getAsset(ModelEnum::Content->name);
 
-        $adminAsset = CapellAdmin::getAsset(LayoutModelEnum::Content);
+        $adminAsset = CapellAdmin::getAsset(ModelEnum::Content);
 
         $createOptionUsing = $this->getCreateOptionUsing();
 
@@ -118,7 +118,7 @@ class ContentSelect extends Select
 
     public function withEditForm(): self
     {
-        $asset = CapellAdmin::getAsset(LayoutModelEnum::Content);
+        $asset = CapellAdmin::getAsset(ModelEnum::Content);
 
         return $this->editOptionForm(function (mixed $state, Schema $schema) use ($asset): Schema {
             if (! $state) {
@@ -206,7 +206,7 @@ class ContentSelect extends Select
         $parentContentType = $this->parentContentType;
 
         /** @var class-string<Content> $model */
-        $model = CapellCore::getModel(LayoutModelEnum::Content->name);
+        $model = CapellCore::getModel(ModelEnum::Content->name);
 
         /** @var Collection $content */
         $contents = $model::select('contents.*')

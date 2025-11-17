@@ -7,7 +7,7 @@ namespace Capell\Blog\Enums;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Models\Tag;
 
-enum BlogModelEnum: string
+enum ModelEnum: string
 {
     case Article = Article::class;
     case Tag = Tag::class;

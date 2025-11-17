@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\Blog\Database\Factories;
 
 use Capell\Admin\Filament\Resources\Types\Schemas\Types\PageTypeSchema;
-use Capell\Blog\Enums\BlogResourceEnum;
+use Capell\Blog\Enums\ResourceEnum;
 use Capell\Blog\Enums\BlogTypeGroupEnum;
 use Capell\Blog\Filament\Resources\Articles\Schemas\Types\ArticlePageSchema;
 use Capell\Core\Database\Factories\TypeFactory;
@@ -26,7 +26,7 @@ class ArticleTypeFactory extends TypeFactory
                 [
                     'type_schema' => PageTypeSchema::getKey(),
                     'schema' => ArticlePageSchema::getKey(),
-                    'resource' => BlogResourceEnum::Article->value,
+                    'resource' => strtolower(ResourceEnum::Article->name),
                 ],
             );
     }

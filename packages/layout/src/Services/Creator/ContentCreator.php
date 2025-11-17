@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Services\Creator;
 
-use Capell\Core\Enums\ModelEnum;
+use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
 use Capell\Core\Models\Site;
-use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Models\Content;
 use Illuminate\Database\Eloquent\Collection;
@@ -27,9 +27,9 @@ class ContentCreator
 
     public function __construct()
     {
-        $this->contentModel = CapellCore::getModel(LayoutModelEnum::Content->name);
+        $this->contentModel = CapellCore::getModel(ModelEnum::Content->name);
 
-        $this->typeModel = CapellCore::getModel(ModelEnum::Type);
+        $this->typeModel = CapellCore::getModel(CoreModelEnum::Type);
     }
 
     public function createContent(array $data, ?Site $site, Collection $languages): Content

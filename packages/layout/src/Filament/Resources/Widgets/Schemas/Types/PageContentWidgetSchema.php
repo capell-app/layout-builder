@@ -12,7 +12,7 @@ use Capell\Layout\Enums\SchemaExtenderEnum;
 use Capell\Layout\Enums\SchemaTypeEnum;
 use Capell\Layout\Filament\Components\Forms\HeadingSizeSelect;
 use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidadminTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
@@ -79,7 +79,7 @@ class PageContentWidgetSchema implements TypeSchemaInterface
                                 ->statePath('meta'),
                         ]),
                 ]),
-                WidgetAdminTab::make(),
+                WidadminTab::make(),
             ]);
     }
 

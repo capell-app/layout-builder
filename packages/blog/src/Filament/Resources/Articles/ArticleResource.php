@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Capell\Blog\Filament\Resources\Articles;
 
 use BackedEnum;
-use Capell\Admin\Enums\ResourceEnum;
+use Capell\Admin\Enums\ResourceEnum as AdminResourceEnum;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Admin\Filament\Resources\Pages\PageResource;
 use Capell\Blog\Actions\GetArticleLayoutAction;
-use Capell\Blog\Enums\BlogModelEnum;
-use Capell\Blog\Enums\BlogResourceEnum;
+use Capell\Blog\Enums\ModelEnum;
+use Capell\Blog\Enums\ResourceEnum;
 use Capell\Blog\Enums\BlogTypeGroupEnum;
 use Capell\Blog\Filament\Resources\Articles\Pages\CreateArticle;
 use Capell\Blog\Filament\Resources\Articles\Pages\EditArticle;
@@ -19,7 +19,7 @@ use Capell\Blog\Filament\Resources\Articles\Tables\ArticlePagesTable;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Services\Loader\BlogLoader;
 use Capell\Core\Actions\GetNameFromTranslationsAction;
-use Capell\Core\Enums\ModelEnum;
+use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Contracts\Support\Htmlable;
@@ -27,7 +27,7 @@ use Override;
 
 class ArticleResource extends PageResource
 {
-    protected static string $adminResourceName = BlogResourceEnum::Article->value;
+    protected static string $adminResourceName = ResourceEnum::Article->name;
 
     protected static ?int $navigationSort = 2;
 
@@ -41,12 +41,12 @@ class ArticleResource extends PageResource
      */
     public static function getModel(): string
     {
-        return CapellCore::getModel(BlogModelEnum::Article->name);
+        return CapellCore::getModel(ModelEnum::Article->name);
     }
 
     public static function getResourceType(): string
     {
-        return ResourceEnum::Page->name;
+        return AdminResourceEnum::Page->name;
     }
 
     public static function getLabel(): string
@@ -84,7 +84,7 @@ class ArticleResource extends PageResource
         $data['layout_id'] = GetArticleLayoutAction::run()?->id;
 
         /* @var class-string<\Capell\Core\Models\Type> $model */
-        $model = CapellCore::getModel(ModelEnum::Type);
+        $model = CapellCore::getModel(CoreModelEnum::Type);
 
         $data['type_id'] = $model::query()
             ->pageType()
@@ -94,7 +94,7 @@ class ArticleResource extends PageResource
         $siteId = $data['site_id'] ?? null;
 
         /* @var class-string<\Capell\Core\Models\Site> $model */
-        $model = CapellCore::getModel(ModelEnum::Site);
+        $model = CapellCore::getModel(CoreModelEnum::Site);
 
         $site = $model::find($siteId) ?: $model::default()->first();
 

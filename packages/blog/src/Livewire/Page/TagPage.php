@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Livewire\Page;
 
-use Capell\Blog\Enums\BlogModelEnum;
+use Capell\Blog\Enums\ModelEnum;
 use Capell\Blog\Models\Tag;
 use Capell\Core\Facades\CapellCore;
 use Capell\Frontend\Facades\CapellFrontend;
@@ -49,7 +49,7 @@ class TagPage extends AbstractPage
         $site = FrontendLoader::getSite();
 
         /** @var class-string<Tag> $model */
-        $model = CapellCore::getModel(BlogModelEnum::Tag);
+        $model = CapellCore::getModel(ModelEnum::Tag);
 
         $tag = $model::where('type', 'page')
             ->where('slug->' . $language->code, $this->tagSlug)

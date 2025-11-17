@@ -7,7 +7,7 @@ namespace Capell\Layout\Filament\Resources\Widgets\Schemas\Types;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\Navigation\NavigationSelect;
 use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidadminTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
@@ -88,7 +88,7 @@ class NavigationWidgetSchema extends DefaultWidgetSchema
                                     ->statePath('meta'),
                             ]),
                     ]),
-                    WidgetAdminTab::make(),
+                    WidadminTab::make(),
                 ]),
         ];
     }

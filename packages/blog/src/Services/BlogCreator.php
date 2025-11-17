@@ -13,7 +13,7 @@ use Capell\Admin\Services\Creator\LayoutCreator;
 use Capell\Admin\Services\Creator\TypeCreator;
 use Capell\Blog\Enums\BlogLayoutEnum;
 use Capell\Blog\Enums\BlogPageTypeEnum;
-use Capell\Blog\Enums\BlogResourceEnum;
+use Capell\Blog\Enums\ResourceEnum;
 use Capell\Blog\Enums\BlogTypeGroupEnum;
 use Capell\Blog\Enums\PageComponentEnum;
 use Capell\Blog\Enums\WidgetComponentEnum as BlogWidgetComponentEnum;
@@ -21,7 +21,7 @@ use Capell\Blog\Enums\WidgetSchemaEnum;
 use Capell\Blog\Filament\Resources\Articles\Schemas\Types\ArticlePageSchema;
 use Capell\Blog\Filament\Resources\Widgets\Schemas\Types\ArticleWidgetSchema;
 use Capell\Core\Enums\LayoutGroupEnum;
-use Capell\Core\Enums\ModelEnum;
+use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Enums\TypeEnum;
 use Capell\Core\Enums\TypeGroupEnum;
 use Capell\Core\Facades\CapellCore;
@@ -31,7 +31,7 @@ use Capell\Core\Models\Navigation;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
-use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
@@ -45,7 +45,7 @@ class BlogCreator
 {
     public function createTagPageType(): Type
     {
-        $typeMode = CapellCore::getModel(ModelEnum::Type);
+        $typeMode = CapellCore::getModel(CoreModelEnum::Type);
 
         return $typeMode::firstOrCreate([
             'key' => BlogPageTypeEnum::TagPage->value,
@@ -57,6 +57,7 @@ class BlogCreator
                 'type_schema' => PageTypeSchema::getKey(),
                 'schema' => ResultsPageSchema::getKey(),
                 'icon' => 'heroicon-' . Heroicon::OutlinedTag->value,
+                'required_fields' => ['title'],
             ],
             'meta' => [
                 'accessible' => false,
@@ -76,7 +77,7 @@ class BlogCreator
         $type = $this->createTagPageType();
         $layout = $this->getLayout(LayoutEnum::Results);
 
-        $pageModel = CapellCore::getModel(ModelEnum::Page);
+        $pageModel = CapellCore::getModel(CoreModelEnum::Page);
 
         $page = $pageModel::firstOrNew([
             'layout_id' => $layout->id,
@@ -116,7 +117,7 @@ class BlogCreator
 
         $layout = self::createBlogPageLayout();
 
-        $pageModel = CapellCore::getModel(ModelEnum::Page);
+        $pageModel = CapellCore::getModel(CoreModelEnum::Page);
 
         $page = $pageModel::firstOrNew([
             'layout_id' => $layout->id,
@@ -232,6 +233,7 @@ class BlogCreator
                 'type_schema' => PageTypeSchema::getKey(),
                 'schema' => ResultsPageSchema::getKey(),
                 'icon' => 'heroicon-o-archive-box',
+                'required_fields' => ['title'],
             ],
             'meta' => [
                 'accessible' => false,
@@ -353,7 +355,7 @@ class BlogCreator
             'type_id' => Type::query()->firstWhere(['key' => WidgetTypeEnum::System, 'type' => LayoutTypeEnum::Widget])?->id,
             'meta' => [
                 'component' => 'capell-blog::widget.page.archives',
-                'page_group' => BlogResourceEnum::Article->value,
+                'page_group' => strtolower(ResourceEnum::Article->name),
                 'pagination' => true,
                 'with_image' => true,
                 'with_date' => true,
@@ -376,8 +378,8 @@ class BlogCreator
 
     public function createTagsWidget(Collection $languages): void
     {
-        $widgetModel = CapellCore::getModel(LayoutModelEnum::Widget);
-        $typeModel = CapellCore::getModel(ModelEnum::Type);
+        $widgetModel = CapellCore::getModel(ModelEnum::Widget);
+        $typeModel = CapellCore::getModel(CoreModelEnum::Type);
 
         $type = $typeModel::firstWhere(['key' => WidgetTypeEnum::System, 'type' => LayoutTypeEnum::Widget]);
 
@@ -503,7 +505,8 @@ class BlogCreator
                 'icon' => 'heroicon-o-newspaper',
                 'type_schema' => PageTypeSchema::getKey(),
                 'schema' => ArticlePageSchema::getKey(),
-                'resource' => BlogResourceEnum::Article->value,
+                'resource' => strtolower(ResourceEnum::Article->name),
+                'required_fields' => ['title'],
             ],
         ]);
     }
@@ -640,11 +643,12 @@ class BlogCreator
                 'type_schema' => PageTypeSchema::getKey(),
                 'schema' => ResultsPageSchema::getKey(),
                 'icon' => 'heroicon-o-newspaper',
-                'exclude_parent',
+                'exclude_parent' => true,
+                'required_fields' => ['title'],
             ],
             'meta' => [
                 'component' => BlogWidgetComponentEnum::BlogPage,
-                'page_group' => BlogResourceEnum::Article->value,
+                'page_group' => strtolower(ResourceEnum::Article->name),
                 'limit' => 10,
                 'pagination' => true,
                 'listable' => false,
@@ -671,7 +675,7 @@ class BlogCreator
             'meta' => [
                 'component' => WidgetComponentEnum::LivewirePages,
                 'limit' => 5,
-                'page_group' => BlogResourceEnum::Article->value,
+                'page_group' => strtolower(ResourceEnum::Article->name),
                 'pagination' => false,
                 'with_date' => true,
                 'with_image' => true,
@@ -696,7 +700,7 @@ class BlogCreator
 
     private function getPageType(string|PageTypeEnum $key): Type
     {
-        $typeModel = CapellCore::getModel(ModelEnum::Type);
+        $typeModel = CapellCore::getModel(CoreModelEnum::Type);
 
         $type = $typeModel::where('key', $key)->pageType()->first();
 
@@ -717,7 +721,7 @@ class BlogCreator
             $key = $key->value;
         }
 
-        $layoutModel = CapellCore::getModel(ModelEnum::Layout);
+        $layoutModel = CapellCore::getModel(CoreModelEnum::Layout);
 
         $layout = $layoutModel::firstWhere('key', $key);
 

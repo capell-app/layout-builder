@@ -11,13 +11,13 @@ use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Core\Actions\GetResourceFromTypeAction;
-use Capell\Core\Enums\ModelEnum;
+use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Enums\TypeGroupEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\SchemaTypeEnum;
 use Capell\Layout\Exceptions\MissingWidgetAssetException;
 use Capell\Layout\Filament\Components\Forms\LayoutBuilder\LayoutBuilderAddWidgetSchema;
@@ -416,7 +416,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                     ),
             )
             ->fillForm(function (self $livewire, array $arguments): array {
-                $model = CapellCore::getModel(LayoutModelEnum::Widget->name);
+                $model = CapellCore::getModel(ModelEnum::Widget->name);
 
                 return [
                     'container' => $arguments['containerKey'] ?? session('layout-builder.container'),
@@ -642,7 +642,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                         ->record(fn (): WidgetAsset => $this->makeWidgetAssetRecordForCreate($arguments)),
                 ),
             )
-            ->model(fn (): string => CapellCore::getModel(LayoutModelEnum::WidgetAsset->name))
+            ->model(fn (): string => CapellCore::getModel(ModelEnum::WidgetAsset->name))
             ->fillForm(function (array $arguments): array {
                 $containerKey = $arguments['containerKey'];
                 $widgetIndex = $arguments['widgetIndex'];
@@ -1131,7 +1131,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         $widget = $this->getContainerWidget($containerKey, $widgetIndex);
 
         /** @var class-string<WidgetAsset> $model */
-        $model = CapellCore::getModel(LayoutModelEnum::WidgetAsset->name);
+        $model = CapellCore::getModel(ModelEnum::WidgetAsset->name);
 
         $record = $model::make([
             'widget_id' => $widget->id,
@@ -1251,7 +1251,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                         )
                         ->all(),
                 )
-                ->default(fn () => CapellCore::getModel(ModelEnum::Layout)::default()->first(['id'])?->id)
+                ->default(fn () => CapellCore::getModel(CoreModelEnum::Layout)::default()->first(['id'])?->id)
                 ->reactive()
                 ->helperText(
                     function (?int $state): ?HtmlString {
@@ -1364,7 +1364,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         }
 
         /** @var class-string<Layout> $model */
-        $model = CapellCore::getModel(ModelEnum::Layout);
+        $model = CapellCore::getModel(CoreModelEnum::Layout);
 
         $layout = $model::withCount('pages')->find($this->layout_id);
 
@@ -1547,7 +1547,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         }
 
         /** @var class-string<Page> $model */
-        $model = CapellCore::getModel(ModelEnum::Page);
+        $model = CapellCore::getModel(CoreModelEnum::Page);
 
         $this->layoutPage = $model::withTrashed()->withDrafts()->find($this->page_id);
 
@@ -1569,7 +1569,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         }
 
         /** @var class-string<Site> $model */
-        $model = CapellCore::getModel(ModelEnum::Site);
+        $model = CapellCore::getModel(CoreModelEnum::Site);
 
         return $model::find($this->site_id);
     }
@@ -1840,7 +1840,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
     private function getWidgetQuery(bool $withRelations = true): Builder
     {
         /** @var class-string<Widget> $model */
-        $model = CapellCore::getModel(LayoutModelEnum::Widget->name);
+        $model = CapellCore::getModel(ModelEnum::Widget->name);
 
         return $model::query()
             ->when(
@@ -1886,7 +1886,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
     private function loadWidgetAssets(Widget $widget, string $containerKey, int $widgetOccurrence): Collection
     {
         /** @var class-string<WidgetAsset> $model */
-        $model = CapellCore::getModel(LayoutModelEnum::WidgetAsset->name);
+        $model = CapellCore::getModel(ModelEnum::WidgetAsset->name);
 
         $assets = $model::query()
             ->with([
@@ -2025,7 +2025,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
     private function buildPreloadedWidgetAssets(array $existingIds, array $newAssets): Collection
     {
         /** @var class-string<WidgetAsset> $model */
-        $model = CapellCore::getModel(LayoutModelEnum::WidgetAsset->name);
+        $model = CapellCore::getModel(ModelEnum::WidgetAsset->name);
 
         $existingAssets = $existingIds === []
             ? (new $model)->newCollection()

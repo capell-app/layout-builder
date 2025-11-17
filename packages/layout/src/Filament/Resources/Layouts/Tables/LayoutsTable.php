@@ -8,7 +8,7 @@ use Capell\Admin\Enums\FilamentColorEnum;
 use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
-use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\ModelEnum;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\ViewEntry;
 use Filament\Tables\Columns\TextColumn;
@@ -74,14 +74,14 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
         return [
             SelectFilter::make('widget_key')
                 ->label(__('capell-admin::form.widget'))
-                ->options(fn () => CapellCore::getModel(LayoutModelEnum::Widget->name)::getOptions('key', 'name'))
+                ->options(fn () => CapellCore::getModel(ModelEnum::Widget->name)::getOptions('key', 'name'))
                 ->indicateUsing(function (array $state): array {
                     $indicators = [];
 
                     if (! empty($state['value'])) {
                         $indicators['widget_key'] = __(
                             'capell-admin::filter.widget',
-                            ['search' => CapellCore::getModel(LayoutModelEnum::Widget->name)::firstWhere('key', $state['value'], 'name')?->name],
+                            ['search' => CapellCore::getModel(ModelEnum::Widget->name)::firstWhere('key', $state['value'], 'name')?->name],
                         );
                     }
 

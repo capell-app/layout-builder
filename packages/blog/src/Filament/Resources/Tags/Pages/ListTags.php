@@ -7,7 +7,7 @@ namespace Capell\Blog\Filament\Resources\Tags\Pages;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\CreateModalAction;
 use Capell\Admin\Filament\Concerns\HasSiteTableFilterTabs;
-use Capell\Blog\Enums\BlogResourceEnum;
+use Capell\Blog\Enums\ResourceEnum;
 use Capell\Blog\Filament\Resources\Tags\TagResource;
 use Filament\Resources\Pages\ListRecords;
 use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
@@ -25,7 +25,7 @@ class ListTags extends ListRecords
     #[Override]
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(BlogResourceEnum::Tag);
+        return CapellAdmin::getResource(ResourceEnum::Tag);
     }
 
     protected function getHeaderActions(): array

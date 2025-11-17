@@ -11,7 +11,7 @@ use Capell\Admin\Filament\Concerns\HasTableConfigurator;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Core\Facades\CapellCore;
-use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\ResourceEnum;
 use Capell\Layout\Filament\Resources\Widgets\Pages\CreateWidget;
 use Capell\Layout\Filament\Resources\Widgets\Pages\EditWidget;
@@ -34,8 +34,6 @@ class WidgetResource extends Resource
     use HasTableConfigurator;
 
     protected static ?string $recordTitleAttribute = 'name';
-
-    protected static ?int $navigationSort = 2;
 
     /** @var class-string<FormConfigurator> */
     protected static string $formConfigurator = WidgetForm::class;
@@ -63,7 +61,7 @@ class WidgetResource extends Resource
      */
     public static function getModel(): string
     {
-        return CapellCore::getModel(LayoutModelEnum::Widget->name);
+        return CapellCore::getModel(ModelEnum::Widget->name);
     }
 
     public static function getNavigationLabel(): string

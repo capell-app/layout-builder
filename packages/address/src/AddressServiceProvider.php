@@ -6,9 +6,6 @@ namespace Capell\Address;
 
 use Capell\Address\Commands\DemoCommand;
 use Capell\Address\Commands\InstallCommand;
-use Capell\Address\Enums\AddressSchemaEnum;
-use Capell\Address\Enums\CountrySchemaEnum;
-use Capell\Address\Enums\ModelEnum;
 use Capell\Address\Enums\ResourceEnum;
 use Capell\Address\Enums\SchemaTypeEnum;
 use Capell\Address\Filament\Resources\Sites\Schemas\Extenders\SiteSchemaExtender;
@@ -23,9 +20,7 @@ use Capell\Core\Packages\AbstractPackageServiceProvider;
 use Composer\InstalledVersions;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Str;
 use Spatie\LaravelPackageTools\Package;
 
 class AddressServiceProvider extends AbstractPackageServiceProvider
@@ -38,19 +33,14 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
 
     public function bootingPackage(): void
     {
-        if (CapellCore::getPackage(static::$packageName)->isInstalled() !== true) {
+        if (! $this->isPackageInstalled()) {
             return;
         }
 
-        $this->registerSchemas();
-
-        CapellAdmin::registerResource(ResourceEnum::Address->name, class: ResourceEnum::Address->value);
-        CapellAdmin::registerResource(ResourceEnum::Country->name, class: ResourceEnum::Country->value);
-
-        $this->registerSchemaExtender(SchemaExtenderEnum::Site->value, SiteSchemaExtender::class);
-
-        Blade::componentNamespace('Capell\\Address\\View\\Components', 'capell-address');
-        Blade::anonymousComponentNamespace('Capell\\Address\\View\\Components');
+        // Skip boot-time registration chain when running unit tests.
+        if (! $this->app->runningUnitTests()) {
+            $this->registerAll();
+        }
     }
 
     public function configurePackage(Package $package): void
@@ -67,37 +57,107 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
     {
         parent::registeringPackage();
 
+        $this->registerPackageMetadata();
+
+        // During unit tests we need the registration chain earlier.
+        if ($this->app->runningUnitTests()) {
+            $this->registerAll();
+        }
+    }
+
+    private function isPackageInstalled(): bool
+    {
+        return CapellCore::getPackage(static::$packageName)->isInstalled();
+    }
+
+    private function registerAll(): self
+    {
+        return $this
+            ->registerModels()
+            ->registerRelationships()
+            ->registerSchemas()
+            ->registerResources()
+            ->registerSchemaExtenders()
+            ->registerBladeComponents();
+    }
+
+    private function registerPackageMetadata(): self
+    {
         CapellCore::registerPackage(
             static::$packageName,
             type: static::getType(),
-            description: static::getDescription(),
             path: __DIR__,
             sort: 10,
+            description: static::getDescription(),
             installCommand: 'capell-address:install',
             demoCommand: 'capell-address:demo',
             demoParams: ['sites'],
             requirements: [
                 AdminServiceProvider::$packageName,
             ],
-            version: InstalledVersions::getPrettyVersion(static::$packageName),
+            version: $this->getVersion(),
             url: 'https://capell.app',
         );
 
-        $this->registerModels()
-            ->registerRelationships();
+        return $this;
+    }
 
-        Relation::morphMap(
-            collect(ModelEnum::cases())
-                ->mapWithKeys(fn (ModelEnum $model): array => [Str::snake($model->name) => $model->value])
-                ->all(),
-        );
+    private function getVersion(): string
+    {
+        if (! class_exists(InstalledVersions::class)) {
+            return 'dev';
+        }
+
+        if (! InstalledVersions::isInstalled(static::$packageName)) {
+            return 'dev';
+        }
+
+        return InstalledVersions::getPrettyVersion(static::$packageName) ?? 'dev';
     }
 
     private function registerSchemaExtender(string $tag, string $class): void
     {
         $this->app->singleton($class, fn (): object => new $class);
-
         $this->app->tag($class, $tag);
+    }
+
+    private function registerModels(): self
+    {
+        AddressModelRegistrar::register();
+
+        return $this;
+    }
+
+    private function registerSchemas(): self
+    {
+        foreach (SchemaTypeEnum::getAllSchemas() as $type => $schemas) {
+            CapellAdmin::registerSchemas($type, $schemas, defaultSchemas: true);
+        }
+
+        return $this;
+    }
+
+    private function registerResources(): self
+    {
+        CapellAdmin::registerResource(ResourceEnum::Address->name, class: ResourceEnum::Address->value);
+        CapellAdmin::registerResource(ResourceEnum::Country->name, class: ResourceEnum::Country->value);
+
+        return $this;
+    }
+
+    private function registerSchemaExtenders(): self
+    {
+        $this->registerSchemaExtender(SchemaExtenderEnum::Site->value, SiteSchemaExtender::class);
+
+        return $this;
+    }
+
+    private function registerBladeComponents(): self
+    {
+        Blade::componentNamespace('Capell\\Address\\View\\Components', 'capell-address');
+        Blade::anonymousComponentNamespace('Capell\\Address\\View\\Components');
+
+        return $this;
     }
 
     private function registerRelationships(): self
@@ -118,22 +178,6 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
                 'country_id',
             ),
         );
-
-        return $this;
-    }
-
-    private function registerModels(): self
-    {
-        CapellCore::registerModels(ModelEnum::cases());
-
-        return $this;
-    }
-
-    private function registerSchemas(): self
-    {
-        foreach (SchemaTypeEnum::getAllSchemas() as $type => $schemas) {
-            CapellAdmin::registerSchemas($type, $schemas, defaultSchemas: true);
-        }
 
         return $this;
     }

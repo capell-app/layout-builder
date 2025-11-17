@@ -9,7 +9,7 @@ use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
 use Capell\Layout\Filament\Components\Forms\AssetsRepeater;
 use Capell\Layout\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidadminTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
@@ -47,7 +47,7 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
                     $this->getAssetsTab($schema),
                     $this->getTranslationsTab($schema),
                     $this->getDisplayTab($schema),
-                    $this->getAdminTab($schema),
+                    $this->adminTab($schema),
                     $this->getSettingsTab($schema),
                 ]),
         ];
@@ -65,7 +65,7 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
                             $this->getAssetsTab($schema),
                             $this->getTranslationsTab($schema),
                             $this->getDisplayTab($schema),
-                            $this->getAdminTab($schema),
+                            $this->adminTab($schema),
                         ]),
                 ])
                 ->sidebarSchema(
@@ -102,9 +102,9 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
             ]);
     }
 
-    protected function getAdminTab(Schema $schema): Tab
+    protected function adminTab(Schema $schema): Tab
     {
-        return WidgetAdminTab::make();
+        return WidadminTab::make();
     }
 
     protected function getSettingsTab(Schema $schema): Tab

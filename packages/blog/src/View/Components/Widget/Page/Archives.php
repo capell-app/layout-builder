@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Blog\View\Components\Widget\Page;
 
-use Capell\Blog\Enums\BlogResourceEnum;
+use Capell\Blog\Enums\ResourceEnum;
 use Capell\Blog\Services\Loader\BlogLoader;
 use Capell\Core\Models\Page;
 use Capell\Frontend\Facades\FrontendLoader;
@@ -31,7 +31,7 @@ class Archives extends AbstractWidget
 
     protected function mountWidget(): void
     {
-        $type = $this->widget->meta['page_group'] ?? BlogResourceEnum::Article->value;
+        $type = $this->widget->meta['page_group'] ?? strtolower(ResourceEnum::Article->name);
 
         $limit = $this->widget->meta['limit'] ?? config('capell-frontend.pagination_limit', 12);
 

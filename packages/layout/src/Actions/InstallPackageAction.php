@@ -6,6 +6,7 @@ namespace Capell\Layout\Actions;
 
 use Capell\Admin\Services\Creator\LayoutCreator;
 use Capell\Core\Models\Language;
+use Capell\Layout\LayoutModelRegistrar;
 use Capell\Layout\Services\Creator\LayoutUpdater;
 use Capell\Layout\Services\Creator\TypeCreator;
 use Capell\Layout\Services\Creator\WidgetCreator;
@@ -20,6 +21,8 @@ class InstallPackageAction
 
     public function handle(): void
     {
+        LayoutModelRegistrar::register();
+
         $typeCreator = app(TypeCreator::class);
         $typeCreator->createWidgetTypes();
 

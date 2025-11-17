@@ -8,7 +8,7 @@ use Capell\Admin\Filament\Components\Forms\NameInput;
 use Capell\Admin\Filament\Components\Forms\StatusToggle;
 use Capell\Admin\Services\SlugGenerator;
 use Capell\Core\Facades\CapellCore;
-use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\ModelEnum;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
@@ -34,7 +34,7 @@ class WidgetSettingsSchema
                 ->required()
                 ->maxLength(128)
                 ->unique(
-                    table: CapellCore::getModel(LayoutModelEnum::Widget->name),
+                    table: CapellCore::getModel(ModelEnum::Widget->name),
                     ignoreRecord: $schema->getOperation() !== 'replicate',
                     modifyRuleUsing: fn (Unique $rule) => $rule->withoutTrashed(),
                 ),

@@ -19,13 +19,13 @@ use Capell\Admin\Filament\Components\Tables\Columns\SiteColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\TypeColumn;
 use Capell\Admin\Filament\Components\Tables\Filters\StatusFilter;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
-use Capell\Core\Enums\ModelEnum;
+use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Layout\Actions\ReplicateContentAction;
-use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Filament\Components\Tables\Columns\Content\ContentNameColumn;
 use Capell\Layout\Models\Content;
@@ -136,7 +136,7 @@ class ContentsTable implements TableConfigurator
             TypeColumn::make('type.name'),
             TextColumn::make('children_count')
                 ->label(__('capell-admin::table.children'))
-                ->alignRight()
+                ->alignCenter()
                 ->numeric()
                 ->sortable()
                 ->toggleable()
@@ -160,7 +160,7 @@ class ContentsTable implements TableConfigurator
                 ->toggleable(),
             BadgeableColumn::make('assets_count')
                 ->label(__('capell-admin::table.assets'))
-                ->alignRight()
+                ->alignCenter()
                 ->numeric()
                 ->sortable()
                 ->toggleable()
@@ -191,7 +191,7 @@ class ContentsTable implements TableConfigurator
                 ->label(__('capell-admin::form.site'))
                 ->options(function (): array {
                     /** @var class-string<Site> $model */
-                    $model = CapellCore::getModel(ModelEnum::Site);
+                    $model = CapellCore::getModel(CoreModelEnum::Site);
 
                     return $model::query()
                         ->ordered()
@@ -233,7 +233,7 @@ class ContentsTable implements TableConfigurator
                             $siteId = static::getSiteId($livewire);
 
                             /* @var class-string<\Capell\Core\Models\Language> $model */
-                            $model = CapellCore::getModel(ModelEnum::Language);
+                            $model = CapellCore::getModel(CoreModelEnum::Language);
 
                             return $model::when(
                                 $siteId,
@@ -254,7 +254,7 @@ class ContentsTable implements TableConfigurator
                             $siteId = static::getSiteId($livewire);
 
                             /** @var class-string<Content> $model */
-                            $model = CapellCore::getModel(LayoutModelEnum::Content->name);
+                            $model = CapellCore::getModel(ModelEnum::Content->name);
 
                             $contents = $model::with([
                                 'site',
@@ -318,7 +318,7 @@ class ContentsTable implements TableConfigurator
 
                     if (! empty($data['language_id'])) {
                         /** @var class-string<Language> $model */
-                        $model = CapellCore::getModel(ModelEnum::Language);
+                        $model = CapellCore::getModel(CoreModelEnum::Language);
 
                         $indicators['language_id'] = __(
                             'capell-admin::filter.language',
@@ -328,7 +328,7 @@ class ContentsTable implements TableConfigurator
 
                     if (! empty($data['parent_id'])) {
                         /** @var class-string<Content> $model */
-                        $model = CapellCore::getModel(LayoutModelEnum::Content->name);
+                        $model = CapellCore::getModel(ModelEnum::Content->name);
 
                         $indicators['parent_id'] = __(
                             'capell-admin::filter.parent',

@@ -4,8 +4,15 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Commands;
 
+use BezhanSalleh\FilamentShield\Support\Utils;
+use Capell\Admin\Actions\AssignPermissionsToRole;
 use Capell\Blog\Actions\InstallBlogPackageAction;
+use Capell\Blog\BlogModelRegistrar;
+use Capell\Blog\Enums\ModelEnum;
+use Capell\Blog\Enums\ResourceEnum;
+use Filament\Facades\Filament;
 use Illuminate\Console\Command;
+use Spatie\Permission\Models\Role;
 
 class InstallCommand extends Command
 {
@@ -29,6 +36,13 @@ class InstallCommand extends Command
     public function handle(): int
     {
         $this->info('Installing Capell Blog Package...');
+
+        BlogModelRegistrar::register();
+
+        Filament::getDefaultPanel()
+            ->resources(array_map(fn (ResourceEnum $resourceEnum) => $resourceEnum->value, ResourceEnum::cases()));
+
+        AssignPermissionsToRole::run(resources: ResourceEnum::cases());
 
         InstallBlogPackageAction::run();
 

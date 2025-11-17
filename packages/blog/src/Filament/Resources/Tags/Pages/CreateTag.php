@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\Blog\Filament\Resources\Tags\Pages;
 
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Blog\Enums\BlogResourceEnum;
+use Capell\Blog\Enums\ResourceEnum;
 use Capell\Blog\Filament\Resources\Tags\TagResource;
 use Filament\Resources\Pages\CreateRecord;
 use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
@@ -20,7 +20,7 @@ class CreateTag extends CreateRecord
     #[Override]
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(BlogResourceEnum::Tag);
+        return CapellAdmin::getResource(ResourceEnum::Tag);
     }
 
     protected function getActions(): array

@@ -12,8 +12,8 @@ enum TypeEnum: string
     public function getModel(): string
     {
         return match ($this) {
-            self::Content => LayoutModelEnum::Content->value,
-            self::Widget => LayoutModelEnum::Widget->value
+            self::Content => ModelEnum::Content->value,
+            self::Widget => ModelEnum::Widget->value
         };
     }
 

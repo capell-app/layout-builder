@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Capell\Hero\Actions;
 
-use Capell\Core\Enums\ModelEnum;
+use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Type;
 use Capell\Hero\Enums\WidgetComponentEnum;
 use Capell\Hero\Filament\Resources\Widgets\Schemas\Types\HeroWidgetSchema;
 use Capell\Layout\Enums\AssetEnum;
-use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Models\Widget;
@@ -26,10 +26,10 @@ class CreateHeroWidgetAction
     public function handle(): Widget
     {
         /** @var class-string<Widget> $widgetModel */
-        $widgetModel = CapellCore::getModel(LayoutModelEnum::Widget->name);
+        $widgetModel = CapellCore::getModel(ModelEnum::Widget->name);
 
         /** @var class-string<Type> */
-        $typeModel = CapellCore::getModel(ModelEnum::Type->name);
+        $typeModel = CapellCore::getModel(CoreModelEnum::Type->name);
 
         return $widgetModel::firstOrCreate([
             'key' => 'hero',

@@ -6,6 +6,7 @@ namespace Capell\Blog\Services\Sitemap;
 
 use Capell\Blog\Models\Tag;
 use Capell\Core\Actions\GetEditPageResourceUrlAction;
+use Capell\Core\CapellCoreHelper;
 use Capell\Core\Data\SitemapPageData;
 use Capell\Core\Enums\CacheEnum;
 use Capell\Core\Enums\ModelEnum;
@@ -25,7 +26,18 @@ class TagPageSitemap extends AbstractSitemapPages
         $cacheKey = CacheEnum::sitemapTagPages($this->site->id, $this->language->id);
 
         return Cache::remember($cacheKey, 3600, function (): Collection {
-            $tagPage = $this->getTagPage($this->site, $this->language);
+            $tagPage = CapellCoreHelper::getFirstPageByTypeForSite(
+                'tag',
+                $this->site,
+                $this->language,
+                fn ($query) => $query->withWhereHas(
+                    'parent',
+                    fn (BuilderContract $query) => $query->with([
+                        'pageUrl' => fn ($query) => $query->with('siteDomain')->where('language_id', $this->language->id),
+                        'translation' => fn ($query) => $query->where('language_id', $this->language->id),
+                    ]),
+                ),
+            );
 
             if (! $tagPage instanceof Page) {
                 return collect([]);
@@ -60,27 +72,6 @@ class TagPageSitemap extends AbstractSitemapPages
             'url' => $url,
             'editUrl' => $this->withEditUrl ? GetEditPageResourceUrlAction::run($tagPage) : null,
         ]);
-    }
-
-    private function getTagPage(Site $site, Language $language): ?Page
-    {
-        return once(function () use ($site, $language): ?Page {
-            /** @var class-string<Page> $model */
-            $model = CapellCore::getModel(ModelEnum::Page);
-
-            return $model::getFirstPageByTypeForSite(
-                'tag',
-                $site,
-                $language,
-                modifyQueryUsing: fn ($query) => $query->withWhereHas(
-                    'parent',
-                    fn (BuilderContract $query) => $query->with([
-                        'pageUrl' => fn ($query) => $query->with('siteDomain')->where('language_id', $language->id),
-                        'translation' => fn ($query) => $query->where('language_id', $language->id),
-                    ]),
-                ),
-            );
-        });
     }
 
     private function getTagPages(Page $tagPage): Collection

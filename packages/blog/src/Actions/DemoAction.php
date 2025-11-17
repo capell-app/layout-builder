@@ -5,21 +5,19 @@ declare(strict_types=1);
 namespace Capell\Blog\Actions;
 
 use Capell\Admin\Services\Creator\DemoCreator;
-use Capell\Blog\Enums\BlogModelEnum;
-use Capell\Blog\Enums\BlogResourceEnum;
+use Capell\Blog\Enums\ModelEnum;
+use Capell\Blog\Enums\ResourceEnum;
 use Capell\Blog\Services\Loader\BlogLoader;
 use Capell\Core\Commands\Concerns\HasSitesOption;
-use Capell\Core\Enums\ModelEnum;
+use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Illuminate\Console\Command;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Lorisleiva\Actions\Concerns\AsCommand;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -27,11 +25,8 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class DemoAction
 {
-    use AsCommand;
     use AsObject;
     use HasSitesOption;
-
-    public string $commandSignature = 'capell-blog:demo {--sites=} {--author=} {--limit=}';
 
     private DemoCreator $demoCreator;
 
@@ -56,49 +51,6 @@ class DemoAction
 
         // Create demo pages if under the limit.
         $this->createDemoPages($site, $author, $limit);
-    }
-
-    public function asCommand(Command $command): void
-    {
-        $sitesOption = $command->option('sites');
-        if ($sitesOption) {
-            $siteOptions = is_string($sitesOption)
-                ? explode(',', $sitesOption)
-                : (is_array($sitesOption) ? $sitesOption : null);
-        } else {
-            $siteOptions = $this->getSelectedSites();
-        }
-
-        if ($siteOptions === null || $siteOptions === []) {
-            $command->error('No sites selected or provided.');
-
-            return;
-        }
-
-        $sites = CapellCore::getModel(ModelEnum::Site)::query()
-            ->with(['languages'])
-            ->whereIn('name', $siteOptions)
-            ->get();
-
-        if ($sites->isEmpty()) {
-            $command->error('Unable to find any sites for: ' . implode(', ', $siteOptions));
-
-            return;
-        }
-
-        $authorOption = $command->option('author');
-
-        $author = $authorOption ? CapellCore::getModel('User')::find($authorOption) : null;
-
-        if (! $author && auth()->check()) {
-            $author = auth()->user();
-        }
-
-        $limit = $command->option('limit') ? (int) $command->option('limit') : null;
-
-        $sites->each(fn (Site $site) => $this->handle($site, $author, $limit));
-
-        $command->info('Blog demo setup completed for selected sites.');
     }
 
     private function createPage(
@@ -154,7 +106,7 @@ class DemoAction
 
         $totalBlogPages = Page::query()
             ->where('site_id', $site->id)
-            ->whereRelation('type', 'key', BlogResourceEnum::Article->value)
+            ->whereRelation('type', 'key', strtolower(ResourceEnum::Article->name))
             ->count();
 
         if ($totalBlogPages >= $limit) {
@@ -171,7 +123,7 @@ class DemoAction
                 $site->languages,
                 $site->language,
                 parent: $blogPage,
-                type: BlogResourceEnum::Article->value,
+                type: strtolower(ResourceEnum::Article->name),
                 author: $user,
             );
         }
@@ -193,7 +145,7 @@ class DemoAction
             $tag_slug[$language->code] = Str::slug($name);
         }
 
-        $tagModel = CapellCore::getModel(BlogModelEnum::Tag);
+        $tagModel = CapellCore::getModel(ModelEnum::Tag);
 
         $tagModel::firstOrCreate([
             'type' => 'page',
@@ -213,8 +165,8 @@ class DemoAction
 
     private function setupPageTags(Site $site): void
     {
-        $tagModel = CapellCore::getModel(BlogModelEnum::Tag);
-        $pageModel = CapellCore::getModel(ModelEnum::Page);
+        $tagModel = CapellCore::getModel(ModelEnum::Tag);
+        $pageModel = CapellCore::getModel(CoreModelEnum::Page);
 
         $pages = $pageModel::whereHas(
             'type',
