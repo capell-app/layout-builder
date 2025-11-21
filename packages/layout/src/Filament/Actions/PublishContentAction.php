@@ -52,7 +52,7 @@ class PublishContentAction extends Action
         Notification::make()
             ->title(
                 __(
-                    'capell-admin::message.resource_published',
+                    'capell-layout::message.resource_published',
                     ['name' => __('capell-layout::generic.content')],
                 ),
             )

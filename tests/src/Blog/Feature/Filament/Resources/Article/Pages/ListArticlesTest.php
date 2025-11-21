@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Capell\Blog\Database\Factories\ArticlePageFactory;
 use Capell\Blog\Filament\Resources\Articles\Pages\ListArticles;
+use Capell\Blog\Models\Tag;
 use Capell\Core\Models\Page;
 use Capell\Tests\Fixtures\Support\Concerns\CreatesAdminUser;
 
@@ -18,6 +19,8 @@ beforeEach(function (): void {
 
 test('can list articles', function (): void {
     Page::factory()->withTranslations()->count(5)->create();
+
+    Tag::factory()->count(3)->create();
 
     $pages = (new ArticlePageFactory)->withTranslations()->count(5)->create();
 

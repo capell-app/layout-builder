@@ -33,7 +33,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     protected static function getLayoutInfoAction(): Action
     {
         return Action::make('info')
-            ->label(__('capell-admin::button.info'))
+            ->label(__('capell-layout::button.info'))
             ->icon('heroicon-o-information-circle')
             ->iconButton()
             ->color('info')
@@ -56,7 +56,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
         if ($nameColumnIndex !== false) {
             array_splice($columns, $nameColumnIndex + 1, 0, [
                 TextColumn::make('layoutWidgets.name')
-                    ->label(__('capell-admin::table.container_widgets'))
+                    ->label(__('capell-layout::table.container_widgets'))
                     ->wrap()
                     ->color(FilamentColorEnum::LightGray->value)
                     ->bulleted()
@@ -73,14 +73,14 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     {
         return [
             SelectFilter::make('widget_key')
-                ->label(__('capell-admin::form.widget'))
+                ->label(__('capell-layout::form.widget'))
                 ->options(fn () => CapellCore::getModel(ModelEnum::Widget->name)::getOptions('key', 'name'))
                 ->indicateUsing(function (array $state): array {
                     $indicators = [];
 
                     if (! empty($state['value'])) {
                         $indicators['widget_key'] = __(
-                            'capell-admin::filter.widget',
+                            'capell-layout::filter.widget',
                             ['search' => CapellCore::getModel(ModelEnum::Widget->name)::firstWhere('key', $state['value'], 'name')?->name],
                         );
                     }

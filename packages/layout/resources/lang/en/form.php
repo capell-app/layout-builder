@@ -65,5 +65,5 @@ return [
     'featured' => 'Featured',
     'next_prev' => 'Next/Previous',
     'related_contents' => 'Related Contents',
-};
+];
 

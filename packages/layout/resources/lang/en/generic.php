@@ -5,7 +5,6 @@ declare(strict_types=1);
 return [
     'breadcrumbs' => 'Breadcrumbs',
     'page_children' => 'Page Children',
-    'contents' => 'Contents',
     'gallery' => 'Gallery',
     'latest_pages' => 'Latest Pages',
     'media_carousel' => 'Media Carousel',
@@ -16,5 +15,14 @@ return [
     'faq' => 'FAQ',
     'copy_page_layout' => 'Copy this layout? :link',
     'fixed_content_tree' => 'Content tree fixed successfully.',
+    'auto' => 'Auto',
+    'light' => 'Light',
+    'dark' => 'Dark',
+    'default_value' => 'Default: :value',
+    'content' => 'Content',
+    'widget' => 'Widget',
+    'widgets_subheading' => 'Widgets',
+    'contents_subheading' => 'Contents',
+    'container_settings' => 'Container Settings',
+    'exclude_types_info' => 'Exclude these types from selection.',
 ];
-

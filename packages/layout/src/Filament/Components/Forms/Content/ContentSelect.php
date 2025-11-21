@@ -131,7 +131,7 @@ class ContentSelect extends Select
                 fn (Action $action): Action => $action
                     ->modalHeading(
                         fn (self $component): string => __(
-                            'capell-admin::heading.edit_content_record',
+                            'capell-layout::heading.edit_content_record',
                             ['name' => $component->getSelectedRecord()->name],
                         ),
                     )

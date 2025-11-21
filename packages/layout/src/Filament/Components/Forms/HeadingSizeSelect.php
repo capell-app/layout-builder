@@ -12,7 +12,7 @@ class HeadingSizeSelect extends Select
     {
         parent::setUp();
 
-        $this->label(__('capell-admin::form.heading_size'))
+        $this->label(__('capell-layout::form.heading_size'))
             ->default('h1')
             ->options([
                 'h1' => 'h1',

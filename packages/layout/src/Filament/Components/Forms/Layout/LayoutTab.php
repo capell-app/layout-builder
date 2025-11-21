@@ -17,7 +17,7 @@ class LayoutTab extends Tab
     {
         parent::setUp();
 
-        $this->label(__('capell-admin::tab.layout_builder'))
+        $this->label(__('capell-layout::tab.layout'))
             ->visibleOn(['edit', 'editOption'])
             ->icon(Heroicon::OutlinedPuzzlePiece)
             ->schema([

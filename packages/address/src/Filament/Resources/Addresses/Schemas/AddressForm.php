@@ -14,7 +14,7 @@ class AddressForm implements FormConfigurator
 {
     public static function configure(Schema $schema): Schema
     {
-        $adminType = CapellAdmin::getSchema(SchemaTypeEnum::Address->name, DefaultAddressSchema::getKey());
+        $adminType = CapellAdmin::getSchema(SchemaTypeEnum::Address->value, DefaultAddressSchema::getKey());
 
         return $schema
             ->components(app($adminType)->make($schema))

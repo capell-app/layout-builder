@@ -11,7 +11,7 @@ class WidgetDisplayTab
 {
     public static function make(array $schema = []): Tab
     {
-        return Tab::make(__('capell-admin::tab.display'))
+        return Tab::make(__('capell-layout::tab.display'))
             ->icon(Heroicon::OutlinedSparkles)
             ->columns()
             ->schema($schema);

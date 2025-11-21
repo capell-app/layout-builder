@@ -124,12 +124,12 @@ class DefaultWidgetSchema implements TypeSchemaInterface
                     ->schema([
                         MediaLibraryFileUpload::make('image'),
                         Checkbox::make('reverse_order')
-                            ->label(__('capell-admin::form.reverse_order'))
+                            ->label(__('capell-layout::form.reverse_order'))
                             ->visibleJs(<<<'JS'
                                  $get('image')
                             JS),
                     ]),
-                Fieldset::make(__('capell-admin::form.actions'))
+                Fieldset::make(__('capell-layout::form.actions'))
                     ->schema([
                         ActionsRepeater::make('actions')
                             ->hiddenLabel(),

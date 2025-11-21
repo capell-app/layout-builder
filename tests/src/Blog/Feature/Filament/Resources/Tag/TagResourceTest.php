@@ -15,7 +15,7 @@ test('admin can see tags', function (): void {
 
     get(TagResource::getUrl())
         ->assertOk();
-})->todo();
+});
 
 test('cannot see tags', function (): void {
     test()->actingAsUser();

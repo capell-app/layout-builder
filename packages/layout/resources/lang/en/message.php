@@ -12,6 +12,7 @@ return [
     'page_created_successfully' => 'Page created successfully.',
     'resource_published' => 'Resource published successfully.',
     'layout_saved' => 'Layout saved successfully.',
+    'layout_count_on_pages' => 'This layout is used on :count pages. View: <a href=":url">Pages using this layout</a>.',
     'copy_layout_confirmation' => 'Are you sure you want to copy this layout?',
     'no_assets_selected' => 'No assets selected.',
     'layout_container_key_not_unique' => 'Container key ":key" must be unique.',

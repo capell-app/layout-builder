@@ -24,7 +24,7 @@ class WidgetSelect extends Select
     {
         parent::setUp();
 
-        $this->label(__('capell-admin::form.select_widget'));
+        $this->label(__('capell-layout::form.select_widget'));
     }
 
     public function withCreateForm(): self
@@ -65,7 +65,7 @@ class WidgetSelect extends Select
             ->createOptionAction(
                 fn (Action $action): Action => $action
                     ->modalHeading(__('capell-admin::generic.widget'))
-                    ->tooltip(__('capell-admin::button.create_widget'))
+                    ->tooltip(__('capell-layout::button.create_widget'))
                     ->modalWidth(Width::SixExtraLarge)
                     ->slideOver()
                     ->closeModalByClickingAway(false)
@@ -97,7 +97,7 @@ class WidgetSelect extends Select
 
                         $selectedRecord = $component->getSelectedRecord();
 
-                        return new HtmlString(__('capell-admin::heading.edit_widget_record', ['name' => $selectedRecord->name]));
+                        return new HtmlString(__('capell-layout::heading.edit_widget_record', ['name' => $selectedRecord->name]));
                     })
                     ->modalWidth(Width::SixExtraLarge)
                     ->slideOver()

@@ -15,6 +15,7 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Data\TypeData;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
@@ -49,12 +50,15 @@ use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
 use Livewire\Livewire;
 use RuntimeException;
 use Spatie\LaravelPackageTools\Package;
+use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
 
 class LayoutServiceProvider extends AbstractPackageServiceProvider
 {
@@ -415,12 +419,12 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
         Page::resolveRelationUsing(
             'widgetAssets',
-            fn (Page $model) => $model->hasMany(ModelEnum::WidgetAsset->value, 'page_id'),
+            fn (Page $model): HasMany => $model->hasMany(ModelEnum::WidgetAsset->value, 'page_id'),
         );
 
         Page::resolveRelationUsing(
             'widgets',
-            fn (Page $model) => $model->morphToMany(
+            fn (Page $model): MorphToMany => $model->morphToMany(
                 ModelEnum::Widget->value,
                 'asset',
                 'widget_assets',
@@ -432,17 +436,26 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
         Site::resolveRelationUsing(
             'contents',
-            fn (Site $model) => $model->hasMany(ModelEnum::Content->value, 'site_id'),
+            fn (Site $model): HasMany => $model->hasMany(ModelEnum::Content->value, 'site_id'),
         );
 
         Type::resolveRelationUsing(
             'contents',
-            fn (Type $model) => $model->hasMany(ModelEnum::Content->value, 'type_id'),
+            fn (Type $model): HasMany => $model->hasMany(ModelEnum::Content->value, 'type_id'),
         );
 
         Type::resolveRelationUsing(
             'widgets',
             fn (Type $model) => $model->hasMany(ModelEnum::Widget->value, 'type_id'),
+        );
+
+        Layout::resolveRelationUsing(
+            'layoutWidgets',
+            fn (Layout $model): BelongsToJson => $model->belongsToJson(
+                ModelEnum::Widget->value,
+                'widgets',
+                'key'
+            ),
         );
 
         return $this;

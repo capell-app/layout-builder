@@ -28,10 +28,10 @@ class DefaultLayoutWidgetSchema implements TypeSchemaInterface
     {
         return [
             Checkbox::make('show_page_title')
-                ->label(__('capell-admin::form.show_page_title'))
+                ->label(__('capell-layout::form.show_page_title'))
                 ->helperText(__('capell-admin::generic.show_page_title_info')),
             Checkbox::make('show_page_content')
-                ->label(__('capell-admin::form.show_page_content'))
+                ->label(__('capell-layout::form.show_page_content'))
                 ->helperText(__('capell-admin::generic.show_page_content_info')),
             HtmlClassInput::make('html_class'),
         ];

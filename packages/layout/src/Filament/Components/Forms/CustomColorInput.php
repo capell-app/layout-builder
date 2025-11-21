@@ -64,7 +64,7 @@ class CustomColorInput
                     }),
 
                 ColorPicker::make($name . '_custom')
-                    ->label(__('capell-admin::form.custom'))
+                    ->label(__('capell-layout::form.custom'))
                     ->hiddenLabel()
                     ->placeholder(__('capell-admin::generic.custom'))
                     ->dehydrated(false)

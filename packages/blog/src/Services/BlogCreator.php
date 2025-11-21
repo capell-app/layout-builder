@@ -555,7 +555,7 @@ class BlogCreator
             $widget->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
-                'title' => __('capell-admin::heading.related_pages'),
+                'title' => __('capell-layout::heading.related_pages'),
             ]);
         });
     }

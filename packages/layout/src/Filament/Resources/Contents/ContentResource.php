@@ -84,7 +84,7 @@ class ContentResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return (string) (__('capell-admin::navigation.contents'));
+        return (string) (__('capell-layout::navigation.contents'));
     }
 
     public static function getPages(): array
@@ -103,7 +103,7 @@ class ContentResource extends Resource
 
     public static function getPluralModelLabel(): string
     {
-        return __('capell-layout::generic.contents');
+        return __('capell-admin::generic.contents');
     }
 
     public static function getRelations(): array

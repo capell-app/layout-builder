@@ -41,7 +41,8 @@ class DefaultCountrySchema implements TypeSchemaInterface
             TextInput::make('name')
                 ->label(__('capell-address::form.name'))
                 ->required(),
-            LanguageSelect::make('language_id'),
+            LanguageSelect::make('language_id')
+                ->withRelationship(),
             TextInput::make('iso2')
                 ->label(__('capell-address::form.iso2'))
                 ->helperText(__('capell-admin::generic.iso_3166_2'))

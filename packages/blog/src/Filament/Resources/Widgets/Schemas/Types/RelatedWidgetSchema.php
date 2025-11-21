@@ -85,9 +85,9 @@ class RelatedWidgetSchema extends DefaultWidgetSchema
                             Grid::make(3)
                                 ->schema([
                                     TextInput::make('limit')
-                                        ->label(__('capell-admin::form.limit')),
+                                        ->label(__('capell-layout::form.limit')),
                                     Checkbox::make('pagination')
-                                        ->label(__('capell-admin::form.pagination'))
+                                        ->label(__('capell-layout::form.pagination'))
                                         ->default(true),
                                     CacheFrequencySelect::make('cache_frequency'),
                                 ]),

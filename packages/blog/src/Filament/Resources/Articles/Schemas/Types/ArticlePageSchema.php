@@ -109,7 +109,7 @@ class ArticlePageSchema extends DefaultPageSchema
     protected function getParentPageSelect(Schema $schema): ParentPageSelect
     {
         return ParentPageSelect::make('parent_id')
-            ->label(__('capell-admin::form.parent_page'))
+            ->label(__('capell-layout::form.parent_page'))
             ->setupRelation('parent', $schema)
             ->pageGroup(static::modifyParentQueryUsing($schema))
             ->reactive();

@@ -27,7 +27,7 @@ class LayoutBuilderAddWidgetSchema
                 ->options(fn (): array => self::getWidgetTypeGroups())
                 ->bulkToggleable(),
             WidgetSelect::make('widgets')
-                ->placeholder(__('capell-admin::form.select_widget'))
+                ->placeholder(__('capell-layout::form.select_widget'))
                 ->required()
                 ->autofocus()
                 ->multiple()

@@ -101,9 +101,9 @@ declare(strict_types=1);
                         x-on:click="collapseAllContainerWidgets(id, false)"
                         x-cloak
                         x-show="isAllWidgetsCollapsed(id) !== false"
-                        x-tooltip.raw="{{ __('capell-admin::button.expand_all') }}"
+                        x-tooltip.raw="{{ __('capell-layout::button.expand_all') }}"
                     >
-                        {{ __('capell-admin::button.expand') }}
+                        {{ __('capell-layout::button.expand') }}
                     </x-filament::link>
                     <x-filament::link
                         class="whitespace-nowrap"
@@ -116,9 +116,9 @@ declare(strict_types=1);
                         x-on:click="collapseAllContainerWidgets(id, true)"
                         x-cloak
                         x-show="isAllWidgetsCollapsed(id) !== true"
-                        x-tooltip.raw="{{ __('capell-admin::button.collapse_all') }}"
+                        x-tooltip.raw="{{ __('capell-layout::button.collapse_all') }}"
                     >
-                        {{ __('capell-admin::button.collapse') }}
+                        {{ __('capell-layout::button.collapse') }}
                     </x-filament::link>
                 </div>
 

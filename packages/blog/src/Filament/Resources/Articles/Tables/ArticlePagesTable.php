@@ -20,10 +20,8 @@ class ArticlePagesTable implements TableConfigurator
 {
     public static function configure(Table $table): Table
     {
-        // Start from the PagesTable configuration then append article-specific pieces.
         $baseTable = PagesTable::configure($table);
 
-        // Merge filters via composition
         $filters = PagesTable::getBaseTableFilters();
         $filters = self::mutateBaseFilters($filters);
 
@@ -36,7 +34,7 @@ class ArticlePagesTable implements TableConfigurator
     protected static function mutateBaseFilters(array $filters): array
     {
         $filters[] = SelectFilter::make('tags')
-            ->label(__('capell-admin::form.tags'))
+            ->label(__('capell-layout::form.tags'))
             ->searchable()
             ->preload()
             ->relationship(
@@ -74,7 +72,7 @@ class ArticlePagesTable implements TableConfigurator
                 $value = $state['value'] ?? null;
                 if ($value) {
                     $indicators['tags'] = __(
-                        'capell-admin::filter.tag',
+                        'capell-layout::filter.tag',
                         ['search' => Tag::query()->find($value)?->name],
                     );
                 }

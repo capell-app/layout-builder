@@ -23,8 +23,8 @@ class CountryFactory extends Factory
 
         return [
             'name' => $this->faker->country(),
-            'iso2' => strtoupper($this->faker->lexify('??')),
-            'iso3' => strtoupper($this->faker->lexify('???')),
+            'iso2' => strtoupper($this->faker->unique()->lexify('??')),
+            'iso3' => strtoupper($this->faker->unique()->lexify('???')),
             'language_id' => null,
         ];
     }

@@ -20,7 +20,7 @@ class WidgetAssetsRelationManager extends RelationManager
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return __('capell-admin::tab.resources');
+        return __('capell-admin::tab.assets');
     }
 
     public function form(Schema $schema): Schema

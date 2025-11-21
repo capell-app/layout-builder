@@ -56,7 +56,7 @@ class PageContentWidgetSchema implements TypeSchemaInterface
                                 ->statePath('meta')
                                 ->schema([
                                     CheckboxList::make('page_content')
-                                        ->label(__('capell-admin::form.page_content'))
+                                        ->label(__('capell-layout::form.page_content'))
                                         ->helperText(__('capell-admin::generic.widget_page_content_helper'))
                                         ->reactive()
                                         ->columns(3)

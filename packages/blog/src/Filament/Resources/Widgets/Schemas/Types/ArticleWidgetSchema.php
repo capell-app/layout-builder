@@ -62,11 +62,11 @@ class ArticleWidgetSchema extends DefaultWidgetSchema
             ->columnSpanFull()
             ->schema([
                 Checkbox::make('with_date')
-                    ->label(__('capell-admin::form.published_date')),
+                    ->label(__('capell-layout::form.published_date')),
                 Checkbox::make('with_next_prev')
-                    ->label(__('capell-admin::form.next_prev')),
+                    ->label(__('capell-layout::form.next_prev')),
                 Checkbox::make('with_author')
-                    ->label(__('capell-admin::form.author')),
+                    ->label(__('capell-layout::form.author')),
             ]);
     }
 }

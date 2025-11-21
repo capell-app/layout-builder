@@ -40,7 +40,7 @@ class WidgetAssetsTable implements TableConfigurator
         return $table
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->withAssets())
             ->reorderable('order')
-            ->heading(__('capell-admin::heading.widget_page_assets'))
+            ->heading(__('capell-layout::heading.widget_page_assets'))
             ->description(__('capell-admin::generic.widget_page_assets_description'))
             ->recordUrl(
                 fn (WidgetAsset $record): ?string => match ($record->asset_type) {
@@ -136,21 +136,21 @@ class WidgetAssetsTable implements TableConfigurator
 
                     if (! empty($data['asset_type'])) {
                         $indicators['asset_type'] = __(
-                            'capell-admin::filter.type',
+                            'capell-layout::filter.type',
                             ['type' => $data['asset_type']],
                         );
                     }
 
                     if (! empty($data['type_id'])) {
                         $indicators['type_id'] = __(
-                            'capell-admin::filter.type',
+                            'capell-layout::filter.type',
                             ['search' => Type::query()->find($data['type_id'])->name],
                         );
                     }
 
                     if (! empty($data['page_id'])) {
                         $indicators['page_id'] = __(
-                            'capell-admin::filter.page',
+                            'capell-layout::filter.page',
                             ['search' => Page::query()->withDrafts()->find($data['page_id'])->name],
                         );
                     }

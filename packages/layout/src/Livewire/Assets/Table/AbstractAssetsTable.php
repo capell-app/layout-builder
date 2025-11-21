@@ -89,7 +89,7 @@ abstract class AbstractAssetsTable extends Component implements HasActions, HasF
     {
         return [
             BulkSelectAction::make('selectRecords')
-                ->label(__('capell-admin::button.add_widget_asset'))
+                ->label(__('capell-layout::button.add_widget_asset'))
                 ->color('primary')
                 ->action($this->syncAssets(...)),
         ];

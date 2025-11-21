@@ -10,7 +10,7 @@ class AlignSelect extends Select
 {
     protected function setUp(): void
     {
-        $this->label(__('capell-admin::form.align'))
+        $this->label(__('capell-layout::form.align'))
             ->options([
                 'left' => __('capell-admin::generic.left'),
                 'right' => __('capell-admin::generic.right'),

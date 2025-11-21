@@ -28,7 +28,7 @@ class WidgetComponentFilesSection
                         ->when($componentRequired, fn (Select $component): Select => $component->required())
                         ->setupType(ComponentTypeEnum::Widget),
                     TextInput::make('view_file')
-                        ->label(__('capell-admin::form.component_view_file'))
+                        ->label(__('capell-layout::form.component_view_file'))
                         ->helperText(__('capell-admin::generic.component_view_file_info')),
                 ]),
 

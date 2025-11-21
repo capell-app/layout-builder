@@ -34,7 +34,7 @@ declare(strict_types=1);
         >
             <div class="flex-grow">
                 <div class="text-lg font-semibold">
-                    {{ __('capell-admin::heading.layout_record', ['name' => $this->layoutRecord->name]) }}
+                    {{ __('capell-layout::heading.layout_record', ['name' => $this->layoutRecord->name]) }}
                 </div>
 
                 <div class="mt-3 text-sm text-gray-500 dark:text-gray-400">
@@ -42,7 +42,7 @@ declare(strict_types=1);
 
                     <span class="text-gray-800 dark:text-gray-300">
                         {!!
-                            trans_choice('capell-admin::message.layout_count_on_pages', $this->layoutRecord->pages_count, [
+                            trans_choice('capell-layout::message.layout_count_on_pages', $this->layoutRecord->pages_count, [
                                 'count' => $this->layoutRecord->pages_count,
                                 'url' => CapellAdmin::getResource(ResourceEnum::Page)::getUrl('index', [
                                     'tableFilters' => ['layout_id' => ['value' => $this->layoutRecord->id]],
@@ -90,7 +90,7 @@ declare(strict_types=1);
                                         target="_blank"
                                         tag="a"
                                     >
-                                        {{ __('capell-admin::button.open_edit_layout') }}
+                                        {{ __('capell-layout::button.open_edit_layout') }}
                                     </x-filament::dropdown.list.item>
                                 </x-filament::dropdown.list>
                             </x-filament::dropdown>
@@ -113,9 +113,9 @@ declare(strict_types=1);
                         weight="normal"
                         x-on:click="$dispatch('expand-all-containers')"
                         x-show="isContainersAllCollapsed !== false"
-                        x-tooltip.raw="{{ __('capell-admin::button.expand_all') }}"
+                        x-tooltip.raw="{{ __('capell-layout::button.expand_all') }}"
                     >
-                        {{ __('capell-admin::button.expand') }}
+                        {{ __('capell-layout::button.expand') }}
                     </x-filament::link>
                     <x-filament::link
                         class="whitespace-nowrap"
@@ -127,9 +127,9 @@ declare(strict_types=1);
                         weight="normal"
                         x-on:click="$dispatch('collapse-all-containers')"
                         x-show="isContainersAllCollapsed !== true"
-                        x-tooltip.raw="{{ __('capell-admin::button.collapse_all') }}"
+                        x-tooltip.raw="{{ __('capell-layout::button.collapse_all') }}"
                     >
-                        {{ __('capell-admin::button.collapse') }}
+                        {{ __('capell-layout::button.collapse') }}
                     </x-filament::link>
                 </div>
             </div>
@@ -143,7 +143,7 @@ declare(strict_types=1);
                 icon="heroicon-o-exclamation-triangle"
             >
                 <x-slot:description>
-                    {{ __('capell-admin::message.layout_unsaved') }}
+                    {{ __('capell-layout::message.layout_unsaved') }}
                 </x-slot>
             </x-capell-admin::alert>
         @endif
@@ -167,7 +167,7 @@ declare(strict_types=1);
                 <div
                     class="px-3 text-center text-sm font-semibold text-gray-600 dark:text-gray-100"
                 >
-                    {{ __('capell-admin::message.layout_empty') }}
+                    {{ __('capell-layout::message.layout_empty') }}
                 </div>
             @endif
         </div>
@@ -198,8 +198,8 @@ declare(strict_types=1);
                 <span
                     x-text="
                         ! isReordering
-                            ? '{{ __('capell-admin::button.reorder') }}'
-                            : '{{ __('capell-admin::button.cancel_reorder') }}'
+                            ? '{{ __('capell-layout::button.reorder') }}'
+                            : '{{ __('capell-layout::button.cancel_reorder') }}'
                     "
                 ></span>
             </x-filament::button>

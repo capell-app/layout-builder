@@ -72,7 +72,7 @@ class TagResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return (string) (__('capell-admin::navigation.tags'));
+        return (string) (__('capell-layout::navigation.tags'));
     }
 
     public static function getPages(): array

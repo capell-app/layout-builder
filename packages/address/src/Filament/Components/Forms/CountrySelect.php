@@ -81,7 +81,7 @@ class CountrySelect extends Select
             ->editOptionForm(fn (Schema $schema): Schema => CountryForm::configure($schema))
             ->editOptionAction(
                 fn (Action $action): Action => $action
-                    ->modalHeading(__('capell-admin::generic.country'))
+                    ->modalHeading(__('capell-layout::generic.country'))
                     ->model(CapellCore::getModel(ModelEnum::Country))
                     ->successNotificationTitle(
                         fn (Action $action): string => __(

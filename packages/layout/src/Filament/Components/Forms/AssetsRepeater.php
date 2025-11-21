@@ -56,7 +56,7 @@ class AssetsRepeater extends Repeater
                         $itemData = $component->getRawItemState($arguments['item']);
 
                         return __(
-                            'capell-admin::button.edit_asset_type',
+                            'capell-layout::button.edit_asset_type',
                             ['type' => $itemData['asset_type']],
                         );
                     })
@@ -193,7 +193,7 @@ class AssetsRepeater extends Repeater
                     $schema->model($record)->saveRelationships();
 
                     Notification::make()
-                        ->title(__('capell-admin::message.page_created_successfully'))
+                        ->title(__('capell-layout::message.page_created_successfully'))
                         ->body($record->name)
                         ->send();
 

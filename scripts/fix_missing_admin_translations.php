@@ -17,6 +17,7 @@ $projectRoot = dirname(__DIR__);
 $packagesPath = $projectRoot . '/packages';
 $adminLangPath = $projectRoot . '/vendor/capell-app/admin/packages/admin/resources/lang/en';
 $doWrite = in_array('--write', $argv, true);
+$debug = in_array('--debug', $argv, true);
 
 if (! is_dir($packagesPath)) {
     fwrite(STDERR, "Packages directory not found: $packagesPath\n");
@@ -25,7 +26,27 @@ if (! is_dir($packagesPath)) {
 
 $usedKeys = collectUsedTranslationKeys($packagesPath);
 $availableKeys = collectAvailableAdminLanguageKeys($adminLangPath);
+
+// Filter out capell-admin::generic. (with nothing after the dot)
+$usedKeys = array_filter($usedKeys, function ($key) {
+    if (preg_match('/^capell-admin::generic\.$/', $key)) {
+        fwrite(STDERR, "Warning: Found usage of capell-admin::generic. (empty key) in code. This is not a valid translation key.\n");
+        return false;
+    }
+    return true;
+});
+$usedKeys = array_values($usedKeys);
+
 $missingKeys = array_diff($usedKeys, $availableKeys);
+
+if ($debug) {
+    echo "\n--- Used keys ---\n";
+    foreach ($usedKeys as $k) echo $k . "\n";
+    echo "\n--- Available keys ---\n";
+    foreach ($availableKeys as $k) echo $k . "\n";
+    echo "\n--- Missing keys ---\n";
+    foreach ($missingKeys as $k) echo $k . "\n";
+}
 
 if (empty($missingKeys)) {
     echo "No missing capell-admin:: translation keys found.\n";
@@ -85,7 +106,9 @@ function collectUsedTranslationKeys(string $root): array
         $contents = file_get_contents($file);
         preg_match_all('/__\(\s*[\"\'](capell-admin::[A-Za-z0-9_.-]+)[\"\']/', $contents, $matches1);
         preg_match_all('/trans\(\s*[\"\'](capell-admin::[A-Za-z0-9_.-]+)[\"\']/', $contents, $matches2);
-        foreach (array_merge($matches1[1], $matches2[1]) as $key) {
+        // Also match capell-admin::generic.*
+        preg_match_all('/capell-admin::generic\.[A-Za-z0-9_.-]+/', $contents, $matches3);
+        foreach (array_merge($matches1[1], $matches2[1], $matches3[0]) as $key) {
             $keys[$key] = true;
         }
     }

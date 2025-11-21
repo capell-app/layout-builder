@@ -20,5 +20,6 @@ return [
     'page_children' => 'Page Children',
     'gallery' => 'Gallery',
     'page_siblings' => 'Page Siblings',
+    'edit_tag_record' => 'Edit Tag: :name',
 ];
 

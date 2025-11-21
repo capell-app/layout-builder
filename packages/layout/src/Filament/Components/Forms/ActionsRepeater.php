@@ -34,7 +34,7 @@ class ActionsRepeater extends Repeater
             ->cloneable()
             ->orderColumn()
             ->defaultItems(0)
-            ->addActionLabel(__('capell-admin::button.add_action'))
+            ->addActionLabel(__('capell-layout::button.add_action'))
             ->itemLabel(function (array $state): string {
                 if (! empty($state['label'])) {
                     return $state['label'];
@@ -95,7 +95,7 @@ class ActionsRepeater extends Repeater
                         IconPicker::make('icon')
                             ->label(__('capell-admin::form.icon')),
                         Select::make('color')
-                            ->label(__('capell-admin::form.color'))
+                            ->label(__('capell-layout::form.color'))
                             ->options([
                                 'primary' => __('capell-admin::generic.primary'),
                                 'secondary' => __('capell-admin::generic.secondary'),

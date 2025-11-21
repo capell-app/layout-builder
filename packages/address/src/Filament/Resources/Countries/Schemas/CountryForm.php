@@ -14,7 +14,7 @@ class CountryForm implements FormConfigurator
 {
     public static function configure(Schema $schema): Schema
     {
-        $adminType = CapellAdmin::getSchema(SchemaTypeEnum::Country->name, DefaultCountrySchema::getKey());
+        $adminType = CapellAdmin::getSchema(SchemaTypeEnum::Country->value, DefaultCountrySchema::getKey());
 
         return $schema
             ->components(app($adminType)->make($schema))

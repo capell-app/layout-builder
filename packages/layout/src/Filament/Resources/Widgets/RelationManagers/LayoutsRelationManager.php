@@ -33,7 +33,7 @@ class LayoutsRelationManager extends RelationManager
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return __('capell-admin::tab.layouts');
+        return __('capell-admin::generic.layouts');
     }
 
     public function table(Table $table): Table

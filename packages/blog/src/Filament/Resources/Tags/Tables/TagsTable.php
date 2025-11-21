@@ -74,7 +74,7 @@ class TagsTable implements TableConfigurator
                     },
                 ),
             TextColumn::make('slug')
-                ->label(__('capell-admin::table.slug'))
+                ->label(__('capell-layout::table.slug'))
                 ->searchable()
                 ->sortable()
                 ->color(FilamentColorEnum::LightGray->value)
@@ -104,7 +104,7 @@ class TagsTable implements TableConfigurator
                     );
                 }),
             IconColumn::make('featured')
-                ->label(__('capell-admin::table.featured'))
+                ->label(__('capell-layout::table.featured'))
                 ->trueIcon('heroicon-o-star')
                 ->falseIcon(false)
                 ->color(fn (Tag $record): string => $record->featured ? 'primary' : 'gray')

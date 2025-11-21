@@ -21,7 +21,7 @@ abstract class TagsInput extends SpatieTagsInput
     {
         parent::setUp();
 
-        $this->label(__('capell-admin::form.tags'))
+        $this->label(__('capell-layout::form.tags'))
             ->suggestions(function (self $component, Get $get): array {
                 /** @var class-string<Tag> $model */
                 $model = CapellCore::getModel(ModelEnum::Tag);

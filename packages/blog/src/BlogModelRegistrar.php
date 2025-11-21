@@ -13,12 +13,6 @@ class BlogModelRegistrar
 {
     public static function register(): void
     {
-        // If Article model already registered assume all blog models registered.
-        $models = CapellCore::getModels();
-        if (isset($models[ModelEnum::Article->name])) {
-            return;
-        }
-
         CapellCore::registerModels(ModelEnum::cases());
 
         Relation::morphMap(

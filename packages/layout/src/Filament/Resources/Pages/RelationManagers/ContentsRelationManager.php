@@ -37,7 +37,7 @@ class ContentsRelationManager extends RelationManager
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return __('capell-layout::tab.contents');
+        return __('capell-admin::generic.contents');
     }
 
     public static function getIcon(Model $ownerRecord, string $pageClass): string|BackedEnum|null

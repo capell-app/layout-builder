@@ -43,11 +43,11 @@ class DefaultLayoutContainerSchema implements TypeSchemaInterface
                 ->columns(['sm' => 2, 'md' => 3])
                 ->schema([
                     ColumnInput::make('colspan')
-                        ->label(__('capell-admin::form.colspan'))
+                        ->label(__('capell-layout::form.colspan'))
                         ->helperText(__('capell-admin::generic.colspan_info'))
                         ->default(12),
                     ColumnInput::make('column_start')
-                        ->label(__('capell-admin::form.column_start')),
+                        ->label(__('capell-layout::form.column_start')),
                     ContainerWidthSelect::make(),
                     HtmlClassInput::make('html_class'),
                     PaddingSelect::make('padding'),
@@ -55,7 +55,7 @@ class DefaultLayoutContainerSchema implements TypeSchemaInterface
                     SpacingSelect::make('spacing'),
                     TagSelect::make('tag'),
                     TextInput::make('override_columns')
-                        ->label(__('capell-admin::form.override_columns'))
+                        ->label(__('capell-layout::form.override_columns'))
                         ->helperText(__('capell-admin::generic.override_columns_info')),
                 ]),
             Section::make(__('capell-admin::generic.background'))

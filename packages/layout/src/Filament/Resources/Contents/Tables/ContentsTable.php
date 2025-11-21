@@ -135,7 +135,7 @@ class ContentsTable implements TableConfigurator
                 ->toggleable(isToggledHiddenByDefault: true),
             TypeColumn::make('type.name'),
             TextColumn::make('children_count')
-                ->label(__('capell-admin::table.children'))
+                ->label(__('capell-layout::table.children'))
                 ->alignCenter()
                 ->numeric()
                 ->sortable()
@@ -159,7 +159,7 @@ class ContentsTable implements TableConfigurator
                 ->collection('image')
                 ->toggleable(),
             BadgeableColumn::make('assets_count')
-                ->label(__('capell-admin::table.assets'))
+                ->label(__('capell-layout::table.assets'))
                 ->alignCenter()
                 ->numeric()
                 ->sortable()
@@ -173,10 +173,10 @@ class ContentsTable implements TableConfigurator
                 ),
             PublishIconColumn::make('status'),
             DateColumn::make('publish_from')
-                ->label(__('capell-admin::table.publish_from'))
+                ->label(__('capell-layout::table.publish_from'))
                 ->toggleable(isToggledHiddenByDefault: true),
             DateColumn::make('publish_to')
-                ->label(__('capell-admin::table.publish_to'))
+                ->label(__('capell-layout::table.publish_to'))
                 ->toggleable(isToggledHiddenByDefault: true),
             DateColumn::make('created_at'),
             DateColumn::make('updated_at'),
@@ -196,7 +196,7 @@ class ContentsTable implements TableConfigurator
                     return $model::query()
                         ->ordered()
                         ->pluck('name', 'id')
-                        ->prepend(__('capell-admin::form.none'), 0)
+                        ->prepend(__('capell-layout::form.none'), 0)
                         ->toArray();
                 })
                 ->modifyQueryUsing(
@@ -248,7 +248,7 @@ class ContentsTable implements TableConfigurator
                         }),
 
                     Select::make('parent_id')
-                        ->label(__('capell-admin::form.parent'))
+                        ->label(__('capell-layout::form.parent'))
                         ->allowHtml()
                         ->options(function (HasTable $livewire, Get $get) {
                             $siteId = static::getSiteId($livewire);
@@ -346,7 +346,7 @@ class ContentsTable implements TableConfigurator
                 }),
 
             SelectFilter::make('publish_status')
-                ->label(__('capell-admin::table.publish_status'))
+                ->label(__('capell-layout::table.publish_status'))
                 ->placeholder(__('capell-admin::generic.all'))
                 ->options([
                     'published' => __('capell-admin::generic.published'),

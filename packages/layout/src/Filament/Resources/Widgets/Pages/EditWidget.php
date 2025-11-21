@@ -56,7 +56,7 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
     public function getTitle(): string|Htmlable
     {
         return new HtmlString(
-            __('capell-admin::heading.edit_widget_record', [
+            __('capell-layout::heading.edit_widget_record', [
                 'name' => Str::limit($this->getRecordTitle(), 40),
             ]),
         );
@@ -69,7 +69,7 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
         $type = $this->record->type;
 
         if ($type) {
-            $subheading .= __('capell-admin::heading.widget_type', [
+            $subheading .= __('capell-layout::heading.widget_type', [
                 'type' => $type->name,
             ]);
         }

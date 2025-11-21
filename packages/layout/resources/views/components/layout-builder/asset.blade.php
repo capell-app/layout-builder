@@ -265,7 +265,7 @@ declare(strict_types=1);
                     tag="a"
                     :href="GetResourceFromTypeAction::run(ucfirst($widgetAsset->asset_type), $asset->type)::getUrl('edit', ['record' => $asset->getKey()])"
                 >
-                    {{ __('capell-admin::button.edit_asset_type', ['type' => $widgetAsset->asset_type]) }}
+                    {{ __('capell-layout::button.edit_asset_type', ['type' => $widgetAsset->asset_type]) }}
                 </x-filament::dropdown.list.item>
             </x-filament::dropdown.list>
         </x-filament::dropdown>
