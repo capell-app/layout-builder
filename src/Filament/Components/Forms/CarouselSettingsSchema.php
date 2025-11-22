@@ -14,20 +14,20 @@ class CarouselSettingsSchema
     {
         return [
             Checkbox::make('carousel_fade')
-                ->label(__('capell-admin::form.carousel_fade')),
+                ->label(__('capell-layout::form.carousel_fade')),
             Checkbox::make('carousel_arrows')
-                ->label(__('capell-admin::form.carousel_arrows')),
+                ->label(__('capell-layout::form.carousel_arrows')),
             Checkbox::make('carousel_pagination')
-                ->label(__('capell-admin::form.carousel_pagination')),
+                ->label(__('capell-layout::form.carousel_pagination')),
             Checkbox::make('carousel_loop')
-                ->label(__('capell-admin::form.carousel_loop')),
+                ->label(__('capell-layout::form.carousel_loop')),
             Checkbox::make('lightbox')
-                ->label(__('capell-admin::form.lightbox')),
+                ->label(__('capell-layout::form.lightbox')),
             Checkbox::make('carousel_auto')
-                ->label(__('capell-admin::form.carousel_auto'))
+                ->label(__('capell-layout::form.carousel_auto'))
                 ->reactive(),
             TextInput::make('carousel_auto_delay')
-                ->label(__('capell-admin::form.carousel_auto_delay'))
+                ->label(__('capell-layout::form.carousel_auto_delay'))
                 ->inlineLabel()
                 ->suffix(__('capell-admin::generic.milliseconds'))
                 ->default(5000)

@@ -44,7 +44,7 @@ class ContentForm implements FormConfigurator
 
                         $name = $type->admin['schema'] ?? DefaultContentSchema::getKey();
 
-                        return $component->getTypeSchema($schema, SchemaTypeEnum::Content->value, $name);
+                        return $component->getTypeSchema($schema, SchemaTypeEnum::Content, $name);
                     },
                 ),
         ];

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Resources\Contents\Schemas\Types;
 
+use Capell\Admin\Contracts\SchemaTypeEnumInterface;
 use Capell\Admin\Contracts\TypeSchemaInterface;
 use Capell\Admin\Filament\Components\Forms\CallToActionText;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
@@ -30,7 +31,7 @@ class DefaultContentSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    public static string $schemaType = SchemaTypeEnum::Content->value;
+    public static SchemaTypeEnumInterface $schemaType = SchemaTypeEnum::Content;
 
     public static function getExtenders(): iterable
     {

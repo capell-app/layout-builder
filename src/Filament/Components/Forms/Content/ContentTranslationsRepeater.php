@@ -8,10 +8,7 @@ use Capell\Admin\Filament\Components\Forms\ContentEditor;
 use Capell\Admin\Filament\Components\Forms\RepeaterTabs;
 use Capell\Admin\Filament\Components\Forms\TranslationLanguageSelect;
 use Capell\Admin\Filament\Components\Forms\TranslationsRepeater;
-use Capell\Admin\Filament\Components\Forms\TranslationTitle;
-use Capell\Core\Enums\ModelEnum;
-use Capell\Core\Facades\CapellCore;
-use Capell\Layout\Enums\TypeEnum;
+use Capell\Core\CapellCoreHelper;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
@@ -24,7 +21,6 @@ class ContentTranslationsRepeater
         array $components = [],
         bool $hasTitle = true,
         bool $hasContent = true,
-        bool $titleRequired = true,
     ): RepeaterTabs {
         $operation = $schema->getOperation();
 
@@ -34,7 +30,7 @@ class ContentTranslationsRepeater
                 fn (TranslationsRepeater $repeater): TranslationsRepeater => $repeater->withoutRelationship(),
             )
             ->schema([
-                ...($hasTitle ? self::getTitleSchema($titleRequired) : []),
+                ...($hasTitle ? self::getTitleSchema() : []),
                 ...($hasContent ? self::getContentSchema($schema) : []),
                 ...$components,
             ]);
@@ -42,31 +38,32 @@ class ContentTranslationsRepeater
 
     private static function getContentSchema(Schema $schema): array
     {
-        $type = $schema->getRecord()?->type ?? null;
+        $record = $schema->getRecord();
 
-        if (! $type && $typeId = $schema->getRawState()['type_id'] ?? null) {
-            $type = CapellCore::getModel(ModelEnum::Type)::query()
-                ->where('type', TypeEnum::Content)
-                ->whereKey($typeId)
-                ->first();
+        if ($record && $record->relationLoaded('type')) {
+            $type = $record->type;
+        } else {
+            $type = CapellCoreHelper::getType(
+                typeId: $schema->getRawState()['type_id'] ?? null,
+            );
         }
 
         return [
-            ContentEditor::make(editor: $type?->admin['content_editor'] ?? null),
+            ContentEditor::make(editor: $type?->admin['content_editor'] ?? null)
+                ->requiredBasedOnType(),
         ];
     }
 
-    private static function getTitleSchema(bool $titleRequired): array
+    private static function getTitleSchema(): array
     {
         return [
             Grid::make(3)
                 ->columnSpanFull()
                 ->schema([
-                    ...TranslationTitle::make(
-                        modifyTitle: fn (TextInput $component): TextInput => $component->required($titleRequired)
-                            ->columnSpan(fn (Get $get): int => $get('language_id') ? 3 : 2),
-                    ),
-
+                    TextInput::make('title')
+                        ->label(__('capell-admin::form.title'))
+                        ->columnSpan(fn (Get $get): int => $get('language_id') ? 3 : 2)
+                        ->requiredBasedOnType(),
                     TranslationLanguageSelect::make()
                         ->dehydratedWhenHidden()
                         ->hidden(fn (?int $state): bool => (bool) $state),

@@ -16,7 +16,7 @@ class RelatedRepeater
     public static function make(Schema $schema): Repeater
     {
         return Repeater::make('related')
-            ->label(__('capell-admin::form.related_contents'))
+            ->label(__('capell-layout::form.related_contents'))
             ->statePath('related')
             ->hiddenLabel()
             ->cloneable()

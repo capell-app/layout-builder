@@ -116,7 +116,7 @@ declare(strict_types=1);
             $widget = CapellLayout::getContainerWidget(
                 $containerKey,
                 $widgetData['widget_key'],
-                $widgetData['occurrence'] ?? 1
+                $widgetData['occurrence'] ?? 1,
             );
 
             if (! $widget) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Concerns;
 
+use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Enums\TypeGroupEnum;
 use Capell\Core\Facades\CapellCore;
@@ -33,9 +34,9 @@ trait HasAssetsRelationManager
     protected static function createResourcesAction(): Action
     {
         return CreateAction::make()
-            ->label(__('capell-admin::button.add_asset'))
+            ->label(__('capell-layout::button.add_asset'))
             ->color('primary')
-            ->successNotificationTitle(__('capell-admin::message.asset_added'))
+            ->successNotificationTitle(__('capell-layout::message.asset_added'))
             ->using(function (array $data, self $livewire): Model {
                 throw_if(empty($data['asset_id']), RuntimeException::class, 'No asset selected');
 
@@ -122,7 +123,7 @@ trait HasAssetsRelationManager
                 function (Select $select) use ($asset): Select {
                     $createOptionUsing = $select->getCreateOptionUsing();
 
-                    $adminAsset = CapellCore::getAsset($asset->name);
+                    $adminAsset = CapellAdmin::getAsset($asset->name);
 
                     return $select->createOptionForm(
                         fn (Schema $schema): Schema => $adminAsset->formClass::configure(
@@ -135,7 +136,7 @@ trait HasAssetsRelationManager
                                 : $component->evaluate($createOptionUsing);
 
                             Notification::make()
-                                ->title(__('capell-admin::message.asset_created_successfully', ['name' => $asset->name]))
+                                ->title(__('capell-layout::message.asset_created_successfully', ['name' => $asset->name]))
                                 ->body($page->name)
                                 ->send();
 

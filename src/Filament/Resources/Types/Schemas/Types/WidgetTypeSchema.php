@@ -8,6 +8,7 @@ use Capell\Admin\Filament\Components\Forms\AssetTypeSelect;
 use Capell\Admin\Filament\Components\Forms\ContentEditorSelect;
 use Capell\Admin\Filament\Components\Forms\CustomSelectGroup;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
+use Capell\Admin\Filament\Components\Forms\RequiredFields;
 use Capell\Admin\Filament\Components\Forms\SchemaSelect;
 use Capell\Admin\Filament\Resources\Types\Schemas\Types\DefaultTypeSchema;
 use Capell\Layout\Enums\SchemaTypeEnum;
@@ -28,14 +29,14 @@ class WidgetTypeSchema extends DefaultTypeSchema
     public function make(Schema $schema): array
     {
         return [
-            ...$this->getSettingsSchema($schema),
+            ...$this->settingsSchema($schema),
             Tabs::make()
                 ->columnSpanFull()
                 ->tabs([
-                    $this->getFrontendTab(),
-                    $this->getAdminTab(),
+                    $this->frontendTab(),
+                    $this->adminTab(),
                 ]),
-            ...$this->getStatusSchema(),
+            ...$this->statusSchema(),
         ];
     }
 
@@ -49,7 +50,7 @@ class WidgetTypeSchema extends DefaultTypeSchema
         );
     }
 
-    protected function getAdminTab(): Tab
+    protected function adminTab(): Tab
     {
         return Tab::make(__('capell-admin::generic.admin'))
             ->statePath('admin')
@@ -59,19 +60,17 @@ class WidgetTypeSchema extends DefaultTypeSchema
             ->schema([
                 SchemaSelect::make('schema')
                     ->default(fn (): string => WidgetSchemaEnum::Default->name)
-                    ->setupOptions(SchemaTypeEnum::Widget->value),
-
+                    ->setupOptions(SchemaTypeEnum::Widget),
                 IconPicker::make('icon')
                     ->label(__('capell-admin::form.admin_icon')),
-
                 AssetTypeSelect::make('asset_types')
                     ->multiple(),
-
                 ContentEditorSelect::make('content_editor'),
+                RequiredFields::make(),
             ]);
     }
 
-    protected function getFrontendTab(): Tab
+    protected function frontendTab(): Tab
     {
         return Tab::make(__('capell-admin::generic.frontend'))
             ->icon(Heroicon::OutlinedCog6Tooth)

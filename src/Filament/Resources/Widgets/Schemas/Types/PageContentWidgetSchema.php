@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Resources\Widgets\Schemas\Types;
 
+use Capell\Admin\Contracts\SchemaTypeEnumInterface;
 use Capell\Admin\Contracts\TypeSchemaInterface;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Concerns\HasTypeSchema;
@@ -27,7 +28,7 @@ class PageContentWidgetSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    public static string $schemaType = SchemaTypeEnum::Widget->value;
+    public static SchemaTypeEnumInterface $schemaType = SchemaTypeEnum::Widget;
 
     public static function getExtenders(): iterable
     {
@@ -55,7 +56,7 @@ class PageContentWidgetSchema implements TypeSchemaInterface
                                 ->statePath('meta')
                                 ->schema([
                                     CheckboxList::make('page_content')
-                                        ->label(__('capell-admin::form.page_content'))
+                                        ->label(__('capell-layout::form.page_content'))
                                         ->helperText(__('capell-admin::generic.widget_page_content_helper'))
                                         ->reactive()
                                         ->columns(3)

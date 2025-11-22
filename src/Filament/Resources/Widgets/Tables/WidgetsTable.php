@@ -172,16 +172,16 @@ class WidgetsTable implements TableConfigurator
                 })
                 ->toggleable(isToggledHiddenByDefault: true),
             TextColumn::make('widget_assets_count')
-                ->label(__('capell-admin::table.total_assets'))
+                ->label(__('capell-layout::table.total_assets'))
                 ->counts('widgetAssets')
                 ->sortable()
-                ->alignRight()
+                ->alignCenter()
                 ->numeric()
                 ->toggleable(),
             TextColumn::make('layouts_count')
-                ->label(__('capell-admin::table.total_layouts'))
+                ->label(__('capell-layout::table.total_layouts'))
                 ->sortable()
-                ->alignRight()
+                ->alignCenter()
                 ->numeric()
                 ->toggleable()
                 ->disabledClick()
@@ -207,7 +207,7 @@ class WidgetsTable implements TableConfigurator
     {
         return [
             SelectFilter::make('type_id')
-                ->label(__('capell-admin::form.widget_type'))
+                ->label(__('capell-layout::form.widget_type'))
                 ->relationship(
                     name: 'type',
                     titleAttribute: 'name',

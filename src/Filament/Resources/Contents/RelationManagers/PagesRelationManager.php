@@ -56,7 +56,7 @@ class PagesRelationManager extends AbstractPagesRelationManager
             ->modifyQueryUsing(
                 fn (Builder $query): Builder => $query->with([
                     'page' => [
-                        'ancestors',
+                        'ancestors.type',
                         'editor',
                         'image',
                         'type',

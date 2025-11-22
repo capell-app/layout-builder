@@ -206,7 +206,7 @@ declare(strict_types=1);
                                 icon="heroicon-c-plus-circle"
                                 :outlined="true"
                             >
-                                {{ __('capell-admin::button.assets') }}
+                                {{ __('capell-layout::button.assets') }}
                             </x-filament::link>
                         </x-slot>
                         @foreach ($assetTypes as $assetType)
@@ -262,7 +262,7 @@ declare(strict_types=1);
                                 target="_blank"
                                 tag="a"
                             >
-                                {{ __('capell-admin::button.open_edit_widget') }}
+                                {{ __('capell-layout::button.open_edit_widget') }}
                             </x-filament::dropdown.list.item>
                         </x-filament::dropdown.list>
                     </x-filament::dropdown>

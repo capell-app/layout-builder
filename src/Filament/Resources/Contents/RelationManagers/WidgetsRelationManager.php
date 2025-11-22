@@ -31,7 +31,7 @@ class WidgetsRelationManager extends RelationManager
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return __('capell-admin::tab.widgets');
+        return __('capell-layout::tab.widgets');
     }
 
     public function table(Table $table): Table

@@ -38,7 +38,7 @@ class WidgetDisplaySection
                         SpacingSelect::make('spacing'),
                         SizeSelect::make('size'),
                         Select::make('max_width')
-                            ->label(__('capell-admin::form.max_width'))
+                            ->label(__('capell-layout::form.max_width'))
                             ->placeholder(__('capell-admin::generic.none'))
                             ->options([
                                 'sm' => __('capell-admin::generic.sm'),

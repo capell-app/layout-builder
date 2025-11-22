@@ -13,21 +13,21 @@ class WidgetResultsSchema
     {
         return [
             Checkbox::make('with_author')
-                ->label(__('capell-admin::form.author')),
+                ->label(__('capell-layout::form.author')),
             Checkbox::make('with_children_count')
-                ->label(__('capell-admin::form.children_count')),
+                ->label(__('capell-layout::form.children_count')),
             Checkbox::make('with_image')
                 ->label(__('capell-admin::form.image')),
             Checkbox::make('with_date')
-                ->label(__('capell-admin::form.published_date')),
+                ->label(__('capell-layout::form.published_date')),
             Checkbox::make('with_summary')
                 ->label(__('capell-admin::form.summary')),
             Checkbox::make('with_link_text')
                 ->label(__('capell-admin::form.link_text')),
             Checkbox::make('with_parent')
-                ->label(__('capell-admin::form.parent_page')),
+                ->label(__('capell-layout::form.parent_page')),
             TextInput::make('columns')
-                ->label(__('capell-admin::form.columns'))
+                ->label(__('capell-layout::form.columns'))
                 ->numeric()
                 ->minValue(0)
                 ->maxValue(12),

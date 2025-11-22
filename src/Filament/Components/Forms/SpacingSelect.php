@@ -12,7 +12,7 @@ class SpacingSelect extends Select
     {
         parent::setUp();
 
-        $this->label(__('capell-admin::form.spacing'))
+        $this->label(__('capell-layout::form.spacing'))
             ->helperText(__('capell-admin::generic.spacing_help'))
             ->options([
                 'none' => __('capell-admin::generic.none'),

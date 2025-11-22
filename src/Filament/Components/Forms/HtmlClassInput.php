@@ -12,7 +12,7 @@ class HtmlClassInput extends TextInput
     {
         parent::setUp();
 
-        $this->label(__('capell-admin::form.html_class'))
+        $this->label(__('capell-layout::form.html_class'))
             ->validationAttribute(fn (TextInput $component): string => $component->getLabel())
             ->regex('/^[a-zA-Z0-9\_\-\s\:]+$/');
     }

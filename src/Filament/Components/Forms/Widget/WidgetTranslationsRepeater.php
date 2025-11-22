@@ -31,8 +31,8 @@ class WidgetTranslationsRepeater
                     ->schema([
                         TextInput::make('title')
                             ->label(__('capell-admin::form.title'))
-                            ->columnSpan(fn (Get $get): int => $get('language_id') ? 3 : 2),
-
+                            ->columnSpan(fn (Get $get): int => $get('language_id') ? 3 : 2)
+                            ->requiredBasedOnType(),
                         TranslationLanguageSelect::make()
                             ->dehydratedWhenHidden()
                             ->hidden(fn (?int $state): bool => (bool) $state),
@@ -40,7 +40,8 @@ class WidgetTranslationsRepeater
 
                 ContentEditor::make(
                     editor: $contentEditor ? ContentEditorEnum::tryFrom($contentEditor) : null,
-                ),
+                )
+                    ->requiredBasedOnType(),
 
                 ...$components,
             ]);

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Capell\Layout\Livewire\Assets\Table;
 
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Core\Enums\ModelEnum;
+use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\ResourceEnum;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
@@ -36,7 +36,7 @@ class ContentsTable extends AbstractAssetsTable
         if (isset($this->getTableFilterState('filter')['language_id'])) {
             $language_id = $this->getTableFilterState('filter')['language_id'];
         } else {
-            $language_id = CapellCore::getModel(ModelEnum::Language)::query()->default()->value('id');
+            $language_id = CapellCore::getModel(CoreModelEnum::Language)::query()->default()->value('id');
         }
 
         $query->with([
@@ -49,10 +49,10 @@ class ContentsTable extends AbstractAssetsTable
     protected function getTableQuery(): Builder
     {
         /* @var class-string<\Capell\Layout\Models\Content> $model */
-        $model = CapellCore::getModel(LayoutModelEnum::Content->name);
+        $model = CapellCore::getModel(ModelEnum::Content->name);
 
         return $model::with([
-            'ancestors',
+            'ancestors.type',
             'translations.language',
             'image',
             'type',

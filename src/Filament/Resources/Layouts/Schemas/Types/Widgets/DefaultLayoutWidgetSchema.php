@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Widgets;
 
+use Capell\Admin\Contracts\SchemaTypeEnumInterface;
 use Capell\Admin\Contracts\TypeSchemaInterface;
 use Capell\Admin\Filament\Concerns\HasTypeSchema;
 use Capell\Layout\Enums\SchemaExtenderEnum;
@@ -16,7 +17,7 @@ class DefaultLayoutWidgetSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    public static string $schemaType = SchemaTypeEnum::LayoutWidget->value;
+    public static SchemaTypeEnumInterface $schemaType = SchemaTypeEnum::LayoutWidget;
 
     public static function getExtenders(): iterable
     {
@@ -27,10 +28,10 @@ class DefaultLayoutWidgetSchema implements TypeSchemaInterface
     {
         return [
             Checkbox::make('show_page_title')
-                ->label(__('capell-admin::form.show_page_title'))
+                ->label(__('capell-layout::form.show_page_title'))
                 ->helperText(__('capell-admin::generic.show_page_title_info')),
             Checkbox::make('show_page_content')
-                ->label(__('capell-admin::form.show_page_content'))
+                ->label(__('capell-layout::form.show_page_content'))
                 ->helperText(__('capell-admin::generic.show_page_content_info')),
             HtmlClassInput::make('html_class'),
         ];

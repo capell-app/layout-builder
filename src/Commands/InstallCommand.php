@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Commands;
 
+use Capell\Admin\Actions\AssignPermissionsToRole;
 use Capell\Core\Actions\AddVendorAssetToThemeAction;
-use Capell\Core\Enums\ModelEnum;
+use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Theme;
 use Capell\Layout\Actions\InstallPackageAction;
 use Capell\Layout\CapellLayoutManager;
+use Capell\Layout\Enums\ResourceEnum;
+use Capell\Layout\LayoutModelRegistrar;
+use Filament\Facades\Filament;
 use Illuminate\Console\Command;
 
 class InstallCommand extends Command
@@ -21,6 +25,13 @@ class InstallCommand extends Command
     public function handle(): int
     {
         $this->info('Installing Capell Layout...');
+
+        LayoutModelRegistrar::register();
+
+        Filament::getDefaultPanel()
+            ->resources(array_map(fn (ResourceEnum $resourceEnum) => $resourceEnum->value, ResourceEnum::cases()));
+
+        AssignPermissionsToRole::run(resources: ResourceEnum::cases());
 
         $this->updateThemes();
 
@@ -49,7 +60,7 @@ class InstallCommand extends Command
         $path = 'vendor/capell-layout/frontend';
         $file = 'resources/js/capell-layout.js';
 
-        CapellCore::getModel(ModelEnum::Theme)::query()
+        CapellCore::getModel(CoreModelEnum::Theme)::query()
             ->lazy()
             ->each(fn (Theme $theme) => AddVendorAssetToThemeAction::run($theme, $path, $file));
     }

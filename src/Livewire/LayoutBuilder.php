@@ -11,13 +11,13 @@ use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Core\Actions\GetResourceFromTypeAction;
-use Capell\Core\Enums\ModelEnum;
+use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Enums\TypeGroupEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Layout\Enums\LayoutModelEnum;
+use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\SchemaTypeEnum;
 use Capell\Layout\Exceptions\MissingWidgetAssetException;
 use Capell\Layout\Filament\Components\Forms\LayoutBuilder\LayoutBuilderAddWidgetSchema;
@@ -158,7 +158,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
 
         if ($withNotifications) {
             Notification::make('layout-saved')
-                ->body(__('capell-admin::message.layout_saved'))
+                ->body(__('capell-layout::message.layout_saved'))
                 ->success()
                 ->send();
 
@@ -249,7 +249,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
     public function saveLayoutAction(): Action
     {
         return Action::make('saveLayout')
-            ->label(__('capell-admin::button.save_layout'))
+            ->label(__('capell-layout::button.save_layout'))
             ->color('primary')
             ->size(Size::Small)
             ->button()
@@ -263,11 +263,11 @@ class LayoutBuilder extends Component implements HasActions, HasForms
     public function duplicateLayoutAction(): Action
     {
         return Action::make('duplicateLayout')
-            ->label(__('capell-admin::button.copy_layout'))
+            ->label(__('capell-layout::button.copy_layout'))
             ->groupedIcon('heroicon-o-square-2-stack')
             ->modalWidth(Width::ScreenSmall)
             ->requiresConfirmation()
-            ->modalDescription(__('capell-admin::message.copy_layout_confirmation'))
+            ->modalDescription(__('capell-layout::message.copy_layout_confirmation'))
             ->visible(fn (): bool => $this->inPageContext())
             ->action(function (Action $action, self $livewire): void {
                 $livewire->duplicateLayout();
@@ -281,8 +281,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms
     public function addContainerAction(): Action
     {
         return Action::make('addContainer')
-            ->label(__('capell-admin::button.container'))
-            ->tooltip(__('capell-admin::button.add_container'))
+            ->label(__('capell-layout::button.container'))
+            ->tooltip(__('capell-layout::button.add_container'))
             ->icon('heroicon-m-plus')
             ->color('gray')
             ->outlined()
@@ -304,7 +304,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
     public function editContainerAction(): Action
     {
         return Action::make('editContainer')
-            ->label(__('capell-admin::button.edit_container'))
+            ->label(__('capell-layout::button.edit_container'))
             ->groupedIcon('heroicon-o-pencil')
             ->size(Size::Small)
             ->color('gray')
@@ -313,7 +313,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->modalWidth(Width::ScreenLarge)
             ->modalHeading(
                 fn (array $arguments): string|array|null => __(
-                    'capell-admin::heading.edit_container',
+                    'capell-layout::heading.edit_container',
                     ['key' => str($arguments['containerKey'])->title()],
                 ),
             )
@@ -336,7 +336,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
     public function removeContainerAction(): Action
     {
         return Action::make('removeContainer')
-            ->label(__('capell-admin::button.remove_container'))
+            ->label(__('capell-layout::button.remove_container'))
             ->groupedIcon('heroicon-m-trash')
             ->color('danger')
             ->size(Size::Small)
@@ -352,7 +352,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
     {
         return Action::make('editContainerWidget')
             ->label(__('capell-admin::button.edit'))
-            ->tooltip(__('capell-admin::button.edit_container_widget'))
+            ->tooltip(__('capell-layout::button.edit_container_widget'))
             ->groupedIcon('heroicon-o-cog-6-tooth')
             ->color('gray')
             ->grouped()
@@ -362,7 +362,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                     $arguments['widgetIndex'],
                 ),
             )
-            ->modalHeading(__('capell-admin::heading.container_widget_settings'))
+            ->modalHeading(__('capell-layout::heading.container_widget_settings'))
             ->modalSubmitActionLabel(fn (Action $action): string => $action->getLabel())
             ->modalDescription(
                 fn (array $arguments, self $livewire): string => __(
@@ -397,9 +397,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms
     public function addWidgetAction(): Action
     {
         return Action::make('addWidget')
-            ->label(__('capell-admin::button.widget'))
-            ->modalHeading(__('capell-admin::heading.add_widget_to_container'))
-            ->modalSubmitActionLabel(__('capell-admin::button.add_widget'))
+            ->label(__('capell-layout::button.widget'))
+            ->modalHeading(__('capell-layout::heading.add_widget_to_container'))
+            ->modalSubmitActionLabel(__('capell-layout::button.add_widget'))
             ->icon('heroicon-c-plus')
             ->size(Size::Small)
             ->modalWidth(Width::ExtraLarge)
@@ -416,7 +416,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                     ),
             )
             ->fillForm(function (self $livewire, array $arguments): array {
-                $model = CapellCore::getModel(LayoutModelEnum::Widget->name);
+                $model = CapellCore::getModel(ModelEnum::Widget->name);
 
                 return [
                     'container' => $arguments['containerKey'] ?? session('layout-builder.container'),
@@ -452,8 +452,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms
     public function editWidgetAction(): Action
     {
         return Action::make('editWidget')
-            ->label(__('capell-admin::button.edit_widget'))
-            ->tooltip(__('capell-admin::button.edit_widget'))
+            ->label(__('capell-layout::button.edit_widget'))
+            ->tooltip(__('capell-layout::button.edit_widget'))
             ->button()
             ->slideOver()
             ->closeModalByClickingAway(false)
@@ -471,12 +471,12 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->modalHeading(fn (Widget $record): string => $record->name)
             ->modalDescription(
                 fn (Widget $record): string => __(
-                    'capell-admin::heading.widget_type',
+                    'capell-layout::heading.widget_type',
                     ['type' => $record->type?->name],
                 ),
             )
-            ->modalSubmitActionLabel(__('capell-admin::button.save_changes'))
-            ->successNotificationTitle(__('capell-admin::message.widget_updated'))
+            ->modalSubmitActionLabel(__('capell-layout::button.save_changes'))
+            ->successNotificationTitle(__('capell-layout::message.widget_updated'))
             ->fillForm(fn (Widget $record): array => $record->attributesToArray())
             ->schema(
                 fn (Action $action, Schema $schema): Schema => WidgetForm::configure(
@@ -499,7 +499,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
     public function duplicateWidgetAction(): Action
     {
         return Action::make('duplicateWidget')
-            ->label(__('capell-admin::button.duplicate_widget'))
+            ->label(__('capell-layout::button.duplicate_widget'))
             ->grouped()
             ->groupedIcon('heroicon-o-square-2-stack')
             ->color('gray')
@@ -514,7 +514,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
     public function removeWidgetAction(): Action
     {
         return Action::make('removeWidget')
-            ->label(__('capell-admin::button.remove_widget'))
+            ->label(__('capell-layout::button.remove_widget'))
             ->grouped()
             ->groupedIcon('heroicon-m-trash')
             ->color('danger')
@@ -531,7 +531,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         return Action::make('selectAsset')
             ->label(
                 fn (array $arguments): string => __(
-                    'capell-admin::button.select_asset',
+                    'capell-layout::button.select_asset',
                     ['asset' => CapellCore::getAsset($arguments['type'])->getLabel()],
                 ),
             )
@@ -607,7 +607,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         return Action::make('addAsset')
             ->label(
                 fn (array $arguments): string => __(
-                    'capell-admin::button.add_new_asset',
+                    'capell-layout::button.add_new_asset',
                     ['asset' => CapellCore::getAsset($arguments['type'])->getLabel()],
                 ),
             )
@@ -631,18 +631,18 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             )
             ->modalSubmitActionLabel(
                 fn (array $arguments, Action $action): string => __(
-                    'capell-admin::button.create_widget_asset',
+                    'capell-layout::button.create_widget_asset',
                     ['type' => $arguments['type']],
                 ),
             )
-            ->successNotificationTitle(__('capell-admin::message.asset_added'))
+            ->successNotificationTitle(__('capell-layout::message.asset_added'))
             ->schema(
                 fn (array $arguments, Schema $schema): Schema => self::getWidgetAssetSchema(
                     $schema->operation('createOption')
                         ->record(fn (): WidgetAsset => $this->makeWidgetAssetRecordForCreate($arguments)),
                 ),
             )
-            ->model(fn (): string => CapellCore::getModel(LayoutModelEnum::WidgetAsset->name))
+            ->model(fn (): string => CapellCore::getModel(ModelEnum::WidgetAsset->name))
             ->fillForm(function (array $arguments): array {
                 $containerKey = $arguments['containerKey'];
                 $widgetIndex = $arguments['widgetIndex'];
@@ -678,7 +678,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->iconSize(IconSize::Small)
             ->tooltip(
                 fn (array $arguments): string => __(
-                    'capell-admin::button.edit_asset_type',
+                    'capell-layout::button.edit_asset_type',
                     ['type' => $arguments['type']],
                 ),
             )
@@ -689,8 +689,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->modalDescription(
                 fn (self $livewire, array $arguments): ?string => $this->getEditWidgetAssetModalDescription($livewire, $arguments),
             )
-            ->modalSubmitActionLabel(__('capell-admin::button.save_changes'))
-            ->successNotificationTitle(__('capell-admin::message.asset_updated'))
+            ->modalSubmitActionLabel(__('capell-layout::button.save_changes'))
+            ->successNotificationTitle(__('capell-layout::message.asset_updated'))
             ->schema(
                 fn (self $livewire, Schema $schema, array $arguments): Schema => self::getWidgetAssetSchema(
                     $schema->operation('editOption'),
@@ -733,7 +733,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
 
                 if ($selectedAssets === []) {
                     Notification::make('no-assets-selected')
-                        ->body(__('capell-admin::message.no_assets_selected'))
+                        ->body(__('capell-layout::message.no_assets_selected'))
                         ->warning()
                         ->send();
 
@@ -750,12 +750,12 @@ class LayoutBuilder extends Component implements HasActions, HasForms
     {
         return Action::make('changeLayout')
             ->label(__('capell-admin::button.change'))
-            ->tooltip(__('capell-admin::button.change_layout'))
+            ->tooltip(__('capell-layout::button.change_layout'))
             ->button()
             ->size(Size::ExtraSmall)
             ->icon('heroicon-o-cog-6-tooth')
             ->color('gray')
-            ->modalHeading(__('capell-admin::button.change_layout'))
+            ->modalHeading(__('capell-layout::button.change_layout'))
             ->modalWidth(Width::Small)
             ->visible(fn (): bool => $this->inPageContext())
             ->schema(
@@ -763,7 +763,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                     ->schema($livewire->getChangeLayoutSchema()),
             )
             ->fillForm(fn (self $livewire): array => ['layout_id' => $livewire->layout_id])
-            ->modalSubmitActionLabel(__('capell-admin::button.change_layout'))
+            ->modalSubmitActionLabel(__('capell-layout::button.change_layout'))
             ->action(function (self $livewire, Action $action, array $data): void {
                 $livewire->changePageLayout($data['layout_id']);
 
@@ -784,8 +784,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                     );
 
                     return $hasPageAssets
-                        ? __('capell-admin::button.convert_widget_assets')
-                        : __('capell-admin::button.convert_page_assets');
+                        ? __('capell-layout::button.convert_widget_assets')
+                        : __('capell-layout::button.convert_page_assets');
                 },
             )
             ->grouped()
@@ -1131,7 +1131,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         $widget = $this->getContainerWidget($containerKey, $widgetIndex);
 
         /** @var class-string<WidgetAsset> $model */
-        $model = CapellCore::getModel(LayoutModelEnum::WidgetAsset->name);
+        $model = CapellCore::getModel(ModelEnum::WidgetAsset->name);
 
         $record = $model::make([
             'widget_id' => $widget->id,
@@ -1181,10 +1181,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         $name = str($arguments['type'])->title();
 
         if ($livewire->inPageContext()) {
-            return __('capell-admin::heading.edit_page_widget_asset', ['name' => $name]);
+            return __('capell-layout::heading.edit_page_widget_asset', ['name' => $name]);
         }
 
-        return __('capell-admin::heading.edit_widget_asset', ['name' => $name]);
+        return __('capell-layout::heading.edit_widget_asset', ['name' => $name]);
     }
 
     /**
@@ -1202,7 +1202,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             return null;
         }
 
-        return __('capell-admin::heading.page_widget_asset', ['name' => $livewire->getLayoutPage()->name]);
+        return __('capell-layout::heading.page_widget_asset', ['name' => $livewire->getLayoutPage()->name]);
     }
 
     /**
@@ -1251,7 +1251,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                         )
                         ->all(),
                 )
-                ->default(fn () => CapellCore::getModel(ModelEnum::Layout)::default()->first(['id'])?->id)
+                ->default(fn () => CapellCore::getModel(CoreModelEnum::Layout)::default()->first(['id'])?->id)
                 ->reactive()
                 ->helperText(
                     function (?int $state): ?HtmlString {
@@ -1263,7 +1263,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
 
                         return new HtmlString(
                             trans_choice(
-                                'capell-admin::message.layout_count_on_pages',
+                                'capell-layout::message.layout_count_on_pages',
                                 $total,
                                 [
                                     'count' => $total,
@@ -1364,7 +1364,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         }
 
         /** @var class-string<Layout> $model */
-        $model = CapellCore::getModel(ModelEnum::Layout);
+        $model = CapellCore::getModel(CoreModelEnum::Layout);
 
         $layout = $model::withCount('pages')->find($this->layout_id);
 
@@ -1547,7 +1547,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         }
 
         /** @var class-string<Page> $model */
-        $model = CapellCore::getModel(ModelEnum::Page);
+        $model = CapellCore::getModel(CoreModelEnum::Page);
 
         $this->layoutPage = $model::withTrashed()->withDrafts()->find($this->page_id);
 
@@ -1569,7 +1569,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         }
 
         /** @var class-string<Site> $model */
-        $model = CapellCore::getModel(ModelEnum::Site);
+        $model = CapellCore::getModel(CoreModelEnum::Site);
 
         return $model::find($this->site_id);
     }
@@ -1769,7 +1769,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                             return;
                         }
 
-                        $fail(__('capell-admin::message.layout_container_key_not_unique', ['key' => $value]));
+                        $fail(__('capell-layout::message.layout_container_key_not_unique', ['key' => $value]));
                     },
                 ]),
             ...$typeSchema,
@@ -1840,7 +1840,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
     private function getWidgetQuery(bool $withRelations = true): Builder
     {
         /** @var class-string<Widget> $model */
-        $model = CapellCore::getModel(LayoutModelEnum::Widget->name);
+        $model = CapellCore::getModel(ModelEnum::Widget->name);
 
         return $model::query()
             ->when(
@@ -1886,7 +1886,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
     private function loadWidgetAssets(Widget $widget, string $containerKey, int $widgetOccurrence): Collection
     {
         /** @var class-string<WidgetAsset> $model */
-        $model = CapellCore::getModel(LayoutModelEnum::WidgetAsset->name);
+        $model = CapellCore::getModel(ModelEnum::WidgetAsset->name);
 
         $assets = $model::query()
             ->with([
@@ -2025,7 +2025,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
     private function buildPreloadedWidgetAssets(array $existingIds, array $newAssets): Collection
     {
         /** @var class-string<WidgetAsset> $model */
-        $model = CapellCore::getModel(LayoutModelEnum::WidgetAsset->name);
+        $model = CapellCore::getModel(ModelEnum::WidgetAsset->name);
 
         $existingAssets = $existingIds === []
             ? (new $model)->newCollection()
@@ -2043,13 +2043,13 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                     fn (BuilderContract $query) => $query->orderByRaw(
                         'CASE id '
                         . implode(' ', array_map(
-                            fn ($id, $pos): string => sprintf('WHEN %d THEN %d', (int) $id, (int) $pos),
+                            fn ($id, $pos): string => sprintf('WHEN %d THEN %d', (int) $id, $pos),
                             $existingIds,
                             array_keys($existingIds),
                         ))
                           . ' END',
                     ),
-                    fn (BuilderContract $query) => $query->orderByRaw('FIELD(id, ' . implode(',', array_map('intval', $existingIds)) . ')'),
+                    fn (BuilderContract $query) => $query->orderByRaw('FIELD(id, ' . implode(',', array_map(intval(...), $existingIds)) . ')'),
                 )
                 ->get();
 

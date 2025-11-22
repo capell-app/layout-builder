@@ -10,7 +10,7 @@ class SizeSelect extends Select
 {
     protected function setUp(): void
     {
-        $this->label(__('capell-admin::form.size'))
+        $this->label(__('capell-layout::form.size'))
             ->options([
                 'sm' => __('capell-admin::generic.small'),
                 'md' => __('capell-admin::generic.medium'),

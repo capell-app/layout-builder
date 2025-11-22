@@ -40,7 +40,7 @@ class WidgetForm implements FormConfigurator
                             $adminSchema = $type?->admin['schema'] ?? DefaultWidgetSchema::getKey();
                         }
 
-                        return $component->getTypeSchema($schema, SchemaTypeEnum::Widget->name, $adminSchema);
+                        return $component->getTypeSchema($schema, SchemaTypeEnum::Widget, $adminSchema);
                     },
                 ),
         ];

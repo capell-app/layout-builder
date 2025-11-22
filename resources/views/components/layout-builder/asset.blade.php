@@ -125,8 +125,9 @@ declare(strict_types=1);
             x-on:click.stop
             class="group/asset flex h-full w-12 cursor-pointer items-center justify-center"
         >
-            <x-capell-admin::forms.checkbox
-                class="group-hover/asset:border-primary-500 group/asset-focus:border-primary-500 ml-1 h-4 w-4 cursor-pointer border-gray-600"
+            <input
+                type="checkbox"
+                class="group-hover/asset:border-primary-500 group/asset-focus:border-primary-500 text-primary-600 focus:border-primary-500 focus:ring-primary-500 dark:checked:bg-primary-500 rounded border-gray-600 shadow-sm transition duration-75 focus:ring-2 disabled:opacity-70 dark:border-gray-400 dark:bg-gray-700 ml-1 h-4 w-4 cursor-pointer border-gray-600"
                 :label="__('tables::table.fields.bulk_select_asset.label', ['key' => $name])"
                 :value="$assetKey"
                 :wire:key="'selectedRecords' . $containerKey . '-' . $widgetIndex . '-' . $assetKey"
@@ -265,7 +266,7 @@ declare(strict_types=1);
                     tag="a"
                     :href="GetResourceFromTypeAction::run(ucfirst($widgetAsset->asset_type), $asset->type)::getUrl('edit', ['record' => $asset->getKey()])"
                 >
-                    {{ __('capell-admin::button.edit_asset_type', ['type' => $widgetAsset->asset_type]) }}
+                    {{ __('capell-layout::button.edit_asset_type', ['type' => $widgetAsset->asset_type]) }}
                 </x-filament::dropdown.list.item>
             </x-filament::dropdown.list>
         </x-filament::dropdown>

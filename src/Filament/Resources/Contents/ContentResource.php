@@ -11,9 +11,8 @@ use Capell\Admin\Filament\Concerns\HasTableConfigurator;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Core\Facades\CapellCore;
-use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Enums\ResourceEnum;
+use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Filament\Resources\Contents\Pages\CreateContent;
 use Capell\Layout\Filament\Resources\Contents\Pages\EditContent;
 use Capell\Layout\Filament\Resources\Contents\Pages\ListContents;
@@ -38,8 +37,6 @@ class ContentResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?int $navigationSort = 1;
-
     /** @var class-string<FormConfigurator> */
     protected static string $formConfigurator = ContentForm::class;
 
@@ -58,7 +55,7 @@ class ContentResource extends Resource
 
     public static function getResourceType(): string
     {
-        return ResourceEnum::Content->name;
+        return 'Contents';
     }
 
     public static function getEloquentQuery(): Builder
@@ -77,17 +74,17 @@ class ContentResource extends Resource
 
     public static function getModel(): string
     {
-        return CapellCore::getModel(LayoutModelEnum::Content->name);
+        return CapellCore::getModel(ModelEnum::Content->name);
     }
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_resources'));
+        return (string) (__('capell-admin::navigation.group_assets'));
     }
 
     public static function getNavigationLabel(): string
     {
-        return (string) (__('capell-admin::navigation.contents'));
+        return (string) (__('capell-layout::navigation.contents'));
     }
 
     public static function getPages(): array

@@ -9,7 +9,7 @@ use Capell\Admin\Services\Creator\DemoCreator as AdminDemoCreator;
 use Capell\Admin\Services\Creator\NavigationCreator;
 use Capell\Core\Enums\DefaultColorEnum;
 use Capell\Core\Enums\MediaCollectionEnum;
-use Capell\Core\Enums\ModelEnum;
+use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
 use Capell\Core\Models\Language;
@@ -19,8 +19,8 @@ use Capell\Core\Models\Type;
 use Capell\Layout\Enums\AssetEnum;
 use Capell\Layout\Enums\ContainerWidthEnum;
 use Capell\Layout\Enums\ContentTypeEnum;
-use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Filament\Resources\Contents\Schemas\Types\TestimonialContentSchema;
@@ -60,10 +60,10 @@ class DemoCreator
     public function __construct(
         protected readonly ?Model $user = null,
     ) {
-        $this->contentModel = CapellCore::getModel(LayoutModelEnum::Content->name);
-        $this->widgetModel = CapellCore::getModel(LayoutModelEnum::Widget->name);
-        $this->typeModel = CapellCore::getModel(ModelEnum::Type);
-        $this->pageModel = CapellCore::getModel(ModelEnum::Page);
+        $this->contentModel = CapellCore::getModel(ModelEnum::Content->name);
+        $this->widgetModel = CapellCore::getModel(ModelEnum::Widget->name);
+        $this->typeModel = CapellCore::getModel(CoreModelEnum::Type);
+        $this->pageModel = CapellCore::getModel(CoreModelEnum::Page);
     }
 
     public function createContentWidget(Collection $languages): Widget
@@ -230,7 +230,7 @@ class DemoCreator
         if (! $widget) {
             $widget = $this->widgetModel::create([
                 'key' => 'pages-card',
-                'name' => __('capell-admin::generic.pages_tile'),
+                'name' => __('capell-layout::generic.pages_tile'),
                 'type_id' => $this->typeModel::firstWhere('key', WidgetTypeEnum::Pages)->id,
                 'meta' => [
                     'component' => WidgetComponentEnum::LivewirePages,
@@ -301,7 +301,7 @@ class DemoCreator
 
         foreach ($languages as $language) {
             $widget->translations()->firstOrCreate(['language_id' => $language->id], [
-                'title' => __('capell-admin::heading.faq'),
+                'title' => __('capell-layout::heading.faq'),
                 'content' => '<p>You can find answers for commonly asked questions</p>',
             ]);
         }
@@ -412,7 +412,7 @@ class DemoCreator
     public function createStaticNavigationWidget(Collection $languages, Site $site): Widget
     {
         /** @var class-string<Models\Navigation> $model */
-        $model = CapellCore::getModel(ModelEnum::Navigation);
+        $model = CapellCore::getModel(CoreModelEnum::Navigation);
 
         // Create menu + items
         $name = 'Example Menu';

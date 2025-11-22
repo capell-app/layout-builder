@@ -30,7 +30,7 @@ class BackgroundSchema
                 ]),
 
             MediaLibraryFileUpload::make($backgroundName)
-                ->label(__('capell-admin::form.background_image'))
+                ->label(__('capell-layout::form.background_image'))
                 ->reactive()
                 ->columnSpan(['md' => 2])
                 ->when(
@@ -48,51 +48,51 @@ class BackgroundSchema
                 ->statePath('meta')
                 ->schema([
                     Select::make('background_size')
-                        ->label(__('capell-admin::form.background_size'))
+                        ->label(__('capell-layout::form.background_size'))
                         ->default('cover')
                         ->options([
-                            'cover' => __('capell-admin::form.background_cover'),
-                            'contain' => __('capell-admin::form.background_contain'),
+                            'cover' => __('capell-layout::form.background_cover'),
+                            'contain' => __('capell-layout::form.background_contain'),
                         ])
                         ->helperText(self::getHelperText(...)),
 
                     Select::make('background_position')
-                        ->label(__('capell-admin::form.background_position'))
+                        ->label(__('capell-layout::form.background_position'))
                         ->default('center')
                         ->helperText(self::getHelperText(...))
                         ->options([
-                            'center' => __('capell-admin::form.background_center'),
-                            'top' => __('capell-admin::form.background_top'),
-                            'right' => __('capell-admin::form.background_right'),
-                            'bottom' => __('capell-admin::form.background_bottom'),
-                            'left' => __('capell-admin::form.background_left'),
-                            'top right' => __('capell-admin::form.background_top_right'),
-                            'top left' => __('capell-admin::form.background_top_left'),
-                            'bottom right' => __('capell-admin::form.background_bottom_right'),
-                            'bottom left' => __('capell-admin::form.background_bottom_left'),
+                            'center' => __('capell-layout::form.background_center'),
+                            'top' => __('capell-layout::form.background_top'),
+                            'right' => __('capell-layout::form.background_right'),
+                            'bottom' => __('capell-layout::form.background_bottom'),
+                            'left' => __('capell-layout::form.background_left'),
+                            'top right' => __('capell-layout::form.background_top_right'),
+                            'top left' => __('capell-layout::form.background_top_left'),
+                            'bottom right' => __('capell-layout::form.background_bottom_right'),
+                            'bottom left' => __('capell-layout::form.background_bottom_left'),
                         ]),
 
                     Select::make('background_repeat')
-                        ->label(__('capell-admin::form.background_repeat'))
+                        ->label(__('capell-layout::form.background_repeat'))
                         ->default('no-repeat')
                         ->helperText(self::getHelperText(...))
                         ->options([
-                            'no-repeat' => __('capell-admin::form.repeat_once'),
-                            'repeat' => __('capell-admin::form.repeat_both'),
-                            'repeat-x' => __('capell-admin::form.repeat_vertical'),
-                            'repeat-y' => __('capell-admin::form.repeat_horizontal'),
+                            'no-repeat' => __('capell-layout::form.repeat_once'),
+                            'repeat' => __('capell-layout::form.repeat_both'),
+                            'repeat-x' => __('capell-layout::form.repeat_vertical'),
+                            'repeat-y' => __('capell-layout::form.repeat_horizontal'),
                         ]),
 
                     Select::make('background_attachment')
-                        ->label(__('capell-admin::form.background_attachment'))
+                        ->label(__('capell-layout::form.background_attachment'))
                         ->helperText(self::getHelperText(...))
                         ->options([
-                            'fixed' => __('capell-admin::form.background_fixed'),
-                            'scroll' => __('capell-admin::form.background_scroll'),
+                            'fixed' => __('capell-layout::form.background_fixed'),
+                            'scroll' => __('capell-layout::form.background_scroll'),
                         ]),
 
                     Checkbox::make('background_overlay')
-                        ->label(__('capell-admin::form.background_overlay'))
+                        ->label(__('capell-layout::form.background_overlay'))
                         ->helperText(__('capell-admin::generic.background_overlay_helper_text')),
                 ]),
         ];
@@ -112,6 +112,6 @@ class BackgroundSchema
             return null;
         }
 
-        return __('capell-admin::generic.default_value', ['value' => $backgroundColor]);
+        return __('capell-layout::generic.default_value', ['value' => $backgroundColor]);
     }
 }

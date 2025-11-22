@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Resources\Widgets\Schemas\Types;
 
+use Capell\Admin\Contracts\SchemaTypeEnumInterface;
 use Capell\Admin\Contracts\TypeSchemaInterface;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
@@ -30,7 +31,7 @@ class DefaultWidgetSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    public static string $schemaType = SchemaTypeEnum::Widget->value;
+    public static SchemaTypeEnumInterface $schemaType = SchemaTypeEnum::Widget;
 
     public static function getExtenders(): iterable
     {
@@ -123,12 +124,12 @@ class DefaultWidgetSchema implements TypeSchemaInterface
                     ->schema([
                         MediaLibraryFileUpload::make('image'),
                         Checkbox::make('reverse_order')
-                            ->label(__('capell-admin::form.reverse_order'))
+                            ->label(__('capell-layout::form.reverse_order'))
                             ->visibleJs(<<<'JS'
                                  $get('image')
                             JS),
                     ]),
-                Fieldset::make(__('capell-admin::form.actions'))
+                Fieldset::make(__('capell-layout::form.actions'))
                     ->schema([
                         ActionsRepeater::make('actions')
                             ->hiddenLabel(),

@@ -13,7 +13,7 @@ class ContainerWidthSelect extends Select
     {
         parent::setUp();
 
-        $this->label(__('capell-admin::form.container_width'))
+        $this->label(__('capell-layout::form.container_width'))
             ->helperText(__('capell-admin::generic.container_width_helper'))
             ->options(ContainerWidthEnum::class);
     }

@@ -8,7 +8,7 @@ use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 
-enum LayoutModelEnum: string
+enum ModelEnum: string
 {
     case Content = Content::class;
     case Widget = Widget::class;

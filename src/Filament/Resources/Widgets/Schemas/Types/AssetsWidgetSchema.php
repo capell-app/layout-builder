@@ -47,7 +47,7 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
                     $this->getAssetsTab($schema),
                     $this->getTranslationsTab($schema),
                     $this->getDisplayTab($schema),
-                    $this->getAdminTab($schema),
+                    $this->adminTab($schema),
                     $this->getSettingsTab($schema),
                 ]),
         ];
@@ -65,7 +65,7 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
                             $this->getAssetsTab($schema),
                             $this->getTranslationsTab($schema),
                             $this->getDisplayTab($schema),
-                            $this->getAdminTab($schema),
+                            $this->adminTab($schema),
                         ]),
                 ])
                 ->sidebarSchema(
@@ -102,7 +102,7 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
             ]);
     }
 
-    protected function getAdminTab(Schema $schema): Tab
+    protected function adminTab(Schema $schema): Tab
     {
         return WidgetAdminTab::make();
     }

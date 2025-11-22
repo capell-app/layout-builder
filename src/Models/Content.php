@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Models;
 
-use ArrayAccess;
 use Bkwld\Cloner\Cloneable;
 use Capell\Core\Contracts\PageCacheable;
 use Capell\Core\Enums\MediaCollectionEnum;
@@ -24,7 +23,6 @@ use Capell\Core\Models\Contracts\Draftable;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Core\Models\Tag;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\ContentFactory;
@@ -79,7 +77,6 @@ use Wildside\Userstamps\Userstamps;
  * @property-read \Kalnoy\Nestedset\Collection<int, Content> $revisions
  * @property-read int|null $revisions_count
  * @property-write mixed $parent_id
- * @property Collection<int, Tag> $tags
  * @property-read Site|null $site
  * @property-read int|null $tags_count
  * @property-read Translation|null $translation
@@ -143,11 +140,6 @@ use Wildside\Userstamps\Userstamps;
  * @method static QueryBuilder<static>|Content whereIsRoot()
  * @method static QueryBuilder<static>|Content whereNodeBetween($values, $boolean = 'and', $not = false, $query = null)
  * @method static QueryBuilder<static>|Content whereNotDescendantOf($id)
- * @method static QueryBuilder<static>|Content withAllTags(ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
- * @method static QueryBuilder<static>|Content withAllTagsOfAnyType($tags)
- * @method static QueryBuilder<static>|Content withAnyTags(ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
- * @method static QueryBuilder<static>|Content withAnyTagsOfAnyType($tags)
- * @method static QueryBuilder<static>|Content withAnyTagsOfType(array|string $type)
  * @method static QueryBuilder<static>|Content withDepth(string $as = 'depth')
  * @method static QueryBuilder<static>|Content withAssets(bool $withDrafts = true)
  * @method static Builder<static>|Content withTrashed()
@@ -155,7 +147,6 @@ use Wildside\Userstamps\Userstamps;
  * @method static QueryBuilder<static>|Content withoutCurrent()
  * @method static QueryBuilder<static>|Content withoutRoot()
  * @method static QueryBuilder<static>|Content withoutSelf()
- * @method static QueryBuilder<static>|Content withoutTags(ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
  * @method static Builder<static>|Content withoutTrashed()
  *
  * @property-read Page|null $linkedPage
@@ -245,7 +236,7 @@ class Content extends Model implements Draftable, HasMedia, PageCacheable
     public static function getMorphRelations(?Language $language = null): array
     {
         $base = [
-            'ancestors',
+            'ancestors.type',
             'image',
             'media',
             'linkedPage' => fn (BuilderContract $query) => $query->with([

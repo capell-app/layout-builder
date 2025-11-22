@@ -59,8 +59,8 @@ declare(strict_types=1);
                     <span
                         x-text="
                             ! isWidgetReorderingResources('{{ $containerKey }}', {{ $widgetIndex }})
-                                ? '{{ __('capell-admin::button.reorder') }}'
-                                : '{{ __('capell-admin::button.cancel_reorder') }}'
+                                ? '{{ __('capell-layout::button.reorder') }}'
+                                : '{{ __('capell-layout::button.cancel_reorder') }}'
                         "
                     ></span>
                 </x-filament::link>
@@ -115,7 +115,7 @@ declare(strict_types=1);
         <div
             class="py-3 text-center font-light tracking-tight text-gray-600 dark:text-gray-100"
         >
-            {{ $widget->page_assets_count ? __('capell-layout::message.widget_has_page_assets', ['total' => $widget->page_assets_count]) : __('capell-admin::message.widget_assets_empty') }}
+            {{ $widget->page_assets_count ? __('capell-layout::message.widget_has_page_assets', ['total' => $widget->page_assets_count]) : __('capell-layout::message.widget_assets_empty') }}
         </div>
     @endif
 </div>

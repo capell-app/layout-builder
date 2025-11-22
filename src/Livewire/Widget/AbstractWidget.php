@@ -6,6 +6,7 @@ namespace Capell\Layout\Livewire\Widget;
 
 use Capell\Core\Enums\AssetComponentEnum;
 use Capell\Frontend\Facades\FrontendLoader;
+use Capell\Layout\Helpers\CapellLayoutHelper;
 use Capell\Layout\Models\Widget;
 use Closure;
 use Illuminate\Contracts\View\View;
@@ -61,7 +62,7 @@ abstract class AbstractWidget extends Component
     #[Computed]
     public function widget(): Widget
     {
-        return once(fn () => Widget::query()->firstWhere('key', $this->widgetData['widget_key']));
+        return CapellLayoutHelper::getWidgetByKey($this->widgetData['widget_key']);
     }
 
     /**

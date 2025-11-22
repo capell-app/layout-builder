@@ -55,7 +55,7 @@ class EditContent extends EditRecord
 
         return new HtmlString(
             __(
-                'capell-admin::heading.edit_content_record',
+                'capell-layout::heading.edit_content_record',
                 ['name' => Str::limit($this->getRecordTitle(), 40)],
             ),
         );
@@ -69,7 +69,7 @@ class EditContent extends EditRecord
             return null;
         }
 
-        return __('capell-admin::heading.content_type', [
+        return __('capell-layout::heading.content_type', [
             'type' => $type->name,
         ]);
     }

@@ -62,6 +62,10 @@ class DemoCommand extends Command
 
         $user = $this->option('author') ? CapellCore::getModel('User')::first() : null;
 
+        if (! $user && auth()->check()) {
+            $user = auth()->user();
+        }
+
         $this->demoCreator = new DemoCreator(user: $user);
 
         $data = config('capell-demo.pages');

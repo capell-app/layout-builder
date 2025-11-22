@@ -19,14 +19,14 @@ use Capell\Admin\Filament\Components\Tables\Columns\SiteColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\TypeColumn;
 use Capell\Admin\Filament\Components\Tables\Filters\StatusFilter;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
-use Capell\Core\Enums\ModelEnum;
+use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Layout\Actions\ReplicateContentAction;
-use Capell\Layout\Enums\LayoutModelEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Filament\Components\Tables\Columns\Content\ContentNameColumn;
 use Capell\Layout\Models\Content;
 use Filament\Actions\ActionGroup;
@@ -57,7 +57,7 @@ class ContentsTable implements TableConfigurator
             ->modifyQueryUsing(
                 fn (Builder $query): Builder => $query
                     ->with([
-                        'ancestors',
+                        'ancestors.type',
                         'creator',
                         'editor',
                         'image',
@@ -135,8 +135,8 @@ class ContentsTable implements TableConfigurator
                 ->toggleable(isToggledHiddenByDefault: true),
             TypeColumn::make('type.name'),
             TextColumn::make('children_count')
-                ->label(__('capell-admin::table.children'))
-                ->alignRight()
+                ->label(__('capell-layout::table.children'))
+                ->alignCenter()
                 ->numeric()
                 ->sortable()
                 ->toggleable()
@@ -159,8 +159,8 @@ class ContentsTable implements TableConfigurator
                 ->collection('image')
                 ->toggleable(),
             BadgeableColumn::make('assets_count')
-                ->label(__('capell-admin::table.assets'))
-                ->alignRight()
+                ->label(__('capell-layout::table.assets'))
+                ->alignCenter()
                 ->numeric()
                 ->sortable()
                 ->toggleable()
@@ -173,10 +173,10 @@ class ContentsTable implements TableConfigurator
                 ),
             PublishIconColumn::make('status'),
             DateColumn::make('publish_from')
-                ->label(__('capell-admin::table.publish_from'))
+                ->label(__('capell-layout::table.publish_from'))
                 ->toggleable(isToggledHiddenByDefault: true),
             DateColumn::make('publish_to')
-                ->label(__('capell-admin::table.publish_to'))
+                ->label(__('capell-layout::table.publish_to'))
                 ->toggleable(isToggledHiddenByDefault: true),
             DateColumn::make('created_at'),
             DateColumn::make('updated_at'),
@@ -191,12 +191,12 @@ class ContentsTable implements TableConfigurator
                 ->label(__('capell-admin::form.site'))
                 ->options(function (): array {
                     /** @var class-string<Site> $model */
-                    $model = CapellCore::getModel(ModelEnum::Site);
+                    $model = CapellCore::getModel(CoreModelEnum::Site);
 
                     return $model::query()
                         ->ordered()
                         ->pluck('name', 'id')
-                        ->prepend(__('capell-admin::form.none'), 0)
+                        ->prepend(__('capell-layout::form.none'), 0)
                         ->toArray();
                 })
                 ->modifyQueryUsing(
@@ -233,7 +233,7 @@ class ContentsTable implements TableConfigurator
                             $siteId = static::getSiteId($livewire);
 
                             /* @var class-string<\Capell\Core\Models\Language> $model */
-                            $model = CapellCore::getModel(ModelEnum::Language);
+                            $model = CapellCore::getModel(CoreModelEnum::Language);
 
                             return $model::when(
                                 $siteId,
@@ -248,13 +248,13 @@ class ContentsTable implements TableConfigurator
                         }),
 
                     Select::make('parent_id')
-                        ->label(__('capell-admin::form.parent'))
+                        ->label(__('capell-layout::form.parent'))
                         ->allowHtml()
                         ->options(function (HasTable $livewire, Get $get) {
                             $siteId = static::getSiteId($livewire);
 
                             /** @var class-string<Content> $model */
-                            $model = CapellCore::getModel(LayoutModelEnum::Content->name);
+                            $model = CapellCore::getModel(ModelEnum::Content->name);
 
                             $contents = $model::with([
                                 'site',
@@ -318,7 +318,7 @@ class ContentsTable implements TableConfigurator
 
                     if (! empty($data['language_id'])) {
                         /** @var class-string<Language> $model */
-                        $model = CapellCore::getModel(ModelEnum::Language);
+                        $model = CapellCore::getModel(CoreModelEnum::Language);
 
                         $indicators['language_id'] = __(
                             'capell-admin::filter.language',
@@ -328,7 +328,7 @@ class ContentsTable implements TableConfigurator
 
                     if (! empty($data['parent_id'])) {
                         /** @var class-string<Content> $model */
-                        $model = CapellCore::getModel(LayoutModelEnum::Content->name);
+                        $model = CapellCore::getModel(ModelEnum::Content->name);
 
                         $indicators['parent_id'] = __(
                             'capell-admin::filter.parent',
@@ -346,7 +346,7 @@ class ContentsTable implements TableConfigurator
                 }),
 
             SelectFilter::make('publish_status')
-                ->label(__('capell-admin::table.publish_status'))
+                ->label(__('capell-layout::table.publish_status'))
                 ->placeholder(__('capell-admin::generic.all'))
                 ->options([
                     'published' => __('capell-admin::generic.published'),

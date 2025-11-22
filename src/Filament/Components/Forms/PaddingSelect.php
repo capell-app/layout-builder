@@ -12,10 +12,10 @@ class PaddingSelect extends Select
     {
         parent::setUp();
 
-        $this->label(__('capell-admin::form.padding'))
+        $this->label(__('capell-layout::form.padding'))
             ->multiple()
             ->options([
-                '' => __('capell-admin::form.none'),
+                '' => __('capell-layout::form.none'),
                 'sm' => __('capell-admin::generic.small'),
                 't-sm' => __('capell-admin::generic.small_top'),
                 'b-sm' => __('capell-admin::generic.small_bottom'),

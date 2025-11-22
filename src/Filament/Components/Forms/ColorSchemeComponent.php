@@ -10,13 +10,13 @@ class ColorSchemeComponent extends ToggleButtons
 {
     protected function setUp(): void
     {
-        $this->label(__('capell-admin::form.color_scheme'))
+        $this->label(__('capell-layout::form.color_scheme'))
             ->inline()
             ->grouped()
             ->options([
-                '' => __('capell-admin::generic.auto'),
-                'light' => __('capell-admin::generic.light'),
-                'dark' => __('capell-admin::generic.dark'),
+                '' => __('capell-layout::generic.auto'),
+                'light' => __('capell-layout::generic.light'),
+                'dark' => __('capell-layout::generic.dark'),
             ]);
     }
 }
