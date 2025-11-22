@@ -8,6 +8,7 @@
 .phpunit.result.cache
 /build
 Thumbs.db
+composer.lock
 composer.local.*
 coverage
 docs
@@ -18,4 +19,3 @@ ray.php
 /storage
 _ide-helper.php
 _ide_helper.php
-composer.lock
