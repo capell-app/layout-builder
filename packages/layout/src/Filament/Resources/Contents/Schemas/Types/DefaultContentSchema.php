@@ -54,12 +54,12 @@ class DefaultContentSchema implements TypeSchemaInterface
             MediaLibraryFileUpload::make('image'),
             CustomColorInput::make(
                 name: 'color',
-                label: __('capell-layout::form.color'),
+                label: __('capell-admin::form.color'),
             ),
             Group::make()
                 ->schema([
                     PageSelect::make('page_id')
-                        ->label(__('capell-layout::form.related_page')),
+                        ->label(__('capell-admin::form.related_page')),
                     CallToActionText::make('link_text')
                         ->hiddenJs(<<<'JS'
                              ! $get('page_id')

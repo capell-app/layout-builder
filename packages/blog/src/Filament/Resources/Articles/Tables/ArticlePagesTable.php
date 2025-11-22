@@ -35,7 +35,7 @@ class ArticlePagesTable implements TableConfigurator
     protected static function mutateBaseFilters(array $filters): array
     {
         $filters[] = SelectFilter::make('tags')
-            ->label(__('capell-layout::form.tags'))
+            ->label(__('capell-blog::form.tags'))
             ->searchable()
             ->preload()
             ->relationship(

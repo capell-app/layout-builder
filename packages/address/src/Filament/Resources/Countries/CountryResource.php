@@ -65,7 +65,7 @@ class CountryResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return (string) (__('capell-layout::navigation.countries'));
+        return (string) (__('capell-address::navigation.countries'));
     }
 
     public static function getNavigationGroup(): ?string

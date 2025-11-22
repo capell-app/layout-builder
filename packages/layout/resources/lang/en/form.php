@@ -3,11 +3,6 @@
 declare(strict_types=1);
 
 return [
-    'none' => 'None',
-    'parent' => 'Parent',
-    'color' => 'Color',
-    'related_page' => 'Related Page',
-    'colspan' => 'Colspan',
     'column_start' => 'Column Start',
     'override_columns' => 'Override Columns',
     'show_page_title' => 'Show Page Title',
@@ -60,7 +55,6 @@ return [
     'background_fixed' => 'Fixed',
     'background_scroll' => 'Scroll',
     'background_overlay' => 'Background Overlay',
-    'tags' => 'Tags',
     'slug' => 'Slug',
     'featured' => 'Featured',
     'next_prev' => 'Next/Previous',

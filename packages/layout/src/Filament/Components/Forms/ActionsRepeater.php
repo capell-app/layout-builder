@@ -95,7 +95,7 @@ class ActionsRepeater extends Repeater
                         IconPicker::make('icon')
                             ->label(__('capell-admin::form.icon')),
                         Select::make('color')
-                            ->label(__('capell-layout::form.color'))
+                            ->label(__('capell-admin::form.color'))
                             ->options([
                                 'primary' => __('capell-admin::generic.primary'),
                                 'secondary' => __('capell-admin::generic.secondary'),
