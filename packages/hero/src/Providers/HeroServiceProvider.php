@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Hero;
+namespace Capell\Hero\Providers;
 
 use Capell\Admin\AdminServiceProvider;
 use Capell\Admin\Facades\CapellAdmin;
@@ -16,7 +16,6 @@ use Capell\Hero\Enums\WidgetComponentEnum;
 use Capell\Hero\Enums\WidgetSchemaEnum;
 use Capell\Hero\Filament\Extenders\Page\HeroPageSchemaExtender;
 use Capell\Layout\Enums\ComponentTypeEnum;
-use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\SchemaTypeEnum;
 use Capell\Layout\LayoutServiceProvider;
 use Composer\InstalledVersions;

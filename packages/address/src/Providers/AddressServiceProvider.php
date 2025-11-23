@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Capell\Address;
+namespace Capell\Address\Providers;
 
+use Capell\Address\AddressModelRegistrar;
 use Capell\Address\Commands\DemoCommand;
 use Capell\Address\Commands\InstallCommand;
 use Capell\Address\Enums\ResourceEnum;

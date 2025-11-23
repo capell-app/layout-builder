@@ -2,15 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Capell\Blog;
+namespace Capell\Blog\Providers;
 
 use Capell\Admin\AdminServiceProvider;
 use Capell\Admin\Enums\ResourceEnum as AdminResourceEnum;
 use Capell\Admin\Enums\SchemaTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Blog\BlogModelRegistrar;
 use Capell\Blog\Commands\CreateBlogPagesCommand;
-use Capell\Blog\Commands\DemoCommand; // new dedicated command
-use Capell\Blog\Commands\InstallCommand; // retained
+use Capell\Blog\Commands\DemoCommand;
+use Capell\Blog\Commands\InstallCommand;
 use Capell\Blog\Enums\ResourceEnum;
 use Capell\Blog\Enums\WidgetComponentEnum;
 use Capell\Blog\Enums\WidgetSchemaEnum;
@@ -42,6 +43,9 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\View;
 use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
+
+// new dedicated command
+// retained
 
 class BlogServiceProvider extends AbstractPackageServiceProvider
 {

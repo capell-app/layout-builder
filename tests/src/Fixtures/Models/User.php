@@ -6,7 +6,6 @@ namespace Capell\Tests\Fixtures\Models;
 
 use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Capell\Core\Database\Factories\UserFactory;
-use Capell\Core\Models\Concerns\InteractsWithMedia;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
@@ -18,10 +17,9 @@ use Illuminate\Notifications\Notifiable;
 use Rappasoft\LaravelAuthenticationLog\Traits\AuthenticationLoggable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\MediaLibrary\HasMedia;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Model implements AuthenticatableContract, AuthorizableContract, FilamentUser, HasMedia
+class User extends Model implements AuthenticatableContract, AuthorizableContract, FilamentUser
 {
     use Authenticatable;
     use AuthenticationLoggable;
@@ -32,7 +30,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
     use HasPanelShield;
     use HasRoles;
-    use InteractsWithMedia;
     use LogsActivity;
     use Notifiable;
 
@@ -46,16 +43,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'email',
         'password',
         'bio',
-        'profile_image_id',
         'avatar',
     ];
-
-    /**
-     * The guard name for the model.
-     *
-     * @var array
-     */
-    protected string $guard_name = 'web';
 
     /**
      * The attributes that should be hidden for serialization.

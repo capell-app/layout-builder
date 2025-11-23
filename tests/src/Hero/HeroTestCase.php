@@ -6,7 +6,7 @@ namespace Capell\Tests\Hero;
 
 use Capell\Admin\AdminServiceProvider;
 use Capell\Core\Facades\CapellCore;
-use Capell\Hero\HeroServiceProvider;
+use Capell\Hero\Providers\HeroServiceProvider;
 use Capell\Layout\LayoutServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Capell\Tests\Fixtures\Support\Filament\AdminPanelProvider;

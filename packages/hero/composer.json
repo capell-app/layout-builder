@@ -30,7 +30,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Capell\\Hero\\HeroServiceProvider"
+                "Capell\\Hero\\Providers\\HeroServiceProvider"
             ]
         }
     },
