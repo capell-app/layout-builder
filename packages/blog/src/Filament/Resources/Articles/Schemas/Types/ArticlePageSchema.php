@@ -99,8 +99,7 @@ class ArticlePageSchema extends DefaultPageSchema
             PageSiteSelect::make(),
             $this->getParentPageSelect($schema),
             LayoutSelect::make('layout_id')
-                ->reactive()
-                ->withEditLink(),
+                ->reactive(),
             PublishSchema::make($schema),
         ];
     }

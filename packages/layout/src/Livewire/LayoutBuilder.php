@@ -196,7 +196,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         $this->layoutUpdated();
     }
 
-    #[On('add-assets-to-widget')]
+    #[On('sync-selected-assets')]
     public function addAssetsToWidget(array $arguments, string $type, array $assets): void
     {
         if (! isset($this->layoutRecord)) {
@@ -438,7 +438,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
 
                 return new HtmlString(Blade::render(
                     <<<'blade'
-                       @livewire('capell.layout.livewire.widgets-table-select', [
+                       @livewire('capell.layout.livewire.layout.widget-table-select', [
                            'actionModalId' => $actionModalId,
                            'containerKey' => $containerKey,
                            'containers' => $containers,
@@ -554,6 +554,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->icon('heroicon-c-magnifying-glass')
             ->iconSize(IconSize::Small)
             ->size(Size::Small)
+            ->extraModalWindowAttributes([
+                'class' => 'capell-layout-builder-assets-table',
+            ])
             ->modalWidth(Width::SixExtraLarge)
             ->modalHeading(function (self $livewire, array $arguments): string {
                 $totalAssets = $livewire->countWidgetAssets($arguments['containerKey'], $arguments['widgetIndex']);
@@ -574,44 +577,39 @@ class LayoutBuilder extends Component implements HasActions, HasForms
 
                 $componentName = 'capell.layout.livewire.assets.table.' . $arguments['type'];
 
-                $totalAssets = $livewire->countWidgetAssets($arguments['containerKey'], $arguments['widgetIndex']);
-
-                if ($totalAssets) {
-                    $hasPageAssets = $livewire->hasPageAssets($arguments['containerKey'], $arguments['widgetIndex']);
-                } else {
-                    $hasPageAssets = (bool) $livewire->page_id;
-                }
-
                 $existingRecords = $livewire->getWidgetAssetsByType(
                     $arguments['containerKey'],
                     $arguments['widgetIndex'],
                     $arguments['type'],
                 );
 
-                return new HtmlString(Blade::render(<<<'blade'
-                <livewire:is
-                    :$actionModalId
-                    :component="$componentName"
-                    :$arguments
-                    :$existingRecords
-                 />
-            blade, [
-                    'actionModalId' => sprintf('fi-%s-action-%s', $livewire->getId(), $action->getNestingIndex()),
-                    'componentName' => $componentName,
-                    'arguments' => [
-                        'containerKey' => $arguments['containerKey'],
-                        'widgetIndex' => $arguments['widgetIndex'],
-                        'pageId' => $livewire->page_id,
-                        'siteId' => $livewire->site_id,
+                return new HtmlString(Blade::render(
+                    <<<'blade'
+                       @livewire($componentName, [
+                           'actionModalId' => $actionModalId,
+                           'tableArguments' => $arguments,
+                           'existingRecords' => $existingRecords,
+                       ], key($actionModalId))
+                   blade,
+                    [
+                        'actionModalId' => sprintf('fi-%s-action-%s', $livewire->getId(), $action->getNestingIndex()),
+                        'arguments' => [
+                            'containerKey' => $arguments['containerKey'],
+                            'widgetIndex' => $arguments['widgetIndex'],
+                            'pageId' => $livewire->page_id,
+                            'siteId' => $livewire->site_id,
+                        ],
+                        'componentName' => $componentName,
+                        'existingRecords' => $existingRecords,
                     ],
-                    'existingRecords' => $existingRecords,
-                    'hasPageAssets' => $hasPageAssets,
-                ]));
+                ));
             })
+            ->formWrapper(false)
             ->closeModalByClickingAway(false)
-            ->submit(null)
             ->modalSubmitAction(false)
-            ->modalCancelAction(false);
+            ->modalCancelAction(false)
+            ->action(null)
+            ->submit(null);
     }
 
     public function addAssetAction(): Action

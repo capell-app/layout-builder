@@ -117,7 +117,7 @@ test('Can sync new widget assets to page layout', function (): void {
     ])
         ->assertSuccessful()
         ->call(
-            'syncSelectedAssets',
+            'addAssetsToWidget',
             arguments: [
                 'containerKey' => $containerKey,
                 'widgetIndex' => 0,
@@ -127,7 +127,7 @@ test('Can sync new widget assets to page layout', function (): void {
             assets: $contents->map(fn (Content $record): string => (string) $record->id)->all(),
         )
         ->call(
-            'syncSelectedAssets',
+            'addAssetsToWidget',
             arguments: [
                 'containerKey' => $containerKey,
                 'widgetIndex' => 0,
@@ -182,7 +182,7 @@ test('Can sync new widget assets to layout', function (): void {
     ])
         ->assertSuccessful()
         ->call(
-            'syncSelectedAssets',
+            'addAssetsToWidget',
             arguments: [
                 'containerKey' => $containerKey,
                 'widgetIndex' => $widgetIndex,
@@ -192,7 +192,7 @@ test('Can sync new widget assets to layout', function (): void {
             assets: $contents->map(fn (Content $record): string => (string) $record->id)->all(),
         )
         ->call(
-            'syncSelectedAssets',
+            'addAssetsToWidget',
             arguments: [
                 'containerKey' => $containerKey,
                 'widgetIndex' => $widgetIndex,
@@ -236,7 +236,7 @@ test('Can sync new page assets', function (): void {
     ])
         ->assertSuccessful()
         ->call(
-            'syncSelectedAssets',
+            'addAssetsToWidget',
             arguments: [
                 'containerKey' => $containerKey,
                 'widgetIndex' => $widgetIndex,
@@ -246,7 +246,7 @@ test('Can sync new page assets', function (): void {
             assets: $contents->map(fn (Content $record): string => (string) $record->id)->all(),
         )
         ->call(
-            'syncSelectedAssets',
+            'addAssetsToWidget',
             arguments: [
                 'containerKey' => $containerKey,
                 'widgetIndex' => $widgetIndex,

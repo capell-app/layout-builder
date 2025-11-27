@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Tests\Packages;
 
-use Capell\Address\AddressServiceProvider;
-use Capell\Admin\AdminServiceProvider;
-use Capell\Blog\BlogServiceProvider;
-use Capell\Layout\LayoutServiceProvider;
+use Capell\Address\Providers\AddressServiceProvider;
+use Capell\Admin\Providers\AdminServiceProvider;
+use Capell\Blog\Providers\BlogServiceProvider;
+use Capell\Layout\Providers\LayoutServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Capell\Tests\Fixtures\Support\Filament\AdminPanelProvider;
 

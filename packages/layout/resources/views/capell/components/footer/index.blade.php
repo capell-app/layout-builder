@@ -16,45 +16,45 @@ $page = FrontendLoader::getPage();
 ])
 @php
     $getMenu = function (string $key) use ($site, $language) {
-            $menu = Loader\NavigationLoader::getNavigation($key, $site, $language);
-            if (! $menu) {
-                $menu = Loader\NavigationLoader::getNavigation($key, $site);
-            }
-
-            $items = [];
-
-            if ($menu) {
-                $navigationLoader = new Loader\NavigationItemsLoader(
-                    navigation: $menu,
-                    site: $site,
-                    language: $language,
-                    siteDomain: $site->siteDomain,
-                );
-
-                $items = $navigationLoader->fetchMenuItems();
-
-                if ($items) {
-                    $navigationLoader->activeMenuItems($items);
+                $menu = Loader\NavigationLoader::getNavigation($key, $site, $language);
+                if (! $menu) {
+                    $menu = Loader\NavigationLoader::getNavigation($key, $site);
                 }
-            }
 
-            return [$menu, $items];
-        };
+                $items = [];
 
-        [$footerMenu, $footerMenuItems] = $getMenu(NavigationHandle::Footer->value);
-        [$subFooterMenu, $subFooterMenuItems] = $getMenu(NavigationHandle::SubFooter->value);
+                if ($menu) {
+                    $navigationLoader = new Loader\NavigationItemsLoader(
+                        navigation: $menu,
+                        site: $site,
+                        language: $language,
+                        siteDomain: $site->siteDomain,
+                    );
 
-        $contactPage = Page::getFirstPageByTypeForSite('contact', $site, $language);
+                    $items = $navigationLoader->fetchMenuItems();
 
-        $siteLanguages = Loader\SiteLoader::pageLanguages($site, $language, $page);
+                    if ($items) {
+                        $navigationLoader->activeMenuItems($items);
+                    }
+                }
 
-        $pages = Loader\PageLoader::getPages(
-            $site,
-            $language,
-            limit: 3,
-            withImage: true,
-            pageGroup: CapellCore::hasPackage('capell-app/blog') ? 'blog' : '',
-        );
+                return [$menu, $items];
+            };
+
+            [$footerMenu, $footerMenuItems] = $getMenu(NavigationHandle::Footer->value);
+            [$subFooterMenu, $subFooterMenuItems] = $getMenu(NavigationHandle::SubFooter->value);
+
+            $contactPage = Page::getFirstPageByTypeForSite('contact', $site, $language);
+
+            $siteLanguages = Loader\SiteLoader::pageLanguages($site, $language, $page);
+
+            $pages = Loader\PageLoader::getPages(
+                $site,
+                $language,
+                limit: 3,
+                withImage: true,
+                pageGroup: CapellCore::hasPackage('capell-app/blog') ? 'blog' : '',
+            );
 @endphp
 
 <style>

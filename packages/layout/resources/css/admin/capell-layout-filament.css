@@ -10,7 +10,7 @@
 
     .fi-modal-footer {
         container-type: scroll-state;
-        transition: box-shadow .3s ease;
+        transition: box-shadow 0.3s ease;
     }
 
     @container scroll-state(stuck: bottom) {

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Tests\Address;
 
-use Capell\Address\AddressServiceProvider;
-use Capell\Admin\AdminServiceProvider;
+use Capell\Address\Providers\AddressServiceProvider;
+use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Tests\AbstractTestCase;
 use Capell\Tests\Fixtures\Support\Filament\AdminPanelProvider;

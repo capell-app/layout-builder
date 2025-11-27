@@ -76,12 +76,8 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             return;
         }
 
-        // Skip boot-time registration chain when running unit tests.
-        if (! $this->app->runningUnitTests()) {
-            $this->registerAll();
-        }
-
-        $this->registerPublishCommands()
+        $this->registerAll()
+            ->registerPublishCommands()
             ->registerLivewireComponents()
             ->registerBladeComponents();
     }
@@ -103,12 +99,8 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
     {
         parent::registeringPackage();
 
-        $this->registerPackageMetadata();
-
-        // During unit tests we need the registration chain earlier.
-        if ($this->app->runningUnitTests()) {
-            $this->registerAll();
-        }
+        $this->registerPackageMetadata()
+            ->registerResources();
     }
 
     protected function getPublishedDirectory(): string
@@ -134,7 +126,6 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             ->registerSchemas()
             ->registerManager()
             ->registerFilamentServing()
-            ->registerResources()
             ->registerTypes()
             ->registerComponents()
             ->registerAssets()

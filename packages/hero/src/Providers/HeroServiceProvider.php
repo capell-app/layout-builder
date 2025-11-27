@@ -36,10 +36,7 @@ class HeroServiceProvider extends AbstractPackageServiceProvider
             return;
         }
 
-        // Skip boot-time registration chain when running unit tests; it will be executed earlier in registeringPackage().
-        if (! $this->app->runningUnitTests()) {
-            $this->registerAll();
-        }
+        $this->registerAll();
     }
 
     public function configurePackage(Package $package): void
@@ -58,11 +55,6 @@ class HeroServiceProvider extends AbstractPackageServiceProvider
         parent::registeringPackage();
 
         $this->registerPackageMetadata();
-
-        // During unit tests we need the registration chain earlier so the environment is fully prepared.
-        if ($this->app->runningUnitTests()) {
-            $this->registerAll();
-        }
     }
 
     private function isPackageInstalled(): bool

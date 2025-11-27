@@ -13,9 +13,9 @@ use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use BladeUI\Icons\BladeIconsServiceProvider;
 use Camya\Filament\FilamentTitleWithSlugServiceProvider;
 use Capell\Core\CapellCoreManager;
-use Capell\Core\CapellServiceProvider;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\PageTranslation;
+use Capell\Core\Providers\CapellServiceProvider;
 use Capell\Tests\Fixtures\Models\User;
 use Capell\Tests\Fixtures\Policies\RolePolicy;
 use CodeWithDennis\FilamentSelectTree\FilamentSelectTreeServiceProvider;
@@ -55,6 +55,8 @@ use Silber\PageCache\LaravelServiceProvider;
 use Spatie\LaravelData\LaravelDataServiceProvider;
 use Spatie\LaravelRay\RayServiceProvider;
 use Spatie\LaravelSettings\LaravelSettingsServiceProvider;
+use Spatie\LaravelSettings\Migrations\SettingsMigration;
+use Spatie\LaravelSettings\Migrations\SettingsMigrator;
 use Spatie\MediaLibrary\MediaLibraryServiceProvider;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionServiceProvider;
@@ -287,6 +289,21 @@ abstract class AbstractTestCase extends TestCase
         });
 
         $page->refresh();
+    }
+
+    protected function registerAndMigrateSettings(array $migrations, string $basePath): void
+    {
+        $migrator = app(SettingsMigrator::class);
+        foreach ($migrations as $migrationFile) {
+            $path = sprintf('%s/%s.php', $basePath, $migrationFile);
+            /** @var SettingsMigration $migration */
+            $migration = require $path;
+            if (method_exists($migration, 'setMigrator')) {
+                $migration->setMigrator($migrator);
+            }
+
+            $migration->up();
+        }
     }
 
     private function getPackageFile(array $package): string

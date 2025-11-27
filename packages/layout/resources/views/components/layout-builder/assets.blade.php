@@ -31,6 +31,7 @@ declare(strict_types=1);
     >
         <span
             @class([
+            'text-xs font-medium',
             'text-warning-600 dark:text-warning-400' => $hasPageAssets,
             'text-gray-500 dark:text-gray-400' => ! $hasPageAssets,
             ])

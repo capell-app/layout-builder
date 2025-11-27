@@ -61,12 +61,8 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             return;
         }
 
-        // Skip boot-time registration chain when running unit tests.
-        if (! $this->app->runningUnitTests()) {
-            $this->registerAll();
-        }
-
-        $this->registerPublishCommands();
+        $this->registerAll()
+            ->registerPublishCommands();
     }
 
     public function configurePackage(Package $package): void
@@ -87,12 +83,8 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
     {
         parent::registeringPackage();
 
-        $this->registerPackageMetadata();
-
-        // During unit tests we need the registration chain earlier.
-        if ($this->app->runningUnitTests()) {
-            $this->registerAll();
-        }
+        $this->registerPackageMetadata()
+            ->registerResources();
     }
 
     private function isPackageInstalled(): bool
@@ -111,7 +103,6 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             ->registerAboutCommand()
             ->registerNavigationListener()
             ->registerRelationships()
-            ->registerAdminResources()
             ->registerWidgetComponents()
             ->registerSchemas()
             ->registerSitemapPages()
@@ -268,7 +259,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
         return $this;
     }
 
-    private function registerAdminResources(): self
+    private function registerResources(): self
     {
         CapellAdmin::registerResource(
             AdminResourceEnum::Page,

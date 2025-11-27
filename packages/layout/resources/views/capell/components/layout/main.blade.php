@@ -14,48 +14,49 @@
     >
         @php
             $previousColspan = null;
-                        $slotRendered = false;
+                                    $slotRendered = false;
         @endphp
 
-        @foreach (array) $layout->containers as $containerKey => $container)
+        @foreach (array)
+            $layout->containers as $containerKey => $container)
             @php
                 $widgets = collect($container['widgets'])
-                                    ->map(
-                                        fn ($widgetData): ?Widget => $layout->layoutWidgets->firstWhere(
-                                            'key',
-                                            $widgetData['widget_key'],
-                                        ),
-                                    )
-                                    ->filter();
+                                                    ->map(
+                                                        fn ($widgetData): ?Widget => $layout->layoutWidgets->firstWhere(
+                                                            'key',
+                                                            $widgetData['widget_key'],
+                                                        ),
+                                                    )
+                                                    ->filter();
 
-                                if ($widgets->isEmpty()) {
-                                    continue;
-                                }
+                                                if ($widgets->isEmpty()) {
+                                                    continue;
+                                                }
 
-                                if (! $slotRendered) {
-                                    $hasSlotWidget = $widgets->contains(
-                                        fn (Widget $widget) => isset($widget->meta['type']) &&
-                                            $widget->meta['type'] === Widget::COMPONENT_SLOT,
-                                    );
+                                                if (! $slotRendered) {
+                                                    $hasSlotWidget = $widgets->contains(
+                                                        fn (Widget $widget) => isset($widget->meta['type']) &&
+                                                            $widget->meta['type'] === Widget::COMPONENT_SLOT,
+                                                    );
 
-                                    if ($hasSlotWidget) {
-                                        $slotRendered = true;
-                                    }
-                                }
+                                                    if ($hasSlotWidget) {
+                                                        $slotRendered = true;
+                                                    }
+                                                }
 
-                                $colspan = (int) ($container['meta']['colspan'] ?? 12);
+                                                $colspan = (int) ($container['meta']['colspan'] ?? 12);
 
-                                $columnStart = (int) ($container['meta']['column_start'] ?? 0);
+                                                $columnStart = (int) ($container['meta']['column_start'] ?? 0);
 
-                                $htmlClass = $container['meta']['html_class'] ?? '';
+                                                $htmlClass = $container['meta']['html_class'] ?? '';
 
-                                if ($containerClass) {
-                                    if (is_string($containerClass)) {
-                                        $htmlClass .= ' ' . $containerClass;
-                                    } elseif (! empty($containerClass[$containerKey])) {
-                                        $htmlClass .= ' ' . $containerClass[$containerKey];
-                                    }
-                                }
+                                                if ($containerClass) {
+                                                    if (is_string($containerClass)) {
+                                                        $htmlClass .= ' ' . $containerClass;
+                                                    } elseif (! empty($containerClass[$containerKey])) {
+                                                        $htmlClass .= ' ' . $containerClass[$containerKey];
+                                                    }
+                                                }
             @endphp
 
             <x-capell::layout.container
@@ -72,10 +73,10 @@
 
             @php
                 $previousColspan += $colspan;
-                                if ($columnStart) {
-                                    $previousColspan += $columnStart - 1;
-                                }
-                                $previousColspan = $previousColspan >= 12 ? 0 : $previousColspan;
+                                                if ($columnStart) {
+                                                    $previousColspan += $columnStart - 1;
+                                                }
+                                                $previousColspan = $previousColspan >= 12 ? 0 : $previousColspan;
             @endphp
         @endforeach
 

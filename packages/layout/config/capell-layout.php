@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use Capell\Layout\Filament\Resources\Pages\RelationManagers\ContentsRelationManager;
 use Capell\Layout\Filament\Resources\Widgets\RelationManagers\WidgetAssetsRelationManager;
-use Capell\Layout\Livewire\Assets\Table\ContentsTable;
-use Capell\Layout\Livewire\Assets\Table\PagesTable;
+use Capell\Layout\Livewire\Assets\Table\ContentAssetsTable;
+use Capell\Layout\Livewire\Assets\Table\PageAssetsTable;
+use Capell\Layout\Livewire\Layout\WidgetTableSelect;
 use Capell\Layout\Livewire\LayoutBuilder;
 use Capell\Layout\Livewire\Widget\PagesWidget;
-use Capell\Layout\Livewire\WidgetsTableSelect;
 use Capell\Layout\Models\Content;
 use Capell\Layout\View\Components\Widget\Pages\ChildrenWidget;
 use Capell\Layout\View\Components\Widget\Pages\LatestWidget;
@@ -26,9 +26,9 @@ return [
         'capell.layout.livewire.layout-builder' => LayoutBuilder::class,
         'capell.layout.filament.resources.page-resource.relation-managers.contents-relation-manager' => ContentsRelationManager::class,
         'capell.layout.filament.resources.widget-resource.relation-managers.widget-assets-relation-manager' => WidgetAssetsRelationManager::class,
-        'capell.layout.livewire.widgets-table-select' => WidgetsTableSelect::class,
-        'capell.layout.livewire.assets.table.page' => PagesTable::class,
-        'capell.layout.livewire.assets.table.content' => ContentsTable::class,
+        'capell.layout.livewire.layout.widget-table-select' => WidgetTableSelect::class,
+        'capell.layout.livewire.assets.table.page' => PageAssetsTable::class,
+        'capell.layout.livewire.assets.table.content' => ContentAssetsTable::class,
         'capell.layout.livewire.widget.pages' => PagesWidget::class,
     ],
     'blade_components' => [

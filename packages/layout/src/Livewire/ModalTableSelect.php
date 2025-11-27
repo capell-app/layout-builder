@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Livewire;
 
-use Capell\Core\Facades\CapellCore;
-use Capell\Layout\Enums\ModelEnum;
-use Capell\Layout\Filament\Resources\Widgets\Tables\WidgetsTable;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Schemas\Schema;
@@ -21,15 +17,13 @@ use Filament\Tables\Table;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Modelable;
 use Livewire\Component;
 use Livewire\WithoutUrlPagination;
 use LogicException;
 
-class WidgetsTableSelect extends Component implements HasActions, HasForms, HasTable
+class ModalTableSelect extends Component implements HasActions, HasForms, HasTable
 {
     use InteractsWithActions;
     use InteractsWithForms;
@@ -46,46 +40,18 @@ class WidgetsTableSelect extends Component implements HasActions, HasForms, HasT
     public ?int $maxSelectableRecords = null;
 
     #[Locked]
-    public ?string $model = null;
+    public string $tableConfiguration;
 
-    #[Locked]
-    public ?Model $record = null;
-
-    #[Locked]
-    public ?string $relationshipName = null;
-
-    #[Locked]
-    public string $tableConfiguration = WidgetsTable::class;
-
-    /**
-     * @var array<mixed>
-     */
     #[Locked]
     public array $tableArguments = [];
 
-    /**
-     * @var string | array<string> | null
-     */
     #[Modelable]
     public string|array|null $selectedRecords = null;
 
-    /**
-     * @var array<string, mixed> | null
-     */
     public ?array $data = [];
 
-    /**
-     * Flexible provider for table records.
-     * If set, this will be used instead of relationship.
-     *
-     * @var (Closure(Table): Builder)|Builder|null
-     */
     #[Locked]
     public $tableQuery;
-
-    public ?Collection $containers = null;
-
-    public ?string $containerKey = null;
 
     public function mount(): void
     {
@@ -102,16 +68,16 @@ class WidgetsTableSelect extends Component implements HasActions, HasForms, HasT
         throw_unless(
             class_exists($tableConfiguration),
             LogicException::class,
-            sprintf('Table configuration class [%s] does not exist.', $tableConfiguration))
-        ;
+            sprintf('Table configuration class [%s] does not exist.', $tableConfiguration),
+        );
 
         throw_unless(
             method_exists($tableConfiguration, 'configure'),
             LogicException::class,
             sprintf(
                 'Table configuration class [%s] does not have a [configure(Table $table): Table] method.',
-                $tableConfiguration
-            )
+                $tableConfiguration,
+            ),
         );
 
         $tableConfiguration::configure($table);
@@ -142,18 +108,7 @@ class WidgetsTableSelect extends Component implements HasActions, HasForms, HasT
     public function form(Schema $schema): Schema
     {
         return $schema
-            ->statePath('data')
-            ->fill([
-                'container' => $this->containerKey ?? session('layout-builder.container'),
-            ])
-            ->components([
-                Select::make('container')
-                    ->label(__('capell-admin::form.container'))
-                    ->hiddenLabel()
-                    ->prefix(fn (Select $component): string => $component->getLabel() . ': ')
-                    ->required()
-                    ->options($this->containers),
-            ]);
+            ->statePath('data');
     }
 
     /**
@@ -164,23 +119,22 @@ class WidgetsTableSelect extends Component implements HasActions, HasForms, HasT
         return $this->tableArguments;
     }
 
+    /**
+     * Default action handler. Subclasses may override.
+     */
     public function selectRecords(): void
     {
-        $this->dispatch(
-            'add-widgets-to-container',
-            containerKey: $this->data['container'] ?? null,
-            widgets: $this->selectedRecords,
-        );
+    }
 
-        $this->resetPage();
-
-        $this->dispatch('close-modal', id: $this->actionModalId);
+    public function getSelectRecordsLabel(): string
+    {
+        return __('capell-layout::button.select_records');
     }
 
     public function selectRecordsAction(): Action
     {
         return Action::make('selectRecords')
-            ->label(__('capell-layout::button.add_widgets_container'))
+            ->label($this->getSelectRecordsLabel())
             ->button()
             ->color('primary')
             ->submit('selectRecords');
@@ -191,14 +145,28 @@ class WidgetsTableSelect extends Component implements HasActions, HasForms, HasT
         return view('capell-layout::livewire.widgets-table-select');
     }
 
+    public function getFilteredTableQuery(): Builder
+    {
+        return $this->getTableQuery();
+    }
+
+    /**
+     * Provide a default query resolution using the configurable $tableQuery.
+     */
     protected function getTableQuery(): Builder
     {
-        /* @var class-string<\Capell\Layout\Models\Widget> $model */
-        $model = CapellCore::getModel(ModelEnum::Widget->name);
+        if ($this->tableQuery instanceof Builder) {
+            return $this->tableQuery;
+        }
 
-        return $model::with([
-            'translations.language',
-            'type',
-        ]);
+        if (is_callable($this->tableQuery)) {
+            $builder = ($this->tableQuery)();
+
+            throw_unless($builder instanceof Builder, LogicException::class, 'Configured tableQuery callable must return an instance of Illuminate\\Database\\Eloquent\\Builder.');
+
+            return $builder;
+        }
+
+        throw new LogicException('No table query configured. Set $tableQuery to a Builder or a callable returning a Builder, or override getTableQuery().');
     }
 }
