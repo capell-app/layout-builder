@@ -20,7 +20,7 @@ beforeEach(function (): void {
 test('can render page', function (): void {
     $site = Site::factory()->create();
 
-    $blogCreator = app(BlogCreator::class);
+    $blogCreator = resolve(BlogCreator::class);
     $tagsPage = $blogCreator->createTagsPage($site, $site->languages);
     $blogCreator->createTagPage($site, $tagsPage, $site->languages);
 

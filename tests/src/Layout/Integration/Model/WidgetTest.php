@@ -45,7 +45,7 @@ it('can scope sorted', function (): void {
     Widget::factory()->create(['name' => 'A', 'order' => 1]);
     Widget::factory()->create(['name' => 'C', 'order' => 3]);
 
-    $result = Widget::ordered()->pluck('name')->toArray();
+    $result = Widget::query()->ordered()->pluck('name')->toArray();
 
     expect($result)->toBe(['A', 'B', 'C']);
 });

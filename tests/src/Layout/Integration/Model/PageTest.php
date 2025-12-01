@@ -5,7 +5,6 @@ declare(strict_types=1);
 // tests/Integration/Models/SiteTest.php
 
 use Capell\Core\Models\Page;
-use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;

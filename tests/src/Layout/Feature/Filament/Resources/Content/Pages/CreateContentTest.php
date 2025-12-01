@@ -113,7 +113,7 @@ test('create with translations', function (string $mode): void {
         fn (Language $language) => assertDatabaseHas(Translation::class, [
             'language_id' => $language->getKey(),
             'title' => $newData->name . ' - ' . $language->name,
-            'content' => $newData->name . ' - ' . $language->name,
+            'content' => '<p>' . $newData->name . ' - ' . $language->name . '</p>',
             'translatable_type' => 'content',
         ]),
     );

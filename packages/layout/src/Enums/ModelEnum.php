@@ -11,6 +11,8 @@ use Capell\Layout\Models\WidgetAsset;
 enum ModelEnum: string
 {
     case Content = Content::class;
+
     case Widget = Widget::class;
+
     case WidgetAsset = WidgetAsset::class;
 }

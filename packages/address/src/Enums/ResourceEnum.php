@@ -10,5 +10,6 @@ use Capell\Address\Filament\Resources\Countries\CountryResource;
 enum ResourceEnum: string
 {
     case Address = AddressResource::class;
+
     case Country = CountryResource::class;
 }

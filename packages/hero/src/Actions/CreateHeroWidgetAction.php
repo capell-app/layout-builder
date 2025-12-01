@@ -38,7 +38,7 @@ class CreateHeroWidgetAction
             'name' => 'Assets Widget',
         ]);
 
-        return $widgetModel::firstOrCreate([
+        return $widgetModel::query()->firstOrCreate([
             'key' => 'hero',
         ], [
             'name' => __('capell-hero::generic.hero'),

@@ -2,15 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Capell\Blog;
+namespace Capell\Blog\Providers;
 
-use Capell\Admin\AdminServiceProvider;
 use Capell\Admin\Enums\ResourceEnum as AdminResourceEnum;
 use Capell\Admin\Enums\SchemaTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Providers\AdminServiceProvider;
+use Capell\Blog\BlogModelRegistrar;
 use Capell\Blog\Commands\CreateBlogPagesCommand;
-use Capell\Blog\Commands\DemoCommand; // new dedicated command
-use Capell\Blog\Commands\InstallCommand; // retained
+use Capell\Blog\Commands\DemoCommand;
+use Capell\Blog\Commands\InstallCommand;
 use Capell\Blog\Enums\ResourceEnum;
 use Capell\Blog\Enums\WidgetComponentEnum;
 use Capell\Blog\Enums\WidgetSchemaEnum;
@@ -28,7 +29,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Core\Packages\AbstractPackageServiceProvider;
-use Capell\Frontend\FrontendServiceProvider;
+use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\Layout\Enums\ComponentTypeEnum;
 use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\SchemaTypeEnum as LayoutSchemaEnum;
@@ -42,6 +43,9 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\View;
 use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
+
+// new dedicated command
+// retained
 
 class BlogServiceProvider extends AbstractPackageServiceProvider
 {
@@ -57,12 +61,8 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             return;
         }
 
-        // Skip boot-time registration chain when running unit tests.
-        if (! $this->app->runningUnitTests()) {
-            $this->registerAll();
-        }
-
-        $this->registerPublishCommands();
+        $this->registerAll()
+            ->registerPublishCommands();
     }
 
     public function configurePackage(Package $package): void
@@ -83,12 +83,8 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
     {
         parent::registeringPackage();
 
-        $this->registerPackageMetadata();
-
-        // During unit tests we need the registration chain earlier.
-        if ($this->app->runningUnitTests()) {
-            $this->registerAll();
-        }
+        $this->registerPackageMetadata()
+            ->registerResources();
     }
 
     private function isPackageInstalled(): bool
@@ -107,7 +103,6 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             ->registerAboutCommand()
             ->registerNavigationListener()
             ->registerRelationships()
-            ->registerAdminResources()
             ->registerWidgetComponents()
             ->registerSchemas()
             ->registerSitemapPages()
@@ -239,9 +234,9 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             fn (Page $model): MorphToMany => $model->morphToMany(
                 Tag::class,
                 'taggable',
-                'taggables'
+                'taggables',
             )
-                ->ordered()
+                ->ordered(),
         );
 
         Site::resolveRelationUsing(
@@ -264,7 +259,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
         return $this;
     }
 
-    private function registerAdminResources(): self
+    private function registerResources(): self
     {
         CapellAdmin::registerResource(
             AdminResourceEnum::Page,

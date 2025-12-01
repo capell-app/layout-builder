@@ -21,11 +21,13 @@ class WidgetSettingsSchema
         return [
             NameInput::make('name')
                 ->required()
-                ->afterStateUpdatedJs(
-                    fn (NameInput $component, string $operation): string => in_array($operation, ['create', 'createOption'], true)
-                        ? SlugGenerator::slugifyState("\$state ?? ''", 'key')
-                        : '',
-                ),
+                ->afterStateUpdatedJs(function (string $operation): string {
+                    if (! in_array($operation, ['create', 'createOption', 'replicate'], true)) {
+                        return '';
+                    }
+
+                    return SlugGenerator::slugifyState("\$state ?? ''", 'key');
+                }),
 
             TextInput::make('key')
                 ->label(__('capell-admin::form.key'))

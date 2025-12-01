@@ -36,13 +36,13 @@ class WidgetCreator
 
     public function createWidgets(Collection $languages): void
     {
-        $contentsWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget]);
-        $mediaWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Media, 'type' => LayoutTypeEnum::Widget]);
-        $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Navigation, 'type' => LayoutTypeEnum::Widget]);
-        $pageContentWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::PageContents, 'type' => LayoutTypeEnum::Widget]);
-        $pageResultsWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::PageResults, 'type' => LayoutTypeEnum::Widget]);
-        $pagesWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Pages, 'type' => LayoutTypeEnum::Widget]);
-        $systemWidgetType = $this->typeModel::firstWhere(['key' => WidgetTypeEnum::System, 'type' => LayoutTypeEnum::Widget]);
+        $contentsWidgetType = $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget]);
+        $mediaWidgetType = $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Media, 'type' => LayoutTypeEnum::Widget]);
+        $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Navigation, 'type' => LayoutTypeEnum::Widget]);
+        $pageContentWidgetType = $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::PageContents, 'type' => LayoutTypeEnum::Widget]);
+        $pageResultsWidgetType = $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::PageResults, 'type' => LayoutTypeEnum::Widget]);
+        $pagesWidgetType = $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Pages, 'type' => LayoutTypeEnum::Widget]);
+        $systemWidgetType = $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::System, 'type' => LayoutTypeEnum::Widget]);
 
         $this->breadcrumbWidget($systemWidgetType);
         $this->childrenWidget($pageResultsWidgetType, $languages);
@@ -58,7 +58,7 @@ class WidgetCreator
 
     private function breadcrumbWidget(Type $systemWidgetType): void
     {
-        $this->widgetModel::firstOrCreate([
+        $this->widgetModel::query()->firstOrCreate([
             'key' => 'breadcrumbs',
         ], [
             'name' => __('capell-admin::generic.breadcrumbs'),
@@ -71,7 +71,7 @@ class WidgetCreator
 
     private function childrenWidget(Type $pageResultsWidgetType, Collection $languages): void
     {
-        $widget = $this->widgetModel::firstOrCreate([
+        $widget = $this->widgetModel::query()->firstOrCreate([
             'key' => 'children',
         ], [
             'name' => __('capell-admin::generic.page_children'),
@@ -99,7 +99,7 @@ class WidgetCreator
 
     private function contentsWidgets(Type $contentsWidgetType): void
     {
-        $this->widgetModel::firstOrCreate([
+        $this->widgetModel::query()->firstOrCreate([
             'key' => 'contents-assets',
         ], [
             'name' => __('capell-admin::generic.contents'),
@@ -120,7 +120,7 @@ class WidgetCreator
 
     private function galleryWidget(Type $mediaWidgetType, Collection $languages): void
     {
-        $widget = $this->widgetModel::firstOrCreate([
+        $widget = $this->widgetModel::query()->firstOrCreate([
             'key' => 'gallery',
         ], [
             'name' => __('capell-admin::generic.gallery'),
@@ -144,7 +144,7 @@ class WidgetCreator
 
     private function latestPagesWidget(Type $pageResultsWidgetType, Collection $languages): void
     {
-        $widget = $this->widgetModel::firstOrCreate([
+        $widget = $this->widgetModel::query()->firstOrCreate([
             'key' => 'latest-pages',
         ], [
             'name' => __('capell-admin::generic.latest_pages'),
@@ -175,7 +175,7 @@ class WidgetCreator
 
     private function mediaCarouselWidget(Type $mediaWidgetType): void
     {
-        $this->widgetModel::firstOrCreate([
+        $this->widgetModel::query()->firstOrCreate([
             'key' => 'media-carousel',
         ], [
             'name' => __('capell-admin::generic.media_carousel'),
@@ -196,7 +196,7 @@ class WidgetCreator
 
     private function pageContentWidget(Type $pageContentWidgetType): void
     {
-        $this->widgetModel::firstOrCreate([
+        $this->widgetModel::query()->firstOrCreate([
             'key' => 'page-content',
         ], [
             'name' => __('capell-admin::generic.page_content'),
@@ -211,7 +211,7 @@ class WidgetCreator
 
     private function pagesCardWidget(Type $pagesWidgetType): void
     {
-        $this->widgetModel::firstOrCreate([
+        $this->widgetModel::query()->firstOrCreate([
             'key' => 'pages-card',
         ], [
             'name' => __('capell-admin::generic.pages_card'),
@@ -229,7 +229,7 @@ class WidgetCreator
 
     private function pageSlotWidget(Type $systemWidgetType): void
     {
-        $this->widgetModel::firstOrCreate([
+        $this->widgetModel::query()->firstOrCreate([
             'key' => 'page-slot',
         ], [
             'name' => __('capell-admin::generic.page_slot'),
@@ -243,7 +243,7 @@ class WidgetCreator
 
     private function siblingsWidget(Type $pageResultsWidgetType, Collection $languages): void
     {
-        $widget = $this->widgetModel::firstOrCreate([
+        $widget = $this->widgetModel::query()->firstOrCreate([
             'key' => 'siblings',
         ], [
             'name' => __('capell-admin::generic.page_siblings'),

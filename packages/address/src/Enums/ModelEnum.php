@@ -10,5 +10,6 @@ use Capell\Address\Models\Country;
 enum ModelEnum: string
 {
     case Address = Address::class;
+
     case Country = Country::class;
 }

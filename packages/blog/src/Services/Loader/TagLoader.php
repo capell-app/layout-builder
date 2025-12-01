@@ -132,7 +132,7 @@ class TagLoader
             /** @var class-string<Tag> $model */
             $model = CapellCore::getModel(ModelEnum::Tag);
 
-            return $model::where('type', 'page')
+            return $model::query()->where('type', 'page')
                 ->where('slug->' . $language->code, $slug)
                 ->first();
         }) ?: null;

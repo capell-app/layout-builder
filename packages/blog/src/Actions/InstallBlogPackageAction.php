@@ -23,7 +23,7 @@ class InstallBlogPackageAction
 
     public function handle(): void
     {
-        $blogCreator = app(BlogCreator::class);
+        $blogCreator = resolve(BlogCreator::class);
 
         // Widgets
         $blogCreator->createArticleWidget($blogCreator->createArticleWidgetType());

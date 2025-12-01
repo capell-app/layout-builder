@@ -58,7 +58,7 @@ class DemoCommand extends Command
 
         $authorOption = $this->option('author');
         /** @var Model|null $author */
-        $author = $authorOption ? CapellCore::getModel('User')::find($authorOption) : null;
+        $author = $authorOption ? CapellCore::getModel('User')::query()->find($authorOption) : null;
 
         if (! $author && function_exists('auth') && auth()->check()) {
             $author = auth()->user();

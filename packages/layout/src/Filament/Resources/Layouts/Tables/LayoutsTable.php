@@ -81,7 +81,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                     if (! empty($state['value'])) {
                         $indicators['widget_key'] = __(
                             'capell-layout::filter.widget',
-                            ['search' => CapellCore::getModel(ModelEnum::Widget->name)::firstWhere('key', $state['value'], 'name')?->name],
+                            ['search' => CapellCore::getModel(ModelEnum::Widget->name)::query()->firstWhere('key', $state['value'], 'name')?->name],
                         );
                     }
 

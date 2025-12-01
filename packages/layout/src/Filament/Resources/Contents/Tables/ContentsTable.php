@@ -235,20 +235,17 @@ class ContentsTable implements TableConfigurator
                             /* @var class-string<\Capell\Core\Models\Language> $model */
                             $model = CapellCore::getModel(CoreModelEnum::Language);
 
-                            return $model::when(
-                                $siteId,
-                                fn (Builder $query, int $siteId): Builder => $query->whereHas(
-                                    'sites',
-                                    fn (BuilderContract $query) => $query->where('sites.id', $siteId),
-                                ),
-                            )
+                            return $model::query()->when($siteId, fn (Builder $query, int $siteId): Builder => $query->whereHas(
+                                'sites',
+                                fn (BuilderContract $query) => $query->where('sites.id', $siteId),
+                            ))
                                 ->ordered()
                                 ->pluck('name', 'id')
                                 ->toArray();
                         }),
 
                     Select::make('parent_id')
-                        ->label(__('capell-layout::form.parent'))
+                        ->label(__('capell-admin::form.parent'))
                         ->allowHtml()
                         ->options(function (HasTable $livewire, Get $get) {
                             $siteId = static::getSiteId($livewire);
@@ -322,7 +319,7 @@ class ContentsTable implements TableConfigurator
 
                         $indicators['language_id'] = __(
                             'capell-admin::filter.language',
-                            ['search' => $model::find($data['language_id'], 'name')?->name],
+                            ['search' => $model::query()->find($data['language_id'], 'name')?->name],
                         );
                     }
 
@@ -333,7 +330,7 @@ class ContentsTable implements TableConfigurator
                         $indicators['parent_id'] = __(
                             'capell-admin::filter.parent',
                             [
-                                'search' => $model::select('name')->firstWhere(
+                                'search' => $model::query()->select('name')->firstWhere(
                                     'id',
                                     $data['parent_id'],
                                 )

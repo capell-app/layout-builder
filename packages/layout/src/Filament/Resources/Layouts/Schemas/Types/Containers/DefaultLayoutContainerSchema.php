@@ -36,7 +36,7 @@ class DefaultLayoutContainerSchema implements TypeSchemaInterface
     public function make(Schema $schema): array
     {
         return [
-            Section::make(__('capell-layout::generic.container_settings'))
+            Section::make(__('capell-admin::generic.settings'))
                 ->statePath('meta')
                 ->collapsed()
                 ->columnSpanFull()

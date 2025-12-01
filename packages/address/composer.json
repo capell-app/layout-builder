@@ -30,7 +30,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Capell\\Address\\AddressServiceProvider"
+                "Capell\\Address\\Providers\\AddressServiceProvider"
             ]
         }
     },

@@ -26,6 +26,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use LaraZeus\SpatieTranslatable\Resources\Concerns\Translatable;
 use Override;
+use RuntimeException;
 
 class TagResource extends Resource
 {
@@ -72,7 +73,7 @@ class TagResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return (string) (__('capell-layout::navigation.tags'));
+        return (string) (__('capell-blog::navigation.tags'));
     }
 
     public static function getPages(): array
@@ -101,10 +102,10 @@ class TagResource extends Resource
     {
         $locales = Language::getLanguageLocales();
 
-        if ($locales) {
+        if ($locales !== []) {
             return $locales;
         }
 
-        throw new \RuntimeException('At least one language must be defined to use translatable features.');
+        throw new RuntimeException('At least one language must be defined to use translatable features.');
     }
 }

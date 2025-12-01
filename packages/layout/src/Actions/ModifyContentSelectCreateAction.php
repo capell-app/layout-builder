@@ -30,7 +30,7 @@ class ModifyContentSelectCreateAction
                     ->modal()
                     ->modalHeading(__('capell-admin::generic.type'))
                     ->fillForm(function (): array {
-                        $site = Site::default()->first();
+                        $site = Site::query()->default()->first();
 
                         /** @var class-string<Type> $model */
                         $model = CapellCore::getModel(ModelEnum::Type);

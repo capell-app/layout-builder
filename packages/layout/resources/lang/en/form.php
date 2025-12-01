@@ -23,6 +23,7 @@ return [
     'heading_size' => 'Heading Size',
     'margin' => 'Margin',
     'align' => 'Align',
+    'widget_type' => 'Widget Type',
     'component_view_file' => 'Component View File',
     'max_width' => 'Max Width',
     'container_widget_schema' => 'Container Widget Schema',
@@ -60,4 +61,3 @@ return [
     'next_prev' => 'Next/Previous',
     'related_contents' => 'Related Contents',
 ];
-

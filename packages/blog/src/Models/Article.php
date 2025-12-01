@@ -25,6 +25,7 @@ use Override;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\Tags\Tag;
 
 /**
  * @property-read int|null $audits_count
@@ -127,9 +128,9 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @method static QueryBuilder<static>|Article whereIsRoot()
  * @method static QueryBuilder<static>|Article whereNodeBetween($values, $boolean = 'and', $not = false, $query = null)
  * @method static QueryBuilder<static>|Article whereNotDescendantOf($id)
- * @method static QueryBuilder<static>|Article withAllTags((ArrayAccess|\Spatie\Tags\Tag|array|string) $tags, ?string $type = null)
+ * @method static QueryBuilder<static>|Article withAllTags((ArrayAccess|Tag|array|string) $tags, ?string $type = null)
  * @method static QueryBuilder<static>|Article withAllTagsOfAnyType($tags)
- * @method static QueryBuilder<static>|Article withAnyTags((ArrayAccess|\Spatie\Tags\Tag|array|string) $tags, ?string $type = null)
+ * @method static QueryBuilder<static>|Article withAnyTags((ArrayAccess|Tag|array|string) $tags, ?string $type = null)
  * @method static QueryBuilder<static>|Article withAnyTagsOfAnyType($tags)
  * @method static QueryBuilder<static>|Article withAnyTagsOfType(array|string $type)
  * @method static QueryBuilder<static>|Article withDepth(string $as = 'depth')
@@ -139,7 +140,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @method static QueryBuilder<static>|Article withoutCurrent()
  * @method static QueryBuilder<static>|Article withoutRoot()
  * @method static QueryBuilder<static>|Article withoutSelf()
- * @method static QueryBuilder<static>|Article withoutTags((ArrayAccess|\Spatie\Tags\Tag|array|string) $tags, ?string $type = null)
+ * @method static QueryBuilder<static>|Article withoutTags((ArrayAccess|Tag|array|string) $tags, ?string $type = null)
  * @method static Builder<static>|Article withoutTrashed()
  *
  * @property-read MediaCollection<int, Media> $media

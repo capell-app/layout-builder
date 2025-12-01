@@ -12,7 +12,6 @@ use Capell\Blog\Filament\Resources\Articles\Schemas\Types\ArticlePageSchema;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Models\Tag;
 use Capell\Core\Database\Factories\PageFactory;
-use Capell\Core\Models\Page;
 use Capell\Core\Models\Type;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

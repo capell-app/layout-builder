@@ -50,7 +50,7 @@ class InstallCommand extends Command
                 '--items' => [
                     'alter_tags_table',
                 ],
-                '--path' => __DIR__ . '/../database/migrations',
+                '--path' => realpath(__DIR__ . '/../../database/migrations'),
             ],
         );
 
@@ -60,6 +60,8 @@ class InstallCommand extends Command
         $this->call('vendor:publish', ['--tag' => 'capell-blog-config']);
 
         $this->call('migrate');
+
+        $this->call('filament:assets');
 
         $this->info('Capell Blog installation complete.');
 

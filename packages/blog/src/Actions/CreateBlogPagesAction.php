@@ -27,7 +27,7 @@ class CreateBlogPagesAction
         $blogPageType = Type::query()->where('key', 'blog')->pageType()->first();
         $systemPageType = Type::query()->where('key', 'system')->pageType()->first();
 
-        $blogCreator = app(BlogCreator::class);
+        $blogCreator = resolve(BlogCreator::class);
 
         $blogPage = $blogCreator->createBlogPage($site, type: $blogPageType, languages: $site->languages);
 

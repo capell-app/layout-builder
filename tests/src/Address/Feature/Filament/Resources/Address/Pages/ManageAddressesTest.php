@@ -3,11 +3,9 @@
 declare(strict_types=1);
 
 use Capell\Address\Filament\Resources\Addresses\Pages\ManageAddresses;
+use Capell\Address\Models\Address;
 use Capell\Admin\Filament\Actions\CreateModalAction;
 use Capell\Admin\Filament\Components\Tables\Actions\ReplicateAction;
-use Capell\Address\Models\Address;
-use Capell\Core\Models\Site;
-use Capell\Core\Models\SiteDomain;
 use Capell\Tests\Fixtures\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -234,4 +232,3 @@ test('can group delete addresses', function (): void {
         assertSoftDeleted($address, ['id' => $address->id]);
     }
 });
-

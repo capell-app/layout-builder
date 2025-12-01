@@ -4,15 +4,31 @@ declare(strict_types=1);
 
 namespace Capell\Tests\Layout;
 
-use Capell\Admin\AdminServiceProvider;
+use Capell\Admin\CapellAdminManager;
+use Capell\Admin\Providers\AdminServiceProvider;
+use Capell\Core\CapellCoreManager;
 use Capell\Core\Facades\CapellCore;
-use Capell\Layout\LayoutServiceProvider;
+use Capell\Layout\Providers\LayoutServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Capell\Tests\Fixtures\Support\Filament\AdminPanelProvider;
 use Override;
 
 class LayoutTestCase extends AbstractTestCase
 {
+    #[Override]
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->registerAndMigrateSettings([
+            ...CapellCoreManager::getSettingMigrations(),
+        ], __DIR__ . '/../../../vendor/capell-app/core/database/settings');
+
+        $this->registerAndMigrateSettings([
+            ...CapellAdminManager::getSettingMigrations(),
+        ], __DIR__ . '/../../../vendor/capell-app/admin/database/settings');
+    }
+
     protected function getPackageProviders($app): array
     {
         return [

@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Models\Type;
 use Capell\Hero\Actions\CreateHeroContentTypeAction;
 use Capell\Hero\Enums\ContentSchemaEnum;
 use Capell\Layout\Filament\Resources\Contents\Pages\CreateContent;
 use Capell\Layout\Filament\Resources\Contents\Pages\EditContent;
 use Capell\Layout\Models\Content;
-use Capell\Core\Models\Type;
 use Capell\Tests\Fixtures\Support\Concerns\CreatesAdminUser;
 use Pest\Expectation;
+
 use function Pest\Livewire\livewire;
 
 uses(CreatesAdminUser::class)
@@ -27,7 +28,7 @@ it('create hero content', function (): void {
         ->fillForm([
             'name' => 'Hero Content',
             'admin' => [
-                'schema' => ContentSchemaEnum::Hero->value,
+                'schema' => ContentSchemaEnum::Hero->name,
             ],
         ])
         ->call('create')
@@ -41,15 +42,16 @@ it('create hero content', function (): void {
         ->type->scoped(
             fn (Expectation $type) => $type->toBeInstanceOf(Type::class)
                 ->key->toBe('hero')
-                ->admin->scoped(fn ($admin) => $admin->schema->toBe(ContentSchemaEnum::Hero->name)
-        )
-    );
+                ->admin->scoped(
+                    fn ($admin) => $admin->schema->toBe(ContentSchemaEnum::Hero->name),
+                ),
+        );
 });
 
 it('edits the hero content via Filament', function (): void {
     $content = Content::factory()->type($this->type)
         ->state([
-        'name' => 'Hero Content',
+            'name' => 'Hero Content',
         ])
         ->create();
 
@@ -71,7 +73,7 @@ it('edits the hero content via Filament', function (): void {
         ->type->scoped(
             fn (Expectation $type) => $type->toBeInstanceOf(Type::class)
                 ->key->toBe('hero')
-                ->admin->scoped(fn ($admin) => $admin->schema->toBe(ContentSchemaEnum::Hero->name))
+                ->admin->scoped(fn ($admin) => $admin->schema->toBe(ContentSchemaEnum::Hero->name)),
         );
 });
 

@@ -1,0 +1,70 @@
+<?php
+
+declare(strict_types=1);
+
+?>
+
+@props([
+'headingClass',
+'pages',
+])
+
+<div {{ $attributes->class(['footer-pages']) }}>
+    <h3 class="{{ $headingClass }} mb-4 dark:text-gray-100">
+        {{ __('Recent Articles') }}
+    </h3>
+    <div class="space-y-4 lg:space-y-6">
+        @forelse ($pages as $page)
+            @php
+                $publishDate = $page->getPublishDate();
+                                $url = $page->pageUrl->full_url;
+            @endphp
+
+            <div @class(['group grid', 'grid-cols-4 gap-x-4' => $page->image])>
+                @if ($page->image)
+                    <a
+                        href="{{ $url }}"
+                        title="{{ htmlspecialchars(strip_tags($page->translation->label)) }}"
+                        wire:navigate
+                    >
+                        <x-capell::media
+                            :square="true"
+                            :media="$page->image"
+                            width="180"
+                            height="180"
+                            class="object-cover"
+                        />
+                    </a>
+                @endif
+
+                <a
+                    href="{{ $url }}"
+                    @class([
+                    'hover:text-primary focus:text-primary group-hover:text-link group-focus:text-link flex flex-col justify-center gap-y-1 text-inherit',
+                    'col-span-3' => $page->image,
+                    ])
+                    wire:navigate
+                >
+                    <span
+                        class="group-hover:text-link group-focus:text-link font-medium leading-tight"
+                    >
+                        {!! $page->getTranslation('label') !!}
+                    </span>
+                    <time
+                        class="float-right mt-0.5 whitespace-nowrap text-xs font-light leading-none tracking-wide opacity-80"
+                        title="{{ __('capell-frontend::generic.publish_from', ['date' => $publishDate->format(config('capell-frontend.date_format'))]) }}"
+                        datetime="{{ $publishDate->toW3cString() }}"
+                    >
+                        {{ $publishDate->format(config('capell-frontend.date_format')) }}
+                    </time>
+                </a>
+            </div>
+        @empty
+            <div class="text-sm font-medium tracking-tight">
+                {{ __('capell-frontend::generic.no_articles') }}
+            </div>
+        @endforelse
+    </div>
+</div>
+
+<?php

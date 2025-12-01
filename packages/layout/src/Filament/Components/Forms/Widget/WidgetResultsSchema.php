@@ -25,7 +25,7 @@ class WidgetResultsSchema
             Checkbox::make('with_link_text')
                 ->label(__('capell-admin::form.link_text')),
             Checkbox::make('with_parent')
-                ->label(__('capell-layout::form.parent_page')),
+                ->label(__('capell-admin::form.parent_page')),
             TextInput::make('columns')
                 ->label(__('capell-layout::form.columns'))
                 ->numeric()

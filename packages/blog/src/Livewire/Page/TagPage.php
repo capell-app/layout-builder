@@ -51,7 +51,7 @@ class TagPage extends AbstractPage
         /** @var class-string<Tag> $model */
         $model = CapellCore::getModel(ModelEnum::Tag);
 
-        $tag = $model::where('type', 'page')
+        $tag = $model::query()->where('type', 'page')
             ->where('slug->' . $language->code, $this->tagSlug)
             ->first();
 

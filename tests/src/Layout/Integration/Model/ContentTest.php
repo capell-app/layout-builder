@@ -34,7 +34,7 @@ it('belongs to an image', function (): void {
     $content = Content::factory()->create();
 
     $media = MediaFactory::new([
-        'model_type' => app(Content::class)->getMorphClass(),
+        'model_type' => resolve(Content::class)->getMorphClass(),
         'model_id' => $content->id,
     ])
         ->create();

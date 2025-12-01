@@ -95,7 +95,7 @@ class ArticleResource extends PageResource
         /* @var class-string<\Capell\Core\Models\Site> $model */
         $model = CapellCore::getModel(CoreModelEnum::Site);
 
-        $site = $model::find($siteId) ?: $model::default()->first();
+        $site = $model::query()->find($siteId) ?: $model::default()->first();
 
         if (! $site) {
             return;

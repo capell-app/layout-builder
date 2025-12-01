@@ -10,7 +10,7 @@ class AddressObserver
 {
     public function creating(Address $model): void
     {
-        if (Address::default()->doesntExist()) {
+        if (Address::query()->default()->doesntExist()) {
             $model->default = true;
         }
     }

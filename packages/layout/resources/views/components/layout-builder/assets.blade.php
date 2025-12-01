@@ -7,18 +7,18 @@ declare(strict_types=1);
 @props(['containerKey', 'hasPageAssets', 'occurrence', 'widget', 'widgetIndex'])
 @php
     use Capell\Core\Facades\CapellCore;
-    use Capell\Layout\Models\WidgetAsset;
-    use Filament\Support\Enums\FontWeight;
-    use Filament\Support\Enums\IconPosition;
-    use Filament\Support\Enums\IconSize;
-    use Filament\Support\Enums\Size;
+            use Capell\Layout\Models\WidgetAsset;
+            use Filament\Support\Enums\FontWeight;
+            use Filament\Support\Enums\IconPosition;
+            use Filament\Support\Enums\IconSize;
+            use Filament\Support\Enums\Size;
 
-    $assetsCount = $widget->assets?->count() ?? 0;
+            $assetsCount = $widget->assets?->count() ?? 0;
 
-    $removeAssetsAction = ($this->removeAssetsAction)([
-        'containerKey' => $containerKey,
-        'widgetIndex' => $widgetIndex,
-    ]);
+            $removeAssetsAction = ($this->removeAssetsAction)([
+                'containerKey' => $containerKey,
+                'widgetIndex' => $widgetIndex,
+            ]);
 @endphp
 
 <div
@@ -31,8 +31,9 @@ declare(strict_types=1);
     >
         <span
             @class([
-                'text-warning-600 dark:text-warning-400' => $hasPageAssets,
-                'text-gray-500 dark:text-gray-400' => ! $hasPageAssets,
+            'text-xs font-medium',
+            'text-warning-600 dark:text-warning-400' => $hasPageAssets,
+            'text-gray-500 dark:text-gray-400' => ! $hasPageAssets,
             ])
         >
             <span class="font-semi-bold">
@@ -50,11 +51,11 @@ declare(strict_types=1);
                     x-on:click="toggleReorderingResources('{{ $containerKey }}', {{ $widgetIndex }})"
                 >
                     @svg('heroicon-o-arrows-up-down', 'inline-block h-4 w-4 transition duration-75', [
-                        'x-show' => "! isWidgetReorderingResources('{$containerKey}', {$widgetIndex})",
+                    'x-show' => "! isWidgetReorderingResources('{$containerKey}', {$widgetIndex})",
                     ])
                     @svg('heroicon-o-check', 'inline-block h-4 w-4 transition duration-75', [
-                        'x-show' => "isWidgetReorderingResources('{$containerKey}', {$widgetIndex})",
-                        'x-cloak' => '',
+                    'x-show' => "isWidgetReorderingResources('{$containerKey}', {$widgetIndex})",
+                    'x-cloak' => '',
                     ])
                     <span
                         x-text="

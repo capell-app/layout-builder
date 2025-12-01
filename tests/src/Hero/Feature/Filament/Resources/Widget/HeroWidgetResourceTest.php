@@ -1,16 +1,18 @@
 <?php
+
 declare(strict_types=1);
 
+use Capell\Core\Models\Type;
 use Capell\Hero\Actions\CreateHeroWidgetAction;
 use Capell\Hero\Enums\WidgetComponentEnum;
+use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Filament\Resources\Widgets\Pages\CreateWidget;
 use Capell\Layout\Filament\Resources\Widgets\Pages\EditWidget;
 use Capell\Layout\Models\Widget;
-use Capell\Core\Models\Type;
-use Capell\Layout\Enums\WidgetTypeEnum;
-use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Tests\Fixtures\Support\Concerns\CreatesAdminUser;
 use Pest\Expectation;
+
 use function Pest\Livewire\livewire;
 
 uses(CreatesAdminUser::class)
@@ -50,7 +52,7 @@ it('create hero widget', function (): void {
         ->call('create')
         ->assertHasNoFormErrors();
 
-    $widget = Widget::where('key', 'hero')->first();
+    $widget = Widget::query()->where('key', 'hero')->first();
 
     expect($widget)
         ->toBeInstanceOf(Widget::class)

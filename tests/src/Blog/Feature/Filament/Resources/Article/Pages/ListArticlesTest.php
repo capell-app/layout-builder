@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 use Capell\Blog\Database\Factories\ArticlePageFactory;
 use Capell\Blog\Filament\Resources\Articles\Pages\ListArticles;
-use Capell\Blog\Models\Article;
-use Capell\Blog\Models\Tag;
 use Capell\Core\Models\Page;
 use Capell\Tests\Fixtures\Support\Concerns\CreatesAdminUser;
 

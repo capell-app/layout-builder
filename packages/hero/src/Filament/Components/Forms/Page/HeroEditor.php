@@ -50,7 +50,7 @@ class HeroEditor extends Group
     {
         return cache()->driver('array')->rememberForever(
             sprintf('page-%d-has-hero-widget-assets', $page->id),
-            fn (): bool => CapellCore::getModel(ModelEnum::WidgetAsset)::where('page_id', $page->id)
+            fn (): bool => CapellCore::getModel(ModelEnum::WidgetAsset)::query()->where('page_id', $page->id)
                 ->whereHas('widget', fn (Builder $query): Builder => $query->where('key', 'hero'))
                 ->exists(),
         );

@@ -53,6 +53,8 @@ class InstallCommand extends Command
 
         $this->call('migrate');
 
+        $this->call('filament:assets');
+
         $this->info('Capell Address installation complete.');
 
         return self::SUCCESS;

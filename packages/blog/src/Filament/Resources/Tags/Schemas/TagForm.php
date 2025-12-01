@@ -31,9 +31,13 @@ class TagForm implements FormConfigurator
                 ->contained(in_array($schema->getOperation(), ['create', 'edit']))
                 ->schema([
                     NameInput::make('name')
-                        ->afterStateUpdatedJs(
-                            fn (NameInput $component): string => SlugGenerator::slugifyState("\$state ?? ''", 'slug'),
-                        ),
+                        ->afterStateUpdatedJs(function (string $operation): string {
+                            if (! in_array($operation, ['create', 'createOption', 'replicate'], true)) {
+                                return '';
+                            }
+
+                            return SlugGenerator::slugifyState("\$state ?? ''", 'slug');
+                        }),
 
                     TextInput::make('slug')
                         ->label(__('capell-layout::form.slug'))

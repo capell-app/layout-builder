@@ -10,5 +10,6 @@ use Capell\Blog\Models\Tag;
 enum ModelEnum: string
 {
     case Article = Article::class;
+
     case Tag = Tag::class;
 }

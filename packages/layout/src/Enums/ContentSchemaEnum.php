@@ -10,5 +10,6 @@ use Capell\Layout\Filament\Resources\Contents\Schemas\Types\TestimonialContentSc
 enum ContentSchemaEnum: string
 {
     case Default = DefaultContentSchema::class;
+
     case Testimonial = TestimonialContentSchema::class;
 }

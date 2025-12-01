@@ -21,6 +21,6 @@ class GetArticleLayoutAction
         /** @var class-string<Layout> $model */
         $model = CapellCore::getModel(ModelEnum::Layout);
 
-        return $model::firstWhere('key', 'article');
+        return $model::query()->firstWhere('key', 'article');
     }
 }

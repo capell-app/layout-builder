@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Capell\Address;
+namespace Capell\Address\Providers;
 
+use Capell\Address\AddressModelRegistrar;
 use Capell\Address\Commands\DemoCommand;
 use Capell\Address\Commands\InstallCommand;
 use Capell\Address\Enums\ResourceEnum;
@@ -11,9 +12,9 @@ use Capell\Address\Enums\SchemaTypeEnum;
 use Capell\Address\Filament\Resources\Sites\Schemas\Extenders\SiteSchemaExtender;
 use Capell\Address\Models\Address;
 use Capell\Address\Models\Country;
-use Capell\Admin\AdminServiceProvider;
 use Capell\Admin\Enums\SchemaExtenderEnum;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;
 use Capell\Core\Packages\AbstractPackageServiceProvider;
@@ -37,10 +38,7 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
             return;
         }
 
-        // Skip boot-time registration chain when running unit tests.
-        if (! $this->app->runningUnitTests()) {
-            $this->registerAll();
-        }
+        $this->registerAll();
     }
 
     public function configurePackage(Package $package): void
@@ -57,12 +55,8 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
     {
         parent::registeringPackage();
 
-        $this->registerPackageMetadata();
-
-        // During unit tests we need the registration chain earlier.
-        if ($this->app->runningUnitTests()) {
-            $this->registerAll();
-        }
+        $this->registerPackageMetadata()
+            ->registerResources();
     }
 
     private function isPackageInstalled(): bool
@@ -76,7 +70,6 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
             ->registerModels()
             ->registerRelationships()
             ->registerSchemas()
-            ->registerResources()
             ->registerSchemaExtenders()
             ->registerBladeComponents();
     }

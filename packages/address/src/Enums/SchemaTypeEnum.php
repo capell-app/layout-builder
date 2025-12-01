@@ -14,6 +14,7 @@ enum SchemaTypeEnum: string implements SchemaTypeEnumInterface
     use HasSchemaTypes;
 
     case Address = 'Addresses';
+
     case Country = 'Countries';
 
     public function getSchemas(): array

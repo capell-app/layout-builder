@@ -44,7 +44,7 @@ class ContentCreator
 
         $meta = [];
 
-        $content = $this->contentModel::firstOrCreate([
+        $content = $this->contentModel::query()->firstOrCreate([
             'name' => $data['name'],
             'site_id' => $site?->id,
             'type_id' => $type->id,

@@ -159,10 +159,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Capell\\Address\\AddressServiceProvider",
-                "Capell\\Blog\\BlogServiceProvider",
-                "Capell\\Hero\\HeroServiceProvider",
-                "Capell\\Layout\\LayoutServiceProvider"
+                "Capell\\Address\\Providers\\AddressServiceProvider",
+                "Capell\\Blog\\Providers\\BlogServiceProvider",
+                "Capell\\Hero\\Providers\\HeroServiceProvider",
+                "Capell\\Layout\\Providers\\LayoutServiceProvider"
             ]
         }
     },

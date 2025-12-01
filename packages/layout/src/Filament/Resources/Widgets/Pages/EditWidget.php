@@ -136,7 +136,7 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
     {
         $model = $this->getModel();
 
-        $updated_at = $model::find($this->record->id, [$attribute])->value($attribute);
+        $updated_at = $model::query()->find($this->record->id, [$attribute])->value($attribute);
 
         return ! $updated_at || $this->record->updated_at > $updated_at;
     }

@@ -60,7 +60,7 @@ class DemoCommand extends Command
             return Command::FAILURE;
         }
 
-        $user = $this->option('author') ? CapellCore::getModel('User')::first() : null;
+        $user = $this->option('author') ? CapellCore::getModel('User')::query()->first() : null;
 
         if (! $user && auth()->check()) {
             $user = auth()->user();
@@ -70,7 +70,7 @@ class DemoCommand extends Command
 
         $data = config('capell-demo.pages');
 
-        $typeCreator = app(TypeCreator::class);
+        $typeCreator = resolve(TypeCreator::class);
         $typeCreator->createDefaultContentType();
         $typeCreator->createBuilderContentType();
 
@@ -81,7 +81,7 @@ class DemoCommand extends Command
             $this->line('Setting up content');
 
             /** @var ContentCreator $contentCreator */
-            $contentCreator = app(ContentCreator::class);
+            $contentCreator = resolve(ContentCreator::class);
 
             // $this->createSiteContents($contentCreator, $data[0], $site);
             $this->createSiteContents($contentCreator, $data[0], $site);
@@ -231,7 +231,7 @@ class DemoCommand extends Command
 
         $this->line('Adding background media to split container');
         if ($layout->getMedia('split-two-background')->isEmpty()) {
-            app(\Capell\Admin\Services\Creator\DemoCreator::class)->createMedia($layout, collection: 'split-two-background');
+            resolve(\Capell\Admin\Services\Creator\DemoCreator::class)->createMedia($layout, collection: 'split-two-background');
         }
 
         $layout->containers = $containers;
@@ -281,6 +281,6 @@ class DemoCommand extends Command
     {
         $model = CapellCore::getModel(ModelEnum::Layout);
 
-        return $model::firstWhere('key', LayoutEnum::Home);
+        return $model::query()->firstWhere('key', LayoutEnum::Home);
     }
 }

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Capell\Hero;
+namespace Capell\Hero\Providers;
 
-use Capell\Admin\AdminServiceProvider;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Packages\AbstractPackageServiceProvider;
-use Capell\Frontend\FrontendServiceProvider;
+use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\Hero\Commands\DemoCommand;
 use Capell\Hero\Commands\InstallCommand;
 use Capell\Hero\Enums\ContentSchemaEnum;
@@ -16,9 +16,8 @@ use Capell\Hero\Enums\WidgetComponentEnum;
 use Capell\Hero\Enums\WidgetSchemaEnum;
 use Capell\Hero\Filament\Extenders\Page\HeroPageSchemaExtender;
 use Capell\Layout\Enums\ComponentTypeEnum;
-use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\SchemaTypeEnum;
-use Capell\Layout\LayoutServiceProvider;
+use Capell\Layout\Providers\LayoutServiceProvider;
 use Composer\InstalledVersions;
 use Illuminate\Support\Facades\Blade;
 use Spatie\LaravelPackageTools\Package;
@@ -37,10 +36,7 @@ class HeroServiceProvider extends AbstractPackageServiceProvider
             return;
         }
 
-        // Skip boot-time registration chain when running unit tests; it will be executed earlier in registeringPackage().
-        if (! $this->app->runningUnitTests()) {
-            $this->registerAll();
-        }
+        $this->registerAll();
     }
 
     public function configurePackage(Package $package): void
@@ -58,12 +54,9 @@ class HeroServiceProvider extends AbstractPackageServiceProvider
     {
         parent::registeringPackage();
 
-        $this->registerPackageMetadata();
-
-        // During unit tests we need the registration chain earlier so the environment is fully prepared.
-        if ($this->app->runningUnitTests()) {
-            $this->registerAll();
-        }
+        $this
+            ->registerSchemas()
+            ->registerPackageMetadata();
     }
 
     private function isPackageInstalled(): bool
@@ -75,7 +68,6 @@ class HeroServiceProvider extends AbstractPackageServiceProvider
     {
         return $this
             ->registerComponents()
-            ->registerSchemas()
             ->registerSchemaExtenders()
             ->registerBladeComponents();
     }

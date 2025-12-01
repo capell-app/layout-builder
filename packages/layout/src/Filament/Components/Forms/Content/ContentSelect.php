@@ -209,7 +209,7 @@ class ContentSelect extends Select
         $model = CapellCore::getModel(ModelEnum::Content->name);
 
         /** @var Collection $content */
-        $contents = $model::select('contents.*')
+        $contents = $model::query()->select('contents.*')
             ->with($relations)
             ->withDrafts()
             ->join('types', 'contents.type_id', '=', 'types.id')

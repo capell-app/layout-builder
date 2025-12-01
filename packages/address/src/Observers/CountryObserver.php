@@ -10,7 +10,7 @@ class CountryObserver
 {
     public function creating(Country $model): void
     {
-        if (Country::default()->doesntExist()) {
+        if (Country::query()->default()->doesntExist()) {
             $model->default = true;
         }
     }

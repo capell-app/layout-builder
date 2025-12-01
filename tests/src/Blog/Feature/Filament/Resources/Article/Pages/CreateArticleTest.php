@@ -8,6 +8,7 @@ use Capell\Blog\Filament\Resources\Articles\Pages\EditArticle;
 use Capell\Blog\Filament\Resources\Articles\Pages\ListArticles;
 use Capell\Blog\Services\BlogCreator;
 use Capell\Core\Models\Language;
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\PageTranslation;
 use Capell\Core\Models\PageUrl;
@@ -23,6 +24,7 @@ uses(CreatesAdminUser::class)
 
 beforeEach(function (): void {
     test()->actingAsAdmin();
+    Layout::query()->create(['key' => 'article', 'name' => 'Article Layout']);
 });
 
 describe('from edit article', function (): void {
@@ -88,7 +90,7 @@ describe('from edit article', function (): void {
 
 describe('from list article', function (): void {
     test('can create new article', function (): void {
-        $blogCreator = app(BlogCreator::class);
+        $blogCreator = resolve(BlogCreator::class);
         $type = $blogCreator->createArticlePageType();
 
         $language = Language::factory()->create();
@@ -138,7 +140,7 @@ describe('from list article', function (): void {
     });
 
     test('can create new article from list page', function (): void {
-        $blogCreator = app(BlogCreator::class);
+        $blogCreator = resolve(BlogCreator::class);
 
         $type = $blogCreator->createArticlePageType();
         $layout = $blogCreator->createArticleLayout();

@@ -47,7 +47,7 @@ class BlogCreator
     {
         $typeMode = CapellCore::getModel(CoreModelEnum::Type);
 
-        return $typeMode::firstOrCreate([
+        return $typeMode::query()->firstOrCreate([
             'key' => BlogPageTypeEnum::TagPage->value,
             'type' => TypeEnum::Page,
         ], [
@@ -79,7 +79,7 @@ class BlogCreator
 
         $pageModel = CapellCore::getModel(CoreModelEnum::Page);
 
-        $page = $pageModel::firstOrNew([
+        $page = $pageModel::query()->firstOrNew([
             'layout_id' => $layout->id,
             'site_id' => $site->id,
             'type_id' => $type->id,
@@ -119,7 +119,7 @@ class BlogCreator
 
         $pageModel = CapellCore::getModel(CoreModelEnum::Page);
 
-        $page = $pageModel::firstOrNew([
+        $page = $pageModel::query()->firstOrNew([
             'layout_id' => $layout->id,
             'site_id' => $site->id,
             'type_id' => $type->id,
@@ -179,7 +179,7 @@ class BlogCreator
         }
 
         if (! $layout instanceof Layout) {
-            $layout = Layout::query()->firstWhere('key', 'results') ?? app(LayoutCreator::class)->resultsLayout();
+            $layout = Layout::query()->firstWhere('key', 'results') ?? resolve(LayoutCreator::class)->resultsLayout();
         }
 
         if (! $languages instanceof Collection) {
@@ -381,9 +381,9 @@ class BlogCreator
         $widgetModel = CapellCore::getModel(ModelEnum::Widget);
         $typeModel = CapellCore::getModel(CoreModelEnum::Type);
 
-        $type = $typeModel::firstWhere(['key' => WidgetTypeEnum::System, 'type' => LayoutTypeEnum::Widget]);
+        $type = $typeModel::query()->firstWhere(['key' => WidgetTypeEnum::System, 'type' => LayoutTypeEnum::Widget]);
 
-        $widget = $widgetModel::firstOrCreate([
+        $widget = $widgetModel::query()->firstOrCreate([
             'key' => 'tags',
         ], [
             'name' => __('capell-admin::generic.tags'),
@@ -419,7 +419,7 @@ class BlogCreator
 
         if (! $type instanceof Type) {
             $type = Type::query()->where('key', 'system')->pageType()->first()
-                ?? app(TypeCreator::class)::systemPageType();
+                ?? resolve(TypeCreator::class)::systemPageType();
         }
 
         if (! $languages instanceof Collection) {
@@ -702,7 +702,7 @@ class BlogCreator
     {
         $typeModel = CapellCore::getModel(CoreModelEnum::Type);
 
-        $type = $typeModel::where('key', $key)->pageType()->first();
+        $type = $typeModel::query()->where('key', $key)->pageType()->first();
 
         if ($type) {
             return $type;
@@ -712,7 +712,7 @@ class BlogCreator
             $key = $key->value;
         }
 
-        return app(TypeCreator::class)->createPageType($key);
+        return resolve(TypeCreator::class)->createPageType($key);
     }
 
     private function getLayout(LayoutEnum|string $key): Layout
@@ -723,12 +723,12 @@ class BlogCreator
 
         $layoutModel = CapellCore::getModel(CoreModelEnum::Layout);
 
-        $layout = $layoutModel::firstWhere('key', $key);
+        $layout = $layoutModel::query()->firstWhere('key', $key);
 
         if ($layout) {
             return $layout;
         }
 
-        return app(LayoutCreator::class)->create($key);
+        return resolve(LayoutCreator::class)->create($key);
     }
 }

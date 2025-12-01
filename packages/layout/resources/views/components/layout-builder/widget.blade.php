@@ -5,53 +5,54 @@ declare(strict_types=1);
 ?>
 
 @props([
-    'containerKey',
-    'containerWidget',
-    'loop',
-    'occurrence',
-    'widget',
-    'widgetIndex',
+'containerKey',
+'containerWidget',
+'loop',
+'widget',
+'widgetIndex',
 ])
 @php
     use Capell\Admin\Facades\CapellAdmin;
-    use Capell\Core\Facades\CapellCore;
-    use Capell\Layout\Enums\ResourceEnum;
-    use Capell\Layout\Livewire\LayoutBuilder;
-    use Filament\Support\Enums\FontWeight;
-    use Filament\Support\Enums\IconSize;
-    use Filament\Support\Enums\Size;
-    use Illuminate\View\ComponentAttributeBag;
+            use Capell\Core\Facades\CapellCore;
+            use Capell\Layout\Enums\ResourceEnum;
+            use Capell\Layout\Livewire\LayoutBuilder;
+            use Filament\Support\Enums\FontWeight;
+            use Filament\Support\Enums\IconSize;
+            use Filament\Support\Enums\Size;
+            use Illuminate\View\ComponentAttributeBag;
 
-    /**
-     * @var LayoutBuilder $this
-     */
-    $occurrence = $containerWidget['occurrence'] ?? 1;
+            /**
+             * @var LayoutBuilder $this
+             */
+            $occurrence = $containerWidget['occurrence'] ?? 1;
 
-    $type = $widget->admin['type'] ?? ($widget->type->admin['type'] ?? []);
+            $containerWidgetKey = "widget-{$containerKey}-{$widget->key}-{$occurrence}";
 
-    $assetTypes = ! empty($widget->admin['asset_types'])
-        ? $widget->admin['asset_types']
-        : ($widget->type->admin['asset_types'] ?? []);
+            $type = $widget->admin['type'] ?? ($widget->type->admin['type'] ?? []);
 
-    $widgetIcon = $widget->admin['icon'] ?? ($widget->type->admin['icon'] ?? null);
+            $assetTypes = ! empty($widget->admin['asset_types'])
+                ? $widget->admin['asset_types']
+                : ($widget->type->admin['asset_types'] ?? []);
 
-    $hasPageAssets = $this->hasPageAssets($containerKey, $widgetIndex);
+            $widgetIcon = $widget->admin['icon'] ?? ($widget->type->admin['icon'] ?? null);
 
-    $editWidgetAction = ($this->editWidgetAction)(['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex]);
+            $hasPageAssets = $this->hasPageAssets($containerKey, $widgetIndex);
 
-    $editContainerWidgetAction = ($this->editContainerWidgetAction)([
-        'containerKey' => $containerKey,
-        'widgetIndex' => $widgetIndex,
-    ]);
+            $editWidgetAction = ($this->editWidgetAction)(['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex]);
 
-    $togglePageAssetsAction = ($this->togglePageAssetsAction)([
-        'containerKey' => $containerKey,
-        'widgetIndex' => $widgetIndex,
-    ]);
+            $editContainerWidgetAction = ($this->editContainerWidgetAction)([
+                'containerKey' => $containerKey,
+                'widgetIndex' => $widgetIndex,
+            ]);
 
-    $image = $widget->image ?: $widget->backgroundImage;
+            $togglePageAssetsAction = ($this->togglePageAssetsAction)([
+                'containerKey' => $containerKey,
+                'widgetIndex' => $widgetIndex,
+            ]);
 
-    $title = $widget->translation?->title;
+            $image = $widget->image ?: $widget->backgroundImage;
+
+            $title = $widget->translation?->title;
 @endphp
 
 <div
@@ -73,13 +74,13 @@ declare(strict_types=1);
     }"
     {{
         $attributes->class(['layout-container-widget group last:rounded-b-lg'])->when(
-            $assetTypes,
-            fn (ComponentAttributeBag $attributeBag): ComponentAttributeBag => $attributeBag->merge([
-                ':class' => "{ 'pb-4': ! isCollapsed }",
-            ]),
+        $assetTypes,
+        fn (ComponentAttributeBag $attributeBag): ComponentAttributeBag => $attributeBag->merge([
+        ':class' => "{ 'pb-4': ! isCollapsed }",
+        ]),
         )
     }}
-    wire:key="{{ "{$containerKey}.{$widgetIndex}" }}"
+    wire:key="{{ "{$containerWidgetKey}" }}"
     x-sort:item="'{{ $containerKey . '.' . $widgetIndex }}'"
     x-init="
         $dispatch('widget-collapsed-register', {
@@ -159,8 +160,8 @@ declare(strict_types=1);
                 <span class="text-sm text-gray-600 dark:text-gray-100">
                     <span
                         @class([
-                            'font-semibold',
-                            'group-hover/widget:text-primary-600' => $assetTypes,
+                        'font-medium',
+                        'group-hover/widget:text-primary-600' => $assetTypes,
                         ])
                     >
                         {{ $widget->name }}

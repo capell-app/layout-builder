@@ -147,7 +147,7 @@ class DemoAction
 
         $tagModel = CapellCore::getModel(ModelEnum::Tag);
 
-        $tagModel::firstOrCreate([
+        $tagModel::query()->firstOrCreate([
             'type' => 'page',
             'name' => $tag_name,
             'slug' => $tag_slug,
@@ -168,10 +168,7 @@ class DemoAction
         $tagModel = CapellCore::getModel(ModelEnum::Tag);
         $pageModel = CapellCore::getModel(CoreModelEnum::Page);
 
-        $pages = $pageModel::whereHas(
-            'type',
-            fn (BuilderContract $query) => $query->whereIn('key', ['default', 'article']),
-        )
+        $pages = $pageModel::query()->whereHas('type', fn (BuilderContract $query) => $query->whereIn('key', ['default', 'article']))
             ->with([
                 'translations.language',
                 'children',

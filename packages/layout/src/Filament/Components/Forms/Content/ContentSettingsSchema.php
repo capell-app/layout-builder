@@ -15,7 +15,7 @@ class ContentSettingsSchema
     {
         return [
             ContentSelect::make('parent_id')
-                ->label(__('capell-layout::form.parent'))
+                ->label(__('capell-admin::form.parent'))
                 ->lazy()
                 ->modifySelectOptionsQueryUsing(function (Builder $query, ?Content $record): void {
                     if ($record instanceof Content) {

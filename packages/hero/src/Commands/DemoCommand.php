@@ -56,7 +56,7 @@ class DemoCommand extends Command
             return Command::FAILURE;
         }
 
-        $this->demoCreator = app(DemoCreator::class);
+        $this->demoCreator = resolve(DemoCreator::class);
 
         $heroWidget = CreateHeroWidgetAction::run();
 

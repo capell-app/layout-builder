@@ -10,5 +10,6 @@ use Capell\Blog\Filament\Resources\Tags\TagResource;
 enum ResourceEnum: string
 {
     case Article = ArticleResource::class;
+
     case Tag = TagResource::class;
 }

@@ -11,6 +11,7 @@ use Capell\Layout\Services\Creator\TypeCreator;
 enum LayoutTypeEnum: string
 {
     case Content = 'content';
+
     case Widget = 'widget';
 
     public function getResource(): string

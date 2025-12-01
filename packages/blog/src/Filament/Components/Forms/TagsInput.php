@@ -26,7 +26,7 @@ abstract class TagsInput extends SpatieTagsInput
                 /** @var class-string<Tag> $model */
                 $model = CapellCore::getModel(ModelEnum::Tag);
 
-                return $model::where('type', $component->type)
+                return $model::query()->where('type', $component->type)
                     ->where(
                         fn (Builder $query) => $query->whereNull('site_id')
                             ->orWhere('site_id', $get('site_id')),

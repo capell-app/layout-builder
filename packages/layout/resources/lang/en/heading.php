@@ -6,7 +6,7 @@ return [
     'layout_record' => 'Layout: :name',
     'edit_container' => 'Edit Container',
     'container_widget_settings' => 'Container Widget Settings',
-    'add_widget_to_container' => 'Add Widget to Container',
+    'add_widget_to_container' => 'Add Widget(s) to Container',
     'edit_widget_record' => 'Edit Widget: :name',
     'widget_type' => 'Widget Type: :type',
     'edit_page_widget_asset' => 'Edit Page Widget Asset: :name',
@@ -22,4 +22,3 @@ return [
     'page_siblings' => 'Page Siblings',
     'edit_tag_record' => 'Edit Tag: :name',
 ];
-

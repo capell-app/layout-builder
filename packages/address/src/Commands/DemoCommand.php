@@ -74,35 +74,29 @@ class DemoCommand extends Command
     {
         $countryModel = CapellCore::getModel(AddressModelEnum::Country);
 
-        return $countryModel::firstOrCreate(
-            ['iso2' => 'US'],
-            [
-                'name' => 'United States',
-                'iso2' => 'US',
-                'iso3' => 'USA',
-                'language_id' => CapellCore::getModel(ModelEnum::Language)::where('code', 'en')->first()->id,
-            ],
-        );
+        return $countryModel::query()->firstOrCreate(['iso2' => 'US'], [
+            'name' => 'United States',
+            'iso2' => 'US',
+            'iso3' => 'USA',
+            'language_id' => CapellCore::getModel(ModelEnum::Language)::query()->where('code', 'en')->first()->id,
+        ]);
     }
 
     private function setupAddress(): Address
     {
-        return CapellCore::getModel(AddressModelEnum::Address)::firstOrCreate(
-            [
-                'line1' => '123 Main St',
-                'city' => 'Anytown',
-                'postal_code' => '12345',
-                'country_id' => $this->setupCountry()->id,
+        return CapellCore::getModel(AddressModelEnum::Address)::query()->firstOrCreate([
+            'line1' => '123 Main St',
+            'city' => 'Anytown',
+            'postal_code' => '12345',
+            'country_id' => $this->setupCountry()->id,
+        ], [
+            'name' => 'Headquarters',
+            'line2' => 'Suite 100',
+            'state' => 'CA',
+            'meta' => [
+                'latitude' => 34.0522,
+                'longitude' => -118.2437,
             ],
-            [
-                'name' => 'Headquarters',
-                'line2' => 'Suite 100',
-                'state' => 'CA',
-                'meta' => [
-                    'latitude' => 34.0522,
-                    'longitude' => -118.2437,
-                ],
-            ],
-        );
+        ]);
     }
 }

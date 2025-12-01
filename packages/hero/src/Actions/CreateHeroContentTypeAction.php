@@ -23,7 +23,7 @@ class CreateHeroContentTypeAction
         /** @var class-string<Type> */
         $type = CapellCore::getModel(ModelEnum::Type->name);
 
-        return $type::firstOrCreate([
+        return $type::query()->firstOrCreate([
             'key' => 'hero',
             'type' => LayoutTypeEnum::Content,
         ], [

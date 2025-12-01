@@ -11,6 +11,7 @@ use Capell\Layout\Database\Factories\LayoutFactory;
 use Capell\Layout\Database\Factories\WidgetTypeFactory;
 use Capell\Layout\Enums\AssetEnum;
 use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Widgets\DefaultLayoutWidgetSchema;
+use Capell\Layout\Livewire\Layout\WidgetTableSelect;
 use Capell\Layout\Livewire\LayoutBuilder;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
@@ -42,15 +43,15 @@ test('Render layout builder', function (): void {
 test('can edit layouts', function (LayoutEnum $layoutEnum): void {
     $language = Language::factory()->create();
 
-    $layout = app(LayoutCreator::class)->create($layoutEnum->value);
+    $layout = resolve(LayoutCreator::class)->create($layoutEnum->value);
 
-    $widgetTypeCreator = app(TypeCreator::class);
+    $widgetTypeCreator = resolve(TypeCreator::class);
     $widgetTypeCreator->createWidgetTypes();
 
-    $widgetCreator = app(WidgetCreator::class);
+    $widgetCreator = resolve(WidgetCreator::class);
     $widgetCreator->createWidgets(collect([$language]));
 
-    $layoutUpdater = app(LayoutUpdater::class);
+    $layoutUpdater = resolve(LayoutUpdater::class);
     $layoutUpdater->setup($layout->key);
 
     livewire(LayoutBuilder::class, [
@@ -398,18 +399,19 @@ test('Can add new widget', function (): void {
         'layout_id' => $layout->id,
     ])
         ->assertSuccessful()
-        ->callAction(
+        ->mountAction(
             'addWidget',
-            data: [
-                'container' => $containerKey,
-                'type_id' => [$widget->type_id],
-                'widgets' => [$widget->id],
-            ],
             arguments: [
                 'containerKey' => $containerKey,
             ],
         )
-        ->assertHasNoFormErrors()
+        ->assertSeeLivewire(WidgetTableSelect::class)
+        ->callMountedAction()
+        ->dispatch(
+            'add-widgets-to-container',
+            containerKey: $containerKey,
+            widgets: [$widget->id],
+        )
         ->call('saveLayout');
 
     $layout->refresh();
@@ -437,17 +439,19 @@ test('Can add existing widget', function (): void {
         'layout_id' => $layout->id,
     ])
         ->assertSuccessful()
-        ->callAction(
+        ->mountAction(
             'addWidget',
-            data: [
-                'type_id' => [$widget->type_id],
-                'widgets' => [$widget->id],
-            ],
             arguments: [
                 'containerKey' => $containerKey,
             ],
         )
-        ->assertHasNoFormErrors()
+        ->assertSeeLivewire(WidgetTableSelect::class)
+        ->callMountedAction()
+        ->dispatch(
+            'add-widgets-to-container',
+            containerKey: $containerKey,
+            widgets: [$widget->id],
+        )
         ->call('saveLayout');
 
     $layout->refresh();
@@ -482,12 +486,19 @@ test('Can edit container widget', function (): void {
         'layout_id' => $layout->id,
     ])
         ->assertSuccessful()
-        ->callAction(
+        ->mountAction(
             'addWidget',
-            data: ['widgets' => [$widget->id]],
-            arguments: ['containerKey' => $containerKey],
+            arguments: [
+                'containerKey' => $containerKey,
+            ],
         )
-        ->assertHasNoFormErrors()
+        ->assertSeeLivewire(WidgetTableSelect::class)
+        ->dispatch(
+            'add-widgets-to-container',
+            containerKey: $containerKey,
+            widgets: [$widget->id],
+        )
+        ->callMountedAction()
         ->mountAction(
             TestAction::make('editContainerWidget')
                 ->arguments([
