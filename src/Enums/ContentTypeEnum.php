@@ -7,5 +7,6 @@ namespace Capell\Layout\Enums;
 enum ContentTypeEnum: string
 {
     case Default = 'default';
+
     case Builder = 'builder';
 }

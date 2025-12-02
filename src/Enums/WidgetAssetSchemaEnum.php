@@ -11,6 +11,7 @@ use InvalidArgumentException;
 enum WidgetAssetSchemaEnum: string
 {
     case Content = ContentWidgetAssetForm::class;
+
     case Page = PageWidgetAssetForm::class;
 
     public static function fromName(string $name): self

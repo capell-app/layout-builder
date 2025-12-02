@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Cache;
 
 class CapellLayoutHelper
 {
-    public static function getWidgetOptions(?array $typeId, ?array $group, ?string $search = null): Collection
+    public static function getWidgetOptions(?array $typeId = [], ?array $group = [], ?string $search = null): Collection
     {
         $cacheKey = CapellLayoutCacheKeyEnum::WidgetOptions->value . hash('sha256', json_encode([$typeId, $group, $search]));
 

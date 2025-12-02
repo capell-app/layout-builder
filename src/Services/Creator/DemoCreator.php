@@ -68,11 +68,11 @@ class DemoCreator
 
     public function createContentWidget(Collection $languages): Widget
     {
-        $siteId = Site::default()?->value('id');
+        $siteId = Site::query()->default()?->value('id');
 
-        $widget = $this->widgetModel::firstOrCreate(['key' => 'example-content'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-content'], [
             'name' => 'Example Content',
-            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::ContentBuilder, 'type' => LayoutTypeEnum::Widget])->id,
+            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::ContentBuilder, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'size' => 'md',
                 'margin' => '',
@@ -117,11 +117,11 @@ class DemoCreator
 
     public function createSplitContentWidget(Collection $languages): Widget
     {
-        $siteId = Site::default()?->value('id');
+        $siteId = Site::query()->default()?->value('id');
 
-        $widget = $this->widgetModel::firstOrCreate(['key' => 'example-split-content'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-split-content'], [
             'name' => 'Example Split Content',
-            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::ContentBuilder, 'type' => LayoutTypeEnum::Widget])->id,
+            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::ContentBuilder, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'align' => 'center',
                 'size' => 'md',
@@ -165,10 +165,10 @@ class DemoCreator
 
     public function createBannerImageWidget(Collection $languages): Widget
     {
-        $siteId = Site::default()?->value('id');
-        $widget = $this->widgetModel::firstOrCreate(['key' => 'banner-full-width'], [
+        $siteId = Site::query()->default()?->value('id');
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'banner-full-width'], [
             'name' => 'Banner Full Width',
-            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::ContentBuilder, 'type' => LayoutTypeEnum::Widget])->id,
+            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::ContentBuilder, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'component' => 'capell-layout::widget.banner-image',
                 'margin' => ['lg'],
@@ -210,7 +210,7 @@ class DemoCreator
 
     public function createGalleryWidget(): Widget
     {
-        $widget = $this->widgetModel::where('key', 'gallery')->first();
+        $widget = $this->widgetModel::query()->where('key', 'gallery')->first();
 
         if ($widget->assets()->exists()) {
             return $widget;
@@ -225,13 +225,13 @@ class DemoCreator
 
     public function createPageCardsWidget(Page $page, string $container = 'main', int $occurrence = 1): Widget
     {
-        $widget = $this->widgetModel::firstWhere('key', 'pages-card');
+        $widget = $this->widgetModel::query()->firstWhere('key', 'pages-card');
 
         if (! $widget) {
-            $widget = $this->widgetModel::create([
+            $widget = $this->widgetModel::query()->create([
                 'key' => 'pages-card',
                 'name' => __('capell-layout::generic.pages_tile'),
-                'type_id' => $this->typeModel::firstWhere('key', WidgetTypeEnum::Pages)->id,
+                'type_id' => $this->typeModel::query()->firstWhere('key', WidgetTypeEnum::Pages)->id,
                 'meta' => [
                     'component' => WidgetComponentEnum::LivewirePages,
                     'columns' => 4,
@@ -269,7 +269,7 @@ class DemoCreator
         $pages->each(fn ($related_page_id): WidgetAsset => $widget->assets()->create([
             'page_id' => $page->id,
             'asset_id' => $related_page_id,
-            'asset_type' => app($this->pageModel)->getMorphClass(),
+            'asset_type' => resolve($this->pageModel)->getMorphClass(),
             'container' => $container,
             'occurrence' => $occurrence,
         ]));
@@ -282,7 +282,7 @@ class DemoCreator
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', 'assets');
 
-        $widget = $this->widgetModel::firstOrCreate(['key' => 'faq'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'faq'], [
             'key' => 'faq',
             'name' => __('capell-admin::generic.faq'),
             'type_id' => $widgetType->id,
@@ -311,7 +311,7 @@ class DemoCreator
             ->where('key', ContentTypeEnum::Builder)
             ->first();
 
-        $parentContent = $this->contentModel::firstOrCreate([
+        $parentContent = $this->contentModel::query()->firstOrCreate([
             'name' => 'FAQs',
             'type_id' => $contentType->id,
         ], [
@@ -361,7 +361,7 @@ class DemoCreator
         ];
 
         foreach ($questions['en'] as $i => $question) {
-            $content = $this->contentModel::firstOrCreate([
+            $content = $this->contentModel::query()->firstOrCreate([
                 'name' => $question,
                 'parent_id' => $parentContent->id,
                 'type_id' => $contentType->id,
@@ -369,7 +369,7 @@ class DemoCreator
 
             $widget->assets()->firstOrcreate([
                 'asset_id' => $content->id,
-                'asset_type' => app($this->contentModel)->getMorphClass(),
+                'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
 
             foreach ($languages as $language) {
@@ -394,7 +394,7 @@ class DemoCreator
 
     public function createMediaCarouselWidget(): Widget
     {
-        $widget = $this->widgetModel::where('key', 'media-carousel')->first();
+        $widget = $this->widgetModel::query()->where('key', 'media-carousel')->first();
 
         if ($widget->assets()->exists()) {
             return $widget;
@@ -437,7 +437,7 @@ class DemoCreator
             ->limit(4)
             ->get();
 
-        $model::updateOrCreate([
+        $model::query()->updateOrCreate([
             'key' => $key,
             'site_id' => $site->id,
             'type_id' => $this->typeModel::navigationType()->default()->first()->id,
@@ -447,9 +447,9 @@ class DemoCreator
         ]);
 
         // Create widget
-        $widget = $this->widgetModel::firstOrCreate(['key' => 'example-navigation'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-navigation'], [
             'name' => __('Example Navigation'),
-            'type_id' => $this->typeModel::firstWhere(['key' => 'navigation', 'type' => LayoutTypeEnum::Widget])->id,
+            'type_id' => $this->typeModel::query()->firstWhere(['key' => 'navigation', 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'navigation' => $key,
                 'margin' => ['lg'],
@@ -563,7 +563,7 @@ class DemoCreator
                 'page_id' => $page->id,
                 'container' => $container,
                 'occurrence' => $occurrence,
-                'asset_type' => app($this->contentModel)->getMorphClass(),
+                'asset_type' => resolve($this->contentModel)->getMorphClass(),
                 'asset_id' => $content->id,
             ]);
         }
@@ -575,7 +575,7 @@ class DemoCreator
             'key' => 'client-logos',
         ], [
             'name' => 'Client Logos',
-            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
+            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
@@ -614,7 +614,7 @@ class DemoCreator
             'key' => 'business-features',
         ], [
             'name' => 'Business Features',
-            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget])->id,
+            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
@@ -644,7 +644,7 @@ class DemoCreator
             }
 
             $widget->assets()->create([
-                'asset_type' => app($this->contentModel)->getMorphClass(),
+                'asset_type' => resolve($this->contentModel)->getMorphClass(),
                 'asset_id' => $content->id,
             ]);
         });
@@ -654,9 +654,9 @@ class DemoCreator
 
     public function createBannersWidget(): Widget
     {
-        $widget = $this->widgetModel::firstOrCreate(['key' => 'banners'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'banners'], [
             'name' => 'Banner Showcase',
-            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget])->id,
+            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'align' => 'center',
                 'background_overlay' => true,
@@ -664,7 +664,7 @@ class DemoCreator
             ],
         ]);
 
-        $site = Site::default()->first();
+        $site = Site::query()->default()->first();
 
         $features = $this->createFeatures($site);
 
@@ -674,7 +674,7 @@ class DemoCreator
             }
 
             $widget->assets()->create([
-                'asset_type' => app($this->contentModel)->getMorphClass(),
+                'asset_type' => resolve($this->contentModel)->getMorphClass(),
                 'asset_id' => $content->id,
             ]);
         });
@@ -684,9 +684,9 @@ class DemoCreator
 
     public function createTestimonialsWidget(Collection $languages): Widget
     {
-        $widget = $this->widgetModel::firstOrCreate(['key' => 'testimonials'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'testimonials'], [
             'name' => 'Testimonials',
-            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget])->id,
+            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'align' => 'center',
                 'background_overlay' => true,
@@ -711,7 +711,7 @@ class DemoCreator
             }
 
             $widget->assets()->create([
-                'asset_type' => app($this->contentModel)->getMorphClass(),
+                'asset_type' => resolve($this->contentModel)->getMorphClass(),
                 'asset_id' => $content->id,
             ]);
         });
@@ -721,9 +721,9 @@ class DemoCreator
 
     public function createStatisticsWidget(): Widget
     {
-        $widget = $this->widgetModel::firstOrCreate(['key' => 'statistics'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'statistics'], [
             'name' => 'Statistics',
-            'type_id' => $this->typeModel::firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
+            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'component_item' => 'capell-layout::content.block',
                 'view_file' => 'capell-layout::components.widget.assets.blocks',
@@ -768,7 +768,7 @@ class DemoCreator
             ],
         ];
 
-        $site = Site::default()->first();
+        $site = Site::query()->default()->first();
 
         foreach ($statistics as $statistic) {
             $content = Content::query()->firstOrCreate([
@@ -790,7 +790,7 @@ class DemoCreator
 
             $widget->assets()->firstOrCreate([
                 'asset_id' => $content->id,
-                'asset_type' => app($this->contentModel)->getMorphClass(),
+                'asset_type' => resolve($this->contentModel)->getMorphClass(),
             ]);
         }
 
@@ -799,7 +799,7 @@ class DemoCreator
 
     public function createTeamPortfolioWidget(Collection $languages): Widget
     {
-        $widget = $this->widgetModel::firstOrCreate(['key' => 'team-portfolio'], [
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'team-portfolio'], [
             'name' => 'Team Portfolio',
             'type_id' => $this->typeModel::query()
                 ->where([
@@ -839,7 +839,7 @@ class DemoCreator
             }
 
             $widget->assets()->create([
-                'asset_type' => app($this->contentModel)->getMorphClass(),
+                'asset_type' => resolve($this->contentModel)->getMorphClass(),
                 'asset_id' => $content->id,
             ]);
         });
@@ -1167,7 +1167,7 @@ class DemoCreator
 
     private function createMedia(HasMedia $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): void
     {
-        app(AdminDemoCreator::class)->createMedia($model, $name, $type, $collection);
+        resolve(AdminDemoCreator::class)->createMedia($model, $name, $type, $collection);
     }
 
     private function createWidgetMedia(HasMedia $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): void
@@ -1204,7 +1204,7 @@ class DemoCreator
 
         $model->assets()->create([
             'asset_id' => $content->getKey(),
-            'asset_type' => app(Content::class)->getMorphClass(),
+            'asset_type' => resolve(Content::class)->getMorphClass(),
         ]);
 
         $image = null;
@@ -1244,6 +1244,6 @@ class DemoCreator
 
     private function getRandomDemoImage(string $demo_path): string
     {
-        return app(AdminDemoCreator::class)->getRandomDemoImage($demo_path);
+        return resolve(AdminDemoCreator::class)->getRandomDemoImage($demo_path);
     }
 }

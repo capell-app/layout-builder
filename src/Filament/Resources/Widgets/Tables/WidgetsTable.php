@@ -16,7 +16,6 @@ use Capell\Admin\Filament\Components\Tables\Columns\MediaLibraryImageColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\StatusIconColumn;
 use Capell\Admin\Filament\Components\Tables\Filters\StatusFilter;
-use Capell\Admin\Filament\Components\Tables\Filters\TextFilter;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
@@ -224,14 +223,6 @@ class WidgetsTable implements TableConfigurator
                     titleAttribute: 'name',
                 ),
 
-            TextFilter::make('file')
-                ->label(__('capell-admin::form.component'))
-                ->query(function (TextFilter $filter, array $data, Builder $query): void {
-                    if (! empty($data['clause'])) {
-                        $columns = ['meta->component', 'meta->file', 'meta->component_item'];
-                        $filter->applyQueryClause($query, $columns, $data['clause'], $data);
-                    }
-                }),
             Filter::make('filter')
                 ->schema([
                     Select::make('language_id')
@@ -251,7 +242,7 @@ class WidgetsTable implements TableConfigurator
                     if (! empty($data['language_id'])) {
                         $indicators['language_id'] = __(
                             'capell-admin::filter.language',
-                            ['search' => CapellCore::getModel(ModelEnum::Language)::find($data['language_id'], 'name')?->name],
+                            ['search' => CapellCore::getModel(ModelEnum::Language)::query()->find($data['language_id'], 'name')?->name],
                         );
                     }
 

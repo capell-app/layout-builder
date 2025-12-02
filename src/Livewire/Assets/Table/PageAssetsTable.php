@@ -6,26 +6,23 @@ namespace Capell\Layout\Livewire\Assets\Table;
 
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Filament\Resources\Pages\Tables\PagesTable;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Filament\Tables\Table;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\Locked;
 
-class PagesTable extends AbstractAssetsTable
+class PageAssetsTable extends AbstractAssetsTable
 {
     public string $type = 'page';
+
+    #[Locked]
+    public string $tableConfiguration = PagesTable::class;
 
     public static function getResource(): string
     {
         return CapellAdmin::getResource(ResourceEnum::Page);
-    }
-
-    public function table(Table $table): Table
-    {
-        return parent::table(
-            \Capell\Admin\Filament\Resources\Pages\Tables\PagesTable::configure($table),
-        );
     }
 
     public function getFilteredTableQuery(): Builder
@@ -55,14 +52,20 @@ class PagesTable extends AbstractAssetsTable
             'translations.language',
             'ancestors.type',
             'creator',
+            'layout',
             'image',
+            'media',
             'editor',
             'site.siteDomains',
             'type',
         ])
             ->when(
-                $this->arguments['pageId'] ?? null,
-                fn (BuilderContract $query) => $query->whereKeyNot($this->arguments['pageId']),
+                $this->tableArguments['pageId'] ?? null,
+                fn (BuilderContract $query) => $query->whereKeyNot($this->tableArguments['pageId']),
+            )
+            ->when(
+                $this->existingRecords,
+                fn (Builder $query) => $query->whereNotIn('id', $this->existingRecords),
             );
     }
 }

@@ -10,5 +10,6 @@ use Capell\Layout\Filament\Resources\Widgets\WidgetResource;
 enum ResourceEnum: string
 {
     case Content = ContentResource::class;
+
     case Widget = WidgetResource::class;
 }

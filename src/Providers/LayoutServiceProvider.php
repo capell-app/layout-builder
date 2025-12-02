@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout;
+namespace Capell\Layout\Providers;
 
 use Capell\Admin\Actions\CreatedModelAction;
 use Capell\Admin\Actions\DeletedModelAction;
-use Capell\Admin\AdminServiceProvider;
 use Capell\Admin\Data\AdminAssetData;
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Enums\SchemaExtenderEnum;
 use Capell\Admin\Enums\SchemaTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Data\TypeData;
 use Capell\Core\Facades\CapellCore;
@@ -22,10 +22,12 @@ use Capell\Core\Models\Type;
 use Capell\Core\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Data\FrontendAssetData;
 use Capell\Frontend\Facades\CapellFrontend;
-use Capell\Frontend\FrontendServiceProvider;
+use Capell\Frontend\Providers\FrontendServiceProvider;
+use Capell\Layout\CapellLayoutManager;
 use Capell\Layout\Commands\DemoCommand;
 use Capell\Layout\Commands\InstallCommand;
 use Capell\Layout\Commands\UpgradeCommand;
+use Capell\Layout\Enums;
 use Capell\Layout\Enums\AssetEnum;
 use Capell\Layout\Enums\ComponentTypeEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
@@ -36,12 +38,12 @@ use Capell\Layout\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExten
 use Capell\Layout\Filament\Resources\Pages\Schemas\Extenders\PageSchemaExtender;
 use Capell\Layout\Filament\Resources\Types\Schemas\Types\ContentTypeSchema;
 use Capell\Layout\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
+use Capell\Layout\LayoutModelRegistrar;
 use Capell\Layout\Listeners\AfterRecordSaved;
 use Capell\Layout\Listeners\LayoutLoaded;
 use Capell\Layout\Listeners\SiteTreeRebuilt;
 use Capell\Layout\Listeners\TypeValidated;
 use Capell\Layout\Models\Content;
-use Capell\Layout\Models\WidgetAsset;
 use Composer\InstalledVersions;
 use Exception;
 use Filament\Facades\Filament;
@@ -74,12 +76,8 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             return;
         }
 
-        // Skip boot-time registration chain when running unit tests.
-        if (! $this->app->runningUnitTests()) {
-            $this->registerAll();
-        }
-
-        $this->registerPublishCommands()
+        $this->registerAll()
+            ->registerPublishCommands()
             ->registerLivewireComponents()
             ->registerBladeComponents();
     }
@@ -101,17 +99,13 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
     {
         parent::registeringPackage();
 
-        $this->registerPackageMetadata();
-
-        // During unit tests we need the registration chain earlier.
-        if ($this->app->runningUnitTests()) {
-            $this->registerAll();
-        }
+        $this->registerPackageMetadata()
+            ->registerResources();
     }
 
     protected function getPublishedDirectory(): string
     {
-        $dir = realpath(__DIR__ . '/../publishes');
+        $dir = $this->package->basePath('/../publishes/');
 
         throw_if(in_array($dir, ['', '0', false], true), RuntimeException::class, 'Publish directory not found.');
 
@@ -132,7 +126,6 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             ->registerSchemas()
             ->registerManager()
             ->registerFilamentServing()
-            ->registerResources()
             ->registerTypes()
             ->registerComponents()
             ->registerAssets()
@@ -312,11 +305,11 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     private function registerThemeViewPath(): self
     {
-        $viewPath = realpath(__DIR__ . '/../resources/views/capell');
+        $dir = $this->package->basePath('/../resources/views/capell/');
 
-        throw_if(in_array($viewPath, ['', '0', false], true) || ! is_dir($viewPath), Exception::class, 'Theme view path not found: ' . $viewPath);
+        throw_if(in_array($dir, ['', '0', false], true) || ! is_dir($dir), Exception::class, 'Theme view path not found: ' . $dir);
 
-        app(Factory::class)->prependNamespace('capell', $viewPath);
+        resolve(Factory::class)->prependNamespace('capell', $dir);
 
         return $this;
     }
@@ -454,7 +447,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             fn (Layout $model): BelongsToJson => $model->belongsToJson(
                 ModelEnum::Widget->value,
                 'widgets',
-                'key'
+                'key',
             ),
         );
 

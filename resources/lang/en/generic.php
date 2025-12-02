@@ -23,6 +23,5 @@ return [
     'widget' => 'Widget',
     'widgets_subheading' => 'Widgets',
     'contents_subheading' => 'Contents',
-    'container_settings' => 'Container Settings',
     'exclude_types_info' => 'Exclude these types from selection.',
 ];

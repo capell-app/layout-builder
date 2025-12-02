@@ -7,6 +7,7 @@ namespace Capell\Layout\Enums;
 enum TypeEnum: string
 {
     case Content = 'content';
+
     case Widget = 'widget';
 
     public function getModel(): string

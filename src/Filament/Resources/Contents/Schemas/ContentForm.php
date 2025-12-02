@@ -39,7 +39,7 @@ class ContentForm implements FormConfigurator
                         if ($record?->relationLoaded('type') && $record->type?->id === $typeId) {
                             $type = $record->type;
                         } else {
-                            $type = $typeId ? CapellCore::getModel(ModelEnum::Type)::find($typeId, ['admin']) : null;
+                            $type = $typeId ? CapellCore::getModel(ModelEnum::Type)::query()->find($typeId, ['admin']) : null;
                         }
 
                         $name = $type->admin['schema'] ?? DefaultContentSchema::getKey();

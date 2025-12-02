@@ -58,7 +58,7 @@ class TypeCreator
 
     public function createDefaultContentType(): void
     {
-        $this->typeModel::firstOrCreate([
+        $this->typeModel::query()->firstOrCreate([
             'default' => true,
             'type' => LayoutTypeEnum::Content,
         ], [
@@ -73,7 +73,7 @@ class TypeCreator
 
     public function createBuilderContentType(): void
     {
-        $this->typeModel::firstOrCreate([
+        $this->typeModel::query()->firstOrCreate([
             'key' => ContentTypeEnum::Builder,
             'type' => LayoutTypeEnum::Content,
         ], [
@@ -104,7 +104,7 @@ class TypeCreator
 
     public function defaultWidgetType(): Type
     {
-        return $this->typeModel::firstOrCreate([
+        return $this->typeModel::query()->firstOrCreate([
             'key' => WidgetTypeEnum::Default,
             'type' => LayoutTypeEnum::Widget,
         ], [
@@ -123,7 +123,7 @@ class TypeCreator
 
     public function contentBuilderWidgetType(): Type
     {
-        return $this->typeModel::firstOrCreate([
+        return $this->typeModel::query()->firstOrCreate([
             'key' => WidgetTypeEnum::ContentBuilder,
             'type' => LayoutTypeEnum::Widget,
         ], [
@@ -143,7 +143,7 @@ class TypeCreator
 
     public function mediaWidgetType(): Type
     {
-        return $this->typeModel::firstOrCreate([
+        return $this->typeModel::query()->firstOrCreate([
             'key' => WidgetTypeEnum::Media,
             'type' => LayoutTypeEnum::Widget,
         ], [
@@ -164,7 +164,7 @@ class TypeCreator
 
     public function navigationWidgetType(): Type
     {
-        return $this->typeModel::firstOrCreate([
+        return $this->typeModel::query()->firstOrCreate([
             'key' => WidgetTypeEnum::Navigation,
             'type' => LayoutTypeEnum::Widget,
         ], [
@@ -183,7 +183,7 @@ class TypeCreator
 
     public function pageContentWidgetType(): Type
     {
-        return $this->typeModel::firstOrCreate([
+        return $this->typeModel::query()->firstOrCreate([
             'key' => WidgetTypeEnum::PageContents,
             'type' => LayoutTypeEnum::Widget,
         ], [
@@ -204,7 +204,7 @@ class TypeCreator
 
     public function pageResultsWidgetType(): Type
     {
-        return $this->typeModel::firstOrCreate([
+        return $this->typeModel::query()->firstOrCreate([
             'key' => WidgetTypeEnum::PageResults,
             'type' => LayoutTypeEnum::Widget,
         ], [
@@ -223,7 +223,7 @@ class TypeCreator
 
     public function pagesWidgetType(): Type
     {
-        return $this->typeModel::firstOrCreate([
+        return $this->typeModel::query()->firstOrCreate([
             'key' => WidgetTypeEnum::Pages,
             'type' => LayoutTypeEnum::Widget,
         ], [
@@ -243,7 +243,7 @@ class TypeCreator
 
     public function assetsWidgetType(): Type
     {
-        return $this->typeModel::firstOrCreate([
+        return $this->typeModel::query()->firstOrCreate([
             'key' => WidgetTypeEnum::Assets,
             'type' => LayoutTypeEnum::Widget,
         ], [
@@ -266,7 +266,7 @@ class TypeCreator
 
     public function systemWidgetType(): Type
     {
-        return $this->typeModel::firstOrCreate([
+        return $this->typeModel::query()->firstOrCreate([
             'key' => WidgetTypeEnum::System,
             'type' => LayoutTypeEnum::Widget,
         ], [
@@ -286,7 +286,7 @@ class TypeCreator
 
     public function contentsWidgetType(): Type
     {
-        return $this->typeModel::firstOrCreate([
+        return $this->typeModel::query()->firstOrCreate([
             'key' => WidgetTypeEnum::Contents,
             'type' => LayoutTypeEnum::Widget,
         ], [

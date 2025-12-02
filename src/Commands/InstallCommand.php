@@ -48,6 +48,8 @@ class InstallCommand extends Command
 
         $this->call('migrate');
 
+        $this->call('filament:assets');
+
         InstallPackageAction::run();
 
         $this->info('Capell Layout installation complete.');

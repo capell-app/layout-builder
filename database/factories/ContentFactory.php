@@ -84,7 +84,7 @@ class ContentFactory extends Factory
                 $translation = Translation::factory()
                     ->make([
                         'language_id' => $language->id,
-                        'translatable_type' => app(Content::class)->getMorphClass(),
+                        'translatable_type' => resolve(Content::class)->getMorphClass(),
                         'translatable_id' => $content->id,
                         'title' => $title,
                         ...$data,

@@ -23,19 +23,19 @@ class InstallPackageAction
     {
         LayoutModelRegistrar::register();
 
-        $typeCreator = app(TypeCreator::class);
+        $typeCreator = resolve(TypeCreator::class);
         $typeCreator->createWidgetTypes();
 
         $typeCreator->createDefaultContentType();
         $typeCreator->createBuilderContentType();
 
-        $widgetCreator = app(WidgetCreator::class);
+        $widgetCreator = resolve(WidgetCreator::class);
         $widgetCreator->createWidgets(Language::all());
 
-        $layoutCreator = app(LayoutCreator::class);
+        $layoutCreator = resolve(LayoutCreator::class);
         $layoutCreator->setup();
 
-        $layoutUpdater = app(LayoutUpdater::class);
+        $layoutUpdater = resolve(LayoutUpdater::class);
         $layoutUpdater->setup();
     }
 }

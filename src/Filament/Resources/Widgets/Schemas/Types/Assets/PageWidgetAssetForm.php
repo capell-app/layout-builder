@@ -17,6 +17,6 @@ class PageWidgetAssetForm extends AbstractWidgetAssetSchema
     {
         $adminSchema = CapellAdmin::getSchema(SchemaTypeEnum::Page, DefaultPageSchema::getKey());
 
-        return app($adminSchema)->make($schema);
+        return resolve($adminSchema)->make($schema);
     }
 }

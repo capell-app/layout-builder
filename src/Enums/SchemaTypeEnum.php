@@ -25,9 +25,13 @@ enum SchemaTypeEnum: string implements SchemaTypeEnumInterface
     use HasSchemaTypes;
 
     case Content = 'Contents';
+
     case LayoutContainer = 'LayoutContainers';
+
     case LayoutWidget = 'LayoutWidgets';
+
     case Widget = 'Widgets';
+
     case WidgetAsset = 'WidgetAssets';
 
     public function getSchemas(): array

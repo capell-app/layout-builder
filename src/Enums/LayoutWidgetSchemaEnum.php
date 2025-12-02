@@ -10,5 +10,6 @@ use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Widgets\PageLayoutWid
 enum LayoutWidgetSchemaEnum: string
 {
     case Default = DefaultLayoutWidgetSchema::class;
+
     case Page = PageLayoutWidgetSchema::class;
 }
