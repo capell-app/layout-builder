@@ -37,7 +37,7 @@ jobs:
             php: 8.2
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Cache Dependencies PHP
         id: php-cache

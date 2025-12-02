@@ -12,7 +12,7 @@ jobs:
       COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.ACCESS_TOKEN }}"} }'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Cache Dependencies PHP
         id: php-cache
