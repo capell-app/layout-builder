@@ -259,14 +259,19 @@ declare(strict_types=1);
             </x-slot>
 
             <x-filament::dropdown.list>
-                <x-filament::dropdown.list.item
-                    icon="heroicon-o-arrow-top-right-on-square"
-                    target="_blank"
-                    tag="a"
-                    :href="GetResourceFromTypeAction::run(ucfirst($widgetAsset->asset_type), $asset->type)::getUrl('edit', ['record' => $asset->getKey()])"
-                >
-                    {{ __('capell-layout::button.edit_asset_type', ['type' => $widgetAsset->asset_type]) }}
-                </x-filament::dropdown.list.item>
+                @php
+                    $resource = GetResourceFromTypeAction::run(ucfirst($widgetAsset->asset_type), $asset->type);
+                @endphp
+                @if ($resource)
+                    <x-filament::dropdown.list.item
+                        icon="heroicon-o-arrow-top-right-on-square"
+                        target="_blank"
+                        tag="a"
+                        :href="$resource::getUrl('edit', ['record' => $asset->getKey()])"
+                    >
+                        {{ __('capell-layout::button.edit_asset_type', ['type' => $widgetAsset->asset_type]) }}
+                    </x-filament::dropdown.list.item>
+                @endif
             </x-filament::dropdown.list>
         </x-filament::dropdown>
     </div>

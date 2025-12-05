@@ -55,9 +55,7 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
     {
         parent::registeringPackage();
 
-        $this->registerPackageMetadata()
-            ->registerModels()
-            ->registerResources();
+        $this->registerPackageMetadata();
     }
 
     private function isPackageInstalled(): bool
@@ -68,6 +66,8 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
     private function registerAll(): self
     {
         return $this
+            ->registerModels()
+            ->registerResources()
             ->registerRelationships()
             ->registerSchemas()
             ->registerSchemaExtenders()

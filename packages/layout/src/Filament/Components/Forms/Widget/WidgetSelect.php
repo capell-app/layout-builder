@@ -66,7 +66,7 @@ class WidgetSelect extends Select
                 fn (Action $action): Action => $action
                     ->modalHeading(__('capell-admin::generic.widget'))
                     ->tooltip(__('capell-layout::button.create_widget'))
-                    ->modalWidth(Width::SixExtraLarge)
+                    ->modalWidth(Width::ScreenLarge)
                     ->slideOver()
                     ->closeModalByClickingAway(false)
                     ->closeModalByEscaping()
@@ -99,7 +99,7 @@ class WidgetSelect extends Select
 
                         return new HtmlString(__('capell-layout::heading.edit_widget_record', ['name' => $selectedRecord->name]));
                     })
-                    ->modalWidth(Width::SixExtraLarge)
+                    ->modalWidth(Width::ScreenLarge)
                     ->slideOver()
                     ->successNotificationTitle(
                         fn (Action $action): string => __(

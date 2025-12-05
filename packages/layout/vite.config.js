@@ -6,7 +6,7 @@ export default defineConfig(async () => {
     return {
         plugins: [
             laravel({
-                input: ['resources/js/capell-layout.js'],
+                input: ['resources/js/capell-layout.js', 'resources/css/capell-layout.css'],
                 publicDirectory: 'publishes',
                 refresh: false,
             }),

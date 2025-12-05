@@ -1,1 +1,13 @@
-@import './utilities/swiper-carousel.css';
+@import 'tailwindcss';
+@import 'tippy.js/dist/tippy.css';
+@import '../../../../vendor/capell-app/frontend/resources/css/capell-frontend.css';
+@import './capell-layout-base.css';
+
+@plugin '@tailwindcss/typography';
+
+@source '../../../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../address/resources/views/*.blade.php';
+@source '../../blog/resources/views/*.php';
+@source '../../hero/resources/views/*.php';
+@source '../../../../vendor/capell-app/frontend/resources/views/*.php';
+@source '../views/*.blade.php';

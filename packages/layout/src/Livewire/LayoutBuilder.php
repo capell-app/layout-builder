@@ -428,7 +428,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->color('gray')
             ->outlined()
             ->visible(fn (): bool => (bool) $this->containers)
-            ->modalWidth(Width::SixExtraLarge)
+            ->modalWidth(Width::ScreenLarge)
             ->extraModalWindowAttributes([
                 'class' => 'capell-layout-builder-assets-table',
             ])
@@ -471,7 +471,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->icon('heroicon-o-pencil')
             ->color('gray')
             ->size(Size::ExtraSmall)
-            ->modalWidth(Width::SixExtraLarge)
+            ->modalWidth(Width::ScreenLarge)
             ->hiddenLabel()
             ->record(
                 fn (array $arguments): Widget => $this->getContainerWidget(
@@ -557,7 +557,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->extraModalWindowAttributes([
                 'class' => 'capell-layout-builder-assets-table',
             ])
-            ->modalWidth(Width::SixExtraLarge)
+            ->modalWidth(Width::ScreenLarge)
             ->modalHeading(function (self $livewire, array $arguments): string {
                 $totalAssets = $livewire->countWidgetAssets($arguments['containerKey'], $arguments['widgetIndex']);
 
@@ -628,7 +628,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             ->grouped()
             ->outlined()
             ->slideOver()
-            ->modalWidth(Width::SixExtraLarge)
+            ->modalWidth(Width::ScreenLarge)
             ->closeModalByClickingAway(false)
             ->modalHeading(
                 fn (array $arguments, self $livewire): string => __(
@@ -692,7 +692,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                     ['type' => $arguments['type']],
                 ),
             )
-            ->modalWidth(Width::SixExtraLarge)
+            ->modalWidth(Width::ScreenLarge)
             ->modalHeading(
                 fn (self $livewire, array $arguments): string => $this->getEditWidgetAssetModalHeading($livewire, $arguments),
             )
@@ -944,9 +944,15 @@ class LayoutBuilder extends Component implements HasActions, HasForms
      */
     public function getPageResource(): string
     {
-        return $this->page
-            ? GetResourceFromTypeAction::run(ResourceEnum::Page, $this->page->type)
-            : CapellAdmin::getResource(ResourceEnum::Page);
+        if ($this->page) {
+            $resource = GetResourceFromTypeAction::run(ResourceEnum::Page, $this->page->type);
+
+            if ($resource !== null) {
+                return $resource;
+            }
+        }
+
+        return CapellAdmin::getResource(ResourceEnum::Page);
     }
 
     /**

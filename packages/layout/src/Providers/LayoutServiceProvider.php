@@ -76,10 +76,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             return;
         }
 
-        $this->registerAll()
-            ->registerPublishCommands()
-            ->registerLivewireComponents()
-            ->registerBladeComponents();
+        $this->registerAll();
     }
 
     public function configurePackage(Package $package): void
@@ -99,9 +96,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
     {
         parent::registeringPackage();
 
-        $this->registerPackageMetadata()
-            ->registerModels()
-            ->registerResources();
+        $this->registerPackageMetadata();
     }
 
     protected function getPublishedDirectory(): string
@@ -121,6 +116,8 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
     private function registerAll(): self
     {
         return $this
+            ->registerResources()
+            ->registerModels()
             ->registerListeners()
             ->registerRelationships()
             ->registerSchemas()
@@ -132,7 +129,10 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             ->registerSchemaExtenders()
             ->registerCloneableAndDraftableRelations()
             ->registerThemeViewPath()
-            ->registerFilamentAssets();
+            ->registerFilamentAssets()
+            ->registerPublishCommands()
+            ->registerLivewireComponents()
+            ->registerBladeComponents();
     }
 
     private function registerPackageMetadata(): self
