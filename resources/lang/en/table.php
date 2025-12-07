@@ -14,4 +14,3 @@ return [
     'slug' => 'Slug',
     'featured' => 'Featured',
 ];
-

@@ -6,33 +6,33 @@ declare(strict_types=1);
 
 @php
     use Capell\Frontend\CapellFrontendManager;
-    use Capell\Frontend\Facades\CapellFrontend;
-    use Capell\Frontend\Facades\FrontendLoader;
+        use Capell\Frontend\Facades\CapellFrontend;
+        use Capell\Frontend\Facades\Frontend;use Capell\Frontend\Facades\FrontendLoader;
 
-    $page = FrontendLoader::getPage();
+        $page = FrontendLoader::getPage();
 @endphp
 
 @props([
-    'container',
-    'containerKey',
-    'containerWidth' => null,
-    'headingTag' => $widget->meta['heading_tag'] ?? null,
-    'headingSize' => $widget->meta['heading_size'] ?? 'h1',
-    'loop',
-    'pageContents' => $widget->meta['page_content'] ?? ['title', 'content'],
-    'size' => $widget->meta['size'] ?? 'lg',
-    'widget',
-    'widgetData',
+'container',
+'containerKey',
+'containerWidth' => null,
+'headingTag' => $widget->meta['heading_tag'] ?? null,
+'headingSize' => $widget->meta['heading_size'] ?? 'h1',
+'loop',
+'pageContents' => $widget->meta['page_content'] ?? ['title', 'content'],
+'size' => $widget->meta['size'] ?? 'lg',
+'widget',
+'widgetData',
 ])
 @php
-    $hasPrimaryHeading = CapellFrontend::getFrontendData('has_primary_heading');
+    $hasPrimaryHeading = Frontend::getFrontendData('has_primary_heading');
 
-    $hasContent = collect(['content', 'title'])
-        ->contains(fn ($item): bool => in_array($item, $pageContents, true) && ! empty($page->translation->{$item}));
+        $hasContent = collect(['content', 'title'])
+            ->contains(fn ($item): bool => in_array($item, $pageContents, true) && ! empty($page->translation->{$item}));
 
-    if (! $headingTag) {
-        $headingTag = ($hasPrimaryHeading ? 'h2' : 'h1');
-    }
+        if (! $headingTag) {
+            $headingTag = ($hasPrimaryHeading ? 'h2' : 'h1');
+        }
 @endphp
 
 @if ($hasContent)

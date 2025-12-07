@@ -60,10 +60,18 @@ class InstallCommand extends Command
     private function updateThemes(): void
     {
         $path = 'vendor/capell-layout/frontend';
-        $file = 'resources/js/capell-layout.js';
 
         CapellCore::getModel(CoreModelEnum::Theme)::query()
             ->lazy()
-            ->each(fn (Theme $theme) => AddVendorAssetToThemeAction::run($theme, $path, $file));
+            ->each(
+                fn (Theme $theme) => AddVendorAssetToThemeAction::run(
+                    $theme,
+                    $path,
+                    [
+                        'resources/css/capell-layout.css',
+                        'resources/js/capell-layout.js',
+                    ],
+                ),
+            );
     }
 }

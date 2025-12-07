@@ -6,4 +6,3 @@ return [
     'contents' => 'Contents',
     'widgets' => 'Widgets',
 ];
-

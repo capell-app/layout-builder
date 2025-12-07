@@ -18,7 +18,7 @@ class CreateWidgetModalAction extends CreateModalAction
         parent::setUp();
 
         $this->slideOver()
-            ->modalWidth(Width::SixExtraLarge);
+            ->modalWidth(Width::ScreenLarge);
     }
 
     #[Override]

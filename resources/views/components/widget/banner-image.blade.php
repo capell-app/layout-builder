@@ -2,39 +2,39 @@
 
 declare(strict_types=1);
 
-use Capell\Frontend\Facades\FrontendLoader;
+use Capell\Frontend\Facades\Frontend;
 
-$theme = FrontendLoader::getTheme();
+$theme = Frontend::theme();
 
 ?>
 
 @props([
-    'backgroundColor' => $widget->meta['background_color'] ?? null,
-    'container',
-    'containerKey',
-    'containerWidth' => null,
-    'content' => $widget->translation?->content,
-    'headingSize' => $widget->meta['heading_size'] ?? 'h2',
-    'loop',
-    'reverseOrder' => $widget->meta['reverse_order'] ?? null,
-    'rounded' => $theme->meta['rounded_images'] ?? false,
-    'size' => $widget->meta['size'] ?? null,
-    'title' => $widget->translation?->title,
-    'widget',
+'backgroundColor' => $widget->meta['background_color'] ?? null,
+'container',
+'containerKey',
+'containerWidth' => null,
+'content' => $widget->translation?->content,
+'headingSize' => $widget->meta['heading_size'] ?? 'h2',
+'loop',
+'reverseOrder' => $widget->meta['reverse_order'] ?? null,
+'rounded' => $theme->meta['rounded_images'] ?? false,
+'size' => $widget->meta['size'] ?? null,
+'title' => $widget->translation?->title,
+'widget',
 ])
 
 @php
     $backgroundImage = $widget->backgroundImage ?? $widget->image ?? $widget->assets->first()?->asset?->image;
 
-    $hasContent = $content || $title || ! empty($widget->meta['actions']);
+            $hasContent = $content || $title || ! empty($widget->meta['actions']);
 
-    if ($rounded) {
-        $imgRounded = $hasContent
-              ? ($reverseOrder ? ' rounded-r-lg' : ' rounded-l-lg')
-              : ' rounded-lg';
-    } else {
-        $imgRounded = '';
-    }
+            if ($rounded) {
+                $imgRounded = $hasContent
+                      ? ($reverseOrder ? ' rounded-r-lg' : ' rounded-l-lg')
+                      : ' rounded-lg';
+            } else {
+                $imgRounded = '';
+            }
 @endphp
 
 <x-capell-layout::widget.wrapper
@@ -50,12 +50,12 @@ $theme = FrontendLoader::getTheme();
     @if ($backgroundImage)
         <div
             @class([
-                'w-full',
-                'md:w-1/2' => $hasContent,
-                'md:absolute' => $hasContent,
-                'md:inset-y-0' => $hasContent,
-                'md:left-0' => $hasContent && $reverseOrder,
-                'md:right-0' => $hasContent && ! $reverseOrder,
+            'w-full',
+            'md:w-1/2' => $hasContent,
+            'md:absolute' => $hasContent,
+            'md:inset-y-0' => $hasContent,
+            'md:left-0' => $hasContent && $reverseOrder,
+            'md:right-0' => $hasContent && ! $reverseOrder,
             ])
         >
             <x-capell::media
@@ -70,22 +70,22 @@ $theme = FrontendLoader::getTheme();
     @if ($hasContent)
         <div
             @class([
-                'container',
-                'absolute inset-0 flex items-end', // Overlay on mobile, align to bottom
-                'z-10',
-                'md:relative md:flex md:flex-col md:items-center',
-                'gap-y-6',
-                'gap-x-6',
-                'py-10',
-                'md:flex-row-reverse' => $reverseOrder,
-                'md:flex-row' => ! $reverseOrder,
+            'container',
+            'absolute inset-0 flex items-end', // Overlay on mobile, align to bottom
+            'z-10',
+            'md:relative md:flex md:flex-col md:items-center',
+            'gap-y-6',
+            'gap-x-6',
+            'py-10',
+            'md:flex-row-reverse' => $reverseOrder,
+            'md:flex-row' => ! $reverseOrder,
             ])
         >
             <div
                 @class([
-                    'w-full md:w-1/2',
-                    'md:pl-10' => $reverseOrder,
-                    'md:pr-10' => ! $reverseOrder,
+                'w-full md:w-1/2',
+                'md:pl-10' => $reverseOrder,
+                'md:pr-10' => ! $reverseOrder,
                 ])
             >
                 <div

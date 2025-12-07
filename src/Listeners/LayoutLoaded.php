@@ -9,8 +9,8 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
-use Capell\Frontend\CapellFrontendLoader;
 use Capell\Frontend\Enums\ListenerEnum;
+use Capell\Frontend\Facades\Frontend;
 use Capell\Layout\CapellLayoutManager;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Services\Creator\LayoutLoader;
@@ -23,15 +23,13 @@ class LayoutLoaded implements EventSubscriber
             return;
         }
 
-        if (! $context instanceof CapellFrontendLoader) {
+        $layout = Frontend::layout();
+        $language = Frontend::language();
+        $page = Frontend::page();
+
+        if (! $layout instanceof Layout || ! $language instanceof Language || ! $page instanceof Page) {
             return;
         }
-
-        $layout = $context->getLayout();
-
-        $language = $context->getLanguage();
-
-        $page = $context->getPage();
 
         $this->loadLayoutWidgets($layout, $page, $language);
     }

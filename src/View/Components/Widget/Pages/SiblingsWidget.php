@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\View\Components\Widget\Pages;
 
-use Capell\Frontend\Facades\FrontendLoader;
+use Capell\Frontend\Facades\Frontend;
 use Capell\Frontend\Services\Loader\PageLoader;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 
@@ -12,7 +12,7 @@ class SiblingsWidget extends AbstractPagesWidget
 {
     protected function mountWidget(): void
     {
-        $page = FrontendLoader::getPage();
+        $page = Frontend::page();
 
         if (! empty($page->type->meta['hidden'])) {
             $this->skipRender = true;
@@ -27,8 +27,8 @@ class SiblingsWidget extends AbstractPagesWidget
         }
 
         $this->pages = PageLoader::getPages(
-            site: FrontendLoader::getSite(),
-            language: FrontendLoader::getLanguage(),
+            site: Frontend::site(),
+            language: Frontend::language(),
             page: $page,
             type: 'siblings',
             ordering: 'alphabetical',
@@ -36,7 +36,7 @@ class SiblingsWidget extends AbstractPagesWidget
             withImage: $this->widget->meta['with_image'] ?? false,
             withParent: $this->widget->meta['with_parent'] ?? false,
             withDate: $this->widget->meta['with_date'] ?? false,
-            modifyQuery: fn (BuilderContract $query) => $query->whereKeyNot($page->id),
+            modifyQuery: fn (BuilderContract $query): BuilderContract => $query->whereKeyNot($page->id),
         );
 
         if ($this->pages->isEmpty()) {

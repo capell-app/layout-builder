@@ -19,6 +19,7 @@ use Capell\Layout\Filament\Resources\Widgets\RelationManagers\LayoutsRelationMan
 use Capell\Layout\Filament\Resources\Widgets\Schemas\WidgetForm;
 use Capell\Layout\Filament\Resources\Widgets\Tables\WidgetsTable;
 use Capell\Layout\Models\Widget;
+use Capell\Layout\Providers\LayoutServiceProvider;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -81,6 +82,11 @@ class WidgetResource extends Resource
     public static function getNavigationIcon(): string|BackedEnum|null
     {
         return config('capell-admin.resources.widgets.navigation_icon', Heroicon::OutlinedGift);
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return CapellCore::getPackage(LayoutServiceProvider::$packageName)->isInstalled();
     }
 
     public static function getGloballySearchableAttributes(): array

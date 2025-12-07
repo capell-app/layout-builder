@@ -19,12 +19,10 @@ declare(strict_types=1);
 <div>
     <div
         x-load
-        x-load-src="{{
-            Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc(
+        x-load-src="{{ Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc(
             'layout-builder',
             'capell-layout',
-            )
-        }}"
+            ) }}"
         x-data="layoutBuilderComponent"
         x-on:expand-all-containers.window="expandAll"
         x-on:collapse-all-containers.window="collapseAll"
@@ -41,14 +39,12 @@ declare(strict_types=1);
                     @svg('heroicon-o-information-circle', 'inline-block h-6 w-6')
 
                     <span class="text-gray-800 dark:text-gray-300">
-                        {!!
-                            trans_choice('capell-layout::message.layout_count_on_pages', $this->layoutRecord->pages_count, [
+                        {!! trans_choice('capell-layout::message.layout_count_on_pages', $this->layoutRecord->pages_count, [
                             'count' => $this->layoutRecord->pages_count,
                             'url' => CapellAdmin::getResource(ResourceEnum::Page)::getUrl('index', [
                             'tableFilters' => ['layout_id' => ['value' => $this->layoutRecord->id]],
                             ]),
-                            ])
-                        !!}
+                            ]) !!}
                     </span>
 
                     @if ($duplicateLayoutAction->isVisible())

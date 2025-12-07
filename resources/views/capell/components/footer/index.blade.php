@@ -1,11 +1,6 @@
 <?php
 
 declare(strict_types=1);
-use Capell\Frontend\Facades\FrontendLoader;
-
-$language = FrontendLoader::getLanguage();
-$site = FrontendLoader::getSite();
-$page = FrontendLoader::getPage();
 
 ?>
 
@@ -15,56 +10,61 @@ $page = FrontendLoader::getPage();
 'headingClass' => 'font-heading tracking-right font-medium uppercase leading-tight text-gray-400',
 ])
 @php
-    $getMenu = function (string $key) use ($site, $language) {
-                $menu = Loader\NavigationLoader::getNavigation($key, $site, $language);
-                if (! $menu) {
-                    $menu = Loader\NavigationLoader::getNavigation($key, $site);
-                }
+    $language = \Capell\Frontend\Facades\Frontend::language();
+                $site = \Capell\Frontend\Facades\Frontend::site();
+                $page = \Capell\Frontend\Facades\Frontend::page();
 
-                $items = [];
+                    $getMenu = function (string $key) use ($site, $language) {
+                            $menu = \Capell\Frontend\Services\Loader\NavigationLoader::getNavigation($key, $site, $language);
+                            if (! $menu) {
+                                $menu = \Capell\Frontend\Services\Loader\NavigationLoader::getNavigation($key, $site);
+                            }
 
-                if ($menu) {
-                    $navigationLoader = new Loader\NavigationItemsLoader(
-                        navigation: $menu,
-                        site: $site,
-                        language: $language,
-                        siteDomain: $site->siteDomain,
-                    );
+                            $items = [];
 
-                    $items = $navigationLoader->fetchMenuItems();
+                            if ($menu) {
+                                $navigationLoader = new \Capell\Frontend\Services\Loader\NavigationItemsLoader(
+                                    navigation: $menu,
+                                    site: $site,
+                                    language: $language,
+                                    siteDomain: $site->siteDomain,
+                                );
 
-                    if ($items) {
-                        $navigationLoader->activeMenuItems($items);
-                    }
-                }
+                                $items = $navigationLoader->fetchMenuItems();
 
-                return [$menu, $items];
-            };
+                                if ($items) {
+                                    $navigationLoader->activeMenuItems($items);
+                                }
+                            }
 
-            [$footerMenu, $footerMenuItems] = $getMenu(NavigationHandle::Footer->value);
-            [$subFooterMenu, $subFooterMenuItems] = $getMenu(NavigationHandle::SubFooter->value);
+                            return [$menu, $items];
+                        };
 
-            $contactPage = Page::getFirstPageByTypeForSite('contact', $site, $language);
+                        [$footerMenu, $footerMenuItems] = $getMenu(\Capell\Core\Enums\NavigationHandle::Footer->value);
+                        [$subFooterMenu, $subFooterMenuItems] = $getMenu(\Capell\Core\Enums\NavigationHandle::SubFooter->value);
 
-            $siteLanguages = Loader\SiteLoader::pageLanguages($site, $language, $page);
+                        $contactPage = \Capell\Core\Models\Page::getFirstPageByTypeForSite('contact', $site, $language);
 
-            $pages = Loader\PageLoader::getPages(
-                $site,
-                $language,
-                limit: 3,
-                withImage: true,
-                pageGroup: CapellCore::hasPackage('capell-app/blog') ? 'blog' : '',
-            );
+                        $siteLanguages = \Capell\Frontend\Services\Loader\SiteLoader::pageLanguages($site, $language, $page);
+
+                        $pages = \Capell\Frontend\Services\Loader\PageLoader::getPages(
+                            $site,
+                            $language,
+                            limit: 3,
+                            withImage: true,
+                            pageGroup: \Capell\Core\Facades\CapellCore::hasPackage(\Capell\Blog\Providers\BlogServiceProvider::$packageName) ? 'blog' : '',
+                        );
 @endphp
 
 <style>
     :root {
-        --color-footer: {{ ColorConverterAction::run($theme->meta['footer_color'] ?? '245,245,245') }};
-        --bg-color-footer: {{ ColorConverterAction::run($theme->meta['footer_background_color'] ?? '69,69,72') }};
+        --color-footer: {{ \Capell\Core\Actions\ColorConverterAction::run($theme->meta['footer_color'] ?? '245,245,245') }};
+        --bg-color-footer: {{ \Capell\Core\Actions\ColorConverterAction::run($theme->meta['footer_background_color'] ?? '69,69,72') }};
     }
+
     .dark:root {
-        --color-footer: {{ ColorConverterAction::run($theme->meta['footer_dark_color'] ?? '233,233,233') }};
-        --bg-color-footer: {{ ColorConverterAction::run($theme->meta['footer_dark_background_color'] ?? '32,31,40') }};
+        --color-footer: {{ \Capell\Core\Actions\ColorConverterAction::run($theme->meta['footer_dark_color'] ?? '233,233,233') }};
+        --bg-color-footer: {{ \Capell\Core\Actions\ColorConverterAction::run($theme->meta['footer_dark_background_color'] ?? '32,31,40') }};
     }
 </style>
 
@@ -141,14 +141,14 @@ $page = FrontendLoader::getPage();
             @if ($footerMenuItems)
                 <x-capell::footer.menu
                     :$headingClass
-                    :$footerMenuItems
                     :$menuItemClass
                     :$menuSubItemClass
+                    :items="$footerMenuItems"
                     class="@4xl:col-span-2 g:pl-6 shrink-0 grow lg:pt-2"
                 />
             @endif
 
-            <x-capell::footer.pages
+            <x-capell-layout::footer.pages
                 :$headingClass
                 :$pages
                 class="shrink-0 xl:w-[20%]"
@@ -168,12 +168,10 @@ $page = FrontendLoader::getPage();
             :items="$subFooterMenuItems"
             class="sub-footer border-t border-white/10"
         >
-            {!!
-                Illuminate\Support\Facades\Lang::get($site->translation->meta['footer_copy'] ?? '', [
+            {!! \Illuminate\Support\Facades\Lang::get($site->translation->meta['footer_copy'] ?? '', [
                 'name' => $site->name,
                 'year' => date('Y'),
-                ])
-            !!}
+                ]) !!}
         </x-capell::footer.sub-footer>
     @endif
 </footer>

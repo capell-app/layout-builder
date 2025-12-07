@@ -79,11 +79,11 @@ class PagesRelationManager extends AbstractPagesRelationManager
                 DateColumn::make('page.updated_at')
                     ->sortable(false),
             ])
-            ->recordUrl(fn (WidgetAsset $record): string => GetEditPageResourceUrlAction::run($record->page))
+            ->recordUrl(fn (WidgetAsset $record): ?string => GetEditPageResourceUrlAction::run($record->page))
             ->recordActions([
                 EditAction::make()
                     ->iconButton()
-                    ->url(fn (WidgetAsset $record): string => GetEditPageResourceUrlAction::run($record->page))
+                    ->url(fn (WidgetAsset $record): ?string => GetEditPageResourceUrlAction::run($record->page))
                     ->tooltip(fn (EditAction $action): ?string => $action->getLabel()),
             ]);
     }

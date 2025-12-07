@@ -8,7 +8,7 @@ use Capell\Layout\Livewire\Layout\WidgetTableSelect;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
 
-final class WidgetsContainerForm
+class WidgetsContainerForm
 {
     public static function configure(Schema $schema, WidgetTableSelect $component): Schema
     {

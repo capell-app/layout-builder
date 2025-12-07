@@ -20,6 +20,6 @@ class AssetTypeSelect extends Select
                     ->mapWithKeys(static fn (AssetData $asset): array => [$asset->getKey() => $asset->getLabel()])
                     ->all(),
             )
-            ->autoDefault();
+            ->default(fn (AssetTypeSelect $component): int|string|null => array_key_first($component->getOptions()));
     }
 }

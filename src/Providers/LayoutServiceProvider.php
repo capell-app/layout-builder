@@ -20,8 +20,8 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Core\Packages\AbstractPackageServiceProvider;
+use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
-use Capell\Frontend\Facades\CapellFrontend;
 use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\Layout\CapellLayoutManager;
 use Capell\Layout\Commands\DemoCommand;
@@ -76,10 +76,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             return;
         }
 
-        $this->registerAll()
-            ->registerPublishCommands()
-            ->registerLivewireComponents()
-            ->registerBladeComponents();
+        $this->registerAll();
     }
 
     public function configurePackage(Package $package): void
@@ -99,8 +96,10 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
     {
         parent::registeringPackage();
 
-        $this->registerPackageMetadata()
-            ->registerResources();
+        $this
+            ->registerResources()
+            ->registerModels()
+            ->registerPackageMetadata();
     }
 
     protected function getPublishedDirectory(): string
@@ -121,7 +120,6 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
     {
         return $this
             ->registerListeners()
-            ->registerModels()
             ->registerRelationships()
             ->registerSchemas()
             ->registerManager()
@@ -132,7 +130,10 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             ->registerSchemaExtenders()
             ->registerCloneableAndDraftableRelations()
             ->registerThemeViewPath()
-            ->registerFilamentAssets();
+            ->registerFilamentAssets()
+            ->registerPublishCommands()
+            ->registerLivewireComponents()
+            ->registerBladeComponents();
     }
 
     private function registerPackageMetadata(): self
@@ -258,9 +259,15 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             ),
         );
 
-        CapellFrontend::registerAsset($contentAsset, new FrontendAssetData(
-            component: $contentAsset->getComponent(),
-        ));
+        // Defer frontend asset registration until the registry is resolved by FrontendServiceProvider
+        $this->callAfterResolving(AssetsRegistryInterface::class, function (AssetsRegistryInterface $assets) use ($contentAsset): void {
+            $assets->registerAsset(
+                $contentAsset,
+                new FrontendAssetData(
+                    component: $contentAsset->getComponent(),
+                ),
+            );
+        });
 
         return $this;
     }

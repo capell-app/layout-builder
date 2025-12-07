@@ -8,4 +8,3 @@ return [
     'page' => 'Page',
     'tag' => 'Tag',
 ];
-

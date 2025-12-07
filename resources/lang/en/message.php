@@ -19,4 +19,3 @@ return [
     'asset_created_successfully' => 'Asset ":name" created successfully.',
     'widget_has_page_assets' => 'Widget has :total pages assets.',
 ];
-

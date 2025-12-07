@@ -72,14 +72,12 @@ declare(strict_types=1);
             this.notify()
         },
     }"
-    {{
-        $attributes->class(['layout-container-widget group last:rounded-b-lg'])->when(
+    {{ $attributes->class(['layout-container-widget group last:rounded-b-lg'])->when(
         $assetTypes,
         fn (ComponentAttributeBag $attributeBag): ComponentAttributeBag => $attributeBag->merge([
         ':class' => "{ 'pb-4': ! isCollapsed }",
         ]),
-        )
-    }}
+        ) }}
     wire:key="{{ "{$containerWidgetKey}" }}"
     x-sort:item="'{{ $containerKey . '.' . $widgetIndex }}'"
     x-init="
