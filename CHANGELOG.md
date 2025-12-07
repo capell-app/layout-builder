@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.0.2 - 2025-12-02
+
+### What's Changed
+
+* Feature/4.x by @howdu in https://github.com/capell-app/packages/pull/20
+* Bump actions/checkout from 5 to 6 by @dependabot[bot] in https://github.com/capell-app/packages/pull/19
+
+**Full Changelog**: https://github.com/capell-app/packages/compare/v2.0.1...v2.0.2
+
 ## v2.0.1 - 2025-11-22
 
 ### What's Changed
