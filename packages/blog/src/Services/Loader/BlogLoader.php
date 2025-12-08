@@ -10,6 +10,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Frontend\Contracts\ModelServingInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -32,7 +33,7 @@ class BlogLoader
         }) ?: null;
 
         if ($fromCache && $page) {
-            event('eloquent.retrieved: ' . Page::class, $page);
+            app(ModelServingInterface::class)->track($page);
         }
 
         return $page;

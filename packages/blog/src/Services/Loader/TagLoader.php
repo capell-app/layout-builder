@@ -11,6 +11,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Frontend\Contracts\ModelServingInterface;
 use Capell\Frontend\Enums\CacheEnum;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
@@ -33,7 +34,7 @@ class TagLoader
 
         if ($fromCache) {
             $tags->each(function (Tag $tag): void {
-                event('eloquent.retrieved: ' . Tag::class, $tag);
+                app(ModelServingInterface::class)->track($tag);
             });
         }
 
@@ -56,7 +57,7 @@ class TagLoader
         }) ?: null;
 
         if ($fromCache && $page) {
-            event('eloquent.retrieved: ' . Page::class, $page);
+            app(ModelServingInterface::class)->track($page);
         }
 
         return $page;
@@ -113,7 +114,7 @@ class TagLoader
 
         if ($fromCache) {
             $tags->each(function (Tag $tag): void {
-                event('eloquent.retrieved: ' . Tag::class, $tag);
+                app(ModelServingInterface::class)->track($tag);
             });
         }
 
@@ -138,7 +139,7 @@ class TagLoader
         }) ?: null;
 
         if ($fromCache && $tag) {
-            event('eloquent.retrieved: ' . Tag::class, $tag);
+            app(ModelServingInterface::class)->track($tag);
         }
 
         return $tag;

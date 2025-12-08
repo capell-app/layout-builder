@@ -9,6 +9,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Translation;
+use Capell\Frontend\Services\ModelServing\ModelServingInterface;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
@@ -31,10 +32,10 @@ class LayoutLoader
         }) ?: null;
 
         if ($fromCache && $layout) {
-            event('eloquent.retrieved: ' . Layout::class, $layout);
+            app(ModelServingInterface::class)->track($layout);
 
             $layout->layoutWidgets->each(function (Widget $widget): void {
-                event('eloquent.retrieved: ' . $widget::class, $widget);
+                app(ModelServingInterface::class)->track($widget);
             });
         }
 
@@ -113,15 +114,15 @@ class LayoutLoader
         ) ?: null;
 
         if ($fromCache && $widget) {
-            event('eloquent.retrieved: ' . Widget::class, $widget);
+            app(ModelServingInterface::class)->track($widget);
 
             $widget->assets->each(function (WidgetAsset $resource): void {
-                event('eloquent.retrieved: ' . $resource::class, $resource);
+                app(ModelServingInterface::class)->track($resource);
             });
 
             if ($widget->translation) {
-                event('eloquent.retrieved: ' . Translation::class, $widget->translation);
-                event('eloquent.retrieved: ' . Language::class, $widget->translation->language);
+                app(ModelServingInterface::class)->track($widget->translation);
+                app(ModelServingInterface::class)->track($widget->translation->language);
             }
         }
 
