@@ -64,14 +64,38 @@ class InstallCommand extends Command
         CapellCore::getModel(CoreModelEnum::Theme)::query()
             ->lazy()
             ->each(
-                fn (Theme $theme) => AddVendorAssetToThemeAction::run(
-                    $theme,
-                    $path,
-                    [
-                        'resources/css/capell-layout.css',
-                        'resources/js/capell-layout.js',
-                    ],
-                ),
+                function (Theme $theme) use ($path): void {
+                    $vendorAssets = $theme->meta['vendor_assets'] ?? [];
+                    $removeAssets = [
+                        [
+                            'path' => 'vendor/capell-frontend',
+                            'file' => 'resources/css/capell-frontend.css',
+                        ],
+                    ];
+
+                    $filteredAssets = array_filter(
+                        $vendorAssets,
+                        static fn (array $asset): bool => collect($removeAssets)
+                            ->doesntContain(
+                                static fn (array $removeAsset): bool => $asset['path'] === $removeAsset['path']
+                                && $asset['file'] === $removeAsset['file'],
+                            ),
+                    );
+
+                    $theme->setAttribute('meta', array_replace(
+                        $theme->meta,
+                        ['vendor_assets' => array_values($filteredAssets)],
+                    ));
+
+                    AddVendorAssetToThemeAction::run(
+                        $theme,
+                        $path,
+                        [
+                            'resources/css/capell-layout.css',
+                            'resources/js/capell-layout.js',
+                        ],
+                    );
+                },
             );
     }
 }

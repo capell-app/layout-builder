@@ -18,8 +18,8 @@ class ChildrenWidget extends AbstractPagesWidget
         }
 
         $this->pages = PageLoader::getPages(
-            site: Frontend::site(),
             language: Frontend::language(),
+            site: Frontend::site(),
             page: Frontend::page(),
             type: 'children',
             ordering: 'alphabetical',

@@ -140,6 +140,7 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
 
     public function render(): View
     {
+        // @phpstan-ignore-next-line
         return view('capell-layout::livewire.widgets-table-select');
     }
 

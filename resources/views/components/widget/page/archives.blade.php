@@ -5,23 +5,23 @@ declare(strict_types=1);
 ?>
 
 @php
-    use Capell\Frontend\Facades\FrontendLoader;
+    use Capell\Frontend\Facades\Frontend;
 
-    $site = FrontendLoader::getSite();
-    $pageParams = FrontendLoader::getPageParams();
+        $site = Frontend::site();
+        $pageParams = Frontend::params();
 @endphp
 
 @props([
-    'archives' => [],
-    'container',
-    'containerKey',
-    'containerWidth' => null,
-    'showPageContent' => $widgetData['meta']['show_page_content'] ?? false,
-    'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
-    'loop',
-    'results',
-    'archiveDate' => $pageParams['archive_date'] ?? null,
-    'widget',
+'archives' => [],
+'container',
+'containerKey',
+'containerWidth' => null,
+'showPageContent' => $widgetData['meta']['show_page_content'] ?? false,
+'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
+'loop',
+'results',
+'archiveDate' => $pageParams['archive_date'] ?? null,
+'widget',
 ])
 <x-capell-layout::widget.wrapper
     class="widget-archive"
@@ -53,7 +53,7 @@ declare(strict_types=1);
             @foreach ($archives as $archive)
                 @php
                     $url = $archivePage->pageUrl->full_url . '/' . $archive->year . '-' . $archive->month;
-                    $active = $archiveDate && $archiveDate->month === $archive->month && $archiveDate->year === $archive->year;
+                                        $active = $archiveDate && $archiveDate->month === $archive->month && $archiveDate->year === $archive->year;
                 @endphp
 
                 <x-capell::list.list-item

@@ -2,6 +2,51 @@
 
 declare(strict_types=1);
 
+$language = \Capell\Frontend\Facades\Frontend::language();
+$site = \Capell\Frontend\Facades\Frontend::site();
+$page = \Capell\Frontend\Facades\Frontend::page();
+
+$getMenu = function (string $key) use ($site, $language): array {
+    $menu = \Capell\Frontend\Services\Loader\NavigationLoader::getNavigation($key, $site, $language);
+    if (! $menu instanceof \Capell\Core\Models\Navigation) {
+        $menu = \Capell\Frontend\Services\Loader\NavigationLoader::getNavigation($key, $site);
+    }
+
+    $items = [];
+
+    if ($menu instanceof \Capell\Core\Models\Navigation) {
+        $navigationLoader = new \Capell\Frontend\Services\Loader\NavigationItemsLoader(
+            navigation: $menu,
+            site: $site,
+            language: $language,
+            siteDomain: $site->siteDomain,
+        );
+
+        $items = $navigationLoader->fetchMenuItems();
+
+        if ($items) {
+            $navigationLoader->activeMenuItems($items);
+        }
+    }
+
+    return [$menu, $items];
+};
+
+[$footerMenu, $footerMenuItems] = $getMenu(\Capell\Core\Enums\NavigationHandle::Footer->value);
+[$subFooterMenu, $subFooterMenuItems] = $getMenu(\Capell\Core\Enums\NavigationHandle::SubFooter->value);
+
+$contactPage = \Capell\Core\Models\Page::getFirstPageByTypeForSite('contact', $site, $language);
+
+$siteLanguages = \Capell\Frontend\Services\Loader\SiteLoader::pageLanguages($site, $language, $page);
+
+$pages = \Capell\Frontend\Services\Loader\PageLoader::getPages(
+    language: $language,
+    site: $site,
+    limit: 3,
+    pageGroup: \Capell\Core\Facades\CapellCore::hasPackage(\Capell\Blog\Providers\BlogServiceProvider::$packageName) ? 'blog' : '',
+    withImage: true,
+);
+
 ?>
 
 @props([
@@ -9,53 +54,6 @@ declare(strict_types=1);
 'menuSubItemClass' => 'hover:text-primary focus:text-primary flex gap-x-0.5 break-all py-1 text-sm leading-tight text-white dark:text-gray-200',
 'headingClass' => 'font-heading tracking-right font-medium uppercase leading-tight text-gray-400',
 ])
-@php
-    $language = \Capell\Frontend\Facades\Frontend::language();
-                $site = \Capell\Frontend\Facades\Frontend::site();
-                $page = \Capell\Frontend\Facades\Frontend::page();
-
-                    $getMenu = function (string $key) use ($site, $language) {
-                            $menu = \Capell\Frontend\Services\Loader\NavigationLoader::getNavigation($key, $site, $language);
-                            if (! $menu) {
-                                $menu = \Capell\Frontend\Services\Loader\NavigationLoader::getNavigation($key, $site);
-                            }
-
-                            $items = [];
-
-                            if ($menu) {
-                                $navigationLoader = new \Capell\Frontend\Services\Loader\NavigationItemsLoader(
-                                    navigation: $menu,
-                                    site: $site,
-                                    language: $language,
-                                    siteDomain: $site->siteDomain,
-                                );
-
-                                $items = $navigationLoader->fetchMenuItems();
-
-                                if ($items) {
-                                    $navigationLoader->activeMenuItems($items);
-                                }
-                            }
-
-                            return [$menu, $items];
-                        };
-
-                        [$footerMenu, $footerMenuItems] = $getMenu(\Capell\Core\Enums\NavigationHandle::Footer->value);
-                        [$subFooterMenu, $subFooterMenuItems] = $getMenu(\Capell\Core\Enums\NavigationHandle::SubFooter->value);
-
-                        $contactPage = \Capell\Core\Models\Page::getFirstPageByTypeForSite('contact', $site, $language);
-
-                        $siteLanguages = \Capell\Frontend\Services\Loader\SiteLoader::pageLanguages($site, $language, $page);
-
-                        $pages = \Capell\Frontend\Services\Loader\PageLoader::getPages(
-                            $site,
-                            $language,
-                            limit: 3,
-                            withImage: true,
-                            pageGroup: \Capell\Core\Facades\CapellCore::hasPackage(\Capell\Blog\Providers\BlogServiceProvider::$packageName) ? 'blog' : '',
-                        );
-@endphp
-
 <style>
     :root {
         --color-footer: {{ \Capell\Core\Actions\ColorConverterAction::run($theme->meta['footer_color'] ?? '245,245,245') }};

@@ -5,22 +5,22 @@ declare(strict_types=1);
 ?>
 
 @php
-    use Capell\Frontend\Facades\FrontendLoader;
+    use Capell\Frontend\Facades\Frontend;
 
-    $language = FrontendLoader::getLanguage();
+        $language = Frontend::language();
 @endphp
 
 @props([
-    'color' => null,
-    'icon' => null,
-    'image' => null,
-    'linkText' => null,
-    'loop' => null,
-    'meta' => [],
-    'summary',
-    'tags' => null,
-    'title',
-    'url' => null,
+'color' => null,
+'icon' => null,
+'image' => null,
+'linkText' => null,
+'loop' => null,
+'meta' => [],
+'summary',
+'tags' => null,
+'title',
+'url' => null,
 ])
 
 <div

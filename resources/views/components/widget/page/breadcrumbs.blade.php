@@ -6,30 +6,30 @@ declare(strict_types=1);
 
 @php
     use Capell\Frontend\Actions\ReplacePageDataAction;
-    use Capell\Frontend\Facades\FrontendLoader;
-    use Capell\Frontend\Services\Loader\PageLoader;
+        use Capell\Frontend\Facades\Frontend;
+        use Capell\Frontend\Services\Loader\PageLoader;
 
-    $page = FrontendLoader::getPage();
-    $pageParams = FrontendLoader::getPageParams();
-    $site = FrontendLoader::getSite();
-    $language = FrontendLoader::getLanguage();
+        $page = Frontend::page();
+        $pageParams = Frontend::params();
+        $site = Frontend::site();
+        $language = Frontend::language();
 @endphp
 
 @props([
-    'container',
-    'containerKey',
-    'containerWidth' => null,
-    'loop',
-    'widget',
+'container',
+'containerKey',
+'containerWidth' => null,
+'loop',
+'widget',
 ])
 @php
     $currentPageLabel = ReplacePageDataAction::run($page->translation->label, $pageParams);
 
-    $ancestors = PageLoader::getPageAncestors($page, $language, $site);
+        $ancestors = PageLoader::getPageAncestors($page, $language, $site);
 
-    if (! $ancestors) {
-        return;
-    }
+        if (! $ancestors) {
+            return;
+        }
 @endphp
 
 <nav

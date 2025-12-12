@@ -5,33 +5,33 @@ declare(strict_types=1);
 ?>
 
 @php
-    use Capell\Frontend\Facades\FrontendLoader;
-    use Spatie\Image\Image;
-    use Spatie\MediaLibrary\MediaCollections\Models\Media;
+    use Capell\Frontend\Facades\Frontend;
+        use Spatie\Image\Image;
+        use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-    $theme = FrontendLoader::getTheme();
+        $theme = Frontend::theme();
 @endphp
 
 @props([
-    'carouselAlign' => 'center',
-    'carouselArrows' => true,
-    'carouselAuto' => true,
-    'carouselAutoDelay' => 5000,
-    'carouselButtonClass' => 'hover:bg-primary focus:bg-primary pointer-events-auto bg-white/80 shadow-md transition hover:text-white focus:text-white disabled:pointer-events-none disabled:opacity-50',
-    'carouselDrag' => true,
-    'carouselLoop' => true,
-    'carouselPagination' => false,
-    'carouselWheel' => true,
-    'colorScheme' => $widget->meta['color_scheme'] ?? 'dark',
-    'container',
-    'containerKey',
-    'containerWidth' => null,
-    'showPageContent' => $widgetData['meta']['show_page_content'] ?? false,
-    'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
-    'loop',
-    'rounded' => $theme->meta['rounded_images'] ?? false,
-    'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
-    'widget',
+'carouselAlign' => 'center',
+'carouselArrows' => true,
+'carouselAuto' => true,
+'carouselAutoDelay' => 5000,
+'carouselButtonClass' => 'hover:bg-primary focus:bg-primary pointer-events-auto bg-white/80 shadow-md transition hover:text-white focus:text-white disabled:pointer-events-none disabled:opacity-50',
+'carouselDrag' => true,
+'carouselLoop' => true,
+'carouselPagination' => false,
+'carouselWheel' => true,
+'colorScheme' => $widget->meta['color_scheme'] ?? 'dark',
+'container',
+'containerKey',
+'containerWidth' => null,
+'showPageContent' => $widgetData['meta']['show_page_content'] ?? false,
+'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
+'loop',
+'rounded' => $theme->meta['rounded_images'] ?? false,
+'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
+'widget',
 ])
 <x-capell-layout::widget.wrapper
     class="widget-media-carousel"
@@ -86,34 +86,34 @@ declare(strict_types=1);
                 @php
                     $asset = $widgetAsset->asset;
 
-                    /** @var Media|null $media */
-                    $media = $asset->image;
+                                        /** @var Media|null $media */
+                                        $media = $asset->image;
 
-                    if (! $media) {
-                        continue;
-                    }
+                                        if (! $media) {
+                                            continue;
+                                        }
 
-                    $mediaWidth = $media->getCustomProperty('width');
-                    $mediaHeight = $media->getCustomProperty('height');
+                                        $mediaWidth = $media->getCustomProperty('width');
+                                        $mediaHeight = $media->getCustomProperty('height');
 
-                    if (Str::startsWith($media->mime_type, 'image/') && (! $mediaWidth || ! $mediaHeight)) {
-                        $image = Image::load($media->getPath());
+                                        if (Str::startsWith($media->mime_type, 'image/') && (! $mediaWidth || ! $mediaHeight)) {
+                                            $image = Image::load($media->getPath());
 
-                        $mediaWidth = $image->getWidth();
-                        $mediaHeight = $image->getHeight();
-                    } else {
-                        $mediaHeight = 400;
-                        $mediaWidth = 400;
-                    }
+                                            $mediaWidth = $image->getWidth();
+                                            $mediaHeight = $image->getHeight();
+                                        } else {
+                                            $mediaHeight = 400;
+                                            $mediaWidth = 400;
+                                        }
 
-                    $width = 400;
-                    $height = floor($width * ($mediaHeight / $mediaWidth));
+                                        $width = 400;
+                                        $height = floor($width * ($mediaHeight / $mediaWidth));
                 @endphp
 
                 <div
                     @class([
-                        'swiper-slide group relative h-64 overflow-hidden text-center text-white',
-                        'rounded-lg' => $rounded,
+                    'swiper-slide group relative h-64 overflow-hidden text-center text-white',
+                    'rounded-lg' => $rounded,
                     ])
                     tabindex="0"
                 >
@@ -146,16 +146,16 @@ declare(strict_types=1);
                     <button
                         aria-label="{{ __('capell-frontend::generic.previous') }}"
                         @class([
-                            'swiper-button-prev rounded-r-md',
-                            $carouselButtonClass,
+                        'swiper-button-prev rounded-r-md',
+                        $carouselButtonClass,
                         ])
                         style="width: 50px; height: 60px; margin-top: -30px"
                     ></button>
                     <button
                         aria-label="{{ __('capell-frontend::generic.next') }}"
                         @class([
-                            'swiper-button-next rounded-l-md',
-                            $carouselButtonClass,
+                        'swiper-button-next rounded-l-md',
+                        $carouselButtonClass,
                         ])
                         style="width: 50px; height: 60px; margin-top: -30px"
                     ></button>

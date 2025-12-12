@@ -22,7 +22,7 @@ class MutateContentDataBeforeFillAction
 
     public function handle(array $data = []): array
     {
-        $site = Site::query()->default()->first();
+        $site = Site::getDefault();
 
         $data['is_published'] = true;
 

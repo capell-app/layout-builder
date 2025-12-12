@@ -6,23 +6,23 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Enums\AssetComponentEnum;
-    use Capell\Frontend\Facades\FrontendLoader;
+        use Capell\Frontend\Facades\Frontend;
 
-    $site = FrontendLoader::getSite();
+        $site = Frontend::site();
 @endphp
 
 @props([
-    'columns' => $container['meta']['override_columns'] ?? ($widget->meta['columns'] ?? 3),
-    'container',
-    'containerKey',
-    'containerWidth' => null,
-    'showPageContent' => $widgetData['meta']['show_page_content'] ?? false,
-    'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
-    'index',
-    'loop',
-    'size' => $widget->meta['size'] ?? null,
-    'spacing' => $widget->meta['spacing'] ?? 'lg',
-    'widget',
+'columns' => $container['meta']['override_columns'] ?? ($widget->meta['columns'] ?? 3),
+'container',
+'containerKey',
+'containerWidth' => null,
+'showPageContent' => $widgetData['meta']['show_page_content'] ?? false,
+'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
+'index',
+'loop',
+'size' => $widget->meta['size'] ?? null,
+'spacing' => $widget->meta['spacing'] ?? 'lg',
+'widget',
 ])
 <x-capell-layout::widget.wrapper
     class="widget-content-grid widget-content-accordion space-y-6"
@@ -69,8 +69,8 @@ declare(strict_types=1);
                     >
                         <div class="ml-2 flex w-10 justify-center">
                             @svg('heroicon-o-chevron-right', [
-                                'class' => 'text-link group-hover:text-primary group-focus:text-primary h-6 w-6',
-                                ':class' => "{ 'rotate-90': isActive(" . $loop->iteration . "), 'rotate-0': !isActive(" . $loop->iteration . ') }',
+                            'class' => 'text-link group-hover:text-primary group-focus:text-primary h-6 w-6',
+                            ':class' => "{ 'rotate-90': isActive(" . $loop->iteration . "), 'rotate-0': !isActive(" . $loop->iteration . ') }',
                             ])
                         </div>
                         <div class="font-medium">

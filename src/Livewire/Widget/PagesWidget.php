@@ -38,8 +38,8 @@ class PagesWidget extends AbstractWidget
         $selection = $this->widget->assets->pluck('asset_id')->toArray();
 
         $this->pages = PageLoader::getPages(
-            site: Frontend::site(),
             language: Frontend::language(),
+            site: Frontend::site(),
             page: $page,
             limit: $limit,
             paginationPage: $paginationPage,

@@ -13,8 +13,8 @@ class LatestWidget extends AbstractPagesWidget
     protected function mountWidget(): void
     {
         $this->pages = PageLoader::getPages(
-            site: Frontend::site(),
             language: Frontend::language(),
+            site: Frontend::site(),
             page: Frontend::page(),
             limit: $this->widget->meta['limit'] ?? config('capell-frontend.pagination_limit', 12),
             ordering: 'latest',

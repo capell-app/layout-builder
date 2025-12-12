@@ -6,10 +6,10 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Facades\CapellCore;
-        use Capell\Core\Models\Layout;
-        use Capell\Frontend\Facades\FrontendLoader;
-        use Capell\Layout\Facades\CapellLayout;
-        use Spatie\MediaLibrary\MediaCollections\Models\Media;
+            use Capell\Core\Models\Layout;
+            use Capell\Frontend\Facades\Frontend;
+            use Capell\Layout\Facades\CapellLayout;
+            use Spatie\MediaLibrary\MediaCollections\Models\Media;
 @endphp
 
 @props([
@@ -30,13 +30,13 @@ declare(strict_types=1);
 ])
 @php
     if (! empty($container['meta']['html_class'])) {
-            $htmlClass .= ' ' . $container['meta']['html_class'];
-        }
+                $htmlClass .= ' ' . $container['meta']['html_class'];
+            }
 
-        /** @var ?Media $backgroundImage */
-        $backgroundImage = $layout->getFirstMedia($containerKey . '-background');
+            /** @var ?Media $backgroundImage */
+            $backgroundImage = $layout->getFirstMedia($containerKey . '-background');
 
-        $currentColspan = $colspan;
+            $currentColspan = $colspan;
 @endphp
 
 @if ($colspan === 12 && $previousColspan && $previousColspan !== 12)
@@ -114,35 +114,35 @@ declare(strict_types=1);
     @foreach ($container['widgets'] as $widgetIndex => $widgetData)
         @php
             $widget = CapellLayout::getContainerWidget(
-                            $containerKey,
-                            $widgetData['widget_key'],
-                            $widgetData['occurrence'] ?? 1,
-                        );
+                                        $containerKey,
+                                        $widgetData['widget_key'],
+                                        $widgetData['occurrence'] ?? 1,
+                                    );
 
-                        if (! $widget) {
-                            CapellCore::log(
-                                'Unable to find container widget',
-                                context: ['containerKey' => $containerKey, 'widgetData' => $widgetData],
-                                type: 'error',
-                            );
+                                    if (! $widget) {
+                                        CapellCore::log(
+                                            'Unable to find container widget',
+                                            context: ['containerKey' => $containerKey, 'widgetData' => $widgetData],
+                                            type: 'error',
+                                        );
 
-                            continue;
-                        }
+                                        continue;
+                                    }
 
-                        $type = $widget->getMetaComponentType();
+                                    $type = $widget->getMetaComponentType();
 
-                        $component = $widget->getComponent();
+                                    $component = $widget->getComponent();
 
-                        if (! $component) {
-                            CapellCore::log("Unable to find component for widget {$widget->key} ({$widget->id})", type: 'error');
+                                    if (! $component) {
+                                        CapellCore::log("Unable to find component for widget {$widget->key} ({$widget->id})", type: 'error');
 
-                            continue;
-                        }
+                                        continue;
+                                    }
 
-                        $currentColspan = $previousColspan + $colspan;
-                        if ($columnStart) {
-                            $currentColspan += $columnStart - 1;
-                        }
+                                    $currentColspan = $previousColspan + $colspan;
+                                    if ($columnStart) {
+                                        $currentColspan += $columnStart - 1;
+                                    }
         @endphp
 
         {!! config('app.debug') ? "<!-- {$widget->key} Widget ({$widget->id}) - {$component} -->" : '' !!}

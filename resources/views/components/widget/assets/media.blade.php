@@ -5,27 +5,27 @@ declare(strict_types=1);
 ?>
 
 @php
-    use Capell\Frontend\Facades\FrontendLoader;
-    use Illuminate\Support\Facades\DB;
-    use Illuminate\Support\Str;
-    use Spatie\MediaLibrary\MediaCollections\Models\Media;
+    use Capell\Frontend\Facades\Frontend;
+        use Illuminate\Support\Facades\DB;
+        use Illuminate\Support\Str;
+        use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-    $theme = FrontendLoader::getTheme();
+        $theme = Frontend::theme();
 @endphp
 
 @props([
-    'colorScheme' => $widget->meta['color_scheme'] ?? 'dark',
-    'columns' => $container['meta']['override_columns'] ?? ($widget->meta['columns'] ?? 4),
-    'container',
-    'containerKey',
-    'containerWidth' => null,
-    'large' => false,
-    'loop',
-    'pageContainer' => $widget->meta['container'] ?? $theme->meta['container'] ?? null,
-    'size' => $widget->meta['size'] ?? '',
-    'spacing' => $widget->meta['spacing'] ?? null,
-    'widget',
-    'widget_theme' => $widget->meta['widget_theme'] ?? '',
+'colorScheme' => $widget->meta['color_scheme'] ?? 'dark',
+'columns' => $container['meta']['override_columns'] ?? ($widget->meta['columns'] ?? 4),
+'container',
+'containerKey',
+'containerWidth' => null,
+'large' => false,
+'loop',
+'pageContainer' => $widget->meta['container'] ?? $theme->meta['container'] ?? null,
+'size' => $widget->meta['size'] ?? '',
+'spacing' => $widget->meta['spacing'] ?? null,
+'widget',
+'widget_theme' => $widget->meta['widget_theme'] ?? '',
 ])
 <x-capell-layout::widget.wrapper
     :class="'widget-media-gallery' . ($pageContainer === 'full' ? ' px-4' : '')"
@@ -51,25 +51,25 @@ declare(strict_types=1);
     @if ($widget->assets->isNotEmpty())
         <div
             @class([
-                'grid grid-cols-2 2xl:container md:grid-cols-3',
-                'gap-2' => $spacing === 'sm',
-                'gap-4' => $spacing === 'md',
-                'gap-6' => $spacing === 'lg',
+            'grid grid-cols-2 2xl:container md:grid-cols-3',
+            'gap-2' => $spacing === 'sm',
+            'gap-4' => $spacing === 'md',
+            'gap-6' => $spacing === 'lg',
             ])
         >
             @foreach ($widget->assets as $widgetAsset)
                 @php
                     $asset = $widgetAsset->asset;
-                    $media = $asset->image;
-                    if (! $media) {
-                        throw new RuntimeException('Media not found for asset ID ' . $asset->id);
-                    }
+                                        $media = $asset->image;
+                                        if (! $media) {
+                                            throw new RuntimeException('Media not found for asset ID ' . $asset->id);
+                                        }
                 @endphp
 
                 <div
                     @class([
-                        'widget-media-item group relative h-full cursor-pointer overflow-hidden text-center',
-                        'md:col-span-1 md:row-span-2' => ($loop->iteration > 5 && $loop->iteration % 5 === 0) || $loop->iteration === 2,
+                    'widget-media-item group relative h-full cursor-pointer overflow-hidden text-center',
+                    'md:col-span-1 md:row-span-2' => ($loop->iteration > 5 && $loop->iteration % 5 === 0) || $loop->iteration === 2,
                     ])
                     tabindex="0"
                 >
@@ -100,14 +100,14 @@ declare(strict_types=1);
                     @if ($asset->translation?->title)
                         <div
                             @class([
-                                'pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-center
+                            'pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-center
                             break-words bg-gray-600/75 px-2 py-4 font-medium leading-none leading-tight text-white
                             transform translate-y-full opacity-0 transition-all duration-300
                             group-hover:translate-y-0 group-hover:opacity-100
                             group-focus-within:translate-y-0 group-focus-within:opacity-100',
-                                'text-sm' => $size === 'sm',
-                                'text-lg' => $size === 'lg',
-                                'rounded-b' => $theme->meta['rounded_images'] ?? false,
+                            'text-sm' => $size === 'sm',
+                            'text-lg' => $size === 'lg',
+                            'rounded-b' => $theme->meta['rounded_images'] ?? false,
                             ])
                         >
                             {{ $asset->translation->title }}

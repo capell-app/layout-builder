@@ -664,7 +664,7 @@ class DemoCreator
             ],
         ]);
 
-        $site = Site::query()->default()->first();
+        $site = Site::getDefault();
 
         $features = $this->createFeatures($site);
 
@@ -768,7 +768,7 @@ class DemoCreator
             ],
         ];
 
-        $site = Site::query()->default()->first();
+        $site = Site::getDefault();
 
         foreach ($statistics as $statistic) {
             $content = Content::query()->firstOrCreate([
