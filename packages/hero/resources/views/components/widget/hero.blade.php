@@ -2,23 +2,16 @@
 
 declare(strict_types=1);
 
+use Capell\Frontend\Facades\Frontend;
+
+$page = Frontend::page();
+$pageParams = Frontend::params();
+$theme = Frontend::theme();
 ?>
-
-@php
-    use Capell\Frontend\Actions\ReplacePageDataAction;
-        use Capell\Frontend\Facades\CapellFrontend;
-        use Capell\Frontend\Facades\Frontend;
-        use Capell\Frontend\Services\Loader\PageLoader;
-        use Spatie\MediaLibrary\MediaCollections\Models\Media;
-
-        $page = Frontend::page();
-        $pageParams = Frontend::params();
-        $theme = Frontend::theme();
-@endphp
 
 @props([
 'backgroundColor' => $widget->meta['background_color'] ?? null,
-'backgroundImage' => ! empty($widget->meta['background_image']) ? Media::find($widget->meta['background_image']) : null,
+'backgroundImage' => ! empty($widget->meta['background_image']) ? \Capell\Core\Models\Media::find($widget->meta['background_image']) : null,
 'containerKey',
 'containerIndex',
 'colorScheme' => $widget->meta['color_scheme'] ?? $theme->meta['color_scheme'] ?? null,
@@ -32,10 +25,10 @@ declare(strict_types=1);
 
 @php
     if ($containerIndex === 0 && ($theme->meta['header_position'] ?? null) === 'fixed') {
-            $slideClass .= ' pt-20 lg:pt-32';
-        }
+                    $slideClass .= ' pt-20 lg:pt-32';
+                }
 
-        $height = $widget->meta['height'] ?? null;
+                $height = $widget->meta['height'] ?? null;
 @endphp
 
 <section
@@ -83,13 +76,13 @@ declare(strict_types=1);
                     <x-capell-hero::hero.content
                         :title="
                             $widget->translation
-                            ? ReplacePageDataAction::run($widget->translation->title, $pageParams)
+                            ? \Capell\Frontend\Actions\ReplacePageDataAction::run($widget->translation->title, $pageParams)
                             : null
                         "
                         :color-scheme="$colorScheme"
                         size="lg"
                     >
-                        {!! ReplacePageDataAction::run($content, $pageParams) !!}
+                        {!! \Capell\Frontend\Actions\ReplacePageDataAction::run($content, $pageParams) !!}
                     </x-capell-hero::hero.content>
                 </div>
             </x-capell-hero::hero.slide>
@@ -97,37 +90,37 @@ declare(strict_types=1);
             @foreach ($widget->assets as $widgetAsset)
                 @php
                     $asset = $widgetAsset->asset;
-                                        if (! $asset) {
-                                            continue;
-                                        }
+                                                                                if (! $asset) {
+                                                                                    continue;
+                                                                                }
 
-                                        $slideColorScheme = $asset->meta['color_scheme'] ?? $colorScheme;
+                                                                                $slideColorScheme = $asset->meta['color_scheme'] ?? $colorScheme;
 
-                                        $url = null;
-                                        if ($asset->linkedPage) {
-                                            $pageUrl = PageLoader::getPageUrlById(
-                                                pageId: $asset->linkedPage->id,
-                                                site: $asset->linkedPage->site,
-                                                language: $language,
-                                            );
+                                                                                $url = null;
+                                                                                if ($asset->linkedPage) {
+                                                                                    $pageUrl = \Capell\Frontend\Services\Loader\PageLoader::getPageUrlById(
+                                                                                        pageId: $asset->linkedPage->id,
+                                                                                        site: $asset->linkedPage->site,
+                                                                                        language: $language,
+                                                                                    );
 
-                                            $url = $pageUrl?->full_url;
-                                        }
+                                                                                    $url = $pageUrl?->full_url;
+                                                                                }
 
-                                        if ($asset instanceof Media) {
-                                            $bgImage = $asset;
-                                            $images = null;
-                                        } else {
-                                            $bgImage = ! empty($asset->meta['background_image_id'])
-                                                ? Media::find($asset->meta['background_image_id'])
-                                                : ($asset->image ?: $backgroundImage);
+                                                                                if ($asset instanceof \Capell\Core\Models\Media) {
+                                                                                    $bgImage = $asset;
+                                                                                    $images = null;
+                                                                                } else {
+                                                                                    $bgImage = ! empty($asset->meta['background_image_id'])
+                                                                                        ? \Capell\Core\Models\Media::find($asset->meta['background_image_id'])
+                                                                                        : ($asset->image ?: $backgroundImage);
 
-                                            $images = $asset->media;
-                                        }
+                                                                                    $images = $asset->media;
+                                                                                }
 
-                                        if (! $bgImage && ! $images?->isNotEmpty() && ! $asset->translation) {
-                                            continue;
-                                        }
+                                                                                if (! $bgImage && ! $images?->isNotEmpty() && ! $asset->translation) {
+                                                                                    continue;
+                                                                                }
                 @endphp
 
                 <x-capell-hero::hero.slide
