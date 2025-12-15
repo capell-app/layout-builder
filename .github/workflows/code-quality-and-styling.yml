@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v6
       - name: Cache Dependencies PHP
         id: php-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: vendor
           key: dependencies-php-composer-${{ hashFiles('composer.lock') }}
@@ -56,7 +56,7 @@ jobs:
         with:
           node-version: '18.18.0'
       - name: Configure npm caching
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.npm
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
