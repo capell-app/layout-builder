@@ -85,6 +85,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
         $this
             ->registerResources()
             ->registerModels()
+            ->registerRelationships()
             ->registerPackageMetadata();
     }
 
@@ -103,7 +104,6 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             ->registerViewComposers()
             ->registerAboutCommand()
             ->registerNavigationListener()
-            ->registerRelationships()
             ->registerWidgetComponents()
             ->registerSchemas()
             ->registerSitemapPages()

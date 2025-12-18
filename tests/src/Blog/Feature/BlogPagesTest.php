@@ -13,7 +13,7 @@ use function Pest\Laravel\get;
 
 uses(TestingFrontend::class);
 
-test('blog page list articles', function (): void {
+test('blog page lists articles', function (): void {
     $blogCreator = app(BlogCreator::class);
 
     $siteDomain = SiteDomain::factory()->default()->create();
@@ -57,13 +57,16 @@ test('article page', function (): void {
     $articleType = $blogCreator->createArticlePageType();
     $articleLayout = $blogCreator->createArticleLayout(createWidgets: true);
 
-    $article = Page::factory()
+    $articles = Page::factory()
+        ->count(3)
         ->site($siteDomain->site)
         ->layout($articleLayout)
         ->type($articleType)
         ->parent($blogPage)
         ->withTranslations($site->languages)
         ->create();
+
+    $article = $articles->get(1);
 
     $articleUrl = $article->pageUrl;
 

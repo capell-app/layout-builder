@@ -57,6 +57,7 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
 
         $this
             ->registerModels()
+            ->registerRelationships()
             ->registerResources()
             ->registerPackageMetadata();
     }
@@ -69,7 +70,6 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
     private function registerAll(): self
     {
         return $this
-            ->registerRelationships()
             ->registerSchemas()
             ->registerSchemaExtenders()
             ->registerBladeComponents();

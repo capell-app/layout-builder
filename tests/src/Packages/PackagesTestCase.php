@@ -12,6 +12,7 @@ use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\Layout\Providers\LayoutServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Capell\Tests\Fixtures\Support\Filament\AdminPanelProvider;
+use Livewire\LivewireServiceProvider;
 
 class PackagesTestCase extends AbstractTestCase
 {
@@ -20,13 +21,13 @@ class PackagesTestCase extends AbstractTestCase
         return [
             ...parent::getPackageProviders($app),
             AddressServiceProvider::class,
-            BlogServiceProvider::class,
             LayoutServiceProvider::class,
             BlogServiceProvider::class,
             FrontendServiceProvider::class,
             CapellServiceProvider::class,
             AdminPanelProvider::class,
             AdminServiceProvider::class,
+            LivewireServiceProvider::class,
         ];
     }
 
