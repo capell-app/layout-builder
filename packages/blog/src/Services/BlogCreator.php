@@ -36,6 +36,7 @@ use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
 use Capell\Layout\Models\Widget;
+use Capell\Layout\Services\Creator\TypeCreator as LayoutTypeCreator;
 use Capell\Layout\Services\Creator\WidgetCreator;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Builder;
@@ -48,10 +49,10 @@ class BlogCreator
         $typeMode = CapellCore::getModel(CoreModelEnum::Type);
 
         return $typeMode::query()->firstOrCreate([
-            'key' => BlogPageTypeEnum::TagPage->value,
+            'key' => BlogPageTypeEnum::Tag->value,
             'type' => TypeEnum::Page,
         ], [
-            'name' => __('capell-blog::generic.tag'),
+            'name' => __('capell-blog::generic.tag_page'),
             'group' => TypeGroupEnum::System->value,
             'admin' => [
                 'type_schema' => PageTypeSchema::getKey(),
@@ -85,7 +86,7 @@ class BlogCreator
             'type_id' => $type->id,
             'parent_id' => $parent?->getKey(),
         ], [
-            'name' => __('capell-blog::generic.tag'),
+            'name' => __('capell-blog::generic.tag_page'),
         ]);
 
         $page->forceFill([
@@ -111,11 +112,17 @@ class BlogCreator
         return $page;
     }
 
-    public function createTagsPage(Site $site, Collection $languages): Page
+    public function createTagsPage(Site $site, Collection $languages, bool $createWidgets = false): Page
     {
         $type = $this->getPageType(PageTypeEnum::System);
 
-        $layout = self::createBlogPageLayout();
+        if ($createWidgets) {
+            $this->createTagsWidget($languages);
+            $pageResultsWidgetType = resolve(LayoutTypeCreator::class)->pageResultsWidgetType();
+            resolve(WidgetCreator::class)->latestPagesWidget($pageResultsWidgetType, $languages);
+        }
+
+        $layout = self::createTagsLayout();
 
         $pageModel = CapellCore::getModel(CoreModelEnum::Page);
 
@@ -124,7 +131,7 @@ class BlogCreator
             'site_id' => $site->id,
             'type_id' => $type->id,
         ], [
-            'name' => __('capell-blog::generic.tags'),
+            'name' => __('capell-blog::generic.tags_page'),
         ]);
 
         $page->forceFill([
@@ -139,7 +146,7 @@ class BlogCreator
                 'language_id' => $language->id,
             ], [
                 'slug' => 'tags',
-                'title' => __('capell-blog::generic.tags_page'),
+                'title' => __('capell-blog::generic.tags'),
             ]);
         });
 
@@ -175,7 +182,7 @@ class BlogCreator
         $site = $parent->site;
 
         if (! $type instanceof Type) {
-            $type = Type::query()->where('key', 'archive')->pageType()->first()
+            $type = Type::query()->where('key', BlogPageTypeEnum::Archive)->pageType()->first()
                 ?? self::createArchivePageType();
         }
 
@@ -225,7 +232,7 @@ class BlogCreator
     public function createArchivePageType(): Type
     {
         return Type::query()->firstOrCreate([
-            'key' => 'archive',
+            'key' => BlogPageTypeEnum::Archive,
             'type' => TypeEnum::Page,
         ], [
             'name' => __('capell-blog::generic.blog_archive_page'),
@@ -318,7 +325,7 @@ class BlogCreator
     public function createTagsLayout(): Layout
     {
         return Layout::query()->firstOrCreate(['key' => BlogLayoutEnum::Tags->value], [
-            'name' => __('capell-blog::generic.tags_page'),
+            'name' => __('capell-blog::generic.tags'),
             'group' => LayoutGroupEnum::System->value,
             'containers' => [
                 'main' => [
@@ -382,9 +389,9 @@ class BlogCreator
     public function createTagsWidget(Collection $languages): void
     {
         $widgetModel = CapellCore::getModel(ModelEnum::Widget);
-        $typeModel = CapellCore::getModel(CoreModelEnum::Type);
 
-        $type = $typeModel::query()->firstWhere(['key' => WidgetTypeEnum::System, 'type' => LayoutTypeEnum::Widget]);
+        $typeCreator = resolve(\Capell\Layout\Services\Creator\TypeCreator::class);
+        $type = $typeCreator->systemWidgetType();
 
         $widget = $widgetModel::query()->firstOrCreate([
             'key' => 'tags',
@@ -643,6 +650,7 @@ class BlogCreator
                 'slug' => 'blog',
                 'meta' => [
                     'label' => __('capell-blog::generic.blog'),
+                    'no_results' => __('capell-blog::messages.no_articles_found'),
                 ],
             ]);
 
@@ -657,7 +665,7 @@ class BlogCreator
     public function createBlogPageType(): Type
     {
         return Type::query()->firstOrCreate([
-            'key' => 'blog',
+            'key' => BlogPageTypeEnum::Blog,
             'type' => TypeEnum::Page,
         ], [
             'name' => __('capell-blog::generic.blog'),

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Blog\Services\Loader;
 
 use Capell\Blog\Data\ArchiveMonthData;
+use Capell\Blog\Enums\BlogPageTypeEnum;
 use Capell\Blog\Services\PageArchiveService;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
@@ -29,7 +30,7 @@ class BlogLoader
             /** @var class-string<Page> $model */
             $model = CapellCore::getModel(ModelEnum::Page);
 
-            return $model::getFirstPageByTypeForSite('archive', site: $site, language: $language);
+            return $model::getFirstPageByTypeForSite(BlogPageTypeEnum::Archive->value, site: $site, language: $language);
         }) ?: null;
 
         if ($fromCache && $page) {
@@ -66,7 +67,7 @@ class BlogLoader
         );
     }
 
-    public static function getBlogPage(Site $site, string $type = 'blog'): ?Page
+    public static function getBlogPage(Site $site, string $type = BlogPageTypeEnum::Blog->value): ?Page
     {
         return Page::query()->where('site_id', $site->id)
             ->whereRelation('type', 'key', $type)

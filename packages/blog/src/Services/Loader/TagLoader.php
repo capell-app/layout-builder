@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Services\Loader;
 
+use Capell\Blog\Enums\BlogPageTypeEnum;
+use Capell\Blog\Enums\CacheEnum;
 use Capell\Blog\Enums\ModelEnum;
+use Capell\Blog\Enums\TagTypeEnum;
 use Capell\Blog\Models\Tag;
 use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
@@ -12,7 +15,6 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Frontend\Contracts\ModelServingInterface;
-use Capell\Frontend\Enums\CacheEnum;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -53,7 +55,7 @@ class TagLoader
             /** @var class-string<Page> $model */
             $model = CapellCore::getModel(CoreModelEnum::Page);
 
-            return $model::getFirstPageByTypeForSite('tag', site: $site, language: $language);
+            return $model::getFirstPageByTypeForSite(BlogPageTypeEnum::Tag->value, site: $site, language: $language);
         }) ?: null;
 
         if ($fromCache && $page) {
@@ -67,6 +69,7 @@ class TagLoader
         Site $site,
         Language $language,
         ?int $limit,
+        bool $hasArticles = false,
         ?int $paginationPage = null,
         bool $withPagination = false,
         string $paginationKey = 'page',
@@ -75,12 +78,13 @@ class TagLoader
             $limit = config('capell-frontend.pagination_limit', 10);
         }
 
-        $cacheKey = CacheEnum::siteTags($site->id, $language->id, $limit, $paginationPage);
+        $cacheKey = CacheEnum::siteTags($site->id, $language->id, $hasArticles, $limit, $paginationPage);
 
         $fromCache = true;
 
         $tags = CapellCore::rememberCache($cacheKey, function () use (
             $language,
+            $hasArticles,
             $limit,
             $paginationKey,
             $site,
@@ -97,14 +101,17 @@ class TagLoader
                     'pages' => fn (Builder $query) => $query->where('site_id', $site->id)
                         ->whereRelation('translation', 'language_id', $language->id),
                 ])
-                ->whereHas(
-                    'pages',
-                    fn (BuilderContract $query) => $query->where('site_id', $site->id)
-                        ->whereRelation('translation', 'language_id', $language->id),
-                )
-                ->where('type', 'page')
+                ->where('type', TagTypeEnum::Page)
                 ->where(
                     fn (Builder $query) => $query->where('site_id', $site->id)->orWhereNull('site_id'),
+                )
+                ->when(
+                    $hasArticles,
+                    fn (Builder $query) => $query->whereHas(
+                        'pages',
+                        fn (BuilderContract $query) => $query->where('site_id', $site->id)
+                            ->whereRelation('translation', 'language_id', $language->id),
+                    ),
                 )
                 ->tap(fn (Builder $query) => $query->whereNotNull($query->qualifyColumn('name->' . $language->code)))
                 ->ordered()
@@ -133,7 +140,7 @@ class TagLoader
             /** @var class-string<Tag> $model */
             $model = CapellCore::getModel(ModelEnum::Tag);
 
-            return $model::query()->where('type', 'page')
+            return $model::query()->where('type', TagTypeEnum::Page)
                 ->where('slug->' . $language->code, $slug)
                 ->first();
         }) ?: null;

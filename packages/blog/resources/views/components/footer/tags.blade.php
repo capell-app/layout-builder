@@ -14,7 +14,7 @@ use Capell\Frontend\Facades\Frontend;
 
 $language = Frontend::language();
 $site = Frontend::site();
-$tags = TagLoader::getTags($site, $language, limit: 5);
+$tags = TagLoader::getTags($site, $language, hasArticles: true, limit: 5);
 $tagPage = TagLoader::getTagResultsPage($site, $language);
 ?>
 
@@ -24,8 +24,8 @@ $tagPage = TagLoader::getTagResultsPage($site, $language);
     @if ($tags->isNotEmpty())
         <div class="flex flex-wrap gap-2">
             @foreach ($tags as $tag)
-                @php($url = $tagPage->pageUrl->full_url . '/' . $tag->getTranslation('slug', $language->code))
-                <x-capell::tag
+                @php($url = $tag->getPageUrl($tagPage, $language))
+                <x-capell-blog::tag
                     :$url
                     wire:navigate
                     color-scheme="dark"
@@ -33,7 +33,7 @@ $tagPage = TagLoader::getTagResultsPage($site, $language);
                 >
                     {{ $tag->getTranslation('name', $language->code) }}
                     ({{ $tag->pages_count }})
-                </x-capell::tag>
+                </x-capell-blog::tag>
             @endforeach
         </div>
     @endif

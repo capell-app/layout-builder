@@ -2,15 +2,12 @@
 
 declare(strict_types=1);
 
+use Capell\Frontend\Facades\Frontend;
+
+$site = Frontend::site();
+$page = Frontend::page();
+$pageParams = Frontend::params();
 ?>
-
-@php
-    use Capell\Frontend\Facades\Frontend;
-
-            $site = Frontend::site();
-            $page = Frontend::page();
-            $pageParams = Frontend::params();
-@endphp
 
 @props([
 'archives' => [],
@@ -46,15 +43,17 @@ declare(strict_types=1);
     @endif
 
     @if ($archives?->isEmpty())
-        <x-capell::no-results />
+        <x-capell::no-results>
+            {{ __('capell-blog::generic.no_archives_found') }}
+        </x-capell::no-results>
     @else
         <ul
             class="@md:grid-cols-2 grid gap-x-6 divide-y divide-gray-100 dark:divide-gray-600"
         >
             @foreach ($archives as $archive)
                 @php
-                    $url = $archivePage->pageUrl->full_url . '/' . $archive->year . '-' . $archive->month;
-                                                            $active = $archiveDate && $archiveDate->month === $archive->month && $archiveDate->year === $archive->year;
+                    $url = Capell\Blog\Actions\GenerateArchivePageUrl::run($archivePage->pageUrl, $archive);
+                                        $active = $archiveDate && $archiveDate->month === $archive->month && $archiveDate->year === $archive->year;
                 @endphp
 
                 <x-capell::list.list-item

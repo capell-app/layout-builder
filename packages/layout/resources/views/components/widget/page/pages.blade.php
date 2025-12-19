@@ -6,9 +6,9 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Enums\AssetComponentEnum;
-            use Capell\Frontend\Facades\Frontend;
+                use Capell\Frontend\Facades\Frontend;
 
-            $language = Frontend::language();
+                $language = Frontend::language();
 @endphp
 
 @props([
@@ -52,7 +52,9 @@ declare(strict_types=1);
     @endif
 
     @if (! $pages || $pages->isEmpty())
-        <x-capell::no-results />
+        <x-capell::no-results>
+            {{ __('capell-frontend::generic.no_pages_found') }}
+        </x-capell::no-results>
     @else
         <div
             @class([

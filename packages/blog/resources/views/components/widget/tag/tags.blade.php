@@ -7,9 +7,9 @@ declare(strict_types=1);
 @php
     use Capell\Frontend\Facades\Frontend;
 
-            $language = Frontend::language();
-            $site = Frontend::site();
-            $page = Frontend::page();
+                $language = Frontend::language();
+                $site = Frontend::site();
+                $page = Frontend::page();
 @endphp
 
 @props([
@@ -45,18 +45,20 @@ declare(strict_types=1);
 
     @if ($tags->isEmpty())
         <x-capell::no-results>
-            {{ __('No tags found.') }}
+            {{ __('capell-blog::generic.no_tags_found') }}
         </x-capell::no-results>
     @else
         <ul class="@sm:grid-cols-2 @md:grid-cols-3 grid gap-x-6 gap-y-2">
             @foreach ($tags as $tag)
-                @php($url = $tagPage->pageUrl->full_url . '/' . $tag->getTranslation('slug', $language->code))
-                <x-capell::badge
-                    :$url
-                    :count="$tag->pages_count"
-                >
-                    {{ $tag->getTranslation('name', $language->code) }}
-                </x-capell::badge>
+                @php($url = $tag->getPageUrl($tagPage, $language))
+                <li>
+                    <x-capell::badge
+                        :$url
+                        :count="$tag->pages_count"
+                    >
+                        {{ $tag->getTranslation('name', $language->code) }}
+                    </x-capell::badge>
+                </li>
             @endforeach
         </ul>
     @endif

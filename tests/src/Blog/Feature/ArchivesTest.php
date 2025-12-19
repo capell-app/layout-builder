@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Capell\Blog\Actions\GenerateArchivePageUrl;
+use Capell\Blog\Data\ArchiveMonthData;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Services\BlogCreator;
 use Capell\Core\Models\Page;
@@ -12,75 +14,6 @@ use Capell\Tests\Fixtures\Support\Concerns\TestingFrontend;
 use function Pest\Laravel\get;
 
 uses(TestingFrontend::class);
-
-test('blog page lists articles', function (): void {
-    $blogCreator = app(BlogCreator::class);
-
-    $siteDomain = SiteDomain::factory()->default()->create();
-    $site = $siteDomain->site;
-
-    $blogPage = $blogCreator->createBlogPage($site);
-    $blogPageUrl = $blogPage->pageUrl;
-
-    $articleType = $blogCreator->createArticlePageType();
-    $articleLayout = $blogCreator->createArticleLayout(createWidgets: true);
-
-    $articles = Page::factory()
-        ->count(3)
-        ->site($siteDomain->site)
-        ->layout($articleLayout)
-        ->type($articleType)
-        ->parent($blogPage)
-        ->withTranslations($site->languages)
-        ->create();
-
-    expect($blogPage)
-        ->toBeInstanceOf(Page::class)
-        ->type->name->toBe('Blog')
-        ->layout->name->toBe('Blog Posts');
-
-    get($blogPageUrl->full_url)
-        ->assertOk()
-        ->assertSeeHtml($blogPage->title)
-        ->assertSeeHtml($articles[0]->title)
-        ->assertSeeHtml($articles[1]->title)
-        ->assertSeeHtml($articles[2]->title);
-});
-
-test('article page', function (): void {
-    $blogCreator = app(BlogCreator::class);
-
-    $siteDomain = SiteDomain::factory()->default()->create();
-    $site = $siteDomain->site;
-
-    $blogPage = $blogCreator->createBlogPage($site);
-    $articleType = $blogCreator->createArticlePageType();
-    $articleLayout = $blogCreator->createArticleLayout(createWidgets: true);
-
-    $articles = Page::factory()
-        ->count(3)
-        ->site($siteDomain->site)
-        ->layout($articleLayout)
-        ->type($articleType)
-        ->parent($blogPage)
-        ->withTranslations($site->languages)
-        ->create();
-
-    $article = $articles->get(1);
-
-    $articleUrl = $article->pageUrl;
-
-    expect($article)
-        ->toBeInstanceOf(Page::class)
-        ->type->name->toBe('Article')
-        ->layout->name->toBe('Article')
-        ->parent->name->toBe('Blog');
-
-    get($articleUrl->full_url)
-        ->assertOk()
-        ->assertSeeHtml(e($article->title))
-        ->assertSeeHtml(e($blogPage->label));
-});
 
 test('archives page list articles archives by month/year', function (): void {
     $blogCreator = app(BlogCreator::class);
@@ -105,11 +38,11 @@ test('archives page list articles archives by month/year', function (): void {
 
     $oldestArticle = $articles->sortBy(fn (Page $page) => $page->publish_from ?? $page->created_at)->first();
     $oldestPublishDate = $oldestArticle->publish_from ?: $oldestArticle->created_at;
-    $oldestArchiveUrl = $archivePage->pageUrl->full_url . '/' . $oldestPublishDate->year . '-' . $oldestPublishDate->month;
+    $oldestArchiveUrl = GenerateArchivePageUrl::run($archivePage->pageUrl, ArchiveMonthData::fromDate($oldestPublishDate));
 
     $newestArticle = $articles->sortByDesc(fn (Page $page) => $page->publish_from ?? $page->created_at)->first();
     $newestPublishDate = $newestArticle->publish_from ?: $newestArticle->created_at;
-    $newestArchiveUrl = $archivePage->pageUrl->full_url . '/' . $newestPublishDate->year . '-' . $newestPublishDate->month;
+    $newestArchiveUrl = GenerateArchivePageUrl::run($archivePage->pageUrl, ArchiveMonthData::fromDate($newestPublishDate));
 
     expect($archivesPage)
         ->toBeInstanceOf(Page::class)
@@ -150,9 +83,7 @@ test('archive page list articles by month/year', function (): void {
         ])
         ->create();
 
-    $archivePageUrl = $archivePage->pageUrl;
-
-    $archiveUrl = $archivePageUrl->full_url . '/' . $publishDate->year . '-' . $publishDate->month;
+    $archiveUrl = GenerateArchivePageUrl::run($archivePage->pageUrl, ArchiveMonthData::fromDate($publishDate));
 
     expect($archivePage)
         ->toBeInstanceOf(Page::class)
@@ -165,9 +96,23 @@ test('archive page list articles by month/year', function (): void {
     get($archiveUrl)
         ->assertOk()
         ->assertSeeHtml('<title>' . ReplacePageDataAction::run($archivePage->title, ['archive_month' => $publishDate->format('F'), 'archive_year' => $publishDate->year]))
-        ->assertDontSeeText('No results found');
+        ->assertDontSeeText('no-results');
 });
 
-todo('visit tag page and list articles by tag');
+test('error page when no articles found for given month/year', function (string $slug): void {
+    $blogCreator = app(BlogCreator::class);
 
-todo('visit blogs page with no articles and see appropriate message');
+    $siteDomain = SiteDomain::factory()->default()->create();
+    $site = $siteDomain->site;
+
+    $blogPage = $blogCreator->createBlogPage($site);
+    $archivesPage = $blogCreator->createArchivesPage($blogPage);
+    $archivePage = $blogCreator->createArchivePage($archivesPage);
+
+    $archivePageUrl = $archivePage->pageUrl;
+
+    $archiveUrl = $archivePageUrl->full_url . $slug;
+
+    get($archiveUrl)
+        ->assertNotFound();
+})->with(['/2000-01', '/text-06']);

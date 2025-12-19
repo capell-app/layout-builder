@@ -6,7 +6,6 @@ namespace Capell\Blog\Enums;
 
 enum TagTypeEnum: string
 {
-    case CONTENT = 'content';
-
-    case PAGE = 'page';
+    case Content = 'content';
+    case Page = 'page';
 }

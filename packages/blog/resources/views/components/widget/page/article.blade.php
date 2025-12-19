@@ -66,7 +66,7 @@ declare(strict_types=1);
                 <div
                     class="flex flex-col items-center gap-x-10 gap-y-6 md:flex-row md:justify-between lg:flex-row-reverse"
                 >
-                    <x-capell::page.tags
+                    <x-capell-blog::page.tags
                         :tagPage="$tagPage"
                         :tags="$tags"
                         with_tag_icon="true"

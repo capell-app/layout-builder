@@ -32,12 +32,15 @@ class Archives extends AbstractWidget
 
     protected function mountWidget(): void
     {
-        $this->archivePage = BlogLoader::getArchivePage(Frontend::site(), Frontend::language());
+        $language = Frontend::language();
+        $site = Frontend::site();
+
+        $this->archivePage = BlogLoader::getArchivePage($site, $language);
 
         if (! $this->archivePage) {
             CapellCore::log(
                 'Blog Archives Widget: No archive page not found',
-                ['site_id' => Frontend::site()->id, 'language' => Frontend::language()->code],
+                ['site_id' => $site->id, 'language' => $language->code],
             );
             $this->skipRender = true;
         }
@@ -47,8 +50,8 @@ class Archives extends AbstractWidget
         $limit = $this->widget->meta['limit'] ?? config('capell-frontend.pagination_limit', 12);
 
         $this->archives = BlogLoader::getArchives(
-            site: Frontend::site(),
-            language: Frontend::language(),
+            site: $site,
+            language: $language,
             type: $type,
             limit: $limit,
         );

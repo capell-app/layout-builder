@@ -16,6 +16,14 @@ class ArchiveMonthData extends Data
         public ?int $total = null,
     ) {}
 
+    public static function fromDate(Carbon $date): self
+    {
+        return new self(
+            year: (int) $date->format('Y'),
+            month: (int) $date->format('m'),
+        );
+    }
+
     public function getDate(): Carbon
     {
         return Date::createFromFormat('Y-m', sprintf('%d-%d', $this->year, $this->month));

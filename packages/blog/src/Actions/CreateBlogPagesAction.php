@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Actions;
 
+use Capell\Blog\Enums\BlogPageTypeEnum;
 use Capell\Blog\Services\BlogCreator;
 use Capell\Core\Enums\NavigationHandle;
 use Capell\Core\Models\Layout;
@@ -23,7 +24,7 @@ class CreateBlogPagesAction
         $archivesLayout = Layout::query()->firstWhere('key', 'archives');
         $resultsLayout = Layout::query()->firstWhere('key', 'results');
 
-        $archivePageType = Type::query()->where('key', 'archive')->pageType()->first();
+        $archivePageType = Type::query()->where('key', BlogPageTypeEnum::Archive)->pageType()->first();
         $blogPageType = Type::query()->where('key', 'blog')->pageType()->first();
         $systemPageType = Type::query()->where('key', 'system')->pageType()->first();
 

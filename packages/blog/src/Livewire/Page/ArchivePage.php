@@ -32,16 +32,16 @@ class ArchivePage extends AbstractPage
     protected function getArchiveDateFromUrl(): array
     {
         $params = Frontend::params();
-        $current = is_array($params) ? ($params['date'] ?? '') : '';
+        $date = is_array($params) ? ($params['date'] ?? '') : '';
 
         $month = null;
         $year = null;
-        abort_if($current === '' || $current === '0', 404);
+        abort_if($date === '' || $date === '0', 404);
 
-        $parts = explode('/', (string) $current);
+        $parts = explode('/', (string) $date);
         $dates = explode('-', $parts[0]);
 
-        $current = isset($parts[1]) ? (int) $parts[1] : 1;
+        $date = isset($parts[1]) ? (int) $parts[1] : 1;
 
         if (isset($dates[0]) && mb_strlen($dates[0]) === 4) {
             $year = (int) $dates[0];
@@ -51,7 +51,7 @@ class ArchivePage extends AbstractPage
             $month = (int) $dates[1];
         }
 
-        abort_if(! is_numeric($current) && ($year === 0 || $year === null), 404);
+        abort_if(! is_numeric($date) && ($year === 0 || $year === null), 404);
 
         return [$year, $month];
     }
@@ -131,6 +131,10 @@ class ArchivePage extends AbstractPage
                     );
             },
         );
+
+        if ($this->results->isEmpty()) {
+            abort(404);
+        }
 
         $this->params = $this->getViewData();
 
