@@ -65,7 +65,7 @@ class WidgetTypeSchema extends DefaultTypeSchema
                     ->label(__('capell-admin::form.admin_icon')),
                 AssetTypeSelect::make('asset_types')
                     ->multiple(),
-                ContentEditorSelect::make('content_editor'),
+                ContentEditorSelect::make('content_structure'),
                 RequiredFields::make(),
             ]);
     }

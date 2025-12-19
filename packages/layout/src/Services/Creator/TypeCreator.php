@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Services\Creator;
 
-use Capell\Admin\Enums\ContentEditorEnum;
 use Capell\Core\Enums\AssetComponentEnum as CapellAssetComponentEnum;
 use Capell\Core\Enums\AssetEnum;
-use Capell\Core\Enums\ContentPresenterEnum;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Type;
@@ -66,7 +64,6 @@ class TypeCreator
             'key' => ContentTypeEnum::Default,
             'admin' => [
                 'type_schema' => ContentTypeSchema::getKey(),
-                'content_editor' => ContentEditorEnum::HtmlEditor,
             ],
         ]);
     }
@@ -80,10 +77,7 @@ class TypeCreator
             'name' => __('capell-admin::generic.contents_builder'),
             'admin' => [
                 'type_schema' => ContentTypeSchema::getKey(),
-                'content_editor' => ContentEditorEnum::ContentBuilder,
-            ],
-            'meta' => [
-                'content_presenter' => ContentPresenterEnum::Blocks,
+                'content_structure' => ContentTypeEnum::Builder,
             ],
         ]);
     }
@@ -131,10 +125,9 @@ class TypeCreator
             'admin' => [
                 'type_schema' => WidgetTypeSchema::getKey(),
                 'icon' => 'heroicon-o-puzzle-piece',
-                'content_editor' => ContentEditorEnum::ContentBuilder,
+                'content_structure' => ContentTypeEnum::Builder,
             ],
             'meta' => [
-                'content_presenter' => ContentPresenterEnum::Blocks,
                 'component' => WidgetComponentEnum::Default,
                 'padding' => ['lg'],
             ],
@@ -297,12 +290,11 @@ class TypeCreator
                 'schema' => AssetsWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-rectangle-stack',
                 'asset_types' => [LayoutAssetEnum::Content],
-                'content_editor' => ContentEditorEnum::ContentBuilder,
+                'content_structure' => ContentTypeEnum::Builder,
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::Assets,
                 'component_item' => AssetComponentEnum::Content,
-                'content_presenter' => ContentPresenterEnum::Blocks,
                 'margin' => ['lg'],
             ],
         ]);

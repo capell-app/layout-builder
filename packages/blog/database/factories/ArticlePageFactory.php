@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Database\Factories;
 
-use Capell\Admin\Enums\ContentEditorEnum;
 use Capell\Admin\Filament\Resources\Types\Schemas\Types\PageTypeSchema;
 use Capell\Blog\Enums\BlogTypeGroupEnum;
 use Capell\Blog\Enums\ResourceEnum;
@@ -31,7 +30,6 @@ class ArticlePageFactory extends PageFactory
                 ->state([
                     'group' => BlogTypeGroupEnum::Article->value,
                     'admin' => [
-                        'content_editor' => ContentEditorEnum::RichEditor->value,
                         'icon' => 'heroicon-o-newspaper',
                         'type_schema' => PageTypeSchema::getKey(),
                         'schema' => ArticlePageSchema::getKey(),

@@ -35,7 +35,7 @@ class DemoCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'capell-layout:demo {--author} {--sites=}';
+    protected $signature = 'capell-layout:demo {--user} {--sites=}';
 
     protected DemoCreator $demoCreator;
 
@@ -60,7 +60,7 @@ class DemoCommand extends Command
             return Command::FAILURE;
         }
 
-        $user = $this->option('author') ? CapellCore::getModel('User')::query()->first() : null;
+        $user = $this->option('user') ? CapellCore::getModel('User')::query()->first() : null;
 
         if (! $user && auth()->check()) {
             $user = auth()->user();

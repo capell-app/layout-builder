@@ -19,7 +19,7 @@ use Capell\Blog\Enums\WidgetSchemaEnum;
 use Capell\Blog\Filament\Resources\Articles\Schemas\Types\ArticlePageSchema;
 use Capell\Blog\Listeners\AddBlogPagesToNavigation;
 use Capell\Blog\Models\Tag;
-use Capell\Blog\Services\BlogCreator;
+use Capell\Blog\Services\Creator\BlogCreator;
 use Capell\Blog\Services\Loader\BlogLoader;
 use Capell\Blog\Services\Sitemap\ArchivePageSitemap;
 use Capell\Blog\Services\Sitemap\TagPageSitemap;
@@ -30,7 +30,9 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Core\Packages\AbstractPackageServiceProvider;
+use Capell\Frontend\Enums\RenderHookLocation;
 use Capell\Frontend\Providers\FrontendServiceProvider;
+use Capell\Frontend\Services\RenderHookRegistry;
 use Capell\Layout\Enums\ComponentTypeEnum;
 use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\SchemaTypeEnum as LayoutSchemaEnum;
@@ -44,9 +46,6 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\View;
 use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
-
-// new dedicated command
-// retained
 
 class BlogServiceProvider extends AbstractPackageServiceProvider
 {
@@ -107,7 +106,8 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             ->registerSitemapPages()
             ->registerDefaultPages()
             ->registerBladeComponents()
-            ->registerLivewireComponents();
+            ->registerLivewireComponents()
+            ->registerRenderHooks();
     }
 
     private function registerPackageMetadata(): self
@@ -121,7 +121,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             permissions: $this->getPackagePermissions(),
             installCommand: 'capell-blog:install',
             demoCommand: 'capell-blog:demo', // unchanged signature now handled by DemoCommand
-            demoParams: ['author', 'sites'],
+            demoParams: ['user', 'sites'],
             requirements: [
                 AdminServiceProvider::$packageName,
                 FrontendServiceProvider::$packageName,
@@ -211,6 +211,55 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
                 view('capell-blog::components.footer.tags')->render(),
             );
         });
+
+        return $this;
+    }
+
+    private function registerRenderHooks(): self
+    {
+        app(RenderHookRegistry::class)->register(
+            RenderHookLocation::ArticleMeta,
+            fn ($context) => view('capell-blog::hooks.article-meta', [
+                'withAuthor' => $context->withAuthor ?? false,
+                'author' => $context->author ?? null,
+                'tags' => $context->tags ?? null,
+                'tagPage' => $context->tagPage ?? null,
+            ])->render(),
+        );
+
+        app(RenderHookRegistry::class)->register(
+            RenderHookLocation::BeforeContent,
+            function ($context): ?string {
+                $tags = $context->item->tags ?? null;
+                if (! $tags || $tags->isEmpty()) {
+                    return null;
+                }
+
+                return view('capell-blog::page.tags', [
+                    'item' => $context->item ?? null,
+                    'tags' => $tags,
+                ])->render();
+            },
+        );
+
+        app(RenderHookRegistry::class)->register(
+            RenderHookLocation::AfterTitle,
+            function ($context): ?string {
+                if (
+                    (! ($context->publishDate ?? null) || ($context->publishDatePosition ?? null) !== 'bottom')
+                    && (empty($context->tags) || $context->tags->isEmpty())
+                ) {
+                    return null;
+                }
+
+                return view('capell-blog::hooks.asset-after-title', [
+                    'publishDate' => $context->publishDate ?? null,
+                    'publishDatePosition' => $context->publishDatePosition ?? null,
+                    'tags' => $context->tags ?? null,
+                    'publishDateOutput' => $context->publishDateOutput ?? null,
+                ])->render();
+            },
+        );
 
         return $this;
     }

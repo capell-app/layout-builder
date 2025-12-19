@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Blog\Services;
+namespace Capell\Blog\Services\Creator;
 
 use Capell\Admin\Actions\AddPageToNavigationAction;
 use Capell\Admin\Enums\LayoutEnum;

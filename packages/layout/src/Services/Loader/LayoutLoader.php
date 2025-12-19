@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Services\Creator;
+namespace Capell\Layout\Services\Loader;
 
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;

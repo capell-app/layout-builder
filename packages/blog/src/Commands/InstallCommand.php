@@ -56,9 +56,6 @@ class InstallCommand extends Command
 
         $this->call('vendor:publish', ['--provider' => TagsServiceProvider::class, '--tag' => 'tags-migrations']);
 
-        $this->info('Publishing Capell Blog...');
-        $this->call('vendor:publish', ['--tag' => 'capell-blog-config']);
-
         $this->call('migrate');
 
         $this->call('filament:assets');

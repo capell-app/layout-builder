@@ -36,7 +36,6 @@ $pageParams = Frontend::params();
             class="mb-2"
             :compact="true"
             :content="$widget->translation->content ?? ($showPageContent ? $page->translation->content : null)"
-            :presenter="$widget->type->meta['content_presenter'] ?? null"
             :title="$widget->translation->title ?? ($showPageTitle ? $page->translation->title : null)"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
         />
@@ -53,7 +52,7 @@ $pageParams = Frontend::params();
             @foreach ($archives as $archive)
                 @php
                     $url = Capell\Blog\Actions\GenerateArchivePageUrl::run($archivePage->pageUrl, $archive);
-                                        $active = $archiveDate && $archiveDate->month === $archive->month && $archiveDate->year === $archive->year;
+                                                            $active = $archiveDate && $archiveDate->month === $archive->month && $archiveDate->year === $archive->year;
                 @endphp
 
                 <x-capell::list.list-item

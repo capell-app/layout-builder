@@ -7,7 +7,7 @@ declare(strict_types=1);
 @php
     use Capell\Frontend\Facades\Frontend;
 
-    $page = Frontend::page();
+        $page = Frontend::page();
 @endphp
 
 @props([
@@ -36,7 +36,6 @@ declare(strict_types=1);
             :image="$page->image"
             :heading-size="$headingSize"
             :content="$page->translation->content"
-            :presenter="$widget->type->meta['content_presenter'] ?? null"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
         >
             <div>
@@ -57,23 +56,18 @@ declare(strict_types=1);
     </div>
 
     @if (($withAuthor && $author) || $tags->isNotEmpty())
-        <div class="mb-4 flex items-end justify-between">
-            @if ($withAuthor && $author)
-                <x-capell::page.author :$author />
-            @endif
-
-            @if ($tags->isNotEmpty())
-                <div
-                    class="flex flex-col items-center gap-x-10 gap-y-6 md:flex-row md:justify-between lg:flex-row-reverse"
-                >
-                    <x-capell-blog::page.tags
-                        :tagPage="$tagPage"
-                        :tags="$tags"
-                        with_tag_icon="true"
-                    />
-                </div>
-            @endif
-        </div>
+        {!!
+            app(\Capell\Frontend\Services\RenderHookRegistry::class)->renderAll(
+            \Capell\Frontend\Enums\RenderHookLocation::ArticleMeta,
+            [
+            'withAuthor' => $withAuthor,
+            'author' => $author,
+            'tags' => $tags,
+            'tagPage' => $tagPage,
+            'item' => $item ?? null,
+            ]
+            )
+        !!}
     @endif
 
     @if ($withNextPrev && ($previousPage || $nextPage))

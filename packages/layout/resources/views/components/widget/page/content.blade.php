@@ -22,12 +22,12 @@ $page = Frontend::page();
 @php
     $hasPrimaryHeading = Frontend::getFrontendData('has_primary_heading');
 
-        $hasContent = collect(['content', 'title'])
-            ->contains(fn ($item): bool => in_array($item, $pageContents, true) && ! empty($page->translation->{$item}));
+            $hasContent = collect(['content', 'title'])
+                ->contains(fn ($item): bool => in_array($item, $pageContents, true) && ! empty($page->translation->{$item}));
 
-        if (! $headingTag) {
-            $headingTag = ($hasPrimaryHeading ? 'h2' : 'h1');
-        }
+            if (! $headingTag) {
+                $headingTag = ($hasPrimaryHeading ? 'h2' : 'h1');
+            }
 @endphp
 
 @if ($hasContent)
@@ -40,14 +40,23 @@ $page = Frontend::page();
         :class="'widget-page-contents' . ($loop->last ? ' mb-20' : ' mb-10')"
         tag="article"
     >
-        <x-capell::content
-            :content="in_array('content', $pageContents, true) ? $page->translation->content : null"
-            :heading-size="$headingSize"
-            :heading-tag="$headingTag"
-            :presenter="$widget->type->meta['content_presenter'] ?? null"
-            :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
-            :title="in_array('title', $pageContents, true) && ! (empty($widgetData['meta']['show_page_title']) && $hasPrimaryHeading) ? $page->translation->title : null"
-        />
+        @if (in_array('content', $pageContents, true))
+            @if ($page->type->content_structure === ContentStructureEnum::Blocks)
+                <x-capell::blocks
+                    :blocks="$page->translation->content"
+                    :layout="$layout"
+                    :page="$page"
+                />
+            @else
+                <x-capell::content
+                    :content="$page->translation->content"
+                    :heading-size="$headingSize"
+                    :heading-tag="$headingTag"
+                    :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
+                    :title="in_array('title', $pageContents, true) && ! (empty($widgetData['meta']['show_page_title']) && $hasPrimaryHeading) ? $page->translation->title : null"
+                />
+            @endif
+        @endif
 
         @if (! empty($widget->translation?->actions))
             <x-capell::actions

@@ -26,15 +26,15 @@ $theme = Frontend::theme();
 @php
     $backgroundImage = $widget->backgroundImage ?? $widget->image ?? $widget->assets->first()?->asset?->image;
 
-        $hasContent = $content || $title || ! empty($widget->meta['actions']);
+                $hasContent = $content || $title || ! empty($widget->meta['actions']);
 
-        if ($rounded) {
-            $imgRounded = $hasContent
-                  ? ($reverseOrder ? ' rounded-r-lg' : ' rounded-l-lg')
-                  : ' rounded-lg';
-        } else {
-            $imgRounded = '';
-        }
+                if ($rounded) {
+                    $imgRounded = $hasContent
+                          ? ($reverseOrder ? ' rounded-r-lg' : ' rounded-l-lg')
+                          : ' rounded-lg';
+                } else {
+                    $imgRounded = '';
+                }
 @endphp
 
 <x-capell-layout::widget.wrapper
@@ -95,10 +95,8 @@ $theme = Frontend::theme();
                         <x-capell::content
                             class="mb-2"
                             :compact="true"
-                            :content="$content"
-                            :contents="$content ? null : $widget->translation?->content"
+                            :content="$content ? null : $widget->translation?->content"
                             :heading-size="$headingSize"
-                            :presenter="$widget->type->meta['content_presenter'] ?? null"
                             :title="$title"
                             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
                         />

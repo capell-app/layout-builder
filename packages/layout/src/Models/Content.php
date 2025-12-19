@@ -78,7 +78,6 @@ use Wildside\Userstamps\Userstamps;
  * @property-read int|null $revisions_count
  * @property-write mixed $parent_id
  * @property-read Site|null $site
- * @property-read int|null $tags_count
  * @property-read Translation|null $translation
  * @property-read Collection<int, Translation> $translations
  * @property-read int|null $translations_count
@@ -154,10 +153,6 @@ use Wildside\Userstamps\Userstamps;
  * @property-read int|null $asset_relations_count
  * @property-read Collection<int, Activity> $activities
  * @property-read int|null $activities_count
- *
- * @mixin Model
- * @mixin Model
- *
  * @property-read string|null $title
  * @property-read Collection<int, WidgetAsset> $widgetAssets
  * @property-read int|null $widget_assets_count

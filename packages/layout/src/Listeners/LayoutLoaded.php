@@ -13,7 +13,7 @@ use Capell\Frontend\Enums\ListenerEnum;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Layout\CapellLayoutManager;
 use Capell\Layout\Models\Widget;
-use Capell\Layout\Services\Creator\LayoutLoader;
+use Capell\Layout\Services\Loader\LayoutLoader;
 
 class LayoutLoaded implements EventSubscriber
 {

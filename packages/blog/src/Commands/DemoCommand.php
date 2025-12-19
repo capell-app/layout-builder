@@ -21,7 +21,7 @@ class DemoCommand extends Command
      *
      * Sites can be provided as comma-separated list: --sites=site1,site2
      */
-    protected $signature = 'capell-blog:demo {--sites=} {--author=} {--limit=}';
+    protected $signature = 'capell-blog:demo {--sites=} {--user=} {--limit=}';
 
     /**
      * The console command description.
@@ -56,17 +56,17 @@ class DemoCommand extends Command
             return self::FAILURE;
         }
 
-        $authorOption = $this->option('author');
-        /** @var Model|null $author */
-        $author = $authorOption ? CapellCore::getModel('User')::query()->find($authorOption) : null;
+        $userOption = $this->option('user');
+        /** @var Model|null $user */
+        $user = $userOption ? CapellCore::getModel('User')::query()->find($userOption) : null;
 
-        if (! $author && function_exists('auth') && auth()->check()) {
-            $author = auth()->user();
+        if (! $user && function_exists('auth') && auth()->check()) {
+            $user = auth()->user();
         }
 
         $limit = $this->option('limit') ? (int) $this->option('limit') : null;
 
-        $sites->each(fn (Site $site) => DemoAction::run($site, $author, $limit));
+        $sites->each(fn (Site $site) => DemoAction::run($site, $user, $limit));
 
         $this->info('Blog demo setup completed for selected sites.');
 

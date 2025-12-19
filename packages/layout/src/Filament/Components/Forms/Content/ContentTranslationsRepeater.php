@@ -49,7 +49,7 @@ class ContentTranslationsRepeater
         }
 
         return [
-            ContentEditor::make(editor: $type?->admin['content_editor'] ?? null)
+            ContentEditor::make(structure: $type?->content_structure)
                 ->requiredBasedOnType(),
         ];
     }

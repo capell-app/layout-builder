@@ -56,7 +56,6 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
-        <env name="FRONTEND_HTML_CACHE" value="false"/>
         <env name="SETTINGS_CACHE_ENABLED" value="true"/>
     </php>
     <logging>

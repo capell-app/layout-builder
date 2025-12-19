@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Enums\AssetComponentEnum;
-            use Capell\Core\Facades\CapellCore;
+                use Capell\Core\Facades\CapellCore;
 @endphp
 
 @props([
@@ -41,7 +41,6 @@ declare(strict_types=1);
             :compact="true"
             :content="$widget->translation->content"
             :color-scheme="$colorScheme"
-            :presenter="$widget->type->meta['content_presenter'] ?? null"
             :title="$widget->translation->title"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
         />

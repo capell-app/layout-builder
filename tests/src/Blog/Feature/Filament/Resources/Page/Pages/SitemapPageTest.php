@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Admin\Filament\Resources\Pages\Pages\SitemapPage;
-use Capell\Blog\Services\BlogCreator;
+use Capell\Blog\Services\Creator\BlogCreator;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Tests\Fixtures\Support\Concerns\CreatesAdminUser;

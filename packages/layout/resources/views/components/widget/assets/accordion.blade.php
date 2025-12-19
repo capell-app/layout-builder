@@ -6,9 +6,9 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Enums\AssetComponentEnum;
-            use Capell\Frontend\Facades\Frontend;
+                use Capell\Frontend\Facades\Frontend;
 
-            $site = Frontend::site();
+                $site = Frontend::site();
 @endphp
 
 @props([
@@ -37,7 +37,6 @@ declare(strict_types=1);
             class="mb-4"
             :compact="true"
             :content="$widget->translation->content"
-            :presenter="$widget->type->meta['content_presenter'] ?? null"
             :title="$widget->translation->title"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
         />
@@ -92,7 +91,6 @@ declare(strict_types=1);
                                     <x-capell::content
                                         :compact="true"
                                         :content="$widgetAsset->asset->translation->content"
-                                        :presenter="$widgetAsset->asset->type->meta['content_presenter'] ?? null"
                                     />
                                 @endif
 

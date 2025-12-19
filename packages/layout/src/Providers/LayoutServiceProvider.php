@@ -147,7 +147,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             installCommand: 'capell-layout:install',
             demoCommand: 'capell-layout:demo',
             upgradeCommand: 'capell-layout:upgrade',
-            demoParams: ['author', 'sites'],
+            demoParams: ['user', 'sites'],
             requirements: [
                 AdminServiceProvider::$packageName,
                 FrontendServiceProvider::$packageName,

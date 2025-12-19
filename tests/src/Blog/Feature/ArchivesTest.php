@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Capell\Blog\Actions\GenerateArchivePageUrl;
 use Capell\Blog\Data\ArchiveMonthData;
 use Capell\Blog\Models\Article;
-use Capell\Blog\Services\BlogCreator;
+use Capell\Blog\Services\Creator\BlogCreator;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\SiteDomain;
 use Capell\Frontend\Actions\ReplacePageDataAction;

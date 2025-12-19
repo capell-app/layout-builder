@@ -153,10 +153,6 @@ use Spatie\Tags\Tag;
  * @property-read int|null $activities_count
  * @property-read Collection|Page[] $related
  * @property-read int|null $related_count
- *
- * @mixin Model
- * @mixin Model
- *
  * @property-read string|null $title
  *
  * @mixin Model

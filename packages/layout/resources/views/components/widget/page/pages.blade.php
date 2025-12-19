@@ -6,9 +6,9 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Enums\AssetComponentEnum;
-                use Capell\Frontend\Facades\Frontend;
+                    use Capell\Frontend\Facades\Frontend;
 
-                $language = Frontend::language();
+                    $language = Frontend::language();
 @endphp
 
 @props([
@@ -45,7 +45,6 @@ declare(strict_types=1);
         <x-capell::content
             :compact="true"
             :content="$widget->translation->content ?? ($showPageContent ? $page->translation->content : null)"
-            :presenter="$widget->type->meta['content_presenter'] ?? null"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
             :title="$widget->translation->title ?? ($showPageTitle ? $page->translation->title : null)"
         />

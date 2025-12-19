@@ -7,7 +7,7 @@ use Capell\Blog\Data\ArchiveMonthData;
 use Capell\Blog\Enums\TagTypeEnum;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Models\Tag;
-use Capell\Blog\Services\BlogCreator;
+use Capell\Blog\Services\Creator\BlogCreator;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;

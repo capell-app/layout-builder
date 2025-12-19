@@ -7,7 +7,7 @@ namespace Capell\Layout\Actions;
 use Capell\Admin\Services\Creator\LayoutCreator;
 use Capell\Core\Models\Language;
 use Capell\Layout\LayoutModelRegistrar;
-use Capell\Layout\Services\Creator\LayoutUpdater;
+use Capell\Layout\Services\Creator\LayoutCreator;
 use Capell\Layout\Services\Creator\TypeCreator;
 use Capell\Layout\Services\Creator\WidgetCreator;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -35,7 +35,7 @@ class InstallPackageAction
         $layoutCreator = resolve(LayoutCreator::class);
         $layoutCreator->setup();
 
-        $layoutUpdater = resolve(LayoutUpdater::class);
+        $layoutUpdater = resolve(LayoutCreator::class);
         $layoutUpdater->setup();
     }
 }

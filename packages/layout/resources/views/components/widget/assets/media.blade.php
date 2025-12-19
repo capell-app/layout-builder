@@ -6,11 +6,11 @@ declare(strict_types=1);
 
 @php
     use Capell\Frontend\Facades\Frontend;
-            use Illuminate\Support\Facades\DB;
-            use Illuminate\Support\Str;
-            use Spatie\MediaLibrary\MediaCollections\Models\Media;
+                use Illuminate\Support\Facades\DB;
+                use Illuminate\Support\Str;
+                use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-            $theme = Frontend::theme();
+                $theme = Frontend::theme();
 @endphp
 
 @props([
@@ -42,7 +42,6 @@ declare(strict_types=1);
             align="center"
             :content="$widget->translation->content"
             :color-scheme="$colorScheme"
-            :presenter="$widget->type->meta['content_presenter'] ?? null"
             :title="$widget->translation->title"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? 'center'"
         />
@@ -60,10 +59,10 @@ declare(strict_types=1);
             @foreach ($widget->assets as $widgetAsset)
                 @php
                     $asset = $widgetAsset->asset;
-                                                            $media = $asset->image;
-                                                            if (! $media) {
-                                                                throw new RuntimeException('Media not found for asset ID ' . $asset->id);
-                                                            }
+                                                                                $media = $asset->image;
+                                                                                if (! $media) {
+                                                                                    throw new RuntimeException('Media not found for asset ID ' . $asset->id);
+                                                                                }
                 @endphp
 
                 <div

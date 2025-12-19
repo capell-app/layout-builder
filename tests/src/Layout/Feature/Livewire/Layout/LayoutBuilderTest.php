@@ -15,7 +15,7 @@ use Capell\Layout\Livewire\Layout\WidgetTableSelect;
 use Capell\Layout\Livewire\LayoutBuilder;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
-use Capell\Layout\Services\Creator\LayoutUpdater;
+use Capell\Layout\Services\Creator\LayoutCreator;
 use Capell\Layout\Services\Creator\TypeCreator;
 use Capell\Layout\Services\Creator\WidgetCreator;
 use Capell\Tests\Fixtures\Support\Concerns\CreatesAdminUser;
@@ -51,7 +51,7 @@ test('can edit layouts', function (LayoutEnum $layoutEnum): void {
     $widgetCreator = resolve(WidgetCreator::class);
     $widgetCreator->createWidgets(collect([$language]));
 
-    $layoutUpdater = resolve(LayoutUpdater::class);
+    $layoutUpdater = resolve(LayoutCreator::class);
     $layoutUpdater->setup($layout->key);
 
     livewire(LayoutBuilder::class, [

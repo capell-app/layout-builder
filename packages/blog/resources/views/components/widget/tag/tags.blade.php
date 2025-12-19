@@ -7,9 +7,9 @@ declare(strict_types=1);
 @php
     use Capell\Frontend\Facades\Frontend;
 
-                $language = Frontend::language();
-                $site = Frontend::site();
-                $page = Frontend::page();
+                    $language = Frontend::language();
+                    $site = Frontend::site();
+                    $page = Frontend::page();
 @endphp
 
 @props([
@@ -37,7 +37,6 @@ declare(strict_types=1);
             class="mb-4"
             :compact="true"
             :content="$widget->translation->content ?? ($showPageContent ? $page->translation->content : null)"
-            :presenter="$widget->type->meta['content_presenter'] ?? null"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
             :title="$widget->translation->title ?? ($showPageTitle ? $page->translation->title : null)"
         />

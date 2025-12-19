@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Resources\Types\Schemas\Types;
 
-use Capell\Admin\Filament\Components\Forms\ContentEditorSelect;
 use Capell\Admin\Filament\Components\Forms\ContentPresenterSelect;
+use Capell\Admin\Filament\Components\Forms\ContentStructureSelect;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\RequiredFields;
 use Capell\Admin\Filament\Components\Forms\SchemaSelect;
@@ -50,7 +50,7 @@ class ContentTypeSchema extends DefaultTypeSchema
                     ->setupOptions(SchemaTypeEnum::Content),
                 IconPicker::make('icon')
                     ->label(__('capell-admin::form.admin_icon')),
-                ContentEditorSelect::make('content_editor'),
+                ContentStructureSelect::make('content_structure'),
                 Group::make([
                     Checkbox::make('required_translation')
                         ->label(__('capell-admin::form.required_translations')),

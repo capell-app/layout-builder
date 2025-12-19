@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Capell\Layout\Services\Creator;
 
 use Capell\Admin\Enums\LayoutEnum;
+use Capell\Admin\Services\Creator\LayoutCreator as BaseLayoutCreator;
 use Capell\Core\Models\Layout;
 use InvalidArgumentException;
 
-class LayoutUpdater
+class LayoutCreator
 {
     public function setup(?string $key = null): void
     {
@@ -28,8 +29,32 @@ class LayoutUpdater
         };
     }
 
-    public function defaultLayout(Layout $layout): void
+    /**
+     * Create a layout (if missing) and immediately set up its containers/widgets.
+     */
+    public function createWithContainers(string $key, bool $createWidgets = false): Layout
     {
+        $layout = app(BaseLayoutCreator::class)->create($key);
+        match ($key) {
+            LayoutEnum::Home->value => $this->homeLayout($layout, $createWidgets),
+            LayoutEnum::Results->value => $this->resultsLayout($layout, $createWidgets),
+            LayoutEnum::Default->value => $this->defaultLayout($layout, $createWidgets),
+            default => throw new InvalidArgumentException('Invalid layout key: ' . $key)
+        };
+
+        return $layout;
+    }
+
+    public function defaultLayout(Layout $layout, bool $createWidgets = false): void
+    {
+        if ($createWidgets) {
+            $widgetCreator = resolve(WidgetCreator::class);
+            $widgetCreator->breadcrumbWidget();
+            $widgetCreator->pageContentWidget();
+            $widgetCreator->childrenWidget();
+            $widgetCreator->latestPagesWidget();
+        }
+
         $layout->update([
             'containers' => [
                 'main' => $this->mainContainer([
@@ -44,8 +69,13 @@ class LayoutUpdater
         ]);
     }
 
-    public function homeLayout(Layout $layout): void
+    public function homeLayout(Layout $layout, bool $createWidgets = false): void
     {
+        if ($createWidgets) {
+            $widgetCreator = resolve(WidgetCreator::class);
+            $widgetCreator->pageContentWidget();
+        }
+
         $layout->update([
             'containers' => [
                 'main' => [
@@ -57,8 +87,16 @@ class LayoutUpdater
         ]);
     }
 
-    public function resultsLayout(Layout $layout): void
+    public function resultsLayout(Layout $layout, bool $createWidgets = false): void
     {
+        if ($createWidgets) {
+            $widgetCreator = resolve(WidgetCreator::class);
+            $widgetCreator->pageContentWidget();
+            $widgetCreator->breadcrumbWidget();
+            $widgetCreator->pageSlotWidget();
+            $widgetCreator->latestPagesWidget();
+        }
+
         $layout->update([
             'containers' => [
                 'main' => $this->mainContainer([

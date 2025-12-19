@@ -7,6 +7,7 @@ namespace Capell\Blog\Livewire\Page;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Frontend\Livewire\Page\AbstractPage;
 use Capell\Frontend\Services\Loader\PageLoader;
+use Illuminate\Database\Eloquent\Builder;
 
 class BlogPage extends AbstractPage
 {
@@ -30,6 +31,7 @@ class BlogPage extends AbstractPage
             withParent: $page->type->meta['with_parent'] ?? false,
             withDate: $page->type->meta['with_date'] ?? false,
             paginationKey: $paginationKey,
+            modifyQuery: fn (Builder $query) => $query->with(['tags']),
         );
     }
 }

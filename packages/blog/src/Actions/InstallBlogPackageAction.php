@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\Blog\Actions;
 
 use Capell\Admin\Enums\LayoutEnum;
-use Capell\Blog\Services\BlogCreator;
+use Capell\Blog\Services\Creator\BlogCreator;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
