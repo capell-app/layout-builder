@@ -13,6 +13,8 @@ use Capell\Tests\Fixtures\Support\Concerns\TestingFrontend;
 
 use function Pest\Laravel\get;
 
+use Sinnbeck\DomAssertions\Asserts\AssertElement;
+
 uses(TestingFrontend::class);
 
 test('tags page list tags', function (): void {
@@ -44,7 +46,10 @@ test('tags page list tags', function (): void {
     get($tagsPage->pageUrl->full_url)
         ->assertOk()
         ->assertSeeText($tagsPage->translation->title)
-        ->assertSee($tags[0]->translate('name', $langauge->code))
+        ->assertElementExists(
+            'main',
+            fn (AssertElement $main) => $main->containsText($tags[0]->translate('name', $langauge->code)),
+        )
         ->assertSeeHtml('href="' . $tags[0]->getPageUrl($tagPage, $langauge) . '"')
         ->assertSee($tags[1]->translate('name', $langauge->code))
         ->assertSeeHtml('href="' . $tags[1]->getPageUrl($tagPage, $langauge) . '"')

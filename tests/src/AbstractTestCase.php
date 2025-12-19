@@ -51,6 +51,7 @@ use RuntimeException;
 use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
 use Saade\FilamentAdjacencyList\FilamentAdjacencyListServiceProvider;
 use Silber\PageCache\LaravelServiceProvider;
+use Sinnbeck\DomAssertions\DomAssertionsServiceProvider;
 use Spatie\LaravelData\LaravelDataServiceProvider;
 use Spatie\LaravelRay\RayServiceProvider;
 use Spatie\LaravelSettings\LaravelSettingsServiceProvider;
@@ -184,6 +185,7 @@ abstract class AbstractTestCase extends TestCase
             IconPickerServiceProvider::class,
             LaravelDraftsServiceProvider::class,
             RayServiceProvider::class,
+            DomAssertionsServiceProvider::class,
             SupportServiceProvider::class,
             SchemasServiceProvider::class,
             CapellServiceProvider::class,
