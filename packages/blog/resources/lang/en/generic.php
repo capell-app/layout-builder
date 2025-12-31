@@ -20,7 +20,7 @@ return [
     'no_articles_found' => 'There are no articles to display at this time.',
     'no_tags_found' => 'No tags have been assigned to any articles yet.',
     'tag' => 'Tag',
-    'tag_page_title' => 'Articles tagged :tag',
+    'tag_page_title' => ':Tag_name Articles',
     'tags' => 'Tags',
     'tags_page' => 'Tags Page',
     'tag_page' => 'Tag Results',

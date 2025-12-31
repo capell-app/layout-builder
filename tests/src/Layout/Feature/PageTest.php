@@ -10,6 +10,8 @@ use Capell\Tests\Fixtures\Support\Concerns\TestingFrontend;
 
 use function Pest\Laravel\get;
 
+use Sinnbeck\DomAssertions\Asserts\AssertElement;
+
 uses(TestingFrontend::class);
 
 test('child pages are listed on a page', function (): void {
@@ -31,4 +33,24 @@ test('child pages are listed on a page', function (): void {
         ->assertSeeInOrder($page->children->pluck('translation.title')->toArray());
 });
 
-todo('test breadcrumbs are shown on a page full hierarchy');
+it('shows breadcrumbs', function (): void {
+    $site = Site::factory()->withTranslations()->create();
+
+    $layoutCreator = resolve(LayoutCreator::class);
+    $layout = $layoutCreator->createWithContainers(LayoutEnum::Default->value, createWidgets: true);
+
+    $home = Page::factory()->site($site)->home()->withTranslations()->create();
+    $parent = Page::factory()->site($site)->withTranslations()->create();
+    $page = Page::factory()->site($site)->layout($layout)->parent($parent)->withTranslations()->create();
+
+    $page->load('pageUrl', 'parent.pageUrl');
+
+    get($page->pageUrl->full_url)
+        ->assertOk()
+        ->assertElementExists(
+            'nav.breadcrumbs',
+            fn (AssertElement $elm) => $elm->containsText($home->translation->label)
+                ->containsText($parent->translation->title)
+                ->containsText($page->translation->title),
+        );
+});

@@ -6,13 +6,13 @@ declare(strict_types=1);
 
 @php
     use Capell\Frontend\Actions\ReplacePageDataAction;
-                use Capell\Frontend\Facades\Frontend;
-                use Capell\Frontend\Services\Loader\PageLoader;
+                    use Capell\Frontend\Facades\Frontend;
+                    use Capell\Frontend\Services\Loader\PageLoader;
 
-                $page = Frontend::page();
-                $pageParams = Frontend::params();
-                $site = Frontend::site();
-                $language = Frontend::language();
+                    $page = Frontend::page();
+                    $pageParams = Frontend::params();
+                    $site = Frontend::site();
+                    $language = Frontend::language();
 @endphp
 
 @props([
@@ -25,15 +25,17 @@ declare(strict_types=1);
 @php
     $currentPageLabel = ReplacePageDataAction::run($page->translation->label, $pageParams);
 
-                $ancestors = PageLoader::getPageAncestors($page, $language, $site);
+        $ancestors = PageLoader::getPageAncestors($page, $language, $site);
 
-                if (! $ancestors) {
-                    return;
-                }
+        if (! $ancestors) {
+            return;
+        }
+
+        $home = $site->homePage($language);
 @endphp
 
 <nav
-    class="widget-breadcrumbs my-4 text-gray-800"
+    class="breadcrumbs my-4 text-gray-800"
     aria-label="{{ __('capell-frontend::generic.breadcrumbs') }}"
 >
     <x-capell-layout::widget.wrapper
@@ -46,18 +48,21 @@ declare(strict_types=1);
         container-class="flex"
     >
         <ol class="inline-flex flex-wrap items-center space-x-1 md:space-x-2">
-            <li class="inline-flex items-center">
-                <a
-                    class="hover:text-primary focus:text-primary inline-flex items-center text-sm font-medium text-gray-400"
-                    href="{{ $site->siteDomain->url }}"
-                    wire:navigate
-                >
-                    @svg('heroicon-m-home', 'h-4 w-4 fill-current')
-                    <span class="sr-only">
-                        {{ __('capell-frontend::generic.home') }}
-                    </span>
-                </a>
-            </li>
+            @if ($home)
+                <li class="inline-flex items-center">
+                    <a
+                        class="hover:text-primary focus:text-primary inline-flex items-center text-sm font-medium text-gray-400"
+                        href="{{ $site->siteDomain->url }}"
+                        wire:navigate
+                    >
+                        @svg('heroicon-m-home', 'h-4 w-4 fill-current')
+                        <span class="sr-only">
+                            {{ $home->translation->label }}
+                        </span>
+                    </a>
+                </li>
+            @endif
+
             @foreach ($ancestors as $ancestor)
                 <li>
                     <div class="flex items-center">
@@ -68,7 +73,7 @@ declare(strict_types=1);
                             title="{{ htmlspecialchars(strip_tags($ancestor->translation->label)) }}"
                             wire:navigate
                         >
-                            {{ str($ancestor->translation->label)->limit(30) }}
+                            {{ $ancestor->translation->label }}
                         </a>
                     </div>
                 </li>

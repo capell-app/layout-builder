@@ -75,9 +75,14 @@ test('tag page list articles by tag', function (): void {
     $tagsPage = $blogCreator->createTagsPage($site, $site->languages, createWidgets: true);
     $tagPage = $blogCreator->createTagPage($site, $tagsPage, $site->languages);
 
+    $title = trans($tagPage->translation->title, ['tag_name' => $tag->translate('name', $language->code)]);
+
     get($tag->getPageUrl($tagPage, $language))
         ->assertOk()
-        ->assertSeeText($tagPage->translation->title)
-        ->assertSeeText($tag->translate('name', $language->code))
+        ->assertSeeHtml('<title>' . e($title) . ' | ' . e($site->title) . '</title>')
+        ->assertElementExists(
+            'h1',
+            fn (AssertElement $elm): BaseAssert => $elm->containsText(e($title)),
+        )
         ->assertSeeInOrder($articles->map(fn (Page $page) => $page->translation->title)->all());
 });

@@ -95,12 +95,18 @@ it('calls selectRecords and dispatches event with containers form', function ():
         ->assertCountTableRecords(4)
         ->assertCanSeeTableRecords($widgets)
         ->set('selectedRecords', [$widget->getKey()])
-        ->fillForm([
-            'container' => $containerKey,
-        ])
-        ->assertSchemaStateSet([
-            'container' => $containerKey,
-        ])
+        ->fillForm(
+            [
+                'container' => $containerKey,
+            ],
+            'form',
+        )
+        ->assertSchemaStateSet(
+            [
+                'container' => $containerKey,
+            ],
+            'form',
+        )
         ->call('selectRecords')
         ->assertHasNoErrors()
         ->assertDispatched(
