@@ -6,11 +6,11 @@ declare(strict_types=1);
 
 @php
     use Capell\Frontend\Facades\Frontend;
-                use Illuminate\Support\Facades\DB;
-                use Illuminate\Support\Str;
-                use Spatie\MediaLibrary\MediaCollections\Models\Media;
+                    use Illuminate\Support\Facades\DB;
+                    use Illuminate\Support\Str;
+                    use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-                $theme = Frontend::theme();
+                    $theme = Frontend::theme();
 @endphp
 
 @props([
@@ -60,9 +60,13 @@ declare(strict_types=1);
                 {{-- format-ignore-start --}}
                 @php
                     $asset = $widgetAsset->asset;
-                    $media = $asset->image;
-                    if (! $media) {
-                        throw new RuntimeException('Media not found for asset ID ' . $asset->id);
+                    if (! $asset) {
+                        throw new RuntimeException('Asset not found for WidgetAsset: ' . $widgetAsset->asset_type . ' ' . $widgetAsset->id);
+                    }
+
+                    $image = $widgetAsset->media->first() ?: $asset->image;
+                    if (! $image) {
+                        throw new RuntimeException('Image not found for WidgetAsset: ' . $widgetAsset->asset_type . ' ' . $widgetAsset->id);
                     }
                 @endphp
                 {{-- format-ignore-end --}}
@@ -73,13 +77,14 @@ declare(strict_types=1);
                     ])
                     tabindex="0"
                 >
-                    @if (Str::startsWith($media->mime_type, 'video/'))
+                    @if (Str::startsWith($image->mime_type, 'video/'))
                         <x-capell::media
                             :class="'h-full w-full bg-gray-50 object-cover shadow transition-transform duration-300 group-hover:scale-105 group-focus-within:scale-105' . ($theme->withDarkMode ? ' dark:bg-gray-800' : '')"
                             :height="$large ? 600 : 300"
                             :$loop
-                            :media="$media"
-                            :preview="(int) $media->meta['image_id']"
+                            :media="$image"
+                            :preview="(int) $image->meta['image_id']"
+                            :alt="$asset->translation->label"
                             :width="440"
                             media_type="video"
                             fit="crop-center"
@@ -90,7 +95,8 @@ declare(strict_types=1);
                             :class="'h-full w-full bg-gray-50 object-cover shadow transition-transform duration-300 group-hover:scale-105 group-focus-within:scale-105' . ($theme->withDarkMode ? ' dark:bg-gray-800' : '')"
                             :height="$large ? 600 : 300"
                             :$loop
-                            :media="$media"
+                            :media="$image"
+                            :alt="$asset->translation->label"
                             :width="440"
                             fit="crop-center"
                             lightbox="true"

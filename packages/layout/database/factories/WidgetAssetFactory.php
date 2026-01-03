@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Database\Factories;
 
 use Capell\Core\Enums\AssetEnum;
+use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Layout\Enums\AssetEnum as LayoutAssetEnum;
 use Capell\Layout\Models\Content;
@@ -85,5 +86,18 @@ class WidgetAssetFactory extends Factory
         return $this->state(fn (array $attributes): array => [
             'widget_id' => $widget->id,
         ]);
+    }
+
+    public function assetHavingMedia(int $mediaCount = 1): self
+    {
+        return $this->afterCreating(function (WidgetAsset $widgetAsset) use ($mediaCount): void {
+            Media::factory()
+                ->count($mediaCount)
+                ->state(fn (array $attributes): array => [
+                    'model_type' => $widgetAsset->asset_type,
+                    'model_id' => $widgetAsset->asset_id,
+                ])
+                ->create();
+        });
     }
 }

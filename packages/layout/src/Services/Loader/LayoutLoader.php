@@ -77,7 +77,7 @@ class LayoutLoader
                     'type',
                     'image',
                     'backgroundImage',
-                    'media',
+                    'media' => fn (BuilderContract $query) => $query->ordered(),
                     'translation' => fn (BuilderContract $query) => $query->where('language_id', $language->id),
                 ]);
 
@@ -94,14 +94,20 @@ class LayoutLoader
 
                 $widgetAssets = $layoutWidget->pageAssets($page, $containerKey, $occurrence)
                     ->whereHas('asset')
-                    ->with('asset', $resourceRelationsCallback)
+                    ->with([
+                        'asset' => $resourceRelationsCallback,
+                        'media',
+                    ])
                     ->ordered()
                     ->get();
 
                 if ($widgetAssets->isEmpty()) {
                     $widgetAssets = $layoutWidget->widgetAssets()
                         ->whereHas('asset')
-                        ->with('asset', $resourceRelationsCallback)
+                        ->with([
+                            'asset' => $resourceRelationsCallback,
+                            'media',
+                        ])
                         ->ordered()
                         ->get();
                 }

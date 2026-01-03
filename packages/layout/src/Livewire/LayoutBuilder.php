@@ -1962,6 +1962,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         $assets = $model::query()
             ->with([
                 'asset' => fn (BuilderContract $query): BuilderContract => $query->morphWith($this->getAssetRelations()),
+                'media',
             ])
             ->where('widget_id', $widget->id)
             ->where('occurrence', $widgetOccurrence)

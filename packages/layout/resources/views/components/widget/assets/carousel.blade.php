@@ -6,10 +6,10 @@ declare(strict_types=1);
 
 @php
     use Capell\Frontend\Facades\Frontend;
-                use Spatie\Image\Image;
-                use Spatie\MediaLibrary\MediaCollections\Models\Media;
+                    use Spatie\Image\Image;
+                    use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-                $theme = Frontend::theme();
+                    $theme = Frontend::theme();
 @endphp
 
 @props([
@@ -82,36 +82,40 @@ declare(strict_types=1);
     >
         <div class="swiper-wrapper w-full">
             @foreach ($widget->assets as $widgetAsset)
+                {{-- format-ignore-start --}}
                 @php
                     $asset = $widgetAsset->asset;
 
-                                                                                /** @var Media|null $media */
-                                                                                $media = $asset->image;
+                    /** @var Media|null $media */
+                    $media = $widgetAsset->media->first() ?: $asset->image;
+                    if (! $media) {
+                        throw new RuntimeException('Image not found for WidgetAsset: ' . $widgetAsset->asset_type . ' ' . $widgetAsset->id);
+                    }
 
-                                                                                if (! $media) {
-                                                                                    continue;
-                                                                                }
+                    if (! $media) {
+                        continue;
+                    }
 
-                                                                                $mediaWidth = $media->getCustomProperty('width');
-                                                                                $mediaHeight = $media->getCustomProperty('height');
+                    $imageWidth = $media->getCustomProperty('width');
+                    $imageHeight = $media->getCustomProperty('height');
 
-                                                                                if (Str::startsWith($media->mime_type, 'image/') && (! $mediaWidth || ! $mediaHeight)) {
-                                                                                    $image = Image::load($media->getPath());
+                    if (Str::startsWith($media->mime_type, 'image/') && (! $imageWidth || ! $imageHeight)) {
+                        $image = Image::load($media->getPath());
 
-                                                                                    $mediaWidth = $image->getWidth();
-                                                                                    $mediaHeight = $image->getHeight();
-                                                                                } else {
-                                                                                    $mediaHeight = 400;
-                                                                                    $mediaWidth = 400;
-                                                                                }
+                        $imageWidth = $image->getWidth();
+                        $imageHeight = $image->getHeight();
+                    } else {
+                        $imageHeight = 400;
+                        $imageWidth = 400;
+                    }
 
-                                                                                $width = 400;
-                                                                                $height = floor($width * ($mediaHeight / $mediaWidth));
+                    $width = 400;
+                    $height = floor($width * ($imageHeight / $imageWidth));
                 @endphp
-
+                {{-- format-ignore-end --}}
                 <div
                     @class([
-                    'swiper-slide group relative h-64 overflow-hidden text-center text-white',
+                    'swiper-slide widget-media-item group relative h-64 overflow-hidden text-center text-white',
                     'rounded-lg' => $rounded,
                     ])
                     tabindex="0"
@@ -120,6 +124,7 @@ declare(strict_types=1);
                         :class="'swiper-slide-img object-cover h-64 mx-auto bg-gray-50 transition-transform duration-300 group-hover:scale-105 group-focus:scale-105' . ($theme->withDarkMode ? ' dark:bg-gray-900' : '')"
                         :$loop
                         :media="$media"
+                        :alt="$asset->translation->label"
                         :width="$width"
                         :height="$height"
                         sizes="(max-width: 640px) 80vw, 20w"
