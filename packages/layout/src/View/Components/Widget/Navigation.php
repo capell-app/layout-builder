@@ -21,24 +21,33 @@ class Navigation extends AbstractWidget
     {
         $menu = $this->getWidgetMenu();
 
-        if ($menu instanceof Models\Navigation) {
-            $this->menu = $menu;
-        }
-
-        if (! $this->menu instanceof Models\Navigation) {
-            $this->skipRender = true;
+        if (! $menu instanceof Models\Navigation) {
+            if (config('capell-layout.widget.skip_render_empty', true)) {
+                $this->skipRender = true;
+            }
 
             return;
         }
 
+        $this->menu = $menu;
+
         $navigationLoader = new NavigationItemsLoader(
             navigation: $this->menu,
+            page: Frontend::page(),
             site: Frontend::site(),
             language: Frontend::language(),
             siteDomain: Frontend::site()->siteDomain,
         );
 
         $this->items = $navigationLoader->fetchMenuItems();
+
+        if ($this->items === []) {
+            if (config('capell-layout.widget.skip_render_empty', true)) {
+                $this->skipRender = true;
+            }
+
+            return;
+        }
 
         $navigationLoader->activeMenuItems($this->items);
     }
@@ -53,19 +62,10 @@ class Navigation extends AbstractWidget
             return null;
         }
 
-        $menu = NavigationLoader::getNavigation(
-            $this->widget->meta['navigation'],
-            Frontend::site(),
-            Frontend::language(),
-        );
-
-        if ($menu instanceof Models\Navigation) {
-            return $menu;
-        }
-
         return NavigationLoader::getNavigation(
             $this->widget->meta['navigation'],
             Frontend::site(),
+            Frontend::language(),
         );
     }
 }

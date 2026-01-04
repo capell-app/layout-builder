@@ -6,7 +6,7 @@ namespace Capell\Layout\View\Components\Widget\Assets;
 
 use Capell\Layout\View\Components\Widget\Assets;
 
-class Carousel extends Assets
+class Accordion extends Assets
 {
-    protected static string $defaultView = 'capell-layout::components.widget.assets.carousel';
+    protected static string $defaultView = 'capell-layout::components.widget.assets.accordion';
 }

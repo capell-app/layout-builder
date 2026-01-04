@@ -52,7 +52,7 @@ declare(strict_types=1);
 @endcapture
 
 <x-capell-layout::widget.wrapper
-    class="widget-blocks relative"
+    class="widget-assets-blocks relative"
     :$container
     :$containerKey
     :$containerWidth
@@ -102,6 +102,7 @@ declare(strict_types=1);
                         :with-image="$withImage"
                         :with-parent="$withParent"
                         :with-summary="$withSummary"
+                        class="widget-block-item"
                     />
                 @endforeach
             </div>

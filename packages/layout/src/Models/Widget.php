@@ -136,14 +136,6 @@ class Widget extends Model implements HasMedia, PageCacheable, Statusable
         'type_id',
     ];
 
-    protected $casts = [
-        'admin' => 'json',
-        'meta' => 'json',
-        'publish_from' => 'datetime',
-        'publish_to' => 'datetime',
-        'status' => 'boolean',
-    ];
-
     /**
      * Relations on this model that should be cloned
      *
@@ -310,5 +302,16 @@ class Widget extends Model implements HasMedia, PageCacheable, Statusable
                 SQL,
             } . ' AS layouts_count',
         ));
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'admin' => 'json',
+            'meta' => 'json',
+            'publish_from' => 'datetime',
+            'publish_to' => 'datetime',
+            'status' => 'boolean',
+        ];
     }
 }

@@ -103,12 +103,6 @@ class WidgetAsset extends Model implements HasMedia, PageCacheable
         'widget_id',
     ];
 
-    protected $casts = [
-        'meta' => 'json',
-        'order' => 'integer',
-        'occurrence' => 'integer',
-    ];
-
     protected static string $factory = WidgetAssetFactory::class;
 
     public function registerMediaCollections(): void
@@ -139,5 +133,14 @@ class WidgetAsset extends Model implements HasMedia, PageCacheable
     protected function assetKey(): Attribute
     {
         return Attribute::make(get: fn (): string => $this->asset_type . '.' . $this->asset_id);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'meta' => 'json',
+            'order' => 'integer',
+            'occurrence' => 'integer',
+        ];
     }
 }

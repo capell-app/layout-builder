@@ -1,0 +1,89 @@
+<?php
+
+declare(strict_types=1);
+
+use Capell\Core\Models\Page;
+use Capell\Core\Models\Site;
+use Capell\Layout\Database\Factories\LayoutFactory;
+use Capell\Layout\Enums\AssetEnum;
+use Capell\Layout\Models\Widget;
+use Capell\Layout\Models\WidgetAsset;
+use Capell\Layout\Services\Creator\WidgetCreator;
+use Capell\Tests\Fixtures\Support\Concerns\TestingFrontend;
+use Pest\Expectation;
+
+use function Pest\Laravel\get;
+
+use Sinnbeck\DomAssertions\Asserts\AssertElement;
+use Sinnbeck\DomAssertions\Asserts\BaseAssert;
+
+uses(TestingFrontend::class);
+
+it('creates asset block widget with expected meta', function (): void {
+    $creator = resolve(WidgetCreator::class);
+    $widget = $creator->blockWidget();
+    WidgetAsset::factory()->count(3)->widget($widget)->asset(AssetEnum::Content)->create();
+
+    expect($widget)
+        ->toBeInstanceOf(Widget::class)
+        ->key->toBe('assets-block')
+        ->meta->scoped(
+            fn (Expectation $meta) => $meta->view_file->toBe('capell-layout::components.widget.assets.blocks')
+                ->component_item->toBe('capell-layout::content.block'),
+        )
+        ->assets->toHaveCount(3);
+});
+
+it('renders asset block widget on page', function (): void {
+    $site = Site::factory()->withTranslations()->create();
+    $creator = resolve(WidgetCreator::class);
+    $widget = $creator->blockWidget();
+    WidgetAsset::factory()->count(3)->widget($widget)->asset(AssetEnum::Content)->create();
+    $layout = (new LayoutFactory)->widgets([$widget])->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
+    $widgetAssets = $widget->widgetAssets()
+        ->ordered()
+        ->with([
+            'asset.type',
+            'asset.translation',
+        ])
+        ->get();
+
+    get($page->pageUrl->full_url)
+        ->assertOk()
+        ->assertElementExists(
+            '.widget-assets-blocks',
+            fn (AssertElement $elm): BaseAssert => $elm->contains('.widget-block-item', count: 3)
+                ->each(
+                    '.widget-block-item',
+                    fn (AssertElement $asset, int $index): BaseAssert => $asset->containsText($widgetAssets[$index]->asset->translation->title)
+                        ->containsText(strip_tags((string) $widgetAssets[$index]->asset->translation->content)),
+                ),
+        );
+});
+
+it('empty asset block widget hidden', function (): void {
+    $site = Site::factory()->withTranslations()->create();
+    $creator = resolve(WidgetCreator::class);
+    $widget = $creator->blockWidget();
+    $layout = (new LayoutFactory)->widgets([$widget])->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
+
+    get($page->pageUrl->full_url)
+        ->assertOk()
+        ->assertDoesntExist('.widget-assets-block');
+});
+
+it('empty asset block widget visible', function (): void {
+    config()->set('capell-layout.widget.skip_render_empty', false);
+
+    $site = Site::factory()->withTranslations()->create();
+    $creator = resolve(WidgetCreator::class);
+    $widget = $creator->blockWidget();
+    $layout = (new LayoutFactory)->widgets([$widget])->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
+
+    get($page->pageUrl->full_url)
+        ->assertOk()
+        ->assertElementExists('.widget-assets-block');
+});

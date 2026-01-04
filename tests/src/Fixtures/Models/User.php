@@ -58,11 +58,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'two_factor_secret',
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-    ];
-
     protected static string $factory = UserFactory::class;
 
     public function getActivitylogOptions(): LogOptions
@@ -79,5 +74,13 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
     }
 }

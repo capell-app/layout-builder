@@ -9,6 +9,7 @@ declare(strict_types=1);
 'container',
 'containerKey',
 'containerWidth' => null,
+'groupItems' => $widgetData['meta']['group_items'] ?? false,
 'showPageContent' => $widgetData['meta']['show_page_content'] ?? false,
 'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
 'items' => [],
@@ -16,7 +17,7 @@ declare(strict_types=1);
 'widget',
 ])
 <x-capell-layout::widget.wrapper
-    class="widget-navigation-bar"
+    class="widget-navigation"
     :$container
     :$containerKey
     :$containerWidth
@@ -35,7 +36,7 @@ declare(strict_types=1);
         />
     @endif
 
-    @if (count($items) > 5)
+    @if ($groupItems && count($items) > 5)
         <div class="grid md:grid-cols-2">
             @php
                 $chunkedItems = collect($items)->chunk(ceil(count($items) / $columns));
@@ -44,6 +45,7 @@ declare(strict_types=1);
             @foreach ($chunkedItems as $chunked)
                 <x-dynamic-component
                     :component="! empty($menu->meta['component']) ? $menu->meta['component'] : 'capell::list'"
+                    class="widget-navigation-list"
                 >
                     @foreach ($chunked as $item)
                         <x-dynamic-component
@@ -52,6 +54,7 @@ declare(strict_types=1);
                                 ? $item['data']['component']
                                 : 'capell::list.item'
                             "
+                            class="widget-navigation-item"
                             :$item
                         />
                     @endforeach
@@ -61,6 +64,7 @@ declare(strict_types=1);
     @else
         <x-dynamic-component
             :component="! empty($menu->meta['component']) ? $menu->meta['component'] : 'capell::list'"
+            class="widget-navigation-list widget-navigation-lit-children"
         >
             @foreach ($items as $item)
                 <x-dynamic-component
@@ -69,6 +73,7 @@ declare(strict_types=1);
                         ? $item['data']['component']
                         : 'capell::list.item'
                     "
+                    class="widget-navigation-item widget-navigation-child-item"
                     :$item
                 />
             @endforeach

@@ -219,13 +219,6 @@ class Content extends Model implements Draftable, HasMedia, PageCacheable
         'translations',
     ];
 
-    protected $casts = [
-        'is_published' => 'boolean',
-        'meta' => 'json',
-        'publish_from' => 'datetime',
-        'publish_to' => 'datetime',
-    ];
-
     protected static string $factory = ContentFactory::class;
 
     public static function getMorphRelations(?Language $language = null): array
@@ -395,5 +388,15 @@ class Content extends Model implements Draftable, HasMedia, PageCacheable
     protected function actions(): Attribute
     {
         return Attribute::make(get: fn () => $this->meta['actions'] ?? []);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'is_published' => 'boolean',
+            'meta' => 'json',
+            'publish_from' => 'datetime',
+            'publish_to' => 'datetime',
+        ];
     }
 }

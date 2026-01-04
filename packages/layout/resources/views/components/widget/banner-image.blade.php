@@ -22,23 +22,24 @@ $theme = Frontend::theme();
 'title' => $widget->translation?->title,
 'widget',
 ])
-
+{{-- format-ignore-start --}}
 @php
-    $backgroundImage = $widget->backgroundImage ?? $widget->image ?? $widget->assets->first()?->asset?->image;
+    $backgroundImage = $widget->backgroundImage ?? $widget->image ?? $widget->assets->first()?->media?->first();
 
-                $hasContent = $content || $title || ! empty($widget->meta['actions']);
+    $hasContent = $content || $title || ! empty($widget->meta['actions']);
 
-                if ($rounded) {
-                    $imgRounded = $hasContent
-                          ? ($reverseOrder ? ' rounded-r-lg' : ' rounded-l-lg')
-                          : ' rounded-lg';
-                } else {
-                    $imgRounded = '';
-                }
+    if ($rounded) {
+        $imgRounded = $hasContent
+              ? ($reverseOrder ? ' rounded-r-lg' : ' rounded-l-lg')
+              : ' rounded-lg';
+    } else {
+        $imgRounded = '';
+    }
 @endphp
+{{-- format-ignore-end --}}
 
 <x-capell-layout::widget.wrapper
-    class="widget-banner-full-width relative"
+    class="widget-banner-image relative"
     :$container
     :$containerKey
     :$containerWidth

@@ -32,6 +32,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Enums\LivewireComponentsEnum;
 use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
@@ -704,7 +705,7 @@ class BlogCreator
             'name' => __('capell-blog::generic.latest_articles'),
             'type_id' => Type::query()->firstWhere(['key' => WidgetTypeEnum::PageResults, 'type' => LayoutTypeEnum::Widget])?->id,
             'meta' => [
-                'component' => 'capell.layout.livewire.widget.pages',
+                'component' => LivewireComponentsEnum::PagesWidget,
                 'limit' => 5,
                 'page_group' => strtolower(ResourceEnum::Article->name),
                 'pagination' => false,

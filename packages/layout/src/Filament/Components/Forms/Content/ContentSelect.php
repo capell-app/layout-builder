@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms\Content;
 
-use Capell\Admin\Actions\ModifyCreateAction;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\HintEditAction;
 use Capell\Admin\Filament\Concerns\HasCustomSelectOption;
@@ -93,7 +92,7 @@ class ContentSelect extends Select
         $createOptionUsing = $this->getCreateOptionUsing();
 
         return $this->createOptionAction(
-            fn (Action $action): Action => ModifyCreateAction::run($action)
+            fn (Action $action): Action => $this->modifyCreateAction($action)
                 ->fillForm(fn (): array => in_array($adminAsset->defaultDataAction, [null, '', '0'], true) ? [] : $adminAsset->defaultDataAction::run()),
         )
             ->createOptionForm(
@@ -165,7 +164,7 @@ class ContentSelect extends Select
             fn ($state, $operation): HintEditAction => HintEditAction::make('edit-content')
                 ->visible(fn (): bool => $operation !== 'create' && filled($state))
                 ->url(function () use ($state): string {
-                    if (! $state) {
+                    if ($state === []) {
                         return '';
                     }
 
@@ -249,5 +248,21 @@ class ContentSelect extends Select
             fn (Content $content): array => [$content->getKey() => $this->getContentOptionLabel($content, $site_id)],
         )
             ->toArray();
+    }
+
+    private function modifyCreateAction(Action $action): Action
+    {
+        return $action->slideOver()
+            ->modalWidth(Width::ScreenLarge)
+            ->closeModalByClickingAway(false)
+            ->successNotificationTitle(
+                fn (Action $action): string => __(
+                    'capell-admin::notification.created_successfully',
+                    ['name' => $action->getModalHeading()],
+                ),
+            )
+            ->after(function (Action $action): void {
+                $action->success();
+            });
     }
 }

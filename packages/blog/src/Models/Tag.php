@@ -78,17 +78,6 @@ class Tag extends \Spatie\Tags\Tag implements PageCacheable, Statusable
         'type',
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'meta' => 'json',
-        'featured' => 'boolean',
-        'status' => 'boolean',
-    ];
-
     protected static string $factory = TagFactory::class;
 
     #[Override]
@@ -191,5 +180,19 @@ class Tag extends \Spatie\Tags\Tag implements PageCacheable, Statusable
                     : 'JSON_KEYS(' . $this->getQuery()->getGrammar()->wrap($key) . ') as translated_locales',
             ),
         );
+    }
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'meta' => 'json',
+            'featured' => 'boolean',
+            'status' => 'boolean',
+        ];
     }
 }

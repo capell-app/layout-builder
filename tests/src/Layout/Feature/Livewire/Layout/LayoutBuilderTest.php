@@ -208,8 +208,8 @@ test('Can clone layout', function (): void {
         ->assertHasNoFormErrors()
         ->call('saveLayout');
 
-    $clonedLayout = Layout::query()->where('name', $layout->name . ' 1')
-        ->where('key', $layout->key . '-1')
+    $clonedLayout = Layout::query()->where('name', $layout->name . ' (2)')
+        ->where('key', $layout->key . ' (2)')
         ->first();
 
     expect($clonedLayout)

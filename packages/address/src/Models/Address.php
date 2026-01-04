@@ -85,12 +85,6 @@ class Address extends Model implements Defaultable
         'status',
     ];
 
-    protected $casts = [
-        'meta' => 'json',
-        'default' => 'boolean',
-        'status' => 'boolean',
-    ];
-
     protected static string $factory = AddressFactory::class;
 
     /**
@@ -127,5 +121,14 @@ class Address extends Model implements Defaultable
         ]);
 
         return implode(', ', $parts);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'meta' => 'json',
+            'default' => 'boolean',
+            'status' => 'boolean',
+        ];
     }
 }

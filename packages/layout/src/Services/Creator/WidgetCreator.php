@@ -4,25 +4,24 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Services\Creator;
 
+use Capell\Core\Enums\DefaultColorEnum;
 use Capell\Core\Enums\ModelEnum as CoreModelEnum;
+use Capell\Core\Enums\TypeEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
+use Capell\Core\Models\Navigation;
+use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
-use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Enums\AssetEnum;
+use Capell\Layout\Enums\ContainerWidthEnum;
 use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
-use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\CarouselWidgetSchema;
 use Capell\Layout\Models\Widget;
 use Illuminate\Support\Collection;
 
 class WidgetCreator
 {
-    /**
-     * @var class-string<Type>
-     */
-    private readonly string $typeModel;
-
     /**
      * @var class-string<Widget>
      */
@@ -31,18 +30,21 @@ class WidgetCreator
     public function __construct()
     {
         $this->widgetModel = CapellCore::getModel(ModelEnum::Widget->name);
-        $this->typeModel = CapellCore::getModel(CoreModelEnum::Type);
     }
 
-    public function createWidgets(Collection $languages): void
+    public function createWidgets(Collection $languages, bool $extraWidgets = false): void
     {
-        $contentsWidgetType = $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget]);
-        $mediaWidgetType = $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Media, 'type' => LayoutTypeEnum::Widget]);
-        $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Navigation, 'type' => LayoutTypeEnum::Widget]);
-        $pageContentWidgetType = $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::PageContents, 'type' => LayoutTypeEnum::Widget]);
-        $pageResultsWidgetType = $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::PageResults, 'type' => LayoutTypeEnum::Widget]);
-        $pagesWidgetType = $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Pages, 'type' => LayoutTypeEnum::Widget]);
-        $systemWidgetType = $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::System, 'type' => LayoutTypeEnum::Widget]);
+        $typeCreator = resolve(TypeCreator::class);
+
+        $assetsWidgetType = $typeCreator->assetsWidgetType();
+        $contentsWidgetType = $typeCreator->contentsWidgetType();
+        $defaultWidgetType = $typeCreator->defaultWidgetType();
+        $mediaWidgetType = $typeCreator->mediaWidgetType();
+        $navigationWidgetType = $typeCreator->navigationWidgetType();
+        $pageContentWidgetType = $typeCreator->pageContentWidgetType();
+        $pageResultsWidgetType = $typeCreator->pageResultsWidgetType();
+        $pagesWidgetType = $typeCreator->pagesWidgetType();
+        $systemWidgetType = $typeCreator->systemWidgetType();
 
         $this->breadcrumbWidget($systemWidgetType);
         $this->childrenWidget($pageResultsWidgetType, $languages);
@@ -54,6 +56,18 @@ class WidgetCreator
         $this->pageSlotWidget($systemWidgetType);
         $this->pagesCardWidget($pagesWidgetType);
         $this->siblingsWidget($pageResultsWidgetType, $languages);
+
+        if ($extraWidgets) {
+            $this->defaultWidget($defaultWidgetType);
+            $this->accordionWidget($contentsWidgetType);
+            $this->bannerWidget($contentsWidgetType);
+            $this->blockWidget($assetsWidgetType);
+            $this->featuresWidget($contentsWidgetType);
+            $this->testimonialsWidget($contentsWidgetType);
+            $this->navigationWidget($navigationWidgetType);
+            $this->navigationTabsWidget($navigationWidgetType);
+            $this->bannerImageWidget();
+        }
     }
 
     public function breadcrumbWidget(?Type $type = null): Widget
@@ -66,7 +80,7 @@ class WidgetCreator
             'name' => __('capell-admin::generic.breadcrumbs'),
             'type_id' => $type->id,
             'meta' => [
-                'component' => WidgetComponentEnum::Breadcrumbs,
+                'component' => WidgetComponentEnum::PageBreadcrumbs,
             ],
         ]);
     }
@@ -298,5 +312,184 @@ class WidgetCreator
         });
 
         return $widget;
+    }
+
+    public function defaultWidget(?Type $type = null): Widget
+    {
+        $type ??= resolve(TypeCreator::class)->defaultWidgetType();
+
+        return $this->widgetModel::query()->firstOrCreate(['key' => 'default'], [
+            'name' => 'Default Widget',
+            'type_id' => $type->id,
+        ]);
+    }
+
+    public function accordionWidget(?Type $type = null): Widget
+    {
+        $type ??= resolve(TypeCreator::class)->contentsWidgetType();
+
+        return $this->widgetModel::query()->firstOrCreate(['key' => 'assets-accordion'], [
+            'key' => 'assets-accordion',
+            'name' => __('capell-layout::generic.accordion'),
+            'type_id' => $type->id,
+            'meta' => [
+                'icon' => 'heroicon-m-question-mark-circle',
+                'component' => WidgetComponentEnum::AssetAccordion,
+                'margin' => ['lg'],
+                'align' => 'center',
+            ],
+            'admin' => [
+                'asset_types' => [
+                    AssetEnum::Content->value,
+                ],
+            ],
+        ]);
+    }
+
+    public function bannerWidget(?Type $type = null): Widget
+    {
+        $type ??= resolve(TypeCreator::class)->contentsWidgetType();
+
+        return $this->widgetModel::query()->firstOrCreate(['key' => 'assets-banner'], [
+            'name' => 'Banner Showcase',
+            'type_id' => $type->id,
+            'meta' => [
+                'align' => 'center',
+                'background_overlay' => true,
+                'view_file' => 'capell-layout::components.widget.assets.banners',
+            ],
+        ]);
+    }
+
+    public function blockWidget(?Type $type = null): Widget
+    {
+        $type ??= resolve(TypeCreator::class)->assetsWidgetType();
+
+        return $this->widgetModel::query()->firstOrCreate(['key' => 'assets-block'], [
+            'name' => 'Blocks',
+            'type_id' => $type->id,
+            'meta' => [
+                'component_item' => 'capell-layout::content.block',
+                'view_file' => 'capell-layout::components.widget.assets.blocks',
+                'spacing' => 'none',
+                'columns' => 0,
+                'margin' => '',
+                'container' => ContainerWidthEnum::Small->value,
+            ],
+            'admin' => [
+                'icon' => 'heroicon-o-chart-bar',
+            ],
+        ]);
+    }
+
+    public function featuresWidget(?Type $type = null): Widget
+    {
+        $type ??= resolve(TypeCreator::class)->contentsWidgetType();
+
+        return $this->widgetModel::query()->firstOrCreate(['key' => 'asset-features'], [
+            'name' => 'Features',
+            'type_id' => $type->id,
+            'meta' => [
+                'align' => 'center',
+                'margin' => ['lg'],
+                'view_file' => 'capell-layout::components.widget.assets.features',
+            ],
+        ]);
+    }
+
+    public function testimonialsWidget(?Type $type = null): Widget
+    {
+        $type ??= resolve(TypeCreator::class)->contentsWidgetType();
+
+        return $this->widgetModel::query()->firstOrCreate(['key' => 'asset-testimonials'], [
+            'name' => 'Testimonials',
+            'type_id' => $type->id,
+            'meta' => [
+                'align' => 'center',
+                'background_overlay' => true,
+                'background_color' => DefaultColorEnum::Gray->value,
+                'view_file' => 'capell-layout::components.widget.assets.testimonials',
+            ],
+        ]);
+    }
+
+    public function navigationWidget(
+        ?Type $type = null,
+        ?Site $site = null,
+        string $widgetKey = 'widget-navigation',
+        array $widgetMeta = [],
+        string $navigatonKey = 'navigation',
+        string $navigatonName = 'Navigation',
+        array $navigatonItems = [],
+    ): Widget {
+        $type ??= resolve(TypeCreator::class)->navigationWidgetType();
+        $typeModel = CapellCore::getModel(CoreModelEnum::Type);
+        $navigationModel = CapellCore::getModel(CoreModelEnum::Navigation);
+
+        $navigationType = $typeModel::navigationType()->default()->first();
+        if (! $navigationType) {
+            $navigationType = $typeModel::query()->create([
+                'key' => 'navigation',
+                'type' => TypeEnum::Navigation->value,
+                'name' => 'Navigation',
+                'default' => true,
+            ]);
+        }
+
+        /** @var Navigation $navigation */
+        $navigation = $navigationModel::query()->firstOrCreate([
+            'key' => $navigatonKey,
+            'type_id' => $navigationType->id,
+            'site_id' => $site?->id,
+        ], [
+            'name' => $navigatonName,
+            'items' => $navigatonItems,
+        ]);
+
+        return $this->widgetModel::query()->firstOrCreate(['key' => $widgetKey], [
+            'name' => __('Navigation'),
+            'type_id' => $type->id,
+            'meta' => [
+                'navigation' => $navigation->key,
+                'margin' => ['lg'],
+                ...$widgetMeta,
+            ],
+        ]);
+    }
+
+    public function navigationTabsWidget(
+        ?Type $type = null,
+        ?Site $site = null,
+        string $widgetKey = 'widget-navigation-tabs',
+        array $widgetMeta = [
+            'view_file' => 'capell-layout::components.widget.navigation.tabs',
+        ],
+        string $navigatonKey = 'navigation-tabs',
+        string $navigatonName = 'Tabs',
+        array $navigatonItems = [],
+    ): Widget {
+        return $this->navigationWidget(
+            type: $type,
+            site: $site,
+            widgetKey: $widgetKey,
+            widgetMeta: $widgetMeta,
+            navigatonKey: $navigatonKey,
+            navigatonName: $navigatonName,
+            navigatonItems: $navigatonItems,
+        );
+    }
+
+    public function bannerImageWidget(?Type $type = null): Widget
+    {
+        $type ??= resolve(TypeCreator::class)->defaultWidgetType();
+
+        return $this->widgetModel::query()->firstOrCreate(['key' => 'banner-image'], [
+            'name' => 'Banner Image',
+            'type_id' => $type->id,
+            'meta' => [
+                'component' => WidgetComponentEnum::BannerImage,
+                'margin' => ['lg'],
+            ],
+        ]);
     }
 }

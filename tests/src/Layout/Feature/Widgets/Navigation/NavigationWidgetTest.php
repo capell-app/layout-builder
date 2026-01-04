@@ -1,0 +1,163 @@
+<?php
+
+declare(strict_types=1);
+
+use Capell\Core\Models\Page;
+use Capell\Core\Models\Site;
+use Capell\Layout\Database\Factories\LayoutFactory;
+use Capell\Layout\Models\Widget;
+use Capell\Layout\Services\Creator\WidgetCreator;
+use Capell\Tests\Fixtures\Support\Concerns\TestingFrontend;
+use Pest\Expectation;
+
+use function Pest\Laravel\get;
+
+use Sinnbeck\DomAssertions\Asserts\AssertElement;
+use Sinnbeck\DomAssertions\Asserts\BaseAssert;
+
+uses(TestingFrontend::class);
+
+it('creates navigation widget with expected meta', function (): void {
+    $creator = resolve(WidgetCreator::class);
+    $widget = $creator->navigationWidget();
+
+    expect($widget)
+        ->toBeInstanceOf(Widget::class)
+        ->key->toBe('widget-navigation')
+        ->meta->scoped(fn (Expectation $meta) => $meta->navigation->toBe('navigation'));
+});
+
+it('renders navigation widget on page', function (): void {
+    $site = Site::factory()->withTranslations()->create();
+    $creator = resolve(WidgetCreator::class);
+    $layout = (new LayoutFactory)->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
+    $home = Page::factory()->site($site)->home()->withTranslations()->create();
+    $services = Page::factory()->site($site)->withTranslations()->children(3)->state(['name' => 'Services'])->create();
+    $anotherSiteHome = Page::factory()->home()->withTranslations()->create();
+    $externalUrl = 'https://example.com/external';
+    $items = [
+        [
+            'label' => 'Home',
+            'type' => 'page',
+            'data' => [
+                'page_id' => $home->id,
+            ],
+        ],
+        [
+            'label' => $page->translation->title,
+            'type' => 'page',
+            'data' => [
+                'page_id' => $page->id,
+            ],
+        ],
+        [
+            'label' => 'Another Site',
+            'type' => 'page',
+            'data' => [
+                'page_id' => $anotherSiteHome->id,
+            ],
+        ],
+        [
+            'label' => 'External link',
+            'type' => 'link',
+            'data' => [
+                'url' => $externalUrl,
+            ],
+        ],
+        [
+            'label' => $services->translation->title,
+            'type' => 'page',
+            'data' => [
+                'page_id' => $services->id,
+                'auto_children' => true,
+            ],
+        ],
+    ];
+
+    $widget = $creator->navigationWidget(site: $site, navigatonItems: $items);
+    $layout->update([
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    [
+                        'widget_key' => $widget->key,
+                        'occurrence' => 1,
+                    ],
+                ],
+                'meta' => [],
+            ],
+        ],
+    ]);
+
+    get($page->pageUrl->full_url)
+        ->assertOk()
+        ->assertElementExists(
+            '.widget-navigation',
+            fn (AssertElement $element): BaseAssert => $element->contains('.widget-navigation-item', 8)
+                ->find(
+                    '.list-items',
+                    fn (AssertElement $el): BaseAssert => $el->find(
+                        '.widget-navigation-item:nth-child(1)',
+                        fn (AssertElement $el): BaseAssert => $el->containsText('Home')
+                            ->find('a', fn (AssertElement $link): BaseAssert => $link->has('href', $home->pageUrl->full_url)),
+                    )
+                        ->find(
+                            '.widget-navigation-item:nth-child(2)',
+                            fn (AssertElement $el): BaseAssert => $el->containsText($page->translation->title)
+                                ->has('class', 'active')
+                                ->find('a', fn (AssertElement $link): BaseAssert => $link->has('href', $page->pageUrl->full_url)),
+                        )
+                        ->find(
+                            '.widget-navigation-item:nth-child(3)',
+                            fn (AssertElement $el): BaseAssert => $el->containsText('Another Site')
+                                ->find('a', fn (AssertElement $link): BaseAssert => $link->has('href', $anotherSiteHome->pageUrl->full_url)),
+                        )
+                        ->find(
+                            '.widget-navigation-item:nth-child(4)',
+                            fn (AssertElement $el): BaseAssert => $el->containsText('External link')
+                                ->find('a', fn (AssertElement $link): BaseAssert => $link->has('href', $externalUrl)),
+                        )
+                        ->find(
+                            '.widget-navigation-item:nth-child(5)',
+                            fn (AssertElement $el): BaseAssert => $el->containsText($services->translation->title)
+                                ->find('a', fn (AssertElement $link): BaseAssert => $link->has('href', $services->pageUrl->full_url))
+                                ->find(
+                                    '.list-items',
+                                    fn (AssertElement $el): BaseAssert => $el->contains('.widget-navigation-item', 3)
+                                        ->each(
+                                            '.widget-navigation-item:nth-child(1)',
+                                            fn (AssertElement $el, int $index): BaseAssert => $el->containsText($services->children->get($index)->translation->title)
+                                                ->find('a', fn (AssertElement $link): BaseAssert => $link->has('href', $services->children->get($index)->pageUrl->full_url)),
+                                        ),
+                                ),
+                        ),
+                ),
+        );
+});
+
+it('empty navigation widget hidden', function (): void {
+    $site = Site::factory()->withTranslations()->create();
+    $creator = resolve(WidgetCreator::class);
+    $widget = $creator->navigationWidget();
+    $layout = (new LayoutFactory)->widgets([$widget])->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
+
+    get($page->pageUrl->full_url)
+        ->assertOk()
+        ->assertDoesntExist('.widget-navigation');
+});
+
+it('empty navigation widget visible', function (): void {
+    config()->set('capell-layout.widget.skip_render_empty', false);
+
+    $site = Site::factory()->withTranslations()->create();
+    $creator = resolve(WidgetCreator::class);
+    $widget = $creator->navigationWidget();
+    $layout = (new LayoutFactory)->widgets([$widget])->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
+
+    get($page->pageUrl->full_url)
+        ->assertOk()
+        ->assertElementExists('.widget-navigation');
+});

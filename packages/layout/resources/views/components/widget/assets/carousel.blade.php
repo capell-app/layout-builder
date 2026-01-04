@@ -6,10 +6,10 @@ declare(strict_types=1);
 
 @php
     use Capell\Frontend\Facades\Frontend;
-                    use Spatie\Image\Image;
-                    use Spatie\MediaLibrary\MediaCollections\Models\Media;
+                        use Spatie\Image\Image;
+                        use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-                    $theme = Frontend::theme();
+                        $theme = Frontend::theme();
 @endphp
 
 @props([
@@ -84,16 +84,10 @@ declare(strict_types=1);
             @foreach ($widget->assets as $widgetAsset)
                 {{-- format-ignore-start --}}
                 @php
-                    $asset = $widgetAsset->asset;
-
                     /** @var Media|null $media */
-                    $media = $widgetAsset->media->first() ?: $asset->image;
+                    $media = $widgetAsset->media->first() ?: $widgetAsset->asset->image;
                     if (! $media) {
                         throw new RuntimeException('Image not found for WidgetAsset: ' . $widgetAsset->asset_type . ' ' . $widgetAsset->id);
-                    }
-
-                    if (! $media) {
-                        continue;
                     }
 
                     $imageWidth = $media->getCustomProperty('width');
@@ -124,18 +118,18 @@ declare(strict_types=1);
                         :class="'swiper-slide-img object-cover h-64 mx-auto bg-gray-50 transition-transform duration-300 group-hover:scale-105 group-focus:scale-105' . ($theme->withDarkMode ? ' dark:bg-gray-900' : '')"
                         :$loop
                         :media="$media"
-                        :alt="$asset->translation->label"
+                        :alt="$widgetAsset->asset->translation->label"
                         :width="$width"
                         :height="$height"
                         sizes="(max-width: 640px) 80vw, 20w"
                         lightbox="true"
                         rounded="true"
                     />
-                    @if ($asset->translation?->title)
+                    @if ($widgetAsset->asset->translation?->title)
                         <div
                             class="pointer-events-none absolute inset-x-0 bottom-0 flex translate-y-full transform items-center justify-center break-words bg-gray-600/75 px-2 py-4 text-sm font-medium leading-none leading-tight text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100"
                         >
-                            {{ $asset->translation->title }}
+                            {{ $widgetAsset->asset->translation->title }}
                         </div>
                     @endif
                 </div>

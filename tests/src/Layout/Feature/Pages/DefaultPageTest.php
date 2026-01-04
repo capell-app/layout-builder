@@ -32,7 +32,7 @@ test('home page with layout', function (): void {
         )
         ->assertElementExists(
             '.widget-page-content',
-            fn (AssertElement $elm): BaseAssert => $elm->containsText(strip_tags($page->translation->content)),
+            fn (AssertElement $elm): BaseAssert => $elm->containsText(strip_tags((string) $page->translation->content)),
         );
 });
 

@@ -7,7 +7,6 @@ namespace Capell\Layout\Services\Creator;
 use BackedEnum;
 use Capell\Admin\Services\Creator\DemoCreator as AdminDemoCreator;
 use Capell\Admin\Services\Creator\NavigationCreator;
-use Capell\Core\Enums\DefaultColorEnum;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
@@ -20,6 +19,7 @@ use Capell\Layout\Enums\AssetEnum;
 use Capell\Layout\Enums\ContainerWidthEnum;
 use Capell\Layout\Enums\ContentTypeEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Enums\LivewireComponentsEnum;
 use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
@@ -166,11 +166,11 @@ class DemoCreator
     public function createBannerImageWidget(Collection $languages): Widget
     {
         $siteId = Site::query()->default()?->value('id');
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'banner-full-width'], [
-            'name' => 'Banner Full Width',
+        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'banner-image'], [
+            'name' => 'Banner Image',
             'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::ContentBuilder, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
-                'component' => 'capell-layout::widget.banner-image',
+                'component' => WidgetComponentEnum::BannerImage,
                 'margin' => ['lg'],
                 'actions' => [
                     [
@@ -233,7 +233,7 @@ class DemoCreator
                 'name' => __('capell-layout::generic.pages_tile'),
                 'type_id' => $this->typeModel::query()->firstWhere('key', WidgetTypeEnum::Pages)->id,
                 'meta' => [
-                    'component' => 'capell.layout.livewire.widget.pages',
+                    'component' => LivewireComponentsEnum::PagesWidget,
                     'columns' => 4,
                     'with_image' => true,
                     'with_summary' => true,
@@ -437,7 +437,7 @@ class DemoCreator
             ->limit(4)
             ->get();
 
-        $model::query()->updateOrCreate([
+        $navigation = $model::query()->updateOrCreate([
             'key' => $key,
             'site_id' => $site->id,
             'type_id' => $this->typeModel::navigationType()->default()->first()->id,
@@ -451,7 +451,7 @@ class DemoCreator
             'name' => __('Example Navigation'),
             'type_id' => $this->typeModel::query()->firstWhere(['key' => 'navigation', 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
-                'navigation' => $key,
+                'navigation' => $navigation->key,
                 'margin' => ['lg'],
             ],
         ]);
@@ -654,15 +654,8 @@ class DemoCreator
 
     public function createBannersWidget(): Widget
     {
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'banners'], [
-            'name' => 'Banner Showcase',
-            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget])->id,
-            'meta' => [
-                'align' => 'center',
-                'background_overlay' => true,
-                'view_file' => 'capell-layout::components.widget.assets.banners',
-            ],
-        ]);
+        $creator = resolve(WidgetCreator::class);
+        $widget = $creator->bannerWidget();
 
         $site = Site::getDefault();
 
@@ -684,16 +677,8 @@ class DemoCreator
 
     public function createTestimonialsWidget(Collection $languages): Widget
     {
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'testimonials'], [
-            'name' => 'Testimonials',
-            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget])->id,
-            'meta' => [
-                'align' => 'center',
-                'background_overlay' => true,
-                'background_color' => DefaultColorEnum::Gray->value,
-                'view_file' => 'capell-layout::components.widget.assets.testimonials',
-            ],
-        ]);
+        $widgetCreator = resolve(WidgetCreator::class);
+        $widget = $widgetCreator->testimonialsWidget();
 
         $this->createMedia($widget, collection: MediaCollectionEnum::BackgroundImage);
 

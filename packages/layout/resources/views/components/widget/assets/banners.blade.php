@@ -6,11 +6,11 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Facades\CapellCore;
-            use Capell\Frontend\Facades\Frontend;
-            use Spatie\MediaLibrary\MediaCollections\Models\Media;
+                use Capell\Core\Models\Page;use Capell\Frontend\Facades\Frontend;
+                use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-            $page = Frontend::page();
-            $theme = Frontend::theme();
+                $page = Frontend::page();
+                $theme = Frontend::theme();
 @endphp
 
 @props([
@@ -24,7 +24,7 @@ declare(strict_types=1);
 ])
 
 <section
-    class="widget-banner relative flex w-full items-center justify-center overflow-hidden"
+    class="widget-assets-banner relative flex w-full items-center justify-center overflow-hidden"
     style="
         --swiper-pagination-bottom: 2rem;
         --swiper-pagination-bullet-inactive-color: #fff;
@@ -33,33 +33,32 @@ declare(strict_types=1);
     <div class="swiper relative grid h-full w-full">
         <div class="swiper-wrapper h-full w-full">
             @foreach ($widget->assets as $widgetAsset)
+                {{-- format-ignore-start --}}
                 @php
-                    $backgroundImage = $widgetAsset->asset instanceof Media ? $widgetAsset->asset : $widgetAsset->asset->image;
-                                                            if (! $backgroundImage) {
-                                                                $backgroundImage = $widget->backgroundImage;
-                                                            }
-                                                            $title = '';
-                                                            $content = '';
-                                                            if (CapellCore::getAsset($widgetAsset->asset_type)->hasTranslations) {
-                                                                $title = $widgetAsset->asset->translation?->title;
-                                                                $content = $widgetAsset->asset->translation?->content;
-                                                            }
+                    $image = $widgetAsset->media->first() ?: $widgetAsset->asset->image ?: $widget->backgroundImage;
+                    $title = '';
+                    $content = '';
+                    if (CapellCore::getAsset($widgetAsset->asset_type)->hasTranslations) {
+                        $title = $widgetAsset->asset->translation?->title;
+                        $content = $widgetAsset->asset->translation?->content;
+                    }
 
-                                                            $linkedPageUrl = $widgetAsset->asset->linkedPage ? $widgetAsset->asset->linkedPage->pageUrl?->full_url : '';
+                    $linkedPage = $widgetAsset->asset instanceof Page ? $widgetAsset->asset : $widgetAsset->asset->linkedPage;
                 @endphp
-
+                {{-- format-ignore-end --}}
                 <div
                     @class([
-                    'swiper-slide relative flex min-h-[20rem] w-full shrink-0 basis-full items-center justify-center',
+                    'swiper-slide widget-banner-item relative flex min-h-[20rem] w-full shrink-0 basis-full items-center justify-center',
                     'swiper-slide-active' => $loop->first,
                     ])
                 >
-                    @if ($backgroundImage)
+                    @if ($image)
                         <x-capell::media
                             format="webp"
                             curation="hero"
-                            :media="$backgroundImage"
+                            :media="$image"
                             height="100vh"
+                            :alt="$widgetAsset->asset->translation->label"
                             :loading="$loop->first ? 'eager' : 'lazy'"
                             :class="
                                 Illuminate\Support\Arr::toCssClasses([
@@ -82,9 +81,9 @@ declare(strict_types=1);
                                 <h4
                                     class="font-heading text-2xl font-bold text-white md:text-4xl"
                                 >
-                                    @if ($linkedPageUrl)
+                                    @if ($linkedPage?->pageUrl?->full_url)
                                         <a
-                                            href="{{ $linkedPageUrl }}"
+                                            href="{{ $linkedPage->pageUrl->full_url }}"
                                             class="hover:underline"
                                         >
                                             {{ $title }}
@@ -103,13 +102,13 @@ declare(strict_types=1);
                                 </div>
                             @endif
 
-                            @if ($widgetAsset->asset->linkedPage?->translation)
+                            @if ($linkedPage?->translation)
                                 <x-capell::button
-                                    :url="$linkedPageUrl"
+                                    :url="$linkedPage?->pageUrl?->full_url"
                                     color="primary"
                                     icon="heroicon-o-chevron-right"
                                 >
-                                    {{ $widgetAsset->asset->linkedPage->translation->link_text }}
+                                    {{ $linkedPage->translation->link_text }}
                                 </x-capell::button>
                             @endif
                         </div>

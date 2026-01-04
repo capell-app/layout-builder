@@ -11,6 +11,7 @@ use Capell\Tests\Fixtures\Support\Concerns\TestingFrontend;
 use function Pest\Laravel\get;
 
 use Sinnbeck\DomAssertions\Asserts\AssertElement;
+use Sinnbeck\DomAssertions\Asserts\BaseAssert;
 
 uses(TestingFrontend::class);
 
@@ -32,7 +33,7 @@ test('breadcrumbs widget', function (): void {
         ->assertOk()
         ->assertElementExists(
             'nav.breadcrumbs',
-            fn (AssertElement $elm) => $elm->containsText($home->translation->label)
+            fn (AssertElement $elm): BaseAssert => $elm->containsText($home->translation->label)
                 ->containsText($parent->translation->title)
                 ->containsText($page->translation->title),
         );
@@ -50,5 +51,5 @@ test('breadcrumbs are hidden on root page', function (): void {
 
     get($page->pageUrl->full_url)
         ->assertOk()
-        ->assertElementExists('main', fn (AssertElement $assert) => $assert->doesntContain('nav.breadcrumbs'));
+        ->assertDoesntExist('nav.breadcrumbs');
 });

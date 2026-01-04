@@ -16,6 +16,7 @@ use Capell\Tests\Fixtures\Support\Concerns\TestingFrontend;
 use function Pest\Laravel\get;
 
 use Sinnbeck\DomAssertions\Asserts\AssertElement;
+use Sinnbeck\DomAssertions\Asserts\BaseAssert;
 
 uses(TestingFrontend::class);
 
@@ -46,14 +47,14 @@ it('renders page content widget on page', function (): void {
         ->assertOk()
         ->assertElementExists(
             '.widget-page-content',
-            fn (AssertElement $elm) => $elm->find(
+            fn (AssertElement $elm): BaseAssert => $elm->find(
                 'h1',
-                fn (AssertElement $titleElm) => $titleElm->containsText($page->translation->title),
+                fn (AssertElement $titleElm): BaseAssert => $titleElm->containsText($page->translation->title),
             )
                 ->contains('p', count: count($paragraphs))
                 ->each(
                     'p',
-                    fn (AssertElement $titleElm, int $index) => $titleElm->containsText($paragraphs[$index]),
+                    fn (AssertElement $titleElm, int $index): BaseAssert => $titleElm->containsText($paragraphs[$index]),
                 ),
         );
 });
@@ -94,13 +95,13 @@ it('renders page content widget on page blocks', function (): void {
         ->assertOk()
         ->assertElementExists(
             '.widget-page-content',
-            fn (AssertElement $elm) => $elm->find(
+            fn (AssertElement $elm): BaseAssert => $elm->find(
                 'h1',
-                fn (AssertElement $titleElm) => $titleElm->containsText($page->translation->title),
+                fn (AssertElement $titleElm): BaseAssert => $titleElm->containsText($page->translation->title),
             )
                 ->each(
                     'p',
-                    fn (AssertElement $titleElm, int $index) => $titleElm->containsText($paragraphs[$index]),
+                    fn (AssertElement $titleElm, int $index): BaseAssert => $titleElm->containsText($paragraphs[$index]),
                 ),
         );
 });

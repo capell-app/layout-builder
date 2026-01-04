@@ -6,9 +6,9 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Enums\AssetComponentEnum;
-                use Capell\Frontend\Facades\Frontend;
+                    use Capell\Core\Models\Page;use Capell\Frontend\Facades\Frontend;
 
-                $site = Frontend::site();
+                    $site = Frontend::site();
 @endphp
 
 @props([
@@ -53,9 +53,19 @@ declare(strict_types=1);
             class="flex w-full flex-col divide-y divide-gray-200 rounded-lg border border-gray-200 dark:divide-gray-600 dark:border-gray-600"
         >
             @foreach ($widget->assets as $widgetAsset)
-                @php($linkedPageUrl = $widgetAsset->asset->linkedPage ? $widgetAsset->asset->linkedPage->pageUrl?->full_url : '')
+                {{-- format-ignore-start --}}
+                @php
+                    $image = $widgetAsset->media->first() ?: $widgetAsset->asset->image;
+
+                    if ($widgetAsset->asset instanceof Page) {
+                        $linkedPageUrl = $widgetAsset->asset->pageUrl->full_url;
+                    } else {
+                        $linkedPageUrl = $widgetAsset->asset->linkedPage ? $widgetAsset->asset->linkedPage->pageUrl?->full_url : '';
+                    }
+                @endphp
+                {{-- format-ignore-end --}}
                 <section
-                    class="flex flex-col gap-1 bg-gray-50 py-3 first:rounded-t-lg last:rounded-b-lg dark:bg-white/5"
+                    class="widget-accordion-item flex flex-col gap-1 bg-gray-50 py-3 first:rounded-t-lg last:rounded-b-lg dark:bg-white/5"
                 >
                     <button
                         type="button"
@@ -94,10 +104,10 @@ declare(strict_types=1);
                                     />
                                 @endif
 
-                                @if ($widgetAsset->asset->image)
+                                @if ($image)
                                     <a href="{{ $linkedPageUrl }}">
                                         <x-capell::media
-                                            :media="$widgetAsset->asset->image"
+                                            :media="$image"
                                             :width="120"
                                             :height="120"
                                             fit="crop"
@@ -119,7 +129,7 @@ declare(strict_types=1);
                                             color="default"
                                             icon="heroicon-o-chevron-right"
                                         >
-                                            {{ $item->translation?->link_text }}
+                                            {{ $widgetAsset->asset->translation?->link_text }}
                                         </x-capell::button>
                                     @endif
                                 </x-capell::actions>

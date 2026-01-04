@@ -49,7 +49,7 @@ test('latest pages widget not visible', function (): void {
 
     get($page->pageUrl->full_url)
         ->assertOk()
-        ->assertElementExists('main', fn (AssertElement $assert) => $assert->doesntContain('.widget-latest-pages'));
+        ->assertDoesntExist('.widget-latest-pages');
 });
 
 test('empty latest pages widget visible', function (): void {

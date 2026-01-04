@@ -71,10 +71,6 @@ class Country extends Model implements Defaultable
         'status',
     ];
 
-    protected $casts = [
-        'meta' => 'json',
-    ];
-
     protected static string $factory = CountryFactory::class;
 
     public function language(): BelongsTo
@@ -90,5 +86,12 @@ class Country extends Model implements Defaultable
     protected function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('name');
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'meta' => 'json',
+        ];
     }
 }

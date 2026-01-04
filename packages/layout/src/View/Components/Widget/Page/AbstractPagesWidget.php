@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\View\Components\Widget\Pages;
+namespace Capell\Layout\View\Components\Widget\Page;
 
 use Capell\Layout\View\Components\Widget\AbstractWidget;
 use Illuminate\Support\Collection;

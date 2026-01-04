@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Enums\AssetComponentEnum;
-            use Capell\Core\Facades\CapellCore;
+                use Capell\Core\Facades\CapellCore;use Capell\Core\Models\Page;
 @endphp
 
 @props([
@@ -25,40 +25,49 @@ declare(strict_types=1);
 'withSummary' => $widget->meta['with_summary'] ?? ($widget->type->meta['with_summary'] ?? true),
 ])
 
-@capture($assetBlock, $asset, $column)
-    @php($linkedPageUrl = $asset->linkedPage ? $asset->linkedPage->pageUrl?->full_url : '')
+@capture($assetBlock, $widgetAsset, $column)
+    {{-- format-ignore-start --}}
+    @php
+        if ($widgetAsset->asset instanceof Page) {
+            $linkedPageUrl = $widgetAsset->asset->pageUrl->full_url;
+        } else {
+            $linkedPageUrl = $widgetAsset->asset->linkedPage ? $widgetAsset->asset->linkedPage->pageUrl?->full_url : '';
+        }
+    @endphp
+    {{-- format-ignore-end --}}
     <div
         @class([
-        'flex items-start gap-x-4 pt-1',
+        'widget-features-item flex items-start gap-x-4 pt-1',
         'lg:flex-row-reverse lg:text-right' => $column === 1 && $widget->image,
         ])
     >
-        @if ($asset->meta['icon'] ?? false)
+        @if ($widgetAsset->asset->meta['icon'] ?? false)
             <div
                 class="bg-gray flex h-14 w-14 shrink-0 items-center justify-center rounded-full p-3 dark:bg-gray-600"
             >
                 @if ($linkedPageUrl)
                     <a href="{{ $linkedPageUrl }}">
                         <x-capell::icon
-                            :icon="$asset->meta['icon']"
+                            :icon="$widgetAsset->asset->meta['icon']"
                             class="h-10 w-10 text-white"
                             loading="lazy"
                         />
                     </a>
                 @else
                     <x-capell::icon
-                        :icon="$asset->meta['icon']"
+                        :icon="$widgetAsset->asset->meta['icon']"
                         class="h-10 w-10 text-white"
                         loading="lazy"
                     />
                 @endif
             </div>
-        @elseif ($asset->image)
+        @elseif ($image = $widgetAsset->media->first() ?: $widgetAsset->asset->image)
             @capture($imageBlock)
                 <x-capell::media
-                    :media="$asset->image"
+                    :media="$image"
                     :width="120"
                     :height="120"
+                    :alt="$widgetAsset->asset->translation?->title"
                     fit="crop"
                     class="h-10 w-10 rounded-full object-cover object-center"
                     loading="lazy"
@@ -73,15 +82,15 @@ declare(strict_types=1);
                 {{ $imageBlock() }}
             @endif
         @endif
-        @if ($asset->translation)
+        @if ($widgetAsset->asset->translation)
             <x-capell::content
                 :compact="true"
-                :content="$asset->translation->content"
+                :content="$widgetAsset->asset->translation->content"
                 :color-scheme="$colorScheme"
-                :title="$asset->translation->title"
-                :heading-tag="$asset->meta['heading_size'] ?? 'h3'"
-                :heading-weight="$asset->meta['heading_weight'] ?? 'medium'"
-                :text-align="$asset->meta['align'] ?? $asset->type->meta['align'] ?? ('text-left' . ($column === 1 && $widget->image ? ' lg:text-right' : ''))"
+                :title="$widgetAsset->asset->translation->title"
+                :heading-tag="$widgetAsset->asset->meta['heading_size'] ?? 'h3'"
+                :heading-weight="$widgetAsset->asset->meta['heading_weight'] ?? 'medium'"
+                :text-align="$widgetAsset->asset->meta['align'] ?? $widgetAsset->asset->type->meta['align'] ?? ('text-left' . ($column === 1 && $widget->image ? ' lg:text-right' : ''))"
                 size="sm"
                 class="prose-h3:mb-1 lg:prose-base lg:leading-snug"
             />
@@ -135,7 +144,7 @@ declare(strict_types=1);
                 class="grid space-y-6 md:min-h-full md:auto-rows-fr lg:order-1 lg:space-y-8"
             >
                 @foreach ($widget->assets->slice(0, ceil($widget->assets->count() / 2)) as $widgetAsset)
-                    {{ $assetBlock($widgetAsset->asset, 1) }}
+                    {{ $assetBlock($widgetAsset, 1) }}
                 @endforeach
             </div>
 
@@ -143,7 +152,7 @@ declare(strict_types=1);
                 class="grid space-y-6 md:min-h-full md:auto-rows-fr lg:order-3 lg:space-y-8"
             >
                 @foreach ($widget->assets->slice(ceil($widget->assets->count() / 2)) as $widgetAsset)
-                    {{ $assetBlock($widgetAsset->asset, 2) }}
+                    {{ $assetBlock($widgetAsset, 2) }}
                 @endforeach
             </div>
         </div>

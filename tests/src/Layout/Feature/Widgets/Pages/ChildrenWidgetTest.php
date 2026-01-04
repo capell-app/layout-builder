@@ -11,6 +11,7 @@ use Capell\Tests\Fixtures\Support\Concerns\TestingFrontend;
 use function Pest\Laravel\get;
 
 use Sinnbeck\DomAssertions\Asserts\AssertElement;
+use Sinnbeck\DomAssertions\Asserts\BaseAssert;
 
 uses(TestingFrontend::class);
 
@@ -33,7 +34,7 @@ test('children widget', function (): void {
         ->assertOk()
         ->assertElementExists(
             '.widget-children',
-            fn (AssertElement $elm) => $elm->containsText($page->children[0]->translation->title)
+            fn (AssertElement $elm): BaseAssert => $elm->containsText($page->children[0]->translation->title)
                 ->containsText($page->children[1]->translation->title),
         );
 });
@@ -50,5 +51,5 @@ test('children widget is hidden', function (): void {
 
     get($page->pageUrl->full_url)
         ->assertOk()
-        ->assertElementExists('main', fn (AssertElement $assert) => $assert->doesntContain('.widget-children'));
+        ->assertDoesntExist('.widget-children');
 });

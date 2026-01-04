@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'accordion' => 'Accordion',
     'assets' => 'Assets',
     'breadcrumbs' => 'Breadcrumbs',
     'page_children' => 'Page Children',

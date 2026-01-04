@@ -13,6 +13,7 @@ use Capell\Tests\Fixtures\Support\Concerns\TestingFrontend;
 use function Pest\Laravel\get;
 
 use Sinnbeck\DomAssertions\Asserts\AssertElement;
+use Sinnbeck\DomAssertions\Asserts\BaseAssert;
 
 uses(TestingFrontend::class);
 
@@ -30,14 +31,14 @@ it('renders siblings widget on page', function (): void {
         ->assertOk()
         ->assertElementExists(
             '.widget-siblings',
-            fn (AssertElement $elm) => $elm->containsText($widget->translation->title)
+            fn (AssertElement $elm): BaseAssert => $elm->containsText($widget->translation->title)
                 ->contains('.siblings-page-item', 2)
                 ->each(
                     '.siblings-page-item',
-                    fn (AssertElement $asset, int $index) => $asset->containsText($siblings[$index]->translation->title)
+                    fn (AssertElement $asset, int $index): BaseAssert => $asset->containsText($siblings[$index]->translation->title)
                         ->find(
                             'a',
-                            fn (AssertElement $aElm) => $aElm->has(
+                            fn (AssertElement $aElm): BaseAssert => $aElm->has(
                                 'href',
                                 $siblings[$index]->pageUrl->full_url,
                             ),

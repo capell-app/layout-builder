@@ -8,7 +8,7 @@ use Capell\Blog\Services\Loader\TagLoader;
 use Capell\Core\Models\Page;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Frontend\Services\Loader\PageLoader;
-use Capell\Layout\View\Components\Widget\Pages\AbstractPagesWidget;
+use Capell\Layout\View\Components\Widget\Page\AbstractPagesWidget;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;

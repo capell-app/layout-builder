@@ -6,11 +6,11 @@ declare(strict_types=1);
 
 @php
     use Capell\Frontend\Facades\Frontend;
-                    use Illuminate\Support\Facades\DB;
-                    use Illuminate\Support\Str;
-                    use Spatie\MediaLibrary\MediaCollections\Models\Media;
+                        use Illuminate\Support\Facades\DB;
+                        use Illuminate\Support\Str;
+                        use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-                    $theme = Frontend::theme();
+        $theme = Frontend::theme();
 @endphp
 
 @props([
@@ -59,12 +59,7 @@ declare(strict_types=1);
             @foreach ($widget->assets as $widgetAsset)
                 {{-- format-ignore-start --}}
                 @php
-                    $asset = $widgetAsset->asset;
-                    if (! $asset) {
-                        throw new RuntimeException('Asset not found for WidgetAsset: ' . $widgetAsset->asset_type . ' ' . $widgetAsset->id);
-                    }
-
-                    $image = $widgetAsset->media->first() ?: $asset->image;
+                    $image = $widgetAsset->media->first() ?: $widgetAsset->asset->image;
                     if (! $image) {
                         throw new RuntimeException('Image not found for WidgetAsset: ' . $widgetAsset->asset_type . ' ' . $widgetAsset->id);
                     }
@@ -84,7 +79,7 @@ declare(strict_types=1);
                             :$loop
                             :media="$image"
                             :preview="(int) $image->meta['image_id']"
-                            :alt="$asset->translation->label"
+                            :alt="$widgetAsset->asset->translation->label"
                             :width="440"
                             media_type="video"
                             fit="crop-center"
@@ -96,14 +91,14 @@ declare(strict_types=1);
                             :height="$large ? 600 : 300"
                             :$loop
                             :media="$image"
-                            :alt="$asset->translation->label"
+                            :alt="$widgetAsset->asset->translation->label"
                             :width="440"
                             fit="crop-center"
                             lightbox="true"
                         />
                     @endif
 
-                    @if ($asset->translation?->title)
+                    @if ($widgetAsset->asset->translation?->title)
                         <div
                             @class([
                             'pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-center
@@ -116,7 +111,7 @@ declare(strict_types=1);
                             'rounded-b' => $theme->meta['rounded_images'] ?? false,
                             ])
                         >
-                            {{ $asset->translation->title }}
+                            {{ $widgetAsset->asset->translation->title }}
                         </div>
                     @endif
                 </div>

@@ -6,11 +6,11 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Facades\CapellCore;
-                use Capell\Frontend\Facades\Frontend;
-                use Spatie\MediaLibrary\MediaCollections\Models\Media;
+                    use Capell\Frontend\Facades\Frontend;
+                    use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-                $page = Frontend::page();
-                $theme = Frontend::theme();
+                    $page = Frontend::page();
+                    $theme = Frontend::theme();
 @endphp
 
 @props([
@@ -61,19 +61,21 @@ declare(strict_types=1);
             <div class="swiper swiper-fade grid h-full w-full">
                 <div class="swiper-wrapper h-full w-full">
                     @foreach ($widget->assets as $widgetAsset)
+                        {{-- format-ignore-start --}}
                         @php
                             $title = '';
-                                                                                                                $content = '';
-                                                                                                                $image = $widgetAsset->asset instanceof Media ? $widgetAsset->asset : $widgetAsset->asset->image;
+                            $content = '';
+                            $media = $widgetAsset->media->first() ?: $widgetAsset->asset->image;
 
-                                                                                                                if (CapellCore::getAsset($widgetAsset->asset_type)->hasTranslations) {
-                                                                                                                    $title = $widgetAsset->asset->translation?->title;
-                                                                                                                    $content = $widgetAsset->asset->translation?->content;
-                                                                                                                }
+                            if (CapellCore::getAsset($widgetAsset->asset_type)->hasTranslations) {
+                                $title = $widgetAsset->asset->translation?->title;
+                                $content = $widgetAsset->asset->translation?->content;
+                            }
                         @endphp
+                        {{-- format-ignore-end --}}
 
                         <div
-                            class="swiper-slide"
+                            class="swiper-slide widget-testimonial-item"
                             itemscope
                             itemtype="https://schema.org/Review"
                         >
@@ -85,9 +87,10 @@ declare(strict_types=1);
                                 'items-end justify-end text-right' => $align === 'right',
                                 ])
                             >
-                                @if ($image)
+                                @if ($media)
                                     <x-capell::media
-                                        :media="$image"
+                                        :media="$media"
+                                        :alt="$widgetAsset->asset->translation->label"
                                         rounded="full"
                                         class="h-20 w-20 object-cover"
                                         itemprop="image"

@@ -8,7 +8,7 @@ $language = \Capell\Frontend\Facades\Frontend::language();
 $site = \Capell\Frontend\Facades\Frontend::site();
 $page = \Capell\Frontend\Facades\Frontend::page();
 
-$getMenu = function (string $key) use ($site, $language): array {
+$getMenu = function (string $key) use ($site, $language, $page): array {
     $menu = \Capell\Frontend\Services\Loader\NavigationLoader::getNavigation($key, $site, $language);
     if (! $menu instanceof \Capell\Core\Models\Navigation) {
         $menu = \Capell\Frontend\Services\Loader\NavigationLoader::getNavigation($key, $site);
@@ -19,6 +19,7 @@ $getMenu = function (string $key) use ($site, $language): array {
     if ($menu instanceof \Capell\Core\Models\Navigation) {
         $navigationLoader = new \Capell\Frontend\Services\Loader\NavigationItemsLoader(
             navigation: $menu,
+            page: $page,
             site: $site,
             language: $language,
             siteDomain: $site->siteDomain,
@@ -26,7 +27,7 @@ $getMenu = function (string $key) use ($site, $language): array {
 
         $items = $navigationLoader->fetchMenuItems();
 
-        if ($items) {
+        if ($items !== []) {
             $navigationLoader->activeMenuItems($items);
         }
     }

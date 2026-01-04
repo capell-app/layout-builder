@@ -19,10 +19,6 @@ declare(strict_types=1);
 'widget',
 ])
 
-@php
-    $hasImage = $widget->meta['image_id'] ?? false && $widget->image;
-@endphp
-
 <x-capell-layout::widget.wrapper
     class="widget-default"
     :container-class="
@@ -41,14 +37,14 @@ declare(strict_types=1);
     <div
         @class([
         '@container flex-1',
-        'my-auto py-4' => $hasImage,
+        'my-auto py-4' => $widget->image,
         ])
     >
         @if ($content || $title)
             <x-capell::content
                 class="mb-2"
                 :compact="true"
-                :content="$content ? null : $widget->translation?->content"
+                :content="$content"
                 :heading-size="$headingSize"
                 :title="$title"
                 :text-align="$align"
@@ -64,7 +60,7 @@ declare(strict_types=1);
         @endif
     </div>
 
-    @if ($hasImage)
+    @if ($widget->image)
         <div
             @class([
             match ($style) {
