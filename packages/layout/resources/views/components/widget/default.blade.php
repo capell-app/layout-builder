@@ -5,18 +5,18 @@ declare(strict_types=1);
 ?>
 
 @props([
-'align' => $widget->meta['align'] ?? $widget->type->meta['align'] ?? null,
-'headingSize' => $widget->meta['heading_size'] ?? 'h2',
-'size' => $widget->meta['size'] ?? null,
-'style' => $widget->meta['style'] ?? 'row',
-'reverseOrder' => $widget->meta['reverse_order'] ?? null,
-'title' => $widget->translation?->title,
-'content' => $widget->translation?->content,
-'container',
-'loop',
-'containerKey',
-'containerWidth' => null,
-'widget',
+    'align' => $widget->meta['align'] ?? $widget->type->meta['align'] ?? null,
+    'headingSize' => $widget->meta['heading_size'] ?? 'h2',
+    'size' => $widget->meta['size'] ?? null,
+    'style' => $widget->meta['style'] ?? 'row',
+    'reverseOrder' => $widget->meta['reverse_order'] ?? null,
+    'title' => $widget->translation?->title,
+    'content' => $widget->translation?->content,
+    'container',
+    'loop',
+    'containerKey',
+    'containerWidth' => null,
+    'widget',
 ])
 
 <x-capell-layout::widget.wrapper
@@ -36,8 +36,8 @@ declare(strict_types=1);
 >
     <div
         @class([
-        '@container flex-1',
-        'my-auto py-4' => $widget->image,
+            '@container flex-1',
+            'my-auto py-4' => $widget->image,
         ])
     >
         @if ($content || $title)
@@ -45,6 +45,7 @@ declare(strict_types=1);
                 class="mb-2"
                 :compact="true"
                 :content="$content"
+                :content-type="$widget->type->content_structure"
                 :heading-size="$headingSize"
                 :title="$title"
                 :text-align="$align"
@@ -63,10 +64,10 @@ declare(strict_types=1);
     @if ($widget->image)
         <div
             @class([
-            match ($style) {
-            'row' => 'flex-1 lg:max-w-[40%]',
-            default => null,
-            },
+                match ($style) {
+                    'row' => 'flex-1 lg:max-w-[40%]',
+                    default => null,
+                },
             ])
         >
             <x-capell::media

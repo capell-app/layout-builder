@@ -6,32 +6,32 @@ declare(strict_types=1);
 
 @php
     use Capell\Frontend\Facades\Frontend;
-                        use Spatie\Image\Image;
-                        use Spatie\MediaLibrary\MediaCollections\Models\Media;
+    use Spatie\Image\Image;
+    use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-                        $theme = Frontend::theme();
+    $theme = Frontend::theme();
 @endphp
 
 @props([
-'carouselAlign' => 'center',
-'carouselArrows' => true,
-'carouselAuto' => true,
-'carouselAutoDelay' => 5000,
-'carouselButtonClass' => 'hover:bg-primary focus:bg-primary pointer-events-auto bg-white/80 shadow-md transition hover:text-white focus:text-white disabled:pointer-events-none disabled:opacity-50',
-'carouselDrag' => true,
-'carouselLoop' => true,
-'carouselPagination' => false,
-'carouselWheel' => true,
-'colorScheme' => $widget->meta['color_scheme'] ?? 'dark',
-'container',
-'containerKey',
-'containerWidth' => null,
-'showPageContent' => $widgetData['meta']['show_page_content'] ?? false,
-'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
-'loop',
-'rounded' => $theme->meta['rounded_images'] ?? false,
-'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
-'widget',
+    'carouselAlign' => 'center',
+    'carouselArrows' => true,
+    'carouselAuto' => true,
+    'carouselAutoDelay' => 5000,
+    'carouselButtonClass' => 'hover:bg-primary focus:bg-primary pointer-events-auto bg-white/80 shadow-md transition hover:text-white focus:text-white disabled:pointer-events-none disabled:opacity-50',
+    'carouselDrag' => true,
+    'carouselLoop' => true,
+    'carouselPagination' => false,
+    'carouselWheel' => true,
+    'colorScheme' => $widget->meta['color_scheme'] ?? 'dark',
+    'container',
+    'containerKey',
+    'containerWidth' => null,
+    'showPageContent' => $widgetData['meta']['show_page_content'] ?? false,
+    'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
+    'loop',
+    'rounded' => $theme->meta['rounded_images'] ?? false,
+    'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
+    'widget',
 ])
 <x-capell-layout::widget.wrapper
     class="widget-media-carousel"
@@ -48,6 +48,7 @@ declare(strict_types=1);
             <x-capell::content
                 :compact="true"
                 :content="$widget->translation->content ?? ($showPageContent ? $page->translation->content : null)"
+                :content-type="$widget->translation->content ? $widget->type->content_structure : ($showPageContent ? $page->type->content_structure : null)"
                 :color-scheme="$colorScheme"
                 :title="$widget->translation->title ?? ($showPageTitle ? $page->translation->title : null)"
                 :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
@@ -109,8 +110,8 @@ declare(strict_types=1);
                 {{-- format-ignore-end --}}
                 <div
                     @class([
-                    'swiper-slide widget-media-item group relative h-64 overflow-hidden text-center text-white',
-                    'rounded-lg' => $rounded,
+                        'swiper-slide widget-media-item group relative h-64 overflow-hidden text-center text-white',
+                        'rounded-lg' => $rounded,
                     ])
                     tabindex="0"
                 >
@@ -144,16 +145,16 @@ declare(strict_types=1);
                     <button
                         aria-label="{{ __('capell-frontend::generic.previous') }}"
                         @class([
-                        'swiper-button-prev rounded-r-md',
-                        $carouselButtonClass,
+                            'swiper-button-prev rounded-r-md',
+                            $carouselButtonClass,
                         ])
                         style="width: 50px; height: 60px; margin-top: -30px"
                     ></button>
                     <button
                         aria-label="{{ __('capell-frontend::generic.next') }}"
                         @class([
-                        'swiper-button-next rounded-l-md',
-                        $carouselButtonClass,
+                            'swiper-button-next rounded-l-md',
+                            $carouselButtonClass,
                         ])
                         style="width: 50px; height: 60px; margin-top: -30px"
                     ></button>

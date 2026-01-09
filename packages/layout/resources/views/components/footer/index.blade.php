@@ -7,12 +7,10 @@ use Capell\Blog\Enums\BlogTypeGroupEnum;
 $language = \Capell\Frontend\Facades\Frontend::language();
 $site = \Capell\Frontend\Facades\Frontend::site();
 $page = \Capell\Frontend\Facades\Frontend::page();
+$theme = \Capell\Frontend\Facades\Frontend::theme();
 
 $getMenu = function (string $key) use ($site, $language, $page): array {
     $menu = \Capell\Frontend\Services\Loader\NavigationLoader::getNavigation($key, $site, $language);
-    if (! $menu instanceof \Capell\Core\Models\Navigation) {
-        $menu = \Capell\Frontend\Services\Loader\NavigationLoader::getNavigation($key, $site);
-    }
 
     $items = [];
 
@@ -54,9 +52,9 @@ $pages = \Capell\Frontend\Services\Loader\PageLoader::getPages(
 ?>
 
 @props([
-    'menuItemClass' => 'hover:text-primary focus:text-primary flex gap-x-0.5 break-all font-semibold leading-tight text-white dark:text-gray-200',
-    'menuSubItemClass' => 'hover:text-primary focus:text-primary flex gap-x-0.5 break-all py-1 text-sm leading-tight text-white dark:text-gray-200',
     'headingClass' => 'font-heading tracking-right font-medium uppercase leading-tight text-gray-400',
+    'menuItemClass' => 'hover:text-primary focus:text-primary flex gap-x-0.5 break-all leading-tight text-white dark:text-gray-200',
+    'menuSubItemClass' => 'hover:text-primary focus:text-primary flex gap-x-0.5 break-all py-1 text-sm leading-tight text-white dark:text-gray-200',
 ])
 <style>
     :root {
@@ -96,11 +94,11 @@ $pages = \Capell\Frontend\Services\Loader\PageLoader::getPages(
             class="@2xl:grid-cols-2 @4xl:grid-cols-3 grid gap-x-8 gap-y-10 xl:flex xl:flex-row xl:gap-x-10"
         >
             <div
-                class="shrink-0 space-y-6 text-center md:text-left xl:max-w-[30%]"
+                class="shrink-0 space-y-6 text-center md:text-left xl:max-w-[30%] xl:pr-10"
             >
                 <a
                     href="{{ $site->siteDomain->url }}"
-                    class="mb-6 inline-block"
+                    class="mb-4 inline-block"
                 >
                     @if ($site->logo || $site->logoInverted)
                         @if ($site->logoInverted)
@@ -126,7 +124,7 @@ $pages = \Capell\Frontend\Services\Loader\PageLoader::getPages(
                 </a>
                 @if (! empty($site->translation->meta['tagline']))
                     <p
-                        class="footer-tagline text-sm font-medium dark:text-gray-400"
+                        class="footer-tagline text-sm text-gray-200 dark:text-gray-400"
                     >
                         {{ $site->translation->meta['tagline'] }}
                     </p>
@@ -156,19 +154,25 @@ $pages = \Capell\Frontend\Services\Loader\PageLoader::getPages(
                 class="shrink-0 xl:w-[20%]"
             />
 
+            {!!
+                app(\Capell\Frontend\Services\RenderHookRegistry::class)->renderAll(
+                    \Capell\Frontend\Enums\RenderHookLocation::Footer,
+                    item: ['headingClass' => $headingClass],
+                    target: 'footer.index',
+                )
+            !!}
+
             <x-capell::footer.contact
                 :$headingClass
-                class="@4xl:col-span-2 shrink-0 xl:w-[20%]"
+                class="@4xl:col-span-2 xl:w-[20%]"
             />
-
-            {!! app(\Capell\Frontend\Services\RenderHookRegistry::class)->renderAll(\Capell\Frontend\Enums\RenderHookLocation::Footer, item: ['headingClass' => $headingClass], target: 'footer.index') !!}
         </div>
     </div>
 
     @if (! empty($subFooterMenuItems) || ! empty($site->translation->meta['footer_copy']))
         <x-capell::footer.sub-footer
             :items="$subFooterMenuItems"
-            class="sub-footer border-t border-white/10"
+            class="sub-footer border-t border-white/5"
         >
             {!!
                 \Illuminate\Support\Facades\Lang::get($site->translation->meta['footer_copy'] ?? '', [

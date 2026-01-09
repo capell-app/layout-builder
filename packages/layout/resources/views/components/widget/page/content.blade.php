@@ -9,16 +9,16 @@ $layout = Frontend::layout();
 ?>
 
 @props([
-'container',
-'containerKey',
-'containerWidth' => null,
-'headingTag' => $widget->meta['heading_tag'] ?? null,
-'headingSize' => $widget->meta['heading_size'] ?? 'h1',
-'loop',
-'pageContents' => $widget->meta['page_content'] ?? ['title', 'content'],
-'size' => $widget->meta['size'] ?? 'lg',
-'widget',
-'widgetData',
+    'container',
+    'containerKey',
+    'containerWidth' => null,
+    'headingTag' => $widget->meta['heading_tag'] ?? null,
+    'headingSize' => $widget->meta['heading_size'] ?? 'h1',
+    'loop',
+    'pageContents' => $widget->meta['page_content'] ?? ['title', 'content'],
+    'size' => $widget->meta['size'] ?? 'lg',
+    'widget',
+    'widgetData',
 ])
 {{-- format-ignore-start --}}
 @php
@@ -52,6 +52,7 @@ $layout = Frontend::layout();
             @else
                 <x-capell::content
                     :content="$page->translation->content"
+                    :content-type="$page->type->content_structure"
                     :heading-size="$headingSize"
                     :heading-tag="$headingTag"
                     :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"

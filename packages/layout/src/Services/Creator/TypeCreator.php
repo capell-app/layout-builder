@@ -6,6 +6,7 @@ namespace Capell\Layout\Services\Creator;
 
 use Capell\Core\Enums\AssetComponentEnum as CapellAssetComponentEnum;
 use Capell\Core\Enums\AssetEnum;
+use Capell\Core\Enums\ContentStructure;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Type;
@@ -77,7 +78,10 @@ class TypeCreator
             'name' => __('capell-admin::generic.contents_builder'),
             'admin' => [
                 'type_schema' => ContentTypeSchema::getKey(),
-                'content_structure' => ContentTypeEnum::Builder,
+            ],
+            'meta' => [
+
+                'content_structure' => ContentStructure::Blocks,
             ],
         ]);
     }
@@ -125,10 +129,10 @@ class TypeCreator
             'admin' => [
                 'type_schema' => WidgetTypeSchema::getKey(),
                 'icon' => 'heroicon-o-puzzle-piece',
-                'content_structure' => ContentTypeEnum::Builder,
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::Default,
+                'content_structure' => ContentStructure::Blocks,
                 'padding' => ['lg'],
             ],
         ]);
@@ -290,7 +294,6 @@ class TypeCreator
                 'schema' => AssetsWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-rectangle-stack',
                 'asset_types' => [LayoutAssetEnum::Content],
-                'content_structure' => ContentTypeEnum::Builder,
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::Assets,

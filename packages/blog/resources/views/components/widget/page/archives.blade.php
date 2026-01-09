@@ -36,6 +36,7 @@ $pageParams = Frontend::params();
             class="mb-2"
             :compact="true"
             :content="$widget->translation->content ?? ($showPageContent ? $page->translation->content : null)"
+            :content-type="$widget->type->content_structure"
             :title="$widget->translation->title ?? ($showPageTitle ? $page->translation->title : null)"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
         />

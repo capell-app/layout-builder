@@ -41,6 +41,7 @@ declare(strict_types=1);
             :compact="true"
             align="center"
             :content="$widget->translation->content"
+            :content-type="$widget->type->content_structure"
             :color-scheme="$colorScheme"
             :title="$widget->translation->title"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? 'center'"

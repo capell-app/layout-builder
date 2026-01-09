@@ -19,6 +19,7 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class DemoCommand extends Command
@@ -81,7 +82,8 @@ class DemoCommand extends Command
             if ($index > 0) {
                 $this->newLine();
             }
-            $this->info("Setting up demo blog for site: {$site->name}");
+
+            $this->info('Setting up demo blog for site: ' . $site->name);
             $this->newLine();
             $this->demoCreator = new DemoCreator(author: $user);
 
@@ -96,6 +98,7 @@ class DemoCommand extends Command
             } else {
                 $this->warn('Demo pages not created.');
             }
+
             $this->newLine();
 
             $site->loadMissing('languages', 'language');
@@ -129,16 +132,34 @@ class DemoCommand extends Command
         if ($type !== '' && $type !== '0') {
             $name .= ' ' . Str::title($type);
         }
+
         $full_name = in_array($parentName, [null, '', '0'], true) ? $name : sprintf('%s » %s', $parentName, $name);
 
-        $this->line("Creating page: {$full_name}");
+        $this->line('Creating page: ' . $full_name);
+
+        $variations = [
+            'The Ultimate Guide to',
+            'A Guide to Caring for',
+            'Discovering the Secrets of',
+            'Exploring the',
+            'The Complete Guide to',
+        ];
+
+        $title = Arr::random($variations);
+
+        foreach ($languages as $language) {
+            $data['title'][$language->code] = $title . ' ' . $data['name'][$language->code];
+        }
+
         $page = $this->demoCreator->createPage($data, $site, $languages, $parent, $type);
-        $this->line("Created page: {$full_name} (ID: " . ($page?->id ?? 'n/a') . ')');
+        $this->line(sprintf('Created page: %s (ID: ', $full_name) . ($page?->id ?? 'n/a') . ')');
 
         if (! isset($data['children'])) {
             return;
         }
-        $this->line("Recursing into children of: {$full_name}");
+
+        $this->line('Recursing into children of: ' . $full_name);
+
         foreach ($data['children'] as $child) {
             $this->createArticlePage(
                 data: $child,
@@ -165,6 +186,7 @@ class DemoCommand extends Command
 
         $demo = config('capell-demo.pages');
         $demo = array_slice($demo, 0, $limit);
+
         $createdCount = 0;
         foreach ($demo as $pageData) {
             $this->line('Creating demo article: ' . ($pageData['name']['en'] ?? '[unnamed]'));
@@ -179,7 +201,8 @@ class DemoCommand extends Command
             );
             $createdCount++;
         }
-        $this->info("{$createdCount} demo articles created for site: {$site->name}");
+
+        $this->info(sprintf('%d demo articles created for site: %s', $createdCount, $site->name));
 
         return true;
     }
@@ -202,10 +225,11 @@ class DemoCommand extends Command
                 if (! $translation) {
                     return;
                 }
-                $tag_names[$language->code] = Str::title($translation->title);
-                $tag_slugs[$language->code] = Str::slug($translation->title);
+
+                $tag_names[$language->code] = Str::title($translation->label);
+                $tag_slugs[$language->code] = Str::slug($translation->label);
                 if ($existingTag === null) {
-                    $existingTag = $tagModel::findFromString($translation->title, 'page', $language->code);
+                    $existingTag = $tagModel::findFromString($translation->label, 'page', $language->code);
                 }
             });
             if ($existingTag === null) {
@@ -244,11 +268,12 @@ class DemoCommand extends Command
         foreach ($pages as $page) {
             $tag = false;
             foreach ($page->translations as $translation) {
-                $tag = $tagModel::findFromString($translation->title, 'page', $translation->language->code);
+                $tag = $tagModel::findFromString($translation->label, 'page', $translation->language->code);
                 if ($tag) {
                     break;
                 }
             }
+
             if ($tag) {
                 $page->tags()->syncWithoutDetaching($tag);
                 $page->children->each(fn (Page $childPage) => $childPage->tags()->syncWithoutDetaching($tag));

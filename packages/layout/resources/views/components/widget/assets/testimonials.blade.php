@@ -6,23 +6,23 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Facades\CapellCore;
-                    use Capell\Frontend\Facades\Frontend;
-                    use Spatie\MediaLibrary\MediaCollections\Models\Media;
+    use Capell\Frontend\Facades\Frontend;
+    use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-                    $page = Frontend::page();
-                    $theme = Frontend::theme();
+    $page = Frontend::page();
+    $theme = Frontend::theme();
 @endphp
 
 @props([
-'align' => $widget->meta['align'] ?? $widget->type->meta['align'] ?? 'center',
-'colorScheme' => $widget->meta['color_scheme'] ?? $widget->type->meta['color_scheme'] ?? 'light',
-'containerKey',
-'containerIndex',
-'containerWidth',
-'loop',
-'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
-'widget',
-'widgetIndex',
+    'align' => $widget->meta['align'] ?? $widget->type->meta['align'] ?? 'center',
+    'colorScheme' => $widget->meta['color_scheme'] ?? $widget->type->meta['color_scheme'] ?? 'light',
+    'containerKey',
+    'containerIndex',
+    'containerWidth',
+    'loop',
+    'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
+    'widget',
+    'widgetIndex',
 ])
 
 <x-capell-layout::widget.wrapper
@@ -38,6 +38,7 @@ declare(strict_types=1);
         <x-capell::content
             :compact="true"
             :content="$widget->translation->content"
+            :content-type="$widget->type->content_structure"
             :color-scheme="$colorScheme"
             :title="$widget->translation->title"
             heading-weight="semibold"
@@ -49,8 +50,8 @@ declare(strict_types=1);
     @if ($widget->assets->isNotEmpty())
         <div
             @class([
-            'relative',
-            'pb-4' => $total > 1,
+                'relative',
+                'pb-4' => $total > 1,
             ])
             style="
                 --swiper-pagination-bottom: auto;
@@ -81,10 +82,10 @@ declare(strict_types=1);
                         >
                             <div
                                 @class([
-                                'relative flex w-full shrink-0 basis-full flex-col space-y-4',
-                                'items-center justify-center text-center' => $align === 'center',
-                                'items-start justify-start text-left' => $align === 'left',
-                                'items-end justify-end text-right' => $align === 'right',
+                                    'relative flex w-full shrink-0 basis-full flex-col space-y-4',
+                                    'items-center justify-center text-center' => $align === 'center',
+                                    'items-start justify-start text-left' => $align === 'left',
+                                    'items-end justify-end text-right' => $align === 'right',
                                 ])
                             >
                                 @if ($media)

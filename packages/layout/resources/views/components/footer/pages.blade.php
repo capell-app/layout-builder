@@ -5,8 +5,8 @@ declare(strict_types=1);
 ?>
 
 @props([
-'headingClass',
-'pages',
+    'headingClass',
+    'pages',
 ])
 
 <div {{ $attributes->class(['footer-pages']) }}>
@@ -17,10 +17,10 @@ declare(strict_types=1);
         @forelse ($pages as $page)
             @php
                 $publishDate = $page->getPublishDate();
-                                                $url = $page->pageUrl->full_url;
+                $url = $page->pageUrl->full_url;
             @endphp
 
-            <div @class(['group grid', 'grid-cols-4 gap-x-4' => $page->image])>
+            <div @class(['group grid', 'grid-cols-4 gap-x-3' => $page->image])>
                 @if ($page->image)
                     <a
                         href="{{ $url }}"
@@ -40,13 +40,13 @@ declare(strict_types=1);
                 <a
                     href="{{ $url }}"
                     @class([
-                    'hover:text-primary focus:text-primary group-hover:text-link group-focus:text-link flex flex-col justify-center gap-y-1 text-inherit',
-                    'col-span-3' => $page->image,
+                        'hover:text-primary focus:text-primary group-hover:text-link group-focus:text-link flex flex-col justify-center gap-y-1 text-inherit',
+                        'col-span-3 py-0.5' => $page->image,
                     ])
                     wire:navigate
                 >
                     <span
-                        class="group-hover:text-link group-focus:text-link text-sm font-medium leading-tight"
+                        class="group-hover:text-link group-focus:text-link text-base font-medium leading-tight"
                     >
                         {!! $page->getTranslation('label') !!}
                     </span>

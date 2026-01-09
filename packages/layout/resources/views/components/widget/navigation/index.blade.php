@@ -5,16 +5,16 @@ declare(strict_types=1);
 ?>
 
 @props([
-'columns' => $container['meta']['override_columns'] ?? ($widget->meta['columns'] ?? 3),
-'container',
-'containerKey',
-'containerWidth' => null,
-'groupItems' => $widgetData['meta']['group_items'] ?? false,
-'showPageContent' => $widgetData['meta']['show_page_content'] ?? false,
-'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
-'items' => [],
-'loop',
-'widget',
+    'columns' => $container['meta']['override_columns'] ?? ($widget->meta['columns'] ?? 3),
+    'container',
+    'containerKey',
+    'containerWidth' => null,
+    'groupItems' => $widgetData['meta']['group_items'] ?? false,
+    'showPageContent' => $widgetData['meta']['show_page_content'] ?? false,
+    'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
+    'items' => [],
+    'loop',
+    'widget',
 ])
 <x-capell-layout::widget.wrapper
     class="widget-navigation"
@@ -31,6 +31,7 @@ declare(strict_types=1);
             class="mb-5"
             :compact="true"
             :content="$widget->translation->content ?? ($showPageContent ? $page->translation->content : null)"
+            :content-type="$widget->translation->content ? $widget->type->content_structure : ($showPageContent ? $page->type->content_structure : null)"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
             :title="$widget->translation->title ?? ($showPageTitle ? $page->translation->title : null)"
         />

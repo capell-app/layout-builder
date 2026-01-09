@@ -7,19 +7,19 @@ declare(strict_types=1);
 @php
     use Capell\Frontend\Facades\Frontend;
 
-            $page = Frontend::page();
+    $page = Frontend::page();
 @endphp
 
 @props([
-'container',
-'containerKey',
-'containerWidth' => null,
-'loop',
-'widget',
-'headingSize' => $widget->meta['heading_size'] ?? 'h1',
-'withAuthor' => $widget->meta['with_author'] ?? false,
-'withDate' => $widget->meta['with_date'] ?? false,
-'withNextPrev' => $widget->meta['with_next_prev'] ?? false,
+    'container',
+    'containerKey',
+    'containerWidth' => null,
+    'loop',
+    'widget',
+    'headingSize' => $widget->meta['heading_size'] ?? 'h1',
+    'withAuthor' => $widget->meta['with_author'] ?? false,
+    'withDate' => $widget->meta['with_date'] ?? false,
+    'withNextPrev' => $widget->meta['with_next_prev'] ?? false,
 ])
 <x-capell-layout::widget.wrapper
     :$container
@@ -36,6 +36,7 @@ declare(strict_types=1);
             :image="$page->image"
             :heading-size="$headingSize"
             :content="$page->translation->content"
+            :content-type="$page->type->content_structure"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
         >
             <div>
@@ -57,11 +58,11 @@ declare(strict_types=1);
 
     {!!
         app(\Capell\Frontend\Services\RenderHookRegistry::class)->renderAll(
-        \Capell\Frontend\Enums\RenderHookLocation::ArticleMeta,
-        [
-        'withAuthor' => $withAuthor,
-        'author' => $author,
-        ]
+            \Capell\Frontend\Enums\RenderHookLocation::ArticleMeta,
+            [
+                'withAuthor' => $withAuthor,
+                'author' => $author,
+            ],
         )
     !!}
 

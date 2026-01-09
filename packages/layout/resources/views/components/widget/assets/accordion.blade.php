@@ -40,6 +40,7 @@ declare(strict_types=1);
             class="mb-4"
             :compact="true"
             :content="$widget->translation->content"
+            :content-type="$widget->type->content_structure"
             :title="$widget->translation->title"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
         />
@@ -102,6 +103,7 @@ declare(strict_types=1);
                                     <x-capell::content
                                         :compact="true"
                                         :content="$widgetAsset->asset->translation->content"
+                                        :content-type="$widgetAsset->asset->type->content_structure"
                                     />
                                 @endif
 

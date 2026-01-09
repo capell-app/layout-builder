@@ -19,7 +19,7 @@ $tags = TagLoader::getTags($site, $language, limit: 5, hasArticles: true);
 $tagPage = TagLoader::getTagResultsPage($site, $language);
 ?>
 
-<div {{ $attributes }}>
+<div {{ $attributes->class(['footer-tags xl:w-[20%]']) }}>
     <h3 class="{{ $headingClass }} mb-4 dark:text-gray-100">
         {{ __('Tags') }}
     </h3>
@@ -33,9 +33,12 @@ $tagPage = TagLoader::getTagResultsPage($site, $language);
                     wire:navigate
                     color-scheme="dark"
                     size="sm"
+                    class="footer-tag"
                 >
                     {{ $tag->getTranslation('name', $language->code) }}
-                    ({{ $tag->pages_count }})
+                    <x-slot:count>
+                        ({{ $tag->pages_count }})
+                    </x-slot>
                 </x-capell-blog::tag>
             @endforeach
         </div>
