@@ -38,6 +38,7 @@ use Illuminate\Foundation\Testing\Concerns\InteractsWithSession;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
@@ -80,6 +81,10 @@ abstract class AbstractTestCase extends TestCase
         }
 
         parent::setUp();
+
+        // Hacky fix for running in parallel causing Blade namespaces to not always be registered
+        Blade::componentNamespace('Capell\\Blog\\View\\Components', 'capell-blog');
+        Blade::componentNamespace('Capell\\Layout\\View\\Components', 'capell-layout');
 
         // Isolate compiled views per process
         $processToken = getenv('TEST_TOKEN') ?: getmypid();
@@ -219,6 +224,8 @@ abstract class AbstractTestCase extends TestCase
 
         // Spatie Permission testing flag for sqlite compatibility
         Config::set('permission.testing', true);
+
+        Config::set('view.cache', false);
     }
 
     protected function getDefaultPackages(): array
