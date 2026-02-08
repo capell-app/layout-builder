@@ -14,6 +14,8 @@ return [
     'pages_card' => 'Pages Card',
     'page_slot' => 'Page Slot',
     'pages_tile' => 'Pages',
+    'hide_no_results_info' => 'Hide this widget if no results are found.',
+    'layout_widget_schema_info' => 'Choose a schema to use for this layout widget.',
     'faq' => 'FAQ',
     'copy_page_layout' => 'Copy this layout? :link',
     'fixed_content_tree' => 'Content tree fixed successfully.',

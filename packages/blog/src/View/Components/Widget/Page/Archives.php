@@ -50,12 +50,10 @@ class Archives extends AbstractWidget
             limit: $limit,
         );
 
-        if ($this->widget->translation->content) {
+        if ($this->archives->isNotEmpty()) {
             return;
         }
 
-        if ($this->archives->isEmpty() && config('capell-layout.widget.skip_render_empty', true)) {
-            $this->skipRender = true;
-        }
+        $this->skipRender = ! empty($this->widgetData['meta']['hide_no_results']) || config('capell-layout.widget.skip_render_empty') === true;
     }
 }

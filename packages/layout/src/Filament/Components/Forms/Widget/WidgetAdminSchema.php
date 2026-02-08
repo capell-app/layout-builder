@@ -22,8 +22,9 @@ class WidgetAdminSchema
                 ->default(fn (): string => WidgetSchemaEnum::Default->name)
                 ->setupOptions(TypeSchemaEnum::Widget),
 
-            SchemaSelect::make('layout_container_widget_schema')
-                ->label(__('capell-layout::form.container_widget_schema'))
+            SchemaSelect::make('layout_widget_schema')
+                ->label(__('capell-layout::form.layout_widget_schema'))
+                ->helperText(__('capell-layout::generic.layout_widget_schema_info'))
                 ->setupOptions(TypeSchemaEnum::LayoutWidget),
 
             IconPicker::make('icon')

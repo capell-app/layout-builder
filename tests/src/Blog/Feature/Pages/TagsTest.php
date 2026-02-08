@@ -32,8 +32,8 @@ test('tags page list tags', function (): void {
         ->withTranslations()
         ->hasAttached($tags->slice(0, 2))
         ->create();
-
-    $tagsPage = $blogCreator->createTagsPage($site, $site->languages, createWidgets: true);
+    $blogPage = $blogCreator->createBlogPage($site, languages: $site->languages);
+    $tagsPage = $blogCreator->createTagsPage($site, $blogPage, $site->languages, createWidgets: true);
     $tagPage = $blogCreator->createTagPage($site, $tagsPage, $site->languages);
 
     expect($tagsPage)
@@ -71,8 +71,8 @@ test('tag page list articles by tag', function (): void {
     $site = Site::factory()->recycle($language)->withTranslations()->create();
     $tag = Tag::factory()->translate($language)->type(TagTypeEnum::Page)->create();
     $articles = Article::factory()->count(5)->recycle($site)->withTranslations()->hasAttached($tag)->create();
-
-    $tagsPage = $blogCreator->createTagsPage($site, $site->languages, createWidgets: true);
+    $blogPage = $blogCreator->createBlogPage($site, languages: $site->languages);
+    $tagsPage = $blogCreator->createTagsPage($site, $blogPage, $site->languages, createWidgets: true);
     $tagPage = $blogCreator->createTagPage($site, $tagsPage, $site->languages);
 
     $title = trans($tagPage->translation->title, ['tag_name' => $tag->translate('name', $language->code)]);

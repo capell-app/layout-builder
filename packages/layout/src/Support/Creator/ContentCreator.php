@@ -42,16 +42,18 @@ class ContentCreator
             $type->default()->first();
         }
 
-        $meta = [];
+        $parentId = $data['parent_id'] ?? null;
 
-        $content = $this->contentModel::query()->firstOrCreate([
+        $payload = [
             'name' => $data['name'],
             'site_id' => $site?->id,
             'type_id' => $type->id,
-            'parent_id' => $data['parent_id'] ?? null,
-        ], [
-            'meta' => $meta !== [] ? $meta : null,
-        ]);
+            'parent_id' => $parentId,
+            'is_published' => true,
+        ];
+
+        /** @var Content $content */
+        $content = $this->contentModel::query()->firstOrCreate($payload);
 
         foreach ($languages as $language) {
             $translation_data = $data['translations'][$language->code];

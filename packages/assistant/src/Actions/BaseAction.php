@@ -43,7 +43,7 @@ abstract class BaseAction implements ActionContract
 
     public function handle(...$args): mixed
     {
-        /** @var AiActionContextInterface|null $context */
+        /** @var Capell\Assistant\Contracts\AiActionContextInterface|null $context */
         $context = $args[0] ?? null;
         $options = is_array($args[1] ?? null) ? $args[1] : [];
 

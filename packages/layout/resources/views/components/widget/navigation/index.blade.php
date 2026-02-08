@@ -28,8 +28,8 @@ $theme = Frontend::theme();
     :$widget
 >
     @if (($widget->translation && ($widget->translation->title || $widget->translation->content))
-         || ($showPageContent && $page->translation->title)
-         || ($showPageTitle && $page->translation->content))
+         || ($showPageTitle && $page->translation->title)
+         || ($showPageContent && $page->translation->content))
         <x-capell::content
             class="mb-5"
             :compact="true"
@@ -38,7 +38,8 @@ $theme = Frontend::theme();
             :muted="in_array($containerKey, $theme->secondary_containers)"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
             :title="$widget->translation->title ?? ($showPageTitle ? $page->translation->title : null)"
-            :heading-style="($widget->meta['heading_style'] ?? null) ?: $widget->type->meta['heading_style'] ?? null"
+            :heading-style="($widget->meta['heading_style'] ?? null) ?: ($widget->type->meta['heading_style'] ?? null)"
+            :heading-tag="$showPageTitle ? 'h1' : null"
         />
     @endif
 

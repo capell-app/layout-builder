@@ -53,40 +53,7 @@ $theme = Frontend::theme();
         :carousel-type="$widget->meta['carousel_type'] ?? null"
         :carousel-pagination="$widget->meta['carousel_pagination'] ?? true"
     >
-        @if ($widget->assets->isEmpty())
-            @php
-                $content = $page->translation->meta['hero'] ?? null;
-            @endphp
-
-            <x-capell-hero::hero.slide
-                :background-image="$widget->image"
-                :background-color="$widget->meta['background_color'] ?? ($theme['meta']['background_color'] ?? '')"
-                :background-size="$widget->meta['background_size'] ?? 'cover'"
-                :background-position="$widget->meta['background_position'] ?? 'center'"
-                :background-attachment="$widget->meta['background_attachment'] ?? 'scroll'"
-                :background-repeat="$widget->meta['background_repeat'] ?? 'no-repeat'"
-                :carousel-type="$widget->meta['carousel_type'] ?? null"
-                :first="true"
-                :total="1"
-                :color="$color"
-                container-class="container"
-            >
-                <div class="@lg:py-16 flex select-text py-20">
-                    <x-capell-hero::hero.content
-                        :title="
-                            $widget->translation
-                            ? __($widget->translation->title, $urlParams)
-                            : null
-                        "
-                        :color="$color"
-                        size="lg"
-                        class="hero-page-content"
-                    >
-                        {!! __($content, $urlParams) !!}
-                    </x-capell-hero::hero.content>
-                </div>
-            </x-capell-hero::hero.slide>
-        @else
+        @if ($widget->assets->isNotEmpty())
             @foreach ($widget->assets as $widgetAsset)
                 {{-- format-ignore-start --}}
                 @php
@@ -233,6 +200,35 @@ $theme = Frontend::theme();
                     </div>
                 </x-capell-hero::hero.slide>
             @endforeach
+        @elseif (isset($page->translation->meta['hero']))
+            <x-capell-hero::hero.slide
+                :background-image="$widget->image"
+                :background-color="$widget->meta['background_color'] ?? ($theme['meta']['background_color'] ?? '')"
+                :background-size="$widget->meta['background_size'] ?? 'cover'"
+                :background-position="$widget->meta['background_position'] ?? 'center'"
+                :background-attachment="$widget->meta['background_attachment'] ?? 'scroll'"
+                :background-repeat="$widget->meta['background_repeat'] ?? 'no-repeat'"
+                :carousel-type="$widget->meta['carousel_type'] ?? null"
+                :first="true"
+                :total="1"
+                :color="$color"
+                container-class="container"
+            >
+                <div class="@lg:py-16 flex select-text py-20">
+                    <x-capell-hero::hero.content
+                        :title="
+                            $widget->translation
+                            ? __($widget->translation->title, $urlParams)
+                            : null
+                        "
+                        :color="$color"
+                        size="lg"
+                        class="hero-page-content"
+                    >
+                        {!! __($page->translation->meta['hero'], $urlParams) !!}
+                    </x-capell-hero::hero.content>
+                </div>
+            </x-capell-hero::hero.slide>
         @endif
     </x-capell-hero::hero.wrapper>
 </section>

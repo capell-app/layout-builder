@@ -10,9 +10,10 @@ use Capell\Admin\Filament\Concerns\HasTypeSchema;
 use Capell\Layout\Enums\SchemaExtenderEnum;
 use Capell\Layout\Enums\TypeSchemaEnum;
 use Capell\Layout\Filament\Components\Forms\HtmlClassInput;
+use Capell\Layout\Filament\Components\Forms\Widget\WidgetResultsOverrideSchema;
 use Filament\Schemas\Schema;
 
-class DefaultLayoutWidgetSchema implements TypeSchemaInterface
+class ResultsLayoutWidgetSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
@@ -26,6 +27,7 @@ class DefaultLayoutWidgetSchema implements TypeSchemaInterface
     public function make(Schema $schema): array
     {
         return [
+            ...WidgetResultsOverrideSchema::make($schema),
             HtmlClassInput::make('html_class'),
         ];
     }

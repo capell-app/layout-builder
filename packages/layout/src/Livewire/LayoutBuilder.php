@@ -333,11 +333,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms
             });
     }
 
-    public function editContainerWidgetAction(): Action
+    public function editLayoutWidgetAction(): Action
     {
-        return Action::make('editContainerWidget')
-            ->label(__('capell-admin::button.edit'))
-            ->tooltip(__('capell-layout::button.edit_container_widget'))
+        return Action::make('editLayoutWidget')
+            ->label(__('capell-layout::button.edit_layout_widget'))
             ->groupedIcon('heroicon-o-cog-6-tooth')
             ->color('gray')
             ->grouped()
@@ -373,7 +372,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
                 fn (self $livewire, array $arguments): array => $livewire->containers[$arguments['containerKey']]['widgets'][$arguments['widgetIndex']]['meta'] ?? [],
             )
             ->action(function (Action $action, self $livewire, array $arguments, array $data): void {
-                $livewire->editContainerWidget($arguments['containerKey'], $arguments['widgetIndex'], $data);
+                $livewire->editLayoutWidget($arguments['containerKey'], $arguments['widgetIndex'], $data);
 
                 $action->success();
             });
@@ -1562,7 +1561,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
         }
     }
 
-    protected function editContainerWidget(string $containerKey, int $widgetIndex, array $data): void
+    protected function editLayoutWidget(string $containerKey, int $widgetIndex, array $data): void
     {
         $this->containers[$containerKey]['widgets'][$widgetIndex]['meta'] = array_merge(
             $this->containers[$containerKey]['widgets'][$widgetIndex]['meta'] ?? [],
@@ -2543,7 +2542,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms
 
     protected function getContainerWidgetSchema(string $containerKey, int $widgetIndex): ?string
     {
-        return $this->getContainerWidget($containerKey, $widgetIndex)?->type->admin['layout_container_widget_schema']
+        return $this->getContainerWidget($containerKey, $widgetIndex)?->type->admin['layout_widget_schema']
             ?? null;
     }
 

@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static Collection getContainerWidgets(string $containerKey)
  * @method static void clearContainerWidgets()
  *
- * @see CapellLayoutManager
+ * @see Capell\Layout\Support\CapellLayoutManager
  */
 class CapellLayout extends Facade
 {

@@ -6,7 +6,6 @@ namespace Capell\Blog\Filament\Components\Forms\Page;
 
 use Capell\Blog\Filament\Components\Forms\TagsInput;
 use Capell\Core\Enums\TypeEnum;
-use Capell\Core\Models\Page;
 
 class PageTagsInput extends TagsInput
 {
@@ -14,9 +13,6 @@ class PageTagsInput extends TagsInput
     {
         parent::setUp();
 
-        $this->type(TypeEnum::Page->value)
-            ->visible(
-                fn (string $operation, ?Page $record): bool => in_array($operation, ['edit', 'editOption'], true),
-            );
+        $this->type(TypeEnum::Page->value);
     }
 }

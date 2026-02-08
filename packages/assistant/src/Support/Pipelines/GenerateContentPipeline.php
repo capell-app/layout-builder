@@ -22,7 +22,7 @@ class GenerateContentPipeline
     ) {}
 
     /**
-     * @param  array{context:AiActionContextInterface, options:array{user_id?:int|null,current_title?:string|null,target_length?:int|null,refactor?:bool|null}, action:object}  $input
+     * @param  array{context:Capell\Assistant\Contracts\AiActionContextInterface, options:array{user_id?:int|null,current_title?:string|null,target_length?:int|null,refactor?:bool|null}, action:object}  $input
      */
     public function execute(array $input): string
     {
@@ -58,7 +58,7 @@ class GenerateContentPipeline
 
     private function executeAiCall(array $payload, callable $next): array
     {
-        /** @var AiActionContextInterface $context */
+        /** @var Capell\Assistant\Contracts\AiActionContextInterface $context */
         $context = $payload['context'];
         $options = $payload['options'] ?? [];
         $prompt = $this->prompts->get('content_generation');
@@ -107,7 +107,7 @@ class GenerateContentPipeline
     {
         /** @var AiResponse $response */
         $response = $payload['ai_response'] ?? null;
-        /** @var AiActionContextInterface $context */
+        /** @var Capell\Assistant\Contracts\AiActionContextInterface $context */
         $context = $payload['context'];
         if ($response !== null) {
             AIGenerationHistory::query()->create([

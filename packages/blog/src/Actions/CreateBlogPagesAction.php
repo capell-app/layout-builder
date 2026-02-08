@@ -45,7 +45,7 @@ class CreateBlogPagesAction
             languages: $site->languages,
         );
 
-        $tagsPage = $blogCreator->createTagsPage($site, $site->languages);
+        $tagsPage = $blogCreator->createTagsPage($site, $blogPage, $site->languages);
 
         $blogCreator->createTagPage($site, $tagsPage, $site->languages);
     }

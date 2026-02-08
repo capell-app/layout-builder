@@ -20,6 +20,7 @@ use Capell\Core\Models\Concerns\HasTypes;
 use Capell\Core\Models\Concerns\HasUserstamps;
 use Capell\Core\Models\Concerns\InteractsWithMedia;
 use Capell\Core\Models\Contracts\Draftable;
+use Capell\Core\Models\Contracts\HasDraftsAndNestedSetModel;
 use Capell\Core\Models\Contracts\Publishable;
 use Capell\Core\Models\Contracts\Typeable;
 use Capell\Core\Models\Contracts\Userstampable;
@@ -39,6 +40,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User;
@@ -162,7 +164,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @mixin Model
  */
 #[ObservedBy(ContentObserver::class)]
-class Content extends Model implements Draftable, HasMedia, PageCacheable, Publishable, Typeable, Userstampable
+class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, HasMedia, PageCacheable, Publishable, Typeable, Userstampable
 {
     use Cloneable;
     use HasAssets;
@@ -298,40 +300,18 @@ class Content extends Model implements Draftable, HasMedia, PageCacheable, Publi
         $this->addMediaCollection(MediaCollectionEnum::Image->value)->singleFile();
     }
 
-    public function applyNestedSetScope($query, $table = null)
-    {
-        $builder = $this->usesSoftDelete()
-            ? $this->withTrashed()
-            : $this->newQuery();
-
-        $builder->withDrafts();
-
-        $builder->where($table ? $table . '.' . $this->getIsPublishedColumn() : $this->getIsPublishedColumn(), true);
-
-        return $this->applyNestedSetScopeParent($query, $table);
-    }
-
-    public function newNestedSetQuery($table = null)
-    {
-        $builder = $this->usesSoftDelete()
-            ? $this->withTrashed()
-            : $this->newQuery();
-
-        $builder->withDrafts();
-
-        return $this->applyNestedSetScope($builder);
-    }
-
-    public function getQualifiedIsPublishedColumn(?string $table = null): string
-    {
-        return in_array($table, [null, '', '0'], true) ? $this->getIsPublishedColumn() : $table . '.' . $this->getIsPublishedColumn();
-    }
-
     public function loadParent(Language $language): void
     {
         $this->load([
             'parent' => fn (BuilderContract $query): BuilderContract => $query->withWhereHasLanguage($language->id),
         ]);
+    }
+
+    public function getPreviousRevision(): HasOne
+    {
+        return $this->hasOne(static::class, $this->getKeyName())
+            ->withDrafts()
+            ->latestOfMany();
     }
 
     public function parent(): BelongsTo
@@ -378,16 +358,6 @@ class Content extends Model implements Draftable, HasMedia, PageCacheable, Publi
         return $this->widgetAssets()
             ->select('widget_assets.widget_id')
             ->groupBy('widget_assets.widget_id');
-    }
-
-    protected static function bootNodeTrait(): void
-    {
-        // Handled in boot
-    }
-
-    protected static function bootHasDrafts(): void
-    {
-        // Handled in boot
     }
 
     protected function scopeOrdered(Builder $query, string $dir = 'asc'): void

@@ -42,7 +42,7 @@ it('does not allow debug functions')
     ->toBeUsedInNothing();
 
 arch()->expect(['env', 'sleep', 'usleep'])->toBeUsedInNothing()->ignoring([
-    \Capell\Blog\Console\Commands\InstallCommand::class,
+    Capell\Blog\Console\Commands\InstallCommand::class,
 ]);
 
 arch()

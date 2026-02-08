@@ -37,7 +37,9 @@ it('generates tag and archive URLs for static site', function (): void {
         ])
         ->create();
 
-    $tagsPage = $blogCreator->createTagsPage($site, $site->languages, createWidgets: true);
+    $blogPage = $blogCreator->createBlogPage($site, languages: $site->languages);
+
+    $tagsPage = $blogCreator->createTagsPage($site, $blogPage, $site->languages, createWidgets: true);
     $tagPage = $blogCreator->createTagPage($site, $tagsPage, $site->languages);
     $tagPageUrl = rtrim($tagPage->pageUrl->url, '/*') . '/';
 

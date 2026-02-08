@@ -117,7 +117,7 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
             MediaLibraryFileUpload::make('image'),
             WidgetDisplaySection::make([
                 ColorSchemeComponent::make('color'),
-                ...WidgetResultsSchema::make(),
+                ...WidgetResultsSchema::make($schema),
             ]),
             WidgetComponentFilesSection::make()
                 ->statePath('meta'),

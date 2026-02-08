@@ -9,7 +9,6 @@ use Capell\Address\Enums\ModelEnum;
 use Capell\Address\Filament\Resources\Countries\Pages\ManageCountries;
 use Capell\Address\Filament\Resources\Countries\Schemas\CountryForm;
 use Capell\Address\Filament\Resources\Countries\Tables\CountriesTable;
-use Capell\Address\Models\Country;
 use Capell\Address\Providers\AddressServiceProvider;
 use Capell\Admin\Filament\Concerns\HasFormConfigurator;
 use Capell\Admin\Filament\Concerns\HasNavigationBadge;
@@ -56,7 +55,7 @@ class CountryResource extends Resource
     }
 
     /**
-     * @return class-string<Country>
+     * @return class-string<Capell\Address\Models\Country>
      */
     #[Override]
     public static function getModel(): string

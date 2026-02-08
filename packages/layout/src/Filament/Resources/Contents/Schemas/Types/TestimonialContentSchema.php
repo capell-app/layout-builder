@@ -15,6 +15,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 
 class TestimonialContentSchema extends DefaultContentSchema
 {
@@ -98,7 +99,7 @@ class TestimonialContentSchema extends DefaultContentSchema
             Section::make(__('capell-admin::generic.settings'))
                 ->collapsed()
                 ->compact()
-                ->icon('heroicon-o-cog-6-tooth')
+                ->icon(Heroicon::OutlinedCog6Tooth)
                 ->columns()
                 ->columnSpanFull()
                 ->schema([

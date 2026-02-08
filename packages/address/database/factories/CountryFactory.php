@@ -10,7 +10,7 @@ use Faker\Provider\Miscellaneous;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Country>
+ * @extends Factory<Capell\Address\Models\Country>
  */
 class CountryFactory extends Factory
 {

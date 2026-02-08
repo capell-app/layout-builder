@@ -21,6 +21,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 
 class DefaultLayoutContainerSchema implements TypeSchemaInterface
 {
@@ -39,6 +40,7 @@ class DefaultLayoutContainerSchema implements TypeSchemaInterface
             Section::make(__('capell-admin::generic.settings'))
                 ->statePath('meta')
                 ->collapsed()
+                ->icon(Heroicon::OutlinedCog6Tooth)
                 ->columnSpanFull()
                 ->columns(['sm' => 2, 'md' => 3])
                 ->schema([

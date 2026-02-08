@@ -18,6 +18,7 @@ use Capell\Layout\Support\Creator\TypeCreator;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 class DemoCommand extends Command
 {
@@ -38,6 +39,8 @@ class DemoCommand extends Command
     protected $signature = 'capell-layout:demo {--user} {--sites=}';
 
     protected DemoCreator $demoCreator;
+
+    protected ?ProgressBar $progress = null;
 
     /**
      * Execute the console command.
@@ -66,15 +69,15 @@ class DemoCommand extends Command
         $typeCreator->createBuilderContentType();
 
         foreach ($sites as $site) {
-            $this->newLine();
-            $this->info(sprintf('Selected site: %s', $site->name));
-
-            $this->line('Setting up content');
+            $this->setProgressMessage('Setting up content');
 
             /** @var ContentCreator $contentCreator */
             $contentCreator = resolve(ContentCreator::class);
 
+            $contentSteps = $this->countContentNodes($data[0]);
+            $this->startProgress($contentSteps);
             $this->createSiteContents($contentCreator, $data[0], $site);
+            $this->finishProgress();
 
             if (! $this->createDemoLayouts($site)) {
                 $this->error('Failed to create demo pages for the selected site.');
@@ -91,10 +94,6 @@ class DemoCommand extends Command
 
     public function createDemoLayouts(Site $site): bool
     {
-        $this->newLine();
-        $this->line('Setting up homepage extras for site: ' . $site->name);
-        $this->newLine();
-
         $languages = $site->languages;
 
         /** @var Page $home */
@@ -106,7 +105,11 @@ class DemoCommand extends Command
             return false;
         }
 
+        // main(4) + faq(2) + secondary(8) + split-two(1) + background(1)
+        $totalSteps = 4 + 2 + 8 + 1 + 1;
+        $this->startProgress($totalSteps);
         $this->setupHomepage($home, $languages);
+        $this->finishProgress();
 
         return true;
     }
@@ -166,17 +169,21 @@ class DemoCommand extends Command
 
     private function populateMainContainer(array &$containers, Page $page, Collection $languages): void
     {
+        $this->setProgressMessage('Creating page cards widget');
         $pageCardsWidget = $this->demoCreator->createPageCardsWidget($page);
-        $this->line('Created page cards widgets');
+        $this->advanceProgress();
 
+        $this->setProgressMessage('Creating gallery widget');
         $galleryWidget = $this->demoCreator->createGalleryWidget();
-        $this->line('Created gallery widget');
+        $this->advanceProgress();
 
+        $this->setProgressMessage('Creating page cards widget (#2)');
         $pageCardsWidget2 = $this->demoCreator->createPageCardsWidget($page, occurrence: 2);
-        $this->line('Created page cards widgets');
+        $this->advanceProgress();
 
+        $this->setProgressMessage('Creating media carousel widget');
         $mediaCarouselWidget = $this->demoCreator->createMediaCarouselWidget();
-        $this->line('Created media carousel widget');
+        $this->advanceProgress();
 
         $containers['main']['widgets'] = [
             [
@@ -194,8 +201,9 @@ class DemoCommand extends Command
 
     private function populateFaqContainers(array &$containers, Collection $languages, Page $page): void
     {
+        $this->setProgressMessage('Creating FAQ widget');
         $faqWidget = $this->demoCreator->createFaqWidget($languages);
-        $this->line('Created FAQ widget');
+        $this->advanceProgress();
 
         $containers['faq-main'] = [
             'meta' => [
@@ -206,8 +214,9 @@ class DemoCommand extends Command
             ],
         ];
 
+        $this->setProgressMessage('Creating static navigation widget');
         $faqColWidget = $this->demoCreator->createStaticNavigationWidget($languages, $page->site);
-        $this->line('Created static FAQ widget: ' . $faqColWidget->key);
+        $this->advanceProgress();
 
         $containers['faq-col'] = [
             'meta' => [
@@ -222,29 +231,37 @@ class DemoCommand extends Command
 
     private function populateSecondaryContainer(array &$containers, Collection $languages, Page $page): void
     {
+        $this->setProgressMessage('Creating team portfolio widget');
         $teamPortfolioWidget = $this->demoCreator->createTeamPortfolioWidget($languages);
-        $this->line('Created team portfolio widget: ' . $teamPortfolioWidget->key);
+        $this->advanceProgress();
 
+        $this->setProgressMessage('Creating banner image widget');
         $bannerImageWidget = $this->demoCreator->createBannerImageWidget($languages);
-        $this->line('Created banner image widget: ' . $bannerImageWidget->key);
+        $this->advanceProgress();
 
+        $this->setProgressMessage('Creating content widget');
         $contentWidget = $this->demoCreator->createContentWidget($languages);
-        $this->line('Created content widget: ' . $contentWidget->key);
+        $this->advanceProgress();
 
+        $this->setProgressMessage('Creating statistics widget');
         $statisticsWidget = $this->demoCreator->createStatisticsWidget();
-        $this->line('Created statistics widget: ' . $statisticsWidget->key);
+        $this->advanceProgress();
 
+        $this->setProgressMessage('Creating business features widget');
         $businessFeaturesWidget = $this->demoCreator->createBusinessFeaturesWidget($page->site);
-        $this->line('Created business features widget: ' . $businessFeaturesWidget->key);
+        $this->advanceProgress();
 
+        $this->setProgressMessage('Creating banners widget');
         $bannersWidget = $this->demoCreator->createBannersWidget();
-        $this->line('Created banners widget: ' . $bannersWidget->key);
+        $this->advanceProgress();
 
+        $this->setProgressMessage('Creating client logos widget');
         $clientLogosWidget = $this->demoCreator->createClientLogosWidget($languages);
-        $this->line('Created client logos widget: ' . $clientLogosWidget->key);
+        $this->advanceProgress();
 
+        $this->setProgressMessage('Creating testimonials widget');
         $testimonialsWidget = $this->demoCreator->createTestimonialsWidget($languages);
-        $this->line('Created testimonials widget: ' . $testimonialsWidget->key);
+        $this->advanceProgress();
 
         $containers['secondary'] = [
             'meta' => [
@@ -265,8 +282,9 @@ class DemoCommand extends Command
 
     private function populateSplitTwoContainer(array &$containers, Collection $languages): void
     {
+        $this->setProgressMessage('Creating split content widget');
         $splitContentWidget = $this->demoCreator->createSplitContentWidget($languages);
-        $this->line('Created split content widget: ' . $splitContentWidget->key);
+        $this->advanceProgress();
 
         $containers['split-two'] = [
             'meta' => [
@@ -284,10 +302,11 @@ class DemoCommand extends Command
 
     private function addSplitTwoBackgroundMedia(Layout $layout): void
     {
-        $this->line('Adding background media to split container');
+        $this->setProgressMessage('Adding split-two background media');
         if ($layout->getMedia('split-two-background')->isEmpty()) {
             resolve(\Capell\Core\Support\Creator\DemoCreator::class)->createMedia($layout, collection: 'split-two-background');
         }
+        $this->advanceProgress();
     }
 
     private function createSiteContents(ContentCreator $contentCreator, array $data, Site $site, ?Collection $languages = null, ?Content $parent = null): void
@@ -317,7 +336,9 @@ class DemoCommand extends Command
             ];
         }
 
+        $this->setProgressMessage('Creating content: ' . $contentData['name']);
         $content = $contentCreator->createContent($contentData, $site, $languages);
+        $this->advanceProgress();
 
         if (! isset($data['children'])) {
             return;
@@ -334,5 +355,48 @@ class DemoCommand extends Command
         $layout = $model::query()->firstWhere('key', LayoutEnum::Home);
 
         return $layout instanceof Layout ? $layout : null;
+    }
+
+    private function countContentNodes(array $data): int
+    {
+        $count = 1;
+        if (isset($data['children']) && is_array($data['children'])) {
+            foreach ($data['children'] as $child) {
+                $count += $this->countContentNodes($child);
+            }
+        }
+
+        return $count;
+    }
+
+    private function startProgress(int $max): void
+    {
+        $this->progress = $this->output->createProgressBar($max);
+        $this->progress->setFormat(' [%bar%] %percent:3s%% | %message%');
+        $this->progress->setMessage('');
+        $this->progress->start();
+    }
+
+    private function setProgressMessage(string $message): void
+    {
+        if ($this->progress instanceof ProgressBar) {
+            $this->progress->setMessage($message);
+        }
+    }
+
+    private function advanceProgress(int $step = 1): void
+    {
+        if ($this->progress instanceof ProgressBar) {
+            $this->progress->advance($step);
+        }
+    }
+
+    private function finishProgress(): void
+    {
+        if ($this->progress instanceof ProgressBar) {
+            $this->progress->finish();
+            $this->newLine();
+        }
+        $this->progress = null;
     }
 }

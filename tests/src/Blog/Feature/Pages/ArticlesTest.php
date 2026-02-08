@@ -119,7 +119,7 @@ test('article page list tags', function (): void {
 
     $blogPage = $blogCreator->createBlogPage($site);
 
-    $tagsPage = $blogCreator->createTagsPage($site, $site->languages, createWidgets: true);
+    $tagsPage = $blogCreator->createTagsPage($site, $blogPage, $site->languages, createWidgets: true);
     $tagPage = $blogCreator->createTagPage($site, $tagsPage, $site->languages);
 
     $archivesPage = $blogCreator->createArchivesPage($blogPage);

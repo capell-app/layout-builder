@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Resources\Widgets\Schemas\Types;
 
 use Capell\Admin\Filament\Components\Forms\CacheFrequencySelect;
+use Capell\Admin\Filament\Components\Forms\ContentEditor;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
@@ -16,8 +17,11 @@ use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Override;
 
 class ResultsWidgetSchema extends DefaultWidgetSchema
@@ -37,9 +41,22 @@ class ResultsWidgetSchema extends DefaultWidgetSchema
     {
         return [
             CreateWidgetDetailsSchema::make($schema),
-            WidgetTranslationsRepeater::make($schema)
+            WidgetTranslationsRepeater::make($schema, components: [
+                Group::make()
+                    ->statePath('meta')
+                    ->schema([
+                        ContentEditor::make('no_results')
+                            ->label(__('capell-admin::form.no_results'))
+                            ->hint(__('capell-admin::generic.no_results_info')),
+                    ]),
+            ])
                 ->contained(fn (string $operation): bool => $operation === 'create'),
-            ...WidgetSettingsSchema::make($schema),
+            Section::make(__('capell-admin::generic.settings'))
+                ->columns()
+                ->compact()
+                ->icon(Heroicon::OutlinedCog6Tooth)
+                ->collapsed()
+                ->schema(WidgetSettingsSchema::make($schema)),
         ];
     }
 
@@ -68,7 +85,7 @@ class ResultsWidgetSchema extends DefaultWidgetSchema
                                 ->label(__('capell-layout::form.pagination'))
                                 ->default(true),
                             CacheFrequencySelect::make('cache_frequency'),
-                            ...WidgetResultsSchema::make(),
+                            ...WidgetResultsSchema::make($schema),
                         ]),
                         WidgetComponentFilesSection::make()
                             ->statePath('meta'),

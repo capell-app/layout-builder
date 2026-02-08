@@ -32,7 +32,7 @@ it('installs layout package: creates types, widgets, layouts, and registers morp
         WidgetTypeEnum::Media->value,
         WidgetTypeEnum::Navigation->value,
         WidgetTypeEnum::PageContents->value,
-        WidgetTypeEnum::PageResults->value,
+        WidgetTypeEnum::Results->value,
         WidgetTypeEnum::Pages->value,
         WidgetTypeEnum::Assets->value,
         WidgetTypeEnum::System->value,

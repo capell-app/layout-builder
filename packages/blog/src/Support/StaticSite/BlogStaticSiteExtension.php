@@ -47,6 +47,9 @@ class BlogStaticSiteExtension
         });
     }
 
+    /**
+     * @param  class-string<Page>  $pageModel
+     */
     private function visitArchivePages(string $pageModel, Site $site, SiteDomain $domain, callable $visit): void
     {
         $archives = BlogLoader::getArchives(

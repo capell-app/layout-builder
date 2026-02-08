@@ -471,7 +471,7 @@ test('Can edit container widget', function (): void {
     $widget = Widget::factory()
         ->for((new WidgetTypeFactory)->state([
             'admin' => [
-                'layout_container_widget_schema' => DefaultLayoutWidgetSchema::getKey(),
+                'layout_widget_schema' => DefaultLayoutWidgetSchema::getKey(),
             ],
         ]), 'type')
         ->create();
@@ -496,7 +496,7 @@ test('Can edit container widget', function (): void {
         )
         ->callMountedAction()
         ->mountAction(
-            TestAction::make('editContainerWidget')
+            TestAction::make('editLayoutWidget')
                 ->arguments([
                     'containerKey' => $containerKey,
                     'widgetIndex' => $widgetIndex,

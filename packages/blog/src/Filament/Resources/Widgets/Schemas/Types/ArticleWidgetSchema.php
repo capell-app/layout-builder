@@ -14,6 +14,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 
 class ArticleWidgetSchema extends DefaultWidgetSchema
 {
@@ -29,6 +30,7 @@ class ArticleWidgetSchema extends DefaultWidgetSchema
                 Section::make(__('capell-admin::generic.settings'))
                     ->columns()
                     ->compact()
+                    ->icon(Heroicon::OutlinedCog6Tooth)
                     ->collapsed()
                     ->schema([
                         ...WidgetSettingsSchema::make($schema),

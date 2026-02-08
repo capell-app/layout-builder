@@ -30,7 +30,7 @@ class InstallPackageAction
         // Widgets
         $blogCreator->createArticleWidget($blogCreator->createArticleWidgetType());
         $latestArticlesWidget = $blogCreator->createLatestArticlesWidget();
-        $archivesWidget = $blogCreator->createArchivesListWidget();
+        $archivesWidget = $blogCreator->createArchivesWidget();
 
         // Layouts
         $blogCreator->createArticleLayout();
@@ -77,7 +77,7 @@ class InstallPackageAction
         $blogCreator->createTagPageType();
 
         $resultsWidgetType = Type::query()
-            ->firstWhere(['key' => WidgetTypeEnum::PageResults, 'type' => LayoutTypeEnum::Widget]);
+            ->firstWhere(['key' => WidgetTypeEnum::Results, 'type' => LayoutTypeEnum::Widget]);
 
         Site::with('languages')->each(function (Site $site) use ($blogCreator, $resultsWidgetType): void {
             $blogCreator->createTagsWidget($site->languages);

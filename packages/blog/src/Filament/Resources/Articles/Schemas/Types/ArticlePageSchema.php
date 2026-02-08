@@ -22,6 +22,7 @@ use Closure;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Builder;
 use Override;
 
@@ -82,6 +83,7 @@ class ArticlePageSchema extends DefaultPageSchema
             $this->getTranslationFormSchema($schema),
             Section::make(__('capell-admin::generic.settings'))
                 ->compact()
+                ->icon(Heroicon::OutlinedCog6Tooth)
                 ->schema([
                     ...PageSettingsSchema::make(
                         $schema,
@@ -106,6 +108,7 @@ class ArticlePageSchema extends DefaultPageSchema
             $this->getParentPageSelect($schema),
             LayoutSelect::make('layout_id')
                 ->reactive(),
+            PageTagsInput::make('tags'),
             PublishSchema::make($schema),
         ];
     }

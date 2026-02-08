@@ -47,14 +47,10 @@ class Tags extends AbstractWidget
             throw new RuntimeException('Tag results page not found for site ID ' . $site->id . ' and language ID ' . $language->id);
         }
 
-        if ($this->widget->translation->meta['no_articles_found']) {
+        if ($this->tags->isNotEmpty()) {
             return;
         }
 
-        if ($this->tags->isEmpty() && config('capell-layout.widget.skip_render_empty', true)) {
-            $this->skipRender = true;
-
-            return;
-        }
+        $this->skipRender = ! empty($this->widgetData['meta']['hide_no_results']) || config('capell-layout.widget.skip_render_empty') === true;
     }
 }

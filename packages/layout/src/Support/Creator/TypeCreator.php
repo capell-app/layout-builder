@@ -19,6 +19,7 @@ use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Enums\WidgetTypeGroupEnum;
 use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Widgets\DefaultLayoutWidgetSchema;
 use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Widgets\PageLayoutWidgetSchema;
+use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Widgets\ResultsLayoutWidgetSchema;
 use Capell\Layout\Filament\Resources\Types\Schemas\Types\ContentTypeSchema;
 use Capell\Layout\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
 use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\AssetsWidgetSchema;
@@ -94,7 +95,7 @@ class TypeCreator
         $this->mediaWidgetType();
         $this->navigationWidgetType();
         $this->pageContentWidgetType();
-        $this->pageResultsWidgetType();
+        $this->resultsWidgetType();
         $this->pagesWidgetType();
         $this->assetsWidgetType();
         $this->systemWidgetType();
@@ -189,7 +190,7 @@ class TypeCreator
             'admin' => [
                 'type_schema' => WidgetTypeSchema::getKey(),
                 'schema' => PageContentWidgetSchema::getKey(),
-                'layout_container_widget_schema' => PageLayoutWidgetSchema::getKey(),
+                'layout_widget_schema' => PageLayoutWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-document-text',
             ],
             'meta' => [
@@ -199,17 +200,18 @@ class TypeCreator
         ]);
     }
 
-    public function pageResultsWidgetType(): Type
+    public function resultsWidgetType(): Type
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::PageResults,
+            'key' => WidgetTypeEnum::Results,
             'type' => LayoutTypeEnum::Widget,
         ], [
-            'name' => __('capell-admin::generic.page_results'),
+            'name' => __('capell-admin::generic.results'),
             'group' => WidgetTypeGroupEnum::Asset,
             'admin' => [
                 'type_schema' => WidgetTypeSchema::getKey(),
                 'schema' => ResultsWidgetSchema::getKey(),
+                'layout_widget_schema' => ResultsLayoutWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-list-bullet',
             ],
             'meta' => [
@@ -272,7 +274,7 @@ class TypeCreator
             'admin' => [
                 'type_schema' => WidgetTypeSchema::getKey(),
                 'schema' => SystemWidgetSchema::getKey(),
-                'layout_container_widget_schema' => DefaultLayoutWidgetSchema::getKey(),
+                'layout_widget_schema' => DefaultLayoutWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-wrench',
             ],
             'meta' => [

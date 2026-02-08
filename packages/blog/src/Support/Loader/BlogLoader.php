@@ -6,8 +6,10 @@ namespace Capell\Blog\Support\Loader;
 
 use Capell\Blog\Data\ArchiveMonthData;
 use Capell\Blog\Enums\BlogPageTypeEnum;
+use Capell\Blog\Enums\CacheEnum;
 use Capell\Blog\Support\PageArchiveService;
 use Capell\Core\Enums\ModelEnum;
+use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
@@ -20,7 +22,7 @@ class BlogLoader
 {
     public static function getArchivePage(Site $site, Language $language): ?Page
     {
-        $cacheKey = sprintf('site-%d-%d-archive-page', $site->id, $language->id);
+        $cacheKey = CacheEnum::archivePage($site->id, $language->id);
 
         $fromCache = true;
 
@@ -52,7 +54,7 @@ class BlogLoader
         ?int $paginationPage = null,
         string $paginationKey = 'page',
     ): Collection|LengthAwarePaginator {
-        $cacheKey = sprintf('site-%d-%d-%s-%s-page-%s', $site->id, $language->id, $group, $limit, $paginationPage);
+        $cacheKey = CacheEnum::archives($site->id, $language->id, $group, $limit, $paginationPage);
 
         return CapellCore::rememberCache(
             $cacheKey,
@@ -67,10 +69,28 @@ class BlogLoader
         );
     }
 
-    public static function getBlogPage(Site $site, string $type = BlogPageTypeEnum::Blog->value): ?Page
-    {
-        return Page::query()->where('site_id', $site->id)
-            ->whereRelation('type', 'key', $type)
-            ->first();
+    public static function getBlogPage(
+        Site $site,
+        string $type = BlogPageTypeEnum::Blog->value,
+        ?Language $language = null,
+    ): ?Page {
+        $cacheKey = CacheEnum::blogPage($site->id, $language?->id ?? 'null', $type);
+
+        $fromCache = true;
+
+        $page = CapellCore::rememberCache($cacheKey, function () use ($site, $language, $type, &$fromCache): ?Page {
+            $fromCache = false;
+
+            /** @var class-string<Page> $model */
+            $model = CapellCore::getModel(CoreModelEnum::Page);
+
+            return $model::getFirstPageByTypeForSite($type, site: $site, language: $language);
+        }) ?: null;
+
+        if ($fromCache && $page) {
+            resolve(ModelServingInterface::class)->track($page);
+        }
+
+        return $page;
     }
 }

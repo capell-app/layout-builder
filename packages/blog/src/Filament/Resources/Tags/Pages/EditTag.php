@@ -9,7 +9,6 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\DeleteAction;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Blog\Enums\ResourceEnum;
-use Capell\Blog\Filament\Resources\Tags\TagResource;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\EditRecord;
@@ -25,7 +24,7 @@ class EditTag extends EditRecord implements PageCacheNotifiable
     use HasPageCacheNotification;
     use Translatable;
 
-    /** @return class-string<TagResource> */
+    /** @return class-string<Capell\Blog\Filament\Resources\Tags\TagResource> */
     #[Override]
     public static function getResource(): string
     {

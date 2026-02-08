@@ -8,7 +8,6 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\CreateAction;
 use Capell\Admin\Filament\Concerns\HasSiteTableFilterTabs;
 use Capell\Blog\Enums\ResourceEnum;
-use Capell\Blog\Filament\Resources\Tags\TagResource;
 use Filament\Resources\Pages\ListRecords;
 use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
 use LaraZeus\SpatieTranslatable\Resources\Pages\ListRecords\Concerns\Translatable;
@@ -21,7 +20,7 @@ class ListTags extends ListRecords
 
     protected string $siteRelation = 'tags';
 
-    /** @return class-string<TagResource> */
+    /** @return class-string<Capell\Blog\Filament\Resources\Tags\TagResource> */
     #[Override]
     public static function getResource(): string
     {

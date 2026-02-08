@@ -42,7 +42,7 @@ it('installs blog package: creates widgets, layouts, updates containers, and see
     ]);
 
     // Ensure required widget types exist so widgets can be created
-    Type::factory()->create(['key' => WidgetTypeEnum::PageResults->value, 'type' => LayoutTypeEnum::Widget->value]);
+    Type::factory()->create(['key' => WidgetTypeEnum::Results->value, 'type' => LayoutTypeEnum::Widget->value]);
     Type::factory()->create(['key' => WidgetTypeEnum::System->value, 'type' => LayoutTypeEnum::Widget->value]);
 
     InstallPackageAction::run();

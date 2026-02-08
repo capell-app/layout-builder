@@ -60,7 +60,7 @@ class SuggestMetaDescriptionsPipeline
 
     private function executeAiCall(array $payload, callable $next): array
     {
-        /** @var AiActionContextInterface $context */
+        /** @var Capell\Assistant\Contracts\AiActionContextInterface $context */
         $context = $payload['context'];
         $prompt = $this->prompts->get('meta_description');
         $content = $context->getContent();
@@ -101,7 +101,7 @@ class SuggestMetaDescriptionsPipeline
     {
         /** @var AiResponse $response */
         $response = $payload['ai_response'] ?? null;
-        /** @var AiActionContextInterface $context */
+        /** @var Capell\Assistant\Contracts\AiActionContextInterface $context */
         $context = $payload['context'];
 
         if ($response !== null) {

@@ -60,7 +60,7 @@ $theme = Frontend::theme();
                     :muted="in_array($containerKey, $theme->secondary_containers)"
                     :image="$page->image"
                     :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
-                    :title="in_array('title', $pageContents, true) && ! (empty($widgetData['meta']['show_page_title']) && $hasPrimaryHeading) ? $page->translation->title : null"
+                    :title="in_array('title', $pageContents, true) && ! (empty($this->widgetData['meta']['show_page_title']) && $hasPrimaryHeading) ? $page->translation->title : null"
                 />
             @endif
         @endif

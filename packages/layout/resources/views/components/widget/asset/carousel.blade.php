@@ -42,8 +42,8 @@ declare(strict_types=1);
     :$widget
 >
     @if (($widget->translation && ($widget->translation->title || $widget->translation->content))
-         || ($showPageContent && $page->translation->title)
-         || ($showPageTitle && $page->translation->content))
+         || ($showPageTitle && $page->translation->title)
+         || ($showPageContent && $page->translation->content))
         <div class="container mb-8">
             <x-capell::content
                 :compact="true"
@@ -53,7 +53,8 @@ declare(strict_types=1);
                 :muted="in_array($containerKey, $theme->secondary_containers)"
                 :title="$widget->translation->title ?? ($showPageTitle ? $page->translation->title : null)"
                 :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
-                :heading-style="($widget->meta['heading_style'] ?? null) ?: $widget->type->meta['heading_style'] ?? null"
+                :heading-style="($widget->meta['heading_style'] ?? null) ?: ($widget->type->meta['heading_style'] ?? null)"
+                :heading-tag="$showPageTitle ? 'h1' : null"
             />
         </div>
     @endif

@@ -82,7 +82,7 @@ class CreateHeroWidgetAction
                 ],
             ],
             'meta' => [
-                'component' => \Capell\Layout\Enums\WidgetComponentEnum::Assets,
+                'component' => Capell\Layout\Enums\WidgetComponentEnum::Assets,
                 'additional_asset_relations' => [
                     'related.translation',
                     'related.pageUrl',

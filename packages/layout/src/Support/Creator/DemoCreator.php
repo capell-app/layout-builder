@@ -27,6 +27,7 @@ use Capell\Layout\Filament\Resources\Contents\Schemas\Types\TestimonialContentSc
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
+use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -886,8 +887,15 @@ class DemoCreator
             ],
         ];
 
+        $layout = Models\Layout::query()->default()->first();
+
+        if (! $layout instanceof Models\Layout) {
+            throw new Exception('Default layout not found');
+        }
+
         $parentPage = Page::query()->updateOrCreate([
             'site_id' => $site->id,
+            'layout_id' => $layout->id,
             'name' => 'Features',
         ], [
             'meta' => [
@@ -1158,34 +1166,51 @@ class DemoCreator
 
     private function createWidgetMedia(HasMedia $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): void
     {
-        if ($type === 'video') {
-            $ext = 'mp4';
-            $demo_path = AdminDemoCreator::getDemoResourcePath('video');
-            $filename = $name ?? 'SampleVideo_1280x720_1mb';
+        // Normalize input name and derive extension if provided
+        $inputName = in_array($name, [null, '', '0'], true) ? null : (string) $name;
+        $inputExt = $inputName !== null ? (string) pathinfo($inputName, PATHINFO_EXTENSION) : '';
+
+        // Decide base demo path and defaults per type
+        $isVideo = $type === 'video';
+        $demoPath = AdminDemoCreator::getDemoResourcePath($isVideo ? 'video' : 'img');
+
+        // Determine filename (without extension) and extension
+        $filenameBase = $inputName !== null
+            ? (string) pathinfo($inputName, PATHINFO_FILENAME)
+            : ($isVideo ? 'SampleVideo_1280x720_1mb' : null);
+
+        $ext = $inputExt !== ''
+            ? strtolower($inputExt)
+            : ($isVideo ? 'mp4' : 'jpg');
+
+        // Use video collection explicitly
+        if ($isVideo) {
             $collection = MediaCollectionEnum::Video;
-        } else {
-            $ext = 'jpg';
-            $demo_path = AdminDemoCreator::getDemoResourcePath('img');
-            $filename = in_array($name, [null, '', '0'], true) ? null : Str::slug($name);
         }
 
-        if ($filename !== null) {
-            $filename = pathinfo($filename, PATHINFO_FILENAME);
+        // Build the candidate file path
+        $demoFile = $filenameBase !== null ? sprintf('%s/%s.%s', $demoPath, $filenameBase, $ext) : '';
+
+        // Fallback handling: if no filename or file missing, choose a random demo image for images
+        if ($filenameBase === null || $demoFile === '' || ! file_exists($demoFile)) {
+            if ($isVideo) {
+                // For videos, keep original demo path and defaults; we'll still attach a poster image below
+                // Attempt video default file first
+                $filenameBase = 'SampleVideo_1280x720_1mb';
+                $ext = $inputExt !== '' ? strtolower($inputExt) : 'mp4';
+                $demoFile = sprintf('%s/%s.%s', $demoPath, $filenameBase, $ext);
+            } else {
+                // For images: pick a random demo image and set explicit jpg (demo images are jpg)
+                $demoPath = AdminDemoCreator::getDemoResourcePath('img');
+                $filenameBase = $this->getRandomDemoImage($demoPath);
+                $ext = 'jpg';
+                $demoFile = sprintf('%s/%s.%s', $demoPath, $filenameBase, $ext);
+            }
         }
 
-        $demo_file = sprintf('%s/%s.%s', $demo_path, $filename, $ext);
-
-        if (in_array($filename, ['', '0', [], null], true) || ! file_exists($demo_file)) {
-            $demo_path = AdminDemoCreator::getDemoResourcePath('img');
-
-            $filename = $this->getRandomDemoImage($demo_path);
-
-            $demo_file = sprintf('%s/%s.%s', $demo_path, $filename, $ext);
-        }
-
-        // Create content and add via WidgetAsset
+        // Create content and link via WidgetAsset
         $content = Content::create([
-            'name' => str($filename)->title(),
+            'name' => str($filenameBase)->title(),
         ]);
 
         $model->assets()->create([
@@ -1193,36 +1218,32 @@ class DemoCreator
             'asset_type' => resolve(Content::class)->getMorphClass(),
         ]);
 
+        // Attach primary media
         $image = null;
-        if ($type !== 'video') {
-            $image = Image::load($demo_file);
+        if (! $isVideo) {
+            $image = Image::load($demoFile);
         }
 
-        $content->addMedia($demo_file)
+        $content->addMedia($demoFile)
             ->preservingOriginal()
             ->withCustomProperties([
-                ...(
-                    $image instanceof Image
-                ? ['width' => $image->getWidth(), 'height' => $image->getHeight()]
-                : []
-                ),
+                ...($image instanceof Image ? ['width' => $image->getWidth(), 'height' => $image->getHeight()] : []),
             ])
             ->toMediaCollection($collection instanceof BackedEnum ? $collection->value : $collection);
 
-        if ($type === 'video') {
-            $demo_path = AdminDemoCreator::getDemoResourcePath('img');
+        // For videos, also attach a jpg poster image
+        if ($isVideo) {
+            $posterPath = AdminDemoCreator::getDemoResourcePath('img');
+            $posterBase = $this->getRandomDemoImage($posterPath);
+            $posterFile = sprintf('%s/%s.jpg', $posterPath, $posterBase);
 
-            $filename = $this->getRandomDemoImage($demo_path);
+            $posterImage = Image::load($posterFile);
 
-            $demo_file = sprintf('%s/%s.%s', $demo_path, $filename, 'jpg');
-
-            $image = Image::load($demo_file);
-
-            $content->addMedia($demo_file)
+            $content->addMedia($posterFile)
                 ->preservingOriginal()
                 ->withCustomProperties([
-                    'width' => $image->getWidth(),
-                    'height' => $image->getHeight(),
+                    'width' => $posterImage->getWidth(),
+                    'height' => $posterImage->getHeight(),
                 ])
                 ->toMediaCollection(MediaCollectionEnum::Image->value);
         }

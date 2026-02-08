@@ -78,7 +78,7 @@ class WidgetAsset extends Model implements HasMedia, PageCacheable, Userstampabl
 {
     use HasAssets;
 
-    /** @use HasFactory<WidgetAssetFactory> */
+    /** @use HasFactory<Capell\Layout\Database\Factories\WidgetAssetFactory> */
     use HasFactory;
 
     use HasJsonRelationships;

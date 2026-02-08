@@ -22,8 +22,9 @@ use Capell\Blog\Models\Tag;
 use Capell\Blog\Support\BlogModelRegistrar;
 use Capell\Blog\Support\Creator\BlogCreator;
 use Capell\Blog\Support\Loader\BlogLoader;
-use Capell\Blog\Support\Sitemap\ArchivePageSitemap;
-use Capell\Blog\Support\Sitemap\TagPageSitemap;
+use Capell\Blog\Support\Sitemap\ArchivesSitemap;
+use Capell\Blog\Support\Sitemap\ArticlesSitemap;
+use Capell\Blog\Support\Sitemap\TagsSitemap;
 use Capell\Blog\Support\StaticSite\BlogStaticSiteExtension;
 use Capell\Blog\View\Components\ArticleMeta;
 use Capell\Blog\View\Components\AssetAfterTitle;
@@ -349,8 +350,9 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
 
     private function registerSitemapPages(): self
     {
-        CapellCore::addSitemapPages('archives', ArchivePageSitemap::class);
-        CapellCore::addSitemapPages('tags', TagPageSitemap::class);
+        CapellCore::addSitemapPages('archives', ArchivesSitemap::class);
+        CapellCore::addSitemapPages('articles', ArticlesSitemap::class);
+        CapellCore::addSitemapPages('tags', TagsSitemap::class);
 
         return $this;
     }

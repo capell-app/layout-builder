@@ -23,8 +23,10 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Override;
 
 class RelatedWidgetSchema extends DefaultWidgetSchema
@@ -46,7 +48,12 @@ class RelatedWidgetSchema extends DefaultWidgetSchema
             CreateWidgetDetailsSchema::make($schema),
             WidgetTranslationsRepeater::make($schema)
                 ->contained(fn (string $operation): bool => $operation === 'create'),
-            ...WidgetSettingsSchema::make($schema),
+            Section::make(__('capell-admin::generic.settings'))
+                ->columns()
+                ->compact()
+                ->icon(Heroicon::OutlinedCog6Tooth)
+                ->collapsed()
+                ->schema(WidgetSettingsSchema::make($schema)),
         ];
     }
 
@@ -96,7 +103,7 @@ class RelatedWidgetSchema extends DefaultWidgetSchema
                                         ->default(true),
                                     CacheFrequencySelect::make('cache_frequency'),
                                 ]),
-                            ...WidgetResultsSchema::make(),
+                            ...WidgetResultsSchema::make($schema),
                         ]),
                         WidgetComponentFilesSection::make()
                             ->statePath('meta'),

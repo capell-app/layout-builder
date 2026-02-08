@@ -25,7 +25,7 @@ class CountrySelect extends Select
             ->searchable()
             ->options(
                 function (self $component): array {
-                    /** @var class-string<Country> $model */
+                    /** @var class-string<Capell\Address\Models\Country> $model */
                     $model = CapellCore::getModel(ModelEnum::Country);
 
                     return $model::query()
@@ -38,7 +38,7 @@ class CountrySelect extends Select
             )
             ->getOptionLabelUsing(
                 function (?string $value): ?string {
-                    /** @var class-string<Country> $model */
+                    /** @var class-string<Capell\Address\Models\Country> $model */
                     $model = CapellCore::getModel(ModelEnum::Country);
 
                     return $model::query()
@@ -48,7 +48,7 @@ class CountrySelect extends Select
             )
             ->getSearchResultsUsing(
                 function (self $component, string $search): array {
-                    /** @var class-string<Country> $model */
+                    /** @var class-string<Capell\Address\Models\Country> $model */
                     $model = CapellCore::getModel(ModelEnum::Country);
 
                     return $model::query()

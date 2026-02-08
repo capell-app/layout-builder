@@ -112,7 +112,7 @@ test('can edit widget', function (WidgetTypeEnum $typeEum): void {
         WidgetTypeEnum::Navigation => $typeCreator->navigationWidgetType(),
         WidgetTypeEnum::Pages => $typeCreator->pagesWidgetType(),
         WidgetTypeEnum::PageContents => $typeCreator->pageContentWidgetType(),
-        WidgetTypeEnum::PageResults => $typeCreator->pageResultsWidgetType(),
+        WidgetTypeEnum::Results => $typeCreator->resultsWidgetType(),
         WidgetTypeEnum::Assets => $typeCreator->assetsWidgetType(),
         WidgetTypeEnum::System => $typeCreator->systemWidgetType(),
         WidgetTypeEnum::ContentBuilder => $typeCreator->contentBuilderWidgetType(),

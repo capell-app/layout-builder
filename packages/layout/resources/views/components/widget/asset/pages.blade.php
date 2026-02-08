@@ -36,23 +36,29 @@ $theme = Frontend::theme();
     :index="$loop->index"
     :$widget
 >
-    @if (($widget->translation && ($widget->translation->title || $widget->translation->content))
-         || ($showPageContent && $page->translation->title)
-         || ($showPageTitle && $page->translation->content))
+    @php
+        $showTitle = empty($widget->meta['container_options'][$containerKey]['hide_title'])
+            && ($widget->translation?->title || ($showPageTitle && $page->translation->title));
+        $showContent = empty($widget->meta['container_options'][$containerKey]['hide_content'])
+            && ($widget->translation?->content || ($showPageContent && $page->translation->content));
+    @endphp
+
+    @if ($showTitle || $showContent)
         <x-capell::content
             :compact="true"
-            :content="$widget->translation->content ?? ($showPageContent ? $page->translation->content : null)"
+            :content="$showContent ? ($widget->translation->content ?: ($showPageContent ? $page->translation->content : null)) : null"
             :content-type="$widget->translation->content ? $widget->type->content_structure : ($showPageContent ? $page->type->content_structure : null)"
             :muted="in_array($containerKey, $theme->secondary_containers)"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
-            :title="$widget->translation->title ?? ($showPageTitle ? $page->translation->title : null)"
-            :heading-style="($widget->meta['heading_style'] ?? null) ?: $widget->type->meta['heading_style'] ?? null"
+            :title="$showTitle ? ($widget->translation->title ?: ($showPageTitle ? $page->translation->title : null)) : null"
+            :heading-style="($widget->meta['heading_style'] ?? null) ?: ($widget->type->meta['heading_style'] ?? null)"
+            :heading-tag="$showPageTitle ? 'h1' : null"
         />
     @endif
 
     @if (! $pages || $pages->isEmpty())
         <x-capell::no-results>
-            {{ __('capell-layout::generic.no_pages_found') }}
+            {!! isset($widget->translation->meta['no_results']) && $widget->translation->meta['no_results'] !== '' ? $widget->translation->meta['no_results'] : __('capell-layout::messages.no_pages_found') !!}
         </x-capell::no-results>
     @else
         <div

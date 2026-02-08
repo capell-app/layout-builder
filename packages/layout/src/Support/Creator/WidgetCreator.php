@@ -42,20 +42,20 @@ class WidgetCreator
         $mediaWidgetType = $typeCreator->mediaWidgetType();
         $navigationWidgetType = $typeCreator->navigationWidgetType();
         $pageContentWidgetType = $typeCreator->pageContentWidgetType();
-        $pageResultsWidgetType = $typeCreator->pageResultsWidgetType();
+        $resultsWidgetType = $typeCreator->resultsWidgetType();
         $pagesWidgetType = $typeCreator->pagesWidgetType();
         $systemWidgetType = $typeCreator->systemWidgetType();
 
         $this->breadcrumbWidget($systemWidgetType);
-        $this->childrenWidget($pageResultsWidgetType, $languages);
+        $this->childrenWidget($resultsWidgetType, $languages);
         $this->assetsWidget($contentsWidgetType);
         $this->galleryWidget($mediaWidgetType, $languages);
-        $this->latestPagesWidget($pageResultsWidgetType, $languages);
+        $this->latestPagesWidget($resultsWidgetType, $languages);
         $this->mediaCarouselWidget($mediaWidgetType);
         $this->pageContentWidget($pageContentWidgetType);
         $this->pageSlotWidget($systemWidgetType);
         $this->pagesCardWidget($pagesWidgetType);
-        $this->siblingsWidget($pageResultsWidgetType, $languages);
+        $this->siblingsWidget($resultsWidgetType, $languages);
 
         if ($extraWidgets) {
             $this->defaultWidget($defaultWidgetType);
@@ -91,7 +91,7 @@ class WidgetCreator
         $model = CapellCore::getModel(CoreModelEnum::Language);
 
         $languages ??= $model::query()->get();
-        $type ??= resolve(TypeCreator::class)->pageResultsWidgetType();
+        $type ??= resolve(TypeCreator::class)->resultsWidgetType();
 
         $widget = $this->widgetModel::query()->firstOrCreate([
             'key' => 'children',
@@ -183,7 +183,7 @@ class WidgetCreator
         $model = CapellCore::getModel(CoreModelEnum::Language);
 
         $languages ??= $model::query()->get();
-        $type ??= resolve(TypeCreator::class)->pageResultsWidgetType();
+        $type ??= resolve(TypeCreator::class)->resultsWidgetType();
 
         $widget = $this->widgetModel::query()->firstOrCreate([
             'key' => 'latest-pages',
@@ -298,7 +298,7 @@ class WidgetCreator
         $model = CapellCore::getModel(CoreModelEnum::Language);
 
         $languages ??= $model::query()->get();
-        $type ??= resolve(TypeCreator::class)->pageResultsWidgetType();
+        $type ??= resolve(TypeCreator::class)->resultsWidgetType();
 
         $widget = $this->widgetModel::query()->firstOrCreate([
             'key' => 'siblings',

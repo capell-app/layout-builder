@@ -15,16 +15,10 @@ use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\SystemWidgetSchema;
 enum WidgetSchemaEnum: string
 {
     case Default = DefaultWidgetSchema::class;
-
-    case Navigation = NavigationWidgetSchema::class;
-
-    case PageContent = PageContentWidgetSchema::class;
-
-    case Carousel = CarouselWidgetSchema::class;
-
     case Assets = AssetsWidgetSchema::class;
-
+    case Carousel = CarouselWidgetSchema::class;
+    case Navigation = NavigationWidgetSchema::class;
+    case PageContent = PageContentWidgetSchema::class;
     case Results = ResultsWidgetSchema::class;
-
     case System = SystemWidgetSchema::class;
 }
