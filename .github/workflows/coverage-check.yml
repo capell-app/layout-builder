@@ -15,6 +15,8 @@ jobs:
         php: [8.4]
         laravel: [11.*]
         db: [sqlite]
+    env:
+      COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.ACCESS_TOKEN }}"} }'
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
