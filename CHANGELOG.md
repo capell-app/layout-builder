@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.0.4 - 2025-12-12
+
+### What's Changed
+
+* Refactor Blade Components and Service Loaders to Use Frontend Facade and Improve Model Tracking   by @howdu in https://github.com/capell-app/packages/pull/22
+
+**Full Changelog**: https://github.com/capell-app/packages/compare/v2.0.3...v2.0.4
+
 ## v2.0.3 - 2025-12-07
 
 ### What's Changed
