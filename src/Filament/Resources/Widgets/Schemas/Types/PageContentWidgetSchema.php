@@ -9,7 +9,7 @@ use Capell\Admin\Contracts\TypeSchemaInterface;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Concerns\HasTypeSchema;
 use Capell\Layout\Enums\SchemaExtenderEnum;
-use Capell\Layout\Enums\SchemaTypeEnum;
+use Capell\Layout\Enums\TypeSchemaEnum;
 use Capell\Layout\Filament\Components\Forms\HeadingSizeSelect;
 use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
@@ -19,7 +19,6 @@ use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -28,7 +27,7 @@ class PageContentWidgetSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    public static SchemaTypeEnumInterface $schemaType = SchemaTypeEnum::Widget;
+    public static SchemaTypeEnumInterface $schemaType = TypeSchemaEnum::Widget;
 
     public static function getExtenders(): iterable
     {
@@ -49,8 +48,8 @@ class PageContentWidgetSchema implements TypeSchemaInterface
             ->columnSpanFull()
             ->tabs([
                 WidgetDisplayTab::make([
-                    Group::make()
-                        ->columns()
+                    Grid::make()
+                        ->columnSpanFull()
                         ->schema([
                             Grid::make()
                                 ->statePath('meta')

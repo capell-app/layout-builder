@@ -5,112 +5,114 @@ declare(strict_types=1);
 ?>
 
 @props([
-'containerKey',
-'description' => null,
-'index',
-'image' => null,
-'meta' => [],
-'name' => null,
-'occurrence',
-'pageId' => $this->page_id,
-'widget',
-'widgetAsset',
-'widgetIndex',
+    'containerKey',
+    'description' => null,
+    'index',
+    'image' => null,
+    'meta' => [],
+    'name' => null,
+    'occurrence',
+    'pageId' => $this->page_id,
+    'widget',
+    'widgetAsset',
+    'widgetIndex',
 ])
+{{-- format-ignore-start --}}
 @php
     use Capell\Admin\Facades\CapellAdmin;
-                use Capell\Core\Actions\GetResourceFromTypeAction;
-                use Capell\Core\Enums\ModelEnum;
-                use Capell\Core\Facades\CapellCore;
-                use Capell\Core\Models\Page;
-                use Capell\Layout\Models\Content;
-                use Filament\Actions\Action;
-                use Filament\Support\Contracts\ScalableIcon;
-                use Filament\Support\Enums\IconSize;
-                use Filament\Support\Enums\Size;
-                use Illuminate\Database\Eloquent\Model;
-                use Illuminate\Support\Str;
-                use Spatie\MediaLibrary\MediaCollections\Models\Media;
+    use Capell\Core\Actions\GetResourceFromTypeAction;
+    use Capell\Core\Enums\ModelEnum;
+    use Capell\Core\Facades\CapellCore;
+    use Capell\Core\Models\Page;
+    use Capell\Core\Models\Site;use Capell\Layout\Models\Content;
+    use Filament\Actions\Action;
+    use Filament\Support\Contracts\ScalableIcon;
+    use Filament\Support\Enums\IconSize;
+    use Filament\Support\Enums\Size;
+    use Illuminate\Database\Eloquent\Model;
+    use Illuminate\Support\Str;
+    use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-                /** @var Action $editWidgetAssetAction */
-                $editWidgetAssetAction = ($this->editWidgetAssetAction)([
-                    'containerKey' => $containerKey,
-                    'widgetIndex' => $widgetIndex,
-                    'index' => $index,
-                    'type' => $widgetAsset->asset_type,
-                ]);
+    /** @var Action $editWidgetAssetAction */
+    $editWidgetAssetAction = ($this->editWidgetAssetAction)([
+        'containerKey' => $containerKey,
+        'widgetIndex' => $widgetIndex,
+        'index' => $index,
+        'type' => $widgetAsset->asset_type,
+    ]);
 
-                /** @var Model $asset */
-                $asset = $widgetAsset->asset;
+    if (! $widgetAsset->asset) {
+        throw new \RuntimeException("Asset of type [{$widgetAsset->asset_type}] with ID [{$widgetAsset->asset_id}] not found.");
+    }
 
-                if (! $asset?->getKey()) {
-                    throw new \RuntimeException("Asset of type [{$widgetAsset->asset_type}] with ID [{$widgetAsset->asset_id}] not found.");
-                }
+    $assetKey = "{$widgetAsset->asset_type}.{$widgetAsset->asset_id}";
 
-                $assetKey = "{$widgetAsset->asset_type}.{$widgetAsset->asset_id}";
+    if (! $image) {
+        $image = match (get_class($widgetAsset->asset)) {
+            Page::class, Content::class => $widgetAsset->asset->image,
+            Media::class => $widgetAsset->asset,
+            default => null,
+        };
+    }
 
-                if (! $image) {
-                    $image = match (get_class($asset)) {
-                        Page::class, Content::class => $asset->image,
-                        Media::class => $asset,
-                        default => null,
-                    };
-                }
+    $mediaCount = match (get_class($widgetAsset->asset)) {
+        Content::class => $widgetAsset->asset->media->count(),
+        default => null,
+    };
 
-                $mediaCount = match (get_class($asset)) {
-                    Content::class => $asset->media->count(),
-                    default => null,
-                };
+    $relatedCount = match (get_class($widgetAsset->asset)) {
+        Content::class => $widgetAsset->asset->related->count(),
+        default => null,
+    };
 
-                $relatedCount = match (get_class($asset)) {
-                    Content::class => $asset->related->count(),
-                    default => null,
-                };
+    $actionsCount = match (get_class($widgetAsset->asset)) {
+        Content::class => count($widgetAsset->asset->actions),
+        default => null,
+    };
 
-                $actionsCount = match (get_class($asset)) {
-                    Content::class => count($asset->actions),
-                    default => null,
-                };
+    $label = '';
 
-                $label = '';
+    if (! $name) {
+        $name = $widgetAsset->asset->name;
+    }
 
-                if (! $name) {
-                    $name = $asset->name;
-                }
+    $label .= $name;
 
-                $label .= $name;
+    if (! $description) {
+        $description = '';
 
-                if (! $description) {
-                    $description = '';
+        if ($widgetAsset->asset->ancestors?->isNotEmpty()) {
+            $description .= $widgetAsset->asset->ancestors->pluck('name')
+                ->map(fn ($item) => Str::limit($item, 30))
+                ->implode(' &raquo; ');
+        }
 
-                    if ($asset->ancestors?->isNotEmpty()) {
-                        $description .= $asset->ancestors->pluck('name')
-                            ->map(fn ($item) => Str::limit($item, 30))
-                            ->implode(' &raquo; ');
-                    }
+        $description .= match (get_class($widgetAsset->asset)) {
+            Page::class, Content::class => $widgetAsset->asset->translation?->title &&
+            $widgetAsset->asset->translation->title !== $widgetAsset->asset->name
+                ? $widgetAsset->asset->translation->title
+                : null,
+            default => null,
+        };
+    }
 
-                    $description .= match (get_class($asset)) {
-                        Page::class, Content::class => $asset->translation?->title &&
-                        $asset->translation->title !== $asset->name
-                            ? $asset->translation->title
-                            : null,
-                        default => null,
-                    };
-                }
+    /** @var class-string<Site> $model */
+    $model = CapellCore::getModel(ModelEnum::Site);
 
-                if (CapellCore::getModel(ModelEnum::Site)::totalSites() > 1) {
-                    if ($asset->hasAttribute('site_id') && $asset->site_id) {
-                        $description = $asset->site?->name . ($description ? ' - ' . $description : '');
-                    }
-                }
+    if ($model::totalSites() > 1) {
+        if ($widgetAsset->asset->hasAttribute('site_id') && $widgetAsset->asset->site_id) {
+            $description = $widgetAsset->asset->site?->name . ($description ? ' - ' . $description : '');
+        }
+    }
 
-                $icon = $editWidgetAssetAction->getIcon();
-                if ($icon instanceof ScalableIcon) {
-                    $icon = $icon->getIconForSize(IconSize::Small);
-                } elseif ($icon instanceof BackedEnum) {
-                    $icon = $icon->value;
-                }
+    $icon = $editWidgetAssetAction->getIcon();
+    if ($icon instanceof ScalableIcon) {
+        $icon = $icon->getIconForSize(IconSize::Small);
+    } elseif ($icon instanceof BackedEnum) {
+        $icon = $icon->value;
+    }
 @endphp
+{{-- format-ignore-end --}}
 
 <div
     x-sort:item="{{ $index }}"
@@ -157,8 +159,8 @@ declare(strict_types=1);
 
         <div
             @class([
-            'group/asset flex w-full cursor-pointer items-center gap-x-4',
-            'lg:!grid lg:grid-cols-4 lg:gap-4' => $image,
+                'group/asset flex w-full cursor-pointer items-center gap-x-4',
+                'lg:!grid lg:grid-cols-4 lg:gap-4' => $image,
             ])
         >
             <div @class(['py-2.5', 'lg:col-span-3' => $image])>
@@ -168,10 +170,10 @@ declare(strict_types=1);
                     {!! $label !!}
 
                     @svg($icon,
-                    [
-                    'class' => 'group-hover/asset:text-primary-500 dark:group-hover/asset:text-primary-400 inline h-4 w-4 align-text-bottom text-gray-400 dark:text-gray-500',
-                    'x-tooltip.raw' => $editWidgetAssetAction->getTooltip(),
-                    ])
+                        [
+                            'class' => 'group-hover/asset:text-primary-500 dark:group-hover/asset:text-primary-400 inline h-4 w-4 align-text-bottom text-gray-400 dark:text-gray-500',
+                            'x-tooltip.raw' => $editWidgetAssetAction->getTooltip(),
+                        ])
                 </div>
 
                 @if (! empty($description) && ! $description !== $name)
@@ -260,7 +262,7 @@ declare(strict_types=1);
 
             <x-filament::dropdown.list>
                 @php
-                    $resource = GetResourceFromTypeAction::run(ucfirst($widgetAsset->asset_type), $asset->type);
+                    $resource = GetResourceFromTypeAction::run(ucfirst($widgetAsset->asset_type), $widgetAsset->asset->type);
                 @endphp
 
                 @if ($resource)
@@ -268,7 +270,7 @@ declare(strict_types=1);
                         icon="heroicon-o-arrow-top-right-on-square"
                         target="_blank"
                         tag="a"
-                        :href="$resource::getUrl('edit', ['record' => $asset->getKey()])"
+                        :href="$resource::getUrl('edit', ['record' => $widgetAsset->asset->getKey()])"
                     >
                         {{ __('capell-layout::button.edit_asset_type', ['type' => $widgetAsset->asset_type]) }}
                     </x-filament::dropdown.list.item>

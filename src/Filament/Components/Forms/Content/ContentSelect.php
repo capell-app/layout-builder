@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms\Content;
 
-use Capell\Admin\Actions\ModifyCreateAction;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\HintEditAction;
 use Capell\Admin\Filament\Concerns\HasCustomSelectOption;
@@ -54,7 +53,7 @@ class ContentSelect extends Select
                     search: $search,
                 );
             })
-            ->getOptionLabelUsing(fn (self $component, $value): ?string => Content::query()->find($value, ['name'])?->name)
+            ->getOptionLabelUsing(fn (self $component, ?int $value): ?string => Content::query()->find($value, ['name'])?->name)
             ->options(fn (self $component): array => $component->getContentOptions());
     }
 
@@ -93,7 +92,7 @@ class ContentSelect extends Select
         $createOptionUsing = $this->getCreateOptionUsing();
 
         return $this->createOptionAction(
-            fn (Action $action): Action => ModifyCreateAction::run($action)
+            fn (Action $action): Action => $this->modifyCreateAction($action)
                 ->fillForm(fn (): array => in_array($adminAsset->defaultDataAction, [null, '', '0'], true) ? [] : $adminAsset->defaultDataAction::run()),
         )
             ->createOptionForm(
@@ -165,7 +164,7 @@ class ContentSelect extends Select
             fn ($state, $operation): HintEditAction => HintEditAction::make('edit-content')
                 ->visible(fn (): bool => $operation !== 'create' && filled($state))
                 ->url(function () use ($state): string {
-                    if (! $state) {
+                    if ($state === []) {
                         return '';
                     }
 
@@ -222,7 +221,7 @@ class ContentSelect extends Select
             )
             ->when(
                 $contentType,
-                fn (Builder $query) => $query->whereHas('type', fn (BuilderContract $query) => $query->where('key', $contentType)),
+                fn (Builder $query) => $query->whereHas('type', fn (BuilderContract $query): BuilderContract => $query->where('key', $contentType)),
             )
             ->when(
                 $site_id,
@@ -232,7 +231,7 @@ class ContentSelect extends Select
                 $parentContentType,
                 fn (Builder $query) => $query->whereHas(
                     'parent.type',
-                    fn (BuilderContract $query) => $query->where('key', $parentContentType),
+                    fn (BuilderContract $query): BuilderContract => $query->where('key', $parentContentType),
                 ),
             )
             ->when(
@@ -249,5 +248,21 @@ class ContentSelect extends Select
             fn (Content $content): array => [$content->getKey() => $this->getContentOptionLabel($content, $site_id)],
         )
             ->toArray();
+    }
+
+    private function modifyCreateAction(Action $action): Action
+    {
+        return $action->slideOver()
+            ->modalWidth(Width::ScreenLarge)
+            ->closeModalByClickingAway(false)
+            ->successNotificationTitle(
+                fn (Action $action): string => __(
+                    'capell-admin::notification.created_successfully',
+                    ['name' => $action->getModalHeading()],
+                ),
+            )
+            ->after(function (Action $action): void {
+                $action->success();
+            });
     }
 }

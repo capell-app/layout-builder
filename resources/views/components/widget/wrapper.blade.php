@@ -6,10 +6,10 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Enums\DefaultColorEnum;
-        use Capell\Frontend\Facades\Frontend;
-        use Capell\Layout\Enums\ContainerWidthEnum;
+            use Capell\Frontend\Facades\Frontend;
+            use Capell\Layout\Enums\ContainerWidthEnum;
 
-        $theme = Frontend::theme();
+            $theme = Frontend::theme();
 @endphp
 
 @props([
@@ -41,7 +41,8 @@ declare(strict_types=1);
 ])
 <{{ $tag }}
     id="{{ $containerKey . '-' . $widget->key . "-{$index}" }}"
-    {{ $attributes->class([
+    {{
+        $attributes->class([
         '@container widget widget-' . $widget->key,
         $class => $class !== 'widget-' . $widget->key,
         $containerClass => $containerWidth === 'full',
@@ -95,7 +96,8 @@ declare(strict_types=1);
         'bg-fixed' => $backgroundAttachment === 'fixed' && $backgroundImage,
         'bg-scroll' => $backgroundAttachment === 'scroll' && $backgroundImage,
         'relative overflow-hidden' => $backgroundOverlay,
-        ]) }}
+        ])
+    }}
     @if ($backgroundColor && ! $isDefaultColor || $backgroundImage)
         style="{{ $backgroundColor && ! $isDefaultColor ? 'background-color:' . $backgroundColor . ';' : '' }}{{ $backgroundImage ? 'background-image:url(' . $backgroundImage->getAvailableUrl(['large']) . ');' : '' }}"
     @endif

@@ -12,7 +12,7 @@ use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Admin\Filament\Concerns\HasTypeRelationManagers;
 use Capell\Layout\Actions\ReplicateContentAction;
 use Capell\Layout\Enums\ResourceEnum;
-use Capell\Layout\Filament\Actions\CreateContentModalAction;
+use Capell\Layout\Filament\Actions\CreateContentAction;
 use Capell\Layout\Filament\Resources\Contents\ContentResource;
 use Capell\Layout\Filament\Resources\Contents\Widgets\ContentAlertsWidget;
 use Capell\Layout\Models\Content;
@@ -26,7 +26,6 @@ use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Override;
-use Rmsramos\Activitylog\Actions\ActivityLogTimelineSimpleAction;
 
 /**
  * @property Content $record
@@ -89,12 +88,11 @@ class EditContent extends EditRecord
             DeleteAction::make(),
             ForceDeleteAction::make(),
             ActionGroup::make([
-                CreateContentModalAction::make()
+                CreateContentAction::make()
                     ->redirectAfterCreate(),
                 ReplicateAction::make()
                     ->replicaModelAction(ReplicateContentAction::class)
                     ->hidden($this->record->trashed()),
-                ActivityLogTimelineSimpleAction::make(),
             ]),
         ];
     }

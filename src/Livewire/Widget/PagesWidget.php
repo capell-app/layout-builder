@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Livewire\Widget;
 
 use Capell\Frontend\Facades\Frontend;
-use Capell\Frontend\Services\Loader\PageLoader;
+use Capell\Frontend\Support\Loader\PageLoader;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -15,7 +15,7 @@ class PagesWidget extends AbstractWidget
 {
     use WithPagination;
 
-    protected static string $defaultView = 'capell-layout::components.widget.page.pages';
+    protected static string $defaultView = 'capell-layout::components.widget.asset.pages';
 
     protected Collection|LengthAwarePaginator $pages;
 
@@ -33,7 +33,7 @@ class PagesWidget extends AbstractWidget
         $limit = $this->widget->meta['limit'] ?? config('capell-frontend.pagination_limit', 12);
 
         $paginationKey = $this->containerKey . ucfirst((string) $this->widget->key) . $this->occurrence;
-        $paginationPage = $this->getPage($paginationKey);
+        $paginationPage = (int) $this->getPage($paginationKey);
 
         $selection = $this->widget->assets->pluck('asset_id')->toArray();
 
@@ -58,7 +58,7 @@ class PagesWidget extends AbstractWidget
             ),
         );
 
-        if ($this->pages->isEmpty() && config('capell-layout.widget.hide_empty')) {
+        if ($this->pages->isEmpty() && config('capell-layout.widget.skip_render_empty', true)) {
             $this->skipRender = true;
         }
     }

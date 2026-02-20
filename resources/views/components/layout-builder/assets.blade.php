@@ -7,18 +7,18 @@ declare(strict_types=1);
 @props(['containerKey', 'hasPageAssets', 'occurrence', 'widget', 'widgetIndex'])
 @php
     use Capell\Core\Facades\CapellCore;
-            use Capell\Layout\Models\WidgetAsset;
-            use Filament\Support\Enums\FontWeight;
-            use Filament\Support\Enums\IconPosition;
-            use Filament\Support\Enums\IconSize;
-            use Filament\Support\Enums\Size;
+                use Capell\Layout\Models\WidgetAsset;
+                use Filament\Support\Enums\FontWeight;
+                use Filament\Support\Enums\IconPosition;
+                use Filament\Support\Enums\IconSize;
+                use Filament\Support\Enums\Size;
 
-            $assetsCount = $widget->assets?->count() ?? 0;
+                $assetsCount = $widget->assets?->count() ?? 0;
 
-            $removeAssetsAction = ($this->removeAssetsAction)([
-                'containerKey' => $containerKey,
-                'widgetIndex' => $widgetIndex,
-            ]);
+                $removeAssetsAction = ($this->removeAssetsAction)([
+                    'containerKey' => $containerKey,
+                    'widgetIndex' => $widgetIndex,
+                ]);
 @endphp
 
 <div

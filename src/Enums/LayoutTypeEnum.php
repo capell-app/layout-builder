@@ -6,7 +6,7 @@ namespace Capell\Layout\Enums;
 
 use Capell\Layout\Filament\Resources\Contents\ContentResource;
 use Capell\Layout\Filament\Resources\Widgets\WidgetResource;
-use Capell\Layout\Services\Creator\TypeCreator;
+use Capell\Layout\Support\Creator\TypeCreator;
 
 enum LayoutTypeEnum: string
 {

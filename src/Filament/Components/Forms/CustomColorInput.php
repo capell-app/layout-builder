@@ -68,7 +68,6 @@ class CustomColorInput
                     ->hiddenLabel()
                     ->placeholder(__('capell-admin::generic.custom'))
                     ->dehydrated(false)
-                    ->autoFormat()
                     ->visible(function (Get $get, $livewire, $state) use ($name, $options): bool {
                         if ($get($name) !== 'custom') {
                             return false;
@@ -83,7 +82,8 @@ class CustomColorInput
                         }
 
                         return ! in_array($get($name), $options, true);
-                    }),
+                    })
+                    ->autoFormat(),
             ]);
     }
 }

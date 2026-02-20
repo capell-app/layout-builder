@@ -28,7 +28,7 @@ class CarouselWidgetSchema extends AssetsWidgetSchema
                 ->columns(['default' => 2, 'xl' => 3])
                 ->schema(CarouselSettingsSchema::make()),
             WidgetDisplaySection::make([
-                ColorSchemeComponent::make('color_scheme'),
+                ColorSchemeComponent::make('color'),
             ]),
             WidgetComponentFilesSection::make()
                 ->statePath('meta'),

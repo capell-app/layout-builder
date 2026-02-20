@@ -8,7 +8,7 @@ use Capell\Admin\Contracts\SchemaTypeEnumInterface;
 use Capell\Admin\Contracts\TypeSchemaInterface;
 use Capell\Admin\Filament\Concerns\HasTypeSchema;
 use Capell\Layout\Enums\SchemaExtenderEnum;
-use Capell\Layout\Enums\SchemaTypeEnum;
+use Capell\Layout\Enums\TypeSchemaEnum;
 use Capell\Layout\Filament\Components\Forms\BackgroundSchema;
 use Capell\Layout\Filament\Components\Forms\ColumnInput;
 use Capell\Layout\Filament\Components\Forms\ContainerWidthSelect;
@@ -21,12 +21,13 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 
 class DefaultLayoutContainerSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    public static SchemaTypeEnumInterface $schemaType = SchemaTypeEnum::LayoutContainer;
+    public static SchemaTypeEnumInterface $schemaType = TypeSchemaEnum::LayoutContainer;
 
     public static function getExtenders(): iterable
     {
@@ -39,6 +40,7 @@ class DefaultLayoutContainerSchema implements TypeSchemaInterface
             Section::make(__('capell-admin::generic.settings'))
                 ->statePath('meta')
                 ->collapsed()
+                ->icon(Heroicon::OutlinedCog6Tooth)
                 ->columnSpanFull()
                 ->columns(['sm' => 2, 'md' => 3])
                 ->schema([

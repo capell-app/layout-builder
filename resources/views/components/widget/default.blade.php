@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use Capell\Frontend\Facades\Frontend;
+
+$theme = Frontend::theme();
+
 ?>
 
 @props([
@@ -18,10 +22,6 @@ declare(strict_types=1);
     'containerWidth' => null,
     'widget',
 ])
-
-@php
-    $hasImage = $widget->meta['image_id'] ?? false && $widget->image;
-@endphp
 
 <x-capell-layout::widget.wrapper
     class="widget-default"
@@ -41,7 +41,7 @@ declare(strict_types=1);
     <div
         @class([
             '@container flex-1',
-            'my-auto py-4' => $hasImage,
+            'my-auto py-4' => $widget->image,
         ])
     >
         @if ($content || $title)
@@ -49,9 +49,10 @@ declare(strict_types=1);
                 class="mb-2"
                 :compact="true"
                 :content="$content"
-                :contents="$content ? null : $widget->translation?->content"
+                :content-type="$widget->type->content_structure"
                 :heading-size="$headingSize"
-                :presenter="$widget->type->meta['content_presenter'] ?? null"
+                :muted="in_array($containerKey, $theme->secondary_containers)"
+                :heading-style="($widget->meta['heading_style'] ?? null) ?: $widget->type->meta['heading_style'] ?? null"
                 :title="$title"
                 :text-align="$align"
             />
@@ -66,7 +67,7 @@ declare(strict_types=1);
         @endif
     </div>
 
-    @if ($hasImage)
+    @if ($widget->image)
         <div
             @class([
                 match ($style) {

@@ -23,7 +23,7 @@ class SiteTreeRebuilt implements EventSubscriber
             return;
         }
 
-        if ($context instanceof AdminTools && $context->siteTree('content')) {
+        if ($context instanceof AdminTools && $context->siteTree()) {
             Notification::make('content_tree')
                 ->status('warning')
                 ->title(__('capell-layout::generic.fixed_content_tree'))

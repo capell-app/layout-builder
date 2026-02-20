@@ -6,9 +6,9 @@ declare(strict_types=1);
 
 @php
     $fieldWrapperView = $getFieldWrapperView();
-    $statePath = $getStatePath();
-    $state = $getState();
-    $key = $getKey();
+        $statePath = $getStatePath();
+        $state = $getState();
+        $key = $getKey();
 @endphp
 
 <x-dynamic-component

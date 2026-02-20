@@ -8,16 +8,15 @@ use Capell\Admin\Contracts\SchemaTypeEnumInterface;
 use Capell\Admin\Contracts\TypeSchemaInterface;
 use Capell\Admin\Filament\Concerns\HasTypeSchema;
 use Capell\Layout\Enums\SchemaExtenderEnum;
-use Capell\Layout\Enums\SchemaTypeEnum;
+use Capell\Layout\Enums\TypeSchemaEnum;
 use Capell\Layout\Filament\Components\Forms\HtmlClassInput;
-use Filament\Forms\Components\Checkbox;
 use Filament\Schemas\Schema;
 
 class DefaultLayoutWidgetSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    public static SchemaTypeEnumInterface $schemaType = SchemaTypeEnum::LayoutWidget;
+    public static SchemaTypeEnumInterface $schemaType = TypeSchemaEnum::LayoutWidget;
 
     public static function getExtenders(): iterable
     {
@@ -27,12 +26,6 @@ class DefaultLayoutWidgetSchema implements TypeSchemaInterface
     public function make(Schema $schema): array
     {
         return [
-            Checkbox::make('show_page_title')
-                ->label(__('capell-layout::form.show_page_title'))
-                ->helperText(__('capell-admin::generic.show_page_title_info')),
-            Checkbox::make('show_page_content')
-                ->label(__('capell-layout::form.show_page_content'))
-                ->helperText(__('capell-admin::generic.show_page_content_info')),
             HtmlClassInput::make('html_class'),
         ];
     }

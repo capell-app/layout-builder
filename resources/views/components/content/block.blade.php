@@ -5,32 +5,33 @@ declare(strict_types=1);
 ?>
 
 @props([
-    'color' => null,
-    'icon' => null,
-    'image' => null,
-    'linkText' => null,
-    'loop' => null,
-    'meta' => [],
-    'summary',
-    'tags' => null,
-    'title',
-    'url' => null,
+'color' => null,
+'icon' => null,
+'image' => null,
+'linkText' => null,
+'loop' => null,
+'meta' => [],
+'summary',
+'tags' => null,
+'title',
+'url' => null,
 ])
 <div
     @class([
-        'md:p-y-16 flex flex-col items-center space-y-6 p-10 text-center',
-        match ($color) {
-            'danger' => 'bg-danger text-white',
-            'dark-gray' => 'bg-dark-gray text-white',
-            'gray' => 'bg-gray text-white',
-            'info' => 'bg-info text-white',
-            'light-gray' => 'bg-light-gray text-gray-900',
-            'primary' => 'bg-primary text-white',
-            'secondary' => 'bg-secondary text-white',
-            'success' => 'bg-success text-white',
-            'warning' => 'bg-warning text-white',
-            'white' => 'bg-white text-gray-900',
-        },
+    'md:p-y-16 flex flex-col items-center space-y-6 p-10 text-center',
+    match ($color) {
+    'danger' => 'bg-danger text-white',
+    'dark-gray' => 'bg-dark-gray text-white',
+    'gray' => 'bg-gray text-white',
+    'info' => 'bg-info text-white',
+    'light-gray' => 'bg-light-gray text-gray-900',
+    'primary' => 'bg-primary text-white',
+    'secondary' => 'bg-secondary text-white',
+    'success' => 'bg-success text-white',
+    'warning' => 'bg-warning text-white',
+    default => 'bg-white text-gray-900',
+    },
+    $attributes->get('class')
     ])
 >
     {{ $color }}

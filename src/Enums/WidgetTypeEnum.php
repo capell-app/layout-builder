@@ -20,7 +20,7 @@ enum WidgetTypeEnum: string
 
     case PageContents = 'page-content';
 
-    case PageResults = 'page-results';
+    case Results = 'results';
 
     case Pages = 'pages';
 

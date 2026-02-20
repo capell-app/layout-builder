@@ -11,7 +11,7 @@ use Capell\Admin\Filament\Actions\ReplicateAction;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Admin\Filament\Concerns\HasTypeRelationManagers;
 use Capell\Layout\Enums\ResourceEnum;
-use Capell\Layout\Filament\Actions\CreateWidgetModalAction;
+use Capell\Layout\Filament\Actions\CreateWidgetAction;
 use Capell\Layout\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager;
 use Capell\Layout\Filament\Resources\Widgets\WidgetResource;
 use Capell\Layout\Models\Widget;
@@ -23,7 +23,6 @@ use Howdu\FilamentRecordSwitcher\Filament\Concerns\HasRecordSwitcher;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
-use Rmsramos\Activitylog\Actions\ActivityLogTimelineSimpleAction;
 
 /**
  * @property Widget $record
@@ -113,11 +112,10 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
             DeleteAction::make(),
             ForceDeleteAction::make(),
             ActionGroup::make([
-                CreateWidgetModalAction::make()
+                CreateWidgetAction::make()
                     ->redirectAfterCreate(),
                 ReplicateAction::make()
                     ->hidden($this->record->trashed()),
-                ActivityLogTimelineSimpleAction::make(),
             ]),
         ];
     }

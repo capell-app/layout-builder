@@ -6,10 +6,11 @@ namespace Capell\Layout\Filament\Components\Forms\Widget;
 
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
 
 class WidgetResultsSchema
 {
-    public static function make(): array
+    public static function make(Schema $schema): array
     {
         return [
             Checkbox::make('with_author')
@@ -26,6 +27,7 @@ class WidgetResultsSchema
                 ->label(__('capell-admin::form.link_text')),
             Checkbox::make('with_parent')
                 ->label(__('capell-admin::form.parent_page')),
+            ...WidgetResultsOverrideSchema::make($schema),
             TextInput::make('columns')
                 ->label(__('capell-layout::form.columns'))
                 ->numeric()

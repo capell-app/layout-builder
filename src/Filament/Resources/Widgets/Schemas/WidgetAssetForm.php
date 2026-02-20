@@ -6,7 +6,7 @@ namespace Capell\Layout\Filament\Resources\Widgets\Schemas;
 
 use Capell\Admin\Filament\Components\Forms\Type\TypeSchema;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
-use Capell\Layout\Enums\SchemaTypeEnum;
+use Capell\Layout\Enums\TypeSchemaEnum;
 use Capell\Layout\Enums\WidgetAssetSchemaEnum;
 use Capell\Layout\Models\WidgetAsset;
 use Filament\Schemas\Components\Utilities\Get;
@@ -45,7 +45,7 @@ class WidgetAssetForm implements FormConfigurator
                         $adminSchema = WidgetAssetSchemaEnum::fromName(ucfirst($assetType))->value::getKey();
                     }
 
-                    return $component->getTypeSchema($schema, SchemaTypeEnum::WidgetAsset, name: $adminSchema);
+                    return $component->getTypeSchema($schema, TypeSchemaEnum::WidgetAsset, name: $adminSchema);
                 }),
         ];
     }

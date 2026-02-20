@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Components\Forms;
 
 use Capell\Admin\Filament\Components\Forms\IconPicker;
-use Capell\Admin\Filament\Components\Forms\Page\PageSelect;
+use Capell\Admin\Filament\Components\Forms\PageSelect;
 use Capell\Admin\Filament\Components\Forms\Site\SiteSelect;
 use Capell\Core\Models\Page;
 use Filament\Forms\Components\Radio;

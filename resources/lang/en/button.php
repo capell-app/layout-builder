@@ -24,6 +24,7 @@ return [
     'duplicate_widget' => 'Duplicate Widget',
     'edit_asset_type' => 'Edit Asset Type: :type',
     'edit_container' => 'Edit Container',
+    'edit_layout_widget' => 'Edit Layout Widget',
     'edit_widget' => 'Edit Widget',
     'expand' => 'Expand',
     'expand_all' => 'Expand All',

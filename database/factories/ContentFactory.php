@@ -32,9 +32,8 @@ class ContentFactory extends Factory
             'parent_id' => null,
             'type_id' => (new ContentTypeFactory),
             'site_id' => null,
-            'meta' => fn (array $attributes): array => [
+            'meta' => [
                 'label' => fake()->optional()->sentence(),
-                'page_id' => fake()->optional() && $attributes['site_id'] ? Page::query()->where('site_id', $attributes['site_id'])->inRandomOrder()->first()?->getKey() : null,
             ],
             'order' => fake()->numberBetween(1, 100),
             'publish_from' => fake()->dateTimeBetween('-1 year', '-6 month'),
@@ -67,6 +66,18 @@ class ContentFactory extends Factory
     public function type(Type $type): self
     {
         return $this->set('type_id', $type->getKey());
+    }
+
+    public function linkedPage(): self
+    {
+        return $this->state(fn (array $attributes): array => [
+            'meta' => array_merge(
+                $attributes['meta'] ?? [],
+                [
+                    'page_id' => Page::factory()->withTranslations()->create()->id,
+                ],
+            ),
+        ]);
     }
 
     public function withTranslations(?Collection $languages = null, array $data = []): self

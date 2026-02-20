@@ -21,6 +21,7 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Widgets\Widget;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 
@@ -73,16 +74,16 @@ class ContentAlertsWidget extends Widget implements HasActions, HasForms
     }
 
     /**
-     * @return array<string, MessageData>
+     * @return Collection<string, MessageData>
      */
     #[Computed]
-    public function alerts(): array
+    public function alerts(): Collection
     {
-        $alerts = [];
+        $alerts = collect();
 
         if ($this->record->draft) {
             if ($this->record->isCurrent()) {
-                $alerts['draft'] = new MessageData(
+                $alerts->put('draft', new MessageData(
                     message: __(
                         'capell-admin::message.draft_resource',
                         ['name' => __('capell-layout::generic.content')],
@@ -93,9 +94,9 @@ class ContentAlertsWidget extends Widget implements HasActions, HasForms
                         $this->deleteDraftAction(),
                         $this->publishAction(),
                     ],
-                );
+                ));
             } else {
-                $alerts['draft'] = new MessageData(
+                $alerts->put('draft', new MessageData(
                     message: __(
                         'capell-admin::message.draft_stale_resource',
                         ['name' => __('capell-layout::generic.content')],
@@ -103,41 +104,41 @@ class ContentAlertsWidget extends Widget implements HasActions, HasForms
                     type: AlertTypeEnum::Warning,
                     icon: 'heroicon-o-shield-exclamation',
                     action: $this->viewCurrentContentAction(),
-                );
+                ));
             }
         }
 
         if ($this->record->trashed()) {
-            $alerts['deleted'] = new MessageData(
+            $alerts->put('deleted', new MessageData(
                 message: __(
                     'capell-admin::message.resource_deleted',
                     ['name' => __('capell-layout::generic.content')],
                 ),
                 type: AlertTypeEnum::Warning,
                 icon: 'heroicon-m-exclamation-triangle',
-            );
+            ));
         }
 
         switch ($this->record->publish_status) {
             case PublishStatusEnum::pending:
-                $alerts['pending'] = new MessageData(
+                $alerts->put('pending', new MessageData(
                     message: __('capell-admin::message.resource_pending', [
                         'date' => $this->record->publish_from?->diffForHumans(),
                         'name' => __('capell-layout::generic.content'),
                     ]),
                     type: AlertTypeEnum::Warning,
                     icon: 'heroicon-o-clock',
-                );
+                ));
                 break;
             case PublishStatusEnum::expired:
-                $alerts['expired'] = new MessageData(
+                $alerts->put('expired', new MessageData(
                     message: __('capell-admin::message.resource_expired', [
                         'date' => $this->record->publish_to?->diffForHumans(),
                         'name' => __('capell-layout::generic.content'),
                     ]),
                     type: AlertTypeEnum::Warning,
                     icon: 'heroicon-o-clock',
-                );
+                ));
                 break;
         }
 

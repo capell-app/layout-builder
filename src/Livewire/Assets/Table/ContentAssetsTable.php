@@ -7,6 +7,7 @@ namespace Capell\Layout\Livewire\Assets\Table;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Language;
 use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\ResourceEnum;
 use Capell\Layout\Filament\Resources\Contents\Tables\ContentsTable;
@@ -33,11 +34,14 @@ class ContentAssetsTable extends AbstractAssetsTable
         if (isset($this->getTableFilterState('filter')['language_id'])) {
             $language_id = $this->getTableFilterState('filter')['language_id'];
         } else {
-            $language_id = CapellCore::getModel(CoreModelEnum::Language)::query()->default()->value('id');
+            /** @var class-string<Language> $model */
+            $model = CapellCore::getModel(CoreModelEnum::Language);
+
+            $language_id = $model::query()->default()->value('id');
         }
 
         $query->with([
-            'translation' => fn (BuilderContract $query) => $query->where('language_id', (int) $language_id),
+            'translation' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', (int) $language_id),
         ]);
 
         return $query;

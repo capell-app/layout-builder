@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Components\Forms;
 
 use Capell\Admin\Actions\GetAssetResourceUrlAction;
-use Capell\Admin\Actions\ModifyCreateAction;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Forms\SelectWithBelongsToRelation;
 use Capell\Core\Data\AssetData;
@@ -21,6 +20,7 @@ use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Database\Query\Builder as BuilderContract;
 use Illuminate\Contracts\Support\Htmlable;
@@ -118,7 +118,7 @@ class AssetsRepeater extends Repeater
                     'name',
                     modifyQueryUsing: fn (Builder $query, Get $get): Builder => $query->when(
                         $get('asset_type') === 'page',
-                        fn (BuilderContract $query) => $query->with([
+                        fn (BuilderContract $query): BuilderContract => $query->with([
                             'ancestors' => fn (Relation $query) => $query->withDrafts(),
                             'site',
                         ])
@@ -202,7 +202,7 @@ class AssetsRepeater extends Repeater
                 ->createOptionAction(function (Action $action, Get $get): Action {
                     $asset = CapellAdmin::getAsset($get('asset_type'));
 
-                    return ModifyCreateAction::run($action)
+                    return self::modifyCreateAction($action)
                         ->visible(fn (?int $state): bool => $state === null)
                         ->fillForm(fn (): array => in_array($asset->defaultDataAction, [null, '', '0'], true) ? [] : $asset->defaultDataAction::run());
                 }),
@@ -229,5 +229,21 @@ class AssetsRepeater extends Repeater
 
         return $action->group($actions)
             ->view('capell-admin::filament.components.actions.dropdown-group');
+    }
+
+    private static function modifyCreateAction(Action $action): Action
+    {
+        return $action->slideOver()
+            ->modalWidth(Width::ScreenLarge)
+            ->closeModalByClickingAway(false)
+            ->successNotificationTitle(
+                fn (Action $action): string => __(
+                    'capell-admin::notification.created_successfully',
+                    ['name' => $action->getModalHeading()],
+                ),
+            )
+            ->after(function (Action $action): void {
+                $action->success();
+            });
     }
 }

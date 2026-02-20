@@ -2,39 +2,37 @@
 
 declare(strict_types=1);
 
+use Capell\Frontend\Facades\Frontend;
+
+$page = Frontend::page();
+$layout = Frontend::layout();
+$theme = Frontend::theme();
 ?>
 
-@php
-    use Capell\Frontend\CapellFrontendManager;
-            use Capell\Frontend\Facades\CapellFrontend;
-            use Capell\Frontend\Facades\Frontend;use Capell\Frontend\Facades\Frontend;
-
-            $page = Frontend::page();
-@endphp
-
 @props([
-'container',
-'containerKey',
-'containerWidth' => null,
-'headingTag' => $widget->meta['heading_tag'] ?? null,
-'headingSize' => $widget->meta['heading_size'] ?? 'h1',
-'loop',
-'pageContents' => $widget->meta['page_content'] ?? ['title', 'content'],
-'size' => $widget->meta['size'] ?? 'lg',
-'widget',
-'widgetData',
+    'container',
+    'containerKey',
+    'containerWidth' => null,
+    'headingTag' => $widget->meta['heading_tag'] ?? null,
+    'headingSize' => $widget->meta['heading_size'] ?? 'h1',
+    'loop',
+    'pageContents' => $widget->meta['page_content'] ?? ['title', 'content'],
+    'size' => $widget->meta['size'] ?? 'lg',
+    'widget',
+    'widgetData',
 ])
+{{-- format-ignore-start --}}
 @php
     $hasPrimaryHeading = Frontend::getFrontendData('has_primary_heading');
 
-            $hasContent = collect(['content', 'title'])
-                ->contains(fn ($item): bool => in_array($item, $pageContents, true) && ! empty($page->translation->{$item}));
+    $hasContent = collect(['content', 'title'])
+        ->contains(fn ($item): bool => in_array($item, $pageContents, true) && ! empty($page->translation->{$item}));
 
-            if (! $headingTag) {
-                $headingTag = ($hasPrimaryHeading ? 'h2' : 'h1');
-            }
+    if (! $headingTag) {
+        $headingTag = ($hasPrimaryHeading ? 'h2' : 'h1');
+    }
 @endphp
-
+{{-- format-ignore-end --}}
 @if ($hasContent)
     <x-capell-layout::widget.wrapper
         :$container
@@ -45,14 +43,27 @@ declare(strict_types=1);
         :class="'widget-page-contents' . ($loop->last ? ' mb-20' : ' mb-10')"
         tag="article"
     >
-        <x-capell::content
-            :content="in_array('content', $pageContents, true) ? $page->translation->content : null"
-            :heading-size="$headingSize"
-            :heading-tag="$headingTag"
-            :presenter="$widget->type->meta['content_presenter'] ?? null"
-            :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
-            :title="in_array('title', $pageContents, true) && ! (empty($widgetData['meta']['show_page_title']) && $hasPrimaryHeading) ? $page->translation->title : null"
-        />
+        @if (in_array('content', $pageContents, true))
+            @if ($page->type->content_structure === \Capell\Core\Enums\ContentStructure::Blocks)
+                <x-capell::blocks
+                    :blocks="$page->translation->content"
+                    :$layout
+                    :$containerKey
+                    :$page
+                />
+            @else
+                <x-capell::content
+                    :content="$page->translation->content"
+                    :content-type="$page->type->content_structure"
+                    :heading-size="$headingSize"
+                    :heading-tag="$headingTag"
+                    :muted="in_array($containerKey, $theme->secondary_containers)"
+                    :image="$page->image"
+                    :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
+                    :title="in_array('title', $pageContents, true) && ! (empty($this->widgetData['meta']['show_page_title']) && $hasPrimaryHeading) ? $page->translation->title : null"
+                />
+            @endif
+        @endif
 
         @if (! empty($widget->translation?->actions))
             <x-capell::actions

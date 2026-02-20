@@ -127,8 +127,8 @@ class ContentsTable implements TableConfigurator
                 ->searchable()
                 ->sortable()
                 ->limit(60)
-                ->linkRecord()
-                ->toggleable(isToggledHiddenByDefault: true),
+                ->toggleable(isToggledHiddenByDefault: true)
+                ->linkRecord(),
             PageNameColumn::make('linkedPage.name')
                 ->label(__('capell-admin::table.page'))
                 ->withParents()
@@ -237,7 +237,7 @@ class ContentsTable implements TableConfigurator
 
                             return $model::query()->when($siteId, fn (Builder $query, int $siteId): Builder => $query->whereHas(
                                 'sites',
-                                fn (BuilderContract $query) => $query->where('sites.id', $siteId),
+                                fn (BuilderContract $query): BuilderContract => $query->where('sites.id', $siteId),
                             ))
                                 ->ordered()
                                 ->pluck('name', 'id')
@@ -258,13 +258,13 @@ class ContentsTable implements TableConfigurator
                                 'ancestors',
                             ])
                                 ->whereHas('children')
-                                ->whereHas('type', fn (BuilderContract $query) => $query->enabled())
+                                ->whereHas('type', fn (BuilderContract $query): BuilderContract => $query->enabled())
                                 ->when($siteId, fn (Builder $query) => $query->where('site_id', $siteId))
                                 ->when(
                                     $get('language_id'),
                                     fn (Builder $query, $languageId) => $query->whereHas(
                                         'translations',
-                                        fn (BuilderContract $query) => $query->where('translations.language_id', $languageId),
+                                        fn (BuilderContract $query): BuilderContract => $query->where('translations.language_id', $languageId),
                                     ),
                                 )
                                 ->orderBy('site_id')
@@ -299,7 +299,7 @@ class ContentsTable implements TableConfigurator
                             $data['language_id'] ?? null,
                             fn (Builder $query) => $query->whereHas(
                                 'translations',
-                                fn (BuilderContract $query) => $query->where(
+                                fn (BuilderContract $query): BuilderContract => $query->where(
                                     'language_id',
                                     (int) $data['language_id'],
                                 ),

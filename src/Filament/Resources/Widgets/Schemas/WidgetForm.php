@@ -8,7 +8,8 @@ use Capell\Admin\Filament\Components\Forms\Type\TypeSchema;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Layout\Enums\SchemaTypeEnum;
+use Capell\Core\Models\Type;
+use Capell\Layout\Enums\TypeSchemaEnum;
 use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\DefaultWidgetSchema;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -35,12 +36,15 @@ class WidgetForm implements FormConfigurator
                         $adminSchema = $record?->admin['schema'] ?? null;
 
                         if (! $adminSchema) {
-                            $type = $typeId ? CapellCore::getModel(ModelEnum::Type)::query()->find($typeId, ['admin']) : null;
+                            /** @var class-string<Type> $model */
+                            $model = CapellCore::getModel(ModelEnum::Type);
+
+                            $type = $typeId ? $model::query()->find($typeId, ['admin']) : null;
 
                             $adminSchema = $type?->admin['schema'] ?? DefaultWidgetSchema::getKey();
                         }
 
-                        return $component->getTypeSchema($schema, SchemaTypeEnum::Widget, $adminSchema);
+                        return $component->getTypeSchema($schema, TypeSchemaEnum::Widget, $adminSchema);
                     },
                 ),
         ];

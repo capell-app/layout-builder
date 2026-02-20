@@ -42,13 +42,13 @@ Steps:
 1. Run the installer:
 
     ```bash
-    php artisan capell-layout:install
+    php artisan capell:layout-install
     ```
 
     This will:
 
     - Register Filament resources and permissions
-    - Publish admin/frontend assets (`capell-layout-publish`, `capell-layout-assets`)
+    - Publish admin/frontend assets (`capell-layout-publish`)
     - Publish and run database migrations
     - Register builder components and schemas
 
@@ -56,11 +56,6 @@ Steps:
 
     ```bash
     php artisan vendor:publish --tag=capell-layout-config
-    ```
-
-3. (Optional) Re-publish assets separately:
-    ```bash
-    php artisan vendor:publish --tag=capell-layout-assets
     ```
 
 ## Database

@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use Capell\Frontend\Facades\Frontend;
+
+$theme = Frontend::theme();
 ?>
 
 @props([
@@ -9,6 +12,7 @@ declare(strict_types=1);
     'container',
     'containerKey',
     'containerWidth' => null,
+    'groupItems' => $widgetData['meta']['group_items'] ?? false,
     'showPageContent' => $widgetData['meta']['show_page_content'] ?? false,
     'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
     'items' => [],
@@ -16,7 +20,7 @@ declare(strict_types=1);
     'widget',
 ])
 <x-capell-layout::widget.wrapper
-    class="widget-navigation-bar"
+    class="widget-navigation"
     :$container
     :$containerKey
     :$containerWidth
@@ -24,23 +28,31 @@ declare(strict_types=1);
     :$widget
 >
     @if (($widget->translation && ($widget->translation->title || $widget->translation->content))
-         || ($showPageContent && $page->translation->title)
-         || ($showPageTitle && $page->translation->content))
+         || ($showPageTitle && $page->translation->title)
+         || ($showPageContent && $page->translation->content))
         <x-capell::content
             class="mb-5"
             :compact="true"
             :content="$widget->translation->content ?? ($showPageContent ? $page->translation->content : null)"
-            :presenter="$widget->type->meta['content_presenter'] ?? null"
+            :content-type="$widget->translation->content ? $widget->type->content_structure : ($showPageContent ? $page->type->content_structure : null)"
+            :muted="in_array($containerKey, $theme->secondary_containers)"
             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
             :title="$widget->translation->title ?? ($showPageTitle ? $page->translation->title : null)"
+            :heading-style="($widget->meta['heading_style'] ?? null) ?: ($widget->type->meta['heading_style'] ?? null)"
+            :heading-tag="$showPageTitle ? 'h1' : null"
         />
     @endif
 
-    @if (count($items) > 5)
+    @if ($groupItems && count($items) > 5)
         <div class="grid md:grid-cols-2">
-            @foreach (collect($items)->chunk(round(count($items) / 2)) as $chunked)
+            @php
+                $chunkedItems = collect($items)->chunk(ceil(count($items) / $columns));
+            @endphp
+
+            @foreach ($chunkedItems as $chunked)
                 <x-dynamic-component
                     :component="! empty($menu->meta['component']) ? $menu->meta['component'] : 'capell::list'"
+                    class="widget-navigation-list"
                 >
                     @foreach ($chunked as $item)
                         <x-dynamic-component
@@ -49,6 +61,7 @@ declare(strict_types=1);
                                 ? $item['data']['component']
                                 : 'capell::list.item'
                             "
+                            class="widget-navigation-item"
                             :$item
                         />
                     @endforeach
@@ -58,6 +71,7 @@ declare(strict_types=1);
     @else
         <x-dynamic-component
             :component="! empty($menu->meta['component']) ? $menu->meta['component'] : 'capell::list'"
+            class="widget-navigation-list widget-navigation-lit-children"
         >
             @foreach ($items as $item)
                 <x-dynamic-component
@@ -66,6 +80,7 @@ declare(strict_types=1);
                         ? $item['data']['component']
                         : 'capell::list.item'
                     "
+                    class="widget-navigation-item widget-navigation-child-item"
                     :$item
                 />
             @endforeach

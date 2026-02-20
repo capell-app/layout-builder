@@ -33,7 +33,7 @@ class WidgetSelect extends Select
             ->getOptionLabelFromRecordUsing(
                 fn (Widget $record): string => static::getSelectOption($record),
             )
-            ->getOptionLabelUsing(fn (Select $component, $value): ?string => $component->getModel()::find($value)?->name)
+            ->getOptionLabelUsing(fn (Select $component, ?int $value): ?string => $component->getModel()::find($value)?->name)
             ->getOptionLabelsUsing(
                 fn (Select $component, array $values): array => $component->getModel()::whereIn('id', $values)
                     ->pluck('name', 'id')

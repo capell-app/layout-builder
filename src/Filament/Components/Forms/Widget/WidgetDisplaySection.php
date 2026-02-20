@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms\Widget;
 
-use Capell\Admin\Filament\Components\Forms\ContentPresenterSelect;
 use Capell\Layout\Filament\Components\Forms\AlignSelect;
 use Capell\Layout\Filament\Components\Forms\BackgroundSchema;
 use Capell\Layout\Filament\Components\Forms\ContainerWidthSelect;
+use Capell\Layout\Filament\Components\Forms\HeadingStyleSelect;
 use Capell\Layout\Filament\Components\Forms\MarginSelect;
 use Capell\Layout\Filament\Components\Forms\PaddingSelect;
 use Capell\Layout\Filament\Components\Forms\SizeSelect;
@@ -32,7 +32,6 @@ class WidgetDisplaySection
                     ->statePath('meta')
                     ->schema([
                         ...$schema,
-                        ContentPresenterSelect::make(),
                         PaddingSelect::make('padding'),
                         MarginSelect::make('margin'),
                         SpacingSelect::make('spacing'),
@@ -50,6 +49,7 @@ class WidgetDisplaySection
                             ]),
                         ContainerWidthSelect::make(),
                         AlignSelect::make('align'),
+                        HeadingStyleSelect::make('heading_style'),
                     ]),
                 Fieldset::make(__('capell-admin::generic.background_settings'))
                     ->columns(3)

@@ -3,6 +3,7 @@
 'containerClass' => null,
 'mainClass' => null,
 'mainContainerClass' => null,
+'pageSlot' => null,
 'page',
 'theme' => [],
 ])
@@ -22,7 +23,7 @@
     >
         @php
             $previousColspan = null;
-                        $slotRendered = false;
+                                    $slotRendered = false;
         @endphp
 
         @if ($layout->containers)
@@ -75,7 +76,7 @@
                     :colspan="$colspan"
                     :column-start="$columnStart"
                     :htmlClass="$htmlClass"
-                    :pageSlot="$hasSlotWidget ? $slot : null"
+                    :pageSlot="$hasSlotWidget ? $pageSlot : null"
                     :previousColspan="$previousColspan"
                 />
 
@@ -97,8 +98,8 @@
     @endif
     {{-- format-ignore-end --}}
 
-        @if ($slot && ! $slotRendered)
-            {{ $slot }}
+        @if ($pageSlot && ! $slotRendered)
+            {{ $pageSlot }}
             @php
                 $slotRendered = true;
             @endphp

@@ -11,13 +11,13 @@ declare(strict_types=1);
 ])
 @php
     // Represent in two columns to ensure there's enough space
-                $colspan = (int) ($container['meta']['colspan'] ?? 12);
+                    $colspan = (int) ($container['meta']['colspan'] ?? 12);
 
-                $containerTitle = str($containerKey)->title();
+                    $containerTitle = str($containerKey)->title();
 
-                $widgetHasResourceTypes = ! empty(
-                    array_filter($containerWidgets, fn ($widget) => ! empty($widget->type->admin['asset_types']))
-                );
+                    $widgetHasResourceTypes = ! empty(
+                        array_filter($containerWidgets, fn ($widget) => ! empty($widget->type->admin['asset_types']))
+                    );
 @endphp
 
 <div

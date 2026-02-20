@@ -8,7 +8,7 @@ use Capell\Admin\Contracts\SchemaTypeEnumInterface;
 use Capell\Admin\Contracts\TypeSchemaInterface;
 use Capell\Admin\Filament\Concerns\HasTypeSchema;
 use Capell\Layout\Enums\SchemaExtenderEnum;
-use Capell\Layout\Enums\SchemaTypeEnum;
+use Capell\Layout\Enums\TypeSchemaEnum;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 
@@ -16,7 +16,7 @@ abstract class AbstractWidgetAssetSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    public static SchemaTypeEnumInterface $schemaType = SchemaTypeEnum::WidgetAsset;
+    public static SchemaTypeEnumInterface $schemaType = TypeSchemaEnum::WidgetAsset;
 
     abstract protected function getAssetSchema(Schema $schema): array;
 

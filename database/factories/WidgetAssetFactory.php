@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Capell\Layout\Database\Factories;
 
 use Capell\Core\Enums\AssetEnum;
+use Capell\Core\Enums\MediaCollectionEnum;
+use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Layout\Enums\AssetEnum as LayoutAssetEnum;
 use Capell\Layout\Models\Content;
@@ -36,8 +38,8 @@ class WidgetAssetFactory extends Factory
             'page_id' => null,
             'asset_type' => $assetType->value,
             'asset_id' => fn (): string => match ($assetType) {
-                LayoutAssetEnum::Content => (string) Content::factory()->create()->id,
-                AssetEnum::Page => (string) Page::factory()->create()->id,
+                LayoutAssetEnum::Content => (string) Content::factory()->withTranslations()->linkedPage()->create()->id,
+                AssetEnum::Page => (string) Page::factory()->withTranslations()->create()->id,
             },
             'occurrence' => 1,
             'order' => fake()->randomNumber(1),
@@ -74,7 +76,7 @@ class WidgetAssetFactory extends Factory
         return $this->state(fn (array $attributes): array => [
             'asset_type' => $type->value,
             'asset_id' => fn (): string => match ($type) {
-                LayoutAssetEnum::Content => (string) Content::factory()->withTranslations()->create()->id,
+                LayoutAssetEnum::Content => (string) Content::factory()->withTranslations()->linkedPage()->create()->id,
                 AssetEnum::Page => (string) Page::factory()->withTranslations()->create()->id,
             },
         ]);
@@ -85,5 +87,66 @@ class WidgetAssetFactory extends Factory
         return $this->state(fn (array $attributes): array => [
             'widget_id' => $widget->id,
         ]);
+    }
+
+    public function assetHavingMedia(int $mediaCount = 1, MediaCollectionEnum $collection = MediaCollectionEnum::Image): self
+    {
+        return $this->afterCreating(function (WidgetAsset $widgetAsset) use ($mediaCount, $collection): void {
+            Media::factory()
+                ->count($mediaCount)
+                ->state(fn (array $attributes): array => [
+                    'model_type' => $widgetAsset->asset_type,
+                    'model_id' => $widgetAsset->asset_id,
+                ])
+                ->collection($collection)
+                ->create();
+        });
+    }
+
+    public function assetHavingRelated(int $count = 1): self
+    {
+        return $this->afterCreating(function (WidgetAsset $widgetAsset) use ($count): void {
+            $related = match ($widgetAsset->asset_type) {
+                LayoutAssetEnum::Content->value => Content::factory()
+                    ->count($count)
+                    ->withTranslations()
+                    ->linkedPage()
+                    ->create(),
+                AssetEnum::Page->value => Page::factory()
+                    ->count($count)
+                    ->withTranslations()
+                    ->create(),
+            };
+
+            $meta = $widgetAsset->asset->meta;
+            $meta['related'] = collect($meta['related'] ?? [])
+                ->merge($related->pluck('id'))
+                ->unique()
+                ->values()
+                ->all();
+            $widgetAsset->asset->meta = $meta;
+            $widgetAsset->asset->save();
+        });
+    }
+
+    public function assetHavingActions(int $count): self
+    {
+        return $this->afterCreating(function (WidgetAsset $widgetAsset) use ($count): void {
+            $actions = [];
+            for ($i = 0; $i < $count; $i++) {
+                $actions[] = [
+                    'type' => 'link',
+                    'label' => fake()->sentence(2),
+                    'url' => fake()->url(),
+                ];
+            }
+
+            $meta = $widgetAsset->asset->meta;
+            $meta['actions'] = collect($meta['actions'] ?? [])
+                ->merge($actions)
+                ->all();
+            $widgetAsset->asset->meta = $meta;
+            $widgetAsset->asset->save();
+        });
     }
 }

@@ -14,36 +14,42 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Data\TypeData;
+use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
-use Capell\Core\Packages\AbstractPackageServiceProvider;
+use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
 use Capell\Frontend\Providers\FrontendServiceProvider;
-use Capell\Layout\CapellLayoutManager;
-use Capell\Layout\Commands\DemoCommand;
-use Capell\Layout\Commands\InstallCommand;
-use Capell\Layout\Commands\UpgradeCommand;
-use Capell\Layout\Enums;
+use Capell\Layout\Console\Commands\DemoCommand;
+use Capell\Layout\Console\Commands\InstallCommand;
+use Capell\Layout\Console\Commands\SetupCommand;
 use Capell\Layout\Enums\AssetEnum;
 use Capell\Layout\Enums\ComponentTypeEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Enums\LivewireComponentsEnum;
 use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\ResourceEnum as LayoutResourceEnum;
+use Capell\Layout\Enums\TypeSchemaEnum;
 use Capell\Layout\Filament\Resources\Layouts\LayoutResource;
 use Capell\Layout\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender;
 use Capell\Layout\Filament\Resources\Pages\Schemas\Extenders\PageSchemaExtender;
 use Capell\Layout\Filament\Resources\Types\Schemas\Types\ContentTypeSchema;
 use Capell\Layout\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
-use Capell\Layout\LayoutModelRegistrar;
 use Capell\Layout\Listeners\AfterRecordSaved;
 use Capell\Layout\Listeners\LayoutLoaded;
 use Capell\Layout\Listeners\SiteTreeRebuilt;
 use Capell\Layout\Listeners\TypeValidated;
 use Capell\Layout\Models\Content;
+use Capell\Layout\Support\CapellLayoutManager;
+use Capell\Layout\Support\Interceptors\Layouts\DefaultLayoutInterceptor;
+use Capell\Layout\Support\Interceptors\Layouts\HomeLayoutInterceptor;
+use Capell\Layout\Support\Interceptors\Layouts\ResultsLayoutInterceptor;
+use Capell\Layout\Support\Interceptors\Themes\DefaultThemeInterceptor;
+use Capell\Layout\Support\LayoutModelRegistrar;
 use Composer\InstalledVersions;
 use Exception;
 use Filament\Facades\Filament;
@@ -70,15 +76,6 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     public static string $description = 'Managing content and widgets.';
 
-    public function bootingPackage(): void
-    {
-        if (! $this->isPackageInstalled()) {
-            return;
-        }
-
-        $this->registerAll();
-    }
-
     public function configurePackage(Package $package): void
     {
         $package->name(self::$name)
@@ -87,19 +84,26 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             ->hasTranslations()
             ->hasCommands([
                 DemoCommand::class,
-                UpgradeCommand::class,
                 InstallCommand::class,
+                SetupCommand::class,
             ]);
     }
 
     public function registeringPackage(): void
     {
-        parent::registeringPackage();
-
         $this
             ->registerResources()
             ->registerModels()
+            ->registerRelationships()
             ->registerPackageMetadata();
+
+        $this->booted(function (): void {
+            if (! $this->isPackageInstalled()) {
+                return;
+            }
+
+            $this->bootInstalledPackage();
+        });
     }
 
     protected function getPublishedDirectory(): string
@@ -116,16 +120,16 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
         return CapellCore::getPackage(static::$packageName)->isInstalled();
     }
 
-    private function registerAll(): self
+    private function bootInstalledPackage(): self
     {
         return $this
             ->registerListeners()
-            ->registerRelationships()
             ->registerSchemas()
             ->registerManager()
             ->registerFilamentServing()
             ->registerTypes()
             ->registerComponents()
+            ->registerModelInterceptors()
             ->registerAssets()
             ->registerSchemaExtenders()
             ->registerCloneableAndDraftableRelations()
@@ -136,24 +140,54 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             ->registerBladeComponents();
     }
 
+    private function registerModelInterceptors(): self
+    {
+        $layoutModel = CapellCore::getModel(\Capell\Core\Enums\ModelEnum::Layout);
+
+        CapellCore::registerModelInterceptor($layoutModel, LayoutEnum::Default, DefaultLayoutInterceptor::class);
+        CapellCore::registerModelInterceptor($layoutModel, LayoutEnum::Home, HomeLayoutInterceptor::class);
+        CapellCore::registerModelInterceptor($layoutModel, LayoutEnum::Results, ResultsLayoutInterceptor::class);
+
+        CapellCore::registerModelInterceptor(
+            CapellCore::getModel(\Capell\Core\Enums\ModelEnum::Theme),
+            key: 'default',
+            interceptorClass: DefaultThemeInterceptor::class,
+        );
+
+        return $this;
+    }
+
     private function registerPackageMetadata(): self
     {
         CapellCore::registerPackage(
             static::$packageName,
             type: static::getType(),
-            path: __DIR__,
+            serviceProviderClass: static::class,
+            path: realpath(__DIR__ . '/../..'),
             description: static::getDescription(),
             permissions: $this->getPackagePermissions(),
-            installCommand: 'capell-layout:install',
-            demoCommand: 'capell-layout:demo',
-            upgradeCommand: 'capell-layout:upgrade',
-            demoParams: ['author', 'sites'],
+            installCommand: 'capell:layout-install',
+            setupCommand: 'capell:layout-setup',
+            demoCommand: 'capell:layout-demo',
+            demoParams: ['user', 'sites'],
             requirements: [
                 AdminServiceProvider::$packageName,
                 FrontendServiceProvider::$packageName,
             ],
             version: $this->getVersion(),
             url: 'https://capell.app',
+            tailwindSources: [
+                'resources/views/**/*.blade.php',
+                '../../../laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
+            ],
+            tailwindImports: [
+                'tippy.js/dist/tippy.css',
+                'resources/css/capell-layout.css',
+            ],
+            tailwindPlugins: ['@tailwindcss/typography'],
+            npmDependencies: [
+                'tippy.js' => '^6.3.7',
+            ],
         );
 
         return $this;
@@ -291,8 +325,12 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     private function registerLivewireComponents(): self
     {
-        foreach (config('capell-layout.livewire_components', []) as $name => $class) {
-            Livewire::component($name, $class);
+        foreach (LivewireComponentsEnum::getComponents() as $name => $component) {
+            if (! $component) {
+                continue;
+            }
+
+            Livewire::component($name, $component);
         }
 
         return $this;
@@ -300,10 +338,6 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     private function registerBladeComponents(): self
     {
-        foreach (config('capell-layout.blade_components') as $name => $component) {
-            Blade::component($name, $component);
-        }
-
         Blade::componentNamespace('Capell\\Layout\\View\\Components', 'capell-layout');
         Blade::anonymousComponentNamespace('Capell\\Layout\\View\\Components');
 
@@ -375,17 +409,16 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     private function registerPublishCommands(): self
     {
-        $vendorAssets = $this->package->basePath('/../publishes/build');
-        $appAssets = public_path('vendor/' . $this->package->shortName());
-
-        $this->publishes([$vendorAssets => $appAssets], $this->package->shortName() . '-assets');
+        $this->publishes([
+            $this->package->basePath('/../publishes/build') => public_path('vendor/capell-layout'),
+        ], 'capell-layout-assets');
 
         return $this;
     }
 
     private function registerSchemas(): self
     {
-        foreach (Enums\SchemaTypeEnum::getAllSchemas() as $type => $schemas) {
+        foreach (TypeSchemaEnum::getAllSchemas() as $type => $schemas) {
             CapellAdmin::registerSchemas($type, $schemas, defaultSchemas: true);
         }
 

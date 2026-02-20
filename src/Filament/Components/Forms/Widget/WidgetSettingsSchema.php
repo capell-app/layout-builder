@@ -6,7 +6,7 @@ namespace Capell\Layout\Filament\Components\Forms\Widget;
 
 use Capell\Admin\Filament\Components\Forms\NameInput;
 use Capell\Admin\Filament\Components\Forms\StatusToggle;
-use Capell\Admin\Services\SlugGenerator;
+use Capell\Admin\Support\SlugGenerator;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\ModelEnum;
 use Filament\Forms\Components\TextInput;

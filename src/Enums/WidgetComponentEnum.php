@@ -6,45 +6,23 @@ namespace Capell\Layout\Enums;
 
 enum WidgetComponentEnum: string
 {
-    case Default = 'capell-layout::widget.default';
-
+    case AssetAccordion = 'capell-layout::widget.asset.accordion';
+    case AssetBanner = 'capell-layout::widget.asset.banners';
+    case AssetBlock = 'capell-layout::widget.asset.blocks';
+    case AssetCarousel = 'capell-layout::widget.asset.carousel';
+    case AssetFeatures = 'capell-layout::widget.asset.features';
+    case AssetMedia = 'capell-layout::widget.asset.media';
+    case AssetTestimonials = 'capell-layout::widget.asset.testimonials';
+    case Assets = 'capell-layout::widget.asset';
     case BannerImage = 'capell-layout::widget.banner-image';
-
-    case LivewirePages = 'capell.layout.livewire.widget.pages';
-
+    case Default = 'capell-layout::widget.default';
     case Navigation = 'capell-layout::widget.navigation';
-
     case NavigationTabs = 'capell-layout::widget.navigation.tabs';
-
-    case PageChildren = 'capell-layout::widget.pages.children';
-
-    case PageLatest = 'capell-layout::widget.pages.latest';
-
-    case PageSiblings = 'capell-layout::widget.pages.siblings';
-
-    case Archives = 'capell-layout::widget.page.archives';
-
-    case Breadcrumbs = 'capell-layout::widget.page.breadcrumbs';
-
+    case PageBreadcrumbs = 'capell-layout::widget.page.breadcrumbs';
+    case PageChildren = 'capell-layout::widget.page.children';
     case PageContent = 'capell-layout::widget.page.content';
-
-    case Pages = 'capell-layout::widget.page.pages';
-
-    case Assets = 'capell-layout::widget.assets';
-
-    case AssetAccordion = 'capell-layout::widget.assets.accordion';
-
-    case AssetBanner = 'capell-layout::widget.assets.banners';
-
-    case AssetBlock = 'capell-layout::widget.assets.blocks';
-
-    case AssetCarousel = 'capell-layout::widget.assets.carousel';
-
-    case AssetFeatures = 'capell-layout::widget.assets.features';
-
-    case AssetMedia = 'capell-layout::widget.assets.media';
-
-    case AssetTestimonials = 'capell-layout::widget.assets.testimonials';
-
-    case Tags = 'capell-layout::widget.tag.tags';
+    case PageLatest = 'capell-layout::widget.page.latest';
+    case PageSiblings = 'capell-layout::widget.page.siblings';
+    case PageSlot = 'capell-layout::widget.slot';
+    case Pages = 'capell-layout::widget.asset.pages';
 }

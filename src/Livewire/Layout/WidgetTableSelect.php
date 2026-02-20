@@ -6,9 +6,10 @@ namespace Capell\Layout\Livewire\Layout;
 
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\ModelEnum;
+use Capell\Layout\Filament\Components\Forms\WidgetsContainerForm;
 use Capell\Layout\Filament\Resources\Widgets\Tables\WidgetsTable;
-use Capell\Layout\Forms\WidgetsContainerForm;
 use Capell\Layout\Livewire\ModalTableSelect;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -43,6 +44,17 @@ class WidgetTableSelect extends ModalTableSelect
 
     public function selectRecords(): void
     {
+        $selectedRecords = $this->selectedRecords;
+
+        if (! $selectedRecords || count($selectedRecords) === 0) {
+            Notification::make('no-widgets-selected')
+                ->body(__('capell-layout::message.no_widgets_selected'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
         if ($this->containerKey) {
             $containerKey = $this->containerKey;
         } else {
@@ -53,12 +65,11 @@ class WidgetTableSelect extends ModalTableSelect
         $this->dispatch(
             'add-widgets-to-container',
             containerKey: $containerKey,
-            widgets: $this->selectedTableRecords,
+            widgets: $selectedRecords,
+            actionModalId: $this->actionModalId,
         );
 
         $this->resetPage();
-
-        $this->dispatch('close-modal', id: $this->actionModalId);
     }
 
     protected function getTableQuery(): Builder

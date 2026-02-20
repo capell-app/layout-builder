@@ -9,36 +9,37 @@ $theme = Frontend::theme();
 ?>
 
 @props([
-'backgroundColor' => $widget->meta['background_color'] ?? null,
-'container',
-'containerKey',
-'containerWidth' => null,
-'content' => $widget->translation?->content,
-'headingSize' => $widget->meta['heading_size'] ?? 'h2',
-'loop',
-'reverseOrder' => $widget->meta['reverse_order'] ?? null,
-'rounded' => $theme->meta['rounded_images'] ?? false,
-'size' => $widget->meta['size'] ?? null,
-'title' => $widget->translation?->title,
-'widget',
+    'backgroundColor' => $widget->meta['background_color'] ?? null,
+    'container',
+    'containerKey',
+    'containerWidth' => null,
+    'content' => $widget->translation?->content,
+    'headingSize' => $widget->meta['heading_size'] ?? 'h2',
+    'loop',
+    'reverseOrder' => $widget->meta['reverse_order'] ?? null,
+    'rounded' => $theme->meta['rounded_images'] ?? false,
+    'size' => $widget->meta['size'] ?? null,
+    'title' => $widget->translation?->title,
+    'widget',
 ])
-
+{{-- format-ignore-start --}}
 @php
-    $backgroundImage = $widget->backgroundImage ?? $widget->image ?? $widget->assets->first()?->asset?->image;
+    $backgroundImage = $widget->backgroundImage ?? $widget->image ?? $widget->assets->first()?->media?->first();
 
-            $hasContent = $content || $title || ! empty($widget->meta['actions']);
+    $hasContent = $content || $title || ! empty($widget->meta['actions']);
 
-            if ($rounded) {
-                $imgRounded = $hasContent
-                      ? ($reverseOrder ? ' rounded-r-lg' : ' rounded-l-lg')
-                      : ' rounded-lg';
-            } else {
-                $imgRounded = '';
-            }
+    if ($rounded) {
+        $imgRounded = $hasContent
+              ? ($reverseOrder ? ' rounded-r-lg' : ' rounded-l-lg')
+              : ' rounded-lg';
+    } else {
+        $imgRounded = '';
+    }
 @endphp
+{{-- format-ignore-end --}}
 
 <x-capell-layout::widget.wrapper
-    class="widget-banner-full-width relative"
+    class="widget-banner-image relative"
     :$container
     :$containerKey
     :$containerWidth
@@ -50,12 +51,12 @@ $theme = Frontend::theme();
     @if ($backgroundImage)
         <div
             @class([
-            'w-full',
-            'md:w-1/2' => $hasContent,
-            'md:absolute' => $hasContent,
-            'md:inset-y-0' => $hasContent,
-            'md:left-0' => $hasContent && $reverseOrder,
-            'md:right-0' => $hasContent && ! $reverseOrder,
+                'w-full',
+                'md:w-1/2' => $hasContent,
+                'md:absolute' => $hasContent,
+                'md:inset-y-0' => $hasContent,
+                'md:left-0' => $hasContent && $reverseOrder,
+                'md:right-0' => $hasContent && ! $reverseOrder,
             ])
         >
             <x-capell::media
@@ -70,22 +71,22 @@ $theme = Frontend::theme();
     @if ($hasContent)
         <div
             @class([
-            'container',
-            'absolute inset-0 flex items-end', // Overlay on mobile, align to bottom
-            'z-10',
-            'md:relative md:flex md:flex-col md:items-center',
-            'gap-y-6',
-            'gap-x-6',
-            'py-10',
-            'md:flex-row-reverse' => $reverseOrder,
-            'md:flex-row' => ! $reverseOrder,
+                'container',
+                'absolute inset-0 flex items-end', // Overlay on mobile, align to bottom
+                'z-10',
+                'md:relative md:flex md:flex-col md:items-center',
+                'gap-y-6',
+                'gap-x-6',
+                'py-10',
+                'md:flex-row-reverse' => $reverseOrder,
+                'md:flex-row' => ! $reverseOrder,
             ])
         >
             <div
                 @class([
-                'w-full md:w-1/2',
-                'md:pl-10' => $reverseOrder,
-                'md:pr-10' => ! $reverseOrder,
+                    'w-full md:w-1/2',
+                    'md:pl-10' => $reverseOrder,
+                    'md:pr-10' => ! $reverseOrder,
                 ])
             >
                 <div
@@ -95,12 +96,12 @@ $theme = Frontend::theme();
                         <x-capell::content
                             class="mb-2"
                             :compact="true"
-                            :content="$content"
-                            :contents="$content ? null : $widget->translation?->content"
+                            :content="$content ? null : $widget->translation?->content"
+                            :content-type="$widget->type->content_structure"
                             :heading-size="$headingSize"
-                            :presenter="$widget->type->meta['content_presenter'] ?? null"
                             :title="$title"
                             :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
+                            :heading-style="($widget->meta['heading_style'] ?? null) ?: $widget->type->meta['heading_style'] ?? null"
                         />
                     @endif
 

@@ -80,13 +80,9 @@ class NavigationWidgetSchema extends DefaultWidgetSchema
                 ->columnSpanFull()
                 ->tabs([
                     WidgetDisplayTab::make([
-                        Group::make()
-                            ->columns()
-                            ->schema([
-                                WidgetDisplaySection::make(),
-                                WidgetComponentFilesSection::make()
-                                    ->statePath('meta'),
-                            ]),
+                        WidgetDisplaySection::make(),
+                        WidgetComponentFilesSection::make()
+                            ->statePath('meta'),
                     ]),
                     WidgetAdminTab::make(),
                 ]),

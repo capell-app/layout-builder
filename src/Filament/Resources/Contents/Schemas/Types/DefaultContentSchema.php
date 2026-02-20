@@ -10,12 +10,12 @@ use Capell\Admin\Filament\Components\Forms\CallToActionText;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
-use Capell\Admin\Filament\Components\Forms\Page\PageSelect;
+use Capell\Admin\Filament\Components\Forms\PageSelect;
 use Capell\Admin\Filament\Components\Forms\PublishSchema;
 use Capell\Admin\Filament\Components\Forms\PublishSection;
 use Capell\Admin\Filament\Concerns\HasTypeSchema;
 use Capell\Layout\Enums\SchemaExtenderEnum;
-use Capell\Layout\Enums\SchemaTypeEnum;
+use Capell\Layout\Enums\TypeSchemaEnum;
 use Capell\Layout\Filament\Components\Forms\Content\ContentDetailsSchema;
 use Capell\Layout\Filament\Components\Forms\Content\ContentSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Content\ContentTranslationsRepeater;
@@ -31,7 +31,7 @@ class DefaultContentSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    public static SchemaTypeEnumInterface $schemaType = SchemaTypeEnum::Content;
+    public static SchemaTypeEnumInterface $schemaType = TypeSchemaEnum::Content;
 
     public static function getExtenders(): iterable
     {
@@ -73,8 +73,8 @@ class DefaultContentSchema implements TypeSchemaInterface
         return [
             ...ContentDetailsSchema::make($schema),
             ContentTranslationsRepeater::make($schema)
-                ->contained()
-                ->hiddenLabel(),
+                ->hiddenLabel()
+                ->contained(),
             ...ContentSettingsSchema::make($schema),
             MediaLibraryFileUpload::make('image'),
             PublishSchema::make($schema),
@@ -85,11 +85,11 @@ class DefaultContentSchema implements TypeSchemaInterface
     {
         return [
             Section::make()
-                ->contained(fn (string $operation): bool => $operation === 'create')
                 ->hiddenOn('edit')
                 ->columnSpanFull()
                 ->columns()
-                ->schema(ContentDetailsSchema::make($schema)),
+                ->schema(ContentDetailsSchema::make($schema))
+                ->contained(fn (string $operation): bool => $operation === 'create'),
             FixedWidthSidebar::make()
                 ->mainSchema([
                     Tabs::make()

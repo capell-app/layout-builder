@@ -8,7 +8,7 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\ApplySearchRelationsTable;
 use Capell\Admin\Filament\Concerns\HasSiteTableFilterTabs;
 use Capell\Layout\Enums\ResourceEnum;
-use Capell\Layout\Filament\Actions\CreateContentModalAction;
+use Capell\Layout\Filament\Actions\CreateContentAction;
 use Capell\Layout\Filament\Resources\Contents\ContentResource;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Contracts\Support\Htmlable;
@@ -34,7 +34,7 @@ class ListContents extends ListRecords
     protected function getActions(): array
     {
         return [
-            CreateContentModalAction::make()
+            CreateContentAction::make()
                 ->redirectAfterCreate(),
         ];
     }

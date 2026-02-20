@@ -8,7 +8,8 @@ use Capell\Admin\Filament\Components\Forms\Type\TypeSchema;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Layout\Enums\SchemaTypeEnum;
+use Capell\Core\Models\Type;
+use Capell\Layout\Enums\TypeSchemaEnum;
 use Capell\Layout\Filament\Resources\Contents\Schemas\Types\DefaultContentSchema;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
@@ -39,12 +40,15 @@ class ContentForm implements FormConfigurator
                         if ($record?->relationLoaded('type') && $record->type?->id === $typeId) {
                             $type = $record->type;
                         } else {
-                            $type = $typeId ? CapellCore::getModel(ModelEnum::Type)::query()->find($typeId, ['admin']) : null;
+                            /** @var class-string<Type> $model */
+                            $model = CapellCore::getModel(ModelEnum::Type);
+
+                            $type = $typeId ? $model::query()->find($typeId, ['admin']) : null;
                         }
 
                         $name = $type->admin['schema'] ?? DefaultContentSchema::getKey();
 
-                        return $component->getTypeSchema($schema, SchemaTypeEnum::Content, $name);
+                        return $component->getTypeSchema($schema, TypeSchemaEnum::Content, $name);
                     },
                 ),
         ];

@@ -6,6 +6,7 @@ namespace Capell\Layout\Filament\Components\Forms\Widget;
 
 use Capell\Admin\Filament\Components\Forms\ComponentSelect;
 use Capell\Layout\Enums\ComponentTypeEnum;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Group;
@@ -24,6 +25,8 @@ class WidgetComponentFilesSection
             ->columnSpanFull()
             ->schema([
                 Group::make([
+                    Checkbox::make('livewire')
+                        ->label(__('capell-admin::form.livewire')),
                     ComponentSelect::make('component')
                         ->when($componentRequired, fn (Select $component): Select => $component->required())
                         ->setupType(ComponentTypeEnum::Widget),

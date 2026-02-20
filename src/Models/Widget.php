@@ -8,14 +8,17 @@ use Bkwld\Cloner\Cloneable;
 use Capell\Core\Contracts\PageCacheable;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Enums\PublishStatusEnum;
-use Capell\Core\Models\Concerns\CloneableExcept;
 use Capell\Core\Models\Concerns\HasMetaData;
-use Capell\Core\Models\Concerns\HasPageCache;
 use Capell\Core\Models\Concerns\HasPublishDates;
 use Capell\Core\Models\Concerns\HasStatus;
 use Capell\Core\Models\Concerns\HasTranslations;
+use Capell\Core\Models\Concerns\HasType;
+use Capell\Core\Models\Concerns\HasUserstamps;
 use Capell\Core\Models\Concerns\InteractsWithMedia;
+use Capell\Core\Models\Contracts\Publishable;
 use Capell\Core\Models\Contracts\Statusable;
+use Capell\Core\Models\Contracts\Typeable;
+use Capell\Core\Models\Contracts\Userstampable;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
@@ -28,7 +31,6 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -44,7 +46,6 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
 use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
-use Wildside\Userstamps\Userstamps;
 
 /**
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WidgetAsset> $assets
@@ -98,25 +99,24 @@ use Wildside\Userstamps\Userstamps;
  * @mixin Model
  */
 #[ObservedBy(WidgetObserver::class)]
-class Widget extends Model implements HasMedia, PageCacheable, Statusable
+class Widget extends Model implements HasMedia, PageCacheable, Publishable, Statusable, Typeable, Userstampable
 {
     use Cloneable;
-    use CloneableExcept;
 
     /** @use HasFactory<WidgetFactory> */
     use HasFactory;
 
     use HasJsonRelationships;
     use HasMetaData;
-    use HasPageCache;
     use HasPublishDates;
     use HasRelationships;
     use HasStatus;
     use HasTranslations;
+    use HasType;
+    use HasUserstamps;
     use InteractsWithMedia;
     use LogsActivity;
     use SoftDeletes;
-    use Userstamps;
 
     public const COMPONENT_SLOT = 'slot';
 
@@ -134,14 +134,6 @@ class Widget extends Model implements HasMedia, PageCacheable, Statusable
         'publish_to',
         'status',
         'type_id',
-    ];
-
-    protected $casts = [
-        'admin' => 'json',
-        'meta' => 'json',
-        'publish_from' => 'datetime',
-        'publish_to' => 'datetime',
-        'status' => 'boolean',
     ];
 
     /**
@@ -208,14 +200,16 @@ class Widget extends Model implements HasMedia, PageCacheable, Statusable
 
     public function getMetaComponent(): ?string
     {
-        return $this->meta['component'] ?? $this->type->meta['component'] ?? null;
+        $value = $this->meta['component'] ?? $this->type->meta['component'] ?? null;
+
+        return $value === null ? null : (string) $value;
     }
 
     public function getMetaComponentType(): string
     {
         $metaComponent = $this->getMetaComponent();
 
-        if ($metaComponent && str_contains((string) $this->getMetaComponent(), 'livewire')) {
+        if ($metaComponent && str_contains($metaComponent, 'livewire')) {
             return 'livewire';
         }
 
@@ -230,11 +224,6 @@ class Widget extends Model implements HasMedia, PageCacheable, Statusable
     public function backgroundImage(): MorphOne
     {
         return $this->morphOneMedia(MediaCollectionEnum::BackgroundImage->value);
-    }
-
-    public function type(): BelongsTo
-    {
-        return $this->belongsTo(Type::class)->where('type', LayoutTypeEnum::Widget);
     }
 
     public function assets(): HasMany
@@ -308,5 +297,16 @@ class Widget extends Model implements HasMedia, PageCacheable, Statusable
                 SQL,
             } . ' AS layouts_count',
         ));
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'admin' => 'json',
+            'meta' => 'json',
+            'publish_from' => 'datetime',
+            'publish_to' => 'datetime',
+            'status' => 'boolean',
+        ];
     }
 }

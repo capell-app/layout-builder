@@ -5,54 +5,54 @@ declare(strict_types=1);
 ?>
 
 @props([
-'containerKey',
-'containerWidget',
-'loop',
-'widget',
-'widgetIndex',
+    'containerKey',
+    'containerWidget',
+    'loop',
+    'widget',
+    'widgetIndex',
 ])
 @php
     use Capell\Admin\Facades\CapellAdmin;
-            use Capell\Core\Facades\CapellCore;
-            use Capell\Layout\Enums\ResourceEnum;
-            use Capell\Layout\Livewire\LayoutBuilder;
-            use Filament\Support\Enums\FontWeight;
-            use Filament\Support\Enums\IconSize;
-            use Filament\Support\Enums\Size;
-            use Illuminate\View\ComponentAttributeBag;
+    use Capell\Core\Facades\CapellCore;
+    use Capell\Layout\Enums\ResourceEnum;
+    use Capell\Layout\Livewire\LayoutBuilder;
+    use Filament\Support\Enums\FontWeight;
+    use Filament\Support\Enums\IconSize;
+    use Filament\Support\Enums\Size;
+    use Illuminate\View\ComponentAttributeBag;
 
-            /**
-             * @var LayoutBuilder $this
-             */
-            $occurrence = $containerWidget['occurrence'] ?? 1;
+    /**
+     * @var LayoutBuilder $this
+     */
+    $occurrence = $containerWidget['occurrence'] ?? 1;
 
-            $containerWidgetKey = "widget-{$containerKey}-{$widget->key}-{$occurrence}";
+    $containerWidgetKey = "widget-{$containerKey}-{$widget->key}-{$occurrence}";
 
-            $type = $widget->admin['type'] ?? ($widget->type->admin['type'] ?? []);
+    $type = $widget->admin['type'] ?? ($widget->type->admin['type'] ?? []);
 
-            $assetTypes = ! empty($widget->admin['asset_types'])
-                ? $widget->admin['asset_types']
-                : ($widget->type->admin['asset_types'] ?? []);
+    $assetTypes = ! empty($widget->admin['asset_types'])
+        ? $widget->admin['asset_types']
+        : ($widget->type->admin['asset_types'] ?? []);
 
-            $widgetIcon = $widget->admin['icon'] ?? ($widget->type->admin['icon'] ?? null);
+    $widgetIcon = $widget->admin['icon'] ?? ($widget->type->admin['icon'] ?? null);
 
-            $hasPageAssets = $this->hasPageAssets($containerKey, $widgetIndex);
+    $hasPageAssets = $this->hasPageAssets($containerKey, $widgetIndex);
 
-            $editWidgetAction = ($this->editWidgetAction)(['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex]);
+    $editWidgetAction = ($this->editWidgetAction)(['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex]);
 
-            $editContainerWidgetAction = ($this->editContainerWidgetAction)([
-                'containerKey' => $containerKey,
-                'widgetIndex' => $widgetIndex,
-            ]);
+    $editLayoutWidgetAction = ($this->editLayoutWidgetAction)([
+        'containerKey' => $containerKey,
+        'widgetIndex' => $widgetIndex,
+    ]);
 
-            $togglePageAssetsAction = ($this->togglePageAssetsAction)([
-                'containerKey' => $containerKey,
-                'widgetIndex' => $widgetIndex,
-            ]);
+    $togglePageAssetsAction = ($this->togglePageAssetsAction)([
+        'containerKey' => $containerKey,
+        'widgetIndex' => $widgetIndex,
+    ]);
 
-            $image = $widget->image ?: $widget->backgroundImage;
+    $image = $widget->image ?: $widget->backgroundImage;
 
-            $title = $widget->translation?->title;
+    $title = $widget->translation?->title;
 @endphp
 
 <div
@@ -72,12 +72,14 @@ declare(strict_types=1);
             this.notify()
         },
     }"
-    {{ $attributes->class(['layout-container-widget group last:rounded-b-lg'])->when(
-        $assetTypes,
-        fn (ComponentAttributeBag $attributeBag): ComponentAttributeBag => $attributeBag->merge([
-        ':class' => "{ 'pb-4': ! isCollapsed }",
-        ]),
-        ) }}
+    {{
+        $attributes->class(['layout-container-widget group last:rounded-b-lg'])->when(
+            $assetTypes,
+            fn (ComponentAttributeBag $attributeBag): ComponentAttributeBag => $attributeBag->merge([
+                ':class' => "{ 'pb-4': ! isCollapsed }",
+            ]),
+        )
+    }}
     wire:key="{{ "{$containerWidgetKey}" }}"
     x-sort:item="'{{ $containerKey . '.' . $widgetIndex }}'"
     x-init="
@@ -158,8 +160,8 @@ declare(strict_types=1);
                 <span class="text-sm text-gray-600 dark:text-gray-100">
                     <span
                         @class([
-                        'font-medium',
-                        'group-hover/widget:text-primary-600' => $assetTypes,
+                            'font-medium',
+                            'group-hover/widget:text-primary-600' => $assetTypes,
                         ])
                     >
                         {{ $widget->name }}
@@ -243,8 +245,8 @@ declare(strict_types=1);
                         </x-slot>
 
                         <x-filament::dropdown.list>
-                            @if ($editContainerWidgetAction?->isVisible())
-                                {{ $editContainerWidgetAction }}
+                            @if ($editLayoutWidgetAction?->isVisible())
+                                {{ $editLayoutWidgetAction }}
                             @endif
 
                             @if ($togglePageAssetsAction?->isVisible())
@@ -254,15 +256,6 @@ declare(strict_types=1);
                             {{ ($this->duplicateWidgetAction)(['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex]) }}
 
                             {{ ($this->removeWidgetAction)(['containerKey' => $containerKey, 'widgetIndex' => $widgetIndex]) }}
-
-                            <x-filament::dropdown.list.item
-                                href="{{ CapellAdmin::getResource(ResourceEnum::Widget)::getUrl('edit', ['record' => $this->getContainerWidget($containerKey, $widgetIndex)]) }}"
-                                icon="heroicon-o-arrow-top-right-on-square"
-                                target="_blank"
-                                tag="a"
-                            >
-                                {{ __('capell-layout::button.open_edit_widget') }}
-                            </x-filament::dropdown.list.item>
                         </x-filament::dropdown.list>
                     </x-filament::dropdown>
                 </div>

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Facades;
 
-use Capell\Layout\CapellLayoutManager;
 use Capell\Layout\Models\Widget;
+use Capell\Layout\Support\CapellLayoutManager;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Facade;
 
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static Collection getContainerWidgets(string $containerKey)
  * @method static void clearContainerWidgets()
  *
- * @see CapellLayoutManager
+ * @see Capell\Layout\Support\CapellLayoutManager
  */
 class CapellLayout extends Facade
 {

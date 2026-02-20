@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Resources\Types\Schemas\Types;
 
 use Capell\Admin\Filament\Components\Forms\AssetTypeSelect;
-use Capell\Admin\Filament\Components\Forms\ContentEditorSelect;
 use Capell\Admin\Filament\Components\Forms\CustomSelectGroup;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\RequiredFields;
 use Capell\Admin\Filament\Components\Forms\SchemaSelect;
 use Capell\Admin\Filament\Resources\Types\Schemas\Types\DefaultTypeSchema;
-use Capell\Layout\Enums\SchemaTypeEnum;
+use Capell\Layout\Enums\TypeSchemaEnum;
 use Capell\Layout\Enums\WidgetSchemaEnum;
 use Capell\Layout\Enums\WidgetTypeGroupEnum;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
@@ -60,12 +59,11 @@ class WidgetTypeSchema extends DefaultTypeSchema
             ->schema([
                 SchemaSelect::make('schema')
                     ->default(fn (): string => WidgetSchemaEnum::Default->name)
-                    ->setupOptions(SchemaTypeEnum::Widget),
+                    ->setupOptions(TypeSchemaEnum::Widget),
                 IconPicker::make('icon')
                     ->label(__('capell-admin::form.admin_icon')),
                 AssetTypeSelect::make('asset_types')
                     ->multiple(),
-                ContentEditorSelect::make('content_editor'),
                 RequiredFields::make(),
             ]);
     }

@@ -12,9 +12,10 @@ use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
-use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Override;
 
 class SystemWidgetSchema extends DefaultWidgetSchema
@@ -33,12 +34,9 @@ class SystemWidgetSchema extends DefaultWidgetSchema
     protected function getFilesSchema(): array
     {
         return [
-            Grid::make()
-                ->schema([
-                    WidgetDisplaySection::make(),
-                    WidgetComponentFilesSection::make()
-                        ->statePath('meta'),
-                ]),
+            WidgetDisplaySection::make(),
+            WidgetComponentFilesSection::make()
+                ->statePath('meta'),
         ];
     }
 
@@ -49,7 +47,12 @@ class SystemWidgetSchema extends DefaultWidgetSchema
             WidgetTranslationsRepeater::make($schema)
                 ->contained(fn (string $operation): bool => $operation === 'create'),
             ...$this->getFilesSchema(),
-            ...WidgetSettingsSchema::make($schema),
+            Section::make(__('capell-admin::generic.settings'))
+                ->columns()
+                ->compact()
+                ->icon(Heroicon::OutlinedCog6Tooth)
+                ->collapsed()
+                ->schema(WidgetSettingsSchema::make($schema)),
         ];
     }
 

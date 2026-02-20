@@ -9,6 +9,7 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Resources\Pages\Tables\PagesTable;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Language;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Locked;
@@ -32,12 +33,15 @@ class PageAssetsTable extends AbstractAssetsTable
         if (isset($this->getTableFilterState('filter')['language_id'])) {
             $language_id = $this->getTableFilterState('filter')['language_id'];
         } else {
-            $language_id = CapellCore::getModel(ModelEnum::Language)::query()->default()->value('id');
+            /** @var class-string<Language> $model */
+            $model = CapellCore::getModel(ModelEnum::Language);
+
+            $language_id = $model::query()->default()->value('id');
         }
 
         $query->with([
-            'translation' => fn (BuilderContract $query) => $query->where('language_id', (int) $language_id),
-            'pageUrl' => fn (BuilderContract $query) => $query->where('language_id', (int) $language_id),
+            'translation' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', (int) $language_id),
+            'pageUrl' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', (int) $language_id),
         ]);
 
         return $query;
@@ -61,7 +65,7 @@ class PageAssetsTable extends AbstractAssetsTable
         ])
             ->when(
                 $this->tableArguments['pageId'] ?? null,
-                fn (BuilderContract $query) => $query->whereKeyNot($this->tableArguments['pageId']),
+                fn (BuilderContract $query): BuilderContract => $query->whereKeyNot($this->tableArguments['pageId']),
             )
             ->when(
                 $this->existingRecords,

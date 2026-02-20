@@ -7,6 +7,7 @@ namespace Capell\Layout\Database\Factories;
 use Capell\Core\Models\Layout;
 use Capell\Layout\Models\Widget;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Collection;
 
 /**
  * @extends Factory<Layout>
@@ -39,6 +40,29 @@ class LayoutFactory extends \Capell\Core\Database\Factories\LayoutFactory
                                 'occurrence' => 2,
                             ],
                         ],
+                        'meta' => [],
+                    ],
+                ];
+            },
+        ]);
+    }
+
+    public function widgets(array|Collection $widgets): self
+    {
+        return $this->state([
+            'containers' => function () use ($widgets): array {
+                $widgetEntries = [];
+
+                foreach ($widgets as $widget) {
+                    $widgetEntries[] = [
+                        'widget_key' => $widget instanceof $widget ? $widget->key : $widget,
+                        'occurrence' => 1,
+                    ];
+                }
+
+                return [
+                    'main' => [
+                        'widgets' => $widgetEntries,
                         'meta' => [],
                     ],
                 ];

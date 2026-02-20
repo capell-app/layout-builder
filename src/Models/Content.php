@@ -9,24 +9,27 @@ use Capell\Core\Contracts\PageCacheable;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Enums\PublishStatusEnum;
 use Capell\Core\Models\AssetRelation;
-use Capell\Core\Models\Concerns\CloneableExcept;
 use Capell\Core\Models\Concerns\HasAssets;
 use Capell\Core\Models\Concerns\HasDraftsAndNestedSet;
 use Capell\Core\Models\Concerns\HasMetaData;
-use Capell\Core\Models\Concerns\HasModelRelations;
-use Capell\Core\Models\Concerns\HasPageCache;
+use Capell\Core\Models\Concerns\HasMorphModelRelations;
 use Capell\Core\Models\Concerns\HasPublishDates;
 use Capell\Core\Models\Concerns\HasTranslations;
+use Capell\Core\Models\Concerns\HasType;
 use Capell\Core\Models\Concerns\HasTypes;
+use Capell\Core\Models\Concerns\HasUserstamps;
 use Capell\Core\Models\Concerns\InteractsWithMedia;
 use Capell\Core\Models\Contracts\Draftable;
+use Capell\Core\Models\Contracts\HasDraftsAndNestedSetModel;
+use Capell\Core\Models\Contracts\Publishable;
+use Capell\Core\Models\Contracts\Typeable;
+use Capell\Core\Models\Contracts\Userstampable;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\ContentFactory;
-use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Observers\ContentObserver;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -37,11 +40,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User;
+use Illuminate\Support\Facades\DB;
 use Kalnoy\Nestedset\NodeTrait;
-use Kalnoy\Nestedset\QueryBuilder;
+use Kalnoy\Nestedset\QueryBuilder as NestedQueryBuilder;
 use Oddvalue\LaravelDrafts\Concerns\HasDrafts;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Models\Activity;
@@ -50,7 +55,6 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
 use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
-use Wildside\Userstamps\Userstamps;
 
 /**
  * @property-read Collection<int, AssetRelation> $assets
@@ -78,7 +82,6 @@ use Wildside\Userstamps\Userstamps;
  * @property-read int|null $revisions_count
  * @property-write mixed $parent_id
  * @property-read Site|null $site
- * @property-read int|null $tags_count
  * @property-read Translation|null $translation
  * @property-read Collection<int, Translation> $translations
  * @property-read int|null $translations_count
@@ -154,10 +157,6 @@ use Wildside\Userstamps\Userstamps;
  * @property-read int|null $asset_relations_count
  * @property-read Collection<int, Activity> $activities
  * @property-read int|null $activities_count
- *
- * @mixin Model
- * @mixin Model
- *
  * @property-read string|null $title
  * @property-read Collection<int, WidgetAsset> $widgetAssets
  * @property-read int|null $widget_assets_count
@@ -165,10 +164,9 @@ use Wildside\Userstamps\Userstamps;
  * @mixin Model
  */
 #[ObservedBy(ContentObserver::class)]
-class Content extends Model implements Draftable, HasMedia, PageCacheable
+class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, HasMedia, PageCacheable, Publishable, Typeable, Userstampable
 {
     use Cloneable;
-    use CloneableExcept;
     use HasAssets;
     use HasDrafts {
         bootHasDrafts as protected;
@@ -176,26 +174,25 @@ class Content extends Model implements Draftable, HasMedia, PageCacheable
     use HasDraftsAndNestedSet {
         HasDraftsAndNestedSet::parent as hasDraftsAndNestedSetParent;
     }
-
-    /** @use HasFactory<ContentFactory> */
     use HasFactory;
-
     use HasJsonRelationships;
     use HasMetaData;
-    use HasModelRelations;
-    use HasPageCache;
+    use HasMorphModelRelations;
     use HasPublishDates;
     use HasTranslations;
+    use HasType;
     use HasTypes;
+    use HasUserstamps;
     use InteractsWithMedia;
     use LogsActivity;
     use NodeTrait {
         NodeTrait::bootNodeTrait as protected;
         NodeTrait::parent as nodeTraitParent;
         NodeTrait::applyNestedSetScope as applyNestedSetScopeParent;
+        NodeTrait::newScopedQuery as nodeTraitNewScopedQuery;
+        NodeTrait::setParentIdAttribute as nodeTraitSetParentIdAttribute;
     }
     use SoftDeletes;
-    use Userstamps;
 
     /**
      * The attributes that are mass assignable.
@@ -224,44 +221,56 @@ class Content extends Model implements Draftable, HasMedia, PageCacheable
         'translations',
     ];
 
-    protected $casts = [
-        'is_published' => 'boolean',
-        'meta' => 'json',
-        'publish_from' => 'datetime',
-        'publish_to' => 'datetime',
-    ];
-
     protected static string $factory = ContentFactory::class;
 
-    public static function getMorphRelations(?Language $language = null): array
+    public static function getMorphRelations(?Language $language = null, bool $normalizeKey = false): array
     {
         $base = [
             'ancestors.type',
             'image',
             'media',
-            'linkedPage' => fn (BuilderContract $query) => $query->with([
-                'translation' => fn (BuilderContract $query) => $query->with('language')
-                    ->when($language, fn ($q) => $q->where('language_id', $language->id)),
-                'pageUrl' => fn (BuilderContract $query) => $query->with('siteDomain')
-                    ->when($language, fn ($q) => $q->where('language_id', $language->id)),
-            ]),
-            'translation' => fn (BuilderContract $query) => $query->with('language')
-                ->when($language, fn ($q) => $q->where('language_id', $language->id)),
-            'related' => fn (BuilderContract $query) => $query->with([
-                'image',
-                'page' => fn (BuilderContract $query) => $query->with([
-                    'translation' => fn (BuilderContract $query) => $query->with('language')
-                        ->when($language, fn ($q) => $q->where('language_id', $language->id)),
-                    'pageUrl' => fn (BuilderContract $query) => $query->with('siteDomain')
-                        ->when($language, fn ($q) => $q->where('language_id', $language->id)),
-                    'site',
-                ]),
-            ])
-                ->withWhereHas('translation', fn (BuilderContract $query) => $query->with('language')),
+            'linkedPage' => function (BuilderContract $query) use ($language): void {
+                $query->with([
+                    'translation' => function (BuilderContract $query) use ($language): void {
+                        $query->with('language')
+                            ->when(
+                                $language,
+                                function (BuilderContract $query) use ($language): void {
+                                    if (DB::getDriverName() === 'sqlite') {
+                                        $query->orderByRaw(
+                                            'CASE language_id '
+                                            . sprintf('WHEN %d THEN 0 ELSE 1 END', (int) $language->id),
+                                        );
+                                    } else {
+                                        $query->orderByRaw('FIELD(language_id, ?)', [$language->id ?? 0]);
+                                    }
+                                },
+                            );
+                    },
+                    'pageUrl' => function (BuilderContract $query) use ($language): void {
+                        $query->with('siteDomain')
+                            ->when(
+                                $language,
+                                function (BuilderContract $query) use ($language): void {
+                                    if (DB::getDriverName() === 'sqlite') {
+                                        $query->orderByRaw(
+                                            'CASE language_id '
+                                            . sprintf('WHEN %d THEN 0 ELSE 1 END', (int) $language->id),
+                                        );
+                                    } else {
+                                        $query->orderByRaw('FIELD(language_id, ?)', [$language->id ?? 0]);
+                                    }
+                                },
+                            );
+                    },
+                ]);
+            },
+            'translation' => fn (BuilderContract $query): BuilderContract => $query->with('language')
+                ->when($language, fn ($query) => $query->where('language_id', $language->id)),
             'type',
         ];
 
-        return static::mergeMorphRelationDefinitions($base, self::class, $language);
+        return static::mergeMorphRelationDefinitions($base, self::class, $language, $normalizeKey);
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -293,51 +302,23 @@ class Content extends Model implements Draftable, HasMedia, PageCacheable
         $this->addMediaCollection(MediaCollectionEnum::Image->value)->singleFile();
     }
 
-    public function applyNestedSetScope($query, $table = null)
-    {
-        $builder = $this->usesSoftDelete()
-            ? $this->withTrashed()
-            : $this->newQuery();
-
-        $builder->withDrafts();
-
-        $builder->where($table ? $table . '.' . $this->getIsPublishedColumn() : $this->getIsPublishedColumn(), true);
-
-        return $this->applyNestedSetScopeParent($query, $table);
-    }
-
-    public function newNestedSetQuery($table = null)
-    {
-        $builder = $this->usesSoftDelete()
-            ? $this->withTrashed()
-            : $this->newQuery();
-
-        $builder->withDrafts();
-
-        return $this->applyNestedSetScope($builder);
-    }
-
-    public function getQualifiedIsPublishedColumn(?string $table = null): string
-    {
-        return in_array($table, [null, '', '0'], true) ? $this->getIsPublishedColumn() : $table . '.' . $this->getIsPublishedColumn();
-    }
-
     public function loadParent(Language $language): void
     {
         $this->load([
-            'parent' => fn (BuilderContract $query) => $query->withWhereHasLanguage($language->id),
+            'parent' => fn (BuilderContract $query): BuilderContract => $query->withWhereHasLanguage($language->id),
         ]);
+    }
+
+    public function getPreviousRevision(): HasOne
+    {
+        return $this->hasOne(static::class, $this->getKeyName())
+            ->withDrafts()
+            ->latestOfMany();
     }
 
     public function parent(): BelongsTo
     {
         return $this->hasDraftsAndNestedSetParent();
-    }
-
-    public function type(): BelongsTo
-    {
-        return $this->belongsTo(Type::class)
-            ->where('type', LayoutTypeEnum::Content);
     }
 
     public function site(): BelongsTo
@@ -381,14 +362,66 @@ class Content extends Model implements Draftable, HasMedia, PageCacheable
             ->groupBy('widget_assets.widget_id');
     }
 
+    /**
+     * Public bridge to NodeTrait's protected callPendingAction.
+     */
+    public function nodeCallPendingAction(): void
+    {
+        $this->callPendingAction();
+    }
+
+    /**
+     * Public bridge to NodeTrait's protected refreshNode.
+     */
+    public function nodeRefreshNode(): void
+    {
+        $this->refreshNode();
+    }
+
+    /**
+     * Public bridge to NodeTrait's protected deleteDescendants.
+     */
+    public function nodeDeleteDescendants(): void
+    {
+        $this->deleteDescendants();
+    }
+
+    /**
+     * Public bridge to NodeTrait's protected restoreDescendants.
+     */
+    public function restoreDescendants(mixed $deletedAt): void
+    {
+        $this->restoreDescendants($deletedAt);
+    }
+
+    /**
+     * Helper to expose deleted_at value.
+     */
+    public function nodeGetDeletedAtValue(): mixed
+    {
+        return $this->getAttribute($this->getDeletedAtColumn());
+    }
+
     protected static function bootNodeTrait(): void
     {
-        // Handled in boot
+        // Handled in observer
     }
 
     protected static function bootHasDrafts(): void
     {
-        // Handled in boot
+        // Handled in observer
+    }
+
+    /**
+     * Ensure nested set operations include drafts when resolving parents/ancestors.
+     */
+    protected function newScopedQuery(): NestedQueryBuilder
+    {
+        /** @var NestedQueryBuilder $query */
+        $query = $this->nodeTraitNewScopedQuery();
+
+        /** @phpstan-ignore-next-line provided by Oddvalue\LaravelDrafts */
+        return $query->withDrafts();
     }
 
     protected function scopeOrdered(Builder $query, string $dir = 'asc'): void
@@ -400,5 +433,15 @@ class Content extends Model implements Draftable, HasMedia, PageCacheable
     protected function actions(): Attribute
     {
         return Attribute::make(get: fn () => $this->meta['actions'] ?? []);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'is_published' => 'boolean',
+            'meta' => 'json',
+            'publish_from' => 'datetime',
+            'publish_to' => 'datetime',
+        ];
     }
 }

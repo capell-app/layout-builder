@@ -7,7 +7,7 @@ declare(strict_types=1);
 @php
     use Capell\Frontend\Facades\Frontend;
 
-        $language = Frontend::language();
+            $language = Frontend::language();
 @endphp
 
 @props([
@@ -24,7 +24,7 @@ declare(strict_types=1);
 ])
 
 <div
-    class="rounded-2xl bg-white p-6 text-center text-gray-800 shadow-md dark:bg-gray-900/60 dark:text-white"
+    class="rounded-lg bg-white p-6 text-center text-gray-800 shadow-md dark:bg-gray-900/60 dark:text-white"
 >
     @if ($image)
         <img

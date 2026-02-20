@@ -6,10 +6,11 @@ namespace Capell\Layout\Livewire\Widget;
 
 use Capell\Core\Enums\AssetComponentEnum;
 use Capell\Frontend\Facades\Frontend;
-use Capell\Layout\Helpers\CapellLayoutHelper;
+use Capell\Layout\Enums\CapellLayoutCacheKeyEnum;
 use Capell\Layout\Models\Widget;
 use Closure;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\Drawer\Utils;
@@ -41,6 +42,19 @@ abstract class AbstractWidget extends Component
         return static::$defaultView;
     }
 
+    /**
+     * Get a Widget model by its key, with caching.
+     */
+    public static function getWidgetByKey(string $widgetKey): ?Widget
+    {
+        $cacheKey = CapellLayoutCacheKeyEnum::WidgetByKey->value . $widgetKey;
+
+        return self::getCached(
+            $cacheKey,
+            fn () => Widget::query()->firstWhere('key', $widgetKey),
+        );
+    }
+
     public function hydrate(): void
     {
         $this->initializeWidget();
@@ -62,7 +76,7 @@ abstract class AbstractWidget extends Component
     #[Computed]
     public function widget(): Widget
     {
-        return CapellLayoutHelper::getWidgetByKey($this->widgetData['widget_key']);
+        return self::getWidgetByKey($this->widgetData['widget_key']);
     }
 
     /**
@@ -84,7 +98,7 @@ abstract class AbstractWidget extends Component
             'index' => $this->loop->index,
             'language' => Frontend::language(),
             'pageRecord' => Frontend::page(),
-            'pageParams' => Frontend::params(),
+            'urlParams' => Frontend::params(),
             'site' => Frontend::site(),
             'theme' => Frontend::theme(),
             'widget' => $this->widget,
@@ -92,6 +106,22 @@ abstract class AbstractWidget extends Component
         ], $data);
 
         return view($this->getComponent(), $data);
+    }
+
+    /**
+     * Retrieve (and store if missing) a cached value using the array cache driver.
+     */
+    protected static function getCached(string $key, callable $resolver, bool $asBool = false): mixed
+    {
+        $cached = Cache::driver('array')->get($key);
+        if ($cached !== null) {
+            return $asBool ? (bool) $cached : $cached;
+        }
+
+        $result = $resolver();
+        Cache::driver('array')->forever($key, $result);
+
+        return $asBool ? (bool) $result : $result;
     }
 
     protected function getComponent(): string

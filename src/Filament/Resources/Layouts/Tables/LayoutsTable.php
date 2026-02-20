@@ -9,6 +9,7 @@ use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Layout\Enums\ModelEnum;
+use Capell\Layout\Models\Widget;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\ViewEntry;
 use Filament\Tables\Columns\TextColumn;
@@ -74,14 +75,22 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
         return [
             SelectFilter::make('widget_key')
                 ->label(__('capell-layout::form.widget'))
-                ->options(fn () => CapellCore::getModel(ModelEnum::Widget->name)::getOptions('key', 'name'))
+                ->options(function () {
+                    /** @var class-string<Widget> $model */
+                    $model = CapellCore::getModel(ModelEnum::Widget);
+
+                    return $model::getOptions('key', 'name');
+                })
                 ->indicateUsing(function (array $state): array {
                     $indicators = [];
 
                     if (! empty($state['value'])) {
+                        /** @var class-string<Widget> $model */
+                        $model = CapellCore::getModel(ModelEnum::Widget);
+
                         $indicators['widget_key'] = __(
                             'capell-layout::filter.widget',
-                            ['search' => CapellCore::getModel(ModelEnum::Widget->name)::query()->firstWhere('key', $state['value'], 'name')?->name],
+                            ['search' => $model::query()->firstWhere('key', $state['value'], 'name')?->name],
                         );
                     }
 
