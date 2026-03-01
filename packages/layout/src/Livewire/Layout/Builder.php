@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Livewire;
+namespace Capell\Layout\Livewire\Layout;
 
 use BackedEnum;
 use Capell\Admin\Actions\NotifyClearCachedPagesAction;
@@ -45,7 +45,7 @@ use Filament\Support\Enums\Width;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as SupportCollection;
@@ -65,7 +65,7 @@ use Livewire\Component;
  * @property-read $addWidgetAction
  * @property-read $editWidgetAssetAction
  */
-class LayoutBuilder extends Component implements HasActions, HasForms, HasPageResource
+class Builder extends Component implements HasActions, HasForms, HasPageResource
 {
     use HasPageCacheNotification;
     use InteractsWithActions;
@@ -99,7 +99,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     protected ?Site $site = null;
 
-    protected string $view = 'capell-layout::livewire.layout-builder';
+    protected string $view = 'capell-layout::livewire.layout.builder';
 
     public static function getResource(): string
     {
@@ -1371,8 +1371,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
                         ->withCount('pages')
                         ->when(
                             $this->site_id,
-                            fn (Builder $query, int $siteId): Builder => $query->where(
-                                fn (Builder $query) => $query->where('site_id', $siteId)
+                            fn (EloquentBuilder $query, int $siteId): EloquentBuilder => $query->where(
+                                fn (EloquentBuilder $query) => $query->where('site_id', $siteId)
                                     ->orWhereNull('site_id'),
                             ),
                         )
@@ -1854,7 +1854,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
                 )
                 ->dehydrateStateUsing(fn ($state): string => str($state)->slug()->lower()->toString())
                 ->rules([
-                    fn (LayoutBuilder $livewire): Closure => function (string $attribute, $value, Closure $fail) use ($livewire, $containerKey): void {
+                    fn (self $livewire): Closure => function (string $attribute, $value, Closure $fail) use ($livewire, $containerKey): void {
                         if (! isset($livewire->containers[$value]) || ($containerKey && $containerKey === $value)) {
                             return;
                         }
@@ -1918,9 +1918,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     }
 
     /**
-     * @return Builder<Widget>
+     * @return EloquentBuilder<Widget>
      */
-    protected function getWidgetQuery(bool $withRelations = true): Builder
+    protected function getWidgetQuery(bool $withRelations = true): EloquentBuilder
     {
         /** @var class-string<Widget> $model */
         $model = CapellCore::getModel(ModelEnum::Widget->name);
@@ -1928,12 +1928,12 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         return $model::query()
             ->when(
                 $withRelations,
-                fn (Builder $query) => $query->withCount([
+                fn (EloquentBuilder $query) => $query->withCount([
                     'layouts',
-                    'widgetPageAssets as page_assets_count' => fn (Builder $query): Builder => $query->distinct('page_id')
+                    'widgetPageAssets as page_assets_count' => fn (EloquentBuilder $query): EloquentBuilder => $query->distinct('page_id')
                         ->when(
                             $this->inPageContext(),
-                            fn (Builder $query) => $query->where('page_id', $this->page_id),
+                            fn (EloquentBuilder $query) => $query->where('page_id', $this->page_id),
                         ),
                 ])
                     ->with([
@@ -1979,16 +1979,16 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             ->where('widget_id', $widget->id)
             ->where('occurrence', $widgetOccurrence)
             ->where(
-                fn (Builder $query) => $query->where('container', $containerKey)
+                fn (EloquentBuilder $query): EloquentBuilder => $query->where('container', $containerKey)
                     ->orWhereNull('container'),
             )
             ->when(
                 $this->page_id,
-                fn (Builder $query) => $query->where(
-                    fn (Builder $query) => $query->where('page_id', $this->page_id)
+                fn (EloquentBuilder $query): EloquentBuilder => $query->where(
+                    fn (EloquentBuilder $query): EloquentBuilder => $query->where('page_id', $this->page_id)
                         ->orWhereNull('page_id'),
                 ),
-                fn (Builder $query) => $query->whereNull('page_id'),
+                fn (EloquentBuilder $query): EloquentBuilder => $query->whereNull('page_id'),
             )
             ->ordered()
             ->get()
@@ -2009,14 +2009,14 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             ->whereIn('key', $widgetKeys)
             ->when(
                 $withAssets,
-                fn (Builder $query) => $query->with([
+                fn (EloquentBuilder $query): EloquentBuilder => $query->with([
                     'assets' => fn (BuilderContract $query): BuilderContract => $query->when(
                         $this->page_id,
-                        fn (Builder $query) => $query->where(
-                            fn (Builder $query) => $query->where('page_id', $this->page_id)
+                        fn (EloquentBuilder $query) => $query->where(
+                            fn (EloquentBuilder $query) => $query->where('page_id', $this->page_id)
                                 ->orWhereNull('page_id'),
                         ),
-                        fn (Builder $query) => $query->whereNull('page_id'),
+                        fn (EloquentBuilder $query) => $query->whereNull('page_id'),
                     )
                         ->ordered()
                         ->with(
@@ -2117,10 +2117,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
                 ->whereKey($existingIds)
                 ->when(
                     $this->page_id,
-                    fn (Builder $query) => $query->where(
-                        fn (Builder $query) => $query->where('page_id', $this->page_id)->orWhereNull('page_id'),
+                    fn (EloquentBuilder $query) => $query->where(
+                        fn (EloquentBuilder $query) => $query->where('page_id', $this->page_id)->orWhereNull('page_id'),
                     ),
-                    fn (Builder $query) => $query->whereNull('page_id'),
+                    fn (EloquentBuilder $query) => $query->whereNull('page_id'),
                 )
                 ->when(
                     DB::getDriverName() === 'sqlite',
@@ -2311,10 +2311,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $existingAssets = $widget->assets()
             ->where('occurrence', $occurrence)
             ->when(
-                $widgetHasPageAssets ? fn (Builder $query) => $query
+                $widgetHasPageAssets ? fn (EloquentBuilder $query) => $query
                     ->where('container', $oldContainerKey)
                     ->where('page_id', $this->page_id) : null,
-                fn (Builder $query) => $query->whereNull('page_id'),
+                fn (EloquentBuilder $query) => $query->whereNull('page_id'),
             )
             ->get()
             ->mapWithKeys(fn (WidgetAsset $widgetAsset): array => [$widgetAsset->asset_key => $widgetAsset]);
@@ -2594,7 +2594,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
                         ->where('occurrence', $asset['occurrence'])
                         ->when(
                             $hasPageAssets,
-                            fn (Builder $query) => $query->where('page_id', $this->page_id)
+                            fn (EloquentBuilder $query) => $query->where('page_id', $this->page_id)
                                 ->where('container', $asset['original_container_key']),
                         )
                         ->delete();

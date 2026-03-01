@@ -43,7 +43,6 @@ Steps:
     ```
 
     This will:
-
     - Register Filament resources and permissions
     - Publish the package config `config/tags.php` override
     - Publish the `alter_tags_table` migration

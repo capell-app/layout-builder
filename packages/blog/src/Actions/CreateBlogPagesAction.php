@@ -29,14 +29,14 @@ class CreateBlogPagesAction
         $resultsLayout = Layout::query()->firstWhere('key', 'results');
 
         $archivePageType = Type::query()->where('key', BlogPageTypeEnum::Archive)->pageType()->first();
-        $blogPageType = Type::query()->where('key', 'blog')->pageType()->first();
+        $blogPageType = Type::query()->where('key', BlogPageTypeEnum::Blog)->pageType()->first();
         $systemPageType = Type::query()->where('key', 'system')->pageType()->first();
 
-        $blogPage = $blogCreator->createBlogPage($site, type: $blogPageType, languages: $site->languages);
+        $blogPage = $blogCreator->createBlogPage($site, type: $blogPageType);
 
         $archivesPage = $blogCreator->createArchivesPage($blogPage, type: $systemPageType, layout: $archivesLayout);
 
-        $blogCreator->createArchivePage($archivesPage, type: $archivePageType, layout: $resultsLayout, languages: $site->languages);
+        $blogCreator->createArchivePage($archivesPage, type: $archivePageType, layout: $resultsLayout);
 
         $blogCreator->addPagesToNavigations(
             [NavigationHandle::Main->value, NavigationHandle::Footer->value],
@@ -45,8 +45,8 @@ class CreateBlogPagesAction
             languages: $site->languages,
         );
 
-        $tagsPage = $blogCreator->createTagsPage($site, $blogPage, $site->languages);
+        $tagsPage = $blogCreator->createTagsPage($site, $blogPage);
 
-        $blogCreator->createTagPage($site, $tagsPage, $site->languages);
+        $blogCreator->createTagPage($site, $tagsPage);
     }
 }

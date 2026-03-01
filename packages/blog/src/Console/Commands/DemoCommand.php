@@ -87,9 +87,14 @@ class DemoCommand extends Command
         $sitesOption = $this->option('sites');
 
         if ($sitesOption) {
-            return is_string($sitesOption)
-                ? array_filter(array_map(trim(...), explode(',', $sitesOption)))
-                : (is_array($sitesOption) ? $sitesOption : []);
+            if (is_array($sitesOption)) {
+                return array_map(trim(...), $sitesOption);
+            }
+
+            // Treat as a single site name, even if it contains commas
+            if (is_string($sitesOption)) {
+                return [trim($sitesOption)];
+            }
         }
 
         return $this->getDemoSites() ?? [];
@@ -235,18 +240,24 @@ class DemoCommand extends Command
 
         $type = $this->blogCreator->createArticlePageType();
 
-        $this->createDemoArticleRecursive(
-            $demo['children'],
-            $site,
-            $site->languages,
-            $site->language,
-            $blogPage,
-            '',
-            $type,
-            $user,
-            $limit,
-            $createdCount,
-        );
+        foreach ($demo['children'] as $child) {
+            if ($limit !== null && $createdCount >= $limit) {
+                break;
+            }
+
+            $createdCount += $this->createDemoArticleRecursive(
+                $child,
+                $site,
+                $site->languages,
+                $site->language,
+                $blogPage,
+                '',
+                $type,
+                $user,
+                $limit,
+                $createdCount,
+            );
+        }
 
         return true;
     }

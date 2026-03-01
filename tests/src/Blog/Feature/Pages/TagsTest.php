@@ -32,21 +32,21 @@ test('tags page list tags', function (): void {
         ->withTranslations()
         ->hasAttached($tags->slice(0, 2))
         ->create();
-    $blogPage = $blogCreator->createBlogPage($site, languages: $site->languages);
-    $tagsPage = $blogCreator->createTagsPage($site, $blogPage, $site->languages, createWidgets: true);
-    $tagPage = $blogCreator->createTagPage($site, $tagsPage, $site->languages);
+    $blogPage = $blogCreator->createBlogPage($site);
+    $tagsPage = $blogCreator->createTagsPage($site, $blogPage, createWidgets: true);
+    $tagPage = $blogCreator->createTagPage($site, $tagsPage);
 
     expect($tagsPage)
         ->toBeInstanceOf(Page::class)
-        ->name->toBe('Tags Page (show all tags)')
+        ->name->toBe('Tags Page')
         ->type->name->toBe('System')
         ->layout->name->toBe('Tags')
         ->translation->language->id->toBe($language->id)
         ->pageUrl->language->id->toBe($language->id)
         ->and($tagPage)
         ->toBeInstanceOf(Page::class)
-        ->name->toBe('Tag Page (show all articles with this tag)')
-        ->type->name->toBe('Tag Page (show all articles with this tag)')
+        ->name->toBe('Tag Page (articles for tag)')
+        ->type->name->toBe('Tag Page (articles for tag)')
         ->layout->name->toBe('Results')
         ->translation->language->id->toBe($language->id)
         ->pageUrl->language->id->toBe($language->id);
@@ -71,9 +71,9 @@ test('tag page list articles by tag', function (): void {
     $site = Site::factory()->recycle($language)->withTranslations()->create();
     $tag = Tag::factory()->translate($language)->type(TagTypeEnum::Page)->create();
     $articles = Article::factory()->count(5)->recycle($site)->withTranslations()->hasAttached($tag)->create();
-    $blogPage = $blogCreator->createBlogPage($site, languages: $site->languages);
-    $tagsPage = $blogCreator->createTagsPage($site, $blogPage, $site->languages, createWidgets: true);
-    $tagPage = $blogCreator->createTagPage($site, $tagsPage, $site->languages);
+    $blogPage = $blogCreator->createBlogPage($site);
+    $tagsPage = $blogCreator->createTagsPage($site, $blogPage, createWidgets: true);
+    $tagPage = $blogCreator->createTagPage($site, $tagsPage);
 
     $title = trans($tagPage->translation->title, ['tag_name' => $tag->translate('name', $language->code)]);
 

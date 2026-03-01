@@ -4,25 +4,25 @@ declare(strict_types=1);
 
 ?>
 
+{{-- format-ignore-start --}}
 @php
     use Capell\Admin\Enums\AlertTypeEnum;
-            use Capell\Admin\Enums\ResourceEnum;
-            use Capell\Admin\Facades\CapellAdmin;
-            use Capell\Layout\Livewire\LayoutBuilder;
-            use Filament\Support\Enums\Size;
+    use Capell\Admin\Enums\ResourceEnum;
+    use Capell\Admin\Facades\CapellAdmin;
+    use Filament\Support\Enums\Size;
 
-            $changeLayoutAction = $this->changeLayoutAction;
-            $duplicateLayoutAction = $this->duplicateLayoutAction;
-            $addWidgetAction = $this->addWidgetAction;
+    $changeLayoutAction = $this->changeLayoutAction;
+    $duplicateLayoutAction = $this->duplicateLayoutAction;
+    $addWidgetAction = $this->addWidgetAction;
 @endphp
-
+{{-- format-ignore-end --}}
 <div>
     <div
         x-load
         x-load-src="{{
             Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc(
-            'layout-builder',
-            'capell-layout',
+                'layout-builder',
+                'capell-layout',
             )
         }}"
         x-data="layoutBuilderComponent"
@@ -32,7 +32,7 @@ declare(strict_types=1);
         <div
             class="mb-4 flex flex-wrap justify-between gap-4 pl-1 pr-4 sm:flex-nowrap lg:justify-end"
         >
-            <div class="flex-grow">
+            <div class="grow">
                 <div class="text-lg font-semibold">
                     {{ __('capell-layout::heading.layout_record', ['name' => $this->layoutRecord->name]) }}
                 </div>
@@ -43,10 +43,10 @@ declare(strict_types=1);
                     <span class="text-gray-800 dark:text-gray-300">
                         {!!
                             trans_choice('capell-layout::message.layout_count_on_pages', $this->layoutRecord->pages_count, [
-                            'count' => $this->layoutRecord->pages_count,
-                            'url' => CapellAdmin::getResource(ResourceEnum::Page)::getUrl('index', [
-                            'tableFilters' => ['layout_id' => ['value' => $this->layoutRecord->id]],
-                            ]),
+                                'count' => $this->layoutRecord->pages_count,
+                                'url' => CapellAdmin::getResource(ResourceEnum::Page)::getUrl('index', [
+                                    'tableFilters' => ['layout_id' => ['value' => $this->layoutRecord->id]],
+                                ]),
                             ])
                         !!}
                     </span>
@@ -156,7 +156,7 @@ declare(strict_types=1);
                     x-sort:config="{ forceFallback: true, fallbackClass: 'sortable-fallback' }"
                 >
                     @foreach ($containers as $containerKey => $container)
-                        <x-capell-layout::layout-builder.container
+                        <x-capell-layout::layout.builder.container
                             :$container
                             :$containerKey
                             :containerWidgets="$this->containerWidgets[$containerKey] ?? []"
@@ -187,14 +187,14 @@ declare(strict_types=1);
                 x-bind:class="isReordering ? '!bg-primary-500/5 !ring-primary-600 !text-primary-600' : ''"
             >
                 @svg('heroicon-o-arrows-up-down',
-                'inline-block h-4 w-4 text-gray-400 transition duration-75 dark:text-gray-500',
-                ['x-show' => '! isReordering'])
+                    'inline-block h-4 w-4 text-gray-400 transition duration-75 dark:text-gray-500',
+                    ['x-show' => '! isReordering'])
                 @svg('heroicon-o-x-mark',
-                'fi-btn-icon inline-block h-4 w-4 text-gray-400 transition duration-75 dark:text-gray-500',
-                [
-                'x-show' => 'isReordering',
-                'x-cloak' => '',
-                ])
+                    'fi-btn-icon inline-block h-4 w-4 text-gray-400 transition duration-75 dark:text-gray-500',
+                    [
+                        'x-show' => 'isReordering',
+                        'x-cloak' => '',
+                    ])
                 <span
                     x-text="
                         ! isReordering

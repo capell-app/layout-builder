@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Capell\Admin\Filament\Resources\Pages\Pages\EditPage;
 use Capell\Frontend\Http\Middleware\HtmlCacheMiddleware;
-use Capell\Frontend\Http\Middleware\ResolveFrontend;
 use Saade\FilamentAdjacencyList\Forms\Components\Concerns\HasRelationship;
 
 arch('Layout package to be standalone')
@@ -27,7 +26,6 @@ arch()
     ->preset()
     ->security()
     ->ignoring([
-        ResolveFrontend::class,
         HasRelationship::class,
     ]);
 

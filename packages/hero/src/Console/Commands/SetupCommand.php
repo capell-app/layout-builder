@@ -32,8 +32,6 @@ class SetupCommand extends Command
      */
     public function handle(): int
     {
-        $this->info('Setting up hero package...');
-
         /** @var class-string<Layout> $layoutModel */
         $layoutModel = CapellCore::getModel(ModelEnum::Layout);
 

@@ -5,15 +5,18 @@ declare(strict_types=1);
 use Capell\Core\Console\Commands\PublishMigrationsCommand;
 use Capell\Core\Support\Dataset\DatasetPublisher;
 use Capell\Core\Support\Migration\MigrationFileManagerInterface;
-use Capell\Layout\Actions\InstallPackageAction;
 use Capell\Tests\Fixtures\FakeMigrationFileManager;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Console\Migrations\MigrateCommand;
 use Illuminate\Database\Migrations\Migrator;
 
-beforeEach(function (): void {
-    $this->fakeFileManager = new FakeMigrationFileManager([
+afterEach(function (): void {
+    Mockery::close();
+});
+
+it('runs layout install command successfully without publishing files', function (): void {
+    $fakeFileManager = new FakeMigrationFileManager([
         'fileExists' => [],
         'isDir' => [],
     ]);
@@ -21,7 +24,7 @@ beforeEach(function (): void {
     $fakeDatasetPublisher = Mockery::mock(DatasetPublisher::class);
     $this->instance(
         PublishMigrationsCommand::class,
-        Mockery::mock(new PublishMigrationsCommand($fakeDatasetPublisher, $this->fakeFileManager))
+        Mockery::mock(new PublishMigrationsCommand($fakeDatasetPublisher, $fakeFileManager))
             ->makePartial()
             ->shouldReceive('run')->once()->andReturn(0)->getMock(),
     );
@@ -43,31 +46,20 @@ beforeEach(function (): void {
         );
     }
 
-    app()->instance(MigrationFileManagerInterface::class, $this->fakeFileManager);
-});
+    app()->instance(MigrationFileManagerInterface::class, $fakeFileManager);
 
-afterEach(function (): void {
-    Mockery::close();
-});
-
-it('runs layout install command successfully without publishing files', function (): void {
-    $mock = InstallPackageAction::mock();
-    $mock->shouldReceive('handle')->once();
-    app()->instance(InstallPackageAction::class, $mock);
-
-    $this->artisan('capell-layout:install')
-        ->expectsOutput('Installing Capell Layout...')
+    $this->artisan('capell:layout-install')
         ->doesntExpectOutput('Publishing migrations')
         ->doesntExpectOutput('Migrating')
         ->doesntExpectOutput('Building assets')
-        ->expectsOutput('Capell Layout installation complete.')
+        ->expectsOutput('Capell Layout installed successfully.')
         ->assertExitCode(Command::SUCCESS);
 
-    expect($this->fakeFileManager->calls)
+    expect($fakeFileManager->calls)
         ->not()->toContain(fn (array $call): bool => $call[0] === 'copy')
         ->toBeArray();
 
-    expect(collect($this->fakeFileManager->calls)->contains(
+    expect(collect($fakeFileManager->calls)->contains(
         fn (array $call): bool => $call[0] === 'isDir',
     ))->toBeTrue();
 });

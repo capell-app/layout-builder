@@ -23,7 +23,6 @@ $urlParams = Frontend::params();
     'widget',
 ])
 <x-capell-layout::widget.wrapper
-    class="widget-archive"
     :$container
     :$containerKey
     :$containerWidth
@@ -57,7 +56,7 @@ $urlParams = Frontend::params();
         </x-capell::no-results>
     @else
         <ul
-            class="@md:grid-cols-2 grid gap-x-6 divide-y divide-gray-100 dark:divide-gray-600"
+            class="widget-archives-months @md:grid-cols-2 grid gap-x-6 divide-y divide-gray-100 dark:divide-gray-600"
         >
             @foreach ($archives as $archive)
                 @php
@@ -70,7 +69,7 @@ $urlParams = Frontend::params();
                     :count="$archive->total"
                     :active="$active"
                     size="sm"
-                    class="px-2"
+                    class="widget-archives-month px-2"
                 >
                     {{ Carbon\Carbon::create()->day(1)->month($archive->month)->year($archive->year)->format('F Y') }}
                 </x-capell::list.list-item>

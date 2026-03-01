@@ -1,34 +1,34 @@
 @props([
-'layout',
-'containerClass' => null,
-'mainClass' => null,
-'mainContainerClass' => null,
-'pageSlot' => null,
-'page',
-'theme' => [],
+    'layout',
+    'containerClass' => null,
+    'mainClass' => null,
+    'mainContainerClass' => null,
+    'pageSlot' => null,
+    'page',
+    'theme' => [],
 ])
 <main
     id="main"
     @class([
-    'relative z-0 flex min-h-full flex-1 flex-col overflow-x-hidden lg:!min-h-0',
-    $theme['meta']['main_class'] ?? '',
-    $mainClass ?? '',
+        'relative z-0 flex min-h-full flex-1 flex-col overflow-x-hidden lg:!min-h-0',
+        $theme['meta']['main_class'] ?? '',
+        $mainClass ?? '',
     ])
 >
+    {{-- format-ignore-start --}}
     <div
         @class([
-        'grow',
-        $mainContainerClass => (bool) $mainContainerClass,
+            'grow',
+            $mainContainerClass => (bool) $mainContainerClass,
         ])
     >
         @php
             $previousColspan = null;
-                                    $slotRendered = false;
+            $slotRendered = false;
         @endphp
 
         @if ($layout->containers)
             @foreach ($layout->containers as $containerKey => $container)
-                {{-- format-ignore-start --}}
                 @php
                     $widgets = collect($container['widgets'])
                         ->map(
@@ -87,16 +87,13 @@
                     }
                     $previousColspan = $previousColspan >= 12 ? 0 : $previousColspan;
                 @endphp
-                {{-- format-ignore-end --}}
             @endforeach
         @endif
 
-        {{-- format-ignore-start --}}
         @if ($previousColspan && $previousColspan !== 12)
-    </div>
-    </div>
-    @endif
-    {{-- format-ignore-end --}}
+            </div>
+        </div>
+        @endif
 
         @if ($pageSlot && ! $slotRendered)
             {{ $pageSlot }}
@@ -105,4 +102,5 @@
             @endphp
         @endif
     </div>
+    {{-- format-ignore-end --}}
 </main>

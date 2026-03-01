@@ -96,8 +96,9 @@ jobs:
 
             # Pin transitive dependencies to PHP 8.2-friendly ranges
             composer require --no-interaction --no-progress --ansi --no-update \
-              filament/actions:^4.6 \
-              filament/support:^4.6 \
+              livewire/livewire:^3.0 \
+              filament/filament:^4.7 \
+              filament/support:^4.7 \
               symfony/html-sanitizer:^7.0 \
               oddvalue/laravel-drafts:^2.0 \
               openspout/openspout:^4.22

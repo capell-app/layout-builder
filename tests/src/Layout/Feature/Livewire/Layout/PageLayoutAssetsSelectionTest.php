@@ -58,7 +58,7 @@ it('excludes existing page assets when selecting new ones', function (): void {
         ->assertSet('tableArguments', $arguments)
         ->assertCountTableRecords(3) // only new pages should be listed
         ->assertCanSeeTableRecords($newPages)
-        ->assertCanNotSeeTableRecords($existingAssets->map(fn ($asset) => $asset->asset)->all());
+        ->assertCanNotSeeTableRecords($existingAssets->map(fn (WidgetAsset $asset): \Illuminate\Database\Eloquent\Model => $asset->asset)->all());
 });
 
 it('dispatches sync-selected-assets for page layout context', function (string $assetType): void {

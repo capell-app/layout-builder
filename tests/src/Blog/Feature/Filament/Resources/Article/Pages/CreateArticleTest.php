@@ -116,7 +116,7 @@ describe('from list article', function (): void {
             ])
             ->set(
                 'mountedActions.0.data.translations',
-                $site->languages->mapWithKeys(fn ($language): array => [
+                $site->languages->mapWithKeys(fn (Language $language): array => [
                     (string) Str::uuid() => [
                         'language_id' => $language->getKey(),
                         'title' => $newData->name,
@@ -159,7 +159,7 @@ describe('from list article', function (): void {
             ])
             ->set(
                 'mountedActions.0.data.translations',
-                $site->languages->mapWithKeys(fn ($language): array => [
+                $site->languages->mapWithKeys(fn (Language $language): array => [
                     (string) Str::uuid() => [
                         'language_id' => $language->getKey(),
                         'title' => $newData->name,

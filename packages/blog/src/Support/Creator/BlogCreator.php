@@ -119,10 +119,11 @@ class BlogCreator
         ]);
     }
 
-    public function createTagPage(Site $site, ?Page $parent, Collection $languages, ?Type $type = null, ?Layout $layout = null): Page
+    public function createTagPage(Site $site, ?Page $parent, ?Collection $languages = null, ?Type $type = null, ?Layout $layout = null): Page
     {
         $type ??= $this->createTagPageType();
         $layout ??= $this->getLayout(LayoutEnum::Results);
+        $languages ??= $site->languages;
 
         $pageModel = CapellCore::getModel(CoreModelEnum::Page);
 
@@ -154,10 +155,11 @@ class BlogCreator
         return $page;
     }
 
-    public function createTagsPage(Site $site, ?Page $parent, Collection $languages, ?Type $type = null, ?Layout $layout = null, bool $createWidgets = false): Page
+    public function createTagsPage(Site $site, ?Page $parent, ?Collection $languages = null, ?Type $type = null, ?Layout $layout = null, bool $createWidgets = false): Page
     {
         $type ??= $this->getPageType(PageTypeEnum::System);
         $layout ??= self::createTagsLayout();
+        $languages ??= $site->languages;
 
         if ($createWidgets) {
             $this->createTagsWidget($languages);

@@ -11,18 +11,17 @@ declare(strict_types=1);
     'widget',
     'widgetIndex',
 ])
+{{-- format-ignore-start --}}
 @php
-    use Capell\Admin\Facades\CapellAdmin;
     use Capell\Core\Facades\CapellCore;
-    use Capell\Layout\Enums\ResourceEnum;
-    use Capell\Layout\Livewire\LayoutBuilder;
+    use Capell\Layout\Livewire\Layout\Builder;
     use Filament\Support\Enums\FontWeight;
     use Filament\Support\Enums\IconSize;
     use Filament\Support\Enums\Size;
     use Illuminate\View\ComponentAttributeBag;
 
     /**
-     * @var LayoutBuilder $this
+     * @var Builder $this
      */
     $occurrence = $containerWidget['occurrence'] ?? 1;
 
@@ -54,7 +53,7 @@ declare(strict_types=1);
 
     $title = $widget->translation?->title;
 @endphp
-
+{{-- format-ignore-end --}}
 <div
     x-data="{
         isCollapsed: true,
@@ -264,7 +263,7 @@ declare(strict_types=1);
     </div>
 
     @if ($assetTypes)
-        <x-capell-layout::layout-builder.assets
+        <x-capell-layout::layout.builder.assets
             :$containerKey
             :$hasPageAssets
             :$occurrence

@@ -9,6 +9,7 @@ use Capell\Blog\Support\Loader\BlogLoader;
 use Capell\Core\Data\SitemapPageData;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Sitemap\AbstractSitemapPages;
+use Exception;
 use Illuminate\Support\Collection;
 
 class ArticlesSitemap extends AbstractSitemapPages
@@ -18,27 +19,24 @@ class ArticlesSitemap extends AbstractSitemapPages
         // Locate the Blog page for the site & language
         $blogPage = BlogLoader::getBlogPage($this->site);
         if (! $blogPage instanceof Page) {
-            return collect();
+            throw new Exception('Blog page not found for site: ' . $this->site->name);
         }
 
         // Build recursive node: blog page with article children
-        $node = $this->formatRecursive($blogPage)->toArray();
+        $node = $this->formatRecursive($blogPage);
 
         return collect([$node]);
     }
 
     private function formatRecursive(Page $page): SitemapPageData
     {
-        // Base node for current page
         $data = SitemapPageData::fromPage($page, withEditUrl: $this->withEditUrl);
 
-        // Collect Article-group children recursively
         $children = $page->children
             ->filter(
-                // Only include pages in the Article group
-                fn (Page $child): bool => ($child->type_group ?? null) === BlogTypeGroupEnum::Article->value,
+                fn (Page $child): bool => $child->type->group === BlogTypeGroupEnum::Article->value,
             )
-            ->map(fn (Page $child): array => $this->formatRecursive($child)->toArray())
+            ->map(fn (Page $child): array => $this->formatRecursive($child)->all())
             ->values()
             ->all();
 

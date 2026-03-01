@@ -13,6 +13,7 @@ use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Capell\Tests\Support\Concerns\TestingFrontend;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 use Pest\Expectation;
 
@@ -78,7 +79,7 @@ it('renders hero widget with assets', function (callable $factory, string $media
     $widgetAssets = $widget->widgetAssets()
         ->ordered()
         ->with([
-            'asset' => fn ($query) => $query->with([
+            'asset' => fn (Builder $query): Builder => $query->with([
                 'type',
                 'translation',
                 'related.translation',

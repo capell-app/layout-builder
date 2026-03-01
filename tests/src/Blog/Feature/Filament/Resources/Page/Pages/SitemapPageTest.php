@@ -21,9 +21,9 @@ test('can render page', function (): void {
     $site = Site::factory()->create();
 
     $blogCreator = resolve(BlogCreator::class);
-    $blogPage = $blogCreator->createBlogPage($site, languages: $site->languages);
-    $tagsPage = $blogCreator->createTagsPage($site, $blogPage, $site->languages);
-    $blogCreator->createTagPage($site, $tagsPage, $site->languages);
+    $blogPage = $blogCreator->createBlogPage($site);
+    $tagsPage = $blogCreator->createTagsPage($site, $blogPage);
+    $blogCreator->createTagPage($site, $tagsPage);
 
     Page::factory()->site($site)->withTranslations($site->languages)->count(5)->create();
 

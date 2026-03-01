@@ -5,19 +5,19 @@ declare(strict_types=1);
 ?>
 
 @props([
-'component',
-'container',
-'containerColspan' => null,
-'containerKey',
-'containerIndex',
-'containerWidth' => null,
-'loop',
-'occurrence' => $widgetData['occurrence'] ?? 1,
-'pageSlot' => null,
-'type',
-'widget',
-'widgetIndex',
-'widgetData',
+    'component',
+    'container',
+    'containerColspan' => null,
+    'containerKey',
+    'containerIndex',
+    'containerWidth' => null,
+    'loop',
+    'occurrence' => $widgetData['occurrence'] ?? 1,
+    'pageSlot' => null,
+    'type',
+    'widget',
+    'widgetIndex',
+    'widgetData',
 ])
 @if ($type === 'blade')
     <x-dynamic-component
@@ -36,19 +36,19 @@ declare(strict_types=1);
     />
 @elseif ($type === 'livewire')
     @livewire($component,
-    [
-    'container' => $container,
-    'containerColspan' => $containerColspan,
-    'containerKey' => $containerKey,
-    'containerIndex' => $containerIndex,
-    'containerWidth' => $containerWidth,
-    'loop' => $loop,
-    'pageSlot' => $pageSlot,
-    'widget' => $widget,
-    'widgetData' => $widgetData,
-    'widgetIndex' => $widgetIndex,
-    ],
-    key($containerKey . '-' . $widget->key . '-' . $occurrence))
+        [
+            'container' => $container,
+            'containerColspan' => $containerColspan,
+            'containerKey' => $containerKey,
+            'containerIndex' => $containerIndex,
+            'containerWidth' => $containerWidth,
+            'loop' => $loop,
+            'pageSlot' => $pageSlot,
+            'widget' => $widget,
+            'widgetData' => $widgetData,
+            'widgetIndex' => $widgetIndex,
+        ],
+        key($containerKey . '-' . $widget->key . '-' . $occurrence))
 @endif
 
 <?php

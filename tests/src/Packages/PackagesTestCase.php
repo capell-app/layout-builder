@@ -17,7 +17,6 @@ use Capell\Tests\AbstractTestCase;
 use Capell\Tests\Fixtures\Admin\AdminPanelProvider;
 use Illuminate\Foundation\Application;
 use Livewire\LivewireServiceProvider;
-use Override;
 
 class PackagesTestCase extends AbstractTestCase
 {
@@ -47,7 +46,6 @@ class PackagesTestCase extends AbstractTestCase
     /**
      * @param  Application  $app
      */
-    #[Override]
     protected function getEnvironmentSetUp($app): void
     {
         parent::getEnvironmentSetUp($app);

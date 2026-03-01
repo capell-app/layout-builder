@@ -145,7 +145,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     private function registerModelEvents(): self
     {
-        Layout::saving(app(LayoutSavingListener::class));
+        Layout::saving(resolve(LayoutSavingListener::class));
 
         return $this;
     }

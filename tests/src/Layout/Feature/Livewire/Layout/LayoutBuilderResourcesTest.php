@@ -8,7 +8,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\LayoutFactory;
 use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Livewire\LayoutBuilder;
+use Capell\Layout\Livewire\Layout\Builder;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
@@ -49,7 +49,7 @@ test('Can save without affecting widget assets', function (bool $withPage): void
     expect($widget->widgetAssets()->count())
         ->toBe(5);
 
-    livewire(LayoutBuilder::class, [
+    livewire(Builder::class, [
         'layout_id' => $layout->id,
         'page_id' => $withPage ? $page->id : null,
     ])
@@ -111,7 +111,7 @@ test('Can sync new widget assets to page layout', function (): void {
     expect($firstWidget->pageAssets($page, $containerKey, 1)->count())
         ->toBe(2);
 
-    livewire(LayoutBuilder::class, [
+    livewire(Builder::class, [
         'layout_id' => $layout->id,
         'page_id' => $page->id,
     ])
@@ -177,7 +177,7 @@ test('Can sync new widget assets to layout', function (): void {
                 ->occurrence->toBe($occurrence),
         );
 
-    livewire(LayoutBuilder::class, [
+    livewire(Builder::class, [
         'layout_id' => $layout->id,
     ])
         ->assertSuccessful()
@@ -230,7 +230,7 @@ test('Can sync new page assets', function (): void {
     // Excluded
     WidgetAsset::factory()->count(3)->create();
 
-    livewire(LayoutBuilder::class, [
+    livewire(Builder::class, [
         'layout_id' => $layout->id,
         'page_id' => $page->id,
     ])
@@ -296,7 +296,7 @@ test('Can reorder assets', function (): void {
         ])
         ->create();
 
-    livewire(LayoutBuilder::class, [
+    livewire(Builder::class, [
         'layout_id' => $layout->id,
     ])
         ->assertSuccessful()
@@ -339,21 +339,21 @@ test('Can select all widget assets', function (): void {
     $emptySelectedRecords = [];
     $selectedRecords = [];
 
-    foreach ($layout->containers[$containerKey]['widgets'] as $i => $widget) {
-        $emptySelectedRecords[$containerKey][$i] = [];
+    foreach (array_keys($layout->containers[$containerKey]['widgets']) as $containerWidgetIndex) {
+        $emptySelectedRecords[$containerKey][$containerWidgetIndex] = [];
 
-        if ($i !== $widgetIndex) {
-            $selectedRecords[$containerKey][$i] = [];
+        if ($containerWidgetIndex !== $widgetIndex) {
+            $selectedRecords[$containerKey][$containerWidgetIndex] = [];
 
             continue;
         }
 
-        $selectedRecords[$containerKey][$i] = $assets->map(
+        $selectedRecords[$containerKey][$containerWidgetIndex] = $assets->map(
             fn (WidgetAsset $layoutAsset): string => $layoutAsset->asset_key,
         )->toArray();
     }
 
-    livewire(LayoutBuilder::class, [
+    livewire(Builder::class, [
         'layout_id' => $layout->id,
     ])
         ->assertSuccessful()
@@ -374,7 +374,7 @@ test('can add page asset', function (): void {
 
     $widget = Widget::query()->firstWhere('key', $containerWidget['widget_key']);
 
-    livewire(LayoutBuilder::class, [
+    livewire(Builder::class, [
         'layout_id' => $layout->id,
     ])
         ->assertSuccessful()
@@ -437,7 +437,7 @@ test('can add page asset to existing widget with page layout', function (): void
         ->page($pageLayout, $containerKey, $containerWidget['occurrence'])
         ->create();
 
-    livewire(LayoutBuilder::class, [
+    livewire(Builder::class, [
         'layout_id' => $layout->id,
         'page_id' => $pageLayout->id,
     ])
@@ -501,7 +501,7 @@ test('can add page asset to widget with page layout', function (): void {
 
     $widget = Widget::query()->firstWhere('key', $containerWidget['widget_key']);
 
-    livewire(LayoutBuilder::class, [
+    livewire(Builder::class, [
         'layout_id' => $layout->id,
         'page_id' => $pageLayout->id,
     ])
@@ -550,7 +550,7 @@ test('can select assets', function (string $assetType): void {
     $containerKey = array_key_first($layout->containers);
     $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
 
-    livewire(LayoutBuilder::class, ['layout_id' => $layout->id])
+    livewire(Builder::class, ['layout_id' => $layout->id])
         ->assertSuccessful()
         ->mountAction(
             TestAction::make('selectAsset')
@@ -579,7 +579,7 @@ test('can edit asset', function (): void {
 
     $page = $layoutAsset->asset()->with('translation')->first();
 
-    livewire(LayoutBuilder::class, [
+    livewire(Builder::class, [
         'layout_id' => $layout->id,
     ])
         ->assertSuccessful()
@@ -616,7 +616,7 @@ test('can remove widget assets', function (): void {
         ->count(3)
         ->create();
 
-    livewire(LayoutBuilder::class, [
+    livewire(Builder::class, [
         'layout_id' => $layout->id,
     ])
         ->assertSuccessful()
@@ -662,7 +662,7 @@ test('can remove all assets', function (): void {
         ->count(3)
         ->create();
 
-    livewire(LayoutBuilder::class, [
+    livewire(Builder::class, [
         'layout_id' => $layout->id,
         'page_id' => $page->id,
     ])
@@ -707,7 +707,7 @@ test('can not remove assets if no records selected', function (): void {
         ->count(3)
         ->create();
 
-    livewire(LayoutBuilder::class, [
+    livewire(Builder::class, [
         'layout_id' => $layout->id,
     ])
         ->assertSuccessful()
@@ -749,7 +749,7 @@ test('Can revert page assets', function (): void {
         ->count(3)
         ->create();
 
-    livewire(LayoutBuilder::class, [
+    livewire(Builder::class, [
         'layout_id' => $layout->id,
         'page_id' => $page->id,
     ])

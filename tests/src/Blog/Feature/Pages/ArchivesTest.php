@@ -28,25 +28,19 @@ test('archives page list articles archives by month/year', function (): void {
     $archivePage = $blogCreator->createArchivePage($archivesPage);
     $articleType = $blogCreator->createArticlePageType();
     $articleLayout = $blogCreator->createArticleLayout(createWidgets: true);
-    $tagsPage = $blogCreator->createTagsPage($site, $blogPage, $site->languages);
-    $blogCreator->createTagPage($site, $tagsPage, $site->languages);
+    $tagsPage = $blogCreator->createTagsPage($site, $blogPage);
+    $blogCreator->createTagPage($site, $tagsPage);
 
     $articles = Article::factory()
-        ->count(3)
-        ->site($siteDomain->site)
+        ->site($site)
         ->layout($articleLayout)
-        ->type($articleType)
-        ->parent($blogPage)
         ->withTranslations($site->languages)
+        ->forEachSequence(
+            ['publish_from' => '2023-01-01'],
+            ['publish_from' => '2023-02-01'],
+            ['publish_from' => '2023-03-01'],
+        )
         ->create();
-
-    $oldestArticle = $articles->sortBy(fn (Page $page) => $page->publish_from ?? $page->created_at)->first();
-    $oldestPublishDate = $oldestArticle->publish_from ?: $oldestArticle->created_at;
-    $oldestArchiveUrl = GenerateArchivePageUrl::run($archivePage->pageUrl, ArchiveMonthData::fromDate($oldestPublishDate));
-
-    $newestArticle = $articles->sortByDesc(fn (Page $page) => $page->publish_from ?? $page->created_at)->first();
-    $newestPublishDate = $newestArticle->publish_from ?: $newestArticle->created_at;
-    $newestArchiveUrl = GenerateArchivePageUrl::run($archivePage->pageUrl, ArchiveMonthData::fromDate($newestPublishDate));
 
     expect($archivesPage)
         ->toBeInstanceOf(Page::class)
@@ -56,9 +50,31 @@ test('archives page list articles archives by month/year', function (): void {
 
     get($archivesPage->pageUrl->full_url)
         ->assertOk()
-        ->assertSee($archivesPage->title)
-        ->assertSeeHtml('href="' . $oldestArchiveUrl . '"')
-        ->assertSeeHtml('href="' . $newestArchiveUrl . '"');
+        ->assertElementExists(
+            'title',
+            fn (AssertElement $elm): BaseAssert => $elm->containsText($archivesPage->translation->meta_title),
+        )
+        ->assertElementExists(
+            'h1',
+            fn (AssertElement $elm): BaseAssert => $elm->containsText($archivesPage->translation->title),
+        )
+        ->assertElementExists(
+            '.widget-archives',
+            fn (AssertElement $elm): BaseAssert => $elm->contains('.widget-archives-month', count: 3)
+                ->each(
+                    '.widget-archives-month',
+                    fn (AssertElement $month, int $index): BaseAssert => $month->find(
+                        'a',
+                        fn (AssertElement $link): BaseAssert => $link->has(
+                            'href',
+                            GenerateArchivePageUrl::run($archivePage->pageUrl, ArchiveMonthData::from([
+                                'year' => '2023',
+                                'month' => 3 - $index,
+                            ])),
+                        ),
+                    ),
+                ),
+        );
 });
 
 test('archive page list articles by month/year', function (): void {
@@ -91,7 +107,7 @@ test('archive page list articles by month/year', function (): void {
 
     expect($archivePage)
         ->toBeInstanceOf(Page::class)
-        ->type->name->toBe('Archive')
+        ->type->name->toBe('Archive Page (articles for month/year)')
         ->layout->name->toBe('Results')
         ->parent->name->toBe('Archives')
         ->and($archivePage->getAncestors(['name'])->pluck('name')->toArray())

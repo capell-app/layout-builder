@@ -37,10 +37,10 @@ it('generates tag and archive URLs for static site', function (): void {
         ])
         ->create();
 
-    $blogPage = $blogCreator->createBlogPage($site, languages: $site->languages);
+    $blogPage = $blogCreator->createBlogPage($site);
 
-    $tagsPage = $blogCreator->createTagsPage($site, $blogPage, $site->languages, createWidgets: true);
-    $tagPage = $blogCreator->createTagPage($site, $tagsPage, $site->languages);
+    $tagsPage = $blogCreator->createTagsPage($site, $blogPage, createWidgets: true);
+    $tagPage = $blogCreator->createTagPage($site, $tagsPage);
     $tagPageUrl = rtrim($tagPage->pageUrl->url, '/*') . '/';
 
     $archivesPage = $blogCreator->createArchivesPage($tagsPage);
@@ -61,11 +61,11 @@ it('generates tag and archive URLs for static site', function (): void {
 
     $visited = [];
     $extension = new BlogStaticSiteExtension;
-    $extension($site, $domain, function ($url) use (&$visited): void {
+    $extension($site, $domain, function (string $url) use (&$visited): void {
         $visited[] = $url;
     });
 
-    $expectedUrls = $tagSlugs->map(fn ($slug): string => $tagPageUrl . $slug)->all();
+    $expectedUrls = $tagSlugs->map(fn (string $slug): string => $tagPageUrl . $slug)->all();
     if ($archiveMonth) {
         $expectedUrls[] = $archivePageUrl . $archiveMonth->year . '/' . str_pad((string) $archiveMonth->month, 2, '0', STR_PAD_LEFT);
     }

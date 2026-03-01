@@ -24,7 +24,7 @@ it('excludes existing page records and current pageId from selection list', func
     $pages = Page::factory()->count(5)->create();
 
     $existingRecords = $pages->take(2);
-    $visibleExpected = $pages->slice(2)->filter(fn ($page): bool => $page->id !== $currentPage->id)->values();
+    $visibleExpected = $pages->slice(2)->filter(fn (Page $page): bool => $page->id !== $currentPage->id)->values();
 
     $arguments = [
         'containerKey' => $containerKey,

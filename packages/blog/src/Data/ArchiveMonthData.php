@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Blog\Data;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Date;
 use Spatie\LaravelData\Data;
 
 class ArchiveMonthData extends Data
@@ -25,6 +26,6 @@ class ArchiveMonthData extends Data
 
     public function getDate(): Carbon
     {
-        return Carbon::createFromFormat('Y-m', sprintf('%d-%d', $this->year, $this->month));
+        return Date::createFromFormat('Y-m', sprintf('%d-%d', $this->year, $this->month));
     }
 }

@@ -28,11 +28,12 @@ it('runs demo command and creates articles and tags for the site', function (): 
     $site->loadMissing('languages', 'language');
 
     // Run the demo command for this site with a small limit
-    $this->artisan('capell-blog:demo', [
+    $this->artisan('capell:blog-demo', [
         '--sites' => $site->name,
         '--limit' => 2,
     ])
         ->expectsOutput('Setting up demo blog for site: ' . $site->name)
+        ->expectsOutput('Blog demo setup completed for selected sites.')
         ->assertExitCode(Command::SUCCESS);
 
     // Verify that article pages were created under the blog page for the site

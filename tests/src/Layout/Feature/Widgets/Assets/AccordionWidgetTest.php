@@ -83,18 +83,18 @@ it('renders asset accordion widget on page', function (callable $factory, string
 })->with(
     [
         'widgetAssetHasMedia' => [
-            fn (Widget $widget) => WidgetAsset::factory()->count(3)
+            fn (Widget $widget): \Capell\Layout\Database\Factories\WidgetAssetFactory => WidgetAsset::factory()->count(3)
                 ->widget($widget)
                 ->has(Media::factory()->image(), 'media'),
             'media',
-            fn ($widgetAsset) => $widgetAsset->media->first()->getFullUrl(),
+            fn (WidgetAsset $widgetAsset): string => $widgetAsset->media->first()->getFullUrl(),
         ],
         'assetHavingMedia' => [
-            fn (Widget $widget) => WidgetAsset::factory()->count(3)
+            fn (Widget $widget): \Capell\Layout\Database\Factories\WidgetAssetFactory => WidgetAsset::factory()->count(3)
                 ->widget($widget)
                 ->assetHavingMedia(),
             'asset.media',
-            fn ($widgetAsset) => $widgetAsset->asset->media->first()->getFullUrl(),
+            fn (WidgetAsset $widgetAsset): string => $widgetAsset->asset->media->first()->getFullUrl(),
         ],
     ],
 );

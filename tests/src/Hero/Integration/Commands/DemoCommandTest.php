@@ -32,7 +32,7 @@ it('adds hero meta to blog and article pages when blog package is installed', fu
     $blogCreator->setup($site);
 
     // Act: run the command
-    $this->artisan('capell-hero:demo')
+    $this->artisan('capell:hero-demo')
         ->expectsQuestion('Choose the demo content?', ['DemoSite'])
         ->expectsOutput('Demo hero content has been successfully created for site: DemoSite')
         ->expectsOutput('Hero demo content inserted successfully.')

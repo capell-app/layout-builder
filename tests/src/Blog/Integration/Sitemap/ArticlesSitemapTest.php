@@ -10,6 +10,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
+use Capell\Core\Models\Type;
 use Capell\Tests\Support\Concerns\TestingFrontend;
 use Illuminate\Support\Collection;
 
@@ -23,42 +24,49 @@ it('returns blog page with all Article children recursively', function (): void 
     $domain = SiteDomain::factory()->for($site)->create();
 
     // Create a blog page and a tree of children
-    $blogPage = $blogCreator->createBlogPage($site, languages: $site->languages);
+    $blogPage = $blogCreator->createBlogPage($site);
 
     // Children: Article group
-    $articleA = Page::factory()->for($site)->withTranslations()->state(['type_group' => BlogTypeGroupEnum::Article->value])->create();
-    $articleB = Page::factory()->for($site)->withTranslations()->state(['type_group' => BlogTypeGroupEnum::Article->value])->create();
-    $nonArticle = Page::factory()->for($site)->withTranslations()->state(['type_group' => 'other'])->create();
-
-    $articleA->parent()->associate($blogPage)->save();
-    $articleB->parent()->associate($blogPage)->save();
-    $nonArticle->parent()->associate($blogPage)->save();
+    $articleA = Page::factory()
+        ->for($site)->parent($blogPage)
+        ->withTranslations()
+        ->for(Type::factory()->page()->group(BlogTypeGroupEnum::Article->value))
+        ->create();
+    $articleB = Page::factory()
+        ->for($site)->parent($blogPage)
+        ->withTranslations()
+        ->for(Type::factory()->page()->group(BlogTypeGroupEnum::Article->value))
+        ->create();
+    $nonArticle = Page::factory()->for($site)->parent($blogPage)->withTranslations()->create();
 
     // Nested article under A
-    $nestedArticle = Page::factory()->for($site)->withTranslations()->state(['type_group' => BlogTypeGroupEnum::Article->value])->create();
-    $nestedArticle->parent()->associate($articleA)->save();
+    $nestedArticle = Page::factory()
+        ->for($site)
+        ->withTranslations()
+        ->parent($articleA)
+        ->for(Type::factory()->page()->group(BlogTypeGroupEnum::Article->value))
+        ->create();
 
     $sitemap = new ArticlesSitemap(site: $site, domain: $domain, language: $language);
     $result = $sitemap->fetch();
 
-    expect($result)->toBeInstanceOf(Collection::class);
-    expect($result)->toHaveCount(1);
+    expect($result)
+        ->toBeInstanceOf(Collection::class)
+        ->toHaveCount(1);
 
     /** @var SitemapPageData $root */
     $root = $result->first();
-    expect($root)->toBeInstanceOf(SitemapPageData::class);
-    expect($root->page_id)->toBe($blogPage->id);
 
-    // Children should include articleA and articleB, but exclude non-article
-    $childrenLabels = $root->children->map(fn (SitemapPageData $d) => $d->page_id)->all();
-
-    expect($childrenLabels)->toContain($articleA->id);
-    expect($childrenLabels)->toContain($articleB->id);
-    expect($childrenLabels)->not->toContain($nonArticle->id);
-
-    // Recursion: articleA should have nestedArticle as child
-    /** @var SitemapPageData $articleANode */
-    $articleANode = $root->children->firstWhere(fn (SitemapPageData $d): bool => $d->page_id === $articleA->id);
-    expect($articleANode)->not()->toBeNull();
-    expect($articleANode->children->map(fn (SitemapPageData $d) => $d->page_id)->all())->toContain($nestedArticle->id);
+    expect($root)
+        ->toBeInstanceOf(SitemapPageData::class)
+        ->pageId->toBe($blogPage->id)
+        ->and($root->children)
+        ->toBeInstanceOf(Collection::class)
+        ->toHaveCount(2)
+        ->and($root->children->pluck('pageId'))
+        ->toMatchArray([$articleA->id, $articleB->id])
+        ->and($root->children->first()->children)
+        ->toBeInstanceOf(Collection::class)
+        ->toHaveCount(1)
+        ->first()->pageId->toBe($nestedArticle->id);
 });

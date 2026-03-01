@@ -6,6 +6,7 @@ use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Layout\Database\Factories\LayoutFactory;
+use Capell\Layout\Database\Factories\WidgetAssetFactory;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Capell\Layout\Support\Creator\WidgetCreator;
@@ -66,18 +67,18 @@ it('renders asset testimonials widget on page', function (callable $factory, str
 })->with(
     [
         'widgetAssetHasMedia' => [
-            fn (Widget $widget) => WidgetAsset::factory()->count(3)
+            fn (Widget $widget): WidgetAssetFactory => WidgetAsset::factory()->count(3)
                 ->widget($widget)
                 ->has(Media::factory()->image(), 'media'),
             'media',
-            fn ($widgetAsset) => $widgetAsset->media->first()->getFullUrl(),
+            fn (WidgetAsset $widgetAsset): string => $widgetAsset->media->first()->getFullUrl(),
         ],
         'assetHavingMedia' => [
-            fn (Widget $widget) => WidgetAsset::factory()->count(3)
+            fn (Widget $widget): WidgetAssetFactory => WidgetAsset::factory()->count(3)
                 ->widget($widget)
                 ->assetHavingMedia(),
             'asset.media',
-            fn ($widgetAsset) => $widgetAsset->asset->media->first()->getFullUrl(),
+            fn (WidgetAsset $widgetAsset): string => $widgetAsset->asset->media->first()->getFullUrl(),
         ],
     ],
 );

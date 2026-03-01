@@ -35,7 +35,11 @@ test('blog page lists articles', function (): void {
     $articleType = $blogCreator->createArticlePageType();
     $articleLayout = $blogCreator->createArticleLayout(createWidgets: true);
 
-    $blogCreator->createArchivePage($blogPage);
+    $archivesPage = $blogCreator->createArchivesPage($blogPage);
+    $blogCreator->createArchivePage($archivesPage);
+
+    $tagsPage = $blogCreator->createTagsPage($site, $blogPage);
+    $blogCreator->createTagPage($site, $tagsPage);
 
     $articles = Article::factory()
         ->count(3)
@@ -88,7 +92,11 @@ test('article page', function (): void {
     $articleType = $blogCreator->createArticlePageType();
     $articleLayout = $blogCreator->createArticleLayout(createWidgets: true);
 
-    $blogCreator->createArchivePage($blogPage);
+    $archivesPage = $blogCreator->createArchivesPage($blogPage);
+    $blogCreator->createArchivePage($archivesPage);
+
+    $tagsPage = $blogCreator->createTagsPage($site, $blogPage, createWidgets: true);
+    $tagPage = $blogCreator->createTagPage($site, $tagsPage);
 
     $article = Article::factory()
         ->site($siteDomain->site)
@@ -119,8 +127,8 @@ test('article page list tags', function (): void {
 
     $blogPage = $blogCreator->createBlogPage($site);
 
-    $tagsPage = $blogCreator->createTagsPage($site, $blogPage, $site->languages, createWidgets: true);
-    $tagPage = $blogCreator->createTagPage($site, $tagsPage, $site->languages);
+    $tagsPage = $blogCreator->createTagsPage($site, $blogPage, createWidgets: true);
+    $tagPage = $blogCreator->createTagPage($site, $tagsPage);
 
     $archivesPage = $blogCreator->createArchivesPage($blogPage);
     $archivePage = $blogCreator->createArchivePage($archivesPage);

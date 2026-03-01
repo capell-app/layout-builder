@@ -13,6 +13,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Sitemap\AbstractSitemapPages;
 use Capell\Core\Support\Sitemap\SitemapChainBuilder;
+use Exception;
 use Illuminate\Support\Collection;
 
 class ArchivesSitemap extends AbstractSitemapPages
@@ -23,18 +24,11 @@ class ArchivesSitemap extends AbstractSitemapPages
         $model = CapellCore::getModel(CoreModelEnum::Page);
 
         $archivePage = $model::getFirstPageByTypeForSite('archive', $this->site, $this->language);
-        if (! $archivePage instanceof Page) {
-            return collect([]);
-        }
+        throw_unless($archivePage instanceof Page, Exception::class, 'Archive page not found for the current site and language.');
 
         $monthChildren = $this->getArchiveMonths($archivePage);
 
-        $parent = $archivePage->parent;
-        if ($parent === null) {
-            return collect($monthChildren);
-        }
-
-        $node = SitemapChainBuilder::build($parent, $monthChildren);
+        $node = SitemapChainBuilder::build($archivePage->parent, $monthChildren);
 
         return collect([$node]);
     }

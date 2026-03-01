@@ -9,16 +9,16 @@ use Capell\Core\Enums\Attribute\EnumAttributeHelper;
 use Capell\Core\Enums\Attribute\EnumAttributeInterface;
 use Capell\Layout\Livewire\Assets\Table\ContentAssets;
 use Capell\Layout\Livewire\Assets\Table\PageAssets;
+use Capell\Layout\Livewire\Layout\Builder;
 use Capell\Layout\Livewire\Layout\WidgetTableSelect;
-use Capell\Layout\Livewire\LayoutBuilder;
 use Capell\Layout\Livewire\Widget\Pages;
 
 enum LivewireComponentsEnum: string implements EnumAttributeInterface
 {
     use EnumAttributeHelper;
 
-    #[Component(LayoutBuilder::class)]
-    case LayoutBuilder = 'capell-layout::layout-builder';
+    #[Component(Builder::class)]
+    case LayoutBuilder = 'capell-layout::layout.builder';
 
     #[Component(WidgetTableSelect::class)]
     case WidgetTableSelect = 'capell-layout::layout.widget-table-select';

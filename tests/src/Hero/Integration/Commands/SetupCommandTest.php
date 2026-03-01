@@ -13,10 +13,7 @@ it('runs hero install command successfully', function (): void {
     $mock->shouldReceive('handle')->once();
     app()->instance(AddHeroToLayoutAction::class, $mock);
 
-    // TODO check if this is the right way to assert that the action was called
-    // AddHeroToLayoutAction::shouldRun()->once()->withArgs($layout);
-
-    $this->artisan('capell-hero:install')
-        ->expectsOutput('Hero package installed successfully.')
+    $this->artisan('capell:hero-setup')
+        ->expectsOutput('Capell Hero setup successfully.')
         ->assertExitCode(Command::SUCCESS);
 });

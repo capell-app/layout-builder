@@ -11,6 +11,7 @@ use Capell\Admin\Filament\Concerns\HasAncestorBreadcrumbs;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Admin\Filament\Concerns\HasTypeRelationManagers;
 use Capell\Layout\Actions\ReplicateContentAction;
+use Capell\Layout\Enums\LivewireComponentsEnum;
 use Capell\Layout\Enums\ResourceEnum;
 use Capell\Layout\Filament\Actions\CreateContentAction;
 use Capell\Layout\Filament\Resources\Contents\ContentResource;
@@ -109,7 +110,7 @@ class EditContent extends EditRecord
     {
         $this->notifyPageCached($this->record);
 
-        $this->dispatch('refresh-alerts')->to(ContentAlertsWidget::class);
+        $this->dispatch('refresh-alerts')->to(LivewireComponentsEnum::ContentAssetsTable->value);
 
         $this->recordSwitcherAfterSave();
     }
