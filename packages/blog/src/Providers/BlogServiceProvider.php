@@ -232,7 +232,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             fn (RenderHookContext $context): ?View => resolve(Tags::class, [
                 'item' => $context->item,
             ])
-                ?->render() ?: null,
+                ?->render(),
             target: 'footer.index',
         );
 
@@ -241,37 +241,38 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             fn (RenderHookContext $context): ?View => resolve(Pages::class, [
                 'item' => $context->item,
             ])
-                ?->render() ?: null,
+                ?->render(),
             target: 'footer.index',
         );
 
         resolve(RenderHookRegistry::class)->register(
             RenderHookLocation::ArticleMeta,
             fn (RenderHookContext $context): ?View => resolve(ArticleMeta::class, [
-                'withAuthor' => $context->withAuthor ?? false,
-                'author' => $context->author ?? null,
+                'item' => $context->item ?? null,
+                'withAuthor' => $context->item['withAuthor'] ?? false,
+                'author' => $context->item['author'] ?? null,
             ])
-                ?->render() ?: null,
+                ?->render(),
         );
 
         resolve(RenderHookRegistry::class)->register(
             RenderHookLocation::BeforeContent,
             fn (RenderHookContext $context): ?View => resolve(BeforeContentTags::class, [
                 'item' => $context->item ?? null,
-                'tags' => $context->item->tags ?? null,
+                'tags' => $context->item['tags'] ?? null,
             ])
-                ?->render() ?: null,
+                ?->render(),
         );
 
         resolve(RenderHookRegistry::class)->register(
             RenderHookLocation::AfterTitle,
             fn (RenderHookContext $context): ?View => resolve(AssetAfterTitle::class, [
-                'publishDate' => $context->publishDate ?? null,
-                'publishDatePosition' => $context->publishDatePosition ?? null,
-                'tags' => $context->tags ?? null,
-                'publishDateOutput' => $context->publishDateOutput ?? null,
+                'publishDate' => $context->item['publishDate'] ?? null,
+                'publishDatePosition' => $context->item['publishDatePosition'] ?? null,
+                'tags' => $context->item['tags'] ?? null,
+                'publishDateOutput' => $context->item['publishDateOutput'] ?? null,
             ])
-                ?->render() ?: null,
+                ?->render(),
         );
 
         return $this;
@@ -312,8 +313,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
                 Tag::class,
                 'taggable',
                 'taggables',
-            )
-                ->ordered(),
+            ),
         );
 
         Site::resolveRelationUsing(

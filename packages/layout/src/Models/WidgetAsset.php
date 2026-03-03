@@ -73,6 +73,23 @@ use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
  * @property-read int|null $assets_count
  *
  * @mixin Model
+ *
+ * @method static Builder<static>|WidgetAsset whereAssetId($value)
+ * @method static Builder<static>|WidgetAsset whereAssetType($value)
+ * @method static Builder<static>|WidgetAsset whereContainer($value)
+ * @method static Builder<static>|WidgetAsset whereCreatedAt($value)
+ * @method static Builder<static>|WidgetAsset whereCreatedBy($value)
+ * @method static Builder<static>|WidgetAsset whereDeletedBy($value)
+ * @method static Builder<static>|WidgetAsset whereId($value)
+ * @method static Builder<static>|WidgetAsset whereMeta($value)
+ * @method static Builder<static>|WidgetAsset whereOccurrence($value)
+ * @method static Builder<static>|WidgetAsset whereOrder($value)
+ * @method static Builder<static>|WidgetAsset wherePageId($value)
+ * @method static Builder<static>|WidgetAsset whereUpdatedAt($value)
+ * @method static Builder<static>|WidgetAsset whereUpdatedBy($value)
+ * @method static Builder<static>|WidgetAsset whereWidgetId($value)
+ *
+ * @mixin Model
  */
 class WidgetAsset extends Model implements HasMedia, PageCacheable, Userstampable
 {

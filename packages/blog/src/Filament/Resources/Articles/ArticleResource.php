@@ -23,7 +23,6 @@ use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Contracts\Support\Htmlable;
-use Override;
 
 class ArticleResource extends PageResource
 {
@@ -83,7 +82,6 @@ class ArticleResource extends PageResource
         return __('capell-blog::generic.articles');
     }
 
-    #[Override]
     public static function mutateFormDataBeforeCreate(array &$data, array $formData = []): void
     {
         $data['layout_id'] = GetArticleLayoutAction::run()?->id;
@@ -101,26 +99,25 @@ class ArticleResource extends PageResource
         /* @var class-string<\Capell\Core\Models\Site> $model */
         $model = CapellCore::getModel(CoreModelEnum::Site);
 
-        $site = $model::query()->find($siteId) ?: $model::default()->first();
+        $site = $model::query()->find($siteId) ?? $model::default()->first();
 
-        if (! $site) {
+        if ($site === null) {
             return;
         }
 
-        if (empty($data['site_id'])) {
+        if (! isset($data['site_id']) || blank($data['site_id'])) {
             $data['site_id'] = $site->id;
         }
 
-        if (empty($data['parent_id'])) {
+        if (! isset($data['parent_id']) || blank($data['parent_id'])) {
             $data['parent_id'] = BlogLoader::getBlogPage($site)?->id;
         }
 
-        if (empty($data['name']) && ! empty($formData['translations'])) {
+        if ((! isset($data['name']) || blank($data['name'])) && isset($formData['translations'])) {
             $data['name'] = GetNameFromTranslationsAction::run(collect($formData['translations']), $site);
         }
     }
 
-    #[Override]
     public static function applyTypeAdminResourceConstraint(BuilderContract $query, ?bool $hideSystemPages = false): void
     {
         $query->where('group', BlogTypeGroupEnum::Article);

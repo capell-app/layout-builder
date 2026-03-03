@@ -35,17 +35,11 @@ class ActionsRepeater extends Repeater
             ->orderColumn()
             ->defaultItems(0)
             ->addActionLabel(__('capell-layout::button.add_action'))
-            ->itemLabel(function (array $state): string {
-                if (isset($state['label'])) {
-                    return $state['label'];
-                }
-
-                return match ($state['type']) {
-                    'page' => Page::query()->find($state['page_id'], ['name'])?->name,
-                    'url' => $state['url'],
-                    default => null
-                } ?? __('capell-admin::generic.action');
-            })
+            ->itemLabel(fn (array $state): string => $state['label'] ?? match ($state['type']) {
+                'page' => Page::query()->find($state['page_id'], ['name'])?->name,
+                'url' => $state['url'],
+                default => null
+            } ?? __('capell-admin::generic.action'))
             ->schema([
                 Radio::make('type')
                     ->label(__('capell-admin::form.type'))

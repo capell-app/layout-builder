@@ -12,6 +12,7 @@ use Capell\Core\Models\Concerns\HasUserstamps;
 use Capell\Core\Models\Contracts\Defaultable;
 use Capell\Core\Models\Contracts\Userstampable;
 use Capell\Core\Models\Site;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -57,6 +58,34 @@ use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
  * @method static Builder<static>|Address status(bool $enabled)
  * @method static Builder<static>|Address withTrashed(bool $withTrashed = true)
  * @method static Builder<static>|Address withoutTrashed()
+ *
+ * @mixin Model
+ *
+ * @property int $id
+ * @property CarbonImmutable|null $deleted_at
+ * @property int|null $created_by
+ * @property int|null $updated_by
+ * @property int|null $deleted_by
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
+ *
+ * @method static Builder<static>|Address whereCity($value)
+ * @method static Builder<static>|Address whereCountryId($value)
+ * @method static Builder<static>|Address whereCreatedAt($value)
+ * @method static Builder<static>|Address whereCreatedBy($value)
+ * @method static Builder<static>|Address whereDefault($value)
+ * @method static Builder<static>|Address whereDeletedAt($value)
+ * @method static Builder<static>|Address whereDeletedBy($value)
+ * @method static Builder<static>|Address whereId($value)
+ * @method static Builder<static>|Address whereLine1($value)
+ * @method static Builder<static>|Address whereLine2($value)
+ * @method static Builder<static>|Address whereMeta($value)
+ * @method static Builder<static>|Address whereName($value)
+ * @method static Builder<static>|Address wherePostalCode($value)
+ * @method static Builder<static>|Address whereState($value)
+ * @method static Builder<static>|Address whereStatus($value)
+ * @method static Builder<static>|Address whereUpdatedAt($value)
+ * @method static Builder<static>|Address whereUpdatedBy($value)
  *
  * @mixin Model
  */
@@ -128,7 +157,7 @@ class Address extends Model implements Defaultable, Userstampable
             $this->state,
             $this->postal_code,
             $this->country?->name,
-        ]);
+        ], fn (?string $part): bool => $part !== null);
 
         return implode(', ', $parts);
     }

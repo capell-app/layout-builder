@@ -21,11 +21,6 @@ class Archive extends AbstractPage
 
     protected static string $defaultView = 'capell::livewire.page.results';
 
-    public function getPaginationPage($pageName = 'page')
-    {
-        return request()->get($pageName) ?? parent::getPage($pageName);
-    }
-
     /**
      * @return array<int, int>
      */

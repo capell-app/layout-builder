@@ -9,6 +9,7 @@ use Capell\Blog\Support\Creator\BlogCreator;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\SiteDomain;
 use Capell\Tests\Support\Concerns\TestingFrontend;
+use Carbon\CarbonImmutable;
 
 use function Pest\Laravel\get;
 
@@ -89,7 +90,7 @@ test('archive page list articles by month/year', function (): void {
     $articleType = $blogCreator->createArticlePageType();
     $articleLayout = $blogCreator->createArticleLayout();
 
-    $publishDate = now()->subMonth();
+    $publishDate = CarbonImmutable::now()->subMonth();
 
     $articles = Article::factory()
         ->count(3)

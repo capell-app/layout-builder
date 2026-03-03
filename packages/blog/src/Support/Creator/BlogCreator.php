@@ -44,7 +44,7 @@ use Illuminate\Support\Collection;
 
 class BlogCreator
 {
-    public function setup(Site $site, $createWidgets = true): void
+    public function setup(Site $site, bool $createWidgets = true): void
     {
         $typeCreator = resolve(TypeCreator::class);
         $layoutCreator = resolve(LayoutCreator::class);
@@ -119,11 +119,12 @@ class BlogCreator
         ]);
     }
 
-    public function createTagPage(Site $site, ?Page $parent, ?Collection $languages = null, ?Type $type = null, ?Layout $layout = null): Page
+    public function createTagPage(Site $site, ?Page $parent = null, ?Collection $languages = null, ?Type $type = null, ?Layout $layout = null): Page
     {
         $type ??= $this->createTagPageType();
         $layout ??= $this->getLayout(LayoutEnum::Results);
         $languages ??= $site->languages;
+        $parent ??= $this->createTagsPage($site, $this->createBlogPage($site));
 
         $pageModel = CapellCore::getModel(CoreModelEnum::Page);
 
@@ -603,7 +604,7 @@ class BlogCreator
             'type_id' => $type->id,
             'meta' => [
                 'with_date' => true,
-                'with_author' => false,
+                'with_author' => true,
                 'with_next_prev' => true,
             ],
         ]);

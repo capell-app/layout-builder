@@ -28,6 +28,8 @@ class InstallCommand extends Command
 
         AssignPermissionsToRole::run(resources: ResourceEnum::cases());
 
+        $this->call('vendor:publish', ['--tag' => 'capell-blog-config']);
+
         $this->publishMigrations();
 
         $this->call('migrate');

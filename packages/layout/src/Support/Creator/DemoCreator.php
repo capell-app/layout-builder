@@ -953,15 +953,20 @@ class DemoCreator
 
         throw_unless($layout instanceof Layout, Exception::class, 'Default layout not found');
 
-        $parentPage = Page::query()->updateOrCreate([
+        $parentPage = Page::query()->firstOrNew([
             'site_id' => $site->id,
             'layout_id' => $layout->id,
             'name' => 'Features',
-        ], [
-            'meta' => [
-                'author_id' => $this->user?->id,
-            ],
         ]);
+
+        if ($this->user instanceof Model) {
+            $parentPage->forceFill([
+                'publisher_type' => $this->user->getMorphClass(),
+                'publisher_id' => $this->user->id,
+            ]);
+        }
+
+        $parentPage->save();
 
         $site->languages->each(function (Language $language) use ($parentPage): void {
             $parentPage->translations()->firstOrCreate([
@@ -974,16 +979,26 @@ class DemoCreator
         $contentFeatures = new Collection;
 
         foreach ($features as $feature) {
-            $page = Page::query()->updateOrCreate([
+            $page = Page::query()->firstOrNew([
                 'site_id' => $site->id,
                 'name' => $feature['title'],
-            ], [
+            ]);
+
+            $page->fill([
                 'parent_id' => $parentPage->id,
                 'meta' => [
                     'icon' => $feature['icon'],
-                    'author_id' => $this->user?->id,
                 ],
             ]);
+
+            if ($this->user instanceof Model) {
+                $page->forceFill([
+                    'publisher_type' => $this->user->getMorphClass(),
+                    'publisher_id' => $this->user->id,
+                ]);
+            }
+
+            $page->save();
 
             $this->createMedia($page);
 

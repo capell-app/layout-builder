@@ -56,14 +56,14 @@ class PageContentEditorConfigurator
                     ->first();
 
                 $keywords = $get('meta')['keywords'] ?? null;
-                if (empty($keywords) && $site) {
-                    $keywords = $site->translation->meta_keywords ?: $site->translation->title;
+                if (blank($keywords) && $site) {
+                    $keywords = $site->translation->meta_keywords !== '' ? $site->translation->meta_keywords : $site->translation->title;
                 }
 
                 return [
                     'keywords' => $keywords,
                     'content' => strip_tags($get('content') ?? ''),
-                    'title' => $get('title') ?: $get('../../name'),
+                    'title' => filled($get('title')) ? $get('title') : $get('../../name'),
                     'includeCurrentContent' => true,
                 ];
             })
@@ -101,7 +101,7 @@ class PageContentEditorConfigurator
 
         $context = new ContentActionContext(
             content: $content,
-            keywords: $keywords ?: '',
+            keywords: $keywords,
             pageId: $record?->page_id,
             languageId: $record?->language_id,
         );
@@ -113,6 +113,7 @@ class PageContentEditorConfigurator
             'refactor' => $includeCurrent,
         ];
 
+        $generated = null;
         try {
             $generated = GeneratorPageContentAction::run($context, $options);
         } catch (OpenAICircuitBreakerOpenException $e) {
@@ -133,8 +134,6 @@ class PageContentEditorConfigurator
                 ->send();
 
             $action->halt();
-
-            return;
         } catch (Exception $e) {
             Notification::make('ai-generate-content-error')
                 ->title(__('Failed to generate content'))
@@ -144,8 +143,6 @@ class PageContentEditorConfigurator
                 ->send();
 
             $action->halt();
-
-            return;
         }
 
         if (is_string($generated)) {

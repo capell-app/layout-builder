@@ -6,6 +6,7 @@ use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Layout\Database\Factories\LayoutFactory;
+use Capell\Layout\Database\Factories\WidgetAssetFactory;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
@@ -83,14 +84,14 @@ it('renders asset accordion widget on page', function (callable $factory, string
 })->with(
     [
         'widgetAssetHasMedia' => [
-            fn (Widget $widget): \Capell\Layout\Database\Factories\WidgetAssetFactory => WidgetAsset::factory()->count(3)
+            fn (Widget $widget): WidgetAssetFactory => WidgetAsset::factory()->count(3)
                 ->widget($widget)
                 ->has(Media::factory()->image(), 'media'),
             'media',
             fn (WidgetAsset $widgetAsset): string => $widgetAsset->media->first()->getFullUrl(),
         ],
         'assetHavingMedia' => [
-            fn (Widget $widget): \Capell\Layout\Database\Factories\WidgetAssetFactory => WidgetAsset::factory()->count(3)
+            fn (Widget $widget): WidgetAssetFactory => WidgetAsset::factory()->count(3)
                 ->widget($widget)
                 ->assetHavingMedia(),
             'asset.media',

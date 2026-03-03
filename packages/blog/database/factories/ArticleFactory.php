@@ -9,6 +9,7 @@ use Capell\Blog\Models\Tag;
 use Capell\Blog\Support\Creator\BlogCreator;
 use Capell\Core\Database\Factories\PageFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @extends Factory<Article>
@@ -25,6 +26,14 @@ class ArticleFactory extends PageFactory
             'type_id' => fn (): int => resolve(BlogCreator::class)->createArticlePageType()->id,
             'parent_id' => null,
         ];
+    }
+
+    public function publisher(Model $user): self
+    {
+        return $this->state(fn (): array => [
+            'publisher_type' => $user->getMorphClass(),
+            'publisher_id' => $user->getKey(),
+        ]);
     }
 
     public function article(?Article $parent = null): self

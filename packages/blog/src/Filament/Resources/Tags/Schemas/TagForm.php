@@ -60,7 +60,7 @@ class TagForm implements FormConfigurator
                             StatusToggle::make('status'),
                         ]),
                 ])
-                ->contained(in_array($schema->getOperation(), ['create', 'edit'])),
+                ->contained(in_array($schema->getOperation(), ['create', 'edit'], true)),
         ];
     }
 }

@@ -45,9 +45,9 @@ declare(strict_types=1);
         >
             @if ($withDate)
                 <div class="text-right">
-                    <x-capell::page.published-date
+                    <x-capell-blog::page.published-date
                         class="mt-4 whitespace-nowrap"
-                        :date="$page->publish_from ?: $page->created_at"
+                        :date="$page->published_at ?: $page->publish_from ?: $page->created_at"
                     />
                 </div>
             @endif
@@ -66,17 +66,17 @@ declare(strict_types=1);
 
     @if ($withNextPrev && ($previousPage || $nextPage))
         <div
-            class="neighbor-link mt-10 flex divide-y divide-gray-100 border-t border-gray-100 pt-6 md:divide-x md:divide-y-0"
+            class="neighbor-links mt-10 flex divide-y divide-gray-100 border-t border-gray-100 pt-6 md:divide-x md:divide-y-0"
         >
             @if ($previousPage)
-                <x-capell::page.neighbor-link
+                <x-capell-blog::page.neighbor-link
                     :neighbor-page="$previousPage"
                     neighbor="previous"
                 />
             @endif
 
             @if ($nextPage)
-                <x-capell::page.neighbor-link
+                <x-capell-blog::page.neighbor-link
                     :neighbor-page="$nextPage"
                     neighbor="next"
                     class="ml-auto"

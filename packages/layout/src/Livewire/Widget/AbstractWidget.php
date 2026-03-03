@@ -9,6 +9,7 @@ use Capell\Frontend\Facades\Frontend;
 use Capell\Layout\Enums\CapellLayoutCacheKeyEnum;
 use Capell\Layout\Models\Widget;
 use Closure;
+use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Computed;
@@ -76,7 +77,11 @@ abstract class AbstractWidget extends Component
     #[Computed]
     public function widget(): Widget
     {
-        return self::getWidgetByKey($this->widgetData['widget_key']);
+        $widget = self::getWidgetByKey($this->widgetData['widget_key']);
+
+        throw_if(! $widget instanceof Widget, Exception::class, 'Widget not found');
+
+        return $widget;
     }
 
     public function render(array $data = []): View|Closure|string

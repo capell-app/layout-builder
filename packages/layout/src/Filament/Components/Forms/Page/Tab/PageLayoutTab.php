@@ -17,13 +17,13 @@ class PageLayoutTab
     {
         return Tab::make(__('capell-admin::tab.layout'))
             ->icon(Heroicon::OutlinedPuzzlePiece)
-            ->visible(fn (Get $get, Page $record): bool => (bool) ($get('layout_id') !== null ? $get('layout_id') : $record->layout_id))
+            ->visible(fn (Get $get, Page $record): bool => (bool) ($get('layout_id') ?? $record->layout_id))
             ->schema([
                 Livewire::make(
                     LivewireComponentsEnum::LayoutBuilder->value,
                     fn (Get $get, Page $record): array => [
                         'site_id' => $record->site_id,
-                        'layout_id' => $get('layout_id') !== null ? $get('layout_id') : $record->layout_id,
+                        'layout_id' => $get('layout_id') ?? $record->layout_id,
                         'page_id' => $record->id,
                     ],
                 )

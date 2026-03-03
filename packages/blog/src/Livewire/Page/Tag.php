@@ -67,7 +67,7 @@ class Tag extends AbstractPage
         $this->results = PageLoader::getPages(
             language: $language,
             site: $site,
-            limit: $this->widget->meta['limit'] ?? config('capell-frontend.pagination_limit', 12),
+            limit: $page->type->meta['limit'] ?? config('capell-frontend.pagination_limit', 12),
             paginationPage: (int) $this->getPage($paginationKey),
             withChildrenCount: $page->type->meta['with_children_count'] ?? true,
             withImage: $page->type->meta['with_image'] ?? true,

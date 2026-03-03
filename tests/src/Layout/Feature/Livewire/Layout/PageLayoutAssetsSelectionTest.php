@@ -11,6 +11,7 @@ use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
+use Illuminate\Database\Eloquent\Model;
 
 use function Pest\Livewire\livewire;
 
@@ -58,7 +59,7 @@ it('excludes existing page assets when selecting new ones', function (): void {
         ->assertSet('tableArguments', $arguments)
         ->assertCountTableRecords(3) // only new pages should be listed
         ->assertCanSeeTableRecords($newPages)
-        ->assertCanNotSeeTableRecords($existingAssets->map(fn (WidgetAsset $asset): \Illuminate\Database\Eloquent\Model => $asset->asset)->all());
+        ->assertCanNotSeeTableRecords($existingAssets->map(fn (WidgetAsset $asset): Model => $asset->asset)->all());
 });
 
 it('dispatches sync-selected-assets for page layout context', function (string $assetType): void {

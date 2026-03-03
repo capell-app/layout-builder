@@ -14,6 +14,7 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
 use Capell\Frontend\Enums\CacheEnum;
 use Capell\Tests\Support\Concerns\TestingFrontend;
+use Carbon\CarbonImmutable;
 
 use function Pest\Laravel\get;
 
@@ -147,7 +148,11 @@ test('article page list tags', function (): void {
 
     $archiveUrl = GenerateArchivePageUrl::run(
         $archivePage->pageUrl,
-        ArchiveMonthData::fromDate($article->publish_from ?? $article->created_at),
+        ArchiveMonthData::fromDate(
+            ($article->publish_from ?? $article->created_at) instanceof CarbonImmutable
+                ? ($article->publish_from ?? $article->created_at)
+                : CarbonImmutable::instance($article->publish_from ?? $article->created_at),
+        ),
     );
 
     get($article->pageUrl->full_url)

@@ -171,7 +171,7 @@ class DemoCommand extends Command
         $this->blogCreator = resolve(BlogCreator::class);
 
         // Prepare total progress steps: pages to create + pages to tag + pages to associate
-        $pagesTree = (array) (config('capell-demo.pages', []));
+        $pagesTree = config('capell-demo.pages', []);
         $totalPagesAvailable = 0;
         foreach ($pagesTree as $node) {
             $totalPagesAvailable += $this->countContentNodes($node);
@@ -306,7 +306,7 @@ class DemoCommand extends Command
         Page|bool $parent,
         string $parentName,
         Type $type,
-        $author,
+        ?Model $author,
         ?int $limit,
         int $createdSoFar,
     ): int {
@@ -368,7 +368,7 @@ class DemoCommand extends Command
         return $created;
     }
 
-    private function createTags(Site $site, $languages): void
+    private function createTags(Site $site, Collection $languages): void
     {
         /** @var class-string<Page> $model */
         $model = CapellCore::getModel(CoreModelEnum::Page);

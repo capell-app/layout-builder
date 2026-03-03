@@ -53,11 +53,6 @@ class DemoCommand extends Command
 
             $address = $this->setupAddress();
 
-            // Ensure meta is always an array and not null or a casted object
-            if (! is_array($meta)) {
-                $meta = (array) $meta;
-            }
-
             $meta['address_id'] = $address->id;
             $site->meta = $meta;
             $site->save();

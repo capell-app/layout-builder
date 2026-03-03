@@ -4,12 +4,3 @@ parameters:
         - message: '#Call to an undefined method PHPUnit\\Framework\\TestCase::.*#'
           paths:
               - tests
-        - identifier: typeCoverage.paramTypeCoverage
-          paths:
-              - tests/src/AbstractTestCase.php
-              - tests/src/Address/AddressTestCase.php
-              - tests/src/Assistant/AssistantTestCase.php
-              - tests/src/Blog/BlogTestCase.php
-              - tests/src/Hero/HeroTestCase.php
-              - tests/src/Layout/LayoutTestCase.php
-              - tests/src/Packages/PackagesTestCase.php

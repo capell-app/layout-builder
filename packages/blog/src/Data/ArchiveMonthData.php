@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Data;
 
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Date;
+use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Data;
 
 class ArchiveMonthData extends Data
@@ -16,7 +15,7 @@ class ArchiveMonthData extends Data
         public ?int $total = null,
     ) {}
 
-    public static function fromDate(Carbon $date): self
+    public static function fromDate(CarbonImmutable $date): self
     {
         return new self(
             year: (int) $date->format('Y'),
@@ -24,8 +23,8 @@ class ArchiveMonthData extends Data
         );
     }
 
-    public function getDate(): Carbon
+    public function getDate(): CarbonImmutable
     {
-        return Date::createFromFormat('Y-m', sprintf('%d-%d', $this->year, $this->month));
+        return CarbonImmutable::createFromFormat('Y-m', sprintf('%d-%d', $this->year, $this->month));
     }
 }

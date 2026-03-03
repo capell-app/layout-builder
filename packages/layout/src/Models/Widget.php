@@ -27,6 +27,7 @@ use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\WidgetFactory;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Observers\WidgetObserver;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -95,6 +96,44 @@ use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Activity> $activities
  * @property-read int|null $activities_count
  * @property-read string|null $title
+ *
+ * @mixin Model
+ *
+ * @property int $id
+ * @property string $name
+ * @property int $type_id
+ * @property string $key
+ * @property CarbonImmutable|null $publish_from
+ * @property CarbonImmutable|null $publish_to
+ * @property string|null $content
+ * @property array<array-key, mixed>|null $meta
+ * @property array<array-key, mixed>|null $admin
+ * @property int $order
+ * @property bool $status
+ * @property int|null $created_by
+ * @property int|null $updated_by
+ * @property int|null $deleted_by
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
+ * @property CarbonImmutable|null $deleted_at
+ *
+ * @method static Builder<static>|Widget whereAdmin($value)
+ * @method static Builder<static>|Widget whereContent($value)
+ * @method static Builder<static>|Widget whereCreatedAt($value)
+ * @method static Builder<static>|Widget whereCreatedBy($value)
+ * @method static Builder<static>|Widget whereDeletedAt($value)
+ * @method static Builder<static>|Widget whereDeletedBy($value)
+ * @method static Builder<static>|Widget whereId($value)
+ * @method static Builder<static>|Widget whereKey($value)
+ * @method static Builder<static>|Widget whereMeta($value)
+ * @method static Builder<static>|Widget whereName($value)
+ * @method static Builder<static>|Widget whereOrder($value)
+ * @method static Builder<static>|Widget wherePublishFrom($value)
+ * @method static Builder<static>|Widget wherePublishTo($value)
+ * @method static Builder<static>|Widget whereStatus($value)
+ * @method static Builder<static>|Widget whereTypeId($value)
+ * @method static Builder<static>|Widget whereUpdatedAt($value)
+ * @method static Builder<static>|Widget whereUpdatedBy($value)
  *
  * @mixin Model
  */

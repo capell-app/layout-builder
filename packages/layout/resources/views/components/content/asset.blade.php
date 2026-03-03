@@ -30,6 +30,7 @@ declare(strict_types=1);
 {{-- format-ignore-end --}}
 <x-dynamic-component
     :component="$componentItem"
+    :$asset
     :$loop
     :$size
     :color="$asset->meta['color'] ?? null"

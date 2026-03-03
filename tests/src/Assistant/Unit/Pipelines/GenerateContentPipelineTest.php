@@ -8,9 +8,10 @@ use Capell\Assistant\Support\Context\ContentActionContext;
 use Capell\Assistant\Support\OpenAIProvider;
 use Capell\Assistant\Support\Pipelines\GenerateContentPipeline;
 use Capell\Assistant\Support\PromptRepository;
+use Mockery\MockInterface;
 
 it('sanitizes unsafe html from AI output', function (): void {
-    $prompts = mock(PromptRepository::class, function (PromptRepository&\Mockery\MockInterface $mock): void {
+    $prompts = mock(PromptRepository::class, function (PromptRepository&MockInterface $mock): void {
         $mock->shouldReceive('get')->andReturn([
             'system' => 'system',
             'user_template' => 'Title: {{current_title}} Keywords: {{keywords}} Existing: {{content}} Length: {{target_length}} Refactor: {{refactor}}',
@@ -18,7 +19,7 @@ it('sanitizes unsafe html from AI output', function (): void {
         ]);
     });
 
-    $provider = mock(OpenAIProvider::class, function (OpenAIProvider&\Mockery\MockInterface $mock): void {
+    $provider = mock(OpenAIProvider::class, function (OpenAIProvider&MockInterface $mock): void {
         $unsafe = <<<'HTML'
         <h2 onclick="alert('x')">Welcome</h2>
         <p>Visit our <a href="https://evil.example/" target="_blank" rel="noopener">site</a> or <a href="/about">about page</a>.</p>
@@ -36,7 +37,7 @@ it('sanitizes unsafe html from AI output', function (): void {
         ));
     });
 
-    $rateLimiter = mock(AiRateLimiter::class, function (AiRateLimiter&\Mockery\MockInterface $mock): void {
+    $rateLimiter = mock(AiRateLimiter::class, function (AiRateLimiter&MockInterface $mock): void {
         $mock->shouldReceive('checkLimit')->andReturnTrue();
     });
 
@@ -70,7 +71,7 @@ it('sanitizes unsafe html from AI output', function (): void {
 });
 
 it('renders prompt variables correctly', function (): void {
-    $prompts = mock(PromptRepository::class, function (PromptRepository&\Mockery\MockInterface $mock): void {
+    $prompts = mock(PromptRepository::class, function (PromptRepository&MockInterface $mock): void {
         $mock->shouldReceive('get')->andReturn([
             'system' => 'system',
             'user_template' => 'Title: {{current_title}} Keywords: {{keywords}} Existing: {{content}} Length: {{target_length}} Refactor: {{refactor}}',
@@ -78,7 +79,7 @@ it('renders prompt variables correctly', function (): void {
         ]);
     });
 
-    $provider = mock(OpenAIProvider::class, function (OpenAIProvider&\Mockery\MockInterface $mock): void {
+    $provider = mock(OpenAIProvider::class, function (OpenAIProvider&MockInterface $mock): void {
         $mock->shouldReceive('chat')->withArgs(function (array $params): bool {
             $user = collect($params['messages'])->firstWhere('role', 'user')['content'] ?? '';
 
@@ -96,7 +97,7 @@ it('renders prompt variables correctly', function (): void {
         ));
     });
 
-    $rateLimiter = mock(AiRateLimiter::class, function (AiRateLimiter&\Mockery\MockInterface $mock): void {
+    $rateLimiter = mock(AiRateLimiter::class, function (AiRateLimiter&MockInterface $mock): void {
         $mock->shouldReceive('checkLimit')->andReturnTrue();
     });
 

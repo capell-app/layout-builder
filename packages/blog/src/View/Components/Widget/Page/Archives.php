@@ -38,7 +38,7 @@ class Archives extends AbstractWidget
 
         $this->archivePage = BlogLoader::getArchivePage($site, $language);
 
-        if (! $this->archivePage) {
+        if (! $this->archivePage instanceof Page) {
             $this->skipRender = true;
 
             return;

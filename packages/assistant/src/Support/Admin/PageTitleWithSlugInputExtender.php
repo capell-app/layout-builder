@@ -20,6 +20,7 @@ use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\FusedGroup;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\GridDirection;
@@ -89,14 +90,14 @@ class PageTitleWithSlugInputExtender
                     ->first();
 
                 $keywords = $get('meta')['keywords'] ?? null;
-                if (empty($keywords) && $site) {
-                    $keywords = $site->translation->meta_keywords ?: $site->translation->title;
+                if (blank($keywords) && $site) {
+                    $keywords = $site->translation->meta_keywords !== '' ? $site->translation->meta_keywords : $site->translation->title;
                 }
 
                 return [
                     'keywords' => $keywords,
-                    'content' => strip_tags($get('content') ?? ''),
-                    'title' => $get('title') ?: $get('../../name'),
+                    'content' => strip_tags((string) $get('content')),
+                    'title' => filled($get('title')) ? $get('title') : $get('../../name'),
                     'includeCurrentTitle' => true,
                 ];
             })
@@ -104,7 +105,7 @@ class PageTitleWithSlugInputExtender
                 Hidden::make('title'),
                 Radio::make('includeCurrentTitle')
                     ->label(__('Include current title?'))
-                    ->options(fn ($get): array => [
+                    ->options(fn (Get $get): array => [
                         true => __('Yes, include: ":title"', ['title' => $get('title')]),
                         false => __('No, ignore current title'),
                     ])
@@ -137,7 +138,7 @@ class PageTitleWithSlugInputExtender
 
         $context = new ContentActionContext(
             content: $content,
-            keywords: $keywords ?: '',
+            keywords: $keywords,
             pageId: $record?->page_id,
             languageId: $record?->language_id,
         );
@@ -147,6 +148,7 @@ class PageTitleWithSlugInputExtender
             'current_title' => $includeCurrent ? $currentTitle : null,
         ];
 
+        $titles = [];
         try {
             $titles = $this->suggestPageTitlesAction->run($context, $options);
         } catch (OpenAICircuitBreakerOpenException $e) {
@@ -167,8 +169,6 @@ class PageTitleWithSlugInputExtender
                 ->send();
 
             $action->halt();
-
-            return;
         } catch (Exception $e) {
             Notification::make('ai-suggest-titles-error')
                 ->title(__('Failed to suggest titles'))
@@ -178,8 +178,6 @@ class PageTitleWithSlugInputExtender
                 ->send();
 
             $action->halt();
-
-            return;
         }
 
         $livewire->mountAction(

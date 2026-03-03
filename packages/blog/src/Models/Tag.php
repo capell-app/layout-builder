@@ -53,6 +53,19 @@ use Override;
  * @method static Builder<static>|Tag status(bool $enabled)
  *
  * @mixin Model
+ *
+ * @method static Builder<static>|Tag whereCreatedAt($value)
+ * @method static Builder<static>|Tag whereFeatured($value)
+ * @method static Builder<static>|Tag whereId($value)
+ * @method static Builder<static>|Tag whereName($value)
+ * @method static Builder<static>|Tag whereOrderColumn($value)
+ * @method static Builder<static>|Tag whereSiteId($value)
+ * @method static Builder<static>|Tag whereSlug($value)
+ * @method static Builder<static>|Tag whereStatus($value)
+ * @method static Builder<static>|Tag whereType($value)
+ * @method static Builder<static>|Tag whereUpdatedAt($value)
+ *
+ * @mixin Model
  */
 class Tag extends \Spatie\Tags\Tag implements PageCacheable, Statusable
 {
@@ -121,7 +134,7 @@ class Tag extends \Spatie\Tags\Tag implements PageCacheable, Statusable
         return $this->morphedByMany(Page::class, 'taggable');
     }
 
-    public function scopeOrdered(Builder $query, string $direction = 'asc', $locale = null): void
+    public function scopeOrdered(Builder $query, string $direction = 'asc', ?string $locale = null): void
     {
         $locale ??= static::getLocale();
 
@@ -135,7 +148,7 @@ class Tag extends \Spatie\Tags\Tag implements PageCacheable, Statusable
         return false;
     }
 
-    public function getFirstTranslationLocale($key): ?string
+    public function getFirstTranslationLocale(string $key): ?string
     {
         $locales = $this->getTranslatedLocales($key);
 
@@ -148,6 +161,9 @@ class Tag extends \Spatie\Tags\Tag implements PageCacheable, Statusable
         return null;
     }
 
+    /**
+     * @param  string  $key
+     */
     public function getAttributeValue($key): mixed
     {
         if (! $this->isTranslatableAttribute($key)) {
@@ -156,7 +172,7 @@ class Tag extends \Spatie\Tags\Tag implements PageCacheable, Statusable
 
         $value = $this->getTranslation($key, $this->getLocale(), $this->useFallbackLocale());
 
-        if (! $value) {
+        if (blank($value)) {
             $locale = $this->getFirstTranslationLocale($key);
 
             if (! in_array($locale, [null, '', '0'], true)) {

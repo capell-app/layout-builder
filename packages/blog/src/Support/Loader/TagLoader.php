@@ -31,7 +31,7 @@ class TagLoader
         $tags = CapellCore::rememberCache($key, function () use ($page, &$fromCache): Collection {
             $fromCache = false;
 
-            return $page->tags()->get();
+            return $page->tags()->ordered()->get();
         });
 
         if ($fromCache) {
@@ -56,9 +56,9 @@ class TagLoader
             $model = CapellCore::getModel(CoreModelEnum::Page);
 
             return $model::getFirstPageByTypeForSite(BlogPageTypeEnum::Tag->value, site: $site, language: $language);
-        }) ?: null;
+        });
 
-        if ($fromCache && $page) {
+        if ($fromCache && $page instanceof Page) {
             resolve(ModelServingInterface::class)->track($page);
         }
 
@@ -163,9 +163,9 @@ class TagLoader
             return $model::query()->where('type', TagTypeEnum::Page)
                 ->where('slug->' . $language->code, $slug)
                 ->first();
-        }) ?: null;
+        });
 
-        if ($fromCache && $tag) {
+        if ($fromCache && $tag instanceof Tag) {
             resolve(ModelServingInterface::class)->track($tag);
         }
 

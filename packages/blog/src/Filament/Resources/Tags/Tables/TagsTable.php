@@ -92,8 +92,8 @@ class TagsTable implements TableConfigurator
                 ->numeric()
                 ->disabledClick()
                 ->toggleable()
-                ->formatStateUsing(function (Tag $record, $state): ?HtmlString {
-                    if (! $state) {
+                ->formatStateUsing(function (Tag $record, int $state): ?HtmlString {
+                    if (blank($state)) {
                         return null;
                     }
 

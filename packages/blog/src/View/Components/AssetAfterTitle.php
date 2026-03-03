@@ -8,6 +8,7 @@ use Closure;
 use DateTimeImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\View\Component;
+use Illuminate\View\View;
 
 class AssetAfterTitle extends Component
 {
@@ -18,13 +19,13 @@ class AssetAfterTitle extends Component
         public ?Closure $publishDateOutput = null,
     ) {}
 
-    public function render()
+    public function render(): ?View
     {
         if (
-            ($this->publishDate === null || $this->publishDatePosition !== 'bottom')
+            (! $this->publishDate instanceof DateTimeImmutable || $this->publishDatePosition !== 'bottom')
             && ! $this->tags?->isNotEmpty()
         ) {
-            return '';
+            return null;
         }
 
         return view('capell-blog::hooks.asset-after-title', [

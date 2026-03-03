@@ -18,19 +18,19 @@ final readonly class PageTranslationActionContext implements AiActionContextInte
 
     public function getKeywords(): string
     {
-        $meta = (array) ($this->translation->meta ?? []);
+        $meta = ($this->translation->meta ?? []);
 
         return (string) ($meta['keywords'] ?? '');
     }
 
     public function getPageId(): int
     {
-        return (int) $this->translation->page_id;
+        return $this->translation->page_id;
     }
 
     public function getLanguageId(): int
     {
-        return (int) ($this->translation->language_id ?? 0);
+        return $this->translation->language_id ?? 0;
     }
 
     public function getTranslation(): PageTranslation

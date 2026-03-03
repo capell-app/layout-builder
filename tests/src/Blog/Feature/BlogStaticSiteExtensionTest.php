@@ -11,12 +11,13 @@ use Capell\Blog\Support\StaticSite\BlogStaticSiteExtension;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Http;
 
 it('generates tag and archive URLs for static site', function (): void {
     $blogCreator = resolve(BlogCreator::class);
 
-    $archiveDate = now()->subMonths(2);
+    $archiveDate = CarbonImmutable::now()->subMonths(2);
 
     $language = Language::factory()->create();
     $site = Site::factory()->recycle($language)->withTranslations()->create();

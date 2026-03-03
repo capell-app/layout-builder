@@ -42,7 +42,7 @@ class Article extends AbstractWidget
             $this->nextPage = PageLoader::getNextPage($page, $site, $language);
         }
 
-        if (isset($this->widget->meta['with_author'], $page->meta['author_id'])) {
+        if (isset($this->widget->meta['with_author'])) {
             $this->author = PageLoader::getPageAuthor($page);
         }
     }

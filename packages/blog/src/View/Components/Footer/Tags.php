@@ -7,6 +7,7 @@ namespace Capell\Blog\View\Components\Footer;
 use Capell\Blog\Support\Loader\TagLoader;
 use Capell\Core\Models\Page;
 use Capell\Frontend\Facades\Frontend;
+use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Support\Collection;
 use Illuminate\View\Component;
 
@@ -35,10 +36,10 @@ class Tags extends Component
         $this->tagPage = $tagPage;
     }
 
-    public function render()
+    public function render(): ?ViewContract
     {
         if (! $this->tagPage instanceof Page || $this->tags->isEmpty()) {
-            return '';
+            return null;
         }
 
         return view('capell-blog::components.footer.tags', [

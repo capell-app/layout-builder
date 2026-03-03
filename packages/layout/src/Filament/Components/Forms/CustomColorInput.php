@@ -40,7 +40,7 @@ class CustomColorInput
                     ->reactive()
                     ->preload()
                     ->mutateDehydratedStateUsing(
-                        fn (?string $state, Get $get) => $state === 'custom' ? $get($name . '_custom') : $state,
+                        fn (?string $state, Get $get): mixed => $state === 'custom' ? $get($name . '_custom') : $state,
                     )
                     ->afterStateUpdated(function (Set $set, ?string $state) use ($name): void {
                         if (blank($state)) {

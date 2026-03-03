@@ -32,9 +32,9 @@ class BlogLoader
             $model = CapellCore::getModel(CoreModelEnum::Page);
 
             return $model::getFirstPageByTypeForSite(BlogPageTypeEnum::Archive->value, site: $site, language: $language);
-        }) ?: null;
+        });
 
-        if ($fromCache && $page) {
+        if ($fromCache && $page instanceof Page) {
             resolve(ModelServingInterface::class)->track($page);
         }
 
@@ -84,9 +84,9 @@ class BlogLoader
             $model = CapellCore::getModel(CoreModelEnum::Page);
 
             return $model::getFirstPageByTypeForSite($type, site: $site, language: $language);
-        }) ?: null;
+        });
 
-        if ($fromCache && $page) {
+        if ($fromCache && $page instanceof Page) {
             resolve(ModelServingInterface::class)->track($page);
         }
 

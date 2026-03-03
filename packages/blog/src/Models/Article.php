@@ -17,6 +17,7 @@ use Capell\Core\Models\PageTranslation;
 use Capell\Core\Models\PageUrl;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -155,6 +156,64 @@ use Spatie\Tags\Tag;
  * @property-read Collection|Page[] $related
  * @property-read int|null $related_count
  * @property-read string|null $title
+ *
+ * @mixin Model
+ *
+ * @property int $id
+ * @property string $name
+ * @property int $type_id
+ * @property int $layout_id
+ * @property int $site_id
+ * @property array<array-key, mixed>|null $meta
+ * @property array<array-key, mixed>|null $admin
+ * @property array<array-key, mixed>|null $settings
+ * @property CarbonImmutable|null $publish_from
+ * @property CarbonImmutable|null $publish_to
+ * @property string|null $uuid
+ * @property CarbonImmutable|null $published_at
+ * @property bool $is_published
+ * @property bool $is_current
+ * @property string|null $publisher_type
+ * @property int|null $publisher_id
+ * @property int $order
+ * @property int $_lft
+ * @property int $_rgt
+ * @property int|null $created_by
+ * @property int|null $updated_by
+ * @property int|null $deleted_by
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
+ * @property CarbonImmutable|null $deleted_at
+ * @property-read \Kalnoy\Nestedset\Collection<int, Article> $drafts
+ * @property-read int|null $drafts_count
+ * @property-read array|null $url_params
+ *
+ * @method static QueryBuilder<static>|Article whereAdmin($value)
+ * @method static QueryBuilder<static>|Article whereCreatedAt($value)
+ * @method static QueryBuilder<static>|Article whereCreatedBy($value)
+ * @method static QueryBuilder<static>|Article whereDeletedAt($value)
+ * @method static QueryBuilder<static>|Article whereDeletedBy($value)
+ * @method static QueryBuilder<static>|Article whereId($value)
+ * @method static QueryBuilder<static>|Article whereIsCurrent($value)
+ * @method static QueryBuilder<static>|Article whereIsPublished($value)
+ * @method static QueryBuilder<static>|Article whereLayoutId($value)
+ * @method static QueryBuilder<static>|Article whereLft($value)
+ * @method static QueryBuilder<static>|Article whereMeta($value)
+ * @method static QueryBuilder<static>|Article whereName($value)
+ * @method static QueryBuilder<static>|Article whereOrder($value)
+ * @method static QueryBuilder<static>|Article whereParentId($value)
+ * @method static QueryBuilder<static>|Article wherePublishFrom($value)
+ * @method static QueryBuilder<static>|Article wherePublishTo($value)
+ * @method static QueryBuilder<static>|Article wherePublishedAt($value)
+ * @method static QueryBuilder<static>|Article wherePublisherId($value)
+ * @method static QueryBuilder<static>|Article wherePublisherType($value)
+ * @method static QueryBuilder<static>|Article whereRgt($value)
+ * @method static QueryBuilder<static>|Article whereSettings($value)
+ * @method static QueryBuilder<static>|Article whereSiteId($value)
+ * @method static QueryBuilder<static>|Article whereTypeId($value)
+ * @method static QueryBuilder<static>|Article whereUpdatedAt($value)
+ * @method static QueryBuilder<static>|Article whereUpdatedBy($value)
+ * @method static QueryBuilder<static>|Article whereUuid($value)
  *
  * @mixin Model
  */

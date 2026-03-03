@@ -36,7 +36,7 @@ class LayoutLoader
             return Layout::query()->with('layoutWidgets')->find($id);
         });
 
-        if ($fromCache === true && $layout instanceof Layout) {
+        if ($fromCache && $layout instanceof Layout) {
             resolve(ModelServingInterface::class)->track($layout);
 
             $layout->layoutWidgets->each(function (Widget $widget): void {
@@ -216,7 +216,7 @@ class LayoutLoader
             },
         );
 
-        if ($fromCache === true && $widget instanceof Widget) {
+        if ($fromCache && $widget instanceof Widget) {
             resolve(ModelServingInterface::class)->track($widget);
 
             $widget->assets->each(function (WidgetAsset $resource): void {
