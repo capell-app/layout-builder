@@ -11,9 +11,9 @@ use Capell\Blog\Support\Creator\BlogCreator;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
-use Capell\Core\Models\PageTranslation;
 use Capell\Core\Models\PageUrl;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Support\Str;
 
@@ -35,6 +35,8 @@ describe('from edit article', function (): void {
 
         $slug = str($newData->name)->slug()->toString();
 
+        $uuid = (string) Str::uuid();
+
         livewire(EditArticle::class, ['record' => $page->getRouteKey()])
             ->assertSuccessful()
             ->mountAction(CreatePageAction::class)
@@ -44,12 +46,13 @@ describe('from edit article', function (): void {
             ])
             ->callMountedAction()
             ->set('mountedActions.0.data.translations', [
-                (string) Str::uuid() => [
+                $uuid => [
                     'title' => $newData->name,
                     'language_id' => $page->site->language_id,
-                    'slug' => $slug,
+                    'meta' => ['slug' => $slug],
                 ],
             ])
+            ->set('mountedActions.0.data.translations.' . $uuid . '.meta.slug', $slug)
             ->callMountedAction()
             ->assertHasNoFormErrors();
 
@@ -57,9 +60,9 @@ describe('from edit article', function (): void {
             'name' => $newData->name,
         ]);
 
-        assertDatabaseHas(PageTranslation::class, [
+        assertDatabaseHas(Translation::class, [
             'title' => $newData->name,
-            'slug' => $slug,
+            'meta' => ['slug' => $slug],
             'language_id' => $page->site->language_id,
         ]);
 
@@ -78,13 +81,15 @@ describe('from edit article', function (): void {
                     'abc' => [
                         'language_id' => $page->site->language_id,
                         'title' => '',
-                        'slug' => '',
+                        'meta' => [
+                            'slug' => '',
+                        ],
                     ],
                 ],
             ])
             ->assertHasFormErrors([
                 'translations.abc.title' => 'required',
-                'translations.abc.slug' => 'required',
+                'translations.abc.meta.slug' => 'required',
             ]);
     });
 });

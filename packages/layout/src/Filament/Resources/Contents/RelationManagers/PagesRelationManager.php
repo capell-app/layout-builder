@@ -98,8 +98,9 @@ class PagesRelationManager extends AbstractPagesRelationManager
 
     protected static function modifyBadgeQueryUsing(Relation $query): Relation
     {
-        return $query->distinct('widget_assets.page_id')
-            ->whereNotNull('widget_assets.page_id');
+        return $query->distinct(['widget_assets.pageable_type', 'widget_assets.pageable_id'])
+            ->whereNotNull('widget_assets.pageable_type')
+            ->whereNotNull('widget_assets.pageable_id');
     }
 
     protected function getDescription(Table $table): ?string

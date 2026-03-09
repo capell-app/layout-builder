@@ -33,7 +33,8 @@ use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
  *
  * @property int $id
  * @property string $container
- * @property int|null $page_id
+ * @property string|null $pageable_type
+ * @property int|null $pageable_id
  * @property array|null $meta
  * @property int|null $occurrence
  * @property int|null $order
@@ -110,7 +111,8 @@ class WidgetAsset extends Model implements HasMedia, PageCacheable, Userstampabl
      */
     protected $fillable = [
         'container',
-        'page_id',
+        'pageable_type',
+        'pageable_id',
         'meta',
         'occurrence',
         'order',
@@ -131,14 +133,19 @@ class WidgetAsset extends Model implements HasMedia, PageCacheable, Userstampabl
         return $this->belongsTo(Widget::class);
     }
 
-    public function page(): BelongsTo
+    public function page(): MorphTo
     {
-        return $this->belongsTo(Page::class);
+        return $this->morphTo('pageable');
     }
 
     public function asset(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function linkedPage(): MorphTo
+    {
+        return $this->morphTo(null, 'meta->linked_pageable_type', 'meta->linked_pageable_id');
     }
 
     protected function scopeOrdered(Builder $query, string $dir = 'asc'): void

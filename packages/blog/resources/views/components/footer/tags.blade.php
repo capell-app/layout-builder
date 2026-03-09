@@ -17,7 +17,7 @@ declare(strict_types=1);
     @if ($tags->isNotEmpty())
         <div class="flex flex-wrap gap-2">
             @foreach ($tags as $tag)
-                @php($url = $tag->getPageUrl($tagPage, $language))
+                @php($url = $tag->getUrl($tagPage, $language))
                 <x-capell-blog::tag
                     :$url
                     wire:navigate

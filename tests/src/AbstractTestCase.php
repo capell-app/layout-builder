@@ -11,11 +11,12 @@ use BezhanSalleh\FilamentShield\Support\Utils;
 use Bkwld\Cloner\ServiceProvider as ClonerServiceProvider;
 use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use BladeUI\Icons\BladeIconsServiceProvider;
-use Capell\Core\Data\PackageData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Providers\CapellServiceProvider;
 use Capell\Tests\Fixtures\Models\User;
 use Capell\Tests\Fixtures\Policies\RolePolicy;
+use Capell\Tests\Support\Concerns\BuildsOrderedMigrationWorkspace;
+use Capell\Tests\Support\Concerns\RegistersPublishedConfigs;
 use CmsMulti\FilamentClearCache\FilamentClearCacheServiceProvider;
 use CodeWithDennis\FilamentSelectTree\FilamentSelectTreeServiceProvider;
 use Filament\Actions\ActionsServiceProvider;
@@ -45,7 +46,6 @@ use Oddvalue\LaravelDrafts\LaravelDraftsServiceProvider;
 use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase;
 use Orchestra\Workbench\WorkbenchServiceProvider;
-use RuntimeException;
 use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
 use Saade\FilamentAdjacencyList\FilamentAdjacencyListServiceProvider;
 use Silber\PageCache\LaravelServiceProvider;
@@ -65,8 +65,10 @@ use Tapp\FilamentAuthenticationLog\FilamentAuthenticationLogServiceProvider;
 
 abstract class AbstractTestCase extends TestCase
 {
+    use BuildsOrderedMigrationWorkspace;
     use InteractsWithSession;
     use LazilyRefreshDatabase;
+    use RegistersPublishedConfigs;
     use WithFaker;
     use WithWorkbench;
 
@@ -78,29 +80,10 @@ abstract class AbstractTestCase extends TestCase
 
         parent::setUp();
 
-        // Hacky fix for running in parallel causing Blade namespaces to not always be registered
         Blade::componentNamespace('Capell\\Blog\\View\\Components', 'capell-blog');
         Blade::componentNamespace('Capell\\Layout\\View\\Components', 'capell-layout');
 
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
-
-        $migrations = CapellCore::getMigrations();
-        $path = realpath(__DIR__ . '/../../vendor/capell-app/core/database/migrations');
-
-        if (! $path) {
-            $path = realpath(__DIR__ . '/../../vendor/capell-app/core/packages/core/database/migrations');
-        }
-
-        throw_unless($path, RuntimeException::class, 'Could not find core migrations path.');
-
-        array_walk($migrations, fn (&$migration): string => $migration = sprintf('%s/%s.php', $path, $migration));
-
-        // Load migrations for any explicitly required dependent packages.
-        CapellCore::getInstalledPackages()->each(function (PackageData $package) use (&$migrations): void {
-            $migrations = array_merge($migrations, $this->discoverPackageMigrations($package->path));
-        });
-
-        $this->loadMigrationsFrom($migrations);
+        $this->orderedMigrationWorkspacePath();
 
         Http::preventStrayRequests();
 
@@ -110,11 +93,43 @@ abstract class AbstractTestCase extends TestCase
 
         Model::shouldBeStrict();
 
-        // $this->app->setLocale('en_GB');
-
         $this->setUpDatabase();
 
         $this->withoutVite();
+    }
+
+    protected function migrateDatabases(): void
+    {
+        $seeder = $this->seeder();
+        $shouldUseSeederClass = is_string($seeder) && $seeder !== '';
+
+        $this->artisan('migrate:fresh', array_merge(
+            [
+                '--drop-views' => $this->shouldDropViews(),
+                '--drop-types' => $this->shouldDropTypes(),
+            ],
+            $shouldUseSeederClass ? ['--seeder' => $seeder] : ['--seed' => $this->shouldSeed()],
+        ));
+
+        $this->artisan('migrate', [
+            '--path' => [$this->orderedMigrationWorkspacePath()],
+            '--realpath' => true,
+            '--force' => true,
+        ]);
+    }
+
+    protected function migrateFreshUsing(): array
+    {
+        $seeder = $this->seeder();
+        $shouldUseSeederClass = is_string($seeder) && $seeder !== '';
+
+        return array_merge(
+            [
+                '--drop-views' => $this->shouldDropViews(),
+                '--drop-types' => $this->shouldDropTypes(),
+            ],
+            $shouldUseSeederClass ? ['--seeder' => $seeder] : ['--seed' => $this->shouldSeed()],
+        );
     }
 
     /**
@@ -199,18 +214,16 @@ abstract class AbstractTestCase extends TestCase
         $this->registerPublishConfig('core', vendorPackage: true);
         $this->registerPublishConfig('admin', vendorPackage: true);
 
-        foreach ($packages as $package_key => $package) {
+        foreach ($packages as $packageKey => $package) {
             $config = require __DIR__ . '/..' . $this->getPackageFile($package);
 
-            $this->registerPackageConfig($package_key, $config);
+            $this->registerPackageConfig($packageKey, $config);
         }
 
-        // config('filament-shield.register_role_policy.enabled', false);
         Config::set('filament-shield.authenticable-resources', [User::class]);
         Config::set('filament-shield.auth_provider_model', User::class);
         CapellCore::registerModel('User', User::class);
 
-        // Prevent role being assigned to created user
         Config::set('filament-shield.panel_user.enabled', false);
 
         Config::set('auth.providers.users.model', User::class);
@@ -228,105 +241,20 @@ abstract class AbstractTestCase extends TestCase
         }
     }
 
-    protected function getDefaultPackages(): array
-    {
-        return [
-            'filament-shield' => [
-                'user' => 'bezhansalleh',
-                'name' => 'filament-shield',
-                'file' => 'filament-shield',
-            ],
-            'authentication-log' => [
-                'user' => 'rappasoft',
-                'name' => 'laravel-authentication-log',
-                'file' => 'authentication-log',
-            ],
-            'permission' => [
-                'user' => 'spatie',
-                'name' => 'laravel-permission',
-                'file' => 'permission',
-            ],
-            'settings' => [
-                'user' => 'spatie',
-                'name' => 'laravel-settings',
-                'file' => 'settings',
-            ],
-        ];
-    }
-
-    protected function registerPublishConfig(string $package, bool $vendorPackage = false): void
-    {
-        $configs = $this->getPublishConfigs($package, $vendorPackage);
-
-        foreach ($configs as $configFile) {
-            $config = require $configFile;
-            $configName = basename((string) $configFile, '.php');
-
-            $this->registerPackageConfig($configName, $config);
-        }
-    }
-
-    protected function getPublishConfigs(string $package, bool $vendorPackage): array
-    {
-        if ($vendorPackage) {
-            $path = realpath(__DIR__ . '/../../vendor/capell-app/' . $package . '/publishes/config');
-        } else {
-            $path = realpath(__DIR__ . '/../../packages/' . $package . '/publishes/config');
-        }
-
-        if (in_array($path, ['', '0', false], true)) {
-            return [];
-        }
-
-        return glob($path . '/*.php');
-    }
-
     protected function registerAndMigrateSettings(array $migrations, string $basePath): void
     {
         $migrator = resolve(SettingsMigrator::class);
+
         foreach ($migrations as $migrationFile) {
             $path = sprintf('%s/%s.php', $basePath, $migrationFile);
             /** @var SettingsMigration $migration */
             $migration = require $path;
+
             if (method_exists($migration, 'setMigrator')) {
                 $migration->setMigrator($migrator);
             }
 
             $migration->up();
         }
-    }
-
-    private function getPackageFile(array $package): string
-    {
-        $path = '/../vendor/' . basename((string) $package['user']) . '/' . basename((string) $package['name']) . '/config';
-        $file = basename((string) $package['file']) . '.php';
-
-        return sprintf('%s/%s', $path, $file);
-    }
-
-    private function registerPackageConfig(string $package, array $config): void
-    {
-        foreach ($config as $key => $value) {
-            if (is_array($value)) {
-                $this->registerPackageConfig(sprintf('%s.%s', $package, $key), $value);
-
-                continue;
-            }
-
-            config()->set(sprintf('%s.%s', $package, $key), $value);
-        }
-    }
-
-    private function discoverPackageMigrations(string $path): array
-    {
-        $path = realpath($path . '/database/migrations');
-
-        if (! $path) {
-            return [];
-        }
-
-        $files = glob($path . '/*.php');
-
-        return $files === false ? [] : $files;
     }
 }

@@ -11,7 +11,7 @@ use Capell\Admin\Filament\Components\Forms\Editor\RichEditor;
 use Capell\Admin\Filament\Components\Forms\Editor\TinyEditor;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
-use Capell\Core\Models\PageTranslation;
+use Capell\Core\Models\Translation;
 use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Models\WidgetAsset;
 use Filament\Schemas\Components\Group;
@@ -25,7 +25,7 @@ class HeroEditor extends Group
 
         $this->statePath('meta')
             ->visible(
-                function (null|PageTranslation|Page $record): bool {
+                function (null|Translation|Page $record): bool {
                     if ($record === null) {
                         return false;
                     }

@@ -59,7 +59,7 @@ declare(strict_types=1);
     @else
         <ul class="flex flex-wrap gap-2">
             @foreach ($tags as $tag)
-                @php($url = $tag->getPageUrl($tagPage, $language))
+                @php($url = $tag->getUrl($tagPage, $language))
                 <li>
                     <x-capell-blog::tag :$url>
                         {{ $tag->getTranslation('name', $language->code) }}

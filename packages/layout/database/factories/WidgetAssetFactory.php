@@ -35,7 +35,8 @@ class WidgetAssetFactory extends Factory
 
         return [
             'widget_id' => Widget::factory(),
-            'page_id' => null,
+            'pageable_id' => Page::factory()->create(),
+            'pageable_type' => app(Page::class)->getMorphClass(),
             'asset_type' => $assetType->value,
             'asset_id' => fn (): string => match ($assetType) {
                 LayoutAssetEnum::Content => (string) Content::factory()->withTranslations()->linkedPage()->create()->id,
@@ -62,12 +63,13 @@ class WidgetAssetFactory extends Factory
         ]);
     }
 
-    public function page(Page $page, string $container, int $occurrence): self
+    public function page(Page $page, ?string $container = null, ?int $occurrence = null): self
     {
         return $this->state(fn (array $attributes): array => [
-            'page_id' => $page->id,
-            'container' => $container,
-            'occurrence' => $occurrence,
+            'pageable_id' => $page->getKey(),
+            'pageable_type' => $page->getMorphClass(),
+            'container' => $container ?? $this->faker->slug,
+            'occurrence' => $occurrence ?? $this->faker->numberBetween(1, 10),
         ]);
     }
 

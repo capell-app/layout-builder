@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-// tests/Integration/Models/SiteTest.php
-
 use Capell\Core\Models\Page;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
@@ -15,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 it('has many widget assets', function (): void {
     $page = Page::factory()->create();
-    $widgetAsset = WidgetAsset::factory()->create(['page_id' => $page->id]);
+    $widgetAsset = WidgetAsset::factory()->page($page)->create();
 
     expect($page->widgetAssets->pluck('id'))->toContain($widgetAsset->id);
 });

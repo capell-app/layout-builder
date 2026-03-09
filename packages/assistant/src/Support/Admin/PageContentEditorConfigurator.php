@@ -10,8 +10,8 @@ use Capell\Assistant\Settings\AssistantSettings;
 use Capell\Assistant\Support\Context\ContentActionContext;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models\PageTranslation;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
@@ -101,7 +101,7 @@ class PageContentEditorConfigurator
             ->action($this->handleGenerateContentAction(...));
     }
 
-    private function handleGenerateContentAction(Set $set, $component, Action $action, array $data, ?PageTranslation $record): void
+    private function handleGenerateContentAction(Set $set, $component, Action $action, array $data, ?Translation $record): void
     {
         $keywords = isset($data['keywords']) ? trim((string) $data['keywords']) : '';
         $content = isset($data['content']) ? trim((string) $data['content']) : '';

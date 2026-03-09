@@ -61,6 +61,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
@@ -477,17 +478,18 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             fn (Page $model): HasManyThrough => $model->hasManyThrough(
                 ModelEnum::Content->value,
                 ModelEnum::WidgetAsset->value,
-                'page_id',
+                'pageable_id',
                 'id',
                 'id',
                 'asset_id',
             )
+                ->where('widget_assets.pageable_type', $model->getMorphClass())
                 ->where('widget_assets.asset_type', (new Content)->getMorphClass()),
         );
 
         Page::resolveRelationUsing(
             'widgetAssets',
-            fn (Page $model): HasMany => $model->hasMany(ModelEnum::WidgetAsset->value, 'page_id'),
+            fn (Page $model): MorphMany => $model->morphMany(ModelEnum::WidgetAsset->value, 'pageable'),
         );
 
         Page::resolveRelationUsing(

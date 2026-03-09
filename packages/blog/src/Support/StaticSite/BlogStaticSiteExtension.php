@@ -37,7 +37,7 @@ class BlogStaticSiteExtension
             return;
         }
 
-        if (! $tagPage->pageUrl) {
+        if (! $tagPage->url) {
             return;
         }
 
@@ -67,7 +67,7 @@ class BlogStaticSiteExtension
 
         $archives->each(function (ArchiveMonthData $archive) use ($pageModel, $site, $domain, $visit): void {
             $archivePage = $pageModel::getFirstPageByTypeForSite('archive', $site, $domain->language);
-            if (! $archivePage || ! $archivePage->pageUrl) {
+            if (! $archivePage || ! $archivePage->url) {
                 return;
             }
 

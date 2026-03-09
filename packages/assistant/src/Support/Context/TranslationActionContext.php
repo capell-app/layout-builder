@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Capell\Assistant\Support\Context;
 
 use Capell\Assistant\Contracts\AiActionContextInterface;
-use Capell\Core\Models\PageTranslation;
+use Capell\Core\Models\Translation;
 
-final readonly class PageTranslationActionContext implements AiActionContextInterface
+final readonly class TranslationActionContext implements AiActionContextInterface
 {
-    public function __construct(private PageTranslation $translation) {}
+    public function __construct(private Translation $translation) {}
 
     public function getContent(): string
     {
@@ -25,7 +25,7 @@ final readonly class PageTranslationActionContext implements AiActionContextInte
 
     public function getPageId(): int
     {
-        return $this->translation->page_id;
+        return $this->translation->translatable_id;
     }
 
     public function getLanguageId(): int
@@ -33,7 +33,7 @@ final readonly class PageTranslationActionContext implements AiActionContextInte
         return $this->translation->language_id ?? 0;
     }
 
-    public function getTranslation(): PageTranslation
+    public function getTranslation(): Translation
     {
         return $this->translation;
     }

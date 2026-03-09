@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('widget_assets', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('widget_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('page_id')->nullable()->index()->constrained()->cascadeOnDelete();
+            $table->morphs('pageable');
             $table->string('container')->nullable();
             $table->unsignedInteger('occurrence')->nullable()->default(1);
             $table->uuidMorphs('asset');
@@ -25,9 +25,9 @@ return new class extends Migration
             $table->userstamps();
             $table->timestamps();
             $table->index(['container', 'occurrence'], 'container_occurrence_index');
-            $table->index(['page_id', 'occurrence'], 'page_occurrence_index');
+            $table->index(['pageable_type', 'pageable_id', 'occurrence'], 'pageable_occurrence_index');
             $table->index(['asset_type', 'asset_id'], 'resource_index');
-            $table->unique(['page_id', 'widget_id', 'container', 'occurrence', 'asset_type', 'asset_id'], 'page_widget_asset_index');
+            $table->unique(['pageable_type', 'pageable_id', 'widget_id', 'container', 'occurrence', 'asset_type', 'asset_id'], 'pageable_widget_asset_index');
         });
     }
 

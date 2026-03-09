@@ -40,7 +40,7 @@ declare(strict_types=1);
     :meta="$asset->meta"
     :summary="$withSummary && $asset->translation ? $asset->translation->summary : null"
     :title="$asset->translation?->label"
-    :url="$withUrl && $asset->linkedPage ? $asset->linkedPage->pageUrl?->full_url : null"
+    :url="$withUrl && $asset->linkedPage ? $asset->linkedPage->url?->full_url : null"
     :attributes="$attributes->merge(['class' => 'content-asset'])"
 />
 

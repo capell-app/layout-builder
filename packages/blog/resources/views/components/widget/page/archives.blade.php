@@ -60,7 +60,7 @@ $urlParams = Frontend::params();
         >
             @foreach ($archives as $archive)
                 @php
-                    $url = Capell\Blog\Actions\GenerateArchivePageUrl::run($archivePage->pageUrl, $archive);
+                    $url = Capell\Blog\Actions\GenerateArchiveUrl::run($archivePage->url, $archive);
                     $active = $archiveDate && $archiveDate->month === $archive->month && $archiveDate->year === $archive->year;
                 @endphp
 

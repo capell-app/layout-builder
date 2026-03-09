@@ -82,7 +82,7 @@ declare(strict_types=1);
                                 <h4
                                     class="font-heading text-2xl font-bold text-white md:text-4xl"
                                 >
-                                    @if ($linkedPage?->pageUrl?->full_url)
+                                    @if ($linkedPage?->url?->full_url)
                                         <a
                                             href="{{ $linkedPage->pageUrl->full_url }}"
                                             class="hover:underline"
@@ -105,7 +105,7 @@ declare(strict_types=1);
 
                             @if ($linkedPage?->translation)
                                 <x-capell::button
-                                    :url="$linkedPage?->pageUrl?->full_url"
+                                    :url="$linkedPage?->url?->full_url"
                                     color="primary"
                                     icon="heroicon-o-chevron-right"
                                 >

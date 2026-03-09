@@ -10,8 +10,8 @@ use Capell\Assistant\Settings\AssistantSettings;
 use Capell\Assistant\Support\Context\ContentActionContext;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models\PageTranslation;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Actions\Contracts\HasActions;
@@ -136,7 +136,7 @@ class PageTitleWithSlugInputExtender
             ->action($this->handleTitleSuggestionsAction(...));
     }
 
-    private function handleTitleSuggestionsAction(HasActions $livewire, FusedGroup $component, Action $action, array $data, ?PageTranslation $record): void
+    private function handleTitleSuggestionsAction(HasActions $livewire, FusedGroup $component, Action $action, array $data, ?Translation $record): void
     {
         $keywords = isset($data['keywords']) ? trim((string) $data['keywords']) : '';
         $content = isset($data['content']) ? trim((string) $data['content']) : '';

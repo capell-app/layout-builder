@@ -43,6 +43,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\DB;
@@ -382,9 +383,9 @@ class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, Ha
         return $this->morphOneMedia(MediaCollectionEnum::Image->value);
     }
 
-    public function linkedPage(): BelongsTo
+    public function linkedPage(): MorphTo
     {
-        return $this->belongsTo(Page::class, 'meta->page_id', 'id');
+        return $this->morphTo(null, 'meta->linked_pageable_type', 'meta->linked_pageable_id');
     }
 
     public function related(): BelongsToJson
@@ -401,9 +402,10 @@ class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, Ha
     public function pages(): HasMany
     {
         return $this->widgetAssets()
-            ->select('widget_assets.page_id')
-            ->whereNotNull('widget_assets.page_id')
-            ->groupBy('widget_assets.page_id');
+            ->select('widget_assets.pageable_type', 'widget_assets.pageable_id')
+            ->whereNotNull('widget_assets.pageable_type')
+            ->whereNotNull('widget_assets.pageable_id')
+            ->groupBy('widget_assets.pageable_type', 'widget_assets.pageable_id');
     }
 
     public function widgets(): HasMany

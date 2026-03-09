@@ -42,22 +42,22 @@ it('generates tag and archive URLs for static site', function (): void {
 
     $tagsPage = $blogCreator->createTagsPage($site, $blogPage, createWidgets: true);
     $tagPage = $blogCreator->createTagPage($site, $tagsPage);
-    $tagPageUrl = rtrim($tagPage->pageUrl->url, '/*') . '/';
+    $tagUrl = rtrim($tagPage->pageUrl->url, '/*') . '/';
 
     $archivesPage = $blogCreator->createArchivesPage($tagsPage);
     $archivePage = $blogCreator->createArchivePage($archivesPage);
-    $archivePageUrl = rtrim($archivePage->pageUrl->url, '/*') . '/';
+    $archiveUrl = rtrim($archivePage->pageUrl->url, '/*') . '/';
 
     $tagSlugs = $tags->map(fn (Tag $tag): mixed => $tag->getTranslation('slug', $language->code))->values();
 
     // Fake HTTP responses for all expected URLs
     $httpFakes = [];
     foreach ($tagSlugs as $slug) {
-        $httpFakes[$tagPageUrl . $slug] = Http::response('ok', 200);
+        $httpFakes[$tagUrl . $slug] = Http::response('ok', 200);
     }
 
     $archiveMonth = ArchiveMonthData::fromDate($archiveDate);
-    $httpFakes[$archivePageUrl . $archiveMonth->year . '/' . str_pad((string) $archiveMonth->month, 2, '0', STR_PAD_LEFT)] = Http::response('ok', 200);
+    $httpFakes[$archiveUrl . $archiveMonth->year . '/' . str_pad((string) $archiveMonth->month, 2, '0', STR_PAD_LEFT)] = Http::response('ok', 200);
     Http::fake($httpFakes);
 
     $visited = [];
@@ -66,9 +66,9 @@ it('generates tag and archive URLs for static site', function (): void {
         $visited[] = $url;
     });
 
-    $expectedUrls = $tagSlugs->map(fn (string $slug): string => $tagPageUrl . $slug)->all();
+    $expectedUrls = $tagSlugs->map(fn (string $slug): string => $tagUrl . $slug)->all();
     if ($archiveMonth) {
-        $expectedUrls[] = $archivePageUrl . $archiveMonth->year . '/' . str_pad((string) $archiveMonth->month, 2, '0', STR_PAD_LEFT);
+        $expectedUrls[] = $archiveUrl . $archiveMonth->year . '/' . str_pad((string) $archiveMonth->month, 2, '0', STR_PAD_LEFT);
     }
 
     expect($visited)->not()->toBeEmpty()

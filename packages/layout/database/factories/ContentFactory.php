@@ -65,14 +65,19 @@ class ContentFactory extends Factory
 
     public function linkedPage(): self
     {
-        return $this->state(fn (array $attributes): array => [
-            'meta' => array_merge(
-                $attributes['meta'] ?? [],
-                [
-                    'page_id' => Page::factory()->withTranslations()->create()->id,
-                ],
-            ),
-        ]);
+        return $this->state(function (array $attributes): array {
+            $linkedPage = Page::factory()->withTranslations()->create();
+
+            return [
+                'meta' => array_merge(
+                    $attributes['meta'] ?? [],
+                    [
+                        'linked_pageable_id' => $linkedPage->getKey(),
+                        'linked_pageable_type' => $linkedPage->getMorphClass(),
+                    ],
+                ),
+            ];
+        });
     }
 
     public function withTranslations(null|array|Collection|Language $languages = null, array $data = []): self

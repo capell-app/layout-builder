@@ -48,9 +48,9 @@ it('creates all required blog pages and links them for a site', function (): voi
         ->type->name->toBe('Blog')
         ->layout->name->toBe('Blog Posts')
         ->and($archivesPage)->toBeInstanceOf(Page::class)
-        ->type->name->toBe('Archive Page (articles for month/year)')
+        ->type->name->toBe('Archive Page')
         ->layout->name->toBe('Results')
         ->and($tagsPage)->toBeInstanceOf(Page::class)
-        ->type->name->toBe('Tag Page (articles for tag)')
+        ->type->name->toBe('Tag Page')
         ->layout->name->toBe('Results');
 });

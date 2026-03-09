@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Blog\Actions\GenerateArchivePageUrl;
+use Capell\Blog\Actions\GenerateArchiveUrl;
 use Capell\Blog\Data\ArchiveMonthData;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Support\Creator\BlogCreator;
@@ -68,7 +68,7 @@ test('archives page list articles archives by month/year', function (): void {
                         'a',
                         fn (AssertElement $link): BaseAssert => $link->has(
                             'href',
-                            GenerateArchivePageUrl::run($archivePage->pageUrl, ArchiveMonthData::from([
+                            GenerateArchiveUrl::run($archivePage->pageUrl, ArchiveMonthData::from([
                                 'year' => '2023',
                                 'month' => 3 - $index,
                             ])),
@@ -104,11 +104,11 @@ test('archive page list articles by month/year', function (): void {
         ])
         ->create();
 
-    $archiveUrl = GenerateArchivePageUrl::run($archivePage->pageUrl, ArchiveMonthData::fromDate($publishDate));
+    $archiveUrl = GenerateArchiveUrl::run($archivePage->pageUrl, ArchiveMonthData::fromDate($publishDate));
 
     expect($archivePage)
         ->toBeInstanceOf(Page::class)
-        ->type->name->toBe('Archive Page (articles for month/year)')
+        ->type->name->toBe('Archive Page')
         ->layout->name->toBe('Results')
         ->parent->name->toBe('Archives')
         ->and($archivePage->getAncestors(['name'])->pluck('name')->toArray())
@@ -135,9 +135,9 @@ test('error page when no articles found for given month/year', function (string 
     $archivesPage = $blogCreator->createArchivesPage($blogPage);
     $archivePage = $blogCreator->createArchivePage($archivesPage);
 
-    $archivePageUrl = $archivePage->pageUrl;
+    $archiveUrl = $archivePage->pageUrl;
 
-    $archiveUrl = $archivePageUrl->full_url . $slug;
+    $archiveUrl = $archiveUrl->full_url . $slug;
 
     get($archiveUrl)
         ->assertNotFound();

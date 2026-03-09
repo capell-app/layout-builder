@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Blog\Actions\GenerateArchivePageUrl;
+use Capell\Blog\Actions\GenerateArchiveUrl;
 use Capell\Blog\Data\ArchiveMonthData;
 use Capell\Blog\Enums\TagTypeEnum;
 use Capell\Blog\Models\Article;
@@ -31,7 +31,7 @@ test('blog page lists articles', function (): void {
     $site = $siteDomain->site;
 
     $blogPage = $blogCreator->createBlogPage($site);
-    $blogPageUrl = $blogPage->pageUrl;
+    $blogUrl = $blogPage->url;
 
     $articleType = $blogCreator->createArticlePageType();
     $articleLayout = $blogCreator->createArticleLayout();
@@ -56,7 +56,7 @@ test('blog page lists articles', function (): void {
         ->type->name->toBe('Blog')
         ->layout->name->toBe('Blog Posts');
 
-    get($blogPageUrl->full_url)
+    get($blogUrl->full_url)
         ->assertOk()
         ->assertSeeHtml($blogPage->title)
         ->assertSeeHtml($articles[0]->title)
@@ -71,14 +71,14 @@ test('visit blogs page with no articles and see appropriate message', function (
     $site = $siteDomain->site;
 
     $blogPage = $blogCreator->createBlogPage($site);
-    $blogPageUrl = $blogPage->pageUrl;
+    $blogUrl = $blogPage->url;
 
     expect($blogPage)
         ->toBeInstanceOf(Page::class)
         ->type->name->toBe('Blog')
         ->layout->name->toBe('Blog Posts');
 
-    get($blogPageUrl->full_url)
+    get($blogUrl->full_url)
         ->assertOk()
         ->assertSeeText(__('capell-blog::messages.no_articles_found'));
 });
@@ -146,8 +146,8 @@ test('article page list tags', function (): void {
         ->hasAttached($tags)
         ->create();
 
-    $archiveUrl = GenerateArchivePageUrl::run(
-        $archivePage->pageUrl,
+    $archiveUrl = GenerateArchiveUrl::run(
+        $archivePage->url,
         ArchiveMonthData::fromDate(
             ($article->publish_from ?? $article->created_at) instanceof CarbonImmutable
                 ? ($article->publish_from ?? $article->created_at)
@@ -160,6 +160,6 @@ test('article page list tags', function (): void {
         ->assertSeeHtml(e($article->title))
         ->assertSeeHtml(e($blogPage->label))
         ->assertSee($tags[0]->translate('name', $language->code))
-        ->assertSeeHtml('href="' . $tags[0]->getPageUrl($tagPage, $language) . '"')
+        ->assertSeeHtml('href="' . $tags[0]->getUrl($tagPage, $language) . '"')
         ->assertSeeHtml('href="' . $archiveUrl . '"');
 });

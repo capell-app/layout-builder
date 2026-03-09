@@ -374,6 +374,8 @@ test('can add page asset', function (): void {
 
     $widget = Widget::query()->firstWhere('key', $containerWidget['widget_key']);
 
+    $uuid = (string) Str::uuid();
+
     livewire(LayoutBuilder::class, [
         'layout_id' => $layout->id,
     ])
@@ -394,12 +396,12 @@ test('can add page asset', function (): void {
             ],
         ])
         ->set('mountedActions.0.data.asset.translations', [
-            (string) Str::uuid() => [
-                'title' => $newData->name,
-                'slug' => Str::slug($newData->name),
+            $uuid => [
                 'language_id' => $newData->site->language_id,
+                'title' => $newData->name,
             ],
         ])
+        ->set('mountedActions.0.data.asset.translations.' . $uuid . '.meta.slug', Str::slug($newData->name))
         ->callMountedAction()
         ->assertHasNoFormErrors()
         ->call('saveLayout');
@@ -437,6 +439,8 @@ test('can add page asset to existing widget with page layout', function (): void
         ->page($pageLayout, $containerKey, $containerWidget['occurrence'])
         ->create();
 
+    $uuid = (string) Str::uuid();
+
     livewire(LayoutBuilder::class, [
         'layout_id' => $layout->id,
         'page_id' => $pageLayout->id,
@@ -460,12 +464,12 @@ test('can add page asset to existing widget with page layout', function (): void
             ],
         ])
         ->set('mountedActions.0.data.asset.translations', [
-            (string) Str::uuid() => [
+            $uuid => [
                 'title' => $newData->name,
-                'slug' => Str::slug($newData->name),
                 'language_id' => $newData->site->language_id,
             ],
         ])
+        ->set('mountedActions.0.data.asset.translations.' . $uuid . '.meta.slug', Str::slug($newData->name))
         ->callMountedAction()
         ->assertHasNoFormErrors()
         ->call('saveLayout');
@@ -501,6 +505,8 @@ test('can add page asset to widget with page layout', function (): void {
 
     $widget = Widget::query()->firstWhere('key', $containerWidget['widget_key']);
 
+    $uuid = (string) Str::uuid();
+
     livewire(LayoutBuilder::class, [
         'layout_id' => $layout->id,
         'page_id' => $pageLayout->id,
@@ -522,12 +528,12 @@ test('can add page asset to widget with page layout', function (): void {
             ],
         ])
         ->set('mountedActions.0.data.asset.translations', [
-            (string) Str::uuid() => [
+            $uuid => [
                 'title' => $newData->name,
-                'slug' => Str::slug($newData->name),
                 'language_id' => $newData->site->language_id,
             ],
         ])
+        ->set('mountedActions.0.data.asset.translations.' . $uuid . '.meta.slug', Str::slug($newData->name))
         ->callMountedAction()
         ->assertHasNoFormErrors()
         ->call('saveLayout');

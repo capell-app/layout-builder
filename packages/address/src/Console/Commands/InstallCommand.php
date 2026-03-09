@@ -55,8 +55,8 @@ class InstallCommand extends Command
             'capell:publish-migrations',
             [
                 '--items' => [
-                    '2026_01_02_000001_create_countries_table',
-                    '2026_01_02_000002_create_addresses_table',
+                    'create_countries_table',
+                    'create_addresses_table',
                 ],
                 '--path' => $migrations,
             ],

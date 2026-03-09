@@ -9,8 +9,8 @@ use Capell\Blog\Filament\Resources\Articles\Pages\EditArticle;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Models\Tag;
 use Capell\Core\Models\Page;
-use Capell\Core\Models\PageTranslation;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\DeleteAction;
 use Illuminate\Database\Eloquent\Model;
@@ -57,10 +57,9 @@ it('can save', function (): void {
     $page = Article::factory()->recycle($site)->create();
 
     $languages->each(function (int $languageId) use ($page): void {
-        $page->translations()->save(PageTranslation::factory()->make([
+        $page->translations()->save(Translation::factory()->slug(Str::slug($page->name . ' ' . $languageId))->make([
             'language_id' => $languageId,
             'title' => Str::title($page->name . ' ' . $languageId),
-            'slug' => Str::slug($page->name . ' ' . $languageId),
         ]));
     });
 

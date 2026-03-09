@@ -45,8 +45,8 @@ test('tags page list tags', function (): void {
         ->pageUrl->language->id->toBe($language->id)
         ->and($tagPage)
         ->toBeInstanceOf(Page::class)
-        ->name->toBe('Tag Page (articles for tag)')
-        ->type->name->toBe('Tag Page (articles for tag)')
+        ->name->toBe('Tag Page')
+        ->type->name->toBe('Tag Page')
         ->layout->name->toBe('Results')
         ->translation->language->id->toBe($language->id)
         ->pageUrl->language->id->toBe($language->id);
@@ -58,9 +58,9 @@ test('tags page list tags', function (): void {
             'main',
             fn (AssertElement $main): BaseAssert => $main->containsText($tags[0]->translate('name', $language->code)),
         )
-        ->assertSeeHtml('href="' . $tags[0]->getPageUrl($tagPage, $language) . '"')
+        ->assertSeeHtml('href="' . $tags[0]->getUrl($tagPage, $language) . '"')
         ->assertSee($tags[1]->translate('name', $language->code))
-        ->assertSeeHtml('href="' . $tags[1]->getPageUrl($tagPage, $language) . '"')
+        ->assertSeeHtml('href="' . $tags[1]->getUrl($tagPage, $language) . '"')
         ->assertDontSeeText($tags[2]->translate('name', $language->code));
 });
 
@@ -84,7 +84,7 @@ test('tag page list articles by tag', function (): void {
         ->translation->title->toBe(':Tag_name Articles')
         ->and($containerWidgets)->toContain('breadcrumbs');
 
-    get($tag->getPageUrl($tagPage, $language))
+    get($tag->getUrl($tagPage, $language))
         ->assertOk()
         ->assertDontSeeText(':Tag_name Articles')
         ->assertElementExists(

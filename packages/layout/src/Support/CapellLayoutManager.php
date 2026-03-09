@@ -14,10 +14,10 @@ class CapellLayoutManager
     public static function getMigrations(): array
     {
         return [
-            '2026_01_02_000001_create_contents_table',
-            '2026_01_02_000002_create_widgets_table',
-            '2026_01_02_000003_create_widget_assets_table',
-            '2026_01_02_000004_alter_container_widgets_to_layouts_table',
+            'create_contents_table',
+            'create_widgets_table',
+            'create_widget_assets_table',
+            'add_container_widgets_to_layouts_table',
         ];
     }
 

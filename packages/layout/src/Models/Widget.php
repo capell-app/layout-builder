@@ -274,19 +274,22 @@ class Widget extends Model implements HasMedia, PageCacheable, Publishable, Stat
     public function widgetAssets(): HasMany
     {
         return $this->assets()
-            ->whereNull('page_id');
+            ->whereNull('pageable_type')
+            ->whereNull('pageable_id');
     }
 
     public function widgetPageAssets(): HasMany
     {
         return $this->assets()
-            ->whereNotNull('page_id');
+            ->whereNotNull('pageable_type')
+            ->whereNotNull('pageable_id');
     }
 
     public function pageAssets(Page $page, string $container, int $occurrence): HasMany
     {
         return $this->assets()
-            ->where('widget_assets.page_id', $page->id)
+            ->where('widget_assets.pageable_type', $page->getMorphClass())
+            ->where('widget_assets.pageable_id', $page->getKey())
             ->where('widget_assets.container', $container)
             ->where('widget_assets.occurrence', $occurrence);
     }

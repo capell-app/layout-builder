@@ -13,9 +13,9 @@ use Capell\Core\Models\AssetRelation;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
-use Capell\Core\Models\PageTranslation;
 use Capell\Core\Models\PageUrl;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
@@ -65,8 +65,8 @@ use Spatie\Tags\Tag;
  * @property-read int|null $siblings_count
  * @property-read Site|null $site
  * @property-read int|null $tags_count
- * @property-read PageTranslation|null $translation
- * @property-read Collection<int, PageTranslation> $translations
+ * @property-read Translation|null $translation
+ * @property-read Collection<int, Translation> $translations
  * @property-read int|null $translations_count
  * @property-read Type|null $type
  *

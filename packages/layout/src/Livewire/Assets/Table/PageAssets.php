@@ -42,7 +42,7 @@ class PageAssets extends AbstractAssets implements HasPageResource
 
         $query->with([
             'translation' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', $language_id),
-            'pageUrl' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', $language_id),
+            'url' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', $language_id),
         ]);
 
         return $query;

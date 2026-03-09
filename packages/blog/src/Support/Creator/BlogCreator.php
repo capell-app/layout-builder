@@ -145,11 +145,11 @@ class BlogCreator
         $page->save();
 
         $languages->each(function (Language $language) use ($page): void {
-            $pageTranslation = $page->translations()->firstOrCreate([
+            $translation = $page->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
-                'slug' => '*',
                 'title' => __('capell-blog::generic.tag_page_title'),
+                'meta' => ['slug' => '*'],
             ]);
         });
 
@@ -190,11 +190,11 @@ class BlogCreator
             $page->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
-                'slug' => 'tags',
                 'title' => __('capell-blog::generic.tags_page_title'),
                 'content' => '<p>' . __('capell-blog::generic.tags_page_description') . '</p>',
                 'meta' => [
                     'label' => __('capell-blog::generic.tags'),
+                    'slug' => 'tags',
                 ],
             ]);
         });
@@ -262,10 +262,10 @@ class BlogCreator
             $page->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
-                'slug' => '*',
                 'title' => __('capell-blog::generic.blog_archive_title'),
                 'meta' => [
                     'description' => __('capell-blog::generic.archive'),
+                    'slug' => '*',
                 ],
             ]);
         });
@@ -511,12 +511,12 @@ class BlogCreator
             $page->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
-                'slug' => str(__('capell-blog::generic.archives'))->slug(),
                 'title' => __('capell-blog::generic.archives'),
                 'content' => sprintf('<p>%s</p>', __('capell-blog::generic.blog_archives_description')),
                 'meta' => [
                     'title' => __('capell-blog::generic.blog_archives_title'),
                     'description' => __('capell-blog::generic.archives'),
+                    'slug' => str(__('capell-blog::generic.archives'))->slug(),
                 ],
             ]);
         });
@@ -712,10 +712,10 @@ class BlogCreator
                 'language_id' => $language->id,
             ], [
                 'title' => __('capell-blog::generic.latest_articles'),
-                'slug' => 'blog',
                 'meta' => [
                     'label' => __('capell-blog::generic.blog'),
                     'no_results' => __('capell-blog::messages.no_articles_found'),
+                    'slug' => 'blog',
                 ],
             ]);
         });
