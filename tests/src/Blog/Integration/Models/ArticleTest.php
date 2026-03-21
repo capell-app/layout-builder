@@ -9,17 +9,17 @@ it('finds next and previous siblings by publish date', function (): void {
     $site = Site::factory()->withTranslations()->create();
 
     $olderArticle = Article::factory()->site($site)->create([
-        'publish_from' => '2025-01-01 00:00:00',
+        'visible_from' => '2025-01-01 00:00:00',
         'created_at' => '2025-01-01 00:00:00',
     ]);
 
     $currentArticle = Article::factory()->site($site)->create([
-        'publish_from' => '2025-01-02 00:00:00',
+        'visible_from' => '2025-01-02 00:00:00',
         'created_at' => '2025-01-02 00:00:00',
     ]);
 
     $newerArticle = Article::factory()->site($site)->create([
-        'publish_from' => '2025-01-03 00:00:00',
+        'visible_from' => '2025-01-03 00:00:00',
         'created_at' => '2025-01-03 00:00:00',
     ]);
 
@@ -27,23 +27,23 @@ it('finds next and previous siblings by publish date', function (): void {
         ->and($currentArticle->nextSiblings()->first()?->is($newerArticle))->toBeTrue();
 });
 
-it('falls back to created_at when publish_from is null and keeps siblings in the same site', function (): void {
+it('falls back to created_at when visible_from is null and keeps siblings in the same site', function (): void {
     $site = Site::factory()->withTranslations()->create();
 
     $firstArticle = Article::factory()->site($site)->create([
-        'publish_from' => null,
+        'visible_from' => null,
         'created_at' => '2025-02-01 00:00:00',
     ]);
 
     $secondArticle = Article::factory()->site($site)->create([
-        'publish_from' => null,
+        'visible_from' => null,
         'created_at' => '2025-02-02 00:00:00',
     ]);
 
     $differentSite = Site::factory()->withTranslations()->create();
 
     Article::factory()->site($differentSite)->create([
-        'publish_from' => null,
+        'visible_from' => null,
         'created_at' => '2025-02-03 00:00:00',
     ]);
 

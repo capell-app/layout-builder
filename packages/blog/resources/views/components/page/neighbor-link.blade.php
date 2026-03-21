@@ -34,7 +34,7 @@ declare(strict_types=1);
                 :width="200"
                 @class([
                     'h-full w-auto max-w-[5rem] object-cover object-center group-hover:opacity-85',
-                    'rounded' => $theme->meta['rounded_images'] ?? false,
+                    'rounded' => $theme->getMeta('rounded_images', false),
                 ])
                 loading="lazy"
             />

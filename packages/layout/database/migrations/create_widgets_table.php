@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->foreignId('type_id')->constrained();
             $table->string('key', 128);
-            $table->publishDates();
+            $table->visibleDates();
             $table->longText('content')->nullable();
             $table->json('meta')->nullable();
             $table->json('admin')->nullable();

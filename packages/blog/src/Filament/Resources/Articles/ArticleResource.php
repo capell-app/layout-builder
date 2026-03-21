@@ -53,7 +53,7 @@ class ArticleResource extends PageResource
 
     public static function getBasePath(Site $site, Language $language): string
     {
-        return BlogLoader::getBlogPageUrl($site, $language, fullUrl: false);
+        return BlogLoader::getBlogPageUrl($site, $language, fullUrl: false) . '/';
     }
 
     public static function getLabel(): string

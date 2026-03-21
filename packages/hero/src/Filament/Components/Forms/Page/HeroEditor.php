@@ -24,21 +24,19 @@ class HeroEditor extends Group
         parent::setUp();
 
         $this->statePath('meta')
-            ->visible(
-                function (null|Translation|Pageable $record): bool {
-                    if ($record === null) {
-                        return false;
-                    }
+            ->visible(function (null|Translation|Pageable $record): bool {
+                if ($record === null) {
+                    return false;
+                }
 
-                    $page = $record instanceof Pageable ? $record : $record->pageable;
+                $page = $record instanceof Pageable ? $record : $record->pageable;
 
-                    if (! $page instanceof Pageable) {
-                        return false;
-                    }
+                if (! $page instanceof Pageable) {
+                    return false;
+                }
 
-                    return ! $this->hasPageWidgetHeroAssets($page);
-                },
-            )
+                return ! $this->hasPageWidgetHeroAssets($page);
+            })
             ->schema([
                 ContentEditor::make('hero')
                     ->label(__('capell-hero::form.hero'))
@@ -53,7 +51,7 @@ class HeroEditor extends Group
 
     protected function hasPageWidgetHeroAssets(Pageable $page): bool
     {
-        return cache()->driver('array')->rememberForever(
+        return cache()->memo()->rememberForever(
             sprintf('page-%d-has-hero-widget-assets', $page->id),
             function () use ($page): bool {
                 /** @var class-string<WidgetAsset> $model */

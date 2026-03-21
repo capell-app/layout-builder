@@ -17,17 +17,16 @@ declare(strict_types=1);
     'containerWidth' => null,
     'loop',
     'widget',
-    'headingSize' => $widget->meta['heading_size'] ?? 'h1',
-    'withAuthor' => $widget->meta['with_author'] ?? false,
-    'withDate' => $widget->meta['with_date'] ?? false,
-    'withNextPrev' => $widget->meta['with_next_prev'] ?? false,
+    'headingSize' => $widget->getMeta('heading_size', 'h1'),
+    'withAuthor' => (bool) $widget->getMeta('with_author'),
+    'withDate' => (bool) $widget->getMeta('with_date'),
+    'withNextPrev' => (bool) $widget->getMeta('with_next_prev'),
 ])
 <x-capell-layout::widget.wrapper
     :$container
     :$containerKey
     :$containerWidth
     :index="$loop->index"
-    :margin="['t-md', 'b-lg']"
     :$widget
     container-class="flex flex-col gap-6"
 >
@@ -39,24 +38,22 @@ declare(strict_types=1);
             :content="$page->translation->content"
             :content-type="$page->type->content_structure"
             :muted="in_array($containerKey, $theme->secondary_containers)"
-            :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
+            :text-align="$widget->getMeta('align')"
             :title="$page->translation->title"
-            :heading-style="($widget->meta['heading_style'] ?? null) ?: $widget->type->meta['heading_style'] ?? null"
+            :heading-style="$widget->getMeta('heading_style')"
         >
             @if ($withDate)
-                <div class="text-right">
-                    <x-capell-blog::page.published-date
-                        class="mt-4 whitespace-nowrap"
-                        :date="$page->published_at ?: $page->publish_from ?: $page->created_at"
-                    />
-                </div>
+                <x-capell-blog::page.published-date
+                    class="mt-4 whitespace-nowrap"
+                    :date="$page->published_at ?: $page->visible_from ?: $page->created_at"
+                />
             @endif
         </x-capell::content>
     </div>
 
     {!!
-        app(\Capell\Frontend\Support\Render\RenderHookRegistry::class)->renderAll(
-            \Capell\Frontend\Enums\RenderHookLocation::ArticleMeta,
+        app(RenderHookRegistry::class)->renderAll(
+            RenderHookLocation::ArticleMeta,
             [
                 'withAuthor' => $withAuthor,
                 'author' => $author,

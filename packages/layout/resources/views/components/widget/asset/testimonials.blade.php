@@ -14,8 +14,8 @@ declare(strict_types=1);
 @endphp
 
 @props([
-    'align' => $widget->meta['align'] ?? $widget->type->meta['align'] ?? 'center',
-    'color' => $widget->meta['color'] ?? $widget->type->meta['color'] ?? 'light',
+    'align' => $widget->getMeta('align', 'center'),
+    'color' => $widget->getMeta('color', 'light'),
     'containerKey',
     'containerIndex',
     'containerWidth',
@@ -44,7 +44,7 @@ declare(strict_types=1);
             :title="$widget->translation->title"
             heading-weight="semibold"
             :text-align="$align"
-            :heading-style="($widget->meta['heading_style'] ?? null) ?: $widget->type->meta['heading_style'] ?? null"
+            :heading-style="$widget->getMeta('heading_style')"
             class="mt-4"
         />
     @endif
@@ -69,6 +69,9 @@ declare(strict_types=1);
                             $title = '';
                             $content = '';
                             $media = $widgetAsset->media->first() ?: $widgetAsset->asset->image;
+
+                            $position = $widgetAsset->asset->translation->getMeta('position', '');
+                            $company = $widgetAsset->asset->translation->getMeta('company', '');
 
                             if (CapellCore::getAsset($widgetAsset->asset_type)->hasTranslations) {
                                 $title = $widgetAsset->asset->translation?->title;
@@ -122,22 +125,22 @@ declare(strict_types=1);
                                             </span>
                                         </div>
 
-                                        @if (! empty($widgetAsset->asset->translation->meta['position']) || ! empty($widgetAsset->asset->translation->meta['company']))
+                                        @if ($position || $company)
                                             <div
                                                 class="text-smaller block font-normal text-gray-300"
                                             >
                                                 <span itemprop="jobTitle">
-                                                    {{ $widgetAsset->asset->translation->meta['position'] ?? '' }}
+                                                    {{ $position }}
                                                 </span>
-                                                @if (! empty($widgetAsset->asset->translation->meta['company']))
-                                                    @if (! empty($widgetAsset->asset->translation->meta['position']))
+                                                @if ($company)
+                                                    @if ($position)
                                                         <span class="mx-1">
                                                             |
                                                         </span>
                                                     @endif
 
                                                     <span itemprop="worksFor">
-                                                        {{ $widgetAsset->asset->translation->meta['company'] }}
+                                                        {{ $company }}
                                                     </span>
                                                 @endif
                                             </div>

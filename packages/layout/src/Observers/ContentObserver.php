@@ -33,7 +33,7 @@ class ContentObserver
     {
         $this->beforeSaving($content);
 
-        if ($content->publish_from?->isNowOrFuture()) {
+        if ($content->visible_from?->isNowOrFuture()) {
             $content->is_published = true;
         }
     }

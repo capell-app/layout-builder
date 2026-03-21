@@ -47,16 +47,16 @@ declare(strict_types=1);
             :content="$showContent ? ($widget->translation->content ?: ($showPageContent ? $page->translation->content : null)) : null"
             :content-type="$widget->type->content_structure"
             :muted="in_array($containerKey, $theme->secondary_containers)"
-            :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
+            :text-align="$widget->getMeta('align')"
             :title="$showTitle ? ($widget->translation->title ?: ($showPageTitle ? $page->translation->title : null)) : null"
-            :heading-style="($widget->meta['heading_style'] ?? null) ?: ($widget->type->meta['heading_style'] ?? null)"
+            :heading-style="$widget->getMeta('heading_style')"
             :heading-tag="$showPageTitle ? 'h1' : null"
         />
     @endif
 
     @if ($archives?->isEmpty())
         <x-capell::no-results>
-            {!! isset($widget->translation->meta['no_results']) && $widget->translation->meta['no_results'] !== '' ? $widget->translation->meta['no_results'] : __('capell-blog::messages.no_archives_found') !!}
+            {!! $widget->translation->getMeta('no_results', __('capell-blog::messages.no_archives_found')) !!}
         </x-capell::no-results>
     @else
         <ul

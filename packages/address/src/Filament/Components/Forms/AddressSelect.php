@@ -33,7 +33,7 @@ class AddressSelect extends Select
                         ->limit($component->getOptionsLimit())
                         ->ordered()
                         ->get()
-                        ->mapWithKeys(fn (Address $address): array => [$address->getKey() => $address->name])
+                        ->mapWithKeys(fn (Address $address): array => [$address->getKey() => $address->full_address])
                         ->all();
                 },
             )

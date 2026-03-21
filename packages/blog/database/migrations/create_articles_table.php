@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignId('layout_id')->constrained();
             $table->foreignId('site_id')->constrained()->cascadeOnDelete();
             $table->json('meta')->nullable();
-            $table->publishDates();
+            $table->visibleDates();
             $this->draftsCreateSchema($table);
             $table->unsignedInteger('order')->default(0);
             $table->userstamps();

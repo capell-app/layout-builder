@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Assistant\Support\Admin;
 
+use Capell\Admin\Contracts\Extenders\PageTitleWithSlugInputExtender as PageTitleWithSlugInputExtenderContract;
 use Capell\Assistant\Actions\SuggestPageTitlesAction;
 use Capell\Assistant\Exceptions\OpenAICircuitBreakerOpenException;
 use Capell\Assistant\Settings\AssistantSettings;
@@ -28,7 +29,7 @@ use Filament\Support\Enums\IconPosition;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 
-class PageTitleWithSlugInputExtender
+class PageTitleWithSlugInputExtender implements PageTitleWithSlugInputExtenderContract
 {
     private readonly SuggestPageTitlesAction $suggestPageTitlesAction;
 

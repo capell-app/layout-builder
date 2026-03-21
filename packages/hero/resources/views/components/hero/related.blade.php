@@ -5,7 +5,7 @@ declare(strict_types=1);
 ?>
 
 @props([
-    'language' => Capell\Frontend\Facades\Frontend::language(),
+    'language' => Frontend::language(),
     'related',
     'key',
 ])
@@ -28,6 +28,8 @@ declare(strict_types=1);
             if ($linkedPage) {
                 $url = $linkedPage->pageUrl->full_url;
             }
+
+            $linkText = $feature->getMeta('link_text');
         @endphp
         {{-- format-ignore-end --}}
         <div
@@ -75,14 +77,14 @@ declare(strict_types=1);
                             {!! $feature->translation->summary !!}
                         </div>
 
-                        @if (! empty($feature->meta['link_text']))
+                        @if ($linkText)
                             <a
                                 class="text-link hover:text-primary focus:text-primary font-medium no-underline focus:underline"
                                 href="{{ $url }}"
                                 title="{{ e(strip_tags($feature->translation->title)) }}"
                                 wire:navigate
                             >
-                                {{ $feature->meta['link_text'] }}
+                                {{ $linkText }}
                             </a>
                         @endif
                     </div>

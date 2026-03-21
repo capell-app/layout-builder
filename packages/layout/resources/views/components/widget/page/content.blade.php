@@ -13,11 +13,11 @@ $theme = Frontend::theme();
     'container',
     'containerKey',
     'containerWidth' => null,
-    'headingTag' => $widget->meta['heading_tag'] ?? null,
-    'headingSize' => $widget->meta['heading_size'] ?? 'h1',
+    'headingTag' => $widget->getMeta('heading_tag'),
+    'headingSize' => $widget->getMeta('heading_size', 'h1'),
     'loop',
-    'pageContents' => $widget->meta['page_content'] ?? ['title', 'content'],
-    'size' => $widget->meta['size'] ?? 'lg',
+    'pageContents' => (array) $widget->getMeta('page_content', ['title', 'content']),
+    'size' => $widget->getMeta('size', 'lg'),
     'widget',
     'widgetData',
 ])
@@ -44,7 +44,7 @@ $theme = Frontend::theme();
         tag="article"
     >
         @if (in_array('content', $pageContents, true))
-            @if ($page->type->content_structure === \Capell\Core\Enums\ContentStructure::Blocks)
+            @if ($page->type->content_structure === ContentStructure::Blocks)
                 <x-capell::blocks
                     :blocks="$page->translation->content"
                     :$layout
@@ -59,7 +59,7 @@ $theme = Frontend::theme();
                     :heading-tag="$headingTag"
                     :muted="in_array($containerKey, $theme->secondary_containers)"
                     :image="$page->image"
-                    :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
+                    :text-align="$widget->getMeta('align')"
                     :title="in_array('title', $pageContents, true) && ! (empty($this->widgetData['meta']['show_page_title']) && $hasPrimaryHeading) ? $page->translation->title : null"
                 />
             @endif

@@ -37,9 +37,9 @@ test('archives page list articles archives by month/year', function (): void {
         ->layout($articleLayout)
         ->withTranslations($site->languages)
         ->forEachSequence(
-            ['publish_from' => '2023-01-01'],
-            ['publish_from' => '2023-02-01'],
-            ['publish_from' => '2023-03-01'],
+            ['visible_from' => '2023-01-01'],
+            ['visible_from' => '2023-02-01'],
+            ['visible_from' => '2023-03-01'],
         )
         ->create();
 
@@ -101,7 +101,7 @@ test('archive page list articles by month/year', function (): void {
         ->layout($articleLayout)
         ->withTranslations($site->languages)
         ->state([
-            'publish_from' => fake()->dateTimeBetween($publishDate->startOfMonth(), $publishDate->endOfMonth()),
+            'visible_from' => fake()->dateTimeBetween($publishDate->startOfMonth(), $publishDate->endOfMonth()),
         ])
         ->create();
 

@@ -145,6 +145,7 @@ class Address extends Model implements Defaultable, Userstampable
     {
         return $query
             ->orderBy('line1')
+            ->orderBy('line2')
             ->orderBy('city')
             ->orderBy('state')
             ->orderBy('postal_code')
@@ -155,6 +156,7 @@ class Address extends Model implements Defaultable, Userstampable
     {
         $parts = array_filter([
             $this->line1,
+            $this->line2,
             $this->city,
             $this->state,
             $this->postal_code,

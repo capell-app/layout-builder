@@ -124,7 +124,7 @@ class ContentAlertsWidget extends Widget implements HasActions, HasForms
             case PublishStatusEnum::pending:
                 $alerts->put('pending', new MessageData(
                     message: __('capell-admin::message.resource_pending', [
-                        'date' => $this->record->publish_from?->diffForHumans(),
+                        'date' => $this->record->visible_from?->diffForHumans(),
                         'name' => __('capell-layout::generic.content'),
                     ]),
                     type: AlertTypeEnum::Warning,
@@ -134,7 +134,7 @@ class ContentAlertsWidget extends Widget implements HasActions, HasForms
             case PublishStatusEnum::expired:
                 $alerts->put('expired', new MessageData(
                     message: __('capell-admin::message.resource_expired', [
-                        'date' => $this->record->publish_to?->diffForHumans(),
+                        'date' => $this->record->visible_until?->diffForHumans(),
                         'name' => __('capell-layout::generic.content'),
                     ]),
                     type: AlertTypeEnum::Warning,

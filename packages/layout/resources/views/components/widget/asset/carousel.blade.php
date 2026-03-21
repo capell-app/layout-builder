@@ -22,14 +22,14 @@ declare(strict_types=1);
     'carouselLoop' => true,
     'carouselPagination' => false,
     'carouselWheel' => true,
-    'color' => $widget->meta['color'] ?? 'dark',
+    'color' => $widget->getMeta('color', 'dark'),
     'container',
     'containerKey',
     'containerWidth' => null,
     'showPageContent' => $widgetData['meta']['show_page_content'] ?? false,
     'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
     'loop',
-    'rounded' => $theme->meta['rounded_images'] ?? false,
+    'rounded' => (bool) $theme->getMeta('rounded_images'),
     'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
     'widget',
 ])
@@ -52,8 +52,8 @@ declare(strict_types=1);
                 :color="$color"
                 :muted="in_array($containerKey, $theme->secondary_containers)"
                 :title="$widget->translation->title ?? ($showPageTitle ? $page->translation->title : null)"
-                :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
-                :heading-style="($widget->meta['heading_style'] ?? null) ?: ($widget->type->meta['heading_style'] ?? null)"
+                :text-align="$widget->getMeta('align')"
+                :heading-style="$widget->getMeta('heading_style')"
                 :heading-tag="$showPageTitle ? 'h1' : null"
             />
         </div>

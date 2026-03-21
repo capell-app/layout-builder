@@ -27,7 +27,7 @@ class ArticleObserver
 
     public function saving(Article $article): void
     {
-        if ($article->publish_from?->isNowOrFuture()) {
+        if ($article->visible_from?->isNowOrFuture()) {
             $article->is_published = true;
         }
     }

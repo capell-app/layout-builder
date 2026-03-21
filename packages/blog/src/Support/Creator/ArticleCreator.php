@@ -38,7 +38,7 @@ class ArticleCreator extends PageCreator
             'meta' => [
                 'image_id' => $data['image_id'] ?? null,
             ],
-            'publish_from' => $data['publish_from'] ?? null,
+            'visible_from' => $data['visible_from'] ?? null,
             'is_published' => true,
         ];
 

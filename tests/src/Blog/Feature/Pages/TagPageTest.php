@@ -34,11 +34,11 @@ test('tag page list articles by tag', function (): void {
         ->withTranslations()
         ->hasAttached($tag)
         ->forEachSequence(
-            ['publish_from' => '2023-01-01'],
-            ['publish_from' => '2023-02-01'],
-            ['publish_from' => '2023-03-01'],
-            ['publish_from' => '2023-04-01'],
-            ['publish_from' => '2023-05-01'],
+            ['visible_from' => '2023-01-01'],
+            ['visible_from' => '2023-02-01'],
+            ['visible_from' => '2023-03-01'],
+            ['visible_from' => '2023-04-01'],
+            ['visible_from' => '2023-05-01'],
         )
         ->create();
 

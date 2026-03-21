@@ -148,9 +148,9 @@ test('article page list tags', function (): void {
     $archiveUrl = GenerateArchiveUrl::run(
         $archivePage->pageUrl,
         ArchiveMonthData::fromDate(
-            ($article->publish_from ?? $article->created_at) instanceof CarbonImmutable
-                ? ($article->publish_from ?? $article->created_at)
-                : CarbonImmutable::instance($article->publish_from ?? $article->created_at),
+            ($article->visible_from ?? $article->created_at) instanceof CarbonImmutable
+                ? ($article->visible_from ?? $article->created_at)
+                : CarbonImmutable::instance($article->visible_from ?? $article->created_at),
         ),
     );
 

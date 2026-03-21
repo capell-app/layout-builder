@@ -13,7 +13,7 @@ $theme = Frontend::theme();
 @endphp
 
 @props([
-    'color' => $widget->meta['color'] ?? 'dark',
+    'color' => $widget->getMeta('color', 'dark'),
     'container',
     'containerKey',
     'containerWidth' => null,
@@ -21,13 +21,13 @@ $theme = Frontend::theme();
     'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
     'widget',
     'widgetIndex',
-    'withChildCount' => $widget->meta['with_child_count'] ?? ($widget->type->meta['with_child_count'] ?? false),
-    'withImage' => $widget->meta['with_image'] ?? ($widget->type->meta['with_image'] ?? true),
-    'withParent' => $widget->meta['with_parent'] ?? ($widget->type->meta['with_parent'] ?? false),
-    'withDate' => $widget->meta['with_date'] ?? ($widget->type->meta['with_date'] ?? true),
-    'withSummary' => $widget->meta['with_summary'] ?? ($widget->type->meta['with_summary'] ?? true),
-    'spacing' => $widget->meta['spacing'] ?? ($widget->type->meta['spacing'] ?? true),
-    'columns' => $widget->meta['columns'] ?? ($widget->type->meta['columns'] ?? null),
+    'withChildCount' => (bool) $widget->getMeta('with_child_count'),
+    'withImage' => (bool) $widget->getMeta('with_image', true),
+    'withParent' => (bool) $widget->getMeta('with_parent'),
+    'withDate' => (bool) $widget->getMeta('with_date', true),
+    'withSummary' => (bool) $widget->getMeta('with_summary', true),
+    'spacing' => (bool) $widget->getMeta('spacing', true),
+    'columns' => $widget->getMeta('columns'),
 ])
 
 @capellBuffer($extendedBackground, $color, $position)
@@ -71,14 +71,14 @@ $theme = Frontend::theme();
             :color="$color"
             :muted="in_array($containerKey, $theme->secondary_containers)"
             :title="$widget->translation->title"
-            :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
-            :heading-style="($widget->meta['heading_style'] ?? null) ?: $widget->type->meta['heading_style'] ?? null"
+            :text-align="$widget->getMeta('align')"
+            :heading-style="$widget->getMeta('heading_style')"
         />
     @endif
 
     @if ($widget->assets->isNotEmpty())
         <div>
-            @if ($color = $widget->assets->first()->asset->meta['color'] ?? null)
+            @if ($color = $widget->assets->first()->asset->getMeta('color'))
                 {{ $extendedBackground($color, 'left') }}
             @endif
 
@@ -97,8 +97,8 @@ $theme = Frontend::theme();
             >
                 @foreach ($widget->assets as $asset)
                     <x-dynamic-component
-                        :component="app(\Capell\Frontend\Contracts\AssetsRegistryInterface::class)->getAsset($asset['asset_type'])->component"
-                        :component-item="$widget->meta['component_item'] ?? AssetComponentEnum::Card->value"
+                        :component="app(AssetsRegistryInterface::class)->getAsset($asset['asset_type'])->component"
+                        :component-item="$widget->getMeta('component_item', AssetComponentEnum::Card->value)"
                         :$container
                         :$containerKey
                         :$loop
@@ -112,7 +112,7 @@ $theme = Frontend::theme();
                     />
                 @endforeach
             </div>
-            @if ($color = $widget->assets->last()->asset->meta['color'] ?? null)
+            @if ($color = $widget->assets->last()->asset->getMeta('color'))
                 {{ $extendedBackground($color, 'right') }}
             @endif
         </div>

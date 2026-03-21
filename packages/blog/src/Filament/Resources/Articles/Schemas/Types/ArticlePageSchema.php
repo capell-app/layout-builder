@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Filament\Resources\Articles\Schemas\Types;
 
+use Capell\Admin\Contracts\Schemas\PageSchemaExtenderResolverInterface;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
 use Capell\Admin\Filament\Components\Forms\Page\LayoutSelect;
@@ -88,15 +89,9 @@ class ArticlePageSchema extends DefaultPageSchema
 
     protected function getTabs(Schema $schema): array
     {
-        $tabs = [
+        return app(PageSchemaExtenderResolverInterface::class)->resolveTabs($schema, [
             ArticleSettingsTab::make($schema),
-        ];
-
-        foreach (static::getExtenders() as $extender) {
-            $tabs = $extender->extendTabs($schema, $tabs);
-        }
-
-        return $tabs;
+        ]);
     }
 
     #[Override]

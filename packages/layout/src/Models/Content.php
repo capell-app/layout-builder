@@ -170,8 +170,8 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property int|null $site_id
  * @property array<array-key, mixed>|null $meta
  * @property int $order
- * @property CarbonImmutable|null $publish_from
- * @property CarbonImmutable|null $publish_to
+ * @property CarbonImmutable|null $visible_from
+ * @property CarbonImmutable|null $visible_until
  * @property string|null $uuid
  * @property CarbonImmutable|null $published_at
  * @property bool $is_published
@@ -201,7 +201,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @method static NestedQueryBuilder<static>|Content whereName($value)
  * @method static NestedQueryBuilder<static>|Content whereOrder($value)
  * @method static NestedQueryBuilder<static>|Content whereParentId($value)
- * @method static NestedQueryBuilder<static>|Content wherePublishFrom($value)
+ * @method static NestedQueryBuilder<static>|Content whereVisibleFrom($value)
  * @method static NestedQueryBuilder<static>|Content wherePublishTo($value)
  * @method static NestedQueryBuilder<static>|Content wherePublishedAt($value)
  * @method static NestedQueryBuilder<static>|Content wherePublisherId($value)
@@ -257,8 +257,8 @@ class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, Ha
         'name',
         'order',
         'parent_id',
-        'publish_from',
-        'publish_to',
+        'visible_from',
+        'visible_until',
         'site_id',
         'type_id',
         'uuid',
@@ -484,8 +484,8 @@ class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, Ha
         return [
             'is_published' => 'boolean',
             'meta' => 'json',
-            'publish_from' => 'datetime',
-            'publish_to' => 'datetime',
+            'visible_from' => 'datetime',
+            'visible_until' => 'datetime',
         ];
     }
 }

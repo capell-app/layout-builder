@@ -6,6 +6,7 @@ namespace Capell\Address\Filament\Resources\Sites\Schemas\Extenders;
 
 use Capell\Address\Filament\Components\Forms\AddressSelect;
 use Capell\Admin\Contracts\Extenders;
+use Capell\Admin\Enums\PageTranslationSchemaHookEnum;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,9 +22,11 @@ class SiteSchemaExtender implements Extenders\SiteSchemaExtender
         return $tabs;
     }
 
-    public function extendTranslationComponents(Schema $schema, array $components): array
+    public function extendTranslationComponentsForHook(Schema $schema, PageTranslationSchemaHookEnum $hook): array
     {
-        return $components;
+        // For backward compatibility, return empty: address package previously mutated
+        // the full components array directly. If needed, implement hook-aware insertion.
+        return [];
     }
 
     public function extendSiteMetaDetailsComponents(Schema $schema, array $components): array

@@ -18,7 +18,7 @@ declare(strict_types=1);
 {{-- format-ignore-end --}}
 
 @props([
-    'columns' => $container['meta']['override_columns'] ?? ($widget->meta['columns'] ?? 3),
+    'columns' => $container['meta']['override_columns'] ?? $widget->getMeta('columns', 3),
     'container',
     'containerKey',
     'containerWidth' => null,
@@ -26,8 +26,8 @@ declare(strict_types=1);
     'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
     'index',
     'loop',
-    'size' => $widget->meta['size'] ?? null,
-    'spacing' => $widget->meta['spacing'] ?? 'lg',
+    'size' => $widget->getMeta('size'),
+    'spacing' => $widget->getMeta('spacing', 'lg'),
     'widget',
 ])
 <x-capell-layout::widget.wrapper
@@ -46,8 +46,8 @@ declare(strict_types=1);
             :content-type="$widget->type->content_structure"
             :muted="in_array($containerKey, $theme->secondary_containers)"
             :title="$widget->translation->title"
-            :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
-            :heading-style="($widget->meta['heading_style'] ?? null) ?: $widget->type->meta['heading_style'] ?? null"
+            :text-align="$widget->getMeta('align')"
+            :heading-style="$widget->getMeta('heading_style')"
         />
     @endif
 
@@ -71,6 +71,8 @@ declare(strict_types=1);
                     $linkedPage = $widgetAsset->asset instanceof Pageable
                         ? $widgetAsset->asset
                         : $widgetAsset->asset->linkedPage;
+
+                    $actions = $widgetAsset->asset->getMeta('actions', []);
                 @endphp
                 {{-- format-ignore-end --}}
                 <section
@@ -141,9 +143,9 @@ declare(strict_types=1);
                                 @endif
                             </div>
 
-                            @if (! empty($widgetAsset->asset->meta['actions']) || $linkedPage)
+                            @if ($actions || $linkedPage)
                                 <x-capell-layout::actions
-                                    :actions="$widgetAsset->asset->meta['actions'] ?? []"
+                                    :$actions
                                     class="mt-4"
                                 >
                                     @if ($linkedPage)

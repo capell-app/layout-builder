@@ -14,18 +14,18 @@ declare(strict_types=1);
 @endphp
 
 @props([
-    'color' => $widget->meta['color'] ?? 'dark',
-    'columns' => $container['meta']['override_columns'] ?? ($widget->meta['columns'] ?? 4),
+    'color' => $widget->getMeta('color', 'dark'),
+    'columns' => $container['meta']['override_columns'] ?? $widget->getMeta('columns', 4),
     'container',
     'containerKey',
     'containerWidth' => null,
     'large' => false,
     'loop',
-    'pageContainer' => $widget->meta['container'] ?? $theme->meta['container'] ?? null,
-    'size' => $widget->meta['size'] ?? '',
-    'spacing' => $widget->meta['spacing'] ?? null,
+    'pageContainer' => $widget->getMeta('container', $theme->getMeta('container')),
+    'size' => $widget->getMeta('size'),
+    'spacing' => $widget->getMeta('spacing'),
     'widget',
-    'widget_theme' => $widget->meta['widget_theme'] ?? '',
+    'widget_theme' => $widget->getMeta('widget_theme'),
 ])
 <x-capell-layout::widget.wrapper
     :class="'widget-media-gallery' . ($pageContainer === 'full' ? ' px-4' : '')"
@@ -45,8 +45,8 @@ declare(strict_types=1);
             :color="$color"
             :muted="in_array($containerKey, $theme->secondary_containers)"
             :title="$widget->translation->title"
-            :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? 'center'"
-            :heading-style="($widget->meta['heading_style'] ?? null) ?: $widget->type->meta['heading_style'] ?? null"
+            :text-align="$widget->getMeta('align', 'center')"
+            :heading-style="$widget->getMeta('heading_style')"
         />
     @endif
 
@@ -82,7 +82,7 @@ declare(strict_types=1);
                             :height="$large ? 600 : 300"
                             :$loop
                             :media="$image"
-                            :preview="(int) $image->meta['image_id']"
+                            :preview="(int) $image->getMeta('image_id')"
                             :alt="$widgetAsset->asset->translation?->label"
                             :width="440"
                             media_type="video"
@@ -112,7 +112,7 @@ declare(strict_types=1);
                             group-focus-within:translate-y-0 group-focus-within:opacity-100',
                                 'text-sm' => $size === 'sm',
                                 'text-lg' => $size === 'lg',
-                                'rounded-b' => $theme->meta['rounded_images'] ?? false,
+                                'rounded-b' => (bool) $theme->getMeta('rounded_images'),
                             ])
                         >
                             {{ $widgetAsset->asset->translation->title }}

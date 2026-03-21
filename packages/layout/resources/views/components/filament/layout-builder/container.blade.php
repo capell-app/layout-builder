@@ -57,8 +57,8 @@ declare(strict_types=1);
         class="rounded-lg bg-white ring-1 ring-gray-950/10 dark:bg-gray-900 dark:ring-white/10"
     >
         <div
-            class="layout-container-header group/container flex min-h-11 cursor-pointer items-center gap-x-4 gap-y-2 rounded-lg border-b border-gray-100 bg-gray-50 px-4 hover:bg-gray-50 dark:border-white/5 dark:bg-gray-800 dark:hover:bg-white/5"
-            :class="{ '!rounded-b-none': !isCollapsed }"
+            class="layout-container-header group/container flex min-h-11 cursor-pointer items-center gap-x-4 gap-y-2 rounded-t-lg border-b border-gray-100 bg-gray-50 px-4 hover:bg-gray-50 dark:border-white/5 dark:bg-gray-800 dark:hover:bg-white/5"
+            :class="{ 'rounded-b-lg': isCollapsed }"
             x-on:click.self="toggleCollapse"
         >
             <div class="pointer-events-none flex grow items-center gap-x-3">
@@ -67,6 +67,7 @@ declare(strict_types=1);
                         wire:loading.class="pointer-events-none opacity-40"
                         x-sort:handle
                         x-show="isReordering"
+                        x-cloak
                     >
                         <x-filament::icon-button
                             class="layout-container-handle pointer-events-auto"
@@ -89,6 +90,7 @@ declare(strict_types=1);
                 <div
                     class="flex justify-end gap-2"
                     x-show="! isReordering"
+                    x-cloak
                 >
                     <x-filament::link
                         class="whitespace-nowrap"

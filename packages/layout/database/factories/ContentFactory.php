@@ -39,8 +39,8 @@ class ContentFactory extends Factory
                 'label' => fake()->optional()->sentence(),
             ],
             'order' => fake()->numberBetween(1, 100),
-            'publish_from' => fake()->dateTimeBetween('-1 year', '-6 month'),
-            'publish_to' => fake()->dateTimeBetween('-5 month'),
+            'visible_from' => fake()->dateTimeBetween('-1 year', '-6 month'),
+            'visible_until' => fake()->dateTimeBetween('-5 month'),
             'created_at' => fake()->dateTimeBetween('-1 year', '-6 month'),
             'updated_at' => fake()->dateTimeBetween('-5 month'),
         ];

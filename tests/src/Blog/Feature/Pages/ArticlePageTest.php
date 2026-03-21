@@ -30,9 +30,9 @@ test('article page with layout', function (): void {
         ->publisher($user)
         ->withTranslations()
         ->forEachSequence(
-            ['publish_from' => now()->subDays(5)],
-            ['publish_from' => now()->subDays(3)],
-            ['publish_from' => now()->subDays(1)],
+            ['visible_from' => now()->subDays(5)],
+            ['visible_from' => now()->subDays(3)],
+            ['visible_from' => now()->subDays(1)],
         )
         ->create();
     $article = $articles->get(1);

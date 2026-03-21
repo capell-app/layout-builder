@@ -94,7 +94,7 @@ class Archive extends AbstractPage
                         ->when(
                             $this->year,
                             fn (Builder $query): Builder => $query->whereRaw(
-                                "strftime('%Y', COALESCE(`publish_from`, `created_at`)) = ?",
+                                "strftime('%Y', COALESCE(`visible_from`, `created_at`)) = ?",
                                 [(string) $this->year],
                             ),
                         )
@@ -104,7 +104,7 @@ class Archive extends AbstractPage
                                 $month = str_pad((string) $this->month, 2, '0', STR_PAD_LEFT);
 
                                 return $query->whereRaw(
-                                    "strftime('%m', COALESCE(`publish_from`, `created_at`)) = ?",
+                                    "strftime('%m', COALESCE(`visible_from`, `created_at`)) = ?",
                                     [$month],
                                 );
                             },
@@ -115,14 +115,14 @@ class Archive extends AbstractPage
                     ->when(
                         $this->year,
                         fn (Builder $query): Builder => $query->whereRaw(
-                            'YEAR(COALESCE(`publish_from`, `created_at`)) = ?',
+                            'YEAR(COALESCE(`visible_from`, `created_at`)) = ?',
                             [$this->year],
                         ),
                     )
                     ->when(
                         $this->month,
                         fn (Builder $query): Builder => $query->whereRaw(
-                            'MONTH(COALESCE(`publish_from`, `created_at`)) = ?',
+                            'MONTH(COALESCE(`visible_from`, `created_at`)) = ?',
                             [$this->month],
                         ),
                     );

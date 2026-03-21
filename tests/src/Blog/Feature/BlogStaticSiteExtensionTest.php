@@ -34,7 +34,7 @@ it('generates tag and archive URLs for static site', function (): void {
         ->withTranslations()
         ->hasAttached($tags)
         ->state([
-            'publish_from' => $archiveDate,
+            'visible_from' => $archiveDate,
         ])
         ->create();
 

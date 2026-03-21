@@ -85,8 +85,8 @@ class Article extends Model implements Draftable, HasMedia, Pageable, PageCachea
         'meta',
         'name',
         'order',
-        'publish_from',
-        'publish_to',
+        'visible_from',
+        'visible_until',
         'published_at',
         'site_id',
         'type_id',
@@ -159,7 +159,7 @@ class Article extends Model implements Draftable, HasMedia, Pageable, PageCachea
 
     public function getPublishDate(): ?CarbonImmutable
     {
-        $date = $this->published_at ?? $this->publish_from ?? $this->created_at;
+        $date = $this->published_at ?? $this->visible_from ?? $this->created_at;
 
         return $date !== null ? CarbonImmutable::make($date) : null;
     }
@@ -225,7 +225,7 @@ class Article extends Model implements Draftable, HasMedia, Pageable, PageCachea
     public function nextSiblings(): Builder
     {
         $effectivePublishDateExpression = $this->effectivePublishDateExpression();
-        $currentPublishDate = $this->publish_from ?? $this->created_at;
+        $currentPublishDate = $this->visible_from ?? $this->created_at;
 
         return self::query()
             ->whereKeyNot($this->getKey())
@@ -245,7 +245,7 @@ class Article extends Model implements Draftable, HasMedia, Pageable, PageCachea
     public function prevSiblings(): Builder
     {
         $effectivePublishDateExpression = $this->effectivePublishDateExpression();
-        $currentPublishDate = $this->publish_from ?? $this->created_at;
+        $currentPublishDate = $this->visible_from ?? $this->created_at;
 
         return self::query()
             ->whereKeyNot($this->getKey())
@@ -277,13 +277,13 @@ class Article extends Model implements Draftable, HasMedia, Pageable, PageCachea
         return [
             'is_published' => 'boolean',
             'meta' => 'json',
-            'publish_from' => 'datetime',
-            'publish_to' => 'datetime',
+            'visible_from' => 'datetime',
+            'visible_until' => 'datetime',
         ];
     }
 
     private function effectivePublishDateExpression(): string
     {
-        return sprintf('COALESCE(%s, %s)', $this->qualifyColumn('publish_from'), $this->qualifyColumn('created_at'));
+        return sprintf('COALESCE(%s, %s)', $this->qualifyColumn('visible_from'), $this->qualifyColumn('created_at'));
     }
 }

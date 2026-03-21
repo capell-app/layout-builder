@@ -9,16 +9,16 @@ $theme = Frontend::theme();
 ?>
 
 @props([
-    'backgroundColor' => $widget->meta['background_color'] ?? null,
+    'backgroundColor' => $widget->getMeta('background_color'),
     'container',
     'containerKey',
     'containerWidth' => null,
     'content' => $widget->translation?->content,
-    'headingSize' => $widget->meta['heading_size'] ?? 'h2',
+    'headingSize' => $widget->getMeta('heading_size', 'h2'),
     'loop',
-    'reverseOrder' => $widget->meta['reverse_order'] ?? null,
-    'rounded' => $theme->meta['rounded_images'] ?? false,
-    'size' => $widget->meta['size'] ?? null,
+    'reverseOrder' => $widget->getMeta('reverse_order'),
+    'rounded' => (bool) $widget->getMeta('rounded_images'),
+    'size' => $widget->getMeta('size'),
     'title' => $widget->translation?->title,
     'widget',
 ])
@@ -26,7 +26,9 @@ $theme = Frontend::theme();
 @php
     $backgroundImage = $widget->backgroundImage ?? $widget->image ?? $widget->assets->first()?->media?->first();
 
-    $hasContent = $content || $title || ! empty($widget->meta['actions']);
+    $actions = $widget->getMeta('actions');
+
+    $hasContent = $content || $title || $actions;
 
     if ($rounded) {
         $imgRounded = $hasContent
@@ -100,15 +102,15 @@ $theme = Frontend::theme();
                             :content-type="$widget->type->content_structure"
                             :heading-size="$headingSize"
                             :title="$title"
-                            :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
-                            :heading-style="($widget->meta['heading_style'] ?? null) ?: $widget->type->meta['heading_style'] ?? null"
+                            :text-align="$widget->getMeta('align')"
+                            :heading-style="$widget->getMeta('heading_style')"
                         />
                     @endif
 
-                    @if (! empty($widget->meta['actions']))
+                    @if ($actions)
                         <x-capell-layout::actions
                             class="mt-4"
-                            :actions="$widget->meta['actions']"
+                            :$actions
                         />
                     @endif
                 </div>

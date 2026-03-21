@@ -25,7 +25,7 @@ return new class extends Migration
             $table->foreignId('site_id')->nullable()->constrained()->cascadeOnDelete();
             $table->json('meta')->nullable();
             $table->unsignedInteger('order')->default(0)->index();
-            $table->publishDates('publish');
+            $table->visibleDates();
             $this->draftsCreateSchema($table);
             $table->foreignId('parent_id')->nullable()->constrained('contents')->nullOnDelete()->cascadeOnUpdate();
             $table->unsignedInteger(NestedSet::LFT)->default(0);
@@ -46,7 +46,7 @@ return new class extends Migration
 
             $table->index(['site_id', 'type_id', 'order']);
             $table->index(['site_id', 'type_id', 'parent_id']);
-            $table->index(['site_id', 'type_id', 'publish_from', 'publish_to']);
+            $table->index(['site_id', 'type_id', 'visible_from', 'visible_until']);
             $table->index(['site_id', 'type_id', 'is_published', 'is_current']);
             $table->index(NestedSet::getDefaultColumns());
         });

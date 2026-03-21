@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Assistant\Providers;
 
+use Capell\Admin\Contracts\Extenders\PageTitleWithSlugInputExtender as PageTitleWithSlugInputExtenderContract;
+use Capell\Admin\Contracts\Extenders\SearchMetaDataSectionExtender as SearchMetaDataSectionExtenderContract;
 use Capell\Admin\Filament\Resources\Pages\Pages\EditPage;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Support\AdminEventRegistry;
@@ -153,11 +155,11 @@ class AssistantServiceProvider extends AbstractPackageServiceProvider
 
         $this->app->tag([
             PageTitleWithSlugInputExtender::class,
-        ], 'capell-admin:page-title-with-slug-input');
+        ], PageTitleWithSlugInputExtenderContract::TAG);
 
         $this->app->tag([
             SearchMetaDataSectionExtender::class,
-        ], 'capell-admin:search-meta-data-section');
+        ], SearchMetaDataSectionExtenderContract::TAG);
 
         return $this;
     }

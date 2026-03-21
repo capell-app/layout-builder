@@ -104,8 +104,8 @@ use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
  * @property string $name
  * @property int $type_id
  * @property string $key
- * @property CarbonImmutable|null $publish_from
- * @property CarbonImmutable|null $publish_to
+ * @property CarbonImmutable|null $visible_from
+ * @property CarbonImmutable|null $visible_until
  * @property string|null $content
  * @property array<array-key, mixed>|null $meta
  * @property array<array-key, mixed>|null $admin
@@ -129,7 +129,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
  * @method static Builder<static>|Widget whereMeta($value)
  * @method static Builder<static>|Widget whereName($value)
  * @method static Builder<static>|Widget whereOrder($value)
- * @method static Builder<static>|Widget wherePublishFrom($value)
+ * @method static Builder<static>|Widget whereVisibleFrom($value)
  * @method static Builder<static>|Widget wherePublishTo($value)
  * @method static Builder<static>|Widget whereStatus($value)
  * @method static Builder<static>|Widget whereTypeId($value)
@@ -168,8 +168,8 @@ class Widget extends Model implements HasMedia, PageCacheable, Publishable, Stat
         'key',
         'meta',
         'name',
-        'publish_from',
-        'publish_to',
+        'visible_from',
+        'visible_until',
         'status',
         'type_id',
     ];
@@ -347,8 +347,8 @@ class Widget extends Model implements HasMedia, PageCacheable, Publishable, Stat
         return [
             'admin' => 'json',
             'meta' => 'json',
-            'publish_from' => 'datetime',
-            'publish_to' => 'datetime',
+            'visible_from' => 'datetime',
+            'visible_until' => 'datetime',
             'status' => 'boolean',
         ];
     }

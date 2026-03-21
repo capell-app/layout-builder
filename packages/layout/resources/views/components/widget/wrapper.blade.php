@@ -13,22 +13,22 @@ declare(strict_types=1);
 @endphp
 
 @props([
-    'backgroundAttachment' => $widget->meta['background_attachment'] ?? '',
-    'backgroundColor' => $widget->meta['background_color'] ?? '',
+    'backgroundAttachment' => $widget->getMeta('background_attachment'),
+    'backgroundColor' => $widget->getMeta('background_color'),
     'backgroundImage' => $widget->backgroundImage,
-    'backgroundRepeat' => $widget->meta['background_repeat'] ?? 'no-repeat',
-    'backgroundOverlay' => $widget->meta['background_overlay'] ?? false,
-    'backgroundPosition' => $widget->meta['background_position'] ?? 'center',
-    'backgroundSize' => $widget->meta['background_size'] ?? 'cover',
+    'backgroundRepeat' => $widget->getMeta('background_repeat', 'no-repeat'),
+    'backgroundOverlay' => (bool) $widget->getMeta('background_overlay'),
+    'backgroundPosition' => $widget->getMeta('background_position', 'center'),
+    'backgroundSize' => $widget->getMeta('background_size', 'cover'),
     'class' => '',
     'container',
     'containerKey',
     'containerClass' => '',
     'containerWidth' => $container['meta']['container'] ?? null,
     'index',
-    'margin' => ! empty($widget->meta['margin']) ? (array) $widget->meta['margin'] : [],
-    'padding' => ! empty($widget->meta['padding']) ? (array) $widget->meta['padding'] : [],
-    'pageContainer' => $widget->meta['container'] ?? $theme->meta['container'] ?? null,
+    'margin' => (array) $widget->getMeta('margin'),
+    'padding' => (array) $widget->getMeta('padding'),
+    'pageContainer' => $widget->getMeta('container', $theme->getMeta('container')),
     'tag' => 'section',
     'widget',
 ])
@@ -39,6 +39,7 @@ declare(strict_types=1);
 @aware([
     'containerColspan' => null,
 ])
+
 <{{ $tag }}
     id="{{ $containerKey . '-' . $widget->key . "-{$index}" }}"
     {{
@@ -67,7 +68,7 @@ declare(strict_types=1);
             'my-10' => in_array('lg', $margin, true),
             'mt-10' => in_array('t-lg', $margin, true),
             'mb-10' => in_array('b-lg', $margin, true),
-            'm-20' => in_array('xl', $margin, true),
+            'my-20' => in_array('xl', $margin, true),
             'mt-20' => in_array('t-xl', $margin, true),
             'mb-20' => in_array('b-xl', $margin, true),
             'bg-base' => $backgroundColor === DefaultColorEnum::Base->value,

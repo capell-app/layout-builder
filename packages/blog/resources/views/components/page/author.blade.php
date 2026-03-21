@@ -12,9 +12,7 @@ $page = Frontend::page();
     'author',
 ])
 @if ($author)
-    <div
-        {{ $attributes->class('page-author mt-10 flex items-center gap-5 border-t border-gray-100 pt-8') }}
-    >
+    <div {{ $attributes->class('page-author flex items-center gap-5') }}>
         @if (method_exists($author, 'profileImage') && $author->profileImage)
             <x-capell::media
                 :media="$author->profileImage"

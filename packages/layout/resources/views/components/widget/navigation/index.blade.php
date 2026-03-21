@@ -8,7 +8,7 @@ $theme = Frontend::theme();
 ?>
 
 @props([
-    'columns' => $container['meta']['override_columns'] ?? ($widget->meta['columns'] ?? 3),
+    'columns' => $container['meta']['override_columns'] ?? $widget->getMeta('columns', 3),
     'container',
     'containerKey',
     'containerWidth' => null,
@@ -36,9 +36,9 @@ $theme = Frontend::theme();
             :content="$widget->translation->content ?? ($showPageContent ? $page->translation->content : null)"
             :content-type="$widget->translation->content ? $widget->type->content_structure : ($showPageContent ? $page->type->content_structure : null)"
             :muted="in_array($containerKey, $theme->secondary_containers)"
-            :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
+            :text-align="$widget->getMeta('align')"
             :title="$widget->translation->title ?? ($showPageTitle ? $page->translation->title : null)"
-            :heading-style="($widget->meta['heading_style'] ?? null) ?: ($widget->type->meta['heading_style'] ?? null)"
+            :heading-style="$widget->getMeta('heading_style')"
             :heading-tag="$showPageTitle ? 'h1' : null"
         />
     @endif
@@ -51,7 +51,7 @@ $theme = Frontend::theme();
 
             @foreach ($chunkedItems as $chunked)
                 <x-dynamic-component
-                    :component="! empty($menu->meta['component']) ? $menu->meta['component'] : 'capell::list'"
+                    :component="$menu->getMeta('component', 'capell::list')"
                     class="widget-navigation-list"
                 >
                     @foreach ($chunked as $item)
@@ -70,7 +70,7 @@ $theme = Frontend::theme();
         </div>
     @else
         <x-dynamic-component
-            :component="! empty($menu->meta['component']) ? $menu->meta['component'] : 'capell::list'"
+            :component="$menu->getMeta('component', 'capell::list')"
             class="widget-navigation-list widget-navigation-lit-children"
         >
             @foreach ($items as $item)

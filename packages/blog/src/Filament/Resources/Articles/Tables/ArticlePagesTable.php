@@ -366,7 +366,7 @@ class ArticlePagesTable implements TableConfigurator
                     return $indicators;
                 }),
 
-            DateFilter::make('publish_from')
+            DateFilter::make('visible_from')
                 ->label(__('capell-admin::form.publish_date')),
 
             DraftFilter::make(),

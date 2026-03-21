@@ -18,7 +18,7 @@ declare(strict_types=1);
 @props([
     'containerKey',
     'containerIndex',
-    'backgroundOverlay' => $widget->meta['background_overlay'] ?? false,
+    'backgroundOverlay' => (bool) $widget->getMeta('background_overlay'),
     'loop',
     'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
     'widget',

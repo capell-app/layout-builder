@@ -50,7 +50,7 @@ declare(strict_types=1);
                     </span>
                     <time
                         class="float-right mt-0.5 whitespace-nowrap text-xs font-light leading-none tracking-wide opacity-80"
-                        title="{{ __('capell-frontend::generic.publish_from', ['date' => $publishDate->format(config('capell-frontend.date_format'))]) }}"
+                        title="{{ __('capell-frontend::generic.visible_from', ['date' => $publishDate->format(config('capell-frontend.date_format'))]) }}"
                         datetime="{{ $publishDate->toW3cString() }}"
                     >
                         {{ $publishDate->format(config('capell-frontend.date_format')) }}

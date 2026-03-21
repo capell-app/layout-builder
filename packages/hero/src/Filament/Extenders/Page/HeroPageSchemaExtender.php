@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Hero\Filament\Extenders\Page;
 
 use Capell\Admin\Contracts\Extenders\PageSchemaExtender;
+use Capell\Admin\Enums\PageTranslationSchemaHookEnum;
 use Capell\Hero\Filament\Components\Forms\Page\HeroEditor;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Schema;
@@ -22,23 +23,15 @@ class HeroPageSchemaExtender implements PageSchemaExtender
         return $tabs;
     }
 
-    public function extendTranslationComponents(Schema $schema, array $components): array
+    /**
+     * @return array<int, Component>
+     */
+    public function extendTranslationComponentsForHook(Schema $schema, PageTranslationSchemaHookEnum $hook): array
     {
-        $inserted = false;
-
-        /** @var Component $component */
-        foreach ($components as $index => $component) {
-            if ($component->getKey(isAbsolute: false) === 'page-title-with-slug-input-wrapper') {
-                array_splice($components, $index + 1, 0, [HeroEditor::make()]);
-                $inserted = true;
-                break;
-            }
+        if ($hook !== PageTranslationSchemaHookEnum::AfterTitle) {
+            return [];
         }
 
-        if (! $inserted) {
-            $components[] = HeroEditor::make();
-        }
-
-        return $components;
+        return [HeroEditor::make()];
     }
 }

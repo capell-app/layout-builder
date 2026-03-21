@@ -33,10 +33,10 @@ declare(strict_types=1);
     :$asset
     :$loop
     :$size
-    :color="$asset->meta['color'] ?? null"
-    :icon="$asset->meta['icon'] ?? null"
+    :color="$asset->getMeta('color')"
+    :icon="$asset->getMeta('icon')"
     :image="$image"
-    :link-text="$withLinkText ? ($asset->translation->meta['link_text'] ?? __('Read more')) : null"
+    :link-text="$withLinkText ? $asset->translation->getMeta('link_text', __('Read more')) : null"
     :meta="$asset->meta"
     :summary="$withSummary && $asset->translation ? $asset->translation->summary : null"
     :title="$asset->translation?->label"

@@ -174,11 +174,11 @@ class ContentsTable implements TableConfigurator
                         || ($livewire->getTableFilterState('filter')['site_id'] ?? null) !== null && $livewire->getTableFilterState('filter')['site_id'] !== '',
                 ),
             PublishIconColumn::make('status'),
-            DateColumn::make('publish_from')
-                ->label(__('capell-layout::table.publish_from'))
+            DateColumn::make('visible_from')
+                ->label(__('capell-layout::table.visible_from'))
                 ->toggleable(isToggledHiddenByDefault: true),
-            DateColumn::make('publish_to')
-                ->label(__('capell-layout::table.publish_to'))
+            DateColumn::make('visible_until')
+                ->label(__('capell-layout::table.visible_until'))
                 ->toggleable(isToggledHiddenByDefault: true),
             DateColumn::make('created_at'),
             DateColumn::make('updated_at'),

@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Resources\Pages\Schemas\Extenders;
 
 use Capell\Admin\Contracts\Extenders;
+use Capell\Admin\Enums\PageTranslationSchemaHookEnum;
 use Capell\Layout\Filament\Components\Forms\Page\Tab\PageLayoutTab;
 use Capell\Layout\Filament\Resources\Pages\RelationManagers\ContentsRelationManager;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
@@ -35,8 +37,11 @@ class PageSchemaExtender implements Extenders\PageSchemaExtender
         return $tabs;
     }
 
-    public function extendTranslationComponents(Schema $schema, array $components): array
+    /**
+     * @return array<int, Component>
+     */
+    public function extendTranslationComponentsForHook(Schema $schema, PageTranslationSchemaHookEnum $hook): array
     {
-        return $components;
+        return [];
     }
 }

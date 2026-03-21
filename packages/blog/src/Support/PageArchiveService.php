@@ -35,12 +35,12 @@ class PageArchiveService
             ->when(
                 DB::getDriverName() === 'sqlite',
                 fn (Builder $query): Builder => $query->addSelect([
-                    DB::raw("strftime('%Y', COALESCE(`publish_from`, `created_at`)) as year"),
-                    DB::raw("strftime('%m', COALESCE(`publish_from`, `created_at`)) as month"),
+                    DB::raw("strftime('%Y', COALESCE(`visible_from`, `created_at`)) as year"),
+                    DB::raw("strftime('%m', COALESCE(`visible_from`, `created_at`)) as month"),
                 ]),
                 fn (Builder $query): Builder => $query->addSelect([
-                    DB::raw('YEAR(COALESCE(`publish_from`, `created_at`)) as year'),
-                    DB::raw('MONTH(COALESCE(`publish_from`, `created_at`)) as month'),
+                    DB::raw('YEAR(COALESCE(`visible_from`, `created_at`)) as year'),
+                    DB::raw('MONTH(COALESCE(`visible_from`, `created_at`)) as month'),
                 ]),
             )
             ->whereHas(
@@ -60,10 +60,10 @@ class PageArchiveService
             ->publishedDate()
             ->when(
                 DB::getDriverName() === 'sqlite',
-                fn (Builder $query): Builder => $query->groupByRaw("strftime('%Y', COALESCE(`publish_from`, `created_at`)), strftime('%m', COALESCE(`publish_from`, `created_at`))"),
-                fn (Builder $query): Builder => $query->groupByRaw('YEAR(COALESCE(`publish_from`, `created_at`)), MONTH(COALESCE(`publish_from`, `created_at`))'),
+                fn (Builder $query): Builder => $query->groupByRaw("strftime('%Y', COALESCE(`visible_from`, `created_at`)), strftime('%m', COALESCE(`visible_from`, `created_at`))"),
+                fn (Builder $query): Builder => $query->groupByRaw('YEAR(COALESCE(`visible_from`, `created_at`)), MONTH(COALESCE(`visible_from`, `created_at`))'),
             )
-            ->orderByRaw('COALESCE(`publish_from`, `created_at`) DESC');
+            ->orderByRaw('COALESCE(`visible_from`, `created_at`) DESC');
 
         if ($paginate) {
             $paginator = $query->paginate($perPage ?? 15, pageName: $paginationKey);

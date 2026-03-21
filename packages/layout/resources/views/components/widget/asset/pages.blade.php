@@ -14,8 +14,8 @@ declare(strict_types=1);
 @endphp
 
 @props([
-    'columns' => $container['meta']['override_columns'] ?? ($widget->meta['columns'] ?? 3),
-    'componentItem' => ($widget->meta['component_item'] ?? AssetComponentEnum::Card->value),
+    'columns' => $container['meta']['override_columns'] ?? $widget->getMeta('columns', 3),
+    'componentItem' => $widget->getMeta('component_item', AssetComponentEnum::Card->value),
     'container',
     'containerKey',
     'containerWidth' => null,
@@ -23,14 +23,14 @@ declare(strict_types=1);
     'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
     'index',
     'loop',
-    'size' => $widget->meta['size'] ?? ($containerKey === 'sidebar' ? 'sm' : null),
-    'spacing' => $widget->meta['spacing'] ?? ($containerKey === 'sidebar' ? 'md' : 'lg'),
+    'size' => $widget->getMeta('size', $containerKey === 'sidebar' ? 'sm' : null),
+    'spacing' => $widget->getMeta('spacing', $containerKey === 'sidebar' ? 'md' : 'lg'),
     'widget',
-    'withChildCount' => $widget->meta['with_child_count'] ?? ($widget->type->meta['with_child_count'] ?? false),
-    'withImage' => $widget->meta['with_image'] ?? ($widget->type->meta['with_image'] ?? false),
-    'withParent' => $widget->meta['with_parent'] ?? ($widget->type->meta['with_parent'] ?? false),
-    'withDate' => $widget->meta['with_date'] ?? ($widget->type->meta['with_date'] ?? false),
-    'withSummary' => $widget->meta['with_summary'] ?? ($widget->type->meta['with_summary'] ?? false),
+    'withChildCount' => (bool) $widget->getMeta('with_child_count'),
+    'withImage' => (bool) $widget->getMeta('with_image'),
+    'withParent' => (bool) $widget->getMeta('with_parent'),
+    'withDate' => (bool) $widget->getMeta('with_date'),
+    'withSummary' => (bool) $widget->getMeta('with_summary'),
 ])
 <x-capell-layout::widget.wrapper
     class="widget-pages"
@@ -42,9 +42,9 @@ declare(strict_types=1);
     :$widget
 >
     @php
-        $showTitle = empty($widget->meta['container_options'][$containerKey]['hide_title'])
+        $showTitle = $widget->getMeta("container_options.{$containerKey}.hide_title")
             && ($widget->translation?->title || ($showPageTitle && $page->translation->title));
-        $showContent = empty($widget->meta['container_options'][$containerKey]['hide_content'])
+        $showContent = $widget->getMeta("container_options.{$containerKey}.hide_content")
             && ($widget->translation?->content || ($showPageContent && $page->translation->content));
     @endphp
 
@@ -54,16 +54,16 @@ declare(strict_types=1);
             :content="$showContent ? ($widget->translation->content ?: ($showPageContent ? $page->translation->content : null)) : null"
             :content-type="$widget->translation->content ? $widget->type->content_structure : ($showPageContent ? $page->type->content_structure : null)"
             :muted="in_array($containerKey, $theme->secondary_containers)"
-            :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
+            :text-align="$widget->getMeta('align')"
             :title="$showTitle ? ($widget->translation->title ?: ($showPageTitle ? $page->translation->title : null)) : null"
-            :heading-style="($widget->meta['heading_style'] ?? null) ?: ($widget->type->meta['heading_style'] ?? null)"
+            :heading-style="$widget->getMeta('heading_style')"
             :heading-tag="$showPageTitle ? 'h1' : null"
         />
     @endif
 
     @if (! $pages || $pages->isEmpty())
         <x-capell::no-results>
-            {!! isset($widget->translation->meta['no_results']) && $widget->translation->meta['no_results'] !== '' ? $widget->translation->meta['no_results'] : __('capell-layout::generic.no_pages_found') !!}
+            {!! $widget->translation->getMeta('no_results', __('capell-layout::generic.no_pages_found')) !!}
         </x-capell::no-results>
     @else
         <div
@@ -92,7 +92,7 @@ declare(strict_types=1);
                     :$containerKey
                     :$loop
                     :count="$withChildCount ? $item->children_count : null"
-                    :icon="$widget->meta['icon'] ?? false"
+                    :icon="(bool) $widget->getMeta('icon')"
                     :image="$withImage ? $item->image : null"
                     :parent="$withParent && method_exists($item, 'loadParent') ? $item->loadParent($language) : null"
                     :publish-date="$withDate ? $item->getPublishDate() : null"
