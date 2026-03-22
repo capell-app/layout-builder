@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\Assistant\Support\Admin;
 
-use Capell\Admin\Filament\Components\Forms\Editor\RichEditor;
 use Capell\Assistant\Actions\GeneratorPageContentAction;
 use Capell\Assistant\Exceptions\OpenAICircuitBreakerOpenException;
 use Capell\Assistant\Settings\AssistantSettings;
@@ -16,6 +15,7 @@ use Capell\Core\Models\Translation;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -28,7 +28,7 @@ use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 
 class PageContentEditorConfigurator
 {
-    public function __invoke(RichEditor $component): void
+    public function __invoke(Field $component): void
     {
         if (! $this->isEnabled()) {
             return;

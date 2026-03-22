@@ -14,7 +14,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Frontend\Contracts\ModelServingInterface;
+use Capell\Frontend\Support\ModelServing\RetrievedModelStore;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
@@ -36,7 +36,7 @@ class BlogLoader
         });
 
         if ($fromCache && $page instanceof Pageable) {
-            resolve(ModelServingInterface::class)->track($page);
+            resolve(RetrievedModelStore::class)->track($page);
         }
 
         return $page;
@@ -88,7 +88,7 @@ class BlogLoader
         });
 
         if ($fromCache && $page instanceof Pageable) {
-            resolve(ModelServingInterface::class)->track($page);
+            resolve(RetrievedModelStore::class)->track($page);
         }
 
         return $page;

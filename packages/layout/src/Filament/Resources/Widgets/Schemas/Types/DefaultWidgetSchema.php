@@ -13,13 +13,13 @@ use Capell\Layout\Enums\SchemaExtenderEnum;
 use Capell\Layout\Enums\TypeSchemaEnum;
 use Capell\Layout\Filament\Components\Forms\ActionsRepeater;
 use Capell\Layout\Filament\Components\Forms\ColorSchemeComponent;
-use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\Layout\Filament\Components\Forms\Widget\CreateDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\DisplaySection;
+use Capell\Layout\Filament\Components\Forms\Widget\SettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentSection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
+use Capell\Layout\Filament\Components\Forms\Widget\TranslationsRepeater;
 use Filament\Forms\Components\Checkbox;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
@@ -50,15 +50,15 @@ class DefaultWidgetSchema implements TypeSchemaInterface
     protected function getFormSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
+            CreateDetailsSchema::make($schema),
             FixedWidthSidebar::make()
                 ->mainSchema([
-                    WidgetTranslationsRepeater::make($schema)
+                    TranslationsRepeater::make($schema)
                         ->contained(),
                     ...$this->getExtraSchema($schema),
                 ])
                 ->sidebarSchema(
-                    WidgetSettingsSchema::make($schema),
+                    SettingsSchema::make($schema),
                     contained: true,
                 ),
         ];
@@ -67,7 +67,7 @@ class DefaultWidgetSchema implements TypeSchemaInterface
     protected function getEditOptionSchema(Schema $schema): array
     {
         return [
-            WidgetTranslationsRepeater::make($schema),
+            TranslationsRepeater::make($schema),
             ...$this->getExtraSchema($schema, withSettingsTab: true),
         ];
     }
@@ -75,8 +75,8 @@ class DefaultWidgetSchema implements TypeSchemaInterface
     protected function getCreateOptionSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
-            WidgetTranslationsRepeater::make($schema),
+            CreateDetailsSchema::make($schema),
+            TranslationsRepeater::make($schema),
             ...$this->getExtraSchema($schema),
         ];
     }
@@ -102,10 +102,10 @@ class DefaultWidgetSchema implements TypeSchemaInterface
     protected function getDisplayTab(Schema $schema): Tab
     {
         return WidgetDisplayTab::make([
-            WidgetDisplaySection::make([
+            DisplaySection::make([
                 ColorSchemeComponent::make('color'),
             ]),
-            WidgetComponentSection::make()
+            ComponentSection::make()
                 ->statePath('meta'),
         ]);
     }

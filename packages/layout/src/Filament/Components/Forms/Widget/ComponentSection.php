@@ -13,7 +13,7 @@ use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Support\Icons\Heroicon;
 
-class WidgetComponentSection
+class ComponentSection
 {
     public static function make(bool $componentRequired = false): Section
     {

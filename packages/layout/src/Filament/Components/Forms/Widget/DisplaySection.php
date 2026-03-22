@@ -17,7 +17,7 @@ use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 
-class WidgetDisplaySection
+class DisplaySection
 {
     public static function make(array $schema = []): Section
     {

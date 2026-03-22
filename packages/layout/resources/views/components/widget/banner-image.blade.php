@@ -2,10 +2,6 @@
 
 declare(strict_types=1);
 
-use Capell\Frontend\Facades\Frontend;
-
-$theme = Frontend::theme();
-
 ?>
 
 @props([
@@ -24,7 +20,17 @@ $theme = Frontend::theme();
 ])
 {{-- format-ignore-start --}}
 @php
-    $backgroundImage = $widget->backgroundImage ?? $widget->image ?? $widget->assets->first()?->media?->first();
+    use Capell\Core\Enums\MediaCollectionEnum;
+    use Capell\Frontend\Facades\Frontend;
+
+    $theme = Frontend::theme();
+
+    /**
+    * @var \Capell\Layout\Models\Widget $widget
+    */
+    $backgroundImage = $widget->getMedia(MediaCollectionEnum::BackgroundImage->value)->first()
+      ?? $widget->getMedia(MediaCollectionEnum::Image->value)->first()
+      ?? $widget->assets->first()?->media?->first();
 
     $actions = $widget->getMeta('actions');
 

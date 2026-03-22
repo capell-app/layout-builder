@@ -446,7 +446,6 @@ class WidgetCreator
                 'key' => 'navigation',
                 'type' => TypeEnum::Navigation->value,
                 'name' => 'Navigation',
-                'default' => true,
             ]);
         }
 

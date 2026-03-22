@@ -24,7 +24,7 @@ it('runs layout install command successfully without publishing files', function
     ]);
 
     $fakeDatasetPublisher = Mockery::mock(DatasetPublisher::class);
-    test()->instace(
+    test()->instance(
         PublishMigrationsCommand::class,
         Mockery::mock(new PublishMigrationsCommand($fakeDatasetPublisher, $fakeFileManager))
             ->makePartial()
@@ -33,7 +33,7 @@ it('runs layout install command successfully without publishing files', function
 
     $fakeMigrator = Mockery::mock(Migrator::class);
     $fakeDispatcher = Mockery::mock(Dispatcher::class);
-    test()->instace(
+    test()->instance(
         MigrateCommand::class,
         Mockery::mock(new MigrateCommand($fakeMigrator, $fakeDispatcher))
             ->makePartial()
@@ -41,7 +41,7 @@ it('runs layout install command successfully without publishing files', function
     );
 
     if (class_exists('Filament\\Commands\\AssetsCommand')) {
-        test()->instace(
+        test()->instance(
             'Filament\\Commands\\AssetsCommand',
             Mockery::mock('Filament\\Commands\\AssetsCommand', [])->makePartial()
                 ->shouldReceive('run')->once()->andReturn(0)->getMock(),

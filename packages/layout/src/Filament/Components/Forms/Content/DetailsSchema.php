@@ -7,19 +7,19 @@ namespace Capell\Layout\Filament\Components\Forms\Content;
 use Capell\Admin\Filament\Components\Forms\NameInput;
 use Filament\Schemas\Schema;
 
-class ContentDetailsSchema
+class DetailsSchema
 {
     public static function make(Schema $schema): array
     {
         return [
             NameInput::make('name')
                 ->withTitleUpdater(),
-            ContentTypeSelect::make('type_id')
+            TypeSelect::make('type_id')
                 ->withRelation()
                 ->when(
                     $schema->isCreating(),
-                    fn (ContentTypeSelect $component): ContentTypeSelect => $component->withCreateForm(),
-                    fn (ContentTypeSelect $component): ContentTypeSelect => $component->withEditForm(),
+                    fn (TypeSelect $component): TypeSelect => $component->withCreateForm(),
+                    fn (TypeSelect $component): TypeSelect => $component->withEditForm(),
                 ),
         ];
     }

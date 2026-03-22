@@ -104,11 +104,10 @@ class TypeCreator
     public function defaultWidgetType(): Type
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::Default,
             'type' => LayoutTypeEnum::Widget,
+            'default' => true,
         ], [
             'name' => __('capell-admin::generic.default'),
-            'default' => true,
             'admin' => [
                 'type_schema' => WidgetTypeSchema::getKey(),
                 'icon' => 'heroicon-o-puzzle-piece',

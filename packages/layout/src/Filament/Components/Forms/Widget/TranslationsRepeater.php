@@ -7,17 +7,17 @@ namespace Capell\Layout\Filament\Components\Forms\Widget;
 use Capell\Admin\Filament\Components\Forms\ContentEditor;
 use Capell\Admin\Filament\Components\Forms\RepeaterTabs;
 use Capell\Admin\Filament\Components\Forms\TranslationLanguageSelect;
-use Capell\Admin\Filament\Components\Forms\TranslationsRepeater;
+use Capell\Admin\Filament\Components\Forms\TranslationsRepeater as BaseTranslationsRepeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
-class WidgetTranslationsRepeater
+class TranslationsRepeater
 {
     public static function make(Schema $schema, array $components = []): RepeaterTabs
     {
-        return TranslationsRepeater::make('translations')
+        return BaseTranslationsRepeater::make('translations')
             ->when(
                 $schema->getOperation() === 'replicate',
                 fn (TranslationsRepeater $repeater): TranslationsRepeater => $repeater->withoutRelationship(),

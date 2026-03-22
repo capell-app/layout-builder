@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms\Content;
 
-use Capell\Admin\Filament\Components\Forms\Site\SiteSelect;
+use Capell\Admin\Filament\Components\Forms\SiteSelect;
+use Capell\Layout\Filament\Components\Forms\ContentSelect;
 use Capell\Layout\Models\Content;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 
-class ContentSettingsSchema
+class SettingsSchema
 {
     public static function make(Schema $schema): array
     {

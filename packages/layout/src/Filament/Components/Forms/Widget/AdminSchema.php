@@ -13,7 +13,7 @@ use Capell\Layout\Enums\WidgetSchemaEnum;
 use Capell\Layout\Models\Widget;
 use Filament\Schemas\Components\Fieldset;
 
-class WidgetAdminSchema
+class AdminSchema
 {
     public static function make(): array
     {

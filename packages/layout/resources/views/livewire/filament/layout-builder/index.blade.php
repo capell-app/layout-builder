@@ -10,6 +10,7 @@ declare(strict_types=1);
     use Capell\Admin\Enums\ResourceEnum;
     use Capell\Admin\Facades\CapellAdmin;
     use Filament\Support\Enums\Size;
+    use Filament\Support\Facades\FilamentAsset;
 
     $changeLayoutAction = $this->changeLayoutAction;
     $duplicateLayoutAction = $this->duplicateLayoutAction;

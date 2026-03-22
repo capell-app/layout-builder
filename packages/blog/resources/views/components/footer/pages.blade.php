@@ -45,7 +45,7 @@ declare(strict_types=1);
                     ])
                     wire:navigate
                 >
-                    <span class="text-md font-medium">
+                    <span class="font-medium">
                         {!! $page->getTranslation('label') !!}
                     </span>
                     <time

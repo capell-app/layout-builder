@@ -8,7 +8,7 @@ use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
-class WidgetResultsSchema
+class ResultsSchema
 {
     public static function make(Schema $schema): array
     {
@@ -27,7 +27,7 @@ class WidgetResultsSchema
                 ->label(__('capell-admin::form.link_text')),
             Checkbox::make('with_parent')
                 ->label(__('capell-admin::form.parent_page')),
-            ...WidgetResultsOverrideSchema::make($schema),
+            ...ResultsOverrideSchema::make($schema),
             TextInput::make('columns')
                 ->label(__('capell-layout::form.columns'))
                 ->numeric()

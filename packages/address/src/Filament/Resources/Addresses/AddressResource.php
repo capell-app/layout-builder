@@ -31,6 +31,8 @@ class AddressResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMapPin;
 
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::MapPin;
+
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static string $formConfigurator = AddressForm::class;

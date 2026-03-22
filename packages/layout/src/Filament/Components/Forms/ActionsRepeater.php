@@ -6,7 +6,7 @@ namespace Capell\Layout\Filament\Components\Forms;
 
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\PageSelect;
-use Capell\Admin\Filament\Components\Forms\Site\SiteSelect;
+use Capell\Admin\Filament\Components\Forms\SiteSelect;
 use Capell\Core\Models\Page;
 use Capell\Layout\Enums\ActionLinkEnum;
 use Filament\Forms\Components\Radio;

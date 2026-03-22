@@ -196,8 +196,10 @@ test('Can clone layout', function (): void {
 
     expect($clonedLayout)
         ->toBeInstanceOf(Layout::class)
-        ->not()->toBe($layout)
-        ->containers->toEqual($layout->containers);
+        ->not()->toBe($layout);
+
+    expect($clonedLayout->getAttribute('containers'))
+        ->toEqual($layout->getAttribute('containers'));
 });
 
 test('removeContainer action', function (): void {
@@ -240,8 +242,7 @@ test('Can save layout without editing container', function (): void {
         ->set('layoutModified', true)
         ->call('saveLayout');
 
-    expect($layout->refresh())
-        ->containers
+    expect($layout->refresh()->getAttribute('containers'))
         ->toHaveCount(count($containers))
         ->toEqual($containers);
 
@@ -283,8 +284,7 @@ test('Can edit container', function (): void {
         ->assertHasNoFormErrors()
         ->call('saveLayout');
 
-    expect($layout->refresh())
-        ->containers
+    expect($layout->refresh()->getAttribute('containers'))
         ->toHaveKey($newContainerKey);
 
     $assets = WidgetAsset::query()
@@ -345,8 +345,7 @@ test('Can edit container for page layout', function (string $widgetKey): void {
         ->assertHasNoFormErrors()
         ->call('saveLayout');
 
-    expect($layout->refresh())
-        ->containers
+    expect($layout->refresh()->getAttribute('containers'))
         ->toHaveKey($newContainerKey);
 
     $assets = WidgetAsset::query()

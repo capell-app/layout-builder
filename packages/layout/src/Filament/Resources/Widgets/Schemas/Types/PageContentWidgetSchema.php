@@ -11,12 +11,12 @@ use Capell\Admin\Filament\Concerns\HasTypeSchema;
 use Capell\Layout\Enums\SchemaExtenderEnum;
 use Capell\Layout\Enums\TypeSchemaEnum;
 use Capell\Layout\Filament\Components\Forms\HeadingSizeSelect;
-use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\Layout\Filament\Components\Forms\Widget\CreateDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\DisplaySection;
+use Capell\Layout\Filament\Components\Forms\Widget\SettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentSection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
@@ -69,8 +69,8 @@ class PageContentWidgetSchema implements TypeSchemaInterface
                                             fn (Get $get): bool => $get('page_content') !== null && in_array('title', $get('page_content'), true),
                                         ),
                                 ]),
-                            WidgetDisplaySection::make(),
-                            WidgetComponentSection::make()
+                            DisplaySection::make(),
+                            ComponentSection::make()
                                 ->statePath('meta'),
                         ]),
                 ]),
@@ -81,13 +81,13 @@ class PageContentWidgetSchema implements TypeSchemaInterface
     protected function getFormSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
+            CreateDetailsSchema::make($schema),
             FixedWidthSidebar::make()
                 ->mainSchema([
                     $this->getTabs(),
                 ])
                 ->sidebarSchema(
-                    WidgetSettingsSchema::make($schema),
+                    SettingsSchema::make($schema),
                     contained: true,
                 ),
         ];
@@ -96,7 +96,7 @@ class PageContentWidgetSchema implements TypeSchemaInterface
     protected function getOptionSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
+            CreateDetailsSchema::make($schema),
             $this->getTabs(),
         ];
     }

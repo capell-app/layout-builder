@@ -13,15 +13,20 @@ declare(strict_types=1);
 ])
 {{-- format-ignore-start --}}
 @php
+    use Capell\Core\Enums\MediaCollectionEnum;
     use Capell\Core\Facades\CapellCore;
-    use Capell\Layout\Livewire\Layout\Builder;
+    use Capell\Layout\Livewire\Filament\LayoutBuilder;
     use Filament\Support\Enums\FontWeight;
     use Filament\Support\Enums\IconSize;
     use Filament\Support\Enums\Size;
     use Illuminate\View\ComponentAttributeBag;
 
     /**
-     * @var Builder $this
+     * @var \Capell\Layout\Models\Widget $widget
+    */
+
+    /**
+     * @var LayoutBuilder $this
      */
     $occurrence = $containerWidget['occurrence'] ?? 1;
 
@@ -49,7 +54,7 @@ declare(strict_types=1);
         'widgetIndex' => $widgetIndex,
     ]);
 
-    $image = $widget->image ?: $widget->backgroundImage;
+    $image = $widget->getMedia(MediaCollectionEnum::Image->value)->first() ?: $widget->getMedia(MediaCollectionEnum::BackgroundImage->value)->first();
 
     $title = $widget->translation?->title;
 @endphp

@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Resources\Widgets\Schemas\Types;
 
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
-use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\Layout\Filament\Components\Forms\Widget\CreateDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\DisplaySection;
+use Capell\Layout\Filament\Components\Forms\Widget\SettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentSection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
+use Capell\Layout\Filament\Components\Forms\Widget\TranslationsRepeater;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
@@ -34,8 +34,8 @@ class SystemWidgetSchema extends DefaultWidgetSchema
     protected function getFilesSchema(): array
     {
         return [
-            WidgetDisplaySection::make(),
-            WidgetComponentSection::make()
+            DisplaySection::make(),
+            ComponentSection::make()
                 ->statePath('meta'),
         ];
     }
@@ -43,8 +43,8 @@ class SystemWidgetSchema extends DefaultWidgetSchema
     protected function getOptionSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
-            WidgetTranslationsRepeater::make($schema)
+            CreateDetailsSchema::make($schema),
+            TranslationsRepeater::make($schema)
                 ->contained(fn (string $operation): bool => $operation === 'create'),
             ...$this->getFilesSchema(),
             Section::make(__('capell-admin::generic.settings'))
@@ -52,21 +52,21 @@ class SystemWidgetSchema extends DefaultWidgetSchema
                 ->compact()
                 ->icon(Heroicon::OutlinedCog6Tooth)
                 ->collapsed()
-                ->schema(WidgetSettingsSchema::make($schema)),
+                ->schema(SettingsSchema::make($schema)),
         ];
     }
 
     protected function getFormSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
+            CreateDetailsSchema::make($schema),
             FixedWidthSidebar::make()
                 ->mainSchema([
-                    WidgetTranslationsRepeater::make($schema)
+                    TranslationsRepeater::make($schema)
                         ->contained(),
                 ])
                 ->sidebarSchema(
-                    WidgetSettingsSchema::make($schema),
+                    SettingsSchema::make($schema),
                     contained: true,
                 ),
             Tabs::make()

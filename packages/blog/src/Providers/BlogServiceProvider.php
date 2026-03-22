@@ -32,6 +32,7 @@ use Capell\Blog\View\Components\AssetAfterTitle;
 use Capell\Blog\View\Components\Footer\Pages;
 use Capell\Blog\View\Components\Footer\Tags;
 use Capell\Blog\View\Components\Page\BeforeContentTags;
+use Capell\Core\Data\VendorAssetData;
 use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Events\NavigationCreating;
 use Capell\Core\Facades\CapellCore;
@@ -92,7 +93,8 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             ->registerResources()
             ->registerModels()
             ->registerRelationships()
-            ->registerPackageMetadata();
+            ->registerPackageMetadata()
+            ->registerPackageAssets();
 
         $this->booted(function (): void {
             if (! $this->isPackageInstalled()) {
@@ -145,9 +147,15 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             ],
             version: $this->getVersion(),
             url: 'https://capell.app',
-            tailwindSources: [
-                'resources/views/**/*.blade.php',
-            ],
+        );
+
+        return $this;
+    }
+
+    private function registerPackageAssets(): self
+    {
+        CapellCore::registerVendorAsset(
+            VendorAssetData::tailwindSource('resources/views/**/*.blade.php', static::$packageName),
         );
 
         return $this;

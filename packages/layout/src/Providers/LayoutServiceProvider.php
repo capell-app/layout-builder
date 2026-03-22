@@ -13,7 +13,8 @@ use Capell\Admin\Enums\SchemaTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Core\Data\AssetData;
-use Capell\Core\Data\TypeData;
+use Capell\Core\Data\PageTypeData;
+use Capell\Core\Data\VendorAssetData;
 use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
@@ -49,7 +50,6 @@ use Capell\Layout\Support\CapellLayoutManager;
 use Capell\Layout\Support\Interceptors\Layouts\DefaultLayoutInterceptor;
 use Capell\Layout\Support\Interceptors\Layouts\HomeLayoutInterceptor;
 use Capell\Layout\Support\Interceptors\Layouts\ResultsLayoutInterceptor;
-use Capell\Layout\Support\Interceptors\Themes\DefaultThemeInterceptor;
 use Capell\Layout\Support\LayoutModelRegistrar;
 use Composer\InstalledVersions;
 use Exception;
@@ -98,7 +98,8 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             ->registerModels()
             ->registerModelFillableAndCasts()
             ->registerRelationships()
-            ->registerPackageMetadata();
+            ->registerPackageMetadata()
+            ->registerPackageAssets();
 
         $this->booted(function (): void {
             if (! $this->isPackageInstalled()) {
@@ -171,12 +172,6 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
         CapellCore::registerModelInterceptor($layoutModel, LayoutEnum::Home, HomeLayoutInterceptor::class);
         CapellCore::registerModelInterceptor($layoutModel, LayoutEnum::Results, ResultsLayoutInterceptor::class);
 
-        CapellCore::registerModelInterceptor(
-            CapellCore::getModel(\Capell\Core\Enums\ModelEnum::Theme),
-            key: 'default',
-            interceptorClass: DefaultThemeInterceptor::class,
-        );
-
         return $this;
     }
 
@@ -199,18 +194,38 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             ],
             version: $this->getVersion(),
             url: 'https://capell.app',
-            tailwindSources: [
-                'resources/views/**/*.blade.php',
-                '../../../laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
-            ],
-            tailwindImports: [
-                'tippy.js/dist/tippy.css',
-                'resources/css/capell-layout.css',
-            ],
-            tailwindPlugins: ['@tailwindcss/typography'],
-            npmDependencies: [
-                'tippy.js' => '^6.3.7',
-            ],
+        );
+
+        return $this;
+    }
+
+    private function registerPackageAssets(): self
+    {
+        CapellCore::registerVendorAsset(
+            VendorAssetData::tailwindSource('resources/views/**/*.blade.php', static::$packageName),
+        );
+
+        CapellCore::registerVendorAsset(
+            VendorAssetData::tailwindSource(
+                base_path('vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php'),
+                static::$packageName,
+            ),
+        );
+
+        CapellCore::registerVendorAsset(
+            VendorAssetData::tailwindImport('tippy.js/dist/tippy.css', static::$packageName),
+        );
+
+        CapellCore::registerVendorAsset(
+            VendorAssetData::tailwindImport('resources/css/capell-layout.css', static::$packageName),
+        );
+
+        CapellCore::registerVendorAsset(
+            VendorAssetData::tailwindPlugin('@tailwindcss/typography', static::$packageName),
+        );
+
+        CapellCore::registerVendorAsset(
+            VendorAssetData::npmDependency('tippy.js', '^6.3.7', static::$packageName),
         );
 
         return $this;
@@ -271,10 +286,12 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
     private function registerTypes(): self
     {
         foreach (LayoutTypeEnum::cases() as $type) {
-            CapellCore::registerType(
-                new TypeData(
+            CapellCore::registerPageType(
+                new PageTypeData(
                     name: $type->value,
                     model: $type->getModel(),
+                    // TODO when this is translated this causes Livewire error: Exception: Property type not supported in Livewire for property: [{}]
+                    label: $type->getLabel(),
                     creatorClass: $type->getCreatorClass(),
                 ),
             );

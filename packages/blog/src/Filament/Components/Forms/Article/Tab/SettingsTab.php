@@ -17,7 +17,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Builder;
 
-class ArticleSettingsTab
+class SettingsTab
 {
     public static function make(Schema $schema, array $components = []): Tab
     {

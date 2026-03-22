@@ -7,7 +7,7 @@ namespace Capell\Layout\Filament\Components\Forms\Widget;
 use Filament\Forms\Components\Checkbox;
 use Filament\Schemas\Schema;
 
-class WidgetResultsOverrideSchema
+class ResultsOverrideSchema
 {
     public static function make(Schema $schema): array
     {

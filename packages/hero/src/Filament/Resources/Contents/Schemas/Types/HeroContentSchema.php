@@ -12,10 +12,10 @@ use Capell\Admin\Filament\Components\Forms\PageSelect;
 use Capell\Admin\Filament\Components\Forms\PublishSection;
 use Capell\Layout\Filament\Components\Forms\ActionsRepeater;
 use Capell\Layout\Filament\Components\Forms\AssetsRepeater;
-use Capell\Layout\Filament\Components\Forms\Content\ContentDetailsSchema;
-use Capell\Layout\Filament\Components\Forms\Content\ContentSettingsSchema;
-use Capell\Layout\Filament\Components\Forms\Content\ContentTranslationsRepeater;
+use Capell\Layout\Filament\Components\Forms\Content\DetailsSchema;
 use Capell\Layout\Filament\Components\Forms\Content\RelatedRepeater;
+use Capell\Layout\Filament\Components\Forms\Content\SettingsSchema;
+use Capell\Layout\Filament\Components\Forms\Content\TranslationsRepeater;
 use Capell\Layout\Filament\Components\Forms\CustomColorInput;
 use Capell\Layout\Filament\Resources\Contents\Schemas\Types\DefaultContentSchema;
 use Filament\Schemas\Components\Group;
@@ -53,7 +53,7 @@ class HeroContentSchema extends DefaultContentSchema
     protected function getOptionFormSchema(Schema $schema): array
     {
         return [
-            ...($schema->getOperation() === 'create' ? ContentDetailsSchema::make($schema) : []),
+            ...($schema->getOperation() === 'create' ? DetailsSchema::make($schema) : []),
             Tabs::make()
                 ->columnSpanFull()
                 ->tabs([
@@ -68,7 +68,7 @@ class HeroContentSchema extends DefaultContentSchema
                         ->key('actions')
                         ->statePath('meta'),
                     $this->getSettingsTab($schema, components: [
-                        ...($schema->getOperation() !== 'create' ? ContentDetailsSchema::make($schema) : []),
+                        ...($schema->getOperation() !== 'create' ? DetailsSchema::make($schema) : []),
                     ]),
                 ]),
             PublishSection::make(),
@@ -82,7 +82,7 @@ class HeroContentSchema extends DefaultContentSchema
                 ->hiddenOn('edit')
                 ->columnSpanFull()
                 ->columns()
-                ->schema(ContentDetailsSchema::make($schema))
+                ->schema(DetailsSchema::make($schema))
                 ->contained(fn (string $operation): bool => $operation === 'create'),
             FixedWidthSidebar::make()
                 ->mainSchema([
@@ -103,8 +103,8 @@ class HeroContentSchema extends DefaultContentSchema
                         ->gridContainer()
                         ->columns(['default' => 1, '@lg' => 2])
                         ->schema([
-                            ...($schema->getOperation() !== 'create' ? ContentDetailsSchema::make($schema) : []),
-                            ...ContentSettingsSchema::make($schema),
+                            ...($schema->getOperation() !== 'create' ? DetailsSchema::make($schema) : []),
+                            ...SettingsSchema::make($schema),
                         ]),
                     PublishSection::make(),
                 ]),
@@ -129,7 +129,7 @@ class HeroContentSchema extends DefaultContentSchema
         return Tab::make(__('capell-admin::tab.content'))
             ->icon(Heroicon::Language)
             ->schema([
-                ContentTranslationsRepeater::make($schema)
+                TranslationsRepeater::make($schema)
                     ->hiddenLabel(),
             ]);
     }

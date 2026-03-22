@@ -8,13 +8,13 @@ use Capell\Admin\Filament\Components\Forms\CacheFrequencySelect;
 use Capell\Admin\Filament\Components\Forms\ContentEditor;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Layout\Filament\Components\Forms\PageModelSelect;
-use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\Layout\Filament\Components\Forms\Widget\CreateDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\DisplaySection;
+use Capell\Layout\Filament\Components\Forms\Widget\ResultsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\SettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentSection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetResultsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
+use Capell\Layout\Filament\Components\Forms\Widget\TranslationsRepeater;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Group;
@@ -39,8 +39,8 @@ class ResultsWidgetSchema extends DefaultWidgetSchema
     protected function getOptionSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
-            WidgetTranslationsRepeater::make($schema, components: [
+            CreateDetailsSchema::make($schema),
+            TranslationsRepeater::make($schema, components: [
                 Group::make()
                     ->statePath('meta')
                     ->schema([
@@ -57,14 +57,14 @@ class ResultsWidgetSchema extends DefaultWidgetSchema
     protected function getFormSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
+            CreateDetailsSchema::make($schema),
             FixedWidthSidebar::make()
                 ->mainSchema([
-                    WidgetTranslationsRepeater::make($schema)
+                    TranslationsRepeater::make($schema)
                         ->contained(),
                 ])
                 ->sidebarSchema(
-                    WidgetSettingsSchema::make($schema),
+                    SettingsSchema::make($schema),
                     contained: true,
                 ),
             $this->getTabs($schema),
@@ -80,16 +80,16 @@ class ResultsWidgetSchema extends DefaultWidgetSchema
                     ->statePath('meta')
                     ->schema([
                         PageModelSelect::make('page_model'),
-                        WidgetDisplaySection::make([
+                        DisplaySection::make([
                             TextInput::make('limit')
                                 ->label(__('capell-layout::form.limit')),
                             Checkbox::make('pagination')
                                 ->label(__('capell-layout::form.pagination'))
                                 ->default(true),
                             CacheFrequencySelect::make('cache_frequency'),
-                            ...WidgetResultsSchema::make($schema),
+                            ...ResultsSchema::make($schema),
                         ]),
-                        WidgetComponentSection::make()
+                        ComponentSection::make()
                             ->statePath('meta'),
                     ]),
                 WidgetAdminTab::make(),

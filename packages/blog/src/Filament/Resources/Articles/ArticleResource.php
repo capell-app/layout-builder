@@ -23,6 +23,7 @@ use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Contracts\Support\Htmlable;
 
@@ -63,7 +64,12 @@ class ArticleResource extends PageResource
 
     public static function getNavigationIcon(): string|BackedEnum|Htmlable|null
     {
-        return 'heroicon-o-newspaper';
+        return Heroicon::OutlinedNewspaper;
+    }
+
+    public static function getActiveNavigationIcon(): string|BackedEnum|Htmlable|null
+    {
+        return Heroicon::Newspaper;
     }
 
     public static function getNavigationLabel(): string

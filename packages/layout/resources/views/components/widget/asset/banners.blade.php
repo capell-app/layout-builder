@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Contracts\Pageable;
+    use Capell\Core\Enums\MediaCollectionEnum;
     use Capell\Core\Facades\CapellCore;
     use Capell\Core\Models\Page;
     use Capell\Frontend\Facades\Frontend;
@@ -37,7 +38,9 @@ declare(strict_types=1);
             @foreach ($widget->assets as $widgetAsset)
                 {{-- format-ignore-start --}}
                 @php
-                    $image = $widgetAsset->media->first() ?: $widgetAsset->asset->image ?: $widget->backgroundImage;
+                    $image = $widgetAsset->media->first()
+                        ?: $widgetAsset->asset->image
+                        ?: $widget->getMedia(MediaCollectionEnum::BackgroundImage->value);
                     $title = '';
                     $content = '';
                     if (CapellCore::getAsset($widgetAsset->asset_type)->hasTranslations) {

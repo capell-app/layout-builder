@@ -14,7 +14,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 use Illuminate\Validation\Rules\Unique;
 
-class WidgetSettingsSchema
+class SettingsSchema
 {
     public static function make(Schema $schema, array $components = []): array
     {
@@ -41,12 +41,12 @@ class WidgetSettingsSchema
                     modifyRuleUsing: fn (Unique $rule) => $rule->withoutTrashed(),
                 ),
 
-            WidgetTypeSelect::make('type_id')
+            TypeSelect::make('type_id')
                 ->withRelation()
                 ->when(
                     $schema->isCreating(),
-                    fn (WidgetTypeSelect $component): WidgetTypeSelect => $component->withCreateForm(),
-                    fn (WidgetTypeSelect $component): WidgetTypeSelect => $component->withEditForm(),
+                    fn (TypeSelect $component): TypeSelect => $component->withCreateForm(),
+                    fn (TypeSelect $component): TypeSelect => $component->withEditForm(),
                 ),
 
             ...$components,

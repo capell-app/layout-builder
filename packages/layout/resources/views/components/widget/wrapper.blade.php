@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Enums\DefaultColorEnum;
+    use Capell\Core\Enums\MediaCollectionEnum;
     use Capell\Frontend\Facades\Frontend;
     use Capell\Layout\Enums\ContainerWidthEnum;
 
@@ -15,7 +16,7 @@ declare(strict_types=1);
 @props([
     'backgroundAttachment' => $widget->getMeta('background_attachment'),
     'backgroundColor' => $widget->getMeta('background_color'),
-    'backgroundImage' => $widget->backgroundImage,
+    'backgroundImage' => $widget->getMedia(MediaCollectionEnum::BackgroundImage->value)->first(),
     'backgroundRepeat' => $widget->getMeta('background_repeat', 'no-repeat'),
     'backgroundOverlay' => (bool) $widget->getMeta('background_overlay'),
     'backgroundPosition' => $widget->getMeta('background_position', 'center'),

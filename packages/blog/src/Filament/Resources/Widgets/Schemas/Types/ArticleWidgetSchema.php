@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Filament\Resources\Widgets\Schemas\Types;
 
+use Capell\Layout\Filament\Components\Forms\Widget\AdminSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\SettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetAdminSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\DefaultWidgetSchema;
 use Filament\Forms\Components\Checkbox;
 use Filament\Schemas\Components\Fieldset;
@@ -33,7 +33,7 @@ class ArticleWidgetSchema extends DefaultWidgetSchema
                     ->icon(Heroicon::OutlinedCog6Tooth)
                     ->collapsed()
                     ->schema([
-                        ...WidgetSettingsSchema::make($schema),
+                        ...SettingsSchema::make($schema),
                         $this->getArticleSettingsSchema(),
                     ]),
             ],
@@ -43,14 +43,14 @@ class ArticleWidgetSchema extends DefaultWidgetSchema
                     ->columnSpanFull()
                     ->tabs([
                         WidgetDisplayTab::make([
-                            ...WidgetSettingsSchema::make($schema),
+                            ...SettingsSchema::make($schema),
                             $this->getArticleSettingsSchema(),
                         ]),
                         Tab::make(__('capell-admin::generic.admin'))
                             ->statePath('admin')
                             ->icon(config('capell-admin.icon.admin'))
                             ->columns(['md' => 2])
-                            ->schema(WidgetAdminSchema::make()),
+                            ->schema(AdminSchema::make()),
                     ]),
             ],
         };

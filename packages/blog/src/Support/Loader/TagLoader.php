@@ -15,7 +15,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Frontend\Contracts\ModelServingInterface;
+use Capell\Frontend\Support\ModelServing\RetrievedModelStore;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -37,7 +37,7 @@ class TagLoader
 
         if ($fromCache) {
             $tags->each(function (Tag $tag): void {
-                resolve(ModelServingInterface::class)->track($tag);
+                resolve(RetrievedModelStore::class)->track($tag);
             });
         }
 
@@ -60,7 +60,7 @@ class TagLoader
         });
 
         if ($fromCache && $page instanceof Pageable) {
-            resolve(ModelServingInterface::class)->track($page);
+            resolve(RetrievedModelStore::class)->track($page);
         }
 
         return $page;
@@ -148,7 +148,7 @@ class TagLoader
 
         if ($fromCache && $tags instanceof Collection) {
             $tags->each(function (Tag $tag): void {
-                resolve(ModelServingInterface::class)->track($tag);
+                resolve(RetrievedModelStore::class)->track($tag);
             });
         }
 
@@ -173,7 +173,7 @@ class TagLoader
         });
 
         if ($fromCache && $tag instanceof Tag) {
-            resolve(ModelServingInterface::class)->track($tag);
+            resolve(RetrievedModelStore::class)->track($tag);
         }
 
         return $tag;

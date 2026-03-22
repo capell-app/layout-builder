@@ -22,6 +22,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -36,6 +37,10 @@ class WidgetResource extends Resource
     protected static string $formConfigurator = WidgetForm::class;
 
     protected static string $tableConfigurator = WidgetsTable::class;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBolt;
+
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::Bolt;
 
     public static function form(Schema $schema): Schema
     {
@@ -67,7 +72,7 @@ class WidgetResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_layouts'));
+        return (string) (__('capell-admin::navigation.group_library'));
     }
 
     public static function getPluralModelLabel(): string
@@ -75,9 +80,14 @@ class WidgetResource extends Resource
         return __('capell-layout::generic.widgets');
     }
 
-    public static function getNavigationIcon(): string|BackedEnum|null
+    public static function getNavigationIcon(): string|BackedEnum|Htmlable|null
     {
-        return config('capell-admin.resources.widgets.navigation_icon', Heroicon::OutlinedGift);
+        return config('capell-layout.resources.widget.icon', static::$navigationIcon);
+    }
+
+    public static function getActiveNavigationIcon(): string|BackedEnum|Htmlable|null
+    {
+        return config('capell-layout.resources.widget.active_icon', static::$activeNavigationIcon);
     }
 
     public static function shouldRegisterNavigation(): bool

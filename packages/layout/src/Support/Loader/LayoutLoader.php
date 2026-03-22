@@ -11,7 +11,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
-use Capell\Frontend\Contracts\ModelServingInterface;
+use Capell\Frontend\Support\ModelServing\RetrievedModelStore;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
@@ -39,10 +39,10 @@ class LayoutLoader
         });
 
         if ($fromCache && $layout instanceof Layout) {
-            resolve(ModelServingInterface::class)->track($layout);
+            resolve(RetrievedModelStore::class)->track($layout);
 
             $layout->layoutWidgets->each(function (Widget $widget): void {
-                resolve(ModelServingInterface::class)->track($widget);
+                resolve(RetrievedModelStore::class)->track($widget);
             });
         }
 

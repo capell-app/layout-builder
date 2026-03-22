@@ -5,7 +5,9 @@ declare(strict_types=1);
 ?>
 
 @php
+    use Capell\Frontend\Enums\RenderHookLocation;
     use Capell\Frontend\Facades\Frontend;
+    use Capell\Frontend\Support\Render\RenderHookRegistry;
 
     $page = Frontend::page();
     $theme = Frontend::theme();

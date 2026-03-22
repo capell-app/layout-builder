@@ -9,14 +9,14 @@ use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Type;
-use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\Layout\Filament\Components\Forms\Widget\CreateDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\DisplaySection;
+use Capell\Layout\Filament\Components\Forms\Widget\ResultsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\SettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentSection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetResultsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
+use Capell\Layout\Filament\Components\Forms\Widget\TranslationsRepeater;
 use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\DefaultWidgetSchema;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
@@ -45,28 +45,28 @@ class RelatedWidgetSchema extends DefaultWidgetSchema
     protected function getOptionSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
-            WidgetTranslationsRepeater::make($schema)
+            CreateDetailsSchema::make($schema),
+            TranslationsRepeater::make($schema)
                 ->contained(fn (string $operation): bool => $operation === 'create'),
             Section::make(__('capell-admin::generic.settings'))
                 ->columns()
                 ->compact()
                 ->icon(Heroicon::OutlinedCog6Tooth)
                 ->collapsed()
-                ->schema(WidgetSettingsSchema::make($schema)),
+                ->schema(SettingsSchema::make($schema)),
         ];
     }
 
     protected function getFormSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
+            CreateDetailsSchema::make($schema),
             FixedWidthSidebar::make()
                 ->mainSchema([
-                    WidgetTranslationsRepeater::make($schema),
+                    TranslationsRepeater::make($schema),
                 ])
                 ->sidebarSchema(
-                    WidgetSettingsSchema::make($schema),
+                    SettingsSchema::make($schema),
                     contained: true,
                 ),
             Tabs::make()
@@ -74,7 +74,7 @@ class RelatedWidgetSchema extends DefaultWidgetSchema
                 ->columnSpanFull()
                 ->tabs([
                     WidgetDisplayTab::make([
-                        WidgetDisplaySection::make([
+                        DisplaySection::make([
                             Group::make([
                                 Checkbox::make('exclude_parent')
                                     ->label(__('capell-layout::form.exclude_parent')),
@@ -103,9 +103,9 @@ class RelatedWidgetSchema extends DefaultWidgetSchema
                                         ->default(true),
                                     CacheFrequencySelect::make('cache_frequency'),
                                 ]),
-                            ...WidgetResultsSchema::make($schema),
+                            ...ResultsSchema::make($schema),
                         ]),
-                        WidgetComponentSection::make()
+                        ComponentSection::make()
                             ->statePath('meta'),
                     ]),
                     WidgetAdminTab::make(),

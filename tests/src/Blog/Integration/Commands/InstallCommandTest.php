@@ -26,7 +26,7 @@ it('runs blog install command successfully without publishing files', function (
     $fakeDatasetPublisher = Mockery::mock(DatasetPublisher::class);
 
     // Ensure calls to publish migrations are no-ops and counted (called twice in Blog install)
-    test()->instace(
+    test()->instance(
         PublishMigrationsCommand::class,
         Mockery::mock(new PublishMigrationsCommand($fakeDatasetPublisher, $fakeFileManager))
             ->makePartial()
@@ -36,7 +36,7 @@ it('runs blog install command successfully without publishing files', function (
     // Ensure migrate command is a no-op
     $fakeMigrator = Mockery::mock(Migrator::class);
     $fakeDispatcher = Mockery::mock(Dispatcher::class);
-    test()->instace(
+    test()->instance(
         MigrateCommand::class,
         Mockery::mock(new MigrateCommand($fakeMigrator, $fakeDispatcher))
             ->makePartial()
@@ -45,7 +45,7 @@ it('runs blog install command successfully without publishing files', function (
 
     // If Filament AssetsCommand is available, stub it as a no-op
     if (class_exists('Filament\\Commands\\AssetsCommand')) {
-        test()->instace(
+        test()->instance(
             'Filament\\Commands\\AssetsCommand',
             Mockery::mock('Filament\\Commands\\AssetsCommand', [])->makePartial()
                 ->shouldReceive('run')->once()->andReturn(0)->getMock(),

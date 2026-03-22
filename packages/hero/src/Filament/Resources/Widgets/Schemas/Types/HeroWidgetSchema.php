@@ -6,9 +6,9 @@ namespace Capell\Hero\Filament\Resources\Widgets\Schemas\Types;
 
 use Capell\Layout\Filament\Components\Forms\CarouselSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\ColorSchemeComponent;
+use Capell\Layout\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\Layout\Filament\Components\Forms\Widget\DisplaySection;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentSection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\AssetsWidgetSchema;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Fieldset;
@@ -29,7 +29,7 @@ class HeroWidgetSchema extends AssetsWidgetSchema
                 ->columnSpanFull()
                 ->columns(['default' => 2, 'xl' => 3])
                 ->schema(CarouselSettingsSchema::make()),
-            WidgetDisplaySection::make([
+            DisplaySection::make([
                 ColorSchemeComponent::make('color'),
                 Select::make('height')
                     ->label(__('capell-admin::form.height'))
@@ -43,7 +43,7 @@ class HeroWidgetSchema extends AssetsWidgetSchema
                     ->default('medium')
                     ->required(),
             ]),
-            WidgetComponentSection::make()
+            ComponentSection::make()
                 ->statePath('meta'),
         ]);
     }

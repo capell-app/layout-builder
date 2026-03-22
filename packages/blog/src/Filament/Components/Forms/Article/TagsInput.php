@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Filament\Components\Forms\Article;
 
-use Capell\Blog\Filament\Components\Forms\TagsInput;
+use Capell\Blog\Filament\Components\Forms\TagsInput as BaseTagsInput;
 use Capell\Core\Enums\TypeEnum;
 
-class ArticleTagsInput extends TagsInput
+class TagsInput extends BaseTagsInput
 {
     protected function setUp(): void
     {

@@ -1,8 +1,7 @@
 <?php
 
 declare(strict_types=1);
-
-use Capell\Core\Data\TypeData;
+use Capell\Core\Data\PageTypeData;
 use Capell\Core\Models\Type;
 use Capell\Hero\Actions\CreateHeroWidgetAction;
 use Capell\Layout\Models\Widget;
@@ -40,7 +39,7 @@ describe('CreateHeroWidgetAction', function (): void {
             ->not()->toBeNull()
             ->key->toBe('hero')
             ->type->scoped(
-                fn (Expectation $type) => $type->toBeInstanceOf(TypeData::class)->name->toBe('widget'),
+                fn (Expectation $typeData) => $typeData->toBeInstanceOf(PageTypeData::class)->name->toBe('widget'),
             )
             ->group->toBe('asset')
             ->admin->icon->toBe('heroicon-o-gift');

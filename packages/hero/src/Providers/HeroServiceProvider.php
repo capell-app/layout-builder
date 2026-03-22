@@ -6,6 +6,7 @@ namespace Capell\Hero\Providers;
 
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
+use Capell\Core\Data\VendorAssetData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Providers\FrontendServiceProvider;
@@ -43,7 +44,8 @@ class HeroServiceProvider extends AbstractPackageServiceProvider
     {
         $this
             ->registerSchemas()
-            ->registerPackageMetadata();
+            ->registerPackageMetadata()
+            ->registerPackageAssets();
 
         $this->booted(function (): void {
             if (! $this->isPackageInstalled()) {
@@ -85,9 +87,15 @@ class HeroServiceProvider extends AbstractPackageServiceProvider
             ],
             version: $this->getVersion(),
             url: 'https://capell.app',
-            tailwindSources: [
-                'resources/views/**/*.blade.php',
-            ],
+        );
+
+        return $this;
+    }
+
+    private function registerPackageAssets(): self
+    {
+        CapellCore::registerVendorAsset(
+            VendorAssetData::tailwindSource('resources/views/**/*.blade.php', static::$packageName),
         );
 
         return $this;

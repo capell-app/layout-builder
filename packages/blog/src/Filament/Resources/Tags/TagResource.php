@@ -36,6 +36,8 @@ class TagResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
 
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::Tag;
+
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static string $formConfigurator = TagForm::class;
@@ -65,12 +67,12 @@ class TagResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_assets'));
+        return __('capell-admin::navigation.group_library');
     }
 
     public static function getNavigationLabel(): string
     {
-        return (string) (__('capell-blog::navigation.tags'));
+        return __('capell-blog::navigation.tags');
     }
 
     public static function shouldRegisterNavigation(): bool

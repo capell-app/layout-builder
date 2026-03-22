@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Tests\Address;
 
 use Capell\Address\Providers\AddressServiceProvider;
+use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Tests\AbstractTestCase;
@@ -16,6 +17,21 @@ use Override;
 class AddressTestCase extends AbstractTestCase
 {
     protected string $packageServiceName = 'capell-address';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->registerAndMigrateSettings(
+            CapellCore::getSettingMigrations(),
+            __DIR__ . '/../../../vendor/capell-app/core/database/settings',
+        );
+
+        $this->registerAndMigrateSettings(
+            CapellAdmin::getSettingMigrations(),
+            __DIR__ . '/../../../vendor/capell-app/admin/database/settings',
+        );
+    }
 
     /**
      * @param  Application  $app

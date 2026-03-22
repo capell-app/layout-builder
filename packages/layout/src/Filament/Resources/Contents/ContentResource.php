@@ -81,7 +81,7 @@ class ContentResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_assets'));
+        return (string) (__('capell-admin::navigation.group_library'));
     }
 
     public static function getNavigationLabel(): string
@@ -101,6 +101,11 @@ class ContentResource extends Resource
     public static function getNavigationIcon(): string|BackedEnum|Htmlable|null
     {
         return CapellCore::getAsset(LayoutTypeEnum::Content->name)->getIcon();
+    }
+
+    public static function getActiveNavigationIcon(): string|BackedEnum|Htmlable|null
+    {
+        return CapellCore::getAsset(LayoutTypeEnum::Content->name)->getActiveIcon();
     }
 
     public static function getPluralModelLabel(): string

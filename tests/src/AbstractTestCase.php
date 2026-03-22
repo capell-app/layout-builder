@@ -98,8 +98,6 @@ abstract class AbstractTestCase extends TestCase
         Model::shouldBeStrict();
 
         $this->setUpDatabase();
-
-        $this->withoutVite();
     }
 
     protected function tearDown(): void

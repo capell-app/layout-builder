@@ -14,7 +14,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 
-class PageLayoutTab
+class LayoutTab
 {
     public static function make(): Tab
     {

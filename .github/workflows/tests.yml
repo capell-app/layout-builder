@@ -76,6 +76,9 @@ jobs:
         if: steps.php-cache.outputs.cache-hit != 'true'
         run: |
           if [ "${{ matrix.php }}" = "8.2" ]; then
+            # Remove peststan for PHP 8.2 because it requires phpstan ^2.0.
+            composer remove --no-interaction --no-progress --ansi --dev --no-update mrpunyapal/peststan
+
             # Add PHP 8.2-compatible constraints without immediate update
             composer require --no-interaction --no-progress --ansi --dev --no-update \
               soyhuce/phpstan-extension:^1.1 \

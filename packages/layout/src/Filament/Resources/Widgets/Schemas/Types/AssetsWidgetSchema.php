@@ -8,15 +8,15 @@ use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
 use Capell\Layout\Filament\Components\Forms\AssetsRepeater;
 use Capell\Layout\Filament\Components\Forms\ColorSchemeComponent;
-use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\Layout\Filament\Components\Forms\Widget\CreateDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\DisplaySection;
+use Capell\Layout\Filament\Components\Forms\Widget\ResultsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\SettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentSection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetResultsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
+use Capell\Layout\Filament\Components\Forms\Widget\TranslationsRepeater;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -39,7 +39,7 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
     protected function getOptionSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
+            CreateDetailsSchema::make($schema),
             Tabs::make()
                 ->columnSpanFull()
                 ->tabs([
@@ -55,7 +55,7 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
     protected function getFormSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
+            CreateDetailsSchema::make($schema),
             FixedWidthSidebar::make()
                 ->mainSchema([
                     Tabs::make()
@@ -68,7 +68,7 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
                         ]),
                 ])
                 ->sidebarSchema(
-                    WidgetSettingsSchema::make($schema),
+                    SettingsSchema::make($schema),
                     contained: true,
                 ),
         ];
@@ -96,7 +96,7 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
         return Tab::make(__('capell-admin::tab.content'))
             ->icon(Heroicon::Language)
             ->schema([
-                WidgetTranslationsRepeater::make($schema)
+                TranslationsRepeater::make($schema)
                     ->contained(false),
             ]);
     }
@@ -115,11 +115,11 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
     {
         return WidgetDisplayTab::make([
             MediaLibraryFileUpload::make('image'),
-            WidgetDisplaySection::make([
+            DisplaySection::make([
                 ColorSchemeComponent::make('color'),
-                ...WidgetResultsSchema::make($schema),
+                ...ResultsSchema::make($schema),
             ]),
-            WidgetComponentSection::make()
+            ComponentSection::make()
                 ->statePath('meta'),
         ]);
     }

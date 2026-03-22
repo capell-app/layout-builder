@@ -29,7 +29,9 @@ class CountryResource extends Resource
     use HasNavigationBadge;
     use HasTableConfigurator;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedGlobeAlt;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFlag;
+
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::Flag;
 
     protected static ?string $recordTitleAttribute = 'name';
 
