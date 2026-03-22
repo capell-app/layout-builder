@@ -210,6 +210,6 @@ class HeroContentSchema extends DefaultContentSchema
         return AssetsRepeater::make('assets')
             ->compactRepeater()
             ->hiddenLabel()
-            ->hint(__('capell-admin::generic.widget_assets_repeater_hint'));
+            ->hint(__('capell-layout::generic.widget_assets_repeater_hint'));
     }
 }

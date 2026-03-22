@@ -47,7 +47,7 @@ class LayoutsRelationManager extends RelationManager
                 ])
                     ->withCount('pages'),
             )
-            ->description(__('capell-admin::generic.widget_layouts_info'))
+            ->description(__('capell-layout::generic.widget_layouts_info'))
             ->columns([
                 NameColumn::make('name')
                     ->defaultBadge(),
@@ -69,7 +69,7 @@ class LayoutsRelationManager extends RelationManager
                     ->formatStateUsing(
                         fn (Layout $record, int $state): HtmlString => new HtmlString(Blade::render('capell-admin::components.tables.url', [
                             'state' => $state,
-                            'url' => PageResource::getUrl('index', ['tableFilters[layout_id][value]' => $record->id]),
+                            'url' => PageResource::getUrl('index', ['filters[layout_id][value]' => $record->id]),
                         ])),
                     ),
                 StatusIconColumn::make('status'),

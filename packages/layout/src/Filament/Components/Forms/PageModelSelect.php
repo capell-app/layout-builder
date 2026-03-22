@@ -16,7 +16,7 @@ class PageModelSelect extends Select
 
         $this->label(__('capell-layout::form.page_model'))
             ->options(
-                fn (): array => collect(CapellCore::getAllPages())
+                fn (): array => collect(CapellCore::getPageTypes())
                     ->mapWithKeys(fn (PageData $type): array => [
                         $type->type => $type->model,
                     ])

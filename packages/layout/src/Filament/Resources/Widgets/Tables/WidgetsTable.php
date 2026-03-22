@@ -201,7 +201,7 @@ class WidgetsTable implements TableConfigurator
                             'capell-admin::components.tables.url',
                             [
                                 'state' => $state,
-                                'url' => CapellAdmin::getResource(ResourceEnum::Layout)::getUrl('index', ['tableFilters[widget_id][value]' => $record->key]),
+                                'url' => CapellAdmin::getResource(ResourceEnum::Layout)::getUrl('index', ['filters[widget_id][value]' => $record->key]),
                             ],
                         ),
                     ),

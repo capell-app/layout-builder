@@ -42,7 +42,7 @@ class WidgetAssetsTable implements TableConfigurator
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->withAssets())
             ->reorderable('order')
             ->heading(__('capell-layout::heading.widget_page_assets'))
-            ->description(__('capell-admin::generic.widget_page_assets_description'))
+            ->description(__('capell-layout::generic.widget_page_assets_description'))
             ->recordUrl(
                 fn (WidgetAsset $record): ?string => match ($record->asset_type) {
                     TypeEnum::Page->value => GetEditPageResourceUrlAction::run($record->asset),

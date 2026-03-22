@@ -64,7 +64,7 @@ class WidgetSelect extends Select
             })
             ->createOptionAction(
                 fn (Action $action): Action => $action
-                    ->modalHeading(__('capell-admin::generic.widget'))
+                    ->modalHeading(__('capell-layout::generic.widget'))
                     ->tooltip(__('capell-layout::button.create_widget'))
                     ->modalWidth(Width::ScreenLarge)
                     ->slideOver()

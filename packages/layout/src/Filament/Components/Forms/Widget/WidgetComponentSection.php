@@ -17,7 +17,7 @@ class WidgetComponentSection
 {
     public static function make(bool $componentRequired = false): Section
     {
-        return Section::make(__('capell-admin::generic.widget_files_description'))
+        return Section::make(__('capell-layout::generic.widget_files_description'))
             ->icon(Heroicon::PuzzlePiece)
             ->collapsed()
             ->compact()

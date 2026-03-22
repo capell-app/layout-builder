@@ -129,6 +129,6 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
         return AssetsRepeater::make('widgetAssets')
             ->compactRepeater()
             ->hiddenLabel()
-            ->hint(__('capell-admin::generic.widget_assets_repeater_hint'));
+            ->hint(__('capell-layout::generic.widget_assets_repeater_hint'));
     }
 }

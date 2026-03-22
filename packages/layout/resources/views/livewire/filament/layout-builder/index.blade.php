@@ -20,7 +20,7 @@ declare(strict_types=1);
     <div
         x-load
         x-load-src="{{
-            Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc(
+            FilamentAsset::getAlpineComponentSrc(
                 'layout-builder',
                 'capell-layout',
             )
@@ -49,7 +49,7 @@ declare(strict_types=1);
                                     'count' => $this->layoutPagesCount,
                                     'url' => CapellAdmin::getResource(ResourceEnum::Page)::getUrl(
                                         'index',
-                                        ['tableFilters' => ['layout_id' => ['value' => $this->layout->id]]],
+                                        ['filters' => ['layout_id' => ['value' => $this->layout->id]]],
                                     ),
                                 ],
                             )

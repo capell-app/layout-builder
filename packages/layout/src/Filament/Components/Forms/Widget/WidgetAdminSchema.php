@@ -40,7 +40,7 @@ class WidgetAdminSchema
                 ->schema([
                     SchemaSelect::make('widget_asset_schema')
                         ->label(__('capell-layout::form.widget_asset_schema'))
-                        ->helperText(__('capell-admin::generic.widget_asset_schema_info'))
+                        ->helperText(__('capell-layout::generic.widget_asset_schema_info'))
                         ->setupOptions(TypeSchemaEnum::WidgetAsset),
 
                     AssetTypeSelect::make('asset_types')

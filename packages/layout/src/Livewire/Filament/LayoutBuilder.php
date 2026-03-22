@@ -1396,7 +1396,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
                                     'count' => $total,
                                     'url' => CapellAdmin::getResource(ResourceEnum::Page)::getUrl(
                                         'index',
-                                        ['tableFilters' => ['layout_id' => ['value' => $state]]],
+                                        ['filters' => ['layout_id' => ['value' => $state]]],
                                     ),
                                 ],
                             ),

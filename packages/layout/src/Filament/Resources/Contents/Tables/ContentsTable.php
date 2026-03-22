@@ -157,7 +157,7 @@ class ContentsTable implements TableConfigurator
 
                     return $resource::getUrl(
                         'index',
-                        ['tableFilters' => ['filter' => ['parent_id' => $record->id]]],
+                        ['filters' => ['filter' => ['parent_id' => $record->id]]],
                     );
                 }),
             BadgeableColumn::make('assets_count')

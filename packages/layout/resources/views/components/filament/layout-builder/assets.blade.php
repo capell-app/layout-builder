@@ -37,10 +37,10 @@ declare(strict_types=1);
             ])
         >
             <span class="font-semi-bold">
-                {{ $hasPageAssets ? __('capell-admin::generic.widget_asset_page') : __('capell-admin::generic.widget_assets') }}
+                {{ $hasPageAssets ? __('capell-layout::generic.widget_asset_page') : __('capell-layout::generic.widget_assets') }}
             </span>
             -
-            {{ $hasPageAssets ? __('capell-admin::generic.widget_assets_page_info') : __('capell-admin::generic.widget_assets_info') }}
+            {{ $hasPageAssets ? __('capell-layout::generic.widget_assets_page_info') : __('capell-layout::generic.widget_assets_info') }}
         </span>
         <div class="flex items-center gap-x-3">
             @if ($assetsCount > 1)

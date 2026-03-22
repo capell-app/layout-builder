@@ -6,7 +6,7 @@ namespace Capell\Blog\Support;
 
 use Capell\Blog\Enums\ModelEnum;
 use Capell\Blog\Models\Article;
-use Capell\Core\Data\PageData;
+use Capell\Core\Data\PageVariationData;
 use Capell\Core\Facades\CapellCore;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
@@ -17,10 +17,11 @@ class BlogModelRegistrar
     {
         CapellCore::registerModels(ModelEnum::cases());
 
-        CapellCore::registerPage(
-            new PageData(
-                type: 'article',
+        CapellCore::registerPageVariation(
+            new PageVariationData(
+                name: 'article',
                 model: Article::class,
+                resourceName: 'article',
             ),
         );
 

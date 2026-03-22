@@ -2,12 +2,16 @@
 
 declare(strict_types=1);
 
-use Capell\Frontend\Facades\Frontend;
-
-$page = Frontend::page();
-$layout = Frontend::layout();
-$theme = Frontend::theme();
 ?>
+
+@php
+    use Capell\Core\Enums\ContentStructure;
+    use Capell\Frontend\Facades\Frontend;
+
+    $page = Frontend::page();
+    $layout = Frontend::layout();
+    $theme = Frontend::theme();
+@endphp
 
 @props([
     'container',

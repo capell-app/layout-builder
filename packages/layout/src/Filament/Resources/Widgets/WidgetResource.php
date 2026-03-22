@@ -72,7 +72,7 @@ class WidgetResource extends Resource
 
     public static function getPluralModelLabel(): string
     {
-        return __('capell-admin::generic.widgets');
+        return __('capell-layout::generic.widgets');
     }
 
     public static function getNavigationIcon(): string|BackedEnum|null
