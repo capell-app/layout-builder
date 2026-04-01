@@ -39,7 +39,7 @@ jobs:
         run: php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=packages vendor/bin/pest --coverage --coverage-clover=coverage/clover.xml --colors=always --configuration=phpunit-pipelines.xml
 
       - name: Upload Clover XML for codecov
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: pest-coverage-clover
           path: coverage/clover.xml
