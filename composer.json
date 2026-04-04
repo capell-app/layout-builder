@@ -96,7 +96,7 @@
         "livewire/blaze": "^1.0",
         "lorisleiva/laravel-actions": "^2.8",
         "michaloravec/laravel-paginateroute": "^1.0",
-        "oddvalue/laravel-drafts": "^3.0",
+        "oddvalue/laravel-drafts": "^2.0|^3.0",
         "openai-php/laravel": "^0.10|^0.18",
         "owenvoke/blade-fontawesome": "^2.8",
         "saade/filament-adjacency-list": "^4.0",
