@@ -105,6 +105,7 @@ class TypeCreator
         return $this->typeModel::query()->firstOrCreate([
             'type' => LayoutTypeEnum::Widget,
             'key' => 'default',
+            'default' => true,
         ], [
             'name' => __('capell-admin::generic.default'),
             'admin' => [
