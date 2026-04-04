@@ -25,13 +25,13 @@ use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
 use Capell\Frontend\Providers\FrontendServiceProvider;
-use Capell\Frontend\Support\Blocks\BlockRegistry;
 use Capell\Layout\Console\Commands\DemoCommand;
 use Capell\Layout\Console\Commands\InstallCommand;
 use Capell\Layout\Console\Commands\SetupCommand;
 use Capell\Layout\Enums\AssetEnum;
 use Capell\Layout\Enums\ComponentTypeEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Enums\LivewireComponentsEnum;
 use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\ResourceEnum as LayoutResourceEnum;
 use Capell\Layout\Enums\TypeSchemaEnum;
@@ -365,12 +365,15 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     private function registerLivewireComponents(): self
     {
-        if ($this->isLivewireV3()) {
-            $registry = resolve(BlockRegistry::class);
-            foreach ($registry->allLivewire() as $name => $component) {
-                Livewire::component($name, $component);
+        foreach (LivewireComponentsEnum::getComponents() as $name => $component) {
+            if (! $component) {
+                continue;
             }
-        } else {
+
+            Livewire::component($name, $component);
+        }
+
+        if ($this->isLivewireV3() === false) {
             Livewire::addNamespace(
                 namespace: 'capell-layout',
                 classNamespace: 'Capell\\Layout\\Livewire',

@@ -214,9 +214,6 @@ abstract class AbstractTestCase extends TestCase
             'throw' => false,
         ]);
 
-        // Temp solution to see if it fixes the issue with parallel testing and caching
-        Config::set('view.cache', false);
-
         if (getenv('TEST_TOKEN')) {
             Config::set('settings.cache.prefix', 'settings-cache-' . getenv('TEST_TOKEN'));
         }
