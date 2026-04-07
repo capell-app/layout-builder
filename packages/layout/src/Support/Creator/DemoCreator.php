@@ -489,15 +489,9 @@ class DemoCreator
             ->limit(4)
             ->get();
 
-        $navigationType = $this->typeModel::query()
-            ->where([
-                'key' => WidgetTypeEnum::Navigation,
-                'type' => LayoutTypeEnum::Widget,
-            ])
-            ->first();
-
+        $navigationType = $this->typeModel::query()->navigationType()->default()->first();
         if (! $navigationType) {
-            $navigationType = resolve(TypeCreator::class)->navigationWidgetType();
+            $navigationType = resolve(\Capell\Core\Support\Creator\TypeCreator::class)->createNavigationType();
         }
 
         $navigation = $model::query()->updateOrCreate([

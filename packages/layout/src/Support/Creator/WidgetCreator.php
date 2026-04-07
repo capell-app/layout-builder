@@ -6,7 +6,6 @@ namespace Capell\Layout\Support\Creator;
 
 use Capell\Core\Enums\DefaultColorEnum;
 use Capell\Core\Enums\ModelEnum as CoreModelEnum;
-use Capell\Core\Enums\TypeEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Navigation;
@@ -442,11 +441,7 @@ class WidgetCreator
 
         $navigationType = $typeModel::navigationType()->default()->first();
         if (! $navigationType) {
-            $navigationType = $typeModel::query()->create([
-                'key' => 'navigation',
-                'type' => TypeEnum::Navigation->value,
-                'name' => 'Navigation',
-            ]);
+            $navigationType = resolve(\Capell\Core\Support\Creator\TypeCreator::class)->createNavigationType();
         }
 
         /** @var Navigation $navigation */
