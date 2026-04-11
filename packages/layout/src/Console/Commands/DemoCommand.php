@@ -12,6 +12,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Layout\Enums\ContainerWidthEnum;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Support\Creator\ContentCreator;
 use Capell\Layout\Support\Creator\DemoCreator;
@@ -221,7 +222,7 @@ class DemoCommand extends Command
         $containers['faq-col'] = [
             'meta' => [
                 'colspan' => 4,
-                'container' => 'full',
+                'container' => ContainerWidthEnum::Full,
             ],
             'widgets' => [
                 ['widget_key' => $faqColWidget->key],
@@ -243,7 +244,7 @@ class DemoCommand extends Command
         $contentWidget = $this->demoCreator->createContentWidget($languages);
         $this->advanceProgress();
 
-        $this->setProgressMessage('Creating statistics widget');
+        $this->setProgressMessage('Creating statistics blocks widget');
         $statisticsWidget = $this->demoCreator->createStatisticsWidget();
         $this->advanceProgress();
 

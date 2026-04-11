@@ -6,8 +6,10 @@ declare(strict_types=1);
 
 @php
     use Capell\Core\Enums\DefaultColorEnum;
+    use Capell\Core\Enums\ImageConversionEnum;
     use Capell\Core\Enums\MediaCollectionEnum;
     use Capell\Frontend\Facades\Frontend;
+    use Capell\Layout\Actions\GetWidgetContainerWidthAction;
     use Capell\Layout\Enums\ContainerWidthEnum;
     use Illuminate\Support\Arr;
 
@@ -26,11 +28,10 @@ declare(strict_types=1);
     'container',
     'containerKey',
     'containerClass' => '',
-    'containerWidth' => $container['meta']['container'] ?? null,
+    'containerWidth' => GetWidgetContainerWidthAction::run($widget, $container['meta']['container'] ?? null),
     'index',
     'margin' => Arr::wrap($widget->getMeta('margin')),
     'padding' => Arr::wrap($widget->getMeta('padding')),
-    'pageContainer' => $widget->getMeta('container', $theme->getMeta('container')),
     'tag' => 'section',
     'widget',
 ])
@@ -48,7 +49,7 @@ declare(strict_types=1);
         $attributes->class([
             '@container widget widget-' . $widget->key,
             $class => $class !== 'widget-' . $widget->key,
-            $containerClass => $containerWidth === 'full',
+            $containerClass => $containerWidth === ContainerWidthEnum::Full,
             'w-full' => $containerColspan === 12,
             'py-4' => in_array('sm', $padding, true),
             'pt-4' => in_array('t-sm', $padding, true),
@@ -102,7 +103,7 @@ declare(strict_types=1);
         ])
     }}
     @if ($backgroundColor && ! $isDefaultColor || $backgroundImage)
-        style="{{ $backgroundColor && ! $isDefaultColor ? 'background-color:' . $backgroundColor . ';' : '' }}{{ $backgroundImage ? 'background-image:url(' . $backgroundImage->getAvailableUrl(['large']) . ');' : '' }}"
+        style="{{ $backgroundColor && ! $isDefaultColor ? 'background-color:' . $backgroundColor . ';' : '' }}{{ $backgroundImage ? 'background-image:url(' . $backgroundImage->getAvailableUrl([ImageConversionEnum::Large->value]) . ');' : '' }}"
     @endif
 >
     @if ($backgroundOverlay)
@@ -111,17 +112,10 @@ declare(strict_types=1);
         ></div>
     @endif
 
-    @if ($containerWidth !== 'full')
+    @if ($containerWidth !== ContainerWidthEnum::Full)
         <div
             @class([
-                match ($pageContainer) {
-                    ContainerWidthEnum::Full->value => 'w-full',
-                    ContainerWidthEnum::Small->value => 'sm:container',
-                    ContainerWidthEnum::Medium->value => 'md:container',
-                    ContainerWidthEnum::Large->value => 'lg:container',
-                    ContainerWidthEnum::ExtraLarge->value => 'xl:container',
-                    default => 'container',
-                },
+                $containerWidth->getContainerClass(),
                 $containerClass ?: '' => $containerClass,
             ])
         >

@@ -62,14 +62,11 @@ class AssetsRepeater extends Repeater
                         );
                     })
                     ->icon(Heroicon::PencilSquare)
-                    ->url(
-                        function (array $arguments, Repeater $component): ?string {
-                            $itemData = $component->getRawItemState($arguments['item']);
+                    ->url(function (array $arguments, Repeater $component): ?string {
+                        $itemData = $component->getRawItemState($arguments['item']);
 
-                            return GetAssetResourceUrlAction::run($itemData['asset_type'], $itemData['asset_id']);
-                        },
-                        shouldOpenInNewTab: true,
-                    ),
+                        return GetAssetResourceUrlAction::run($itemData['asset_type'], $itemData['asset_id']);
+                    }),
             ])
             ->registerActions([
                 fn (self $component): Action => $component->getAddAssetAction(),

@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 @php
     use Capell\Frontend\Facades\Frontend;
+    use Capell\Layout\Enums\ContainerWidthEnum;
     use Illuminate\Support\Facades\DB;
     use Illuminate\Support\Str;
     use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -21,14 +22,13 @@ declare(strict_types=1);
     'containerWidth' => null,
     'large' => false,
     'loop',
-    'pageContainer' => $widget->getMeta('container', $theme->getMeta('container')),
     'size' => $widget->getMeta('size'),
     'spacing' => $widget->getMeta('spacing'),
     'widget',
     'widget_theme' => $widget->getMeta('widget_theme'),
 ])
 <x-capell-layout::widget.wrapper
-    :class="'widget-media-gallery' . ($pageContainer === 'full' ? ' px-4' : '')"
+    :class="'widget-media-gallery' . ($containerWidth === ContainerWidthEnum::Full ? ' px-4' : '')"
     :$container
     :$containerKey
     :$containerWidth
@@ -37,12 +37,13 @@ declare(strict_types=1);
 >
     @if ($widget->translation)
         <x-capell::content
-            :class="'mb-5' . ($pageContainer === 'full' ? ' container' : '')"
+            :class="'mb-5' . ($containerWidth === ContainerWidthEnum::Full ? ' container' : '')"
             :compact="true"
             align="center"
             :content="$widget->translation->content"
             :content-type="$widget->type->content_structure"
             :color="$color"
+            :divider="$widget->getMeta('content_divider')"
             :muted="in_array($containerKey, $theme->secondary_containers)"
             :title="$widget->translation->title"
             :text-align="$widget->getMeta('align', 'center')"

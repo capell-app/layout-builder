@@ -54,6 +54,7 @@ declare(strict_types=1);
             :compact="true"
             :content="$showContent ? ($widget->translation->content ?: ($showPageContent ? $page->translation->content : null)) : null"
             :content-type="$widget->translation->content ? $widget->type->content_structure : ($showPageContent ? $page->type->content_structure : null)"
+            :divider="$widget->getMeta('content_divider')"
             :muted="in_array($containerKey, $theme->secondary_containers)"
             :text-align="$widget->getMeta('align')"
             :title="$showTitle ? ($widget->translation->title ?: ($showPageTitle ? $page->translation->title : null)) : null"

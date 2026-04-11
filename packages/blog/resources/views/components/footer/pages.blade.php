@@ -10,9 +10,9 @@ declare(strict_types=1);
 ])
 
 <div {{ $attributes->class(['footer-pages xl:w-[25%]']) }}>
-    <h3 class="{{ $headingClass }} mb-4">
+    <div class="{{ $headingClass }} mb-4">
         {{ __('Recent Articles') }}
-    </h3>
+    </div>
     <div class="space-y-3 lg:space-y-4">
         @forelse ($pages as $page)
             @php
@@ -30,8 +30,7 @@ declare(strict_types=1);
                         <x-capell::media
                             :square="true"
                             :media="$page->image"
-                            width="180"
-                            height="180"
+                            size="sm"
                             class="object-cover"
                         />
                     </a>
@@ -45,7 +44,7 @@ declare(strict_types=1);
                     ])
                     wire:navigate
                 >
-                    <span class="font-medium">
+                    <span class="@md:text-md font-medium">
                         {!! $page->getTranslation('label') !!}
                     </span>
                     <time

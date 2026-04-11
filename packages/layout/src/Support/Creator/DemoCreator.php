@@ -7,6 +7,7 @@ namespace Capell\Layout\Support\Creator;
 use BackedEnum;
 use Capell\Core\Actions\DummyContentGeneratorAction;
 use Capell\Core\Contracts\Pageable;
+use Capell\Core\Enums\ImageConversionEnum;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Enums\NavigationItemType;
@@ -224,7 +225,7 @@ class DemoCreator
                         [
                             'type' => 'image',
                             'data' => [
-                                'src' => $media->full_url,
+                                'src' => $media->getFullUrl(ImageConversionEnum::Medium->value),
                                 'alt' => 'Banner',
                             ],
                         ],
@@ -775,13 +776,13 @@ class DemoCreator
     public function createStatisticsWidget(): Widget
     {
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'statistics'], [
-            'name' => 'Statistics',
+            'name' => 'Statistic Blocks',
             'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'component_item' => 'capell-layout::content.block',
                 'view_file' => 'capell-layout::components.widget.asset.blocks',
                 'spacing' => 'none',
-                'columns' => 0,
+                'columns' => 4,
                 'margin' => 'none',
                 'container' => ContainerWidthEnum::Small->value,
             ],
@@ -877,7 +878,7 @@ class DemoCreator
                 'carousel_arrows' => false,
                 'carousel_pagination' => true,
                 'carousel_loop' => true,
-                'carousel_auto' => true,
+                'carousel_auto_play' => true,
                 'carousel_auto_delay' => 50000,
                 'component_item' => 'capell-layout::content.team-member',
             ],

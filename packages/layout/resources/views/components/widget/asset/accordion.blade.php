@@ -27,7 +27,6 @@ declare(strict_types=1);
     'index',
     'loop',
     'size' => $widget->getMeta('size'),
-    'spacing' => $widget->getMeta('spacing', 'lg'),
     'widget',
 ])
 <x-capell-layout::widget.wrapper
@@ -44,6 +43,7 @@ declare(strict_types=1);
             :compact="true"
             :content="$widget->translation->content"
             :content-type="$widget->type->content_structure"
+            :divider="$widget->getMeta('content_divider')"
             :muted="in_array($containerKey, $theme->secondary_containers)"
             :title="$widget->translation->title"
             :text-align="$widget->getMeta('align')"

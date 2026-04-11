@@ -24,6 +24,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class WidgetResource extends Resource
@@ -97,7 +98,22 @@ class WidgetResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['name', 'key', 'translations.title', 'meta->component', 'meta->file', 'meta->component_item'];
+        return ['name', 'key', 'translations.title', 'meta->component', 'meta->file'];
+    }
+
+    /**
+     * @param  Model&Widget  $record
+     * @return array|string[]
+     */
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        $details = [];
+
+        if ($record->title) {
+            $details[__('capell-admin::generic.title')] = $record->title;
+        }
+
+        return $details;
     }
 
     public static function getEloquentQuery(): Builder

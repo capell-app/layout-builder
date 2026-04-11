@@ -38,7 +38,7 @@ class Related extends AbstractPagesWidget
             withParent: $this->widget->meta['with_parent'] ?? false,
             withDate: $this->widget->meta['with_date'] ?? false,
             cacheKeyPrepend: 'tags-' . implode('-', $tagIds),
-            morphModel: $this->widget->meta['page_model'] ?? $this->widget->type->meta['page_model'] ?? null,
+            morphModel: $this->widget->getMeta('page_model'),
             /**
              * @param  Builder<Page>  $query
              */

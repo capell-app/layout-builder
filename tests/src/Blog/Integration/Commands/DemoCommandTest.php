@@ -4,50 +4,23 @@ declare(strict_types=1);
 
 use Capell\Blog\Enums\BlogPageTypeEnum;
 use Capell\Blog\Enums\ModelEnum as BlogModelEnum;
+use Capell\Blog\Enums\TagTypeEnum;
 use Capell\Blog\Models\Article;
-use Capell\Core\Contracts\Pageable;
+use Capell\Blog\Models\Tag;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Http;
 
 use function Pest\Laravel\artisan;
 
 it('runs demo command and creates articles and tags for the site', function (): void {
     $capellDirectory = storage_path('app/capell');
     $demoDirectory = $capellDirectory . '/demo';
-    $stagingDirectory = $capellDirectory . '/demo-test-assets';
-    $demoZipPath = $capellDirectory . '/demo-test.zip';
-    $imageDirectory = $stagingDirectory . '/demo/img';
-    $imagePath = $imageDirectory . '/sample.jpg';
 
     File::deleteDirectory($demoDirectory);
-    File::deleteDirectory($stagingDirectory);
-    File::delete($demoZipPath);
-
-    File::ensureDirectoryExists($imageDirectory);
-
-    $generatedImage = imagecreatetruecolor(16, 16);
-    $backgroundColor = imagecolorallocate($generatedImage, 40, 110, 180);
-    imagefill($generatedImage, 0, 0, $backgroundColor);
-    imagejpeg($generatedImage, $imagePath, 90);
-    imagedestroy($generatedImage);
-
-    $archive = new ZipArchive;
-    $archive->open($demoZipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-    $archive->addFile($imagePath, 'demo/img/sample.jpg');
-    $archive->close();
-
-    Http::fake([
-        'https://capell.app/demo.zip' => Http::response(
-            File::get($demoZipPath),
-            200,
-            ['Content-Type' => 'application/zip'],
-        ),
-    ]);
 
     /** @var Language $language */
     $language = Language::factory()->create([
@@ -68,8 +41,6 @@ it('runs demo command and creates articles and tags for the site', function (): 
         ->expectsOutput('Blog demo setup completed for selected sites.')
         ->assertExitCode(Command::SUCCESS);
 
-    Http::assertSentCount(1);
-
     /** @var class-string<Article> $articleModel */
     $articleModel = CapellCore::getModel(BlogModelEnum::Article);
 
@@ -77,15 +48,26 @@ it('runs demo command and creates articles and tags for the site', function (): 
     $articles = $articleModel::query()
         ->where('site_id', $site->id)
         ->whereRelation('type', 'key', BlogPageTypeEnum::Article->value)
+        ->with('tags')
         ->get();
 
-    expect($articles->count())->toBeGreaterThanOrEqual(1);
+    expect($articles)->toHaveCount(2);
 
+    $articlesWithTagsCount = $articles
+        ->filter(fn (Article $article): bool => $article->tags->isNotEmpty())
+        ->count();
+
+    expect($articlesWithTagsCount)->toBe(2);
+
+    /** @var class-string<Tag> $tagModel */
     $tagModel = CapellCore::getModel(BlogModelEnum::Tag);
-    $tagsCount = $tagModel::query()->count();
-    expect($tagsCount)->toBeGreaterThanOrEqual(1);
+    $pageTagsCount = $tagModel::query()
+        ->where('type', TagTypeEnum::Page->value)
+        ->count();
 
-    $articleWithTags = $articles->first(fn (Pageable $article): bool => $article->tags()->exists());
+    expect($pageTagsCount)->toBeGreaterThanOrEqual(1);
 
-    expect($articleWithTags)->not()->toBeNull();
+    $articleLinkedToPageTag = $articles->first(fn (Article $article): bool => $article->tags->contains(fn (Tag $tag): bool => $tag->type === TagTypeEnum::Page->value));
+
+    expect($articleLinkedToPageTag)->not()->toBeNull();
 });

@@ -69,6 +69,8 @@ class LayoutLoader
         ]);
 
         $layout->layoutWidgets->each(function (Widget $widget): void {
+            resolve(RetrievedModelStore::class)->track($widget);
+
             if ($widget->media->isEmpty()) {
                 return;
             }
@@ -142,18 +144,23 @@ class LayoutLoader
         $pageAssetsByWidgetIdContainerOcc = [];
 
         $assets->each(function (WidgetAsset $asset) use (&$defaultAssetsByWidgetId, &$pageAssetsByWidgetIdContainerOcc): void {
-            $wid = (int) $asset->widget_id;
+            resolve(RetrievedModelStore::class)->track($asset);
+
+            $widgetId = (int) $asset->widget_id;
+
             if ($asset->pageable_id === null && $asset->pageable_type === null) {
-                $defaultAssetsByWidgetId[$wid] ??= [];
-                $defaultAssetsByWidgetId[$wid][] = $asset;
+                $defaultAssetsByWidgetId[$widgetId] ??= [];
+                $defaultAssetsByWidgetId[$widgetId][] = $asset;
 
                 return;
             }
 
             $container = $asset->container;
+
             $occurrence = (int) $asset->occurrence;
-            $pageAssetsByWidgetIdContainerOcc[$wid][$container][$occurrence] ??= [];
-            $pageAssetsByWidgetIdContainerOcc[$wid][$container][$occurrence][] = $asset;
+
+            $pageAssetsByWidgetIdContainerOcc[$widgetId][$container][$occurrence] ??= [];
+            $pageAssetsByWidgetIdContainerOcc[$widgetId][$container][$occurrence][] = $asset;
         });
 
         // Build the final preloaded map per container/widget/occurrence

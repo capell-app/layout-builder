@@ -15,6 +15,7 @@ class PageModelSelect extends Select
         parent::setUp();
 
         $this->label(__('capell-layout::form.page_model'))
+            ->helperText(__('capell-layout::generic.page_model_helper'))
             ->options(
                 fn (): array => collect(CapellCore::getPageTypes())
                     ->mapWithKeys(fn (PageTypeData $type): array => [

@@ -9,7 +9,6 @@ use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
 use Capell\Admin\Filament\Components\Forms\SchemaSelect;
 use Capell\Layout\Enums\TypeSchemaEnum;
-use Capell\Layout\Enums\WidgetSchemaEnum;
 use Capell\Layout\Models\Widget;
 use Filament\Schemas\Components\Fieldset;
 
@@ -19,12 +18,12 @@ class AdminSchema
     {
         return [
             SchemaSelect::make('schema')
-                ->default(fn (): string => WidgetSchemaEnum::Default->name)
+                ->helperText(__('capell-layout::generic.admin_widget_schema_info'))
                 ->setupOptions(TypeSchemaEnum::Widget),
 
             SchemaSelect::make('layout_widget_schema')
                 ->label(__('capell-layout::form.layout_widget_schema'))
-                ->helperText(__('capell-layout::generic.layout_widget_schema_info'))
+                ->helperText(__('capell-layout::generic.admin_layout_builder_widget_schema_info'))
                 ->setupOptions(TypeSchemaEnum::LayoutWidget),
 
             IconPicker::make('icon')

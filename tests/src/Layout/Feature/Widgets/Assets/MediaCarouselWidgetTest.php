@@ -31,7 +31,11 @@ it('creates media carousel widget with expected meta', function (): void {
         ->toBeInstanceOf(Widget::class)
         ->key->toBe('media-carousel')
         ->meta->scoped(
-            fn (Expectation $meta) => $meta->component->toBe(WidgetComponentEnum::AssetCarousel->value),
+            fn (Expectation $meta) => $meta
+                ->component->toBe(WidgetComponentEnum::AssetCarousel->value)
+                ->carousel_effect->toBe('slide')
+                ->carousel_drag->toBeTrue()
+                ->carousel_touch->toBeTrue(),
         )
         ->assets->toHaveCount(3);
 });
@@ -67,12 +71,13 @@ it('renders carousel widget on page with assets', function (callable $factory, s
         ->assertOk()
         ->assertElementExists(
             '.widget-media-carousel',
-            fn (AssertElement $elm): BaseAssert => $elm->contains('.widget-media-item', count: 3)
+            fn (AssertElement $widgetElement): BaseAssert => $widgetElement
+                ->contains('.widget-media-item', count: 3)
                 ->each(
                     '.widget-media-item',
-                    fn (AssertElement $itemElm, int $index): BaseAssert => $itemElm->find(
+                    fn (AssertElement $itemElement, int $index): BaseAssert => $itemElement->find(
                         'img',
-                        fn (AssertElement $imgElm): BaseAssert => $imgElm->has('alt', $widgetAssets[$index]->asset->translation->title)
+                        fn (AssertElement $imageElement): BaseAssert => $imageElement->has('alt', $widgetAssets[$index]->asset->translation->title)
                             ->has('src', $srcResolver($widgetAssets[$index])),
                     ),
                 ),
@@ -91,7 +96,13 @@ it('renders carousel widget on page with assets', function (callable $factory, s
                 ->widget($widget)
                 ->assetHavingMedia(),
             'asset.media',
-            fn (WidgetAsset $widgetAsset): string => $widgetAsset->asset->media->first()->getFullUrl(),
+            function (WidgetAsset $widgetAsset): string {
+                $media = $widgetAsset->asset->media->first();
+
+                throw_unless($media instanceof Media, RuntimeException::class, 'Expected asset media to be available.');
+
+                return $media->getFullUrl();
+            },
         ],
     ],
 );

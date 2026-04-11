@@ -57,17 +57,17 @@ class HeroContentSchema extends DefaultContentSchema
             Tabs::make()
                 ->columnSpanFull()
                 ->tabs([
-                    $this->getTranslationsTab($schema),
-                    $this->getMediaTab($schema)
+                    $this->translationsTab($schema),
+                    $this->mediaTab($schema)
                         ->key('media')
                         ->statePath('meta'),
-                    $this->getRelatedTab($schema)
+                    $this->relatedTab($schema)
                         ->key('related')
                         ->statePath('meta'),
-                    $this->getActionsTab()
+                    $this->actionsTab()
                         ->key('actions')
                         ->statePath('meta'),
-                    $this->getSettingsTab($schema, components: [
+                    $this->settingsTab($schema, components: [
                         ...($schema->getOperation() !== 'create' ? DetailsSchema::make($schema) : []),
                     ]),
                 ]),
@@ -88,14 +88,14 @@ class HeroContentSchema extends DefaultContentSchema
                 ->mainSchema([
                     Tabs::make()
                         ->tabs([
-                            $this->getTranslationsTab($schema),
-                            $this->getMediaTab($schema)
+                            $this->translationsTab($schema),
+                            $this->mediaTab($schema)
                                 ->statePath('meta'),
-                            $this->getRelatedTab($schema)
+                            $this->relatedTab($schema)
                                 ->statePath('meta'),
-                            $this->getActionsTab()
+                            $this->actionsTab()
                                 ->statePath('meta'),
-                            $this->getSettingsTab($schema),
+                            $this->settingsTab($schema),
                         ]),
                 ])
                 ->sidebarSchema([
@@ -111,7 +111,7 @@ class HeroContentSchema extends DefaultContentSchema
         ];
     }
 
-    protected function getSettingsTab(Schema $schema, array $components = []): Tab
+    protected function settingsTab(Schema $schema, array $components = []): Tab
     {
         return Tab::make('settings')
             ->label(__('capell-admin::generic.settings'))
@@ -124,7 +124,7 @@ class HeroContentSchema extends DefaultContentSchema
             ]);
     }
 
-    protected function getTranslationsTab(Schema $schema): Tab
+    protected function translationsTab(Schema $schema): Tab
     {
         return Tab::make(__('capell-admin::tab.content'))
             ->icon(Heroicon::Language)
@@ -134,7 +134,7 @@ class HeroContentSchema extends DefaultContentSchema
             ]);
     }
 
-    protected function getActionsTab(): Tab
+    protected function actionsTab(): Tab
     {
         return Tab::make('actions')
             ->label(__('capell-admin::generic.links'))
@@ -158,7 +158,7 @@ class HeroContentSchema extends DefaultContentSchema
             ]);
     }
 
-    protected function getMediaTab(Schema $schema): Tab
+    protected function mediaTab(Schema $schema): Tab
     {
 
         return Tab::make('media')
@@ -182,7 +182,7 @@ class HeroContentSchema extends DefaultContentSchema
             ]);
     }
 
-    protected function getRelatedTab(Schema $schema): Tab
+    protected function relatedTab(Schema $schema): Tab
     {
         return Tab::make('related')
             ->label(__('capell-admin::generic.related'))

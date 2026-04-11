@@ -21,7 +21,7 @@ declare(strict_types=1);
 {{-- format-ignore-start --}}
 @php
     use Capell\Core\Enums\MediaCollectionEnum;
-    use Capell\Frontend\Facades\Frontend;
+    use Capell\Frontend\Facades\Frontend;use Capell\Layout\Enums\ContainerWidthEnum;
 
     $theme = Frontend::theme();
 
@@ -54,7 +54,7 @@ declare(strict_types=1);
     :index="$loop->index"
     :background-color="$backgroundColor"
     :$widget
-    container-width="full"
+    :container-width="ContainerWidthEnum::Full"
 >
     @if ($backgroundImage)
         <div
@@ -104,8 +104,9 @@ declare(strict_types=1);
                         <x-capell::content
                             class="mb-2"
                             :compact="true"
-                            :content="$content ? null : $widget->translation?->content"
+                            :content="$content"
                             :content-type="$widget->type->content_structure"
+                            :divider="$widget->getMeta('content_divider')"
                             :heading-size="$headingSize"
                             :title="$title"
                             :text-align="$widget->getMeta('align')"

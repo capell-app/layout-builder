@@ -21,10 +21,13 @@ declare(strict_types=1);
     'containerIndex',
     'backgroundOverlay' => (bool) $widget->getMeta('background_overlay'),
     'loop',
-    'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
+    'total' => $widget->assets->count(),
     'widget',
     'widgetIndex',
 ])
+@php
+    $carouselId = sprintf('banner-carousel-%s-%s', $widget->id ?? $widget->key, $loop->index);
+@endphp
 
 <section
     class="widget-assets-banner relative flex w-full items-center justify-center overflow-hidden"
@@ -32,8 +35,22 @@ declare(strict_types=1);
         --swiper-pagination-bottom: 2rem;
         --swiper-pagination-bullet-inactive-color: #fff;
     "
+    data-carousel-scope
 >
-    <div class="swiper relative grid h-full w-full">
+    <div
+        class="swiper relative grid h-full w-full"
+        data-auto="0"
+        data-carousel="1"
+        data-carousel-autoplay="0"
+        data-carousel-effect="slide"
+        data-carousel-id="{{ $carouselId }}"
+        data-carousel-loop="0"
+        data-carousel-navigation="0"
+        data-carousel-pagination="{{ (int) ($total > 1) }}"
+        data-carousel-touch="1"
+        data-carousel-watch-overflow="1"
+        data-loop="0"
+    >
         <div class="swiper-wrapper h-full w-full">
             @foreach ($widget->assets as $widgetAsset)
                 {{-- format-ignore-start --}}
@@ -124,7 +141,10 @@ declare(strict_types=1);
             @endforeach
         </div>
         @if ($total > 1)
-            <div class="swiper-controls">
+            <div
+                class="swiper-controls"
+                data-carousel-controls="{{ $carouselId }}"
+            >
                 <div
                     class="swiper-pagination flex justify-center"
                     wire:ignore

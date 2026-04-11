@@ -170,7 +170,7 @@ class DemoCommand extends Command
         $this->info('Setting up demo blog for site: ' . $site->name);
         $this->newLine();
 
-        $this->demoCreator = new DemoCreator(author: $user);
+        $this->demoCreator = resolve(DemoCreator::class, ['author' => $user]);
         $this->blogCreator = resolve(BlogCreator::class);
 
         // Prepare total progress steps: pages to create + pages to tag + pages to associate

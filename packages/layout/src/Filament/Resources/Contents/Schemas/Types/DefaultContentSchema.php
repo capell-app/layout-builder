@@ -94,8 +94,8 @@ class DefaultContentSchema implements TypeSchemaInterface
                 ->mainSchema([
                     Tabs::make()
                         ->tabs([
-                            $this->getTranslationsTab($schema),
-                            $this->getSettingsTab($schema),
+                            $this->translationsTab($schema),
+                            $this->settingsTab($schema),
                         ]),
                 ])
                 ->sidebarSchema([
@@ -111,7 +111,7 @@ class DefaultContentSchema implements TypeSchemaInterface
         ];
     }
 
-    protected function getSettingsTab(Schema $schema): Tab
+    protected function settingsTab(Schema $schema): Tab
     {
         return Tab::make('settings')
             ->label(__('capell-admin::generic.settings'))
@@ -120,7 +120,7 @@ class DefaultContentSchema implements TypeSchemaInterface
             ->schema($this->getMetaSchema());
     }
 
-    protected function getTranslationsTab(Schema $schema): Tab
+    protected function translationsTab(Schema $schema): Tab
     {
         return Tab::make(__('capell-admin::tab.content'))
             ->icon(Heroicon::Language)

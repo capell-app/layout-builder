@@ -19,7 +19,7 @@ $theme = Frontend::theme();
     'containerKey',
     'containerWidth' => null,
     'loop',
-    'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
+    'total' => $widget->assets->count(),
     'widget',
     'widgetIndex',
     'withChildCount' => (bool) $widget->getMeta('with_child_count'),
@@ -27,8 +27,8 @@ $theme = Frontend::theme();
     'withParent' => (bool) $widget->getMeta('with_parent'),
     'withDate' => (bool) $widget->getMeta('with_date', true),
     'withSummary' => (bool) $widget->getMeta('with_summary', true),
-    'spacing' => (bool) $widget->getMeta('spacing', true),
-    'columns' => $widget->getMeta('columns'),
+    'spacing' => $widget->getMeta('spacing', true),
+    'columns' => (int) $widget->getMeta('columns'),
 ])
 
 @capellBuffer($extendedBackground, $color, $position)
@@ -70,6 +70,7 @@ $theme = Frontend::theme();
             :content="$widget->translation->content"
             :content-type="$widget->type->content_structure"
             :color="$color"
+            :divider="$widget->getMeta('content_divider')"
             :muted="in_array($containerKey, $theme->secondary_containers)"
             :title="$widget->translation->title"
             :text-align="$widget->getMeta('align')"
@@ -84,16 +85,14 @@ $theme = Frontend::theme();
             @endif
 
             <div
-                @if ($columns === 0) style="--columns: {{ $widget->assets->count() }};" @endif
+                style="--columns: {{ $columns ?: $total }}"
                 @class([
-                    'grid',
+                    'grid md:grid-cols-[repeat(var(--columns),minmax(0,1fr))]',
                     'gap-x-8 gap-y-6 lg:gap-x-10 lg:gap-y-10' => $spacing && $spacing !== 'none',
-                    'sm:grid-cols-2' => $columns === 0 && $widget->assets->count() > 2,
-                    'md:grid-cols-[repeat(var(--columns),minmax(0,1fr))]' => $columns === 0,
-                    'md:grid-cols-[repeat($columns,minmax(0,1fr))]' => $columns && $columns !== 0,
-                    'md:grid-cols-2' => $total >= 2 && (! $columns && $columns !== 0),
-                    'lg:grid-cols-3' => $total >= 3 && (! $columns && $columns !== 0),
-                    '2xl:grid-cols-4' => $total > 7 && (! $columns && $columns !== 0),
+                    'sm:grid-cols-2' => $total >= 2 && $columns === 0,
+                    'md:grid-cols-2' => $total >= 2 && $columns !== 0 && $total <= $columns,
+                    'lg:grid-cols-4' => $total >= 4 && $columns !== 0 && $total <= $columns,
+                    '2xl:grid-cols-6' => $total >= 6 && $columns !== 0 && $total <= $columns,
                 ])
             >
                 @foreach ($widget->assets as $asset)

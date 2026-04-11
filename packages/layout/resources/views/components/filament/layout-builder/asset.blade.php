@@ -21,6 +21,7 @@ declare(strict_types=1);
 @php
     use Capell\Admin\Facades\CapellAdmin;
     use Capell\Core\Actions\GetResourceFromTypeAction;
+    use Capell\Core\Enums\ImageConversionEnum;
     use Capell\Core\Enums\ModelEnum;
     use Capell\Core\Facades\CapellCore;
     use Capell\Core\Models\Page;
@@ -191,7 +192,7 @@ declare(strict_types=1);
                 @if ($mediaCount || $image)
                     <span class="relative">
                         @if ($image)
-                            {{ $image->img('thumb')->lazy()->attributes(['class' => 'bg-gray-100 dark:bg-gray-800 max-h-10 max-w-10 ml-auto object-contain']) }}
+                            {{ $image->img(ImageConversionEnum::Thumbnail->value)->lazy()->attributes(['class' => 'bg-gray-100 dark:bg-gray-800 max-h-10 max-w-10 ml-auto object-contain']) }}
                         @endif
 
                         @if ($mediaCount)

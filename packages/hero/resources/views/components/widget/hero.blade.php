@@ -14,9 +14,25 @@ $theme = Frontend::theme();
     'containerKey',
     'containerIndex',
     'color' => $widget->getMeta('color', $theme->getMeta('color')),
+    'carouselAlign' => $widget->getMeta('carousel_align', 'center'),
+    'carouselArrows' => (bool) $widget->getMeta('carousel_arrows', true),
+    'carouselAutoPlay' => (bool) $widget->getMeta('carousel_auto_play', true),
+    'carouselAutoDelay' => (int) $widget->getMeta('carousel_auto_delay', 8000),
+    'carouselButtonClass' => 'hover:bg-primary focus:bg-primary pointer-events-auto bg-white/80 shadow-md transition hover:text-white focus:text-white disabled:pointer-events-none disabled:opacity-50',
+    'carouselDisableOnInteraction' => (bool) $widget->getMeta('carousel_disable_on_interaction', true),
+    'carouselDrag' => (bool) $widget->getMeta('carousel_drag', true),
+    'carouselEffect' => $widget->getMeta('carousel_effect', 'slide'),
+    'carouselFade' => (bool) $widget->getMeta('carousel_fade', false),
+    'carouselLoop' => (bool) $widget->getMeta('carousel_loop', true),
+    'carouselPagination' => (bool) $widget->getMeta('carousel_pagination', true),
+    'carouselPauseOnHover' => (bool) $widget->getMeta('carousel_pause_on_hover', true),
+    'carouselRewind' => (bool) $widget->getMeta('carousel_rewind', false),
+    'carouselSpeed' => (int) $widget->getMeta('carousel_speed', 300),
+    'carouselTouch' => $widget->getMeta('carousel_touch'),
+    'carouselWheel' => (bool) $widget->getMeta('carousel_wheel', true),
     'heroContent' => null,
     'loop',
-    'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
+    'total' => $widget->assets->count(),
     'slideClass' => '',
     'widget',
     'widgetIndex',
@@ -27,7 +43,9 @@ $theme = Frontend::theme();
         $slideClass .= ' pt-20 lg:pt-32';
     }
 
-    $height = $widget->getMeta('height');
+    $height = $widget->getMeta('height', '36em');
+
+    $containerClass = GetWidgetContainerWidthAction::run($widget);
 @endphp
 {{-- format-ignore-end --}}
 <section
@@ -38,20 +56,29 @@ $theme = Frontend::theme();
         'bg-gray-50 dark:bg-gray-900' => $color === 'light',
         'bg-gray-800 dark:bg-gray-900' => $color === 'dark',
         'min-h-[calc(100vh-var(--header-height))]' => $height === 'full',
-        'min-h-[calc(100vh-var(--header-height))] lg:max-h-[960px]' => $height === 'large',
-        'min-h-[calc(100vh-var(--header-height))] md:max-h-[720px]' => $height === 'medium',
-        'min-h-[calc(100vh-var(--header-height))' => $height === 'small',
+        'h-[calc(100vh-var(--header-height))] max-h-[var(--hero-height)]' => filled($height) && $height !== 'full',
     ])
+    style="--hero-height: {{ $height }}"
 >
     <x-capell-hero::hero.wrapper
         :key="$containerKey . '-widget-' . $widgetIndex"
         :total="$total"
-        :carousel-arrows="$widget->getMeta('carousel_arrows', false)"
-        :carousel-auto="(bool) $widget->getMeta('carousel_auto', true)"
-        :carousel-auto-delay="(int) $widget->getMeta('carousel_auto_delay', 8000)"
-        :carousel-loop="(bool) $widget->getMeta('carousel_loop', true)"
-        :carousel-type="$widget->getMeta('carousel_type')"
-        :carousel-pagination="(bool) $widget->getMeta('carousel_pagination', true)"
+        :carousel-align="$carouselAlign"
+        :carousel-arrows="$carouselArrows"
+        :carousel-auto-play="$carouselAutoPlay"
+        :carousel-auto-delay="$carouselAutoDelay"
+        :carousel-button-class="$carouselButtonClass"
+        :carousel-disable-on-interaction="$carouselDisableOnInteraction"
+        :carousel-drag="$carouselDrag"
+        :carousel-effect="$carouselEffect"
+        :carousel-fade="$carouselFade"
+        :carousel-loop="$carouselLoop"
+        :carousel-pagination="$carouselPagination"
+        :carousel-pause-on-hover="$carouselPauseOnHover"
+        :carousel-rewind="$carouselRewind"
+        :carousel-speed="$carouselSpeed"
+        :carousel-touch="$carouselTouch"
+        :carousel-wheel="$carouselWheel"
     >
         @if ($widget->assets->isNotEmpty())
             @foreach ($widget->assets as $widgetAsset)
@@ -92,11 +119,12 @@ $theme = Frontend::theme();
                     :background-repeat="$widgetAsset->asset->getMeta('background_repeat', $widget->getMeta('background_repeat', 'no-repeat'))"
                     :background-overlay="$bgImage && $widgetAsset->asset->translation ? $color : ''"
                     :first="$loop->first"
+                    :index="$loop->iteration"
                     :total="$total"
                     :title="$widgetAsset->asset->translation->title"
                     :color="$slideColorScheme"
+                    :container-class="$containerClass->getContainerClass()"
                     :class="$slideClass"
-                    container-class="container"
                 >
                     <div
                         @class([
@@ -168,7 +196,7 @@ $theme = Frontend::theme();
                                             :media="$media"
                                             :alt="$widgetAsset->asset->translation->title"
                                             class="hero-slide-img h-full max-h-[40vh] w-full object-cover object-center lg:max-h-[400px]"
-                                            loading="lazy"
+                                            :loading="$loop->first ? 'eager' : 'lazy'"
                                         />
                                     @endcapellBuffer
 
@@ -196,7 +224,6 @@ $theme = Frontend::theme();
                 :background-position="$widget->getMeta('background_position', 'center')"
                 :background-attachment="$widget->getMeta('background_attachment', 'scroll')"
                 :background-repeat="$widget->getMeta('background_repeat', 'no-repeat')"
-                :carousel-type="$widget->getMeta('carousel_type')"
                 :first="true"
                 :total="1"
                 :color="$color"

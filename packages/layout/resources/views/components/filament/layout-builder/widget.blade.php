@@ -13,6 +13,7 @@ declare(strict_types=1);
 ])
 {{-- format-ignore-start --}}
 @php
+    use Capell\Core\Enums\ImageConversionEnum;
     use Capell\Core\Enums\MediaCollectionEnum;
     use Capell\Core\Facades\CapellCore;
     use Capell\Layout\Livewire\Filament\LayoutBuilder;
@@ -192,7 +193,7 @@ declare(strict_types=1);
                 @endif
 
                 @if ($image)
-                    {{ $image->img('thumb')->lazy()->attributes(['class' => 'ml-auto max-h-12 max-w-12 object-contain']) }}
+                    {{ $image->img(ImageConversionEnum::Thumbnail->value)->lazy()->attributes(['class' => 'ml-auto max-h-12 max-w-12 object-contain']) }}
                 @endif
             </div>
 

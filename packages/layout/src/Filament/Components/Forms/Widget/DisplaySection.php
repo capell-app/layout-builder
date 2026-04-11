@@ -11,11 +11,12 @@ use Capell\Layout\Filament\Components\Forms\HeadingStyleSelect;
 use Capell\Layout\Filament\Components\Forms\MarginSelect;
 use Capell\Layout\Filament\Components\Forms\PaddingSelect;
 use Capell\Layout\Filament\Components\Forms\SizeSelect;
-use Capell\Layout\Filament\Components\Forms\SpacingSelect;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 
 class DisplaySection
 {
@@ -34,7 +35,6 @@ class DisplaySection
                         ...$schema,
                         PaddingSelect::make('padding'),
                         MarginSelect::make('margin'),
-                        SpacingSelect::make('spacing'),
                         SizeSelect::make('size'),
                         Select::make('max_width')
                             ->label(__('capell-layout::form.max_width'))
@@ -50,9 +50,28 @@ class DisplaySection
                         ContainerWidthSelect::make(),
                         AlignSelect::make('align'),
                         HeadingStyleSelect::make('heading_style'),
+                        Select::make('content_divider')
+                            ->label(__('capell-layout::form.content_divider'))
+                            ->helperText(__('capell-layout::generic.content_divider_helper'))
+                            ->options([
+                                'none' => __('capell-admin::generic.none'),
+                                'below_heading' => __('capell-layout::generic.below_heading'),
+                                'above_heading' => __('capell-layout::generic.above_heading'),
+                                'below_content' => __('capell-layout::generic.below_content'),
+                            ]),
                     ]),
+                Checkbox::make('background')
+                    ->label(__('capell-layout::form.background'))
+                    ->dehydrated(false)
+                    ->afterStateHydrated(function (Checkbox $component, Get $get): void {
+                        $hasBackground = (bool) $get('background_color') || (bool) $get('background_image');
+                        $component->state($hasBackground);
+                    }),
                 Fieldset::make(__('capell-admin::generic.background_settings'))
                     ->columns(3)
+                    ->visibleJs(<<<'JS'
+                        $get('background')
+                    JS)
                     ->schema(BackgroundSchema::make()),
             ]);
     }

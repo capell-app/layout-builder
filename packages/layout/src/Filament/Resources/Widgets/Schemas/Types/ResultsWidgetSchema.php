@@ -17,6 +17,7 @@ use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\Layout\Filament\Components\Forms\Widget\TranslationsRepeater;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -77,9 +78,7 @@ class ResultsWidgetSchema extends DefaultWidgetSchema
             ->columnSpanFull()
             ->tabs([
                 Tab::make(__('capell-admin::generic.frontend'))
-                    ->statePath('meta')
                     ->schema([
-                        PageModelSelect::make('page_model'),
                         DisplaySection::make([
                             TextInput::make('limit')
                                 ->label(__('capell-layout::form.limit')),
@@ -91,6 +90,12 @@ class ResultsWidgetSchema extends DefaultWidgetSchema
                         ]),
                         ComponentSection::make()
                             ->statePath('meta'),
+                        Grid::make()
+                            ->statePath('meta')
+                            ->columnSpanFull()
+                            ->schema([
+                                PageModelSelect::make('page_model'),
+                            ]),
                     ]),
                 WidgetAdminTab::make(),
             ]);

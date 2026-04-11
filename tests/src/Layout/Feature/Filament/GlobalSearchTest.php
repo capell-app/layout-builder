@@ -22,7 +22,7 @@ beforeEach(function (): void {
     Filament::setServingStatus();
 });
 
-it('finds content by every globally searchable content attribute', function (): void {
+it('finds content', function (string $searchTerm): void {
     $contentNameToken = 'capell-layout-content-name-token';
     $contentTitleToken = 'capell-layout-content-title-token';
 
@@ -37,28 +37,24 @@ it('finds content by every globally searchable content attribute', function (): 
         'title' => $contentTitleToken,
     ]);
 
-    $resultsByName = Filament::getGlobalSearchProvider()->getResults($contentNameToken);
-    $resultsByTranslationTitle = Filament::getGlobalSearchProvider()->getResults($contentTitleToken);
+    $results = Filament::getGlobalSearchProvider()->getResults($searchTerm);
+    $contentResult = $results?->getCategories()->get(ContentResource::getPluralModelLabel())?->first();
 
-    $contentResultByName = $resultsByName?->getCategories()->get(ContentResource::getPluralModelLabel())?->first();
-    $contentResultByTranslationTitle = $resultsByTranslationTitle?->getCategories()->get(ContentResource::getPluralModelLabel())?->first();
-
-    expect($contentResultByName)
+    expect($contentResult)
         ->toBeInstanceOf(GlobalSearchResult::class)
-        ->and($contentResultByName->title)->toBe($content->name)
-        ->and($contentResultByName->url)->toBe(ContentResource::getUrl('edit', ['record' => $content]))
-        ->and($contentResultByTranslationTitle)->toBeInstanceOf(GlobalSearchResult::class)
-        ->and($contentResultByTranslationTitle->title)->toBe($content->name)
-        ->and($contentResultByTranslationTitle->url)->toBe(ContentResource::getUrl('edit', ['record' => $content]));
-});
+        ->and($contentResult->title)->toBe($content->name)
+        ->and($contentResult->url)->toBe(ContentResource::getUrl('edit', ['record' => $content]));
+})->with([
+    'name' => ['capell-layout-content-name-token'],
+    'title' => ['capell-layout-content-title-token'],
+]);
 
-it('finds a widget by every globally searchable widget attribute', function (): void {
+it('finds a widget', function (string $searchTerm): void {
     $widgetNameToken = 'capell-layout-widget-name-token';
     $widgetKeyToken = 'capell-layout-widget-key-token';
     $widgetTitleToken = 'capell-layout-widget-title-token';
     $widgetComponentToken = 'capell-layout-widget-component-token';
     $widgetFileToken = 'capell-layout-widget-file-token';
-    $widgetComponentItemToken = 'capell-layout-widget-component-item-token';
 
     $language = Language::factory()->create();
 
@@ -68,7 +64,6 @@ it('finds a widget by every globally searchable widget attribute', function (): 
         'meta' => [
             'component' => $widgetComponentToken,
             'file' => $widgetFileToken,
-            'component_item' => $widgetComponentItemToken,
         ],
     ]);
 
@@ -77,22 +72,17 @@ it('finds a widget by every globally searchable widget attribute', function (): 
         'title' => $widgetTitleToken,
     ]);
 
-    $searchTerms = [
-        $widgetNameToken,
-        $widgetKeyToken,
-        $widgetTitleToken,
-        $widgetComponentToken,
-        $widgetFileToken,
-        $widgetComponentItemToken,
-    ];
+    $results = Filament::getGlobalSearchProvider()->getResults($searchTerm);
+    $widgetResult = $results?->getCategories()->get(WidgetResource::getPluralModelLabel())?->first();
 
-    foreach ($searchTerms as $searchTerm) {
-        $results = Filament::getGlobalSearchProvider()->getResults($searchTerm);
-        $widgetResult = $results?->getCategories()->get(WidgetResource::getPluralModelLabel())?->first();
-
-        expect($widgetResult)
-            ->toBeInstanceOf(GlobalSearchResult::class)
-            ->and($widgetResult->title)->toBe($widget->name)
-            ->and($widgetResult->url)->toBe(WidgetResource::getUrl('edit', ['record' => $widget]));
-    }
-});
+    expect($widgetResult)
+        ->toBeInstanceOf(GlobalSearchResult::class)
+        ->and($widgetResult->title)->toBe($widget->name)
+        ->and($widgetResult->url)->toBe(WidgetResource::getUrl('edit', ['record' => $widget]));
+})->with([
+    'name' => ['capell-layout-widget-name-token'],
+    'key' => ['capell-layout-widget-key-token'],
+    'title' => ['capell-layout-widget-title-token'],
+    'component' => ['capell-layout-widget-component-token'],
+    'file' => ['capell-layout-widget-file-token'],
+]);

@@ -54,7 +54,8 @@ class DefaultLayoutContainerSchema implements TypeSchemaInterface
                     HtmlClassInput::make('html_class'),
                     PaddingSelect::make('padding'),
                     MarginSelect::make('margin'),
-                    SpacingSelect::make('spacing'),
+                    SpacingSelect::make('spacing')
+                        ->helperText(__('capell-admin::generic.container_spacing_help')),
                     TagSelect::make('tag'),
                     TextInput::make('override_columns')
                         ->label(__('capell-layout::form.override_columns'))

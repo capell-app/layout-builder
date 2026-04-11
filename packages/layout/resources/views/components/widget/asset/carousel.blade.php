@@ -13,15 +13,22 @@ declare(strict_types=1);
 @endphp
 
 @props([
-    'carouselAlign' => 'center',
-    'carouselArrows' => true,
-    'carouselAuto' => true,
-    'carouselAutoDelay' => 5000,
+    'carouselAlign' => $widget->getMeta('carousel_align', 'center'),
+    'carouselArrows' => (bool) $widget->getMeta('carousel_arrows', true),
+    'carouselAutoPlay' => (bool) $widget->getMeta('carousel_auto_play', true),
+    'carouselAutoDelay' => (int) $widget->getMeta('carousel_auto_delay', 5000),
     'carouselButtonClass' => 'hover:bg-primary focus:bg-primary pointer-events-auto bg-white/80 shadow-md transition hover:text-white focus:text-white disabled:pointer-events-none disabled:opacity-50',
-    'carouselDrag' => true,
-    'carouselLoop' => true,
-    'carouselPagination' => false,
-    'carouselWheel' => true,
+    'carouselDisableOnInteraction' => (bool) $widget->getMeta('carousel_disable_on_interaction', true),
+    'carouselDrag' => (bool) $widget->getMeta('carousel_drag', true),
+    'carouselEffect' => $widget->getMeta('carousel_effect', 'slide'),
+    'carouselFade' => (bool) $widget->getMeta('carousel_fade', false),
+    'carouselLoop' => (bool) $widget->getMeta('carousel_loop', true),
+    'carouselPagination' => (bool) $widget->getMeta('carousel_pagination', false),
+    'carouselPauseOnHover' => (bool) $widget->getMeta('carousel_pause_on_hover', true),
+    'carouselRewind' => (bool) $widget->getMeta('carousel_rewind', false),
+    'carouselSpeed' => (int) $widget->getMeta('carousel_speed', 300),
+    'carouselTouch' => $widget->getMeta('carousel_touch'),
+    'carouselWheel' => (bool) $widget->getMeta('carousel_wheel', true),
     'color' => $widget->getMeta('color', 'dark'),
     'container',
     'containerKey',
@@ -30,9 +37,14 @@ declare(strict_types=1);
     'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
     'loop',
     'rounded' => (bool) $theme->getMeta('rounded_images'),
-    'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
+    'total' => $widget->assets->count(),
     'widget',
 ])
+@php
+    $carouselId = sprintf('carousel-%s-%s', $widget->id ?? $widget->key, $loop->index);
+    $carouselEffect = $carouselFade ? 'fade' : $carouselEffect;
+@endphp
+
 <x-capell-layout::widget.wrapper
     class="widget-media-carousel"
     :$container
@@ -49,6 +61,7 @@ declare(strict_types=1);
                 :compact="true"
                 :content="$widget->translation->content ?? ($showPageContent ? $page->translation->content : null)"
                 :content-type="$widget->translation->content ? $widget->type->content_structure : ($showPageContent ? $page->type->content_structure : null)"
+                :divider="$widget->getMeta('content_divider')"
                 :color="$color"
                 :muted="in_array($containerKey, $theme->secondary_containers)"
                 :title="$widget->translation->title ?? ($showPageTitle ? $page->translation->title : null)"
@@ -61,12 +74,46 @@ declare(strict_types=1);
 
     <div
         wire:ignore
-        data-auto="{{ (int) $carouselAuto }}"
+        data-auto="{{ (int) $carouselAutoPlay }}"
+        data-carousel="1"
+        data-carousel-align="{{ $carouselAlign }}"
+        data-carousel-autoplay="{{ (int) $carouselAutoPlay }}"
+        data-carousel-autoplay-delay="{{ $carouselAutoDelay }}"
+        data-carousel-disable-on-interaction="{{ (int) $carouselDisableOnInteraction }}"
+        data-carousel-drag="{{ (int) $carouselDrag }}"
+        data-carousel-effect="{{ $carouselEffect }}"
+        data-carousel-id="{{ $carouselId }}"
         data-loop="{{ (int) $carouselLoop }}"
         data-delay="{{ $carouselAutoDelay }}"
         data-align="{{ $carouselAlign }}"
         data-drag="{{ (int) $carouselDrag }}"
+        data-carousel-loop="{{ (int) $carouselLoop }}"
+        data-carousel-navigation="{{ (int) $carouselArrows }}"
+        data-carousel-pagination="{{ (int) $carouselPagination }}"
+        data-carousel-pause-on-hover="{{ (int) $carouselPauseOnHover }}"
+        data-carousel-rewind="{{ (int) $carouselRewind }}"
+        data-carousel-speed="{{ $carouselSpeed }}"
+        data-carousel-watch-overflow="1"
+        data-carousel-wheel="{{ (int) $carouselWheel }}"
         data-wheel="{{ (int) $carouselWheel }}"
+        data-fade="{{ (int) $carouselFade }}"
+        @if ($carouselTouch !== null)
+            data-carousel-touch="{{ (int) $carouselTouch }}"
+        @endif
+        data-carousel-breakpoints='{
+            "992": {
+                "slidesPerView": "auto",
+                "spaceBetween": 36
+            },
+            "768": {
+                "slidesPerView": "auto",
+                "spaceBetween": 24
+            },
+            "320": {
+                "slidesPerView": 1,
+                "spaceBetween": 0
+            }
+        }'
         data-breakpoint='{
             "992": {
                 "slidesPerView": "auto",
@@ -142,6 +189,7 @@ declare(strict_types=1);
 
         @if ($total > 1)
             <div
+                data-carousel-controls="{{ $carouselId }}"
                 class="swiper-controls pointer-events-none absolute inset-0 z-50 flex items-center justify-between"
             >
                 @if ($carouselArrows)

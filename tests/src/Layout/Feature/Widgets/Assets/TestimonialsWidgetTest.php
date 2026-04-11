@@ -29,7 +29,11 @@ it('creates asset testimonials widget with expected meta', function (): void {
         ->toBeInstanceOf(Widget::class)
         ->key->toBe('asset-testimonials')
         ->meta->scoped(
-            fn (Expectation $meta) => $meta->view_file->toBe('capell-layout::components.widget.asset.testimonials'),
+            fn (Expectation $meta) => $meta
+                ->view_file->toBe('capell-layout::components.widget.asset.testimonials')
+                ->carousel_effect->toBe('fade')
+                ->carousel_drag->toBeFalse()
+                ->carousel_touch->toBeFalse(),
         )
         ->assets->toHaveCount(3);
 });
@@ -54,12 +58,25 @@ it('renders asset testimonials widget on page', function (callable $factory, str
         ->assertOk()
         ->assertElementExists(
             '.widget-assets-testimonials',
-            fn (AssertElement $elm): BaseAssert => $elm->contains('.widget-testimonial-item', count: 3)
+            fn (AssertElement $widgetElement): BaseAssert => $widgetElement
+                ->find(
+                    '.swiper',
+                    fn (AssertElement $carouselElement): BaseAssert => $carouselElement
+                        ->has('data-carousel', '1')
+                        ->has('data-carousel-effect', 'fade')
+                        ->has('data-carousel-autoplay', '1')
+                        ->has('data-carousel-loop', '1')
+                        ->has('data-carousel-pagination', '1')
+                        ->has('data-carousel-drag', '0')
+                        ->has('data-carousel-touch', '0'),
+                )
+                ->contains('.swiper-controls[data-carousel-controls]', count: 1)
+                ->contains('.widget-testimonial-item', count: 3)
                 ->each(
                     '.widget-testimonial-item',
-                    fn (AssertElement $itemElm, int $index): BaseAssert => $itemElm->find(
+                    fn (AssertElement $itemElement, int $index): BaseAssert => $itemElement->find(
                         'img',
-                        fn (AssertElement $imgElm): BaseAssert => $imgElm->has('alt', $widgetAssets[$index]->asset->translation->title)
+                        fn (AssertElement $imageElement): BaseAssert => $imageElement->has('alt', $widgetAssets[$index]->asset->translation->title)
                             ->has('src', $srcResolver($widgetAssets[$index])),
                     ),
                 ),
@@ -78,7 +95,13 @@ it('renders asset testimonials widget on page', function (callable $factory, str
                 ->widget($widget)
                 ->assetHavingMedia(),
             'asset.media',
-            fn (WidgetAsset $widgetAsset): string => $widgetAsset->asset->media->first()->getFullUrl(),
+            function (WidgetAsset $widgetAsset): string {
+                $media = $widgetAsset->asset->media->first();
+
+                throw_unless($media instanceof Media, RuntimeException::class, 'Expected asset media to be available.');
+
+                return $media->getFullUrl();
+            },
         ],
     ],
 );

@@ -18,6 +18,8 @@ use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
 use Capell\Layout\Filament\Components\Forms\Widget\TranslationsRepeater;
 use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
@@ -43,11 +45,11 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
             Tabs::make()
                 ->columnSpanFull()
                 ->tabs([
-                    $this->getAssetsTab($schema),
-                    $this->getTranslationsTab($schema),
-                    $this->getDisplayTab($schema),
+                    $this->assetsTab($schema),
+                    $this->translationsTab($schema),
+                    $this->displayTab($schema),
                     $this->adminTab($schema),
-                    $this->getSettingsTab($schema),
+                    $this->settingsTab($schema),
                 ]),
         ];
     }
@@ -61,20 +63,25 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
                     Tabs::make()
                         ->columnSpanFull()
                         ->tabs([
-                            $this->getAssetsTab($schema),
-                            $this->getTranslationsTab($schema),
-                            $this->getDisplayTab($schema),
+                            $this->assetsTab($schema),
+                            $this->translationsTab($schema),
+                            $this->displayTab($schema),
                             $this->adminTab($schema),
                         ]),
                 ])
-                ->sidebarSchema(
-                    SettingsSchema::make($schema),
-                    contained: true,
-                ),
+                ->sidebarSchema([
+                    Section::make()
+                        ->gridContainer()
+                        ->columns(['@md' => 2])
+                        ->schema([
+                            ...SettingsSchema::make($schema),
+                            MediaLibraryFileUpload::make('image'),
+                        ]),
+                ]),
         ];
     }
 
-    protected function getAssetsTab(Schema $schema): Tab
+    protected function assetsTab(Schema $schema): Tab
     {
         return Tab::make(__('capell-admin::tab.assets'))
             ->badge(function (Get $get): ?int {
@@ -91,7 +98,7 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
             ]);
     }
 
-    protected function getTranslationsTab(Schema $schema): Tab
+    protected function translationsTab(Schema $schema): Tab
     {
         return Tab::make(__('capell-admin::tab.content'))
             ->icon(Heroicon::Language)
@@ -106,18 +113,20 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
         return WidgetAdminTab::make();
     }
 
-    protected function getSettingsTab(Schema $schema): Tab
+    protected function settingsTab(Schema $schema): Tab
     {
         return WidgetSettingsTab::make($schema);
     }
 
-    protected function getDisplayTab(Schema $schema): Tab
+    protected function displayTab(Schema $schema): Tab
     {
         return WidgetDisplayTab::make([
-            MediaLibraryFileUpload::make('image'),
+            Fieldset::make(__('capell-admin::generic.results'))
+                ->columnSpanFull()
+                ->statePath('meta')
+                ->schema(ResultsSchema::make($schema)),
             DisplaySection::make([
                 ColorSchemeComponent::make('color'),
-                ...ResultsSchema::make($schema),
             ]),
             ComponentSection::make()
                 ->statePath('meta'),

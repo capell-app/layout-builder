@@ -28,6 +28,7 @@ use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\Layout\Console\Commands\DemoCommand;
 use Capell\Layout\Console\Commands\InstallCommand;
 use Capell\Layout\Console\Commands\SetupCommand;
+use Capell\Layout\Console\Commands\UpgradeCommand;
 use Capell\Layout\Enums\AssetEnum;
 use Capell\Layout\Enums\ComponentTypeEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
@@ -88,6 +89,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
                 DemoCommand::class,
                 InstallCommand::class,
                 SetupCommand::class,
+                UpgradeCommand::class,
             ]);
     }
 
@@ -186,6 +188,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             permissions: $this->getPackagePermissions(),
             installCommand: 'capell:layout-install',
             setupCommand: 'capell:layout-setup',
+            upgradeCommand: 'capell:layout-upgrade',
             demoCommand: 'capell:layout-demo',
             demoParams: ['user', 'sites'],
             requirements: [

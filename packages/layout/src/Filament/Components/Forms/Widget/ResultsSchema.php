@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms\Widget;
 
+use Capell\Layout\Filament\Components\Forms\SpacingSelect;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -33,6 +34,8 @@ class ResultsSchema
                 ->numeric()
                 ->minValue(0)
                 ->maxValue(12),
+            SpacingSelect::make('spacing')
+                ->helperText(__('capell-admin::generic.results_spacing_help')),
         ];
     }
 }

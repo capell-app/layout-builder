@@ -47,7 +47,7 @@ class CreateHeroWidgetAction
                 'carousel_arrows' => false,
                 'carousel_pagination' => true,
                 'carousel_loop' => true,
-                'carousel_auto' => true,
+                'carousel_auto_play' => true,
                 'carousel_auto_delay' => 50000,
                 'color' => 'dark',
                 'extra_relations' => [

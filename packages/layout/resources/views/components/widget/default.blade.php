@@ -50,6 +50,7 @@ $theme = Frontend::theme();
                 :compact="true"
                 :content="$content"
                 :content-type="$widget->type->content_structure"
+                :divider="$widget->getMeta('content_divider')"
                 :heading-size="$headingSize"
                 :muted="in_array($containerKey, $theme->secondary_containers)"
                 :heading-style="$widget->getMeta('heading_style')"

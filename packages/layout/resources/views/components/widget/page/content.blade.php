@@ -59,6 +59,7 @@ declare(strict_types=1);
                 <x-capell::content
                     :content="$page->translation->content"
                     :content-type="$page->type->content_structure"
+                    :divider="$widget->getMeta('content_divider')"
                     :heading-size="$headingSize"
                     :heading-tag="$headingTag"
                     :muted="in_array($containerKey, $theme->secondary_containers)"

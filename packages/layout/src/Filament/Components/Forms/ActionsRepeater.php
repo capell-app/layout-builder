@@ -40,7 +40,7 @@ class ActionsRepeater extends Repeater
             ->itemLabel(function (array $state, string $key): ?string {
                 $type = $this->getItemType($key);
 
-                if ($type === null) {
+                if (! $type instanceof ActionLinkEnum) {
                     return null;
                 }
 

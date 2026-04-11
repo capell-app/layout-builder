@@ -10,9 +10,9 @@ declare(strict_types=1);
 ])
 
 <div {{ $attributes->class(['footer-tags xl:w-[25%]']) }}>
-    <h3 class="{{ $headingClass }} mb-4">
+    <div class="{{ $headingClass }} mb-4">
         {{ __('Tags') }}
-    </h3>
+    </div>
 
     @if ($tags->isNotEmpty())
         <div class="flex flex-wrap gap-2">

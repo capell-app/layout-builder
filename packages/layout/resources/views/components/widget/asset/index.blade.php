@@ -19,17 +19,17 @@ declare(strict_types=1);
     'containerKey',
     'containerWidth' => null,
     'loop',
-    'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
+    'total' => $widget->assets->count(),
     'widget',
     'widgetIndex',
-    'maxWidth' => (bool) $widget->getMeta('max_width'),
+    'maxWidth' => $widget->getMeta('max_width'),
     'withChildCount' => (bool) $widget->getMeta('with_child_count'),
     'withImage' => (bool) $widget->getMeta('with_image', true),
     'withParent' => (bool) $widget->getMeta('with_parent'),
     'withDate' => (bool) $widget->getMeta('with_date', true),
     'withSummary' => (bool) $widget->getMeta('with_summary', true),
-    'spacing' => (bool) $widget->getMeta('spacing', true),
-    'columns' => $widget->getMeta('columns'),
+    'spacing' => $widget->getMeta('spacing', true),
+    'columns' => (int) $widget->getMeta('columns'),
 ])
 <x-capell-layout::widget.wrapper
     class="widget-assets widget-assets-grid"
@@ -46,6 +46,7 @@ declare(strict_types=1);
             :content="$widget->translation->content"
             :content-type="$widget->type->content_structure"
             :color="$color"
+            :divider="$widget->getMeta('content_divider')"
             :muted="in_array($containerKey, $theme->secondary_containers)"
             :title="$widget->translation->title"
             :text-align="$widget->getMeta('align')"
@@ -55,12 +56,10 @@ declare(strict_types=1);
 
     @if ($widget->assets->isNotEmpty())
         <div
-            @if ($columns)
-                style="--columns: {{ $columns === 0 ? $widget->assets->count() : $columns }};"
-            @endif
+            style="--columns: {{ $columns ?: $total }}"
             @if ($maxWidth && ! in_array($maxWidth, ['none', 'sm', 'md', 'lg', 'xl'], true)) style="--max-max-width: {{ $maxWidth }};" @endif
             @class([
-                'grid',
+                'grid md:grid-cols-[repeat(var(--columns),minmax(0,1fr))]',
                 'mx-auto' => $maxWidth,
                 $maxWidth ? match ($maxWidth) {
                     'none' => 'max-w-none',
@@ -73,10 +72,10 @@ declare(strict_types=1);
                     default => 'max-w-[var(--max-max-width)]',
                 } : '',
                 'gap-x-8 gap-y-6 lg:gap-x-10 lg:gap-y-10' => $spacing && $spacing !== 'none',
-                'md:grid-cols-[repeat(var(--columns),minmax(0,1fr))]' => $columns,
-                'md:grid-cols-2' => $total >= 2 && (! $columns && $columns !== 0),
-                'lg:grid-cols-3' => $total >= 3 && (! $columns && $columns !== 0),
-                '2xl:grid-cols-4' => $total > 7 && (! $columns && $columns !== 0),
+                'sm:grid-cols-2' => $total >= 2 && $columns === 0,
+                'md:grid-cols-2' => $total >= 2 && $columns !== 0 && $total <= $columns,
+                'lg:grid-cols-4' => $total >= 4 && $columns !== 0 && $total <= $columns,
+                '2xl:grid-cols-6' => $total >= 6 && $columns !== 0 && $total <= $columns,
             ])
         >
             @foreach ($widget->assets as $asset)

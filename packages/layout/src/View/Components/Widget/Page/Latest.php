@@ -26,7 +26,7 @@ class Latest extends AbstractPagesWidget
             withParent: $this->widget->meta['with_parent'] ?? false,
             withDate: $this->widget->meta['with_date'] ?? false,
             cacheKeyPrepend: 'latest-widget-' . $this->widget->id,
-            morphModel: $this->widget->meta['page_model'] ?? $this->widget->type->meta['page_model'] ?? null,
+            morphModel: $this->widget->getMeta('page_model'),
             modifyQuery: fn (Builder $query) => $query->whereKeyNot(Frontend::page()->id),
         );
 

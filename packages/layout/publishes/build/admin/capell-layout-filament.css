@@ -6,10 +6,10 @@
     padding-right: 0;
 }
 .capell-layout-builder-assets-table .fi-modal-footer {
+    transition: box-shadow 0.3s;
     container-type: scroll-state;
-    transition: box-shadow 0.3s ease;
 }
-@container scroll-state(stuck: bottom) {
+@container scroll-state(stuck:bottom) {
     .capell-layout-builder-assets-table .fi-modal-footer {
         border-bottom-right-radius: 0;
         border-bottom-left-radius: 0;

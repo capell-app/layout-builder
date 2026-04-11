@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Frontend\Actions\GetPageVariablesAction;
 use Capell\Layout\Database\Factories\LayoutFactory;
 use Capell\Layout\Support\Creator\WidgetCreator;
 use Capell\Tests\Support\Concerns\TestingFrontend;
+use Illuminate\Contracts\Database\Query\Builder as BuilderContract;
 
 use function Pest\Laravel\get;
 
@@ -17,17 +19,24 @@ use Sinnbeck\DomAssertions\Asserts\BaseAssert;
 uses(TestingFrontend::class);
 
 test('children widget', function (): void {
-    $site = Site::factory()->withTranslations()->create();
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations()->create();
 
     $widgetCreator = resolve(WidgetCreator::class);
     $widget = $widgetCreator->childrenWidget();
 
     $layout = (new LayoutFactory)->widgets([$widget])->create();
 
-    $parent = Page::factory()->site($site)->withTranslations()->create();
-    $page = Page::factory()->site($site)->layout($layout)->parent($parent)->withTranslations()->children(2)->create();
+    $parent = Page::factory()->site($site)->withTranslations($language)->create();
+    $page = Page::factory()->site($site)->layout($layout)->parent($parent)->withTranslations($language)->children(2)->create();
 
-    $page->load('children.translation', 'children.pageUrl.siteDomain');
+    $page->load([
+        'children' => fn (BuilderContract $query) => $query->alphabetical($language)
+            ->with([
+                'translation',
+                'pageUrl.siteDomain',
+            ]),
+    ]);
 
     $children = $page->children;
 

@@ -17,7 +17,7 @@ use Override;
 class CarouselWidgetSchema extends AssetsWidgetSchema
 {
     #[Override]
-    protected function getDisplayTab(Schema $schema): Tab
+    protected function displayTab(Schema $schema): Tab
     {
         return WidgetDisplayTab::make([
             Fieldset::make(

@@ -23,7 +23,7 @@ beforeEach(function (): void {
     Filament::setServingStatus();
 });
 
-it('finds an article by every globally searchable article attribute', function (): void {
+it('finds an article by its $attribute', function (string $searchTerm): void {
     $articleNameToken = 'capell-blog-article-name-token';
     $articleTitleToken = 'capell-blog-article-title-token';
     $articleUrlToken = 'capell-blog-article-url-token';
@@ -49,24 +49,20 @@ it('finds an article by every globally searchable article attribute', function (
         'url' => '/blog/' . $articleUrlToken,
     ]);
 
-    $searchTerms = [
-        $articleNameToken,
-        $articleTitleToken,
-        $articleUrlToken,
-    ];
+    $results = Filament::getGlobalSearchProvider()->getResults($searchTerm);
+    $articleResult = $results?->getCategories()->get(ArticleResource::getPluralModelLabel())?->first();
 
-    foreach ($searchTerms as $searchTerm) {
-        $results = Filament::getGlobalSearchProvider()->getResults($searchTerm);
-        $articleResult = $results?->getCategories()->get(ArticleResource::getPluralModelLabel())?->first();
+    expect($articleResult)
+        ->toBeInstanceOf(GlobalSearchResult::class)
+        ->and($articleResult->title)->toBe($article->name)
+        ->and($articleResult->url)->toBe(ArticleResource::getUrl('edit', ['record' => $article]));
+})->with([
+    'name' => ['capell-blog-article-name-token'],
+    'title' => ['capell-blog-article-title-token'],
+    'url' => ['capell-blog-article-url-token'],
+]);
 
-        expect($articleResult)
-            ->toBeInstanceOf(GlobalSearchResult::class)
-            ->and($articleResult->title)->toBe($article->name)
-            ->and($articleResult->url)->toBe(ArticleResource::getUrl('edit', ['record' => $article]));
-    }
-});
-
-it('finds a tag by every globally searchable tag attribute', function (): void {
+it('finds a tag by its $attribute', function (string $searchTerm): void {
     $tagNameToken = 'capell-blog-tag-name-token';
 
     $tag = Tag::factory()->create([
@@ -74,11 +70,13 @@ it('finds a tag by every globally searchable tag attribute', function (): void {
         'slug' => ['en' => $tagNameToken],
     ]);
 
-    $results = Filament::getGlobalSearchProvider()->getResults($tagNameToken);
+    $results = Filament::getGlobalSearchProvider()->getResults($searchTerm);
     $tagResult = $results?->getCategories()->get(TagResource::getPluralModelLabel())?->first();
 
     expect($tagResult)
         ->toBeInstanceOf(GlobalSearchResult::class)
         ->and($tagResult->title)->toBe($tagNameToken)
         ->and($tagResult->url)->toBe(TagResource::getUrl('edit', ['record' => $tag]));
-});
+})->with([
+    'name' => ['capell-blog-tag-name-token'],
+]);

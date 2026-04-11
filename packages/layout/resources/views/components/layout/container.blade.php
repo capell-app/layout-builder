@@ -5,9 +5,11 @@ declare(strict_types=1);
 ?>
 
 @php
+    use Capell\Core\Enums\ImageConversionEnum;
     use Capell\Core\Facades\CapellCore;
     use Capell\Core\Models\Layout;
     use Capell\Frontend\Facades\Frontend;
+    use Capell\Layout\Enums\ContainerWidthEnum;
     use Capell\Layout\Facades\CapellLayout;
     use Spatie\MediaLibrary\MediaCollections\Models\Media;
 @endphp
@@ -18,7 +20,7 @@ declare(strict_types=1);
     'container',
     'containerKey',
     'containerIndex',
-    'containerWidth' => $container['meta']['container'] ?? null,
+    'containerWidth' => ! empty($container['meta']['container']) ? ContainerWidthEnum::from($container['meta']['container']) : null,
     'layout',
     'spacing' => $container['meta']['spacing'] ?? null,
     'padding' => $container['meta']['padding'] ?? [],
@@ -49,35 +51,35 @@ declare(strict_types=1);
 @if ($backgroundImage)
     <div class="relative">
         <div
-                @if ($backgroundImage)
-                    style="{{ $backgroundImage ? 'background-image:url('.$backgroundImage->getAvailableUrl(['large']).');' : '' }}"
-                @endif
-                @class([
-                    "absolute top-0 bottom-0 left-0 w-1/2 -z-1 h-full bg-cover bg-center bg-no-repeat",
-                ])
-        >
-        </div>
-@endif
-
-@if ($colspan !== 12)
-    @if (! $previousColspan || $previousColspan === 12)
-        <div
+            @if ($backgroundImage)
+                style="{{ $backgroundImage ? 'background-image:url('.$backgroundImage->getAvailableUrl([ImageConversionEnum::Large->value]).');' : '' }}"
+            @endif
             @class([
-                "container" => $containerWidth !== 'full',
+                "absolute top-0 bottom-0 left-0 w-1/2 -z-1 h-full bg-cover bg-center bg-no-repeat",
             ])
         >
-            <div class="flex w-full flex-col gap-x-12 lg:grid lg:grid-cols-12 xl:gap-x-16">
-    @endif
+        </div>
+        @endif
 
-    <div
-        @class([
-            "lg:col-span-[var(--colspan)]",
-            "lg:col-start-[var(--column-start)]",
-        ])
-        style="--colspan: {{ $colspan }}; --column-start: {{ $columnStart }};"
-    >
-@endif
-{{-- format-ignore-end --}}
+        @if ($colspan !== 12)
+            @if (! $previousColspan || $previousColspan === 12)
+                <div
+                    @class([
+                        $containerWidth?->getContainerClass(),
+                    ])
+                >
+                    <div class="flex w-full flex-col gap-x-12 lg:grid lg:grid-cols-12 xl:gap-x-16">
+                        @endif
+
+                        <div
+                            @class([
+                                "lg:col-span-[var(--colspan)]",
+                                "lg:col-start-[var(--column-start)]",
+                            ])
+                            style="--colspan: {{ $colspan }}; --column-start: {{ $columnStart }};"
+                        >
+                            @endif
+                            {{-- format-ignore-end --}}
 
 <div
     id="layout-container-{{ $containerKey }}"
@@ -114,39 +116,39 @@ declare(strict_types=1);
 >
     @foreach ($container['widgets'] as $widgetIndex => $widgetData)
         {{-- format-ignore-start --}}
-        @php
-            $widget = CapellLayout::getContainerWidget(
-                $containerKey,
-                $widgetData['widget_key'],
-                $widgetData['occurrence'] ?? 1,
-            );
+                                    @php
+                                        $widget = CapellLayout::getContainerWidget(
+                                            $containerKey,
+                                            $widgetData['widget_key'],
+                                            $widgetData['occurrence'] ?? 1,
+                                        );
 
-            if (! $widget) {
-                continue;
-            }
+                                        if (! $widget) {
+                                            continue;
+                                        }
 
-            $component = $widget->getComponent();
-            if (! $component) {
-                continue;
-            }
+                                        $component = $widget->getComponent();
+                                        if (! $component) {
+                                            continue;
+                                        }
 
-            $type = $widget->getMetaComponentType();
+                                        $type = $widget->getMetaComponentType();
 
-            $currentColspan = $previousColspan + $colspan;
-            if ($columnStart) {
-                $currentColspan += $columnStart - 1;
-            }
-        @endphp
-        {{-- format-ignore-end --}}
+                                        $currentColspan = $previousColspan + $colspan;
+                                        if ($columnStart) {
+                                            $currentColspan += $columnStart - 1;
+                                        }
+                                    @endphp
+                                    {{-- format-ignore-end --}}
         {!! config('app.debug') ? "<!-- {$widget->key} Widget ({$widget->id}) - {$component} -->" : '' !!}
 
         <x-capell-layout::layout.widget
             :$component
             :container-colspan="$colspan"
-            :container-width="$colspan !== 12 ? 'full' : null"
             :$container
             :$containerKey
             :$containerIndex
+            :$containerWidth
             :$loop
             :$type
             :$widget
@@ -158,16 +160,16 @@ declare(strict_types=1);
 </div>
 
 {{-- format-ignore-start --}}
-@if ($backgroundImage)
+                            @if ($backgroundImage)
+                        </div>
+                        @endif
+                        @if ($colspan !== 12)
+                    </div>
+
+                    @if ($currentColspan === 12)
+                </div>
     </div>
 @endif
-@if ($colspan !== 12)
-    </div>
-
-    @if ($currentColspan === 12)
-            </div>
-        </div>
-    @endif
 @endif
 {{-- format-ignore-end --}}
 

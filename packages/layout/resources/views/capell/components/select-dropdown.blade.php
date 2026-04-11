@@ -230,8 +230,8 @@ declare(strict_types=1);
 
                 <button
                     x-show="!isSearching"
-                    @click="open()"
-                    @keydown="handleKeyDown($event)"
+                    x-on:click="open()"
+                    x-on:keydown="handleKeyDown($event)"
                     type="button"
                     class="fi-select-input-btn"
                     :aria-expanded="isOpen"
@@ -247,7 +247,7 @@ declare(strict_types=1);
 
                 <div
                     x-show="isOpen && !isSearching"
-                    @click.away="close()"
+                    x-on:click.outside="close()"
                     x-transition:enter="transition duration-100 ease-out"
                     x-transition:enter-start="scale-95 transform opacity-0"
                     x-transition:enter-end="scale-100 transform opacity-100"
@@ -265,8 +265,8 @@ declare(strict_types=1);
                                 x-ref="searchInput"
                                 placeholder="{{ $getSearchPrompt() }}"
                                 class="fi-input"
-                                @keydown="handleKeyDown($event)"
-                                @input="searchOptions()"
+                                x-on:keydown="handleKeyDown($event)"
+                                x-on:input="searchOptions()"
                                 role="searchbox"
                                 aria-label="{{ $getSearchPrompt() }}"
                                 aria-autocomplete="list"
@@ -286,7 +286,7 @@ declare(strict_types=1);
                             <div class="option-container">
                                 <button
                                     @click="selectOption(option.value, option.label)"
-                                    @mouseenter="highlightedIndex = index"
+                                    x-on:mouseenter="highlightedIndex = index"
                                     type="button"
                                     class="flex w-full items-center justify-between border-b border-gray-200 px-4 py-3 text-left text-sm text-gray-900 transition-colors last:border-b-0 hover:bg-gray-50 dark:border-gray-700/50 dark:text-gray-100 dark:hover:bg-gray-800"
                                     :class="{

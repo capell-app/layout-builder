@@ -19,7 +19,7 @@ declare(strict_types=1);
     'containerKey',
     'containerWidth' => null,
     'loop',
-    'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
+    'total' => $widget->assets->count(),
     'widget',
     'widgetIndex',
     'withChildCount' => (bool) $widget->getMeta('with_child_count'),
@@ -113,6 +113,7 @@ declare(strict_types=1);
             :content="$widget->translation->content"
             :content-type="$widget->type->content_structure"
             :color="$color"
+            :divider="$widget->getMeta('content_divider')"
             :muted="in_array($containerKey, $theme->secondary_containers)"
             :title="$widget->translation->title"
             :text-align="$widget->getMeta('align')"

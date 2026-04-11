@@ -17,11 +17,12 @@ use Capell\Layout\Filament\Components\Forms\Widget\ComponentSection;
 use Capell\Layout\Filament\Components\Forms\Widget\CreateDetailsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\DisplaySection;
 use Capell\Layout\Filament\Components\Forms\Widget\SettingsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
 use Capell\Layout\Filament\Components\Forms\Widget\TranslationsRepeater;
 use Filament\Forms\Components\Checkbox;
-use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
@@ -56,10 +57,15 @@ class DefaultWidgetSchema implements TypeSchemaInterface
                         ->contained(),
                     ...$this->getExtraSchema($schema),
                 ])
-                ->sidebarSchema(
-                    SettingsSchema::make($schema),
-                    contained: true,
-                ),
+                ->sidebarSchema([
+                    Section::make()
+                        ->gridContainer()
+                        ->columns(['@md' => 2])
+                        ->schema([
+                            ...SettingsSchema::make($schema),
+                            MediaLibraryFileUpload::make('image'),
+                        ]),
+                ]),
         ];
     }
 
@@ -92,44 +98,39 @@ class DefaultWidgetSchema implements TypeSchemaInterface
         return Tabs::make()
             ->columnSpanFull()
             ->tabs([
-                $this->getDetailsTab(),
-                $this->getDisplayTab($schema),
-                ...$withSettingsTab ? [$this->getSettingsTab($schema)] : [],
+                $this->detailsTab(),
+                $this->displayTab($schema),
+                ...$withSettingsTab ? [$this->settingsTab($schema)] : [],
+                WidgetAdminTab::make(),
             ]);
     }
 
-    protected function getDisplayTab(Schema $schema): Tab
+    protected function displayTab(Schema $schema): Tab
     {
         return WidgetDisplayTab::make([
             DisplaySection::make([
                 ColorSchemeComponent::make('color'),
+                Checkbox::make('reverse_order')
+                    ->label(__('capell-layout::form.reverse_order'))
+                    ->whenTruthy('image'),
             ]),
             ComponentSection::make()
                 ->statePath('meta'),
         ]);
     }
 
-    protected function getDetailsTab(): Tab
+    protected function detailsTab(): Tab
     {
         return Tab::make('details')
             ->label(__('capell-admin::tab.details'))
             ->icon('heroicon-o-information-circle')
             ->statePath('meta')
             ->schema([
-                Grid::make()
-                    ->schema([
-                        MediaLibraryFileUpload::make('image'),
-                        Checkbox::make('reverse_order')
-                            ->label(__('capell-layout::form.reverse_order'))
-                            ->visibleJs(<<<'JS'
-                                 $get('image')
-                            JS),
-                    ]),
                 ActionsRepeater::make('actions'),
             ]);
     }
 
-    protected function getSettingsTab(Schema $schema): Tab
+    protected function settingsTab(Schema $schema): Tab
     {
         return WidgetSettingsTab::make($schema);
     }

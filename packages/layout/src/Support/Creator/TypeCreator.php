@@ -194,7 +194,6 @@ class TypeCreator
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::Default,
-                'padding' => ['lg'],
             ],
         ]);
     }
