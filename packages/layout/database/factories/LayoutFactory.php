@@ -59,7 +59,7 @@ class LayoutFactory extends \Capell\Core\Database\Factories\LayoutFactory
 
                 foreach ($widgets as $widget) {
                     $widgetEntries[] = [
-                        'widget_key' => $widget instanceof $widget ? $widget->key : $widget,
+                        'widget_key' => $widget instanceof Widget ? $widget->key : $widget,
                         'occurrence' => 1,
                     ];
                 }

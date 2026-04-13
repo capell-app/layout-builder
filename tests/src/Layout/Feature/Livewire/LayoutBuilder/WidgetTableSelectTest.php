@@ -53,7 +53,7 @@ it('searches widgets', function (): void {
         ->assertCanSeeTableRecords([$widget]);
 });
 
-it('calls selectRecords and dispatches event with containerKey', function (): void {
+it('dispatches add-widgets-to-container event with selected widget and containerKey', function (): void {
     $widgets = Widget::factory()
         ->count(4)
         ->create();
@@ -76,7 +76,38 @@ it('calls selectRecords and dispatches event with containerKey', function (): vo
         );
 });
 
-it('calls selectRecords and dispatches event with containers form', function (): void {
+it('dispatches event with multiple selected widgets', function (): void {
+    $widgets = Widget::factory()
+        ->count(3)
+        ->create();
+
+    $containerKey = 'container-123';
+
+    livewire(WidgetTableSelect::class, ['containerKey' => $containerKey])
+        ->assertSuccessful()
+        ->set('selectedRecords', $widgets->pluck('id')->map(fn ($id): string => (string) $id)->all())
+        ->call('selectRecords')
+        ->assertHasNoErrors()
+        ->assertDispatched(
+            'add-widgets-to-container',
+            containerKey: $containerKey,
+            widgets: $widgets->pluck('id')->map(fn ($id): string => (string) $id)->all(),
+        );
+});
+
+it('shows warning notification when selecting records without any selected', function (): void {
+    Widget::factory()
+        ->count(2)
+        ->create();
+
+    livewire(WidgetTableSelect::class, ['containerKey' => 'container-123'])
+        ->assertSuccessful()
+        ->set('selectedRecords', [])
+        ->call('selectRecords')
+        ->assertNotDispatched('add-widgets-to-container');
+});
+
+it('dispatches event with selected container from containers form', function (): void {
     $widgets = Widget::factory()
         ->count(4)
         ->create();

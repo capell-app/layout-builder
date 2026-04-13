@@ -16,6 +16,33 @@ beforeEach(function (): void {
     test()->actingAsAdmin();
 });
 
+it('excludes only the current pageId when no existing records are provided', function (): void {
+    $layout = (new LayoutFactory)->containers()->create();
+    $containerKey = array_key_first($layout->containers);
+    $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
+
+    $currentPage = Page::factory()->layout($layout)->create();
+    $otherPages = Page::factory()->count(3)->create();
+
+    $arguments = [
+        'containerKey' => $containerKey,
+        'hasPageAssets' => true,
+        'pageId' => $currentPage->id,
+        'siteId' => $currentPage->site_id,
+        'widgetIndex' => $widgetIndex,
+    ];
+
+    livewire(PageAssets::class, [
+        'actionModalId' => 'select-assets',
+        'tableArguments' => $arguments,
+    ])
+        ->assertSuccessful()
+        ->assertSet('tableArguments', $arguments)
+        ->assertCountTableRecords(3)
+        ->assertCanSeeTableRecords($otherPages)
+        ->assertCanNotSeeTableRecords([$currentPage]);
+});
+
 it('excludes existing page records and current pageId from selection list', function (): void {
     $layout = (new LayoutFactory)->containers()->create();
     $containerKey = array_key_first($layout->containers);

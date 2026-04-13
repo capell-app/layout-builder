@@ -140,3 +140,28 @@ it('searches within contents assets table', function (): void {
         ->searchTable((string) $first->id)
         ->assertCanSeeTableRecords([$first]);
 });
+
+it('searches within page assets table', function (): void {
+    $layout = (new LayoutFactory)->containers()->create();
+    $containerKey = array_key_first($layout->containers);
+    $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
+
+    $pages = Page::factory()->count(3)->create();
+
+    $arguments = [
+        'containerKey' => $containerKey,
+        'hasPageAssets' => false,
+        'widgetIndex' => $widgetIndex,
+    ];
+
+    $first = $pages->first();
+
+    livewire(PageAssets::class, [
+        'actionModalId' => 'select-assets',
+        'tableArguments' => $arguments,
+    ])
+        ->assertSuccessful()
+        ->assertSet('tableArguments', $arguments)
+        ->searchTable((string) $first->id)
+        ->assertCanSeeTableRecords([$first]);
+});

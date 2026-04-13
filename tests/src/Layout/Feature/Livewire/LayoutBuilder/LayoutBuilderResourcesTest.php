@@ -31,7 +31,7 @@ beforeEach(function (): void {
     test()->actingAsAdmin();
 });
 
-test('Can save without affecting widget assets', function (bool $withPage): void {
+test('can save without affecting widget assets', function (bool $withPage): void {
     $layout = (new LayoutFactory)->containers()->create();
     $page = Page::factory()->layout($layout)->create();
 
@@ -61,7 +61,7 @@ test('Can save without affecting widget assets', function (bool $withPage): void
         ->toBe(5);
 })->with(['with page' => true, 'without page' => false]);
 
-test('Can sync new widget assets to page layout', function (): void {
+test('can sync new content and page assets to widget in page layout context', function (): void {
     $firstWidget = Widget::factory(['key' => 'first'])->create();
     $secondWidget = Widget::factory(['key' => 'second'])->create();
 
@@ -146,7 +146,7 @@ test('Can sync new widget assets to page layout', function (): void {
         ->toBe(0);
 });
 
-test('Can sync new widget assets to layout', function (): void {
+test('can sync new content and page assets to widget in layout context', function (): void {
     $layout = (new LayoutFactory)->containers()->create();
 
     // 5 to add
@@ -205,7 +205,7 @@ test('Can sync new widget assets to layout', function (): void {
         ->toBe(7);
 });
 
-test('Can sync new page assets', function (): void {
+test('can sync new page-specific assets with pageable reference', function (): void {
     $layout = (new LayoutFactory)->containers()->create();
     $page = Page::factory()->layout($layout)->create();
 
@@ -267,7 +267,7 @@ test('Can sync new page assets', function (): void {
         ->toBe(7);
 });
 
-test('Can reorder assets', function (): void {
+test('can reorder assets', function (): void {
     $widget = Widget::factory()->create();
 
     $layout = (new LayoutFactory)->state([
@@ -317,7 +317,7 @@ test('Can reorder assets', function (): void {
         ->order->toBe(2);
 });
 
-test('Can select all widget assets', function (): void {
+test('can select all widget assets', function (): void {
     $layout = (new LayoutFactory)->containers()->create();
     $containerKey = array_key_first($layout->containers);
     $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
@@ -695,7 +695,7 @@ test('can remove all assets', function (): void {
     ]);
 });
 
-test('Can revert page assets', function (): void {
+test('can toggle page-specific assets back to layout-wide', function (): void {
     $layout = (new LayoutFactory)->containers()->create();
     $page = Page::factory()->layout($layout)->create();
 
