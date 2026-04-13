@@ -45,7 +45,7 @@ test('tag page list articles by tag', function (): void {
     $articles = Article::query()
         ->with(['translation', 'pageUrl.siteDomain'])
         ->whereRelation('site', 'id', $site->getKey())
-        ->latest()
+        ->publishedLatest()
         ->get();
 
     $title = trans($tagPage->translation->title, ['tag_name' => $tag->translate('name', $language->code)]);

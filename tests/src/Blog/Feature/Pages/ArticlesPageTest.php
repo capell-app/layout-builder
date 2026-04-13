@@ -191,7 +191,7 @@ test('articles pagination', function (): void {
         ->withTranslations($site->languages)
         ->create();
 
-    $orderedArticles = Article::query()->with(['translation'])->whereKey($articles->pluck('id'))->latest()->get();
+    $orderedArticles = Article::query()->with(['translation'])->whereKey($articles->pluck('id'))->publishedLatest()->get();
     $this->shownArticles = 0;
 
     expect($blogPage)

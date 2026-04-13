@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Core\Enums\MediaCollectionEnum;
+use Capell\Core\Models\Language;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
@@ -71,13 +72,15 @@ it('renders hero widget with page hero content', function (): void {
 });
 
 it('renders hero widget with assets', function (callable $factory, string $mediaRelation, callable $srcResolver): void {
-    $site = Site::factory()->withTranslations()->create();
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
     $widget = CreateHeroWidgetAction::run();
     $layout = (new LayoutFactory)->widgets([$widget])->create();
     $factory($widget)->create();
-    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
     $widgetAssets = $widget->widgetAssets()
         ->ordered()
+        ->alphabetical($language)
         ->with([
             'asset' => fn (BuilderContract $query): BuilderContract => $query->with([
                 'type',
