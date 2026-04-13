@@ -3,12 +3,14 @@
 declare(strict_types=1);
 
 use Capell\Core\Enums\NavigationItemType;
+use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Layout\Database\Factories\LayoutFactory;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Support\Creator\WidgetCreator;
 use Capell\Tests\Support\Concerns\TestingFrontend;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Pest\Expectation;
 
 use function Pest\Laravel\get;
@@ -29,11 +31,12 @@ it('creates navigation widget with expected meta', function (): void {
 });
 
 it('renders navigation widget on page', function (): void {
-    $site = Site::factory()->withTranslations()->create();
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
     $creator = resolve(WidgetCreator::class);
     $layout = (new LayoutFactory)->create();
-    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
-    $home = Page::factory()->site($site)->home()->withTranslations(slug: '/')->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
+    $home = Page::factory()->site($site)->home()->withTranslations(languages: $language, slug: '/')->create();
     $services = Page::factory()
         ->site($site)
         ->withTranslations()
@@ -42,7 +45,7 @@ it('renders navigation widget on page', function (): void {
         ->create();
     $services->load([
         'translation',
-        'children' => ['translation', 'pageUrl.siteDomain'],
+        'children' => fn (Relation $query) => $query->ordered()->alphabetical($language)->with(['translation', 'pageUrl.siteDomain']),
     ]);
 
     $anotherSiteHome = Page::factory()->home()->withTranslations(slug: '/')->create();

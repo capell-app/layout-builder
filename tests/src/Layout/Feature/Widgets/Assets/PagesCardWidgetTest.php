@@ -32,7 +32,7 @@ it('creates pages card widget with expected defaults', function (): void {
 
 it('renders pages card widget on page', function (): void {
     $language = Language::factory()->create();
-    $site = Site::factory()->withTranslations($language)->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
     $creator = resolve(WidgetCreator::class);
     $widget = $creator->pagesCardWidget();
     WidgetAsset::factory()->count(3)->widget($widget)->asset(AssetEnum::Page)->create();

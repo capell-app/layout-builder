@@ -30,7 +30,7 @@ it('finds an article by its $attribute', function (string $searchTerm): void {
 
     $language = Language::factory()->create();
 
-    $site = Site::factory()->withTranslations($language)->create([
+    $site = Site::factory()->language($language)->withTranslations($language)->create([
         'language_id' => $language->id,
     ]);
 
