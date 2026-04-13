@@ -19,6 +19,7 @@ use Capell\Core\Models\Concerns\HasAssets;
 use Capell\Core\Models\Concerns\HasDrafts;
 use Capell\Core\Models\Concerns\HasMetaData;
 use Capell\Core\Models\Concerns\HasMorphModelRelations;
+use Capell\Core\Models\Concerns\HasPageOrdering;
 use Capell\Core\Models\Concerns\HasPublishDates;
 use Capell\Core\Models\Concerns\HasTranslations;
 use Capell\Core\Models\Concerns\HasType;
@@ -65,6 +66,7 @@ class Article extends Model implements Draftable, HasMedia, Pageable, PageCachea
     use HasJsonRelationships;
     use HasMetaData;
     use HasMorphModelRelations;
+    use HasPageOrdering;
     use HasPublishDates;
     use HasTags;
     use HasTranslations;
@@ -271,11 +273,6 @@ class Article extends Model implements Draftable, HasMedia, Pageable, PageCachea
     protected function getUrlParamsAttribute(): ?array
     {
         return $this->type->meta['url_params'] ?? null;
-    }
-
-    protected function scopeOrdered(Builder $query, string $dir = 'asc'): void
-    {
-        $query->orderBy($this->qualifyColumn('order'), $dir);
     }
 
     protected function casts(): array
