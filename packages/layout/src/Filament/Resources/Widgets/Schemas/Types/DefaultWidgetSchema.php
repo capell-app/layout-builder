@@ -13,16 +13,16 @@ use Capell\Layout\Enums\SchemaExtenderEnum;
 use Capell\Layout\Enums\TypeSchemaEnum;
 use Capell\Layout\Filament\Components\Forms\ActionsRepeater;
 use Capell\Layout\Filament\Components\Forms\ColorSchemeComponent;
-use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\Layout\Filament\Components\Forms\Widget\CreateDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\DisplaySection;
+use Capell\Layout\Filament\Components\Forms\Widget\SettingsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
+use Capell\Layout\Filament\Components\Forms\Widget\TranslationsRepeater;
 use Filament\Forms\Components\Checkbox;
-use Filament\Schemas\Components\Fieldset;
-use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
@@ -50,24 +50,29 @@ class DefaultWidgetSchema implements TypeSchemaInterface
     protected function getFormSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
+            CreateDetailsSchema::make($schema),
             FixedWidthSidebar::make()
                 ->mainSchema([
-                    WidgetTranslationsRepeater::make($schema)
+                    TranslationsRepeater::make($schema)
                         ->contained(),
                     ...$this->getExtraSchema($schema),
                 ])
-                ->sidebarSchema(
-                    WidgetSettingsSchema::make($schema),
-                    contained: true,
-                ),
+                ->sidebarSchema([
+                    Section::make()
+                        ->gridContainer()
+                        ->columns(['@md' => 2])
+                        ->schema([
+                            ...SettingsSchema::make($schema),
+                            MediaLibraryFileUpload::make('image'),
+                        ]),
+                ]),
         ];
     }
 
     protected function getEditOptionSchema(Schema $schema): array
     {
         return [
-            WidgetTranslationsRepeater::make($schema),
+            TranslationsRepeater::make($schema),
             ...$this->getExtraSchema($schema, withSettingsTab: true),
         ];
     }
@@ -75,8 +80,8 @@ class DefaultWidgetSchema implements TypeSchemaInterface
     protected function getCreateOptionSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
-            WidgetTranslationsRepeater::make($schema),
+            CreateDetailsSchema::make($schema),
+            TranslationsRepeater::make($schema),
             ...$this->getExtraSchema($schema),
         ];
     }
@@ -93,48 +98,39 @@ class DefaultWidgetSchema implements TypeSchemaInterface
         return Tabs::make()
             ->columnSpanFull()
             ->tabs([
-                $this->getDetailsTab(),
-                $this->getDisplayTab($schema),
-                ...$withSettingsTab ? [$this->getSettingsTab($schema)] : [],
+                $this->detailsTab(),
+                $this->displayTab($schema),
+                ...$withSettingsTab ? [$this->settingsTab($schema)] : [],
+                WidgetAdminTab::make(),
             ]);
     }
 
-    protected function getDisplayTab(Schema $schema): Tab
+    protected function displayTab(Schema $schema): Tab
     {
         return WidgetDisplayTab::make([
-            WidgetDisplaySection::make([
+            DisplaySection::make([
                 ColorSchemeComponent::make('color'),
+                Checkbox::make('reverse_order')
+                    ->label(__('capell-layout::form.reverse_order'))
+                    ->whenTruthy('image'),
             ]),
-            WidgetComponentFilesSection::make()
+            ComponentSection::make()
                 ->statePath('meta'),
         ]);
     }
 
-    protected function getDetailsTab(): Tab
+    protected function detailsTab(): Tab
     {
         return Tab::make('details')
             ->label(__('capell-admin::tab.details'))
             ->icon('heroicon-o-information-circle')
             ->statePath('meta')
             ->schema([
-                Grid::make()
-                    ->schema([
-                        MediaLibraryFileUpload::make('image'),
-                        Checkbox::make('reverse_order')
-                            ->label(__('capell-layout::form.reverse_order'))
-                            ->visibleJs(<<<'JS'
-                                 $get('image')
-                            JS),
-                    ]),
-                Fieldset::make(__('capell-layout::form.actions'))
-                    ->schema([
-                        ActionsRepeater::make('actions')
-                            ->hiddenLabel(),
-                    ]),
+                ActionsRepeater::make('actions'),
             ]);
     }
 
-    protected function getSettingsTab(Schema $schema): Tab
+    protected function settingsTab(Schema $schema): Tab
     {
         return WidgetSettingsTab::make($schema);
     }

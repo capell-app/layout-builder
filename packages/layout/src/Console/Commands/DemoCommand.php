@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Capell\Layout\Console\Commands;
 
 use Capell\Core\Console\Commands\Concerns\HasSitesOption;
+use Capell\Core\Contracts\Pageable;
+use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
@@ -90,7 +92,7 @@ class DemoCommand extends Command
         /** @var Page $home */
         $home = $site->getHomePage();
 
-        if (! $home instanceof Page) {
+        if (! $home instanceof Pageable) {
             $this->error('Unable to find homepage for site: ' . $site->name);
 
             return false;
@@ -105,7 +107,7 @@ class DemoCommand extends Command
         return true;
     }
 
-    public function setupHomepage(Page $page, Collection $languages): void
+    public function setupHomepage(Pageable $page, Collection $languages): void
     {
         $layout = $this->getHomeLayout();
         throw_unless($layout instanceof Layout, Exception::class, 'Unable to find homepage layout');
@@ -130,11 +132,18 @@ class DemoCommand extends Command
         if ($this->option('sites')) {
             $sitesOption = $this->option('sites');
             if (is_string($sitesOption)) {
-                return array_values(array_filter(array_map(trim(...), explode(',', $sitesOption)), fn ($v): bool => $v !== ''));
+                return array_values(
+                    array_filter(
+                        array_map(trim(...), explode(',', $sitesOption)),
+                        fn (string $siteOption): bool => $siteOption !== '',
+                    ),
+                );
             }
 
             if (is_array($sitesOption)) {
-                return array_values(array_filter(array_map(trim(...), $sitesOption), fn ($v): bool => $v !== ''));
+                return array_values(
+                    array_filter(array_map(trim(...), $sitesOption), fn (string $siteOption): bool => $siteOption !== ''),
+                );
             }
 
             return [];
@@ -159,7 +168,7 @@ class DemoCommand extends Command
         return null;
     }
 
-    private function populateMainContainer(array &$containers, Page $page): void
+    private function populateMainContainer(array &$containers, Pageable $page): void
     {
         $this->setProgressMessage('Creating page cards widget');
         $pageCardsWidget = $this->demoCreator->createPageCardsWidget($page);
@@ -191,7 +200,7 @@ class DemoCommand extends Command
         ];
     }
 
-    private function populateFaqContainers(array &$containers, Collection $languages, Page $page): void
+    private function populateFaqContainers(array &$containers, Collection $languages, Pageable $page): void
     {
         $this->setProgressMessage('Creating FAQ widget');
         $faqWidget = $this->demoCreator->createFaqWidget($languages);
@@ -213,7 +222,7 @@ class DemoCommand extends Command
         $containers['faq-col'] = [
             'meta' => [
                 'colspan' => 4,
-                'container' => 'full',
+                'container' => ContainerWidthEnum::Full,
             ],
             'widgets' => [
                 ['widget_key' => $faqColWidget->key],
@@ -221,7 +230,7 @@ class DemoCommand extends Command
         ];
     }
 
-    private function populateSecondaryContainer(array &$containers, Collection $languages, Page $page): void
+    private function populateSecondaryContainer(array &$containers, Collection $languages, Pageable $page): void
     {
         $this->setProgressMessage('Creating team portfolio widget');
         $teamPortfolioWidget = $this->demoCreator->createTeamPortfolioWidget($languages);
@@ -235,7 +244,7 @@ class DemoCommand extends Command
         $contentWidget = $this->demoCreator->createContentWidget($languages);
         $this->advanceProgress();
 
-        $this->setProgressMessage('Creating statistics widget');
+        $this->setProgressMessage('Creating statistics blocks widget');
         $statisticsWidget = $this->demoCreator->createStatisticsWidget();
         $this->advanceProgress();
 

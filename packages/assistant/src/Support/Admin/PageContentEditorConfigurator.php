@@ -6,14 +6,16 @@ namespace Capell\Assistant\Support\Admin;
 
 use Capell\Assistant\Actions\GeneratorPageContentAction;
 use Capell\Assistant\Exceptions\OpenAICircuitBreakerOpenException;
+use Capell\Assistant\Settings\AssistantSettings;
 use Capell\Assistant\Support\Context\ContentActionContext;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models\PageTranslation;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -26,13 +28,24 @@ use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 
 class PageContentEditorConfigurator
 {
-    public function __invoke($component): void
+    public function __invoke(Field $component): void
     {
+        if (! $this->isEnabled()) {
+            return;
+        }
+
         if (! method_exists($component, 'hintAction')) {
             return;
         }
 
         $component->hintAction($this->generateContentAction());
+    }
+
+    private function isEnabled(): bool
+    {
+        $prompts = resolve(AssistantSettings::class)->prompts;
+
+        return isset($prompts['content_generation']) && $prompts['content_generation'] === true;
     }
 
     private function generateContentAction(): Action
@@ -56,14 +69,14 @@ class PageContentEditorConfigurator
                     ->first();
 
                 $keywords = $get('meta')['keywords'] ?? null;
-                if (empty($keywords) && $site) {
-                    $keywords = $site->translation->meta_keywords ?: $site->translation->title;
+                if (blank($keywords) && $site) {
+                    $keywords = $site->translation->meta_keywords !== '' ? $site->translation->meta_keywords : $site->translation->title;
                 }
 
                 return [
                     'keywords' => $keywords,
                     'content' => strip_tags($get('content') ?? ''),
-                    'title' => $get('title') ?: $get('../../name'),
+                    'title' => filled($get('title')) ? $get('title') : $get('../../name'),
                     'includeCurrentContent' => true,
                 ];
             })
@@ -89,7 +102,7 @@ class PageContentEditorConfigurator
             ->action($this->handleGenerateContentAction(...));
     }
 
-    private function handleGenerateContentAction(Set $set, $component, Action $action, array $data, ?PageTranslation $record): void
+    private function handleGenerateContentAction(Set $set, $component, Action $action, array $data, ?Translation $record): void
     {
         $keywords = isset($data['keywords']) ? trim((string) $data['keywords']) : '';
         $content = isset($data['content']) ? trim((string) $data['content']) : '';
@@ -101,8 +114,9 @@ class PageContentEditorConfigurator
 
         $context = new ContentActionContext(
             content: $content,
-            keywords: $keywords ?: '',
-            pageId: $record?->page_id,
+            keywords: $keywords,
+            pageId: $record?->translatable_id,
+            pageType: $record?->translatable_type,
             languageId: $record?->language_id,
         );
 
@@ -113,6 +127,7 @@ class PageContentEditorConfigurator
             'refactor' => $includeCurrent,
         ];
 
+        $generated = null;
         try {
             $generated = GeneratorPageContentAction::run($context, $options);
         } catch (OpenAICircuitBreakerOpenException $e) {
@@ -133,8 +148,6 @@ class PageContentEditorConfigurator
                 ->send();
 
             $action->halt();
-
-            return;
         } catch (Exception $e) {
             Notification::make('ai-generate-content-error')
                 ->title(__('Failed to generate content'))
@@ -144,8 +157,6 @@ class PageContentEditorConfigurator
                 ->send();
 
             $action->halt();
-
-            return;
         }
 
         if (is_string($generated)) {

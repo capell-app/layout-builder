@@ -108,7 +108,9 @@ class BackgroundSchema
             return null;
         }
 
-        if (! $backgroundColor = $record->widget->getMeta($component->getName())) {
+        $backgroundColor = $record->widget->getMeta($component->getName());
+
+        if (blank($backgroundColor)) {
             return null;
         }
 

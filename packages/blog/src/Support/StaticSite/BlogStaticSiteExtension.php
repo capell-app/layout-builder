@@ -6,6 +6,7 @@ namespace Capell\Blog\Support\StaticSite;
 
 use Capell\Blog\Data\ArchiveMonthData;
 use Capell\Blog\Enums\BlogTypeGroupEnum;
+use Capell\Blog\Models\Tag;
 use Capell\Blog\Support\Loader\BlogLoader;
 use Capell\Blog\Support\Loader\TagLoader;
 use Capell\Core\Enums\ModelEnum as CoreModelEnum;
@@ -13,6 +14,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
+use Illuminate\Support\Collection;
 
 class BlogStaticSiteExtension
 {
@@ -25,25 +27,30 @@ class BlogStaticSiteExtension
         $this->visitArchivePages($pageModel, $site, $domain, $visit);
     }
 
+    /**
+     * @param  class-string<Page>  $pageModel
+     */
     private function visitTaggedPages(string $pageModel, Site $site, SiteDomain $domain, callable $visit): void
     {
+        $tagPage = $pageModel::getFirstPageByTypeForSite('tag', $site, $domain->language);
+        if (! $tagPage) {
+            return;
+        }
+
+        if (! $tagPage->pageUrl) {
+            return;
+        }
+
+        $language = $domain->language;
+
         $tagsQuery = TagLoader::getTagsQuery($site, $domain->language);
-        $tagsQuery->chunk(100, function ($tags) use ($pageModel, $site, $domain, $visit): void {
-            foreach ($tags as $tag) {
-                $tagPage = $pageModel::getFirstPageByTypeForSite('tag', $site, $domain->language);
-                if (! $tagPage) {
-                    continue;
-                }
-
-                if (! $tagPage->pageUrl) {
-                    continue;
-                }
-
-                $base = rtrim((string) $tagPage->pageUrl->url, '/*');
-                $slug = $tag->getTranslation('slug', $domain->language->code);
+        $tagsQuery->chunk(100, function (Collection $tags) use ($tagPage, $language, $visit): void {
+            $tags->each(function (Tag $tag) use ($tagPage, $language, $visit): void {
+                $base = rtrim($tagPage->pageUrl->url, '/*');
+                $slug = $tag->getTranslation('slug', $language->code);
                 $url = $base . '/' . $slug;
                 $visit($url);
-            }
+            });
         });
     }
 
@@ -64,7 +71,7 @@ class BlogStaticSiteExtension
                 return;
             }
 
-            $base = rtrim((string) $archivePage->pageUrl->url, '/*');
+            $base = rtrim($archivePage->pageUrl->url, '/*');
             $url = $base . '/' . $archive->year . '/' . str_pad((string) $archive->month, 2, '0', STR_PAD_LEFT);
             $visit($url);
         });

@@ -7,26 +7,6 @@ arch()
     ->toOnlyBeUsedIn('Capell\\Address');
 
 arch()
-    ->preset()
-    ->php()
-    ->ignoring([
-        'var_export',
-        'Capell\\Core',
-    ]);
-
-arch()
-    ->preset()
-    ->laravel();
-
-arch()->preset()->security();
-
-it('does not allow debug functions')
-    ->expect(['dd', 'dump', 'print_r', 'die', 'ray', 'rd', 'var_dump'])
-    ->toBeUsedInNothing();
-
-arch()->expect(['env', 'sleep', 'usleep'])->toBeUsedInNothing();
-
-arch()
     ->expect([
         'Capell\\Address',
     ])

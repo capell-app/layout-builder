@@ -23,7 +23,7 @@ class CreateContentAction extends CreateAction
     #[Override]
     protected function mutateRecordBeforeSave(Model $record, array $data): array
     {
-        if (! empty($data['is_published']) && $data['is_published'] === true) {
+        if (isset($data['is_published']) && $data['is_published'] === true) {
             $record->forceFill([
                 'is_published' => true,
                 'is_current' => true,

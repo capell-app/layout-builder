@@ -32,9 +32,9 @@ declare(strict_types=1);
     :$widget
 >
     @php
-        $showTitle = empty($widget->meta['container_options'][$containerKey]['hide_title'])
+        $showTitle = $widget->getMeta("container_options.{$containerKey}.hide_title") !== true
             && ($widget->translation?->title || ($showPageTitle && $page->translation->title));
-        $showContent = empty($widget->meta['container_options'][$containerKey]['hide_content'])
+        $showContent = $widget->getMeta("container_options.{$containerKey}.hide_content") !== true
             && ($widget->translation?->content || ($showPageContent && $page->translation->content));
     @endphp
 
@@ -44,27 +44,28 @@ declare(strict_types=1);
             :compact="true"
             :content="$showContent ? ($widget->translation->content ?: ($showPageContent ? $page->translation->content : null)) : null"
             :content-type="$widget->translation->content ? $widget->type->content_structure : ($showPageContent ? $page->type->content_structure : null)"
+            :divider="$widget->getMeta('content_divider')"
             :muted="in_array($containerKey, $theme->secondary_containers)"
-            :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
+            :text-align="$widget->getMeta('align')"
             :title="$showTitle ? ($widget->translation->title ?: ($showPageTitle ? $page->translation->title : null)) : null"
-            :heading-style="($widget->meta['heading_style'] ?? null) ?: ($widget->type->meta['heading_style'] ?? null)"
+            :heading-style="$widget->getMeta('heading_style')"
             :heading-tag="$showPageTitle ? 'h1' : null"
         />
     @endif
 
     @if ($tags->isEmpty())
         <x-capell::no-results>
-            {!! isset($widget->translation->meta['no_results']) && $widget->translation->meta['no_results'] !== '' ? $widget->translation->meta['no_results'] : __('capell-blog::messages.no_tags_found') !!}
+            {!! $widget->translation->getMeta('no_results', __('capell-blog::messages.no_tags_found')) !!}
         </x-capell::no-results>
     @else
         <ul class="flex flex-wrap gap-2">
             @foreach ($tags as $tag)
-                @php($url = $tag->getPageUrl($tagPage, $language))
+                @php($url = $tag->getUrl($tagPage, $language))
                 <li>
                     <x-capell-blog::tag :$url>
                         {{ $tag->getTranslation('name', $language->code) }}
                         <x-slot:count>
-                            ({{ $tag->pages_count }})
+                            ({{ $tag->taggables_count }})
                         </x-slot>
                     </x-capell-blog::tag>
                 </li>

@@ -11,7 +11,8 @@ final readonly class ContentActionContext implements AiActionContextInterface
     public function __construct(
         private string $content,
         private string $keywords = '',
-        private int $pageId = 0,
+        private null|int|string $pageId = null,
+        private ?string $pageType = null,
         private int $languageId = 0,
     ) {}
 
@@ -25,9 +26,14 @@ final readonly class ContentActionContext implements AiActionContextInterface
         return $this->keywords;
     }
 
-    public function getPageId(): int
+    public function getPageId(): int|string
     {
-        return $this->pageId;
+        return $this->pageId ?? 0;
+    }
+
+    public function getPageType(): string
+    {
+        return $this->pageType ?? '';
     }
 
     public function getLanguageId(): int

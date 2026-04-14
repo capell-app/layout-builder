@@ -13,10 +13,12 @@ describe('Address model', function (): void {
             'city' => 'Testville',
             'postal_code' => '12345',
         ]);
-        expect($address->name)->toBe('John Doe');
-        expect($address->line1)->toBe('123 Main St');
-        expect($address->city)->toBe('Testville');
-        expect($address->postal_code)->toBe('12345');
+
+        expect($address)
+            ->name->toBe('John Doe')
+            ->line1->toBe('123 Main St')
+            ->city->toBe('Testville')
+            ->postal_code->toBe('12345');
     });
 
     it('can relate to a country', function (): void {

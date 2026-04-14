@@ -19,7 +19,7 @@ it('applies a draft and dispatches event', function (): void {
         }
     };
 
-    $context = new ContentActionContext('New improved content');
+    $context = new ContentActionContext(content: 'New improved content');
 
     $applied = ApplyAiDraftAction::run($context, ['target' => $target]);
 

@@ -55,7 +55,7 @@ class PagesRelationManager extends AbstractPagesRelationManager
         return $table
             ->modifyQueryUsing(
                 fn (Builder $query): Builder => $query->with([
-                    'page' => [
+                    'pageable' => [
                         'ancestors.type',
                         'editor',
                         'image',
@@ -66,24 +66,24 @@ class PagesRelationManager extends AbstractPagesRelationManager
             )
             ->description(fn (self $livewire, Table $table): ?string => $livewire->getDescription($table))
             ->columns([
-                IdentifierColumn::make('page.id'),
-                PageNameColumn::make('page.name')
-                    ->resolveRecordKey('page_id')
+                IdentifierColumn::make('pageable.id'),
+                PageNameColumn::make('pageable.name')
+                    ->resolveRecordKey('pageable_id')
                     ->wrap()
                     ->withParents()
                     ->withTypeIcon()
                     ->withUrl(),
-                SiteColumn::make('page.site.name'),
-                MediaLibraryImageColumn::make('page.image')
+                SiteColumn::make('pageable.site.name'),
+                MediaLibraryImageColumn::make('pageable.image')
                     ->collection('image'),
-                DateColumn::make('page.updated_at')
+                DateColumn::make('pageable.updated_at')
                     ->sortable(false),
             ])
-            ->recordUrl(fn (WidgetAsset $record): ?string => GetEditPageResourceUrlAction::run($record->page))
+            ->recordUrl(fn (WidgetAsset $record): ?string => GetEditPageResourceUrlAction::run($record->pageable))
             ->recordActions([
                 EditAction::make()
                     ->iconButton()
-                    ->url(fn (WidgetAsset $record): ?string => GetEditPageResourceUrlAction::run($record->page))
+                    ->url(fn (WidgetAsset $record): ?string => GetEditPageResourceUrlAction::run($record->pageable))
                     ->tooltip(fn (EditAction $action): ?string => $action->getLabel()),
             ]);
     }
@@ -93,13 +93,14 @@ class PagesRelationManager extends AbstractPagesRelationManager
      */
     public function getTableRecordKey(Model|array $record): string
     {
-        return (string) $record->page_id;
+        return $record->pageable_type . '-' . $record->pageable_id;
     }
 
     protected static function modifyBadgeQueryUsing(Relation $query): Relation
     {
-        return $query->distinct('widget_assets.page_id')
-            ->whereNotNull('widget_assets.page_id');
+        return $query->distinct(['widget_assets.pageable_type', 'widget_assets.pageable_id'])
+            ->whereNotNull('widget_assets.pageable_type')
+            ->whereNotNull('widget_assets.pageable_id');
     }
 
     protected function getDescription(Table $table): ?string

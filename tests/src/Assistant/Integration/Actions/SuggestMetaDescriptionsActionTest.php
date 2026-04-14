@@ -64,7 +64,7 @@ it('suggests meta descriptions and dispatches event', function (): void {
     });
 
     Event::fake();
-    $context = new ContentActionContext('Meta desc test', 'desc, test', 3, 1);
+    $context = new ContentActionContext(content: 'Meta desc test', keywords: 'desc, test', pageId: 3, pageType: 'page', languageId: 1);
     $descs = SuggestMetaDescriptionsAction::run($context);
     expect($descs)->toBeArray()->and(count($descs))->toBeGreaterThan(0);
     Event::assertDispatched(AiGenerationCompleted::class);

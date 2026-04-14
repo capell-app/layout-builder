@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Support\Interceptors\Layouts;
 
 use Capell\Core\Contracts\ModelInterceptors\LayoutInterceptorInterface;
+use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Models\Layout;
 use Capell\Layout\Support\Creator\WidgetCreator;
 
@@ -43,7 +44,7 @@ final class DefaultLayoutInterceptor implements LayoutInterceptorInterface
             'meta' => [
                 'colspan' => 3,
                 'override_columns' => 1,
-                'container' => 'full',
+                'container' => ContainerWidthEnum::Full,
                 'tag' => 'aside',
                 'padding' => ['md'],
                 'html_class' => 'sidebar-sticky space-y-8',

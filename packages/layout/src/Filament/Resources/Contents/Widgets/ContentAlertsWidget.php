@@ -21,6 +21,7 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Widgets\Widget;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -109,7 +110,7 @@ class ContentAlertsWidget extends Widget implements HasActions, HasForms
         }
 
         if ($this->record->trashed()) {
-            $alerts->put('deleted', new MessageData(
+            $alerts->put('trashed', new MessageData(
                 message: __(
                     'capell-admin::message.resource_deleted',
                     ['name' => __('capell-layout::generic.content')],
@@ -123,7 +124,7 @@ class ContentAlertsWidget extends Widget implements HasActions, HasForms
             case PublishStatusEnum::pending:
                 $alerts->put('pending', new MessageData(
                     message: __('capell-admin::message.resource_pending', [
-                        'date' => $this->record->publish_from?->diffForHumans(),
+                        'date' => $this->record->visible_from?->diffForHumans(),
                         'name' => __('capell-layout::generic.content'),
                     ]),
                     type: AlertTypeEnum::Warning,
@@ -133,7 +134,7 @@ class ContentAlertsWidget extends Widget implements HasActions, HasForms
             case PublishStatusEnum::expired:
                 $alerts->put('expired', new MessageData(
                     message: __('capell-admin::message.resource_expired', [
-                        'date' => $this->record->publish_to?->diffForHumans(),
+                        'date' => $this->record->visible_until?->diffForHumans(),
                         'name' => __('capell-layout::generic.content'),
                     ]),
                     type: AlertTypeEnum::Warning,
@@ -147,8 +148,8 @@ class ContentAlertsWidget extends Widget implements HasActions, HasForms
 
     protected function loadRecord(): void
     {
-        $this->record->load([
-            'site' => fn ($query) => $query->withTrashed(),
+        $this->record->loadMissing([
+            'site' => fn (Relation $query) => $query->withTrashed(),
         ]);
     }
 

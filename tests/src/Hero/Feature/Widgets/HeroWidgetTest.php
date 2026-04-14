@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Core\Enums\MediaCollectionEnum;
+use Capell\Core\Models\Language;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
@@ -13,6 +14,7 @@ use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Capell\Tests\Support\Concerns\TestingFrontend;
+use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Support\Facades\Storage;
 use Pest\Expectation;
 
@@ -70,15 +72,17 @@ it('renders hero widget with page hero content', function (): void {
 });
 
 it('renders hero widget with assets', function (callable $factory, string $mediaRelation, callable $srcResolver): void {
-    $site = Site::factory()->withTranslations()->create();
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
     $widget = CreateHeroWidgetAction::run();
     $layout = (new LayoutFactory)->widgets([$widget])->create();
     $factory($widget)->create();
-    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
     $widgetAssets = $widget->widgetAssets()
         ->ordered()
+        ->alphabetical($language)
         ->with([
-            'asset' => fn ($query) => $query->with([
+            'asset' => fn (BuilderContract $query): BuilderContract => $query->with([
                 'type',
                 'translation',
                 'related.translation',
@@ -93,7 +97,7 @@ it('renders hero widget with assets', function (callable $factory, string $media
         ->get();
 
     // Ensure all referenced media files exist on the fake disk
-    $exampleImagePath = __DIR__ . '/../../../Fixtures/Support/Files/Images/img.png';
+    $exampleImagePath = __DIR__ . '/../../../Fixtures/Files/Images/img.png';
     $exampleImage = file_get_contents($exampleImagePath);
     foreach ($widgetAssets as $widgetAsset) {
         $mediaCollection = data_get($widgetAsset, $mediaRelation);

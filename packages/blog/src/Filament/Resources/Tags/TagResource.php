@@ -8,8 +8,6 @@ use BackedEnum;
 use Capell\Admin\Filament\Concerns\HasFormConfigurator;
 use Capell\Admin\Filament\Concerns\HasNavigationBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
-use Capell\Admin\Filament\Contracts\FormConfigurator;
-use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Blog\Enums\ModelEnum;
 use Capell\Blog\Filament\Resources\Tags\Pages\CreateTag;
 use Capell\Blog\Filament\Resources\Tags\Pages\EditTag;
@@ -38,12 +36,12 @@ class TagResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
 
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::Tag;
+
     protected static ?string $recordTitleAttribute = 'name';
 
-    /** @var class-string<FormConfigurator> */
     protected static string $formConfigurator = TagForm::class;
 
-    /** @var class-string<TableConfigurator> */
     protected static string $tableConfigurator = TagsTable::class;
 
     #[Override]
@@ -69,12 +67,12 @@ class TagResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_assets'));
+        return __('capell-admin::navigation.group_library');
     }
 
     public static function getNavigationLabel(): string
     {
-        return (string) (__('capell-blog::navigation.tags'));
+        return __('capell-blog::navigation.tags');
     }
 
     public static function shouldRegisterNavigation(): bool

@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Enums\NavigationItemType;
+use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Layout\Database\Factories\LayoutFactory;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Support\Creator\WidgetCreator;
 use Capell\Tests\Support\Concerns\TestingFrontend;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Pest\Expectation;
 
 use function Pest\Laravel\get;
@@ -28,54 +31,70 @@ it('creates navigation widget with expected meta', function (): void {
 });
 
 it('renders navigation widget on page', function (): void {
-    $site = Site::factory()->withTranslations()->create();
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
     $creator = resolve(WidgetCreator::class);
     $layout = (new LayoutFactory)->create();
-    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
-    $home = Page::factory()->site($site)->home()->withTranslations()->create();
-    $services = Page::factory()->site($site)->withTranslations()->children(3)->state(['name' => 'Support'])->create();
-    $anotherSiteHome = Page::factory()->home()->withTranslations()->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
+    $home = Page::factory()->site($site)->home()->withTranslations(languages: $language, slug: '/')->create();
+    $services = Page::factory()
+        ->site($site)
+        ->withTranslations()
+        ->children(3)
+        ->state(['name' => 'Support'])
+        ->create();
+    $services->load([
+        'translation',
+        'children' => fn (Relation $query) => $query->ordered()->alphabetical($language)->with(['translation', 'pageUrl.siteDomain']),
+    ]);
+
+    $anotherSiteHome = Page::factory()->home()->withTranslations(slug: '/')->create();
     $externalUrl = 'https://example.com/external';
     $items = [
         [
             'label' => 'Home',
-            'type' => 'page',
+            'type' => NavigationItemType::Page->value,
             'data' => [
-                'page_id' => $home->id,
+                'pageable_id' => $home->getKey(),
+                'pageable_type' => $home->getMorphClass(),
             ],
         ],
         [
             'label' => $page->translation->title,
-            'type' => 'page',
+            'type' => NavigationItemType::Page->value,
             'data' => [
-                'page_id' => $page->id,
+                'pageable_id' => $page->getKey(),
+                'pageable_type' => $page->getMorphClass(),
             ],
         ],
         [
             'label' => 'Another Site',
-            'type' => 'page',
+            'type' => NavigationItemType::Page->value,
             'data' => [
-                'page_id' => $anotherSiteHome->id,
+                'pageable_id' => $anotherSiteHome->getKey(),
+                'pageable_type' => $anotherSiteHome->getMorphClass(),
             ],
         ],
         [
             'label' => 'External link',
-            'type' => 'link',
+            'type' => NavigationItemType::Link->value,
             'data' => [
                 'url' => $externalUrl,
             ],
         ],
         [
             'label' => $services->translation->title,
-            'type' => 'page',
+            'type' => NavigationItemType::Page->value,
             'data' => [
-                'page_id' => $services->id,
+                'pageable_id' => $services->getKey(),
+                'pageable_type' => $services->getMorphClass(),
                 'auto_children' => true,
             ],
         ],
     ];
 
-    $widget = $creator->navigationWidget(site: $site, navigatonItems: $items);
+    $widget = $creator->navigationWidget(site: $site, navigationItems: $items);
+
     $layout->update([
         'containers' => [
             'main' => [

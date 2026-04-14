@@ -7,6 +7,8 @@ use Capell\Address\Models\Country;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 
+use function Pest\Laravel\artisan;
+
 describe('capell:address-demo command', function (): void {
     it('creates demo address and links it to the site', function (): void {
         $languageModel = CapellCore::getModel(ModelEnum::Language);
@@ -19,7 +21,7 @@ describe('capell:address-demo command', function (): void {
                 'name' => 'Demo Site',
             ]);
 
-        $this->artisan('capell:address-demo', [
+        artisan('capell:address-demo', [
             '--sites' => $site->name,
         ])
             ->expectsOutputToContain('Selected site: ' . $site->name)

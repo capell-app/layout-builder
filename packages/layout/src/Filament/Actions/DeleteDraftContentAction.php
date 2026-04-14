@@ -38,9 +38,11 @@ class DeleteDraftContentAction extends Action
 
                 $published = $record->revisions()->published()->first();
 
-                $published->updateQuietly([
+                $published->forceFill([
                     'is_current' => true,
                 ]);
+
+                $published->updateQuietly();
 
                 $record->delete();
 

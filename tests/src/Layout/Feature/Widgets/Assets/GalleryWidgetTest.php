@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Models\Language;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Layout\Database\Factories\LayoutFactory;
+use Capell\Layout\Database\Factories\WidgetAssetFactory;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Capell\Layout\Support\Creator\WidgetCreator;
@@ -30,14 +32,16 @@ it('creates gallery widget with expected meta', function (): void {
 });
 
 it('renders gallery widget on page with assets', function (callable $factory, string $mediaRelation, callable $srcResolver): void {
-    $site = Site::factory()->withTranslations()->create();
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
     $creator = resolve(WidgetCreator::class);
     $widget = $creator->galleryWidget();
     $layout = (new LayoutFactory)->widgets([$widget])->create();
     $factory($widget)->create();
-    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
     $widgetAssets = $widget->widgetAssets()
         ->ordered()
+        ->alphabetical($language)
         ->with([
             'asset.type',
             'asset.translation',
@@ -55,28 +59,28 @@ it('renders gallery widget on page with assets', function (callable $factory, st
                     fn (AssertElement $itemElm, int $index): BaseAssert => $itemElm->find(
                         'img',
                         fn (AssertElement $imgElm): BaseAssert => $imgElm->has(
-                            'alt',
-                            $widgetAssets[$index]->asset->translation->title,
+                            'src',
+                            $srcResolver($widgetAssets[$index]),
                         )
-                            ->has('src', $srcResolver($widgetAssets[$index])),
+                            ->has('alt', $widgetAssets[$index]->asset->translation->title),
                     ),
                 ),
         );
 })->with(
     [
         'widgetAssetHasMedia' => [
-            fn (Widget $widget) => WidgetAsset::factory()->count(3)
+            fn (Widget $widget): WidgetAssetFactory => WidgetAsset::factory()->count(3)
                 ->widget($widget)
                 ->has(Media::factory()->image(), 'media'),
             'media',
-            fn ($widgetAsset) => $widgetAsset->media->first()->getFullUrl(),
+            fn (WidgetAsset $widgetAsset): string => $widgetAsset->media->first()->getFullUrl(),
         ],
         'assetHavingMedia' => [
-            fn (Widget $widget) => WidgetAsset::factory()->count(3)
+            fn (Widget $widget): WidgetAssetFactory => WidgetAsset::factory()->count(3)
                 ->widget($widget)
                 ->assetHavingMedia(),
             'asset.media',
-            fn ($widgetAsset) => $widgetAsset->asset->media->first()->getFullUrl(),
+            fn (WidgetAsset $widgetAsset): string => $widgetAsset->asset->media->first()->getFullUrl(),
         ],
     ],
 );

@@ -8,10 +8,11 @@ use Capell\Core\Models;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Frontend\Support\Loader\NavigationItemsLoader;
 use Capell\Frontend\Support\Loader\NavigationLoader;
+use Illuminate\Support\Collection;
 
 class Navigation extends AbstractWidget
 {
-    public array $items = [];
+    public ?Collection $items = null;
 
     public ?Models\Navigation $menu = null;
 
@@ -41,7 +42,7 @@ class Navigation extends AbstractWidget
 
         $this->items = $navigationLoader->fetchMenuItems();
 
-        if ($this->items === []) {
+        if ($this->items->isEmpty()) {
             if (config('capell-layout.widget.skip_render_empty', true)) {
                 $this->skipRender = true;
             }
@@ -54,11 +55,11 @@ class Navigation extends AbstractWidget
 
     private function getWidgetMenu(): ?Models\Navigation
     {
-        if (! empty($this->widget->meta['navigation_id'])) {
+        if (isset($this->widget->meta['navigation_id']) && is_numeric($this->widget->meta['navigation_id'])) {
             return NavigationLoader::getNavigationById($this->widget->meta['navigation_id']);
         }
 
-        if (empty($this->widget->meta['navigation'])) {
+        if (! isset($this->widget->meta['navigation']) || ! is_string($this->widget->meta['navigation'])) {
             return null;
         }
 

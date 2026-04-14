@@ -4,21 +4,23 @@ declare(strict_types=1);
 
 namespace Capell\Hero\Actions;
 
-use Capell\Core\Models\Page;
+use Capell\Core\Contracts\Pageable;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Layout\Models\Widget;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static bool run(Widget $widget, Page $page)
+ * @method static bool run(Widget $widget, Pageable $page)
  */
 class HeroWidgetHasPrimaryHeadingAction
 {
     use AsObject;
 
-    public function handle(Widget $widget, Page $page): bool
+    public function handle(Widget $widget, Pageable $page): bool
     {
         $hasPrimaryHeading = false;
+
+        $content = null;
 
         if ($widget->assets->isNotEmpty()) {
             $firstAssetTranslation = $widget->assets->first()?->asset->translation;
@@ -34,7 +36,7 @@ class HeroWidgetHasPrimaryHeadingAction
             $content = $page->translation->meta['hero'] ?? null;
         }
 
-        if (! $hasPrimaryHeading && ! empty($content)) {
+        if (! $hasPrimaryHeading && filled($content)) {
             $hasPrimaryHeading = preg_match('/<h1\b[^>]*>/i', (string) $content) === 1;
         }
 

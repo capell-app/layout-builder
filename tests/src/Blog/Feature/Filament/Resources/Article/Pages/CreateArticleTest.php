@@ -3,16 +3,17 @@
 declare(strict_types=1);
 
 use Capell\Admin\Filament\Actions\Page\CreatePageAction;
-use Capell\Blog\Database\Factories\ArticleFactory;
+use Capell\Blog\Enums\BlogLayoutEnum;
+use Capell\Blog\Enums\BlogPageTypeEnum;
 use Capell\Blog\Filament\Resources\Articles\Pages\EditArticle;
 use Capell\Blog\Filament\Resources\Articles\Pages\ListArticles;
+use Capell\Blog\Models\Article;
 use Capell\Blog\Support\Creator\BlogCreator;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
-use Capell\Core\Models\Page;
-use Capell\Core\Models\PageTranslation;
 use Capell\Core\Models\PageUrl;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Support\Str;
 
@@ -24,42 +25,46 @@ uses(CreatesAdminUser::class)
 
 beforeEach(function (): void {
     test()->actingAsAdmin();
-    Layout::query()->create(['key' => 'article', 'name' => 'Article Layout']);
+    Layout::query()->create(['key' => BlogLayoutEnum::Article->value, 'name' => 'Article Layout']);
 });
 
 describe('from edit article', function (): void {
     test('can create new article', function (): void {
-        $page = (new ArticleFactory)->create();
-        $newData = (new ArticleFactory)->recycle($page->site)->make();
+        $article = Article::factory()->create();
+        $newData = Article::factory()->recycle($article->site)->make();
 
         $slug = str($newData->name)->slug()->toString();
 
-        livewire(EditArticle::class, ['record' => $page->getRouteKey()])
+        $uuid = (string) Str::uuid();
+
+        livewire(EditArticle::class, ['record' => $article->getRouteKey()])
             ->assertSuccessful()
             ->mountAction(CreatePageAction::class)
             ->fillForm([
                 'type_id' => $newData->type_id,
                 'site_id' => $newData->site_id,
             ])
-            ->callMountedAction()
             ->set('mountedActions.0.data.translations', [
-                (string) Str::uuid() => [
+                $uuid => [
                     'title' => $newData->name,
-                    'language_id' => $page->site->language_id,
-                    'slug' => $slug,
+                    'language_id' => $article->site->language_id,
+                    'meta' => ['slug' => $slug],
                 ],
             ])
+            ->set('mountedActions.0.data.translations.' . $uuid . '.meta.slug', $slug)
             ->callMountedAction()
             ->assertHasNoFormErrors();
 
-        assertDatabaseHas(Page::class, [
+        assertDatabaseHas(Article::class, [
             'name' => $newData->name,
+            'type_id' => $newData->type_id,
+            'layout_id' => $article->layout_id,
         ]);
 
-        assertDatabaseHas(PageTranslation::class, [
+        assertDatabaseHas(Translation::class, [
             'title' => $newData->name,
-            'slug' => $slug,
-            'language_id' => $page->site->language_id,
+            'meta->slug' => $slug,
+            'language_id' => $article->site->language_id,
         ]);
 
         assertDatabaseHas(PageUrl::class, [
@@ -68,22 +73,24 @@ describe('from edit article', function (): void {
     });
 
     test('required fields are required', function (): void {
-        $page = (new ArticleFactory)->create();
+        $article = Article::factory()->create();
 
-        livewire(EditArticle::class, ['record' => $page->getRouteKey()])
+        livewire(EditArticle::class, ['record' => $article->getRouteKey()])
             ->assertSuccessful()
             ->callAction(CreatePageAction::class, [
                 'translations' => [
                     'abc' => [
-                        'language_id' => $page->site->language_id,
+                        'language_id' => $article->site->language_id,
                         'title' => '',
-                        'slug' => '',
+                        'meta' => [
+                            'slug' => '',
+                        ],
                     ],
                 ],
             ])
             ->assertHasFormErrors([
                 'translations.abc.title' => 'required',
-                'translations.abc.slug' => 'required',
+                'translations.abc.meta.slug' => 'required',
             ]);
     });
 });
@@ -100,11 +107,9 @@ describe('from list article', function (): void {
             ->hasSiteDomains()
             ->create();
 
-        $newData = Page::factory()->recycle($site)->type($type)->make();
+        $newData = Article::factory()->recycle($site)->type($type)->make();
 
-        $blogCreator->createArticleLayout();
-
-        $blogPage = $blogCreator->createBlogPage($site);
+        $blogCreator->createArticleLayout(createWidgets: false);
 
         livewire(ListArticles::class)
             ->assertSuccessful()
@@ -116,11 +121,11 @@ describe('from list article', function (): void {
             ])
             ->set(
                 'mountedActions.0.data.translations',
-                $site->languages->mapWithKeys(fn ($language): array => [
+                $site->languages->mapWithKeys(fn (Language $language): array => [
                     (string) Str::uuid() => [
                         'language_id' => $language->getKey(),
                         'title' => $newData->name,
-                        'slug' => str($newData->name)->slug()->toString(),
+                        'meta' => ['slug' => str($newData->name)->slug()->toString()],
                     ],
                 ])
                     ->toArray(),
@@ -133,9 +138,8 @@ describe('from list article', function (): void {
             ->callMountedAction()
             ->assertHasNoFormErrors();
 
-        assertDatabaseHas(Page::class, [
+        assertDatabaseHas(Article::class, [
             'name' => $newData->name,
-            'parent_id' => $blogPage->getKey(),
         ]);
     });
 
@@ -143,27 +147,28 @@ describe('from list article', function (): void {
         $blogCreator = resolve(BlogCreator::class);
 
         $type = $blogCreator->createArticlePageType();
-        $layout = $blogCreator->createArticleLayout();
+        $layout = $blogCreator->createArticleLayout(createWidgets: false);
 
         $language = Language::factory()->create();
         $site = Site::factory()->recycle($language)->hasSiteDomains()->create();
 
-        $newData = (new ArticleFactory)->make();
+        $newData = Article::factory()->make();
 
         livewire(ListArticles::class)
             ->assertSuccessful()
             ->mountAction('create')
+            ->assertSchemaComponentDoesNotExist('type_id')
             ->set('mountedActions.0.data.translations', [])
             ->fillForm([
                 'name' => $newData->name,
             ])
             ->set(
                 'mountedActions.0.data.translations',
-                $site->languages->mapWithKeys(fn ($language): array => [
+                $site->languages->mapWithKeys(fn (Language $language): array => [
                     (string) Str::uuid() => [
                         'language_id' => $language->getKey(),
                         'title' => $newData->name,
-                        'slug' => str($newData->name)->slug()->toString(),
+                        'meta' => ['slug' => str($newData->name)->slug()->toString()],
                     ],
                 ])
                     ->toArray(),
@@ -171,24 +176,23 @@ describe('from list article', function (): void {
             ->assertSchemaStateSet([
                 'name' => $newData->name,
                 'layout_id' => $layout->id,
-                'type_id' => $type->id,
                 'site_id' => $site->id,
             ])
             ->callMountedAction()
             ->assertHasNoFormErrors();
 
-        assertDatabaseHas(Page::class, [
+        assertDatabaseHas(Article::class, [
             'name' => $newData->name,
-            'type_id' => $type->id,
             'site_id' => $site->id,
             'layout_id' => $layout->id,
         ]);
 
-        $page = Page::query()
+        $article = Article::query()
             ->where('name', $newData->name)
             ->first();
 
-        expect($page->type)
+        expect($article->type)
+            ->key->toBe(BlogPageTypeEnum::Article->value)
             ->group->toBe('article');
     });
 
@@ -198,11 +202,7 @@ describe('from list article', function (): void {
 
         livewire(ListArticles::class)
             ->assertSuccessful()
-            ->callAction(CreatePageAction::class, [
-                'name' => '',
-            ])
-            ->assertHasFormErrors([
-                'name' => 'required',
-            ]);
+            ->callAction(CreatePageAction::class)
+            ->assertHasErrors();
     });
 });

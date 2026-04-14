@@ -36,7 +36,7 @@ class ContentCreator
     {
         $type = $this->typeModel::query()->where('type', LayoutTypeEnum::Content)->default()->first();
 
-        if (! empty($data['type'])) {
+        if (isset($data['type']) && $data['type'] !== '') {
             $type->where('key', $data['type'])->first();
         } else {
             $type->default()->first();

@@ -23,7 +23,7 @@ test('breadcrumbs widget', function (): void {
 
     $layout = (new LayoutFactory)->widgets([$widget])->create();
 
-    $home = Page::factory()->site($site)->home()->withTranslations()->create();
+    $home = Page::factory()->site($site)->home()->withTranslations(slug: '/')->create();
     $parent = Page::factory()->site($site)->withTranslations()->create();
     $page = Page::factory()->site($site)->layout($layout)->parent($parent)->withTranslations()->create();
 

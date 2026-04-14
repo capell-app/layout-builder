@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Database\Factories;
 
+use Capell\Core\Database\Factories\Concerns\HasMeta;
 use Capell\Core\Models\Type;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Models\Widget;
@@ -14,6 +15,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class WidgetFactory extends Factory
 {
+    use HasMeta;
+
     protected $model = Widget::class;
 
     /**

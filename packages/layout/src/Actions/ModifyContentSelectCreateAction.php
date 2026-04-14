@@ -7,8 +7,10 @@ namespace Capell\Layout\Actions;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Models\Content;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Width;
@@ -40,7 +42,7 @@ class ModifyContentSelectCreateAction
                                 ->where('type', LayoutTypeEnum::Content)
                                 ->default()
                                 ->value('id'),
-                            'translations' => $site->translations->mapWithKeys(fn ($translation): array => [
+                            'translations' => $site->translations->mapWithKeys(fn (Translation $translation): array => [
                                 (string) Str::uuid() => [
                                     'language_id' => $translation->language_id,
                                 ],
@@ -50,7 +52,7 @@ class ModifyContentSelectCreateAction
                     })
                     ->modalWidth(Width::ScreenLarge)
                     ->slideOver()
-                    ->visible(fn (mixed $state, $record): bool => ! $state)
+                    ->visible(fn (?int $state, Content $record): bool => filled($state))
                     ->successNotificationTitle(
                         fn (Action $action): string => __(
                             'capell-admin::notification.created_successfully',

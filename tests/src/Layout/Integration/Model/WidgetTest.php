@@ -18,11 +18,7 @@ it('has many pages through widget assets', function (): void {
     $widget = Widget::factory()->create();
     $page = Page::factory()->create();
 
-    WidgetAsset::factory()->create([
-        'widget_id' => $widget->id,
-        'asset_id' => $page->id,
-        'asset_type' => 'page',
-    ]);
+    WidgetAsset::factory()->widget($widget)->asset($page)->create();
 
     expect($widget->pages->pluck('id'))->toContain($page->id);
 });
@@ -31,11 +27,7 @@ it('has many contents through widget assets', function (): void {
     $widget = Widget::factory()->create();
     $content = Content::factory()->create();
 
-    WidgetAsset::factory()->create([
-        'widget_id' => $widget->id,
-        'asset_id' => $content->id,
-        'asset_type' => 'content',
-    ]);
+    WidgetAsset::factory()->widget($widget)->asset($content)->create();
 
     expect($widget->contents->pluck('id'))->toContain($content->id);
 });

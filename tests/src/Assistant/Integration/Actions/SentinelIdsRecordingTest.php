@@ -34,7 +34,7 @@ it('does not include page_id/language_id columns when sentinel IDs are used', fu
         }
     });
 
-    $context = new ContentActionContext('Example content', 'keywords', 0, 0);
+    $context = new ContentActionContext(content: 'Example content', keywords: 'keywords');
     $result = SuggestMetaDescriptionsAction::run($context);
 
     expect($result)->toBeArray()->and(count($result))->toBeGreaterThan(0);

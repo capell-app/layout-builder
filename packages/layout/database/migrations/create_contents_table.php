@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Database\Concerns\CreatesDraftsSchema;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -10,6 +11,8 @@ use Kalnoy\Nestedset\NestedSet;
 
 return new class extends Migration
 {
+    use CreatesDraftsSchema;
+
     /**
      * Run the migrations.
      */
@@ -22,7 +25,7 @@ return new class extends Migration
             $table->foreignId('site_id')->nullable()->constrained()->cascadeOnDelete();
             $table->json('meta')->nullable();
             $table->unsignedInteger('order')->default(0)->index();
-            $table->publishDates('publish');
+            $table->visibleDates();
             $this->draftsCreateSchema($table);
             $table->foreignId('parent_id')->nullable()->constrained('contents')->nullOnDelete()->cascadeOnUpdate();
             $table->unsignedInteger(NestedSet::LFT)->default(0);
@@ -43,7 +46,7 @@ return new class extends Migration
 
             $table->index(['site_id', 'type_id', 'order']);
             $table->index(['site_id', 'type_id', 'parent_id']);
-            $table->index(['site_id', 'type_id', 'publish_from', 'publish_until']);
+            $table->index(['site_id', 'type_id', 'visible_from', 'visible_until']);
             $table->index(['site_id', 'type_id', 'is_published', 'is_current']);
             $table->index(NestedSet::getDefaultColumns());
         });
@@ -55,22 +58,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('contents');
-    }
-
-    private function draftsCreateSchema(Blueprint $table): void
-    {
-        $uuid = config('drafts.column_names.uuid', 'uuid');
-        $publishedAt = config('drafts.column_names.published_at', 'published_at');
-        $isPublished = config('drafts.column_names.is_published', 'is_published');
-        $isCurrent = config('drafts.column_names.is_current', 'is_current');
-        $publisherMorphName = config('drafts.column_names.publisher_morph_name', 'publisher');
-
-        $table->uuid($uuid)->nullable()->index();
-        $table->timestamp($publishedAt)->nullable();
-        $table->boolean($isPublished)->default(false);
-        $table->boolean($isCurrent)->default(false);
-        $table->nullableMorphs($publisherMorphName);
-
-        $table->index([$uuid, $isPublished, $isCurrent]);
     }
 };

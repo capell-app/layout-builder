@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Models\Language;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Layout\Database\Factories\LayoutFactory;
+use Capell\Layout\Database\Factories\WidgetAssetFactory;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Capell\Layout\Support\Creator\WidgetCreator;
@@ -28,20 +30,26 @@ it('creates asset testimonials widget with expected meta', function (): void {
         ->toBeInstanceOf(Widget::class)
         ->key->toBe('asset-testimonials')
         ->meta->scoped(
-            fn (Expectation $meta) => $meta->view_file->toBe('capell-layout::components.widget.asset.testimonials'),
+            fn (Expectation $meta) => $meta
+                ->view_file->toBe('capell-layout::components.widget.asset.testimonials')
+                ->carousel_effect->toBe('fade')
+                ->carousel_drag->toBeFalse()
+                ->carousel_touch->toBeFalse(),
         )
         ->assets->toHaveCount(3);
 });
 
 it('renders asset testimonials widget on page', function (callable $factory, string $mediaRelation, callable $srcResolver): void {
-    $site = Site::factory()->withTranslations()->create();
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
     $creator = resolve(WidgetCreator::class);
     $widget = $creator->testimonialsWidget();
     $layout = (new LayoutFactory)->widgets([$widget])->create();
     $factory($widget)->create();
-    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
     $widgetAssets = $widget->widgetAssets()
         ->ordered()
+        ->alphabetical($language)
         ->with([
             'asset.type',
             'asset.translation',
@@ -53,12 +61,25 @@ it('renders asset testimonials widget on page', function (callable $factory, str
         ->assertOk()
         ->assertElementExists(
             '.widget-assets-testimonials',
-            fn (AssertElement $elm): BaseAssert => $elm->contains('.widget-testimonial-item', count: 3)
+            fn (AssertElement $widgetElement): BaseAssert => $widgetElement
+                ->find(
+                    '.swiper',
+                    fn (AssertElement $carouselElement): BaseAssert => $carouselElement
+                        ->has('data-carousel', '1')
+                        ->has('data-carousel-effect', 'fade')
+                        ->has('data-carousel-autoplay', '1')
+                        ->has('data-carousel-loop', '1')
+                        ->has('data-carousel-pagination', '1')
+                        ->has('data-carousel-drag', '0')
+                        ->has('data-carousel-touch', '0'),
+                )
+                ->contains('.swiper-controls[data-carousel-controls]', count: 1)
+                ->contains('.widget-testimonial-item', count: 3)
                 ->each(
                     '.widget-testimonial-item',
-                    fn (AssertElement $itemElm, int $index): BaseAssert => $itemElm->find(
+                    fn (AssertElement $itemElement, int $index): BaseAssert => $itemElement->find(
                         'img',
-                        fn (AssertElement $imgElm): BaseAssert => $imgElm->has('alt', $widgetAssets[$index]->asset->translation->title)
+                        fn (AssertElement $imageElement): BaseAssert => $imageElement->has('alt', $widgetAssets[$index]->asset->translation->title)
                             ->has('src', $srcResolver($widgetAssets[$index])),
                     ),
                 ),
@@ -66,18 +87,24 @@ it('renders asset testimonials widget on page', function (callable $factory, str
 })->with(
     [
         'widgetAssetHasMedia' => [
-            fn (Widget $widget) => WidgetAsset::factory()->count(3)
+            fn (Widget $widget): WidgetAssetFactory => WidgetAsset::factory()->count(3)
                 ->widget($widget)
                 ->has(Media::factory()->image(), 'media'),
             'media',
-            fn ($widgetAsset) => $widgetAsset->media->first()->getFullUrl(),
+            fn (WidgetAsset $widgetAsset): string => $widgetAsset->media->first()->getFullUrl(),
         ],
         'assetHavingMedia' => [
-            fn (Widget $widget) => WidgetAsset::factory()->count(3)
+            fn (Widget $widget): WidgetAssetFactory => WidgetAsset::factory()->count(3)
                 ->widget($widget)
                 ->assetHavingMedia(),
             'asset.media',
-            fn ($widgetAsset) => $widgetAsset->asset->media->first()->getFullUrl(),
+            function (WidgetAsset $widgetAsset): string {
+                $media = $widgetAsset->asset->media->first();
+
+                throw_unless($media instanceof Media, RuntimeException::class, 'Expected asset media to be available.');
+
+                return $media->getFullUrl();
+            },
         ],
     ],
 );

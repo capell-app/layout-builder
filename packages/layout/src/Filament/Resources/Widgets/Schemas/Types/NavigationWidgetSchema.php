@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Resources\Widgets\Schemas\Types;
 
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
-use Capell\Admin\Filament\Components\Forms\Navigation\NavigationSelect;
-use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
+use Capell\Admin\Filament\Components\Forms\NavigationSelect;
+use Capell\Layout\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\Layout\Filament\Components\Forms\Widget\CreateDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\DisplaySection;
+use Capell\Layout\Filament\Components\Forms\Widget\SettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
+use Capell\Layout\Filament\Components\Forms\Widget\TranslationsRepeater;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
@@ -36,10 +36,10 @@ class NavigationWidgetSchema extends DefaultWidgetSchema
     protected function getCreateOptionSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
+            CreateDetailsSchema::make($schema),
             Section::make()
                 ->schema([$this->navigationSelect()]),
-            WidgetTranslationsRepeater::make($schema)
+            TranslationsRepeater::make($schema)
                 ->contained(),
         ];
     }
@@ -58,21 +58,21 @@ class NavigationWidgetSchema extends DefaultWidgetSchema
     {
         return [
             $this->navigationSelect(),
-            WidgetTranslationsRepeater::make($schema),
+            TranslationsRepeater::make($schema),
         ];
     }
 
     protected function getFormSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
+            CreateDetailsSchema::make($schema),
             FixedWidthSidebar::make()
                 ->mainSchema([
-                    WidgetTranslationsRepeater::make($schema)
+                    TranslationsRepeater::make($schema)
                         ->contained(),
                 ])
                 ->sidebarSchema(
-                    WidgetSettingsSchema::make($schema, [$this->navigationSelect()]),
+                    SettingsSchema::make($schema, [$this->navigationSelect()]),
                     contained: true,
                 ),
             Tabs::make()
@@ -80,8 +80,8 @@ class NavigationWidgetSchema extends DefaultWidgetSchema
                 ->columnSpanFull()
                 ->tabs([
                     WidgetDisplayTab::make([
-                        WidgetDisplaySection::make(),
-                        WidgetComponentFilesSection::make()
+                        DisplaySection::make(),
+                        ComponentSection::make()
                             ->statePath('meta'),
                     ]),
                     WidgetAdminTab::make(),

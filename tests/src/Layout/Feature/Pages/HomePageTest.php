@@ -21,7 +21,7 @@ test('home page with layout', function (): void {
     $layoutCreator = resolve(LayoutCreator::class);
     $layout = $layoutCreator->create(LayoutEnum::Home);
 
-    $page = Page::factory()->site($site)->layout($layout)->home()->withTranslations()->create();
+    $page = Page::factory()->site($site)->home()->layout($layout)->withTranslations(slug: '/')->create();
 
     get($page->pageUrl->full_url)
         ->assertOk()

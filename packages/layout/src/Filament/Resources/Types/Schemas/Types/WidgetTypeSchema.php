@@ -13,8 +13,8 @@ use Capell\Admin\Filament\Resources\Types\Schemas\Types\DefaultTypeSchema;
 use Capell\Layout\Enums\TypeSchemaEnum;
 use Capell\Layout\Enums\WidgetSchemaEnum;
 use Capell\Layout\Enums\WidgetTypeGroupEnum;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
+use Capell\Layout\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\Layout\Filament\Components\Forms\Widget\DisplaySection;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -44,9 +44,10 @@ class WidgetTypeSchema extends DefaultTypeSchema
         return CustomSelectGroup::make(
             'group',
             options: fn (): array => collect(WidgetTypeGroupEnum::cases())
-                ->mapWithKeys(fn ($case): array => [$case->value => $case->name])
+                ->mapWithKeys(fn (WidgetTypeGroupEnum $case): array => [$case->value => $case->name])
                 ->all(),
-        );
+        )
+            ->label('Group');
     }
 
     protected function adminTab(): Tab
@@ -74,8 +75,8 @@ class WidgetTypeSchema extends DefaultTypeSchema
             ->icon(Heroicon::OutlinedCog6Tooth)
             ->columns()
             ->schema([
-                WidgetDisplaySection::make(),
-                WidgetComponentFilesSection::make()
+                DisplaySection::make(),
+                ComponentSection::make()
                     ->statePath('meta'),
             ]);
     }

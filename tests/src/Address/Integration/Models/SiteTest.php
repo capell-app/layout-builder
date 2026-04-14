@@ -11,7 +11,7 @@ use Capell\Core\Models\Site;
 it('can relate to an address', function (): void {
     $address = Address::factory()->create(['name' => 'Headquarters']);
     $site = Site::factory()
-        ->state(fn ($attributes): array => [
+        ->state(fn (array $attributes): array => [
             'meta' => array_merge($attributes['meta'] ?? [], ['address_id' => $address->getKey()]),
         ])
         ->create();
@@ -25,7 +25,7 @@ it('can relate to a country via address', function (): void {
     $country = Country::factory()->create(['name' => 'Testland']);
     $address = Address::factory()->create(['country_id' => $country->id]);
     $site = Site::factory()
-        ->state(fn ($attributes): array => [
+        ->state(fn (array $attributes): array => [
             'meta' => array_merge($attributes['meta'] ?? [], ['address_id' => $address->getKey()]),
         ])
         ->create();

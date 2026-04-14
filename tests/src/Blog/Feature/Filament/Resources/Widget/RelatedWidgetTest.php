@@ -19,7 +19,7 @@ beforeEach(function (): void {
 
 test('can edit related widget', function (): void {
     $typeCreator = new BlogCreator;
-    $widget = $typeCreator->relatedPagesWidget();
+    $widget = $typeCreator->relatedArticlesWidget();
 
     $newData = Widget::factory()->make();
 

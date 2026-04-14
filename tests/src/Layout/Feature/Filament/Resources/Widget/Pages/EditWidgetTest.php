@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use Capell\Admin\Filament\Actions\ReplicateAction;
 use Capell\Core\Models\Navigation;
+use Capell\Core\Models\Page;
+use Capell\Core\Models\Site;
+use Capell\Layout\Enums\ActionLinkEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
 use Capell\Layout\Filament\Resources\Widgets\Pages\EditWidget;
 use Capell\Layout\Models\Widget;
@@ -147,3 +150,29 @@ test('can edit widget', function (WidgetTypeEnum $typeEum): void {
         ->name->toBe($newData->name)
         ->key->toBe($newData->key);
 })->with(WidgetTypeEnum::cases());
+
+it('can save a widget with actions', function (): void {
+    $site = Site::factory()->create();
+
+    $actions = [
+        [
+            'type' => ActionLinkEnum::Link->value,
+            'url' => 'https://example.com',
+        ],
+        [
+            'type' => ActionLinkEnum::Page->value,
+            'pageable_type' => resolve(Page::class)->getMorphClass(),
+            'pageable_id' => Page::factory()->site($site)->create()->id,
+            'site_id' => $site->id,
+        ],
+    ];
+
+    $widget = Widget::factory()->meta('actions', $actions)->create();
+
+    livewire(EditWidget::class, [
+        'record' => $widget->getRouteKey(),
+    ])
+        ->assertSuccessful()
+        ->call('save')
+        ->assertHasNoFormErrors();
+});

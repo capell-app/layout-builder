@@ -7,6 +7,7 @@ namespace Capell\Layout\Filament\Components\Forms;
 use Capell\Admin\Actions\GetAssetResourceUrlAction;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Forms\SelectWithBelongsToRelation;
+use Capell\Core\Contracts\Pageable;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Enums\TypeGroupEnum;
 use Capell\Core\Facades\CapellCore;
@@ -48,8 +49,8 @@ class AssetsRepeater extends Repeater
             ->extraItemActions([
                 Action::make('edit_asset')
                     ->visible(
-                        fn (array $arguments, Repeater $component): bool => ! empty(
-                            $component->getRawItemState($arguments['item'])['asset_id']
+                        fn (array $arguments, Repeater $component): bool => filled(
+                            $component->getRawItemState($arguments['item'])['asset_id'],
                         ),
                     )
                     ->tooltip(function (array $arguments, Repeater $component): ?string {
@@ -61,14 +62,11 @@ class AssetsRepeater extends Repeater
                         );
                     })
                     ->icon(Heroicon::PencilSquare)
-                    ->url(
-                        function (array $arguments, Repeater $component): ?string {
-                            $itemData = $component->getRawItemState($arguments['item']);
+                    ->url(function (array $arguments, Repeater $component): ?string {
+                        $itemData = $component->getRawItemState($arguments['item']);
 
-                            return GetAssetResourceUrlAction::run($itemData['asset_type'], $itemData['asset_id']);
-                        },
-                        shouldOpenInNewTab: true,
-                    ),
+                        return GetAssetResourceUrlAction::run($itemData['asset_type'], $itemData['asset_id']);
+                    }),
             ])
             ->registerActions([
                 fn (self $component): Action => $component->getAddAssetAction(),
@@ -157,19 +155,21 @@ class AssetsRepeater extends Repeater
                 )
                 ->selectablePlaceholder(false)
                 ->getOptionLabelFromRecordUsing(function (Select $component, Model $record): HtmlString {
-                    if (! $record instanceof Page) {
-                        return new HtmlString($record->{$component->getRelationshipTitleAttribute()});
+                    if (! $record instanceof Pageable) {
+                        return new HtmlString($record->getAttribute($component->getRelationshipTitleAttribute()));
                     }
 
                     $label = $record->site->name . ' &raquo; ';
 
-                    $ancestors = $record->ancestors()->get();
+                    if ($record instanceof Page) {
+                        $ancestors = $record->ancestors()->get();
 
-                    if ($ancestors->isNotEmpty()) {
-                        $label .= $ancestors->pluck('name')
-                            ->map(fn ($item) => Str::limit($item, 30))
-                            ->implode(' &raquo; ')
-                            . ' &raquo; ';
+                        if ($ancestors->isNotEmpty()) {
+                            $label .= $ancestors->pluck('name')
+                                ->map(fn (string $name): string => Str::limit($name, 30))
+                                ->implode(' &raquo; ')
+                                . ' &raquo; ';
+                        }
                     }
 
                     return new HtmlString($label . Str::limit($record->name, 40));
@@ -228,7 +228,7 @@ class AssetsRepeater extends Repeater
             ->icon(Heroicon::Plus);
 
         return $action->group($actions)
-            ->view('capell-admin::filament.components.actions.dropdown-group');
+            ->view('capell-admin::components.actions.dropdown-group');
     }
 
     private static function modifyCreateAction(Action $action): Action

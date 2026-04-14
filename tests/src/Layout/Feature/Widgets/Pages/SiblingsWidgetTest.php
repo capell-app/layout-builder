@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Capell\Core\Enums\ModelEnum as CoreModelEnum;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
@@ -20,19 +18,20 @@ use Sinnbeck\DomAssertions\Asserts\BaseAssert;
 uses(TestingFrontend::class);
 
 it('renders siblings widget on page', function (): void {
-    $site = Site::factory()->withTranslations()->create();
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations()->create();
     $creator = resolve(WidgetCreator::class);
 
-    /** @var class-string<Language> $model */
-    $model = CapellCore::getModel(CoreModelEnum::Language);
-
-    $languages = $model::query()->get();
-    $widget = $creator->siblingsWidget(null, $languages);
+    $widget = $creator->siblingsWidget(null, collect([$language]));
     $layout = (new LayoutFactory)->widgets([$widget])->create();
     $parent = Page::factory()->site($site)->withTranslations()->create();
     $pages = Page::factory()->count(3)->site($site)->parent($parent)->layout($layout)->withTranslations()->create();
     $page = $pages->random();
-    $siblings = $pages->where('id', '!=', $page->id)->values();
+    $siblings = $pages
+        ->where('id', '!=', $page->id)
+        ->sortBy(static fn (Page $siblingPage): string => $siblingPage->translation->title)
+        ->values();
+
     get($page->pageUrl->full_url)
         ->assertOk()
         ->assertElementExists(

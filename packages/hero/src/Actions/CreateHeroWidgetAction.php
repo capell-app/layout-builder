@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Hero\Actions;
 
+use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Type;
@@ -46,7 +47,7 @@ class CreateHeroWidgetAction
                 'carousel_arrows' => false,
                 'carousel_pagination' => true,
                 'carousel_loop' => true,
-                'carousel_auto' => true,
+                'carousel_auto_play' => true,
                 'carousel_auto_delay' => 50000,
                 'color' => 'dark',
                 'extra_relations' => [
@@ -77,7 +78,7 @@ class CreateHeroWidgetAction
                 'schema' => AssetsWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-gift',
                 'asset_types' => [
-                    \Capell\Core\Enums\AssetEnum::Page,
+                    AssetEnum::Page,
                     LayoutAssetEnum::Content,
                 ],
             ],

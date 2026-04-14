@@ -9,9 +9,9 @@ use Capell\Admin\Filament\Components\Forms\ContentEditor;
 use Capell\Admin\Filament\Components\Forms\Editor\ContentBuilder;
 use Capell\Admin\Filament\Components\Forms\Editor\RichEditor;
 use Capell\Admin\Filament\Components\Forms\Editor\TinyEditor;
+use Capell\Core\Contracts\Pageable;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models\Page;
-use Capell\Core\Models\PageTranslation;
+use Capell\Core\Models\Translation;
 use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Models\WidgetAsset;
 use Filament\Schemas\Components\Group;
@@ -24,17 +24,19 @@ class HeroEditor extends Group
         parent::setUp();
 
         $this->statePath('meta')
-            ->visible(
-                function (null|PageTranslation|Page $record): bool {
-                    if ($record === null) {
-                        return false;
-                    }
+            ->visible(function (null|Translation|Pageable $record): bool {
+                if ($record === null) {
+                    return false;
+                }
 
-                    $page = $record instanceof Page ? $record : $record->page;
+                $page = $record instanceof Pageable ? $record : $record->pageable;
 
-                    return ! $this->hasPageWidgetHeroAssets($page);
-                },
-            )
+                if (! $page instanceof Pageable) {
+                    return false;
+                }
+
+                return ! $this->hasPageWidgetHeroAssets($page);
+            })
             ->schema([
                 ContentEditor::make('hero')
                     ->label(__('capell-hero::form.hero'))
@@ -47,15 +49,17 @@ class HeroEditor extends Group
             ]);
     }
 
-    protected function hasPageWidgetHeroAssets(Page $page): bool
+    protected function hasPageWidgetHeroAssets(Pageable $page): bool
     {
-        return cache()->driver('array')->rememberForever(
+        return cache()->memo()->rememberForever(
             sprintf('page-%d-has-hero-widget-assets', $page->id),
             function () use ($page): bool {
                 /** @var class-string<WidgetAsset> $model */
                 $model = CapellCore::getModel(ModelEnum::WidgetAsset);
 
-                return $model::query()->where('page_id', $page->id)
+                return $model::query()
+                    ->where('pageable_type', $page->getMorphClass())
+                    ->where('pageable_id', $page->getKey())
                     ->whereHas('widget', fn (Builder $query): Builder => $query->where('key', 'hero'))
                     ->exists();
             },

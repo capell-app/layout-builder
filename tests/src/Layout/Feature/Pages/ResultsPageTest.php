@@ -21,7 +21,7 @@ test('results page with layout', function (): void {
     $layoutCreator = resolve(LayoutCreator::class);
     $layout = $layoutCreator->create(LayoutEnum::Results);
 
-    $page = Page::factory()->site($site)->layout($layout)->home()->withTranslations()->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
 
     get($page->pageUrl->full_url)
         ->assertOk()

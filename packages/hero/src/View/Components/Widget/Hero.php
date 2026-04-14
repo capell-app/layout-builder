@@ -29,9 +29,11 @@ class Hero extends AbstractWidget
     {
         $page = Frontend::page();
 
+        $hasHero = isset($page->translation->meta['hero']) && filled($page->translation->meta['hero']);
+
         if (
-            empty($page->translation->meta['hero']) &&
-            ! $this->widget->translation?->content &&
+            $hasHero === false &&
+            blank($this->widget->translation?->content) &&
             $this->widget->assets->isEmpty()
         ) {
             $this->skipRender = true;

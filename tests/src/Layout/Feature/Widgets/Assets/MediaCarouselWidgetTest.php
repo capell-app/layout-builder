@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Models\Language;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Layout\Database\Factories\LayoutFactory;
+use Capell\Layout\Database\Factories\WidgetAssetFactory;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
@@ -30,21 +32,27 @@ it('creates media carousel widget with expected meta', function (): void {
         ->toBeInstanceOf(Widget::class)
         ->key->toBe('media-carousel')
         ->meta->scoped(
-            fn (Expectation $meta) => $meta->component->toBe(WidgetComponentEnum::AssetCarousel->value),
+            fn (Expectation $meta) => $meta
+                ->component->toBe(WidgetComponentEnum::AssetCarousel->value)
+                ->carousel_effect->toBe('slide')
+                ->carousel_drag->toBeTrue()
+                ->carousel_touch->toBeTrue(),
         )
         ->assets->toHaveCount(3);
 });
 
 it('renders carousel widget on page with assets', function (callable $factory, string $mediaRelation, callable $srcResolver): void {
     Storage::fake('public');
-    $site = Site::factory()->withTranslations()->create();
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
     $creator = resolve(WidgetCreator::class);
     $widget = $creator->mediaCarouselWidget();
     $layout = (new LayoutFactory)->widgets([$widget])->create();
     $factory($widget)->create();
-    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
     $widgetAssets = $widget->widgetAssets()
         ->ordered()
+        ->alphabetical($language)
         ->with([
             'asset.type',
             'asset.translation',
@@ -53,7 +61,7 @@ it('renders carousel widget on page with assets', function (callable $factory, s
         ->get();
 
     // Ensure all referenced media files exist on the fake disk
-    $exampleImagePath = __DIR__ . '/../../../../Fixtures/Support/Files/Images/img.png';
+    $exampleImagePath = __DIR__ . '/../../../../Fixtures/Files/Images/img.png';
     $exampleImage = file_get_contents($exampleImagePath);
     foreach ($widgetAssets as $widgetAsset) {
         $mediaCollection = data_get($widgetAsset, $mediaRelation);
@@ -66,12 +74,13 @@ it('renders carousel widget on page with assets', function (callable $factory, s
         ->assertOk()
         ->assertElementExists(
             '.widget-media-carousel',
-            fn (AssertElement $elm): BaseAssert => $elm->contains('.widget-media-item', count: 3)
+            fn (AssertElement $widgetElement): BaseAssert => $widgetElement
+                ->contains('.widget-media-item', count: 3)
                 ->each(
                     '.widget-media-item',
-                    fn (AssertElement $itemElm, int $index): BaseAssert => $itemElm->find(
+                    fn (AssertElement $itemElement, int $index): BaseAssert => $itemElement->find(
                         'img',
-                        fn (AssertElement $imgElm): BaseAssert => $imgElm->has('alt', $widgetAssets[$index]->asset->translation->title)
+                        fn (AssertElement $imageElement): BaseAssert => $imageElement->has('alt', $widgetAssets[$index]->asset->translation->title)
                             ->has('src', $srcResolver($widgetAssets[$index])),
                     ),
                 ),
@@ -79,18 +88,24 @@ it('renders carousel widget on page with assets', function (callable $factory, s
 })->with(
     [
         'widgetAssetHasMedia' => [
-            fn (Widget $widget) => WidgetAsset::factory()->count(3)
+            fn (Widget $widget): WidgetAssetFactory => WidgetAsset::factory()->count(3)
                 ->widget($widget)
                 ->has(Media::factory()->image(), 'media'),
             'media',
-            fn ($widgetAsset) => $widgetAsset->media->first()->getFullUrl(),
+            fn (WidgetAsset $widgetAsset): string => $widgetAsset->media->first()->getFullUrl(),
         ],
         'assetHavingMedia' => [
-            fn (Widget $widget) => WidgetAsset::factory()->count(3)
+            fn (Widget $widget): WidgetAssetFactory => WidgetAsset::factory()->count(3)
                 ->widget($widget)
                 ->assetHavingMedia(),
             'asset.media',
-            fn ($widgetAsset) => $widgetAsset->asset->media->first()->getFullUrl(),
+            function (WidgetAsset $widgetAsset): string {
+                $media = $widgetAsset->asset->media->first();
+
+                throw_unless($media instanceof Media, RuntimeException::class, 'Expected asset media to be available.');
+
+                return $media->getFullUrl();
+            },
         ],
     ],
 );

@@ -11,6 +11,7 @@ use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Contracts\Support\Arrayable;
+use Livewire\Component;
 
 class CustomColorInput
 {
@@ -38,13 +39,15 @@ class CustomColorInput
                     ->searchable()
                     ->reactive()
                     ->preload()
-                    ->mutateDehydratedStateUsing(fn ($state, Get $get) => $state === 'custom' ? $get($name . '_custom') : $state)
-                    ->afterStateUpdated(function (Set $set, $state) use ($name): void {
+                    ->mutateDehydratedStateUsing(
+                        fn (?string $state, Get $get): mixed => $state === 'custom' ? $get($name . '_custom') : $state,
+                    )
+                    ->afterStateUpdated(function (Set $set, ?string $state) use ($name): void {
                         if (blank($state)) {
                             $set($name . '_custom', '');
                         }
                     })
-                    ->options(function (Set $set, $state, $livewire) use ($name, $options): array {
+                    ->options(function (Set $set, ?string $state, Component $livewire) use ($name, $options): array {
                         if (is_callable($options)) {
                             $options = $options($livewire);
                         }
@@ -68,7 +71,7 @@ class CustomColorInput
                     ->hiddenLabel()
                     ->placeholder(__('capell-admin::generic.custom'))
                     ->dehydrated(false)
-                    ->visible(function (Get $get, $livewire, $state) use ($name, $options): bool {
+                    ->visible(function (Get $get, Component $livewire) use ($name, $options): bool {
                         if ($get($name) !== 'custom') {
                             return false;
                         }

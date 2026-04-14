@@ -9,12 +9,13 @@ use Capell\Blog\Enums\CacheEnum;
 use Capell\Blog\Enums\ModelEnum;
 use Capell\Blog\Enums\TagTypeEnum;
 use Capell\Blog\Models\Tag;
+use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Frontend\Contracts\ModelServingInterface;
+use Capell\Frontend\Support\ModelServing\RetrievedModelStore;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -22,7 +23,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class TagLoader
 {
-    public static function getPageTags(Page $page): Collection
+    public static function getPageTags(Pageable $page): Collection
     {
         $key = CacheEnum::pageTags($page->id);
 
@@ -31,12 +32,12 @@ class TagLoader
         $tags = CapellCore::rememberCache($key, function () use ($page, &$fromCache): Collection {
             $fromCache = false;
 
-            return $page->tags()->get();
+            return $page->tags()->ordered()->get();
         });
 
         if ($fromCache) {
             $tags->each(function (Tag $tag): void {
-                resolve(ModelServingInterface::class)->track($tag);
+                resolve(RetrievedModelStore::class)->track($tag);
             });
         }
 
@@ -56,10 +57,10 @@ class TagLoader
             $model = CapellCore::getModel(CoreModelEnum::Page);
 
             return $model::getFirstPageByTypeForSite(BlogPageTypeEnum::Tag->value, site: $site, language: $language);
-        }) ?: null;
+        });
 
-        if ($fromCache && $page) {
-            resolve(ModelServingInterface::class)->track($page);
+        if ($fromCache && $page instanceof Pageable) {
+            resolve(RetrievedModelStore::class)->track($page);
         }
 
         return $page;
@@ -78,19 +79,25 @@ class TagLoader
 
         return $model::query()
             ->withCount([
-                'pages' => fn (Builder $query) => $query->where('site_id', $site->id)
-                    ->whereRelation('translation', 'language_id', $language->id),
+                'taggables' => fn (Builder $query): Builder => $query->whereHas(
+                    'taggable',
+                    fn (Builder $query): Builder => $query->where('site_id', $site->id)
+                        ->whereRelation('translation', 'language_id', $language->id),
+                ),
             ])
             ->where('type', TagTypeEnum::Page)
             ->where(
-                fn (Builder $query) => $query->where('site_id', $site->id)->orWhereNull('site_id'),
+                fn (Builder $query): Builder => $query->where('site_id', $site->id)->orWhereNull('site_id'),
             )
             ->when(
                 $hasArticles,
                 fn (Builder $query) => $query->whereHas(
-                    'pages',
-                    fn (BuilderContract $query): BuilderContract => $query->where('site_id', $site->id)
-                        ->whereRelation('translation', 'language_id', $language->id),
+                    'taggables',
+                    fn (BuilderContract $query): BuilderContract => $query->whereHas(
+                        'taggable',
+                        fn (BuilderContract $query): BuilderContract => $query->where('site_id', $site->id)
+                            ->whereRelation('translation', 'language_id', $language->id),
+                    ),
                 ),
             )
             ->tap(fn (Builder $query) => $query->whereNotNull($query->qualifyColumn('name->' . $language->code)))
@@ -141,7 +148,7 @@ class TagLoader
 
         if ($fromCache && $tags instanceof Collection) {
             $tags->each(function (Tag $tag): void {
-                resolve(ModelServingInterface::class)->track($tag);
+                resolve(RetrievedModelStore::class)->track($tag);
             });
         }
 
@@ -163,10 +170,10 @@ class TagLoader
             return $model::query()->where('type', TagTypeEnum::Page)
                 ->where('slug->' . $language->code, $slug)
                 ->first();
-        }) ?: null;
+        });
 
-        if ($fromCache && $tag) {
-            resolve(ModelServingInterface::class)->track($tag);
+        if ($fromCache && $tag instanceof Tag) {
+            resolve(RetrievedModelStore::class)->track($tag);
         }
 
         return $tag;

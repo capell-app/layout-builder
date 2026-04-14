@@ -2,13 +2,18 @@
 
 declare(strict_types=1);
 
-use Capell\Frontend\Facades\Frontend;
-
-$theme = Frontend::theme();
 ?>
 
+@php
+    use Capell\Core\Data\NavigationItemData;
+    use Capell\Frontend\Facades\Frontend;
+    use Illuminate\Support\Collection;
+
+    $theme = Frontend::theme();
+@endphp
+
 @props([
-    'columns' => $container['meta']['override_columns'] ?? ($widget->meta['columns'] ?? 3),
+    'columns' => $container['meta']['override_columns'] ?? $widget->getMeta('columns', 3),
     'container',
     'containerKey',
     'containerWidth' => null,
@@ -35,10 +40,11 @@ $theme = Frontend::theme();
             :compact="true"
             :content="$widget->translation->content ?? ($showPageContent ? $page->translation->content : null)"
             :content-type="$widget->translation->content ? $widget->type->content_structure : ($showPageContent ? $page->type->content_structure : null)"
+            :divider="$widget->getMeta('content_divider')"
             :muted="in_array($containerKey, $theme->secondary_containers)"
-            :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
+            :text-align="$widget->getMeta('align')"
             :title="$widget->translation->title ?? ($showPageTitle ? $page->translation->title : null)"
-            :heading-style="($widget->meta['heading_style'] ?? null) ?: ($widget->type->meta['heading_style'] ?? null)"
+            :heading-style="$widget->getMeta('heading_style')"
             :heading-tag="$showPageTitle ? 'h1' : null"
         />
     @endif
@@ -46,21 +52,25 @@ $theme = Frontend::theme();
     @if ($groupItems && count($items) > 5)
         <div class="grid md:grid-cols-2">
             @php
-                $chunkedItems = collect($items)->chunk(ceil(count($items) / $columns));
+                /**
+                 * @var Collection<NavigationItemData> $items
+                 */
+                $half = (int) ceil(count($items) / $columns);
+
+                /**
+                 * @var Collection<Collection<NavigationItemData>> $chunks
+                 */
+                $chunks = $items->chunk($half);
             @endphp
 
-            @foreach ($chunkedItems as $chunked)
+            @foreach ($chunks as $chunk)
                 <x-dynamic-component
-                    :component="! empty($menu->meta['component']) ? $menu->meta['component'] : 'capell::list'"
+                    :component="$menu->getMeta('component', 'capell::list')"
                     class="widget-navigation-list"
                 >
-                    @foreach ($chunked as $item)
+                    @foreach ($chunk as $item)
                         <x-dynamic-component
-                            :component="
-                                ! empty($item['data']['component'])
-                                ? $item['data']['component']
-                                : 'capell::list.item'
-                            "
+                            :component="! empty($item->data['component_item']) ? $item->data['component_item'] : 'capell::list.item'"
                             class="widget-navigation-item"
                             :$item
                         />
@@ -70,18 +80,14 @@ $theme = Frontend::theme();
         </div>
     @else
         <x-dynamic-component
-            :component="! empty($menu->meta['component']) ? $menu->meta['component'] : 'capell::list'"
+            :component="$menu->getMeta('component', 'capell::list')"
             class="widget-navigation-list widget-navigation-lit-children"
         >
             @foreach ($items as $item)
                 <x-dynamic-component
-                    :component="
-                        ! empty($item['data']['component'])
-                        ? $item['data']['component']
-                        : 'capell::list.item'
-                    "
-                    class="widget-navigation-item widget-navigation-child-item"
+                    :component="! empty($item->data['component_item']) ? $item->data['component_item'] : 'capell::list.item'"
                     :$item
+                    class="widget-navigation-item widget-navigation-child-item"
                 />
             @endforeach
         </x-dynamic-component>

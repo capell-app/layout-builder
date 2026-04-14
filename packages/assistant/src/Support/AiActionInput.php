@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Capell\Assistant\Support;
 
-use Capell\Core\Models\PageTranslation;
+use Capell\Core\Models\Translation;
 
 final class AiActionInput
 {
     public function __construct(
-        public PageTranslation $translation,
+        public Translation $translation,
         /** @var array<string, mixed> */
         public array $options = [],
     ) {}

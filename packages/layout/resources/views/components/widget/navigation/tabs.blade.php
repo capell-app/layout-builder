@@ -23,14 +23,14 @@ declare(strict_types=1);
         @foreach ($items as $item)
             <li class="tab-item -mb-px">
                 <a
-                    href="{{ $item['data']['url'] }}"
+                    href="{{ $item->data['url'] }}"
                     @class([
                         'hover:bg-primary inline-block rounded-t border-b-2 border-transparent px-4 py-3 hover:text-white',
-                        'border-b-primary' => $item['active'] ?? false,
+                        'border-b-primary' => $item->active,
                     ])
                     wire:navigate
                 >
-                    {{ $item['label'] }}
+                    {{ $item->label }}
                 </a>
             </li>
         @endforeach

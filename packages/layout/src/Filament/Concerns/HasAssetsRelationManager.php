@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Concerns;
 
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Core\Contracts\Pageable;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Enums\TypeGroupEnum;
 use Capell\Core\Facades\CapellCore;
@@ -38,7 +39,7 @@ trait HasAssetsRelationManager
             ->color('primary')
             ->successNotificationTitle(__('capell-layout::message.asset_added'))
             ->using(function (array $data, self $livewire): Model {
-                throw_if(empty($data['asset_id']), RuntimeException::class, 'No asset selected');
+                throw_if(! isset($data['asset_id']), RuntimeException::class, 'No asset selected');
 
                 $asset = null;
 
@@ -148,17 +149,19 @@ trait HasAssetsRelationManager
             );
     }
 
-    protected static function getPageOptionLabel(Page $page): HtmlString
+    protected static function getPageOptionLabel(Pageable $page): HtmlString
     {
         $label = $page->site->name . ' &raquo; ';
 
-        $ancestors = $page->ancestors()->get();
+        if ($page instanceof Page) {
+            $ancestors = $page->ancestors()->get();
 
-        if ($ancestors->isNotEmpty()) {
-            $label .= $ancestors->pluck('name')
-                ->map(fn ($item) => Str::limit($item, 30))
-                ->implode(' &raquo; ')
-                . ' &raquo; ';
+            if ($ancestors->isNotEmpty()) {
+                $label .= $ancestors->pluck('name')
+                    ->map(fn (string $name): string => Str::limit($name, 30))
+                    ->implode(' &raquo; ')
+                    . ' &raquo; ';
+            }
         }
 
         return new HtmlString($label . Str::limit($page->name, 40));

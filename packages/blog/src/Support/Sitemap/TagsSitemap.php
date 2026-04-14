@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Support\Sitemap;
 
+use Capell\Blog\Filament\Resources\Tags\TagResource;
 use Capell\Blog\Models\Tag;
 use Capell\Blog\Support\Loader\TagLoader;
+use Capell\Core\Contracts\Pageable;
 use Capell\Core\Data\SitemapPageData;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Sitemap\AbstractSitemapPages;
@@ -18,25 +20,25 @@ class TagsSitemap extends AbstractSitemapPages
     {
         $tagPage = TagLoader::getTagResultsPage($this->site, $this->language);
 
-        if (! $tagPage instanceof Page) {
-            return collect();
+        if (! $tagPage instanceof Pageable) {
+            return collect([]);
         }
 
         $tagChildren = $this->getTagPages($tagPage);
 
         $parent = $tagPage->parent;
         if ($parent === null) {
-            return collect($tagChildren);
+            return $tagChildren;
         }
 
-        $node = SitemapChainBuilder::build($parent, $tagChildren);
+        $node = SitemapChainBuilder::build($parent, children: $tagChildren, withEditUrl: $this->withEditUrl);
 
         return collect([$node]);
     }
 
     public function format(Page $tagPage, Tag $tag): SitemapPageData
     {
-        $url = $tagPage->pageUrl->url;
+        $url = $tagPage->pageUrl->full_url;
 
         if (str_ends_with($url, '/*')) {
             $url = mb_substr($url, 0, -2);
@@ -44,17 +46,19 @@ class TagsSitemap extends AbstractSitemapPages
 
         $url .= '/' . $tag->getTranslation('slug', $this->language->code);
 
-        return SitemapPageData::from([
-            'label' => $tag->getTranslation('name', $this->language->code) . ' (' . $tag->pages_count . ')',
-            'url' => $url,
-        ]);
+        return new SitemapPageData(
+            label: $tag->getTranslation('name', $this->language->code) . ' (' . $tag->taggables_count . ')',
+            url: $url,
+            editUrl: $this->withEditUrl ? TagResource::getUrl('edit', ['record' => $tag]) : null,
+            pageableType: $tag->getMorphClass(),
+            pageId: $tag->id,
+        );
     }
 
-    private function getTagPages(Page $tagPage): array
+    private function getTagPages(Page $tagPage): Collection
     {
         return TagLoader::getTags(site: $this->site, language: $this->language, limit: 100)
-            ->map(fn (Tag $tag): array => $this->format($tagPage, $tag)->toArray())
-            ->values()
-            ->all();
+            ->map(fn (Tag $tag): SitemapPageData => $this->format($tagPage, $tag))
+            ->values();
     }
 }

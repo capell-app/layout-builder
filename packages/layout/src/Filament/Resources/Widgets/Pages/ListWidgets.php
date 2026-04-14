@@ -32,7 +32,7 @@ class ListWidgets extends ListRecords
 
     public function getSubheading(): string|Htmlable|null
     {
-        return __('capell-layout::generic.widgets_subheading');
+        return __('capell-layout::generic.widget_info');
     }
 
     public function getFilteredTableQuery(): Builder
@@ -49,7 +49,7 @@ class ListWidgets extends ListRecords
         }
 
         $query->with([
-            'translation' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', (int) $language_id),
+            'translation' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', $language_id),
         ]);
 
         return $query;

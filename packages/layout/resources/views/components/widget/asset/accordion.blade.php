@@ -6,9 +6,11 @@ declare(strict_types=1);
 
 {{-- format-ignore-start --}}
 @php
+    use Capell\Core\Contracts\Pageable;
     use Capell\Core\Enums\AssetComponentEnum;
     use Capell\Core\Models\Page;
-    use Capell\Frontend\Facades\Frontend;use Capell\Layout\Models\WidgetAsset;
+    use Capell\Frontend\Facades\Frontend;
+    use Capell\Layout\Models\WidgetAsset;
 
     $site = Frontend::site();
     $theme = Frontend::theme();
@@ -16,7 +18,7 @@ declare(strict_types=1);
 {{-- format-ignore-end --}}
 
 @props([
-    'columns' => $container['meta']['override_columns'] ?? ($widget->meta['columns'] ?? 3),
+    'columns' => $container['meta']['override_columns'] ?? $widget->getMeta('columns', 3),
     'container',
     'containerKey',
     'containerWidth' => null,
@@ -24,8 +26,7 @@ declare(strict_types=1);
     'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
     'index',
     'loop',
-    'size' => $widget->meta['size'] ?? null,
-    'spacing' => $widget->meta['spacing'] ?? 'lg',
+    'size' => $widget->getMeta('size'),
     'widget',
 ])
 <x-capell-layout::widget.wrapper
@@ -42,10 +43,11 @@ declare(strict_types=1);
             :compact="true"
             :content="$widget->translation->content"
             :content-type="$widget->type->content_structure"
+            :divider="$widget->getMeta('content_divider')"
             :muted="in_array($containerKey, $theme->secondary_containers)"
             :title="$widget->translation->title"
-            :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
-            :heading-style="($widget->meta['heading_style'] ?? null) ?: $widget->type->meta['heading_style'] ?? null"
+            :text-align="$widget->getMeta('align')"
+            :heading-style="$widget->getMeta('heading_style')"
         />
     @endif
 
@@ -66,7 +68,11 @@ declare(strict_types=1);
 
                     $image = $widgetAsset->media->first() ?: $widgetAsset->asset->image;
 
-                    $linkedPage = $widgetAsset->asset instanceof Page ? $widgetAsset->asset : $widgetAsset->asset->linkedPage;
+                    $linkedPage = $widgetAsset->asset instanceof Pageable
+                        ? $widgetAsset->asset
+                        : $widgetAsset->asset->linkedPage;
+
+                    $actions = $widgetAsset->asset->getMeta('actions', []);
                 @endphp
                 {{-- format-ignore-end --}}
                 <section
@@ -111,7 +117,7 @@ declare(strict_types=1);
                                 @endif
 
                                 @if ($image)
-                                    @capture($mediaContent)
+                                    @capellBuffer($mediaContent)
                                         <x-capell::media
                                             :media="$image"
                                             :width="120"
@@ -121,7 +127,7 @@ declare(strict_types=1);
                                             class="h-10 w-10 rounded-full object-cover object-center"
                                             loading="lazy"
                                         />
-                                    @endcapture
+                                    @endcapellBuffer
 
                                     @if ($linkedPage)
                                         <a
@@ -137,9 +143,9 @@ declare(strict_types=1);
                                 @endif
                             </div>
 
-                            @if (! empty($widgetAsset->asset->meta['actions']) || $linkedPage)
-                                <x-capell::actions
-                                    :actions="$widgetAsset->asset->meta['actions'] ?? []"
+                            @if ($actions || $linkedPage)
+                                <x-capell-layout::actions
+                                    :$actions
                                     class="mt-4"
                                 >
                                     @if ($linkedPage)
@@ -151,7 +157,7 @@ declare(strict_types=1);
                                             {{ $widgetAsset->asset->translation?->link_text }}
                                         </x-capell::button>
                                     @endif
-                                </x-capell::actions>
+                                </x-capell-layout::actions>
                             @endif
                         </div>
                     </div>

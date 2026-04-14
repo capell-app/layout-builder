@@ -7,8 +7,9 @@ namespace Capell\Layout\Enums;
 use Capell\Layout\Filament\Resources\Contents\ContentResource;
 use Capell\Layout\Filament\Resources\Widgets\WidgetResource;
 use Capell\Layout\Support\Creator\TypeCreator;
+use Filament\Support\Contracts\HasLabel;
 
-enum LayoutTypeEnum: string
+enum LayoutTypeEnum: string implements HasLabel
 {
     case Content = 'content';
 
@@ -35,6 +36,15 @@ enum LayoutTypeEnum: string
         return match ($this) {
             self::Content => 'contents',
             self::Widget => 'widgets',
+        };
+    }
+
+    // TODO when this is translated this causes Livewire error: Exception: Property type not supported in Livewire for property: [{}]
+    public function getLabel(): string
+    {
+        return match ($this) {
+            self::Content => 'Content',
+            self::Widget => 'Widget',
         };
     }
 

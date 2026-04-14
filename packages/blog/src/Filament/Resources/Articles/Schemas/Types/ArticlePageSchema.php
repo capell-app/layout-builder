@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Filament\Resources\Articles\Schemas\Types;
 
+use Capell\Admin\Contracts\Schemas\PageSchemaExtenderResolverInterface;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
 use Capell\Admin\Filament\Components\Forms\Page\LayoutSelect;
-use Capell\Admin\Filament\Components\Forms\Page\PagePublishSection;
-use Capell\Admin\Filament\Components\Forms\Page\PageSettingsSchema;
-use Capell\Admin\Filament\Components\Forms\Page\PageSiteSelect;
-use Capell\Admin\Filament\Components\Forms\Page\ParentPageSelect;
+use Capell\Admin\Filament\Components\Forms\Page\PublishSection;
+use Capell\Admin\Filament\Components\Forms\Page\SettingsSchema;
+use Capell\Admin\Filament\Components\Forms\Page\SiteSelect;
 use Capell\Admin\Filament\Components\Forms\PublishSchema;
+use Capell\Admin\Filament\Resources\Pages\RelationManagers\UrlsRelationManager;
 use Capell\Admin\Filament\Resources\Pages\Schemas\Types\DefaultPageSchema;
-use Capell\Blog\Filament\Components\Forms\Page\PageTagsInput;
+use Capell\Blog\Filament\Components\Forms\Article\Tab\SettingsTab;
+use Capell\Blog\Filament\Components\Forms\Article\TagsInput;
 use Capell\Blog\Support\Loader\BlogLoader;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
@@ -24,11 +26,19 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Override;
 
 class ArticlePageSchema extends DefaultPageSchema
 {
     protected bool $hasCreatePageSchema = false;
+
+    public static function relationManagers(Model $record): array
+    {
+        return [
+            UrlsRelationManager::class,
+        ];
+    }
 
     protected static function modifyParentQueryUsing(Schema $schema): Closure
     {
@@ -59,13 +69,14 @@ class ArticlePageSchema extends DefaultPageSchema
                     $this->getTranslationFormSchema($schema),
                 ])
                 ->sidebarSchema(
-                    PageSettingsSchema::make(
+                    SettingsSchema::make(
                         $schema,
                         components: [
-                            PageTagsInput::make('tags'),
+                            TagsInput::make('tags'),
                         ],
                         pageGroup: $schema->getLivewire()->getResource()::getResourceName(),
                         modifyParentQueryUsing: static::modifyParentQueryUsing($schema),
+                        withParent: false,
                         withType: false,
                     ),
                     contained: true,
@@ -74,6 +85,13 @@ class ArticlePageSchema extends DefaultPageSchema
                 ->columnSpanFull()
                 ->tabs($this->getTabs($schema)),
         ];
+    }
+
+    protected function getTabs(Schema $schema): array
+    {
+        return resolve(PageSchemaExtenderResolverInterface::class)->resolveTabs($schema, [
+            SettingsTab::make($schema),
+        ]);
     }
 
     #[Override]
@@ -85,17 +103,18 @@ class ArticlePageSchema extends DefaultPageSchema
                 ->compact()
                 ->icon(Heroicon::OutlinedCog6Tooth)
                 ->schema([
-                    ...PageSettingsSchema::make(
+                    ...SettingsSchema::make(
                         $schema,
                         components: [
-                            PageTagsInput::make('tags'),
+                            TagsInput::make('tags'),
                             MediaLibraryFileUpload::make('image'),
                         ],
                         pageGroup: $schema->getLivewire()->getResource()::getResourceName(),
                         modifyParentQueryUsing: static::modifyParentQueryUsing($schema),
+                        withParent: false,
                         withType: false,
                     ),
-                    PagePublishSection::make(),
+                    PublishSection::make(),
                 ]),
         ];
     }
@@ -104,22 +123,11 @@ class ArticlePageSchema extends DefaultPageSchema
     protected function getCreateExtraFor(Schema $schema): array
     {
         return [
-            PageSiteSelect::make(),
-            $this->getParentPageSelect($schema),
+            SiteSelect::make(),
             LayoutSelect::make('layout_id')
                 ->reactive(),
-            PageTagsInput::make('tags'),
+            TagsInput::make('tags'),
             PublishSchema::make($schema),
         ];
-    }
-
-    #[Override]
-    protected function getParentPageSelect(Schema $schema): ParentPageSelect
-    {
-        return ParentPageSelect::make('parent_id')
-            ->label(__('capell-admin::form.parent_page'))
-            ->setupRelation('parent', $schema)
-            ->pageGroup(static::modifyParentQueryUsing($schema))
-            ->reactive();
     }
 }

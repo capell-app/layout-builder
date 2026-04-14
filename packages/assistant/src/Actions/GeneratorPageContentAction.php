@@ -42,10 +42,7 @@ class GeneratorPageContentAction
             $result = $this->pipeline->execute($input);
 
             $duration = microtime(true) - $startTime;
-            Log::info('AI Action completed', [
-                'action' => static::class,
-                'duration_ms' => round($duration * 1000, 2),
-            ]);
+
             Event::dispatch(new AiGenerationCompleted(static::class, $result, []));
 
             return $result;

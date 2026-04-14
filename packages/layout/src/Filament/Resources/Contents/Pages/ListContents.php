@@ -28,7 +28,7 @@ class ListContents extends ListRecords
 
     public function getSubheading(): string|Htmlable|null
     {
-        return __('capell-layout::generic.contents_subheading');
+        return __('capell-layout::generic.contents_info');
     }
 
     protected function getActions(): array

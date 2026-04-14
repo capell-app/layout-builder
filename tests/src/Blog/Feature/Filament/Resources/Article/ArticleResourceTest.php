@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Capell\Blog\Database\Factories\ArticleFactory;
 use Capell\Blog\Filament\Resources\Articles\ArticleResource;
+use Capell\Blog\Models\Article;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
@@ -42,10 +42,10 @@ test('admin can see create article', function (): void {
         ->assertOk();
 });
 
-test('admin can see edit article', function (): void {
+test('admin can load edit article', function (): void {
     test()->actingAsAdmin();
 
-    $page = (new ArticleFactory)->create();
+    $page = Article::factory()->create();
 
     get(ArticleResource::getUrl('edit', ['record' => $page]))
         ->assertOk();

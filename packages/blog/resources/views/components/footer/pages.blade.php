@@ -9,10 +9,10 @@ declare(strict_types=1);
     'pages',
 ])
 
-<div {{ $attributes->class(['footer-pages xl:w-[20%]']) }}>
-    <h3 class="{{ $headingClass }} mb-4 dark:text-gray-100">
+<div {{ $attributes->class(['footer-pages xl:w-[25%]']) }}>
+    <div class="{{ $headingClass }} mb-4">
         {{ __('Recent Articles') }}
-    </h3>
+    </div>
     <div class="space-y-3 lg:space-y-4">
         @forelse ($pages as $page)
             @php
@@ -20,7 +20,7 @@ declare(strict_types=1);
                 $url = $page->pageUrl->full_url;
             @endphp
 
-            <div @class(['group grid', 'grid-cols-4 gap-x-3' => $page->image])>
+            <div @class(['grid', 'grid-cols-4 gap-x-3' => $page->image])>
                 @if ($page->image)
                     <a
                         href="{{ $url }}"
@@ -30,8 +30,7 @@ declare(strict_types=1);
                         <x-capell::media
                             :square="true"
                             :media="$page->image"
-                            width="180"
-                            height="180"
+                            size="sm"
                             class="object-cover"
                         />
                     </a>
@@ -40,19 +39,17 @@ declare(strict_types=1);
                 <a
                     href="{{ $url }}"
                     @class([
-                        'hover:text-primary focus:text-primary group-hover:text-link group-focus:text-link flex flex-col justify-center gap-y-1 text-inherit',
+                        'focus:text-primary flex flex-col justify-center gap-y-1 text-inherit hover:text-gray-400',
                         'col-span-3 py-0.5' => $page->image,
                     ])
                     wire:navigate
                 >
-                    <span
-                        class="group-hover:text-link group-focus:text-link text-base font-medium leading-tight"
-                    >
+                    <span class="font-semibold">
                         {!! $page->getTranslation('label') !!}
                     </span>
                     <time
                         class="float-right mt-0.5 whitespace-nowrap text-xs font-light leading-none tracking-wide opacity-80"
-                        title="{{ __('capell-frontend::generic.publish_from', ['date' => $publishDate->format(config('capell-frontend.date_format'))]) }}"
+                        title="{{ __('capell-frontend::generic.visible_from', ['date' => $publishDate->format(config('capell-frontend.date_format'))]) }}"
                         datetime="{{ $publishDate->toW3cString() }}"
                     >
                         {{ $publishDate->format(config('capell-frontend.date_format')) }}
@@ -60,7 +57,7 @@ declare(strict_types=1);
                 </a>
             </div>
         @empty
-            <div class="text-sm font-medium tracking-tight">
+            <div class="text-sm font-medium">
                 {{ __('capell-frontend::generic.no_articles') }}
             </div>
         @endforelse

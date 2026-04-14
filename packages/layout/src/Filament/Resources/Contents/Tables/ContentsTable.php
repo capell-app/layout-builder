@@ -17,7 +17,6 @@ use Capell\Admin\Filament\Components\Tables\Columns\Page\PageNameColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\PublishIconColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\SiteColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\TypeColumn;
-use Capell\Admin\Filament\Components\Tables\Filters\StatusFilter;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
@@ -61,6 +60,7 @@ class ContentsTable implements TableConfigurator
                         'creator',
                         'editor',
                         'image',
+                        'linkedPage',
                         'parent.type',
                         'site',
                         'translation.language',
@@ -131,9 +131,15 @@ class ContentsTable implements TableConfigurator
                 ->linkRecord(),
             PageNameColumn::make('linkedPage.name')
                 ->label(__('capell-admin::table.page'))
+                // TODO does not work with json morph column
+                ->searchable(false)
                 ->withParents()
                 ->toggleable(isToggledHiddenByDefault: true),
             TypeColumn::make('type.name'),
+            MediaLibraryImageColumn::make('image')
+                ->label(__('capell-admin::table.image'))
+                ->collection('image')
+                ->toggleable(),
             TextColumn::make('children_count')
                 ->label(__('capell-layout::table.children'))
                 ->alignCenter()
@@ -151,13 +157,9 @@ class ContentsTable implements TableConfigurator
 
                     return $resource::getUrl(
                         'index',
-                        ['tableFilters' => ['filter' => ['parent_id' => $record->id]]],
+                        ['filters' => ['filter' => ['parent_id' => $record->id]]],
                     );
                 }),
-            MediaLibraryImageColumn::make('image')
-                ->label(__('capell-admin::table.image'))
-                ->collection('image')
-                ->toggleable(),
             BadgeableColumn::make('assets_count')
                 ->label(__('capell-layout::table.assets'))
                 ->alignCenter()
@@ -165,18 +167,18 @@ class ContentsTable implements TableConfigurator
                 ->sortable()
                 ->toggleable()
                 ->separator('')
-                ->formatStateUsing(fn (Content $record): string => $record->assets_count ? '' : ' &mdash; '),
+                ->formatStateUsing(fn (Content $record): int => $record->assets_count),
             SiteColumn::make('site.name')
                 ->hidden(
                     fn (HasTable $livewire): bool => $livewire->activeTab
-                        || ! empty($livewire->getTableFilterState('filter')['site_id']),
+                        || ($livewire->getTableFilterState('filter')['site_id'] ?? null) !== null && $livewire->getTableFilterState('filter')['site_id'] !== '',
                 ),
             PublishIconColumn::make('status'),
-            DateColumn::make('publish_from')
-                ->label(__('capell-layout::table.publish_from'))
+            DateColumn::make('visible_from')
+                ->label(__('capell-layout::table.visible_from'))
                 ->toggleable(isToggledHiddenByDefault: true),
-            DateColumn::make('publish_to')
-                ->label(__('capell-layout::table.publish_to'))
+            DateColumn::make('visible_until')
+                ->label(__('capell-layout::table.visible_until'))
                 ->toggleable(isToggledHiddenByDefault: true),
             DateColumn::make('created_at'),
             DateColumn::make('updated_at'),
@@ -196,7 +198,7 @@ class ContentsTable implements TableConfigurator
                     return $model::query()
                         ->ordered()
                         ->pluck('name', 'id')
-                        ->prepend(__('capell-layout::form.none'), 0)
+                        ->prepend(__('capell-admin::generic.none'), 0)
                         ->toArray();
                 })
                 ->modifyQueryUsing(
@@ -247,7 +249,7 @@ class ContentsTable implements TableConfigurator
                     Select::make('parent_id')
                         ->label(__('capell-admin::form.parent'))
                         ->allowHtml()
-                        ->options(function (HasTable $livewire, Get $get) {
+                        ->options(function (HasTable $livewire, Get $get): array {
                             $siteId = static::getSiteId($livewire);
 
                             /** @var class-string<Content> $model */
@@ -259,10 +261,10 @@ class ContentsTable implements TableConfigurator
                             ])
                                 ->whereHas('children')
                                 ->whereHas('type', fn (BuilderContract $query): BuilderContract => $query->enabled())
-                                ->when($siteId, fn (Builder $query) => $query->where('site_id', $siteId))
+                                ->when($siteId, fn (Builder $query): Builder => $query->where('site_id', $siteId))
                                 ->when(
                                     $get('language_id'),
-                                    fn (Builder $query, $languageId) => $query->whereHas(
+                                    fn (Builder $query, int $languageId): Builder => $query->whereHas(
                                         'translations',
                                         fn (BuilderContract $query): BuilderContract => $query->where('translations.language_id', $languageId),
                                     ),
@@ -282,7 +284,7 @@ class ContentsTable implements TableConfigurator
 
                                 if ($ancestors->isNotEmpty()) {
                                     $label .= $ancestors->pluck('name')
-                                        ->map(fn ($item) => Str::limit($item, 30))
+                                        ->map(fn (string $item): string => Str::limit($item, 30))
                                         ->implode(' &raquo; ')
                                         . ' &raquo; ';
                                 }
@@ -290,7 +292,8 @@ class ContentsTable implements TableConfigurator
                                 $label .= Str::limit($content->name, 40);
 
                                 return [$content->id => $label];
-                            });
+                            })
+                                ->all();
                         }),
                 ])
                 ->query(function (Builder $query, array $data): void {
@@ -313,7 +316,7 @@ class ContentsTable implements TableConfigurator
                 ->indicateUsing(function (array $data): array {
                     $indicators = [];
 
-                    if (! empty($data['language_id'])) {
+                    if (isset($data['language_id']) && $data['language_id'] !== null && $data['language_id'] !== '') {
                         /** @var class-string<Language> $model */
                         $model = CapellCore::getModel(CoreModelEnum::Language);
 
@@ -323,7 +326,7 @@ class ContentsTable implements TableConfigurator
                         );
                     }
 
-                    if (! empty($data['parent_id'])) {
+                    if (isset($data['parent_id']) && $data['parent_id'] !== null && $data['parent_id'] !== '') {
                         /** @var class-string<Content> $model */
                         $model = CapellCore::getModel(ModelEnum::Content->name);
 
@@ -351,13 +354,11 @@ class ContentsTable implements TableConfigurator
                     'expired' => __('capell-admin::generic.expired'),
                 ])
                 ->query(fn (Builder $query, array $state): Builder => match ($state['value'] ?? null) {
-                    'published' => $query->published(),
+                    'published' => $query->published()->publishedDate(),
                     'unpublished' => $query->pending(),
                     'expired' => $query->expired(),
                     default => $query,
                 }),
-
-            StatusFilter::make('status'),
 
             TrashedFilter::make(),
         ];

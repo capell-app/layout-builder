@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Layout\Database\Factories\LayoutFactory;
@@ -35,14 +36,16 @@ it('creates asset block widget with expected meta', function (): void {
 });
 
 it('renders asset block widget on page', function (): void {
-    $site = Site::factory()->withTranslations()->create();
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
     $creator = resolve(WidgetCreator::class);
     $widget = $creator->blockWidget();
     WidgetAsset::factory()->count(3)->widget($widget)->asset(AssetEnum::Content)->create();
     $layout = (new LayoutFactory)->widgets([$widget])->create();
-    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
     $widgetAssets = $widget->widgetAssets()
         ->ordered()
+        ->alphabetical($language)
         ->with([
             'asset.type',
             'asset.translation',

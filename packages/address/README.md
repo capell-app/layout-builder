@@ -40,7 +40,6 @@ Steps:
     ```
 
     This will:
-
     - Register Filament resources and permissions
     - Publish package migrations for countries and addresses
     - Run the migrations

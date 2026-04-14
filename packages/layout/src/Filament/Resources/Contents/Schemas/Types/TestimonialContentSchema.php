@@ -7,9 +7,9 @@ namespace Capell\Layout\Filament\Resources\Contents\Schemas\Types;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
 use Capell\Admin\Filament\Components\Forms\PublishSection;
-use Capell\Layout\Filament\Components\Forms\Content\ContentDetailsSchema;
-use Capell\Layout\Filament\Components\Forms\Content\ContentSettingsSchema;
-use Capell\Layout\Filament\Components\Forms\Content\ContentTranslationsRepeater;
+use Capell\Layout\Filament\Components\Forms\Content\DetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Content\SettingsSchema;
+use Capell\Layout\Filament\Components\Forms\Content\TranslationsRepeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
@@ -48,16 +48,16 @@ class TestimonialContentSchema extends DefaultContentSchema
         return [
             Section::make()
                 ->columns()
-                ->schema(ContentSettingsSchema::make($schema)),
-            ContentTranslationsRepeater::make($schema),
+                ->schema(SettingsSchema::make($schema)),
+            TranslationsRepeater::make($schema),
         ];
     }
 
     protected function getCreateOptionFormSchema(Schema $schema): array
     {
         return [
-            ...ContentSettingsSchema::make($schema),
-            ContentTranslationsRepeater::make($schema),
+            ...SettingsSchema::make($schema),
+            TranslationsRepeater::make($schema),
             Grid::make()
                 ->statePath('meta')
                 ->schema($this->getMetaSchema()),
@@ -69,7 +69,7 @@ class TestimonialContentSchema extends DefaultContentSchema
         return [
             FixedWidthSidebar::make()
                 ->mainSchema([
-                    ContentTranslationsRepeater::make($schema),
+                    TranslationsRepeater::make($schema),
                     Section::make()
                         ->statePath('meta')
                         ->columns()
@@ -79,8 +79,8 @@ class TestimonialContentSchema extends DefaultContentSchema
                     Section::make()
                         ->columns(1)
                         ->schema([
-                            ...ContentDetailsSchema::make($schema),
-                            ...ContentSettingsSchema::make($schema),
+                            ...DetailsSchema::make($schema),
+                            ...SettingsSchema::make($schema),
                         ]),
                     PublishSection::make(),
                 ]),
@@ -91,7 +91,7 @@ class TestimonialContentSchema extends DefaultContentSchema
     protected function getEditOptionFormSchema(Schema $schema): array
     {
         return [
-            ContentTranslationsRepeater::make($schema),
+            TranslationsRepeater::make($schema),
             Grid::make()
                 ->statePath('meta')
                 ->columnSpanFull()
@@ -103,8 +103,8 @@ class TestimonialContentSchema extends DefaultContentSchema
                 ->columns()
                 ->columnSpanFull()
                 ->schema([
-                    ...ContentDetailsSchema::make($schema),
-                    ...ContentSettingsSchema::make($schema),
+                    ...DetailsSchema::make($schema),
+                    ...SettingsSchema::make($schema),
                     PublishSection::make(),
                 ]),
         ];

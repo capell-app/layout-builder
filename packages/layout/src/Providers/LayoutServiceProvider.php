@@ -13,7 +13,8 @@ use Capell\Admin\Enums\SchemaTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Core\Data\AssetData;
-use Capell\Core\Data\TypeData;
+use Capell\Core\Data\PageTypeData;
+use Capell\Core\Data\VendorAssetData;
 use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
@@ -27,6 +28,7 @@ use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\Layout\Console\Commands\DemoCommand;
 use Capell\Layout\Console\Commands\InstallCommand;
 use Capell\Layout\Console\Commands\SetupCommand;
+use Capell\Layout\Console\Commands\UpgradeCommand;
 use Capell\Layout\Enums\AssetEnum;
 use Capell\Layout\Enums\ComponentTypeEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
@@ -41,6 +43,7 @@ use Capell\Layout\Filament\Resources\Types\Schemas\Types\ContentTypeSchema;
 use Capell\Layout\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
 use Capell\Layout\Listeners\AfterRecordSaved;
 use Capell\Layout\Listeners\LayoutLoaded;
+use Capell\Layout\Listeners\LayoutSavingListener;
 use Capell\Layout\Listeners\SiteTreeRebuilt;
 use Capell\Layout\Listeners\TypeValidated;
 use Capell\Layout\Models\Content;
@@ -48,7 +51,6 @@ use Capell\Layout\Support\CapellLayoutManager;
 use Capell\Layout\Support\Interceptors\Layouts\DefaultLayoutInterceptor;
 use Capell\Layout\Support\Interceptors\Layouts\HomeLayoutInterceptor;
 use Capell\Layout\Support\Interceptors\Layouts\ResultsLayoutInterceptor;
-use Capell\Layout\Support\Interceptors\Themes\DefaultThemeInterceptor;
 use Capell\Layout\Support\LayoutModelRegistrar;
 use Composer\InstalledVersions;
 use Exception;
@@ -60,6 +62,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
@@ -86,6 +89,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
                 DemoCommand::class,
                 InstallCommand::class,
                 SetupCommand::class,
+                UpgradeCommand::class,
             ]);
     }
 
@@ -94,6 +98,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
         $this
             ->registerResources()
             ->registerModels()
+            ->registerModelFillableAndCasts()
             ->registerRelationships()
             ->registerPackageMetadata();
 
@@ -129,6 +134,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             ->registerFilamentServing()
             ->registerTypes()
             ->registerComponents()
+            ->registerModelEvents()
             ->registerModelInterceptors()
             ->registerAssets()
             ->registerSchemaExtenders()
@@ -137,22 +143,36 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             ->registerFilamentAssets()
             ->registerPublishCommands()
             ->registerLivewireComponents()
-            ->registerBladeComponents();
+            ->registerBladeComponents()
+            ->registerVendorAssets();
+    }
+
+    private function registerModelEvents(): self
+    {
+        Layout::saving(resolve(LayoutSavingListener::class));
+
+        return $this;
+    }
+
+    private function registerModelFillableAndCasts(): self
+    {
+        Layout::addFillable(['containers', 'widgets']);
+
+        Layout::addCasts([
+            'containers' => 'array',
+            'widgets' => 'array',
+        ]);
+
+        return $this;
     }
 
     private function registerModelInterceptors(): self
     {
         $layoutModel = CapellCore::getModel(\Capell\Core\Enums\ModelEnum::Layout);
 
-        CapellCore::registerModelInterceptor($layoutModel, LayoutEnum::Default, DefaultLayoutInterceptor::class);
-        CapellCore::registerModelInterceptor($layoutModel, LayoutEnum::Home, HomeLayoutInterceptor::class);
-        CapellCore::registerModelInterceptor($layoutModel, LayoutEnum::Results, ResultsLayoutInterceptor::class);
-
-        CapellCore::registerModelInterceptor(
-            CapellCore::getModel(\Capell\Core\Enums\ModelEnum::Theme),
-            key: 'default',
-            interceptorClass: DefaultThemeInterceptor::class,
-        );
+        CapellCore::registerModelInterceptor($layoutModel, DefaultLayoutInterceptor::class, LayoutEnum::Default);
+        CapellCore::registerModelInterceptor($layoutModel, HomeLayoutInterceptor::class, LayoutEnum::Home);
+        CapellCore::registerModelInterceptor($layoutModel, ResultsLayoutInterceptor::class, LayoutEnum::Results);
 
         return $this;
     }
@@ -168,6 +188,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             permissions: $this->getPackagePermissions(),
             installCommand: 'capell:layout-install',
             setupCommand: 'capell:layout-setup',
+            upgradeCommand: 'capell:layout-upgrade',
             demoCommand: 'capell:layout-demo',
             demoParams: ['user', 'sites'],
             requirements: [
@@ -176,18 +197,6 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             ],
             version: $this->getVersion(),
             url: 'https://capell.app',
-            tailwindSources: [
-                'resources/views/**/*.blade.php',
-                '../../../laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
-            ],
-            tailwindImports: [
-                'tippy.js/dist/tippy.css',
-                'resources/css/capell-layout.css',
-            ],
-            tailwindPlugins: ['@tailwindcss/typography'],
-            npmDependencies: [
-                'tippy.js' => '^6.3.7',
-            ],
         );
 
         return $this;
@@ -248,10 +257,12 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
     private function registerTypes(): self
     {
         foreach (LayoutTypeEnum::cases() as $type) {
-            CapellCore::registerType(
-                new TypeData(
+            CapellCore::registerPageType(
+                new PageTypeData(
                     name: $type->value,
                     model: $type->getModel(),
+                    // TODO when this is translated this causes Livewire error: Exception: Property type not supported in Livewire for property: [{}]
+                    label: $type->getLabel(),
                     creatorClass: $type->getCreatorClass(),
                 ),
             );
@@ -325,15 +336,31 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
     private function registerLivewireComponents(): self
     {
-        foreach (LivewireComponentsEnum::getComponents() as $name => $component) {
-            if (! $component) {
-                continue;
-            }
+        if ($this->isLivewireV3()) {
+            foreach (LivewireComponentsEnum::getComponents() as $name => $component) {
+                if (! $component) {
+                    continue;
+                }
 
-            Livewire::component($name, $component);
+                Livewire::component($name, $component);
+            }
+        } else {
+            Livewire::addNamespace(
+                namespace: 'capell-layout',
+                classNamespace: 'Capell\\Layout\\Livewire',
+                classPath: __DIR__ . '/../Livewire',
+                classViewPath: __DIR__ . '/../../resources/views/livewire',
+            );
         }
 
         return $this;
+    }
+
+    private function isLivewireV3(): bool
+    {
+        $version = InstalledVersions::getVersion('livewire/livewire');
+
+        return version_compare($version, '4.0.0', '<');
     }
 
     private function registerBladeComponents(): self
@@ -366,6 +393,39 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
                     ->loadedOnRequest(),
             ],
             package: 'capell-layout',
+        );
+
+        return $this;
+    }
+
+    private function registerVendorAssets(): self
+    {
+        CapellCore::registerVendorAsset(
+            VendorAssetData::buildAsset(
+                path: 'vendor/capell-layout/frontend',
+                file: 'resources/js/capell-layout.js',
+                packageName: self::$packageName,
+            ),
+        );
+
+        CapellCore::registerVendorAsset(
+            VendorAssetData::tailwindSource('resources/views/**/*.blade.php', static::$packageName),
+        );
+
+        CapellCore::registerVendorAsset(
+            VendorAssetData::tailwindImport('tippy.js/dist/tippy.css', static::$packageName),
+        );
+
+        CapellCore::registerVendorAsset(
+            VendorAssetData::tailwindImport('resources/css/capell-layout.css', static::$packageName),
+        );
+
+        CapellCore::registerVendorAsset(
+            VendorAssetData::tailwindPlugin('@tailwindcss/typography', static::$packageName),
+        );
+
+        CapellCore::registerVendorAsset(
+            VendorAssetData::npmDependency('tippy.js', '^6.3.7', static::$packageName),
         );
 
         return $this;
@@ -442,17 +502,18 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
             fn (Page $model): HasManyThrough => $model->hasManyThrough(
                 ModelEnum::Content->value,
                 ModelEnum::WidgetAsset->value,
-                'page_id',
+                'pageable_id',
                 'id',
                 'id',
                 'asset_id',
             )
+                ->where('widget_assets.pageable_type', $model->getMorphClass())
                 ->where('widget_assets.asset_type', (new Content)->getMorphClass()),
         );
 
         Page::resolveRelationUsing(
             'widgetAssets',
-            fn (Page $model): HasMany => $model->hasMany(ModelEnum::WidgetAsset->value, 'page_id'),
+            fn (Page $model): MorphMany => $model->morphMany(ModelEnum::WidgetAsset->value, 'pageable'),
         );
 
         Page::resolveRelationUsing(

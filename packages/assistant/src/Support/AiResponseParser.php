@@ -8,11 +8,16 @@ use Capell\Core\Contracts\ParserContract;
 
 class AiResponseParser implements ParserContract
 {
-    protected const LIST_PATTERNS = [
-        '/^[\d\-\*]\.?\s*(.+)$/m',
-        '/^\xE2\x80\xA2\s*(.+)$/m',
-        '/^\-\s*(.+)$/m',
-    ];
+    protected readonly array $listPatterns;
+
+    public function __construct()
+    {
+        $this->listPatterns = [
+            '/^[\d\-\*]\.?\s*(.+)$/m',
+            '/^\xE2\x80\xA2\s*(.+)$/m',
+            '/^\-\s*(.+)$/m',
+        ];
+    }
 
     public function parse(string $content): array
     {
@@ -34,7 +39,7 @@ class AiResponseParser implements ParserContract
 
     public function normalize(array $data): array
     {
-        return array_map(function ($item): array {
+        return array_map(function (mixed $item): array {
             if (is_string($item)) {
                 return [
                     'value' => $item,
@@ -45,13 +50,18 @@ class AiResponseParser implements ParserContract
 
             if (is_array($item)) {
                 $value = (string) ($item['title'] ?? $item['name'] ?? $item['value'] ?? $item['text'] ?? '');
+                $keywords = ['title', 'name', 'value', 'text', 'reason', 'description', 'explanation'];
 
                 return [
                     'value' => $value,
                     'reason' => (string) ($item['reason'] ?? $item['description'] ?? $item['explanation'] ?? ''),
                     'length' => strlen($value),
                     'source' => 'json',
-                ] + array_filter($item, static fn ($k): bool => ! in_array($k, ['title', 'name', 'value', 'text', 'reason', 'description', 'explanation'], true), ARRAY_FILTER_USE_KEY);
+                ] + array_filter(
+                    $item,
+                    static fn (string $keyword): bool => ! in_array($keyword, $keywords, true),
+                    ARRAY_FILTER_USE_KEY,
+                );
             }
 
             return ['value' => (string) $item, 'source' => 'unknown'];
@@ -67,7 +77,7 @@ class AiResponseParser implements ParserContract
 
     protected function parseList(string $content): array
     {
-        foreach (self::LIST_PATTERNS as $pattern) {
+        foreach ($this->listPatterns as $pattern) {
             preg_match_all($pattern, $content, $matches);
             if (isset($matches[1]) && $matches[1] !== []) {
                 return array_map(static fn (string $item): array => [

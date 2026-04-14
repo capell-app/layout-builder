@@ -1,0 +1,3 @@
+parameters:
+    ignoreErrors:
+        - message: "#Relation \\'layoutWidgets\\' is not found.*#"

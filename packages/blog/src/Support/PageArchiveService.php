@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Capell\Blog\Support;
 
 use Capell\Blog\Data\ArchiveMonthData;
+use Capell\Blog\Models\Article;
 use Capell\Core\Models\Language;
-use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use stdClass;
 
 class PageArchiveService
 {
@@ -29,17 +30,17 @@ class PageArchiveService
         ?int $perPage = null,
         ?string $paginationKey = null,
     ) {
-        $query = Page::query()
+        $query = Article::query()
             ->selectRaw('COUNT(*) as `total`')
             ->when(
                 DB::getDriverName() === 'sqlite',
                 fn (Builder $query): Builder => $query->addSelect([
-                    DB::raw("strftime('%Y', COALESCE(`publish_from`, `created_at`)) as year"),
-                    DB::raw("strftime('%m', COALESCE(`publish_from`, `created_at`)) as month"),
+                    DB::raw("strftime('%Y', COALESCE(`visible_from`, `created_at`)) as year"),
+                    DB::raw("strftime('%m', COALESCE(`visible_from`, `created_at`)) as month"),
                 ]),
                 fn (Builder $query): Builder => $query->addSelect([
-                    DB::raw('YEAR(COALESCE(`publish_from`, `created_at`)) as year'),
-                    DB::raw('MONTH(COALESCE(`publish_from`, `created_at`)) as month'),
+                    DB::raw('YEAR(COALESCE(`visible_from`, `created_at`)) as year'),
+                    DB::raw('MONTH(COALESCE(`visible_from`, `created_at`)) as month'),
                 ]),
             )
             ->whereHas(
@@ -56,16 +57,18 @@ class PageArchiveService
             )
             ->where('site_id', $site->id)
             ->published()
+            ->publishedDate()
             ->when(
                 DB::getDriverName() === 'sqlite',
-                fn (Builder $query): Builder => $query->groupByRaw("strftime('%Y', COALESCE(`publish_from`, `created_at`)), strftime('%m', COALESCE(`publish_from`, `created_at`))"),
-                fn (Builder $query): Builder => $query->groupByRaw('YEAR(COALESCE(`publish_from`, `created_at`)), MONTH(COALESCE(`publish_from`, `created_at`))'),
+                fn (Builder $query): Builder => $query->groupByRaw("strftime('%Y', COALESCE(`visible_from`, `created_at`)), strftime('%m', COALESCE(`visible_from`, `created_at`))"),
+                fn (Builder $query): Builder => $query->groupByRaw('YEAR(COALESCE(`visible_from`, `created_at`)), MONTH(COALESCE(`visible_from`, `created_at`))'),
             )
-            ->orderByRaw('COALESCE(`publish_from`, `created_at`) DESC');
+            ->orderByRaw('COALESCE(`visible_from`, `created_at`) DESC');
 
         if ($paginate) {
-            $paginator = $query->paginate($perPage ?? 15, pageName: $paginationKey);
-            $paginator->getCollection()->transform(fn ($row): ArchiveMonthData => new ArchiveMonthData(
+            $paginator = $query->getQuery()->paginate($perPage ?? 15, pageName: $paginationKey);
+
+            $paginator->getCollection()->transform(fn (stdClass $row): ArchiveMonthData => new ArchiveMonthData(
                 (int) $row->year,
                 (int) $row->month,
                 (int) $row->total,
@@ -74,10 +77,14 @@ class PageArchiveService
             return $paginator;
         }
 
-        return $query->get()->map(fn ($row): ArchiveMonthData => new ArchiveMonthData(
-            (int) $row->year,
-            (int) $row->month,
-            (int) $row->total,
-        ));
+        return $query->getQuery()
+            ->get()
+            ->map(
+                fn (stdClass $row): ArchiveMonthData => new ArchiveMonthData(
+                    (int) $row->year,
+                    (int) $row->month,
+                    (int) $row->total,
+                ),
+            );
     }
 }

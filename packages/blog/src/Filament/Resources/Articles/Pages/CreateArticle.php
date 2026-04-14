@@ -8,6 +8,7 @@ use Capell\Admin\Enums\ResourceEnum as AdminResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Resources\Pages\Pages\CreatePage;
 use Capell\Blog\Actions\GetArticleLayoutAction;
+use Capell\Blog\Enums\BlogPageTypeEnum;
 use Capell\Blog\Enums\ResourceEnum;
 use Capell\Blog\Filament\Resources\Articles\ArticleResource;
 use Capell\Core\Enums\ModelEnum;
@@ -31,6 +32,9 @@ class CreateArticle extends CreatePage
         /** @var class-string<Type> $model */
         $model = CapellCore::getModel(ModelEnum::Type);
 
-        $this->data['type_id'] = $model::query()->pageType()->where('key', 'article')->value('id');
+        $this->data['type_id'] = $model::query()
+            ->pageType()
+            ->where('key', BlogPageTypeEnum::Article->value)
+            ->value('id');
     }
 }

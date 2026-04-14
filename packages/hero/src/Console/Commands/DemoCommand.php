@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Hero\Console\Commands;
 
+use Capell\Blog\Enums\BlogPageTypeEnum;
+use Capell\Blog\Models\Article;
 use Capell\Core\Console\Commands\Concerns\HasSitesOption;
+use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
@@ -45,7 +48,14 @@ class DemoCommand extends Command
 
         $heroWidget = CreateHeroWidgetAction::run();
 
-        $sites->each(fn (Site $site): bool => $this->createDemoContentForSite($site, $heroWidget));
+        $sites->each(function (Site $site) use ($heroWidget): void {
+            $this->createDemoContentForSite($site, $heroWidget);
+
+            if (CapellCore::hasPackage('capell-app/blog')) {
+                $this->updateBlogHeroContent($site);
+                $this->addHeroToArticlePages($site);
+            }
+        });
 
         $this->newLine();
         $this->info('Hero demo content inserted successfully.');
@@ -95,7 +105,7 @@ class DemoCommand extends Command
 
         $homepage = $model::getSiteHomePage($site);
 
-        if ($homepage) {
+        if ($homepage instanceof Page) {
             $homepage->loadMissing('layout');
 
             AddHeroToLayoutAction::run($homepage->layout);
@@ -103,11 +113,6 @@ class DemoCommand extends Command
             $type = CreateHeroContentTypeAction::run();
 
             $this->demoCreator->createContentsWidget($heroWidget, $homepage, container: 'hero', type: $type);
-        }
-
-        if (CapellCore::hasPackage('capell-blog')) {
-            $this->updateBlogHeroContent($site);
-            $this->addHeroToArticlePages($site);
         }
 
         $this->line('Demo hero content has been successfully created for site: ' . $site->name);
@@ -120,40 +125,38 @@ class DemoCommand extends Command
         /** @var class-string<Page> $model */
         $model = CapellCore::getModel(ModelEnum::Page);
 
-        $blogPage = $model::query()
-            ->with('translations')
+        $model::query()
+            ->with('translations.language')
             ->where('site_id', $site->id)
-            ->whereRelation('type', 'key', 'blog')
-            ->first();
+            ->whereRelation('type', 'key', BlogPageTypeEnum::Blog->value)
+            ->lazyById()
+            ->each(function (Pageable $page): void {
+                foreach ($page->translations as $translation) {
+                    $meta = $translation->meta;
+                    $meta['hero'] = '<h1>' . __('capell-blog::generic.latest_articles') . '</h1><p>' . __('capell-blog::generic.blog_intro') . '</p>';
 
-        if ($blogPage instanceof Page) {
-            foreach ($blogPage->translations as $translation) {
-                $meta = $translation->meta;
-                $meta['hero'] = '<h1>' . __('capell-blog::generic.latest_articles') . '</h1><p>' . __('capell-blog::generic.blog_intro') . '</p>';
-
-                $translation->update(['meta' => $meta]);
-            }
-        }
+                    $translation->update(['meta' => $meta]);
+                }
+            });
     }
 
     private function addHeroToArticlePages(Site $site): void
     {
-        /** @var class-string<Page> $model */
-        $model = CapellCore::getModel(ModelEnum::Page);
+        /** @var class-string<Article> $model */
+        $model = CapellCore::getModel(BlogPageTypeEnum::Article);
 
-        $articlePages = $model::query()
-            ->with('translations')
+        $model::query()
+            ->with('translations.language')
             ->where('site_id', $site->id)
-            ->whereRelation('type', 'key', 'article')
-            ->get();
+            ->whereRelation('type', 'key', BlogPageTypeEnum::Article->value)
+            ->lazyById()
+            ->each(function (Pageable $page): void {
+                foreach ($page->translations as $translation) {
+                    $meta = $translation->meta;
+                    $meta['hero'] = '<h1>' . $translation->title . '</h1>';
 
-        $articlePages->each(function (Page $page): void {
-            foreach ($page->translations as $translation) {
-                $meta = $translation->meta;
-                $meta['hero'] = '<h1>' . $translation->title . '</h1>';
-
-                $translation->update(['meta' => $meta]);
-            }
-        });
+                    $translation->update(['meta' => $meta]);
+                }
+            });
     }
 }

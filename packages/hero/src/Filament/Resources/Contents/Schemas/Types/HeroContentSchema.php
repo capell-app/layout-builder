@@ -12,10 +12,10 @@ use Capell\Admin\Filament\Components\Forms\PageSelect;
 use Capell\Admin\Filament\Components\Forms\PublishSection;
 use Capell\Layout\Filament\Components\Forms\ActionsRepeater;
 use Capell\Layout\Filament\Components\Forms\AssetsRepeater;
-use Capell\Layout\Filament\Components\Forms\Content\ContentDetailsSchema;
-use Capell\Layout\Filament\Components\Forms\Content\ContentSettingsSchema;
-use Capell\Layout\Filament\Components\Forms\Content\ContentTranslationsRepeater;
+use Capell\Layout\Filament\Components\Forms\Content\DetailsSchema;
 use Capell\Layout\Filament\Components\Forms\Content\RelatedRepeater;
+use Capell\Layout\Filament\Components\Forms\Content\SettingsSchema;
+use Capell\Layout\Filament\Components\Forms\Content\TranslationsRepeater;
 use Capell\Layout\Filament\Components\Forms\CustomColorInput;
 use Capell\Layout\Filament\Resources\Contents\Schemas\Types\DefaultContentSchema;
 use Filament\Schemas\Components\Group;
@@ -53,22 +53,22 @@ class HeroContentSchema extends DefaultContentSchema
     protected function getOptionFormSchema(Schema $schema): array
     {
         return [
-            ...($schema->getOperation() === 'create' ? ContentDetailsSchema::make($schema) : []),
+            ...($schema->getOperation() === 'create' ? DetailsSchema::make($schema) : []),
             Tabs::make()
                 ->columnSpanFull()
                 ->tabs([
-                    $this->getTranslationsTab($schema),
-                    $this->getMediaTab($schema)
+                    $this->translationsTab($schema),
+                    $this->mediaTab($schema)
                         ->key('media')
                         ->statePath('meta'),
-                    $this->getRelatedTab($schema)
+                    $this->relatedTab($schema)
                         ->key('related')
                         ->statePath('meta'),
-                    $this->getActionsTab()
+                    $this->actionsTab()
                         ->key('actions')
                         ->statePath('meta'),
-                    $this->getSettingsTab($schema, components: [
-                        ...($schema->getOperation() !== 'create' ? ContentDetailsSchema::make($schema) : []),
+                    $this->settingsTab($schema, components: [
+                        ...($schema->getOperation() !== 'create' ? DetailsSchema::make($schema) : []),
                     ]),
                 ]),
             PublishSection::make(),
@@ -82,20 +82,20 @@ class HeroContentSchema extends DefaultContentSchema
                 ->hiddenOn('edit')
                 ->columnSpanFull()
                 ->columns()
-                ->schema(ContentDetailsSchema::make($schema))
+                ->schema(DetailsSchema::make($schema))
                 ->contained(fn (string $operation): bool => $operation === 'create'),
             FixedWidthSidebar::make()
                 ->mainSchema([
                     Tabs::make()
                         ->tabs([
-                            $this->getTranslationsTab($schema),
-                            $this->getMediaTab($schema)
+                            $this->translationsTab($schema),
+                            $this->mediaTab($schema)
                                 ->statePath('meta'),
-                            $this->getRelatedTab($schema)
+                            $this->relatedTab($schema)
                                 ->statePath('meta'),
-                            $this->getActionsTab()
+                            $this->actionsTab()
                                 ->statePath('meta'),
-                            $this->getSettingsTab($schema),
+                            $this->settingsTab($schema),
                         ]),
                 ])
                 ->sidebarSchema([
@@ -103,15 +103,15 @@ class HeroContentSchema extends DefaultContentSchema
                         ->gridContainer()
                         ->columns(['default' => 1, '@lg' => 2])
                         ->schema([
-                            ...($schema->getOperation() !== 'create' ? ContentDetailsSchema::make($schema) : []),
-                            ...ContentSettingsSchema::make($schema),
+                            ...($schema->getOperation() !== 'create' ? DetailsSchema::make($schema) : []),
+                            ...SettingsSchema::make($schema),
                         ]),
                     PublishSection::make(),
                 ]),
         ];
     }
 
-    protected function getSettingsTab(Schema $schema, array $components = []): Tab
+    protected function settingsTab(Schema $schema, array $components = []): Tab
     {
         return Tab::make('settings')
             ->label(__('capell-admin::generic.settings'))
@@ -124,21 +124,33 @@ class HeroContentSchema extends DefaultContentSchema
             ]);
     }
 
-    protected function getTranslationsTab(Schema $schema): Tab
+    protected function translationsTab(Schema $schema): Tab
     {
         return Tab::make(__('capell-admin::tab.content'))
             ->icon(Heroicon::Language)
             ->schema([
-                ContentTranslationsRepeater::make($schema)
+                TranslationsRepeater::make($schema)
                     ->hiddenLabel(),
             ]);
     }
 
-    protected function getActionsTab(): Tab
+    protected function actionsTab(): Tab
     {
         return Tab::make('actions')
             ->label(__('capell-admin::generic.links'))
-            ->badge(fn (Get $get): ?int => count($get('actions') ?: []) !== 0 ? count($get('actions') ?: []) : null)
+            ->badge(function (Get $get): ?int {
+                if (! is_array($get('actions'))) {
+                    return null;
+                }
+
+                $count = count($get('actions'));
+
+                if ($count === 0) {
+                    return null;
+                }
+
+                return $count;
+            })
             ->icon('heroicon-o-link')
             ->schema([
                 ActionsRepeater::make('actions')
@@ -146,23 +158,47 @@ class HeroContentSchema extends DefaultContentSchema
             ]);
     }
 
-    protected function getMediaTab(Schema $schema): Tab
+    protected function mediaTab(Schema $schema): Tab
     {
 
         return Tab::make('media')
             ->label(__('capell-admin::generic.media'))
-            ->badge(fn (Get $get): ?int => count($get('assets') ?: []) !== 0 ? count($get('assets') ?: []) : null)
+            ->badge(function (Get $get): ?int {
+                if (! is_array($get('assets'))) {
+                    return null;
+                }
+
+                $count = count($get('assets'));
+
+                if ($count === 0) {
+                    return null;
+                }
+
+                return $count;
+            })
             ->icon('heroicon-o-photo')
             ->schema([
                 self::getAssetsComponent($schema),
             ]);
     }
 
-    protected function getRelatedTab(Schema $schema): Tab
+    protected function relatedTab(Schema $schema): Tab
     {
         return Tab::make('related')
             ->label(__('capell-admin::generic.related'))
-            ->badge(fn (Get $get): ?int => count($get('related') ?: []) !== 0 ? count($get('related') ?: []) : null)
+            ->badge(function (Get $get): ?int {
+                if (! is_array($get('related'))) {
+                    return null;
+                }
+
+                $count = count($get('related'));
+
+                if ($count === 0) {
+                    return null;
+                }
+
+                return $count;
+            })
             ->icon(Heroicon::OutlinedArrowsRightLeft)
             ->schema([
                 RelatedRepeater::make($schema),
@@ -174,6 +210,6 @@ class HeroContentSchema extends DefaultContentSchema
         return AssetsRepeater::make('assets')
             ->compactRepeater()
             ->hiddenLabel()
-            ->hint(__('capell-admin::generic.widget_assets_repeater_hint'));
+            ->hint(__('capell-layout::generic.widget_assets_repeater_hint'));
     }
 }

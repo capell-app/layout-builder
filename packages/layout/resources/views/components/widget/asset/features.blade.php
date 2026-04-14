@@ -1,37 +1,37 @@
 <?php
 
 declare(strict_types=1);
-
-use Capell\Frontend\Facades\Frontend;
-
-$theme = Frontend::theme();
 ?>
 
 @php
+    use Capell\Core\Contracts\Pageable;
     use Capell\Core\Enums\AssetComponentEnum;
     use Capell\Core\Facades\CapellCore;
     use Capell\Core\Models\Page;
+    use Capell\Frontend\Facades\Frontend;
+
+    $theme = Frontend::theme();
 @endphp
 
 @props([
-    'color' => $widget->meta['color'] ?? 'dark',
+    'color' => $widget->getMeta('color', 'dark'),
     'container',
     'containerKey',
     'containerWidth' => null,
     'loop',
-    'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
+    'total' => $widget->assets->count(),
     'widget',
     'widgetIndex',
-    'withChildCount' => $widget->meta['with_child_count'] ?? ($widget->type->meta['with_child_count'] ?? false),
-    'withImage' => $widget->meta['with_image'] ?? ($widget->type->meta['with_image'] ?? true),
-    'withParent' => $widget->meta['with_parent'] ?? ($widget->type->meta['with_parent'] ?? false),
-    'withDate' => $widget->meta['with_date'] ?? ($widget->type->meta['with_date'] ?? true),
-    'withSummary' => $widget->meta['with_summary'] ?? ($widget->type->meta['with_summary'] ?? true),
+    'withChildCount' => (bool) $widget->getMeta('with_child_count'),
+    'withImage' => (bool) $widget->getMeta('with_image', true),
+    'withParent' => (bool) $widget->getMeta('with_parent'),
+    'withDate' => (bool) $widget->getMeta('with_date'),
+    'withSummary' => (bool) $widget->getMeta('with_summary'),
 ])
 
-@capture($assetBlock, $widgetAsset, $column)
+@capellBuffer($assetBlock, $widgetAsset, $column)
     @php
-        $linkedPage = $widgetAsset->asset instanceof Page ? $widgetAsset->asset : $widgetAsset->asset->linkedPage;
+        $linkedPage = $widgetAsset->asset instanceof Pageable ? $widgetAsset->asset : $widgetAsset->asset->linkedPage;
     @endphp
 
     <div
@@ -40,17 +40,17 @@ $theme = Frontend::theme();
             'lg:flex-row-reverse lg:text-right' => $column === 1 && $widget->image,
         ])
     >
-        @if ($widgetAsset->asset->meta['icon'] ?? false)
+        @if ($widgetAsset->asset->getMeta('icon', false))
             <div
                 class="bg-gray flex h-14 w-14 shrink-0 items-center justify-center rounded-full p-3 dark:bg-gray-600"
             >
-                @capture($iconContent)
+                @capellBuffer($iconContent)
                     <x-capell::icon
-                        :icon="$widgetAsset->asset->meta['icon']"
+                        :icon="$widgetAsset->asset->getMeta('icon')"
                         class="h-10 w-10 text-white"
                         loading="lazy"
                     />
-                @endcapture
+                @endcapellBuffer
 
                 @if ($linkedPage)
                     <a href="{{ $linkedPage->pageUrl->full_url }}">
@@ -61,7 +61,7 @@ $theme = Frontend::theme();
                 @endif
             </div>
         @elseif ($image = $widgetAsset->media->first() ?: $widgetAsset->asset->image)
-            @capture($imageBlock)
+            @capellBuffer($imageBlock)
                 <x-capell::media
                     :media="$image"
                     :width="120"
@@ -71,7 +71,7 @@ $theme = Frontend::theme();
                     class="h-10 w-10 rounded-full object-cover object-center"
                     loading="lazy"
                 />
-            @endcapture
+            @endcapellBuffer
 
             @if ($linkedPage)
                 <a href="{{ $linkedPage->pageUrl->full_url }}">
@@ -88,15 +88,15 @@ $theme = Frontend::theme();
                 :content-type="$widgetAsset->asset->type->content_structure"
                 :color="$color"
                 :title="$widgetAsset->asset->translation->title"
-                :heading-tag="$widgetAsset->asset->meta['heading_size'] ?? 'h3'"
-                :heading-weight="$widgetAsset->asset->meta['heading_weight'] ?? 'medium'"
-                :text-align="$widgetAsset->asset->meta['align'] ?? $widgetAsset->asset->type->meta['align'] ?? ('text-left' . ($column === 1 && $widget->image ? ' lg:text-right' : ''))"
+                :heading-tag="$widgetAsset->asset->getMeta('heading_size', 'h3')"
+                :heading-weight="$widgetAsset->asset->getMeta('heading_weight', 'medium')"
+                :text-align="$widgetAsset->asset->getMeta('align') ?? $widgetAsset->asset->type->getMeta('align') ?? ('text-left' . ($column === 1 && $widget->image ? ' lg:text-right' : ''))"
                 size="sm"
                 class="prose-h3:mb-1 lg:prose-base lg:leading-snug"
             />
         @endif
     </div>
-@endcapture
+@endcapellBuffer
 
 <x-capell-layout::widget.wrapper
     class="widget-assets widget-assets-features"
@@ -113,10 +113,11 @@ $theme = Frontend::theme();
             :content="$widget->translation->content"
             :content-type="$widget->type->content_structure"
             :color="$color"
+            :divider="$widget->getMeta('content_divider')"
             :muted="in_array($containerKey, $theme->secondary_containers)"
             :title="$widget->translation->title"
-            :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
-            :heading-style="($widget->meta['heading_style'] ?? null) ?: $widget->type->meta['heading_style'] ?? null"
+            :text-align="$widget->getMeta('align')"
+            :heading-style="$widget->getMeta('heading_style')"
             align="center"
         />
     @endif

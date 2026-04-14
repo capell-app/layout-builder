@@ -32,8 +32,6 @@ class InstallCommand extends Command
 
         AssignPermissionsToRole::run(resources: ResourceEnum::cases());
 
-        $this->call('vendor:publish', ['--tag' => 'capell-layout-publish']);
-
         $this->call('vendor:publish', ['--tag' => 'capell-layout-assets', '--force' => true]);
 
         $migrations = __DIR__ . '/../../../database/migrations';

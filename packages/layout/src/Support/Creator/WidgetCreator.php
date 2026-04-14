@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Support\Creator;
 
+use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Enums\DefaultColorEnum;
 use Capell\Core\Enums\ModelEnum as CoreModelEnum;
-use Capell\Core\Enums\TypeEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Navigation;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Layout\Enums\AssetEnum;
-use Capell\Layout\Enums\ContainerWidthEnum;
 use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\CarouselWidgetSchema;
@@ -100,6 +99,7 @@ class WidgetCreator
             'type_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::PageChildren,
+                'content_divider' => true,
                 'with_children_count' => true,
                 'with_summary' => true,
                 'with_image' => true,
@@ -162,7 +162,7 @@ class WidgetCreator
                 'widget_theme' => 'masonry',
                 'spacing' => 'md',
                 'margin' => ['lg'],
-                'container' => 'full',
+                'container' => ContainerWidthEnum::Full,
             ],
         ]);
 
@@ -192,12 +192,12 @@ class WidgetCreator
             'type_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::PageLatest,
+                'content_divider' => true,
                 'limit' => 6,
                 'pagination' => false,
                 'with_summary' => false,
                 'with_link_text' => true,
                 'with_image' => true,
-                'with_date' => true,
                 'columns' => 1,
             ],
             'admin' => [
@@ -226,10 +226,25 @@ class WidgetCreator
             'name' => __('capell-admin::generic.media_carousel'),
             'type_id' => $type->id,
             'meta' => [
+                'carousel_align' => 'center',
+                'carousel_arrows' => true,
+                'carousel_auto_delay' => 5000,
+                'carousel_auto_play' => true,
+                'carousel_disable_on_interaction' => true,
+                'carousel_drag' => true,
+                'carousel_effect' => 'slide',
+                'carousel_fade' => false,
+                'carousel_loop' => true,
+                'carousel_pagination' => false,
+                'carousel_pause_on_hover' => true,
+                'carousel_speed' => 300,
+                'carousel_touch' => true,
+                'carousel_wheel' => true,
                 'component' => WidgetComponentEnum::AssetCarousel,
                 'limit' => 20,
-                'container' => 'full',
+                'container' => ContainerWidthEnum::Full,
                 'background_color' => 'light-gray',
+                'spacing' => 'md',
                 'margin' => 0,
                 'padding' => ['md'],
             ],
@@ -250,7 +265,7 @@ class WidgetCreator
             'type_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::PageContent,
-                'margin' => ['t-lg'],
+                'margin' => ['t-lg', 'b-xl'],
                 'page_content' => ['title', 'content'],
             ],
         ]);
@@ -307,6 +322,7 @@ class WidgetCreator
             'type_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::PageSiblings,
+                'content_divider' => true,
                 'with_children_count' => true,
                 'with_summary' => true,
                 'heading_style' => 'secondary',
@@ -387,7 +403,8 @@ class WidgetCreator
                 'view_file' => 'capell-layout::components.widget.asset.blocks',
                 'spacing' => 'none',
                 'columns' => 0,
-                'margin' => '',
+                'margin' => 'none',
+                'with_summary' => true,
                 'container' => ContainerWidthEnum::Small->value,
             ],
             'admin' => [
@@ -420,9 +437,27 @@ class WidgetCreator
             'type_id' => $type->id,
             'meta' => [
                 'align' => 'center',
+                'spacing' => 'none',
                 'background_overlay' => true,
                 'background_color' => DefaultColorEnum::Gray->value,
+                'carousel' => true,
+                'carousel_arrows' => false,
+                'carousel_auto_delay' => 5000,
+                'carousel_disable_on_interaction' => true,
+                'carousel_drag' => false,
+                'carousel_effect' => 'fade',
+                'carousel_fade' => true,
+                'carousel_auto_play' => true,
+                'carousel_loop' => true,
+                'carousel_pagination' => true,
+                'carousel_pause_on_hover' => true,
+                'carousel_speed' => 300,
+                'carousel_touch' => false,
+                'carousel_wheel' => false,
                 'view_file' => 'capell-layout::components.widget.asset.testimonials',
+            ],
+            'admin' => [
+                'schema' => CarouselWidgetSchema::getKey(),
             ],
         ]);
     }
@@ -432,9 +467,9 @@ class WidgetCreator
         ?Site $site = null,
         string $widgetKey = 'widget-navigation',
         array $widgetMeta = [],
-        string $navigatonKey = 'navigation',
-        string $navigatonName = 'Navigation',
-        array $navigatonItems = [],
+        string $navigationKey = 'navigation',
+        string $navigationName = 'Navigation',
+        array $navigationItems = [],
     ): Widget {
         $type ??= resolve(TypeCreator::class)->navigationWidgetType();
         $typeModel = CapellCore::getModel(CoreModelEnum::Type);
@@ -442,22 +477,17 @@ class WidgetCreator
 
         $navigationType = $typeModel::navigationType()->default()->first();
         if (! $navigationType) {
-            $navigationType = $typeModel::query()->create([
-                'key' => 'navigation',
-                'type' => TypeEnum::Navigation->value,
-                'name' => 'Navigation',
-                'default' => true,
-            ]);
+            $navigationType = resolve(\Capell\Core\Support\Creator\TypeCreator::class)->createNavigationType();
         }
 
         /** @var Navigation $navigation */
         $navigation = $navigationModel::query()->firstOrCreate([
-            'key' => $navigatonKey,
+            'key' => $navigationKey,
             'type_id' => $navigationType->id,
             'site_id' => $site?->id,
         ], [
-            'name' => $navigatonName,
-            'items' => $navigatonItems,
+            'name' => $navigationName,
+            'items' => $navigationItems,
         ]);
 
         return $this->widgetModel::query()->firstOrCreate(['key' => $widgetKey], [
@@ -478,18 +508,18 @@ class WidgetCreator
         array $widgetMeta = [
             'view_file' => 'capell-layout::components.widget.navigation.tabs',
         ],
-        string $navigatonKey = 'navigation-tabs',
-        string $navigatonName = 'Tabs',
-        array $navigatonItems = [],
+        string $navigationKey = 'navigation-tabs',
+        string $navigationName = 'Tabs',
+        array $navigationItems = [],
     ): Widget {
         return $this->navigationWidget(
             type: $type,
             site: $site,
             widgetKey: $widgetKey,
             widgetMeta: $widgetMeta,
-            navigatonKey: $navigatonKey,
-            navigatonName: $navigatonName,
-            navigatonItems: $navigatonItems,
+            navigationKey: $navigationKey,
+            navigationName: $navigationName,
+            navigationItems: $navigationItems,
         );
     }
 

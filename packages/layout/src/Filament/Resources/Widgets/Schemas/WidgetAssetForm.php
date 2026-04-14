@@ -41,7 +41,7 @@ class WidgetAssetForm implements FormConfigurator
                             ?? null;
                     }
 
-                    if (! $adminSchema) {
+                    if ($adminSchema === null) {
                         $adminSchema = WidgetAssetSchemaEnum::fromName(ucfirst($assetType))->value::getKey();
                     }
 

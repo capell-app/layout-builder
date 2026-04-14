@@ -8,16 +8,18 @@ use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
 use Capell\Layout\Filament\Components\Forms\AssetsRepeater;
 use Capell\Layout\Filament\Components\Forms\ColorSchemeComponent;
-use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\Layout\Filament\Components\Forms\Widget\CreateDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\DisplaySection;
+use Capell\Layout\Filament\Components\Forms\Widget\ResultsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\SettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetResultsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetTranslationsRepeater;
+use Capell\Layout\Filament\Components\Forms\Widget\TranslationsRepeater;
 use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
@@ -39,15 +41,15 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
     protected function getOptionSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
+            CreateDetailsSchema::make($schema),
             Tabs::make()
                 ->columnSpanFull()
                 ->tabs([
-                    $this->getAssetsTab($schema),
-                    $this->getTranslationsTab($schema),
-                    $this->getDisplayTab($schema),
+                    $this->assetsTab($schema),
+                    $this->translationsTab($schema),
+                    $this->displayTab($schema),
                     $this->adminTab($schema),
-                    $this->getSettingsTab($schema),
+                    $this->settingsTab($schema),
                 ]),
         ];
     }
@@ -55,30 +57,35 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
     protected function getFormSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
+            CreateDetailsSchema::make($schema),
             FixedWidthSidebar::make()
                 ->mainSchema([
                     Tabs::make()
                         ->columnSpanFull()
                         ->tabs([
-                            $this->getAssetsTab($schema),
-                            $this->getTranslationsTab($schema),
-                            $this->getDisplayTab($schema),
+                            $this->assetsTab($schema),
+                            $this->translationsTab($schema),
+                            $this->displayTab($schema),
                             $this->adminTab($schema),
                         ]),
                 ])
-                ->sidebarSchema(
-                    WidgetSettingsSchema::make($schema),
-                    contained: true,
-                ),
+                ->sidebarSchema([
+                    Section::make()
+                        ->gridContainer()
+                        ->columns(['@md' => 2])
+                        ->schema([
+                            ...SettingsSchema::make($schema),
+                            MediaLibraryFileUpload::make('image'),
+                        ]),
+                ]),
         ];
     }
 
-    protected function getAssetsTab(Schema $schema): Tab
+    protected function assetsTab(Schema $schema): Tab
     {
         return Tab::make(__('capell-admin::tab.assets'))
             ->badge(function (Get $get): ?int {
-                if (! $get('widgetAssets')) {
+                if ($get('widgetAssets') === null) {
                     return null;
                 }
 
@@ -91,12 +98,12 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
             ]);
     }
 
-    protected function getTranslationsTab(Schema $schema): Tab
+    protected function translationsTab(Schema $schema): Tab
     {
         return Tab::make(__('capell-admin::tab.content'))
             ->icon(Heroicon::Language)
             ->schema([
-                WidgetTranslationsRepeater::make($schema)
+                TranslationsRepeater::make($schema)
                     ->contained(false),
             ]);
     }
@@ -106,20 +113,22 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
         return WidgetAdminTab::make();
     }
 
-    protected function getSettingsTab(Schema $schema): Tab
+    protected function settingsTab(Schema $schema): Tab
     {
         return WidgetSettingsTab::make($schema);
     }
 
-    protected function getDisplayTab(Schema $schema): Tab
+    protected function displayTab(Schema $schema): Tab
     {
         return WidgetDisplayTab::make([
-            MediaLibraryFileUpload::make('image'),
-            WidgetDisplaySection::make([
+            Fieldset::make(__('capell-admin::generic.results'))
+                ->columnSpanFull()
+                ->statePath('meta')
+                ->schema(ResultsSchema::make($schema)),
+            DisplaySection::make([
                 ColorSchemeComponent::make('color'),
-                ...WidgetResultsSchema::make($schema),
             ]),
-            WidgetComponentFilesSection::make()
+            ComponentSection::make()
                 ->statePath('meta'),
         ]);
     }
@@ -129,6 +138,6 @@ class AssetsWidgetSchema extends DefaultWidgetSchema
         return AssetsRepeater::make('widgetAssets')
             ->compactRepeater()
             ->hiddenLabel()
-            ->hint(__('capell-admin::generic.widget_assets_repeater_hint'));
+            ->hint(__('capell-layout::generic.widget_assets_repeater_hint'));
     }
 }

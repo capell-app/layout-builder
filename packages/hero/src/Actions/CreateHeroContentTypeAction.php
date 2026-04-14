@@ -9,6 +9,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Type;
 use Capell\Hero\Filament\Resources\Contents\Schemas\Types\HeroContentSchema;
 use Capell\Layout\Enums\LayoutTypeEnum;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -16,6 +17,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class CreateHeroContentTypeAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(): Type

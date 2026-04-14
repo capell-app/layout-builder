@@ -46,9 +46,7 @@ Steps:
     ```
 
     This will:
-
     - Register Filament resources and permissions
-    - Publish admin/frontend assets (`capell-layout-publish`)
     - Publish and run database migrations
     - Register builder components and schemas
 

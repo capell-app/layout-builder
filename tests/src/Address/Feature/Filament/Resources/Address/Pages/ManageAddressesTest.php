@@ -69,19 +69,19 @@ test('can replicate address', function (): void {
     livewire(ManageAddresses::class)
         ->assertSuccessful()
         ->assertCountTableRecords(1)
-        ->callAction(
-            TestAction::make(ReplicateAction::class)->table($address),
-            data: [
-                'name' => $copyName,
-                'line1' => $copyLine1,
-                'line2' => $address->line2,
-                'city' => $address->city,
-                'state' => $address->state,
-                'postal_code' => $address->postal_code,
-                'country_id' => $address->country_id,
-                'meta' => $address->meta,
-            ],
-        )
+        ->mountAction(TestAction::make(ReplicateAction::class)->table($address))
+        ->assertActionMounted(TestAction::make(ReplicateAction::class)->table($address))
+        ->fillForm([
+            'name' => $copyName,
+            'line1' => $copyLine1,
+            'line2' => $address->line2,
+            'city' => $address->city,
+            'state' => $address->state,
+            'postal_code' => $address->postal_code,
+            'country_id' => $address->country_id,
+            'meta' => $address->meta,
+        ])
+        ->callMountedAction()
         ->assertHasNoFormErrors()
         ->assertCountTableRecords(2);
 

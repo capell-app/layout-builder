@@ -15,8 +15,9 @@ it('has many contents', function (): void {
 
     Content::factory()->create(['type_id' => $type->id]);
 
-    expect($type->refresh())
-        ->contents->toHaveCount(1);
+    $type->refresh()->load('contents');
+
+    expect($type->getRelation('contents'))->toHaveCount(1);
 });
 
 it('has many widgets', function (): void {
@@ -24,8 +25,9 @@ it('has many widgets', function (): void {
 
     Widget::factory()->create(['type_id' => $type->id]);
 
-    expect($type->refresh())
-        ->widgets->toHaveCount(1);
+    $type->refresh()->load('widgets');
+
+    expect($type->getRelation('widgets'))->toHaveCount(1);
 });
 
 it('can scope content type', function (): void {

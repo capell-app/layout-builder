@@ -11,12 +11,12 @@ use Capell\Admin\Filament\Concerns\HasTypeSchema;
 use Capell\Layout\Enums\SchemaExtenderEnum;
 use Capell\Layout\Enums\TypeSchemaEnum;
 use Capell\Layout\Filament\Components\Forms\HeadingSizeSelect;
-use Capell\Layout\Filament\Components\Forms\Widget\CreateWidgetDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\Layout\Filament\Components\Forms\Widget\CreateDetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Widget\DisplaySection;
+use Capell\Layout\Filament\Components\Forms\Widget\SettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
@@ -49,34 +49,27 @@ class PageContentWidgetSchema implements TypeSchemaInterface
             ->tabs([
                 WidgetDisplayTab::make([
                     Grid::make()
+                        ->statePath('meta')
                         ->columnSpanFull()
                         ->schema([
-                            Grid::make()
-                                ->statePath('meta')
-                                ->schema([
-                                    CheckboxList::make('page_content')
-                                        ->label(__('capell-layout::form.page_content'))
-                                        ->helperText(__('capell-admin::generic.widget_page_content_helper'))
-                                        ->reactive()
-                                        ->columns(3)
-                                        ->options([
-                                            'title' => __('capell-admin::generic.title'),
-                                            'content' => __('capell-admin::generic.content'),
-                                            'contents' => __('capell-admin::generic.contents'),
-                                        ]),
-                                    HeadingSizeSelect::make('heading_size')
-                                        ->visible(
-                                            fn (Get $get): bool => in_array(
-                                                'title',
-                                                $get('page_content') ?: [],
-                                                true,
-                                            ),
-                                        ),
+                            CheckboxList::make('page_content')
+                                ->label(__('capell-layout::form.page_content'))
+                                ->helperText(__('capell-layout::generic.widget_page_content_helper'))
+                                ->reactive()
+                                ->columns(3)
+                                ->options([
+                                    'title' => __('capell-admin::generic.title'),
+                                    'content' => __('capell-admin::generic.content'),
+                                    'contents' => __('capell-admin::generic.contents'),
                                 ]),
-                            WidgetDisplaySection::make(),
-                            WidgetComponentFilesSection::make()
-                                ->statePath('meta'),
+                            HeadingSizeSelect::make('heading_size')
+                                ->visible(
+                                    fn (Get $get): bool => $get('page_content') !== null && in_array('title', $get('page_content'), true),
+                                ),
                         ]),
+                    DisplaySection::make(),
+                    ComponentSection::make()
+                        ->statePath('meta'),
                 ]),
                 WidgetAdminTab::make(),
             ]);
@@ -85,13 +78,13 @@ class PageContentWidgetSchema implements TypeSchemaInterface
     protected function getFormSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
+            CreateDetailsSchema::make($schema),
             FixedWidthSidebar::make()
                 ->mainSchema([
                     $this->getTabs(),
                 ])
                 ->sidebarSchema(
-                    WidgetSettingsSchema::make($schema),
+                    SettingsSchema::make($schema),
                     contained: true,
                 ),
         ];
@@ -100,7 +93,7 @@ class PageContentWidgetSchema implements TypeSchemaInterface
     protected function getOptionSchema(Schema $schema): array
     {
         return [
-            CreateWidgetDetailsSchema::make($schema),
+            CreateDetailsSchema::make($schema),
             $this->getTabs(),
         ];
     }

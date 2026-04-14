@@ -15,20 +15,14 @@ it('can list widgets for a content model', function (): void {
 
     $widget = Widget::factory()
         ->has(
-            WidgetAsset::factory([
-                'asset_type' => 'content',
-                'asset_id' => $content->getKey(),
-            ]),
+            WidgetAsset::factory()->asset($content),
             'assets',
         )
         ->create();
 
     Widget::factory()
         ->has(
-            WidgetAsset::factory([
-                'asset_type' => 'content',
-                'asset_id' => $content->getKey(),
-            ]),
+            WidgetAsset::factory()->asset($content),
             'assets',
         )
         ->create();
@@ -50,7 +44,7 @@ it('can search widgets for a content model', function (): void {
 
     Widget::factory()
         ->count(5)
-        ->has(WidgetAsset::factory()->state(['asset_type' => 'content', 'asset_id' => $content->getKey()]), 'assets')
+        ->has(WidgetAsset::factory()->asset($content), 'assets')
         ->create();
 
     $widgetAssets = $content->widgets()->with('widget')->get();

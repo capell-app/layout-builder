@@ -9,11 +9,11 @@ $theme = Frontend::theme();
 ?>
 
 @props([
-    'align' => $widget->meta['align'] ?? $widget->type->meta['align'] ?? null,
-    'headingSize' => $widget->meta['heading_size'] ?? 'h2',
-    'size' => $widget->meta['size'] ?? null,
-    'style' => $widget->meta['style'] ?? 'row',
-    'reverseOrder' => $widget->meta['reverse_order'] ?? null,
+    'align' => $widget->getMeta('align'),
+    'headingSize' => $widget->getMeta('heading_size', 'h2'),
+    'size' => $widget->getMeta('size'),
+    'style' => $widget->getMeta('style', 'row'),
+    'reverseOrder' => $widget->getMeta('reverse_order'),
     'title' => $widget->translation?->title,
     'content' => $widget->translation?->content,
     'container',
@@ -46,22 +46,23 @@ $theme = Frontend::theme();
     >
         @if ($content || $title)
             <x-capell::content
-                class="mb-2"
+                class="widget-content mb-2"
                 :compact="true"
                 :content="$content"
                 :content-type="$widget->type->content_structure"
+                :divider="$widget->getMeta('content_divider')"
                 :heading-size="$headingSize"
                 :muted="in_array($containerKey, $theme->secondary_containers)"
-                :heading-style="($widget->meta['heading_style'] ?? null) ?: $widget->type->meta['heading_style'] ?? null"
+                :heading-style="$widget->getMeta('heading_style')"
                 :title="$title"
                 :text-align="$align"
             />
         @endif
 
-        @if (! empty($widget->meta['actions']))
-            <x-capell::actions
+        @if ($widget->getMeta('actions'))
+            <x-capell-layout::actions
                 class="mt-4"
-                :actions="$widget->meta['actions']"
+                :actions="$widget->getMeta('actions')"
                 :align="$align"
             />
         @endif

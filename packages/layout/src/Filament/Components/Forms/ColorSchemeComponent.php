@@ -14,7 +14,7 @@ class ColorSchemeComponent extends ToggleButtons
             ->inline()
             ->grouped()
             ->options([
-                '' => __('capell-layout::generic.auto'),
+                'auto' => __('capell-layout::generic.auto'),
                 'light' => __('capell-layout::generic.light'),
                 'dark' => __('capell-layout::generic.dark'),
             ]);

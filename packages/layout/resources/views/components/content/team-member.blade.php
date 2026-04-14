@@ -5,22 +5,23 @@ declare(strict_types=1);
 ?>
 
 @php
+    use Capell\Core\Enums\MediaConversionEnum;
     use Capell\Frontend\Facades\Frontend;
 
-            $language = Frontend::language();
+    $language = Frontend::language();
 @endphp
 
 @props([
-'color' => null,
-'icon' => null,
-'image' => null,
-'linkText' => null,
-'loop' => null,
-'meta' => [],
-'summary',
-'tags' => null,
-'title',
-'url' => null,
+    'color' => null,
+    'icon' => null,
+    'image' => null,
+    'linkText' => null,
+    'loop' => null,
+    'meta' => [],
+    'summary',
+    'tags' => null,
+    'title',
+    'url' => null,
 ])
 
 <div
@@ -29,7 +30,7 @@ declare(strict_types=1);
     @if ($image)
         <img
             class="mx-auto mb-4 h-36 w-64 object-cover"
-            src="{{ $image->getUrl('thumb') }}"
+            src="{{ $image->getUrl(MediaConversionEnum::Thumbnail->value) }}"
             alt="{{ e(strip_tags($title ?? '')) }}"
         />
     @endif

@@ -17,12 +17,10 @@ it('can list pages for a content model', function (): void {
 
     $widget = Widget::factory()
         ->has(
-            WidgetAsset::factory([
-                'asset_type' => 'content',
-                'asset_id' => $content->id,
-                'page_id' => $page->id,
-                'container' => 'main',
-            ])
+            WidgetAsset::factory()
+                ->page($page)
+                ->asset($content)
+                ->state(['container' => 'main'])
                 ->forEachSequence(
                     ['occurrence' => 1],
                     ['occurrence' => 2],
@@ -40,7 +38,7 @@ it('can list pages for a content model', function (): void {
         ->assertSuccessful()
         ->assertCountTableRecords(1)
         ->assertCanSeeTableRecords($content->pages)
-        ->assertTableColumnStateSet('page.name', [$page->name], record: $widgetAsset);
+        ->assertTableColumnStateSet('pageable.name', [$page->name], record: $widgetAsset);
 });
 
 it('can search pages for a content model', function (): void {
@@ -48,12 +46,10 @@ it('can search pages for a content model', function (): void {
     $content = Content::factory()->create();
     Widget::factory()
         ->has(
-            WidgetAsset::factory([
-                'asset_type' => 'content',
-                'asset_id' => $content->id,
-                'page_id' => $page->id,
-                'container' => 'main',
-            ])
+            WidgetAsset::factory()
+                ->page($page)
+                ->asset($content)
+                ->state(['container' => 'main'])
                 ->sequence(
                     ['occurrence' => 1],
                     ['occurrence' => 2],
@@ -73,5 +69,5 @@ it('can search pages for a content model', function (): void {
         ->assertSuccessful()
         ->searchTable($page->getKey())
         ->assertCountTableRecords(1)
-        ->assertCanSeeTableRecords([$page]);
+        ->assertCanSeeTableRecords([$page->getMorphClass() . '-' . $page->getKey()]);
 });

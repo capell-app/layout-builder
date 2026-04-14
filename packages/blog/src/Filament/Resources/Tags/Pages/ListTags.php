@@ -10,6 +10,7 @@ use Capell\Admin\Filament\Concerns\HasSiteTableFilterTabs;
 use Capell\Blog\Enums\ResourceEnum;
 use Capell\Blog\Filament\Resources\Tags\TagResource;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Contracts\Support\Htmlable;
 use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
 use LaraZeus\SpatieTranslatable\Resources\Pages\ListRecords\Concerns\Translatable;
 use Override;
@@ -28,10 +29,16 @@ class ListTags extends ListRecords
         return CapellAdmin::getResource(ResourceEnum::Tag);
     }
 
+    public function getSubheading(): string|Htmlable|null
+    {
+        return __('capell-blog::generic.tags_info');
+    }
+
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->redirectAfterCreate(),
             LocaleSwitcher::make(),
         ];
     }

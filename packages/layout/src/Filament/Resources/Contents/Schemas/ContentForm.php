@@ -29,7 +29,7 @@ class ContentForm implements FormConfigurator
                 ->columns($schema->getColumns())
                 ->schema(
                     function (Get $get, Set $set, TypeSchema $component) use ($schema): array {
-                        if (! $get('cached_type_id')) {
+                        if ($get('cached_type_id') === null) {
                             $set('cached_type_id', $get('type_id'));
                         }
 
@@ -43,7 +43,7 @@ class ContentForm implements FormConfigurator
                             /** @var class-string<Type> $model */
                             $model = CapellCore::getModel(ModelEnum::Type);
 
-                            $type = $typeId ? $model::query()->find($typeId, ['admin']) : null;
+                            $type = $typeId !== null ? $model::query()->find($typeId, ['admin']) : null;
                         }
 
                         $name = $type->admin['schema'] ?? DefaultContentSchema::getKey();

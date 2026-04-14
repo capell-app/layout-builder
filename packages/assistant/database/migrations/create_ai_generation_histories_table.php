@@ -21,7 +21,7 @@ return new class extends Migration
             $table->unsignedInteger('total_tokens')->default(0);
             $table->float('duration')->default(0);
             $table->json('metadata')->nullable();
-            $table->unsignedBigInteger('page_id')->nullable();
+            $table->nullableMorphs('pageable');
             $table->unsignedBigInteger('language_id')->nullable();
             $table->timestamps();
         });

@@ -12,7 +12,7 @@ class AddressUrl
     {
         $addressString = str_replace(' ', '+', $address->full_address);
 
-        if (! empty($address->meta['latitude']) && ! empty($address->meta['longitude'])) {
+        if (isset($address->meta['latitude'], $address->meta['longitude'])) {
             $addressString .= '@' . $address->meta['latitude'] . ',' . $address->meta['longitude'];
         }
 

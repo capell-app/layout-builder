@@ -8,10 +8,6 @@ declare(strict_types=1);
     use Capell\Frontend\Facades\Frontend;
 @endphp
 
-@aware([
-    'carouselArrows' => '',
-])
-
 @props([
     'backgroundAttachment' => '',
     'backgroundColor' => '',
@@ -20,9 +16,8 @@ declare(strict_types=1);
     'backgroundPosition' => 'center',
     'backgroundRepeat' => 'no-repeat',
     'backgroundSize' => 'cover',
-    'carouselType' => 'slide',
     'color' => 'dark',
-    'container_class' => 'container',
+    'containerClass' => '',
     'first' => false,
     'height' => '',
     'slideBgImgClass' => '',
@@ -32,26 +27,25 @@ declare(strict_types=1);
 <div
     {{
         $attributes->class([
-        'swiper-slide hero-item',
-        'swiper-slide-selected' => $first,
+            'swiper-slide hero-item relative',
+            'swiper-slide-selected' => $first,
         ])
     }}
 >
     <div
-        {{
-            $attributes->class([
-                'swiper-slide-inner relative flex min-h-full',
-                ...(
-                    ! $backgroundColor && $color
-                    ? [
-                        'bg-gradient-to-t',
-                        'from-gray-600/60 to-gray-800/70 dark:from-gray-800/80 dark:to-gray-900/80' => $color === 'dark',
-                        'from-black/10 to-gray-100/60 dark:from-gray-800/80 dark:to-gray-900/80' => $color === 'light',
-                    ]
-                    : []
-                ),
-            ])
-            ->style([
+        @class([
+            'swiper-slide-inner relative flex w-full min-h-full',
+            ...(
+                ! $backgroundColor && $color
+                ? [
+                    'bg-gradient-to-t',
+                    'from-gray-600/60 to-gray-800/70 dark:from-gray-800/80 dark:to-gray-900/80' => $color === 'dark',
+                    'from-black/10 to-gray-100/60 dark:from-gray-800/80 dark:to-gray-900/80' => $color === 'light',
+                ]
+                : []
+            ),
+        ])
+        @style([
               "background-color: {$backgroundColor}" => $backgroundColor,
             ])
         }}
@@ -88,7 +82,7 @@ declare(strict_types=1);
         @endif
 
         @if ($slot->isNotEmpty())
-            <div @class(['relative grid', $container_class])>
+            <div @class(['relative grid w-full', $containerClass])>
                 {{ $slot }}
             </div>
         @endif

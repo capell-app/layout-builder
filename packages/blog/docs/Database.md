@@ -4,6 +4,7 @@ The Blog package integrates with tagging and provides an additional migration, f
 
 ## Migrations
 
+- `database/migrations/create_articles_table.php`
 - `database/migrations/alter_tags_table.php`
 
 Run via the installer:

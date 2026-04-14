@@ -37,18 +37,20 @@ test('can create type', function (TypeEnum $type): void {
     livewire(ManageTypes::class)
         ->assertSuccessful()
         ->assertCountTableRecords(0)
-        ->callAction(
-            CreateAction::class,
-            data: [
-                'type' => $type->value,
-                'name' => $record->name,
-                'key' => $record->key,
-                'meta' => [
-                    'component' => 'example-content',
-                ],
-                $admin,
+        ->mountAction(CreateAction::class)
+        ->fillForm([
+            'name' => $record->name,
+            'key' => $record->key,
+            'type' => $type->value,
+            'meta' => [
+                'component' => 'example-content',
             ],
-        )
+            $admin,
+        ])
+        ->fillForm([
+            'admin.schema' => 'Default',
+        ])
+        ->callMountedAction()
         ->assertHasNoFormErrors()
         ->assertCountTableRecords(1);
 

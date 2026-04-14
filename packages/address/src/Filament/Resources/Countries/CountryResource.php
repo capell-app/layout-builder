@@ -14,8 +14,6 @@ use Capell\Address\Providers\AddressServiceProvider;
 use Capell\Admin\Filament\Concerns\HasFormConfigurator;
 use Capell\Admin\Filament\Concerns\HasNavigationBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
-use Capell\Admin\Filament\Contracts\FormConfigurator;
-use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Core\Facades\CapellCore;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -31,14 +29,14 @@ class CountryResource extends Resource
     use HasNavigationBadge;
     use HasTableConfigurator;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedGlobeAlt;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFlag;
+
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::Flag;
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    /** @var class-string<FormConfigurator> */
     protected static string $formConfigurator = CountryForm::class;
 
-    /** @var class-string<TableConfigurator> */
     protected static string $tableConfigurator = CountriesTable::class;
 
     protected static bool $shouldRegisterNavigation = false;
@@ -71,7 +69,7 @@ class CountryResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_system'));
+        return (string) (__('capell-admin::navigation.group_settings'));
     }
 
     public static function shouldRegisterNavigation(): bool

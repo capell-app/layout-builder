@@ -13,6 +13,7 @@ class FakeContext implements AiActionContextInterface
         private readonly string $keywords = 'kw',
         private readonly int $pageId = 1,
         private readonly int $languageId = 1,
+        private readonly string $pageType = 'default',
     ) {}
 
     public function getContent(): string
@@ -28,6 +29,11 @@ class FakeContext implements AiActionContextInterface
     public function getPageId(): int
     {
         return $this->pageId;
+    }
+
+    public function getPageType(): string
+    {
+        return $this->pageType;
     }
 
     public function getLanguageId(): int

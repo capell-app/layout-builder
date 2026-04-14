@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Capell\Admin\Filament\Resources\Pages\PageResource;
 use Capell\Core\Models\Page;
-use Capell\Layout\Livewire\LayoutBuilder;
+use Capell\Layout\Enums\LivewireComponentsEnum;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Laravel\get;
@@ -18,5 +18,5 @@ test('can see layout builder', function (): void {
     $page = Page::factory()->create();
 
     get(PageResource::getUrl('edit', ['record' => $page]))
-        ->assertSeeLivewire(LayoutBuilder::class);
+        ->assertSeeLivewire(LivewireComponentsEnum::LayoutBuilder->value);
 });

@@ -23,12 +23,18 @@ class ArticleMeta extends Component
     {
         $this->tags = TagLoader::getPageTags(Frontend::page());
 
-        if ($this->tags->isEmpty()) {
-            return;
-        }
+        if ($this->tags->isNotEmpty()) {
+            $site = Frontend::site();
+            $language = Frontend::language();
 
-        $this->tagPage = TagLoader::getTagResultsPage(Frontend::site(), Frontend::language());
-        throw_unless($this->tagPage, Exception::class, 'Tag results page not found for the current site and language.');
+            $this->tagPage = TagLoader::getTagResultsPage($site, $language);
+
+            throw_unless(
+                $this->tagPage,
+                Exception::class,
+                'Tag results page not found for the current site ' . $site->id . ' and language ' . $language->id,
+            );
+        }
     }
 
     public function render(): ?View

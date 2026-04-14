@@ -49,10 +49,10 @@ class WidgetsRelationManager extends RelationManager
             ->columns([
                 IdentifierColumn::make('widget.id'),
                 NameColumn::make('widget.name')
-                    ->icon(fn ($record) => $record->type->admin['icon'] ?? '')
+                    ->icon(fn (WidgetAsset $record): string => $record->type->admin['icon'] ?? '')
                     ->suffixBadges([
                         Badge::make('widget.type.name')
-                            ->label(fn (WidgetAsset $record) => $record->widget?->type?->name)
+                            ->label(fn (WidgetAsset $record): string => $record->widget?->type?->name ?? '')
                             ->color('gray'),
                     ]),
                 TextColumn::make('widget.key')

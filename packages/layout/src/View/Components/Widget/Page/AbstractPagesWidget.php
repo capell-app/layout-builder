@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Capell\Layout\View\Components\Widget\Page;
 
 use Capell\Layout\View\Components\Widget\AbstractWidget;
+use Closure;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 
 abstract class AbstractPagesWidget extends AbstractWidget
@@ -13,7 +15,7 @@ abstract class AbstractPagesWidget extends AbstractWidget
 
     protected Collection $pages;
 
-    public function render(array $data = [])
+    public function render(array $data = []): View|string|Closure
     {
         if ($this->skipRender) {
             return '';

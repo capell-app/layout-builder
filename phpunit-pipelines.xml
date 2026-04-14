@@ -33,9 +33,20 @@
         <include>
             <directory suffix=".php">./packages/*/src</directory>
         </include>
+        <exclude>
+            <directory>./vendor</directory>
+            <directory>./tests</directory>
+            <directory>./bootstrap</directory>
+            <directory>./storage</directory>
+            <directory>./database</directory>
+            <directory>./.temp</directory>
+            <directory suffix=".php">./packages/*/tests</directory>
+            <directory suffix=".php">./packages/*/resources</directory>
+            <directory suffix=".php">./packages/*/config</directory>
+        </exclude>
     </source>
     <php>
-        <ini name="memory_limit" value="1024M"/>
+        <ini name="memory_limit" value="2048M"/>
         <server name="APP_ENV" value="testing"/>
         <env name="APP_KEY" value="12345678901234567890123456789012"/>
         <env name="BCRYPT_ROUNDS" value="12"/>
@@ -48,7 +59,7 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
-        <env name="FRONTEND_HTML_CACHE" value="false"/>
+        <env name="CAPELL_HTML_CACHE" value="false"/>
         <env name="SETTINGS_CACHE_ENABLED" value="true"/>
     </php>
 </phpunit>

@@ -5,7 +5,9 @@ declare(strict_types=1);
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodingStyle\Rector\PostInc\PostIncDecToPreIncDecRector;
 use Rector\Config\RectorConfig;
+use Rector\Php81\Rector\FuncCall\NullToStrictStringFuncCallArgRector;
 use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
+use RectorLaravel\Rector\MethodCall\ContainerBindConcreteWithClosureOnlyRector;
 use RectorLaravel\Set\LaravelSetList;
 use RectorLaravel\Set\LaravelSetProvider;
 
@@ -26,7 +28,6 @@ return RectorConfig::configure()
     ->withImportNames(
         removeUnusedImports: true,
     )
-    ->withComposerBased(laravel: true)
     ->withCache(
         cacheDirectory: '/tmp/rector',
         cacheClass: FileCacheStorage::class,
@@ -56,6 +57,11 @@ return RectorConfig::configure()
     ])
     ->withSkip([
         PostIncDecToPreIncDecRector::class,
+        // Fix issue in php8.2
+        ContainerBindConcreteWithClosureOnlyRector::class,
+        NullToStrictStringFuncCallArgRector::class => [
+            __DIR__ . '/packages/layout/src/Livewire/Widget/Pages.php',
+        ],
         __DIR__ . '/tests/.pest',
     ])
     ->withPhpSets();

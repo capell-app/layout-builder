@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Filament\Components\Forms\Layout;
 
 use Capell\Core\Models\Layout;
-use Capell\Layout\Livewire\LayoutBuilder;
+use Capell\Layout\Enums\LivewireComponentsEnum;
 use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
@@ -22,10 +22,10 @@ class LayoutTab extends Tab
             ->icon(Heroicon::OutlinedPuzzlePiece)
             ->schema([
                 Livewire::make(
-                    LayoutBuilder::class,
+                    LivewireComponentsEnum::LayoutBuilder->value,
                     fn (Get $get, Layout $record): array => [
-                        'site_id' => $record->site_id,
-                        'layout_id' => $record->id,
+                        'site' => $record->site,
+                        'layout' => $record,
                     ],
                 ),
             ]);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Actions;
 
+use Capell\Blog\Enums\BlogLayoutEnum;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
@@ -21,6 +22,6 @@ class GetArticleLayoutAction
         /** @var class-string<Layout> $model */
         $model = CapellCore::getModel(ModelEnum::Layout);
 
-        return $model::query()->firstWhere('key', 'article');
+        return $model::query()->firstWhere('key', BlogLayoutEnum::Article->value);
     }
 }

@@ -6,22 +6,24 @@ namespace Capell\Blog\View\Components\Widget\Page;
 
 use Capell\Blog\Enums\BlogTypeGroupEnum;
 use Capell\Blog\Support\Loader\BlogLoader;
+use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Page;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Layout\View\Components\Widget\AbstractWidget;
-use Exception;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 
 class Archives extends AbstractWidget
 {
     protected ?Page $archivePage = null;
 
-    protected Collection|LengthAwarePaginator $archives;
+    protected null|Collection|LengthAwarePaginator $archives = null;
 
     protected static string $defaultView = 'capell-blog::components.widget.page.archives';
 
-    public function render(array $data = [])
+    public function render(array $data = []): View|string|Closure
     {
         return parent::render([
             ...$data,
@@ -37,7 +39,11 @@ class Archives extends AbstractWidget
 
         $this->archivePage = BlogLoader::getArchivePage($site, $language);
 
-        throw_unless($this->archivePage, Exception::class, 'Blog Archives Widget: No archive page not found');
+        if (! $this->archivePage instanceof Pageable) {
+            $this->skipRender = true;
+
+            return;
+        }
 
         $group = $this->widget->meta['page_group'] ?? BlogTypeGroupEnum::Article->value;
 
@@ -54,6 +60,12 @@ class Archives extends AbstractWidget
             return;
         }
 
-        $this->skipRender = ! empty($this->widgetData['meta']['hide_no_results']) || config('capell-layout.widget.skip_render_empty') === true;
+        if (isset($this->widgetData['meta']['hide_no_results']) && $this->widgetData['meta']['hide_no_results']) {
+            $this->skipRender = true;
+        }
+
+        if (config('capell-layout.widget.skip_render_empty') === true) {
+            $this->skipRender = true;
+        }
     }
 }

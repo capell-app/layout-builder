@@ -2,31 +2,38 @@
 
 declare(strict_types=1);
 
-use Capell\Frontend\Facades\Frontend;
-
-$theme = Frontend::theme();
-
 ?>
 
 @props([
-    'backgroundColor' => $widget->meta['background_color'] ?? null,
+    'backgroundColor' => $widget->getMeta('background_color'),
     'container',
     'containerKey',
     'containerWidth' => null,
     'content' => $widget->translation?->content,
-    'headingSize' => $widget->meta['heading_size'] ?? 'h2',
+    'headingSize' => $widget->getMeta('heading_size', 'h2'),
     'loop',
-    'reverseOrder' => $widget->meta['reverse_order'] ?? null,
-    'rounded' => $theme->meta['rounded_images'] ?? false,
-    'size' => $widget->meta['size'] ?? null,
+    'reverseOrder' => $widget->getMeta('reverse_order'),
+    'rounded' => (bool) $widget->getMeta('rounded_images'),
+    'size' => $widget->getMeta('size'),
     'title' => $widget->translation?->title,
     'widget',
 ])
 {{-- format-ignore-start --}}
 @php
-    $backgroundImage = $widget->backgroundImage ?? $widget->image ?? $widget->assets->first()?->media?->first();
+    use Capell\Core\Enums\ContainerWidthEnum;use Capell\Core\Enums\MediaCollectionEnum;use Capell\Frontend\Facades\Frontend;
 
-    $hasContent = $content || $title || ! empty($widget->meta['actions']);
+    $theme = Frontend::theme();
+
+    /**
+    * @var \Capell\Layout\Models\Widget $widget
+    */
+    $backgroundImage = $widget->getMedia(MediaCollectionEnum::BackgroundImage->value)->first()
+      ?? $widget->getMedia(MediaCollectionEnum::Image->value)->first()
+      ?? $widget->assets->first()?->media?->first();
+
+    $actions = $widget->getMeta('actions');
+
+    $hasContent = $content || $title || $actions;
 
     if ($rounded) {
         $imgRounded = $hasContent
@@ -46,7 +53,7 @@ $theme = Frontend::theme();
     :index="$loop->index"
     :background-color="$backgroundColor"
     :$widget
-    container-width="full"
+    :container-width="ContainerWidthEnum::Full"
 >
     @if ($backgroundImage)
         <div
@@ -96,19 +103,20 @@ $theme = Frontend::theme();
                         <x-capell::content
                             class="mb-2"
                             :compact="true"
-                            :content="$content ? null : $widget->translation?->content"
+                            :content="$content"
                             :content-type="$widget->type->content_structure"
+                            :divider="$widget->getMeta('content_divider')"
                             :heading-size="$headingSize"
                             :title="$title"
-                            :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
-                            :heading-style="($widget->meta['heading_style'] ?? null) ?: $widget->type->meta['heading_style'] ?? null"
+                            :text-align="$widget->getMeta('align')"
+                            :heading-style="$widget->getMeta('heading_style')"
                         />
                     @endif
 
-                    @if (! empty($widget->meta['actions']))
-                        <x-capell::actions
+                    @if ($actions)
+                        <x-capell-layout::actions
                             class="mt-4"
-                            :actions="$widget->meta['actions']"
+                            :$actions
                         />
                     @endif
                 </div>

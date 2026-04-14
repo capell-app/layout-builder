@@ -6,9 +6,9 @@ namespace Capell\Layout\Filament\Resources\Widgets\Schemas\Types;
 
 use Capell\Layout\Filament\Components\Forms\CarouselSettingsSchema;
 use Capell\Layout\Filament\Components\Forms\ColorSchemeComponent;
+use Capell\Layout\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\Layout\Filament\Components\Forms\Widget\DisplaySection;
 use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetComponentFilesSection;
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetDisplaySection;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
@@ -17,7 +17,7 @@ use Override;
 class CarouselWidgetSchema extends AssetsWidgetSchema
 {
     #[Override]
-    protected function getDisplayTab(Schema $schema): Tab
+    protected function displayTab(Schema $schema): Tab
     {
         return WidgetDisplayTab::make([
             Fieldset::make(
@@ -27,10 +27,10 @@ class CarouselWidgetSchema extends AssetsWidgetSchema
                 ->columnSpanFull()
                 ->columns(['default' => 2, 'xl' => 3])
                 ->schema(CarouselSettingsSchema::make()),
-            WidgetDisplaySection::make([
+            DisplaySection::make([
                 ColorSchemeComponent::make('color'),
             ]),
-            WidgetComponentFilesSection::make()
+            ComponentSection::make()
                 ->statePath('meta'),
         ]);
     }

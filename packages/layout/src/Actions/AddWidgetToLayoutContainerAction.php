@@ -18,7 +18,7 @@ class AddWidgetToLayoutContainerAction
 
     public function handle(Widget $widget, Layout $layout, string $container): int
     {
-        throw_if(empty($layout->containers[$container]['widgets']), RuntimeException::class, sprintf("Container '%s' not found in layout.", $container));
+        throw_if(! isset($layout->containers[$container]['widgets']), RuntimeException::class, sprintf("Container '%s' not found in layout.", $container));
 
         $containers = $layout->containers;
 

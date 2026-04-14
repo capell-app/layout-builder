@@ -8,17 +8,19 @@ use Capell\Blog\Support\Loader\TagLoader;
 use Capell\Core\Models\Page;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Layout\View\Components\Widget\AbstractWidget;
-use RuntimeException;
+use Closure;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Collection;
 
 class Tags extends AbstractWidget
 {
     public ?Page $tagPage = null;
 
-    public $tags;
+    public ?Collection $tags = null;
 
     protected static string $defaultView = 'capell-blog::components.widget.tag.tags';
 
-    public function render(array $data = [])
+    public function render(array $data = []): View|string|Closure
     {
         return parent::render([
             ...$data,
@@ -44,13 +46,21 @@ class Tags extends AbstractWidget
         $this->tagPage = TagLoader::getTagResultsPage($site, $language);
 
         if (! $this->tagPage instanceof Page) {
-            throw new RuntimeException('Tag results page not found for site ID ' . $site->id . ' and language ID ' . $language->id);
+            $this->skipRender = true;
+
+            return;
         }
 
         if ($this->tags->isNotEmpty()) {
             return;
         }
 
-        $this->skipRender = ! empty($this->widgetData['meta']['hide_no_results']) || config('capell-layout.widget.skip_render_empty') === true;
+        if (isset($this->widgetData['meta']['hide_no_results']) && $this->widgetData['meta']['hide_no_results']) {
+            $this->skipRender = true;
+        }
+
+        if (config('capell-layout.widget.skip_render_empty') === true) {
+            $this->skipRender = true;
+        }
     }
 }

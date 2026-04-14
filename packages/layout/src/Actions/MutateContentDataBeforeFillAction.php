@@ -7,6 +7,7 @@ namespace Capell\Layout\Actions;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Exception;
@@ -28,7 +29,7 @@ class MutateContentDataBeforeFillAction
 
         $data['type_id'] = $this->getDefaultType()->getKey();
 
-        $data['translations'] = $site?->translations->mapWithKeys(fn ($translation): array => [
+        $data['translations'] = $site?->translations->mapWithKeys(fn (Translation $translation): array => [
             (string) Str::uuid() => [
                 'language_id' => $translation->language_id,
             ],

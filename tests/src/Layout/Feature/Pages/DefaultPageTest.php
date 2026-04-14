@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Theme;
 use Capell\Core\Support\Creator\LayoutCreator;
-use Capell\Layout\Database\Factories\ThemeFactory;
 use Capell\Tests\Support\Concerns\TestingFrontend;
 
 use function Pest\Laravel\get;
@@ -17,7 +17,7 @@ use Sinnbeck\DomAssertions\Asserts\BaseAssert;
 uses(TestingFrontend::class);
 
 test('home page with layout', function (): void {
-    $theme = (new ThemeFactory)->create();
+    $theme = Theme::factory()->create();
     $site = Site::factory()->theme($theme)->withTranslations()->create();
 
     $layoutCreator = resolve(LayoutCreator::class);

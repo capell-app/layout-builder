@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Blog\Actions\InstallPackageAction;
+use Capell\Blog\Enums\BlogLayoutEnum;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
@@ -57,12 +58,21 @@ it('installs blog package: creates widgets, layouts, updates containers, and see
     }
 
     // Layouts created by the blog package
-    $createdLayouts = Layout::query()->whereIn('key', ['article', 'archives', 'blog-results', 'tags'])->pluck('key')->all();
+    $createdLayouts = Layout::query()
+        ->whereIn(
+            'key',
+            [
+                BlogLayoutEnum::Article->value,
+                BlogLayoutEnum::Archives->value,
+                BlogLayoutEnum::BlogPage->value,
+                BlogLayoutEnum::Tags->value,
+            ],
+        )
+        ->pluck('key')
+        ->all();
+
     expect($createdLayouts)
-        ->toContain('article')
-        ->and($createdLayouts)->toContain('archives')
-        ->and($createdLayouts)->toContain('blog-results')
-        ->and($createdLayouts)->toContain('tags');
+        ->toMatchArray(['archives', 'article', 'blog-results', 'tags']);
 
     // Default and Results layouts sidebar gets latest-articles widget appended and latest-pages removed
     $defaultLayout->refresh();

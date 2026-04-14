@@ -8,7 +8,7 @@ use Capell\Admin\Enums\ListenerEnum;
 use Capell\Admin\Filament\Resources\Layouts\Pages\EditLayout;
 use Capell\Admin\Filament\Resources\Pages\Pages\EditPage;
 use Capell\Core\Contracts\EventSubscriber;
-use Capell\Layout\Livewire\LayoutBuilder;
+use Capell\Layout\Enums\LivewireComponentsEnum;
 
 class AfterRecordSaved implements EventSubscriber
 {
@@ -19,7 +19,7 @@ class AfterRecordSaved implements EventSubscriber
         }
 
         if ($context instanceof EditPage || $context instanceof EditLayout) {
-            $context->dispatch('save-layout')->to(LayoutBuilder::class);
+            $context->dispatch('save-layout')->to(LivewireComponentsEnum::LayoutBuilder->value);
         }
     }
 }

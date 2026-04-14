@@ -1,3 +1,8 @@
+@import 'swiper/css';
+@import 'swiper/css/autoplay';
+@import 'swiper/css/pagination';
+@import 'swiper/css/navigation';
+
 :root {
     --swiper-pagination-bullet-width: 1.5rem;
     --swiper-pagination-bullet-border-radius: 1rem;

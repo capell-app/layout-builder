@@ -2,20 +2,18 @@
 
 declare(strict_types=1);
 
-// tests/Integration/Models/SiteTest.php
-
 use Capell\Core\Models\Page;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 it('has many widget assets', function (): void {
     $page = Page::factory()->create();
-    $widgetAsset = WidgetAsset::factory()->create(['page_id' => $page->id]);
+    $widgetAsset = WidgetAsset::factory()->page($page)->create();
 
     expect($page->widgetAssets->pluck('id'))->toContain($widgetAsset->id);
 });
@@ -35,7 +33,7 @@ it('has many widgets', function (): void {
 it('has many contents through widget assets', function (): void {
     $page = Page::factory()->create();
     $content = Content::factory()->create();
-    WidgetAsset::factory()->create(['asset_id' => $content->id, 'asset_type' => 'content', 'page_id' => $page->id]);
+    WidgetAsset::factory()->asset($content)->page($page)->create();
 
     expect($page->contents->pluck('id')->toArray())->toContain($content->id);
 });
@@ -51,7 +49,7 @@ it('returns empty collections when no relations exist', function (): void {
 it('has correct relation types', function (): void {
     $page = Page::factory()->create();
 
-    expect($page->widgetAssets())->toBeInstanceOf(HasMany::class);
+    expect($page->widgetAssets())->toBeInstanceOf(MorphMany::class);
     expect($page->widgets())->toBeInstanceOf(MorphToMany::class);
     expect($page->contents())->toBeInstanceOf(HasManyThrough::class);
 });

@@ -9,6 +9,7 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Resources\Pages\Pages\ListPages;
 use Capell\Blog\Enums\ResourceEnum;
 use Capell\Blog\Filament\Resources\Articles\ArticleResource;
+use Illuminate\Contracts\Support\Htmlable;
 
 class ListArticles extends ListPages
 {
@@ -16,5 +17,10 @@ class ListArticles extends ListPages
     public static function getResource(): string
     {
         return CapellAdmin::getResource(AdminResourceEnum::Page, strtolower(ResourceEnum::Article->name));
+    }
+
+    public function getSubheading(): string|Htmlable|null
+    {
+        return __('capell-blog::generic.articles_info');
     }
 }

@@ -13,6 +13,7 @@ use Capell\Frontend\Support\Loader\PageLoader;
 use Capell\Frontend\Support\State\FrontendState;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Override;
 
 class Tag extends AbstractPage
@@ -25,16 +26,7 @@ class Tag extends AbstractPage
 
     protected ?string $tagName = null;
 
-    #[Override]
-    protected function getViewData(): array
-    {
-        return [
-            'tag_slug' => $this->tagSlug,
-            'tag_name' => $this->tagName,
-        ];
-    }
-
-    protected function loadPage(): void
+    protected function setup(): void
     {
         $params = Frontend::params();
         $this->tagSlug = is_array($params) ? ($params['tag'] ?? null) : null;
@@ -52,33 +44,33 @@ class Tag extends AbstractPage
             ->where('slug->' . $language->code, $this->tagSlug)
             ->first();
 
-        if (! $tag) {
-            abort(404);
-
-            return;
-        }
+        abort_unless($tag, 404);
 
         $this->tag = $tag;
 
         $this->tagName = $this->tag->getTranslation('name', $language->code);
 
-        $paginationKey = config('capell-admin.page_query', 'pageQuery');
+        $paginationPage = config('capell-admin.page_query', 'pageQuery');
+
+        $model = CapellCore::getModel(ModelEnum::Article);
 
         $this->results = PageLoader::getPages(
             language: $language,
             site: $site,
-            limit: $this->widget->meta['limit'] ?? config('capell-frontend.pagination_limit', 12),
-            paginationPage: (int) $this->getPage($paginationKey),
-            withChildrenCount: $page->type->meta['with_children_count'] ?? true,
+            limit: $page->meta['limit'] ?? $page->type->meta['limit'] ?? config('capell-frontend.pagination_limit', 12),
+            paginationPage: (int) $this->getPage($paginationPage),
             withImage: $page->type->meta['with_image'] ?? true,
             withPagination: $page->type->meta['pagination'] ?? true,
-            withParent: $page->type->meta['with_parent'] ?? true,
             withDate: $page->type->meta['with_date'] ?? true,
-            paginationKey: $paginationKey,
+            paginationKey: 'tag-pages',
             cacheKeyPrepend: 'tagged-' . $this->tag->id,
+            morphModel: $model,
             modifyQuery: fn (Builder $query) => $query->whereHas(
                 'tags',
-                fn (BuilderContract $query): BuilderContract => $query->where('taggable_type', 'page')
+                fn (BuilderContract $query): BuilderContract => $query->where(
+                    'taggable_type',
+                    Relation::getMorphAlias($model),
+                )
                     ->where('taggables.tag_id', $this->tag->id),
             ),
         );
@@ -86,5 +78,14 @@ class Tag extends AbstractPage
         $this->params = $this->getViewData();
 
         resolve(FrontendState::class)->withParams($this->params);
+    }
+
+    #[Override]
+    protected function getViewData(): array
+    {
+        return [
+            'tag_slug' => $this->tagSlug,
+            'tag_name' => $this->tagName,
+        ];
     }
 }

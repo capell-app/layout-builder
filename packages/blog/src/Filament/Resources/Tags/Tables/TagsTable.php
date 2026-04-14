@@ -13,19 +13,15 @@ use Capell\Admin\Filament\Components\Tables\Columns\SiteColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\StatusIconColumn;
 use Capell\Admin\Filament\Components\Tables\Filters\StatusFilter;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
-use Capell\Admin\Filament\Resources\Pages\PageResource;
-use Capell\Blog\Models\Tag;
 use Capell\Core\Models\Language;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\HtmlString;
 
 class TagsTable implements TableConfigurator
 {
@@ -84,30 +80,15 @@ class TagsTable implements TableConfigurator
                 ->toggleable(isToggledHiddenByDefault: true)
                 ->view('capell-admin::components.tables.columns.locale-flags'),
             SiteColumn::make('site.name'),
-            TextColumn::make('pages_count')
-                ->label(__('capell-admin::table.total_pages'))
-                ->counts('pages')
+            TextColumn::make('taggables_count')
+                ->label(__('capell-blog::table.total_taggables'))
+                ->counts('taggables')
                 ->sortable()
-                ->alignCenter()
+                ->alignRight()
                 ->numeric()
-                ->disabledClick()
-                ->toggleable()
-                ->formatStateUsing(function (Tag $record, $state): ?HtmlString {
-                    if (! $state) {
-                        return null;
-                    }
-
-                    $url = PageResource::getUrl('index', ['tableFilters[tags][value]' => $record->id]);
-
-                    return new HtmlString(
-                        Blade::render('capell-admin::components.tables.url', ['state' => $state, 'url' => $url]),
-                    );
-                }),
-            IconColumn::make('featured')
+                ->toggleable(),
+            ToggleColumn::make('featured')
                 ->label(__('capell-layout::table.featured'))
-                ->trueIcon('heroicon-o-star')
-                ->falseIcon(false)
-                ->color(fn (Tag $record): string => $record->featured ? 'primary' : 'gray')
                 ->alignCenter()
                 ->toggleable(),
             StatusIconColumn::make('status'),

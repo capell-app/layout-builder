@@ -9,8 +9,6 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\HasFormConfigurator;
 use Capell\Admin\Filament\Concerns\HasRelationManagerBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
-use Capell\Admin\Filament\Contracts\FormConfigurator;
-use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Layout\Enums\ResourceEnum;
 use Capell\Layout\Filament\Resources\Contents\Schemas\ContentForm;
 use Capell\Layout\Filament\Resources\Contents\Tables\ContentsTable;
@@ -29,10 +27,8 @@ class ContentsRelationManager extends RelationManager
 
     protected static string $relationship = 'contents';
 
-    /** @var class-string<FormConfigurator> */
     protected static string $formConfigurator = ContentForm::class;
 
-    /** @var class-string<TableConfigurator> */
     protected static string $tableConfigurator = ContentsTable::class;
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string

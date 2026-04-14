@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
+use Capell\Assistant\Data\PromptData;
 use Capell\Assistant\Support\AiRateLimiter;
 use Capell\Assistant\Support\AiResponse;
 use Capell\Assistant\Support\Context\ContentActionContext;
 use Capell\Assistant\Support\OpenAIProvider;
 use Capell\Assistant\Support\Pipelines\GenerateContentPipeline;
-use Capell\Assistant\Support\PromptRepository;
+use Mockery\MockInterface;
 
 it('sanitizes unsafe html from AI output', function (): void {
-    $prompts = mock(PromptRepository::class, function ($mock): void {
-        $mock->shouldReceive('get')->andReturn([
-            'system' => 'system',
-            'user_template' => 'Title: {{current_title}} Keywords: {{keywords}} Existing: {{content}} Length: {{target_length}} Refactor: {{refactor}}',
-            'model' => 'gpt-4-turbo',
-        ]);
-    });
+    $prompts = new PromptData(
+        model: 'gpt-4-turbo',
+        contentGeneration: true,
+        contentGenerationSystem: 'system',
+        contentGenerationUserTemplate: 'Title: {{current_title}} Keywords: {{keywords}} Existing: {{content}} Length: {{target_length}} Refactor: {{refactor}}',
+    );
 
-    $provider = mock(OpenAIProvider::class, function ($mock): void {
+    $provider = mock(OpenAIProvider::class, function (OpenAIProvider&MockInterface $mock): void {
         $unsafe = <<<'HTML'
         <h2 onclick="alert('x')">Welcome</h2>
         <p>Visit our <a href="https://evil.example/" target="_blank" rel="noopener">site</a> or <a href="/about">about page</a>.</p>
@@ -36,7 +36,7 @@ it('sanitizes unsafe html from AI output', function (): void {
         ));
     });
 
-    $rateLimiter = mock(AiRateLimiter::class, function ($mock): void {
+    $rateLimiter = mock(AiRateLimiter::class, function (AiRateLimiter&MockInterface $mock): void {
         $mock->shouldReceive('checkLimit')->andReturnTrue();
     });
 
@@ -46,6 +46,7 @@ it('sanitizes unsafe html from AI output', function (): void {
         content: 'Existing content',
         keywords: 'foo,bar',
         pageId: 1,
+        pageType: 'page',
         languageId: 1,
     );
 
@@ -70,15 +71,14 @@ it('sanitizes unsafe html from AI output', function (): void {
 });
 
 it('renders prompt variables correctly', function (): void {
-    $prompts = mock(PromptRepository::class, function ($mock): void {
-        $mock->shouldReceive('get')->andReturn([
-            'system' => 'system',
-            'user_template' => 'Title: {{current_title}} Keywords: {{keywords}} Existing: {{content}} Length: {{target_length}} Refactor: {{refactor}}',
-            'model' => 'gpt-4-turbo',
-        ]);
-    });
+    $prompts = new PromptData(
+        model: 'gpt-4-turbo',
+        contentGeneration: true,
+        contentGenerationSystem: 'system',
+        contentGenerationUserTemplate: 'Title: {{current_title}} Keywords: {{keywords}} Existing: {{content}} Length: {{target_length}} Refactor: {{refactor}}',
+    );
 
-    $provider = mock(OpenAIProvider::class, function ($mock): void {
+    $provider = mock(OpenAIProvider::class, function (OpenAIProvider&MockInterface $mock): void {
         $mock->shouldReceive('chat')->withArgs(function (array $params): bool {
             $user = collect($params['messages'])->firstWhere('role', 'user')['content'] ?? '';
 
@@ -96,13 +96,13 @@ it('renders prompt variables correctly', function (): void {
         ));
     });
 
-    $rateLimiter = mock(AiRateLimiter::class, function ($mock): void {
+    $rateLimiter = mock(AiRateLimiter::class, function (AiRateLimiter&MockInterface $mock): void {
         $mock->shouldReceive('checkLimit')->andReturnTrue();
     });
 
     $pipeline = new GenerateContentPipeline($prompts, $provider, $rateLimiter);
 
-    $context = new ContentActionContext('Existing content', 'foo,bar', 1, 1);
+    $context = new ContentActionContext(content: 'Existing content', keywords: 'foo,bar', pageId: 1, pageType: 'page', languageId: 1);
 
     $result = $pipeline->execute([
         'context' => $context,

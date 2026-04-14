@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Filament\Components\Forms;
 
-use Capell\Layout\Enums\ContainerWidthEnum;
+use Capell\Core\Enums\ContainerWidthEnum;
 use Filament\Forms\Components\Select;
 
 class ContainerWidthSelect extends Select

@@ -28,7 +28,7 @@ class CreateWidgetAction extends CreateAction
 
         $data['status'] = true;
 
-        if (empty($data['translations'])) {
+        if (! isset($data['translations'])) {
             $data['translations'] = BuildDefaultTranslationsAction::run($data['site_id'] ?? null);
         }
 

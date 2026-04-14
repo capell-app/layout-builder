@@ -6,28 +6,28 @@ use Capell\Core\Support\Migration\MigrationFileManagerInterface;
 use Capell\Tests\Fixtures\FakeMigrationFileManager;
 use Illuminate\Console\Command;
 
-beforeEach(function (): void {
-    $this->fakeFileManager = new FakeMigrationFileManager([
-        'fileExists' => [],
-        'isDir' => [],
-    ]);
-    app()->instance(MigrationFileManagerInterface::class, $this->fakeFileManager);
-});
+use function Pest\Laravel\artisan;
 
 afterEach(function (): void {
     Mockery::close();
 });
 
 it('runs assistant install command successfully', function (): void {
-    $this->artisan('capell:assistant-install')
+    $fakeFileManager = new FakeMigrationFileManager([
+        'fileExists' => [],
+        'isDir' => [],
+    ]);
+    app()->instance(MigrationFileManagerInterface::class, $fakeFileManager);
+
+    artisan('capell:assistant-install')
         ->expectsOutput('Capell Assistant installed successfully.')
         ->assertExitCode(Command::SUCCESS);
 
-    expect(collect($this->fakeFileManager->calls)->contains(
+    expect(collect($fakeFileManager->calls)->contains(
         fn (array $call): bool => $call[0] === 'isDir',
     ))->toBeTrue();
 
-    expect(collect($this->fakeFileManager->calls)->contains(
+    expect(collect($fakeFileManager->calls)->contains(
         fn (array $call): bool => $call[0] === 'copy',
     ))->toBeFalse();
 });

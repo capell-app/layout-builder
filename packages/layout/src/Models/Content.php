@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Layout\Models;
 
 use Bkwld\Cloner\Cloneable;
+use Capell\Core\Contracts\Pageable;
 use Capell\Core\Contracts\PageCacheable;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Enums\PublishStatusEnum;
@@ -30,18 +31,19 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\ContentFactory;
+use Capell\Layout\Models\Concerns\ComposhipsJsonRelationshipsTrait;
 use Capell\Layout\Observers\ContentObserver;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\DB;
@@ -53,7 +55,6 @@ use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
 use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
 
 /**
@@ -73,8 +74,8 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read Collection<int, Language> $languages
  * @property-read int|null $languages_count
  * @property-read Content|null $nodeTraitParent
- * @property-read Page|null $page
- * @property-read \Kalnoy\Nestedset\Collection<int, Page> $pages
+ * @property-read Pageable|null $page
+ * @property-read \Kalnoy\Nestedset\Collection<int, Pageable> $pages
  * @property-read int|null $pages_count
  * @property-read Content|null $parent
  * @property-read Model $publisher
@@ -113,7 +114,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @method static QueryBuilder<static>|Content getPlainNodeData($id, $required = false)
  * @method static QueryBuilder<static>|Content getTotalErrors()
  * @method static QueryBuilder<static>|Content hasChildren()
- * @method static QueryBuilder<static>|Content hasParent()
+ * @method static QueryBuilder<static>|Content hasPageHierarchy()
  * @method static QueryBuilder<static>|Content isBroken()
  * @method static QueryBuilder<static>|Content leaves(array $columns = [])
  * @method static QueryBuilder<static>|Content makeGap(int $cut, int $height)
@@ -162,11 +163,63 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read int|null $widget_assets_count
  *
  * @mixin Model
+ *
+ * @property int $id
+ * @property string $name
+ * @property int $type_id
+ * @property int|null $site_id
+ * @property array<array-key, mixed>|null $meta
+ * @property int $order
+ * @property CarbonImmutable|null $visible_from
+ * @property CarbonImmutable|null $visible_until
+ * @property string|null $uuid
+ * @property CarbonImmutable|null $published_at
+ * @property bool $is_published
+ * @property bool $is_current
+ * @property string|null $publisher_type
+ * @property int|null $publisher_id
+ * @property int $_lft
+ * @property int $_rgt
+ * @property int|null $created_by
+ * @property int|null $updated_by
+ * @property int|null $deleted_by
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
+ * @property CarbonImmutable|null $deleted_at
+ * @property-read \Kalnoy\Nestedset\Collection<int, Content> $drafts
+ * @property-read int|null $drafts_count
+ *
+ * @method static NestedQueryBuilder<static>|Content whereCreatedAt($value)
+ * @method static NestedQueryBuilder<static>|Content whereCreatedBy($value)
+ * @method static NestedQueryBuilder<static>|Content whereDeletedAt($value)
+ * @method static NestedQueryBuilder<static>|Content whereDeletedBy($value)
+ * @method static NestedQueryBuilder<static>|Content whereId($value)
+ * @method static NestedQueryBuilder<static>|Content whereIsCurrent($value)
+ * @method static NestedQueryBuilder<static>|Content whereIsPublished($value)
+ * @method static NestedQueryBuilder<static>|Content whereLft($value)
+ * @method static NestedQueryBuilder<static>|Content whereMeta($value)
+ * @method static NestedQueryBuilder<static>|Content whereName($value)
+ * @method static NestedQueryBuilder<static>|Content whereOrder($value)
+ * @method static NestedQueryBuilder<static>|Content whereParentId($value)
+ * @method static NestedQueryBuilder<static>|Content whereVisibleFrom($value)
+ * @method static NestedQueryBuilder<static>|Content wherePublishTo($value)
+ * @method static NestedQueryBuilder<static>|Content wherePublishedAt($value)
+ * @method static NestedQueryBuilder<static>|Content wherePublisherId($value)
+ * @method static NestedQueryBuilder<static>|Content wherePublisherType($value)
+ * @method static NestedQueryBuilder<static>|Content whereRgt($value)
+ * @method static NestedQueryBuilder<static>|Content whereSiteId($value)
+ * @method static NestedQueryBuilder<static>|Content whereTypeId($value)
+ * @method static NestedQueryBuilder<static>|Content whereUpdatedAt($value)
+ * @method static NestedQueryBuilder<static>|Content whereUpdatedBy($value)
+ * @method static NestedQueryBuilder<static>|Content whereUuid($value)
+ *
+ * @mixin Model
  */
 #[ObservedBy(ContentObserver::class)]
 class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, HasMedia, PageCacheable, Publishable, Typeable, Userstampable
 {
     use Cloneable;
+    use ComposhipsJsonRelationshipsTrait;
     use HasAssets;
     use HasDrafts {
         bootHasDrafts as protected;
@@ -175,7 +228,6 @@ class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, Ha
         HasDraftsAndNestedSet::parent as hasDraftsAndNestedSetParent;
     }
     use HasFactory;
-    use HasJsonRelationships;
     use HasMetaData;
     use HasMorphModelRelations;
     use HasPublishDates;
@@ -205,8 +257,8 @@ class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, Ha
         'name',
         'order',
         'parent_id',
-        'publish_from',
-        'publish_to',
+        'visible_from',
+        'visible_until',
         'site_id',
         'type_id',
         'uuid',
@@ -239,7 +291,7 @@ class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, Ha
                                     if (DB::getDriverName() === 'sqlite') {
                                         $query->orderByRaw(
                                             'CASE language_id '
-                                            . sprintf('WHEN %d THEN 0 ELSE 1 END', (int) $language->id),
+                                            . sprintf('WHEN %d THEN 0 ELSE 1 END', $language->id),
                                         );
                                     } else {
                                         $query->orderByRaw('FIELD(language_id, ?)', [$language->id ?? 0]);
@@ -255,7 +307,7 @@ class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, Ha
                                     if (DB::getDriverName() === 'sqlite') {
                                         $query->orderByRaw(
                                             'CASE language_id '
-                                            . sprintf('WHEN %d THEN 0 ELSE 1 END', (int) $language->id),
+                                            . sprintf('WHEN %d THEN 0 ELSE 1 END', $language->id),
                                         );
                                     } else {
                                         $query->orderByRaw('FIELD(language_id, ?)', [$language->id ?? 0]);
@@ -266,7 +318,7 @@ class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, Ha
                 ]);
             },
             'translation' => fn (BuilderContract $query): BuilderContract => $query->with('language')
-                ->when($language, fn ($query) => $query->where('language_id', $language->id)),
+                ->when($language, fn (BuilderContract $query): BuilderContract => $query->where('language_id', $language->id)),
             'type',
         ];
 
@@ -286,7 +338,6 @@ class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, Ha
                 'is_published',
                 'is_current',
                 'publisher_type',
-                'publisher_id',
                 '_lft',
                 '_rgt',
                 'created_by',
@@ -309,13 +360,6 @@ class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, Ha
         ]);
     }
 
-    public function getPreviousRevision(): HasOne
-    {
-        return $this->hasOne(static::class, $this->getKeyName())
-            ->withDrafts()
-            ->latestOfMany();
-    }
-
     public function parent(): BelongsTo
     {
         return $this->hasDraftsAndNestedSetParent();
@@ -331,9 +375,9 @@ class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, Ha
         return $this->morphOneMedia(MediaCollectionEnum::Image->value);
     }
 
-    public function linkedPage(): BelongsTo
+    public function linkedPage(): MorphTo
     {
-        return $this->belongsTo(Page::class, 'meta->page_id', 'id');
+        return $this->morphTo(type: 'meta->linked_pageable_type', id: 'meta->linked_pageable_id');
     }
 
     public function related(): BelongsToJson
@@ -350,9 +394,10 @@ class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, Ha
     public function pages(): HasMany
     {
         return $this->widgetAssets()
-            ->select('widget_assets.page_id')
-            ->whereNotNull('widget_assets.page_id')
-            ->groupBy('widget_assets.page_id');
+            ->select('widget_assets.pageable_type', 'widget_assets.pageable_id')
+            ->whereNotNull('widget_assets.pageable_type')
+            ->whereNotNull('widget_assets.pageable_id')
+            ->groupBy('widget_assets.pageable_type', 'widget_assets.pageable_id');
     }
 
     public function widgets(): HasMany
@@ -420,7 +465,6 @@ class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, Ha
         /** @var NestedQueryBuilder $query */
         $query = $this->nodeTraitNewScopedQuery();
 
-        /** @phpstan-ignore-next-line provided by Oddvalue\LaravelDrafts */
         return $query->withDrafts();
     }
 
@@ -430,9 +474,9 @@ class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, Ha
             ->orderBy($this->qualifyColumn('name'));
     }
 
-    protected function actions(): Attribute
+    protected function getActionsAttribute(): array
     {
-        return Attribute::make(get: fn () => $this->meta['actions'] ?? []);
+        return $this->meta['actions'] ?? [];
     }
 
     protected function casts(): array
@@ -440,8 +484,8 @@ class Content extends Model implements Draftable, HasDraftsAndNestedSetModel, Ha
         return [
             'is_published' => 'boolean',
             'meta' => 'json',
-            'publish_from' => 'datetime',
-            'publish_to' => 'datetime',
+            'visible_from' => 'datetime',
+            'visible_until' => 'datetime',
         ];
     }
 }

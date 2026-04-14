@@ -52,6 +52,22 @@ abstract class TagsInput extends SpatieTagsInput
                 $component->state(
                     $tags->map(fn (Tag $tag): ?string => $tag->getTranslation('name', $locale))->all(),
                 );
+            })
+            ->saveRelationshipsUsing(static function (SpatieTagsInput $component, ?Model $record, array $state): void {
+                if (! (method_exists($record, 'syncTagsWithType') && method_exists($record, 'syncTags'))) {
+                    return;
+                }
+
+                if (
+                    ($type = $component->getType()) &&
+                    (! $component->isAnyTagTypeAllowed())
+                ) {
+                    $record->syncTagsWithType($state, $type);
+
+                    return;
+                }
+
+                $component->syncTagsWithAnyType($record, $state);
             });
     }
 }

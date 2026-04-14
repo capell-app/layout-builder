@@ -31,7 +31,7 @@ test('admin can see create widget', function (): void {
     get(WidgetResource::getUrl('create'))->assertOk();
 });
 
-test('admin can see edit widget', function (): void {
+test('admin can load edit widget', function (): void {
     test()->actingAsAdmin();
 
     get(WidgetResource::getUrl('edit', ['record' => Widget::factory()->create()]))->assertOk();

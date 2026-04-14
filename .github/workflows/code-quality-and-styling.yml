@@ -8,8 +8,8 @@ permissions:
   contents: write
 
 jobs:
-  code-quality:
-    name: Code Quality Checks
+  quality:
+    name: Code Quality & Styling
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -20,47 +20,49 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-      - name: Cache Dependencies PHP
-        id: php-cache
-        uses: actions/cache@v5
-        with:
-          path: vendor
-          key: dependencies-php-composer-${{ hashFiles('composer.lock') }}
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: curl, dom, fileinfo, intl, json, libxml, mbstring, simplexml, zip
-          tools: composer:v2, pint
-      - name: Install dependencies
-        if: steps.php-cache.outputs.cache-hit != 'true'
-        run: composer install --no-interaction --no-progress --ansi --optimize-autoloader
-      - name: Run Pint (Code Style)
-        run: composer lint
-      - name: Run PHPStan (Static Analysis)
-        run: composer analyze
-      - name: Run Rector (Code Refactoring)
-        run: composer rector
 
-  prettier:
-    name: Prettier Code Styling
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
           node-version: '18.18.0'
-      - name: Configure npm caching
+
+      - name: Cache npm dependencies
         uses: actions/cache@v5
         with:
           path: ~/.npm
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-npm-
-            ${{ runner.os }}-
-      - name: Install dependencies
+
+      - name: Install npm dependencies
         run: npm install
-      - name: Prettify code
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: curl, dom, fileinfo, intl, json, libxml, mbstring, simplexml, zip
+          tools: composer:v2, pint
+
+      - name: Cache Composer dependencies
+        id: composer-cache
+        uses: actions/cache@v5
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+
+      - name: Install Composer dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer install --no-interaction --no-progress --ansi --optimize-autoloader
+
+      - name: Run Prettier
         run: npx prettier --write 'packages/**/*.{css,js,yml,blade.php}' '!packages/**/node_modules/**'
+
+      - name: Run Pint (Code Style)
+        run: composer lint
+
+      - name: Run PHPStan (Static Analysis)
+        run: composer analyze
+
+      - name: Run Rector (Code Refactoring)
+        run: composer rector

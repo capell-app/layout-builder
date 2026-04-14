@@ -15,11 +15,11 @@ use Throwable;
 
 class OpenAIProvider implements ServiceContract
 {
-    private const CIRCUIT_BREAKER_KEY = 'openai_circuit_breaker_state';
+    protected readonly string $circuitBreakerKey;
 
-    private const FAILURE_THRESHOLD = 5;
+    protected readonly int $failureThreshold;
 
-    private const CIRCUIT_TIMEOUT = 300; // seconds
+    protected readonly int $circuitTimeout;
 
     protected int $maxRetries;
 
@@ -27,6 +27,9 @@ class OpenAIProvider implements ServiceContract
 
     public function __construct(protected array $config = [])
     {
+        $this->circuitBreakerKey = 'openai_circuit_breaker_state';
+        $this->failureThreshold = 5;
+        $this->circuitTimeout = 300;
         $this->maxRetries = (int) ($this->config['max_retries'] ?? 3);
         $this->retryDelay = (int) ($this->config['retry_delay_ms'] ?? 1000);
     }
@@ -105,21 +108,21 @@ class OpenAIProvider implements ServiceContract
 
     public function resetCircuitBreaker(): void
     {
-        Cache::forget(self::CIRCUIT_BREAKER_KEY);
+        Cache::forget($this->circuitBreakerKey);
     }
 
     protected function isCircuitOpen(): bool
     {
-        $state = Cache::get(self::CIRCUIT_BREAKER_KEY, ['failures' => 0]);
+        $state = Cache::get($this->circuitBreakerKey, ['failures' => 0]);
 
-        return (int) ($state['failures'] ?? 0) >= self::FAILURE_THRESHOLD;
+        return (int) ($state['failures'] ?? 0) >= $this->failureThreshold;
     }
 
     protected function recordFailure(): void
     {
-        $state = Cache::get(self::CIRCUIT_BREAKER_KEY, ['failures' => 0]);
+        $state = Cache::get($this->circuitBreakerKey, ['failures' => 0]);
         $state['failures'] = (int) ($state['failures'] ?? 0) + 1;
-        Cache::put(self::CIRCUIT_BREAKER_KEY, $state, self::CIRCUIT_TIMEOUT);
+        Cache::put($this->circuitBreakerKey, $state, $this->circuitTimeout);
     }
 
     protected function recordMetrics(array $params, object $response, float $duration): void

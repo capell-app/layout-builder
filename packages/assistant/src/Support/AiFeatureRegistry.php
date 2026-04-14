@@ -32,7 +32,7 @@ class AiFeatureRegistry
         return array_filter($this->features, static fn (array $feature): bool => (bool) ($feature['enabled'] ?? false));
     }
 
-    public function isEnabled(string $name): bool
+    public function is(string $name): bool
     {
         return (bool) ($this->features[$name]['enabled'] ?? false);
     }

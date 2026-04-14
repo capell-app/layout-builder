@@ -19,7 +19,7 @@ it('generates page content using provider', function (): void {
 
     $result = GeneratorPageContentAction::run(new FakeContext('Create content'));
 
-    $lines = preg_split('/\r\n|\r|\n/', (string) $result) ?: [];
+    $lines = preg_split('/\r\n|\r|\n/', (string) $result) ?? [];
 
     expect($result)->toBeString()
         ->and($result)->toContain('Hello')
@@ -68,7 +68,7 @@ it('generates long-form page content through pipeline', function (): void {
         }
     });
 
-    $context = new ContentActionContext('Laravel development tips', 'laravel, php', 1, 1);
+    $context = new ContentActionContext(content: 'Laravel development tips', keywords: 'laravel, php', pageId: 1, pageType: 'page', languageId: 1);
 
     $options = [
         'user_id' => 1,
@@ -87,7 +87,7 @@ it('generates long-form page content through pipeline', function (): void {
 it('throws when rate limited for content generation', function (): void {
     config()->set('capell-assistant.rate_limiting', ['enabled' => true, 'requests_per_minute' => 0]);
 
-    $context = new ContentActionContext('Laravel development tips', 'laravel, php', 1, 1);
+    $context = new ContentActionContext(content: 'Laravel development tips', keywords: 'laravel, php', pageId: 1, pageType: 'page', languageId: 1);
 
     expect(fn (): mixed => GeneratorPageContentAction::run($context))->toThrow(RuntimeException::class);
 });

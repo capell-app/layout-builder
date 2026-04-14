@@ -16,7 +16,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 it('belongs to a site', function (): void {
     $site = Site::factory()->create();
-    $content = Content::factory()->create(['site_id' => $site->id]);
+    $content = Content::factory()->site($site)->create();
 
     expect($content->site)->toBeInstanceOf(Site::class)
         ->and($content->site->id)->toBe($site->id);
@@ -24,7 +24,7 @@ it('belongs to a site', function (): void {
 
 it('belongs to a type', function (): void {
     $type = (new ContentTypeFactory)->create();
-    $content = Content::factory()->create(['type_id' => $type->id]);
+    $content = Content::factory()->type($type)->create();
 
     expect($content->type)->toBeInstanceOf(Type::class)
         ->and($content->type->id)->toBe($type->id);
@@ -32,12 +32,7 @@ it('belongs to a type', function (): void {
 
 it('belongs to an image', function (): void {
     $content = Content::factory()->create();
-
-    $media = MediaFactory::new([
-        'model_type' => resolve(Content::class)->getMorphClass(),
-        'model_id' => $content->id,
-    ])
-        ->create();
+    $media = MediaFactory::new()->model($content)->create();
 
     expect($content->image)->toBeInstanceOf(Media::class)
         ->and($content->image->id)->toBe($media->id);
@@ -45,7 +40,7 @@ it('belongs to an image', function (): void {
 
 it('has many translations', function (): void {
     $content = Content::factory()->create();
-    $translation = Translation::factory()->create(['translatable_id' => $content->id, 'translatable_type' => 'content']);
+    $translation = Translation::factory()->translatable($content)->create();
 
     expect($content->translations)
         ->toHaveCount(1)
@@ -63,7 +58,7 @@ it('has many assets', function (): void {
 it('has many widgets', function (): void {
     $content = Content::factory()->create();
     $widget = Widget::factory()->create();
-    WidgetAsset::factory()->create(['asset_id' => $content->id, 'asset_type' => 'content', 'widget_id' => $widget->id]);
+    WidgetAsset::factory()->asset($content)->widget($widget)->create();
 
     expect($content->widgets->pluck('widget_id'))->toContain($widget->id);
 });
@@ -71,11 +66,13 @@ it('has many widgets', function (): void {
 it('has many pages', function (): void {
     $content = Content::factory()->create();
     $page = Page::factory()->create();
-    $widgetAsset = WidgetAsset::factory()->create(['asset_id' => $content->id, 'asset_type' => 'content', 'page_id' => $page->id]);
+    WidgetAsset::factory()->asset($content)->page($page)->create();
 
     expect($content->pages)
         ->toHaveCount(1)
-        ->and($content->pages->first()->page_id)->toBe($page->id);
+        ->and($content->pages->first())
+        ->pageable_type->toBe($page->getMorphClass())
+        ->pageable_id->toBe($page->id);
 });
 
 it('creates a content with parent', function (): void {

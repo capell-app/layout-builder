@@ -74,7 +74,7 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
         }
 
         if ($this->record->isDisabled()) {
-            if (! empty($subheading)) {
+            if ($subheading !== '') {
                 $subheading .= ' | ';
             }
 
@@ -136,6 +136,6 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
 
         $updated_at = $model::query()->find($this->record->id, [$attribute])->value($attribute);
 
-        return ! $updated_at || $this->record->updated_at > $updated_at;
+        return $updated_at === null || $this->record->updated_at > $updated_at;
     }
 }

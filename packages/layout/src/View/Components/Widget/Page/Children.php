@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Layout\View\Components\Widget\Page;
 
+use Capell\Core\Enums\PageOrderEnum;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Frontend\Support\Loader\PageLoader;
+use Capell\Frontend\Support\Logging\FrontendLogger;
 
 class Children extends AbstractPagesWidget
 {
@@ -13,7 +15,23 @@ class Children extends AbstractPagesWidget
 
     protected function mountWidget(): void
     {
-        if (! empty(Frontend::page()->type->meta['hidden'])) {
+        $page = Frontend::page();
+
+        if (! $page->hasPageHierarchy()) {
+            $logger = resolve(FrontendLogger::class);
+
+            $logger->warning('Frontend: page has no page hierarchy for children widget', [
+                'pageable_type' => $page->getMorphClass(),
+                'pageable_id' => $page->getKey(),
+                'layout_id' => $page->layout->key,
+            ]);
+
+            $this->skipRender = true;
+
+            return;
+        }
+
+        if (isset($page->type->meta['hidden']) && $page->type->meta['hidden'] === true) {
             $this->skipRender = true;
 
             return;
@@ -24,7 +42,7 @@ class Children extends AbstractPagesWidget
             site: Frontend::site(),
             page: Frontend::page(),
             type: 'children',
-            ordering: 'alphabetical',
+            ordering: PageOrderEnum::Alphabetical,
             withChildrenCount: $this->widget->meta['with_children_count'] ?? false,
             withImage: $this->widget->meta['with_image'] ?? false,
             withParent: $this->widget->meta['with_parent'] ?? false,

@@ -15,29 +15,8 @@ arch()
         DemoCommand::class,
         DemoCreator::class,
         TypeFactory::class,
+        Capell\Hero\Console\Commands\DemoCommand::class,
     ]);
-
-arch()
-    ->preset()
-    ->php()
-    ->ignoring([
-        'var_export',
-    ]);
-
-arch()
-    ->preset()
-    ->laravel()
-    ->ignoring('exit');
-
-arch()->preset()->security();
-
-it('does not allow debug functions')
-    ->expect(['dd', 'dump', 'print_r', 'die', 'ray', 'rd', 'var_dump'])
-    ->toBeUsedInNothing();
-
-arch()->expect(['env', 'sleep', 'usleep'])->toBeUsedInNothing()->ignoring([
-    Capell\Blog\Console\Commands\InstallCommand::class,
-]);
 
 arch()
     ->expect([

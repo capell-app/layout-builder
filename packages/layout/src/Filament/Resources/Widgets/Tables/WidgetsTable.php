@@ -101,7 +101,7 @@ class WidgetsTable implements TableConfigurator
                 ->label(__('capell-admin::table.content'))
                 ->sortable()
                 ->searchable(
-                    query: fn (Builder $query, $search): Builder => $query->whereRelation(
+                    query: fn (Builder $query, string $search): Builder => $query->whereRelation(
                         'translations',
                         'content',
                         'like',
@@ -122,7 +122,7 @@ class WidgetsTable implements TableConfigurator
                     ),
                 )
                 ->description(function (ListWidgets $livewire, TextColumn $column, Widget $record): ?HtmlString {
-                    if (! $record->translation?->content) {
+                    if ($record->translation?->content === null) {
                         return null;
                     }
 
@@ -142,7 +142,7 @@ class WidgetsTable implements TableConfigurator
                 ->searchable('key'),
             TextColumn::make('meta.component')
                 ->label(__('capell-admin::table.component'))
-                ->searchable(query: function (Builder $query, $search): Builder {
+                ->searchable(query: function (Builder $query, string $search): Builder {
                     /** @var Connection $databaseConnection */
                     $databaseConnection = $query->getConnection();
 
@@ -167,13 +167,16 @@ class WidgetsTable implements TableConfigurator
                         __('capell-admin::form.component_item') => $record->meta['component_item'] ?? '',
                     ];
 
-                    $components = array_filter($components);
+                    $components = array_filter($components, fn (string $value): bool => $value !== '');
 
                     if ($components === []) {
                         return null;
                     }
 
-                    array_walk($components, fn ($value, string $key): string => sprintf('%s: %s', $key, $value));
+                    array_walk(
+                        $components,
+                        fn (string $value, string $key): string => sprintf('%s: %s', $key, $value),
+                    );
 
                     return new HtmlString(implode('<br />', $components));
                 })
@@ -193,12 +196,12 @@ class WidgetsTable implements TableConfigurator
                 ->toggleable()
                 ->disabledClick()
                 ->formatStateUsing(
-                    fn (Widget $record, $state): HtmlString => new HtmlString(
+                    fn (Widget $record, int $state): HtmlString => new HtmlString(
                         Blade::render(
                             'capell-admin::components.tables.url',
                             [
                                 'state' => $state,
-                                'url' => CapellAdmin::getResource(ResourceEnum::Layout)::getUrl('index', ['tableFilters[widget_id][value]' => $record->key]),
+                                'url' => CapellAdmin::getResource(ResourceEnum::Layout)::getUrl('index', ['filters[widget_id][value]' => $record->key]),
                             ],
                         ),
                     ),
@@ -247,7 +250,7 @@ class WidgetsTable implements TableConfigurator
                 ->indicateUsing(function (array $data): array {
                     $indicators = [];
 
-                    if (! empty($data['language_id'])) {
+                    if (isset($data['language_id']) && $data['language_id'] !== '') {
                         /** @var class-string<Language> $model */
                         $model = CapellCore::getModel(ModelEnum::Language);
 

@@ -38,7 +38,7 @@ declare(strict_types=1);
     @if ($title)
         <{{ $headingSize }}
             @class([
-            'hero-heading leading-12 lg:leading-14 text-balance',
+            'hero-heading leading-12 font-semibold text-balance lg:leading-14',
             'text-2xl md:text-4xl' => $size === 'sm',
             'text-3xl md:text-5xl' => $size === 'md',
             'text-4xl md:text-6xl' => $size === 'lg',

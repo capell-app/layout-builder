@@ -40,7 +40,7 @@ it('parses JSON-formatted title suggestions', function (): void {
         }
     });
 
-    $context = new ContentActionContext('Laravel development tips', 'laravel, php', 1, 1);
+    $context = new ContentActionContext(content: 'Laravel development tips', keywords: 'laravel, php', pageId: 1, pageType: 'page', languageId: 1);
     $titles = SuggestPageTitlesAction::run($context);
 
     expect($titles)->toBeArray();

@@ -12,6 +12,7 @@ use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Models\Widget;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\ViewEntry;
+use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -53,7 +54,12 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     {
         $columns = parent::getTableColumns();
 
-        $nameColumnIndex = array_search(NameColumn::class, array_map(fn ($col): string|false => $col::class, $columns), true);
+        $nameColumnIndex = array_search(
+            NameColumn::class,
+            array_map(fn (Column $column): string|false => $column::class, $columns),
+            true,
+        );
+
         if ($nameColumnIndex !== false) {
             array_splice($columns, $nameColumnIndex + 1, 0, [
                 TextColumn::make('layoutWidgets.name')
@@ -84,7 +90,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                 ->indicateUsing(function (array $state): array {
                     $indicators = [];
 
-                    if (! empty($state['value'])) {
+                    if (isset($state['value']) && $state['value'] !== '') {
                         /** @var class-string<Widget> $model */
                         $model = CapellCore::getModel(ModelEnum::Widget);
 
@@ -97,8 +103,8 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                     return $indicators;
                 })
                 ->modifyQueryUsing(
-                    fn (Builder $query, $state) => $query->unless(
-                        empty($state['value']),
+                    fn (Builder $query, array $state) => $query->when(
+                        isset($state['value']) && $state['value'] !== '',
                         fn (Builder $query) => $query->whereJsonContains('widgets', $state['value']),
                     ),
                 ),

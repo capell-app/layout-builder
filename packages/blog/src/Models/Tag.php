@@ -11,11 +11,12 @@ use Capell\Core\Models\Contracts\Statusable;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Kalnoy\Nestedset\Collection;
 use Override;
@@ -26,15 +27,17 @@ use Override;
  * @property array<array-key, mixed> $slug
  * @property string|null $type
  * @property int|null $order_column
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
  * @property bool $featured
  * @property bool $status
  * @property int|null $site_id
- * @property-read Collection<int, Content> $contents
- * @property-read int|null $contents_count
+ * @property-read Collection<int, Article> $articles
  * @property-read Collection<int, Page> $pages
+ * @property-read Collection<int, Taggable> $taggables
+ * @property-read int|null $articles_count
  * @property-read int|null $pages_count
+ * @property-read int|null $taggables_count
  * @property-read Site|null $site
  * @property-read mixed $translations
  *
@@ -53,6 +56,19 @@ use Override;
  * @method static Builder<static>|Tag withTranslatedLocales(string $key)
  * @method static Builder<static>|Tag withType(?string $type = null)
  * @method static Builder<static>|Tag status(bool $enabled)
+ *
+ * @mixin Model
+ *
+ * @method static Builder<static>|Tag whereCreatedAt($value)
+ * @method static Builder<static>|Tag whereFeatured($value)
+ * @method static Builder<static>|Tag whereId($value)
+ * @method static Builder<static>|Tag whereName($value)
+ * @method static Builder<static>|Tag whereOrderColumn($value)
+ * @method static Builder<static>|Tag whereSiteId($value)
+ * @method static Builder<static>|Tag whereSlug($value)
+ * @method static Builder<static>|Tag whereStatus($value)
+ * @method static Builder<static>|Tag whereType($value)
+ * @method static Builder<static>|Tag whereUpdatedAt($value)
  *
  * @mixin Model
  */
@@ -95,6 +111,7 @@ class Tag extends \Spatie\Tags\Tag implements PageCacheable, Statusable
             if (! $tag) {
                 $tag = static::query()->create([
                     'name' => [$locale => $name],
+                    'slug' => [$locale => str($name)->slug()],
                     'type' => $type,
                 ]);
             }
@@ -108,7 +125,7 @@ class Tag extends \Spatie\Tags\Tag implements PageCacheable, Statusable
         return Language::getLanguageLocales();
     }
 
-    public function getPageUrl(Page $tagPage, Language $language): string
+    public function getUrl(Page $tagPage, Language $language): string
     {
         return $tagPage->pageUrl->full_url . '/' . $this->translate('slug', $language->code);
     }
@@ -118,12 +135,30 @@ class Tag extends \Spatie\Tags\Tag implements PageCacheable, Statusable
         return $this->belongsTo(Site::class);
     }
 
+    public function articles(): MorphToMany
+    {
+        return $this->morphedByMany(Article::class, 'taggable');
+    }
+
     public function pages(): MorphToMany
     {
         return $this->morphedByMany(Page::class, 'taggable');
     }
 
-    public function scopeOrdered(Builder $query, string $direction = 'asc', $locale = null): void
+    /**
+     * Access the raw taggable pivot records for this tag.
+     *
+     * This returns the pivot rows from the `taggables` table so callers can
+     * inspect which models (type + id) are associated with this tag. For
+     * convenience use the morph-specific relations like `articles()` or
+     * `pages()` when you need the hydrated models.
+     */
+    public function taggables(): HasMany
+    {
+        return $this->hasMany(Taggable::class, 'tag_id', 'id');
+    }
+
+    public function scopeOrdered(Builder $query, string $direction = 'asc', ?string $locale = null): void
     {
         $locale ??= static::getLocale();
 
@@ -137,7 +172,7 @@ class Tag extends \Spatie\Tags\Tag implements PageCacheable, Statusable
         return false;
     }
 
-    public function getFirstTranslationLocale($key): ?string
+    public function getFirstTranslationLocale(string $key): ?string
     {
         $locales = $this->getTranslatedLocales($key);
 
@@ -150,6 +185,9 @@ class Tag extends \Spatie\Tags\Tag implements PageCacheable, Statusable
         return null;
     }
 
+    /**
+     * @param  string  $key
+     */
     public function getAttributeValue($key): mixed
     {
         if (! $this->isTranslatableAttribute($key)) {
@@ -158,7 +196,7 @@ class Tag extends \Spatie\Tags\Tag implements PageCacheable, Statusable
 
         $value = $this->getTranslation($key, $this->getLocale(), $this->useFallbackLocale());
 
-        if (! $value) {
+        if (blank($value)) {
             $locale = $this->getFirstTranslationLocale($key);
 
             if (! in_array($locale, [null, '', '0'], true)) {

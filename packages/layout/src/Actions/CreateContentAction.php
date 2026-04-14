@@ -32,13 +32,13 @@ class CreateContentAction
         /** @var class-string<Content> $model */
         $model = CapellCore::getModel(ModelEnum::Content->name);
 
-        if (empty($data['name']) && ! empty($data['translations'])) {
+        if (! isset($data['name']) && blank($data['name']) && isset($data['translations'])) {
             $data['name'] = collect($data['translations'])->first()['title'];
         }
 
         $content = $model::create($data);
 
-        if (! empty($data['translations'])) {
+        if (isset($data['translations'])) {
             $this->createTranslations($content, $data['translations']);
         }
 

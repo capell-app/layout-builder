@@ -34,7 +34,7 @@ test('admin can see create content', function (): void {
     get(ContentResource::getUrl('create'))->assertOk();
 });
 
-test('admin can see edit content', function (): void {
+test('admin can load edit content', function (): void {
     test()->actingAsAdmin();
 
     get(ContentResource::getUrl('edit', ['record' => Content::factory()->create()]))->assertOk();

@@ -16,9 +16,9 @@ use Capell\Admin\Filament\Components\Forms\PublishSection;
 use Capell\Admin\Filament\Concerns\HasTypeSchema;
 use Capell\Layout\Enums\SchemaExtenderEnum;
 use Capell\Layout\Enums\TypeSchemaEnum;
-use Capell\Layout\Filament\Components\Forms\Content\ContentDetailsSchema;
-use Capell\Layout\Filament\Components\Forms\Content\ContentSettingsSchema;
-use Capell\Layout\Filament\Components\Forms\Content\ContentTranslationsRepeater;
+use Capell\Layout\Filament\Components\Forms\Content\DetailsSchema;
+use Capell\Layout\Filament\Components\Forms\Content\SettingsSchema;
+use Capell\Layout\Filament\Components\Forms\Content\TranslationsRepeater;
 use Capell\Layout\Filament\Components\Forms\CustomColorInput;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
@@ -71,11 +71,11 @@ class DefaultContentSchema implements TypeSchemaInterface
     protected function getOptionFormSchema(Schema $schema): array
     {
         return [
-            ...ContentDetailsSchema::make($schema),
-            ContentTranslationsRepeater::make($schema)
+            ...DetailsSchema::make($schema),
+            TranslationsRepeater::make($schema)
                 ->hiddenLabel()
                 ->contained(),
-            ...ContentSettingsSchema::make($schema),
+            ...SettingsSchema::make($schema),
             MediaLibraryFileUpload::make('image'),
             PublishSchema::make($schema),
         ];
@@ -88,14 +88,14 @@ class DefaultContentSchema implements TypeSchemaInterface
                 ->hiddenOn('edit')
                 ->columnSpanFull()
                 ->columns()
-                ->schema(ContentDetailsSchema::make($schema))
+                ->schema(DetailsSchema::make($schema))
                 ->contained(fn (string $operation): bool => $operation === 'create'),
             FixedWidthSidebar::make()
                 ->mainSchema([
                     Tabs::make()
                         ->tabs([
-                            $this->getTranslationsTab($schema),
-                            $this->getSettingsTab($schema),
+                            $this->translationsTab($schema),
+                            $this->settingsTab($schema),
                         ]),
                 ])
                 ->sidebarSchema([
@@ -103,15 +103,15 @@ class DefaultContentSchema implements TypeSchemaInterface
                         ->gridContainer()
                         ->columns(['default' => 1, '@lg' => 2])
                         ->schema([
-                            ...($schema->getOperation() !== 'create' ? ContentDetailsSchema::make($schema) : []),
-                            ...ContentSettingsSchema::make($schema),
+                            ...($schema->getOperation() !== 'create' ? DetailsSchema::make($schema) : []),
+                            ...SettingsSchema::make($schema),
                         ]),
                     PublishSection::make(),
                 ]),
         ];
     }
 
-    protected function getSettingsTab(Schema $schema): Tab
+    protected function settingsTab(Schema $schema): Tab
     {
         return Tab::make('settings')
             ->label(__('capell-admin::generic.settings'))
@@ -120,12 +120,12 @@ class DefaultContentSchema implements TypeSchemaInterface
             ->schema($this->getMetaSchema());
     }
 
-    protected function getTranslationsTab(Schema $schema): Tab
+    protected function translationsTab(Schema $schema): Tab
     {
         return Tab::make(__('capell-admin::tab.content'))
             ->icon(Heroicon::Language)
             ->schema([
-                ContentTranslationsRepeater::make($schema)
+                TranslationsRepeater::make($schema)
                     ->hiddenLabel(),
             ]);
     }

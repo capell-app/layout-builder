@@ -24,7 +24,7 @@ class CreateBlogPagesCommand extends Command
     {
         $siteId = $this->argument('site');
 
-        if (empty($siteId)) {
+        if (blank($siteId)) {
             $this->error('Site argument is required.');
 
             return self::FAILURE;

@@ -8,8 +8,6 @@ use BackedEnum;
 use Capell\Admin\Filament\Concerns\HasFormConfigurator;
 use Capell\Admin\Filament\Concerns\HasNavigationBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
-use Capell\Admin\Filament\Contracts\FormConfigurator;
-use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Filament\Resources\Widgets\Pages\CreateWidget;
@@ -24,7 +22,9 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class WidgetResource extends Resource
@@ -35,11 +35,13 @@ class WidgetResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    /** @var class-string<FormConfigurator> */
     protected static string $formConfigurator = WidgetForm::class;
 
-    /** @var class-string<TableConfigurator> */
     protected static string $tableConfigurator = WidgetsTable::class;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBolt;
+
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::Bolt;
 
     public static function form(Schema $schema): Schema
     {
@@ -71,17 +73,22 @@ class WidgetResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_layouts'));
+        return (string) (__('capell-admin::navigation.group_library'));
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('capell-admin::generic.widgets');
+        return __('capell-layout::generic.widgets');
     }
 
-    public static function getNavigationIcon(): string|BackedEnum|null
+    public static function getNavigationIcon(): string|BackedEnum|Htmlable|null
     {
-        return config('capell-admin.resources.widgets.navigation_icon', Heroicon::OutlinedGift);
+        return config('capell-layout.resources.widget.icon', static::$navigationIcon);
+    }
+
+    public static function getActiveNavigationIcon(): string|BackedEnum|Htmlable|null
+    {
+        return config('capell-layout.resources.widget.active_icon', static::$activeNavigationIcon);
     }
 
     public static function shouldRegisterNavigation(): bool
@@ -91,7 +98,22 @@ class WidgetResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['name', 'key', 'translations.title', 'meta->component', 'meta->file', 'meta->component_item'];
+        return ['name', 'key', 'translations.title', 'meta->component', 'meta->file'];
+    }
+
+    /**
+     * @param  Model&Widget  $record
+     * @return array|string[]
+     */
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        $details = [];
+
+        if ($record->title) {
+            $details[__('capell-admin::generic.title')] = $record->title;
+        }
+
+        return $details;
     }
 
     public static function getEloquentQuery(): Builder

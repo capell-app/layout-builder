@@ -19,7 +19,8 @@ it('records generation with user_id in metadata', function (): void {
         'total_tokens' => 30,
         'duration' => 0.123,
         'metadata' => ['user_id' => 99],
-        'page_id' => 123,
+        'pageable_id' => 123,
+        'pageable_type' => 'page',
         'language_id' => 9,
     ];
 

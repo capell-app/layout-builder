@@ -8,8 +8,6 @@ use BackedEnum;
 use Capell\Admin\Filament\Concerns\HasFormConfigurator;
 use Capell\Admin\Filament\Concerns\HasNavigationBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
-use Capell\Admin\Filament\Contracts\FormConfigurator;
-use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\ModelEnum;
@@ -22,13 +20,16 @@ use Capell\Layout\Filament\Resources\Contents\RelationManagers\WidgetsRelationMa
 use Capell\Layout\Filament\Resources\Contents\Schemas\ContentForm;
 use Capell\Layout\Filament\Resources\Contents\Tables\ContentsTable;
 use Capell\Layout\Filament\Resources\Contents\Widgets\ContentAlertsWidget;
+use Capell\Layout\Models\Content;
 use Capell\Layout\Providers\LayoutServiceProvider;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\HtmlString;
 
 class ContentResource extends Resource
 {
@@ -38,10 +39,8 @@ class ContentResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    /** @var class-string<FormConfigurator> */
     protected static string $formConfigurator = ContentForm::class;
 
-    /** @var class-string<TableConfigurator> */
     protected static string $tableConfigurator = ContentsTable::class;
 
     public static function form(Schema $schema): Schema
@@ -78,6 +77,38 @@ class ContentResource extends Resource
         return ['name', 'translations.title'];
     }
 
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()
+            ->with([
+                'site:id,name,default',
+                'type:id,name',
+                'ancestors',
+            ]);
+    }
+
+    /**
+     * @param  Content  $record
+     * @return array|string[]
+     */
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        $details = [];
+
+        if ($record->title !== $record->name) {
+            $details[] = $record->title;
+        }
+
+        if (($breadcrumb = self::buildGlobalSearchBreadcrumbs($record)) instanceof HtmlString) {
+            $details[] = $breadcrumb;
+        }
+
+        return $details;
+    }
+
+    /**
+     * @return class-string<Content>
+     */
     public static function getModel(): string
     {
         return CapellCore::getModel(ModelEnum::Content->name);
@@ -85,7 +116,7 @@ class ContentResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_assets'));
+        return (string) (__('capell-admin::navigation.group_library'));
     }
 
     public static function getNavigationLabel(): string
@@ -107,6 +138,11 @@ class ContentResource extends Resource
         return CapellCore::getAsset(LayoutTypeEnum::Content->name)->getIcon();
     }
 
+    public static function getActiveNavigationIcon(): string|BackedEnum|Htmlable|null
+    {
+        return CapellCore::getAsset(LayoutTypeEnum::Content->name)->getActiveIcon();
+    }
+
     public static function getPluralModelLabel(): string
     {
         return __('capell-admin::generic.contents');
@@ -126,5 +162,24 @@ class ContentResource extends Resource
         return [
             ContentAlertsWidget::class,
         ];
+    }
+
+    private static function buildGlobalSearchBreadcrumbs(Content $record): ?HtmlString
+    {
+        $breadcrumbs = [];
+
+        if ($record->site !== null && ! $record->site->default) {
+            $breadcrumbs[] = $record->site->name;
+        }
+
+        if ($record->ancestors->isNotEmpty()) {
+            $breadcrumbs[] = $record->ancestors->pluck('name')->implode(' &raquo; ');
+        }
+
+        if (filled($breadcrumbs)) {
+            return new HtmlString(implode(' &raquo; ', $breadcrumbs));
+        }
+
+        return null;
     }
 }

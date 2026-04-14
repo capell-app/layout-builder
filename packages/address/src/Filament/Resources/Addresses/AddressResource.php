@@ -14,8 +14,6 @@ use Capell\Address\Providers\AddressServiceProvider;
 use Capell\Admin\Filament\Concerns\HasFormConfigurator;
 use Capell\Admin\Filament\Concerns\HasNavigationBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
-use Capell\Admin\Filament\Contracts\FormConfigurator;
-use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Core\Facades\CapellCore;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -33,12 +31,12 @@ class AddressResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMapPin;
 
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::MapPin;
+
     protected static ?string $recordTitleAttribute = 'name';
 
-    /** @var class-string<FormConfigurator> */
     protected static string $formConfigurator = AddressForm::class;
 
-    /** @var class-string<TableConfigurator> */
     protected static string $tableConfigurator = AddressesTable::class;
 
     #[Override]
@@ -69,7 +67,7 @@ class AddressResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_system'));
+        return (string) (__('capell-admin::navigation.group_settings'));
     }
 
     public static function shouldRegisterNavigation(): bool

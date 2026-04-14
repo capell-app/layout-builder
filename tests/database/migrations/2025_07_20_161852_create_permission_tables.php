@@ -14,14 +14,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $teams = config('permission.teams');
+        $teams = config('permission.teams', false);
+        $testingEnabled = config('permission.testing', false);
         $tableNames = config('permission.table_names');
         $columnNames = config('permission.column_names');
         $pivotRole = $columnNames['role_pivot_key'] ?? 'role_id';
         $pivotPermission = $columnNames['permission_pivot_key'] ?? 'permission_id';
 
-        throw_if(empty($tableNames), Exception::class, 'Error: config/permission.php not loaded. Run [php artisan config:clear] and try again.');
-        throw_if($teams && empty($columnNames['team_foreign_key'] ?? null), Exception::class, 'Error: team_foreign_key on config/permission.php not loaded. Run [php artisan config:clear] and try again.');
+        throw_if($tableNames === null || $tableNames === [] || ! is_array($tableNames), Exception::class, 'Error: config/permission.php not loaded. Clear cached config and try again.');
+        throw_if($teams && (! isset($columnNames['team_foreign_key']) || $columnNames['team_foreign_key'] === null || $columnNames['team_foreign_key'] === ''), Exception::class, 'Error: team_foreign_key on config/permission.php not loaded. Clear cached config and try again.');
 
         Schema::create($tableNames['permissions'], static function (Blueprint $table): void {
             // $table->engine('InnoDB');
@@ -33,10 +34,10 @@ return new class extends Migration
             $table->unique(['name', 'guard_name']);
         });
 
-        Schema::create($tableNames['roles'], static function (Blueprint $table) use ($teams, $columnNames): void {
+        Schema::create($tableNames['roles'], static function (Blueprint $table) use ($teams, $columnNames, $testingEnabled): void {
             // $table->engine('InnoDB');
             $table->bigIncrements('id'); // role id
-            if ($teams || config('permission.testing')) { // permission.testing is a fix for sqlite testing
+            if ($teams || $testingEnabled) { // permission.testing is a fix for sqlite testing
                 $table->unsignedBigInteger($columnNames['team_foreign_key'])->nullable();
                 $table->index($columnNames['team_foreign_key'], 'roles_team_foreign_key_index');
             }
@@ -44,7 +45,7 @@ return new class extends Migration
             $table->string('name');       // For MyISAM use string('name', 225); // (or 166 for InnoDB with Redundant/Compact row format)
             $table->string('guard_name'); // For MyISAM use string('guard_name', 25);
             $table->timestamps();
-            if ($teams || config('permission.testing')) {
+            if ($teams || $testingEnabled) {
                 $table->unique([$columnNames['team_foreign_key'], 'name', 'guard_name']);
             } else {
                 $table->unique(['name', 'guard_name']);
@@ -59,7 +60,11 @@ return new class extends Migration
             $table->index([$columnNames['model_morph_key'], 'model_type'], 'model_has_permissions_model_id_model_type_index');
 
             $table->foreign($pivotPermission)
-                ->references('id') // permission id
+                ->references('id')
+                ->on($tableNames['permissions']);
+            $table->dropForeign([$pivotPermission]);
+            $table->foreign($pivotPermission)
+                ->references('id')
                 ->on($tableNames['permissions'])
                 ->onDelete('cascade');
             if ($teams) {
@@ -87,7 +92,11 @@ return new class extends Migration
             $table->index([$columnNames['model_morph_key'], 'model_type'], 'model_has_roles_model_id_model_type_index');
 
             $table->foreign($pivotRole)
-                ->references('id') // role id
+                ->references('id')
+                ->on($tableNames['roles']);
+            $table->dropForeign([$pivotRole]);
+            $table->foreign($pivotRole)
+                ->references('id')
                 ->on($tableNames['roles'])
                 ->onDelete('cascade');
             if ($teams) {
@@ -111,12 +120,20 @@ return new class extends Migration
             $table->unsignedBigInteger($pivotRole);
 
             $table->foreign($pivotPermission)
-                ->references('id') // permission id
+                ->references('id')
+                ->on($tableNames['permissions']);
+            $table->dropForeign([$pivotPermission]);
+            $table->foreign($pivotPermission)
+                ->references('id')
                 ->on($tableNames['permissions'])
                 ->onDelete('cascade');
 
             $table->foreign($pivotRole)
-                ->references('id') // role id
+                ->references('id')
+                ->on($tableNames['roles']);
+            $table->dropForeign([$pivotRole]);
+            $table->foreign($pivotRole)
+                ->references('id')
                 ->on($tableNames['roles'])
                 ->onDelete('cascade');
 
@@ -124,8 +141,8 @@ return new class extends Migration
         });
 
         resolve(Factory::class)
-            ->store(config('permission.cache.store') !== 'default' ? config('permission.cache.store') : null)
-            ->forget(config('permission.cache.key'));
+            ->store((string) config('permission.cache.store') !== 'default' ? (string) config('permission.cache.store') : null)
+            ->forget((string) config('permission.cache.key'));
     }
 
     /**
@@ -135,7 +152,7 @@ return new class extends Migration
     {
         $tableNames = config('permission.table_names');
 
-        throw_if(empty($tableNames), Exception::class, 'Error: config/permission.php not found and defaults could not be merged. Please publish the package configuration before proceeding, or drop the tables manually.');
+        throw_if($tableNames === null || $tableNames === [] || ! is_array($tableNames), Exception::class, 'Error: config/permission.php not found and defaults could not be merged. Please publish the package configuration before proceeding, or drop the tables manually.');
 
         Schema::drop($tableNames['role_has_permissions']);
         Schema::drop($tableNames['model_has_roles']);

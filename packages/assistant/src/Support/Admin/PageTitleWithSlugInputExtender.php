@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Capell\Assistant\Support\Admin;
 
-use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Contracts\Extenders\PageTitleWithSlugInputExtender as PageTitleWithSlugInputExtenderContract;
 use Capell\Assistant\Actions\SuggestPageTitlesAction;
 use Capell\Assistant\Exceptions\OpenAICircuitBreakerOpenException;
+use Capell\Assistant\Settings\AssistantSettings;
 use Capell\Assistant\Support\Context\ContentActionContext;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models\PageTranslation;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Actions\Contracts\HasActions;
@@ -20,6 +21,7 @@ use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\FusedGroup;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\GridDirection;
@@ -27,7 +29,7 @@ use Filament\Support\Enums\IconPosition;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 
-class PageTitleWithSlugInputExtender
+class PageTitleWithSlugInputExtender implements PageTitleWithSlugInputExtenderContract
 {
     private readonly SuggestPageTitlesAction $suggestPageTitlesAction;
 
@@ -45,7 +47,7 @@ class PageTitleWithSlugInputExtender
      */
     public function actions(): array
     {
-        if (! CapellAdmin::settings()->page_title_suggestions) {
+        if (! $this->isEnabled()) {
             return [];
         }
 
@@ -59,13 +61,20 @@ class PageTitleWithSlugInputExtender
      */
     public function afterLabel(FusedGroup $component): ?Schema
     {
-        if (! CapellAdmin::settings()->page_title_suggestions) {
+        if (! $this->isEnabled()) {
             return null;
         }
 
         return Schema::end([
             $component->getAction($this->titleSuggestionsActionName),
         ]);
+    }
+
+    private function isEnabled(): bool
+    {
+        $prompts = resolve(AssistantSettings::class)->prompts;
+
+        return isset($prompts['title_generation']) && $prompts['title_generation'] === true;
     }
 
     private function titleSuggestionsAction(): Action
@@ -76,7 +85,7 @@ class PageTitleWithSlugInputExtender
             ->color('warning')
             ->icon(Heroicon::OutlinedSparkles)
             ->modalDescription(__('Provide keywords or page content to generate SEO-friendly title suggestions using AI.'))
-            ->fillForm(function ($get): array {
+            ->fillForm(function (Get $get): array {
                 /** @var class-string<Site> $model */
                 $model = CapellCore::getModel(ModelEnum::Site);
 
@@ -89,14 +98,14 @@ class PageTitleWithSlugInputExtender
                     ->first();
 
                 $keywords = $get('meta')['keywords'] ?? null;
-                if (empty($keywords) && $site) {
-                    $keywords = $site->translation->meta_keywords ?: $site->translation->title;
+                if (blank($keywords) && $site) {
+                    $keywords = $site->translation->meta_keywords !== '' ? $site->translation->meta_keywords : $site->translation->title;
                 }
 
                 return [
                     'keywords' => $keywords,
-                    'content' => strip_tags($get('content') ?? ''),
-                    'title' => $get('title') ?: $get('../../name'),
+                    'content' => strip_tags((string) $get('content')),
+                    'title' => filled($get('title')) ? $get('title') : $get('../../name'),
                     'includeCurrentTitle' => true,
                 ];
             })
@@ -104,7 +113,7 @@ class PageTitleWithSlugInputExtender
                 Hidden::make('title'),
                 Radio::make('includeCurrentTitle')
                     ->label(__('Include current title?'))
-                    ->options(fn ($get): array => [
+                    ->options(fn (Get $get): array => [
                         true => __('Yes, include: ":title"', ['title' => $get('title')]),
                         false => __('No, ignore current title'),
                     ])
@@ -128,7 +137,7 @@ class PageTitleWithSlugInputExtender
             ->action($this->handleTitleSuggestionsAction(...));
     }
 
-    private function handleTitleSuggestionsAction(HasActions $livewire, FusedGroup $component, Action $action, array $data, ?PageTranslation $record): void
+    private function handleTitleSuggestionsAction(HasActions $livewire, FusedGroup $component, Action $action, array $data, ?Translation $record): void
     {
         $keywords = isset($data['keywords']) ? trim((string) $data['keywords']) : '';
         $content = isset($data['content']) ? trim((string) $data['content']) : '';
@@ -137,8 +146,9 @@ class PageTitleWithSlugInputExtender
 
         $context = new ContentActionContext(
             content: $content,
-            keywords: $keywords ?: '',
-            pageId: $record?->page_id,
+            keywords: $keywords,
+            pageId: $record?->translatable_id,
+            pageType: $record?->translatable_type,
             languageId: $record?->language_id,
         );
 
@@ -147,6 +157,7 @@ class PageTitleWithSlugInputExtender
             'current_title' => $includeCurrent ? $currentTitle : null,
         ];
 
+        $titles = [];
         try {
             $titles = $this->suggestPageTitlesAction->run($context, $options);
         } catch (OpenAICircuitBreakerOpenException $e) {
@@ -167,8 +178,6 @@ class PageTitleWithSlugInputExtender
                 ->send();
 
             $action->halt();
-
-            return;
         } catch (Exception $e) {
             Notification::make('ai-suggest-titles-error')
                 ->title(__('Failed to suggest titles'))
@@ -178,8 +187,6 @@ class PageTitleWithSlugInputExtender
                 ->send();
 
             $action->halt();
-
-            return;
         }
 
         $livewire->mountAction(

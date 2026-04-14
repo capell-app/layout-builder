@@ -12,6 +12,7 @@ use Capell\Core\Models\Concerns\HasUserstamps;
 use Capell\Core\Models\Contracts\Defaultable;
 use Capell\Core\Models\Contracts\Userstampable;
 use Capell\Core\Models\Language;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -46,6 +47,38 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @method static Builder<static>|Country status(bool $enabled)
  * @method static Builder<static>|Country withTrashed(bool $withTrashed = true)
  * @method static Builder<static>|Country withoutTrashed()
+ *
+ * @mixin Model
+ *
+ * @property int $id
+ * @property string $name
+ * @property string|null $iso2
+ * @property string|null $iso3
+ * @property int|null $language_id
+ * @property int $default
+ * @property int $status
+ * @property array<array-key, mixed>|null $meta
+ * @property CarbonImmutable|null $deleted_at
+ * @property int|null $created_by
+ * @property int|null $updated_by
+ * @property int|null $deleted_by
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
+ *
+ * @method static Builder<static>|Country whereCreatedAt($value)
+ * @method static Builder<static>|Country whereCreatedBy($value)
+ * @method static Builder<static>|Country whereDefault($value)
+ * @method static Builder<static>|Country whereDeletedAt($value)
+ * @method static Builder<static>|Country whereDeletedBy($value)
+ * @method static Builder<static>|Country whereId($value)
+ * @method static Builder<static>|Country whereIso2($value)
+ * @method static Builder<static>|Country whereIso3($value)
+ * @method static Builder<static>|Country whereLanguageId($value)
+ * @method static Builder<static>|Country whereMeta($value)
+ * @method static Builder<static>|Country whereName($value)
+ * @method static Builder<static>|Country whereStatus($value)
+ * @method static Builder<static>|Country whereUpdatedAt($value)
+ * @method static Builder<static>|Country whereUpdatedBy($value)
  *
  * @mixin Model
  */

@@ -29,7 +29,7 @@ class WidgetForm implements FormConfigurator
                 ->columns($schema->getColumns())
                 ->schema(
                     function (Get $get, TypeSchema $component) use ($schema): array {
-                        $typeId = $get('type_id');
+                        $typeId = $get('type_id') ?? null;
 
                         $record = $component->getRecord();
 
@@ -39,7 +39,7 @@ class WidgetForm implements FormConfigurator
                             /** @var class-string<Type> $model */
                             $model = CapellCore::getModel(ModelEnum::Type);
 
-                            $type = $typeId ? $model::query()->find($typeId, ['admin']) : null;
+                            $type = $typeId !== null ? $model::query()->find($typeId, ['admin']) : null;
 
                             $adminSchema = $type?->admin['schema'] ?? DefaultWidgetSchema::getKey();
                         }

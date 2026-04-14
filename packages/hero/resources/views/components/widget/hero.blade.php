@@ -10,24 +10,44 @@ $theme = Frontend::theme();
 ?>
 
 @props([
-    'backgroundColor' => $widget->meta['background_color'] ?? null,
+    'backgroundColor' => $widget->getMeta('background_color'),
     'containerKey',
     'containerIndex',
-    'color' => $widget->meta['color'] ?? $theme->meta['color'] ?? null,
+    'color' => $widget->getMeta('color', $theme->getMeta('color')),
+    'carouselAlign' => $widget->getMeta('carousel_align', 'center'),
+    'carouselArrows' => (bool) $widget->getMeta('carousel_arrows', true),
+    'carouselAutoPlay' => (bool) $widget->getMeta('carousel_auto_play', true),
+    'carouselAutoDelay' => (int) $widget->getMeta('carousel_auto_delay', 8000),
+    'carouselButtonClass' => 'hover:bg-primary focus:bg-primary pointer-events-auto bg-white/80 shadow-md transition hover:text-white focus:text-white disabled:pointer-events-none disabled:opacity-50',
+    'carouselDisableOnInteraction' => (bool) $widget->getMeta('carousel_disable_on_interaction', true),
+    'carouselDrag' => (bool) $widget->getMeta('carousel_drag', true),
+    'carouselEffect' => $widget->getMeta('carousel_effect', 'slide'),
+    'carouselFade' => (bool) $widget->getMeta('carousel_fade', false),
+    'carouselLoop' => (bool) $widget->getMeta('carousel_loop', true),
+    'carouselPagination' => (bool) $widget->getMeta('carousel_pagination', true),
+    'carouselPauseOnHover' => (bool) $widget->getMeta('carousel_pause_on_hover', true),
+    'carouselRewind' => (bool) $widget->getMeta('carousel_rewind', false),
+    'carouselSpeed' => (int) $widget->getMeta('carousel_speed', 300),
+    'carouselTouch' => $widget->getMeta('carousel_touch'),
+    'carouselWheel' => (bool) $widget->getMeta('carousel_wheel', true),
     'heroContent' => null,
     'loop',
-    'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
+    'total' => $widget->assets->count(),
     'slideClass' => '',
     'widget',
     'widgetIndex',
 ])
 {{-- format-ignore-start --}}
 @php
-    if ($containerIndex === 0 && ($theme->meta['header_position'] ?? null) === 'fixed') {
+    use Capell\Layout\Actions\GetWidgetContainerWidthAction;
+
+    if ($containerIndex === 0 && $theme->getMeta('header_position') === 'fixed') {
         $slideClass .= ' pt-20 lg:pt-32';
     }
 
-    $height = $widget->meta['height'] ?? null;
+    $height = $widget->getMeta('height', '36em');
+
+    $containerClass = GetWidgetContainerWidthAction::run($widget);
 @endphp
 {{-- format-ignore-end --}}
 <section
@@ -37,28 +57,37 @@ $theme = Frontend::theme();
         'mt-10' => ! $loop->first,
         'bg-gray-50 dark:bg-gray-900' => $color === 'light',
         'bg-gray-800 dark:bg-gray-900' => $color === 'dark',
-        'h-[calc(100vh-var(--header-height))]' => $height === 'full',
-        'h-[calc(100vh-var(--header-height))] lg:max-h-[60vh]' => $height === 'large',
-        'h-[calc(100vh-var(--header-height))] md:max-h-[40vh]' => $height === 'medium',
-        'h-[calc(100vh-var(--header-height))] sm:max-h-[24rem]' => $height === 'small',
+        'min-h-[calc(100vh-var(--header-height))]' => $height === 'full',
+        'h-[calc(100vh-var(--header-height))] max-h-[var(--hero-height)]' => filled($height) && $height !== 'full',
     ])
+    style="--hero-height: {{ $height }}"
 >
     <x-capell-hero::hero.wrapper
         :key="$containerKey . '-widget-' . $widgetIndex"
         :total="$total"
-        :carousel-arrows="$widget->meta['carousel_arrows'] ?? false"
-        :carousel-auto="$widget->meta['carousel_auto'] ?? true"
-        :carousel-auto-delay="$widget->meta['carousel_auto_delay'] ?? 8000"
-        :carousel-loop="$widget->meta['carousel_loop'] ?? true"
-        :carousel-type="$widget->meta['carousel_type'] ?? null"
-        :carousel-pagination="$widget->meta['carousel_pagination'] ?? true"
+        :carousel-align="$carouselAlign"
+        :carousel-arrows="$carouselArrows"
+        :carousel-auto-play="$carouselAutoPlay"
+        :carousel-auto-delay="$carouselAutoDelay"
+        :carousel-button-class="$carouselButtonClass"
+        :carousel-disable-on-interaction="$carouselDisableOnInteraction"
+        :carousel-drag="$carouselDrag"
+        :carousel-effect="$carouselEffect"
+        :carousel-fade="$carouselFade"
+        :carousel-loop="$carouselLoop"
+        :carousel-pagination="$carouselPagination"
+        :carousel-pause-on-hover="$carouselPauseOnHover"
+        :carousel-rewind="$carouselRewind"
+        :carousel-speed="$carouselSpeed"
+        :carousel-touch="$carouselTouch"
+        :carousel-wheel="$carouselWheel"
     >
         @if ($widget->assets->isNotEmpty())
             @foreach ($widget->assets as $widgetAsset)
                 {{-- format-ignore-start --}}
                 @php
                     /** @var \Capell\Layout\Models\WidgetAsset $widgetAsset */
-                    $slideColorScheme = $widgetAsset->asset->meta['color'] ?? $color;
+                    $slideColorScheme = $widgetAsset->asset->getMeta('color', $color);
 
                     $linkedPage = $widgetAsset->asset instanceof \Capell\Core\Models\Page ? $widgetAsset->asset : $widgetAsset->asset->linkedPage;
 
@@ -85,30 +114,18 @@ $theme = Frontend::theme();
                 {{-- format-ignore-end --}}
                 <x-capell-hero::hero.slide
                     :background-image="$bgImage"
-                    :background-color="($widgetAsset->asset->meta['background_color'] ?? null) ?: $backgroundColor"
-                    :background-size="
-                        ($widgetAsset->asset->meta['background_size'] ?? null)
-                        ?: ($widget->meta['background_size'] ?? 'cover')
-                    "
-                    :background-position="
-                        ($widgetAsset->asset->meta['background_position'] ?? null)
-                        ?: ($widget->meta['background_position'] ?? 'center')
-                    "
-                    :background-attachment="
-                        ($widgetAsset->asset->meta['background_attachment'] ?? null)
-                        ?: ($widget->meta['background_attachment'] ?? 'scroll')
-                    "
-                    :background-repeat="
-                        ($widgetAsset->asset->meta['background_repeat'] ?? null)
-                        ?: ($widget->meta['background_repeat'] ?? 'no-repeat')
-                    "
+                    :background-color="$widgetAsset->asset->getMeta('background_color', $backgroundColor)"
+                    :background-size="$widgetAsset->asset->getMeta('background_size', $widget->getMeta('background_size', 'cover'))"
+                    :background-position="$widgetAsset->asset->getMeta('background_position', $widget->getMeta('background_position', 'center'))"
+                    :background-attachment="$widgetAsset->asset->getMeta('background_attachment', $widget->getMeta('background_attachment', 'scroll'))"
+                    :background-repeat="$widgetAsset->asset->getMeta('background_repeat', $widget->getMeta('background_repeat', 'no-repeat'))"
                     :background-overlay="$bgImage && $widgetAsset->asset->translation ? $color : ''"
                     :first="$loop->first"
                     :total="$total"
                     :title="$widgetAsset->asset->translation->title"
                     :color="$slideColorScheme"
+                    :container-class="$containerClass->getContainerClass()"
                     :class="$slideClass"
-                    container-class="container"
                 >
                     <div
                         @class([
@@ -134,14 +151,14 @@ $theme = Frontend::theme();
                                 >
                                     {!! $widgetAsset->asset->translation->content !!}
 
-                                    @if (! empty($widgetAsset->asset->meta['link_text']))
+                                    @if ($widgetAsset->asset->getMeta('link_text'))
                                         <a
                                             class="text-link hover:text-primary font-medium no-underline focus:underline"
                                             href="{{ $url }}"
                                             wire:navigate
                                         >
                                             @svg('heroicon-s-chevron-right', 'mr-2 inline-block h-6 w-6')
-                                            {{ $widgetAsset->asset->meta['link_text'] }}
+                                            {{ $widgetAsset->asset->getMeta('link_text') }}
                                         </a>
                                     @endif
 
@@ -159,10 +176,10 @@ $theme = Frontend::theme();
                                 />
                             @endif
 
-                            @if ($widgetAsset->asset->meta['actions'] ?? null)
-                                <x-capell::actions
+                            @if ($widgetAsset->asset->getMeta('actions'))
+                                <x-capell-layout::actions
                                     class="hero-actions mt-8 w-full"
-                                    :actions="$widgetAsset->asset->meta['actions']"
+                                    :actions="$widgetAsset->asset->getMeta('actions')"
                                     :color="$slideColorScheme"
                                     action-item-class="hero-action-item"
                                 />
@@ -174,15 +191,15 @@ $theme = Frontend::theme();
                                 class="relative z-30 flex w-full items-center lg:col-span-6 xl:col-span-5"
                             >
                                 @foreach ($images as $media)
-                                    @capture($mediaContent)
+                                    @capellBuffer($mediaContent)
                                         <x-capell::media
                                             format="webp"
                                             :media="$media"
                                             :alt="$widgetAsset->asset->translation->title"
                                             class="hero-slide-img h-full max-h-[40vh] w-full object-cover object-center lg:max-h-[400px]"
-                                            loading="lazy"
+                                            :loading="$loop->first ? 'eager' : 'lazy'"
                                         />
-                                    @endcapture
+                                    @endcapellBuffer
 
                                     @if ($loop->first)
                                         {{ $mediaContent() }}
@@ -200,15 +217,14 @@ $theme = Frontend::theme();
                     </div>
                 </x-capell-hero::hero.slide>
             @endforeach
-        @elseif (isset($page->translation->meta['hero']))
+        @elseif ($page->translation->getMeta('hero'))
             <x-capell-hero::hero.slide
                 :background-image="$widget->image"
-                :background-color="$widget->meta['background_color'] ?? ($theme['meta']['background_color'] ?? '')"
-                :background-size="$widget->meta['background_size'] ?? 'cover'"
-                :background-position="$widget->meta['background_position'] ?? 'center'"
-                :background-attachment="$widget->meta['background_attachment'] ?? 'scroll'"
-                :background-repeat="$widget->meta['background_repeat'] ?? 'no-repeat'"
-                :carousel-type="$widget->meta['carousel_type'] ?? null"
+                :background-color="$widget->getMeta('background_color', $theme->getMeta('background_color'))"
+                :background-size="$widget->getMeta('background_size', 'cover')"
+                :background-position="$widget->getMeta('background_position', 'center')"
+                :background-attachment="$widget->getMeta('background_attachment', 'scroll')"
+                :background-repeat="$widget->getMeta('background_repeat', 'no-repeat')"
                 :first="true"
                 :total="1"
                 :color="$color"
@@ -225,7 +241,7 @@ $theme = Frontend::theme();
                         size="lg"
                         class="hero-page-content"
                     >
-                        {!! __($page->translation->meta['hero'], $urlParams) !!}
+                        {!! __($page->translation->getMeta('hero'), $urlParams) !!}
                     </x-capell-hero::hero.content>
                 </div>
             </x-capell-hero::hero.slide>

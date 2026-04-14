@@ -2,57 +2,82 @@
 
 declare(strict_types=1);
 
+use Capell\Blog\Enums\BlogPageTypeEnum;
 use Capell\Blog\Enums\ModelEnum as BlogModelEnum;
-use Capell\Core\Enums\ModelEnum as CoreModelEnum;
+use Capell\Blog\Enums\TagTypeEnum;
+use Capell\Blog\Models\Article;
+use Capell\Blog\Models\Tag;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
-use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\File;
+
+use function Pest\Laravel\artisan;
 
 it('runs demo command and creates articles and tags for the site', function (): void {
+    $capellDirectory = storage_path('app/capell');
+    $demoDirectory = $capellDirectory . '/demo';
+
+    File::deleteDirectory($demoDirectory);
+
+    $sourceDemoDirectory = realpath(__DIR__ . '/../../../../../demo');
+
+    if ($sourceDemoDirectory === false) {
+        throw new RuntimeException('Demo fixtures directory not found.');
+    }
+
+    $demoCopiedToStorage = File::copyDirectory($sourceDemoDirectory, $demoDirectory);
+
+    expect($demoCopiedToStorage)->toBeTrue();
+
     /** @var Language $language */
     $language = Language::factory()->create([
         'code' => 'en',
     ]);
 
     /** @var Site $site */
-    $site = Site::factory()
-        ->recycle($language)
-        ->withTranslations()
-        ->create();
+    $site = Site::factory()->language($language)->withTranslations()->create();
 
-    // Ensure the site has language relations loaded
     $site->refresh();
     $site->loadMissing('languages', 'language');
 
-    // Run the demo command for this site with a small limit
-    $this->artisan('capell-blog:demo', [
+    artisan('capell:blog-demo', [
         '--sites' => $site->name,
         '--limit' => 2,
     ])
         ->expectsOutput('Setting up demo blog for site: ' . $site->name)
+        ->expectsOutput('Blog demo setup completed for selected sites.')
         ->assertExitCode(Command::SUCCESS);
 
-    // Verify that article pages were created under the blog page for the site
-    $pageModel = CapellCore::getModel(CoreModelEnum::Page);
+    /** @var class-string<Article> $articleModel */
+    $articleModel = CapellCore::getModel(BlogModelEnum::Article);
 
-    /** @var Collection<int, Page> $articles */
-    $articles = $pageModel::query()
+    /** @var Collection<int, Article> $articles */
+    $articles = $articleModel::query()
         ->where('site_id', $site->id)
-        ->whereRelation('type', 'key', 'article')
+        ->whereRelation('type', 'key', BlogPageTypeEnum::Article->value)
+        ->with('tags')
         ->get();
 
-    expect($articles->count())->toBeGreaterThanOrEqual(1);
+    expect($articles)->toHaveCount(2);
 
-    // Verify that tags were created for pages
+    $articlesWithTagsCount = $articles
+        ->filter(fn (Article $article): bool => $article->tags->isNotEmpty())
+        ->count();
+
+    expect($articlesWithTagsCount)->toBe(2);
+
+    /** @var class-string<Tag> $tagModel */
     $tagModel = CapellCore::getModel(BlogModelEnum::Tag);
-    $tagsCount = $tagModel::query()->count();
-    expect($tagsCount)->toBeGreaterThanOrEqual(1);
+    $pageTagsCount = $tagModel::query()
+        ->where('type', TagTypeEnum::Page->value)
+        ->count();
 
-    // Verify that at least one created article has tags associated
-    $articleWithTags = $articles->first(fn (Page $page): bool => $page->tags()->exists());
+    expect($pageTagsCount)->toBeGreaterThanOrEqual(1);
 
-    expect($articleWithTags)->not()->toBeNull();
+    $articleLinkedToPageTag = $articles->first(fn (Article $article): bool => $article->tags->contains(fn (Tag $tag): bool => $tag->type === TagTypeEnum::Page->value));
+
+    expect($articleLinkedToPageTag)->not()->toBeNull();
 });

@@ -10,7 +10,9 @@ interface AiActionContextInterface
 
     public function getKeywords(): string;
 
-    public function getPageId(): int;
+    public function getPageId(): int|string;
+
+    public function getPageType(): string;
 
     public function getLanguageId(): int;
 }

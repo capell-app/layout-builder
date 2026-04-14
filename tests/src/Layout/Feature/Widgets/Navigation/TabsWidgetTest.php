@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Enums\NavigationItemType;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Layout\Database\Factories\LayoutFactory;
@@ -33,24 +34,25 @@ it('creates navigation tabs widget with expected meta', function (): void {
 it('renders navigation tabs widget on page', function (): void {
     $site = Site::factory()->withTranslations()->create();
     $creator = resolve(WidgetCreator::class);
-    $home = Page::factory()->site($site)->home()->withTranslations()->create();
+    $home = Page::factory()->site($site)->home()->withTranslations(slug: '/')->create();
     $items = [
         [
             'label' => $home->translation->title,
-            'type' => 'page',
+            'type' => NavigationItemType::Page->value,
             'data' => [
-                'page_id' => $home->id,
+                'pageable_id' => $home->id,
+                'pageable_type' => $home->getMorphClass(),
             ],
         ],
         [
             'label' => 'External link',
-            'type' => 'external_url',
+            'type' => NavigationItemType::Link->value,
             'data' => [
                 'url' => $externalUrl = 'https://example.com/external',
             ],
         ],
     ];
-    $widget = $creator->navigationTabsWidget(navigatonItems: $items);
+    $widget = $creator->navigationTabsWidget(navigationItems: $items);
     $layout = (new LayoutFactory)->widgets([$widget])->create();
     $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
 

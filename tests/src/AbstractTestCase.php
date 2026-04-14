@@ -11,13 +11,12 @@ use BezhanSalleh\FilamentShield\Support\Utils;
 use Bkwld\Cloner\ServiceProvider as ClonerServiceProvider;
 use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use BladeUI\Icons\BladeIconsServiceProvider;
-use Capell\Core\Data\PackageData;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models\Page;
-use Capell\Core\Models\PageTranslation;
 use Capell\Core\Providers\CapellServiceProvider;
 use Capell\Tests\Fixtures\Models\User;
 use Capell\Tests\Fixtures\Policies\RolePolicy;
+use Capell\Tests\Support\Concerns\BuildsOrderedMigrationWorkspace;
+use Capell\Tests\Support\Concerns\RegistersPublishedConfigs;
 use CmsMulti\FilamentClearCache\FilamentClearCacheServiceProvider;
 use CodeWithDennis\FilamentSelectTree\FilamentSelectTreeServiceProvider;
 use Filament\Actions\ActionsServiceProvider;
@@ -37,20 +36,18 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithSession;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 use Kalnoy\Nestedset\NestedSetServiceProvider;
 use LaraZeus\SpatieTranslatable\SpatieTranslatableServiceProvider;
+use Lorisleiva\Actions\ActionServiceProvider;
+use MichalOravec\PaginateRoute\PaginateRouteServiceProvider;
 use Oddvalue\LaravelDrafts\LaravelDraftsServiceProvider;
 use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase;
 use Orchestra\Workbench\WorkbenchServiceProvider;
-use RuntimeException;
-use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
 use Saade\FilamentAdjacencyList\FilamentAdjacencyListServiceProvider;
 use Silber\PageCache\LaravelServiceProvider;
 use Sinnbeck\DomAssertions\DomAssertionsServiceProvider;
@@ -69,44 +66,26 @@ use Tapp\FilamentAuthenticationLog\FilamentAuthenticationLogServiceProvider;
 
 abstract class AbstractTestCase extends TestCase
 {
+    use BuildsOrderedMigrationWorkspace;
     use InteractsWithSession;
     use LazilyRefreshDatabase;
+    use RegistersPublishedConfigs;
     use WithFaker;
     use WithWorkbench;
-
-    protected string $packageName;
 
     protected function setUp(): void
     {
         if (getenv('TEST_TOKEN')) {
-            putenv('VIEW_COMPILED_PATH=storage/framework/views/phpunit-parallel-' . getenv('TEST_TOKEN'));
+            putenv('VIEW_COMPILED_PATH=storage/framework/views/phpunit-' . $this->getPackageServiceName() . '-parallel-' . getenv('TEST_TOKEN'));
         }
 
         parent::setUp();
 
-        // Hacky fix for running in parallel causing Blade namespaces to not always be registered
+        $this->loadMigrationsFrom($this->orderedMigrationWorkspacePath());
+
+        // Temp fix to ensure components are locatable when run in parallel
         Blade::componentNamespace('Capell\\Blog\\View\\Components', 'capell-blog');
         Blade::componentNamespace('Capell\\Layout\\View\\Components', 'capell-layout');
-
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
-
-        $migrations = CapellCore::getMigrations();
-        $path = realpath(__DIR__ . '/../../vendor/capell-app/core/database/migrations');
-
-        if (! $path) {
-            $path = realpath(__DIR__ . '/../../vendor/capell-app/core/packages/core/database/migrations');
-        }
-
-        throw_unless($path, RuntimeException::class, 'Could not find core migrations path.');
-
-        array_walk($migrations, fn (&$migration): string => $migration = sprintf('%s/%s.php', $path, $migration));
-
-        // Load migrations for any explicitly required dependent packages.
-        CapellCore::getInstalledPackages()->each(function (PackageData $package) use (&$migrations): void {
-            $migrations = array_merge($migrations, $this->discoverPackageMigrations($package->path));
-        });
-
-        $this->loadMigrationsFrom($migrations);
 
         Http::preventStrayRequests();
 
@@ -119,9 +98,18 @@ abstract class AbstractTestCase extends TestCase
         // $this->app->setLocale('en_GB');
 
         $this->setUpDatabase();
-
-        $this->withoutVite();
     }
+
+    protected function tearDown(): void
+    {
+        try {
+            $this->cleanupOrderedMigrationWorkspace();
+        } finally {
+            parent::tearDown();
+        }
+    }
+
+    abstract protected function getPackageServiceName(): string;
 
     /**
      * @param  Application  $app
@@ -135,8 +123,6 @@ abstract class AbstractTestCase extends TestCase
 
     /**
      * Set up the database.
-     *
-     * @param  Application  $app
      */
     protected function setUpDatabase(): void
     {
@@ -151,9 +137,9 @@ abstract class AbstractTestCase extends TestCase
     {
         return [
             WorkbenchServiceProvider::class,
+            ActionServiceProvider::class,
             ActionsServiceProvider::class,
             BadgeableColumnServiceProvider::class,
-            BladeCaptureDirectiveServiceProvider::class,
             BladeCountryFlagsServiceProvider::class,
             BladeHeroiconsServiceProvider::class,
             BladeIconsServiceProvider::class,
@@ -162,6 +148,7 @@ abstract class AbstractTestCase extends TestCase
             SpatieLaravelSettingsPluginServiceProvider::class,
             TinyeditorServiceProvider::class,
             FilamentServiceProvider::class,
+            SupportServiceProvider::class,
             InfolistsServiceProvider::class,
             FilamentAuthenticationLogServiceProvider::class,
             FilamentServiceProvider::class,
@@ -170,6 +157,7 @@ abstract class AbstractTestCase extends TestCase
             FilamentSelectTreeServiceProvider::class,
             FilamentClearCacheServiceProvider::class,
             FormsServiceProvider::class,
+            PaginateRouteServiceProvider::class,
             ActivitylogServiceProvider::class,
             LaravelDataServiceProvider::class,
             NestedSetServiceProvider::class,
@@ -179,7 +167,11 @@ abstract class AbstractTestCase extends TestCase
             LaravelDraftsServiceProvider::class,
             RayServiceProvider::class,
             DomAssertionsServiceProvider::class,
-            SupportServiceProvider::class,
+            SpatieLaravelSettingsPluginServiceProvider::class,
+            CapellServiceProvider::class,
+            MediaLibraryServiceProvider::class,
+            ActivitylogServiceProvider::class,
+            LaravelSettingsServiceProvider::class,
             SchemasServiceProvider::class,
             CapellServiceProvider::class,
             LaravelSettingsServiceProvider::class,
@@ -197,8 +189,9 @@ abstract class AbstractTestCase extends TestCase
             $packages = $this->getDefaultPackages();
         }
 
-        $this->registerPublishConfig('core', vendorPackage: true);
-        $this->registerPublishConfig('admin', vendorPackage: true);
+        $this->registerPublishConfig('core');
+        $this->registerPublishConfig('admin');
+        $this->registerPublishConfig('frontend');
 
         foreach ($packages as $package_key => $package) {
             $config = require __DIR__ . '/..' . $this->getPackageFile($package);
@@ -209,14 +202,22 @@ abstract class AbstractTestCase extends TestCase
         // config('filament-shield.register_role_policy.enabled', false);
         Config::set('filament-shield.authenticable-resources', [User::class]);
         Config::set('filament-shield.auth_provider_model', User::class);
+        CapellCore::registerModel('User', User::class);
 
         // Prevent role being assigned to created user
         Config::set('filament-shield.panel_user.enabled', false);
 
         Config::set('auth.providers.users.model', User::class);
 
-        // Spatie Permission testing flag for sqlite compatibility
-        Config::set('permission.testing', true);
+        Config::set('filesystems.disks.page_cache', [
+            'driver' => 'local',
+            'root' => public_path('page-cache'),
+            'throw' => false,
+        ]);
+
+        if (getenv('TEST_TOKEN')) {
+            Config::set('settings.cache.prefix', 'settings-cache-' . getenv('TEST_TOKEN'));
+        }
     }
 
     protected function getDefaultPackages(): array
@@ -237,12 +238,17 @@ abstract class AbstractTestCase extends TestCase
                 'name' => 'laravel-permission',
                 'file' => 'permission',
             ],
+            'settings' => [
+                'user' => 'spatie',
+                'name' => 'laravel-settings',
+                'file' => 'settings',
+            ],
         ];
     }
 
-    protected function registerPublishConfig(string $package, bool $vendorPackage = false): void
+    protected function registerPublishConfig(string $package): void
     {
-        $configs = $this->getPublishConfigs($package, $vendorPackage);
+        $configs = $this->getPublishConfigs($package);
 
         foreach ($configs as $configFile) {
             $config = require $configFile;
@@ -252,32 +258,15 @@ abstract class AbstractTestCase extends TestCase
         }
     }
 
-    protected function getPublishConfigs(string $package, bool $vendorPackage): array
+    protected function getPublishConfigs(string $package): array
     {
-        if ($vendorPackage) {
-            $path = realpath(__DIR__ . '/../../vendor/capell-app/' . $package . '/publishes/config');
-        } else {
-            $path = realpath(__DIR__ . '/../../packages/' . $package . '/publishes/config');
-        }
+        $path = realpath(__DIR__ . '/../../packages/' . $package . '/publishes/config');
 
         if (in_array($path, ['', '0', false], true)) {
             return [];
         }
 
         return glob($path . '/*.php');
-    }
-
-    protected function setupPage(Page $page, Collection $languages): void
-    {
-        $languages->each(function (int $languageId) use ($page): void {
-            $page->translations()->save(PageTranslation::factory()->make([
-                'language_id' => $languageId,
-                'title' => Str::title($page->name . ' ' . $languageId),
-                'slug' => Str::slug($page->name . ' ' . $languageId),
-            ]));
-        });
-
-        $page->refresh();
     }
 
     protected function registerAndMigrateSettings(array $migrations, string $basePath): void
@@ -314,18 +303,5 @@ abstract class AbstractTestCase extends TestCase
 
             config()->set(sprintf('%s.%s', $package, $key), $value);
         }
-    }
-
-    private function discoverPackageMigrations(string $path): array
-    {
-        $path = realpath($path . '/database/migrations');
-
-        if (! $path) {
-            return [];
-        }
-
-        $files = glob($path . '/*.php');
-
-        return $files === false ? [] : $files;
     }
 }
