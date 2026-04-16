@@ -36,7 +36,7 @@ jobs:
           echo "DB_DATABASE=:memory:" >> .env
 
       - name: Run Pest Coverage (Clover via pipelines config)
-        run: php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=packages vendor/bin/pest --coverage --coverage-clover=coverage/clover.xml --colors=always --configuration=phpunit-pipelines.xml
+        run: php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=packages -d pcov.exclude="~vendor|tests|storage|bootstrap|.temp~"vendor/bin/pest --coverage --coverage-clover=coverage/clover.xml --colors=always --configuration=phpunit-pipelines.xml
 
       - name: Upload Clover XML for codecov
         uses: actions/upload-artifact@v7

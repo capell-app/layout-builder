@@ -5,31 +5,30 @@ declare(strict_types=1);
 namespace Capell\Hero\Actions;
 
 use Capell\Core\Models\Layout;
+use Capell\Layout\Actions\AddWidgetToLayoutContainerAction;
 use Capell\Layout\Models\Widget;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static void run(Layout $layout)
+ * @method static void run(Widget $widget, Layout $layout)
  */
-class AddHeroToLayoutAction
+class AddHeroWidgetToLayoutAction
 {
     use AsFake;
     use AsObject;
 
-    public function handle(Layout $layout): void
+    public function handle(Widget $widget, Layout $layout, string $container = 'hero'): void
     {
-        $heroWidget = CreateHeroWidgetAction::run();
-
         $containers = $layout->containers ?? [];
 
-        if (array_key_exists('hero', $containers)) {
-            return;
+        if (! array_key_exists($container, $containers)) {
+            $containers = array_merge([$container => $this->heroContainer($widget)], $containers);
         }
 
-        $containers = array_merge(['hero' => $this->heroContainer($heroWidget)], $containers);
-
         $layout->update(['containers' => $containers]);
+
+        AddWidgetToLayoutContainerAction::run($widget, $layout, $container);
     }
 
     private function heroContainer(Widget $widget): array

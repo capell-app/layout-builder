@@ -60,7 +60,7 @@ class HeroEditor extends Group
                 return $model::query()
                     ->where('pageable_type', $page->getMorphClass())
                     ->where('pageable_id', $page->getKey())
-                    ->whereHas('widget', fn (Builder $query): Builder => $query->where('key', 'hero'))
+                    ->whereHas('widget', fn (Builder $query): Builder => $query->whereLike('key', 'hero%'))
                     ->exists();
             },
         );

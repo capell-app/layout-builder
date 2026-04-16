@@ -9,7 +9,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
-use Capell\Hero\Actions\AddHeroToLayoutAction;
+use Capell\Hero\Actions\AddHeroWidgetToLayoutAction;
 use Capell\Hero\Actions\CreateHeroContentTypeAction;
 use Capell\Hero\Actions\CreateHeroWidgetAction;
 use Capell\Layout\Enums\LayoutTypeEnum;
@@ -21,7 +21,7 @@ use Mockery\MockInterface;
 use function Pest\Laravel\artisan;
 
 it('adds hero meta to blog and article pages when blog package is installed', function (): void {
-    AddHeroToLayoutAction::shouldRun()->once();
+    AddHeroWidgetToLayoutAction::shouldRun()->once();
     CreateHeroContentTypeAction::shouldRun()->once()->andReturn(Type::factory()->type(LayoutTypeEnum::Content)->create());
 
     $heroWidget = Widget::factory()->make();

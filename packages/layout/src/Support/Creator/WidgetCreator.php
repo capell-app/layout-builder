@@ -13,6 +13,7 @@ use Capell\Core\Models\Navigation;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Layout\Enums\AssetEnum;
+use Capell\Layout\Enums\LivewireComponentsEnum;
 use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\CarouselWidgetSchema;
@@ -281,6 +282,8 @@ class WidgetCreator
             'name' => __('capell-admin::generic.pages_card'),
             'type_id' => $type->id,
             'meta' => [
+                'component' => LivewireComponentsEnum::PagesWidget,
+                'livewire' => true,
                 'limit' => 10,
                 'with_image' => true,
                 'with_summary' => true,

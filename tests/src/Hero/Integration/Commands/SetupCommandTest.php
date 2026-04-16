@@ -3,13 +3,13 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Layout;
-use Capell\Hero\Actions\AddHeroToLayoutAction;
+use Capell\Hero\Actions\AddHeroWidgetToLayoutAction;
 use Illuminate\Console\Command;
 
 use function Pest\Laravel\artisan;
 
 it('runs hero install command successfully', function (): void {
-    AddHeroToLayoutAction::shouldRun()->once();
+    AddHeroWidgetToLayoutAction::shouldRun()->once();
 
     Layout::factory()->create();
 

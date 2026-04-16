@@ -12,7 +12,7 @@ use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Hero\Actions\AddHeroToLayoutAction;
+use Capell\Hero\Actions\AddHeroWidgetToLayoutAction;
 use Capell\Hero\Actions\CreateHeroContentTypeAction;
 use Capell\Hero\Actions\CreateHeroWidgetAction;
 use Capell\Layout\Models\Widget;
@@ -46,14 +46,16 @@ class DemoCommand extends Command
 
         $this->demoCreator = resolve(DemoCreator::class);
 
-        $heroWidget = CreateHeroWidgetAction::run();
+        CreateHeroWidgetAction::run();
 
-        $sites->each(function (Site $site) use ($heroWidget): void {
-            $this->createDemoContentForSite($site, $heroWidget);
+        $heroBannerWidget = CreateHeroWidgetAction::run(key: 'hero-banner', height: 'large');
+
+        $sites->each(function (Site $site) use ($heroBannerWidget): void {
+            $this->setupDemoHomepageWidget($site, $heroBannerWidget);
 
             if (CapellCore::hasPackage('capell-app/blog')) {
                 $this->updateBlogHeroContent($site);
-                $this->addHeroToArticlePages($site);
+                $this->addHeroContentToArticlePages($site);
             }
         });
 
@@ -95,7 +97,7 @@ class DemoCommand extends Command
             ->get();
     }
 
-    private function createDemoContentForSite(Site $site, Widget $heroWidget): bool
+    private function setupDemoHomepageWidget(Site $site, Widget $heroWidget): bool
     {
         $this->newLine();
         $this->line(sprintf('Selected site: %s', $site->name));
@@ -108,7 +110,7 @@ class DemoCommand extends Command
         if ($homepage instanceof Page) {
             $homepage->loadMissing('layout');
 
-            AddHeroToLayoutAction::run($homepage->layout);
+            AddHeroWidgetToLayoutAction::run($heroWidget, $homepage->layout);
 
             $type = CreateHeroContentTypeAction::run();
 
@@ -140,7 +142,7 @@ class DemoCommand extends Command
             });
     }
 
-    private function addHeroToArticlePages(Site $site): void
+    private function addHeroContentToArticlePages(Site $site): void
     {
         /** @var class-string<Article> $model */
         $model = CapellCore::getModel(BlogPageTypeEnum::Article);

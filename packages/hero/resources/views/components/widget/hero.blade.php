@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Capell\Frontend\Facades\Frontend;
 
 $page = Frontend::page();
-$urlParams = Frontend::params();
 $theme = Frontend::theme();
 ?>
 
@@ -40,14 +39,24 @@ $theme = Frontend::theme();
 {{-- format-ignore-start --}}
 @php
     use Capell\Layout\Actions\GetWidgetContainerWidthAction;
+    use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+    use Illuminate\Support\Collection;
+    use Capell\Frontend\Actions\GetPageVariablesAction;
 
     if ($containerIndex === 0 && $theme->getMeta('header_position') === 'fixed') {
         $slideClass .= ' pt-20 lg:pt-32';
     }
 
-    $height = $widget->getMeta('height', '36em');
+    $height = match($widget->getMeta('height')) {
+        'small' => '24em',
+        'medium' => '36em',
+        'large' => '60vh',
+        default => null,
+    };
 
     $containerClass = GetWidgetContainerWidthAction::run($widget);
+
+    $pageVariables = GetPageVariablesAction::run();
 @endphp
 {{-- format-ignore-end --}}
 <section
@@ -230,18 +239,28 @@ $theme = Frontend::theme();
                 :color="$color"
                 container-class="container"
             >
-                <div class="@lg:py-16 flex select-text py-20">
+                <div class="@lg:py-16 flex select-text items-center py-20">
                     <x-capell-hero::hero.content
                         :title="
                             $widget->translation
-                            ? __($widget->translation->title, $urlParams)
+                            ? __($widget->translation->title, $pageVariables)
                             : null
                         "
                         :color="$color"
                         size="lg"
                         class="hero-page-content"
                     >
-                        {!! __($page->translation->getMeta('hero'), $urlParams) !!}
+                        {!! __($page->translation->getMeta('hero'), $pageVariables) !!}
+
+                        @if (isset($this->results) && $this->results instanceof LengthAwarePaginator && $this->results->hasPages())
+                            @php
+                                Frontend::setFrontendData('has_pagination_summary', true);
+                            @endphp
+
+                            <x-capell-hero::pagination.summary
+                                :results="$this->results"
+                            />
+                        @endif
                     </x-capell-hero::hero.content>
                 </div>
             </x-capell-hero::hero.slide>

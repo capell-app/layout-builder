@@ -26,7 +26,6 @@ use Capell\Layout\Enums\ActionLinkEnum;
 use Capell\Layout\Enums\AssetEnum;
 use Capell\Layout\Enums\ContentTypeEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Enums\LivewireComponentsEnum;
 use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
@@ -182,37 +181,7 @@ class DemoCreator
 
     public function createBannerImageWidget(Collection $languages): Widget
     {
-        $siteId = Site::query()->default()?->value('id');
-
-        $type = $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::ContentBuilder, 'type' => LayoutTypeEnum::Widget]);
-
-        if (! $type) {
-            $type = resolve(TypeCreator::class)->contentBuilderWidgetType();
-        }
-
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'banner-image'], [
-            'name' => 'Banner Image',
-            'type_id' => $type->id,
-            'meta' => [
-                'component' => WidgetComponentEnum::BannerImage,
-                'margin' => ['lg'],
-                'actions' => [
-                    [
-                        'type' => ActionLinkEnum::Page->value,
-                        'pageable_type' => resolve(Page::class)->getMorphClass(),
-                        'pageable_id' => Page::query()->where('site_id', $siteId)
-                            ->whereHas(
-                                'type',
-                                /** @param Type $query */
-                                fn (BuilderContract $query): BuilderContract => $query->listable()->enabled()->accessible(),
-                            )
-                            ->inRandomOrder()
-                            ->value('id'),
-                        'site_id' => $siteId,
-                    ],
-                ],
-            ],
-        ]);
+        $widget = app(WidgetCreator::class)->bannerImageWidget();
 
         $media = $this->createWidgetMedia($widget);
 
@@ -260,25 +229,7 @@ class DemoCreator
 
     public function createPageCardsWidget(Pageable $page, string $container = 'main', int $occurrence = 1): Widget
     {
-        $widget = $this->widgetModel::query()->firstWhere('key', 'pages-card');
-
-        if (! $widget) {
-            $type = resolve(TypeCreator::class)->pagesWidgetType();
-            $widget = $this->widgetModel::query()->create([
-                'key' => 'pages-card',
-                'name' => __('capell-layout::generic.pages_tile'),
-                'type_id' => $type->id,
-                'meta' => [
-                    'component' => LivewireComponentsEnum::PagesWidget,
-                    'livewire' => true,
-                    'columns' => 4,
-                    'with_image' => true,
-                    'with_summary' => true,
-                    'with_link_text' => true,
-                    'margin' => ['lg'],
-                ],
-            ]);
-        }
+        $widget = resolve(WidgetCreator::class)->pagesCardWidget();
 
         if (
             $widget->assets()
@@ -443,12 +394,7 @@ class DemoCreator
 
     public function createMediaCarouselWidget(): Widget
     {
-        $widget = $this->widgetModel::query()->where('key', 'media-carousel')->first();
-
-        if (! $widget) {
-            $creator = resolve(WidgetCreator::class);
-            $widget = $creator->mediaCarouselWidget();
-        }
+        $widget = resolve(WidgetCreator::class)->mediaCarouselWidget();
 
         if ($widget->assets()->exists()) {
             return $widget;

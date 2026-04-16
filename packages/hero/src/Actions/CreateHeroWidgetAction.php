@@ -22,27 +22,27 @@ use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static Widget run()
+ * @method static Widget run(string $key = 'hero', ?string $label = null, string $height = '', array $meta = [])
  */
 class CreateHeroWidgetAction
 {
     use AsFake;
     use AsObject;
 
-    public function handle(): Widget
+    public function handle(string $key = 'hero', ?string $label = null, string $height = '', array $meta = []): Widget
     {
         /** @var class-string<Widget> $widgetModel */
         $widgetModel = CapellCore::getModel(ModelEnum::Widget->name);
 
-        return $widgetModel::query()->firstOrCreate([
-            'key' => 'hero',
+        return $widgetModel::query()->updateOrCreate([
+            'key' => $key,
         ], [
-            'name' => __('capell-hero::generic.hero'),
+            'name' => $label ?? __('capell-hero::generic.hero'),
             'type_id' => $this->createType()->id,
             'meta' => [
                 'component' => WidgetComponentEnum::Hero,
                 'heading_size' => 'h1',
-                'height' => 'large',
+                'height' => $height,
                 'carousel_fade' => true,
                 'carousel_arrows' => false,
                 'carousel_pagination' => true,
@@ -53,6 +53,7 @@ class CreateHeroWidgetAction
                 'extra_relations' => [
                     'assets.asset.translation',
                 ],
+                ...$meta,
             ],
             'admin' => [
                 'icon' => 'heroicon-o-gift',

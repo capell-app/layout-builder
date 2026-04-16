@@ -4,17 +4,14 @@ declare(strict_types=1);
 
 use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Models\Layout;
-use Capell\Hero\Actions\AddHeroToLayoutAction;
-use Capell\Hero\Actions\CreateHeroWidgetAction;
+use Capell\Hero\Actions\AddHeroWidgetToLayoutAction;
 use Capell\Layout\Models\Widget;
 
 it('adds a hero container to a layout without one', function (): void {
     $layout = Layout::factory()->create(['containers' => []]);
     $widget = Widget::factory()->create();
 
-    CreateHeroWidgetAction::shouldRun()->once()->andReturn($widget);
-
-    AddHeroToLayoutAction::run($layout);
+    AddHeroWidgetToLayoutAction::run($widget, $layout);
 
     $containers = $layout->refresh()->containers;
     expect($containers)
@@ -38,11 +35,10 @@ it('does not change containers when hero already exists (but still resolves widg
             ],
         ],
     ];
+
     $layout = Layout::factory()->create(['containers' => $existing]);
 
-    CreateHeroWidgetAction::shouldRun()->once()->andReturn($widget);
-
-    AddHeroToLayoutAction::run($layout);
+    AddHeroWidgetToLayoutAction::run($widget, $layout);
 
     expect($layout->refresh()->containers)->toBe($existing);
 });

@@ -46,7 +46,7 @@
         </exclude>
     </source>
     <php>
-        <ini name="memory_limit" value="2048M"/>
+        <ini name="memory_limit" value="4096M"/>
         <server name="APP_ENV" value="testing"/>
         <env name="APP_KEY" value="12345678901234567890123456789012"/>
         <env name="BCRYPT_ROUNDS" value="12"/>

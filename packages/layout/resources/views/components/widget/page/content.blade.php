@@ -30,22 +30,22 @@ declare(strict_types=1);
 @php
     $hasPrimaryHeading = Frontend::getFrontendData('has_primary_heading');
 
-    $hasContent = collect(['content', 'title'])
-        ->contains(fn ($item): bool => in_array($item, $pageContents, true) && ! empty($page->translation->{$item}));
+    $hasContent = in_array('content', $pageContents, true) && ! empty($page->translation->content);
+    $hasTitle = in_array('title', $pageContents, true) && ! (empty($this->widgetData['meta']['show_page_title']) && $hasPrimaryHeading);
 
     if (! $headingTag) {
         $headingTag = ($hasPrimaryHeading ? 'h2' : 'h1');
     }
 @endphp
 {{-- format-ignore-end --}}
-@if ($hasContent)
+@if ($hasContent || $hasTitle)
     <x-capell-layout::widget.wrapper
         :$container
         :$containerKey
         :$containerWidth
         :index="$loop->index"
         :$widget
-        :class="'widget-page-contents' . ($loop->last ? ' mb-20' : ' mb-10')"
+        class="widget-page-contents"
         tag="article"
     >
         @if (in_array('content', $pageContents, true))
@@ -66,7 +66,7 @@ declare(strict_types=1);
                     :muted="in_array($containerKey, $theme->secondary_containers)"
                     :image="$page->image"
                     :text-align="$widget->getMeta('align')"
-                    :title="in_array('title', $pageContents, true) && ! (empty($this->widgetData['meta']['show_page_title']) && $hasPrimaryHeading) ? $page->translation->title : null"
+                    :title="$hasTitle ? $page->translation->title : null"
                 />
             @endif
         @endif

@@ -14,6 +14,7 @@ Thumbs.db
 _ide-helper.php
 _ide_helper.php
 composer.local.*
+composer.lock
 node_modules
 package-lock.json
 ray.php
