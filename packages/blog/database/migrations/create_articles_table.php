@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('articles', function (Blueprint $table): void {
             $table->id();
+            $table->unsignedBigInteger('workspace_id')->default(0)->index();
             $table->string('name');
             $table->foreignId('type_id')->constrained();
             $table->foreignId('layout_id')->constrained();

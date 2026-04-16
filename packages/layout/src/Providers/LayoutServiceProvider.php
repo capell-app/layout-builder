@@ -22,6 +22,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\Core\Workspaces\WorkspaceRegistry;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
 use Capell\Frontend\Providers\FrontendServiceProvider;
@@ -47,6 +48,8 @@ use Capell\Layout\Listeners\LayoutSavingListener;
 use Capell\Layout\Listeners\SiteTreeRebuilt;
 use Capell\Layout\Listeners\TypeValidated;
 use Capell\Layout\Models\Content;
+use Capell\Layout\Models\Widget;
+use Capell\Layout\Models\WidgetAsset;
 use Capell\Layout\Support\CapellLayoutManager;
 use Capell\Layout\Support\Interceptors\Layouts\DefaultLayoutInterceptor;
 use Capell\Layout\Support\Interceptors\Layouts\HomeLayoutInterceptor;
@@ -434,6 +437,10 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
     private function registerModels(): self
     {
         LayoutModelRegistrar::register();
+
+        WorkspaceRegistry::register(Content::class);
+        WorkspaceRegistry::register(Widget::class);
+        WorkspaceRegistry::register(WidgetAsset::class);
 
         return $this;
     }

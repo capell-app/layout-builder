@@ -21,6 +21,7 @@ use Capell\Blog\Listeners\AddBlogPagesToNavigation;
 use Capell\Blog\Listeners\ArticleTranslationSavedListener;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Models\Tag;
+use Capell\Blog\Models\Taggable;
 use Capell\Blog\Support\BlogModelRegistrar;
 use Capell\Blog\Support\Creator\ArticleCreator;
 use Capell\Blog\Support\Creator\BlogCreator;
@@ -45,6 +46,7 @@ use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Core\Support\StaticSite\StaticSiteExtensionRegistry;
+use Capell\Core\Workspaces\WorkspaceRegistry;
 use Capell\Frontend\Data\RenderHookContext;
 use Capell\Frontend\Enums\RenderHookLocation;
 use Capell\Frontend\Providers\FrontendServiceProvider;
@@ -195,6 +197,10 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
     private function registerModels(): self
     {
         BlogModelRegistrar::register();
+
+        WorkspaceRegistry::register(Article::class);
+        WorkspaceRegistry::register(Tag::class);
+        WorkspaceRegistry::register(Taggable::class);
 
         return $this;
     }
