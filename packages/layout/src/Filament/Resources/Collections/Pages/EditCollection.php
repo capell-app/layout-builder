@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Contents\Pages;
+namespace Capell\Layout\Filament\Resources\Collections\Pages;
 
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\DeleteAction;
@@ -14,8 +14,8 @@ use Capell\Layout\Actions\ReplicateContentAction;
 use Capell\Layout\Enums\LivewireComponentsEnum;
 use Capell\Layout\Enums\ResourceEnum;
 use Capell\Layout\Filament\Actions\CreateContentAction;
-use Capell\Layout\Filament\Resources\Contents\ContentResource;
-use Capell\Layout\Filament\Resources\Contents\Widgets\ContentAlertsWidget;
+use Capell\Layout\Filament\Resources\Collections\CollectionResource;
+use Capell\Layout\Filament\Resources\Collections\Widgets\ContentAlertsWidget;
 use Capell\Layout\Models\Content;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\ForceDeleteAction;
@@ -32,7 +32,7 @@ use Override;
  * @property Content $record
  */
 #[On('$refresh')]
-class EditContent extends EditRecord
+class EditCollection extends EditRecord
 {
     use HasAncestorBreadcrumbs;
     use HasPageCacheNotification;
@@ -41,7 +41,7 @@ class EditContent extends EditRecord
     }
     use HasTypeRelationManagers;
 
-    /** @return class-string<ContentResource> */
+    /** @return class-string<CollectionResource> */
     public static function getResource(): string
     {
         return CapellAdmin::getResource(ResourceEnum::Content);

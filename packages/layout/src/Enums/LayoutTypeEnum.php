@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Layout\Enums;
 
-use Capell\Layout\Filament\Resources\Contents\ContentResource;
+use Capell\Layout\Filament\Resources\Collections\CollectionResource;
 use Capell\Layout\Filament\Resources\Widgets\WidgetResource;
 use Capell\Layout\Support\Creator\TypeCreator;
 use Filament\Support\Contracts\HasLabel;
@@ -18,7 +18,7 @@ enum LayoutTypeEnum: string implements HasLabel
     public function getResource(): string
     {
         return match ($this) {
-            self::Content => ContentResource::class,
+            self::Content => CollectionResource::class,
             self::Widget => WidgetResource::class,
         };
     }

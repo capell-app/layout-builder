@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Contents\RelationManagers;
+namespace Capell\Layout\Filament\Resources\Collections\RelationManagers;
 
 use Capell\Admin\Actions\GetAssetResourceUrlAction;
 use Capell\Admin\Filament\Components\Tables\Columns\MediaLibraryImageColumn;
@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class ContentAssetsRelationManager extends RelationManager
+class CollectionAssetsRelationManager extends RelationManager
 {
     use HasAssetsRelationManager;
     use HasRelationManagerBadge;

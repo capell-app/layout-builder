@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Contents\RelationManagers;
+namespace Capell\Layout\Filament\Resources\Collections\RelationManagers;
 
 use BackedEnum;
 use Capell\Admin\Filament\Components\Tables\Columns\DateColumn;

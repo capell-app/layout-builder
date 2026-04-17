@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Contents\Schemas\Types;
+namespace Capell\Layout\Filament\Resources\Collections\Schemas\Types;
 
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;

@@ -9,7 +9,7 @@ use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Core\Contracts\Actionable;
 use Capell\Layout\Actions\CreateContentAction;
 use Capell\Layout\Actions\MutateContentDataBeforeFillAction;
-use Capell\Layout\Filament\Resources\Contents\Schemas\ContentForm;
+use Capell\Layout\Filament\Resources\Collections\Schemas\CollectionForm;
 use Capell\Layout\Models\Content;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
@@ -65,7 +65,7 @@ enum AssetEnum: string implements HasColor, HasIcon, HasLabel
     public function getFormClass(): string
     {
         return match ($this) {
-            self::Content => ContentForm::class,
+            self::Content => CollectionForm::class,
         };
     }
 

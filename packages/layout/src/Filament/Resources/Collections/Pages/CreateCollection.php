@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Contents\Pages;
+namespace Capell\Layout\Filament\Resources\Collections\Pages;
 
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Layout\Actions\MutateContentDataBeforeFillAction;
 use Capell\Layout\Enums\ResourceEnum;
-use Capell\Layout\Filament\Resources\Contents\ContentResource;
+use Capell\Layout\Filament\Resources\Collections\CollectionResource;
 use Filament\Resources\Pages\CreateRecord;
 
-class CreateContent extends CreateRecord
+class CreateCollection extends CreateRecord
 {
-    /** @return class-string<ContentResource> */
+    /** @return class-string<CollectionResource> */
     public static function getResource(): string
     {
         return CapellAdmin::getResource(ResourceEnum::Content);

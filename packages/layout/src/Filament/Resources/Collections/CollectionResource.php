@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Contents;
+namespace Capell\Layout\Filament\Resources\Collections;
 
 use BackedEnum;
 use Capell\Admin\Filament\Concerns\HasFormConfigurator;
@@ -11,15 +11,15 @@ use Capell\Admin\Filament\Concerns\HasTableConfigurator;
 use Capell\Core\Facades\CapellCore;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\ModelEnum;
-use Capell\Layout\Filament\Resources\Contents\Pages\CreateContent;
-use Capell\Layout\Filament\Resources\Contents\Pages\EditContent;
-use Capell\Layout\Filament\Resources\Contents\Pages\ListContents;
-use Capell\Layout\Filament\Resources\Contents\RelationManagers\ContentAssetsRelationManager;
-use Capell\Layout\Filament\Resources\Contents\RelationManagers\PagesRelationManager;
-use Capell\Layout\Filament\Resources\Contents\RelationManagers\WidgetsRelationManager;
-use Capell\Layout\Filament\Resources\Contents\Schemas\ContentForm;
-use Capell\Layout\Filament\Resources\Contents\Tables\ContentsTable;
-use Capell\Layout\Filament\Resources\Contents\Widgets\ContentAlertsWidget;
+use Capell\Layout\Filament\Resources\Collections\Pages\CreateCollection;
+use Capell\Layout\Filament\Resources\Collections\Pages\EditCollection;
+use Capell\Layout\Filament\Resources\Collections\Pages\ListCollections;
+use Capell\Layout\Filament\Resources\Collections\RelationManagers\CollectionAssetsRelationManager;
+use Capell\Layout\Filament\Resources\Collections\RelationManagers\PagesRelationManager;
+use Capell\Layout\Filament\Resources\Collections\RelationManagers\WidgetsRelationManager;
+use Capell\Layout\Filament\Resources\Collections\Schemas\CollectionForm;
+use Capell\Layout\Filament\Resources\Collections\Tables\CollectionsTable;
+use Capell\Layout\Filament\Resources\Collections\Widgets\ContentAlertsWidget;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Providers\LayoutServiceProvider;
 use Filament\Resources\Resource;
@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\HtmlString;
 
-class ContentResource extends Resource
+class CollectionResource extends Resource
 {
     use HasFormConfigurator;
     use HasNavigationBadge;
@@ -39,9 +39,9 @@ class ContentResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static string $formConfigurator = ContentForm::class;
+    protected static string $formConfigurator = CollectionForm::class;
 
-    protected static string $tableConfigurator = ContentsTable::class;
+    protected static string $tableConfigurator = CollectionsTable::class;
 
     public static function form(Schema $schema): Schema
     {
@@ -60,7 +60,7 @@ class ContentResource extends Resource
 
     public static function getResourceType(): string
     {
-        return 'Contents';
+        return 'Collections';
     }
 
     public static function getEloquentQuery(): Builder
@@ -126,9 +126,9 @@ class ContentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListContents::route('/'),
-            'create' => CreateContent::route('/create'),
-            'edit' => EditContent::route('/{record}/edit'),
+            'index' => ListCollections::route('/'),
+            'create' => CreateCollection::route('/create'),
+            'edit' => EditCollection::route('/{record}/edit'),
         ];
     }
 
@@ -150,7 +150,7 @@ class ContentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            ContentAssetsRelationManager::class,
+            CollectionAssetsRelationManager::class,
             WidgetsRelationManager::class,
             PagesRelationManager::class,
         ];

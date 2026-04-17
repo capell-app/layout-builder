@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Contents\Tables;
+namespace Capell\Layout\Filament\Resources\Collections\Tables;
 
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
@@ -47,7 +47,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 
-class ContentsTable implements TableConfigurator
+class CollectionsTable implements TableConfigurator
 {
     public static function configure(Table $table): Table
     {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Contents\Widgets;
+namespace Capell\Layout\Filament\Resources\Collections\Widgets;
 
 use Capell\Admin\Data\MessageData;
 use Capell\Admin\Enums\AlertTypeEnum;

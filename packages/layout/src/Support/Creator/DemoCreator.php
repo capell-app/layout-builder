@@ -29,7 +29,7 @@ use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\ModelEnum;
 use Capell\Layout\Enums\WidgetComponentEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
-use Capell\Layout\Filament\Resources\Contents\Schemas\Types\TestimonialContentSchema;
+use Capell\Layout\Filament\Resources\Collections\Schemas\Types\TestimonialContentSchema;
 use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
