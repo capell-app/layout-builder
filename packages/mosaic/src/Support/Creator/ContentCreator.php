@@ -10,8 +10,7 @@ use Capell\Core\Models;
 use Capell\Core\Models\Site;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Enums\ModelEnum;
-use Capell\Mosaic\Models\Content;
-use Illuminate\Database\Eloquent\Collection;
+use Capell\Mosaic\Models\Collection;
 
 class ContentCreator
 {

@@ -9,7 +9,6 @@ use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\LayoutFactory;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Livewire\Filament\LayoutBuilder;
-use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;

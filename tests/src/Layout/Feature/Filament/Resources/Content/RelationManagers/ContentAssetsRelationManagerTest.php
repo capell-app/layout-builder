@@ -5,9 +5,6 @@ declare(strict_types=1);
 use Capell\Core\Models\AssetRelation;
 use Capell\Core\Models\Page;
 use Capell\Layout\Enums\AssetEnum;
-use Capell\Layout\Filament\Resources\Contents\Pages\EditContent;
-use Capell\Layout\Filament\Resources\Contents\RelationManagers\ContentAssetsRelationManager;
-use Capell\Layout\Models\Content;
 use Filament\Actions\CreateAction;
 use Filament\Actions\Testing\TestAction;
 
@@ -21,9 +18,9 @@ it('can list content assets', function (): void {
 
     $resource = $content->assets->first()->load('asset');
 
-    livewire(ContentAssetsRelationManager::class, [
+    livewire(CollectionAssetsRelationManager::class, [
         'ownerRecord' => $content,
-        'pageClass' => EditContent::class,
+        'pageClass' => EditCollection::class,
     ])
         ->assertSuccessful()
         ->assertCountTableRecords(5)
@@ -69,9 +66,9 @@ it('can search content assets', function (): void {
 
     $resource = $content->assets->first()->load('asset');
 
-    livewire(ContentAssetsRelationManager::class, [
+    livewire(CollectionAssetsRelationManager::class, [
         'ownerRecord' => $content,
-        'pageClass' => EditContent::class,
+        'pageClass' => EditCollection::class,
     ])
         ->assertSuccessful()
         ->assertCountTableRecords(4)
@@ -90,9 +87,9 @@ test('can create a asset for a widget', function (string $assetType): void {
         'page' => Page::factory()->create(),
     };
 
-    livewire(ContentAssetsRelationManager::class, [
+    livewire(CollectionAssetsRelationManager::class, [
         'ownerRecord' => $content,
-        'pageClass' => EditContent::class,
+        'pageClass' => EditCollection::class,
     ])
         ->assertSuccessful()
         ->assertCountTableRecords(0)

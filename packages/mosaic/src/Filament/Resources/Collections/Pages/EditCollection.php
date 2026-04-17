@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Contents\Pages;
+namespace Capell\Mosaic\Filament\Resources\Collections\Pages;
 
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\DeleteAction;
@@ -14,9 +14,8 @@ use Capell\Mosaic\Actions\ReplicateContentAction;
 use Capell\Mosaic\Enums\LivewireComponentsEnum;
 use Capell\Mosaic\Enums\ResourceEnum;
 use Capell\Mosaic\Filament\Actions\CreateContentAction;
-use Capell\Mosaic\Filament\Resources\Contents\ContentResource;
-use Capell\Mosaic\Filament\Resources\Contents\Widgets\ContentAlertsWidget;
-use Capell\Mosaic\Models\Content;
+use Capell\Mosaic\Filament\Resources\Collections\ContentResource;
+use Capell\Mosaic\Filament\Resources\Collections\Widgets\ContentAlertsWidget;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -32,7 +31,7 @@ use Override;
  * @property Content $record
  */
 #[On('$refresh')]
-class EditContent extends EditRecord
+class EditCollection extends EditRecord
 {
     use HasAncestorBreadcrumbs;
     use HasPageCacheNotification;

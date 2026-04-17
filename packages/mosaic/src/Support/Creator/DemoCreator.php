@@ -29,13 +29,12 @@ use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Enums\WidgetComponentEnum;
 use Capell\Mosaic\Enums\WidgetTypeEnum;
-use Capell\Mosaic\Filament\Resources\Contents\Schemas\Types\TestimonialContentSchema;
-use Capell\Mosaic\Models\Content;
+use Capell\Mosaic\Filament\Resources\Collections\Schemas\Types\TestimonialContentSchema;
+use Capell\Mosaic\Models\Collection;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -1252,7 +1251,7 @@ class DemoCreator
 
         $model->assets()->create([
             'asset_id' => $content->getKey(),
-            'asset_type' => resolve(Content::class)->getMorphClass(),
+            'asset_type' => resolve(Collection::class)->getMorphClass(),
         ]);
 
         // Attach primary media

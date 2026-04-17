@@ -3,9 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Page;
-use Capell\Layout\Filament\Resources\Contents\Pages\EditContent;
-use Capell\Layout\Filament\Resources\Contents\RelationManagers\PagesRelationManager;
-use Capell\Layout\Models\Content;
+use Capell\Layout\Filament\Resources\Collections\RelationManagers\PagesRelationManager;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 
@@ -33,7 +31,7 @@ it('can list pages for a content model', function (): void {
 
     livewire(PagesRelationManager::class, [
         'ownerRecord' => $content,
-        'pageClass' => EditContent::class,
+        'pageClass' => EditCollection::class,
     ])
         ->assertSuccessful()
         ->assertCountTableRecords(1)
@@ -64,7 +62,7 @@ it('can search pages for a content model', function (): void {
 
     livewire(PagesRelationManager::class, [
         'ownerRecord' => $content,
-        'pageClass' => EditContent::class,
+        'pageClass' => EditCollection::class,
     ])
         ->assertSuccessful()
         ->searchTable($page->getKey())

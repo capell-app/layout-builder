@@ -50,7 +50,7 @@ use Capell\Mosaic\Listeners\LayoutLoaded;
 use Capell\Mosaic\Listeners\LayoutSavingListener;
 use Capell\Mosaic\Listeners\SiteTreeRebuilt;
 use Capell\Mosaic\Listeners\TypeValidated;
-use Capell\Mosaic\Models\Content;
+use Capell\Mosaic\Models\Collection;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;
 use Capell\Mosaic\Support\CapellLayoutManager;
@@ -444,7 +444,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
     {
         LayoutModelRegistrar::register();
 
-        WorkspaceRegistry::register(Content::class);
+        WorkspaceRegistry::register(Collection::class);
         WorkspaceRegistry::register(Widget::class);
         WorkspaceRegistry::register(WidgetAsset::class);
 
@@ -521,7 +521,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
                 'asset_id',
             )
                 ->where('widget_assets.pageable_type', $model->getMorphClass())
-                ->where('widget_assets.asset_type', (new Content)->getMorphClass()),
+                ->where('widget_assets.asset_type', (new Collection)->getMorphClass()),
         );
 
         Page::resolveRelationUsing(

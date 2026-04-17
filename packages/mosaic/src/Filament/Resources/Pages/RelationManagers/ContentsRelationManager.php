@@ -10,8 +10,6 @@ use Capell\Admin\Filament\Concerns\HasFormConfigurator;
 use Capell\Admin\Filament\Concerns\HasRelationManagerBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
 use Capell\Mosaic\Enums\ResourceEnum;
-use Capell\Mosaic\Filament\Resources\Contents\Schemas\ContentForm;
-use Capell\Mosaic\Filament\Resources\Contents\Tables\ContentsTable;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
@@ -27,9 +25,9 @@ class ContentsRelationManager extends RelationManager
 
     protected static string $relationship = 'contents';
 
-    protected static string $formConfigurator = ContentForm::class;
+    protected static string $formConfigurator = CollectionForm::class;
 
-    protected static string $tableConfigurator = ContentsTable::class;
+    protected static string $tableConfigurator = CollectionsTable::class;
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {

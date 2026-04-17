@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-use Capell\Layout\Database\Factories\ContentFactory;
-use Capell\Layout\Filament\Resources\Contents\Widgets\ContentAlertsWidget;
-use Capell\Layout\Models\Content;
+use Capell\Layout\Filament\Resources\Collections\Widgets\ContentAlertsWidget;
+use Capell\Layout\Models\Collection;
 use Illuminate\Support\Collection;
 
 use function Pest\Livewire\livewire;

@@ -6,7 +6,6 @@ namespace Capell\Mosaic\Database\Factories;
 
 use Capell\Core\Database\Factories\TypeFactory;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
-use Capell\Mosaic\Models\Content;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

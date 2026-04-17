@@ -25,7 +25,7 @@ declare(strict_types=1);
     use Capell\Core\Enums\ModelEnum;
     use Capell\Core\Facades\CapellCore;
     use Capell\Core\Models\Page;
-    use Capell\Core\Models\Site;use Capell\Mosaic\Models\Content;
+    use Capell\Core\Models\Site;use Capell\Mosaic\Models\Collection;
     use Filament\Actions\Action;
     use Filament\Support\Contracts\ScalableIcon;
     use Filament\Support\Enums\IconSize;
@@ -50,24 +50,24 @@ declare(strict_types=1);
 
     if (! $image) {
         $image = match (get_class($widgetAsset->asset)) {
-            Page::class, Content::class => $widgetAsset->asset->image,
+            Page::class, Collection::class => $widgetAsset->asset->image,
             Media::class => $widgetAsset->asset,
             default => null,
         };
     }
 
     $mediaCount = match (get_class($widgetAsset->asset)) {
-        Content::class => $widgetAsset->asset->media->count(),
+        Collection::class => $widgetAsset->asset->media->count(),
         default => null,
     };
 
     $relatedCount = match (get_class($widgetAsset->asset)) {
-        Content::class => $widgetAsset->asset->related->count(),
+        Collection::class => $widgetAsset->asset->related->count(),
         default => null,
     };
 
     $actionsCount = match (get_class($widgetAsset->asset)) {
-        Content::class => count($widgetAsset->asset->actions),
+        Collection::class => count($widgetAsset->asset->actions),
         default => null,
     };
 
@@ -89,7 +89,7 @@ declare(strict_types=1);
         }
 
         $description .= match (get_class($widgetAsset->asset)) {
-            Page::class, Content::class => $widgetAsset->asset->translation?->title &&
+            Page::class, Collection::class => $widgetAsset->asset->translation?->title &&
             $widgetAsset->asset->translation->title !== $widgetAsset->asset->name
                 ? $widgetAsset->asset->translation->title
                 : null,

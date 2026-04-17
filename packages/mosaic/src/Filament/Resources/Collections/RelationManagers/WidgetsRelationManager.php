@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Contents\RelationManagers;
+namespace Capell\Mosaic\Filament\Resources\Collections\RelationManagers;
 
 use Awcodes\BadgeableColumn\Components\Badge;
 use Capell\Admin\Filament\Components\Tables\Columns\IdentifierColumn;

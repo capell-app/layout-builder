@@ -6,7 +6,6 @@ namespace Capell\Mosaic\Actions;
 
 use Capell\Core\Facades\CapellCore;
 use Capell\Mosaic\Enums\ModelEnum;
-use Capell\Mosaic\Models\Content;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**

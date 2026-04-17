@@ -6,7 +6,7 @@ namespace Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\Assets;
 
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Mosaic\Enums\TypeSchemaEnum;
-use Capell\Mosaic\Filament\Resources\Contents\Schemas\Types\DefaultContentSchema;
+use Capell\Mosaic\Filament\Resources\Collections\Schemas\Types\DefaultContentSchema;
 use Filament\Schemas\Schema;
 use Override;
 

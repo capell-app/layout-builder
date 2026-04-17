@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Filament\Components\Forms;
 
-use Aimeos\Nestedset\Collection;
 use Aimeos\Nestedset\NestedSet;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\HasCustomSelectOption;
 use Capell\Core\Facades\CapellCore;
 use Capell\Mosaic\Enums\ModelEnum;
-use Capell\Mosaic\Models\Content;
+use Capell\Mosaic\Models\Collection;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
