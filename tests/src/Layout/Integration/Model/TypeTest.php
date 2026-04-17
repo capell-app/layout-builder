@@ -12,7 +12,7 @@ use Capell\Layout\Models\Widget;
 it('has many contents', function (): void {
     $type = (new ContentTypeFactory)->create();
 
-    Content::factory()->create(['type_id' => $type->id]);
+    Collection::factory()->create(['type_id' => $type->id]);
 
     $type->refresh()->load('contents');
 

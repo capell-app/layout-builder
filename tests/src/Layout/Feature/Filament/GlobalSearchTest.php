@@ -27,7 +27,7 @@ it('finds content', function (string $searchTerm): void {
 
     $language = Language::factory()->create();
 
-    $content = Content::factory()->create([
+    $content = Collection::factory()->create([
         'name' => $contentNameToken,
     ]);
 

@@ -31,7 +31,7 @@ it('has many widgets', function (): void {
 
 it('has many contents through widget assets', function (): void {
     $page = Page::factory()->create();
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
     WidgetAsset::factory()->asset($content)->page($page)->create();
 
     expect($page->contents->pluck('id')->toArray())->toContain($content->id);

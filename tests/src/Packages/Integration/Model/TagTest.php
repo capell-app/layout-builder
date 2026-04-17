@@ -6,7 +6,7 @@ use Capell\Blog\Models\Tag;
 
 it('can be attached to contents', function (): void {
     $tag = Tag::factory()->create();
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
 
     $tag->contents()->attach($content);
 

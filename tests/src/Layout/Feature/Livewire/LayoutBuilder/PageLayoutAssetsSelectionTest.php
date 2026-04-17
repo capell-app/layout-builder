@@ -78,7 +78,7 @@ it('excludes existing content assets when selecting new ones in page context', f
         ->asset(Capell\Layout\Enums\AssetEnum::Content)
         ->create();
 
-    $newContents = Content::factory()->count(3)->create();
+    $newContents = Collection::factory()->count(3)->create();
 
     $arguments = [
         'containerKey' => $containerKey,
@@ -108,7 +108,7 @@ it('dispatches sync-selected-assets for page layout context', function (string $
     $page = Page::factory()->layout($layout)->create();
 
     $records = match ($assetType) {
-        'content' => Content::factory()->count(3)->create(),
+        'content' => Collection::factory()->count(3)->create(),
         'page' => Page::factory()->count(3)->create(),
     };
 

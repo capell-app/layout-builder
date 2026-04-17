@@ -50,7 +50,7 @@ it('searches within content assets table in page layout context', function (): v
     $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
 
     $page = Page::factory()->layout($layout)->create();
-    $contents = Content::factory()->count(4)->create();
+    $contents = Collection::factory()->count(4)->create();
 
     $first = $contents->first();
 

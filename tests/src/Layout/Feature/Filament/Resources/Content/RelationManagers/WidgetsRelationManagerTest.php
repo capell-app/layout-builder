@@ -10,7 +10,7 @@ use Capell\Layout\Models\WidgetAsset;
 use function Pest\Livewire\livewire;
 
 it('can list widgets for a content model', function (): void {
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
 
     $widget = Widget::factory()
         ->has(
@@ -39,7 +39,7 @@ it('can list widgets for a content model', function (): void {
 });
 
 it('can search widgets for a content model', function (): void {
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
 
     Widget::factory()
         ->count(5)

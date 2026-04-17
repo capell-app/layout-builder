@@ -18,10 +18,10 @@ beforeEach(function (): void {
 });
 
 it('can save', function (): void {
-    $content = Content::factory()->create();
-    $newData = Content::factory()
+    $content = Collection::factory()->create();
+    $newData = Collection::factory()
         ->site(Site::factory()->create())
-        ->parent(Content::factory()->create())
+        ->parent(Collection::factory()->create())
         ->make();
 
     livewire(EditCollection::class, [
@@ -55,7 +55,7 @@ it('can save', function (): void {
 });
 
 test('validates edit content', function (): void {
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
 
     livewire(EditCollection::class, [
         'record' => $content->getRouteKey(),
@@ -69,7 +69,7 @@ test('validates edit content', function (): void {
 });
 
 it('can delete', function (): void {
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
 
     livewire(EditCollection::class, [
         'record' => $content->getRouteKey(),

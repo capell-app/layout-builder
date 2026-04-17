@@ -13,7 +13,7 @@ uses(CreatesAdminUser::class);
 test('see livewire component', function (): void {
     test()->actingAsAdmin();
 
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
 
     get(ContentResource::getUrl('edit', ['record' => $content]))
         ->assertSeeLivewire(ContentAlertsWidget::class);

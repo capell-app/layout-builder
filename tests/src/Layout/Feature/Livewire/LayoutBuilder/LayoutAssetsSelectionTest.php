@@ -24,9 +24,9 @@ it('filters by site for contents assets', function (): void {
     $containerKey = array_key_first($layout->containers);
     $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
 
-    $otherSiteContent = Content::factory()->create();
+    $otherSiteContent = Collection::factory()->create();
     $site = Site::factory()->create();
-    $siteContents = Content::factory()->site($site)->count(4)->create();
+    $siteContents = Collection::factory()->site($site)->count(4)->create();
 
     $arguments = [
         'containerKey' => $containerKey,
@@ -81,7 +81,7 @@ it('dispatches sync-selected-assets event with selected records for each asset t
 
     $site = Site::factory()->create();
     $records = match ($assetType) {
-        'content' => Content::factory()->recycle($site)->count(3)->create(),
+        'content' => Collection::factory()->recycle($site)->count(3)->create(),
         'page' => Page::factory()->recycle($site)->count(3)->create(),
     };
 
@@ -120,7 +120,7 @@ it('searches within contents assets table', function (): void {
     $containerKey = array_key_first($layout->containers);
     $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
 
-    $contents = Content::factory()->count(3)->create();
+    $contents = Collection::factory()->count(3)->create();
 
     $arguments = [
         'containerKey' => $containerKey,
