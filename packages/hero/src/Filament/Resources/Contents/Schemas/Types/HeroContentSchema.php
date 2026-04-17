@@ -17,7 +17,7 @@ use Capell\Layout\Filament\Components\Forms\Content\RelatedRepeater;
 use Capell\Layout\Filament\Components\Forms\Content\SettingsSchema;
 use Capell\Layout\Filament\Components\Forms\Content\TranslationsRepeater;
 use Capell\Layout\Filament\Components\Forms\CustomColorInput;
-use Capell\Layout\Filament\Resources\Contents\Schemas\Types\DefaultContentSchema;
+use Capell\Layout\Filament\Resources\Collections\Schemas\Types\DefaultContentSchema;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;

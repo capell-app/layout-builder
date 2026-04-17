@@ -19,8 +19,8 @@ class SettingsSchema
                 ->label(__('capell-admin::form.parent'))
                 ->lazy()
                 ->modifySelectOptionsQueryUsing(function (Builder $query, ?Collection $record): void {
-                    if ($record instanceof Content) {
-                        $query->where('contents.id', '!=', $record->id);
+                    if ($record instanceof Collection) {
+                        $query->where('collections.id', '!=', $record->id);
                     }
                 })
                 ->when(

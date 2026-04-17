@@ -128,7 +128,7 @@ test('can create content', function (): void {
         ])
         ->assertHasNoFormErrors();
 
-    assertDatabaseHas(Content::class, [
+    assertDatabaseHas(Collection::class, [
         'name' => $newData->name,
     ]);
 });

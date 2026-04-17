@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Blog\Models\Tag;
+use Capell\Layout\Models\Collection;
 
 it('has many tags', function (): void {
     $content = Collection::factory()->create();

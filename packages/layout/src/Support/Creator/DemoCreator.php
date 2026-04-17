@@ -518,7 +518,7 @@ class DemoCreator
         ];
 
         foreach ($features as $feature) {
-            $content = Content::query()->firstOrCreate([
+            $content = Collection::query()->firstOrCreate([
                 'name' => $feature['title'],
                 'type_id' => $type->getKey(),
             ], [
@@ -773,7 +773,7 @@ class DemoCreator
         $site = Site::getDefault();
 
         foreach ($statistics as $statistic) {
-            $content = Content::query()->firstOrCreate([
+            $content = Collection::query()->firstOrCreate([
                 'name' => $statistic['title'],
             ], [
                 'meta' => [
@@ -948,7 +948,7 @@ class DemoCreator
 
             $this->createMedia($page);
 
-            $content = Content::query()->updateOrCreate([
+            $content = Collection::query()->updateOrCreate([
                 'name' => $feature['title'],
             ], [
                 'meta' => [
@@ -984,7 +984,7 @@ class DemoCreator
 
     private function createTestimonials(EloquentCollection $languages): Collection
     {
-        $testimonialContent = Content::query()->firstOrCreate([
+        $testimonialContent = Collection::query()->firstOrCreate([
             'name' => 'Testimonials',
         ], [
             'meta' => [
@@ -1026,7 +1026,7 @@ class DemoCreator
         ]);
 
         foreach ($testimonials as $testimonial) {
-            $content = Content::query()->firstOrCreate([
+            $content = Collection::query()->firstOrCreate([
                 'name' => $testimonial['name'],
                 'parent_id' => $testimonialContent->id,
                 'type_id' => $testimonialType->id,
@@ -1140,7 +1140,7 @@ class DemoCreator
             ],
         ];
 
-        $teamContent = Content::query()->firstOrNew([
+        $teamContent = Collection::query()->firstOrNew([
             'name' => 'Team Members',
         ]);
 
@@ -1153,7 +1153,7 @@ class DemoCreator
         $teamMembersCollection = new Collection;
 
         foreach ($teamMembers as $member) {
-            $content = Content::query()->firstOrCreate([
+            $content = Collection::query()->firstOrCreate([
                 'name' => $member['name'],
                 'parent_id' => $teamContent->id,
             ], [
@@ -1246,7 +1246,7 @@ class DemoCreator
         }
 
         // Create content and link via WidgetAsset
-        $content = Content::create([
+        $content = Collection::create([
             'name' => str($filenameBase)->title(),
         ]);
 

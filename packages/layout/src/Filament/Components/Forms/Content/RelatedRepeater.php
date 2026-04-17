@@ -6,6 +6,7 @@ namespace Capell\Layout\Filament\Components\Forms\Content;
 
 use Capell\Layout\Actions\ReplicateContentAction;
 use Capell\Layout\Filament\Components\Forms\ContentSelect;
+use Capell\Layout\Models\Collection;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
@@ -32,7 +33,7 @@ class RelatedRepeater
 
                         $newData = $items[$arguments['item']];
 
-                        $existingContent = Content::query()->find($newData['content_id']);
+                        $existingContent = Collection::query()->find($newData['content_id']);
 
                         throw_unless($existingContent, Exception::class, 'Content not found with ID: ' . $newData['content_id']);
 

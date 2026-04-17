@@ -3,8 +3,9 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Language;
-use Capell\Layout\Filament\Resources\Contents\ContentResource;
+use Capell\Layout\Filament\Resources\Collections\CollectionResource;
 use Capell\Layout\Filament\Resources\Widgets\WidgetResource;
+use Capell\Layout\Models\Collection;
 use Capell\Layout\Models\Widget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Facades\Filament;
@@ -37,12 +38,12 @@ it('finds content', function (string $searchTerm): void {
     ]);
 
     $results = Filament::getGlobalSearchProvider()->getResults($searchTerm);
-    $contentResult = $results?->getCategories()->get(ContentResource::getPluralModelLabel())?->first();
+    $contentResult = $results?->getCategories()->get(CollectionResource::getPluralModelLabel())?->first();
 
     expect($contentResult)
         ->toBeInstanceOf(GlobalSearchResult::class)
         ->and($contentResult->title)->toBe($content->name)
-        ->and($contentResult->url)->toBe(ContentResource::getUrl('edit', ['record' => $content]));
+        ->and($contentResult->url)->toBe(CollectionResource::getUrl('edit', ['record' => $content]));
 })->with([
     'name' => ['capell-layout-content-name-token'],
     'title' => ['capell-layout-content-title-token'],

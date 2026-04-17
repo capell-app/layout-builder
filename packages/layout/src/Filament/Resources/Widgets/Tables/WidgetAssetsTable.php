@@ -19,6 +19,7 @@ use Capell\Core\Models\Type;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Filament\Components\Forms\AssetTypeSelect;
 use Capell\Layout\Filament\Concerns\HasAssetsRelationManager;
+use Capell\Layout\Models\Collection;
 use Capell\Layout\Models\WidgetAsset;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
@@ -112,7 +113,7 @@ class WidgetAssetsTable implements TableConfigurator
                              $get('type')
                         JS)
                         ->options(fn (Get $get): array => match ($get('type')) {
-                            LayoutTypeEnum::Content->value => Content::getTypes(),
+                            LayoutTypeEnum::Content->value => Collection::getTypes(),
                             TypeEnum::Page->value => Page::getTypes(),
                             default => []
                         }),

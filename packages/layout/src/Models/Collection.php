@@ -159,7 +159,7 @@ class Collection extends Model implements HasMedia, PageCacheable, Publishable, 
         'translations',
     ];
 
-    protected string $table = 'collections';
+    protected $table = 'collections';
 
     protected static string $factory = CollectionFactory::class;
 

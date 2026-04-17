@@ -10,6 +10,7 @@ use Capell\Core\Contracts\Actionable;
 use Capell\Layout\Actions\CreateContentAction;
 use Capell\Layout\Actions\MutateContentDataBeforeFillAction;
 use Capell\Layout\Filament\Resources\Collections\Schemas\CollectionForm;
+use Capell\Layout\Models\Collection;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
@@ -47,7 +48,7 @@ enum AssetEnum: string implements HasColor, HasIcon, HasLabel
     public function getModel(): string
     {
         return match ($this) {
-            self::Content => config('capell-layout.assets.content.model', Content::class),
+            self::Content => config('capell-layout.assets.content.model', Collection::class),
         };
     }
 

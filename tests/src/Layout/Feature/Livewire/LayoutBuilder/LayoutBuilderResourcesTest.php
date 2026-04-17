@@ -9,6 +9,7 @@ use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\LayoutFactory;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Livewire\Filament\LayoutBuilder;
+use Capell\Layout\Models\Collection;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
@@ -123,7 +124,7 @@ test('can sync new content and page assets to widget in page layout context', fu
                 'hasPageAssets' => true,
             ],
             type: Capell\Layout\Enums\AssetEnum::Content->value,
-            assets: $contents->map(fn (Content $record): string => (string) $record->id)->all(),
+            assets: $contents->map(fn (Collection $record): string => (string) $record->id)->all(),
         )
         ->call(
             'addAssetsToWidget',
@@ -186,7 +187,7 @@ test('can sync new content and page assets to widget in layout context', functio
                 'hasPageAssets' => false,
             ],
             type: Capell\Layout\Enums\AssetEnum::Content->value,
-            assets: $contents->map(fn (Content $record): string => (string) $record->id)->all(),
+            assets: $contents->map(fn (Collection $record): string => (string) $record->id)->all(),
         )
         ->call(
             'addAssetsToWidget',
@@ -240,7 +241,7 @@ test('can sync new page-specific assets with pageable reference', function (): v
                 'hasPageAssets' => true,
             ],
             type: Capell\Layout\Enums\AssetEnum::Content->value,
-            assets: $contents->map(fn (Content $record): string => (string) $record->id)->all(),
+            assets: $contents->map(fn (Collection $record): string => (string) $record->id)->all(),
         )
         ->call(
             'addAssetsToWidget',

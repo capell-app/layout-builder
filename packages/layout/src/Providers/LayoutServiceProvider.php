@@ -457,7 +457,7 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
     private function registerEvents(): self
     {
         $createDeleteModels = [
-            CapellCore::getModel(ModelEnum::Collection->name),
+            CapellCore::getModel(ModelEnum::Content->name),
         ];
 
         foreach ($createDeleteModels as $modelClass) {
@@ -536,12 +536,12 @@ class LayoutServiceProvider extends AbstractPackageServiceProvider
 
         Site::resolveRelationUsing(
             'collections',
-            fn (Site $model): HasMany => $model->hasMany(ModelEnum::Collection->value, 'site_id'),
+            fn (Site $model): HasMany => $model->hasMany(ModelEnum::Content->value, 'site_id'),
         );
 
         Type::resolveRelationUsing(
             'collections',
-            fn (Type $model): HasMany => $model->hasMany(ModelEnum::Collection->value, 'type_id'),
+            fn (Type $model): HasMany => $model->hasMany(ModelEnum::Content->value, 'type_id'),
         );
 
         Type::resolveRelationUsing(

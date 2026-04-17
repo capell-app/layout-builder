@@ -55,7 +55,7 @@ it('can create', function (string $type): void {
         ->call('create')
         ->assertHasNoFormErrors();
 
-    assertDatabaseHas(Content::class, [
+    assertDatabaseHas(Collection::class, [
         'name' => $newData->name,
     ]);
 })
@@ -103,7 +103,7 @@ test('create with translations', function (string $mode): void {
         ->call('create')
         ->assertHasNoFormErrors();
 
-    assertDatabaseHas(Content::class, [
+    assertDatabaseHas(Collection::class, [
         'name' => $newData->name,
         'parent_id' => $newData->parent?->id,
         'type_id' => $type->getKey(),

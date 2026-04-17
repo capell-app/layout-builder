@@ -81,5 +81,5 @@ it('creates a content with parent', function (): void {
 
     expect($content)
         ->parent_id->toBe($parent->id)
-        ->parent->toBeInstanceOf(Content::class);
+        ->parent->toBeInstanceOf(Collection::class);
 });

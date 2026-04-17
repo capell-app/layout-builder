@@ -155,7 +155,7 @@ class ContentSelect extends Select
             });
     }
 
-    private function getContentOptionLabel(Content $record, ?int $siteId): HtmlString
+    private function getContentOptionLabel(LayoutCollection $record, ?int $siteId): HtmlString
     {
         $label = '';
 
@@ -226,7 +226,7 @@ class ContentSelect extends Select
             ->get();
 
         return $contents->mapWithKeys(
-            fn (Content $content): array => [$content->getKey() => $this->getContentOptionLabel($content, $site_id)],
+            fn (LayoutCollection $content): array => [$content->getKey() => $this->getContentOptionLabel($content, $site_id)],
         )
             ->toArray();
     }

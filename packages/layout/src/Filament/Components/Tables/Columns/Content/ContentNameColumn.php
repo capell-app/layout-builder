@@ -6,6 +6,7 @@ namespace Capell\Layout\Filament\Components\Tables\Columns\Content;
 
 use Awcodes\BadgeableColumn\Components\Badge;
 use Capell\Admin\Filament\Components\Tables\Columns\BadgeableColumn;
+use Capell\Layout\Models\Collection;
 use Filament\Support\Enums\FontWeight;
 use Illuminate\Support\HtmlString;
 
@@ -19,7 +20,7 @@ class ContentNameColumn extends BadgeableColumn
             ->sortable()
             ->wrap()
             ->weight(FontWeight::Medium)
-            ->description(function (Content $record): ?HtmlString {
+            ->description(function (Collection $record): ?HtmlString {
                 $ancestors = $record->ancestors()->get();
 
                 if ($ancestors->isEmpty()) {
@@ -31,17 +32,17 @@ class ContentNameColumn extends BadgeableColumn
             ->suffixBadges([
                 Badge::make('children')
                     ->label(
-                        fn (Content $record): string|array|null => __(
+                        fn (Collection $record): string|array|null => __(
                             'capell-admin::generic.total_children',
                             ['total' => $this->getChildCount($record)],
                         ),
                     )
                     ->color('gray')
-                    ->visible(fn (Content $record): bool => (bool) $this->getChildCount($record)),
+                    ->visible(fn (Collection $record): bool => (bool) $this->getChildCount($record)),
             ]);
     }
 
-    private function getChildCount(Content $record): int
+    private function getChildCount(Collection $record): int
     {
         if ($record->getAttributeValue('children_count') === null) {
             $record->loadCount('children');

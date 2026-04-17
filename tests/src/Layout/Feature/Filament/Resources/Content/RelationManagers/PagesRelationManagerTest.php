@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Page;
 use Capell\Layout\Filament\Resources\Collections\Pages\EditCollection;
-use Capell\Layout\Filament\Resources\Contents\RelationManagers\PagesRelationManager;
+use Capell\Layout\Filament\Resources\Collections\RelationManagers\PagesRelationManager;
+use Capell\Layout\Models\Collection;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 

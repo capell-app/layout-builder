@@ -27,6 +27,7 @@ use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\WidgetFactory;
 use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Layout\Models\Collection as LayoutCollection;
 use Capell\Layout\Observers\WidgetObserver;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -52,7 +53,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
 /**
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WidgetAsset> $assets
  * @property-read int|null $assets_count
- * @property-read \Aimeos\Nestedset\Collection<int, Content> $contents
+ * @property-read \Aimeos\Nestedset\Collection<int, LayoutCollection> $contents
  * @property-read int|null $contents_count
  * @property-read User|null $creator
  * @property-read User|null $destroyer
@@ -309,7 +310,7 @@ class Widget extends Model implements HasMedia, PageCacheable, Publishable, Stat
     public function contents(): MorphToMany
     {
         return $this->morphedByMany(
-            Content::class,
+            LayoutCollection::class,
             'asset',
             'widget_assets',
             'widget_id',

@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-use Capell\Layout\Database\Factories\ContentFactory;
-use Capell\Layout\Filament\Resources\Contents\Widgets\ContentAlertsWidget;
+use Capell\Layout\Database\Factories\CollectionFactory;
+use Capell\Layout\Filament\Resources\Collections\Widgets\ContentAlertsWidget;
+use Capell\Layout\Models\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 
 use function Pest\Livewire\livewire;
@@ -19,15 +20,15 @@ it('shows alert for content state', function (string $state, string $alertKey): 
     $content = Collection::factory()
         ->when(
             $state === 'expired',
-            fn (ContentFactory $factory): ContentFactory => $factory->expired(),
+            fn (CollectionFactory $factory): CollectionFactory => $factory->expired(),
         )
         ->when(
             $state === 'pending',
-            fn (ContentFactory $factory): ContentFactory => $factory->pending(),
+            fn (CollectionFactory $factory): CollectionFactory => $factory->pending(),
         )
         ->when(
             $state === 'trashed',
-            fn (ContentFactory $factory): ContentFactory => $factory->trashed(),
+            fn (CollectionFactory $factory): CollectionFactory => $factory->trashed(),
         )
         ->create();
 
