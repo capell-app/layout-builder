@@ -1,39 +1,87 @@
-# API Reference - Capell Blog
+# API Reference — Capell Blog
 
-Pointers to key classes. Browse `./src` for full API.
+Browse `src/` for full source. This page is a map of the key entry points.
 
-- Service Provider
-    - `src/Providers/BlogServiceProvider.php`
-- Models
-    - `src/Models/Article.php`
-    - `src/Models/Tag.php`
-    - Model concern: `src/Models/Concerns/HasTags.php`
-- Filament resources
-    - Articles: `src/Filament/Resources/Articles`
-    - Tags: `src/Filament/Resources/Tags`
-- Livewire pages
-    - `src/Livewire/Page/BlogPage.php`
-    - `src/Livewire/Page/ArchivePage.php`
-    - `src/Livewire/Page/TagPage.php`
-- View components (widgets)
-    - `src/View/Components/Widget/Page/*`
-    - `src/View/Components/Widget/Tag/*`
-- Actions
-    - `src/Actions/CreateBlogPagesAction.php`
-    - `src/Actions/InstallPackageAction.php`
-    - `src/Actions/GetArticleLayoutAction.php`
-- Services
-    - Loaders and sitemap: `src/Services/*`
-- Enums
-    - `src/Enums/*`
-- Listener
-    - `src/Listeners/AddBlogPagesToNavigation.php`
-- Commands
-    - `src/Commands/InstallCommand.php`
-    - `src/Commands/CreateBlogPagesCommand.php`
-    - `src/Commands/DemoCommand.php`
+## Service provider
 
-Quick links:
+- `src/Providers/BlogServiceProvider.php` — registers models, resources, page schema, Livewire pages, widgets (if Layout present), sitemap extensions, and view components.
 
-- Source directory: `./src`
-- Database reference: `./docs/Database.md`
+## Models
+
+- `src/Models/Article.php` — article pages (`articles` table)
+- `src/Models/Tag.php` — custom workspace-aware Tag
+- `src/Models/Taggable.php` — explicit pivot model
+- `src/Models/Concerns/HasTags.php` — reusable `tags()` morph-to-many concern
+
+## Filament resources
+
+### Articles (`src/Filament/Resources/Articles/`)
+
+- `ArticleResource.php` + Create/Edit/List pages
+- `Forms/ArticleForm.php`, `Forms/SettingsTab.php`
+- `Tables/ArticlePagesTable.php`
+- `Schemas/ArticlePageSchema.php`, `Schemas/ArticlePageSelectField.php`
+- `Components/ArticleSelect.php`, `Components/TagsInput.php`
+
+### Tags (`src/Filament/Resources/Tags/`)
+
+- `TagResource.php` + Create/Edit/List pages
+- `Forms/TagForm.php`
+- `Tables/TagsTable.php`
+- `RelationManagers/PagesRelationManager.php`
+- `Widgets/ListArticlesWidget.php`
+- `Widgets/Schemas/ArticleWidgetSchema.php`, `Widgets/Schemas/RelatedWidgetSchema.php`
+
+## Livewire pages
+
+Under `src/Livewire/Page/`:
+
+- `Blog.php` — article index
+- `Archive.php` — `{year}/{month}` archive filter
+- `Tag.php` — filter by tag slug
+
+## Sitemap integration
+
+Under `src/Support/Sitemap/`:
+
+- `ArticlesSitemap.php` — emits article URLs
+- `ArchivesSitemap.php` — emits archive URLs
+- `TagsSitemap.php` — emits tag URLs
+
+## Actions
+
+Under `src/Actions/`:
+
+- `CreateBlogPagesAction` — bulk-create the three default pages for a site
+- `InstallPackageAction` — publish migrations, run them, register resources
+- `GetArticleLayoutAction` — resolve the layout assigned to an article
+- `GenerateArchiveUrl` — build archive URLs from a date
+
+## Navigation listener
+
+- `src/Listeners/AddBlogPagesToNavigation.php` — subscribes to the admin's `NavigationCreating` event to surface Blog/Archives/Tags entries.
+
+## Enums
+
+`src/Enums/*` — schema and component identifiers used by the Filament and Layout integration.
+
+## Commands
+
+Under `src/Console/Commands/`:
+
+- `InstallCommand` — `capell:blog-install`
+- `SetupCommand` — `capell:blog-setup`
+- `CreateBlogPagesCommand` — `capell:blog-create-pages {site}`
+- `DemoCommand` — `capell:blog-demo`
+
+## Composer dependencies
+
+- `capell-app/admin`
+- `capell-app/frontend`
+- `filament/spatie-laravel-tags-plugin`
+
+## Quick links
+
+- Source directory: [`./src`](../src)
+- Database reference: [Database.md](Database.md)
+- Package README: [../README.md](../README.md)
