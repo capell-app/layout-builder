@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Upstream changes
+
+* The `Capell\Core\ContentSync` feature in `capell-app/capell` has been renamed to `Capell\Core\Exchanger` ([capell#73](https://github.com/capell-app/capell/pull/73)). No packages in this repo referenced the old namespace, but host apps that bump both monorepos together should update:
+  - `Capell\Core\ContentSync\*` imports → `Capell\Core\Exchanger\*`
+  - `config('content-sync.*')` → `config('exchanger.*')`
+  - `trans('content_sync.*')` → `trans('exchanger.*')`
+  - Queue name `content-sync` → `exchanger` (drain old queue before deploy)
+  - Storage paths under `content-sync/` → `exchanger/`
+
 ## v2.0.4 - 2025-12-12
 
 ### What's Changed
