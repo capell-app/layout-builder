@@ -35,7 +35,7 @@ use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -73,7 +73,7 @@ class DemoCreator
         $this->pageModel = CapellCore::getModel(CoreModelEnum::Page);
     }
 
-    public function createContentWidget(Collection $languages): Widget
+    public function createContentWidget(EloquentCollection $languages): Widget
     {
         $siteId = Site::query()->default()?->value('id');
 
@@ -128,7 +128,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createSplitContentWidget(Collection $languages): Widget
+    public function createSplitContentWidget(EloquentCollection $languages): Widget
     {
         $siteId = Site::query()->default()?->value('id');
 
@@ -181,7 +181,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createBannerImageWidget(Collection $languages): Widget
+    public function createBannerImageWidget(EloquentCollection $languages): Widget
     {
         $widget = resolve(WidgetCreator::class)->bannerImageWidget();
 
@@ -269,7 +269,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createFaqWidget(Collection $languages): Widget
+    public function createFaqWidget(EloquentCollection $languages): Widget
     {
         $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', 'assets');
@@ -411,7 +411,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createStaticNavigationWidget(Collection $languages, Site $site): Widget
+    public function createStaticNavigationWidget(EloquentCollection $languages, Site $site): Widget
     {
         /** @var class-string<Models\Navigation> $model */
         $model = CapellCore::getModel(CoreModelEnum::Navigation);
@@ -586,7 +586,7 @@ class DemoCreator
         }
     }
 
-    public function createClientLogosWidget(Collection $languages): Widget
+    public function createClientLogosWidget(EloquentCollection $languages): Widget
     {
         $widget = Widget::query()->firstOrCreate([
             'key' => 'client-logos',
@@ -692,7 +692,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createTestimonialsWidget(Collection $languages): Widget
+    public function createTestimonialsWidget(EloquentCollection $languages): Widget
     {
         $widgetCreator = resolve(WidgetCreator::class);
         $widget = $widgetCreator->testimonialsWidget();
@@ -799,7 +799,7 @@ class DemoCreator
         return $widget;
     }
 
-    public function createTeamPortfolioWidget(Collection $languages): Widget
+    public function createTeamPortfolioWidget(EloquentCollection $languages): Widget
     {
         $type = $this->typeModel::query()
             ->where([
@@ -982,7 +982,7 @@ class DemoCreator
         return $contentFeatures;
     }
 
-    private function createTestimonials(Collection $languages): Collection
+    private function createTestimonials(EloquentCollection $languages): Collection
     {
         $testimonialContent = Content::query()->firstOrCreate([
             'name' => 'Testimonials',
@@ -1055,7 +1055,7 @@ class DemoCreator
         return $testimonialsCollection;
     }
 
-    private function createTeamMembers(Collection $languages): Collection
+    private function createTeamMembers(EloquentCollection $languages): Collection
     {
         $teamMembers = [
             [

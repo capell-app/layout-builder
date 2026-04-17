@@ -19,7 +19,7 @@ use Capell\Layout\Support\Creator\DemoCreator;
 use Capell\Layout\Support\Creator\TypeCreator;
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Auth\User;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -107,7 +107,7 @@ class DemoCommand extends Command
         return true;
     }
 
-    public function setupHomepage(Pageable $page, Collection $languages): void
+    public function setupHomepage(Pageable $page, EloquentCollection $languages): void
     {
         $layout = $this->getHomeLayout();
         throw_unless($layout instanceof Layout, Exception::class, 'Unable to find homepage layout');
@@ -200,7 +200,7 @@ class DemoCommand extends Command
         ];
     }
 
-    private function populateFaqContainers(array &$containers, Collection $languages, Pageable $page): void
+    private function populateFaqContainers(array &$containers, EloquentCollection $languages, Pageable $page): void
     {
         $this->setProgressMessage('Creating FAQ widget');
         $faqWidget = $this->demoCreator->createFaqWidget($languages);
@@ -230,7 +230,7 @@ class DemoCommand extends Command
         ];
     }
 
-    private function populateSecondaryContainer(array &$containers, Collection $languages, Pageable $page): void
+    private function populateSecondaryContainer(array &$containers, EloquentCollection $languages, Pageable $page): void
     {
         $this->setProgressMessage('Creating team portfolio widget');
         $teamPortfolioWidget = $this->demoCreator->createTeamPortfolioWidget($languages);
@@ -281,7 +281,7 @@ class DemoCommand extends Command
         ];
     }
 
-    private function populateSplitTwoContainer(array &$containers, Collection $languages): void
+    private function populateSplitTwoContainer(array &$containers, EloquentCollection $languages): void
     {
         $this->setProgressMessage('Creating split content widget');
         $splitContentWidget = $this->demoCreator->createSplitContentWidget($languages);
@@ -311,7 +311,7 @@ class DemoCommand extends Command
         $this->advanceProgress();
     }
 
-    private function createSiteContents(ContentCreator $contentCreator, array $data, Site $site, ?Collection $languages = null, ?Collection $parent = null): void
+    private function createSiteContents(ContentCreator $contentCreator, array $data, Site $site, ?EloquentCollection $languages = null, ?Collection $parent = null): void
     {
         if ($site->contents()->count() > 28) {
             $this->setProgressMessage('Content limit reached.');
@@ -319,7 +319,7 @@ class DemoCommand extends Command
             return;
         }
 
-        if (! $languages instanceof Collection) {
+        if (! $languages instanceof EloquentCollection) {
             $languages = $site->languages;
         }
 
