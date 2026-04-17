@@ -10,14 +10,14 @@ use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
 use Capell\Admin\Filament\Components\Forms\PageSelect;
 use Capell\Admin\Filament\Components\Forms\PublishSection;
-use Capell\Layout\Filament\Components\Forms\ActionsRepeater;
-use Capell\Layout\Filament\Components\Forms\AssetsRepeater;
-use Capell\Layout\Filament\Components\Forms\Content\DetailsSchema;
-use Capell\Layout\Filament\Components\Forms\Content\RelatedRepeater;
-use Capell\Layout\Filament\Components\Forms\Content\SettingsSchema;
-use Capell\Layout\Filament\Components\Forms\Content\TranslationsRepeater;
-use Capell\Layout\Filament\Components\Forms\CustomColorInput;
-use Capell\Layout\Filament\Resources\Contents\Schemas\Types\DefaultContentSchema;
+use Capell\Mosaic\Filament\Components\Forms\ActionsRepeater;
+use Capell\Mosaic\Filament\Components\Forms\AssetsRepeater;
+use Capell\Mosaic\Filament\Components\Forms\Content\DetailsSchema;
+use Capell\Mosaic\Filament\Components\Forms\Content\RelatedRepeater;
+use Capell\Mosaic\Filament\Components\Forms\Content\SettingsSchema;
+use Capell\Mosaic\Filament\Components\Forms\Content\TranslationsRepeater;
+use Capell\Mosaic\Filament\Components\Forms\CustomColorInput;
+use Capell\Mosaic\Filament\Resources\Contents\Schemas\Types\DefaultContentSchema;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
@@ -210,6 +210,6 @@ class HeroContentSchema extends DefaultContentSchema
         return AssetsRepeater::make('assets')
             ->compactRepeater()
             ->hiddenLabel()
-            ->hint(__('capell-layout::generic.widget_assets_repeater_hint'));
+            ->hint(__('capell-mosaic::generic.widget_assets_repeater_hint'));
     }
 }

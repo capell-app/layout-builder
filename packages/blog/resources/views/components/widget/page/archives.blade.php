@@ -26,7 +26,7 @@ declare(strict_types=1);
     'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
     'widget',
 ])
-<x-capell-layout::widget.wrapper
+<x-capell-mosaic::widget.wrapper
     :$container
     :$containerKey
     :$containerWidth
@@ -81,6 +81,6 @@ declare(strict_types=1);
             @endforeach
         </ul>
     @endif
-</x-capell-layout::widget.wrapper>
+</x-capell-mosaic::widget.wrapper>
 
 <?php

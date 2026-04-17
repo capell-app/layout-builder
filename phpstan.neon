@@ -26,18 +26,18 @@ parameters:
     databaseMigrationsPath:
         - packages/address/database/migrations
         - packages/blog/database/migrations
-        - packages/layout/database/migrations
+        - packages/mosaic/database/migrations
     configDirectories:
         - packages/blog/config
-        - packages/layout/config
+        - packages/mosaic/config
     translationDirectories:
         - packages/address/resources/lang
         - packages/blog/resources/lang
         - packages/hero/resources/lang
-        - packages/layout/resources/lang
+        - packages/mosaic/resources/lang
     viewDirectories:
         - packages/address/resources/views
         - packages/blog/resources/views
         - packages/hero/resources/views
-        - packages/layout/resources/views
+        - packages/mosaic/resources/views
     tmpDir: /tmp/phpstan

@@ -60,7 +60,7 @@ return RectorConfig::configure()
         // Fix issue in php8.2
         ContainerBindConcreteWithClosureOnlyRector::class,
         NullToStrictStringFuncCallArgRector::class => [
-            __DIR__ . '/packages/layout/src/Livewire/Widget/Pages.php',
+            __DIR__ . '/packages/mosaic/src/Livewire/Widget/Pages.php',
         ],
         __DIR__ . '/tests/.pest',
     ])

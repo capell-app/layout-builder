@@ -1,0 +1,42 @@
+{
+    "name": "capell-app/mosaic",
+    "description": "Mosaic for Capell",
+    "keywords": [
+        "capell",
+        "mosaic",
+        "laravel",
+        "filamentphp",
+        "cms"
+    ],
+    "homepage": "https://github.com/capell-app/mosaic",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Howdu",
+            "email": "cms.multi2@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "capell-app/admin": "*",
+        "capell-app/frontend": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\Mosaic\\": "src/",
+            "Capell\\Mosaic\\Database\\Factories\\": "database/factories"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\Mosaic\\Providers\\MosaicServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "prefer-stable": true
+}

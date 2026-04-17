@@ -410,7 +410,7 @@ class ArticlePagesTable implements TableConfigurator
                 $value = $state['value'] ?? null;
                 if ($value) {
                     $indicators['tags'] = __(
-                        'capell-layout::filter.tag',
+                        'capell-mosaic::filter.tag',
                         ['search' => Tag::query()->find($value)?->name],
                     );
                 }

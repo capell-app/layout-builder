@@ -9,15 +9,15 @@ use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Type;
-use Capell\Layout\Filament\Components\Forms\Widget\ComponentSection;
-use Capell\Layout\Filament\Components\Forms\Widget\CreateDetailsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\DisplaySection;
-use Capell\Layout\Filament\Components\Forms\Widget\ResultsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\SettingsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
-use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
-use Capell\Layout\Filament\Components\Forms\Widget\TranslationsRepeater;
-use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\DefaultWidgetSchema;
+use Capell\Mosaic\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\Mosaic\Filament\Components\Forms\Widget\CreateDetailsSchema;
+use Capell\Mosaic\Filament\Components\Forms\Widget\DisplaySection;
+use Capell\Mosaic\Filament\Components\Forms\Widget\ResultsSchema;
+use Capell\Mosaic\Filament\Components\Forms\Widget\SettingsSchema;
+use Capell\Mosaic\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
+use Capell\Mosaic\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
+use Capell\Mosaic\Filament\Components\Forms\Widget\TranslationsRepeater;
+use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\DefaultWidgetSchema;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -77,10 +77,10 @@ class RelatedWidgetSchema extends DefaultWidgetSchema
                         DisplaySection::make([
                             Group::make([
                                 Checkbox::make('exclude_parent')
-                                    ->label(__('capell-layout::form.exclude_parent')),
+                                    ->label(__('capell-mosaic::form.exclude_parent')),
                                 Select::make('exclude_types')
-                                    ->label(__('capell-layout::form.exclude_types'))
-                                    ->helperText(__('capell-layout::generic.exclude_types_info'))
+                                    ->label(__('capell-mosaic::form.exclude_types'))
+                                    ->helperText(__('capell-mosaic::generic.exclude_types_info'))
                                     ->multiple()
                                     ->options(
                                         function (): array {
@@ -97,9 +97,9 @@ class RelatedWidgetSchema extends DefaultWidgetSchema
                             Grid::make(3)
                                 ->schema([
                                     TextInput::make('limit')
-                                        ->label(__('capell-layout::form.limit')),
+                                        ->label(__('capell-mosaic::form.limit')),
                                     Checkbox::make('pagination')
-                                        ->label(__('capell-layout::form.pagination'))
+                                        ->label(__('capell-mosaic::form.pagination'))
                                         ->default(true),
                                     CacheFrequencySelect::make('cache_frequency'),
                                 ]),

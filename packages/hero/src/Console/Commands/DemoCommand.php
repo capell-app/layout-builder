@@ -15,8 +15,8 @@ use Capell\Core\Models\Site;
 use Capell\Hero\Actions\AddHeroWidgetToLayoutAction;
 use Capell\Hero\Actions\CreateHeroContentTypeAction;
 use Capell\Hero\Actions\CreateHeroWidgetAction;
-use Capell\Layout\Models\Widget;
-use Capell\Layout\Support\Creator\DemoCreator;
+use Capell\Mosaic\Models\Widget;
+use Capell\Mosaic\Support\Creator\DemoCreator;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 

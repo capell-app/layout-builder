@@ -15,7 +15,7 @@ jobs:
           - assistant
           - blog
           - hero
-          - layout
+          - mosaic
     steps:
       - uses: actions/checkout@v6
       - id: previous-tag

@@ -11,13 +11,13 @@ use Capell\Core\Models\Type;
 use Capell\Hero\Enums\WidgetComponentEnum;
 use Capell\Hero\Enums\WidgetTypeEnum;
 use Capell\Hero\Filament\Resources\Widgets\Schemas\Types\HeroWidgetSchema;
-use Capell\Layout\Enums\AssetEnum as LayoutAssetEnum;
-use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Enums\ModelEnum;
-use Capell\Layout\Enums\WidgetTypeGroupEnum;
-use Capell\Layout\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
-use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\AssetsWidgetSchema;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Enums\AssetEnum as LayoutAssetEnum;
+use Capell\Mosaic\Enums\LayoutTypeEnum;
+use Capell\Mosaic\Enums\ModelEnum;
+use Capell\Mosaic\Enums\WidgetTypeGroupEnum;
+use Capell\Mosaic\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
+use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\AssetsWidgetSchema;
+use Capell\Mosaic\Models\Widget;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -84,7 +84,7 @@ class CreateHeroWidgetAction
                 ],
             ],
             'meta' => [
-                'component' => \Capell\Layout\Enums\WidgetComponentEnum::Assets,
+                'component' => \Capell\Mosaic\Enums\WidgetComponentEnum::Assets,
                 'additional_asset_relations' => [
                     'related.translation',
                     'related.pageUrl',

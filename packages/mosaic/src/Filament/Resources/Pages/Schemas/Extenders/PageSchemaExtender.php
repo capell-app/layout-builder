@@ -1,0 +1,47 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\Mosaic\Filament\Resources\Pages\Schemas\Extenders;
+
+use Capell\Admin\Contracts\Extenders;
+use Capell\Admin\Enums\PageTranslationSchemaHookEnum;
+use Capell\Mosaic\Filament\Components\Forms\Page\Tab\LayoutTab;
+use Capell\Mosaic\Filament\Resources\Pages\RelationManagers\ContentsRelationManager;
+use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Model;
+
+class PageSchemaExtender implements Extenders\PageSchemaExtender
+{
+    public function extendRelationManagers(Model $record, array $relationManagers): array
+    {
+        $alreadyHasContents = in_array(ContentsRelationManager::class, $relationManagers, true);
+
+        if (! $alreadyHasContents) {
+            $relationManagers[] = ContentsRelationManager::class;
+        }
+
+        return $relationManagers;
+    }
+
+    public function extendTabs(Schema $schema, array $tabs): array
+    {
+        $hasLayoutTab = collect($tabs)->contains(fn (Tab $tab): bool => $tab instanceof LayoutTab);
+
+        if (! $hasLayoutTab) {
+            array_unshift($tabs, LayoutTab::make());
+        }
+
+        return $tabs;
+    }
+
+    /**
+     * @return array<int, Component>
+     */
+    public function extendTranslationComponentsForHook(Schema $schema, PageTranslationSchemaHookEnum $hook): array
+    {
+        return [];
+    }
+}

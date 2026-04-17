@@ -148,7 +148,7 @@
             "Capell\\Assistant\\": "packages/assistant/src",
             "Capell\\Blog\\": "packages/blog/src",
             "Capell\\Hero\\": "packages/hero/src",
-            "Capell\\Layout\\": "packages/layout/src"
+            "Capell\\Mosaic\\": "packages/mosaic/src"
         }
     },
     "autoload-dev": {
@@ -156,7 +156,7 @@
             "Capell\\Address\\Database\\Factories\\": "packages/address/database/factories",
             "Capell\\Assistant\\Database\\Factories\\": "packages/assistant/database/factories",
             "Capell\\Blog\\Database\\Factories\\": "packages/blog/database/factories",
-            "Capell\\Layout\\Database\\Factories\\": "packages/layout/database/factories",
+            "Capell\\Mosaic\\Database\\Factories\\": "packages/mosaic/database/factories",
             "Capell\\Tests\\": "tests/src"
         }
     },
