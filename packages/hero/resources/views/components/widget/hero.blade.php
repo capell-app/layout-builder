@@ -38,7 +38,7 @@ $theme = Frontend::theme();
 ])
 {{-- format-ignore-start --}}
 @php
-    use Capell\Layout\Actions\GetWidgetContainerWidthAction;
+    use Capell\Mosaic\Actions\GetWidgetContainerWidthAction;
     use Illuminate\Contracts\Pagination\LengthAwarePaginator;
     use Illuminate\Support\Collection;
     use Capell\Frontend\Actions\GetPageVariablesAction;
@@ -95,7 +95,7 @@ $theme = Frontend::theme();
             @foreach ($widget->assets as $widgetAsset)
                 {{-- format-ignore-start --}}
                 @php
-                    /** @var \Capell\Layout\Models\WidgetAsset $widgetAsset */
+                    /** @var \Capell\Mosaic\Models\WidgetAsset $widgetAsset */
                     $slideColorScheme = $widgetAsset->asset->getMeta('color', $color);
 
                     $linkedPage = $widgetAsset->asset instanceof \Capell\Core\Models\Page ? $widgetAsset->asset : $widgetAsset->asset->linkedPage;
@@ -186,7 +186,7 @@ $theme = Frontend::theme();
                             @endif
 
                             @if ($widgetAsset->asset->getMeta('actions'))
-                                <x-capell-layout::actions
+                                <x-capell-mosaic::actions
                                     class="hero-actions mt-8 w-full"
                                     :actions="$widgetAsset->asset->getMeta('actions')"
                                     :color="$slideColorScheme"

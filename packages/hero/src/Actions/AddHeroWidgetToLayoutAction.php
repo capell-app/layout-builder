@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Capell\Hero\Actions;
 
 use Capell\Core\Models\Layout;
-use Capell\Layout\Actions\AddWidgetToLayoutContainerAction;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Actions\AddWidgetToLayoutContainerAction;
+use Capell\Mosaic\Models\Widget;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 

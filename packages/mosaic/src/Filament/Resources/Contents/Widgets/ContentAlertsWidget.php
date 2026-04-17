@@ -1,0 +1,96 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\Mosaic\Filament\Resources\Contents\Widgets;
+
+use Capell\Admin\Data\MessageData;
+use Capell\Admin\Enums\AlertTypeEnum;
+use Capell\Admin\Filament\Concerns\HasBlankPlaceholder;
+use Capell\Core\Enums\PublishStatusEnum;
+use Capell\Mosaic\Models\Content;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Widgets\Widget;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Collection;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
+
+#[On('refresh-alerts')]
+class ContentAlertsWidget extends Widget implements HasActions, HasForms
+{
+    use HasBlankPlaceholder;
+    use InteractsWithActions;
+    use InteractsWithForms;
+
+    public ?Content $record = null;
+
+    protected int|string|array $columnSpan = 'full';
+
+    protected string $view = 'capell-admin::components.widgets.alerts';
+
+    public function mount(): void
+    {
+        $this->loadRecord();
+    }
+
+    public function hydrate(): void
+    {
+        $this->loadRecord();
+    }
+
+    /**
+     * @return Collection<string, MessageData>
+     */
+    #[Computed]
+    public function alerts(): Collection
+    {
+        $alerts = collect();
+
+        if ($this->record->trashed()) {
+            $alerts->put('trashed', new MessageData(
+                message: __(
+                    'capell-admin::message.resource_deleted',
+                    ['name' => __('capell-mosaic::generic.content')],
+                ),
+                type: AlertTypeEnum::Warning,
+                icon: 'heroicon-m-exclamation-triangle',
+            ));
+        }
+
+        switch ($this->record->publish_status) {
+            case PublishStatusEnum::pending:
+                $alerts->put('pending', new MessageData(
+                    message: __('capell-admin::message.resource_pending', [
+                        'date' => $this->record->visible_from?->diffForHumans(),
+                        'name' => __('capell-mosaic::generic.content'),
+                    ]),
+                    type: AlertTypeEnum::Warning,
+                    icon: 'heroicon-o-clock',
+                ));
+                break;
+            case PublishStatusEnum::expired:
+                $alerts->put('expired', new MessageData(
+                    message: __('capell-admin::message.resource_expired', [
+                        'date' => $this->record->visible_until?->diffForHumans(),
+                        'name' => __('capell-mosaic::generic.content'),
+                    ]),
+                    type: AlertTypeEnum::Warning,
+                    icon: 'heroicon-o-clock',
+                ));
+                break;
+        }
+
+        return $alerts;
+    }
+
+    protected function loadRecord(): void
+    {
+        $this->record->loadMissing([
+            'site' => fn (Relation $query) => $query->withTrashed(),
+        ]);
+    }
+}

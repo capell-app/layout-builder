@@ -8,7 +8,7 @@ use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Type;
 use Capell\Hero\Filament\Resources\Contents\Schemas\Types\HeroContentSchema;
-use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 

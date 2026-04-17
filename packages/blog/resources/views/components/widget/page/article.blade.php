@@ -24,7 +24,7 @@ declare(strict_types=1);
     'withDate' => (bool) $widget->getMeta('with_date'),
     'withNextPrev' => (bool) $widget->getMeta('with_next_prev'),
 ])
-<x-capell-layout::widget.wrapper
+<x-capell-mosaic::widget.wrapper
     :$container
     :$containerKey
     :$containerWidth
@@ -83,6 +83,6 @@ declare(strict_types=1);
             @endif
         </div>
     @endif
-</x-capell-layout::widget.wrapper>
+</x-capell-mosaic::widget.wrapper>
 
 <?php

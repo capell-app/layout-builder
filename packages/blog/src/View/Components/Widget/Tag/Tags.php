@@ -7,7 +7,7 @@ namespace Capell\Blog\View\Components\Widget\Tag;
 use Capell\Blog\Support\Loader\TagLoader;
 use Capell\Core\Models\Page;
 use Capell\Frontend\Facades\Frontend;
-use Capell\Layout\View\Components\Widget\AbstractWidget;
+use Capell\Mosaic\View\Components\Widget\AbstractWidget;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
@@ -59,7 +59,7 @@ class Tags extends AbstractWidget
             $this->skipRender = true;
         }
 
-        if (config('capell-layout.widget.skip_render_empty') === true) {
+        if (config('capell-mosaic.widget.skip_render_empty') === true) {
             $this->skipRender = true;
         }
     }

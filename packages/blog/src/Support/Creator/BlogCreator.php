@@ -32,13 +32,13 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Core\Support\Creator\LayoutCreator;
 use Capell\Core\Support\Creator\TypeCreator;
-use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Enums\LivewireComponentsEnum;
-use Capell\Layout\Enums\ModelEnum;
-use Capell\Layout\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
-use Capell\Layout\Models\Widget;
-use Capell\Layout\Support\Creator\TypeCreator as LayoutTypeCreator;
-use Capell\Layout\Support\Creator\WidgetCreator;
+use Capell\Mosaic\Enums\LayoutTypeEnum;
+use Capell\Mosaic\Enums\LivewireComponentsEnum;
+use Capell\Mosaic\Enums\ModelEnum;
+use Capell\Mosaic\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
+use Capell\Mosaic\Models\Widget;
+use Capell\Mosaic\Support\Creator\TypeCreator as LayoutTypeCreator;
+use Capell\Mosaic\Support\Creator\WidgetCreator;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -638,7 +638,7 @@ class BlogCreator
             $widget->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
-                'title' => __('capell-layout::heading.related_pages'),
+                'title' => __('capell-mosaic::heading.related_pages'),
             ]);
         });
 

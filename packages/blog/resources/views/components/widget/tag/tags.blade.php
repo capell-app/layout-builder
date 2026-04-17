@@ -22,7 +22,7 @@ declare(strict_types=1);
     'showPageTitle' => $widgetData['meta']['show_page_title'] ?? false,
     'widget',
 ])
-<x-capell-layout::widget.wrapper
+<x-capell-mosaic::widget.wrapper
     class="widget-tags"
     :$container
     :$containerKey
@@ -78,6 +78,6 @@ declare(strict_types=1);
             :scrollToElement="$containerKey . '-' . $widget->key . '-' . $loop->index"
         />
     @endif
-</x-capell-layout::widget.wrapper>
+</x-capell-mosaic::widget.wrapper>
 
 <?php

@@ -1,0 +1,40 @@
+<?php
+
+declare(strict_types=1);
+
+?>
+
+@props([
+    'container' => '',
+    'containerKey',
+    'containerWidth' => null,
+])
+<x-capell-mosaic::widget.wrapper
+    class="widget-navigation-tabs"
+    :$container
+    :$containerKey
+    :$containerWidth
+    :index="$loop->index"
+    :$widget
+>
+    <ul
+        class="tab-items mb-4 mt-10 flex flex-col flex-wrap items-center gap-4 border-b border-gray-100 px-2 text-center text-sm font-medium text-gray-500 md:flex-row"
+    >
+        @foreach ($items as $item)
+            <li class="tab-item -mb-px">
+                <a
+                    href="{{ $item->data['url'] }}"
+                    @class([
+                        'hover:bg-primary inline-block rounded-t border-b-2 border-transparent px-4 py-3 hover:text-white',
+                        'border-b-primary' => $item->active,
+                    ])
+                    wire:navigate
+                >
+                    {{ $item->label }}
+                </a>
+            </li>
+        @endforeach
+    </ul>
+</x-capell-mosaic::widget.wrapper>
+
+<?php

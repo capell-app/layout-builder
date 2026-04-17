@@ -70,7 +70,7 @@ class TagsTable implements TableConfigurator
                     },
                 ),
             TextColumn::make('slug')
-                ->label(__('capell-layout::table.slug'))
+                ->label(__('capell-mosaic::table.slug'))
                 ->searchable()
                 ->sortable()
                 ->color(FilamentColorEnum::LightGray->value)
@@ -88,7 +88,7 @@ class TagsTable implements TableConfigurator
                 ->numeric()
                 ->toggleable(),
             ToggleColumn::make('featured')
-                ->label(__('capell-layout::table.featured'))
+                ->label(__('capell-mosaic::table.featured'))
                 ->alignCenter()
                 ->toggleable(),
             StatusIconColumn::make('status'),

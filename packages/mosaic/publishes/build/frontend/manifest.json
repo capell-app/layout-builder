@@ -1,0 +1,8 @@
+{
+    "resources/js/capell-mosaic.js": {
+        "file": "assets/capell-mosaic-KO8XKDR3.js",
+        "name": "capell-mosaic",
+        "src": "resources/js/capell-mosaic.js",
+        "isEntry": true
+    }
+}

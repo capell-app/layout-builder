@@ -40,7 +40,7 @@ class EditTag extends EditRecord implements PageCacheNotifiable
             return static::$title;
         }
 
-        return new HtmlString(__('capell-layout::heading.edit_tag_record', [
+        return new HtmlString(__('capell-mosaic::heading.edit_tag_record', [
             'name' => Str::limit($this->getRecordTitle(), 40),
         ]));
     }

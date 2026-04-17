@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Filament\Resources\Widgets\Schemas\Types;
 
-use Capell\Layout\Filament\Components\Forms\Widget\AdminSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\SettingsSchema;
-use Capell\Layout\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
-use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\DefaultWidgetSchema;
+use Capell\Mosaic\Filament\Components\Forms\Widget\AdminSchema;
+use Capell\Mosaic\Filament\Components\Forms\Widget\SettingsSchema;
+use Capell\Mosaic\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
+use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\DefaultWidgetSchema;
 use Filament\Forms\Components\Checkbox;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
@@ -64,11 +64,11 @@ class ArticleWidgetSchema extends DefaultWidgetSchema
             ->columnSpanFull()
             ->schema([
                 Checkbox::make('with_date')
-                    ->label(__('capell-layout::form.published_date')),
+                    ->label(__('capell-mosaic::form.published_date')),
                 Checkbox::make('with_next_prev')
-                    ->label(__('capell-layout::form.next_prev')),
+                    ->label(__('capell-mosaic::form.next_prev')),
                 Checkbox::make('with_author')
-                    ->label(__('capell-layout::form.author')),
+                    ->label(__('capell-mosaic::form.author')),
             ]);
     }
 }

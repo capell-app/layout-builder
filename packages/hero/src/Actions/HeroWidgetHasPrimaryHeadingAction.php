@@ -6,7 +6,7 @@ namespace Capell\Hero\Actions;
 
 use Capell\Core\Contracts\Pageable;
 use Capell\Frontend\Facades\Frontend;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Models\Widget;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
