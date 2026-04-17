@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Capell\Layout\Database\Factories\ContentTypeFactory;
 use Capell\Layout\Filament\Resources\Contents\ContentResource;
-use Capell\Layout\Models\Content;
+use Capell\Layout\Models\Collection;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Laravel\get;
@@ -37,5 +37,5 @@ test('admin can see create content', function (): void {
 test('admin can load edit content', function (): void {
     test()->actingAsAdmin();
 
-    get(ContentResource::getUrl('edit', ['record' => Content::factory()->create()]))->assertOk();
+    get(ContentResource::getUrl('edit', ['record' => Collection::factory()->create()]))->assertOk();
 });

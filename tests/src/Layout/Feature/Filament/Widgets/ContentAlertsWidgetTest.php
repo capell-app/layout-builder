@@ -2,22 +2,21 @@
 
 declare(strict_types=1);
 
-use Capell\Layout\Database\Factories\ContentFactory;
 use Capell\Layout\Filament\Resources\Contents\Widgets\ContentAlertsWidget;
-use Capell\Layout\Models\Content;
+use Capell\Layout\Models\Collection;
 use Illuminate\Support\Collection;
 
 use function Pest\Livewire\livewire;
 
 it('renders the content alerts widget', function (): void {
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
 
     livewire(ContentAlertsWidget::class, ['record' => $content])
         ->assertSuccessful();
 });
 
 it('shows alert for content state', function (string $state, string $alertKey): void {
-    $content = Content::factory()
+    $content = Collection::factory()
         ->when(
             $state === 'expired',
             fn (ContentFactory $factory): ContentFactory => $factory->expired(),
@@ -43,7 +42,7 @@ it('shows alert for content state', function (string $state, string $alertKey): 
     ]);
 
 test('does not show alert for published content', function (): void {
-    $content = Content::factory()->published()->create();
+    $content = Collection::factory()->published()->create();
 
     livewire(ContentAlertsWidget::class, ['record' => $content])
         ->assertSuccessful()

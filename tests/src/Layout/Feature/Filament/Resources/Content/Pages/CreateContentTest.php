@@ -7,7 +7,7 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Layout\Database\Factories\ContentTypeFactory;
 use Capell\Layout\Filament\Resources\Contents\Pages\CreateContent;
-use Capell\Layout\Models\Content;
+use Capell\Layout\Models\Collection;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Support\Str;
 
@@ -36,7 +36,7 @@ test('required fields are required', function (): void {
 });
 
 it('can create', function (string $type): void {
-    $newData = Content::factory()->make();
+    $newData = Collection::factory()->make();
 
     if ($type === 'with deleted site') {
         Site::factory()->deleted()->create();
@@ -55,7 +55,7 @@ it('can create', function (string $type): void {
         ->call('create')
         ->assertHasNoFormErrors();
 
-    assertDatabaseHas(Content::class, [
+    assertDatabaseHas(Collection::class, [
         'name' => $newData->name,
     ]);
 })
@@ -67,9 +67,9 @@ test('create with translations', function (string $mode): void {
 
     $type = (new ContentTypeFactory)->default()->create();
 
-    $newData = Content::factory()
+    $newData = Collection::factory()
         ->type($type)
-        ->parent(Content::factory()->create())
+        ->parent(Collection::factory()->create())
         ->make();
 
     if ($mode === 'with deleted site') {
@@ -103,7 +103,7 @@ test('create with translations', function (string $mode): void {
         ->call('create')
         ->assertHasNoFormErrors();
 
-    assertDatabaseHas(Content::class, [
+    assertDatabaseHas(Collection::class, [
         'name' => $newData->name,
         'parent_id' => $newData->parent?->id,
         'type_id' => $type->getKey(),
@@ -121,7 +121,7 @@ test('create with translations', function (string $mode): void {
     ->with(['default', 'with deleted site']);
 
 test('can search parent results', function (): void {
-    $parent = Content::factory()->withTranslations()->create();
+    $parent = Collection::factory()->withTranslations()->create();
 
     $livewire = livewire(CreateContent::class);
     $instance = $livewire->instance();

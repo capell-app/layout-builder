@@ -7,7 +7,7 @@ use Capell\Core\Models\Page;
 use Capell\Layout\Enums\AssetEnum;
 use Capell\Layout\Filament\Resources\Contents\Pages\EditContent;
 use Capell\Layout\Filament\Resources\Contents\RelationManagers\ContentAssetsRelationManager;
-use Capell\Layout\Models\Content;
+use Capell\Layout\Models\Collection;
 use Filament\Actions\CreateAction;
 use Filament\Actions\Testing\TestAction;
 
@@ -15,7 +15,7 @@ use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 
 it('can list content assets', function (): void {
-    $content = Content::factory()
+    $content = Collection::factory()
         ->has(AssetRelation::factory(['related_type' => AssetEnum::Content->value])->count(5), 'assets')
         ->create();
 
@@ -32,7 +32,7 @@ it('can list content assets', function (): void {
 });
 
 it('can search content assets', function (): void {
-    $content = Content::factory()
+    $content = Collection::factory()
         ->has(
             AssetRelation::factory(['related_type' => AssetEnum::Content->value])
                 ->asset(
@@ -45,7 +45,7 @@ it('can search content assets', function (): void {
             AssetRelation::factory([
                 'related_type' => AssetEnum::Content->value,
                 'asset_type' => AssetEnum::Content->value,
-                'asset_id' => Content::factory(['name' => 'Second']),
+                'asset_id' => Collection::factory(['name' => 'Second']),
             ]),
             'assets',
         )
@@ -61,7 +61,7 @@ it('can search content assets', function (): void {
             AssetRelation::factory([
                 'related_type' => AssetEnum::Content->value,
                 'asset_type' => AssetEnum::Content->value,
-                'asset_id' => Content::factory(['name' => 'Fourth']),
+                'asset_id' => Collection::factory(['name' => 'Fourth']),
             ]),
             'assets',
         )
@@ -81,12 +81,12 @@ it('can search content assets', function (): void {
 });
 
 test('can create a asset for a widget', function (string $assetType): void {
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
 
     $action = TestAction::make(CreateAction::class)->table();
 
     $asset = match ($assetType) {
-        'content' => Content::factory()->create(),
+        'content' => Collection::factory()->create(),
         'page' => Page::factory()->create(),
     };
 

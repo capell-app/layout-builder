@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Page;
-use Capell\Layout\Models\Content;
+use Capell\Layout\Models\Collection;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 
@@ -25,7 +25,7 @@ it('has many pages through widget assets', function (): void {
 
 it('has many contents through widget assets', function (): void {
     $widget = Widget::factory()->create();
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
 
     WidgetAsset::factory()->widget($widget)->asset($content)->create();
 

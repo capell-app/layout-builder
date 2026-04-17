@@ -9,14 +9,14 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\ContentTypeFactory;
-use Capell\Layout\Models\Content;
+use Capell\Layout\Models\Collection;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 it('belongs to a site', function (): void {
     $site = Site::factory()->create();
-    $content = Content::factory()->site($site)->create();
+    $content = Collection::factory()->site($site)->create();
 
     expect($content->site)->toBeInstanceOf(Site::class)
         ->and($content->site->id)->toBe($site->id);
@@ -24,14 +24,14 @@ it('belongs to a site', function (): void {
 
 it('belongs to a type', function (): void {
     $type = (new ContentTypeFactory)->create();
-    $content = Content::factory()->type($type)->create();
+    $content = Collection::factory()->type($type)->create();
 
     expect($content->type)->toBeInstanceOf(Type::class)
         ->and($content->type->id)->toBe($type->id);
 });
 
 it('belongs to an image', function (): void {
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
     $media = MediaFactory::new()->model($content)->create();
 
     expect($content->image)->toBeInstanceOf(Media::class)
@@ -39,7 +39,7 @@ it('belongs to an image', function (): void {
 });
 
 it('has many translations', function (): void {
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
     $translation = Translation::factory()->translatable($content)->create();
 
     expect($content->translations)
@@ -49,14 +49,14 @@ it('has many translations', function (): void {
 });
 
 it('has many assets', function (): void {
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
     $resource = AssetRelation::factory()->related($content)->create();
 
     expect($content->assets->pluck('id'))->toContain($resource->id);
 });
 
 it('has many widgets', function (): void {
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
     $widget = Widget::factory()->create();
     WidgetAsset::factory()->asset($content)->widget($widget)->create();
 
@@ -64,7 +64,7 @@ it('has many widgets', function (): void {
 });
 
 it('has many pages', function (): void {
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
     $page = Page::factory()->create();
     WidgetAsset::factory()->asset($content)->page($page)->create();
 
@@ -76,10 +76,10 @@ it('has many pages', function (): void {
 });
 
 it('creates a content with parent', function (): void {
-    $parent = Content::factory()->create();
-    $content = Content::factory()->parent($parent)->create();
+    $parent = Collection::factory()->create();
+    $content = Collection::factory()->parent($parent)->create();
 
     expect($content)
         ->parent_id->toBe($parent->id)
-        ->parent->toBeInstanceOf(Content::class);
+        ->parent->toBeInstanceOf(Collection::class);
 });

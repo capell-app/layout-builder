@@ -5,11 +5,11 @@ declare(strict_types=1);
 // tests/Integration/Models/SiteTest.php
 
 use Capell\Core\Models\Site;
-use Capell\Layout\Models\Content;
+use Capell\Layout\Models\Collection;
 
 it('has many contents', function (): void {
     $site = Site::factory()->create();
-    $content = Content::factory()->create(['site_id' => $site->id]);
+    $content = Collection::factory()->create(['site_id' => $site->id]);
 
     expect($site->contents->pluck('id'))->toContain($content->id);
 });

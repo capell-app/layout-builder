@@ -9,7 +9,7 @@ use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\LayoutFactory;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Livewire\Filament\LayoutBuilder;
-use Capell\Layout\Models\Content;
+use Capell\Layout\Models\Collection;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
@@ -41,7 +41,7 @@ test('can save without affecting widget assets', function (bool $withPage): void
 
     $widget = Widget::query()->firstWhere('key', $widgetKey);
     WidgetAsset::factory()->count(2)->create();
-    Content::factory()->count(2)->create();
+    Collection::factory()->count(2)->create();
     Page::factory()->count(3)->create();
 
     WidgetAsset::factory()->count(5)->widget($widget)->create();
@@ -100,7 +100,7 @@ test('can sync new content and page assets to widget in page layout context', fu
         ->create();
 
     // 5 to add
-    $contents = Content::factory()->count(2)->create();
+    $contents = Collection::factory()->count(2)->create();
     $pages = Page::factory()->count(3)->create();
 
     // Excluded
@@ -150,7 +150,7 @@ test('can sync new content and page assets to widget in layout context', functio
     $layout = (new LayoutFactory)->containers()->create();
 
     // 5 to add
-    $contents = Content::factory()->count(2)->create();
+    $contents = Collection::factory()->count(2)->create();
     $pages = Page::factory()->count(3)->create();
 
     $containerKey = array_key_first($layout->containers);
@@ -216,7 +216,7 @@ test('can sync new page-specific assets with pageable reference', function (): v
 
     $widget = Widget::query()->firstWhere('key', $widgetKey);
 
-    $contents = Content::factory()->count(2)->create();
+    $contents = Collection::factory()->count(2)->create();
     $pages = Page::factory()->count(3)->create();
 
     WidgetAsset::factory()

@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Capell\Core\Models\Language;
 use Capell\Layout\Filament\Resources\Contents\ContentResource;
 use Capell\Layout\Filament\Resources\Widgets\WidgetResource;
-use Capell\Layout\Models\Content;
+use Capell\Layout\Models\Collection;
 use Capell\Layout\Models\Widget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Facades\Filament;
@@ -28,7 +28,7 @@ it('finds content', function (string $searchTerm): void {
 
     $language = Language::factory()->create();
 
-    $content = Content::factory()->create([
+    $content = Collection::factory()->create([
         'name' => $contentNameToken,
     ]);
 

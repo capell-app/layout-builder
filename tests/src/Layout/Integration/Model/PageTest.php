@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Page;
-use Capell\Layout\Models\Content;
+use Capell\Layout\Models\Collection;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Collection;
@@ -32,7 +32,7 @@ it('has many widgets', function (): void {
 
 it('has many contents through widget assets', function (): void {
     $page = Page::factory()->create();
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
     WidgetAsset::factory()->asset($content)->page($page)->create();
 
     expect($page->contents->pluck('id')->toArray())->toContain($content->id);

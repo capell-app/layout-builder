@@ -9,7 +9,7 @@ use Capell\Layout\Actions\InstallPackageAction;
 use Capell\Layout\Enums\ContentTypeEnum;
 use Capell\Layout\Enums\LayoutTypeEnum;
 use Capell\Layout\Enums\WidgetTypeEnum;
-use Capell\Layout\Models\Content;
+use Capell\Layout\Models\Collection;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -90,7 +90,7 @@ it('installs layout package: creates types, widgets, layouts, and registers morp
     expect(Relation::getMorphedModel('widget'))
         ->toBe(Widget::class)
         ->and(Relation::getMorphedModel('content'))
-        ->toBe(Content::class)
+        ->toBe(Collection::class)
         ->and(Relation::getMorphedModel('widget_asset'))
         ->toBe(WidgetAsset::class);
 });

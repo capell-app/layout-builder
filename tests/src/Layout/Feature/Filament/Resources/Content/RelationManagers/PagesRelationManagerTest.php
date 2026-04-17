@@ -3,9 +3,8 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Page;
-use Capell\Layout\Filament\Resources\Contents\Pages\EditContent;
 use Capell\Layout\Filament\Resources\Contents\RelationManagers\PagesRelationManager;
-use Capell\Layout\Models\Content;
+use Capell\Layout\Models\Collection;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 
@@ -13,7 +12,7 @@ use function Pest\Livewire\livewire;
 
 it('can list pages for a content model', function (): void {
     $page = Page::factory()->withTranslations()->create();
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
 
     $widget = Widget::factory()
         ->has(
@@ -33,7 +32,7 @@ it('can list pages for a content model', function (): void {
 
     livewire(PagesRelationManager::class, [
         'ownerRecord' => $content,
-        'pageClass' => EditContent::class,
+        'pageClass' => EditCollection::class,
     ])
         ->assertSuccessful()
         ->assertCountTableRecords(1)
@@ -43,7 +42,7 @@ it('can list pages for a content model', function (): void {
 
 it('can search pages for a content model', function (): void {
     $page = Page::factory()->withTranslations()->create();
-    $content = Content::factory()->create();
+    $content = Collection::factory()->create();
     Widget::factory()
         ->has(
             WidgetAsset::factory()
@@ -64,7 +63,7 @@ it('can search pages for a content model', function (): void {
 
     livewire(PagesRelationManager::class, [
         'ownerRecord' => $content,
-        'pageClass' => EditContent::class,
+        'pageClass' => EditCollection::class,
     ])
         ->assertSuccessful()
         ->searchTable($page->getKey())
