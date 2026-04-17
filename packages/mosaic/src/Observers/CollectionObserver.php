@@ -8,10 +8,9 @@ use Capell\Core\Enums\CacheEnum;
 use Capell\Core\Models\Type;
 use Capell\Core\Support\CapellCoreHelper;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
-use Capell\Mosaic\Models\Content;
 use InvalidArgumentException;
 
-class ContentObserver
+class CollectionObserver
 {
     private mixed $deletedAt = null;
 

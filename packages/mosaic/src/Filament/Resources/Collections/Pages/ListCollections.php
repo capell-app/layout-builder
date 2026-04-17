@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Contents\Pages;
+namespace Capell\Mosaic\Filament\Resources\Collections\Pages;
 
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\ApplySearchRelationsTable;
 use Capell\Admin\Filament\Concerns\HasSiteTableFilterTabs;
 use Capell\Mosaic\Enums\ResourceEnum;
 use Capell\Mosaic\Filament\Actions\CreateContentAction;
-use Capell\Mosaic\Filament\Resources\Contents\ContentResource;
+use Capell\Mosaic\Filament\Resources\Collections\ContentResource;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Contracts\Support\Htmlable;
 
-class ListContents extends ListRecords
+class ListCollections extends ListRecords
 {
     use ApplySearchRelationsTable;
     use HasSiteTableFilterTabs;

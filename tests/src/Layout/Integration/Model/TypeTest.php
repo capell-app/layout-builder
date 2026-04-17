@@ -7,7 +7,6 @@ use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\ContentTypeFactory;
 use Capell\Layout\Database\Factories\WidgetTypeFactory;
 use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Models\Content;
 use Capell\Layout\Models\Widget;
 
 it('has many contents', function (): void {

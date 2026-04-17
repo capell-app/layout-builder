@@ -309,7 +309,7 @@ class Widget extends Model implements HasMedia, PageCacheable, Publishable, Stat
     public function contents(): MorphToMany
     {
         return $this->morphedByMany(
-            Content::class,
+            Collection::class,
             'asset',
             'widget_assets',
             'widget_id',

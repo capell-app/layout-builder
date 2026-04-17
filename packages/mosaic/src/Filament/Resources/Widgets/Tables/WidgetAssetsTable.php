@@ -19,7 +19,6 @@ use Capell\Core\Models\Type;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Filament\Components\Forms\AssetTypeSelect;
 use Capell\Mosaic\Filament\Concerns\HasAssetsRelationManager;
-use Capell\Mosaic\Models\Content;
 use Capell\Mosaic\Models\WidgetAsset;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;

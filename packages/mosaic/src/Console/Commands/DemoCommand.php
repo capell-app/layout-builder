@@ -13,13 +13,12 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Mosaic\Models\Content;
+use Capell\Mosaic\Models\Collection;
 use Capell\Mosaic\Support\Creator\ContentCreator;
 use Capell\Mosaic\Support\Creator\DemoCreator;
 use Capell\Mosaic\Support\Creator\TypeCreator;
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Auth\User;
 use Symfony\Component\Console\Helper\ProgressBar;
 

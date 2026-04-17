@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Contents\Pages;
+namespace Capell\Mosaic\Filament\Resources\Collections\Pages;
 
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Mosaic\Actions\MutateContentDataBeforeFillAction;
 use Capell\Mosaic\Enums\ResourceEnum;
-use Capell\Mosaic\Filament\Resources\Contents\ContentResource;
+use Capell\Mosaic\Filament\Resources\Collections\ContentResource;
 use Filament\Resources\Pages\CreateRecord;
 
-class CreateContent extends CreateRecord
+class CreateCollection extends CreateRecord
 {
     /** @return class-string<ContentResource> */
     public static function getResource(): string

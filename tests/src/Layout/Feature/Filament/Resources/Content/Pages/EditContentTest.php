@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 use Capell\Admin\Filament\Actions\DeleteAction;
 use Capell\Core\Models\Site;
-use Capell\Layout\Filament\Resources\Contents\Pages\EditContent;
-use Capell\Layout\Models\Content;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Laravel\assertSoftDeleted;
@@ -25,7 +23,7 @@ it('can save', function (): void {
         ->parent(Content::factory()->create())
         ->make();
 
-    livewire(EditContent::class, [
+    livewire(EditCollection::class, [
         'record' => $content->getRouteKey(),
     ])
         ->assertSuccessful()
@@ -58,7 +56,7 @@ it('can save', function (): void {
 test('validates edit content', function (): void {
     $content = Content::factory()->create();
 
-    livewire(EditContent::class, [
+    livewire(EditCollection::class, [
         'record' => $content->getRouteKey(),
     ])
         ->assertSuccessful()
@@ -72,7 +70,7 @@ test('validates edit content', function (): void {
 it('can delete', function (): void {
     $content = Content::factory()->create();
 
-    livewire(EditContent::class, [
+    livewire(EditCollection::class, [
         'record' => $content->getRouteKey(),
     ])
         ->assertSuccessful()

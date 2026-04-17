@@ -9,7 +9,7 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Layout\Database\Factories\ContentTypeFactory;
-use Capell\Layout\Models\Content;
+use Capell\Layout\Models\Collection;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -81,5 +81,5 @@ it('creates a content with parent', function (): void {
 
     expect($content)
         ->parent_id->toBe($parent->id)
-        ->parent->toBeInstanceOf(Content::class);
+        ->parent->toBeInstanceOf(Collection::class);
 });

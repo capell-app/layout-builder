@@ -2,20 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Contents\Widgets;
+namespace Capell\Mosaic\Filament\Resources\Collections\Widgets;
 
 use Capell\Admin\Data\MessageData;
 use Capell\Admin\Enums\AlertTypeEnum;
 use Capell\Admin\Filament\Concerns\HasBlankPlaceholder;
 use Capell\Core\Enums\PublishStatusEnum;
-use Capell\Mosaic\Models\Content;
+use Capell\Mosaic\Models\Collection;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 
