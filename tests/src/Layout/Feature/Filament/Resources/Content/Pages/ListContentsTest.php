@@ -7,7 +7,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Filament\Resources\Contents\Pages\ListContents;
+use Capell\Layout\Filament\Resources\Collections\Pages\ListCollections;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -28,7 +28,7 @@ beforeEach(function (): void {
 test('can list contents', function (): void {
     $contents = Content::factory()->count(5)->create();
 
-    livewire(ListContents::class)
+    livewire(ListCollections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(5)
         ->assertCanSeeTableRecords($contents);
@@ -42,7 +42,7 @@ test('can search contents', function (): void {
 
     $name = $contents->random()->name;
 
-    livewire(ListContents::class)
+    livewire(ListCollections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(3)
         ->searchTable($name)
@@ -54,7 +54,7 @@ test('can search contents', function (): void {
 test('can sort contents', function (): void {
     $contents = Content::factory()->count(5)->create();
 
-    livewire(ListContents::class)
+    livewire(ListCollections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(5)
         ->sortTable('name')
@@ -64,7 +64,7 @@ test('can sort contents', function (): void {
 test('can replicate contents', function (): void {
     $content = Content::factory()->create();
 
-    livewire(ListContents::class)
+    livewire(ListCollections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(1)
         ->callAction(
@@ -84,7 +84,7 @@ test('can replicate contents', function (): void {
 test('can delete content', function (): void {
     $content = Content::factory()->create();
 
-    livewire(ListContents::class)
+    livewire(ListCollections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(1)
         ->callAction(TestAction::make(DeleteAction::class)->table($content))
@@ -97,7 +97,7 @@ test('can delete content', function (): void {
 test('can group delete contents', function (): void {
     $contents = Content::factory()->count(5)->create();
 
-    livewire(ListContents::class)
+    livewire(ListCollections::class)
         ->assertSuccessful()
         ->selectTableRecords($contents->pluck('id')->toArray())
         ->callAction(TestAction::make(DeleteBulkAction::class)->table()->bulk())
@@ -109,7 +109,7 @@ test('can group delete contents', function (): void {
 });
 
 test('can select all records', function (): void {
-    livewire(ListContents::class)
+    livewire(ListCollections::class)
         ->assertSuccessful()
         ->call('getAllSelectableTableRecordKeys')
         ->assertSuccessful();
@@ -120,7 +120,7 @@ test('can create content', function (): void {
 
     $newData = Content::factory()->make();
 
-    livewire(ListContents::class)
+    livewire(ListCollections::class)
         ->assertSuccessful()
         ->callAction('create', [
             'name' => $newData->name,
@@ -136,7 +136,7 @@ test('can filter by parent', function (): void {
     $parent = Content::factory()->create();
     $children = Content::factory()->count(3)->parent($parent)->create();
 
-    livewire(ListContents::class)
+    livewire(ListCollections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(4)
         ->filterTable('filter', ['parent_id' => $parent->id])
@@ -148,7 +148,7 @@ test('can filter by type', function (): void {
     $type = Type::factory()->type(LayoutTypeEnum::Content)->create();
     $contents = Content::factory()->count(3)->type($type)->create();
 
-    livewire(ListContents::class)
+    livewire(ListCollections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(3)
         ->filterTable('type_id', $type->id)
@@ -160,7 +160,7 @@ test('can filter by site', function (): void {
     $site = Site::factory()->create();
     $contents = Content::factory()->count(3)->site($site)->create();
 
-    livewire(ListContents::class)
+    livewire(ListCollections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(3)
         ->filterTable('site_id', $site->id)
@@ -173,7 +173,7 @@ test('can filter by language', function (): void {
     Content::factory()->create();
     $contents = Content::factory()->count(3)->withTranslations($language)->create();
 
-    livewire(ListContents::class)
+    livewire(ListCollections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(4)
         ->filterTable('filter', ['language_id' => $language->id])
@@ -186,7 +186,7 @@ test('can filter by publish status', function (string $status, int $expectedCoun
     $pendingContents = Content::factory()->count(3)->pending()->create();
     $expiredContents = Content::factory()->count(4)->expired()->create();
 
-    livewire(ListContents::class)
+    livewire(ListCollections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(9)
         ->filterTable('publish_status', $status)

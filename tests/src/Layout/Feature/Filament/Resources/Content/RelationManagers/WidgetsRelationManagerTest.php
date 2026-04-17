@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Layout\Filament\Resources\Contents\Pages\EditContent;
+use Capell\Layout\Filament\Resources\Collections\Pages\EditCollection;
 use Capell\Layout\Filament\Resources\Contents\RelationManagers\WidgetsRelationManager;
 use Capell\Layout\Models\Widget;
 use Capell\Layout\Models\WidgetAsset;
@@ -30,7 +30,7 @@ it('can list widgets for a content model', function (): void {
 
     livewire(WidgetsRelationManager::class, [
         'ownerRecord' => $content,
-        'pageClass' => EditContent::class,
+        'pageClass' => EditCollection::class,
     ])
         ->assertSuccessful()
         ->assertCountTableRecords(2)
@@ -52,7 +52,7 @@ it('can search widgets for a content model', function (): void {
 
     livewire(WidgetsRelationManager::class, [
         'ownerRecord' => $content,
-        'pageClass' => EditContent::class,
+        'pageClass' => EditCollection::class,
     ])
         ->assertSuccessful()
         ->searchTable($widgetAsset->widget->key)

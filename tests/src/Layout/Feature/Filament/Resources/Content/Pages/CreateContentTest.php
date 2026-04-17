@@ -6,7 +6,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Layout\Database\Factories\ContentTypeFactory;
-use Capell\Layout\Filament\Resources\Contents\Pages\CreateContent;
+use Capell\Layout\Filament\Resources\Collections\Pages\CreateCollection;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Support\Str;
 
@@ -23,7 +23,7 @@ beforeEach(function (): void {
 test('required fields are required', function (): void {
     (new ContentTypeFactory)->create();
 
-    livewire(CreateContent::class)
+    livewire(CreateCollection::class)
         ->assertSuccessful()
         ->fillForm([
             'name' => '',
@@ -41,7 +41,7 @@ it('can create', function (string $type): void {
         Site::factory()->deleted()->create();
     }
 
-    livewire(CreateContent::class)
+    livewire(CreateCollection::class)
         ->assertSuccessful()
         ->fillForm([
             'type_id' => $newData->type->getKey(),
@@ -75,7 +75,7 @@ test('create with translations', function (string $mode): void {
         Site::factory()->deleted()->create();
     }
 
-    livewire(CreateContent::class)
+    livewire(CreateCollection::class)
         ->assertSuccessful()
         ->set('data.translations', [])
         ->fillForm([
@@ -122,7 +122,7 @@ test('create with translations', function (string $mode): void {
 test('can search parent results', function (): void {
     $parent = Content::factory()->withTranslations()->create();
 
-    $livewire = livewire(CreateContent::class);
+    $livewire = livewire(CreateCollection::class);
     $instance = $livewire->instance();
     $schema = $instance->getSchema($instance->getDefaultTestingSchemaName());
     $component = $schema->getComponent('parent_id');
