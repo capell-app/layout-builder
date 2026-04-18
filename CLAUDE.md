@@ -288,13 +288,12 @@ php vendor/bin/pest packages/layout-builder/tests
 
 | Package | Namespace | Purpose | Depends on |
 |---------|-----------|---------|------------|
-| `layout` | `Capell\Layout` | Visual layout builder, widgets, content blocks | core, admin, frontend |
-| `blog` | `Capell\Blog` | Blog post types, categories, tags, RSS | core, admin, frontend, layout |
-| _(merged into `mosaic`)_ | `Capell\Mosaic` | Hero section widgets (now part of mosaic) | core, admin, frontend |
-| `address` | `Capell\Address` | Address/country management on Sites | core, admin, frontend, layout |
+| `mosaic` | `Capell\Mosaic` | Visual layout builder, widgets, content blocks, hero sections | core, admin, frontend |
+| `blog` | `Capell\Blog` | Blog post types, categories, tags, RSS | core, admin, frontend, mosaic |
+| `address` | `Capell\Address` | Address/country management on Sites | core, admin, frontend, mosaic |
 | `assistant` | `Capell\Assistant` | AI-assisted editorial tooling | core, admin |
 
-**Blog, Hero, Address depend on Layout — install Layout first.** Keep inter-package dependencies minimal; most packages should only touch core + admin + frontend + their own layer.
+**Blog and Address depend on Mosaic — install Mosaic first.** Keep inter-package dependencies minimal; most packages should only touch core + admin + frontend + their own layer.
 
 ## Extending Capell from a package
 

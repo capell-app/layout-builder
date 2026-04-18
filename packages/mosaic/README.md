@@ -31,6 +31,10 @@ Content and Widget management for Capell. Provides the layout builder, Filament 
     - `capell-layout:upgrade` — upgrade routines
     - `capell-layout:demo` — optional demo
 
+## Hero Support
+
+This package includes the hero widget and hero content type functionality previously provided by the separate hero package.
+
 ## Installation
 
 Prerequisites:

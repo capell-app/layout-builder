@@ -1,9 +1,10 @@
 {
     "name": "capell-app/mosaic",
-    "description": "Mosaic for Capell",
+    "description": "Mosaic layout builder and hero widgets for Capell",
     "keywords": [
         "capell",
         "mosaic",
+        "hero",
         "laravel",
         "filamentphp",
         "cms"
