@@ -30,8 +30,17 @@ class ModernTestimonialsSchema
                 ])->columns(1),
 
             Section::make('Layout')
-                ->description('Customize grid columns and responsive behavior')
+                ->description('Customize display mode and responsive behavior')
                 ->schema([
+                    Select::make('data.displayMode')
+                        ->label('Display Mode')
+                        ->options([
+                            'grid' => 'Grid (Multiple columns)',
+                            'carousel' => 'Carousel (Slider with navigation)',
+                        ])
+                        ->default('grid')
+                        ->helperText('How to display testimonials'),
+
                     Select::make('data.columns')
                         ->label('Grid Columns')
                         ->options([
@@ -40,7 +49,8 @@ class ModernTestimonialsSchema
                             '3' => '3 Columns',
                         ])
                         ->default('2')
-                        ->helperText('Number of testimonials per row (desktop)'),
+                        ->helperText('Number of testimonials per row (desktop)')
+                        ->visible(fn (callable $get) => $get('data.displayMode') === 'grid'),
                 ])->columns(1),
 
             Section::make('Display')
@@ -58,6 +68,7 @@ class ModernTestimonialsSchema
     {
         return [
             'title' => 'What Customers Say',
+            'displayMode' => 'grid',
             'columns' => '2',
             'customizable' => true,
         ];

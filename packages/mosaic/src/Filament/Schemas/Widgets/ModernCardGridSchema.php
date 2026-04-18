@@ -67,6 +67,12 @@ class ModernCardGridSchema
                                 ->url()
                                 ->helperText('Optional image displayed at top of card'),
 
+                            TextInput::make('badge')
+                                ->label('Badge Label')
+                                ->placeholder('Popular')
+                                ->maxLength(30)
+                                ->helperText('Optional badge displayed in top-right corner'),
+
                             TextInput::make('link.label')
                                 ->label('Link Text')
                                 ->placeholder('Learn More')
@@ -117,6 +123,16 @@ class ModernCardGridSchema
                         ])
                         ->default('primary')
                         ->helperText('Color of "Learn More" links'),
+
+                    Select::make('data.hoverEffect')
+                        ->label('Hover Effect')
+                        ->options([
+                            'scale' => 'Scale (Zoom 5%)',
+                            'shadow' => 'Shadow (Enhanced shadow)',
+                            'lift' => 'Lift (Raise with shadow)',
+                        ])
+                        ->default('scale')
+                        ->helperText('Animation effect when hovering over cards'),
                 ])->columns(2),
 
             Section::make('Display')
@@ -160,6 +176,7 @@ class ModernCardGridSchema
             'columns' => 3,
             'variant' => 'default',
             'accentColor' => 'primary',
+            'hoverEffect' => 'scale',
             'customizable' => true,
         ];
     }

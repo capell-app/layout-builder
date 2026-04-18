@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Filament\Schemas\Widgets;
 
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 
@@ -20,7 +23,7 @@ class ModernPricingTableSchema
     {
         return [
             Section::make('Content')
-                ->description('Pricing section title and currency')
+                ->description('Pricing section title, currency, and billing options')
                 ->schema([
                     TextInput::make('data.title')
                         ->label('Section Title')
@@ -32,6 +35,16 @@ class ModernPricingTableSchema
                         ->placeholder('$')
                         ->maxLength(5)
                         ->default('$'),
+
+                    Select::make('data.billingOptions')
+                        ->label('Billing Cycle Options')
+                        ->options([
+                            'monthly' => 'Monthly only',
+                            'annual' => 'Annual only',
+                            'both' => 'Monthly & Annual (with toggle)',
+                        ])
+                        ->default('monthly')
+                        ->helperText('Show toggle for monthly/annual pricing'),
                 ])->columns(2),
 
             Section::make('Display')
@@ -50,6 +63,7 @@ class ModernPricingTableSchema
         return [
             'title' => 'Simple, Transparent Pricing',
             'currency' => '$',
+            'billingOptions' => 'monthly',
             'customizable' => true,
         ];
     }

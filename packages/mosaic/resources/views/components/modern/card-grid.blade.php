@@ -16,13 +16,14 @@
     'title' => 'Featured Widgets',
     'description' => 'Choose from our collection of modern, customizable components',
     'cards' => [
-        ['icon' => '🎨', 'title' => 'Design System', 'description' => 'Modern tokens and components'],
-        ['icon' => '⚡', 'title' => 'Performance', 'description' => 'Lightning-fast rendering'],
-        ['icon' => '🔧', 'title' => 'Customizable', 'description' => 'Endless possibilities'],
+        ['icon' => '🎨', 'title' => 'Design System', 'description' => 'Modern tokens and components', 'badge' => 'Popular'],
+        ['icon' => '⚡', 'title' => 'Performance', 'description' => 'Lightning-fast rendering', 'badge' => null],
+        ['icon' => '🔧', 'title' => 'Customizable', 'description' => 'Endless possibilities', 'badge' => 'New'],
     ],
     'columns' => 3,
     'variant' => 'default',
     'accentColor' => 'primary',
+    'hoverEffect' => 'scale',
     'customizable' => true,
 ])
 
@@ -82,7 +83,29 @@
     {{-- Grid --}}
     <div class="grid {{ $gridClass }} gap-6">
         @forelse($cards as $card)
-            <div class="{{ $variantClass }}">
+            <div
+                @class([
+                    $variantClass,
+                    'mosaic-card-hover' => true,
+                    'hover-scale' => $hoverEffect === 'scale',
+                    'hover-shadow' => $hoverEffect === 'shadow',
+                    'hover-lift' => $hoverEffect === 'lift',
+                ])
+                style="position: relative; transition: all 0.3s ease;"
+            >
+                {{-- Badge --}}
+                @if(isset($card['badge']) && $card['badge'])
+                    <div
+                        class="absolute top-2 right-2 text-xs font-semibold px-3 py-1 rounded-full"
+                        style="
+                            background-color: {{ $accentColor }};
+                            color: white;
+                        "
+                    >
+                        {{ $card['badge'] }}
+                    </div>
+                @endif
+
                 {{-- Icon --}}
                 @if(isset($card['icon']))
                     <div class="text-4xl mb-4">
@@ -146,9 +169,9 @@
 
     {{-- Admin Hint --}}
     @if($customizable && auth()->check())
-        <div class="mt-12 pt-8 max-w-full" style="border-top: 1px solid var(--mosaic-outline-variant); opacity: 0.6;">
+        <div class="mt-12 pt-8 max-w-full text-center" style="border-top: 1px solid var(--mosaic-outline-variant); opacity: 0.6;">
             <span class="mosaic-text-label text-xs">
-                ✨ Customize: Add/edit cards, change columns, variant, and accent color
+                ✨ Customize: Add cards with icons and badges, hover effects, layout
             </span>
         </div>
     @endif
@@ -216,5 +239,23 @@
 
     .shadow-lg {
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    {{-- Hover Effects --}}
+    .hover-scale:hover {
+        transform: scale(1.05);
+    }
+
+    .hover-shadow:hover {
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .mosaic-card-hover {
+        border-radius: var(--mosaic-radius-lg);
     }
 </style>

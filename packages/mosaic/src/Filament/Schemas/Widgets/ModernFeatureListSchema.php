@@ -30,7 +30,7 @@ class ModernFeatureListSchema
                 ])->columns(1),
 
             Section::make('Layout & Display')
-                ->description('Customize layout variant and columns')
+                ->description('Customize layout variant, columns, and animations')
                 ->schema([
                     Select::make('data.layout')
                         ->label('Layout Type')
@@ -50,6 +50,17 @@ class ModernFeatureListSchema
                         ])
                         ->default('3')
                         ->visible(fn (callable $get) => $get('data.layout') === 'grid'),
+
+                    Select::make('data.animation')
+                        ->label('Entry Animation')
+                        ->options([
+                            'fade-in' => 'Fade In',
+                            'slide-up' => 'Slide Up',
+                            'zoom' => 'Zoom',
+                            'bounce' => 'Bounce In',
+                        ])
+                        ->default('fade-in')
+                        ->helperText('Animation effect when features appear'),
                 ])->columns(2),
 
             Section::make('Display')
@@ -69,6 +80,7 @@ class ModernFeatureListSchema
             'title' => 'Why Choose Our Platform',
             'layout' => 'grid',
             'columns' => '3',
+            'animation' => 'fade-in',
             'customizable' => true,
         ];
     }

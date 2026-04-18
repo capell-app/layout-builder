@@ -5,6 +5,7 @@
     - title (string): Section heading
     - plans (array): Array of pricing plan objects
     - currency (string): Currency symbol - Default: '$'
+    - billingOptions (string): 'monthly|annual|both' - Default: 'monthly'
     - customizable (bool): Show admin hints
 --}}
 
@@ -14,6 +15,7 @@
         [
             'name' => 'Starter',
             'price' => '29',
+            'priceAnnual' => '290',
             'description' => 'For individuals',
             'features' => ['Up to 5 projects', '1 GB storage', 'Email support'],
             'cta' => ['label' => 'Get Started', 'url' => '#'],
@@ -22,6 +24,7 @@
         [
             'name' => 'Professional',
             'price' => '79',
+            'priceAnnual' => '790',
             'description' => 'For teams',
             'features' => ['Unlimited projects', '100 GB storage', 'Priority support', 'Advanced analytics'],
             'cta' => ['label' => 'Start Free', 'url' => '#'],
@@ -30,6 +33,7 @@
         [
             'name' => 'Enterprise',
             'price' => 'Custom',
+            'priceAnnual' => 'Custom',
             'description' => 'For enterprises',
             'features' => ['Everything in Pro', 'Unlimited storage', 'Dedicated support', 'Custom integrations'],
             'cta' => ['label' => 'Contact Sales', 'url' => '#'],
@@ -37,6 +41,7 @@
         ],
     ],
     'currency' => '$',
+    'billingOptions' => 'monthly',
     'customizable' => true,
 ])
 
@@ -56,14 +61,73 @@
         </div>
     @endif
 
+    {{-- Billing Toggle --}}
+    @if($billingOptions === 'both')
+        <div class="flex justify-center items-center gap-4 mb-12">
+            <span
+                class="billing-toggle-label"
+                style="color: var(--mosaic-on-surface);"
+            >
+                Monthly
+            </span>
+            <button
+                class="billing-toggle-button"
+                style="
+                    background-color: var(--mosaic-primary);
+                    border: none;
+                    cursor: pointer;
+                    width: 60px;
+                    height: 32px;
+                    border-radius: 16px;
+                    position: relative;
+                    transition: background-color 0.3s;
+                "
+                onclick="toggleBillingCycle(this)"
+            >
+                <div
+                    class="billing-toggle-dot"
+                    style="
+                        width: 28px;
+                        height: 28px;
+                        border-radius: 50%;
+                        background-color: white;
+                        position: absolute;
+                        left: 2px;
+                        top: 2px;
+                        transition: left 0.3s;
+                    "
+                ></div>
+            </button>
+            <span
+                class="billing-toggle-label"
+                style="color: var(--mosaic-on-surface);"
+            >
+                Annual
+            </span>
+            <span
+                class="billing-toggle-save"
+                style="
+                    color: var(--mosaic-primary);
+                    font-weight: 600;
+                    margin-left: 1rem;
+                    font-size: 0.875rem;
+                "
+            >
+                Save 17%
+            </span>
+        </div>
+    @endif
+
     {{-- Pricing Plans --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto pricing-grid" data-billing="{{ $billingOptions === 'both' ? 'monthly' : $billingOptions }}">
         @forelse($plans as $plan)
             <div
                 @class([
-                    'mosaic-card relative',
+                    'mosaic-card relative pricing-plan',
                     'lg:scale-105' => $plan['featured'] ?? false,
                 ])
+                data-price-monthly="{{ $plan['price'] ?? '' }}"
+                data-price-annual="{{ $plan['priceAnnual'] ?? $plan['price'] ?? '' }}"
                 style="
                     background-color: var(--mosaic-surface-container);
                     @if($plan['featured'] ?? false)
@@ -108,15 +172,18 @@
                 @endif
 
                 {{-- Price --}}
-                <div class="mb-6">
+                <div class="mb-6 price-container">
                     <span
-                        class="text-4xl font-bold"
+                        class="text-4xl font-bold plan-price"
                         style="color: {{ $plan['featured'] ?? false ? 'white' : 'var(--mosaic-on-surface)' }};"
                     >
                         {{ $currency }}{{ $plan['price'] }}
                     </span>
                     @if($plan['price'] !== 'Custom')
-                        <span style="color: {{ $plan['featured'] ?? false ? 'rgba(255,255,255,0.7)' : 'var(--mosaic-on-surface-variant)' }};">/month</span>
+                        <span
+                            class="billing-period"
+                            style="color: {{ $plan['featured'] ?? false ? 'rgba(255,255,255,0.7)' : 'var(--mosaic-on-surface-variant)' }};"
+                        >/month</span>
                     @endif
                 </div>
 
@@ -166,11 +233,54 @@
     @if($customizable && auth()->check())
         <div class="mt-12 pt-8 max-w-full text-center" style="border-top: 1px solid var(--mosaic-outline-variant); opacity: 0.6;">
             <span class="mosaic-text-label text-xs">
-                ✨ Customize: Add plans, features, pricing, featured plan
+                ✨ Customize: Add plans, features, pricing, featured plan, billing cycle options
             </span>
         </div>
     @endif
 </section>
+
+<script>
+    function toggleBillingCycle(button) {
+        const grid = document.querySelector('.pricing-grid');
+        const currentBilling = grid.getAttribute('data-billing');
+        const newBilling = currentBilling === 'monthly' ? 'annual' : 'monthly';
+
+        grid.setAttribute('data-billing', newBilling);
+
+        const plans = document.querySelectorAll('.pricing-plan');
+        plans.forEach((plan) => {
+            const priceElement = plan.querySelector('.plan-price');
+            const periodElement = plan.querySelector('.billing-period');
+
+            if (newBilling === 'annual') {
+                const annualPrice = plan.getAttribute('data-price-annual');
+                priceElement.textContent = priceElement.textContent.replace(
+                    plan.getAttribute('data-price-monthly'),
+                    annualPrice
+                );
+                if (annualPrice !== 'Custom' && periodElement) {
+                    periodElement.textContent = '/year';
+                }
+            } else {
+                const monthlyPrice = plan.getAttribute('data-price-monthly');
+                priceElement.textContent = priceElement.textContent.replace(
+                    plan.getAttribute('data-price-annual'),
+                    monthlyPrice
+                );
+                if (monthlyPrice !== 'Custom' && periodElement) {
+                    periodElement.textContent = '/month';
+                }
+            }
+        });
+
+        const dot = button.querySelector('.billing-toggle-dot');
+        if (newBilling === 'annual') {
+            dot.style.left = '30px';
+        } else {
+            dot.style.left = '2px';
+        }
+    }
+</script>
 
 <style scoped>
     .grid { display: grid; }

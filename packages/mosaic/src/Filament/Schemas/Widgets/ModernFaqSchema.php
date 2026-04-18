@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Filament\Schemas\Widgets;
 
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 
@@ -20,12 +23,28 @@ class ModernFaqSchema
     {
         return [
             Section::make('Content')
-                ->description('FAQ section title')
+                ->description('FAQ section title and categories')
                 ->schema([
                     TextInput::make('data.title')
                         ->label('Section Title')
                         ->placeholder('Frequently Asked Questions')
                         ->columnSpanFull(),
+
+                    Repeater::make('data.categories')
+                        ->label('Categories')
+                        ->schema([
+                            TextInput::make('name')
+                                ->label('Category Name')
+                                ->placeholder('Getting Started')
+                                ->required()
+                                ->maxLength(50),
+                        ])
+                        ->columns(1)
+                        ->defaultItems(3)
+                        ->minItems(0)
+                        ->maxItems(10)
+                        ->addActionLabel('Add Category')
+                        ->deleteActionLabel('Remove'),
                 ])->columns(1),
 
             Section::make('Display')
@@ -43,6 +62,11 @@ class ModernFaqSchema
     {
         return [
             'title' => 'Frequently Asked Questions',
+            'categories' => [
+                ['name' => 'Getting Started'],
+                ['name' => 'Features'],
+                ['name' => 'Pricing'],
+            ],
             'customizable' => true,
         ];
     }

@@ -4,6 +4,7 @@
   Props:
     - title (string): Section heading
     - members (array): Array of team member objects
+      Each member: { name, role, avatar, bio, tags[], social[] }
     - columns (int): Number of columns (2,3,4) - Default: 3
     - customizable (bool): Show admin hints
 --}}
@@ -16,18 +17,24 @@
             'role' => 'Product Lead',
             'avatar' => '👨‍💻',
             'bio' => 'Creative designer with 5+ years experience',
+            'tags' => ['Design', 'Leadership'],
+            'social' => ['twitter' => 'https://twitter.com', 'linkedin' => 'https://linkedin.com'],
         ],
         [
             'name' => 'Emma Davis',
             'role' => 'Engineering Manager',
             'avatar' => '👩‍🔬',
             'bio' => 'Full-stack developer and architect',
+            'tags' => ['Engineering', 'Architecture'],
+            'social' => ['github' => 'https://github.com', 'linkedin' => 'https://linkedin.com'],
         ],
         [
             'name' => 'James Wilson',
             'role' => 'CEO & Co-founder',
             'avatar' => '🧑‍💼',
             'bio' => 'Serial entrepreneur and visionary',
+            'tags' => ['Strategy', 'Leadership'],
+            'social' => ['twitter' => 'https://twitter.com', 'linkedin' => 'https://linkedin.com'],
         ],
     ],
     'columns' => 3,
@@ -104,11 +111,65 @@
                 {{-- Bio --}}
                 @if(isset($member['bio']))
                     <p
-                        class="text-base leading-relaxed"
+                        class="text-base leading-relaxed mb-4"
                         style="color: var(--mosaic-on-surface-variant);"
                     >
                         {{ $member['bio'] }}
                     </p>
+                @endif
+
+                {{-- Tags/Badges --}}
+                @if(isset($member['tags']) && count($member['tags']) > 0)
+                    <div class="flex gap-2 justify-center flex-wrap mb-4">
+                        @foreach($member['tags'] as $tag)
+                            <span
+                                class="text-xs font-semibold px-3 py-1 rounded-full"
+                                style="
+                                    background-color: var(--mosaic-primary-container);
+                                    color: var(--mosaic-on-primary-container);
+                                "
+                            >
+                                {{ $tag }}
+                            </span>
+                        @endforeach
+                    </div>
+                @endif
+
+                {{-- Social Links --}}
+                @if(isset($member['social']) && count($member['social']) > 0)
+                    <div class="flex gap-3 justify-center pt-4" style="border-top: 1px solid var(--mosaic-outline-variant);">
+                        @php
+                            $socialIcons = [
+                                'twitter' => '𝕏',
+                                'linkedin' => 'in',
+                                'github' => '🐙',
+                                'website' => '🌐',
+                                'email' => '✉',
+                            ];
+                        @endphp
+
+                        @foreach($member['social'] as $platform => $url)
+                            @if($url && isset($socialIcons[$platform]))
+                                <a
+                                    href="{{ $url }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="{{ ucfirst($platform) }}"
+                                    style="
+                                        color: var(--mosaic-primary);
+                                        text-decoration: none;
+                                        font-size: 1rem;
+                                        font-weight: 600;
+                                        transition: opacity 0.2s;
+                                    "
+                                    onmouseover="this.style.opacity='0.7'"
+                                    onmouseout="this.style.opacity='1'"
+                                >
+                                    {{ $socialIcons[$platform] }}
+                                </a>
+                            @endif
+                        @endforeach
+                    </div>
                 @endif
             </div>
         @empty
@@ -122,7 +183,7 @@
     @if($customizable && auth()->check())
         <div class="mt-12 pt-8 max-w-full text-center" style="border-top: 1px solid var(--mosaic-outline-variant); opacity: 0.6;">
             <span class="mosaic-text-label text-xs">
-                ✨ Customize: Add team members, change layout
+                ✨ Customize: Add members, tags, social links, change layout
             </span>
         </div>
     @endif
@@ -181,6 +242,19 @@
     .overflow-hidden { overflow: hidden; }
 
     .col-span-full { grid-column: 1 / -1; }
+
+    {{-- Tags Styling --}}
+    .mosaic-card span[style*="primary-container"] {
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    {{-- Social Links Styling --}}
+    .mosaic-card a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
 
     @media (max-width: 768px) {
         .md\:text-4xl { font-size: 2.25rem; }

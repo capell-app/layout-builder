@@ -20,6 +20,7 @@
     ],
     'layout' => 'grid',
     'columns' => 3,
+    'animation' => 'fade-in',
     'customizable' => true,
 ])
 
@@ -63,10 +64,19 @@
     {{-- Features Grid/Vertical --}}
     @if($layout === 'vertical')
         <div class="space-y-6 max-w-2xl">
-            @forelse($features as $feature)
+            @forelse($features as $index => $feature)
                 <div
-                    class="mosaic-card flex gap-4"
-                    style="background-color: var(--mosaic-surface-container);"
+                    @class([
+                        'mosaic-card flex gap-4',
+                        'animate-fade-in' => $animation === 'fade-in',
+                        'animate-slide-up' => $animation === 'slide-up',
+                        'animate-zoom' => $animation === 'zoom',
+                        'animate-bounce-in' => $animation === 'bounce',
+                    ])
+                    style="
+                        background-color: var(--mosaic-surface-container);
+                        animation-delay: {{ $index * 100 }}ms;
+                    "
                 >
                     {{-- Icon --}}
                     @if(isset($feature['icon']))
@@ -103,10 +113,19 @@
     @else
         {{-- Grid Layout --}}
         <div class="grid {{ $gridClass }} gap-6">
-            @forelse($features as $feature)
+            @forelse($features as $index => $feature)
                 <div
-                    class="mosaic-card text-center"
-                    style="background-color: var(--mosaic-surface-container);"
+                    @class([
+                        'mosaic-card text-center',
+                        'animate-fade-in' => $animation === 'fade-in',
+                        'animate-slide-up' => $animation === 'slide-up',
+                        'animate-zoom' => $animation === 'zoom',
+                        'animate-bounce-in' => $animation === 'bounce',
+                    ])
+                    style="
+                        background-color: var(--mosaic-surface-container);
+                        animation-delay: {{ $index * 100 }}ms;
+                    "
                 >
                     {{-- Icon --}}
                     @if(isset($feature['icon']))
@@ -145,9 +164,9 @@
 
     {{-- Admin Hint --}}
     @if($customizable && auth()->check())
-        <div class="mt-12 pt-8 max-w-full" style="border-top: 1px solid var(--mosaic-outline-variant); opacity: 0.6;">
+        <div class="mt-12 pt-8 max-w-full text-center" style="border-top: 1px solid var(--mosaic-outline-variant); opacity: 0.6;">
             <span class="mosaic-text-label text-xs">
-                ✨ Customize: Add/edit features, change layout and columns
+                ✨ Customize: Add features, icons, animations, layout, columns
             </span>
         </div>
     @endif
@@ -198,6 +217,73 @@
     .text-center { text-align: center; }
 
     .col-span-full { grid-column: 1 / -1; }
+
+    {{-- Animations --}}
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes zoomIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes bounceIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    .animate-slide-up {
+        animation: slideUp 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    .animate-zoom {
+        animation: zoomIn 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+    .animate-bounce-in {
+        animation: bounceIn 0.6s ease-out forwards;
+        opacity: 0;
+    }
 
     @media (max-width: 768px) {
         .md\:text-4xl { font-size: 2.25rem; }
