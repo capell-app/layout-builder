@@ -8,6 +8,7 @@ use Capell\Plugins\Enums\LicenseStatus;
 use Carbon\CarbonImmutable;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -20,9 +21,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class MarketplacePluginLicense extends Model
 {
-    protected $table = 'marketplace_plugin_licenses';
+    use HasFactory;
 
-    protected $guarded = [];
+    protected $table = 'marketplace_plugin_licenses';
 
     protected $hidden = ['encrypted_license_key'];
 
