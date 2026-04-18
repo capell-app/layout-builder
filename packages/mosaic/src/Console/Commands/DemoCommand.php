@@ -4,39 +4,48 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Console\Commands;
 
-use Capell\Blog\Enums\BlogPageTypeEnum;
-use Capell\Blog\Models\Article;
 use Capell\Core\Console\Commands\Concerns\HasSitesOption;
 use Capell\Core\Contracts\Pageable;
+use Capell\Core\Enums\ContainerWidthEnum;
+use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Mosaic\Actions\AddHeroWidgetToLayoutAction;
-use Capell\Mosaic\Actions\CreateHeroContentTypeAction;
-use Capell\Mosaic\Actions\CreateHeroWidgetAction;
-use Capell\Mosaic\Models\Widget;
+use Capell\Mosaic\Models\Collection;
+use Capell\Mosaic\Support\Creator\ContentCreator;
 use Capell\Mosaic\Support\Creator\DemoCreator;
+use Capell\Mosaic\Support\Creator\TypeCreator;
+use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Foundation\Auth\User;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 class DemoCommand extends Command
 {
     use HasSitesOption;
 
-    protected $description = 'Inserts demo hero content into the selected site(s).';
+    protected $description = 'Inserts demo mosaic layout widgets';
 
-    protected $signature = 'capell:hero-demo {--sites=}';
+    protected $signature = 'capell:mosaic-demo {--user} {--sites=}';
 
-    private DemoCreator $demoCreator;
+    protected DemoCreator $demoCreator;
+
+    protected ?ProgressBar $progress = null;
 
     /**
      * Execute the console command.
      */
     public function handle(): int
     {
-        $siteOptions = $this->resolveSiteOptions();
-        $sites = $this->getSitesByNames($siteOptions);
+        $siteOptions = $this->getSiteOptions();
+
+        /** @var class-string<Site> $model */
+        $model = CapellCore::getModel(ModelEnum::Site);
+
+        $sites = $model::query()->with(['languages'])->whereIn('name', $siteOptions)->get();
 
         if ($sites->isEmpty()) {
             $this->error('Unable to find any sites for: ' . implode(', ', $siteOptions));
@@ -44,37 +53,96 @@ class DemoCommand extends Command
             return Command::FAILURE;
         }
 
-        $this->demoCreator = resolve(DemoCreator::class);
+        $user = $this->resolveUser();
+        $this->demoCreator = new DemoCreator(user: $user);
 
-        CreateHeroWidgetAction::run();
+        $data = config('capell-demo.pages');
+        $typeCreator = resolve(TypeCreator::class);
+        $typeCreator->createDefaultContentType();
+        $typeCreator->createBuilderContentType();
 
-        $heroBannerWidget = CreateHeroWidgetAction::run(key: 'hero-banner', height: 'large');
+        $sites->each(function (Site $site) use ($data): void {
+            $this->newLine();
+            $this->comment('Creating demo content for site: ' . $site->name);
 
-        $sites->each(function (Site $site) use ($heroBannerWidget): void {
-            $this->setupDemoHomepageWidget($site, $heroBannerWidget);
+            /** @var ContentCreator $contentCreator */
+            $contentCreator = resolve(ContentCreator::class);
 
-            if (CapellCore::hasPackage('capell-app/blog')) {
-                $this->updateBlogHeroContent($site);
-                $this->addHeroContentToArticlePages($site);
-            }
+            $contentSteps = $this->countContentNodes($data[0]);
+            $this->startProgress($contentSteps);
+            $this->createSiteContents($contentCreator, $data[0], $site);
+            $this->finishProgress();
+
+            $this->newLine();
+            $this->comment('Creating demo layouts');
+
+            $this->createDemoLayouts($site);
         });
 
         $this->newLine();
-        $this->info('Hero demo content inserted successfully.');
+        $this->info('Demo layouts have been successfully created.');
 
         return Command::SUCCESS;
     }
 
-    private function resolveSiteOptions(): array
+    public function createDemoLayouts(Site $site): bool
     {
-        $sitesOption = $this->option('sites');
-        if ($sitesOption) {
+        $languages = $site->languages;
+
+        /** @var Page $home */
+        $home = $site->getHomePage();
+
+        if (! $home instanceof Pageable) {
+            $this->error('Unable to find homepage for site: ' . $site->name);
+
+            return false;
+        }
+
+        $totalSteps = 4 + 2 + 8 + 1 + 1;
+        $this->startProgress($totalSteps);
+        $this->setupHomepage($home, $languages);
+        $this->finishProgress();
+
+        return true;
+    }
+
+    public function setupHomepage(Pageable $page, EloquentCollection $languages): void
+    {
+        $layout = $this->getHomeLayout();
+        throw_unless($layout instanceof Layout, Exception::class, 'Unable to find homepage layout');
+
+        $page->update(['layout_id' => $layout->id]);
+
+        $containers = $layout->containers ?? [];
+
+        $this->populateMainContainer($containers, $page);
+        $this->populateFaqContainers($containers, $languages, $page);
+        $this->populateSecondaryContainer($containers, $languages, $page);
+        $this->populateSplitTwoContainer($containers, $languages);
+        $this->addSplitTwoBackgroundMedia($layout);
+
+        $layout->containers = $containers;
+
+        $layout->update(['containers' => $containers]);
+    }
+
+    private function getSiteOptions(): array
+    {
+        if ($this->option('sites')) {
+            $sitesOption = $this->option('sites');
             if (is_string($sitesOption)) {
-                return explode(',', $sitesOption);
+                return array_values(
+                    array_filter(
+                        array_map(trim(...), explode(',', $sitesOption)),
+                        fn (string $siteOption): bool => $siteOption !== '',
+                    ),
+                );
             }
 
             if (is_array($sitesOption)) {
-                return $sitesOption;
+                return array_values(
+                    array_filter(array_map(trim(...), $sitesOption), fn (string $siteOption): bool => $siteOption !== ''),
+                );
             }
 
             return [];
@@ -83,82 +151,256 @@ class DemoCommand extends Command
         return $this->getDemoSites();
     }
 
-    /**
-     * @return Collection<int, Site>
-     */
-    private function getSitesByNames(array $siteNames): Collection
+    private function resolveUser(): ?object
     {
-        /** @var class-string<Site> $model */
-        $model = CapellCore::getModel(ModelEnum::Site);
+        if ($this->option('user')) {
+            /** @var class-string<User> $model */
+            $model = CapellCore::getModel('User');
 
-        return $model::query()
-            ->with(['language', 'languages'])
-            ->whereIn('name', $siteNames)
-            ->get();
-    }
-
-    private function setupDemoHomepageWidget(Site $site, Widget $heroWidget): bool
-    {
-        $this->newLine();
-        $this->line(sprintf('Selected site: %s', $site->name));
-
-        /** @var class-string<Page> $model */
-        $model = CapellCore::getModel(ModelEnum::Page);
-
-        $homepage = $model::getSiteHomePage($site);
-
-        if ($homepage instanceof Page) {
-            $homepage->loadMissing('layout');
-
-            AddHeroWidgetToLayoutAction::run($heroWidget, $homepage->layout);
-
-            $type = CreateHeroContentTypeAction::run();
-
-            $this->demoCreator->createContentsWidget($heroWidget, $homepage, container: 'hero', type: $type);
+            return $model::query()->first();
         }
 
-        $this->line('Demo hero content has been successfully created for site: ' . $site->name);
+        if (auth()->check()) {
+            return auth()->user();
+        }
 
-        return true;
+        return null;
     }
 
-    private function updateBlogHeroContent(Site $site): void
+    private function populateMainContainer(array &$containers, Pageable $page): void
     {
-        /** @var class-string<Page> $model */
-        $model = CapellCore::getModel(ModelEnum::Page);
+        $this->setProgressMessage('Creating page cards widget');
+        $pageCardsWidget = $this->demoCreator->createPageCardsWidget($page);
+        $this->advanceProgress();
 
-        $model::query()
-            ->with('translations.language')
-            ->where('site_id', $site->id)
-            ->whereRelation('type', 'key', BlogPageTypeEnum::Blog->value)
-            ->lazyById()
-            ->each(function (Pageable $page): void {
-                foreach ($page->translations as $translation) {
-                    $meta = $translation->meta;
-                    $meta['hero'] = '<h1>' . __('capell-blog::generic.latest_articles') . '</h1><p>' . __('capell-blog::generic.blog_intro') . '</p>';
+        $this->setProgressMessage('Creating gallery widget');
+        $galleryWidget = $this->demoCreator->createGalleryWidget();
+        $this->advanceProgress();
 
-                    $translation->update(['meta' => $meta]);
-                }
-            });
+        $this->setProgressMessage('Creating page cards widget (#2)');
+        $pageCardsWidget2 = $this->demoCreator->createPageCardsWidget($page, occurrence: 2);
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating media carousel widget');
+        $mediaCarouselWidget = $this->demoCreator->createMediaCarouselWidget();
+        $this->advanceProgress();
+
+        $containers['main']['widgets'] = [
+            [
+                'widget_key' => $pageCardsWidget->key,
+                'occurrence' => 1,
+            ],
+            ['widget_key' => $galleryWidget->key],
+            [
+                'widget_key' => $pageCardsWidget2->key,
+                'occurrence' => 2,
+            ],
+            ['widget_key' => $mediaCarouselWidget->key],
+        ];
     }
 
-    private function addHeroContentToArticlePages(Site $site): void
+    private function populateFaqContainers(array &$containers, EloquentCollection $languages, Pageable $page): void
     {
-        /** @var class-string<Article> $model */
-        $model = CapellCore::getModel(BlogPageTypeEnum::Article);
+        $this->setProgressMessage('Creating FAQ widget');
+        $faqWidget = $this->demoCreator->createFaqWidget($languages);
+        $this->advanceProgress();
 
-        $model::query()
-            ->with('translations.language')
-            ->where('site_id', $site->id)
-            ->whereRelation('type', 'key', BlogPageTypeEnum::Article->value)
-            ->lazyById()
-            ->each(function (Pageable $page): void {
-                foreach ($page->translations as $translation) {
-                    $meta = $translation->meta;
-                    $meta['hero'] = '<h1>' . $translation->title . '</h1>';
+        $containers['faq-main'] = [
+            'meta' => [
+                'colspan' => 8,
+            ],
+            'widgets' => [
+                ['widget_key' => $faqWidget->key],
+            ],
+        ];
 
-                    $translation->update(['meta' => $meta]);
-                }
-            });
+        $this->setProgressMessage('Creating static navigation widget');
+        $faqColWidget = $this->demoCreator->createStaticNavigationWidget($languages, $page->site);
+        $this->advanceProgress();
+
+        $containers['faq-col'] = [
+            'meta' => [
+                'colspan' => 4,
+                'container' => ContainerWidthEnum::Full,
+            ],
+            'widgets' => [
+                ['widget_key' => $faqColWidget->key],
+            ],
+        ];
+    }
+
+    private function populateSecondaryContainer(array &$containers, EloquentCollection $languages, Pageable $page): void
+    {
+        $this->setProgressMessage('Creating team portfolio widget');
+        $teamPortfolioWidget = $this->demoCreator->createTeamPortfolioWidget($languages);
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating banner image widget');
+        $bannerImageWidget = $this->demoCreator->createBannerImageWidget($languages);
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating content widget');
+        $contentWidget = $this->demoCreator->createContentWidget($languages);
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating statistics blocks widget');
+        $statisticsWidget = $this->demoCreator->createStatisticsWidget();
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating business features widget');
+        $businessFeaturesWidget = $this->demoCreator->createBusinessFeaturesWidget($page->site);
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating banners widget');
+        $bannersWidget = $this->demoCreator->createBannersWidget();
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating client logos widget');
+        $clientLogosWidget = $this->demoCreator->createClientLogosWidget($languages);
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating testimonials widget');
+        $testimonialsWidget = $this->demoCreator->createTestimonialsWidget($languages);
+        $this->advanceProgress();
+
+        $containers['secondary'] = [
+            'meta' => [
+                'colspan' => 12,
+            ],
+            'widgets' => [
+                ['widget_key' => $teamPortfolioWidget->key],
+                ['widget_key' => $bannerImageWidget->key],
+                ['widget_key' => $contentWidget->key],
+                ['widget_key' => $statisticsWidget->key],
+                ['widget_key' => $businessFeaturesWidget->key],
+                ['widget_key' => $bannersWidget->key],
+                ['widget_key' => $clientLogosWidget->key],
+                ['widget_key' => $testimonialsWidget->key],
+            ],
+        ];
+    }
+
+    private function populateSplitTwoContainer(array &$containers, EloquentCollection $languages): void
+    {
+        $this->setProgressMessage('Creating split content widget');
+        $splitContentWidget = $this->demoCreator->createSplitContentWidget($languages);
+        $this->advanceProgress();
+
+        $containers['split-two'] = [
+            'meta' => [
+                'colspan' => 6,
+                'column_start' => 7,
+                'spacing' => 'none',
+                'html_class' => 'relative',
+                'background_color' => 'light-gray',
+            ],
+            'widgets' => [
+                ['widget_key' => $splitContentWidget->key],
+            ],
+        ];
+    }
+
+    private function addSplitTwoBackgroundMedia(Layout $layout): void
+    {
+        $this->setProgressMessage('Adding split-two background media');
+        if ($layout->getMedia('split-two-background')->isEmpty()) {
+            resolve(\Capell\Core\Support\Creator\DemoCreator::class)->createMedia($layout, collection: 'split-two-background');
+        }
+
+        $this->advanceProgress();
+    }
+
+    private function createSiteContents(ContentCreator $contentCreator, array $data, Site $site, ?EloquentCollection $languages = null, ?Collection $parent = null): void
+    {
+        if ($site->contents()->count() > 28) {
+            $this->setProgressMessage('Content limit reached.');
+
+            return;
+        }
+
+        if (! $languages instanceof EloquentCollection) {
+            $languages = $site->languages;
+        }
+
+        $contentData = [
+            'name' => $data['name']['en'],
+        ];
+
+        if ($parent instanceof Collection) {
+            $contentData['parent_id'] = $parent->id;
+        }
+
+        foreach ($languages as $language) {
+            $name = $data['name'][$language->code];
+
+            $contentData['translations'][$language->code] = [
+                'title' => $name,
+                'content' => $name,
+            ];
+        }
+
+        $this->setProgressMessage('Creating content: ' . $contentData['name']);
+        $content = $contentCreator->createContent($contentData, $site, $languages);
+        $this->advanceProgress();
+
+        if (! isset($data['children'])) {
+            return;
+        }
+
+        foreach ($data['children'] as $child) {
+            $this->createSiteContents($contentCreator, $child, $site, $languages, $content);
+        }
+    }
+
+    private function getHomeLayout(): ?Layout
+    {
+        $model = CapellCore::getModel(ModelEnum::Layout);
+        $layout = $model::query()->firstWhere('key', LayoutEnum::Home);
+
+        return $layout instanceof Layout ? $layout : null;
+    }
+
+    private function countContentNodes(array $data): int
+    {
+        $count = 1;
+        if (isset($data['children']) && is_array($data['children'])) {
+            foreach ($data['children'] as $child) {
+                $count += $this->countContentNodes($child);
+            }
+        }
+
+        return $count;
+    }
+
+    private function startProgress(int $max): void
+    {
+        $this->progress = $this->output->createProgressBar($max);
+        $this->progress->setFormat(' [%bar%] %percent:3s%% | %message%');
+        $this->progress->setMessage('');
+        $this->progress->start();
+    }
+
+    private function setProgressMessage(string $message): void
+    {
+        if ($this->progress instanceof ProgressBar) {
+            $this->progress->setMessage($message);
+        }
+    }
+
+    private function advanceProgress(int $step = 1): void
+    {
+        if ($this->progress instanceof ProgressBar) {
+            $this->progress->advance($step);
+        }
+    }
+
+    private function finishProgress(): void
+    {
+        if ($this->progress instanceof ProgressBar) {
+            $this->progress->finish();
+            $this->newLine();
+        }
+
+        $this->progress = null;
     }
 }

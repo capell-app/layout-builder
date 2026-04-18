@@ -8,7 +8,6 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Frontend\Providers\FrontendServiceProvider;
-use Capell\Mosaic\Providers\HeroServiceProvider;
 use Capell\Mosaic\Providers\MosaicServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Capell\Tests\Fixtures\Admin\AdminPanelProvider;
@@ -47,7 +46,6 @@ class MosaicTestCase extends AbstractTestCase
         return [
             ...parent::getPackageProviders($app),
             MosaicServiceProvider::class,
-            HeroServiceProvider::class,
             AdminPanelProvider::class,
             AdminServiceProvider::class,
             FrontendServiceProvider::class,
@@ -66,6 +64,5 @@ class MosaicTestCase extends AbstractTestCase
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(MosaicServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(HeroServiceProvider::$packageName);
     }
 }

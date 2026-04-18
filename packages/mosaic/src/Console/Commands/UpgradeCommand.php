@@ -20,7 +20,7 @@ class UpgradeCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'capell:layout-upgrade';
+    protected $signature = 'capell:mosaic-upgrade';
 
     /**
      * Execute the console command.
@@ -30,7 +30,7 @@ class UpgradeCommand extends Command
         $this->call('vendor:publish', ['--tag' => 'capell-mosaic-assets', '--force' => true]);
 
         $this->newLine();
-        $this->info('Capell Layout upgraded successfully.');
+        $this->info('Capell Mosaic upgraded successfully.');
 
         return Command::SUCCESS;
     }

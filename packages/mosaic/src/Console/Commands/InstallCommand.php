@@ -14,9 +14,9 @@ use Illuminate\Console\Command;
 
 class InstallCommand extends Command
 {
-    protected $signature = 'capell:layout-install';
+    protected $signature = 'capell:mosaic-install';
 
-    protected $description = 'Install the Capell Layout package';
+    protected $description = 'Install the Capell Mosaic package';
 
     public function __construct(private readonly MigrationFileManagerInterface $fileManager)
     {
@@ -54,7 +54,7 @@ class InstallCommand extends Command
         $this->callSilent('filament:assets');
 
         $this->newLine();
-        $this->info('Capell Layout installed successfully.');
+        $this->info('Capell Mosaic installed successfully.');
 
         return self::SUCCESS;
     }

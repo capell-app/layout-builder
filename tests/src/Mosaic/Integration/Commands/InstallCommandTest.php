@@ -17,7 +17,7 @@ afterEach(function (): void {
     Mockery::close();
 });
 
-it('runs layout install command successfully without publishing files', function (): void {
+it('runs mosaic install command successfully without publishing files', function (): void {
     $fakeFileManager = new FakeMigrationFileManager([
         'fileExists' => [],
         'isDir' => [],
@@ -50,11 +50,11 @@ it('runs layout install command successfully without publishing files', function
 
     app()->instance(MigrationFileManagerInterface::class, $fakeFileManager);
 
-    artisan('capell:layout-install')
+    artisan('capell:mosaic-install')
         ->doesntExpectOutput('Publishing migrations')
         ->doesntExpectOutput('Migrating')
         ->doesntExpectOutput('Building assets')
-        ->expectsOutput('Capell Layout installed successfully.')
+        ->expectsOutput('Capell Mosaic installed successfully.')
         ->assertExitCode(Command::SUCCESS);
 
     expect($fakeFileManager->calls)

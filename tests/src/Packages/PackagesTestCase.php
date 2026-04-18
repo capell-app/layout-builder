@@ -13,7 +13,6 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Providers\CapellServiceProvider;
 use Capell\Frontend\Contracts\SettingsMigrationProviderInterface;
 use Capell\Frontend\Providers\FrontendServiceProvider;
-use Capell\Mosaic\Providers\HeroServiceProvider;
 use Capell\Mosaic\Providers\MosaicServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Capell\Tests\Fixtures\Admin\AdminPanelProvider;
@@ -58,7 +57,6 @@ class PackagesTestCase extends AbstractTestCase
             AddressServiceProvider::class,
             MosaicServiceProvider::class,
             BlogServiceProvider::class,
-            HeroServiceProvider::class,
             AssistantServiceProvider::class,
             FrontendServiceProvider::class,
             CapellServiceProvider::class,

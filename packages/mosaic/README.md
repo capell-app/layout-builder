@@ -27,11 +27,14 @@ Content and Widget management for Capell. Provides the layout builder, Filament 
     - `Layout::layoutWidgets()` (JSON relationship)
 - Assets
     - Publishes admin CSS/JS and frontend assets
-    - Config file `config/capell-layout.php`
+    - Config file `config/capell-mosaic.php`
 - Commands
-    - `capell:layout-install` — publish assets and migrations, migrate, register resources
-    - `capell:layout-upgrade` — upgrade routines
-    - `capell:layout-demo` — optional demo
+    - `capell:mosaic-install` — publish assets and migrations, migrate, register resources
+    - `capell:mosaic-setup` — post-install setup
+    - `capell:mosaic-upgrade` — upgrade routines
+    - `capell:mosaic-demo` — optional demo layouts
+    - `capell:hero-setup` — wire hero widgets into default/home/results layouts
+    - `capell:hero-demo` — insert demo hero content
 
 ## Installation
 
@@ -44,7 +47,7 @@ Steps:
 1. Run the installer:
 
     ```bash
-    php artisan capell:layout-install
+    php artisan capell:mosaic-install
     ```
 
     This will:

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Tests\Mosaic\Hero\Integration\Commands;
+namespace Capell\Tests\Mosaic\Integration\Commands;
 
 use Capell\Core\Models\Layout;
 use Capell\Mosaic\Actions\AddHeroWidgetToLayoutAction;

@@ -39,7 +39,7 @@ it('runs the demo command and creates demo layouts for a site', function (): voi
 
     Page::factory()->count(4)->site($site)->has(Media::factory())->create();
 
-    artisan('capell:layout-demo', [
+    artisan('capell:mosaic-demo', [
         '--sites' => $site->name,
     ])
         ->assertExitCode(0);

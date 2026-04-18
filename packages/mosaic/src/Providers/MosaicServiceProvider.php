@@ -27,6 +27,8 @@ use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
 use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\Mosaic\Console\Commands\DemoCommand;
+use Capell\Mosaic\Console\Commands\Hero\DemoCommand as HeroDemoCommand;
+use Capell\Mosaic\Console\Commands\Hero\SetupCommand as HeroSetupCommand;
 use Capell\Mosaic\Console\Commands\InstallCommand;
 use Capell\Mosaic\Console\Commands\SetupCommand;
 use Capell\Mosaic\Console\Commands\UpgradeCommand;
@@ -37,6 +39,7 @@ use Capell\Mosaic\Enums\LivewireComponentsEnum;
 use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Enums\ResourceEnum as LayoutResourceEnum;
 use Capell\Mosaic\Enums\TypeSchemaEnum;
+use Capell\Mosaic\Filament\Extenders\Page\HeroPageSchemaExtender;
 use Capell\Mosaic\Filament\Resources\Layouts\LayoutResource;
 use Capell\Mosaic\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender;
 use Capell\Mosaic\Filament\Resources\Pages\Schemas\Extenders\PageSchemaExtender;
@@ -90,6 +93,8 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
             ->hasTranslations()
             ->hasCommands([
                 DemoCommand::class,
+                HeroDemoCommand::class,
+                HeroSetupCommand::class,
                 InstallCommand::class,
                 SetupCommand::class,
                 UpgradeCommand::class,
@@ -189,10 +194,10 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
             path: realpath(__DIR__ . '/../..'),
             description: static::getDescription(),
             permissions: $this->getPackagePermissions(),
-            installCommand: 'capell:layout-install',
-            setupCommand: 'capell:layout-setup',
-            upgradeCommand: 'capell:layout-upgrade',
-            demoCommand: 'capell:layout-demo',
+            installCommand: 'capell:mosaic-install',
+            setupCommand: 'capell:mosaic-setup',
+            upgradeCommand: 'capell:mosaic-upgrade',
+            demoCommand: 'capell:mosaic-demo',
             demoParams: ['user', 'sites'],
             requirements: [
                 AdminServiceProvider::$packageName,
@@ -323,6 +328,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
     private function registerSchemaExtenders(): self
     {
         $this->registerSchemaExtender(SchemaExtenderEnum::Page->value, PageSchemaExtender::class);
+        $this->registerSchemaExtender(SchemaExtenderEnum::Page->value, HeroPageSchemaExtender::class);
 
         $this->registerSchemaExtender(SchemaExtenderEnum::Layout->value, LayoutSchemaExtender::class);
 
@@ -349,7 +355,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
         } else {
             Livewire::addNamespace(
                 namespace: 'capell-mosaic',
-                classNamespace: 'Capell\\Layout\\Livewire',
+                classNamespace: 'Capell\\Mosaic\\Livewire',
                 classPath: __DIR__ . '/../Livewire',
                 classViewPath: __DIR__ . '/../../resources/views/livewire',
             );
@@ -367,8 +373,11 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
 
     private function registerBladeComponents(): self
     {
-        Blade::componentNamespace('Capell\\Layout\\View\\Components', 'capell-mosaic');
-        Blade::anonymousComponentNamespace('Capell\\Layout\\View\\Components');
+        Blade::componentNamespace('Capell\\Mosaic\\View\\Components', 'capell-mosaic');
+        Blade::anonymousComponentNamespace('Capell\\Mosaic\\View\\Components');
+
+        Blade::componentNamespace('Capell\\Mosaic\\View\\Components', 'capell-hero');
+        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'capell-hero');
 
         return $this;
     }

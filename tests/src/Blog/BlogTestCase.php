@@ -74,7 +74,7 @@ class BlogTestCase extends AbstractTestCase
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(BlogServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(LayoutServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(MosaicServiceProvider::$packageName);
 
         $app->make(Repository::class)->set('tags.tag_model', Tag::class);
     }
