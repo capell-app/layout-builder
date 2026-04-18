@@ -71,7 +71,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
 
     public static string $packageName = 'capell-app/blog';
 
-    public static string $description = 'Article page type with blog archives.';
+    public static string $description = 'Article page type with tags, archives, sitemaps, and Livewire listing components.';
 
     public function bootingPackage(): void
     {

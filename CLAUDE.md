@@ -12,9 +12,9 @@
 ### What's Included
 
 Optional packages that add specialized functionality:
-- Layout builder and page design tools
+
+- Mosaic and page design tools
 - Blog/article content types
-- Hero sections and media-rich components
 - Address/location management
 - Custom widget libraries
 - Integrations with third-party services
@@ -23,17 +23,17 @@ These packages are **not required** for Capell to run but provide specialized ed
 
 ## Tech Stack
 
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| PHP | 8.2+ | Backend language (8.2 only, no 8.3+ features) |
-| Laravel | 10.x+ | Web framework |
-| Filament | 4.7+, 5.2+ | Admin panel integration |
-| Pest | 3.0+, 4.1+ | Testing framework |
-| Pint | ^1.25.0 | Code formatting (Laravel standard) |
-| PHPStan | ^3.0 | Static analysis (level 5+) |
-| Rector | ^2.0 | Automated refactoring |
-| Tailwind | 4+ | CSS framework (demo & packages) |
-| Node.js | 20+ | For Tailwind builds and npm tooling |
+| Component | Version    | Purpose                                       |
+| --------- | ---------- | --------------------------------------------- |
+| PHP       | 8.2+       | Backend language (8.2 only, no 8.3+ features) |
+| Laravel   | 10.x+      | Web framework                                 |
+| Filament  | 4.7+, 5.2+ | Admin panel integration                       |
+| Pest      | 3.0+, 4.1+ | Testing framework                             |
+| Pint      | ^1.25.0    | Code formatting (Laravel standard)            |
+| PHPStan   | ^3.0       | Static analysis (level 5+)                    |
+| Rector    | ^2.0       | Automated refactoring                         |
+| Tailwind  | 4+         | CSS framework (demo & packages)               |
+| Node.js   | 20+        | For Tailwind builds and npm tooling           |
 
 ## Development Setup
 
@@ -53,19 +53,19 @@ composer serve
 
 ### Development Commands
 
-| Command | Purpose |
-|---------|---------|
-| `composer test` | Run Pest unit tests |
-| `composer test:unit` | Run tests with parallel execution |
+| Command              | Purpose                                                 |
+| -------------------- | ------------------------------------------------------- |
+| `composer test`      | Run Pest unit tests                                     |
+| `composer test:unit` | Run tests with parallel execution                       |
 | `composer preflight` | Run all checks: Prettier, ESLint, Rector, Pint, PHPStan |
-| `composer rector` | Rector code refactoring |
-| `composer lint` | Pint code style (Laravel Pint standard) |
-| `composer analyze` | PHPStan static analysis |
-| `composer prettier` | Format Blade, CSS, JS, JSON, YAML, Markdown |
-| `composer eslint` | Check/lint JavaScript (max-warnings=0) |
-| `composer coverage` | Run tests with code coverage (min 80%) |
-| `npm run prettier` | (Root level) Format all package code |
-| `npm run eslint` | (Root level) Lint all package JavaScript |
+| `composer rector`    | Rector code refactoring                                 |
+| `composer lint`      | Pint code style (Laravel Pint standard)                 |
+| `composer analyze`   | PHPStan static analysis                                 |
+| `composer prettier`  | Format Blade, CSS, JS, JSON, YAML, Markdown             |
+| `composer eslint`    | Check/lint JavaScript (max-warnings=0)                  |
+| `composer coverage`  | Run tests with code coverage (min 80%)                  |
+| `npm run prettier`   | (Root level) Format all package code                    |
+| `npm run eslint`     | (Root level) Lint all package JavaScript                |
 
 ## Code Standards & Conventions
 
@@ -91,7 +91,7 @@ Non-negotiable. These mirror the core repo — every package must follow them.
 #### Laravel Actions (`lorisleiva/laravel-actions`)
 
 - **All business logic lives in Actions.** Single-purpose invokable classes in each package's `src/Actions/`.
-- **One public `handle()` per action.** Split by verb (`CreateBlogPost`, `PublishBlogPost`, `AttachHeroMedia`).
+- **One public `handle()` per action.** Split by verb (`CreateBlogPost`, `PublishBlogPost`, `PublishContentWidget`).
 - **Controllers, Filament resources/pages, Livewire components, and commands `::run()` actions** — they don't contain domain logic themselves.
 - **Return typed values** from `handle()`, ideally a `Data` object.
 - **Validation** on the action via `rules()` / `authorize()` when used `AsController`. No parallel FormRequest.
@@ -114,7 +114,7 @@ Use extensively. Any structured value crossing a boundary is a `Data` object:
 - **Every PHP file starts with `declare(strict_types=1);`**
 - **Actions**: `packages/{pkg}/src/Actions/`, naming `VerbNounAction` (extend `Lorisleiva\Actions\Action` or use `AsObject` trait). Match the core repo's patterns — see `capell-4/packages/core/src/Actions/` for the reference set (~90 examples).
 - **Data**: `packages/{pkg}/src/Data/`, suffix `Data`, constructor-promoted public properties, getter methods for computed/closure-backed values.
-- **Namespaces**: `Capell\Layout`, `Capell\Blog`, `Capell\Hero`, `Capell\Address`, `Capell\Assistant`.
+- **Namespaces**: `Capell\Mosaic`, `Capell\Blog`, `Capell\Address`, `Capell\Assistant`.
 
 #### Typical slice
 
@@ -175,6 +175,7 @@ packages/package-name/
 ### Batching Strategy (Preferred)
 
 For related changes across multiple packages:
+
 - **Batch similar slices**: Group related changes into logical commits
 - **Defer preflight**: Run tests frequently during development, but defer the full `composer preflight` suite until the end of a logical phase
 - **Single PR**: Keep related work in one PR to avoid churn; splitting is acceptable only for unrelated features
@@ -202,9 +203,8 @@ capell-packages-4/
 ├── .claude/                      # Claude Code settings
 │   └── settings.json             # Hooks, permissions, env vars
 ├── packages/                     # All add-on packages
-│   ├── layout-builder/           # Example: Layout builder package
+│   ├── mosaic/                   # Example: Mosaic layout builder package
 │   ├── blog/                     # Example: Blog package
-│   ├── hero/                     # Example: Hero sections
 │   └── [other-packages]/
 ├── demo/                         # Test workbench application
 │   ├── app/                      # Laravel app config
@@ -259,7 +259,7 @@ composer prepare
 composer serve
 
 # 3. In another terminal, run tests for a specific package
-php vendor/bin/pest packages/layout-builder/tests
+php vendor/bin/pest packages/mosaic/tests
 
 # 4. Check integration in the browser at http://localhost:8000
 ```
@@ -267,34 +267,37 @@ php vendor/bin/pest packages/layout-builder/tests
 ### Common Issues
 
 **Package Not Loading**:
+
 - Check `ServiceProvider` is registered in `composer.json` `extra.laravel.providers`
 - Run `composer prepare` to rebuild service provider cache
 - Verify package is listed in root `composer.json`
 
 **Migration Errors**:
+
 - Ensure migration files are in `packages/package-name/database/migrations/`
 - Run `php artisan migrate --path=packages/package-name/database/migrations`
 
 **Tests Failing**:
+
 - Run `composer test` for full output
 - Check that demo workbench has all required config
 - Verify package is properly bootstrapped in test setup
 
 **Static Analysis Failing**:
+
 - Run `composer analyze` to see PHPStan errors
 - Check `phpstan-ignore-errors.neon` for package-specific exceptions
 
 ## Packages in this repo
 
-| Package | Namespace | Purpose | Depends on |
-|---------|-----------|---------|------------|
-| `layout` | `Capell\Layout` | Visual layout builder, widgets, content blocks | core, admin, frontend |
-| `blog` | `Capell\Blog` | Blog post types, categories, tags, RSS | core, admin, frontend, layout |
-| `hero` | `Capell\Hero` | Hero section widgets | core, admin, frontend, layout |
-| `address` | `Capell\Address` | Address/country management on Sites | core, admin, frontend, layout |
-| `assistant` | `Capell\Assistant` | AI-assisted editorial tooling | core, admin |
+| Package     | Namespace          | Purpose                                        | Depends on                    |
+| ----------- | ------------------ | ---------------------------------------------- | ----------------------------- |
+| `mosaic`    | `Capell\Mosaic`    | Visual layout builder, widgets, content blocks | core, admin, frontend         |
+| `blog`      | `Capell\Blog`      | Blog post types, categories, tags, RSS         | core, admin, frontend, mosaic |
+| `address`   | `Capell\Address`   | Address/country management on Sites            | core, admin, frontend         |
+| `assistant` | `Capell\Assistant` | AI-assisted editorial tooling                  | core, admin                   |
 
-**Blog, Hero, Address depend on Layout — install Layout first.** Keep inter-package dependencies minimal; most packages should only touch core + admin + frontend + their own layer.
+**Blog depends on Mosaic — install Mosaic first.** Keep inter-package dependencies minimal; most packages should only touch core + admin + frontend + their own layer.
 
 ## Extending Capell from a package
 
@@ -321,12 +324,14 @@ Tests mirror the core repo: grouped via `tests/Pest.php` by package, each group 
 ## Relationship to Capell Core
 
 This repository packages **optional, specialized functionality**. The core Capell CMS (`capell-app/capell`) provides:
+
 - Page management
 - Content types
 - User authentication
 - Admin framework
 
 Capell Packages provide:
+
 - Specialized editing experiences (layout builder, hero sections)
 - Domain-specific content types (blog, address)
 - Advanced features (design tools, integrations)
@@ -337,10 +342,10 @@ Packages should **not duplicate** core functionality. When a feature is broadly 
 
 - **Core Docs**: See `capell-app/capell` repository docs
 - **Package README**: Each package has its own README explaining:
-  - What it does
-  - Installation instructions
-  - Configuration options
-  - Usage examples
+    - What it does
+    - Installation instructions
+    - Configuration options
+    - Usage examples
 - **Contributing**: See CONTRIBUTING.md for pull request guidelines
 
 ## Tips for Claude Code Sessions

@@ -8,13 +8,12 @@ Optional add-on packages for [Capell CMS](https://github.com/capell-app/capell).
 
 ## Packages
 
-| Package | What it adds |
-|---------|-------------|
-| [Mosaic (Layout)](#mosaic-layout) | Visual layout builder, widgets, and reusable content items |
-| [Blog](#blog) | Article page type, tags, archives, sitemap, Livewire listing pages |
-| [Hero](#hero) | Hero widget and page schema extender |
-| [Address](#address) | Country and address management, attached to sites |
-| [Assistant](#assistant) | OpenAI-powered content drafting in the admin panel |
+| Package                 | What it adds                                                       |
+| ----------------------- | ------------------------------------------------------------------ |
+| [Mosaic](#mosaic)       | Visual layout builder, widgets, and reusable content items         |
+| [Blog](#blog)           | Article page type, tags, archives, sitemap, Livewire listing pages |
+| [Address](#address)     | Country and address management, attached to sites                  |
+| [Assistant](#assistant) | OpenAI-powered content drafting in the admin panel                 |
 
 Full documentation for each package is at **[docs.capell.app/packages/](https://docs.capell.app/packages/)**.
 
@@ -32,42 +31,31 @@ Individual package prerequisites are noted below.
 
 ---
 
-## Mosaic (Layout)
+## Mosaic
 
 Visual layout builder with widget management. Provides the drag-and-drop page builder, Filament resources for Contents and Widgets, and the frontend rendering pipeline.
 
 → [Package README](packages/mosaic/README.md) · [docs.capell.app/packages/mosaic](https://docs.capell.app/packages/mosaic/)
 
 **Install:**
+
 ```bash
-php artisan capell:layout-install
+php artisan capell:mosaic-install
 ```
 
 ---
 
 ## Blog
 
-Article page type with tags, archives, and Livewire listing pages. Integrates with the sitemap generator and the layout builder (optional widgets).
+Article page type with tags, archives, and Livewire listing pages. Integrates with the sitemap generator and the Mosaic package (optional widgets).
 
 → [Package README](packages/blog/README.md) · [docs.capell.app/packages/blog](https://docs.capell.app/packages/blog/)
 
 **Install:**
+
 ```bash
 php artisan capell:blog-install
 php artisan capell:blog-create-pages {site-id}
-```
-
----
-
-## Hero
-
-Hero section widget and `HeroPageSchemaExtender` that injects hero fields into compatible page schemas. Depends on the Mosaic/Layout package.
-
-→ [Package README](packages/hero/README.md) · [docs.capell.app/packages/hero](https://docs.capell.app/packages/hero/)
-
-**Setup** (no install command — the provider handles registration on boot):
-```bash
-php artisan capell:hero-setup
 ```
 
 ---
@@ -79,6 +67,7 @@ Country and address models with Filament resources. Attaches address and country
 → [Package README](packages/address/README.md) · [docs.capell.app/packages/address](https://docs.capell.app/packages/address/)
 
 **Install:**
+
 ```bash
 php artisan capell:address-install
 ```
@@ -92,6 +81,7 @@ OpenAI-powered title, meta description, and long-form content drafting from the 
 → [Package README](packages/assistant/README.md) · [docs.capell.app/packages/assistant](https://docs.capell.app/packages/assistant/)
 
 **Install:**
+
 ```bash
 php artisan capell:assistant-install
 ```

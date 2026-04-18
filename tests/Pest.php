@@ -5,8 +5,7 @@ declare(strict_types=1);
 use Capell\Tests\Address\AddressTestCase;
 use Capell\Tests\Assistant\AssistantTestCase;
 use Capell\Tests\Blog\BlogTestCase;
-use Capell\Tests\Hero\HeroTestCase;
-use Capell\Tests\Layout\LayoutTestCase;
+use Capell\Tests\Mosaic\MosaicTestCase;
 use Capell\Tests\Packages\PackagesTestCase;
 
 $testsRoot = __DIR__ . DIRECTORY_SEPARATOR . 'src';
@@ -20,11 +19,8 @@ pest()->extends(AddressTestCase::class)
 pest()->extends(BlogTestCase::class)
     ->in($testsRoot . DIRECTORY_SEPARATOR . 'Blog');
 
-pest()->extends(HeroTestCase::class)
-    ->in($testsRoot . DIRECTORY_SEPARATOR . 'Hero');
-
-pest()->extends(LayoutTestCase::class)
-    ->in($testsRoot . DIRECTORY_SEPARATOR . 'Layout');
+pest()->extends(MosaicTestCase::class)
+    ->in($testsRoot . DIRECTORY_SEPARATOR . 'Mosaic');
 
 pest()->extends(AssistantTestCase::class)
     ->in($testsRoot . DIRECTORY_SEPARATOR . 'Assistant');

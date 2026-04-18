@@ -147,7 +147,6 @@
             "Capell\\Address\\": "packages/address/src",
             "Capell\\Assistant\\": "packages/assistant/src",
             "Capell\\Blog\\": "packages/blog/src",
-            "Capell\\Hero\\": "packages/hero/src",
             "Capell\\Mosaic\\": "packages/mosaic/src"
         }
     },

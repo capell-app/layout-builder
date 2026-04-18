@@ -80,7 +80,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
 
     public static string $packageName = 'capell-app/mosaic';
 
-    public static string $description = 'Managing content and widgets.';
+    public static string $description = 'Visual layout builder with drag-and-drop widgets and reusable content blocks.';
 
     public function configurePackage(Package $package): void
     {

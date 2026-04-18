@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Capell\Tests\Hero;
+namespace Capell\Tests\Mosaic;
 
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Frontend\Providers\FrontendServiceProvider;
+use Capell\Mosaic\Providers\HeroServiceProvider;
 use Capell\Mosaic\Providers\MosaicServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Capell\Tests\Fixtures\Admin\AdminPanelProvider;
@@ -15,7 +16,7 @@ use Illuminate\Foundation\Application;
 use Livewire\LivewireServiceProvider;
 use Override;
 
-class HeroTestCase extends AbstractTestCase
+class MosaicTestCase extends AbstractTestCase
 {
     protected function setUp(): void
     {
@@ -46,6 +47,7 @@ class HeroTestCase extends AbstractTestCase
         return [
             ...parent::getPackageProviders($app),
             MosaicServiceProvider::class,
+            HeroServiceProvider::class,
             AdminPanelProvider::class,
             AdminServiceProvider::class,
             FrontendServiceProvider::class,
@@ -64,5 +66,6 @@ class HeroTestCase extends AbstractTestCase
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(MosaicServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(HeroServiceProvider::$packageName);
     }
 }

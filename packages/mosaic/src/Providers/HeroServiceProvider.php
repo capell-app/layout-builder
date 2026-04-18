@@ -24,7 +24,7 @@ class HeroServiceProvider extends AbstractPackageServiceProvider
 {
     public static string $name = 'capell-hero';
 
-    public static string $packageName = 'capell-app/hero';
+    public static string $packageName = 'capell-app/mosaic';
 
     public static string $description = 'Hero section component for layout builder.';
 

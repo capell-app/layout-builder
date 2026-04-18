@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Capell\Tests\Mosaic\Hero\Feature\Filament;
 
 use Capell\Core\Models\Type;
-use Capell\Layout\Filament\Resources\Widgets\Pages\CreateWidget;
-use Capell\Layout\Filament\Resources\Widgets\Pages\EditWidget;
-use Capell\Layout\Models\Widget;
 use Capell\Mosaic\Actions\CreateHeroWidgetAction;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Enums\WidgetComponentEnum;
 use Capell\Mosaic\Enums\WidgetTypeEnum;
+use Capell\Mosaic\Models\Filament\Resources\Widgets\Pages\CreateWidget;
+use Capell\Mosaic\Models\Filament\Resources\Widgets\Pages\EditWidget;
+use Capell\Mosaic\Models\Models\Widget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Pest\Expectation;
 

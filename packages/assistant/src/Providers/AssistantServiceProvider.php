@@ -46,7 +46,7 @@ class AssistantServiceProvider extends AbstractPackageServiceProvider
 
     public static string $packageName = 'capell-app/assistant';
 
-    public static string $description = 'AI Assistant for Capell';
+    public static string $description = 'OpenAI-powered content generation for titles, descriptions, and page content with rate limiting and audit logs.';
 
     public function configurePackage(Package $package): void
     {

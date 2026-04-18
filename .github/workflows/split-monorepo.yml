@@ -14,7 +14,6 @@ jobs:
           - address
           - assistant
           - blog
-          - hero
           - mosaic
     steps:
       - uses: actions/checkout@v6
