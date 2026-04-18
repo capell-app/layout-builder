@@ -108,7 +108,6 @@ it('loads an existing session when existingSessionId is provided', function (): 
 
     $pipeline->execute($data);
 
-    // No new sessions created
     expect(AiCreatorSession::count())->toBe(1);
 
     $existing->refresh();
@@ -119,7 +118,7 @@ it('throws when ai_creator_layout prompt is missing', function (): void {
     $provider = mock(PrismProvider::class);
     $pipeline = makePipeline(new PromptRepository([]), $provider);
 
-    expect(fn () => $pipeline->execute(new AiCreatorData(siteId: 1, userId: 2, intent: 'test')))
+    expect(fn (): mixed => $pipeline->execute(new AiCreatorData(siteId: 1, userId: 2, intent: 'test')))
         ->toThrow(InvalidArgumentException::class, 'Missing ai_creator_layout');
 });
 
@@ -136,7 +135,7 @@ it('throws when the AI returns a non-JSON string', function (): void {
 
     $pipeline = makePipeline(makePrompts(), $provider);
 
-    expect(fn () => $pipeline->execute(new AiCreatorData(siteId: 1, userId: 2, intent: 'test')))
+    expect(fn (): mixed => $pipeline->execute(new AiCreatorData(siteId: 1, userId: 2, intent: 'test')))
         ->toThrow(InvalidArgumentException::class, 'not a valid JSON array');
 });
 

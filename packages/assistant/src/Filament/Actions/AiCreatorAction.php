@@ -38,7 +38,9 @@ class AiCreatorAction extends Action
                 $this->resolveSiteFromRecord(),
             ))
             ->form(fn (): array => $this->buildWizardForm())
-            ->action(fn (array $data): void => $this->runCreator($data));
+            ->action(function (array $data): void {
+                $this->runCreator($data);
+            });
     }
 
     private function buildWizardForm(): array
@@ -91,7 +93,7 @@ class AiCreatorAction extends Action
                             ->rows(3),
                     ]),
             ])->submitAction(
-                \Filament\Forms\Components\Actions\Action::make('submit')
+                Action::make('submit')
                     ->label('Submit for Review')
                     ->color('primary'),
             ),

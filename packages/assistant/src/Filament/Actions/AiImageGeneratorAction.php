@@ -6,13 +6,13 @@ namespace Capell\Assistant\Filament\Actions;
 
 use Capell\Assistant\Actions\GenerateAiImageAction;
 use Capell\Assistant\DataObjects\AiImageData;
-use Filament\Forms\Components\Actions;
-use Filament\Forms\Components\Actions\Action;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\ViewField;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Actions;
 use Throwable;
 
 class AiImageGeneratorAction extends Action
@@ -20,9 +20,9 @@ class AiImageGeneratorAction extends Action
     /**
      * @param  array<string, string>  $contextFieldKeys  Keys of sibling Filament fields to read as context
      */
-    public static function make(string $name = 'generate-ai-image', array $contextFieldKeys = []): static
+    public static function make(?string $name = null, array $contextFieldKeys = []): static
     {
-        return parent::make($name)
+        return parent::make($name ?? 'generate-ai-image')
             ->label('Generate with AI')
             ->icon('heroicon-o-sparkles')
             ->modalHeading('AI Image Generator')

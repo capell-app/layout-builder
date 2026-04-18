@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Assistant\Filament\Actions\AiImageGeneratorAction;
-use Filament\Forms\Components\Actions\Action;
+use Filament\Actions\Action;
 
 it('AiImageGeneratorAction is a form Action', function (): void {
     $action = AiImageGeneratorAction::make();

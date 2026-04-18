@@ -28,6 +28,11 @@ final readonly class PageTranslationActionContext implements AiActionContextInte
         return (int) $this->translation->page_id;
     }
 
+    public function getPageType(): string
+    {
+        return '';
+    }
+
     public function getLanguageId(): int
     {
         return (int) ($this->translation->language_id ?? 0);

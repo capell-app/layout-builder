@@ -36,9 +36,6 @@ it('action is hidden when policy reports AI Creator is disabled', function (): v
 
     $action = AiCreatorAction::make();
 
-    // visible() closure receives the site stub from resolveSiteFromRecord() which
-    // returns an object with ai_creator_enabled = null when no record is set.
-    // With global disabled and no override the policy returns false.
     expect($action->isVisible())->toBeFalse();
 });
 
