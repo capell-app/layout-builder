@@ -10,7 +10,7 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\HasCustomSelectOption;
 use Capell\Core\Facades\CapellCore;
 use Capell\Mosaic\Enums\ModelEnum;
-use Capell\Mosaic\Models\Collection as MosaicCollection;
+use Capell\Mosaic\Models\Section as MosaicCollection;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -82,9 +82,9 @@ class ContentSelect extends Select
 
     public function withCreateForm(): Select
     {
-        $asset = CapellCore::getAsset(ModelEnum::Content->name);
+        $asset = CapellCore::getAsset(ModelEnum::Section->name);
 
-        $adminAsset = CapellAdmin::getAsset(ModelEnum::Content);
+        $adminAsset = CapellAdmin::getAsset(ModelEnum::Section);
 
         $createOptionUsing = $this->getCreateOptionUsing();
 
@@ -114,7 +114,7 @@ class ContentSelect extends Select
 
     public function withEditForm(): self
     {
-        $asset = CapellAdmin::getAsset(ModelEnum::Content);
+        $asset = CapellAdmin::getAsset(ModelEnum::Section);
 
         return $this->editOptionForm(function (?int $state, Schema $schema) use ($asset): Schema {
             if ($state === null) {
@@ -187,7 +187,7 @@ class ContentSelect extends Select
         $parentContentType = $this->parentContentType;
 
         /** @var class-string<MosaicCollection> $model */
-        $model = CapellCore::getModel(ModelEnum::Content->name);
+        $model = CapellCore::getModel(ModelEnum::Section->name);
 
         /** @var Collection $content */
         $contents = $model::query()->select('contents.*')

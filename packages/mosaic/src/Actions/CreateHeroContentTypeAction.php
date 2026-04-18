@@ -8,7 +8,7 @@ use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Type;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
-use Capell\Mosaic\Filament\Resources\Contents\Schemas\Types\HeroContentSchema;
+use Capell\Mosaic\Filament\Resources\Sections\Schemas\Types\HeroContentSchema;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -27,7 +27,7 @@ class CreateHeroContentTypeAction
 
         return $type::query()->firstOrCreate([
             'key' => 'hero',
-            'type' => LayoutTypeEnum::Content,
+            'type' => LayoutTypeEnum::Section,
         ], [
             'name' => __('capell-hero::generic.hero'),
             'admin' => [

@@ -6,7 +6,6 @@ namespace Capell\Mosaic\Filament\Components\Forms\Content;
 
 use Capell\Mosaic\Actions\ReplicateContentAction;
 use Capell\Mosaic\Filament\Components\Forms\ContentSelect;
-use Capell\Mosaic\Models\Content;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;

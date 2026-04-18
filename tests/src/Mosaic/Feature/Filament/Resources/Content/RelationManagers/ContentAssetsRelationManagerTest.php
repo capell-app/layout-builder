@@ -5,9 +5,6 @@ declare(strict_types=1);
 use Capell\Core\Models\AssetRelation;
 use Capell\Core\Models\Page;
 use Capell\Mosaic\Enums\AssetEnum;
-use Capell\Mosaic\Filament\Resources\Contents\Pages\EditContent;
-use Capell\Mosaic\Filament\Resources\Contents\RelationManagers\ContentAssetsRelationManager;
-use Capell\Mosaic\Models\Collection;
 use Filament\Actions\CreateAction;
 use Filament\Actions\Testing\TestAction;
 
@@ -16,7 +13,7 @@ use function Pest\Livewire\livewire;
 
 it('can list content assets', function (): void {
     $content = Collection::factory()
-        ->has(AssetRelation::factory(['related_type' => AssetEnum::Content->value])->count(5), 'assets')
+        ->has(AssetRelation::factory(['related_type' => AssetEnum::Section->value])->count(5), 'assets')
         ->create();
 
     $resource = $content->assets->first()->load('asset');
@@ -34,7 +31,7 @@ it('can list content assets', function (): void {
 it('can search content assets', function (): void {
     $content = Collection::factory()
         ->has(
-            AssetRelation::factory(['related_type' => AssetEnum::Content->value])
+            AssetRelation::factory(['related_type' => AssetEnum::Section->value])
                 ->asset(
                     Capell\Core\Enums\AssetEnum::Page,
                     ['name' => 'First'],
@@ -43,14 +40,14 @@ it('can search content assets', function (): void {
         )
         ->has(
             AssetRelation::factory([
-                'related_type' => AssetEnum::Content->value,
-                'asset_type' => AssetEnum::Content->value,
+                'related_type' => AssetEnum::Section->value,
+                'asset_type' => AssetEnum::Section->value,
                 'asset_id' => Collection::factory(['name' => 'Second']),
             ]),
             'assets',
         )
         ->has(
-            AssetRelation::factory(['related_type' => AssetEnum::Content->value])
+            AssetRelation::factory(['related_type' => AssetEnum::Section->value])
                 ->asset(
                     Capell\Core\Enums\AssetEnum::Page,
                     ['name' => 'First'],
@@ -59,8 +56,8 @@ it('can search content assets', function (): void {
         )
         ->has(
             AssetRelation::factory([
-                'related_type' => AssetEnum::Content->value,
-                'asset_type' => AssetEnum::Content->value,
+                'related_type' => AssetEnum::Section->value,
+                'asset_type' => AssetEnum::Section->value,
                 'asset_id' => Collection::factory(['name' => 'Fourth']),
             ]),
             'assets',

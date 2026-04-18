@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Enums;
 
-use Capell\Mosaic\Filament\Resources\Contents\ContentResource;
+use Capell\Mosaic\Filament\Resources\Sections\ContentResource;
 use Capell\Mosaic\Filament\Resources\Widgets\WidgetResource;
 use Capell\Mosaic\Support\Creator\TypeCreator;
 use Filament\Support\Contracts\HasLabel;
@@ -26,7 +26,7 @@ enum LayoutTypeEnum: string implements HasLabel
     public function getModel(): string
     {
         return match ($this) {
-            self::Content => ModelEnum::Content->value,
+            self::Content => ModelEnum::Section->value,
             self::Widget => ModelEnum::Widget->value,
         };
     }

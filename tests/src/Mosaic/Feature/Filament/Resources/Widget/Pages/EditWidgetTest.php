@@ -109,7 +109,7 @@ test('can edit widget', function (WidgetTypeEnum $typeEum): void {
     $typeCreator = new TypeCreator;
 
     $type = match ($typeEum) {
-        WidgetTypeEnum::Contents => $typeCreator->contentsWidgetType(),
+        WidgetTypeEnum::Sections => $typeCreator->contentsWidgetType(),
         WidgetTypeEnum::Default => $typeCreator->defaultWidgetType(),
         WidgetTypeEnum::Media => $typeCreator->mediaWidgetType(),
         WidgetTypeEnum::Navigation => $typeCreator->navigationWidgetType(),
@@ -118,7 +118,7 @@ test('can edit widget', function (WidgetTypeEnum $typeEum): void {
         WidgetTypeEnum::Results => $typeCreator->resultsWidgetType(),
         WidgetTypeEnum::Assets => $typeCreator->assetsWidgetType(),
         WidgetTypeEnum::System => $typeCreator->systemWidgetType(),
-        WidgetTypeEnum::ContentBuilder => $typeCreator->contentBuilderWidgetType(),
+        WidgetTypeEnum::SectionBuilder => $typeCreator->contentBuilderWidgetType(),
     };
 
     $newData = Widget::factory()->make();

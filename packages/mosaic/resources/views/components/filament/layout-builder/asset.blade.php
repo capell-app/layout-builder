@@ -25,7 +25,7 @@ declare(strict_types=1);
     use Capell\Core\Enums\ModelEnum;
     use Capell\Core\Facades\CapellCore;
     use Capell\Core\Models\Page;
-    use Capell\Core\Models\Site;use Capell\Mosaic\Models\Content;
+    use Capell\Core\Models\Site;use Capell\Mosaic\Models\Section;
     use Filament\Actions\Action;
     use Filament\Support\Contracts\ScalableIcon;
     use Filament\Support\Enums\IconSize;

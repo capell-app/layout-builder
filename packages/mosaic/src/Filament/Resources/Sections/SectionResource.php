@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Contents;
+namespace Capell\Mosaic\Filament\Resources\Sections;
 
 use BackedEnum;
 use Capell\Admin\Filament\Concerns\HasFormConfigurator;
@@ -11,16 +11,10 @@ use Capell\Admin\Filament\Concerns\HasTableConfigurator;
 use Capell\Core\Facades\CapellCore;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Enums\ModelEnum;
-use Capell\Mosaic\Filament\Resources\Contents\Pages\CreateContent;
-use Capell\Mosaic\Filament\Resources\Contents\Pages\EditContent;
-use Capell\Mosaic\Filament\Resources\Contents\Pages\ListContents;
-use Capell\Mosaic\Filament\Resources\Contents\RelationManagers\ContentAssetsRelationManager;
-use Capell\Mosaic\Filament\Resources\Contents\RelationManagers\PagesRelationManager;
-use Capell\Mosaic\Filament\Resources\Contents\RelationManagers\WidgetsRelationManager;
-use Capell\Mosaic\Filament\Resources\Contents\Schemas\ContentForm;
-use Capell\Mosaic\Filament\Resources\Contents\Tables\ContentsTable;
-use Capell\Mosaic\Filament\Resources\Contents\Widgets\ContentAlertsWidget;
-use Capell\Mosaic\Models\Content;
+use Capell\Mosaic\Filament\Resources\Sections\RelationManagers\PagesRelationManager;
+use Capell\Mosaic\Filament\Resources\Sections\RelationManagers\WidgetsRelationManager;
+use Capell\Mosaic\Filament\Resources\Sections\Schemas\SectionForm;
+use Capell\Mosaic\Filament\Resources\Sections\Tables\SectionsTable;
 use Capell\Mosaic\Providers\MosaicServiceProvider;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -31,7 +25,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\HtmlString;
 
-class ContentResource extends Resource
+class SectionResource extends Resource
 {
     use HasFormConfigurator;
     use HasNavigationBadge;
@@ -39,9 +33,9 @@ class ContentResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static string $formConfigurator = ContentForm::class;
+    protected static string $formConfigurator = SectionForm::class;
 
-    protected static string $tableConfigurator = ContentsTable::class;
+    protected static string $tableConfigurator = SectionsTable::class;
 
     public static function form(Schema $schema): Schema
     {
@@ -110,7 +104,7 @@ class ContentResource extends Resource
      */
     public static function getModel(): string
     {
-        return CapellCore::getModel(ModelEnum::Content->name);
+        return CapellCore::getModel(ModelEnum::Section->name);
     }
 
     public static function getNavigationGroup(): ?string
@@ -134,12 +128,12 @@ class ContentResource extends Resource
 
     public static function getNavigationIcon(): string|BackedEnum|Htmlable|null
     {
-        return CapellCore::getAsset(LayoutTypeEnum::Content->name)->getIcon();
+        return CapellCore::getAsset(LayoutTypeEnum::Section->name)->getIcon();
     }
 
     public static function getActiveNavigationIcon(): string|BackedEnum|Htmlable|null
     {
-        return CapellCore::getAsset(LayoutTypeEnum::Content->name)->getActiveIcon();
+        return CapellCore::getAsset(LayoutTypeEnum::Section->name)->getActiveIcon();
     }
 
     public static function getPluralModelLabel(): string

@@ -54,7 +54,6 @@ use Capell\Frontend\Support\Render\RenderHookRegistry;
 use Capell\Mosaic\Enums\ComponentTypeEnum;
 use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Enums\TypeSchemaEnum as LayoutSchemaEnum;
-use Capell\Mosaic\Models\Content;
 use Composer\InstalledVersions;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -208,7 +207,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
     private function registerModelRelations(): self
     {
         CapellCore::registerModelRelations(CoreModelEnum::Page, 'tags');
-        CapellCore::registerModelRelations(ModelEnum::Content, 'tags');
+        CapellCore::registerModelRelations(ModelEnum::Section, 'tags');
 
         return $this;
     }

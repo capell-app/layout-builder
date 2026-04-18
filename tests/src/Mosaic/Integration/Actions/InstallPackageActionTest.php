@@ -9,7 +9,6 @@ use Capell\Mosaic\Actions\InstallPackageAction;
 use Capell\Mosaic\Enums\ContentTypeEnum;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Enums\WidgetTypeEnum;
-use Capell\Mosaic\Models\Collection;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -26,9 +25,9 @@ it('installs layout package: creates types, widgets, layouts, and registers morp
 
     // Widget types created
     $expectedWidgetTypeKeys = [
-        WidgetTypeEnum::Contents->value,
+        WidgetTypeEnum::Sections->value,
         WidgetTypeEnum::Default->value,
-        WidgetTypeEnum::ContentBuilder->value,
+        WidgetTypeEnum::SectionBuilder->value,
         WidgetTypeEnum::Media->value,
         WidgetTypeEnum::Navigation->value,
         WidgetTypeEnum::PageContents->value,
@@ -49,7 +48,7 @@ it('installs layout package: creates types, widgets, layouts, and registers morp
 
     // Content types created (default + builder)
     $contentTypeKeys = Type::query()
-        ->where('type', LayoutTypeEnum::Content->value)
+        ->where('type', LayoutTypeEnum::Section->value)
         ->pluck('key')
         ->all();
 
@@ -58,7 +57,7 @@ it('installs layout package: creates types, widgets, layouts, and registers morp
         ->and($contentTypeKeys)->toContain(ContentTypeEnum::Builder->value);
 
     $defaultContentType = Type::query()
-        ->where('type', LayoutTypeEnum::Content->value)
+        ->where('type', LayoutTypeEnum::Section->value)
         ->where('key', ContentTypeEnum::Default->value)
         ->first();
 

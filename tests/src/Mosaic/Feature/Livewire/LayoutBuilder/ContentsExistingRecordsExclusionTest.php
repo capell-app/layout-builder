@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Capell\Mosaic\Database\Factories\LayoutFactory;
 use Capell\Mosaic\Livewire\Assets\Table\ContentAssets;
-use Capell\Mosaic\Models\Collection;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Livewire\livewire;

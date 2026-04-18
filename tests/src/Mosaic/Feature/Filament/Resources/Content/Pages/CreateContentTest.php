@@ -6,8 +6,6 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Mosaic\Database\Factories\ContentTypeFactory;
-use Capell\Mosaic\Filament\Resources\Contents\Pages\CreateContent;
-use Capell\Mosaic\Models\Collection;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Support\Str;
 

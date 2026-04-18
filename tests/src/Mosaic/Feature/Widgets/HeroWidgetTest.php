@@ -12,7 +12,6 @@ use Capell\Core\Models\Site;
 use Capell\Mosaic\Actions\CreateHeroWidgetAction;
 use Capell\Mosaic\Database\Factories\LayoutFactory;
 use Capell\Mosaic\Enums\WidgetComponentEnum;
-use Capell\Mosaic\Models\Collection;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;
 use Capell\Tests\Support\Concerns\TestingFrontend;

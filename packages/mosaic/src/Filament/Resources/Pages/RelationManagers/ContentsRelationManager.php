@@ -10,8 +10,6 @@ use Capell\Admin\Filament\Concerns\HasFormConfigurator;
 use Capell\Admin\Filament\Concerns\HasRelationManagerBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
 use Capell\Mosaic\Enums\ResourceEnum;
-use Capell\Mosaic\Filament\Resources\Contents\Schemas\ContentForm;
-use Capell\Mosaic\Filament\Resources\Contents\Tables\ContentsTable;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
@@ -38,7 +36,7 @@ class ContentsRelationManager extends RelationManager
 
     public static function getIcon(Model $ownerRecord, string $pageClass): string|BackedEnum|null
     {
-        return CapellAdmin::getResource(ResourceEnum::Content)::getNavigationIcon();
+        return CapellAdmin::getResource(ResourceEnum::Section)::getNavigationIcon();
     }
 
     public function form(Schema $schema): Schema

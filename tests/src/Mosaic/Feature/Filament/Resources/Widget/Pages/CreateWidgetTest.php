@@ -97,7 +97,7 @@ describe('from list widgets', function (): void {
         $typeCreator = new TypeCreator;
 
         $type = match ($typeEum) {
-            WidgetTypeEnum::Contents => $typeCreator->contentsWidgetType(),
+            WidgetTypeEnum::Sections => $typeCreator->contentsWidgetType(),
             WidgetTypeEnum::Default => $typeCreator->defaultWidgetType(),
             WidgetTypeEnum::Media => $typeCreator->mediaWidgetType(),
             WidgetTypeEnum::Navigation => $typeCreator->navigationWidgetType(),
@@ -106,7 +106,7 @@ describe('from list widgets', function (): void {
             WidgetTypeEnum::Results => $typeCreator->resultsWidgetType(),
             WidgetTypeEnum::Assets => $typeCreator->assetsWidgetType(),
             WidgetTypeEnum::System => $typeCreator->systemWidgetType(),
-            WidgetTypeEnum::ContentBuilder => $typeCreator->contentBuilderWidgetType(),
+            WidgetTypeEnum::SectionBuilder => $typeCreator->contentBuilderWidgetType(),
             default => throw new Exception('Invalid widget type: ' . $typeEum->name),
         };
 

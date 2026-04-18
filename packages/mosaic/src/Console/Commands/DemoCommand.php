@@ -13,7 +13,6 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Mosaic\Models\Collection;
 use Capell\Mosaic\Support\Creator\ContentCreator;
 use Capell\Mosaic\Support\Creator\DemoCreator;
 use Capell\Mosaic\Support\Creator\TypeCreator;

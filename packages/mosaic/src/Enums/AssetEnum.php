@@ -9,8 +9,8 @@ use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Core\Contracts\Actionable;
 use Capell\Mosaic\Actions\CreateContentAction;
 use Capell\Mosaic\Actions\MutateContentDataBeforeFillAction;
-use Capell\Mosaic\Filament\Resources\Contents\Schemas\ContentForm;
-use Capell\Mosaic\Models\Content;
+use Capell\Mosaic\Filament\Resources\Sections\Schemas\SectionForm;
+use Capell\Mosaic\Models\Section;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
@@ -19,26 +19,26 @@ use Illuminate\Database\Eloquent\Model;
 
 enum AssetEnum: string implements HasColor, HasIcon, HasLabel
 {
-    case Content = 'content';
+    case Section = 'section';
 
     public function getColor(): string
     {
         return match ($this) {
-            self::Content => config('capell-mosaic.assets.content.color', 'info'),
+            self::Section => config('capell-mosaic.assets.section.color', 'info'),
         };
     }
 
     public function getIcon(): string|BackedEnum
     {
         return match ($this) {
-            self::Content => config('capell-mosaic.assets.content.icon', Heroicon::OutlinedFolder),
+            self::Section => config('capell-mosaic.assets.section.icon', Heroicon::OutlinedFolder),
         };
     }
 
     public function getLabel(): string
     {
         return match ($this) {
-            self::Content => __('capell-admin::generic.content'),
+            self::Section => __('capell-admin::generic.content'),
         };
     }
 
@@ -48,14 +48,14 @@ enum AssetEnum: string implements HasColor, HasIcon, HasLabel
     public function getModel(): string
     {
         return match ($this) {
-            self::Content => config('capell-mosaic.assets.content.model', Content::class),
+            self::Section => config('capell-mosaic.assets.section.model', Section::class),
         };
     }
 
     public function getComponent(): string
     {
         return match ($this) {
-            self::Content => AssetComponentEnum::Content->value,
+            self::Section => AssetComponentEnum::Section->value,
         };
     }
 
@@ -65,7 +65,7 @@ enum AssetEnum: string implements HasColor, HasIcon, HasLabel
     public function getFormClass(): string
     {
         return match ($this) {
-            self::Content => ContentForm::class,
+            self::Section => SectionForm::class,
         };
     }
 
@@ -75,7 +75,7 @@ enum AssetEnum: string implements HasColor, HasIcon, HasLabel
     public function getCreateActionClass(): string
     {
         return match ($this) {
-            self::Content => CreateContentAction::class,
+            self::Section => CreateContentAction::class,
         };
     }
 
@@ -85,14 +85,14 @@ enum AssetEnum: string implements HasColor, HasIcon, HasLabel
     public function getDefaultDataActionClass(): string
     {
         return match ($this) {
-            self::Content => MutateContentDataBeforeFillAction::class,
+            self::Section => MutateContentDataBeforeFillAction::class,
         };
     }
 
     public function hasTranslations(): bool
     {
         return match ($this) {
-            self::Content => true,
+            self::Section => true,
         };
     }
 }

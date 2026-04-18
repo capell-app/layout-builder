@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('contents', function (Blueprint $table): void {
+        Schema::create('sections', function (Blueprint $table): void {
             $table->id();
             $table->unsignedBigInteger('workspace_id')->default(0)->index();
             $table->unsignedBigInteger('shadowed_by_workspace_id')->default(0)->index();
@@ -36,7 +36,7 @@ return new class extends Migration
                     ! str_contains((string) DB::selectOne('select version() as v')->v, 'MariaDB')
                 )
             ) {
-                $table->index('meta->page_id', 'contents_page_id_index');
+                $table->index('meta->page_id', 'sections_page_id_index');
             }
 
             $table->index(['site_id', 'type_id', 'order']);
@@ -52,6 +52,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('contents');
+        Schema::dropIfExists('sections');
     }
 };

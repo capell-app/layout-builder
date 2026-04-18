@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Capell\Blog\Models\Tag;
-use Capell\Mosaic\Models\Collection;
 
 it('can be attached to contents', function (): void {
     $tag = Tag::factory()->create();

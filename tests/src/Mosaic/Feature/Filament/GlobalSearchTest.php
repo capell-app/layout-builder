@@ -3,9 +3,8 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Language;
-use Capell\Mosaic\Filament\Resources\Contents\ContentResource;
+use Capell\Mosaic\Filament\Resources\Sections\ContentResource;
 use Capell\Mosaic\Filament\Resources\Widgets\WidgetResource;
-use Capell\Mosaic\Models\Collection;
 use Capell\Mosaic\Models\Widget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Facades\Filament;

@@ -22,7 +22,7 @@ use function Pest\Laravel\artisan;
 
 it('adds hero meta to blog and article pages when blog package is installed', function (): void {
     AddHeroWidgetToLayoutAction::shouldRun()->once();
-    CreateHeroContentTypeAction::shouldRun()->once()->andReturn(Type::factory()->type(LayoutTypeEnum::Content)->create());
+    CreateHeroContentTypeAction::shouldRun()->once()->andReturn(Type::factory()->type(LayoutTypeEnum::Section)->create());
 
     $heroWidget = Widget::factory()->make();
     CreateHeroWidgetAction::shouldRun()->twice()->andReturn($heroWidget);

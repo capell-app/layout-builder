@@ -6,7 +6,6 @@ namespace Capell\Mosaic\Database\Factories;
 
 use Capell\Core\Database\Factories\TypeFactory;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
-use Capell\Mosaic\Models\Content;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +17,7 @@ class ContentTypeFactory extends TypeFactory
     {
         return [
             ...parent::definition(),
-            'type' => LayoutTypeEnum::Content->value,
+            'type' => LayoutTypeEnum::Section->value,
         ];
     }
 }

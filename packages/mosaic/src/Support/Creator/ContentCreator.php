@@ -10,7 +10,6 @@ use Capell\Core\Models;
 use Capell\Core\Models\Site;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Enums\ModelEnum;
-use Capell\Mosaic\Models\Collection;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 class ContentCreator
@@ -27,14 +26,14 @@ class ContentCreator
 
     public function __construct()
     {
-        $this->contentModel = CapellCore::getModel(ModelEnum::Content->name);
+        $this->contentModel = CapellCore::getModel(ModelEnum::Section->name);
 
         $this->typeModel = CapellCore::getModel(CoreModelEnum::Type);
     }
 
     public function createContent(array $data, ?Site $site, EloquentCollection $languages): Collection
     {
-        $type = $this->typeModel::query()->where('type', LayoutTypeEnum::Content)->default()->first();
+        $type = $this->typeModel::query()->where('type', LayoutTypeEnum::Section)->default()->first();
 
         if (isset($data['type']) && $data['type'] !== '') {
             $type->where('key', $data['type'])->first();

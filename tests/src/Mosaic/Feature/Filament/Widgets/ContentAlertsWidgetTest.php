@@ -2,9 +2,6 @@
 
 declare(strict_types=1);
 
-use Capell\Mosaic\Database\Factories\CollectionFactory;
-use Capell\Mosaic\Filament\Resources\Contents\Widgets\ContentAlertsWidget;
-use Capell\Mosaic\Models\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 
 use function Pest\Livewire\livewire;

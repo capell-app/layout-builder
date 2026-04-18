@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Contents\Tables;
+namespace Capell\Mosaic\Filament\Resources\Sections\Tables;
 
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
@@ -26,7 +26,6 @@ use Capell\Mosaic\Actions\ReplicateContentAction;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Filament\Components\Tables\Columns\Content\ContentNameColumn;
-use Capell\Mosaic\Models\Collection;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -47,7 +46,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 
-class ContentsTable implements TableConfigurator
+class SectionsTable implements TableConfigurator
 {
     public static function configure(Table $table): Table
     {
@@ -218,7 +217,7 @@ class ContentsTable implements TableConfigurator
                     /** @param Builder<Type> $query */
                     modifyQueryUsing: fn (Builder $query): Builder => $query->where(
                         'type',
-                        LayoutTypeEnum::Content->value,
+                        LayoutTypeEnum::Section->value,
                     )
                         ->enabled(),
                 ),
@@ -251,7 +250,7 @@ class ContentsTable implements TableConfigurator
                             $siteId = static::getSiteId($livewire);
 
                             /** @var class-string<Collection> $model */
-                            $model = CapellCore::getModel(ModelEnum::Content->name);
+                            $model = CapellCore::getModel(ModelEnum::Section->name);
 
                             $contents = $model::with([
                                 'site',
@@ -326,7 +325,7 @@ class ContentsTable implements TableConfigurator
 
                     if (isset($data['parent_id']) && $data['parent_id'] !== null && $data['parent_id'] !== '') {
                         /** @var class-string<Collection> $model */
-                        $model = CapellCore::getModel(ModelEnum::Content->name);
+                        $model = CapellCore::getModel(ModelEnum::Section->name);
 
                         $indicators['parent_id'] = __(
                             'capell-admin::filter.parent',

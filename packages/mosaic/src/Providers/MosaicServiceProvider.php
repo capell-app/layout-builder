@@ -50,7 +50,7 @@ use Capell\Mosaic\Listeners\LayoutLoaded;
 use Capell\Mosaic\Listeners\LayoutSavingListener;
 use Capell\Mosaic\Listeners\SiteTreeRebuilt;
 use Capell\Mosaic\Listeners\TypeValidated;
-use Capell\Mosaic\Models\Content;
+use Capell\Mosaic\Models\Section;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;
 use Capell\Mosaic\Support\CapellLayoutManager;
@@ -255,7 +255,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
 
     private function registerResources(): self
     {
-        CapellAdmin::registerResource(LayoutResourceEnum::Content->name, class: LayoutResourceEnum::Content->value);
+        CapellAdmin::registerResource(LayoutResourceEnum::Section->name, class: LayoutResourceEnum::Section->value);
         CapellAdmin::registerResource(LayoutResourceEnum::Widget->name, class: LayoutResourceEnum::Widget->value);
         CapellAdmin::registerResource(ResourceEnum::Layout, class: LayoutResource::class);
 
@@ -292,7 +292,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
 
     private function registerAssets(): self
     {
-        $contentAsset = AssetEnum::Content;
+        $contentAsset = AssetEnum::Section;
 
         CapellCore::registerAsset(
             new AssetData(
@@ -439,6 +439,10 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
             VendorAssetData::npmDependency('tippy.js', '^6.3.7', static::$packageName),
         );
 
+        CapellCore::registerVendorAsset(
+            VendorAssetData::npmDependency('swiper', '^12.1.3', static::$packageName),
+        );
+
         return $this;
     }
 
@@ -446,7 +450,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
     {
         LayoutModelRegistrar::register();
 
-        WorkspaceRegistry::register(Content::class);
+        WorkspaceRegistry::register(Section::class);
         WorkspaceRegistry::register(Widget::class);
         WorkspaceRegistry::register(WidgetAsset::class);
 
@@ -466,7 +470,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
     private function registerEvents(): self
     {
         $createDeleteModels = [
-            CapellCore::getModel(ModelEnum::Content->name),
+            CapellCore::getModel(ModelEnum::Section->name),
         ];
 
         foreach ($createDeleteModels as $modelClass) {
@@ -515,7 +519,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
         Page::resolveRelationUsing(
             'contents',
             fn (Page $model): HasManyThrough => $model->hasManyThrough(
-                ModelEnum::Content->value,
+                ModelEnum::Section->value,
                 ModelEnum::WidgetAsset->value,
                 'pageable_id',
                 'id',
@@ -523,7 +527,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
                 'asset_id',
             )
                 ->where('widget_assets.pageable_type', $model->getMorphClass())
-                ->where('widget_assets.asset_type', (new Content)->getMorphClass()),
+                ->where('widget_assets.asset_type', (new Section)->getMorphClass()),
         );
 
         Page::resolveRelationUsing(
@@ -545,12 +549,12 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
 
         Site::resolveRelationUsing(
             'contents',
-            fn (Site $model): HasMany => $model->hasMany(ModelEnum::Content->value, 'site_id'),
+            fn (Site $model): HasMany => $model->hasMany(ModelEnum::Section->value, 'site_id'),
         );
 
         Type::resolveRelationUsing(
             'contents',
-            fn (Type $model): HasMany => $model->hasMany(ModelEnum::Content->value, 'type_id'),
+            fn (Type $model): HasMany => $model->hasMany(ModelEnum::Section->value, 'type_id'),
         );
 
         Type::resolveRelationUsing(

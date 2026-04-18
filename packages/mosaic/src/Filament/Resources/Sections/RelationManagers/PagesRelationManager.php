@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Contents\RelationManagers;
+namespace Capell\Mosaic\Filament\Resources\Sections\RelationManagers;
 
 use BackedEnum;
 use Capell\Admin\Filament\Components\Tables\Columns\DateColumn;
@@ -16,7 +16,6 @@ use Capell\Admin\Filament\Resources\Pages\PageResource;
 use Capell\Core\Actions\GetEditPageResourceUrlAction;
 use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Mosaic\Models\Content;
 use Capell\Mosaic\Models\WidgetAsset;
 use Filament\Actions\EditAction;
 use Filament\Tables\Table;

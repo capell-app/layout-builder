@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Mosaic\Filament\Resources\Contents\Pages\EditContent;
-use Capell\Mosaic\Filament\Resources\Contents\RelationManagers\WidgetsRelationManager;
-use Capell\Mosaic\Models\Collection;
+use Capell\Mosaic\Filament\Resources\Sections\RelationManagers\WidgetsRelationManager;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;
 

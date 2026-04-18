@@ -7,7 +7,6 @@ use Capell\Core\Models\Type;
 use Capell\Mosaic\Database\Factories\ContentTypeFactory;
 use Capell\Mosaic\Database\Factories\WidgetTypeFactory;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
-use Capell\Mosaic\Models\Collection;
 use Capell\Mosaic\Models\Widget;
 
 it('has many contents', function (): void {
@@ -31,17 +30,17 @@ it('has many widgets', function (): void {
 });
 
 it('can scope content type', function (): void {
-    Type::factory()->create(['type' => LayoutTypeEnum::Content]);
+    Type::factory()->create(['type' => LayoutTypeEnum::Section]);
     Type::factory()->create(['type' => CoreTypeEnum::Page]);
 
-    $result = Type::query()->where('type', LayoutTypeEnum::Content)->get();
+    $result = Type::query()->where('type', LayoutTypeEnum::Section)->get();
 
     expect($result)->toHaveCount(1);
 });
 
 it('can scope widget type', function (): void {
     Type::factory()->create(['type' => LayoutTypeEnum::Widget]);
-    Type::factory()->create(['type' => LayoutTypeEnum::Content]);
+    Type::factory()->create(['type' => LayoutTypeEnum::Section]);
 
     $result = Type::query()->where('type', LayoutTypeEnum::Widget)->get();
 

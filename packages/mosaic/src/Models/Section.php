@@ -30,9 +30,9 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Core\Workspaces\BelongsToWorkspace;
-use Capell\Mosaic\Database\Factories\ContentFactory;
+use Capell\Mosaic\Database\Factories\SectionFactory;
 use Capell\Mosaic\Models\Concerns\ComposhipsJsonRelationshipsTrait;
-use Capell\Mosaic\Observers\ContentObserver;
+use Capell\Mosaic\Observers\SectionObserver;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -58,7 +58,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read Collection<int, AssetRelation> $assets
  * @property-read int|null $assets_count
  * @property-read int|null $audits_count
- * @property-read \Aimeos\Nestedset\Collection<int, Content> $children
+ * @property-read \Aimeos\Nestedset\Collection<int, Section> $children
  * @property-read int|null $children_count
  * @property-read User|null $creator
  * @property-read User|null $destroyer
@@ -71,7 +71,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read Pageable|null $page
  * @property-read \Aimeos\Nestedset\Collection<int, Pageable> $pages
  * @property-read int|null $pages_count
- * @property-read Content|null $parent
+ * @property-read Section|null $parent
  * @property-write mixed $parent_id
  * @property-read Site|null $site
  * @property-read Translation|null $translation
@@ -82,7 +82,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read int|null $widgets_count
  * @property-read Collection|Media[] $media
  * @property-read int|null $media_count
- * @property-read Collection|Content[] $related
+ * @property-read Collection|Section[] $related
  * @property-read int|null $related_count
  * @property-read Page|null $linkedPage
  * @property-read Collection<int, AssetRelation> $assetRelations
@@ -114,8 +114,8 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @mixin Model
  * @mixin QueryBuilder
  */
-#[ObservedBy(ContentObserver::class)]
-class Content extends Model implements HasMedia, PageCacheable, Publishable, Typeable, Userstampable
+#[ObservedBy(SectionObserver::class)]
+class Section extends Model implements HasMedia, PageCacheable, Publishable, Typeable, Userstampable
 {
     use BelongsToWorkspace;
     use Cloneable;
@@ -159,7 +159,7 @@ class Content extends Model implements HasMedia, PageCacheable, Publishable, Typ
         'translations',
     ];
 
-    protected static string $factory = ContentFactory::class;
+    protected static string $factory = SectionFactory::class;
 
     public static function getMorphRelations(?Language $language = null, bool $normalizeKey = false): array
     {
@@ -284,11 +284,6 @@ class Content extends Model implements HasMedia, PageCacheable, Publishable, Typ
         return $this->widgetAssets()
             ->select('widget_assets.widget_id')
             ->groupBy('widget_assets.widget_id');
-    }
-
-    public function draftRevisions(): HasMany
-    {
-        return $this->hasMany(self::class, 'id', 'id')->whereRaw('0=1');
     }
 
     protected function scopeOrdered(Builder $query, string $dir = 'asc'): void

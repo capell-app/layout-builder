@@ -11,7 +11,6 @@ use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Mosaic\Enums\ActionLinkEnum;
 use Capell\Mosaic\Enums\AssetEnum as LayoutAssetEnum;
-use Capell\Mosaic\Models\Content;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -33,14 +32,14 @@ class WidgetAssetFactory extends Factory
     {
         $assetType = fake()->randomElement([
             AssetEnum::Page,
-            LayoutAssetEnum::Content,
+            LayoutAssetEnum::Section,
         ]);
 
         return [
             'widget_id' => Widget::factory(),
             'asset_type' => $assetType->value,
             'asset_id' => fn (): string => match ($assetType) {
-                LayoutAssetEnum::Content => (string) Content::factory()->withTranslations()->linkedPage()->create()->id,
+                LayoutAssetEnum::Section => (string) Content::factory()->withTranslations()->linkedPage()->create()->id,
                 AssetEnum::Page => (string) Page::factory()->withTranslations()->create()->id,
             },
             'pageable_id' => null,
@@ -83,7 +82,7 @@ class WidgetAssetFactory extends Factory
             'asset_id' => fn (): mixed => $asset instanceof Model
                 ? $asset->getKey()
                 : match ($asset) {
-                    LayoutAssetEnum::Content => (string) Content::factory()->withTranslations()->linkedPage()->create()->getKey(),
+                    LayoutAssetEnum::Section => (string) Content::factory()->withTranslations()->linkedPage()->create()->getKey(),
                     AssetEnum::Page => (string) Page::factory()->withTranslations()->create()->getKey(),
                 },
         ]);
@@ -114,7 +113,7 @@ class WidgetAssetFactory extends Factory
     {
         return $this->afterCreating(function (WidgetAsset $widgetAsset) use ($count): void {
             $related = match ($widgetAsset->asset_type) {
-                LayoutAssetEnum::Content->value => Content::factory()
+                LayoutAssetEnum::Section->value => Content::factory()
                     ->count($count)
                     ->withTranslations()
                     ->linkedPage()

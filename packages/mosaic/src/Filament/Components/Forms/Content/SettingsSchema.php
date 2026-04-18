@@ -6,7 +6,6 @@ namespace Capell\Mosaic\Filament\Components\Forms\Content;
 
 use Capell\Admin\Filament\Components\Forms\SiteSelect;
 use Capell\Mosaic\Filament\Components\Forms\ContentSelect;
-use Capell\Mosaic\Models\Content;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 

@@ -7,8 +7,6 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
-use Capell\Mosaic\Filament\Resources\Contents\Pages\ListContents;
-use Capell\Mosaic\Models\Collection;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -117,7 +115,7 @@ test('can select all records', function (): void {
 });
 
 test('can create content', function (): void {
-    Type::factory()->type(LayoutTypeEnum::Content)->create();
+    Type::factory()->type(LayoutTypeEnum::Section)->create();
 
     $newData = Collection::factory()->make();
 
@@ -146,7 +144,7 @@ test('can filter by parent', function (): void {
 });
 
 test('can filter by type', function (): void {
-    $type = Type::factory()->type(LayoutTypeEnum::Content)->create();
+    $type = Type::factory()->type(LayoutTypeEnum::Section)->create();
     $contents = Collection::factory()->count(3)->type($type)->create();
 
     livewire(ListContents::class)

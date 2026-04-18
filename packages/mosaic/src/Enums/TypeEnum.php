@@ -13,7 +13,7 @@ enum TypeEnum: string
     public function getModel(): string
     {
         return match ($this) {
-            self::Content => ModelEnum::Content->value,
+            self::Content => ModelEnum::Section->value,
             self::Widget => ModelEnum::Widget->value
         };
     }

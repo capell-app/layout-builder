@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Page;
-use Capell\Mosaic\Models\Collection;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;

@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Contents\Pages;
+namespace Capell\Mosaic\Filament\Resources\Sections\Pages;
 
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\ApplySearchRelationsTable;
 use Capell\Admin\Filament\Concerns\HasSiteTableFilterTabs;
 use Capell\Mosaic\Enums\ResourceEnum;
 use Capell\Mosaic\Filament\Actions\CreateContentAction;
-use Capell\Mosaic\Filament\Resources\Contents\ContentResource;
+use Capell\Mosaic\Filament\Resources\Sections\ContentResource;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Contracts\Support\Htmlable;
 
-class ListContents extends ListRecords
+class ListSections extends ListRecords
 {
     use ApplySearchRelationsTable;
     use HasSiteTableFilterTabs;
@@ -23,7 +23,7 @@ class ListContents extends ListRecords
     /** @return class-string<ContentResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Content);
+        return CapellAdmin::getResource(ResourceEnum::Section);
     }
 
     public function getSubheading(): string|Htmlable|null

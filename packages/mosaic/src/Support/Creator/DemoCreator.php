@@ -29,8 +29,7 @@ use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Enums\WidgetComponentEnum;
 use Capell\Mosaic\Enums\WidgetTypeEnum;
-use Capell\Mosaic\Filament\Resources\Contents\Schemas\Types\TestimonialContentSchema;
-use Capell\Mosaic\Models\Content;
+use Capell\Mosaic\Filament\Resources\Sections\Schemas\Types\TestimonialContentSchema;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;
 use Exception;
@@ -67,7 +66,7 @@ class DemoCreator
     public function __construct(
         protected readonly ?Model $user = null,
     ) {
-        $this->contentModel = CapellCore::getModel(ModelEnum::Content->name);
+        $this->contentModel = CapellCore::getModel(ModelEnum::Section->name);
         $this->widgetModel = CapellCore::getModel(ModelEnum::Widget->name);
         $this->typeModel = CapellCore::getModel(CoreModelEnum::Type);
         $this->pageModel = CapellCore::getModel(CoreModelEnum::Page);
@@ -134,7 +133,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-split-content'], [
             'name' => 'Example Split Content',
-            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::ContentBuilder, 'type' => LayoutTypeEnum::Widget])->id,
+            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::SectionBuilder, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'align' => 'center',
                 'size' => 'md',
@@ -290,7 +289,7 @@ class DemoCreator
             ],
             'admin' => [
                 'asset_types' => [
-                    AssetEnum::Content->value,
+                    AssetEnum::Section->value,
                 ],
             ],
         ]);
@@ -306,7 +305,7 @@ class DemoCreator
         }
 
         $contentType = $this->typeModel::query()
-            ->where('type', LayoutTypeEnum::Content)
+            ->where('type', LayoutTypeEnum::Section)
             ->where('key', ContentTypeEnum::Builder)
             ->first();
 
@@ -493,7 +492,7 @@ class DemoCreator
 
         if (! $type instanceof Type) {
             $type = $this->typeModel::query()
-                ->where('type', LayoutTypeEnum::Content)
+                ->where('type', LayoutTypeEnum::Section)
                 ->default()
                 ->first();
         }
@@ -631,7 +630,7 @@ class DemoCreator
             'key' => 'business-features',
         ], [
             'name' => 'Business Features',
-            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Contents, 'type' => LayoutTypeEnum::Widget])->id,
+            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Sections, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
@@ -803,7 +802,7 @@ class DemoCreator
     {
         $type = $this->typeModel::query()
             ->where([
-                'key' => WidgetTypeEnum::Contents,
+                'key' => WidgetTypeEnum::Sections,
                 'type' => LayoutTypeEnum::Widget,
             ])
             ->first();
@@ -1016,7 +1015,7 @@ class DemoCreator
 
         $testimonialType = Type::query()->updateOrCreate([
             'key' => 'testimonial',
-            'type' => LayoutTypeEnum::Content,
+            'type' => LayoutTypeEnum::Section,
         ], [
             'name' => 'Testimonial',
             'admin' => [

@@ -9,7 +9,6 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Mosaic\Database\Factories\ContentTypeFactory;
-use Capell\Mosaic\Models\Collection;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
