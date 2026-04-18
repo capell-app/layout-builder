@@ -1,0 +1,27 @@
+name: Notify docs site
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  dispatch:
+    name: Trigger capell-docs rebuild
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send repository_dispatch to capell-docs
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.DOCS_DISPATCH_TOKEN }}
+          script: |
+            await github.rest.repos.createDispatchEvent({
+              owner: 'capell-app',
+              repo: 'capell-docs',
+              event_type: 'docs-update',
+              client_payload: {
+                source: context.repo.repo,
+                tag: context.ref.replace('refs/tags/', ''),
+                release_url: context.payload.release.html_url,
+              },
+            });
+            core.info(`Dispatched docs-update from ${context.repo.repo}@${context.ref}`);
