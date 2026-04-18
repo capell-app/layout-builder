@@ -16,11 +16,12 @@ final class ComposerRunner
 
     public function requirePackage(string $composerName, ?string $constraint = null): ComposerResult
     {
-        $args = ['require', '--no-interaction', '--update-with-all-dependencies', $composerName];
+        $args = ['require', '--no-interaction', '--update-with-all-dependencies'];
 
         if ($constraint !== null) {
-            // Update the last element to include the constraint
-            $args[-1] = "{$composerName}:{$constraint}";
+            $args[] = "{$composerName}:{$constraint}";
+        } else {
+            $args[] = $composerName;
         }
 
         return $this->runCommand($args);
