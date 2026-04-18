@@ -32,13 +32,13 @@ class GenerateAiLayoutAction
 
             Event::dispatch(new AiGenerationCompleted(
                 static::class,
-                [$data],
-                microtime(true) - $startTime,
+                $sections,
+                ['duration' => microtime(true) - $startTime],
             ));
 
             return $sections;
         } catch (Throwable $e) {
-            Event::dispatch(new AiGenerationFailed(static::class, [$data], $e));
+            Event::dispatch(new AiGenerationFailed(static::class, $e));
 
             throw $e;
         }
