@@ -54,7 +54,7 @@ use Capell\Frontend\Support\Render\RenderHookRegistry;
 use Capell\Mosaic\Enums\ComponentTypeEnum;
 use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Enums\TypeSchemaEnum as LayoutSchemaEnum;
-use Capell\Mosaic\Models\Collection;
+use Capell\Mosaic\Models\Section;
 use Composer\InstalledVersions;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -346,15 +346,15 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             fn (Site $model): HasMany => $model->hasMany(Tag::class, 'site_id'),
         );
 
-        if (class_exists(Collection::class)) {
-            Collection::resolveRelationUsing(
+        if (class_exists(Section::class)) {
+            Section::resolveRelationUsing(
                 'tags',
-                fn (Content $model): MorphToMany => $model->morphToMany(Tag::class, 'taggable', 'taggables'),
+                fn (Section $model): MorphToMany => $model->morphToMany(Tag::class, 'taggable', 'taggables'),
             );
 
             Tag::resolveRelationUsing(
                 'contents',
-                fn (Tag $model): MorphToMany => $model->morphedByMany(Collection::class, 'taggable', 'taggables'),
+                fn (Tag $model): MorphToMany => $model->morphedByMany(Section::class, 'taggable', 'taggables'),
             );
         }
 

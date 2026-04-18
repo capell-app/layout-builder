@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Capell\Admin\Filament\Components\Tables\Actions\ReplicateAction;
-use Capell\Layout\Filament\Resources\Widgets\Pages\ListWidgets;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Filament\Resources\Widgets\Pages\ListWidgets;
+use Capell\Mosaic\Models\Widget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;

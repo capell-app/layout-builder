@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Collections\Tables;
+namespace Capell\Mosaic\Filament\Resources\Sections\Tables;
 
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
@@ -26,6 +26,7 @@ use Capell\Mosaic\Actions\ReplicateContentAction;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Filament\Components\Tables\Columns\Content\ContentNameColumn;
+use Capell\Mosaic\Models\Section;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -46,7 +47,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 
-class CollectionsTable implements TableConfigurator
+class SectionsTable implements TableConfigurator
 {
     public static function configure(Table $table): Table
     {
@@ -95,7 +96,7 @@ class CollectionsTable implements TableConfigurator
                 RestoreBulkAction::make(),
                 ForceDeleteBulkAction::make(),
             ])
-            ->recordClasses(fn (Content $record): ?string => match (true) {
+            ->recordClasses(fn (Section $record): ?string => match (true) {
                 (bool) $record->deleted_at => 'table-row-warning',
                 default => null,
             });
@@ -145,7 +146,7 @@ class CollectionsTable implements TableConfigurator
                 ->sortable()
                 ->toggleable()
                 ->color('primary')
-                ->url(function (Content $record, int $state): ?string {
+                ->url(function (Section $record, int $state): ?string {
                     if ($state === 0) {
                         return null;
                     }
@@ -165,7 +166,7 @@ class CollectionsTable implements TableConfigurator
                 ->sortable()
                 ->toggleable()
                 ->separator('')
-                ->formatStateUsing(fn (Content $record): int => $record->assets_count),
+                ->formatStateUsing(fn (Section $record): int => $record->assets_count),
             SiteColumn::make('site.name')
                 ->hidden(
                     fn (HasTable $livewire): bool => $livewire->activeTab
@@ -249,7 +250,7 @@ class CollectionsTable implements TableConfigurator
                         ->options(function (HasTable $livewire, Get $get): array {
                             $siteId = static::getSiteId($livewire);
 
-                            /** @var class-string<Content> $model */
+                            /** @var class-string<Section> $model */
                             $model = CapellCore::getModel(ModelEnum::Content->name);
 
                             $contents = $model::with([
@@ -270,7 +271,7 @@ class CollectionsTable implements TableConfigurator
                                 ->orderBy('_lft')
                                 ->get();
 
-                            return $contents->mapWithKeys(function (Content $content) use ($siteId): array {
+                            return $contents->mapWithKeys(function (Section $content) use ($siteId): array {
                                 $label = '';
 
                                 if (! $siteId && $content->site) {
@@ -324,7 +325,7 @@ class CollectionsTable implements TableConfigurator
                     }
 
                     if (isset($data['parent_id']) && $data['parent_id'] !== null && $data['parent_id'] !== '') {
-                        /** @var class-string<Content> $model */
+                        /** @var class-string<Section> $model */
                         $model = CapellCore::getModel(ModelEnum::Content->name);
 
                         $indicators['parent_id'] = __(

@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Models\Page;
-use Capell\Layout\Database\Factories\LayoutFactory;
-use Capell\Layout\Livewire\Assets\Table\ContentAssets;
-use Capell\Layout\Livewire\Assets\Table\PageAssets;
-use Capell\Layout\Models\Widget;
-use Capell\Layout\Models\WidgetAsset;
+use Capell\Mosaic\Database\Factories\LayoutFactory;
+use Capell\Mosaic\Livewire\Assets\Table\ContentAssets;
+use Capell\Mosaic\Livewire\Assets\Table\PageAssets;
+use Capell\Mosaic\Models\Section;
+use Capell\Mosaic\Models\Widget;
+use Capell\Mosaic\Models\WidgetAsset;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Database\Eloquent\Model;
 
@@ -75,10 +76,10 @@ it('excludes existing content assets when selecting new ones in page context', f
         ->count(2)
         ->widget($widget)
         ->page($page, $containerKey, $containerWidget['occurrence'])
-        ->asset(Capell\Layout\Enums\AssetEnum::Content)
+        ->asset(Capell\Mosaic\Enums\AssetEnum::Content)
         ->create();
 
-    $newContents = Content::factory()->count(3)->create();
+    $newContents = Section::factory()->count(3)->create();
 
     $arguments = [
         'containerKey' => $containerKey,
@@ -108,7 +109,7 @@ it('dispatches sync-selected-assets for page layout context', function (string $
     $page = Page::factory()->layout($layout)->create();
 
     $records = match ($assetType) {
-        'content' => Content::factory()->count(3)->create(),
+        'content' => Section::factory()->count(3)->create(),
         'page' => Page::factory()->count(3)->create(),
     };
 

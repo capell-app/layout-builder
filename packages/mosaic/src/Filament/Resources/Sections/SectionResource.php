@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Collections;
+namespace Capell\Mosaic\Filament\Resources\Sections;
 
 use BackedEnum;
 use Capell\Admin\Filament\Concerns\HasFormConfigurator;
@@ -11,12 +11,16 @@ use Capell\Admin\Filament\Concerns\HasTableConfigurator;
 use Capell\Core\Facades\CapellCore;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Enums\ModelEnum;
-use Capell\Mosaic\Filament\Resources\Collections\Pages\CreateContent;
-use Capell\Mosaic\Filament\Resources\Collections\Pages\EditContent;
-use Capell\Mosaic\Filament\Resources\Collections\Pages\ListContents;
-use Capell\Mosaic\Filament\Resources\Collections\RelationManagers\PagesRelationManager;
-use Capell\Mosaic\Filament\Resources\Collections\RelationManagers\WidgetsRelationManager;
-use Capell\Mosaic\Filament\Resources\Collections\Widgets\ContentAlertsWidget;
+use Capell\Mosaic\Filament\Resources\Sections\Pages\CreateSection;
+use Capell\Mosaic\Filament\Resources\Sections\Pages\EditSection;
+use Capell\Mosaic\Filament\Resources\Sections\Pages\ListSections;
+use Capell\Mosaic\Filament\Resources\Sections\RelationManagers\PagesRelationManager;
+use Capell\Mosaic\Filament\Resources\Sections\RelationManagers\SectionAssetsRelationManager;
+use Capell\Mosaic\Filament\Resources\Sections\RelationManagers\WidgetsRelationManager;
+use Capell\Mosaic\Filament\Resources\Sections\Schemas\SectionForm;
+use Capell\Mosaic\Filament\Resources\Sections\Tables\SectionsTable;
+use Capell\Mosaic\Filament\Resources\Sections\Widgets\ContentAlertsWidget;
+use Capell\Mosaic\Models\Section;
 use Capell\Mosaic\Providers\MosaicServiceProvider;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -27,7 +31,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\HtmlString;
 
-class CollectionResource extends Resource
+class SectionResource extends Resource
 {
     use HasFormConfigurator;
     use HasNavigationBadge;
@@ -35,9 +39,9 @@ class CollectionResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static string $formConfigurator = CollectionForm::class;
+    protected static string $formConfigurator = SectionForm::class;
 
-    protected static string $tableConfigurator = CollectionsTable::class;
+    protected static string $tableConfigurator = SectionsTable::class;
 
     public static function form(Schema $schema): Schema
     {
@@ -83,7 +87,7 @@ class CollectionResource extends Resource
     }
 
     /**
-     * @param  Content  $record
+     * @param  Section  $record
      * @return array|string[]
      */
     public static function getGlobalSearchResultDetails(Model $record): array
@@ -102,7 +106,7 @@ class CollectionResource extends Resource
     }
 
     /**
-     * @return class-string<Content>
+     * @return class-string<Section>
      */
     public static function getModel(): string
     {
@@ -122,9 +126,9 @@ class CollectionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListContents::route('/'),
-            'create' => CreateContent::route('/create'),
-            'edit' => EditContent::route('/{record}/edit'),
+            'index' => ListSections::route('/'),
+            'create' => CreateSection::route('/create'),
+            'edit' => EditSection::route('/{record}/edit'),
         ];
     }
 
@@ -146,7 +150,7 @@ class CollectionResource extends Resource
     public static function getRelations(): array
     {
         return [
-            CollectionAssetsRelationManager::class,
+            SectionAssetsRelationManager::class,
             WidgetsRelationManager::class,
             PagesRelationManager::class,
         ];
@@ -159,7 +163,7 @@ class CollectionResource extends Resource
         ];
     }
 
-    private static function buildGlobalSearchBreadcrumbs(Content $record): ?HtmlString
+    private static function buildGlobalSearchBreadcrumbs(Section $record): ?HtmlString
     {
         $breadcrumbs = [];
 

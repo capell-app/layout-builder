@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Collections\Schemas\Types;
+namespace Capell\Mosaic\Filament\Resources\Sections\Schemas\Types;
 
 use Capell\Admin\Contracts\SchemaTypeEnumInterface;
 use Capell\Admin\Contracts\TypeSchemaInterface;

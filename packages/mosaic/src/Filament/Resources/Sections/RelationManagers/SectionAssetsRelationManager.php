@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Collections\RelationManagers;
+namespace Capell\Mosaic\Filament\Resources\Sections\RelationManagers;
 
 use Capell\Admin\Actions\GetAssetResourceUrlAction;
 use Capell\Admin\Filament\Components\Tables\Columns\MediaLibraryImageColumn;
@@ -12,6 +12,7 @@ use Capell\Core\Data\AssetData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\AssetRelation;
 use Capell\Mosaic\Filament\Concerns\HasAssetsRelationManager;
+use Capell\Mosaic\Models\Section;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -22,7 +23,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class CollectionAssetsRelationManager extends RelationManager
+class SectionAssetsRelationManager extends RelationManager
 {
     use HasAssetsRelationManager;
     use HasRelationManagerBadge;
@@ -87,7 +88,7 @@ class CollectionAssetsRelationManager extends RelationManager
                     ),
                 SelectFilter::make('type_id')
                     ->label(__('capell-admin::form.type'))
-                    ->options(fn (): array => Content::getTypes()),
+                    ->options(fn (): array => Section::getTypes()),
             ])
             ->headerActions([
                 self::createResourcesAction(),

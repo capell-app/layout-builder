@@ -10,18 +10,18 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
-use Capell\Mosaic\Models\Collection;
+use Capell\Mosaic\Models\Section;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Collection as SupportCollection;
 
 /**
- * @extends Factory<Collection>
+ * @extends Factory<Section>
  */
-class CollectionFactory extends Factory
+class SectionFactory extends Factory
 {
     use HasFactoryPublishDates;
 
-    protected $model = Collection::class;
+    protected $model = Section::class;
 
     /**
      * Define the model's default state.
@@ -46,7 +46,7 @@ class CollectionFactory extends Factory
         ];
     }
 
-    public function parent(Content $parent): self
+    public function parent(Section $parent): self
     {
         return $this->set('parent_id', $parent->getKey());
     }
@@ -82,38 +82,38 @@ class CollectionFactory extends Factory
 
     public function withTranslations(null|array|SupportCollection|Language $languages = null, array $data = []): self
     {
-        return $this->afterCreating(function (Collection $collection) use ($languages, $data): void {
+        return $this->afterCreating(function (Section $section) use ($languages, $data): void {
             if ($languages instanceof Language) {
                 $languages = collect([$languages]);
             } elseif (is_array($languages)) {
                 $languages = collect($languages);
-            } elseif ($collection->site) {
-                $languages = $collection->site->languages;
+            } elseif ($section->site) {
+                $languages = $section->site->languages;
             } else {
                 $languages = Language::all();
             }
 
-            if ($collection->site && $languages->doesntContain('id', $collection->site->language->id)) {
-                $languages = $languages->prepend($collection->site->language);
+            if ($section->site && $languages->doesntContain('id', $section->site->language->id)) {
+                $languages = $languages->prepend($section->site->language);
             }
 
-            $languages->each(function (Language $language) use ($collection, $data): void {
-                if ($collection->translations()->where('language_id', $language->id)->exists()) {
+            $languages->each(function (Language $language) use ($section, $data): void {
+                if ($section->translations()->where('language_id', $language->id)->exists()) {
                     return;
                 }
 
-                $title = $collection->name . ' ' . $language->locale;
+                $title = $section->name . ' ' . $language->locale;
 
                 $translation = Translation::factory()
                     ->make([
                         'language_id' => $language->id,
-                        'translatable_type' => resolve(Collection::class)->getMorphClass(),
-                        'translatable_id' => $collection->id,
+                        'translatable_type' => resolve(Section::class)->getMorphClass(),
+                        'translatable_id' => $section->id,
                         'title' => $title,
                         ...$data,
                     ]);
 
-                $collection->translations()->create(
+                $section->translations()->create(
                     $translation->only($translation->getFillable()),
                 );
             });

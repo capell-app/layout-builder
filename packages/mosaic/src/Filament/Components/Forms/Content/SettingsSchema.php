@@ -6,6 +6,7 @@ namespace Capell\Mosaic\Filament\Components\Forms\Content;
 
 use Capell\Admin\Filament\Components\Forms\SiteSelect;
 use Capell\Mosaic\Filament\Components\Forms\ContentSelect;
+use Capell\Mosaic\Models\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -17,9 +18,9 @@ class SettingsSchema
             ContentSelect::make('parent_id')
                 ->label(__('capell-admin::form.parent'))
                 ->lazy()
-                ->modifySelectOptionsQueryUsing(function (Builder $query, ?Content $record): void {
-                    if ($record instanceof Content) {
-                        $query->where('contents.id', '!=', $record->id);
+                ->modifySelectOptionsQueryUsing(function (Builder $query, ?Section $record): void {
+                    if ($record instanceof Section) {
+                        $query->where('sections.id', '!=', $record->id);
                     }
                 })
                 ->when(

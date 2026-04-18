@@ -13,7 +13,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Providers\CapellServiceProvider;
 use Capell\Frontend\Contracts\SettingsMigrationProviderInterface;
 use Capell\Frontend\Providers\FrontendServiceProvider;
-use Capell\Layout\Providers\LayoutServiceProvider;
+use Capell\Mosaic\Providers\MosaicServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Capell\Tests\Fixtures\Admin\AdminPanelProvider;
 use Illuminate\Foundation\Application;
@@ -55,7 +55,7 @@ class PackagesTestCase extends AbstractTestCase
         return [
             ...parent::getPackageProviders($app),
             AddressServiceProvider::class,
-            LayoutServiceProvider::class,
+            MosaicServiceProvider::class,
             BlogServiceProvider::class,
             AssistantServiceProvider::class,
             FrontendServiceProvider::class,
@@ -76,7 +76,7 @@ class PackagesTestCase extends AbstractTestCase
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(AssistantServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(LayoutServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(MosaicServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(BlogServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(AddressServiceProvider::$packageName);
     }

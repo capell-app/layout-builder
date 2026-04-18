@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 use Capell\Core\Enums\TypeEnum as CoreTypeEnum;
 use Capell\Core\Models\Type;
-use Capell\Layout\Database\Factories\ContentTypeFactory;
-use Capell\Layout\Database\Factories\WidgetTypeFactory;
-use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Database\Factories\ContentTypeFactory;
+use Capell\Mosaic\Database\Factories\WidgetTypeFactory;
+use Capell\Mosaic\Enums\LayoutTypeEnum;
+use Capell\Mosaic\Models\Section;
+use Capell\Mosaic\Models\Widget;
 
 it('has many contents', function (): void {
     $type = (new ContentTypeFactory)->create();
 
-    Content::factory()->create(['type_id' => $type->id]);
+    Section::factory()->create(['type_id' => $type->id]);
 
     $type->refresh()->load('contents');
 

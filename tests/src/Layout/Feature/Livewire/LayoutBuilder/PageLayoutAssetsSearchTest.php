@@ -3,9 +3,10 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Page;
-use Capell\Layout\Database\Factories\LayoutFactory;
-use Capell\Layout\Livewire\Assets\Table\ContentAssets;
-use Capell\Layout\Livewire\Assets\Table\PageAssets;
+use Capell\Mosaic\Database\Factories\LayoutFactory;
+use Capell\Mosaic\Livewire\Assets\Table\ContentAssets;
+use Capell\Mosaic\Livewire\Assets\Table\PageAssets;
+use Capell\Mosaic\Models\Section;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Livewire\livewire;
@@ -50,7 +51,7 @@ it('searches within content assets table in page layout context', function (): v
     $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
 
     $page = Page::factory()->layout($layout)->create();
-    $contents = Content::factory()->count(4)->create();
+    $contents = Section::factory()->count(4)->create();
 
     $first = $contents->first();
 

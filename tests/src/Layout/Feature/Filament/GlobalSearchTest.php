@@ -3,9 +3,10 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Language;
-use Capell\Layout\Filament\Resources\Collections\ContentResource;
-use Capell\Layout\Filament\Resources\Widgets\WidgetResource;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Filament\Resources\Sections\SectionResource;
+use Capell\Mosaic\Filament\Resources\Widgets\WidgetResource;
+use Capell\Mosaic\Models\Section;
+use Capell\Mosaic\Models\Widget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Facades\Filament;
 use Filament\GlobalSearch\GlobalSearchResult;
@@ -27,7 +28,7 @@ it('finds content', function (string $searchTerm): void {
 
     $language = Language::factory()->create();
 
-    $content = Content::factory()->create([
+    $content = Section::factory()->create([
         'name' => $contentNameToken,
     ]);
 
@@ -37,12 +38,12 @@ it('finds content', function (string $searchTerm): void {
     ]);
 
     $results = Filament::getGlobalSearchProvider()->getResults($searchTerm);
-    $contentResult = $results?->getCategories()->get(ContentResource::getPluralModelLabel())?->first();
+    $contentResult = $results?->getCategories()->get(SectionResource::getPluralModelLabel())?->first();
 
     expect($contentResult)
         ->toBeInstanceOf(GlobalSearchResult::class)
         ->and($contentResult->title)->toBe($content->name)
-        ->and($contentResult->url)->toBe(ContentResource::getUrl('edit', ['record' => $content]));
+        ->and($contentResult->url)->toBe(SectionResource::getUrl('edit', ['record' => $content]));
 })->with([
     'name' => ['capell-layout-content-name-token'],
     'title' => ['capell-layout-content-title-token'],

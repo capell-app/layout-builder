@@ -8,7 +8,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Mosaic\Actions\HeroWidgetHasPrimaryHeadingAction;
-use Capell\Mosaic\Models\Collection;
+use Capell\Mosaic\Models\Section;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 
 class Hero extends AbstractWidget
@@ -17,7 +17,7 @@ class Hero extends AbstractWidget
 
     public static function loadWidgetAssets(array &$morphRelations, ?Language $language = null): void
     {
-        $morphRelations[Collection::class]['related'] = fn (BuilderContract $query): BuilderContract => $query->with(Content::getMorphRelations($language))
+        $morphRelations[Section::class]['related'] = fn (BuilderContract $query): BuilderContract => $query->with(Section::getMorphRelations($language))
             ->withWhereHas('translation', fn (BuilderContract $query): BuilderContract => $query->with('language'));
 
         $morphRelations[Page::class]['related'] = fn (BuilderContract $query): BuilderContract => $query->with(Page::getMorphRelations($language))

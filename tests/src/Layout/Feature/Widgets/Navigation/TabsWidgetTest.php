@@ -5,9 +5,9 @@ declare(strict_types=1);
 use Capell\Core\Enums\NavigationItemType;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Layout\Database\Factories\LayoutFactory;
-use Capell\Layout\Models\Widget;
-use Capell\Layout\Support\Creator\WidgetCreator;
+use Capell\Mosaic\Database\Factories\LayoutFactory;
+use Capell\Mosaic\Models\Widget;
+use Capell\Mosaic\Support\Creator\WidgetCreator;
 use Capell\Tests\Support\Concerns\TestingFrontend;
 use Pest\Expectation;
 

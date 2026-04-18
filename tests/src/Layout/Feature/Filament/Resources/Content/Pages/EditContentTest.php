@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use Capell\Admin\Filament\Actions\DeleteAction;
 use Capell\Core\Models\Site;
+use Capell\Mosaic\Filament\Resources\Sections\Pages\EditSection;
+use Capell\Mosaic\Models\Section;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Laravel\assertSoftDeleted;
@@ -17,13 +19,13 @@ beforeEach(function (): void {
 });
 
 it('can save', function (): void {
-    $content = Content::factory()->create();
-    $newData = Content::factory()
+    $content = Section::factory()->create();
+    $newData = Section::factory()
         ->site(Site::factory()->create())
-        ->parent(Content::factory()->create())
+        ->parent(Section::factory()->create())
         ->make();
 
-    livewire(EditCollection::class, [
+    livewire(EditSection::class, [
         'record' => $content->getRouteKey(),
     ])
         ->assertSuccessful()
@@ -54,9 +56,9 @@ it('can save', function (): void {
 });
 
 test('validates edit content', function (): void {
-    $content = Content::factory()->create();
+    $content = Section::factory()->create();
 
-    livewire(EditCollection::class, [
+    livewire(EditSection::class, [
         'record' => $content->getRouteKey(),
     ])
         ->assertSuccessful()
@@ -68,9 +70,9 @@ test('validates edit content', function (): void {
 });
 
 it('can delete', function (): void {
-    $content = Content::factory()->create();
+    $content = Section::factory()->create();
 
-    livewire(EditCollection::class, [
+    livewire(EditSection::class, [
         'record' => $content->getRouteKey(),
     ])
         ->assertSuccessful()

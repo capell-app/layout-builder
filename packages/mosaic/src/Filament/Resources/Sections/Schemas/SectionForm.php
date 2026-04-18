@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Collections\Schemas;
+namespace Capell\Mosaic\Filament\Resources\Sections\Schemas;
 
 use Capell\Admin\Filament\Components\Forms\Type\TypeSchema;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
@@ -10,12 +10,12 @@ use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Type;
 use Capell\Mosaic\Enums\TypeSchemaEnum;
-use Capell\Mosaic\Filament\Resources\Collections\Schemas\Types\DefaultContentSchema;
+use Capell\Mosaic\Filament\Resources\Sections\Schemas\Types\DefaultContentSchema;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
-class CollectionForm implements FormConfigurator
+class SectionForm implements FormConfigurator
 {
     public static function configure(Schema $schema): Schema
     {

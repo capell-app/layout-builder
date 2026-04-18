@@ -3,8 +3,9 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Page;
-use Capell\Layout\Models\Widget;
-use Capell\Layout\Models\WidgetAsset;
+use Capell\Mosaic\Models\Section;
+use Capell\Mosaic\Models\Widget;
+use Capell\Mosaic\Models\WidgetAsset;
 
 it('has many widget assets', function (): void {
     $widget = Widget::factory()->create();
@@ -24,7 +25,7 @@ it('has many pages through widget assets', function (): void {
 
 it('has many contents through widget assets', function (): void {
     $widget = Widget::factory()->create();
-    $content = Content::factory()->create();
+    $content = Section::factory()->create();
 
     WidgetAsset::factory()->widget($widget)->asset($content)->create();
 

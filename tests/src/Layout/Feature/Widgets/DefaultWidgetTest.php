@@ -7,10 +7,10 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
-use Capell\Layout\Database\Factories\LayoutFactory;
-use Capell\Layout\Enums\ActionLinkEnum;
-use Capell\Layout\Models\Widget;
-use Capell\Layout\Support\Creator\WidgetCreator;
+use Capell\Mosaic\Database\Factories\LayoutFactory;
+use Capell\Mosaic\Enums\ActionLinkEnum;
+use Capell\Mosaic\Models\Widget;
+use Capell\Mosaic\Support\Creator\WidgetCreator;
 use Capell\Tests\Support\Concerns\TestingFrontend;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 

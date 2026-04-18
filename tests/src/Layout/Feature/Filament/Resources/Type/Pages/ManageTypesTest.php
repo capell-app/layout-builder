@@ -7,7 +7,7 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Resources\Types\Pages\ManageTypes;
 use Capell\Core\Database\Factories\TypeFactory;
 use Capell\Core\Models\Type;
-use Capell\Layout\Enums\TypeEnum;
+use Capell\Mosaic\Enums\TypeEnum;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;

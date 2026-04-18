@@ -2,32 +2,33 @@
 
 declare(strict_types=1);
 
-use Capell\Layout\Filament\Resources\Collections\Widgets\ContentAlertsWidget;
-use Capell\Layout\Models\Collection;
+use Capell\Mosaic\Database\Factories\SectionFactory;
+use Capell\Mosaic\Filament\Resources\Sections\Widgets\ContentAlertsWidget;
+use Capell\Mosaic\Models\Section;
 use Illuminate\Support\Collection;
 
 use function Pest\Livewire\livewire;
 
 it('renders the content alerts widget', function (): void {
-    $content = Content::factory()->create();
+    $content = Section::factory()->create();
 
     livewire(ContentAlertsWidget::class, ['record' => $content])
         ->assertSuccessful();
 });
 
 it('shows alert for content state', function (string $state, string $alertKey): void {
-    $content = Content::factory()
+    $content = Section::factory()
         ->when(
             $state === 'expired',
-            fn (ContentFactory $factory): ContentFactory => $factory->expired(),
+            fn (SectionFactory $factory): SectionFactory => $factory->expired(),
         )
         ->when(
             $state === 'pending',
-            fn (ContentFactory $factory): ContentFactory => $factory->pending(),
+            fn (SectionFactory $factory): SectionFactory => $factory->pending(),
         )
         ->when(
             $state === 'trashed',
-            fn (ContentFactory $factory): ContentFactory => $factory->trashed(),
+            fn (SectionFactory $factory): SectionFactory => $factory->trashed(),
         )
         ->create();
 
@@ -42,7 +43,7 @@ it('shows alert for content state', function (string $state, string $alertKey): 
     ]);
 
 test('does not show alert for published content', function (): void {
-    $content = Content::factory()->published()->create();
+    $content = Section::factory()->published()->create();
 
     livewire(ContentAlertsWidget::class, ['record' => $content])
         ->assertSuccessful()

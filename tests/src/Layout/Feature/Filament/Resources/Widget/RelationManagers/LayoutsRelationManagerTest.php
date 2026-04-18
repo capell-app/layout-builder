@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
-use Capell\Layout\Filament\Resources\Widgets\Pages\EditWidget;
-use Capell\Layout\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Filament\Resources\Widgets\Pages\EditWidget;
+use Capell\Mosaic\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager;
+use Capell\Mosaic\Models\Widget;
 
 use function Pest\Livewire\livewire;
 

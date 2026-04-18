@@ -9,7 +9,8 @@ use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Core\Contracts\Actionable;
 use Capell\Mosaic\Actions\CreateContentAction;
 use Capell\Mosaic\Actions\MutateContentDataBeforeFillAction;
-use Capell\Mosaic\Models\Collection;
+use Capell\Mosaic\Filament\Resources\Sections\Schemas\SectionForm;
+use Capell\Mosaic\Models\Section;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
@@ -47,7 +48,7 @@ enum AssetEnum: string implements HasColor, HasIcon, HasLabel
     public function getModel(): string
     {
         return match ($this) {
-            self::Content => config('capell-mosaic.assets.content.model', Collection::class),
+            self::Content => config('capell-mosaic.assets.content.model', Section::class),
         };
     }
 
@@ -64,7 +65,7 @@ enum AssetEnum: string implements HasColor, HasIcon, HasLabel
     public function getFormClass(): string
     {
         return match ($this) {
-            self::Content => CollectionForm::class,
+            self::Content => SectionForm::class,
         };
     }
 

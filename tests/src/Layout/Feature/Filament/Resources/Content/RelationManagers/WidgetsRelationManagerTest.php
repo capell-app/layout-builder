@@ -2,14 +2,16 @@
 
 declare(strict_types=1);
 
-use Capell\Layout\Filament\Resources\Collections\RelationManagers\WidgetsRelationManager;
-use Capell\Layout\Models\Widget;
-use Capell\Layout\Models\WidgetAsset;
+use Capell\Mosaic\Filament\Resources\Sections\Pages\EditSection;
+use Capell\Mosaic\Filament\Resources\Sections\RelationManagers\WidgetsRelationManager;
+use Capell\Mosaic\Models\Section;
+use Capell\Mosaic\Models\Widget;
+use Capell\Mosaic\Models\WidgetAsset;
 
 use function Pest\Livewire\livewire;
 
 it('can list widgets for a content model', function (): void {
-    $content = Content::factory()->create();
+    $content = Section::factory()->create();
 
     $widget = Widget::factory()
         ->has(
@@ -29,7 +31,7 @@ it('can list widgets for a content model', function (): void {
 
     livewire(WidgetsRelationManager::class, [
         'ownerRecord' => $content,
-        'pageClass' => EditCollection::class,
+        'pageClass' => EditSection::class,
     ])
         ->assertSuccessful()
         ->assertCountTableRecords(2)
@@ -38,7 +40,7 @@ it('can list widgets for a content model', function (): void {
 });
 
 it('can search widgets for a content model', function (): void {
-    $content = Content::factory()->create();
+    $content = Section::factory()->create();
 
     Widget::factory()
         ->count(5)
@@ -51,7 +53,7 @@ it('can search widgets for a content model', function (): void {
 
     livewire(WidgetsRelationManager::class, [
         'ownerRecord' => $content,
-        'pageClass' => EditCollection::class,
+        'pageClass' => EditSection::class,
     ])
         ->assertSuccessful()
         ->searchTable($widgetAsset->widget->key)

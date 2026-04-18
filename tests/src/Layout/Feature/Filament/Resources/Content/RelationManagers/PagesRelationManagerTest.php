@@ -3,15 +3,17 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Page;
-use Capell\Layout\Filament\Resources\Collections\RelationManagers\PagesRelationManager;
-use Capell\Layout\Models\Widget;
-use Capell\Layout\Models\WidgetAsset;
+use Capell\Mosaic\Filament\Resources\Sections\Pages\EditSection;
+use Capell\Mosaic\Filament\Resources\Sections\RelationManagers\PagesRelationManager;
+use Capell\Mosaic\Models\Section;
+use Capell\Mosaic\Models\Widget;
+use Capell\Mosaic\Models\WidgetAsset;
 
 use function Pest\Livewire\livewire;
 
 it('can list pages for a content model', function (): void {
     $page = Page::factory()->withTranslations()->create();
-    $content = Content::factory()->create();
+    $content = Section::factory()->create();
 
     $widget = Widget::factory()
         ->has(
@@ -31,7 +33,7 @@ it('can list pages for a content model', function (): void {
 
     livewire(PagesRelationManager::class, [
         'ownerRecord' => $content,
-        'pageClass' => EditCollection::class,
+        'pageClass' => EditSection::class,
     ])
         ->assertSuccessful()
         ->assertCountTableRecords(1)
@@ -41,7 +43,7 @@ it('can list pages for a content model', function (): void {
 
 it('can search pages for a content model', function (): void {
     $page = Page::factory()->withTranslations()->create();
-    $content = Content::factory()->create();
+    $content = Section::factory()->create();
     Widget::factory()
         ->has(
             WidgetAsset::factory()
@@ -62,7 +64,7 @@ it('can search pages for a content model', function (): void {
 
     livewire(PagesRelationManager::class, [
         'ownerRecord' => $content,
-        'pageClass' => EditCollection::class,
+        'pageClass' => EditSection::class,
     ])
         ->assertSuccessful()
         ->searchTable($page->getKey())

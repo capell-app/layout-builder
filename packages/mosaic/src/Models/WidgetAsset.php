@@ -48,7 +48,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property int|null $created_by
  * @property int|null $updated_by
  * @property int|null $deleted_by
- * @property-read Model|Model<Pageable>|Content $asset
+ * @property-read Model|Model<Pageable>|Section $asset
  * @property-read User|null $creator
  * @property-read User|null $destroyer
  * @property-read User|null $editor
@@ -57,7 +57,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property-read Model<Pageable>|null $page
  * @property-read Model<Pageable>|null $relatedPage
  * @property-read Widget|null $widget
- * @property-read Collection|Content[] $related
+ * @property-read Collection|Section[] $related
  * @property-read int|null $related_count
  * @property-read MediaCollection<int, Media> $media
  * @property-read int|null $media_count

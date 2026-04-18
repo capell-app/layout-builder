@@ -5,13 +5,13 @@ declare(strict_types=1);
 use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Type;
-use Capell\Layout\Actions\InstallPackageAction;
-use Capell\Layout\Enums\ContentTypeEnum;
-use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Enums\WidgetTypeEnum;
-use Capell\Layout\Models\Collection;
-use Capell\Layout\Models\Widget;
-use Capell\Layout\Models\WidgetAsset;
+use Capell\Mosaic\Actions\InstallPackageAction;
+use Capell\Mosaic\Enums\ContentTypeEnum;
+use Capell\Mosaic\Enums\LayoutTypeEnum;
+use Capell\Mosaic\Enums\WidgetTypeEnum;
+use Capell\Mosaic\Models\Section;
+use Capell\Mosaic\Models\Widget;
+use Capell\Mosaic\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
 it('installs layout package: creates types, widgets, layouts, and registers morphs', function (): void {
@@ -90,7 +90,7 @@ it('installs layout package: creates types, widgets, layouts, and registers morp
     expect(Relation::getMorphedModel('widget'))
         ->toBe(Widget::class)
         ->and(Relation::getMorphedModel('content'))
-        ->toBe(Collection::class)
+        ->toBe(Section::class)
         ->and(Relation::getMorphedModel('widget_asset'))
         ->toBe(WidgetAsset::class);
 });

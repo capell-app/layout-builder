@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Models;
 
+use Aimeos\Nestedset\Collection;
 use Aimeos\Nestedset\NodeTrait;
 use Aimeos\Nestedset\QueryBuilder;
 use Bkwld\Cloner\Cloneable;
@@ -30,9 +31,9 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Core\Workspaces\BelongsToWorkspace;
-use Capell\Mosaic\Database\Factories\CollectionFactory;
+use Capell\Mosaic\Database\Factories\SectionFactory;
 use Capell\Mosaic\Models\Concerns\ComposhipsJsonRelationshipsTrait;
-use Capell\Mosaic\Observers\CollectionObserver;
+use Capell\Mosaic\Observers\SectionObserver;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -58,7 +59,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read EloquentCollection<int, AssetRelation> $assets
  * @property-read int|null $assets_count
  * @property-read int|null $audits_count
- * @property-read \Aimeos\Nestedset\Collection<int, Collection> $children
+ * @property-read Collection<int, Section> $children
  * @property-read int|null $children_count
  * @property-read User|null $creator
  * @property-read User|null $destroyer
@@ -69,9 +70,9 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read EloquentCollection<int, Language> $languages
  * @property-read int|null $languages_count
  * @property-read Pageable|null $page
- * @property-read \Aimeos\Nestedset\Collection<int, Pageable> $pages
+ * @property-read Collection<int, Pageable> $pages
  * @property-read int|null $pages_count
- * @property-read Collection|null $parent
+ * @property-read Section|null $parent
  * @property-write mixed $parent_id
  * @property-read Site|null $site
  * @property-read Translation|null $translation
@@ -82,7 +83,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read int|null $widgets_count
  * @property-read EloquentCollection|Media[] $media
  * @property-read int|null $media_count
- * @property-read EloquentCollection|Collection[] $related
+ * @property-read EloquentCollection|Section[] $related
  * @property-read int|null $related_count
  * @property-read Page|null $linkedPage
  * @property-read EloquentCollection<int, AssetRelation> $assetRelations
@@ -114,8 +115,8 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @mixin Model
  * @mixin QueryBuilder
  */
-#[ObservedBy(CollectionObserver::class)]
-class Collection extends Model implements HasMedia, PageCacheable, Publishable, Typeable, Userstampable
+#[ObservedBy(SectionObserver::class)]
+class Section extends Model implements HasMedia, PageCacheable, Publishable, Typeable, Userstampable
 {
     use BelongsToWorkspace;
     use Cloneable;
@@ -133,6 +134,8 @@ class Collection extends Model implements HasMedia, PageCacheable, Publishable, 
     use LogsActivity;
     use NodeTrait;
     use SoftDeletes;
+
+    protected $table = 'sections';
 
     /**
      * The attributes that are mass assignable.
@@ -159,7 +162,7 @@ class Collection extends Model implements HasMedia, PageCacheable, Publishable, 
         'translations',
     ];
 
-    protected static string $factory = CollectionFactory::class;
+    protected static string $factory = SectionFactory::class;
 
     public static function getMorphRelations(?Language $language = null, bool $normalizeKey = false): array
     {

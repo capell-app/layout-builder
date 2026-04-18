@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Layout;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Models\Widget;
 
 it('has many widgets', function (): void {
     Widget::factory()->create(['key' => 'test']);

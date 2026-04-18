@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Page;
-use Capell\Layout\Database\Factories\LayoutFactory;
-use Capell\Layout\Livewire\Assets\Table\PageAssets;
+use Capell\Mosaic\Database\Factories\LayoutFactory;
+use Capell\Mosaic\Livewire\Assets\Table\PageAssets;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Livewire\livewire;

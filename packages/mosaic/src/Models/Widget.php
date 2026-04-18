@@ -52,7 +52,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
 /**
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WidgetAsset> $assets
  * @property-read int|null $assets_count
- * @property-read \Aimeos\Nestedset\Collection<int, Content> $contents
+ * @property-read \Aimeos\Nestedset\Collection<int, Section> $contents
  * @property-read int|null $contents_count
  * @property-read User|null $creator
  * @property-read User|null $destroyer
@@ -309,7 +309,7 @@ class Widget extends Model implements HasMedia, PageCacheable, Publishable, Stat
     public function contents(): MorphToMany
     {
         return $this->morphedByMany(
-            Collection::class,
+            Section::class,
             'asset',
             'widget_assets',
             'widget_id',

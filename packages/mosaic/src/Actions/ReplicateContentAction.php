@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Actions;
 
+use Capell\Mosaic\Models\Section;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static Content run(Content $content, array $data = [])
+ * @method static Section run(Section $content, array $data = [])
  */
 class ReplicateContentAction
 {
     use AsObject;
 
-    public function handle(Content $content, array $data = []): Content
+    public function handle(Section $content, array $data = []): Section
     {
         $content->load('translations');
 
@@ -23,7 +24,7 @@ class ReplicateContentAction
             unset($data['translations']);
         }
 
-        /** @var Content $className */
+        /** @var class-string<Section> $className */
         $className = $content::class;
 
         $model = $className::query()->find($content->getKey());

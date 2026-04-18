@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Collections\Pages;
+namespace Capell\Mosaic\Filament\Resources\Sections\Pages;
 
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\DeleteAction;
@@ -14,8 +14,9 @@ use Capell\Mosaic\Actions\ReplicateContentAction;
 use Capell\Mosaic\Enums\LivewireComponentsEnum;
 use Capell\Mosaic\Enums\ResourceEnum;
 use Capell\Mosaic\Filament\Actions\CreateContentAction;
-use Capell\Mosaic\Filament\Resources\Collections\ContentResource;
-use Capell\Mosaic\Filament\Resources\Collections\Widgets\ContentAlertsWidget;
+use Capell\Mosaic\Filament\Resources\Sections\SectionResource;
+use Capell\Mosaic\Filament\Resources\Sections\Widgets\ContentAlertsWidget;
+use Capell\Mosaic\Models\Section;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -28,10 +29,10 @@ use Livewire\Attributes\On;
 use Override;
 
 /**
- * @property Content $record
+ * @property Section $record
  */
 #[On('$refresh')]
-class EditCollection extends EditRecord
+class EditSection extends EditRecord
 {
     use HasAncestorBreadcrumbs;
     use HasPageCacheNotification;
@@ -40,7 +41,7 @@ class EditCollection extends EditRecord
     }
     use HasTypeRelationManagers;
 
-    /** @return class-string<ContentResource> */
+    /** @return class-string<SectionResource> */
     public static function getResource(): string
     {
         return CapellAdmin::getResource(ResourceEnum::Content);

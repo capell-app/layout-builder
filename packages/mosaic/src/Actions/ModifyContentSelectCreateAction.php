@@ -10,6 +10,7 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
+use Capell\Mosaic\Models\Section;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Width;
@@ -51,7 +52,7 @@ class ModifyContentSelectCreateAction
                     })
                     ->modalWidth(Width::ScreenLarge)
                     ->slideOver()
-                    ->visible(fn (?int $state, Content $record): bool => filled($state))
+                    ->visible(fn (?int $state, Section $record): bool => filled($state))
                     ->successNotificationTitle(
                         fn (Action $action): string => __(
                             'capell-admin::notification.created_successfully',

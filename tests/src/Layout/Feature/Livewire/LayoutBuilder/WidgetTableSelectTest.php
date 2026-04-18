@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Capell\Layout\Livewire\Filament\LayoutBuilder\WidgetTableSelect;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Livewire\Filament\LayoutBuilder\WidgetTableSelect;
+use Capell\Mosaic\Models\Widget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Livewire\livewire;

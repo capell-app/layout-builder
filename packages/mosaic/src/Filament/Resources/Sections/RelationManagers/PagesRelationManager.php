@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Collections\RelationManagers;
+namespace Capell\Mosaic\Filament\Resources\Sections\RelationManagers;
 
 use BackedEnum;
 use Capell\Admin\Filament\Components\Tables\Columns\DateColumn;
@@ -16,6 +16,7 @@ use Capell\Admin\Filament\Resources\Pages\PageResource;
 use Capell\Core\Actions\GetEditPageResourceUrlAction;
 use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Facades\CapellCore;
+use Capell\Mosaic\Models\Section;
 use Capell\Mosaic\Models\WidgetAsset;
 use Filament\Actions\EditAction;
 use Filament\Tables\Table;
@@ -25,7 +26,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Override;
 
 /**
- * @property Content $ownerRecord
+ * @property Section $ownerRecord
  */
 class PagesRelationManager extends AbstractPagesRelationManager
 {

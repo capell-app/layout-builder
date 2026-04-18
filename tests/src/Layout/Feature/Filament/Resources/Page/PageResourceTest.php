@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Capell\Admin\Filament\Resources\Pages\PageResource;
 use Capell\Core\Models\Page;
-use Capell\Layout\Enums\LivewireComponentsEnum;
+use Capell\Mosaic\Enums\LivewireComponentsEnum;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Laravel\get;

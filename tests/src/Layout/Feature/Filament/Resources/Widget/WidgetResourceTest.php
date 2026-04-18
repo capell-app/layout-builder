@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Capell\Layout\Filament\Resources\Widgets\WidgetResource;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Filament\Resources\Widgets\WidgetResource;
+use Capell\Mosaic\Models\Widget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Laravel\get;

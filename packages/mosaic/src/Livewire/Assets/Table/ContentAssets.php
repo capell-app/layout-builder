@@ -10,6 +10,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Enums\ResourceEnum;
+use Capell\Mosaic\Filament\Resources\Sections\Tables\SectionsTable;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Locked;
@@ -19,7 +20,7 @@ class ContentAssets extends AbstractAssets
     public string $type = 'content';
 
     #[Locked]
-    public string $tableConfiguration = CollectionsTable::class;
+    public string $tableConfiguration = SectionsTable::class;
 
     public static function getResource(): string
     {
@@ -48,7 +49,7 @@ class ContentAssets extends AbstractAssets
 
     protected function getTableQuery(): Builder
     {
-        /* @var class-string<\Capell\Mosaic\Models\Content> $model */
+        /* @var class-string<\Capell\Mosaic\Models\Section> $model */
         $model = CapellCore::getModel(ModelEnum::Content->name);
 
         return $model::with([

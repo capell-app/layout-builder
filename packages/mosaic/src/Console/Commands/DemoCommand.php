@@ -13,13 +13,14 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Mosaic\Models\Collection;
+use Capell\Mosaic\Models\Section;
 use Capell\Mosaic\Support\Creator\ContentCreator;
 use Capell\Mosaic\Support\Creator\DemoCreator;
 use Capell\Mosaic\Support\Creator\TypeCreator;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Auth\User;
+use Illuminate\Support\Collection;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class DemoCommand extends Command
@@ -310,7 +311,7 @@ class DemoCommand extends Command
         $this->advanceProgress();
     }
 
-    private function createSiteContents(ContentCreator $contentCreator, array $data, Site $site, ?Collection $languages = null, ?Content $parent = null): void
+    private function createSiteContents(ContentCreator $contentCreator, array $data, Site $site, ?Collection $languages = null, ?Section $parent = null): void
     {
         if ($site->contents()->count() > 28) {
             $this->setProgressMessage('Content limit reached.');
@@ -326,7 +327,7 @@ class DemoCommand extends Command
             'name' => $data['name']['en'],
         ];
 
-        if ($parent instanceof Content) {
+        if ($parent instanceof Section) {
             $contentData['parent_id'] = $parent->id;
         }
 

@@ -6,6 +6,7 @@ namespace Capell\Mosaic\Filament\Components\Forms\Content;
 
 use Capell\Mosaic\Actions\ReplicateContentAction;
 use Capell\Mosaic\Filament\Components\Forms\ContentSelect;
+use Capell\Mosaic\Models\Section;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
@@ -32,7 +33,7 @@ class RelatedRepeater
 
                         $newData = $items[$arguments['item']];
 
-                        $existingContent = Content::query()->find($newData['content_id']);
+                        $existingContent = Section::query()->find($newData['content_id']);
 
                         throw_unless($existingContent, Exception::class, 'Content not found with ID: ' . $newData['content_id']);
 
