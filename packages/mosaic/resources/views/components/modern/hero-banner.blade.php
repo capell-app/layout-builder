@@ -8,9 +8,11 @@
     - secondaryCta (array): { label, url }
     - backgroundImage (string): Image URL
     - backgroundGradient (string): CSS gradient override
+    - videoUrl (string): Video URL for background (MP4 preferred)
     - height (string): 'sm|md|lg|xl' - Default: 'lg'
     - textAlign (string): 'left|center|right' - Default: 'center'
     - accentColor (string): 'primary|secondary|tertiary' - Default: 'tertiary' (gold)
+    - parallax (bool): Enable parallax scroll effect - Default: false
     - customizable (bool): Show admin customize button
 --}}
 
@@ -21,9 +23,11 @@
     'secondaryCta' => null,
     'backgroundImage' => null,
     'backgroundGradient' => 'linear-gradient(135deg, #7c3aed 0%, #3131c0 100%)',
+    'videoUrl' => null,
     'height' => 'lg',
     'textAlign' => 'center',
     'accentColor' => 'tertiary',
+    'parallax' => false,
     'customizable' => true,
 ])
 
@@ -48,16 +52,31 @@
 <section
     @class([
         'mosaic-hero-banner relative overflow-hidden rounded-lg',
+        'mosaic-hero-parallax' => $parallax,
         $heightClass,
         $textClass,
     ])
     style="
-        background-image: {{ $backgroundImage ? "url('$backgroundImage')" : 'none' }};
+        background-image: {{ $backgroundImage && ! $videoUrl ? "url('$backgroundImage')" : 'none' }};
         background-size: cover;
         background-position: center;
         background-color: var(--mosaic-surface-container-high);
+        {{ $parallax ? 'background-attachment: fixed;' : '' }}
     "
 >
+    {{-- Video Background --}}
+    @if($videoUrl)
+        <video
+            class="absolute inset-0 w-full h-full object-cover"
+            autoplay
+            muted
+            loop
+            playsinline
+        >
+            <source src="{{ $videoUrl }}" type="video/mp4">
+        </video>
+    @endif
+
     {{-- Background Overlay Gradient --}}
     <div
         class="absolute inset-0 opacity-90"
@@ -121,7 +140,7 @@
             @if($customizable && auth()->check())
                 <div class="mt-8 pt-8 border-t" style="border-color: var(--mosaic-outline-variant); opacity: 0.6;">
                     <span class="mosaic-text-label text-xs">
-                        ✨ Customize: Title, Gradient, CTA buttons in properties panel
+                        ✨ Customize: Title, gradient, video background, parallax, CTA buttons
                     </span>
                 </div>
             @endif

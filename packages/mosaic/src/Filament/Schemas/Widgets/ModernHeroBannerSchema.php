@@ -115,6 +115,17 @@ class ModernHeroBannerSchema
                         ->placeholder('https://example.com/image.jpg')
                         ->url()
                         ->helperText('Optional image to overlay with gradient'),
+
+                    TextInput::make('data.videoUrl')
+                        ->label('Video Background URL')
+                        ->placeholder('https://example.com/video.mp4')
+                        ->url()
+                        ->helperText('MP4 video to play in background (overrides image)'),
+
+                    Toggle::make('data.parallax')
+                        ->label('Enable Parallax Scroll')
+                        ->default(false)
+                        ->helperText('Creates depth effect as user scrolls'),
                 ])->columns(2),
 
             Section::make('Advanced')
@@ -150,10 +161,12 @@ class ModernHeroBannerSchema
             ],
             'secondaryCta' => null,
             'backgroundImage' => null,
+            'videoUrl' => null,
             'backgroundGradient' => 'linear-gradient(135deg, #7c3aed 0%, #3131c0 100%)',
             'height' => 'lg',
             'textAlign' => 'center',
             'accentColor' => 'tertiary',
+            'parallax' => false,
             'customizable' => true,
         ];
     }
