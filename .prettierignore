@@ -4,3 +4,5 @@
 composer.lock
 packages/**/publishes/dist/assets/**
 tests/.pest/snapshots/
+
+/storage/

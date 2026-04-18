@@ -1,0 +1,325 @@
+/*
+ * Capell Mosaic - Modern Design Tokens
+ *
+ * Based on "The Sovereign Architect" design system
+ * Dark theme with violet/purple primary, gold accents, and tonal depth
+ *
+ * Usage in Blade:
+ *   class="bg-mosaic-surface text-mosaic-on-surface"
+ *
+ * Apply as Tailwind theme config for seamless integration
+ */
+
+:root {
+  /* Color Palette */
+  --mosaic-primary: #d2bbff;
+  --mosaic-primary-container: #7c3aed;
+  --mosaic-secondary: #c0c1ff;
+  --mosaic-secondary-container: #3131c0;
+  --mosaic-tertiary: #ffb784;
+  --mosaic-tertiary-container: #a15100;
+
+  /* Surface Hierarchy (Tonal Layering) */
+  --mosaic-background: #131318;
+  --mosaic-surface: #1b1b20;
+  --mosaic-surface-dim: #131318;
+  --mosaic-surface-bright: #39383e;
+  --mosaic-surface-container-lowest: #0e0e13;
+  --mosaic-surface-container-low: #1b1b20;
+  --mosaic-surface-container: #1f1f24;
+  --mosaic-surface-container-high: #2a292f;
+  --mosaic-surface-container-highest: #35343a;
+  --mosaic-surface-variant: #35343a;
+
+  /* Text Colors */
+  --mosaic-on-surface: #e4e1e9;
+  --mosaic-on-surface-variant: #ccc3d8;
+  --mosaic-on-primary: #3f008e;
+  --mosaic-on-primary-container: #ede0ff;
+  --mosaic-on-secondary: #1000a9;
+  --mosaic-on-secondary-container: #b0b2ff;
+  --mosaic-on-tertiary: #4f2500;
+  --mosaic-on-tertiary-container: #ffe0cd;
+
+  /* Semantic Colors */
+  --mosaic-error: #ffb4ab;
+  --mosaic-error-container: #93000a;
+  --mosaic-on-error: #690005;
+  --mosaic-on-error-container: #ffdad6;
+
+  --mosaic-success: #84dd63;
+  --mosaic-success-container: #2d6a3a;
+  --mosaic-on-success: #132e1a;
+  --mosaic-on-success-container: #a5f48e;
+
+  --mosaic-warning: #ffc107;
+  --mosaic-warning-container: #b88d00;
+  --mosaic-on-warning: #3f2700;
+  --mosaic-on-warning-container: #ffe0a3;
+
+  /* Outline / Borders (Ghost style) */
+  --mosaic-outline: #958da1;
+  --mosaic-outline-variant: #4a4455;
+
+  /* Shadows & Glows */
+  --mosaic-shadow-ambient: rgba(0, 0, 0, 0.4);
+  --mosaic-glow-primary: rgba(210, 187, 255, 0.08);
+  --mosaic-glow-tertiary: rgba(255, 183, 132, 0.12);
+
+  /* Spacing Scale */
+  --mosaic-spacing-xs: 0.25rem;
+  --mosaic-spacing-sm: 0.5rem;
+  --mosaic-spacing-md: 1rem;
+  --mosaic-spacing-lg: 1.5rem;
+  --mosaic-spacing-xl: 2rem;
+  --mosaic-spacing-2xl: 2.5rem;
+  --mosaic-spacing-3xl: 3rem;
+
+  /* Typography */
+  --mosaic-font-headline: 'Space Grotesk', system-ui, sans-serif;
+  --mosaic-font-body: 'Inter', system-ui, sans-serif;
+  --mosaic-font-mono: 'Fira Code', 'Source Code Pro', monospace;
+
+  --mosaic-text-display-lg: 3.5rem;
+  --mosaic-text-display-md: 2.8rem;
+  --mosaic-text-headline-lg: 2rem;
+  --mosaic-text-headline-md: 1.75rem;
+  --mosaic-text-headline-sm: 1.5rem;
+  --mosaic-text-title-lg: 1.375rem;
+  --mosaic-text-title-md: 1rem;
+  --mosaic-text-title-sm: 0.875rem;
+  --mosaic-text-body-lg: 1rem;
+  --mosaic-text-body-md: 0.9375rem;
+  --mosaic-text-body-sm: 0.875rem;
+  --mosaic-text-label-lg: 0.75rem;
+  --mosaic-text-label-md: 0.6875rem;
+  --mosaic-text-label-sm: 0.625rem;
+
+  /* Border Radius */
+  --mosaic-radius-sm: 0.375rem;
+  --mosaic-radius-md: 0.5rem;
+  --mosaic-radius-lg: 0.75rem;
+  --mosaic-radius-xl: 1rem;
+  --mosaic-radius-full: 9999px;
+
+  /* Transitions */
+  --mosaic-transition-fast: 150ms ease-in-out;
+  --mosaic-transition-base: 200ms ease-in-out;
+  --mosaic-transition-slow: 300ms ease-in-out;
+
+  /* Backdrop Blur */
+  --mosaic-blur-sm: 8px;
+  --mosaic-blur-md: 12px;
+  --mosaic-blur-lg: 16px;
+  --mosaic-blur-xl: 24px;
+}
+
+/* Dark Mode Adjustments (default) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+/* Light Mode (if needed) */
+@media (prefers-color-scheme: light) {
+  :root {
+    --mosaic-background: #f8f9ff;
+    --mosaic-surface: #eff4ff;
+    --mosaic-surface-dim: #cbdbf5;
+    --mosaic-surface-bright: #f8f9ff;
+    --mosaic-surface-container-lowest: #ffffff;
+    --mosaic-surface-container-low: #eff4ff;
+    --mosaic-surface-container: #e5eeff;
+    --mosaic-surface-container-high: #dce9ff;
+    --mosaic-surface-container-highest: #d3e4fe;
+    --mosaic-surface-variant: #d3e4fe;
+
+    --mosaic-on-surface: #0b1c30;
+    --mosaic-on-surface-variant: #434655;
+  }
+}
+
+/* Utility Classes for Quick Application */
+
+/* Surfaces */
+.mosaic-bg-base {
+  background-color: var(--mosaic-background);
+}
+
+.mosaic-bg-surface {
+  background-color: var(--mosaic-surface);
+}
+
+.mosaic-bg-container {
+  background-color: var(--mosaic-surface-container);
+}
+
+.mosaic-bg-container-high {
+  background-color: var(--mosaic-surface-container-high);
+  box-shadow: inset 0 0 0 1px var(--mosaic-outline-variant);
+}
+
+.mosaic-bg-container-highest {
+  background-color: var(--mosaic-surface-container-highest);
+}
+
+.mosaic-bg-glass {
+  background-color: rgba(53, 52, 58, 0.8);
+  backdrop-filter: blur(var(--mosaic-blur-lg));
+}
+
+/* Text Colors */
+.mosaic-text-primary {
+  color: var(--mosaic-on-surface);
+}
+
+.mosaic-text-secondary {
+  color: var(--mosaic-on-surface-variant);
+}
+
+.mosaic-text-label {
+  color: var(--mosaic-on-surface-variant);
+  font-size: var(--mosaic-text-label-md);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Buttons */
+.mosaic-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.5rem;
+  border-radius: var(--mosaic-radius-md);
+  font-weight: 600;
+  font-size: var(--mosaic-text-title-md);
+  transition: all var(--mosaic-transition-base);
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+}
+
+.mosaic-btn-primary {
+  background: linear-gradient(135deg, var(--mosaic-primary-container) 0%, #5a00c6 100%);
+  color: var(--mosaic-on-primary-container);
+}
+
+.mosaic-btn-primary:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3);
+}
+
+.mosaic-btn-secondary {
+  background-color: transparent;
+  color: var(--mosaic-primary);
+  border: 1px solid var(--mosaic-outline-variant);
+}
+
+.mosaic-btn-secondary:hover {
+  background-color: var(--mosaic-surface-container);
+  border-color: var(--mosaic-primary);
+}
+
+.mosaic-btn-ghost {
+  background-color: transparent;
+  color: var(--mosaic-on-surface);
+  padding: 0.5rem 1rem;
+}
+
+.mosaic-btn-ghost:hover {
+  background-color: var(--mosaic-surface-container-low);
+}
+
+/* Cards */
+.mosaic-card {
+  background-color: var(--mosaic-surface-container);
+  border-radius: var(--mosaic-radius-lg);
+  padding: var(--mosaic-spacing-lg);
+  transition: all var(--mosaic-transition-base);
+}
+
+.mosaic-card:hover {
+  background-color: var(--mosaic-surface-container-high);
+  box-shadow: 0 12px 32px var(--mosaic-shadow-ambient);
+}
+
+.mosaic-card.active {
+  border-left: 4px solid var(--mosaic-tertiary);
+  background: radial-gradient(circle at top right, var(--mosaic-glow-tertiary), transparent);
+}
+
+/* Input Fields */
+.mosaic-input {
+  background-color: var(--mosaic-surface-container-low);
+  color: var(--mosaic-on-surface);
+  border: 1px solid var(--mosaic-outline-variant);
+  border-radius: var(--mosaic-radius-md);
+  padding: 0.625rem 1rem;
+  font-family: var(--mosaic-font-body);
+  font-size: var(--mosaic-text-body-md);
+  transition: all var(--mosaic-transition-base);
+}
+
+.mosaic-input:focus {
+  outline: none;
+  border-color: var(--mosaic-primary);
+  background-color: var(--mosaic-surface-container);
+  box-shadow: 0 0 0 3px var(--mosaic-glow-primary);
+}
+
+/* Divider (replacement for 1px borders) */
+.mosaic-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--mosaic-outline-variant), transparent);
+  margin: var(--mosaic-spacing-lg) 0;
+}
+
+/* Badge */
+.mosaic-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--mosaic-radius-full);
+  font-size: var(--mosaic-text-label-sm);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.mosaic-badge-primary {
+  background-color: var(--mosaic-primary-container);
+  color: var(--mosaic-on-primary-container);
+}
+
+.mosaic-badge-success {
+  background-color: var(--mosaic-success-container);
+  color: var(--mosaic-on-success-container);
+}
+
+.mosaic-badge-error {
+  background-color: var(--mosaic-error-container);
+  color: var(--mosaic-on-error-container);
+}
+
+.mosaic-badge-warning {
+  background-color: var(--mosaic-warning-container);
+  color: var(--mosaic-on-warning-container);
+}
+
+/* Accessibility */
+.mosaic-focus-visible:focus-visible {
+  outline: 2px solid var(--mosaic-primary);
+  outline-offset: 2px;
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+  :root {
+    --mosaic-text-display-lg: 2.5rem;
+    --mosaic-text-headline-lg: 1.5rem;
+    --mosaic-text-headline-md: 1.375rem;
+    --mosaic-spacing-2xl: 1.5rem;
+    --mosaic-spacing-3xl: 2rem;
+  }
+}

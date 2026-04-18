@@ -7,11 +7,14 @@ namespace Capell\Plugins\Models;
 use Capell\Plugins\Enums\LicenseModel;
 use Capell\Plugins\Enums\PluginKind;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MarketplacePlugin extends Model
 {
+    use HasFactory;
+
     protected $table = 'marketplace_plugins';
 
     protected $guarded = [];

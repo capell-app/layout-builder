@@ -6,6 +6,10 @@ namespace Capell\Plugins\Providers;
 
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\Plugins\Jobs\ValidateLicensesJob;
+use Capell\Plugins\Services\AnystackClient;
+use Capell\Plugins\Services\ComposerRunner;
+use Illuminate\Console\Scheduling\Schedule;
 use Spatie\LaravelPackageTools\Package;
 
 class PluginsServiceProvider extends AbstractPackageServiceProvider
@@ -24,6 +28,31 @@ class PluginsServiceProvider extends AbstractPackageServiceProvider
                 '2026_01_01_000002_create_marketplace_plugin_licenses_table',
                 '2026_01_01_000003_create_marketplace_plugin_audit_log_table',
             ]);
+    }
+
+    public function register(): void
+    {
+        parent::register();
+
+        $this->app->singleton(AnystackClient::class, fn () => new AnystackClient(
+            config('capell-plugins.anystack.base_url', 'https://api.anystack.sh'),
+            config('capell-plugins.anystack.timeout_seconds', 10),
+        ));
+
+        $this->app->singleton(ComposerRunner::class, fn () => new ComposerRunner(
+            binary: config('capell-plugins.composer.binary', 'composer'),
+            timeoutSeconds: config('capell-plugins.composer.timeout_seconds', 600),
+            workingDirectory: base_path(),
+        ));
+    }
+
+    public function boot(): void
+    {
+        parent::boot();
+
+        $this->callAfterResolving(Schedule::class, function ($schedule): void {
+            $schedule->job(ValidateLicensesJob::class)->dailyAt('03:17');
+        });
     }
 
     public function registeringPackage(): void
