@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace Capell\Assistant\Support\Pipelines;
 
 use Capell\Assistant\Contracts\AiActionContextInterface;
-use Capell\Assistant\Data\PromptData;
 use Capell\Assistant\Models\AIGenerationHistory;
 use Capell\Assistant\Support\AiRateLimiter;
 use Capell\Assistant\Support\AiResponse;
 use Capell\Assistant\Support\AiResponseParser;
 use Capell\Assistant\Support\OpenAIProvider;
+use Capell\Assistant\Support\PromptRepository;
 use Illuminate\Pipeline\Pipeline;
 use InvalidArgumentException;
 
 class SuggestMetaDescriptionsPipeline
 {
     public function __construct(
-        private readonly PromptData $prompts,
+        private readonly PromptRepository $prompts,
         private readonly OpenAIProvider $provider,
         private readonly AiResponseParser $parser,
         private readonly AiRateLimiter $rateLimiter,
@@ -62,21 +62,22 @@ class SuggestMetaDescriptionsPipeline
     {
         /** @var AiActionContextInterface $context */
         $context = $payload['context'];
+        $prompt = $this->prompts->get('meta_description');
         $content = $context->getContent();
         $keywords = $context->getKeywords();
 
-        $userMessage = strtr($this->prompts->metaDescriptionUserTemplate ?? '', [
+        $userMessage = strtr((string) ($prompt['user_template'] ?? ''), [
             '{{content}}' => $content,
             '{{keywords}}' => $keywords,
         ]);
 
         $params = [
-            'model' => config('capell-assistant.openai.default_model', $this->prompts->model),
+            'model' => (string) ($prompt['model'] ?? config('capell-assistant.prism.model')),
             'messages' => [
-                ['role' => 'system', 'content' => $this->prompts->metaDescriptionSystem ?? ''],
+                ['role' => 'system', 'content' => (string) ($prompt['system'] ?? '')],
                 ['role' => 'user', 'content' => $userMessage . "\nPlease provide 3 meta description options as a simple bullet list."],
             ],
-            'max_tokens' => config('capell-assistant.openai.max_tokens', 128),
+            'max_tokens' => (int) config('capell-assistant.prism.max_tokens', 128),
             'temperature' => 0.7,
         ];
 
@@ -111,8 +112,8 @@ class SuggestMetaDescriptionsPipeline
                 'output' => implode("\n", (array) ($payload['result'] ?? [])),
                 'prompt_tokens' => (int) ($response->metadata['prompt_tokens'] ?? 0),
                 'completion_tokens' => (int) ($response->metadata['completion_tokens'] ?? 0),
-                'total_tokens' => $response->tokensUsed,
-                'duration' => $response->duration,
+                'total_tokens' => (int) $response->tokensUsed,
+                'duration' => (float) $response->duration,
                 'metadata' => $response->metadata,
             ]);
         }

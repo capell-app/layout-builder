@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Assistant\Providers;
 
-use Capell\Admin\Contracts\Extenders\PageTitleWithSlugInputExtender as PageTitleWithSlugInputExtenderContract;
-use Capell\Admin\Contracts\Extenders\SearchMetaDataSectionExtender as SearchMetaDataSectionExtenderContract;
+use Capell\Admin\Contracts\Extenders\PageHeaderActionExtender;
+use Capell\Admin\Contracts\Extenders\SiteHeaderActionExtender;
 use Capell\Admin\Filament\Resources\Pages\Pages\EditPage;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Support\AdminEventRegistry;
@@ -13,28 +13,34 @@ use Capell\Assistant\Console\Commands\ClearAiCacheCommand;
 use Capell\Assistant\Console\Commands\InstallCommand;
 use Capell\Assistant\Console\Commands\MonitorAiUsageCommand;
 use Capell\Assistant\Console\Commands\TestOpenAiConnectionCommand;
-use Capell\Assistant\Data\PromptData;
 use Capell\Assistant\Events\AiGenerationCompleted;
 use Capell\Assistant\Events\AiGenerationFailed;
-use Capell\Assistant\Filament\Settings\AssistantSettingsSchema;
 use Capell\Assistant\Handlers\ClearCircuitBreakerHandler;
 use Capell\Assistant\Listeners\LogAiGeneration;
 use Capell\Assistant\Listeners\NotifyAiFailure;
+use Capell\Assistant\Models\AiCreatorContext;
+use Capell\Assistant\Models\AiCreatorSession;
 use Capell\Assistant\Models\AIGenerationHistory;
+use Capell\Assistant\Policies\AiCreatorPolicy;
 use Capell\Assistant\Settings\AssistantSettings;
+use Capell\Assistant\Support\Admin\AiCreatorPageExtender;
+use Capell\Assistant\Support\Admin\AiCreatorSiteExtender;
 use Capell\Assistant\Support\Admin\PageContentEditorConfigurator;
 use Capell\Assistant\Support\Admin\PageTitleWithSlugInputExtender;
-use Capell\Assistant\Support\Admin\SearchMetaDataSectionExtender;
 use Capell\Assistant\Support\AiFeatureRegistry;
 use Capell\Assistant\Support\AiRateLimiter;
 use Capell\Assistant\Support\AiResponseParser;
 use Capell\Assistant\Support\AiTokenCounter;
 use Capell\Assistant\Support\Cache\AIGenerationCache;
 use Capell\Assistant\Support\Cache\RateLimitCache;
-use Capell\Assistant\Support\OpenAIProvider;
+use Capell\Assistant\Support\ContentTargetResolver;
+use Capell\Assistant\Support\Pipelines\AiCreatorPipeline;
+use Capell\Assistant\Support\PrismProvider;
+use Capell\Assistant\Support\PromptRepository;
+use Capell\Assistant\Support\SectionRegistry;
+use Capell\Assistant\Targets\FlatJsonTarget;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
-use Capell\Core\Support\Settings\SettingsSchemaRegistry;
 use Composer\InstalledVersions;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Foundation\Application;
@@ -46,14 +52,13 @@ class AssistantServiceProvider extends AbstractPackageServiceProvider
 
     public static string $packageName = 'capell-app/assistant';
 
-    public static string $description = 'OpenAI-powered content generation for titles, descriptions, and page content with rate limiting and audit logs.';
+    public static string $description = 'AI Assistant for Capell';
 
     public function configurePackage(Package $package): void
     {
         $package->name(self::$name)
             ->hasViews(self::$name)
             ->hasConfigFile(self::$name)
-            ->hasTranslations()
             ->hasCommands([
                 ClearAiCacheCommand::class,
                 InstallCommand::class,
@@ -77,43 +82,57 @@ class AssistantServiceProvider extends AbstractPackageServiceProvider
         });
     }
 
-    protected function registerOpenAiCmsIntegrationServices(): self
+    protected function registerAiServices(): self
     {
-        $this->app->singleton(
-            OpenAIProvider::class,
-            fn (Application $app): OpenAIProvider => new OpenAIProvider(config('capell-assistant.openai', [])),
-        );
+        $this->app->singleton(PrismProvider::class, fn (Application $app): PrismProvider => new PrismProvider((array) config('capell-assistant.prism', [])));
 
-        $this->app->singleton(
-            PromptData::class,
-            fn (Application $application): PromptData => $this->resolvePromptData($application->make(AssistantSettings::class)->prompts),
-        );
+        $this->app->singleton(PromptRepository::class, fn (Application $app): PromptRepository => new PromptRepository((array) config('capell-assistant.prompts', [])));
 
         $this->app->singleton(AiResponseParser::class, fn (): AiResponseParser => new AiResponseParser);
 
         $this->app->singleton(AiRateLimiter::class, fn (Application $app): AiRateLimiter => new AiRateLimiter(
             $app->make(RateLimitCache::class),
-            config('capell-assistant.rate_limiting', ['enabled' => false, 'requests_per_minute' => resolve(AssistantSettings::class)->prompts['rate_limiting_requests_per_minute'] ?? 60]),
+            (array) config('capell-assistant.rate_limiting', ['enabled' => false, 'requests_per_minute' => 60]),
         ));
 
         $this->app->singleton(AiTokenCounter::class, fn (): AiTokenCounter => new AiTokenCounter);
 
-        $this->app->singleton(
-            AiFeatureRegistry::class,
-            fn (Application $app): AiFeatureRegistry => new AiFeatureRegistry(config('capell-assistant.features', [])),
-        );
+        $this->app->singleton(AiFeatureRegistry::class, fn (Application $app): AiFeatureRegistry => new AiFeatureRegistry((array) config('capell-assistant.features', [])));
 
         $this->app->singleton(AIGenerationCache::class, fn (Application $app): AIGenerationCache => new AIGenerationCache(
             (string) config('cache.default'),
-            config('capell-assistant.cache.ttl', 86400),
+            (int) config('capell-assistant.cache.ttl', 86400),
         ));
 
         $this->app->singleton(RateLimitCache::class, fn (\Illuminate\Foundation\Application $app): RateLimitCache => new RateLimitCache((string) config('cache.default')));
 
+        $this->app->singleton(SectionRegistry::class, fn (): SectionRegistry => new SectionRegistry);
+
+        $this->app->singleton(ContentTargetResolver::class, function (Application $app): ContentTargetResolver {
+            $resolver = new ContentTargetResolver;
+            $resolver->register($app->make(FlatJsonTarget::class));
+
+            foreach ($app->tagged('capell-assistant:content-targets') as $target) {
+                $resolver->register($target);
+            }
+
+            return $resolver;
+        });
+
+        $this->app->singleton(AiCreatorPolicy::class, fn (Application $app): AiCreatorPolicy => new AiCreatorPolicy(
+            $app->make(AssistantSettings::class),
+        ));
+
+        $this->app->singleton(AiCreatorPipeline::class, fn (Application $app): AiCreatorPipeline => new AiCreatorPipeline(
+            $app->make(PromptRepository::class),
+            $app->make(PrismProvider::class),
+            $app->make(AiRateLimiter::class),
+            $app->make(SectionRegistry::class),
+        ));
+
         /** @var AiFeatureRegistry $registry */
         $registry = $this->app->make(AiFeatureRegistry::class);
-        $features = config('capell-assistant.features', []);
-        foreach ($features as $name => $feature) {
+        foreach ((array) config('capell-assistant.features', []) as $name => $feature) {
             if (is_array($feature)) {
                 $registry->register($name, $feature);
             }
@@ -122,7 +141,7 @@ class AssistantServiceProvider extends AbstractPackageServiceProvider
         return $this;
     }
 
-    protected function registerOpenAiCmsIntegrationEventListeners(): self
+    protected function registerAiEventListeners(): self
     {
         $events = $this->app->make(Dispatcher::class);
         $events->listen(
@@ -149,17 +168,25 @@ class AssistantServiceProvider extends AbstractPackageServiceProvider
 
     protected function registerAdminExtenders(): self
     {
+        // Keep provider clean: tag small extender/configurator classes used by Admin UI to augment components
         $this->app->tag([
             PageContentEditorConfigurator::class,
         ], 'capell-admin:page-content-editor');
 
         $this->app->tag([
             PageTitleWithSlugInputExtender::class,
-        ], PageTitleWithSlugInputExtenderContract::TAG);
+        ], 'capell-admin:page-title-with-slug-input');
 
         $this->app->tag([
-            SearchMetaDataSectionExtender::class,
-        ], SearchMetaDataSectionExtenderContract::TAG);
+            AiCreatorPageExtender::class,
+        ], PageHeaderActionExtender::TAG);
+
+        $this->app->tag([
+            AiCreatorSiteExtender::class,
+        ], SiteHeaderActionExtender::TAG);
+
+        // Optional: register schema component replacers for DefaultPageSchema if needed in future
+        // $this->app->tag([SomeReplacer::class], 'capell-admin:schema-component-replacers:page');
 
         return $this;
     }
@@ -169,9 +196,8 @@ class AssistantServiceProvider extends AbstractPackageServiceProvider
         return $this
             ->registerAdminEvents()
             ->registerAdminExtenders()
-            ->registerOpenAiCmsIntegrationServices()
-            ->registerOpenAiCmsIntegrationEventListeners()
-            ->registerSettingsSchemas();
+            ->registerAiServices()
+            ->registerAiEventListeners();
     }
 
     private function isPackageInstalled(): bool
@@ -186,7 +212,6 @@ class AssistantServiceProvider extends AbstractPackageServiceProvider
             type: static::getType(),
             serviceProviderClass: static::class,
             path: realpath(__DIR__ . '/../..'),
-            icon: 'heroicon-o-rocket-launch',
             description: static::getDescription(),
             installCommand: 'capell:assistant-install',
             setting: AssistantSettings::class,
@@ -216,58 +241,8 @@ class AssistantServiceProvider extends AbstractPackageServiceProvider
     private function registerModels(): self
     {
         CapellCore::registerModel('AIGenerationHistory', AIGenerationHistory::class);
-
-        return $this;
-    }
-
-    /**
-     * @param  array<string, bool|int|string|null>  $prompts
-     */
-    private function resolvePromptData(array $prompts): PromptData
-    {
-        return new PromptData(
-            model: $this->resolveNullableString($prompts['model'] ?? null),
-            titleGeneration: $this->resolveBoolean($prompts['title_generation'] ?? false),
-            titleGenerationSystem: $this->resolveNullableString($prompts['title_generation_system'] ?? null),
-            titleGenerationUserTemplate: $this->resolveNullableString($prompts['title_generation_user_template'] ?? null),
-            metaDescription: $this->resolveBoolean($prompts['meta_description'] ?? false),
-            metaDescriptionSystem: $this->resolveNullableString($prompts['meta_description_system'] ?? null),
-            metaDescriptionUserTemplate: $this->resolveNullableString($prompts['meta_description_user_template'] ?? null),
-            contentGeneration: $this->resolveBoolean($prompts['content_generation'] ?? false),
-            contentGenerationSystem: $this->resolveNullableString($prompts['content_generation_system'] ?? null),
-            contentGenerationUserTemplate: $this->resolveNullableString($prompts['content_generation_user_template'] ?? null),
-        );
-    }
-
-    private function resolveBoolean(bool|int|string|null $value): bool
-    {
-        return match (true) {
-            is_bool($value) => $value,
-            is_int($value) => $value === 1,
-            is_string($value) => filter_var($value, FILTER_VALIDATE_BOOLEAN),
-            default => false,
-        };
-    }
-
-    private function resolveNullableString(bool|int|string|null $value): ?string
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        if (is_bool($value)) {
-            return $value ? '1' : '0';
-        }
-
-        return (string) $value;
-    }
-
-    private function registerSettingsSchemas(): self
-    {
-        $registry = resolve(SettingsSchemaRegistry::class);
-
-        $registry->registerSettingsClass('assistant', AssistantSettings::class);
-        $registry->register('assistant', AssistantSettingsSchema::class);
+        CapellCore::registerModel('AiCreatorContext', AiCreatorContext::class);
+        CapellCore::registerModel('AiCreatorSession', AiCreatorSession::class);
 
         return $this;
     }
