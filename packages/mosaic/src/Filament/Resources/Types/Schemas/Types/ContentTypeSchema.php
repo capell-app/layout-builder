@@ -44,7 +44,7 @@ class ContentTypeSchema extends DefaultTypeSchema
             ->schema([
                 SchemaSelect::make('schema')
                     ->default(fn (): string => ContentSchemaEnum::Default->name)
-                    ->setupOptions(TypeSchemaEnum::Section),
+                    ->setupOptions(TypeSchemaEnum::Content),
                 IconPicker::make('icon')
                     ->label(__('capell-admin::form.admin_icon')),
                 ContentStructureSelect::make('content_structure'),

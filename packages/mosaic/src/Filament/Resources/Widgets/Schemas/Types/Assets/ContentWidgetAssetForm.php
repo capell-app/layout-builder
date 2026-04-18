@@ -15,7 +15,7 @@ class ContentWidgetAssetForm extends AbstractWidgetAssetSchema
     #[Override]
     protected function getAssetSchema(Schema $schema): array
     {
-        $adminSchema = CapellAdmin::getSchema(TypeSchemaEnum::Section, DefaultContentSchema::getKey());
+        $adminSchema = CapellAdmin::getSchema(TypeSchemaEnum::Content, DefaultContentSchema::getKey());
 
         return resolve($adminSchema)->make($schema);
     }

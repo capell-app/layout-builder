@@ -48,7 +48,7 @@ class SectionForm implements FormConfigurator
 
                         $name = $type->admin['schema'] ?? DefaultContentSchema::getKey();
 
-                        return $component->getTypeSchema($schema, TypeSchemaEnum::Section, $name);
+                        return $component->getTypeSchema($schema, TypeSchemaEnum::Content, $name);
                     },
                 ),
         ];

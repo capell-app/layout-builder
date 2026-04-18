@@ -11,7 +11,7 @@ enum TypeSchemaEnum: string implements SchemaTypeEnumInterface
 {
     use HasSchemaTypes;
 
-    case Section = 'Sections';
+    case Content = 'Sections';
 
     case LayoutContainer = 'LayoutContainers';
 
@@ -24,7 +24,7 @@ enum TypeSchemaEnum: string implements SchemaTypeEnumInterface
     public function getSchemas(): array
     {
         return match ($this) {
-            self::Section => ContentSchemaEnum::cases(),
+            self::Content => ContentSchemaEnum::cases(),
             self::LayoutContainer => LayoutContainerSchemaEnum::cases(),
             self::LayoutWidget => LayoutWidgetSchemaEnum::cases(),
             self::Widget => WidgetSchemaEnum::cases(),

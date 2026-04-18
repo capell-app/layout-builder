@@ -114,7 +114,7 @@ test('create with translations', function (string $mode): void {
             'language_id' => $language->getKey(),
             'title' => $newData->name . ' - ' . $language->name,
             'content' => '<p>' . htmlspecialchars($newData->name . ' - ' . $language->name, ENT_QUOTES, 'UTF-8') . '</p>',
-            'translatable_type' => 'content',
+            'translatable_type' => 'section',
         ]),
     );
 })
