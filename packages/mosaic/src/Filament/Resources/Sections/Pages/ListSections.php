@@ -23,7 +23,7 @@ class ListSections extends ListRecords
     /** @return class-string<SectionResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Content);
+        return CapellAdmin::getResource(ResourceEnum::Section);
     }
 
     public function getSubheading(): string|Htmlable|null

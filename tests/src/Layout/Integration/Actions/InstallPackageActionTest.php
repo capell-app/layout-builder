@@ -49,7 +49,7 @@ it('installs layout package: creates types, widgets, layouts, and registers morp
 
     // Content types created (default + builder)
     $contentTypeKeys = Type::query()
-        ->where('type', LayoutTypeEnum::Content->value)
+        ->where('type', LayoutTypeEnum::Section->value)
         ->pluck('key')
         ->all();
 
@@ -58,7 +58,7 @@ it('installs layout package: creates types, widgets, layouts, and registers morp
         ->and($contentTypeKeys)->toContain(ContentTypeEnum::Builder->value);
 
     $defaultContentType = Type::query()
-        ->where('type', LayoutTypeEnum::Content->value)
+        ->where('type', LayoutTypeEnum::Section->value)
         ->where('key', ContentTypeEnum::Default->value)
         ->first();
 

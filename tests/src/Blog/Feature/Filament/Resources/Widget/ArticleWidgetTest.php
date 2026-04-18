@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use Capell\Blog\Support\Creator\BlogCreator;
-use Capell\Layout\Filament\Actions\CreateWidgetAction;
-use Capell\Layout\Filament\Resources\Widgets\Pages\EditWidget;
-use Capell\Layout\Filament\Resources\Widgets\Pages\ListWidgets;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Filament\Actions\CreateWidgetAction;
+use Capell\Mosaic\Filament\Resources\Widgets\Pages\EditWidget;
+use Capell\Mosaic\Filament\Resources\Widgets\Pages\ListWidgets;
+use Capell\Mosaic\Models\Widget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Laravel\assertDatabaseHas;

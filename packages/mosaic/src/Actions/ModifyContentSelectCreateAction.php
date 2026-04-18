@@ -39,7 +39,7 @@ class ModifyContentSelectCreateAction
 
                         return [
                             'type_id' => $model::query()
-                                ->where('type', LayoutTypeEnum::Content)
+                                ->where('type', LayoutTypeEnum::Section)
                                 ->default()
                                 ->value('id'),
                             'translations' => $site->translations->mapWithKeys(fn (Translation $translation): array => [

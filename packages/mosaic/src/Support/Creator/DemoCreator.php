@@ -67,7 +67,7 @@ class DemoCreator
     public function __construct(
         protected readonly ?Model $user = null,
     ) {
-        $this->contentModel = CapellCore::getModel(ModelEnum::Content->name);
+        $this->contentModel = CapellCore::getModel(ModelEnum::Section->name);
         $this->widgetModel = CapellCore::getModel(ModelEnum::Widget->name);
         $this->typeModel = CapellCore::getModel(CoreModelEnum::Type);
         $this->pageModel = CapellCore::getModel(CoreModelEnum::Page);
@@ -290,7 +290,7 @@ class DemoCreator
             ],
             'admin' => [
                 'asset_types' => [
-                    AssetEnum::Content->value,
+                    AssetEnum::Section->value,
                 ],
             ],
         ]);
@@ -306,7 +306,7 @@ class DemoCreator
         }
 
         $contentType = $this->typeModel::query()
-            ->where('type', LayoutTypeEnum::Content)
+            ->where('type', LayoutTypeEnum::Section)
             ->where('key', ContentTypeEnum::Builder)
             ->first();
 
@@ -493,7 +493,7 @@ class DemoCreator
 
         if (! $type instanceof Type) {
             $type = $this->typeModel::query()
-                ->where('type', LayoutTypeEnum::Content)
+                ->where('type', LayoutTypeEnum::Section)
                 ->default()
                 ->first();
         }
@@ -1016,7 +1016,7 @@ class DemoCreator
 
         $testimonialType = Type::query()->updateOrCreate([
             'key' => 'testimonial',
-            'type' => LayoutTypeEnum::Content,
+            'type' => LayoutTypeEnum::Section,
         ], [
             'name' => 'Testimonial',
             'admin' => [

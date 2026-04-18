@@ -76,7 +76,7 @@ it('excludes existing content assets when selecting new ones in page context', f
         ->count(2)
         ->widget($widget)
         ->page($page, $containerKey, $containerWidget['occurrence'])
-        ->asset(Capell\Mosaic\Enums\AssetEnum::Content)
+        ->asset(Capell\Mosaic\Enums\AssetEnum::Section)
         ->create();
 
     $newContents = Section::factory()->count(3)->create();

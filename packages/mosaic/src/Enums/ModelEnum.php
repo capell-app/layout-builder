@@ -10,7 +10,7 @@ use Capell\Mosaic\Models\WidgetAsset;
 
 enum ModelEnum: string
 {
-    case Content = Section::class;
+    case Section = Section::class;
 
     case Widget = Widget::class;
 

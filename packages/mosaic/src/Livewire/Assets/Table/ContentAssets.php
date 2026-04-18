@@ -24,7 +24,7 @@ class ContentAssets extends AbstractAssets
 
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Content);
+        return CapellAdmin::getResource(ResourceEnum::Section);
     }
 
     public function getFilteredTableQuery(): Builder
@@ -50,7 +50,7 @@ class ContentAssets extends AbstractAssets
     protected function getTableQuery(): Builder
     {
         /* @var class-string<\Capell\Mosaic\Models\Section> $model */
-        $model = CapellCore::getModel(ModelEnum::Content->name);
+        $model = CapellCore::getModel(ModelEnum::Section->name);
 
         return $model::with([
             'ancestors.type',

@@ -373,7 +373,7 @@ class WidgetCreator
             ],
             'admin' => [
                 'asset_types' => [
-                    AssetEnum::Content->value,
+                    AssetEnum::Section->value,
                 ],
             ],
         ]);

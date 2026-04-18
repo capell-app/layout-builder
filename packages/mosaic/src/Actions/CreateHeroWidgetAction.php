@@ -58,7 +58,7 @@ class CreateHeroWidgetAction
             'admin' => [
                 'icon' => 'heroicon-o-gift',
                 'schema' => HeroWidgetSchema::getKey(),
-                'asset_types' => [LayoutAssetEnum::Content->value],
+                'asset_types' => [LayoutAssetEnum::Section->value],
             ],
         ]);
     }
@@ -80,7 +80,7 @@ class CreateHeroWidgetAction
                 'icon' => 'heroicon-o-gift',
                 'asset_types' => [
                     AssetEnum::Page,
-                    LayoutAssetEnum::Content,
+                    LayoutAssetEnum::Section,
                 ],
             ],
             'meta' => [

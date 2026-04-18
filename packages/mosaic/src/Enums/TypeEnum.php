@@ -6,14 +6,14 @@ namespace Capell\Mosaic\Enums;
 
 enum TypeEnum: string
 {
-    case Content = 'content';
+    case Section = 'section';
 
     case Widget = 'widget';
 
     public function getModel(): string
     {
         return match ($this) {
-            self::Content => ModelEnum::Content->value,
+            self::Section => ModelEnum::Section->value,
             self::Widget => ModelEnum::Widget->value
         };
     }
@@ -21,7 +21,7 @@ enum TypeEnum: string
     public function getLabel(): string
     {
         return match ($this) {
-            self::Content => __('capell-mosaic::generic.content'),
+            self::Section => __('capell-mosaic::generic.content'),
             self::Widget => __('capell-mosaic::generic.widget')
         };
     }

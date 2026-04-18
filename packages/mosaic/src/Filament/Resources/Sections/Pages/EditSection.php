@@ -44,7 +44,7 @@ class EditSection extends EditRecord
     /** @return class-string<SectionResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Content);
+        return CapellAdmin::getResource(ResourceEnum::Section);
     }
 
     public function getTitle(): string|Htmlable

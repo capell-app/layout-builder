@@ -27,14 +27,14 @@ class ContentCreator
 
     public function __construct()
     {
-        $this->contentModel = CapellCore::getModel(ModelEnum::Content->name);
+        $this->contentModel = CapellCore::getModel(ModelEnum::Section->name);
 
         $this->typeModel = CapellCore::getModel(CoreModelEnum::Type);
     }
 
     public function createContent(array $data, ?Site $site, Collection $languages): Section
     {
-        $type = $this->typeModel::query()->where('type', LayoutTypeEnum::Content)->default()->first();
+        $type = $this->typeModel::query()->where('type', LayoutTypeEnum::Section)->default()->first();
 
         if (isset($data['type']) && $data['type'] !== '') {
             $type->where('key', $data['type'])->first();

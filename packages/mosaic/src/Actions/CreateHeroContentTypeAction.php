@@ -27,7 +27,7 @@ class CreateHeroContentTypeAction
 
         return $type::query()->firstOrCreate([
             'key' => 'hero',
-            'type' => LayoutTypeEnum::Content,
+            'type' => LayoutTypeEnum::Section,
         ], [
             'name' => __('capell-mosaic::generic.hero'),
             'admin' => [

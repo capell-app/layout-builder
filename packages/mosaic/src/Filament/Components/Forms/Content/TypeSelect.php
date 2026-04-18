@@ -10,5 +10,5 @@ use Capell\Mosaic\Enums\LayoutTypeEnum;
 
 class TypeSelect extends BaseTypeSelect
 {
-    protected null|TypeEnum|string $type = LayoutTypeEnum::Content->value;
+    protected null|TypeEnum|string $type = LayoutTypeEnum::Section->value;
 }

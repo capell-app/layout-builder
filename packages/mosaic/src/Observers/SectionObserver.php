@@ -13,12 +13,10 @@ use InvalidArgumentException;
 
 class SectionObserver
 {
-    private mixed $deletedAt = null;
-
     public function creating(Section $section): void
     {
         if (! $section->type_id) {
-            $section->type_id = Type::query()->where('type', LayoutTypeEnum::Content)->default()->value('id');
+            $section->type_id = Type::query()->where('type', LayoutTypeEnum::Section)->default()->value('id');
             throw_unless($section->type_id, InvalidArgumentException::class, 'Unable to create content without a type.');
         }
 
@@ -59,12 +57,7 @@ class SectionObserver
         ]);
     }
 
-    public function restoring(Section $section): void
-    {
-        $this->deletedAt = method_exists($section, 'nodeGetDeletedAtValue')
-            ? $section->nodeGetDeletedAtValue()
-            : null;
-    }
+    public function restoring(Section $section): void {}
 
     public function restored(Section $section): void
     {

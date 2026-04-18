@@ -255,7 +255,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
 
     private function registerResources(): self
     {
-        CapellAdmin::registerResource(LayoutResourceEnum::Content->name, class: LayoutResourceEnum::Content->value);
+        CapellAdmin::registerResource(LayoutResourceEnum::Section->name, class: LayoutResourceEnum::Section->value);
         CapellAdmin::registerResource(LayoutResourceEnum::Widget->name, class: LayoutResourceEnum::Widget->value);
         CapellAdmin::registerResource(ResourceEnum::Layout, class: LayoutResource::class);
 
@@ -292,7 +292,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
 
     private function registerAssets(): self
     {
-        $contentAsset = AssetEnum::Content;
+        $contentAsset = AssetEnum::Section;
 
         CapellCore::registerAsset(
             new AssetData(
@@ -464,7 +464,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
     private function registerEvents(): self
     {
         $createDeleteModels = [
-            CapellCore::getModel(ModelEnum::Content->name),
+            CapellCore::getModel(ModelEnum::Section->name),
         ];
 
         foreach ($createDeleteModels as $modelClass) {
@@ -513,7 +513,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
         Page::resolveRelationUsing(
             'contents',
             fn (Page $model): HasManyThrough => $model->hasManyThrough(
-                ModelEnum::Content->value,
+                ModelEnum::Section->value,
                 ModelEnum::WidgetAsset->value,
                 'pageable_id',
                 'id',
@@ -543,12 +543,12 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
 
         Site::resolveRelationUsing(
             'contents',
-            fn (Site $model): HasMany => $model->hasMany(ModelEnum::Content->value, 'site_id'),
+            fn (Site $model): HasMany => $model->hasMany(ModelEnum::Section->value, 'site_id'),
         );
 
         Type::resolveRelationUsing(
             'contents',
-            fn (Type $model): HasMany => $model->hasMany(ModelEnum::Content->value, 'type_id'),
+            fn (Type $model): HasMany => $model->hasMany(ModelEnum::Section->value, 'type_id'),
         );
 
         Type::resolveRelationUsing(

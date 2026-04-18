@@ -90,7 +90,7 @@ test('it renders widgets with asset types', function (AssetEnum|Capell\Core\Enum
 
     livewire(LayoutBuilder::class, ['layout' => $layout])
         ->assertSuccessful();
-})->with([AssetEnum::Content, ...Capell\Core\Enums\AssetEnum::cases()]);
+})->with([AssetEnum::Section, ...Capell\Core\Enums\AssetEnum::cases()]);
 
 // ──────────────────────────────────────────────
 // Container operations

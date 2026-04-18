@@ -7,9 +7,9 @@ use Capell\Blog\Enums\BlogLayoutEnum;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
-use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Enums\WidgetTypeEnum;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Enums\LayoutTypeEnum;
+use Capell\Mosaic\Enums\WidgetTypeEnum;
+use Capell\Mosaic\Models\Widget;
 
 it('installs blog package: creates widgets, layouts, updates containers, and seeds site content', function (): void {
     $site = Site::factory()->create();

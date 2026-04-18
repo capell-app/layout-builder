@@ -11,14 +11,14 @@ use Filament\Support\Contracts\HasLabel;
 
 enum LayoutTypeEnum: string implements HasLabel
 {
-    case Content = 'content';
+    case Section = 'section';
 
     case Widget = 'widget';
 
     public function getResource(): string
     {
         return match ($this) {
-            self::Content => SectionResource::class,
+            self::Section => SectionResource::class,
             self::Widget => WidgetResource::class,
         };
     }
@@ -26,7 +26,7 @@ enum LayoutTypeEnum: string implements HasLabel
     public function getModel(): string
     {
         return match ($this) {
-            self::Content => ModelEnum::Content->value,
+            self::Section => ModelEnum::Section->value,
             self::Widget => ModelEnum::Widget->value,
         };
     }
@@ -34,7 +34,7 @@ enum LayoutTypeEnum: string implements HasLabel
     public function getTable(): string
     {
         return match ($this) {
-            self::Content => 'sections',
+            self::Section => 'sections',
             self::Widget => 'widgets',
         };
     }
@@ -43,7 +43,7 @@ enum LayoutTypeEnum: string implements HasLabel
     public function getLabel(): string
     {
         return match ($this) {
-            self::Content => 'Content',
+            self::Section => 'Section',
             self::Widget => 'Widget',
         };
     }

@@ -6,5 +6,5 @@ namespace Capell\Mosaic\Enums;
 
 enum AssetComponentEnum: string
 {
-    case Content = 'capell-mosaic::content.asset';
+    case Section = 'capell-mosaic::content.asset';
 }

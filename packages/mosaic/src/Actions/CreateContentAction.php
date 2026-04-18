@@ -30,7 +30,7 @@ class CreateContentAction
     public function handle(array $data): Section
     {
         /** @var class-string<Section> $model */
-        $model = CapellCore::getModel(ModelEnum::Content->name);
+        $model = CapellCore::getModel(ModelEnum::Section->name);
 
         if (! isset($data['name']) && blank($data['name']) && isset($data['translations'])) {
             $data['name'] = collect($data['translations'])->first()['title'];

@@ -38,7 +38,7 @@ class ContentsRelationManager extends RelationManager
 
     public static function getIcon(Model $ownerRecord, string $pageClass): string|BackedEnum|null
     {
-        return CapellAdmin::getResource(ResourceEnum::Content)::getNavigationIcon();
+        return CapellAdmin::getResource(ResourceEnum::Section)::getNavigationIcon();
     }
 
     public function form(Schema $schema): Schema

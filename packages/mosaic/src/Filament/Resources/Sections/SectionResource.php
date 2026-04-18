@@ -110,7 +110,7 @@ class SectionResource extends Resource
      */
     public static function getModel(): string
     {
-        return CapellCore::getModel(ModelEnum::Content->name);
+        return CapellCore::getModel(ModelEnum::Section->name);
     }
 
     public static function getNavigationGroup(): ?string
@@ -134,12 +134,12 @@ class SectionResource extends Resource
 
     public static function getNavigationIcon(): string|BackedEnum|Htmlable|null
     {
-        return CapellCore::getAsset(LayoutTypeEnum::Content->name)->getIcon();
+        return CapellCore::getAsset(LayoutTypeEnum::Section->name)->getIcon();
     }
 
     public static function getActiveNavigationIcon(): string|BackedEnum|Htmlable|null
     {
-        return CapellCore::getAsset(LayoutTypeEnum::Content->name)->getActiveIcon();
+        return CapellCore::getAsset(LayoutTypeEnum::Section->name)->getActiveIcon();
     }
 
     public static function getPluralModelLabel(): string

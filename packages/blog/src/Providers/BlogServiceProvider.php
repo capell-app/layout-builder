@@ -208,7 +208,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
     private function registerModelRelations(): self
     {
         CapellCore::registerModelRelations(CoreModelEnum::Page, 'tags');
-        CapellCore::registerModelRelations(ModelEnum::Content, 'tags');
+        CapellCore::registerModelRelations(ModelEnum::Section, 'tags');
 
         return $this;
     }

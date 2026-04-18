@@ -43,7 +43,7 @@ class TypeCreator
     public function create(string $key): void
     {
         switch ($key) {
-            case LayoutTypeEnum::Content->value:
+            case LayoutTypeEnum::Section->value:
                 $this->createDefaultContentType();
                 $this->createBuilderContentType();
                 break;
@@ -59,7 +59,7 @@ class TypeCreator
     {
         $this->typeModel::query()->firstOrCreate([
             'default' => true,
-            'type' => LayoutTypeEnum::Content,
+            'type' => LayoutTypeEnum::Section,
         ], [
             'name' => __('capell-admin::generic.default'),
             'key' => ContentTypeEnum::Default,
@@ -73,7 +73,7 @@ class TypeCreator
     {
         $this->typeModel::query()->firstOrCreate([
             'key' => ContentTypeEnum::Builder,
-            'type' => LayoutTypeEnum::Content,
+            'type' => LayoutTypeEnum::Section,
         ], [
             'name' => __('capell-admin::generic.contents_builder'),
             'admin' => [
@@ -149,7 +149,7 @@ class TypeCreator
             'admin' => [
                 'schema' => AssetsWidgetSchema::getKey(),
                 'icon' => config('capell-admin.assets.media.icon'),
-                'asset_types' => [LayoutAssetEnum::Content],
+                'asset_types' => [LayoutAssetEnum::Section],
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::Assets,
@@ -253,7 +253,7 @@ class TypeCreator
                 'icon' => 'heroicon-o-rectangle-stack',
                 'asset_types' => [
                     AssetEnum::Page,
-                    LayoutAssetEnum::Content,
+                    LayoutAssetEnum::Section,
                 ],
             ],
             'meta' => [
@@ -294,7 +294,7 @@ class TypeCreator
                 'type_schema' => WidgetTypeSchema::getKey(),
                 'schema' => AssetsWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-rectangle-stack',
-                'asset_types' => [LayoutAssetEnum::Content],
+                'asset_types' => [LayoutAssetEnum::Section],
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::Assets,

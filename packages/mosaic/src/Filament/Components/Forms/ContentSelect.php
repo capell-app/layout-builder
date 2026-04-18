@@ -81,9 +81,9 @@ class ContentSelect extends Select
 
     public function withCreateForm(): Select
     {
-        $asset = CapellCore::getAsset(ModelEnum::Content->name);
+        $asset = CapellCore::getAsset(ModelEnum::Section->name);
 
-        $adminAsset = CapellAdmin::getAsset(ModelEnum::Content);
+        $adminAsset = CapellAdmin::getAsset(ModelEnum::Section);
 
         $createOptionUsing = $this->getCreateOptionUsing();
 
@@ -113,7 +113,7 @@ class ContentSelect extends Select
 
     public function withEditForm(): self
     {
-        $asset = CapellAdmin::getAsset(ModelEnum::Content);
+        $asset = CapellAdmin::getAsset(ModelEnum::Section);
 
         return $this->editOptionForm(function (?int $state, Schema $schema) use ($asset): Schema {
             if ($state === null) {
@@ -186,7 +186,7 @@ class ContentSelect extends Select
         $parentContentType = $this->parentContentType;
 
         /** @var class-string<Section> $model */
-        $model = CapellCore::getModel(ModelEnum::Content->name);
+        $model = CapellCore::getModel(ModelEnum::Section->name);
 
         /** @var Section $content */
         $contents = $model::query()->select('sections.*')

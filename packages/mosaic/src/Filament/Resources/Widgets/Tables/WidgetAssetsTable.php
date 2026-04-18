@@ -113,7 +113,7 @@ class WidgetAssetsTable implements TableConfigurator
                              $get('type')
                         JS)
                         ->options(fn (Get $get): array => match ($get('type')) {
-                            LayoutTypeEnum::Content->value => Section::getTypes(),
+                            LayoutTypeEnum::Section->value => Section::getTypes(),
                             TypeEnum::Page->value => Page::getTypes(),
                             default => []
                         }),

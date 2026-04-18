@@ -218,7 +218,7 @@ class SectionsTable implements TableConfigurator
                     /** @param Builder<Type> $query */
                     modifyQueryUsing: fn (Builder $query): Builder => $query->where(
                         'type',
-                        LayoutTypeEnum::Content->value,
+                        LayoutTypeEnum::Section->value,
                     )
                         ->enabled(),
                 ),
@@ -251,7 +251,7 @@ class SectionsTable implements TableConfigurator
                             $siteId = static::getSiteId($livewire);
 
                             /** @var class-string<Section> $model */
-                            $model = CapellCore::getModel(ModelEnum::Content->name);
+                            $model = CapellCore::getModel(ModelEnum::Section->name);
 
                             $contents = $model::with([
                                 'site',
@@ -326,7 +326,7 @@ class SectionsTable implements TableConfigurator
 
                     if (isset($data['parent_id']) && $data['parent_id'] !== null && $data['parent_id'] !== '') {
                         /** @var class-string<Section> $model */
-                        $model = CapellCore::getModel(ModelEnum::Content->name);
+                        $model = CapellCore::getModel(ModelEnum::Section->name);
 
                         $indicators['parent_id'] = __(
                             'capell-admin::filter.parent',

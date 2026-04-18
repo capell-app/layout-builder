@@ -123,7 +123,7 @@ test('can sync new content and page assets to widget in page layout context', fu
                 'widgetIndex' => 0,
                 'hasPageAssets' => true,
             ],
-            type: Capell\Mosaic\Enums\AssetEnum::Content->value,
+            type: Capell\Mosaic\Enums\AssetEnum::Section->value,
             assets: $contents->map(fn (Section $record): string => (string) $record->id)->all(),
         )
         ->call(
@@ -186,7 +186,7 @@ test('can sync new content and page assets to widget in layout context', functio
                 'widgetIndex' => $widgetIndex,
                 'hasPageAssets' => false,
             ],
-            type: Capell\Mosaic\Enums\AssetEnum::Content->value,
+            type: Capell\Mosaic\Enums\AssetEnum::Section->value,
             assets: $contents->map(fn (Section $record): string => (string) $record->id)->all(),
         )
         ->call(
@@ -240,7 +240,7 @@ test('can sync new page-specific assets with pageable reference', function (): v
                 'widgetIndex' => $widgetIndex,
                 'hasPageAssets' => true,
             ],
-            type: Capell\Mosaic\Enums\AssetEnum::Content->value,
+            type: Capell\Mosaic\Enums\AssetEnum::Section->value,
             assets: $contents->map(fn (Section $record): string => (string) $record->id)->all(),
         )
         ->call(
@@ -283,7 +283,7 @@ test('can reorder assets', function (): void {
 
     $secondAsset = WidgetAsset::factory()
         ->widget($widget)
-        ->asset(Capell\Mosaic\Enums\AssetEnum::Content)
+        ->asset(Capell\Mosaic\Enums\AssetEnum::Section)
         ->state([
             'order' => 2,
             'occurrence' => 2,
@@ -325,7 +325,7 @@ test('can select all widget assets', function (): void {
 
     $widget = Widget::query()->firstWhere('key', $containerWidget['widget_key']);
 
-    foreach ([AssetEnum::Page, Capell\Mosaic\Enums\AssetEnum::Content] as $assetType) {
+    foreach ([AssetEnum::Page, Capell\Mosaic\Enums\AssetEnum::Section] as $assetType) {
         WidgetAsset::factory()
             ->count(2)
             ->widget($widget)

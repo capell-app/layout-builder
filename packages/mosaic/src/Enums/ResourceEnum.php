@@ -9,7 +9,7 @@ use Capell\Mosaic\Filament\Resources\Widgets\WidgetResource;
 
 enum ResourceEnum: string
 {
-    case Content = SectionResource::class;
+    case Section = SectionResource::class;
 
     case Widget = WidgetResource::class;
 }
