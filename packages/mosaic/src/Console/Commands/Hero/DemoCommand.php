@@ -20,7 +20,7 @@ use Capell\Mosaic\Support\Creator\DemoCreator;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
-class HeroDemoCommand extends Command
+class DemoCommand extends Command
 {
     use HasSitesOption;
 

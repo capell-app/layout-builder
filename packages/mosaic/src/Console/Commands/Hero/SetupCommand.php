@@ -12,7 +12,7 @@ use Capell\Mosaic\Actions\AddHeroWidgetToLayoutAction;
 use Capell\Mosaic\Actions\CreateHeroWidgetAction;
 use Illuminate\Console\Command;
 
-class HeroSetupCommand extends Command
+class SetupCommand extends Command
 {
     protected $description = 'Setting up hero widgets';
 

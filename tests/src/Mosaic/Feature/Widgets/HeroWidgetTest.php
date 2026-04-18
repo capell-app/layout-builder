@@ -12,6 +12,7 @@ use Capell\Core\Models\Site;
 use Capell\Mosaic\Actions\CreateHeroWidgetAction;
 use Capell\Mosaic\Database\Factories\LayoutFactory;
 use Capell\Mosaic\Enums\WidgetComponentEnum;
+use Capell\Mosaic\Models\Section;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;
 use Capell\Tests\Support\Concerns\TestingFrontend;
@@ -90,7 +91,7 @@ it('renders hero widget with assets', function (callable $factory, string $media
                 'related.type',
             ])
                 ->morphWith([
-                    Collection::class => ['linkedPage.pageUrl.siteDomain'],
+                    Section::class => ['linkedPage.pageUrl.siteDomain'],
                     Page::class => ['pageUrl.siteDomain'],
                 ]),
             $mediaRelation,
@@ -119,7 +120,7 @@ it('renders hero widget with assets', function (callable $factory, string $media
                     '.hero-item',
                     function (AssertElement $content, int $index) use ($widgetAssets, $srcResolver): BaseAssert {
                         $url = match ($widgetAssets[$index]->asset::class) {
-                            Collection::class => $widgetAssets[$index]->asset->linkedPage->pageUrl->full_url,
+                            Section::class => $widgetAssets[$index]->asset->linkedPage->pageUrl->full_url,
                             Page::class => $widgetAssets[$index]->asset->pageUrl->full_url,
                         };
 

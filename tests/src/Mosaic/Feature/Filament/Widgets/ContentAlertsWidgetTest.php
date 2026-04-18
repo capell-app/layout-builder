@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Mosaic\Database\Factories\SectionFactory;
-use Capell\Mosaic\Filament\Resources\Sections\Widgets\ContentAlertsWidget;
+use Capell\Mosaic\Filament\Resources\Sections\Widgets\SectionAlertsWidget;
 use Capell\Mosaic\Models\Section;
 use Illuminate\Support\Collection;
 
@@ -12,7 +12,7 @@ use function Pest\Livewire\livewire;
 it('renders the content alerts widget', function (): void {
     $content = Section::factory()->create();
 
-    livewire(ContentAlertsWidget::class, ['record' => $content])
+    livewire(SectionAlertsWidget::class, ['record' => $content])
         ->assertSuccessful();
 });
 
@@ -32,7 +32,7 @@ it('shows alert for content state', function (string $state, string $alertKey): 
         )
         ->create();
 
-    livewire(ContentAlertsWidget::class, ['record' => $content])
+    livewire(SectionAlertsWidget::class, ['record' => $content])
         ->assertSuccessful()
         ->assertSet('alerts', fn (SupportCollection $alerts): bool => $alerts->has($alertKey));
 })
@@ -45,7 +45,7 @@ it('shows alert for content state', function (string $state, string $alertKey): 
 test('does not show alert for published content', function (): void {
     $content = Section::factory()->published()->create();
 
-    livewire(ContentAlertsWidget::class, ['record' => $content])
+    livewire(SectionAlertsWidget::class, ['record' => $content])
         ->assertSuccessful()
         ->assertSet('alerts', fn (Collection $alerts): bool => $alerts->isEmpty());
 });

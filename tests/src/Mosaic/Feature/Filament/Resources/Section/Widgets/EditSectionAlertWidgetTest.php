@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-use Capell\Mosaic\Filament\Resources\Sections\ContentResource;
+use Capell\Mosaic\Filament\Resources\Sections\SectionResource;
+use Capell\Mosaic\Filament\Resources\Sections\Widgets\SectionAlertsWidget;
+use Capell\Mosaic\Models\Section;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Laravel\get;
@@ -12,8 +14,8 @@ uses(CreatesAdminUser::class);
 test('see livewire component', function (): void {
     test()->actingAsAdmin();
 
-    $content = Collection::factory()->create();
+    $content = Section::factory()->create();
 
-    get(ContentResource::getUrl('edit', ['record' => $content]))
-        ->assertSeeLivewire(ContentAlertsWidget::class);
+    get(SectionResource::getUrl('edit', ['record' => $content]))
+        ->assertSeeLivewire(SectionAlertsWidget::class);
 });

@@ -5,6 +5,9 @@ declare(strict_types=1);
 use Capell\Core\Models\AssetRelation;
 use Capell\Core\Models\Page;
 use Capell\Mosaic\Enums\AssetEnum;
+use Capell\Mosaic\Filament\Resources\Sections\Pages\EditSection;
+use Capell\Mosaic\Filament\Resources\Sections\RelationManagers\SectionAssetsRelationManager;
+use Capell\Mosaic\Models\Section;
 use Filament\Actions\CreateAction;
 use Filament\Actions\Testing\TestAction;
 
@@ -12,15 +15,15 @@ use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 
 it('can list content assets', function (): void {
-    $content = Collection::factory()
+    $content = Section::factory()
         ->has(AssetRelation::factory(['related_type' => AssetEnum::Section->value])->count(5), 'assets')
         ->create();
 
     $resource = $content->assets->first()->load('asset');
 
-    livewire(CollectionAssetsRelationManager::class, [
+    livewire(SectionAssetsRelationManager::class, [
         'ownerRecord' => $content,
-        'pageClass' => EditCollection::class,
+        'pageClass' => EditSection::class,
     ])
         ->assertSuccessful()
         ->assertCountTableRecords(5)
@@ -29,7 +32,7 @@ it('can list content assets', function (): void {
 });
 
 it('can search content assets', function (): void {
-    $content = Collection::factory()
+    $content = Section::factory()
         ->has(
             AssetRelation::factory(['related_type' => AssetEnum::Section->value])
                 ->asset(
@@ -42,7 +45,7 @@ it('can search content assets', function (): void {
             AssetRelation::factory([
                 'related_type' => AssetEnum::Section->value,
                 'asset_type' => AssetEnum::Section->value,
-                'asset_id' => Collection::factory(['name' => 'Second']),
+                'asset_id' => Section::factory(['name' => 'Second']),
             ]),
             'assets',
         )
@@ -58,7 +61,7 @@ it('can search content assets', function (): void {
             AssetRelation::factory([
                 'related_type' => AssetEnum::Section->value,
                 'asset_type' => AssetEnum::Section->value,
-                'asset_id' => Collection::factory(['name' => 'Fourth']),
+                'asset_id' => Section::factory(['name' => 'Fourth']),
             ]),
             'assets',
         )
@@ -66,9 +69,9 @@ it('can search content assets', function (): void {
 
     $resource = $content->assets->first()->load('asset');
 
-    livewire(CollectionAssetsRelationManager::class, [
+    livewire(SectionAssetsRelationManager::class, [
         'ownerRecord' => $content,
-        'pageClass' => EditCollection::class,
+        'pageClass' => EditSection::class,
     ])
         ->assertSuccessful()
         ->assertCountTableRecords(4)
@@ -78,18 +81,18 @@ it('can search content assets', function (): void {
 });
 
 test('can create a asset for a widget', function (string $assetType): void {
-    $content = Collection::factory()->create();
+    $content = Section::factory()->create();
 
     $action = TestAction::make(CreateAction::class)->table();
 
     $asset = match ($assetType) {
-        'content' => Collection::factory()->create(),
+        'content' => Section::factory()->create(),
         'page' => Page::factory()->create(),
     };
 
-    livewire(CollectionAssetsRelationManager::class, [
+    livewire(SectionAssetsRelationManager::class, [
         'ownerRecord' => $content,
-        'pageClass' => EditCollection::class,
+        'pageClass' => EditSection::class,
     ])
         ->assertSuccessful()
         ->assertCountTableRecords(0)
