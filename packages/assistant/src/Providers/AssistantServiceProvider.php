@@ -7,7 +7,6 @@ namespace Capell\Assistant\Providers;
 use Capell\Admin\Contracts\Extenders\PageHeaderActionExtender;
 use Capell\Admin\Contracts\Extenders\SiteHeaderActionExtender;
 use Capell\Admin\Filament\Resources\Pages\Pages\EditPage;
-use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Support\AdminEventRegistry;
 use Capell\Assistant\Console\Commands\ClearAiCacheCommand;
 use Capell\Assistant\Console\Commands\InstallCommand;
@@ -213,11 +212,7 @@ class AssistantServiceProvider extends AbstractPackageServiceProvider
             serviceProviderClass: static::class,
             path: realpath(__DIR__ . '/../..'),
             description: static::getDescription(),
-            installCommand: 'capell:assistant-install',
             setting: AssistantSettings::class,
-            requirements: [
-                AdminServiceProvider::$packageName,
-            ],
             version: $this->getVersion(),
             url: 'https://capell.app',
         );

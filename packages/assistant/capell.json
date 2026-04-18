@@ -1,7 +1,21 @@
 {
-  "label": "Assistant",
-  "slug": "assistant",
-  "kind": "addon",
-  "dependsOn": [],
-  "order": 40
+    "label": "Assistant",
+    "slug": "assistant",
+    "kind": "addon",
+    "order": 0,
+    "dependsOn": ["capell-app/admin"],
+    "description": "AI Assistant for Capell",
+    "icon": null,
+    "url": "https://capell.app",
+    "scopes": [],
+    "commands": {
+        "install": "capell:assistant-install",
+        "afterInstall": null,
+        "afterInstallParams": [],
+        "setup": null,
+        "setupParams": [],
+        "upgrade": null,
+        "demo": null,
+        "demoParams": []
+    }
 }

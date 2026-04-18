@@ -1,7 +1,21 @@
 {
-  "label": "Blog",
-  "slug": "blog",
-  "kind": "addon",
-  "dependsOn": ["mosaic"],
-  "order": 20
+    "label": "Blog",
+    "slug": "blog",
+    "kind": "addon",
+    "order": 9,
+    "dependsOn": ["capell-app/admin", "capell-app/frontend"],
+    "description": "Article page type with tags, archives, sitemaps, and Livewire listing components.",
+    "icon": null,
+    "url": "https://capell.app",
+    "scopes": [],
+    "commands": {
+        "install": "capell:blog-install",
+        "afterInstall": null,
+        "afterInstallParams": [],
+        "setup": "capell:blog-setup",
+        "setupParams": [],
+        "upgrade": null,
+        "demo": "capell:blog-demo",
+        "demoParams": ["user", "sites"]
+    }
 }

@@ -70,7 +70,7 @@ src/Filament/Resources/Sites/*.php             inject SiteHeaderActionExtenderRe
 - Create: `tests/Pest.php`
 - Modify: `composer.json`
 
-- [ ] **Step 1: Add Pest to composer dev dependencies**
+- [x] **Step 1: Add Pest to composer dev dependencies**
 
 In `composer.json`, add a `require-dev` section and a `scripts` block:
 
@@ -99,7 +99,7 @@ In `composer.json`, add a `require-dev` section and a `scripts` block:
 }
 ```
 
-- [ ] **Step 2: Create TestCase**
+- [x] **Step 2: Create TestCase**
 
 ```php
 <?php
@@ -122,7 +122,7 @@ class TestCase extends BaseTestCase
 }
 ```
 
-- [ ] **Step 3: Create Pest bootstrap**
+- [x] **Step 3: Create Pest bootstrap**
 
 ```php
 <?php
@@ -134,7 +134,7 @@ use Capell\Assistant\Tests\TestCase;
 uses(TestCase::class)->in('Unit');
 ```
 
-- [ ] **Step 4: Run composer install**
+- [x] **Step 4: Run composer install**
 
 ```bash
 cd /path/to/capell-app/assistant
@@ -143,7 +143,7 @@ composer install
 
 Expected: Pest installed in vendor/
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add composer.json tests/
@@ -161,7 +161,7 @@ git commit -m "chore: set up Pest test infrastructure"
 
 The `PrismProvider` replaces `OpenAIProvider`. It accepts the same `chat(array $params)` signature so the existing pipeline needs no changes. The params array follows OpenAI message format; the provider extracts system + user messages internally and converts to Prism's fluent API.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```php
 <?php
@@ -202,7 +202,7 @@ it('returns an AiResponse from a chat call', function (): void {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 ```bash
 ./vendor/bin/pest tests/Unit/Support/PrismProviderTest.php --no-coverage
@@ -210,7 +210,7 @@ it('returns an AiResponse from a chat call', function (): void {
 
 Expected: FAIL — `PrismProvider` class not found.
 
-- [ ] **Step 3: Implement `PrismProvider`**
+- [x] **Step 3: Implement `PrismProvider`**
 
 ```php
 <?php
@@ -366,7 +366,7 @@ class PrismProvider implements ServiceContract
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 ```bash
 ./vendor/bin/pest tests/Unit/Support/PrismProviderTest.php --no-coverage
@@ -374,7 +374,7 @@ class PrismProvider implements ServiceContract
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/Support/PrismProvider.php tests/Unit/Support/PrismProviderTest.php
@@ -390,7 +390,7 @@ git commit -m "feat: add PrismProvider wrapping prism-php/prism"
 - Modify: `composer.json`
 - Modify: `config/capell-assistant.php`
 
-- [ ] **Step 1: Update `composer.json`** — remove `openai-php/laravel`, add `prism-php/prism`
+- [x] **Step 1: Update `composer.json`** — remove `openai-php/laravel`, add `prism-php/prism`
 
 Replace the `require` block:
 
@@ -403,7 +403,7 @@ Replace the `require` block:
 },
 ```
 
-- [ ] **Step 2: Update config** — replace the `openai` section with `prism`, keep other sections
+- [x] **Step 2: Update config** — replace the `openai` section with `prism`, keep other sections
 
 In `config/capell-assistant.php`, replace:
 
@@ -461,7 +461,7 @@ Also update the feature model references from `'gpt-4-turbo'` to `'gpt-4o'`:
 ],
 ```
 
-- [ ] **Step 3: Run composer update**
+- [x] **Step 3: Run composer update**
 
 ```bash
 composer update
@@ -469,7 +469,7 @@ composer update
 
 Expected: `openai-php/laravel` removed, `prism-php/prism` installed.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add composer.json config/capell-assistant.php
@@ -485,7 +485,7 @@ git commit -m "feat: swap openai-php/laravel for prism-php/prism, update config"
 - Modify: `src/Support/Pipelines/GenerateContentPipeline.php`
 - Modify: `src/Providers/AssistantServiceProvider.php`
 
-- [ ] **Step 1: Update `GenerateContentPipeline` type hint**
+- [x] **Step 1: Update `GenerateContentPipeline` type hint**
 
 In `src/Support/Pipelines/GenerateContentPipeline.php`, change the constructor:
 
@@ -506,7 +506,7 @@ public function __construct(
 ) {}
 ```
 
-- [ ] **Step 2: Update `AssistantServiceProvider`**
+- [x] **Step 2: Update `AssistantServiceProvider`**
 
 In `src/Providers/AssistantServiceProvider.php`:
 
@@ -547,7 +547,7 @@ private function bootInstalledPackage(): self
 
 Also rename `registerOpenAiCmsIntegrationEventListeners` to `registerAiEventListeners`.
 
-- [ ] **Step 3: Run existing tests**
+- [x] **Step 3: Run existing tests**
 
 ```bash
 ./vendor/bin/pest --no-coverage
@@ -555,13 +555,13 @@ Also rename `registerOpenAiCmsIntegrationEventListeners` to `registerAiEventList
 
 Expected: PASS (or no tests affected by this change)
 
-- [ ] **Step 4: Delete `OpenAIProvider`**
+- [x] **Step 4: Delete `OpenAIProvider`**
 
 ```bash
 rm src/Support/OpenAIProvider.php
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/Support/Pipelines/GenerateContentPipeline.php src/Providers/AssistantServiceProvider.php
@@ -578,7 +578,7 @@ git commit -m "refactor: replace OpenAIProvider with PrismProvider throughout"
 - Create: `src/Support/SectionRegistry.php`
 - Create: `tests/Unit/Support/SectionRegistryTest.php`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```php
 <?php
@@ -634,7 +634,7 @@ it('returns empty collection when no sections registered', function (): void {
 });
 ```
 
-- [ ] **Step 2: Run test to verify failure**
+- [x] **Step 2: Run test to verify failure**
 
 ```bash
 ./vendor/bin/pest tests/Unit/Support/SectionRegistryTest.php --no-coverage
@@ -642,7 +642,7 @@ it('returns empty collection when no sections registered', function (): void {
 
 Expected: FAIL — `SectionRegistry` not found.
 
-- [ ] **Step 3: Implement `SectionRegistry`**
+- [x] **Step 3: Implement `SectionRegistry`**
 
 ```php
 <?php
@@ -702,7 +702,7 @@ class SectionRegistry
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 ```bash
 ./vendor/bin/pest tests/Unit/Support/SectionRegistryTest.php --no-coverage
@@ -710,7 +710,7 @@ class SectionRegistry
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/Support/SectionRegistry.php tests/Unit/Support/SectionRegistryTest.php
@@ -728,7 +728,7 @@ git commit -m "feat: add SectionRegistry for AI section type awareness"
 - Create: `src/Support/ContentTargetResolver.php`
 - Create: `tests/Unit/Targets/FlatJsonTargetTest.php`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```php
 <?php
@@ -747,7 +747,7 @@ it('implements ContentTargetContract', function (): void {
 });
 ```
 
-- [ ] **Step 2: Run test to verify failure**
+- [x] **Step 2: Run test to verify failure**
 
 ```bash
 ./vendor/bin/pest tests/Unit/Targets/FlatJsonTargetTest.php --no-coverage
@@ -755,7 +755,7 @@ it('implements ContentTargetContract', function (): void {
 
 Expected: FAIL — `ContentTargetContract` and `FlatJsonTarget` not found.
 
-- [ ] **Step 3: Create `ContentTargetContract`**
+- [x] **Step 3: Create `ContentTargetContract`**
 
 ```php
 <?php
@@ -779,7 +779,7 @@ interface ContentTargetContract
 }
 ```
 
-- [ ] **Step 4: Create `FlatJsonTarget`**
+- [x] **Step 4: Create `FlatJsonTarget`**
 
 ```php
 <?php
@@ -809,7 +809,7 @@ class FlatJsonTarget implements ContentTargetContract
 }
 ```
 
-- [ ] **Step 5: Create `ContentTargetResolver`**
+- [x] **Step 5: Create `ContentTargetResolver`**
 
 ```php
 <?php
@@ -848,7 +848,7 @@ class ContentTargetResolver
 }
 ```
 
-- [ ] **Step 6: Run tests to verify they pass**
+- [x] **Step 6: Run tests to verify they pass**
 
 ```bash
 ./vendor/bin/pest tests/Unit/Targets/FlatJsonTargetTest.php --no-coverage
@@ -856,7 +856,7 @@ class ContentTargetResolver
 
 Expected: PASS
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/Contracts/ContentTargetContract.php src/Targets/FlatJsonTarget.php src/Support/ContentTargetResolver.php tests/Unit/Targets/FlatJsonTargetTest.php
@@ -871,7 +871,7 @@ git commit -m "feat: add ContentTargetContract, FlatJsonTarget, ContentTargetRes
 
 - Modify: `src/Settings/AssistantSettings.php`
 
-- [ ] **Step 1: Add new properties to `AssistantSettings`**
+- [x] **Step 1: Add new properties to `AssistantSettings`**
 
 Replace the entire file with:
 
@@ -911,7 +911,7 @@ class AssistantSettings extends Settings
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/Settings/AssistantSettings.php
@@ -926,7 +926,7 @@ git commit -m "feat: add AI Creator properties to AssistantSettings"
 
 - Create: `database/migrations/2026_04_18_000001_update_assistant_settings_add_ai_creator.php`
 
-- [ ] **Step 1: Create the migration**
+- [x] **Step 1: Create the migration**
 
 ```php
 <?php
@@ -950,7 +950,7 @@ return new class extends SettingsMigration
 };
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add database/migrations/2026_04_18_000001_update_assistant_settings_add_ai_creator.php
@@ -966,7 +966,7 @@ git commit -m "feat: add settings migration for AI Creator provider settings"
 - Create: `database/migrations/2026_04_18_000002_create_ai_creator_contexts_table.php`
 - Create: `src/Models/AiCreatorContext.php`
 
-- [ ] **Step 1: Create the migration**
+- [x] **Step 1: Create the migration**
 
 ```php
 <?php
@@ -1002,7 +1002,7 @@ return new class extends Migration
 };
 ```
 
-- [ ] **Step 2: Create `AiCreatorContext` model**
+- [x] **Step 2: Create `AiCreatorContext` model**
 
 ```php
 <?php
@@ -1029,7 +1029,7 @@ class AiCreatorContext extends Model
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add database/migrations/2026_04_18_000002_create_ai_creator_contexts_table.php src/Models/AiCreatorContext.php
@@ -1045,7 +1045,7 @@ git commit -m "feat: add ai_creator_contexts table and model"
 - Create: `database/migrations/2026_04_18_000003_create_ai_creator_sessions_table.php`
 - Create: `src/Models/AiCreatorSession.php`
 
-- [ ] **Step 1: Create the migration**
+- [x] **Step 1: Create the migration**
 
 ```php
 <?php
@@ -1092,7 +1092,7 @@ return new class extends Migration
 };
 ```
 
-- [ ] **Step 2: Create `AiCreatorSession` model**
+- [x] **Step 2: Create `AiCreatorSession` model**
 
 ```php
 <?php
@@ -1147,7 +1147,7 @@ class AiCreatorSession extends Model
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add database/migrations/2026_04_18_000003_create_ai_creator_sessions_table.php src/Models/AiCreatorSession.php
@@ -1163,7 +1163,7 @@ git commit -m "feat: add ai_creator_sessions table and model"
 - Create: `src/Policies/AiCreatorPolicy.php`
 - Create: `tests/Unit/Policies/AiCreatorPolicyTest.php`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```php
 <?php
@@ -1231,7 +1231,7 @@ it('site-level override takes precedence over global', function (): void {
 });
 ```
 
-- [ ] **Step 2: Run test to verify failure**
+- [x] **Step 2: Run test to verify failure**
 
 ```bash
 ./vendor/bin/pest tests/Unit/Policies/AiCreatorPolicyTest.php --no-coverage
@@ -1239,7 +1239,7 @@ it('site-level override takes precedence over global', function (): void {
 
 Expected: FAIL — `AiCreatorPolicy` not found.
 
-- [ ] **Step 3: Implement `AiCreatorPolicy`**
+- [x] **Step 3: Implement `AiCreatorPolicy`**
 
 ```php
 <?php
@@ -1267,7 +1267,7 @@ class AiCreatorPolicy
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 ```bash
 ./vendor/bin/pest tests/Unit/Policies/AiCreatorPolicyTest.php --no-coverage
@@ -1275,7 +1275,7 @@ class AiCreatorPolicy
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/Policies/AiCreatorPolicy.php tests/Unit/Policies/AiCreatorPolicyTest.php
@@ -1295,7 +1295,7 @@ git commit -m "feat: add AiCreatorPolicy with site/global settings cascade"
 
 > **Note:** This task modifies `capell-app/admin` at `/Users/ben/Sites/packages/capell/capell-4/packages/admin`. Confirm the exact path before running git commands.
 
-- [ ] **Step 1: Create the extender interface**
+- [x] **Step 1: Create the extender interface**
 
 ```php
 <?php
@@ -1315,7 +1315,7 @@ interface PageHeaderActionExtender
 }
 ```
 
-- [ ] **Step 2: Create the resolver**
+- [x] **Step 2: Create the resolver**
 
 ```php
 <?php
@@ -1343,7 +1343,7 @@ class PageHeaderActionExtenderResolver
 }
 ```
 
-- [ ] **Step 3: Register the resolver as a singleton in `AdminServiceProvider`**
+- [x] **Step 3: Register the resolver as a singleton in `AdminServiceProvider`**
 
 Add to the appropriate `register*` method in `AdminServiceProvider`:
 
@@ -1357,7 +1357,7 @@ Also add the import:
 use Capell\Admin\Support\PageHeaderActionExtenderResolver;
 ```
 
-- [ ] **Step 4: Inject resolver into the page edit resource header actions**
+- [x] **Step 4: Inject resolver into the page edit resource header actions**
 
 Find the `getHeaderActions()` method in the page edit/list resource. It will look something like:
 
@@ -1383,7 +1383,7 @@ protected function getHeaderActions(): array
 }
 ```
 
-- [ ] **Step 5: Commit (in admin package)**
+- [x] **Step 5: Commit (in admin package)**
 
 ```bash
 git add src/Contracts/Extenders/PageHeaderActionExtender.php src/Support/PageHeaderActionExtenderResolver.php src/Providers/AdminServiceProvider.php
@@ -1401,7 +1401,7 @@ git commit -m "feat: add PageHeaderActionExtender interface and resolver"
 - Modify: `src/Providers/AdminServiceProvider.php`
 - Modify: site resource edit page (wherever site header actions are defined)
 
-- [ ] **Step 1: Create the extender interface**
+- [x] **Step 1: Create the extender interface**
 
 ```php
 <?php
@@ -1421,7 +1421,7 @@ interface SiteHeaderActionExtender
 }
 ```
 
-- [ ] **Step 2: Create the resolver**
+- [x] **Step 2: Create the resolver**
 
 ```php
 <?php
@@ -1449,7 +1449,7 @@ class SiteHeaderActionExtenderResolver
 }
 ```
 
-- [ ] **Step 3: Register in `AdminServiceProvider`**
+- [x] **Step 3: Register in `AdminServiceProvider`**
 
 Add alongside the `PageHeaderActionExtenderResolver` registration:
 
@@ -1457,7 +1457,7 @@ Add alongside the `PageHeaderActionExtenderResolver` registration:
 $this->app->singleton(SiteHeaderActionExtenderResolver::class);
 ```
 
-- [ ] **Step 4: Inject resolver into the site resource header actions**
+- [x] **Step 4: Inject resolver into the site resource header actions**
 
 Find the site resource's `getHeaderActions()` and merge in extender actions (same pattern as Task 12 Step 4):
 
@@ -1472,7 +1472,7 @@ protected function getHeaderActions(): array
 }
 ```
 
-- [ ] **Step 5: Commit (in admin package)**
+- [x] **Step 5: Commit (in admin package)**
 
 ```bash
 git add src/Contracts/Extenders/SiteHeaderActionExtender.php src/Support/SiteHeaderActionExtenderResolver.php src/Providers/AdminServiceProvider.php
@@ -1487,7 +1487,7 @@ git commit -m "feat: add SiteHeaderActionExtender interface and resolver"
 
 - Modify: `src/Providers/AssistantServiceProvider.php`
 
-- [ ] **Step 1: Add singleton registrations for new services**
+- [x] **Step 1: Add singleton registrations for new services**
 
 In `registerAiServices()`, add after the existing singletons:
 
@@ -1519,7 +1519,7 @@ $this->app->singleton(AiCreatorPolicy::class, fn (Application $app): AiCreatorPo
 ));
 ```
 
-- [ ] **Step 2: Register new models in `registerModels()`**
+- [x] **Step 2: Register new models in `registerModels()`**
 
 ```php
 private function registerModels(): self
@@ -1532,7 +1532,7 @@ private function registerModels(): self
 }
 ```
 
-- [ ] **Step 3: Run all tests**
+- [x] **Step 3: Run all tests**
 
 ```bash
 ./vendor/bin/pest --no-coverage
@@ -1540,7 +1540,7 @@ private function registerModels(): self
 
 Expected: All PASS
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/Providers/AssistantServiceProvider.php

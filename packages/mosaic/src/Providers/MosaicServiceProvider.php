@@ -11,7 +11,6 @@ use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Enums\SchemaExtenderEnum;
 use Capell\Admin\Enums\SchemaTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Data\PageTypeData;
 use Capell\Core\Data\VendorAssetData;
@@ -25,7 +24,6 @@ use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Core\Workspaces\WorkspaceRegistry;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
-use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\Mosaic\Console\Commands\DemoCommand;
 use Capell\Mosaic\Console\Commands\Hero\DemoCommand as HeroDemoCommand;
 use Capell\Mosaic\Console\Commands\Hero\SetupCommand as HeroSetupCommand;
@@ -193,17 +191,8 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
             serviceProviderClass: static::class,
             path: realpath(__DIR__ . '/../..'),
             description: static::getDescription(),
-            permissions: $this->getPackagePermissions(),
-            installCommand: 'capell:mosaic-install',
-            setupCommand: 'capell:mosaic-setup',
-            upgradeCommand: 'capell:mosaic-upgrade',
-            demoCommand: 'capell:mosaic-demo',
-            demoParams: ['user', 'sites'],
-            requirements: [
-                AdminServiceProvider::$packageName,
-                FrontendServiceProvider::$packageName,
-            ],
             version: $this->getVersion(),
+            permissions: $this->getPackagePermissions(),
             url: 'https://capell.app',
         );
 

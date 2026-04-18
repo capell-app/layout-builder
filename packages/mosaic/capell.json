@@ -1,7 +1,21 @@
 {
-  "label": "Mosaic",
-  "slug": "mosaic",
-  "kind": "addon",
-  "dependsOn": [],
-  "order": 10
+    "label": "Mosaic",
+    "slug": "mosaic",
+    "kind": "addon",
+    "order": 10,
+    "dependsOn": ["capell-app/admin", "capell-app/frontend"],
+    "description": "Visual layout builder with drag-and-drop widgets and reusable content blocks.",
+    "icon": null,
+    "url": "https://capell.app",
+    "scopes": [],
+    "commands": {
+        "install": "capell:mosaic-install",
+        "afterInstall": null,
+        "afterInstallParams": [],
+        "setup": "capell:mosaic-setup",
+        "setupParams": [],
+        "upgrade": "capell:mosaic-upgrade",
+        "demo": "capell:mosaic-demo",
+        "demoParams": ["user", "sites"]
+    }
 }

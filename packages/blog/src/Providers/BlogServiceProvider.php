@@ -7,7 +7,6 @@ namespace Capell\Blog\Providers;
 use Capell\Admin\Enums\ResourceEnum as AdminResourceEnum;
 use Capell\Admin\Enums\SchemaTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Blog\Console\Commands\CreateBlogPagesCommand;
 use Capell\Blog\Console\Commands\DemoCommand;
 use Capell\Blog\Console\Commands\InstallCommand;
@@ -49,7 +48,6 @@ use Capell\Core\Support\StaticSite\StaticSiteExtensionRegistry;
 use Capell\Core\Workspaces\WorkspaceRegistry;
 use Capell\Frontend\Data\RenderHookContext;
 use Capell\Frontend\Enums\RenderHookLocation;
-use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
 use Capell\Mosaic\Enums\ComponentTypeEnum;
 use Capell\Mosaic\Enums\ModelEnum;
@@ -140,18 +138,9 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             type: static::getType(),
             serviceProviderClass: static::class,
             path: realpath(__DIR__ . '/../..'),
-            sort: 9,
             description: static::getDescription(),
-            permissions: $this->getPackagePermissions(),
-            installCommand: 'capell:blog-install',
-            setupCommand: 'capell:blog-setup',
-            demoCommand: 'capell:blog-demo',
-            demoParams: ['user', 'sites'],
-            requirements: [
-                AdminServiceProvider::$packageName,
-                FrontendServiceProvider::$packageName,
-            ],
             version: $this->getVersion(),
+            permissions: $this->getPackagePermissions(),
             url: 'https://capell.app',
         );
 

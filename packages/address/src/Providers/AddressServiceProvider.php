@@ -14,7 +14,6 @@ use Capell\Address\Models\Country;
 use Capell\Address\Support\AddressModelRegistrar;
 use Capell\Admin\Enums\SchemaExtenderEnum;
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Core\Data\VendorAssetData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;
@@ -81,14 +80,7 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
             type: static::getType(),
             serviceProviderClass: static::class,
             path: realpath(__DIR__ . '/../..'),
-            sort: 10,
             description: static::getDescription(),
-            installCommand: 'capell:address-install',
-            demoCommand: 'capell:address-demo',
-            demoParams: ['sites'],
-            requirements: [
-                AdminServiceProvider::$packageName,
-            ],
             version: $this->getVersion(),
             url: 'https://capell.app',
         );

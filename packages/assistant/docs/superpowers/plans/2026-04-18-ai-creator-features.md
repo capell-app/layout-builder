@@ -50,7 +50,7 @@ src/Providers/AssistantServiceProvider.php     register extenders + new action s
 
 These are typed value objects that allow `GenerateAiLayoutAction` and `GenerateAiImageAction` to be called programmatically without a UI.
 
-- [ ] **Step 1: Create `AiCreatorData`**
+- [x] **Step 1: Create `AiCreatorData`**
 
 ```php
 <?php
@@ -75,7 +75,7 @@ final readonly class AiCreatorData
 }
 ```
 
-- [ ] **Step 2: Create `AiImageData`**
+- [x] **Step 2: Create `AiImageData`**
 
 ```php
 <?php
@@ -99,7 +99,7 @@ final readonly class AiImageData
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/DataObjects/AiCreatorData.php src/DataObjects/AiImageData.php
@@ -114,7 +114,7 @@ git commit -m "feat: add AiCreatorData and AiImageData DTOs"
 
 - Modify: `config/capell-assistant.php`
 
-- [ ] **Step 1: Add prompts for AI Creator layout generation**
+- [x] **Step 1: Add prompts for AI Creator layout generation**
 
 In `config/capell-assistant.php`, add to the `'prompts'` array:
 
@@ -170,7 +170,7 @@ PROMPT,
 ],
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add config/capell-assistant.php
@@ -193,7 +193,7 @@ The pipeline stages:
 4. Parse and validate JSON response
 5. Persist generated sections to session
 
-- [ ] **Step 1: Create `AiCreatorPipeline`**
+- [x] **Step 1: Create `AiCreatorPipeline`**
 
 ````php
 <?php
@@ -373,7 +373,7 @@ class AiCreatorPipeline
 }
 ````
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/Support/Pipelines/AiCreatorPipeline.php
@@ -389,7 +389,7 @@ git commit -m "feat: add AiCreatorPipeline for layout generation"
 - Create: `src/Actions/GenerateAiLayoutAction.php`
 - Create: `tests/Unit/Actions/GenerateAiLayoutActionTest.php`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```php
 <?php
@@ -423,7 +423,7 @@ it('returns sections array from pipeline', function (): void {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify failure**
+- [x] **Step 2: Run the test to verify failure**
 
 ```bash
 ./vendor/bin/pest tests/Unit/Actions/GenerateAiLayoutActionTest.php --no-coverage
@@ -431,7 +431,7 @@ it('returns sections array from pipeline', function (): void {
 
 Expected: FAIL — `GenerateAiLayoutAction` not found.
 
-- [ ] **Step 3: Implement `GenerateAiLayoutAction`**
+- [x] **Step 3: Implement `GenerateAiLayoutAction`**
 
 ```php
 <?php
@@ -482,7 +482,7 @@ class GenerateAiLayoutAction
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 ```bash
 ./vendor/bin/pest tests/Unit/Actions/GenerateAiLayoutActionTest.php --no-coverage
@@ -490,7 +490,7 @@ class GenerateAiLayoutAction
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/Actions/GenerateAiLayoutAction.php tests/Unit/Actions/GenerateAiLayoutActionTest.php
@@ -506,7 +506,7 @@ git commit -m "feat: add GenerateAiLayoutAction"
 - Create: `src/Actions/GenerateAiImageAction.php`
 - Create: `tests/Unit/Actions/GenerateAiImageActionTest.php`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```php
 <?php
@@ -538,7 +538,7 @@ it('returns an image URL from the AI provider', function (): void {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify failure**
+- [x] **Step 2: Run the test to verify failure**
 
 ```bash
 ./vendor/bin/pest tests/Unit/Actions/GenerateAiImageActionTest.php --no-coverage
@@ -546,7 +546,7 @@ it('returns an image URL from the AI provider', function (): void {
 
 Expected: FAIL — `GenerateAiImageAction` not found.
 
-- [ ] **Step 3: Implement `GenerateAiImageAction`**
+- [x] **Step 3: Implement `GenerateAiImageAction`**
 
 ```php
 <?php
@@ -591,7 +591,7 @@ class GenerateAiImageAction
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 ```bash
 ./vendor/bin/pest tests/Unit/Actions/GenerateAiImageActionTest.php --no-coverage
@@ -599,7 +599,7 @@ class GenerateAiImageAction
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/Actions/GenerateAiImageAction.php tests/Unit/Actions/GenerateAiImageActionTest.php
@@ -617,7 +617,7 @@ git commit -m "feat: add GenerateAiImageAction"
 
 This action calls admin's `SubmitForApprovalAction` directly (assistant already requires admin as a composer dependency). It populates `ai_creator_sessions.workspace_id` with the result.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```php
 <?php
@@ -653,7 +653,7 @@ it('marks session as submitted and records workspace id', function (): void {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify failure**
+- [x] **Step 2: Run the test to verify failure**
 
 ```bash
 ./vendor/bin/pest tests/Unit/Actions/SubmitAiCreatorDraftActionTest.php --no-coverage
@@ -661,7 +661,7 @@ it('marks session as submitted and records workspace id', function (): void {
 
 Expected: FAIL — `SubmitAiCreatorDraftAction` not found.
 
-- [ ] **Step 3: Implement `SubmitAiCreatorDraftAction`**
+- [x] **Step 3: Implement `SubmitAiCreatorDraftAction`**
 
 ```php
 <?php
@@ -706,7 +706,7 @@ class SubmitAiCreatorDraftAction
 
 > **Note:** The exact signature of `SubmitForApprovalAction::handle()` must be verified against the admin package source at `/Users/ben/Sites/packages/capell/capell-4/packages/admin/src/Filament/Resources/Workspaces/Actions/SubmitForApprovalAction.php`. Adjust the call arguments to match what that action actually accepts.
 
-- [ ] **Step 4: Verify test passes**
+- [x] **Step 4: Verify test passes**
 
 ```bash
 ./vendor/bin/pest tests/Unit/Actions/SubmitAiCreatorDraftActionTest.php --no-coverage
@@ -714,7 +714,7 @@ class SubmitAiCreatorDraftAction
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/Actions/SubmitAiCreatorDraftAction.php tests/Unit/Actions/SubmitAiCreatorDraftActionTest.php
@@ -731,7 +731,7 @@ git commit -m "feat: add SubmitAiCreatorDraftAction wiring AI Creator to workspa
 
 This is a Filament `Action` using a `Wizard` form component with 4 steps: Describe → Context → Layout → Review. On final submission it calls `GenerateAiLayoutAction` then `SubmitAiCreatorDraftAction`.
 
-- [ ] **Step 1: Create `AiCreatorAction`**
+- [x] **Step 1: Create `AiCreatorAction`**
 
 ```php
 <?php
@@ -954,7 +954,7 @@ class AiCreatorAction extends Action
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/Filament/Actions/AiCreatorAction.php
@@ -971,7 +971,7 @@ git commit -m "feat: add AiCreatorAction Filament wizard"
 
 A reusable inline Filament action that composes a prompt from nearby form field context, generates an image, and updates the parent field directly on Accept.
 
-- [ ] **Step 1: Create `AiImageGeneratorAction`**
+- [x] **Step 1: Create `AiImageGeneratorAction`**
 
 ```php
 <?php
@@ -1073,7 +1073,7 @@ class AiImageGeneratorAction extends Action
 }
 ```
 
-- [ ] **Step 2: Create the image preview Blade view**
+- [x] **Step 2: Create the image preview Blade view**
 
 Create `resources/views/filament/fields/image-preview.blade.php`:
 
@@ -1094,7 +1094,7 @@ Create `resources/views/filament/fields/image-preview.blade.php`:
 @endif
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/Filament/Actions/AiImageGeneratorAction.php resources/views/filament/fields/image-preview.blade.php
@@ -1111,7 +1111,7 @@ git commit -m "feat: add AiImageGeneratorAction for inline AI image generation"
 - Create: `src/Support/Admin/AiCreatorSiteExtender.php`
 - Modify: `src/Providers/AssistantServiceProvider.php`
 
-- [ ] **Step 1: Create `AiCreatorPageExtender`**
+- [x] **Step 1: Create `AiCreatorPageExtender`**
 
 ```php
 <?php
@@ -1134,7 +1134,7 @@ class AiCreatorPageExtender implements PageHeaderActionExtender
 }
 ```
 
-- [ ] **Step 2: Create `AiCreatorSiteExtender`**
+- [x] **Step 2: Create `AiCreatorSiteExtender`**
 
 ```php
 <?php
@@ -1157,7 +1157,7 @@ class AiCreatorSiteExtender implements SiteHeaderActionExtender
 }
 ```
 
-- [ ] **Step 3: Register extenders in `AssistantServiceProvider::registerAdminExtenders()`**
+- [x] **Step 3: Register extenders in `AssistantServiceProvider::registerAdminExtenders()`**
 
 Add the following to the existing `registerAdminExtenders()` method in `AssistantServiceProvider`:
 
@@ -1177,7 +1177,7 @@ $this->app->tag([
 ], SiteHeaderActionExtender::TAG);
 ```
 
-- [ ] **Step 4: Register `AiCreatorPipeline` as a singleton in `registerAiServices()`**
+- [x] **Step 4: Register `AiCreatorPipeline` as a singleton in `registerAiServices()`**
 
 ```php
 use Capell\Assistant\Support\Pipelines\AiCreatorPipeline;
@@ -1190,7 +1190,7 @@ $this->app->singleton(AiCreatorPipeline::class, fn (Application $app): AiCreator
 ));
 ```
 
-- [ ] **Step 5: Run all tests**
+- [x] **Step 5: Run all tests**
 
 ```bash
 ./vendor/bin/pest --no-coverage
@@ -1198,7 +1198,7 @@ $this->app->singleton(AiCreatorPipeline::class, fn (Application $app): AiCreator
 
 Expected: All PASS
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/Support/Admin/AiCreatorPageExtender.php src/Support/Admin/AiCreatorSiteExtender.php src/Providers/AssistantServiceProvider.php
@@ -1211,7 +1211,7 @@ git commit -m "feat: register AiCreatorAction extenders on page and site resourc
 
 Before opening a PR, verify the feature works in the actual Filament admin.
 
-- [ ] **Step 1: Run migrations**
+- [x] **Step 1: Run migrations**
 
 ```bash
 php artisan migrate
@@ -1219,7 +1219,7 @@ php artisan migrate
 
 Expected: All three new AI Creator migrations run cleanly.
 
-- [ ] **Step 2: Set env variables**
+- [x] **Step 2: Set env variables**
 
 In the host app's `.env`, ensure:
 
@@ -1229,11 +1229,11 @@ AI_MODEL=gpt-4o
 AI_API_KEY=sk-...  (or configure via Filament settings page)
 ```
 
-- [ ] **Step 3: Open admin and navigate to a Page record**
+- [x] **Step 3: Open admin and navigate to a Page record**
 
 The page edit/list header should now show an "AI Creator" button (with sparkles icon).
 
-- [ ] **Step 4: Click "AI Creator" and complete the wizard**
+- [x] **Step 4: Click "AI Creator" and complete the wizard**
 
 Walk through all 4 steps:
 
@@ -1244,17 +1244,17 @@ Walk through all 4 steps:
 
 Expected: Notification "Layout submitted for review", workspace entry created.
 
-- [ ] **Step 5: Navigate to a Site record**
+- [x] **Step 5: Navigate to a Site record**
 
 Verify "AI Creator" button also appears, and that the wizard shows the "How many pages?" field on step 1.
 
-- [ ] **Step 6: Test the image generator on an image field**
+- [x] **Step 6: Test the image generator on an image field**
 
 On any resource that uses `AiImageGeneratorAction`, click "Generate with AI", enter a prompt, click Generate, verify preview appears, click Accept.
 
 Expected: Image URL written back to the parent field.
 
-- [ ] **Step 7: Commit any fixes found**
+- [x] **Step 7: Commit any fixes found**
 
 ```bash
 git add -p
@@ -1282,4 +1282,4 @@ git commit -m "fix: smoke test corrections for AI Creator wizard"
     - `SubmitAiCreatorDraftAction::handle(AiCreatorSession $session): void`
     - `AiCreatorPipeline::execute(AiCreatorData $data): array`
 - [x] No TBDs or placeholders
-- [ ] **Note on `SubmitForApprovalAction`:** Task 6 Step 3 includes a note that the exact call signature must be verified against the admin source before running. Do this before executing Task 6.
+- [x] **Note on `SubmitForApprovalAction`:** Task 6 Step 3 includes a note that the exact call signature must be verified against the admin source before running. Do this before executing Task 6.
