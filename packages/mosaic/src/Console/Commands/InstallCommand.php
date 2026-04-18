@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\Mosaic\Console\Commands;
 
 use Capell\Admin\Actions\AssignPermissionsToRole;
-use Capell\Core\Support\Migration\MigrationFileManagerInterface;
+use Capell\Core\Support\Migration\MigrationFilesystemInterface;
 use Capell\Mosaic\Enums\ResourceEnum;
 use Capell\Mosaic\Support\CapellLayoutManager;
 use Capell\Mosaic\Support\LayoutModelRegistrar;
@@ -18,7 +18,7 @@ class InstallCommand extends Command
 
     protected $description = 'Install the Capell Mosaic package';
 
-    public function __construct(private readonly MigrationFileManagerInterface $fileManager)
+    public function __construct(private readonly MigrationFilesystemInterface $fileManager)
     {
         parent::__construct();
     }

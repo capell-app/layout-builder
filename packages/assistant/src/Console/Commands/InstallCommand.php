@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Capell\Assistant\Console\Commands;
 
-use Capell\Core\Support\Migration\MigrationFileManagerInterface;
+use Capell\Core\Support\Migration\MigrationFilesystemInterface;
 use Illuminate\Console\Command;
 
 class InstallCommand extends Command
 {
     protected $signature = 'capell:assistant-install';
 
-    public function __construct(private readonly MigrationFileManagerInterface $fileManager)
+    public function __construct(private readonly MigrationFilesystemInterface $fileManager)
     {
         parent::__construct();
     }
