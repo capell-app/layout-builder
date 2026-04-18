@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mosaic – Visual Layout Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+        }
+
+        .hero {
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 60px;
+        }
+
+        .hero-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0.05;
+            background-image:
+                linear-gradient(0deg, transparent 24%, rgba(255,255,255,.05) 25%, rgba(255,255,255,.05) 26%, transparent 27%, transparent 74%, rgba(255,255,255,.05) 75%, rgba(255,255,255,.05) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(255,255,255,.05) 25%, rgba(255,255,255,.05) 26%, transparent 27%, transparent 74%, rgba(255,255,255,.05) 75%, rgba(255,255,255,.05) 76%, transparent 77%, transparent);
+            background-size: 50px 50px;
+        }
+
+        .shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .shape {
+            position: absolute;
+            opacity: 0.15;
+        }
+
+        .shape-1 {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #ff006e, #8338ec);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            top: -50px;
+            right: -100px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape-2 {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(45deg, #06ffa5, #00d9ff);
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            bottom: -30px;
+            left: 10%;
+            animation: float 8s ease-in-out infinite 1s;
+        }
+
+        .shape-3 {
+            width: 180px;
+            height: 180px;
+            background: linear-gradient(225deg, #ffbe0b, #fb5607);
+            clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+            transform: rotate(45deg);
+            top: 20%;
+            right: 5%;
+            animation: float 7s ease-in-out infinite 0.5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(2deg); }
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+            color: white;
+            max-width: 50%;
+        }
+
+        .content h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #fff, #d0d0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .content p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.75);
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .visual-container {
+            position: relative;
+            z-index: 5;
+            width: 280px;
+            height: 220px;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
+        }
+
+        .block {
+            animation: blockPulse 2s ease-in-out infinite;
+        }
+
+        .block-1 { animation-delay: 0s; }
+        .block-2 { animation-delay: 0.3s; }
+        .block-3 { animation-delay: 0.6s; }
+        .block-4 { animation-delay: 0.9s; }
+
+        @keyframes blockPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .line {
+            animation: lineSlide 2s ease-in-out infinite;
+        }
+
+        @keyframes lineSlide {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="hero-grid"></div>
+        <div class="shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+
+        <div class="content">
+            <h1>Mosaic</h1>
+            <p>Visual layout builder for crafting pixel-perfect pages with interactive widgets and content blocks.</p>
+        </div>
+
+        <div class="visual-container">
+            <svg viewBox="0 0 280 220" xmlns="http://www.w3.org/2000/svg">
+                <!-- Background frame -->
+                <rect x="20" y="20" width="240" height="180" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" rx="4"/>
+
+                <!-- Grid lines -->
+                <line class="line" x1="80" y1="20" x2="80" y2="200" stroke="rgba(255,182,193,0.3)" stroke-width="0.5"/>
+                <line class="line" x1="140" y1="20" x2="140" y2="200" stroke="rgba(255,182,193,0.3)" stroke-width="0.5"/>
+                <line class="line" x1="200" y1="20" x2="200" y2="200" stroke="rgba(255,182,193,0.3)" stroke-width="0.5"/>
+                <line class="line" x1="20" y1="80" x2="260" y2="80" stroke="rgba(255,182,193,0.3)" stroke-width="0.5"/>
+                <line class="line" x1="20" y1="140" x2="260" y2="140" stroke="rgba(255,182,193,0.3)" stroke-width="0.5"/>
+
+                <!-- Large block top-left -->
+                <rect class="block block-1" x="30" y="30" width="100" height="100" fill="url(#grad1)" rx="2" opacity="0.8"/>
+
+                <!-- Block top-right -->
+                <rect class="block block-2" x="160" y="30" width="80" height="50" fill="url(#grad2)" rx="2" opacity="0.7"/>
+
+                <!-- Block middle-right -->
+                <rect class="block block-3" x="160" y="95" width="80" height="85" fill="url(#grad3)" rx="2" opacity="0.75"/>
+
+                <!-- Block bottom-left -->
+                <rect class="block block-4" x="30" y="145" width="110" height="45" fill="url(#grad4)" rx="2" opacity="0.7"/>
+
+                <!-- Decorative accents -->
+                <circle cx="150" cy="160" r="3" fill="rgba(255,255,255,0.4)" class="block block-1"/>
+                <circle cx="170" cy="170" r="2" fill="rgba(255,255,255,0.3)" class="block block-2"/>
+                <circle cx="190" cy="150" r="2.5" fill="rgba(255,255,255,0.35)" class="block block-3"/>
+
+                <!-- Gradients -->
+                <defs>
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ff006e;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#8338ec;stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#06ffa5;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#00d9ff;stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ffbe0b;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#fb5607;stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="grad4" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#06ffa5;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#ff006e;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+    </div>
+</body>
+</html>

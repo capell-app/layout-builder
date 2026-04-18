@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Address – Location Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+
+        .hero {
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(to right, #0f3460 0%, #16213e 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 60px;
+        }
+
+        .map-background {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            opacity: 0.15;
+            background-image:
+                linear-gradient(45deg, transparent 30%, rgba(16, 185, 129, 0.3) 30%, rgba(16, 185, 129, 0.3) 70%, transparent 70%),
+                linear-gradient(-45deg, transparent 30%, rgba(59, 130, 246, 0.2) 30%, rgba(59, 130, 246, 0.2) 70%, transparent 70%);
+            background-size: 40px 40px, 60px 60px;
+            background-position: 0 0, 20px 20px;
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+            max-width: 45%;
+        }
+
+        .content h1 {
+            font-size: 52px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+
+        .content p {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .accent-line {
+            width: 48px;
+            height: 3px;
+            background: linear-gradient(90deg, #10b981, #06b6d4);
+            margin-bottom: 16px;
+            border-radius: 2px;
+        }
+
+        .world-map {
+            position: relative;
+            z-index: 5;
+            width: 280px;
+            height: 200px;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
+        }
+
+        .map-region {
+            animation: regionGlow 3s ease-in-out infinite;
+        }
+
+        .map-region-1 { animation-delay: 0s; }
+        .map-region-2 { animation-delay: 1s; }
+        .map-region-3 { animation-delay: 2s; }
+
+        @keyframes regionGlow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.9; }
+        }
+
+        .pin {
+            animation: pinBounce 2s ease-in-out infinite;
+        }
+
+        .pin-1 { animation-delay: 0s; }
+        .pin-2 { animation-delay: 0.4s; }
+        .pin-3 { animation-delay: 0.8s; }
+
+        @keyframes pinBounce {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .connection-line {
+            animation: lineFlow 3s ease-in-out infinite;
+        }
+
+        @keyframes lineFlow {
+            0%, 100% { opacity: 0.2; stroke-dashoffset: 0; }
+            50% { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="map-background"></div>
+
+        <div class="content">
+            <div class="accent-line"></div>
+            <h1>Address</h1>
+            <p>Manage addresses, locations, and countries across your site with structured, queryable location data.</p>
+        </div>
+
+        <div class="world-map">
+            <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- Simplified world map regions -->
+
+                <!-- North America region -->
+                <g class="map-region map-region-1">
+                    <path d="M 60 50 L 90 45 L 95 70 L 80 80 L 60 75 Z" fill="#10b981" opacity="0.4" stroke="rgba(16, 185, 129, 0.6)" stroke-width="0.5"/>
+                </g>
+
+                <!-- Europe/Africa region -->
+                <g class="map-region map-region-2">
+                    <path d="M 130 40 L 155 45 L 160 75 L 135 85 L 125 70 Z" fill="#06b6d4" opacity="0.4" stroke="rgba(6, 182, 212, 0.6)" stroke-width="0.5"/>
+                </g>
+
+                <!-- Asia region -->
+                <g class="map-region map-region-3">
+                    <path d="M 170 50 L 210 55 L 215 80 L 180 85 L 165 70 Z" fill="#10b981" opacity="0.4" stroke="rgba(16, 185, 129, 0.6)" stroke-width="0.5"/>
+                </g>
+
+                <!-- Connection lines between regions -->
+                <line class="connection-line" x1="95" y1="70" x2="130" y2="65" stroke="rgba(6, 182, 212, 0.5)" stroke-width="1" stroke-dasharray="5,5"/>
+                <line class="connection-line" x1="160" y1="75" x2="170" y2="70" stroke="rgba(16, 185, 129, 0.5)" stroke-width="1" stroke-dasharray="5,5"/>
+
+                <!-- Location pins -->
+                <g class="pin pin-1">
+                    <circle cx="75" cy="62" r="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" stroke-width="1"/>
+                    <circle cx="75" cy="62" r="2.5" fill="#10b981"/>
+                </g>
+
+                <g class="pin pin-2">
+                    <circle cx="145" cy="55" r="6" fill="rgba(6, 182, 212, 0.3)" stroke="#06b6d4" stroke-width="1"/>
+                    <circle cx="145" cy="55" r="2.5" fill="#06b6d4"/>
+                </g>
+
+                <g class="pin pin-3">
+                    <circle cx="190" cy="68" r="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" stroke-width="1"/>
+                    <circle cx="190" cy="68" r="2.5" fill="#10b981"/>
+                </g>
+
+                <!-- Coordinate grid -->
+                <g opacity="0.2">
+                    <line x1="40" y1="100" x2="240" y2="100" stroke="#06b6d4" stroke-width="0.5"/>
+                    <line x1="140" y1="30" x2="140" y2="170" stroke="#06b6d4" stroke-width="0.5"/>
+                </g>
+
+                <!-- Decorative compass rose -->
+                <g transform="translate(240, 35)" opacity="0.6">
+                    <circle cx="0" cy="0" r="8" fill="none" stroke="#06b6d4" stroke-width="0.5"/>
+                    <line x1="0" y1="-8" x2="0" y2="8" stroke="#06b6d4" stroke-width="0.5"/>
+                    <line x1="-8" y1="0" x2="8" y2="0" stroke="#06b6d4" stroke-width="0.5"/>
+                    <polygon points="0,-6 -1,-1 0,-2 1,-1" fill="#10b981"/>
+                </g>
+
+                <!-- Measurement scale -->
+                <g transform="translate(40, 160)" opacity="0.5">
+                    <line x1="0" y1="0" x2="30" y2="0" stroke="#06b6d4" stroke-width="0.5"/>
+                    <line x1="0" y1="-2" x2="0" y2="2" stroke="#06b6d4" stroke-width="0.5"/>
+                    <line x1="30" y1="-2" x2="30" y2="2" stroke="#06b6d4" stroke-width="0.5"/>
+                    <text x="15" y="10" font-size="6" fill="#06b6d4" text-anchor="middle">500 km</text>
+                </g>
+            </svg>
+        </div>
+    </div>
+</body>
+</html>
