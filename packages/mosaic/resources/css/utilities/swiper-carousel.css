@@ -1,7 +1,16 @@
-@import 'swiper/css';
-@import 'swiper/css/autoplay';
-@import 'swiper/css/pagination';
-@import 'swiper/css/navigation';
+/*
+ * Swiper vendor styles.
+ *
+ * We import direct file paths instead of the package-exports subpaths
+ * (`swiper/css`, `swiper/css/autoplay`, etc.) because the Tailwind v4 /
+ * @tailwindcss/vite CSS resolver does not honor Node's `exports` map.
+ * Direct paths work under both `node_modules` and Composer path-repo
+ * symlinks.
+ */
+@import 'swiper/swiper.css';
+@import 'swiper/modules/autoplay.css';
+@import 'swiper/modules/pagination.css';
+@import 'swiper/modules/navigation.css';
 
 :root {
     --swiper-pagination-bullet-width: 1.5rem;
