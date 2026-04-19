@@ -95,14 +95,8 @@ class PluginsPage extends Page implements HasActions, HasTable
             self::$installedTab => Tab::make()
                 ->label(__('Installed'))
                 ->badge(function (): ?int {
-                    $count = MarketplacePlugin::whereHas('licenses')
-                        ->orWhere(function ($query): void {
-                            $query->where(function ($q): void {
-                                foreach (explode(',', 'mosaic,blog,address,assistant') as $installed) {
-                                    $q->orWhere('composer_name', 'capell-app/' . trim($installed));
-                                }
-                            });
-                        })
+                    $count = MarketplacePlugin::query()
+                        ->installed()
                         ->distinct()
                         ->count();
 

@@ -92,19 +92,22 @@ class MarketplacePluginForm
                             ->schema([
                                 TextInput::make('price_once')
                                     ->label(__('One-time Price'))
-                                    ->numeric()
+                                    ->integer()
+                                    ->helperText(__('Whole dollars only — the column is an integer and fractional input truncates.'))
                                     ->columnSpan(1),
                                 TextInput::make('price_monthly')
                                     ->label(__('Monthly Price'))
-                                    ->numeric()
+                                    ->integer()
+                                    ->helperText(__('Whole dollars only — the column is an integer and fractional input truncates.'))
                                     ->columnSpan(1),
                                 TextInput::make('price_yearly')
                                     ->label(__('Yearly Price'))
-                                    ->numeric()
+                                    ->integer()
+                                    ->helperText(__('Whole dollars only — the column is an integer and fractional input truncates.'))
                                     ->columnSpan(1),
                                 TextInput::make('trial_days')
                                     ->label(__('Trial Days'))
-                                    ->numeric()
+                                    ->integer()
                                     ->columnSpan(1),
                                 TextInput::make('anystack_product_id')
                                     ->label(__('Anystack Product ID'))

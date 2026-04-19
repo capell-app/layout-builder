@@ -57,12 +57,7 @@ class PluginsTable
             }
 
             if ($livewire->isInstalledTab()) {
-                return $query->whereHas('licenses')
-                    ->orWhere(function ($q): void {
-                        foreach (explode(',', 'mosaic,blog,address,assistant') as $installed) {
-                            $q->orWhere('composer_name', 'capell-app/' . trim($installed));
-                        }
-                    })
+                return $query->installed()
                     ->distinct()
                     ->orderBy('name');
             }

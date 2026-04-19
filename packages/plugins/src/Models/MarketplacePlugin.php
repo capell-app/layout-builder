@@ -7,6 +7,7 @@ namespace Capell\Plugins\Models;
 use Capell\Plugins\Database\Factories\MarketplacePluginFactory;
 use Capell\Plugins\Enums\LicenseModel;
 use Capell\Plugins\Enums\PluginKind;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -62,5 +63,33 @@ class MarketplacePlugin extends Model
     protected static function newFactory(): Factory
     {
         return MarketplacePluginFactory::new();
+    }
+
+    /**
+     * Scope: plugins considered "installed" — either they have at least one
+     * license row (paid plugins activated via the admin UI) or their
+     * `composer_name` maps to a real vendor directory on disk (free plugins).
+     *
+     * Replaces a previous hard-coded `mosaic,blog,address,assistant` list
+     * that could drift from reality. The in-memory filtering step is bounded
+     * by the number of marketplace plugins (tens at most) so loading all
+     * `composer_name` values first is cheap.
+     */
+    protected function scopeInstalled(Builder $query): Builder
+    {
+        $freeInstalledIds = static::query()
+            ->whereNotNull('composer_name')
+            ->get(['id', 'composer_name'])
+            ->filter(fn (MarketplacePlugin $plugin): bool => is_dir(base_path('vendor/' . $plugin->composer_name)))
+            ->pluck('id')
+            ->all();
+
+        return $query->where(function (Builder $inner) use ($freeInstalledIds): void {
+            $inner->whereHas('licenses');
+
+            if ($freeInstalledIds !== []) {
+                $inner->orWhereIn('id', $freeInstalledIds);
+            }
+        });
     }
 }
