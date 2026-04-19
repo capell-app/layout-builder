@@ -20,92 +20,92 @@ use function Pest\Laravel\assertSoftDeleted;
 use function Pest\Livewire\livewire;
 
 uses(CreatesAdminUser::class)
-    ->group('content');
+    ->group('section');
 
 beforeEach(function (): void {
     test()->actingAsAdmin();
 });
 
-test('can list contents', function (): void {
-    $contents = Section::factory()->count(5)->create();
+test('can list sections', function (): void {
+    $sections = Section::factory()->count(5)->create();
 
     livewire(ListSections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(5)
-        ->assertCanSeeTableRecords($contents);
+        ->assertCanSeeTableRecords($sections);
 });
 
-test('can search contents', function (): void {
-    $contents = Section::factory()
+test('can search sections', function (): void {
+    $sections = Section::factory()
         ->sequence(fn (Sequence $sequence): array => ['name' => sprintf('Language(%d)', $sequence->index)])
         ->count(3)
         ->create();
 
-    $name = $contents->random()->name;
+    $name = $sections->random()->name;
 
     livewire(ListSections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(3)
         ->searchTable($name)
-        ->assertCountTableRecords($contents->where('name', $name)->count())
-        ->assertCanSeeTableRecords($contents->where('name', $name))
-        ->assertCanNotSeeTableRecords($contents->where('name', '!=', $name));
+        ->assertCountTableRecords($sections->where('name', $name)->count())
+        ->assertCanSeeTableRecords($sections->where('name', $name))
+        ->assertCanNotSeeTableRecords($sections->where('name', '!=', $name));
 });
 
-test('can sort contents', function (): void {
-    $contents = Section::factory()->count(5)->create();
+test('can sort sections', function (): void {
+    $sections = Section::factory()->count(5)->create();
 
     livewire(ListSections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(5)
         ->sortTable('name')
-        ->assertCanSeeTableRecords($contents->sortBy('name'), inOrder: true);
+        ->assertCanSeeTableRecords($sections->sortBy('name'), inOrder: true);
 });
 
-test('can replicate contents', function (): void {
-    $content = Section::factory()->create();
+test('can replicate sections', function (): void {
+    $section = Section::factory()->create();
 
     livewire(ListSections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(1)
         ->callAction(
-            TestAction::make(ReplicateAction::class)->table($content),
+            TestAction::make(ReplicateAction::class)->table($section),
             data: [
-                'name' => $content->name . ' (copy)',
+                'name' => $section->name . ' (copy)',
             ],
         )
         ->assertHasNoFormErrors()
         ->assertCountTableRecords(2);
 
-    assertDatabaseHas('contents', [
-        'name' => $content->name . ' (copy)',
+    assertDatabaseHas('sections', [
+        'name' => $section->name . ' (copy)',
     ]);
 });
 
-test('can delete content', function (): void {
-    $content = Section::factory()->create();
+test('can delete section', function (): void {
+    $section = Section::factory()->create();
 
     livewire(ListSections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(1)
-        ->callAction(TestAction::make(DeleteAction::class)->table($content))
+        ->callAction(TestAction::make(DeleteAction::class)->table($section))
         ->assertHasNoFormErrors()
         ->assertCountTableRecords(0);
 
-    assertSoftDeleted($content, ['id' => $content->id]);
+    assertSoftDeleted($section, ['id' => $section->id]);
 });
 
-test('can group delete contents', function (): void {
-    $contents = Section::factory()->count(5)->create();
+test('can group delete sections', function (): void {
+    $sections = Section::factory()->count(5)->create();
 
     livewire(ListSections::class)
         ->assertSuccessful()
-        ->selectTableRecords($contents->pluck('id')->toArray())
+        ->selectTableRecords($sections->pluck('id')->toArray())
         ->callAction(TestAction::make(DeleteBulkAction::class)->table()->bulk())
         ->assertHasNoFormErrors();
 
-    foreach ($contents as $content) {
-        assertSoftDeleted($content, ['id' => $content->id]);
+    foreach ($sections as $section) {
+        assertSoftDeleted($section, ['id' => $section->id]);
     }
 });
 
@@ -116,7 +116,7 @@ test('can select all records', function (): void {
         ->assertSuccessful();
 });
 
-test('can create content', function (): void {
+test('can create section', function (): void {
     Type::factory()->type(LayoutTypeEnum::Section)->create();
 
     $newData = Section::factory()->make();
@@ -147,39 +147,39 @@ test('can filter by parent', function (): void {
 
 test('can filter by type', function (): void {
     $type = Type::factory()->type(LayoutTypeEnum::Section)->create();
-    $contents = Section::factory()->count(3)->type($type)->create();
+    $sections = Section::factory()->count(3)->type($type)->create();
 
     livewire(ListSections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(3)
         ->filterTable('type_id', $type->id)
         ->assertCountTableRecords(3)
-        ->assertCanSeeTableRecords($contents);
+        ->assertCanSeeTableRecords($sections);
 });
 
 test('can filter by site', function (): void {
     $site = Site::factory()->create();
-    $contents = Section::factory()->count(3)->site($site)->create();
+    $sections = Section::factory()->count(3)->site($site)->create();
 
     livewire(ListSections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(3)
         ->filterTable('site_id', $site->id)
         ->assertCountTableRecords(3)
-        ->assertCanSeeTableRecords($contents);
+        ->assertCanSeeTableRecords($sections);
 });
 
 test('can filter by language', function (): void {
     $language = Language::factory()->create();
     Section::factory()->create();
-    $contents = Section::factory()->count(3)->withTranslations($language)->create();
+    $sections = Section::factory()->count(3)->withTranslations($language)->create();
 
     livewire(ListSections::class)
         ->assertSuccessful()
         ->assertCountTableRecords(4)
         ->filterTable('filter', ['language_id' => $language->id])
         ->assertCountTableRecords(3)
-        ->assertCanSeeTableRecords($contents);
+        ->assertCanSeeTableRecords($sections);
 });
 
 test('can filter by publish status', function (string $status, int $expectedCount): void {

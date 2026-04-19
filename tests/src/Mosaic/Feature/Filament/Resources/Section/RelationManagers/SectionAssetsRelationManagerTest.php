@@ -14,25 +14,25 @@ use Filament\Actions\Testing\TestAction;
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 
-it('can list content assets', function (): void {
-    $content = Section::factory()
+it('can list section assets', function (): void {
+    $section = Section::factory()
         ->has(AssetRelation::factory(['related_type' => AssetEnum::Section->value])->count(5), 'assets')
         ->create();
 
-    $resource = $content->assets->first()->load('asset');
+    $resource = $section->assets->first()->load('asset');
 
     livewire(SectionAssetsRelationManager::class, [
-        'ownerRecord' => $content,
+        'ownerRecord' => $section,
         'pageClass' => EditSection::class,
     ])
         ->assertSuccessful()
         ->assertCountTableRecords(5)
-        ->assertCanSeeTableRecords($content->assets)
+        ->assertCanSeeTableRecords($section->assets)
         ->assertTableColumnStateSet('asset.name', state: [$resource->asset->name], record: $resource);
 });
 
-it('can search content assets', function (): void {
-    $content = Section::factory()
+it('can search section assets', function (): void {
+    $section = Section::factory()
         ->has(
             AssetRelation::factory(['related_type' => AssetEnum::Section->value])
                 ->asset(
@@ -67,10 +67,10 @@ it('can search content assets', function (): void {
         )
         ->create();
 
-    $resource = $content->assets->first()->load('asset');
+    $resource = $section->assets->first()->load('asset');
 
     livewire(SectionAssetsRelationManager::class, [
-        'ownerRecord' => $content,
+        'ownerRecord' => $section,
         'pageClass' => EditSection::class,
     ])
         ->assertSuccessful()
@@ -81,17 +81,17 @@ it('can search content assets', function (): void {
 });
 
 test('can create a asset for a widget', function (string $assetType): void {
-    $content = Section::factory()->create();
+    $section = Section::factory()->create();
 
     $action = TestAction::make(CreateAction::class)->table();
 
     $asset = match ($assetType) {
-        'content' => Section::factory()->create(),
+        'section' => Section::factory()->create(),
         'page' => Page::factory()->create(),
     };
 
     livewire(SectionAssetsRelationManager::class, [
-        'ownerRecord' => $content,
+        'ownerRecord' => $section,
         'pageClass' => EditSection::class,
     ])
         ->assertSuccessful()
@@ -107,9 +107,9 @@ test('can create a asset for a widget', function (string $assetType): void {
         ->assertCountTableRecords(1);
 
     assertDatabaseHas(AssetRelation::class, [
-        'related_type' => $content->getMorphClass(),
-        'related_id' => $content->id,
+        'related_type' => $section->getMorphClass(),
+        'related_id' => $section->id,
         'asset_type' => $assetType,
     ]);
 })
-    ->with(['page', 'content']);
+    ->with(['page', 'section']);

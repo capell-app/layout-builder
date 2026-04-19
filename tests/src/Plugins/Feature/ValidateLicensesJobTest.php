@@ -7,10 +7,8 @@ use Capell\Plugins\Jobs\ValidateLicensesJob;
 use Capell\Plugins\Models\MarketplacePlugin;
 use Capell\Plugins\Models\MarketplacePluginLicense;
 use Capell\Plugins\Services\AnystackClient;
-use Capell\Tests\Plugins\Jobs\RecordingValidateLicenseAction;
+use Capell\Tests\Plugins\Fixtures\Jobs\RecordingValidateLicenseAction;
 use Illuminate\Support\Facades\Http;
-use RuntimeException;
-use Throwable;
 
 function makeJobRecordingAction(array $throwsById = []): RecordingValidateLicenseAction
 {

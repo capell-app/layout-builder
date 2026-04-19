@@ -98,6 +98,13 @@ class TypeCreator
         $this->pagesWidgetType();
         $this->assetsWidgetType();
         $this->systemWidgetType();
+        $this->heroWidgetType();
+        $this->heroBannerWidgetType();
+        $this->cardGridWidgetType();
+        $this->featureListWidgetType();
+        $this->ctaSectionWidgetType();
+        $this->imageGalleryWidgetType();
+        $this->formSectionWidgetType();
     }
 
     public function defaultWidgetType(): Type
@@ -300,6 +307,125 @@ class TypeCreator
                 'component' => WidgetComponentEnum::Assets,
                 'component_item' => CapellAssetComponentEnum::Card,
                 'margin' => ['lg'],
+            ],
+        ]);
+    }
+
+    public function heroWidgetType(): Type
+    {
+        return $this->typeModel::query()->firstOrCreate([
+            'key' => WidgetTypeEnum::Hero,
+            'type' => LayoutTypeEnum::Widget,
+        ], [
+            'name' => 'Hero',
+            'admin' => [
+                'type_schema' => WidgetTypeSchema::getKey(),
+                'icon' => 'heroicon-o-rocket-launch',
+            ],
+            'meta' => [
+                'component' => WidgetComponentEnum::Default,
+            ],
+        ]);
+    }
+
+    public function heroBannerWidgetType(): Type
+    {
+        return $this->typeModel::query()->firstOrCreate([
+            'key' => WidgetTypeEnum::HeroBanner,
+            'type' => LayoutTypeEnum::Widget,
+        ], [
+            'name' => 'Hero Banner',
+            'admin' => [
+                'type_schema' => WidgetTypeSchema::getKey(),
+                'icon' => 'heroicon-o-flag',
+            ],
+            'meta' => [
+                'component' => WidgetComponentEnum::Default,
+            ],
+        ]);
+    }
+
+    public function cardGridWidgetType(): Type
+    {
+        return $this->typeModel::query()->firstOrCreate([
+            'key' => WidgetTypeEnum::CardGrid,
+            'type' => LayoutTypeEnum::Widget,
+        ], [
+            'name' => 'Card Grid',
+            'admin' => [
+                'type_schema' => WidgetTypeSchema::getKey(),
+                'icon' => 'heroicon-o-square-3-stack-3d',
+            ],
+            'meta' => [
+                'component' => WidgetComponentEnum::Default,
+            ],
+        ]);
+    }
+
+    public function featureListWidgetType(): Type
+    {
+        return $this->typeModel::query()->firstOrCreate([
+            'key' => WidgetTypeEnum::FeatureList,
+            'type' => LayoutTypeEnum::Widget,
+        ], [
+            'name' => 'Feature List',
+            'admin' => [
+                'type_schema' => WidgetTypeSchema::getKey(),
+                'icon' => 'heroicon-o-list-bullet',
+            ],
+            'meta' => [
+                'component' => WidgetComponentEnum::Default,
+            ],
+        ]);
+    }
+
+    public function ctaSectionWidgetType(): Type
+    {
+        return $this->typeModel::query()->firstOrCreate([
+            'key' => WidgetTypeEnum::CTASection,
+            'type' => LayoutTypeEnum::Widget,
+        ], [
+            'name' => 'CTA Section',
+            'admin' => [
+                'type_schema' => WidgetTypeSchema::getKey(),
+                'icon' => 'heroicon-o-megaphone',
+            ],
+            'meta' => [
+                'component' => WidgetComponentEnum::Default,
+            ],
+        ]);
+    }
+
+    public function imageGalleryWidgetType(): Type
+    {
+        return $this->typeModel::query()->firstOrCreate([
+            'key' => WidgetTypeEnum::ImageGallery,
+            'type' => LayoutTypeEnum::Widget,
+        ], [
+            'name' => 'Image Gallery',
+            'admin' => [
+                'type_schema' => WidgetTypeSchema::getKey(),
+                'icon' => 'heroicon-o-photo',
+            ],
+            'meta' => [
+                'component' => WidgetComponentEnum::Default,
+            ],
+        ]);
+    }
+
+    public function formSectionWidgetType(): Type
+    {
+        return $this->typeModel::query()->firstOrCreate([
+            'key' => WidgetTypeEnum::FormSection,
+            'type' => LayoutTypeEnum::Widget,
+        ], [
+            'name' => 'Form Section',
+            'admin' => [
+                'type_schema' => WidgetTypeSchema::getKey(),
+                'icon' => 'heroicon-o-document-text',
+            ],
+            'meta' => [
+                'component' => WidgetComponentEnum::Default,
             ],
         ]);
     }

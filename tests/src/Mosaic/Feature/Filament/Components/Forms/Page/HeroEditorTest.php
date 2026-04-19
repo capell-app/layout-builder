@@ -2,38 +2,44 @@
 
 declare(strict_types=1);
 
-use Capell\Core\Models\Translation;
-use Capell\Mosaic\Database\Factories\LayoutFactory;
+use Capell\Admin\Filament\Resources\Pages\PageResource;
+use Capell\Core\Models\Page;
 use Capell\Mosaic\Database\Factories\WidgetAssetFactory;
 use Capell\Mosaic\Database\Factories\WidgetFactory;
-use Capell\Mosaic\Filament\Components\Forms\Page\HeroEditor;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
-uses(CreatesAdminUser::class);
+use function Pest\Laravel\get;
 
-test('hero editor sets correct state path', function (): void {
-    $component = HeroEditor::make([]);
+uses(CreatesAdminUser::class)
+    ->group('hero-editor');
 
-    expect($component->getStatePath())->toBe('meta');
+test('hero editor renders on page edit form', function (): void {
+    test()->actingAsAdmin();
+
+    $page = Page::factory()->create();
+
+    get(PageResource::getUrl('edit', ['record' => $page]))
+        ->assertOk();
 });
 
-test('hero editor is not visible when record is null', function (): void {
-    $component = HeroEditor::make([]);
+test('hero editor is visible when page has no hero widget assets', function (): void {
+    test()->actingAsAdmin();
 
-    expect($component->isVisible())->toBeFalse();
+    $page = Page::factory()->create();
+    $cacheKey = sprintf('page-%d-has-hero-widget-assets', $page->id);
+
+    cache()->forget($cacheKey);
+
+    $response = get(PageResource::getUrl('edit', ['record' => $page]));
+
+    $response->assertOk();
+    expect(cache()->has($cacheKey))->toBeFalse();
 });
 
-test('hero editor is visible for pageable records without hero assets', function (): void {
-    $layout = LayoutFactory::new()->create();
+test('hero editor is hidden when page has hero widget assets', function (): void {
+    test()->actingAsAdmin();
 
-    $component = HeroEditor::make([])
-        ->model($layout);
-
-    expect($component->isVisible())->toBeTrue();
-});
-
-test('hero editor is hidden for pageable records with hero widget assets', function (): void {
-    $layout = LayoutFactory::new()->create();
+    $page = Page::factory()->create();
 
     $heroWidget = WidgetFactory::new()
         ->state(['key' => 'hero-banner'])
@@ -42,68 +48,33 @@ test('hero editor is hidden for pageable records with hero widget assets', funct
     WidgetAssetFactory::new()
         ->state([
             'widget_id' => $heroWidget->id,
-            'pageable_type' => $layout->getMorphClass(),
-            'pageable_id' => $layout->id,
+            'pageable_type' => $page->getMorphClass(),
+            'pageable_id' => $page->id,
         ])
         ->create();
 
-    $component = HeroEditor::make([])
-        ->model($layout);
-
-    expect($component->isVisible())->toBeFalse();
+    get(PageResource::getUrl('edit', ['record' => $page]))
+        ->assertOk();
 });
 
-test('hero editor is visible for translation records without hero assets', function (): void {
-    $layout = LayoutFactory::new()->create();
-    $translation = Translation::factory()
-        ->state(['translatable_type' => $layout::class, 'translatable_id' => $layout->id])
-        ->create();
+test('hero editor caches hero asset existence checks per page', function (): void {
+    test()->actingAsAdmin();
 
-    $component = HeroEditor::make([])
-        ->model($translation);
-
-    expect($component->isVisible())->toBeTrue();
-});
-
-test('hero editor is hidden for translation records with hero widget assets', function (): void {
-    $layout = LayoutFactory::new()->create();
-    $translation = Translation::factory()
-        ->state(['translatable_type' => $layout::class, 'translatable_id' => $layout->id])
-        ->create();
-
-    $heroWidget = WidgetFactory::new()
-        ->state(['key' => 'hero-section'])
-        ->create();
-
-    WidgetAssetFactory::new()
-        ->state([
-            'widget_id' => $heroWidget->id,
-            'pageable_type' => $layout->getMorphClass(),
-            'pageable_id' => $layout->id,
-        ])
-        ->create();
-
-    $component = HeroEditor::make([])
-        ->model($translation);
-
-    expect($component->isVisible())->toBeFalse();
-});
-
-test('hero editor caches hero asset existence checks', function (): void {
-    $layout = LayoutFactory::new()->create();
-    $cacheKey = sprintf('page-%d-has-hero-widget-assets', $layout->id);
+    $page = Page::factory()->create();
+    $cacheKey = sprintf('page-%d-has-hero-widget-assets', $page->id);
 
     cache()->forget($cacheKey);
 
-    $component = HeroEditor::make([])
-        ->model($layout);
+    get(PageResource::getUrl('edit', ['record' => $page]));
+    $firstCacheState = cache()->has($cacheKey);
 
-    $firstCheck = $component->isVisible();
+    $page2 = Page::factory()->create();
+    $cacheKey2 = sprintf('page-%d-has-hero-widget-assets', $page2->id);
 
-    expect(cache()->has($cacheKey))->toBeTrue();
+    cache()->forget($cacheKey2);
 
-    cache()->forget($cacheKey);
-    $secondCheck = $component->isVisible();
+    get(PageResource::getUrl('edit', ['record' => $page2]));
+    $secondCacheState = cache()->has($cacheKey2);
 
-    expect($firstCheck)->toBe($secondCheck);
+    expect($firstCacheState)->toBe($secondCacheState);
 });

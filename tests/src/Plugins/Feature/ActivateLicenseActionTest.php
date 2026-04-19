@@ -11,7 +11,6 @@ use Capell\Plugins\Models\MarketplacePluginLicense;
 use Capell\Plugins\Services\AnystackClient;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
-use RuntimeException;
 
 function makeActivateAction(): ActivateLicenseAction
 {

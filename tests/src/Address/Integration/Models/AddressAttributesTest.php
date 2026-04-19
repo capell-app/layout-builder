@@ -38,8 +38,8 @@ describe('Address model attributes', function (): void {
         );
     });
 
-    it('generates full address with minimal parts', function (): void {
-        $address = Address::factory()->create([
+    it('generates full address with only required parts', function (): void {
+        $address = new Address([
             'line1' => '789 Elm St',
             'line2' => null,
             'city' => null,

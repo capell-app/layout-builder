@@ -6,7 +6,6 @@ use Capell\Plugins\Actions\UpdatePluginAction;
 use Capell\Plugins\Models\MarketplacePlugin;
 use Capell\Plugins\Services\ComposerRunner;
 use Capell\Tests\Plugins\Unit\StubComposerProcess;
-use RuntimeException;
 use Symfony\Component\Process\Process;
 
 function makeUpdateRunner(array $exitCodes, array $errorOutputs = []): ComposerRunner

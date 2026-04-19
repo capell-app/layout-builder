@@ -11,7 +11,6 @@ use Capell\Plugins\Services\AnystackClient;
 use Capell\Plugins\Services\ComposerRunner;
 use Capell\Tests\Plugins\Unit\StubComposerProcess;
 use Illuminate\Support\Facades\Http;
-use RuntimeException;
 use Symfony\Component\Process\Process;
 
 $captured = [];

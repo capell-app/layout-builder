@@ -12,7 +12,7 @@ class ArchiveMonthData extends Data
     public function __construct(
         public int $year,
         public int $month,
-        public ?int $total = null,
+        public int $total = 0,
     ) {}
 
     public static function fromDate(CarbonImmutable $date): self

@@ -22,7 +22,6 @@
         <testsuite name="Feature">
             <directory suffix="Test.php">./tests/src/*/Feature</directory>
             <directory suffix="Test.php">./packages/themes/*/tests/Feature</directory>
-            <directory suffix="Test.php">./packages/themes-*/tests/Feature</directory>
         </testsuite>
         <testsuite name="Integration">
             <directory suffix="Test.php">./tests/src/*/Integration</directory>
@@ -30,7 +29,6 @@
         <testsuite name="Unit">
             <directory suffix="Test.php">./tests/src/*/Unit</directory>
             <directory suffix="Test.php">./packages/themes/*/tests/Unit</directory>
-            <directory suffix="Test.php">./packages/themes-*/tests/Unit</directory>
         </testsuite>
     </testsuites>
     <source>

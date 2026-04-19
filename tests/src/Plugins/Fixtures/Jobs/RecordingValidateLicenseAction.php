@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Tests\Plugins\Jobs;
+namespace Capell\Tests\Plugins\Fixtures\Jobs;
 
 use Capell\Plugins\Actions\ValidateLicenseAction;
 use Capell\Plugins\Models\MarketplacePluginLicense;

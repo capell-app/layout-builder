@@ -6,7 +6,6 @@ use Capell\Plugins\Actions\UninstallPluginAction;
 use Capell\Plugins\Models\MarketplacePlugin;
 use Capell\Plugins\Services\ComposerRunner;
 use Capell\Tests\Plugins\Unit\StubComposerProcess;
-use RuntimeException;
 use Symfony\Component\Process\Process;
 
 function makeUninstallRunner(array $exitCodes, array $errorOutputs = []): ComposerRunner
