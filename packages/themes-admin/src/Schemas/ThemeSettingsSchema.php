@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Themes\Admin\Schemas;
 
+use Capell\Themes\Core\Theme\ThemeRegistrar;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
@@ -19,11 +20,7 @@ class ThemeSettingsSchema
                     ->schema([
                         Select::make('active_theme')
                             ->label('Active Theme')
-                            ->options([
-                                'corporate' => 'Corporate',
-                                'agency' => 'Agency',
-                                'saas' => 'SaaS',
-                            ])
+                            ->options(ThemeRegistrar::options())
                             ->required(),
                     ]),
                 Tabs\Tab::make('Colors')

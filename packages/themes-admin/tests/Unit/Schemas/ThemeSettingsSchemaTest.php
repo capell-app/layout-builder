@@ -3,9 +3,17 @@
 declare(strict_types=1);
 
 use Capell\Themes\Admin\Schemas\ThemeSettingsSchema;
+use Capell\Themes\Core\Theme\ThemeRegistrar;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Tabs;
+
+beforeEach(function (): void {
+    ThemeRegistrar::reset();
+    ThemeRegistrar::register('corporate', 'Corporate');
+    ThemeRegistrar::register('agency', 'Agency');
+    ThemeRegistrar::register('saas', 'SaaS');
+});
 
 /**
  * Retrieve child components directly from the internal property, avoiding

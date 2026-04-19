@@ -15,6 +15,7 @@ use Capell\Themes\Agency\Widgets\PortfolioGridWidget;
 use Capell\Themes\Agency\Widgets\ProcessFlowWidget;
 use Capell\Themes\Agency\Widgets\ServicesShowcaseWidget;
 use Capell\Themes\Agency\Widgets\TestimonialsQuoteWidget;
+use Capell\Themes\Core\Theme\ThemeRegistrar;
 use Illuminate\Support\ServiceProvider;
 
 class AgencyThemeServiceProvider extends ServiceProvider
@@ -58,6 +59,8 @@ class AgencyThemeServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'agency');
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        ThemeRegistrar::register('agency', 'Agency');
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
