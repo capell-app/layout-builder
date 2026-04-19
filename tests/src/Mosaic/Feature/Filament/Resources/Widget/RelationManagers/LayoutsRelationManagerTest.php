@@ -69,3 +69,30 @@ it('can filter layouts by site', function (): void {
         ->assertCountTableRecords(1)
         ->assertCanSeeTableRecords($widget->layouts->where('site_id', $site->getKey()));
 });
+
+it('returns no results when site filter matches no layouts', function (): void {
+    $widget = Widget::factory()->create();
+    $otherSite = Site::factory()->create();
+
+    Layout::factory()
+        ->state([
+            'containers' => [
+                'main' => [
+                    'widgets' => [
+                        ['widget_key' => $widget->key],
+                    ],
+                ],
+            ],
+        ])
+        ->count(2)
+        ->create();
+
+    livewire(LayoutsRelationManager::class, [
+        'ownerRecord' => $widget,
+        'pageClass' => EditWidget::class,
+    ])
+        ->assertSuccessful()
+        ->assertCountTableRecords(2)
+        ->filterTable('site_id', $otherSite->getKey())
+        ->assertCountTableRecords(0);
+});
