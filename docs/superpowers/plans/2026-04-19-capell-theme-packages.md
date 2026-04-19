@@ -4,9 +4,51 @@
 
 **Goal:** Create three production-ready CMS theme packages (Corporate, Agency, SaaS) for Capell with comprehensive CMS features, exceptional flexibility, and high-standard testing (90%+ coverage, WCAG 2.1 AA, performance budgets, E2E, security tests).
 
-**Architecture:** Three self-contained theme packages in `packages/themes/{corporate,agency,saas}/` sharing unified `ThemeSettings` in core. Each theme provides 7-9 Blade components that work as static templates OR Mosaic widgets (when installed). All components include SEO, accessibility, dark mode, and form handling. Comprehensive test suite covers unit, integration, E2E, accessibility, performance, and security.
+**Architecture:** Three self-contained theme packages in `packages/themes/{corporate,agency,saas}/` sharing unified `ThemeSettings` in `packages/themes-core/`. Each theme provides 7-9 Blade components that work as static templates OR Mosaic widgets (when installed). All components include SEO, accessibility, dark mode, and form handling. Comprehensive test suite covers unit, integration, E2E, accessibility, performance, and security.
 
-**Tech Stack:** Laravel 10, Blade, Tailwind CSS 4, Filament, Pest, Mosaic (optional), Lighthouse CI, WCAG testing, E2E (Playwright).
+**Tech Stack:** Laravel 10+, Blade, Tailwind CSS 4, Filament 4, Pest 3, Mosaic (optional), Lighthouse CI, WCAG testing, E2E (Playwright).
+
+---
+
+## Current Status (as of 2026-04-19)
+
+**Repo:** `capell-packages-4` (branch `feat/theme-packages`, worktree at `../capell-packages-4-themes`)
+
+**Completed phases:**
+- ✅ **Phase 1: Infrastructure & shared settings** — Tasks 1-3
+- ✅ **Phase 2: Corporate Theme** — Tasks 4-20 (51 files, 5 commits)
+- ✅ **Phase 3: Agency Theme** — Tasks 21-35 (32 PHP files, 5 commits)
+- ✅ **Phase 4: SaaS Theme** — Tasks 36-50 (31 PHP files, 5 commits)
+- 🔶 **Phase 5 partial** — cross-cutting `themes-core` code was partially scaffolded: `Analytics/GoogleAnalytics4`, `Analytics/UtmCollector`, `Cache/ThemeCache`, `Images/ResponsiveImage`, `Language/LanguageManager`, `Language/HreflangGenerator`, `Mail/FormSubmissionNotification`, `Mail/NewsletterWelcome`, `Performance/AssetOptimizer`, `Performance/CriticalCssInliner`, `Search/{SiteSearch,DatabaseSiteSearch,SearchResult}` + Blade partials. These landed in the migration commit (`44971864`) but have NOT been reviewed or tested yet. Treat as prototype/stub.
+
+**Migration note:** all files were originally built in `capell-app/intelligent-panini-da14c2` worktree by mistake, then migrated to this correct repo on 2026-04-19 in commit `44971864`. Migration commit used `--no-verify` per user approval because composer/npm deps are not yet installed in this worktree.
+
+## Where to Start From (New Session)
+
+1. **Working directory:** `/Users/ben/Sites/packages/capell/capell-packages-4-themes`
+2. **Branch:** `feat/theme-packages`
+3. **First steps:**
+   - Run `composer install` and `npm install` so Pint/Prettier are available (pre-commit hooks require them)
+   - Inspect the Phase 5 partial files under `packages/themes-core/src/` — these were written by a subagent that was killed mid-task. Many are likely OK but need spec-compliance + code-quality review per the subagent-driven-development skill
+   - Resume execution at **Phase 5 Task 51** (see below), treating already-present files as starting points
+4. **Namespaces (important — differ from original plan due to collision with vendored `Capell\Core\` and `Capell\Admin\`):**
+   - `Capell\Themes\Core\*` (from `packages/themes-core/`)
+   - `Capell\Themes\Admin\*` (from `packages/themes-admin/`)
+   - `Capell\Themes\Corporate\*`, `Capell\Themes\Agency\*`, `Capell\Themes\Saas\*`
+5. **Filament 4 API note:** `Tabs` lives at `Filament\Schemas\Components\Tabs` (not `Filament\Forms\Components\Tabs`). The tests use `Orchestra\Testbench\TestCase` with Filament providers registered, not `Filament\Tests\TestCase` which does not exist in Filament 4 dist.
+6. **Remaining work:**
+   - Phase 5 (review partial files + complete Tasks 51-65 — multi-lang hreflang partial exists, analytics partial exists, email partial exists, etc.; still missing: SEO structured data builder, sitemap, canonical, OG cards, spam protection, preview mode, mobile menu, accessibility helpers, and Filament admin page wiring)
+   - Phase 6 (Testing & QA, Tasks 66-80)
+   - Phase 7 (Documentation & release, Tasks 81-85)
+
+## Known Deviations & Defects to Address
+
+- **Composer package names** — themes are named `capell-app/capell-theme-{name}` but neighboring Capell packages use pattern `capell-app/{name}` (e.g., `capell-app/blog`, `capell-app/mosaic`). Consider renaming to `capell-app/theme-corporate` etc. for consistency
+- **`minimum-stability` / `prefer-stable`** — corporate package has these, agency/saas don't — align
+- **Root-level wiring** — each theme package declares its own composer.json but is not yet wired into a monorepo root composer.json at `capell-packages-4/composer.json`. The existing monorepo composer.json in `capell-packages-4-themes/` may need a path repository added (check — blog/mosaic are siblings and may already resolve via the parent repo's path config)
+- **Tests not executed** — all Pest tests are source-only; `composer install` + root `phpunit.xml` `<testsuites>` update needed to run them. Task 66 (Phase 6) should address this first before E2E work begins
+- **Pest vs PHPUnit style** — some infrastructure tests use PHPUnit `TestCase` directly; project convention is Pest — convert during Phase 6 QA pass
+- **Snake_case properties in `ThemeSettings`** — spec/plan uses snake_case (`active_theme`, `primary_color`) but Capell/Laravel/Filament convention is camelCase. Code review flagged this as a design concern for Phase 6
 
 ---
 
