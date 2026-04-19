@@ -10,7 +10,7 @@ namespace Capell\Themes\Core\Analytics;
  * The class renders strings only — it makes no network calls and expects the
  * host theme to echo the returned markup into a `<script>` block.
  */
-class GoogleAnalytics4
+class GoogleAnalytics4 implements AnalyticsProvider
 {
     public function __construct(
         private readonly string $measurementId,
