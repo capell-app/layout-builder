@@ -6,6 +6,7 @@ namespace Capell\Plugins\Actions;
 
 use Capell\Plugins\Models\MarketplacePlugin;
 use Capell\Plugins\Services\ComposerRunner;
+use Capell\Plugins\Support\StderrScrubber;
 use Lorisleiva\Actions\Action;
 use RuntimeException;
 
@@ -27,7 +28,10 @@ final class UninstallPluginAction extends Action
                 'created_at' => now(),
             ]);
         } else {
-            $stderrTail = substr($uninstallResult->stderr, -400);
+            $stderrTail = StderrScrubber::scrub(
+                substr($uninstallResult->stderr, -400),
+                null,
+            );
 
             $plugin->auditLog()->create([
                 'action' => 'uninstall_failed',

@@ -19,7 +19,7 @@ class ActivateLicenseActionTest extends PluginsTestCase
     public function test_valid_license_activates_correctly(): void
     {
         Http::fake([
-            'api.anystack.sh/*' => Http::response([
+            '*/activate-key' => Http::response([
                 'data' => [
                     'id' => 'activation_xyz',
                     'license_id' => 'license_abc',
@@ -27,6 +27,14 @@ class ActivateLicenseActionTest extends PluginsTestCase
                     'created_at' => '2024-01-01T00:00:00Z',
                     'updated_at' => '2024-01-01T00:00:00Z',
                 ],
+            ], 200),
+            '*/validate-key' => Http::response([
+                'data' => [
+                    'id' => 'license_abc',
+                    'suspended' => false,
+                    'expires_at' => '2099-12-31T00:00:00Z',
+                ],
+                'meta' => ['valid' => true],
             ], 200),
         ]);
 
@@ -75,11 +83,15 @@ class ActivateLicenseActionTest extends PluginsTestCase
     public function test_existing_license_for_site_is_updated(): void
     {
         Http::fake([
-            'api.anystack.sh/*' => Http::response([
+            '*/activate-key' => Http::response([
                 'data' => [
                     'id' => 'activation_xyz',
                     'license_id' => 'license_abc',
                 ],
+            ], 200),
+            '*/validate-key' => Http::response([
+                'data' => ['id' => 'license_abc', 'suspended' => false],
+                'meta' => ['valid' => true],
             ], 200),
         ]);
 
@@ -104,8 +116,12 @@ class ActivateLicenseActionTest extends PluginsTestCase
     public function test_passes_explicit_fingerprint_to_anystack(): void
     {
         Http::fake([
-            'api.anystack.sh/*' => Http::response([
+            '*/activate-key' => Http::response([
                 'data' => ['id' => 'a', 'license_id' => 'l'],
+            ], 200),
+            '*/validate-key' => Http::response([
+                'data' => ['id' => 'l', 'suspended' => false],
+                'meta' => ['valid' => true],
             ], 200),
         ]);
 
@@ -115,6 +131,10 @@ class ActivateLicenseActionTest extends PluginsTestCase
         $action->handle($plugin, 'k', 'site_123', 'explicit-fp');
 
         Http::assertSent(function ($request): bool {
+            if (! str_contains($request->url(), 'activate-key')) {
+                return false;
+            }
+
             $body = json_decode($request->body(), true);
 
             return is_array($body) && ($body['fingerprint'] ?? null) === 'explicit-fp';

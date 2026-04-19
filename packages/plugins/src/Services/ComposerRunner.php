@@ -54,6 +54,41 @@ final class ComposerRunner
         return $this->runCommand(['update', '--no-interaction', '--with-all-dependencies', $composerName]);
     }
 
+    /**
+     * Best-effort removal of the global http-basic auth entry and the local
+     * composer repository entry we created in configureAnystackRepo(). Both
+     * unsets run independently — if one is missing we still try the other —
+     * and the result aggregates their exit codes / stderr so a caller can log
+     * a single audit row without losing detail.
+     */
+    public function removeAnystackRepo(string $productId): ComposerResult
+    {
+        $host = "{$productId}.composer.sh";
+
+        $authResult = $this->runCommand([
+            'config',
+            '--global',
+            '--unset',
+            "http-basic.{$host}",
+        ]);
+
+        $repoResult = $this->runCommand([
+            'config',
+            '--unset',
+            "repositories.anystack-{$productId}",
+        ]);
+
+        $worstExit = max($authResult->exitCode, $repoResult->exitCode);
+        $combinedStderr = trim($authResult->stderr . "\n" . $repoResult->stderr);
+        $combinedStdout = trim($authResult->stdout . "\n" . $repoResult->stdout);
+
+        return new ComposerResult(
+            exitCode: $worstExit,
+            stdout: $combinedStdout,
+            stderr: $combinedStderr,
+        );
+    }
+
     public function configureAnystackRepo(
         string $productId,
         string $licenseKey,

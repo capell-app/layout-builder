@@ -135,11 +135,11 @@ class PluginsTable
                 try {
                     $licenseKey = $data['license_key'] ?? null;
 
-                    // Preview capability warnings
-                    $warnings = InstallPluginAction::run($record, $licenseKey);
-
-                    // TODO: Show capability warnings modal with confirmation
-                    // If Red level warnings exist, require explicit checkbox confirmation
+                    // Capability warnings can be previewed via
+                    // InstallPluginAction::previewCapabilityWarnings($record).
+                    // Wiring a confirmation modal for Red-level warnings is a
+                    // separate feature and will land in a follow-up PR.
+                    InstallPluginAction::run($record, $licenseKey);
 
                     $action->success();
                     $livewire->dispatch('refresh-table');

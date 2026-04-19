@@ -6,6 +6,7 @@ namespace Capell\Plugins\Actions;
 
 use Capell\Plugins\Models\MarketplacePlugin;
 use Capell\Plugins\Services\ComposerRunner;
+use Capell\Plugins\Support\StderrScrubber;
 use Lorisleiva\Actions\Action;
 use RuntimeException;
 
@@ -27,7 +28,10 @@ final class UpdatePluginAction extends Action
                 'created_at' => now(),
             ]);
         } else {
-            $stderrTail = substr($updateResult->stderr, -400);
+            $stderrTail = StderrScrubber::scrub(
+                substr($updateResult->stderr, -400),
+                null,
+            );
 
             $plugin->auditLog()->create([
                 'action' => 'update_failed',
