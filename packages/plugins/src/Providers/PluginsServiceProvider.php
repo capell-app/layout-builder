@@ -63,7 +63,7 @@ class PluginsServiceProvider extends AbstractPackageServiceProvider
     {
         parent::boot();
 
-        $this->callAfterResolving(Schedule::class, function ($schedule): void {
+        $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
             $schedule->job(ValidateLicensesJob::class)->dailyAt('03:17');
         });
     }

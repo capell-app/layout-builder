@@ -8,6 +8,7 @@ use Capell\Plugins\Actions\DeactivateLicenseAction;
 use Capell\Plugins\Models\MarketplacePlugin;
 use Capell\Plugins\Models\MarketplacePluginLicense;
 use Capell\Plugins\Services\AnystackClient;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 
 class DeactivateLicenseActionTest extends PluginsTestCase
@@ -34,7 +35,7 @@ class DeactivateLicenseActionTest extends PluginsTestCase
 
         $this->assertDatabaseMissing('marketplace_plugin_licenses', ['id' => $licenseId]);
 
-        Http::assertSent(fn ($request): bool => str_contains($request->url(), 'prod_xyz/licenses/lic_123/activations/act_456')
+        Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'prod_xyz/licenses/lic_123/activations/act_456')
             && $request->method() === 'DELETE');
 
         $auditEntry = $plugin->auditLog()->where('action', 'license_deactivated')->first();

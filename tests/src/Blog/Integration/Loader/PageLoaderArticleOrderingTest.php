@@ -10,6 +10,7 @@ use Capell\Core\Models\Site;
 use Capell\Frontend\Support\Loader\PageLoader;
 use Capell\Tests\Support\Concerns\TestingFrontend;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 uses(TestingFrontend::class);
@@ -66,7 +67,7 @@ function loadArticlesForOrderingTest(
         ordering: $ordering,
         morphModel: Article::class,
         useCache: false,
-        modifyQuery: fn ($query) => $query->whereIn('id', $articleIds),
+        modifyQuery: fn (Builder $query) => $query->whereIn('id', $articleIds),
     );
 }
 

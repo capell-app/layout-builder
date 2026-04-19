@@ -131,13 +131,13 @@ class MarketplacePluginForm
                         FormTextarea::make('compatibility')
                             ->label(__('Compatibility JSON'))
                             ->helperText(__('JSON object describing compatibility requirements.'))
-                            ->dehydrateStateUsing(fn ($state): array => self::decodeJsonInput($state))
-                            ->formatStateUsing(fn ($state): string => self::encodeJsonForDisplay($state)),
+                            ->dehydrateStateUsing(fn (mixed $state): array => self::decodeJsonInput($state))
+                            ->formatStateUsing(fn (mixed $state): string => self::encodeJsonForDisplay($state)),
                         FormTextarea::make('capabilities')
                             ->label(__('Capabilities'))
                             ->helperText(__('JSON array of capability strings for validation.'))
-                            ->dehydrateStateUsing(fn ($state): array => self::decodeJsonInput($state))
-                            ->formatStateUsing(fn ($state): string => self::encodeJsonForDisplay($state)),
+                            ->dehydrateStateUsing(fn (mixed $state): array => self::decodeJsonInput($state))
+                            ->formatStateUsing(fn (mixed $state): string => self::encodeJsonForDisplay($state)),
                     ]),
 
                 Section::make(__('Visibility & Sorting'))

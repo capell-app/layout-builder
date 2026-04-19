@@ -11,6 +11,7 @@ use Capell\Plugins\Enums\PluginKind;
 use Capell\Plugins\Models\MarketplacePlugin;
 use Capell\Plugins\Models\MarketplacePluginLicense;
 use Capell\Plugins\Services\AnystackClient;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
@@ -130,7 +131,7 @@ class ActivateLicenseActionTest extends PluginsTestCase
 
         $action->handle($plugin, 'k', 'site_123', 'explicit-fp');
 
-        Http::assertSent(function ($request): bool {
+        Http::assertSent(function (Request $request): bool {
             if (! str_contains($request->url(), 'activate-key')) {
                 return false;
             }

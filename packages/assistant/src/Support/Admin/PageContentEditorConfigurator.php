@@ -102,7 +102,7 @@ class PageContentEditorConfigurator
             ->action($this->handleGenerateContentAction(...));
     }
 
-    private function handleGenerateContentAction(Set $set, $component, Action $action, array $data, ?Translation $record): void
+    private function handleGenerateContentAction(Set $set, mixed $component, Action $action, array $data, ?Translation $record): void
     {
         $keywords = isset($data['keywords']) ? trim((string) $data['keywords']) : '';
         $content = isset($data['content']) ? trim((string) $data['content']) : '';

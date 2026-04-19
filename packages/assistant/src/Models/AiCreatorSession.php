@@ -7,6 +7,9 @@ namespace Capell\Assistant\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property string $status
+ */
 class AiCreatorSession extends Model
 {
     protected $fillable = [

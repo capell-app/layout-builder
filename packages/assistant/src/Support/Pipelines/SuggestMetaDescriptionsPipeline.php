@@ -77,7 +77,7 @@ class SuggestMetaDescriptionsPipeline
                 ['role' => 'system', 'content' => (string) ($prompt['system'] ?? '')],
                 ['role' => 'user', 'content' => $userMessage . "\nPlease provide 3 meta description options as a simple bullet list."],
             ],
-            'max_tokens' => (int) config('capell-assistant.prism.max_tokens', 128),
+            'max_tokens' => config('capell-assistant.prism.max_tokens', 128),
             'temperature' => 0.7,
         ];
 
@@ -112,8 +112,8 @@ class SuggestMetaDescriptionsPipeline
                 'output' => implode("\n", (array) ($payload['result'] ?? [])),
                 'prompt_tokens' => (int) ($response->metadata['prompt_tokens'] ?? 0),
                 'completion_tokens' => (int) ($response->metadata['completion_tokens'] ?? 0),
-                'total_tokens' => (int) $response->tokensUsed,
-                'duration' => (float) $response->duration,
+                'total_tokens' => $response->tokensUsed,
+                'duration' => $response->duration,
                 'metadata' => $response->metadata,
             ]);
         }

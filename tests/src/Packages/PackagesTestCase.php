@@ -50,7 +50,7 @@ class PackagesTestCase extends AbstractTestCase
      * @param  Application  $app
      * @return class-string[]
      */
-    protected function getPackageProviders($app): array
+    protected function getPackageProviders(mixed $app): array
     {
         return [
             ...parent::getPackageProviders($app),

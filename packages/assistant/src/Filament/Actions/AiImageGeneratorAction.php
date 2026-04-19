@@ -9,10 +9,10 @@ use Capell\Assistant\DataObjects\AiImageData;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\ViewField;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Throwable;
 
 class AiImageGeneratorAction extends Action
@@ -53,7 +53,7 @@ class AiImageGeneratorAction extends Action
                                 try {
                                     $data = new AiImageData(
                                         prompt: $state['prompt'],
-                                        size: (string) config('capell-assistant.prism.image_size', '1024x1024'),
+                                        size: config('capell-assistant.prism.image_size', '1024x1024'),
                                     );
 
                                     $url = app(GenerateAiImageAction::class)->handle($data);

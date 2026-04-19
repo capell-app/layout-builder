@@ -65,8 +65,8 @@ class GenerateContentPipeline
 
         $userMessage = strtr((string) ($prompt['user_template'] ?? ''), [
             '{{current_title}}' => (string) ($options['current_title'] ?? ''),
-            '{{keywords}}' => (string) ($context->getKeywords() ?? ''),
-            '{{content}}' => (string) ($context->getContent() ?? ''),
+            '{{keywords}}' => $context->getKeywords() ?? '',
+            '{{content}}' => $context->getContent() ?? '',
             '{{target_length}}' => ($options['target_length'] ?? null) !== null ? (string) $options['target_length'] : 'auto',
             '{{refactor}}' => ((bool) ($options['refactor'] ?? true)) ? 'yes' : 'no',
         ]);
@@ -79,7 +79,7 @@ class GenerateContentPipeline
         $params = [
             'model' => (string) ($prompt['model'] ?? config('capell-assistant.prism.model')),
             'messages' => $messages,
-            'max_tokens' => (int) config('capell-assistant.prism.max_tokens', 4096),
+            'max_tokens' => config('capell-assistant.prism.max_tokens', 4096),
             'temperature' => 0.7,
         ];
 
@@ -117,8 +117,8 @@ class GenerateContentPipeline
                 'output' => (string) ($payload['result'] ?? ''),
                 'prompt_tokens' => (int) ($response->metadata['prompt_tokens'] ?? 0),
                 'completion_tokens' => (int) ($response->metadata['completion_tokens'] ?? 0),
-                'total_tokens' => (int) $response->tokensUsed,
-                'duration' => (float) $response->duration,
+                'total_tokens' => $response->tokensUsed,
+                'duration' => $response->duration,
                 'pageable_id' => $context->getPageId(),
                 'pageable_type' => $context->getPageType(),
                 'language_id' => $context->getLanguageId(),

@@ -25,7 +25,7 @@ class SectionRegistry
 
     public function forAi(): string
     {
-        if (empty($this->sections)) {
+        if ($this->sections === []) {
             return 'No section types registered.';
         }
 
@@ -42,11 +42,11 @@ class SectionRegistry
                 $key,
                 $descriptor['label'] ?? $key,
                 $descriptor['description'] ?? '',
-                $goodFor ?: 'general use',
+                $goodFor !== '' ? $goodFor : 'general use',
                 $notFor ? " Avoid for: {$notFor}." : '',
-                $fields ?: 'none',
+                $fields !== '' ? $fields : 'none',
                 $media ? " Media: {$media}." : '',
-                ($descriptor['repeatable'] ?? false) ? ' Repeatable.' : '',
+                ((bool) ($descriptor['repeatable'] ?? false)) ? ' Repeatable.' : '',
             );
         }
 

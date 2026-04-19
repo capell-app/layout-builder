@@ -7,7 +7,7 @@ namespace Capell\Address\Console\Commands;
 use Capell\Address\Enums\ResourceEnum;
 use Capell\Address\Support\AddressModelRegistrar;
 use Capell\Admin\Actions\AssignPermissionsToRole;
-use Capell\Core\Support\Migration\MigrationFilesystemInterface;
+use Capell\Core\Support\Migration\MigrationFileManagerInterface;
 use Filament\Facades\Filament;
 use Illuminate\Console\Command;
 
@@ -27,7 +27,7 @@ class InstallCommand extends Command
      */
     protected $signature = 'capell:address-install';
 
-    public function __construct(private readonly MigrationFilesystemInterface $fileManager)
+    public function __construct(private readonly MigrationFileManagerInterface $fileManager)
     {
         parent::__construct();
     }

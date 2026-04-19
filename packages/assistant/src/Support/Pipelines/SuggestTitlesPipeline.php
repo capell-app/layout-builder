@@ -80,7 +80,7 @@ class SuggestTitlesPipeline
         $params = [
             'model' => (string) ($prompt['model'] ?? config('capell-assistant.prism.model')),
             'messages' => $messages,
-            'max_tokens' => (int) config('capell-assistant.prism.max_tokens', 128),
+            'max_tokens' => config('capell-assistant.prism.max_tokens', 128),
             'temperature' => 0.7,
         ];
 
@@ -116,8 +116,8 @@ class SuggestTitlesPipeline
                 'output' => implode("\n", (array) ($payload['result'] ?? [])),
                 'prompt_tokens' => (int) ($response->metadata['prompt_tokens'] ?? 0),
                 'completion_tokens' => (int) ($response->metadata['completion_tokens'] ?? 0),
-                'total_tokens' => (int) $response->tokensUsed,
-                'duration' => (float) $response->duration,
+                'total_tokens' => $response->tokensUsed,
+                'duration' => $response->duration,
                 'page_id' => $context->getPageId(),
                 'language_id' => $context->getLanguageId(),
                 'metadata' => array_merge($response->metadata, [

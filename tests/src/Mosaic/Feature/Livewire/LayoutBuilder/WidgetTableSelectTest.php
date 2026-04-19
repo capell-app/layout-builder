@@ -85,13 +85,13 @@ it('dispatches event with multiple selected widgets', function (): void {
 
     livewire(WidgetTableSelect::class, ['containerKey' => $containerKey])
         ->assertSuccessful()
-        ->set('selectedRecords', $widgets->pluck('id')->map(fn ($id): string => (string) $id)->all())
+        ->set('selectedRecords', $widgets->pluck('id')->map(fn (mixed $id): string => (string) $id)->all())
         ->call('selectRecords')
         ->assertHasNoErrors()
         ->assertDispatched(
             'add-widgets-to-container',
             containerKey: $containerKey,
-            widgets: $widgets->pluck('id')->map(fn ($id): string => (string) $id)->all(),
+            widgets: $widgets->pluck('id')->map(fn (mixed $id): string => (string) $id)->all(),
         );
 });
 

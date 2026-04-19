@@ -18,10 +18,10 @@ class GenerateAiImageAction
         $providerName = $data->provider ?? config('capell-assistant.prism.image_provider', 'openai');
         $model = $data->model ?? config('capell-assistant.prism.image_model', 'dall-e-3');
 
-        $provider = $this->resolveProvider((string) $providerName);
+        $provider = $this->resolveProvider($providerName);
 
         $response = Prism::image()
-            ->using($provider, (string) $model)
+            ->using($provider, $model)
             ->withPrompt($data->prompt)
             ->generate();
 

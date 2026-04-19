@@ -114,7 +114,7 @@ abstract class AbstractTestCase extends TestCase
     /**
      * @param  Application  $app
      */
-    protected function getEnvironmentSetUp($app): void
+    protected function getEnvironmentSetUp(mixed $app): void
     {
         $this->registerPackageConfigs($app);
 
@@ -133,7 +133,7 @@ abstract class AbstractTestCase extends TestCase
      * @param  Application  $app
      * @return class-string[]
      */
-    protected function getPackageProviders($app): array
+    protected function getPackageProviders(mixed $app): array
     {
         return [
             WorkbenchServiceProvider::class,

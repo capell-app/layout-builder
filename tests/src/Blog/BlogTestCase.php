@@ -50,7 +50,7 @@ class BlogTestCase extends AbstractTestCase
      * @param  Application  $app
      * @return class-string[]
      */
-    protected function getPackageProviders($app): array
+    protected function getPackageProviders(mixed $app): array
     {
         return [
             ...parent::getPackageProviders($app),
@@ -67,7 +67,7 @@ class BlogTestCase extends AbstractTestCase
      * @param  Application  $app
      */
     #[Override]
-    protected function getEnvironmentSetUp($app): void
+    protected function getEnvironmentSetUp(mixed $app): void
     {
         parent::getEnvironmentSetUp($app);
 
