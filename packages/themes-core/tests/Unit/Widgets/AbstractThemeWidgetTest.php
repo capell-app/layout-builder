@@ -38,11 +38,11 @@ test('fieldNames() returns all field names', function () use ($makeWidget): void
 test('make() returns a new instance of the concrete class', function (): void {
     $widget = new class extends AbstractThemeWidget
     {
-        public string $name = 'W';
+        public string $name = 'Test Widget';
 
-        public string $description = 'd';
+        public string $description = 'A test widget.';
 
-        public string $view = 'v';
+        public string $view = 'stub::widget';
     };
     expect($widget::make())->toBeInstanceOf($widget::class);
 });
