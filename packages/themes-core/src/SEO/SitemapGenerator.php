@@ -34,7 +34,7 @@ class SitemapGenerator
     ): self {
         $generator = new self;
         $baseUrl = rtrim($baseUrl, '/');
-        $columns = array_values(array_filter([$slugColumn, $updatedAtColumn], static fn ($value) => $value !== null));
+        $columns = array_values(array_filter([$slugColumn, $updatedAtColumn], static fn (?string $value): bool => $value !== null));
 
         $rows = $db->table($table)->get($columns);
 

@@ -81,9 +81,8 @@ class InstallSaasThemeAction
         }
 
         $payload['created_at'] = now();
-        $id = DB::table('themes')->insertGetId($payload);
 
-        return $id;
+        return DB::table('themes')->insertGetId($payload);
     }
 
     /**

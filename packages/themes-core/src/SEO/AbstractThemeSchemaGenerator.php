@@ -31,7 +31,7 @@ abstract class AbstractThemeSchemaGenerator
             $data['description'] = $description;
         }
 
-        $sameAs = array_values(array_filter($this->resolveSameAs(), static fn ($value) => $value !== null));
+        $sameAs = array_values(array_filter($this->resolveSameAs(), static fn (string $value): true => $value !== null));
         if ($sameAs !== []) {
             $data['sameAs'] = $sameAs;
         }

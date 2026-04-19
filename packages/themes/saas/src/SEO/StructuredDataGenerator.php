@@ -94,6 +94,6 @@ class StructuredDataGenerator extends AbstractThemeSchemaGenerator
             $this->settings->social_linkedin,
             $this->settings->social_github,
             $this->settings->social_youtube,
-        ], static fn ($value) => $value !== null);
+        ], static fn (?string $value): bool => $value !== null);
     }
 }
