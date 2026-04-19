@@ -9,6 +9,7 @@ use Capell\Plugins\Actions\UninstallPluginAction;
 use Capell\Plugins\Actions\UpdatePluginAction;
 use Capell\Plugins\Filament\Pages\PluginsPage;
 use Capell\Plugins\Models\MarketplacePlugin;
+use Capell\Plugins\Support\SiteIdResolver;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Support\Enums\FontWeight;
@@ -128,13 +129,28 @@ class PluginsTable
             ->modalHeading(fn (MarketplacePlugin $record): string => __('Install :plugin', ['plugin' => $record->name]))
             ->action(function (PluginsPage $livewire, Action $action, MarketplacePlugin $record, array $data): void {
                 try {
-                    $licenseKey = $data['license_key'] ?? null;
+                    $licenseKey = isset($data['license_key']) && is_string($data['license_key'])
+                        ? $data['license_key']
+                        : null;
+
+                    $isPaid = $record->price_once !== null
+                        || $record->price_monthly !== null
+                        || $record->price_yearly !== null;
+
+                    // Paid plugins need a site id so anystack can track the
+                    // activation. We derive it from APP_KEY so it's stable
+                    // across requests without needing a new settings row or
+                    // UI field — see SiteIdResolver for the trade-offs.
+                    // Fingerprint stays null for this iteration: a future
+                    // revision can derive one if anystack policies require
+                    // it.
+                    $siteId = $isPaid ? SiteIdResolver::get() : null;
 
                     // Capability warnings can be previewed via
                     // InstallPluginAction::previewCapabilityWarnings($record).
                     // Wiring a confirmation modal for Red-level warnings is a
                     // separate feature and will land in a follow-up PR.
-                    InstallPluginAction::run($record, $licenseKey);
+                    InstallPluginAction::run($record, $licenseKey, $siteId);
 
                     $action->success();
                     $livewire->dispatch('refresh-table');
