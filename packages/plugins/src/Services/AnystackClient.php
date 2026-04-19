@@ -19,6 +19,13 @@ final class AnystackClient
         private readonly int $timeoutSeconds = 10,
     ) {}
 
+    /**
+     * Activate a license with anystack. Anystack's activate-key response only
+     * contains activation metadata (id + license_id); it does NOT include
+     * meta.valid, suspended, or expires_at — so we chain into validate-key to
+     * resolve real status and expiry before returning. Doing the chain in the
+     * service (option (a)) keeps callers oblivious to the two-step dance.
+     */
     public function activateLicense(
         string $productId,
         string $licenseKey,
@@ -54,12 +61,18 @@ final class AnystackClient
         $activationId = isset($data['id']) && is_string($data['id']) ? $data['id'] : null;
         $licenseId = isset($data['license_id']) && is_string($data['license_id']) ? $data['license_id'] : null;
 
+        // Chain into validate-key: activate alone cannot tell us if the license
+        // is usable (meta.valid / suspended / expires_at come from validate).
+        $validation = $this->validateLicense($productId, $licenseKey, $fingerprint);
+
         return new AnystackLicenseValidationData(
-            valid: true,
-            status: LicenseStatus::Active,
-            licenseId: $licenseId,
+            valid: $validation->valid,
+            status: $validation->status,
+            licenseId: $licenseId ?? $validation->licenseId,
             activationId: $activationId,
+            expiresAt: $validation->expiresAt,
             product: $productId,
+            statusCode: $validation->statusCode,
             raw: $data,
         );
     }
@@ -165,8 +178,11 @@ final class AnystackClient
      */
     private function mapStatus(array $meta, array $data): LicenseStatus
     {
+        // A malformed response from anystack (no `meta.valid`) is a protocol
+        // bug, not an expiration. Surface it so callers can see the failure
+        // rather than silently marking the license expired.
         if (! array_key_exists('valid', $meta)) {
-            return LicenseStatus::Expired;
+            throw new RuntimeException('Invalid response from Anystack: missing meta.valid field');
         }
 
         $valid = (bool) $meta['valid'];
