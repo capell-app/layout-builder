@@ -1,0 +1,125 @@
+/*
+ * Capell Corporate Theme - theme.css
+ *
+ * CSS custom properties drive theming. Override any of these at runtime
+ * (for example by setting inline styles on <html> from a server-rendered
+ * partial) to re-theme the entire site without a rebuild.
+ */
+
+:root {
+  /* Core palette */
+  --color-primary: #1a2d6d;
+  --color-primary-rgb: 26 45 109;
+  --color-primary-foreground: #ffffff;
+  --color-accent: #f59e0b;
+  --color-accent-foreground: #1a1a1a;
+
+  /* Surface / background tokens */
+  --color-bg: #ffffff;
+  --color-bg-muted: #f7f8fb;
+  --color-fg: #0f172a;
+  --color-fg-muted: #475569;
+  --color-border: #e5e7eb;
+
+  /* Typography */
+  --font-headline: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* Spacing presets */
+  --space-compact: 0.75rem;
+  --space-balanced: 1.25rem;
+  --space-spacious: 2rem;
+  --section-y-compact: 2.5rem;
+  --section-y-balanced: 4rem;
+  --section-y-spacious: 6rem;
+
+  /* Radii / shadows */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.06), 0 4px 12px rgb(0 0 0 / 0.04);
+
+  /* Focus ring (accessibility) */
+  --focus-ring: 2px solid var(--color-accent);
+  --focus-ring-offset: 2px;
+}
+
+/* Spacing preset utility classes */
+[data-spacing='compact']   { --section-y: var(--section-y-compact); }
+[data-spacing='balanced']  { --section-y: var(--section-y-balanced); }
+[data-spacing='spacious']  { --section-y: var(--section-y-spacious); }
+
+/* Explicit dark-mode toggle via data attribute */
+[data-theme='dark'] {
+  --color-bg: #0b1020;
+  --color-bg-muted: #111a33;
+  --color-fg: #e5e7eb;
+  --color-fg-muted: #9ca3af;
+  --color-border: #1f2a44;
+  --color-primary: #3b5bbf;
+  --color-primary-foreground: #ffffff;
+}
+
+/* System-level preference (when [data-theme] is not explicitly set) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-bg: #0b1020;
+    --color-bg-muted: #111a33;
+    --color-fg: #e5e7eb;
+    --color-fg-muted: #9ca3af;
+    --color-border: #1f2a44;
+    --color-primary: #3b5bbf;
+    --color-primary-foreground: #ffffff;
+  }
+}
+
+/* Global resets specific to the theme */
+html { color-scheme: light dark; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-headline);
+  letter-spacing: -0.01em;
+  color: var(--color-fg);
+}
+
+/* Accessibility: focus-visible outlines */
+:where(a, button, [role='button'], input, select, textarea):focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+
+/* Skip-to-content link */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 1rem;
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  z-index: 1000;
+  transition: top 0.2s ease;
+}
+
+.skip-to-content:focus {
+  top: 1rem;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

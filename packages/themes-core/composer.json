@@ -1,0 +1,25 @@
+{
+  "name": "capell-app/themes-core",
+  "description": "Capell themes shared core (data objects, utilities)",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": "^8.2",
+    "spatie/laravel-data": "^4.0"
+  },
+  "require-dev": {
+    "pestphp/pest": "^3.0",
+    "phpunit/phpunit": "^10.0",
+    "orchestra/testbench": "^8.0|^9.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Capell\\Themes\\Core\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Capell\\Themes\\Core\\Tests\\": "tests/"
+    }
+  }
+}
