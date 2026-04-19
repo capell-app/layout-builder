@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Themes\Saas;
 
+use Capell\Themes\Core\Theme\ThemeRegistrar;
 use Capell\Themes\Saas\Console\InstallCommand;
 use Capell\Themes\Saas\Widgets\CTABannerWidget;
 use Capell\Themes\Saas\Widgets\FAQAccordionWidget;
@@ -57,6 +58,8 @@ class SaasThemeServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'saas');
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        ThemeRegistrar::register('saas', 'SaaS');
 
         if ($this->app->runningInConsole()) {
             $this->publishes([

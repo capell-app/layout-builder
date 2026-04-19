@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Themes\Core\SEO\SitemapGenerator;
+use Illuminate\Database\Capsule\Manager;
 
 test('add() accumulates URLs and count() returns the correct count', function (): void {
     $sitemap = new SitemapGenerator;
@@ -84,4 +85,35 @@ test('writeTo() creates nested directories when they do not exist', function ():
     rmdir($nestedDir);
     rmdir(dirname($nestedDir));
     rmdir(dirname($nestedDir, 2));
+});
+
+test('fromTable() reads slugs from a database table and adds them as urls', function (): void {
+    $capsule = new Manager;
+    $capsule->addConnection(['driver' => 'sqlite', 'database' => ':memory:']);
+    $capsule->setAsGlobal();
+    $capsule->bootEloquent();
+
+    Manager::schema()->create('sitemap_pages', function ($table): void {
+        $table->increments('id');
+        $table->string('slug');
+        $table->timestamp('updated_at')->nullable();
+    });
+
+    Manager::table('sitemap_pages')->insert([
+        ['slug' => 'about', 'updated_at' => '2026-01-01 00:00:00'],
+        ['slug' => 'contact', 'updated_at' => null],
+    ]);
+
+    $generator = SitemapGenerator::fromTable(
+        db: Manager::connection(),
+        table: 'sitemap_pages',
+        baseUrl: 'https://example.com',
+        slugColumn: 'slug',
+        updatedAtColumn: 'updated_at',
+    );
+
+    $xml = $generator->toXml();
+    expect($xml)->toContain('https://example.com/about');
+    expect($xml)->toContain('https://example.com/contact');
+    expect($xml)->toContain('2026-01-01');
 });

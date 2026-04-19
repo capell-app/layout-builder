@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Themes\Core\SEO;
 
 use DOMDocument;
+use Illuminate\Database\ConnectionInterface;
 
 class SitemapGenerator
 {
@@ -14,6 +15,46 @@ class SitemapGenerator
 
     /** @var array<int, array{url: string, lastmod: string|null, changefreq: string, priority: float}> */
     private array $urls = [];
+
+    /**
+     * Build a SitemapGenerator by scanning a table for slug entries.
+     *
+     * @param  string  $baseUrl  Scheme + host prefix, no trailing slash
+     * @param  string  $slugColumn  Column containing the URL slug
+     * @param  string|null  $updatedAtColumn  Column with last-modified datetime; pass null to omit lastmod
+     */
+    public static function fromTable(
+        ConnectionInterface $db,
+        string $table,
+        string $baseUrl,
+        string $slugColumn = 'slug',
+        ?string $updatedAtColumn = 'updated_at',
+        string $changefreq = 'weekly',
+        float $priority = 0.8,
+    ): self {
+        $generator = new self;
+        $baseUrl = rtrim($baseUrl, '/');
+        $columns = array_values(array_filter([$slugColumn, $updatedAtColumn]));
+
+        $rows = $db->table($table)->get($columns);
+
+        foreach ($rows as $row) {
+            $slug = (string) ($row->{$slugColumn} ?? '');
+            $rawDate = $updatedAtColumn ? (string) ($row->{$updatedAtColumn} ?? '') : null;
+            $lastmod = ($rawDate !== null && $rawDate !== '')
+                ? substr($rawDate, 0, 10)
+                : null;
+
+            $generator->add(
+                url: $baseUrl . '/' . ltrim($slug, '/'),
+                lastmod: $lastmod,
+                changefreq: $changefreq,
+                priority: $priority,
+            );
+        }
+
+        return $generator;
+    }
 
     public function add(string $url, ?string $lastmod = null, string $changefreq = 'monthly', float $priority = 0.5): static
     {

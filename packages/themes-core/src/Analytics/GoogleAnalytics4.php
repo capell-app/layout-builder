@@ -10,7 +10,7 @@ namespace Capell\Themes\Core\Analytics;
  * The class renders strings only — it makes no network calls and expects the
  * host theme to echo the returned markup into a `<script>` block.
  */
-class GoogleAnalytics4
+class GoogleAnalytics4 implements AnalyticsProvider
 {
     public function __construct(
         private readonly string $measurementId,
@@ -18,7 +18,7 @@ class GoogleAnalytics4
         private readonly bool $enabled = true,
     ) {}
 
-    public function enabled(): bool
+    public function isEnabled(): bool
     {
         return $this->enabled && $this->measurementId !== '';
     }
@@ -31,9 +31,9 @@ class GoogleAnalytics4
     /**
      * Returns the `<script>` markup that bootstraps GA4.
      */
-    public function initScript(): string
+    public function renderInitScript(): string
     {
-        if (! $this->enabled()) {
+        if (! $this->isEnabled()) {
             return '';
         }
 
@@ -61,7 +61,7 @@ HTML;
      */
     public function track(string $event, array $params = []): string
     {
-        if (! $this->enabled()) {
+        if (! $this->isEnabled()) {
             return '';
         }
 

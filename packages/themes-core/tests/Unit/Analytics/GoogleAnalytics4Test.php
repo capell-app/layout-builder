@@ -7,7 +7,7 @@ use Capell\Themes\Core\Analytics\GoogleAnalytics4;
 test('renders init script with the measurement id', function (): void {
     $ga = new GoogleAnalytics4('G-ABCDEF1234');
 
-    $html = $ga->initScript();
+    $html = $ga->renderInitScript();
 
     expect($html)
         ->toContain('googletagmanager.com/gtag/js?id=G-ABCDEF1234')
@@ -16,8 +16,8 @@ test('renders init script with the measurement id', function (): void {
 });
 
 test('returns empty string when disabled', function (): void {
-    expect((new GoogleAnalytics4('', true, false))->initScript())->toBe('');
-    expect((new GoogleAnalytics4('G-X', true, false))->initScript())->toBe('');
+    expect((new GoogleAnalytics4('', true, false))->renderInitScript())->toBe('');
+    expect((new GoogleAnalytics4('G-X', true, false))->renderInitScript())->toBe('');
 });
 
 test('track helpers build gtag calls', function (): void {

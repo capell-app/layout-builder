@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Themes\Corporate;
 
 use Capell\Mosaic\Facades\Mosaic;
+use Capell\Themes\Core\Theme\ThemeRegistrar;
 use Capell\Themes\Corporate\Console\InstallCommand;
 use Capell\Themes\Corporate\Widgets\BlogListingWidget;
 use Capell\Themes\Corporate\Widgets\CaseStudiesCarouselWidget;
@@ -54,6 +55,8 @@ class CorporateThemeServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'corporate');
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        ThemeRegistrar::register('corporate', 'Corporate');
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
