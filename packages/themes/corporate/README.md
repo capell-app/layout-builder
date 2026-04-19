@@ -1,30 +1,32 @@
 # Capell Corporate Theme
 
-Professional corporate theme for Capell CMS.
+Professional, trust-building theme for corporate and B2B websites.
 
-## Features
+## Highlights
 
-- Clean, professional design suitable for corporate websites
-- Responsive layout with modern CSS
-- Customizable color scheme and typography
-- Pre-built components for common business pages
+- Clean editorial layout with Playfair Display headings
+- Hero section, features grid, team grid, case studies carousel
+- Accessible contact form with honeypot spam protection
+- Dark mode with `prefers-color-scheme` support
+- WCAG 2.1 AA accessible throughout
 
-## Installation
-
-Install via Composer:
+## Quick install
 
 ```bash
 composer require capell-app/capell-theme-corporate
+php artisan corporate:install
 ```
 
-## Usage
-
-Register the theme in your Capell configuration and select it for your site.
+Then open **Settings → Theme** in the Filament admin and choose **Corporate**.
 
 ## Documentation
 
-See [docs/](docs/) for full documentation.
+| Doc | Description |
+|---|---|
+| [docs/INSTALLATION.md](docs/INSTALLATION.md) | Full install steps, publishing assets, uninstalling |
+| [docs/CUSTOMIZATION.md](docs/CUSTOMIZATION.md) | CSS tokens, typography, spacing presets, dark mode |
+| [docs/COMPONENTS.md](docs/COMPONENTS.md) | All seven widgets + support components |
 
 ## License
 
-MIT License
+MIT

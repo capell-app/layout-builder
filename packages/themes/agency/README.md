@@ -1,30 +1,32 @@
 # Capell Agency Theme
 
-Creative agency theme for Capell CMS.
+Bold, creative theme for design studios and marketing agencies.
 
-## Features
+## Highlights
 
-- Modern, creative design for design and marketing agencies
-- Portfolio and project showcase layouts
-- Bold typography and vibrant color palettes
-- Interactive elements and animations
+- Oversized statement hero with gradient background
+- Filterable portfolio / case-study grid
+- Animated client logo marquee
+- Dark mode with `prefers-color-scheme` support
+- WCAG 2.1 AA accessible throughout
 
-## Installation
-
-Install via Composer:
+## Quick install
 
 ```bash
 composer require capell-app/capell-theme-agency
+php artisan agency:install
 ```
 
-## Usage
-
-Register the theme in your Capell configuration and select it for your site.
+Then open **Settings → Theme** in the Filament admin and choose **Agency**.
 
 ## Documentation
 
-See [docs/](docs/) for full documentation.
+| Doc | Description |
+|---|---|
+| [docs/INSTALLATION.md](docs/INSTALLATION.md) | Full install steps, publishing assets, uninstalling |
+| [docs/CUSTOMIZATION.md](docs/CUSTOMIZATION.md) | CSS tokens, dark mode, spacing presets, widget overrides |
+| [docs/COMPONENTS.md](docs/COMPONENTS.md) | All nine widgets + support components with prop signatures |
 
 ## License
 
-MIT License
+MIT
