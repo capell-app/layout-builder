@@ -43,6 +43,7 @@ class InstallCommand extends Command
             '--type' => 'settings',
             '--items' => [
                 'create_assistant_settings',
+                '2026_04_18_000001_update_assistant_settings_add_ai_creator',
             ],
             '--path' => $settings,
         ]);
