@@ -868,7 +868,7 @@ class DemoCreator
             'name' => 'Modern Feature List',
             'type_id' => $widgetType->id,
             'meta' => [
-                'component' => 'capell-mosaic::components.modern.feature-list',
+                'component' => 'capell-mosaic::modern.feature-list',
                 'margin' => ['lg'],
             ],
         ]);
@@ -898,7 +898,7 @@ class DemoCreator
             'name' => 'Modern Team Members',
             'type_id' => $widgetType->id,
             'meta' => [
-                'component' => 'capell-mosaic::components.modern.team-members',
+                'component' => 'capell-mosaic::modern.team-members',
                 'margin' => ['lg'],
             ],
         ]);
@@ -928,7 +928,7 @@ class DemoCreator
             'name' => 'Modern Pricing Table',
             'type_id' => $widgetType->id,
             'meta' => [
-                'component' => 'capell-mosaic::components.modern.pricing-table',
+                'component' => 'capell-mosaic::modern.pricing-table',
                 'margin' => ['lg'],
             ],
         ]);
@@ -958,7 +958,7 @@ class DemoCreator
             'name' => 'Modern Testimonials',
             'type_id' => $widgetType->id,
             'meta' => [
-                'component' => 'capell-mosaic::components.modern.testimonials',
+                'component' => 'capell-mosaic::modern.testimonials',
                 'margin' => ['lg'],
             ],
         ]);
@@ -988,7 +988,7 @@ class DemoCreator
             'name' => 'Modern FAQ Section',
             'type_id' => $widgetType->id,
             'meta' => [
-                'component' => 'capell-mosaic::components.modern.faq-section',
+                'component' => 'capell-mosaic::modern.faq-section',
                 'margin' => ['lg'],
             ],
         ]);
@@ -1018,7 +1018,7 @@ class DemoCreator
             'name' => 'Modern Stats Section',
             'type_id' => $widgetType->id,
             'meta' => [
-                'component' => 'capell-mosaic::components.modern.stats-section',
+                'component' => 'capell-mosaic::modern.stats-section',
                 'margin' => ['lg'],
             ],
         ]);
@@ -1048,7 +1048,7 @@ class DemoCreator
             'name' => 'Modern Alternating Content',
             'type_id' => $widgetType->id,
             'meta' => [
-                'component' => 'capell-mosaic::components.modern.alternating-content',
+                'component' => 'capell-mosaic::modern.alternating-content',
                 'margin' => ['lg'],
             ],
         ]);
@@ -1078,7 +1078,7 @@ class DemoCreator
             'name' => 'Modern Process Steps',
             'type_id' => $widgetType->id,
             'meta' => [
-                'component' => 'capell-mosaic::components.modern.process-steps',
+                'component' => 'capell-mosaic::modern.process-steps',
                 'margin' => ['lg'],
             ],
         ]);
@@ -1108,7 +1108,7 @@ class DemoCreator
             'name' => 'Modern Image Gallery',
             'type_id' => $widgetType->id,
             'meta' => [
-                'component' => 'capell-mosaic::components.modern.image-gallery',
+                'component' => 'capell-mosaic::modern.image-gallery',
                 'margin' => ['lg'],
             ],
         ]);
