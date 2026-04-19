@@ -26,6 +26,8 @@ class AssistantSettings extends Settings
 
     public string $image_default_size;
 
+    public array $prompts;
+
     public static function group(): string
     {
         return 'assistant';

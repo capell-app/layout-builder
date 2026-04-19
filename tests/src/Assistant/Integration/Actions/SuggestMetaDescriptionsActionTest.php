@@ -12,9 +12,7 @@ use Capell\Assistant\Support\PrismProvider;
 use Capell\Tests\Assistant\Fixtures\FakeContext;
 use Capell\Tests\Assistant\Fixtures\FakeOpenAIProviderForDescriptions;
 use Illuminate\Support\Facades\Event;
-use OpenAI\Laravel\Facades\OpenAI;
 use RuntimeException;
-use stdClass;
 
 it('suggests meta descriptions using provider', function (): void {
     app()->bind(PrismProvider::class, fn (): FakeOpenAIProviderForDescriptions => new FakeOpenAIProviderForDescriptions);
@@ -39,27 +37,17 @@ it('handles provider error path', function (): void {
 });
 
 it('suggests meta descriptions and dispatches event', function (): void {
-    OpenAI::swap(new class
+    app()->bind(PrismProvider::class, fn (): PrismProvider => new class([]) extends PrismProvider
     {
-        private readonly object $chat;
-
-        public function __construct()
+        public function chat(array $params): AiResponse
         {
-            $this->chat = new class
-            {
-                public function create(array $params): stdClass
-                {
-                    return (object) [
-                        'choices' => [(object) ['message' => (object) ['content' => "- First\n- Second\n- Third"], 'finish_reason' => 'stop']],
-                        'usage' => (object) ['total_tokens' => 20, 'prompt_tokens' => 8, 'completion_tokens' => 12],
-                    ];
-                }
-            };
-        }
-
-        public function chat(): object
-        {
-            return $this->chat;
+            return new AiResponse(
+                content: "- First\n- Second\n- Third",
+                tokensUsed: 20,
+                model: 'gpt-4o',
+                duration: 0.001,
+                metadata: ['prompt_tokens' => 8, 'completion_tokens' => 12],
+            );
         }
     });
 

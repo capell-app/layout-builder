@@ -35,9 +35,9 @@ class MarketplacePluginLicense extends Model
         'encrypted_license_key' => 'encrypted',
         'status' => LicenseStatus::class,
         'metadata' => AsArrayObject::class,
-        'activated_at' => 'datetime',
-        'expires_at' => 'datetime',
-        'last_heartbeat_at' => 'datetime',
+        'activated_at' => 'immutable_datetime',
+        'expires_at' => 'immutable_datetime',
+        'last_heartbeat_at' => 'immutable_datetime',
         'seats' => 'integer',
     ];
 

@@ -29,7 +29,14 @@ class HeroEditor extends Group
                     return false;
                 }
 
-                $page = $record instanceof Pageable ? $record : $record->pageable;
+                $page = null;
+                if ($record instanceof Pageable) {
+                    $page = $record;
+                } elseif ($record instanceof Translation) {
+                    $page = $record->translatable;
+                } elseif (method_exists($record, 'pageable')) {
+                    $page = $record->pageable;
+                }
 
                 if (! $page instanceof Pageable) {
                     return false;

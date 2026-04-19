@@ -14,6 +14,7 @@ use Capell\Assistant\Console\Commands\MonitorAiUsageCommand;
 use Capell\Assistant\Console\Commands\TestOpenAiConnectionCommand;
 use Capell\Assistant\Events\AiGenerationCompleted;
 use Capell\Assistant\Events\AiGenerationFailed;
+use Capell\Assistant\Filament\Settings\AssistantSettingsSchema;
 use Capell\Assistant\Handlers\ClearCircuitBreakerHandler;
 use Capell\Assistant\Listeners\LogAiGeneration;
 use Capell\Assistant\Listeners\NotifyAiFailure;
@@ -40,6 +41,7 @@ use Capell\Assistant\Support\SectionRegistry;
 use Capell\Assistant\Targets\FlatJsonTarget;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\Core\Support\Settings\SettingsSchemaRegistry;
 use Composer\InstalledVersions;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Foundation\Application;
@@ -188,13 +190,24 @@ class AssistantServiceProvider extends AbstractPackageServiceProvider
         return $this;
     }
 
+    protected function registerSettingsSchema(): self
+    {
+        /** @var SettingsSchemaRegistry $registry */
+        $registry = $this->app->make(SettingsSchemaRegistry::class);
+        $registry->register('assistant', AssistantSettingsSchema::class);
+        $registry->registerSettingsClass('assistant', AssistantSettings::class);
+
+        return $this;
+    }
+
     private function bootInstalledPackage(): self
     {
         return $this
             ->registerAdminEvents()
             ->registerAdminExtenders()
             ->registerAiServices()
-            ->registerAiEventListeners();
+            ->registerAiEventListeners()
+            ->registerSettingsSchema();
     }
 
     private function isPackageInstalled(): bool

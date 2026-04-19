@@ -10,9 +10,7 @@ use Capell\Assistant\Support\Context\ContentActionContext;
 use Capell\Assistant\Support\PrismProvider;
 use Capell\Tests\Assistant\Fixtures\FakeContext;
 use Capell\Tests\Assistant\Fixtures\FakeOpenAIProviderForContent;
-use OpenAI\Laravel\Facades\OpenAI;
 use RuntimeException;
-use stdClass;
 
 it('generates page content using provider', function (): void {
     app()->bind(PrismProvider::class, fn (): FakeOpenAIProviderForContent => new FakeOpenAIProviderForContent);
@@ -41,30 +39,17 @@ it('handles provider failure', function (): void {
 });
 
 it('generates long-form page content through pipeline', function (): void {
-    OpenAI::swap(new class
+    app()->bind(PrismProvider::class, fn (): PrismProvider => new class([]) extends PrismProvider
     {
-        private readonly object $chat;
-
-        public function __construct()
+        public function chat(array $params): AiResponse
         {
-            $this->chat = new class
-            {
-                public function create(array $params): stdClass
-                {
-                    // Return a markdown-like structured draft
-                    return (object) [
-                        'choices' => [
-                            (object) ['message' => (object) ['content' => "# Laravel Tips\n\n## Introduction\nLearn practical Laravel and PHP tips.\n\n## Best Practices\n- Use actions\n- Prefer composition\n\n## Conclusion\nStart building better apps today."], 'finish_reason' => 'stop'],
-                        ],
-                        'usage' => (object) ['total_tokens' => 120, 'prompt_tokens' => 60, 'completion_tokens' => 60],
-                    ];
-                }
-            };
-        }
-
-        public function chat(): object
-        {
-            return $this->chat;
+            return new AiResponse(
+                content: "# Laravel Tips\n\n## Introduction\nLearn practical Laravel and PHP tips.\n\n## Best Practices\n- Use actions\n- Prefer composition\n\n## Conclusion\nStart building better apps today.",
+                tokensUsed: 120,
+                model: 'test-model',
+                duration: 0.001,
+                metadata: ['prompt_tokens' => 60, 'completion_tokens' => 60, 'finish_reason' => 'stop'],
+            );
         }
     });
 

@@ -10,32 +10,18 @@ use Capell\Assistant\Support\PrismProvider;
 use Illuminate\Support\Facades\Cache;
 
 it('calls the OpenAI provider chat successfully structure-wise', function (): void {
-    // Construct with config as expected by provider
-    $provider = new OpenAIProvider([
+    $provider = new PrismProvider([
         'max_retries' => 1,
         'retry_delay_ms' => 10,
     ]);
 
-    // Minimal params for chat API
-    $params = [
-        'model' => 'gpt-4o-mini',
-        'messages' => [
-            ['role' => 'user', 'content' => 'Suggest 3 catchy page titles for: content'],
-        ],
-        'max_tokens' => 64,
-    ];
-
-    // We cannot assert real OpenAI call here; just ensure the method is callable
-    // and returns an AiResponse when underlying facade is configured. For now, we
-    // expect an exception NOT to be thrown due to constructor mismatch anymore.
     expect($provider)->toBeInstanceOf(PrismProvider::class);
 });
 
 it('throws when circuit breaker is open', function (): void {
-    // Force circuit breaker open
     Cache::put('ai_circuit_breaker_state', ['failures' => 5], 300);
 
-    $provider = new OpenAIProvider([
+    $provider = new PrismProvider([
         'max_retries' => 1,
         'retry_delay_ms' => 10,
     ]);

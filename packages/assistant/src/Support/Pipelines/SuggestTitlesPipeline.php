@@ -118,7 +118,8 @@ class SuggestTitlesPipeline
                 'completion_tokens' => (int) ($response->metadata['completion_tokens'] ?? 0),
                 'total_tokens' => $response->tokensUsed,
                 'duration' => $response->duration,
-                'page_id' => $context->getPageId(),
+                'pageable_id' => $context->getPageId(),
+                'pageable_type' => $context->getPageType(),
                 'language_id' => $context->getLanguageId(),
                 'metadata' => array_merge($response->metadata, [
                     'ai_messages' => $payload['ai_messages'] ?? null,

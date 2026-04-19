@@ -3,40 +3,24 @@
 declare(strict_types=1);
 
 use Capell\Assistant\Actions\SuggestPageTitlesAction;
+use Capell\Assistant\Support\AiResponse;
 use Capell\Assistant\Support\Context\ContentActionContext;
-use OpenAI\Laravel\Facades\OpenAI;
+use Capell\Assistant\Support\PrismProvider;
 
 uses()->group('admin-ai');
 
 it('parses JSON-formatted title suggestions', function (): void {
-    OpenAI::swap(new class
+    app()->bind(PrismProvider::class, fn (): PrismProvider => new class([]) extends PrismProvider
     {
-        private readonly object $chat;
-
-        public function __construct()
+        public function chat(array $params): AiResponse
         {
-            $this->chat = new class
-            {
-                public function create(array $params): stdClass
-                {
-                    // Return JSON array string
-                    return (object) [
-                        'choices' => [
-                            (object) ['message' => (object) ['content' => json_encode([
-                                'Awesome Laravel Guide',
-                                'Practical PHP Tips',
-                                'Mastering Eloquent',
-                            ], JSON_THROW_ON_ERROR)], 'finish_reason' => 'stop'],
-                        ],
-                        'usage' => (object) ['total_tokens' => 30, 'prompt_tokens' => 10, 'completion_tokens' => 20],
-                    ];
-                }
-            };
-        }
-
-        public function chat(): object
-        {
-            return $this->chat;
+            return new AiResponse(
+                content: json_encode(['Awesome Laravel Guide', 'Practical PHP Tips', 'Mastering Eloquent'], JSON_THROW_ON_ERROR),
+                tokensUsed: 30,
+                model: 'gpt-4o',
+                duration: 0.001,
+                metadata: ['prompt_tokens' => 10, 'completion_tokens' => 20],
+            );
         }
     });
 

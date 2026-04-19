@@ -4,35 +4,24 @@ declare(strict_types=1);
 
 use Capell\Assistant\Actions\GeneratorPageContentAction;
 use Capell\Assistant\Models\AIGenerationHistory;
+use Capell\Assistant\Support\AiResponse;
 use Capell\Assistant\Support\Context\ContentActionContext;
-use OpenAI\Laravel\Facades\OpenAI;
+use Capell\Assistant\Support\PrismProvider;
 
 uses()->group('admin-ai');
 
 it('records AIGenerationHistory with metadata after generation', function (): void {
-    OpenAI::swap(new class
+    app()->bind(PrismProvider::class, fn (): PrismProvider => new class([]) extends PrismProvider
     {
-        private readonly object $chat;
-
-        public function __construct()
+        public function chat(array $params): AiResponse
         {
-            $this->chat = new class
-            {
-                public function create(array $params): stdClass
-                {
-                    return (object) [
-                        'choices' => [
-                            (object) ['message' => (object) ['content' => "# Title\n\nContent"], 'finish_reason' => 'stop'],
-                        ],
-                        'usage' => (object) ['total_tokens' => 50, 'prompt_tokens' => 25, 'completion_tokens' => 25],
-                    ];
-                }
-            };
-        }
-
-        public function chat(): object
-        {
-            return $this->chat;
+            return new AiResponse(
+                content: "# Title\n\nContent",
+                tokensUsed: 50,
+                model: 'gpt-4o',
+                duration: 0.001,
+                metadata: ['prompt_tokens' => 25, 'completion_tokens' => 25],
+            );
         }
     });
 
