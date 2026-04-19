@@ -27,9 +27,9 @@ class GeneratePreviewTokenCommand extends Command
         }
 
         $minutes = (int) $this->option('minutes');
-        $secretKey = (string) config('app.key', 'preview-secret');
+        $secretKey = config('app.key', 'preview-secret');
         $preview = new PreviewMode(secretKey: $secretKey);
-        $token = $preview->generateToken((string) $path, expiresInMinutes: $minutes);
+        $token = $preview->generateToken($path, expiresInMinutes: $minutes);
 
         $this->line('Token: ' . $token);
 

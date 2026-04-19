@@ -18,7 +18,7 @@ class TestimonialsQuoteWidget extends AbstractAgencyWidget
         ['name' => 'title', 'label' => 'Section title', 'type' => 'text', 'default' => 'Words from the people we work for'],
         ['name' => 'testimonials', 'label' => 'Testimonials', 'type' => 'repeater', 'default' => [
             ['quote' => 'They rebuilt our entire brand in eight weeks. We shipped on time, and the work still feels right two years later.', 'name' => 'Sam Rivers', 'role' => 'VP Marketing, Northwind', 'avatar' => null],
-            ['quote' => 'The best agency relationship we\'ve had. No theatre, just exceptional work.', 'name' => 'Priya Okonkwo', 'role' => 'CEO, Parallel', 'avatar' => null],
+            ['quote' => "The best agency relationship we've had. No theatre, just exceptional work.", 'name' => 'Priya Okonkwo', 'role' => 'CEO, Parallel', 'avatar' => null],
         ]],
     ];
 }

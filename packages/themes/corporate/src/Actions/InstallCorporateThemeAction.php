@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Themes\Corporate\Actions;
 
+use Capell\Themes\Admin\Schemas\ThemeSettingsSchema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -62,7 +63,7 @@ class InstallCorporateThemeAction
                 'accent_color' => '#f59e0b',
             ]),
             'admin' => json_encode([
-                'schema' => 'Capell\\Themes\\Admin\\Schemas\\ThemeSettingsSchema',
+                'schema' => ThemeSettingsSchema::class,
             ]),
             'order' => 0,
             'default' => 0,
@@ -83,7 +84,7 @@ class InstallCorporateThemeAction
         $payload['created_at'] = now();
         $id = DB::table('themes')->insertGetId($payload);
 
-        return (int) $id;
+        return $id;
     }
 
     /**

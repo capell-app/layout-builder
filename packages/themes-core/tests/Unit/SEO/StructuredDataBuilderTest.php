@@ -86,7 +86,7 @@ test('render() wraps each schema in its own script tag', function (): void {
 test('address() throws LogicException when called on a fresh builder', function (): void {
     $builder = new StructuredDataBuilder;
 
-    expect(fn () => $builder->address('123 Main St', 'Springfield', 'US'))
+    expect(fn (): StructuredDataBuilder => $builder->address('123 Main St', 'Springfield', 'US'))
         ->toThrow(LogicException::class, 'address() requires an existing schema');
 });
 
@@ -108,7 +108,7 @@ test('address() attaches address schema to the last schema', function (): void {
 test('contactPoint() throws LogicException when called on a fresh builder', function (): void {
     $builder = new StructuredDataBuilder;
 
-    expect(fn () => $builder->contactPoint('hello@example.com'))
+    expect(fn (): StructuredDataBuilder => $builder->contactPoint('hello@example.com'))
         ->toThrow(LogicException::class, 'contactPoint() requires an existing schema');
 });
 

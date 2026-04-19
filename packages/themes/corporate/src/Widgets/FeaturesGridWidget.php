@@ -16,7 +16,7 @@ class FeaturesGridWidget extends AbstractCorporateWidget
 
     public array $fields = [
         ['name' => 'title', 'label' => 'Section title', 'type' => 'text', 'default' => 'Why Capell'],
-        ['name' => 'subtitle', 'label' => 'Section subtitle', 'type' => 'textarea', 'default' => 'Everything your marketing site needs, nothing it doesn\'t.'],
+        ['name' => 'subtitle', 'label' => 'Section subtitle', 'type' => 'textarea', 'default' => "Everything your marketing site needs, nothing it doesn't."],
         ['name' => 'columns', 'label' => 'Columns', 'type' => 'select', 'default' => '3', 'options' => ['2' => '2', '3' => '3', '4' => '4']],
         ['name' => 'features', 'label' => 'Features', 'type' => 'repeater', 'default' => [
             ['icon' => 'heroicon-o-bolt', 'title' => 'Fast', 'description' => 'Server-side rendered, tuned for speed.'],

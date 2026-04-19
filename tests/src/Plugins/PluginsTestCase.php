@@ -73,15 +73,11 @@ class PluginsTestCase extends AbstractTestCase
     {
         $path = $this->getFixturePath($relative);
 
-        if (! is_file($path)) {
-            throw new RuntimeException("Fixture not found: {$relative}");
-        }
+        throw_unless(is_file($path), RuntimeException::class, 'Fixture not found: ' . $relative);
 
         $contents = file_get_contents($path);
 
-        if ($contents === false) {
-            throw new RuntimeException("Fixture could not be read: {$relative}");
-        }
+        throw_if($contents === false, RuntimeException::class, 'Fixture could not be read: ' . $relative);
 
         return $contents;
     }

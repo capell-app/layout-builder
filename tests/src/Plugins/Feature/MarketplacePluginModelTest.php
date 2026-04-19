@@ -10,7 +10,7 @@ use Capell\Plugins\Models\PluginAuditLogEntry;
 use Illuminate\Support\Facades\DB;
 
 test('plugin row casts enums and JSON arrays correctly', function (): void {
-    $plugin = MarketplacePlugin::create([
+    $plugin = MarketplacePlugin::query()->create([
         'slug' => 'mosaic',
         'composer_name' => 'capell-app/mosaic',
         'name' => 'Mosaic',
@@ -30,7 +30,7 @@ test('plugin row casts enums and JSON arrays correctly', function (): void {
 });
 
 test('license row encrypts the key and decrypts on read', function (): void {
-    $plugin = MarketplacePlugin::create([
+    $plugin = MarketplacePlugin::query()->create([
         'slug' => 'assistant',
         'composer_name' => 'capell-app/assistant',
         'name' => 'Assistant',
@@ -51,7 +51,7 @@ test('license row encrypts the key and decrypts on read', function (): void {
 });
 
 test('audit log entry persists JSON data and has no updated_at', function (): void {
-    $plugin = MarketplacePlugin::create([
+    $plugin = MarketplacePlugin::query()->create([
         'slug' => 'blog',
         'composer_name' => 'capell-app/blog',
         'name' => 'Blog',
@@ -61,7 +61,7 @@ test('audit log entry persists JSON data and has no updated_at', function (): vo
         'license_model' => LicenseModel::Free,
     ]);
 
-    $entry = PluginAuditLogEntry::create([
+    $entry = PluginAuditLogEntry::query()->create([
         'marketplace_plugin_id' => $plugin->id,
         'action' => 'installed',
         'data' => ['version' => '1.0.0'],
@@ -72,7 +72,7 @@ test('audit log entry persists JSON data and has no updated_at', function (): vo
 });
 
 test('activeLicense returns usable licenses only', function (): void {
-    $plugin = MarketplacePlugin::create([
+    $plugin = MarketplacePlugin::query()->create([
         'slug' => 'address',
         'composer_name' => 'capell-app/address',
         'name' => 'Address',

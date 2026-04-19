@@ -38,6 +38,7 @@ final class SiteIdResolverTest extends PluginsTestCase
     {
         config()->set('app.key', 'base64:' . base64_encode(str_repeat('a', 32)));
         config()->set('app.name', 'Capell Test');
+
         $first = SiteIdResolver::get();
 
         SiteIdResolver::flushCache();

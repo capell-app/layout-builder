@@ -19,7 +19,7 @@ use function Pest\Livewire\livewire;
 
 use Symfony\Component\Process\Process;
 
-class PluginsPageTest extends PluginsTestCase
+final class PluginsPageTest extends PluginsTestCase
 {
     use CreatesAdminUser;
 

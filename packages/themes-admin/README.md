@@ -6,11 +6,11 @@ brand colors without leaving the admin UI.
 
 ## What's inside
 
-| Class | Purpose |
-|---|---|
-| `ThemesAdminServiceProvider` | Registers the package, config, and Filament page |
-| `ThemeSettingsPage` | Filament `Page` that renders the theme settings form |
-| `ThemeSettingsSchema` | Filament schema factory — `Tabs` with active theme select and color pickers |
+| Class                        | Purpose                                                                     |
+| ---------------------------- | --------------------------------------------------------------------------- |
+| `ThemesAdminServiceProvider` | Registers the package, config, and Filament page                            |
+| `ThemeSettingsPage`          | Filament `Page` that renders the theme settings form                        |
+| `ThemeSettingsSchema`        | Filament schema factory — `Tabs` with active theme select and color pickers |
 
 ## Requirements
 

@@ -50,7 +50,7 @@ class ImageGalleryWidgetSchema extends DefaultWidgetSchema
                             ->label(__('capell-mosaic::form.columns'))
                             ->options([1 => '1', 2 => '2', 3 => '3', 4 => '4'])
                             ->default(3)
-                            ->visible(fn (callable $get) => $get('layout') === 'grid'),
+                            ->visible(fn (callable $get): bool => $get('layout') === 'grid'),
                         Toggle::make('lightbox')
                             ->label(__('capell-mosaic::form.lightbox'))
                             ->default(true),

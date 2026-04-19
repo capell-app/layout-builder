@@ -13,6 +13,7 @@ test('registry returns a descriptor for every known capability', function (): vo
         if ($capability === Capability::HttpOutbound) {
             $parameter = 'example.com';
         }
+
         $descriptor = CapabilityRegistry::describe($capability, $parameter);
         expect($descriptor->capability)->toBe($capability);
         expect($descriptor->title)->not->toBeEmpty();

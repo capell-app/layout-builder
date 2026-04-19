@@ -23,9 +23,9 @@ class HreflangGenerator
     public function entries(?string $baseUrl = null): array
     {
         $current = $baseUrl ?? Request::url();
-        $path = parse_url($current, PHP_URL_PATH) ?: '/';
-        $scheme = parse_url($current, PHP_URL_SCHEME) ?: 'https';
-        $host = parse_url($current, PHP_URL_HOST) ?: Request::getHost();
+        $path = parse_url($current, PHP_URL_PATH) ?? '/';
+        $scheme = parse_url($current, PHP_URL_SCHEME) ?? 'https';
+        $host = parse_url($current, PHP_URL_HOST) ?? Request::getHost();
         $root = $scheme . '://' . $host;
 
         $entries = [];
@@ -60,7 +60,7 @@ class HreflangGenerator
 
     private function localisedUrl(string $root, string $path, string $locale): string
     {
-        $segments = array_values(array_filter(explode('/', trim($path, '/')), static fn ($s) => $s !== ''));
+        $segments = array_values(array_filter(explode('/', trim($path, '/')), static fn ($s): bool => $s !== ''));
         $enabled = $this->languages->enabled();
 
         if ($segments !== [] && in_array($segments[0], $enabled, true)) {

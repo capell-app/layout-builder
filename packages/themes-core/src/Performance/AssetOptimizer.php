@@ -19,9 +19,11 @@ class AssetOptimizer
         if ($type !== null) {
             $hint['type'] = $type;
         }
+
         if ($crossorigin !== null) {
             $hint['crossorigin'] = $crossorigin;
         }
+
         $this->hints[] = $hint;
 
         return $this;
@@ -40,6 +42,7 @@ class AssetOptimizer
         if ($crossorigin) {
             $hint['crossorigin'] = 'anonymous';
         }
+
         $this->hints[] = $hint;
 
         return $this;
@@ -61,6 +64,7 @@ class AssetOptimizer
             foreach ($hint as $attr => $value) {
                 $parts[] = sprintf('%s="%s"', $attr, htmlspecialchars($value, ENT_QUOTES, 'UTF-8'));
             }
+
             $lines[] = '<link ' . implode(' ', $parts) . ' />';
         }
 

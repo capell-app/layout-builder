@@ -11,12 +11,12 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
-final class AnystackClient
+final readonly class AnystackClient
 {
     public function __construct(
-        private readonly string $baseUrl = 'https://api.anystack.sh',
-        private readonly ?string $apiKey = null,
-        private readonly int $timeoutSeconds = 10,
+        private string $baseUrl = 'https://api.anystack.sh',
+        private ?string $apiKey = null,
+        private int $timeoutSeconds = 10,
     ) {}
 
     /**
@@ -32,7 +32,7 @@ final class AnystackClient
         string $fingerprint,
         ?string $hostname = null,
     ): AnystackLicenseValidationData {
-        $url = "{$this->baseUrl}/v1/products/{$productId}/licenses/activate-key";
+        $url = sprintf('%s/v1/products/%s/licenses/activate-key', $this->baseUrl, $productId);
 
         $payload = [
             'key' => $licenseKey,
@@ -47,16 +47,14 @@ final class AnystackClient
 
         if (! $response->successful()) {
             throw new RuntimeException(
-                "Anystack license activation failed with status {$response->status()}: {$response->body()}",
+                sprintf('Anystack license activation failed with status %d: %s', $response->status(), $response->body()),
             );
         }
 
         $responseBody = $response->json();
         $data = is_array($responseBody) ? ($responseBody['data'] ?? null) : null;
 
-        if (! is_array($data)) {
-            throw new RuntimeException('Invalid response from Anystack: missing data object');
-        }
+        throw_unless(is_array($data), RuntimeException::class, 'Invalid response from Anystack: missing data object');
 
         $activationId = isset($data['id']) && is_string($data['id']) ? $data['id'] : null;
         $licenseId = isset($data['license_id']) && is_string($data['license_id']) ? $data['license_id'] : null;
@@ -82,7 +80,7 @@ final class AnystackClient
         string $licenseKey,
         ?string $fingerprint = null,
     ): AnystackLicenseValidationData {
-        $url = "{$this->baseUrl}/v1/products/{$productId}/licenses/validate-key";
+        $url = sprintf('%s/v1/products/%s/licenses/validate-key', $this->baseUrl, $productId);
 
         $payload = [
             'key' => $licenseKey,
@@ -97,7 +95,7 @@ final class AnystackClient
 
         if (! $response->successful()) {
             throw new RuntimeException(
-                "Anystack license validation failed with status {$response->status()}: {$response->body()}",
+                sprintf('Anystack license validation failed with status %d: %s', $response->status(), $response->body()),
             );
         }
 
@@ -105,9 +103,7 @@ final class AnystackClient
         $data = is_array($responseBody) ? ($responseBody['data'] ?? null) : null;
         $meta = is_array($responseBody) ? ($responseBody['meta'] ?? []) : [];
 
-        if (! is_array($data)) {
-            throw new RuntimeException('Invalid response from Anystack: missing data object');
-        }
+        throw_unless(is_array($data), RuntimeException::class, 'Invalid response from Anystack: missing data object');
 
         if (! is_array($meta)) {
             $meta = [];
@@ -137,7 +133,7 @@ final class AnystackClient
         string $anystackLicenseId,
         string $anystackActivationId,
     ): bool {
-        $url = "{$this->baseUrl}/v1/products/{$productId}/licenses/{$anystackLicenseId}/activations/{$anystackActivationId}";
+        $url = sprintf('%s/v1/products/%s/licenses/%s/activations/%s', $this->baseUrl, $productId, $anystackLicenseId, $anystackActivationId);
 
         $response = $this->pendingRequest()->delete($url);
 
@@ -150,13 +146,13 @@ final class AnystackClient
         }
 
         throw new RuntimeException(
-            "Anystack license deactivation failed with status {$response->status()}: {$response->body()}",
+            sprintf('Anystack license deactivation failed with status %s: %s', $response->status(), $response->body()),
         );
     }
 
     public function composerRepositoryUrl(string $productId): string
     {
-        return "https://{$productId}.composer.sh";
+        return sprintf('https://%s.composer.sh', $productId);
     }
 
     private function pendingRequest(): PendingRequest
@@ -166,7 +162,7 @@ final class AnystackClient
             ->asJson();
 
         if ($this->apiKey !== null && $this->apiKey !== '') {
-            $request = $request->withToken($this->apiKey);
+            return $request->withToken($this->apiKey);
         }
 
         return $request;
@@ -181,9 +177,7 @@ final class AnystackClient
         // A malformed response from anystack (no `meta.valid`) is a protocol
         // bug, not an expiration. Surface it so callers can see the failure
         // rather than silently marking the license expired.
-        if (! array_key_exists('valid', $meta)) {
-            throw new RuntimeException('Invalid response from Anystack: missing meta.valid field');
-        }
+        throw_unless(array_key_exists('valid', $meta), RuntimeException::class, 'Invalid response from Anystack: missing meta.valid field');
 
         $valid = (bool) $meta['valid'];
         $statusCode = isset($meta['status']) && is_string($meta['status']) ? $meta['status'] : null;

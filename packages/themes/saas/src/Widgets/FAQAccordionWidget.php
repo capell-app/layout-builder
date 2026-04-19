@@ -16,7 +16,7 @@ class FAQAccordionWidget extends AbstractSaasWidget
 
     public array $fields = [
         ['name' => 'title', 'label' => 'Title', 'type' => 'text', 'default' => 'Frequently asked questions'],
-        ['name' => 'subtitle', 'label' => 'Subtitle', 'type' => 'textarea', 'default' => 'Can\'t find what you\'re looking for? Contact us anytime.'],
+        ['name' => 'subtitle', 'label' => 'Subtitle', 'type' => 'textarea', 'default' => "Can't find what you're looking for? Contact us anytime."],
         ['name' => 'faqs', 'label' => 'FAQs', 'type' => 'repeater', 'default' => [
             ['question' => 'Is there a free trial?', 'answer' => 'Yes — 14 days, no credit card required.'],
             ['question' => 'Can I change plans later?', 'answer' => 'Absolutely. Upgrade or downgrade anytime from the billing page.'],

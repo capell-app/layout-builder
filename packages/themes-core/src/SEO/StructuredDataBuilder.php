@@ -42,9 +42,7 @@ class StructuredDataBuilder
             $addressSchema['postalCode'] = $postalCode;
         }
 
-        if ($this->schemas === []) {
-            throw new LogicException('address() requires an existing schema — call organization() first.');
-        }
+        throw_if($this->schemas === [], LogicException::class, 'address() requires an existing schema — call organization() first.');
 
         $lastIndex = count($this->schemas) - 1;
 
@@ -65,9 +63,7 @@ class StructuredDataBuilder
             $contactSchema['telephone'] = $phone;
         }
 
-        if ($this->schemas === []) {
-            throw new LogicException('contactPoint() requires an existing schema — call organization() first.');
-        }
+        throw_if($this->schemas === [], LogicException::class, 'contactPoint() requires an existing schema — call organization() first.');
 
         $lastIndex = count($this->schemas) - 1;
 

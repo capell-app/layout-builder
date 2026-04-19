@@ -14,31 +14,51 @@
     };
 @endphp
 
-<section id="features"
-         aria-labelledby="features-title"
-         class="bg-[var(--color-bg)] py-[var(--section-y,4rem)]">
+<section
+    id="features"
+    aria-labelledby="features-title"
+    class="bg-[var(--color-bg)] py-[var(--section-y,4rem)]"
+>
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <header class="mx-auto mb-12 max-w-2xl text-center">
-            <h2 id="features-title" class="text-3xl font-bold sm:text-4xl">{{ $title }}</h2>
+            <h2
+                id="features-title"
+                class="text-3xl font-bold sm:text-4xl"
+            >
+                {{ $title }}
+            </h2>
             @if ($subtitle)
-                <p class="mt-4 text-[var(--color-fg-muted)]">{{ $subtitle }}</p>
+                <p class="mt-4 text-[var(--color-fg-muted)]">
+                    {{ $subtitle }}
+                </p>
             @endif
         </header>
 
-        <ul role="list" class="grid grid-cols-1 gap-8 {{ $gridCols }}">
+        <ul
+            role="list"
+            class="{{ $gridCols }} grid grid-cols-1 gap-8"
+        >
             @forelse ($features as $feature)
-                <li class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-muted)] p-6 transition hover:shadow-md dark:bg-[var(--color-bg-muted)]">
-                    <div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
-                         aria-hidden="true">
+                <li
+                    class="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-muted)] p-6 transition hover:shadow-md dark:bg-[var(--color-bg-muted)]"
+                >
+                    <div
+                        class="bg-[var(--color-primary)]/10 mb-4 inline-flex h-10 w-10 items-center justify-center rounded-md text-[var(--color-primary)]"
+                        aria-hidden="true"
+                    >
                         <span class="text-xl">*</span>
                     </div>
-                    <h3 class="text-lg font-semibold">{{ $feature['title'] ?? '' }}</h3>
+                    <h3 class="text-lg font-semibold">
+                        {{ $feature['title'] ?? '' }}
+                    </h3>
                     <p class="mt-2 text-sm text-[var(--color-fg-muted)]">
                         {{ $feature['description'] ?? '' }}
                     </p>
                 </li>
             @empty
-                <li class="col-span-full text-center text-[var(--color-fg-muted)]">
+                <li
+                    class="col-span-full text-center text-[var(--color-fg-muted)]"
+                >
                     {{ $slot->isEmpty() ? 'No features configured.' : $slot }}
                 </li>
             @endforelse

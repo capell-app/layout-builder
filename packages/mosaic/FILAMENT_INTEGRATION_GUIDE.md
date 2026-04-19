@@ -334,7 +334,7 @@ Create a preview blade view:
 ```blade
 <!-- resources/views/widgets/preview.blade.php -->
 
-<div class="rounded-lg overflow-hidden border border-gray-200">
+<div class="overflow-hidden rounded-lg border border-gray-200">
     @if ($widget['type'] === 'hero')
         <x-mosaic::modern.hero-banner
             :title="$widget['data']['title'] ?? ''"

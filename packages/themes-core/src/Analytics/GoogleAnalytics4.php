@@ -90,7 +90,7 @@ HTML;
             'value' => $value,
             'currency' => $currency,
             'items' => $items,
-        ], static fn ($v) => $v !== null));
+        ], static fn ($v): bool => $v !== null));
     }
 
     private function escapeJs(string $value): string

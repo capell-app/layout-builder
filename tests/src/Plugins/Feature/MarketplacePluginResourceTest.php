@@ -23,7 +23,7 @@ use function Pest\Livewire\livewire;
  * Create/Edit behavior is covered indirectly by InstallPluginActionTest and
  * MarketplacePluginModelTest.
  */
-class MarketplacePluginResourceTest extends PluginsTestCase
+final class MarketplacePluginResourceTest extends PluginsTestCase
 {
     use CreatesAdminUser;
 

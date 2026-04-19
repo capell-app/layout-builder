@@ -82,7 +82,7 @@ class SeedAgencyLayoutsAction
             'contact' => [
                 'name' => 'Agency · Contact',
                 'widgets' => [
-                    ['widget' => HeroStatementWidget::class, 'data' => ['statement' => 'Let\'s make something.', 'eyebrow' => 'Start a project']],
+                    ['widget' => HeroStatementWidget::class, 'data' => ['statement' => "Let's make something.", 'eyebrow' => 'Start a project']],
                     ['widget' => ContactInquiryWidget::class, 'data' => []],
                 ],
             ],

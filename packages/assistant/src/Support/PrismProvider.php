@@ -59,6 +59,7 @@ class PrismProvider implements ServiceContract
                         $userMessages[] = $message['content'];
                     }
                 }
+
                 $userMessage = implode("\n\n", $userMessages);
 
                 $model = $params['model'] ?? $this->config['model'] ?? 'gpt-4o';

@@ -8,10 +8,10 @@ use Capell\Mosaic\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\Mosaic\Filament\Components\Forms\Widget\ComponentSection;
 use Capell\Mosaic\Filament\Components\Forms\Widget\DisplaySection;
 use Capell\Mosaic\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Textarea;
-use Filament\Schemas\Components\TextInput;
 use Filament\Schemas\Schema;
 use Override;
 

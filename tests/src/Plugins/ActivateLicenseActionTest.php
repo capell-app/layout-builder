@@ -15,7 +15,7 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
-class ActivateLicenseActionTest extends PluginsTestCase
+final class ActivateLicenseActionTest extends PluginsTestCase
 {
     public function test_valid_license_activates_correctly(): void
     {
@@ -98,7 +98,7 @@ class ActivateLicenseActionTest extends PluginsTestCase
 
         $plugin = $this->makePlugin();
 
-        $existingLicense = MarketplacePluginLicense::create([
+        $existingLicense = MarketplacePluginLicense::query()->create([
             'marketplace_plugin_id' => $plugin->id,
             'site_id' => 'site_123',
             'encrypted_license_key' => 'old_key',
@@ -160,7 +160,7 @@ class ActivateLicenseActionTest extends PluginsTestCase
      */
     private function makePlugin(array $overrides = []): MarketplacePlugin
     {
-        return MarketplacePlugin::create(array_merge([
+        return MarketplacePlugin::query()->create(array_merge([
             'name' => 'Test Plugin',
             'slug' => 'test-plugin',
             'description' => 'Test',

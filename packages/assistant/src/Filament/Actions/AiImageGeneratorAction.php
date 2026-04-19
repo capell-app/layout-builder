@@ -32,9 +32,10 @@ class AiImageGeneratorAction extends Action
                 foreach ($contextFieldKeys as $key => $label) {
                     $value = $get($key);
                     if (filled($value)) {
-                        $contextParts[] = "{$label}: {$value}";
+                        $contextParts[] = sprintf('%s: %s', $label, $value);
                     }
                 }
+
                 $autoPrompt = implode('. ', $contextParts);
 
                 return [
@@ -56,12 +57,12 @@ class AiImageGeneratorAction extends Action
                                         size: config('capell-assistant.prism.image_size', '1024x1024'),
                                     );
 
-                                    $url = app(GenerateAiImageAction::class)->handle($data);
+                                    $url = resolve(GenerateAiImageAction::class)->handle($data);
                                     $set('preview_url', $url);
-                                } catch (Throwable $e) {
+                                } catch (Throwable $throwable) {
                                     Notification::make()
                                         ->title('Image generation failed')
-                                        ->body($e->getMessage())
+                                        ->body($throwable->getMessage())
                                         ->danger()
                                         ->send();
                                 }

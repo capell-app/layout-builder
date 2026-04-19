@@ -16,10 +16,10 @@ class ContactInquiryWidget extends AbstractAgencyWidget
 
     public array $fields = [
         ['name' => 'title', 'label' => 'Section title', 'type' => 'text', 'default' => 'Start a project'],
-        ['name' => 'subtitle', 'label' => 'Section subtitle', 'type' => 'textarea', 'default' => 'Tell us what you\'re making. We reply within one business day.'],
+        ['name' => 'subtitle', 'label' => 'Section subtitle', 'type' => 'textarea', 'default' => "Tell us what you're making. We reply within one business day."],
         ['name' => 'action', 'label' => 'Form action URL', 'type' => 'text', 'default' => '/inquiry'],
         ['name' => 'submit_label', 'label' => 'Submit label', 'type' => 'text', 'default' => 'Send inquiry'],
-        ['name' => 'success_message', 'label' => 'Success message', 'type' => 'text', 'default' => 'Thanks. We\'ll be in touch shortly.'],
+        ['name' => 'success_message', 'label' => 'Success message', 'type' => 'text', 'default' => "Thanks. We'll be in touch shortly."],
         ['name' => 'budget_options', 'label' => 'Budget options', 'type' => 'repeater', 'default' => [
             ['value' => 'under-25k', 'label' => 'Under $25k'],
             ['value' => '25k-75k', 'label' => '$25k – $75k'],

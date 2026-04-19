@@ -6,22 +6,22 @@ themes pull it in as a dependency automatically.
 
 ## What's inside
 
-| Module | Namespace | Description |
-|---|---|---|
-| **Accessibility** | `…\Accessibility` | `AriaHelper` (ARIA attribute strings), `ContrastChecker` (WCAG 2.1 ratio) |
-| **Analytics** | `…\Analytics` | `GoogleAnalytics4` (GA4 script), `UtmCollector` (UTM parameter capture) |
-| **Cache** | `…\Cache` | `ThemeCache` — tagged cache wrapper with remember / forget / flush |
-| **Data** | `…\Data` | `ThemeSettings` — spatie/laravel-data DTO for active theme + brand colors |
-| **Forms** | `…\Forms` | `HoneypotField` (spam trap), `Turnstile` (Cloudflare widget + verify) |
-| **Images** | `…\Images` | `ResponsiveImage` — srcset/sizes builder |
-| **Language** | `…\Language` | `HreflangGenerator`, `LanguageManager` |
-| **Mail** | `…\Mail` | `FormSubmissionNotification`, `NewsletterWelcome` Mailable classes |
-| **Middleware** | `…\Middleware` | `PreviewMiddleware` — validates HMAC-signed preview tokens |
-| **Mobile** | `…\Mobile` | `TouchTargets` — WCAG 2.5.5 44 px touch target helpers |
-| **Performance** | `…\Performance` | `CriticalCssInliner`, `AssetOptimizer` |
-| **Preview** | `…\Preview` | `PreviewMode` — token generation + validation for draft previews |
-| **SEO** | `…\SEO` | `StructuredDataBuilder`, `SitemapGenerator`, `CanonicalUrl`, `SocialCards` |
-| **Search** | `…\Search` | `DatabaseSiteSearch` — LIKE-query search with pagination + highlighting |
+| Module            | Namespace         | Description                                                                |
+| ----------------- | ----------------- | -------------------------------------------------------------------------- |
+| **Accessibility** | `…\Accessibility` | `AriaHelper` (ARIA attribute strings), `ContrastChecker` (WCAG 2.1 ratio)  |
+| **Analytics**     | `…\Analytics`     | `GoogleAnalytics4` (GA4 script), `UtmCollector` (UTM parameter capture)    |
+| **Cache**         | `…\Cache`         | `ThemeCache` — tagged cache wrapper with remember / forget / flush         |
+| **Data**          | `…\Data`          | `ThemeSettings` — spatie/laravel-data DTO for active theme + brand colors  |
+| **Forms**         | `…\Forms`         | `HoneypotField` (spam trap), `Turnstile` (Cloudflare widget + verify)      |
+| **Images**        | `…\Images`        | `ResponsiveImage` — srcset/sizes builder                                   |
+| **Language**      | `…\Language`      | `HreflangGenerator`, `LanguageManager`                                     |
+| **Mail**          | `…\Mail`          | `FormSubmissionNotification`, `NewsletterWelcome` Mailable classes         |
+| **Middleware**    | `…\Middleware`    | `PreviewMiddleware` — validates HMAC-signed preview tokens                 |
+| **Mobile**        | `…\Mobile`        | `TouchTargets` — WCAG 2.5.5 44 px touch target helpers                     |
+| **Performance**   | `…\Performance`   | `CriticalCssInliner`, `AssetOptimizer`                                     |
+| **Preview**       | `…\Preview`       | `PreviewMode` — token generation + validation for draft previews           |
+| **SEO**           | `…\SEO`           | `StructuredDataBuilder`, `SitemapGenerator`, `CanonicalUrl`, `SocialCards` |
+| **Search**        | `…\Search`        | `DatabaseSiteSearch` — LIKE-query search with pagination + highlighting    |
 
 ## Installation
 
@@ -34,9 +34,7 @@ a local checkout, add a path repository to `composer.local.json`:
 
 ```json
 {
-  "repositories": [
-    { "type": "path", "url": "packages/themes-core" }
-  ]
+    "repositories": [{ "type": "path", "url": "packages/themes-core" }]
 }
 ```
 

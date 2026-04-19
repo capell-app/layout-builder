@@ -4,26 +4,19 @@ declare(strict_types=1);
 
 use Capell\Themes\Core\Widgets\AbstractThemeWidget;
 
-$makeWidget = function (string $view = 'stub::widget'): AbstractThemeWidget {
-    return new class($view) extends AbstractThemeWidget
-    {
-        public string $name = 'Test Widget';
+$makeWidget = (fn (string $view = 'stub::widget'): AbstractThemeWidget => new class($view) extends AbstractThemeWidget
+{
+    public string $name = 'Test Widget';
 
-        public string $description = 'A test widget.';
+    public string $description = 'A test widget.';
 
-        public string $view;
+    public array $fields = [
+        ['name' => 'title', 'label' => 'Title', 'type' => 'text', 'default' => 'Hello'],
+        ['name' => 'count', 'label' => 'Count', 'type' => 'number'],
+    ];
 
-        public array $fields = [
-            ['name' => 'title', 'label' => 'Title', 'type' => 'text', 'default' => 'Hello'],
-            ['name' => 'count', 'label' => 'Count', 'type' => 'number'],
-        ];
-
-        public function __construct(string $view)
-        {
-            $this->view = $view;
-        }
-    };
-};
+    public function __construct(public string $view) {}
+});
 
 test('defaults() returns field default values keyed by name', function () use ($makeWidget): void {
     $widget = $makeWidget();

@@ -21,7 +21,7 @@ class LanguageManager
      */
     private array $locales;
 
-    private string $fallback;
+    private readonly string $fallback;
 
     /**
      * @param  array<string, array{name: string, native: string, dir: 'ltr'|'rtl', short: string}>|null  $locales

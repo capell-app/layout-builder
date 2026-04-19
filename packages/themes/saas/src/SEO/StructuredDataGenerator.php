@@ -31,7 +31,7 @@ class StructuredDataGenerator extends AbstractThemeSchemaGenerator
             'screenshot' => $overrides['screenshot'] ?? $saas?->product_screenshot_url,
             'applicationCategory' => $overrides['applicationCategory'] ?? 'BusinessApplication',
             'operatingSystem' => $overrides['operatingSystem'] ?? 'Web',
-        ], static fn ($value) => $value !== null);
+        ], static fn (?string $value): bool => $value !== null);
     }
 
     /**
@@ -48,6 +48,7 @@ class StructuredDataGenerator extends AbstractThemeSchemaGenerator
             if ($monthly === null) {
                 continue;
             }
+
             $offers[] = array_filter([
                 '@type' => 'Offer',
                 'name' => $tier['name'] ?? '',
@@ -55,7 +56,7 @@ class StructuredDataGenerator extends AbstractThemeSchemaGenerator
                 'priceCurrency' => $tier['currency'] ?? 'USD',
                 'url' => $tier['url'] ?? null,
                 'availability' => 'https://schema.org/InStock',
-            ], static fn ($value) => $value !== null && $value !== '');
+            ], static fn (?string $value): bool => $value !== null && $value !== '');
         }
 
         return array_filter([
@@ -63,8 +64,8 @@ class StructuredDataGenerator extends AbstractThemeSchemaGenerator
             '@type' => 'Product',
             'name' => $name,
             'description' => $description,
-            'offers' => $offers ?: null,
-        ], static fn ($value) => $value !== null);
+            'offers' => $offers ?? null,
+        ], static fn ($value): bool => $value !== null);
     }
 
     protected function resolveOrgName(): string
@@ -93,6 +94,6 @@ class StructuredDataGenerator extends AbstractThemeSchemaGenerator
             $this->settings->social_linkedin,
             $this->settings->social_github,
             $this->settings->social_youtube,
-        ]);
+        ], static fn ($value) => $value !== null);
     }
 }

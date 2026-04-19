@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Themes\Corporate;
 
 use Capell\Mosaic\Facades\Mosaic;
+use Capell\Mosaic\Models\Widget;
 use Capell\Themes\Core\Theme\ThemeRegistrar;
 use Capell\Themes\Corporate\Console\InstallCommand;
 use Capell\Themes\Corporate\Widgets\BlogListingWidget;
@@ -93,7 +94,7 @@ class CorporateThemeServiceProvider extends ServiceProvider
      */
     protected function registerMosaicWidgets(): void
     {
-        if (! class_exists('Capell\\Mosaic\\Models\\Widget')) {
+        if (! class_exists(Widget::class)) {
             return;
         }
 

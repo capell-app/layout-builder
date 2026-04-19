@@ -16,9 +16,9 @@ class ContactFormWidget extends AbstractCorporateWidget
 
     public array $fields = [
         ['name' => 'title', 'label' => 'Section title', 'type' => 'text', 'default' => 'Contact us'],
-        ['name' => 'subtitle', 'label' => 'Section subtitle', 'type' => 'textarea', 'default' => 'Tell us about your project. We\'ll respond within one business day.'],
+        ['name' => 'subtitle', 'label' => 'Section subtitle', 'type' => 'textarea', 'default' => "Tell us about your project. We'll respond within one business day."],
         ['name' => 'action', 'label' => 'Form action URL', 'type' => 'text', 'default' => '/contact'],
         ['name' => 'submit_label', 'label' => 'Submit label', 'type' => 'text', 'default' => 'Send message'],
-        ['name' => 'success_message', 'label' => 'Success message', 'type' => 'text', 'default' => 'Thanks, we\'ll be in touch.'],
+        ['name' => 'success_message', 'label' => 'Success message', 'type' => 'text', 'default' => "Thanks, we'll be in touch."],
     ];
 }

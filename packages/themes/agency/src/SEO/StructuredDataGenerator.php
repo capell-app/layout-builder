@@ -30,7 +30,7 @@ class StructuredDataGenerator extends AbstractThemeSchemaGenerator
             'dateCreated' => $work['dateCreated'] ?? null,
             'url' => $work['url'] ?? null,
             'keywords' => $work['keywords'] ?? null,
-        ], static fn ($value) => $value !== null);
+        ], static fn (string|array|null $value): bool => $value !== null);
     }
 
     protected function resolveOrgName(): string
@@ -66,6 +66,6 @@ class StructuredDataGenerator extends AbstractThemeSchemaGenerator
             $this->settings->social_dribbble,
             $this->settings->social_behance,
             $this->settings->social_linkedin,
-        ]);
+        ], static fn ($value) => $value !== null);
     }
 }

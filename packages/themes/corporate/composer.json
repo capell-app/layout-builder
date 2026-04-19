@@ -1,45 +1,45 @@
 {
-  "name": "capell-app/capell-theme-corporate",
-  "description": "Professional corporate theme for Capell CMS",
-  "type": "library",
-  "license": "MIT",
-  "require": {
-    "php": "^8.2",
-    "laravel/framework": "^10.0",
-    "capell-app/capell": "^4.0",
-    "spatie/laravel-data": "^4.0"
-  },
-  "require-dev": {
-    "pestphp/pest": "^3.0",
-    "laravel/pint": "^1.25",
-    "phpstan/phpstan": "^1.0"
-  },
-  "suggest": {
-    "capell-app/capell-mosaic": "Enable visual layout editor for theme components"
-  },
-  "autoload": {
-    "psr-4": {
-      "Capell\\Themes\\Corporate\\": "src/"
+    "name": "capell-app/capell-theme-corporate",
+    "description": "Professional corporate theme for Capell CMS",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^10.0",
+        "capell-app/capell": "^4.0",
+        "spatie/laravel-data": "^4.0"
+    },
+    "require-dev": {
+        "pestphp/pest": "^3.0",
+        "laravel/pint": "^1.25",
+        "phpstan/phpstan": "^1.0"
+    },
+    "suggest": {
+        "capell-app/capell-mosaic": "Enable visual layout editor for theme components"
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\Themes\\Corporate\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Capell\\Themes\\Corporate\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\Themes\\Corporate\\CorporateThemeServiceProvider"
+            ]
+        }
     }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Capell\\Themes\\Corporate\\Tests\\": "tests/"
-    }
-  },
-  "config": {
-    "sort-packages": true,
-    "allow-plugins": {
-      "pestphp/pest-plugin": true
-    }
-  },
-  "minimum-stability": "dev",
-  "prefer-stable": true,
-  "extra": {
-    "laravel": {
-      "providers": [
-        "Capell\\Themes\\Corporate\\CorporateThemeServiceProvider"
-      ]
-    }
-  }
 }

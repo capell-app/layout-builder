@@ -48,10 +48,10 @@ final class AnystackClientTest extends PluginsTestCase
 
         $this->assertInstanceOf(AnystackLicenseValidationData::class, $result);
         $this->assertTrue($result->valid);
-        $this->assertEquals(LicenseStatus::Active, $result->status);
-        $this->assertEquals('prod_xyz', $result->product);
-        $this->assertEquals('license-123', $result->licenseId);
-        $this->assertNotNull($result->expiresAt);
+        $this->assertSame(LicenseStatus::Active, $result->status);
+        $this->assertSame('prod_xyz', $result->product);
+        $this->assertSame('license-123', $result->licenseId);
+        $this->assertInstanceOf(DateTimeImmutable::class, $result->expiresAt);
     }
 
     public function test_validate_license_maps_expired_status(): void
@@ -70,8 +70,8 @@ final class AnystackClientTest extends PluginsTestCase
         $result = $this->client->validateLicense('prod_xyz', 'test-key');
 
         $this->assertFalse($result->valid);
-        $this->assertEquals(LicenseStatus::Expired, $result->status);
-        $this->assertEquals('EXPIRED', $result->statusCode);
+        $this->assertSame(LicenseStatus::Expired, $result->status);
+        $this->assertSame('EXPIRED', $result->statusCode);
     }
 
     public function test_validate_license_maps_suspended_data_to_revoked(): void
@@ -90,7 +90,7 @@ final class AnystackClientTest extends PluginsTestCase
         $result = $this->client->validateLicense('prod_xyz', 'test-key');
 
         $this->assertFalse($result->valid);
-        $this->assertEquals(LicenseStatus::Revoked, $result->status);
+        $this->assertSame(LicenseStatus::Revoked, $result->status);
     }
 
     public function test_validate_license_maps_fingerprint_invalid_to_invalid_not_past_due(): void
@@ -112,8 +112,8 @@ final class AnystackClientTest extends PluginsTestCase
         $result = $this->client->validateLicense('prod_xyz', 'test-key');
 
         $this->assertFalse($result->valid);
-        $this->assertEquals(LicenseStatus::Invalid, $result->status);
-        $this->assertEquals('FINGERPRINT_INVALID', $result->statusCode);
+        $this->assertSame(LicenseStatus::Invalid, $result->status);
+        $this->assertSame('FINGERPRINT_INVALID', $result->statusCode);
         $this->assertFalse($result->status->isUsable());
     }
 
@@ -172,9 +172,9 @@ final class AnystackClientTest extends PluginsTestCase
         $result = $this->client->activateLicense('prod_xyz', 'test-key', 'fp-1');
 
         $this->assertTrue($result->valid);
-        $this->assertEquals(LicenseStatus::Active, $result->status);
-        $this->assertEquals('activation-abc', $result->activationId);
-        $this->assertEquals('license-xyz', $result->licenseId);
+        $this->assertSame(LicenseStatus::Active, $result->status);
+        $this->assertSame('activation-abc', $result->activationId);
+        $this->assertSame('license-xyz', $result->licenseId);
     }
 
     public function test_activate_license_sends_fingerprint_in_body(): void
@@ -416,6 +416,6 @@ final class AnystackClientTest extends PluginsTestCase
     {
         $url = $this->client->composerRepositoryUrl('my-prod');
 
-        $this->assertEquals('https://my-prod.composer.sh', $url);
+        $this->assertSame('https://my-prod.composer.sh', $url);
     }
 }

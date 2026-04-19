@@ -94,7 +94,7 @@ class FormSectionWidgetSchema extends DefaultWidgetSchema
                                     ->placeholder('you@example.com'),
                                 Textarea::make('help_text')
                                     ->label(__('capell-mosaic::form.help_text'))
-                                    ->placeholder('We\'ll never share your email')
+                                    ->placeholder("We'll never share your email")
                                     ->rows(2),
                                 Toggle::make('required')
                                     ->label(__('capell-mosaic::form.required'))
@@ -102,7 +102,7 @@ class FormSectionWidgetSchema extends DefaultWidgetSchema
                                 TextInput::make('checkbox_label')
                                     ->label(__('capell-mosaic::form.checkbox_label'))
                                     ->placeholder('I agree')
-                                    ->visible(fn (callable $get) => $get('type') === 'checkbox'),
+                                    ->visible(fn (callable $get): bool => $get('type') === 'checkbox'),
                             ]),
                     ]),
             ]);

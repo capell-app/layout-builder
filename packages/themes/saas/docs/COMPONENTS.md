@@ -17,16 +17,16 @@ the `saas::` Blade namespace: `<x-saas::{name} />`.
 
 ## Widgets (also usable as standalone components)
 
-| Component                         | Purpose                                                      |
-| --------------------------------- | ------------------------------------------------------------ |
-| `<x-saas::hero-with-screenshot />`  | Gradient hero, dual CTAs, trust badges, screenshot mockup    |
-| `<x-saas::feature-matrix />`        | Feature comparison table with checkmarks across tiers        |
-| `<x-saas::pricing-table />`         | 3 tiers with monthly/annual CSS-only toggle                  |
-| `<x-saas::integrations-grid />`     | Logo grid of third-party integrations                        |
-| `<x-saas::use-cases-tabs />`        | Radio-based tabs, no JS framework required                   |
-| `<x-saas::testimonials-wall />`     | Masonry wall (CSS columns), avatars, star ratings            |
-| `<x-saas::faq-accordion />`         | Native `<details>` / `<summary>` for a11y                    |
-| `<x-saas::cta-banner />`            | Conversion-focused banner, gradient / solid / inverse variants |
+| Component                          | Purpose                                                        |
+| ---------------------------------- | -------------------------------------------------------------- |
+| `<x-saas::hero-with-screenshot />` | Gradient hero, dual CTAs, trust badges, screenshot mockup      |
+| `<x-saas::feature-matrix />`       | Feature comparison table with checkmarks across tiers          |
+| `<x-saas::pricing-table />`        | 3 tiers with monthly/annual CSS-only toggle                    |
+| `<x-saas::integrations-grid />`    | Logo grid of third-party integrations                          |
+| `<x-saas::use-cases-tabs />`       | Radio-based tabs, no JS framework required                     |
+| `<x-saas::testimonials-wall />`    | Masonry wall (CSS columns), avatars, star ratings              |
+| `<x-saas::faq-accordion />`        | Native `<details>` / `<summary>` for a11y                      |
+| `<x-saas::cta-banner />`           | Conversion-focused banner, gradient / solid / inverse variants |
 
 ## Example: overriding the hero
 
@@ -40,7 +40,8 @@ the `saas::` Blade namespace: `<x-saas::{name} />`.
     secondary-cta-label="See pricing"
     secondary-cta-url="#pricing"
     :trust-badges="['SOC 2', 'HIPAA', 'SSO']"
-    screenshot-url="/img/dashboard.png" />
+    screenshot-url="/img/dashboard.png"
+/>
 ```
 
 ## Accessibility

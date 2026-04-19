@@ -20,25 +20,17 @@ class CanonicalUrl
         'source',
     ];
 
-    /** @var array<int, string> */
-    private array $stripParams;
+    /**
+     * @param  array<int, string>  $stripParams
+     */
+    public function __construct(private readonly string $url, private readonly array $stripParams = self::DEFAULT_STRIP_PARAMS) {}
 
     /**
      * @param  array<int, string>  $stripParams
      */
-    public function __construct(
-        private readonly string $url,
-        array $stripParams = self::DEFAULT_STRIP_PARAMS,
-    ) {
-        $this->stripParams = $stripParams;
-    }
-
-    /**
-     * @param  array<int, string>  $stripParams
-     */
-    public static function fromRequest(Request $request, array $stripParams = self::DEFAULT_STRIP_PARAMS): static
+    public static function fromRequest(Request $request, array $stripParams = self::DEFAULT_STRIP_PARAMS): self
     {
-        return new static($request->url() . ($request->getQueryString() !== null ? '?' . $request->getQueryString() : ''), $stripParams);
+        return new self($request->url() . ($request->getQueryString() !== null ? '?' . $request->getQueryString() : ''), $stripParams);
     }
 
     public function resolve(): string

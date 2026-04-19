@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Themes\Admin\Schemas\ThemeSettingsSchema;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -36,7 +37,7 @@ return new class extends Migration
                 'accent_color' => '#3b82f6',
             ]),
             'admin' => json_encode([
-                'schema' => 'Capell\\Themes\\Admin\\Schemas\\ThemeSettingsSchema',
+                'schema' => ThemeSettingsSchema::class,
             ]),
             'order' => 0,
             'default' => 0,

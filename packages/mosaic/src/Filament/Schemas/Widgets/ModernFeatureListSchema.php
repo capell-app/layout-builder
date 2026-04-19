@@ -49,7 +49,7 @@ class ModernFeatureListSchema
                             '4' => '4 Columns',
                         ])
                         ->default('3')
-                        ->visible(fn (callable $get) => $get('data.layout') === 'grid'),
+                        ->visible(fn (callable $get): bool => $get('data.layout') === 'grid'),
 
                     Select::make('data.animation')
                         ->label('Entry Animation')

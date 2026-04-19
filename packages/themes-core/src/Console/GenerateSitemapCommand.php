@@ -34,12 +34,12 @@ class GenerateSitemapCommand extends Command
         $success = $generator->writeTo((string) $outputPath);
 
         if ($success) {
-            $this->info("Sitemap written to {$outputPath} ({$generator->count()} URLs).");
+            $this->info(sprintf('Sitemap written to %s (%d URLs).', $outputPath, $generator->count()));
 
             return self::SUCCESS;
         }
 
-        $this->error("Failed to write sitemap to {$outputPath}.");
+        $this->error(sprintf('Failed to write sitemap to %s.', $outputPath));
 
         return self::FAILURE;
     }

@@ -6,70 +6,66 @@
  */
 
 :root {
-  /* Core palette — coral primary, electric blue accent */
-  --color-primary: #ff5a7e;
-  --color-primary-rgb: 255 90 126;
-  --color-primary-foreground: #ffffff;
-  --color-accent: #3b82f6;
-  --color-accent-foreground: #ffffff;
+    /* Core palette — coral primary, electric blue accent */
+    --color-primary: #ff5a7e;
+    --color-primary-rgb: 255 90 126;
+    --color-primary-foreground: #ffffff;
+    --color-accent: #3b82f6;
+    --color-accent-foreground: #ffffff;
 
-  /* Surface / background tokens */
-  --color-bg: #ffffff;
-  --color-bg-muted: #f5f2ee;
-  --color-fg: #111014;
-  --color-fg-muted: #56525c;
-  --color-border: #e6e2dc;
+    /* Surface / background tokens */
+    --color-bg: #ffffff;
+    --color-bg-muted: #f5f2ee;
+    --color-fg: #111014;
+    --color-fg-muted: #56525c;
+    --color-border: #e6e2dc;
 
-  /* Deep charcoal for hero/footer surfaces */
-  --color-surface-dark: #0b0a0f;
-  --color-surface-dark-fg: #f5f2ee;
+    /* Deep charcoal for hero/footer surfaces */
+    --color-surface-dark: #0b0a0f;
+    --color-surface-dark-fg: #f5f2ee;
 
-  /* Typography — Sora display + Inter body */
-  --font-headline: 'Sora', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    /* Typography — Sora display + Inter body */
+    --font-headline:
+        'Sora', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto,
+        sans-serif;
+    --font-body:
+        'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+        Arial, sans-serif;
 
-  /* Spacing presets — agency runs more generous by default */
-  --space-compact: 0.875rem;
-  --space-balanced: 1.5rem;
-  --space-spacious: 2.5rem;
-  --section-y-compact: 3rem;
-  --section-y-balanced: 5rem;
-  --section-y-spacious: 8rem;
+    /* Spacing presets — agency runs more generous by default */
+    --space-compact: 0.875rem;
+    --space-balanced: 1.5rem;
+    --space-spacious: 2.5rem;
+    --section-y-compact: 3rem;
+    --section-y-balanced: 5rem;
+    --section-y-spacious: 8rem;
 
-  /* Radii / shadows */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1.5rem;
-  --radius-pill: 9999px;
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.06);
-  --shadow-float: 0 20px 40px -12px rgb(255 90 126 / 0.25);
+    /* Radii / shadows */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1.5rem;
+    --radius-pill: 9999px;
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.06);
+    --shadow-float: 0 20px 40px -12px rgb(255 90 126 / 0.25);
 
-  /* Focus ring (accessibility) */
-  --focus-ring: 3px solid var(--color-accent);
-  --focus-ring-offset: 3px;
+    /* Focus ring (accessibility) */
+    --focus-ring: 3px solid var(--color-accent);
+    --focus-ring-offset: 3px;
 }
 
 /* Spacing preset utility classes */
-[data-spacing='compact']   { --section-y: var(--section-y-compact); }
-[data-spacing='balanced']  { --section-y: var(--section-y-balanced); }
-[data-spacing='spacious']  { --section-y: var(--section-y-spacious); }
+[data-spacing='compact'] {
+    --section-y: var(--section-y-compact);
+}
+[data-spacing='balanced'] {
+    --section-y: var(--section-y-balanced);
+}
+[data-spacing='spacious'] {
+    --section-y: var(--section-y-spacious);
+}
 
 /* Explicit dark-mode toggle via data attribute */
 [data-theme='dark'] {
-  --color-bg: #0b0a0f;
-  --color-bg-muted: #161420;
-  --color-fg: #f5f2ee;
-  --color-fg-muted: #a19bad;
-  --color-border: #2a2635;
-  --color-primary: #ff7093;
-  --color-primary-foreground: #0b0a0f;
-  --color-accent: #60a5fa;
-  --color-surface-dark: #000000;
-}
-
-/* System-level preference (when [data-theme] is not explicitly set) */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
     --color-bg: #0b0a0f;
     --color-bg-muted: #161420;
     --color-fg: #f5f2ee;
@@ -79,81 +75,118 @@
     --color-primary-foreground: #0b0a0f;
     --color-accent: #60a5fa;
     --color-surface-dark: #000000;
-  }
+}
+
+/* System-level preference (when [data-theme] is not explicitly set) */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+        --color-bg: #0b0a0f;
+        --color-bg-muted: #161420;
+        --color-fg: #f5f2ee;
+        --color-fg-muted: #a19bad;
+        --color-border: #2a2635;
+        --color-primary: #ff7093;
+        --color-primary-foreground: #0b0a0f;
+        --color-accent: #60a5fa;
+        --color-surface-dark: #000000;
+    }
 }
 
 /* Global resets specific to the theme */
-html { color-scheme: light dark; }
+html {
+    color-scheme: light dark;
+}
 
 body {
-  font-family: var(--font-body);
-  background: var(--color-bg);
-  color: var(--color-fg);
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
+    font-family: var(--font-body);
+    background: var(--color-bg);
+    color: var(--color-fg);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-headline);
-  letter-spacing: -0.025em;
-  line-height: 1.05;
-  color: var(--color-fg);
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-headline);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    color: var(--color-fg);
 }
 
-h1 { font-weight: 700; }
+h1 {
+    font-weight: 700;
+}
 
 /* Oversized display type utility */
 .agency-display {
-  font-family: var(--font-headline);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 0.95;
+    font-family: var(--font-headline);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
 }
 
 /* Accessibility: focus-visible outlines */
 :where(a, button, [role='button'], input, select, textarea):focus-visible {
-  outline: var(--focus-ring);
-  outline-offset: var(--focus-ring-offset);
-  border-radius: var(--radius-sm);
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
+    border-radius: var(--radius-sm);
 }
 
 /* Skip-to-content link */
 .skip-to-content {
-  position: absolute;
-  top: -40px;
-  left: 1rem;
-  background: var(--color-primary);
-  color: var(--color-primary-foreground);
-  padding: 0.625rem 1.25rem;
-  border-radius: var(--radius-pill);
-  font-weight: 600;
-  z-index: 1000;
-  transition: top 0.2s ease;
+    position: absolute;
+    top: -40px;
+    left: 1rem;
+    background: var(--color-primary);
+    color: var(--color-primary-foreground);
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+    z-index: 1000;
+    transition: top 0.2s ease;
 }
 
-.skip-to-content:focus { top: 1rem; }
+.skip-to-content:focus {
+    top: 1rem;
+}
 
 /* Marquee animation (respects reduced-motion below) */
 @keyframes agency-marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
 }
 
 .agency-marquee-track {
-  animation: agency-marquee linear infinite;
-  will-change: transform;
+    animation: agency-marquee linear infinite;
+    will-change: transform;
 }
 
-.agency-marquee-track[data-speed='slow']   { animation-duration: 60s; }
-.agency-marquee-track[data-speed='medium'] { animation-duration: 35s; }
-.agency-marquee-track[data-speed='fast']   { animation-duration: 18s; }
+.agency-marquee-track[data-speed='slow'] {
+    animation-duration: 60s;
+}
+.agency-marquee-track[data-speed='medium'] {
+    animation-duration: 35s;
+}
+.agency-marquee-track[data-speed='fast'] {
+    animation-duration: 18s;
+}
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }

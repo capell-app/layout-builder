@@ -20,7 +20,7 @@ test('render() includes og:title and og:description', function (): void {
 });
 
 test('twitterTags() returns the correct keys', function (): void {
-    $cards = new SocialCards(title: 'Test', twitterSite: '@mysite', image: 'https://example.com/img.jpg');
+    $cards = new SocialCards(title: 'Test', image: 'https://example.com/img.jpg', twitterSite: '@mysite');
 
     $twitter = $cards->twitterTags();
 
@@ -52,7 +52,7 @@ test('ogTags() returns the right values', function (): void {
 test('render() HTML-escapes special characters', function (): void {
     $cards = new SocialCards(
         title: 'A & B < C > D "test"',
-        description: 'It\'s a test',
+        description: "It's a test",
     );
 
     $rendered = $cards->render();

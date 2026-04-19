@@ -33,7 +33,7 @@ class ThemeTokensController
     {
         return new Response(
             content: $this->toCss(),
-            status: 200,
+            status: Response::HTTP_OK,
             headers: ['Content-Type' => 'text/css; charset=UTF-8'],
         );
     }

@@ -23,15 +23,11 @@ final class ActivateLicenseAction extends Action
         ?string $fingerprint = null,
         ?string $hostname = null,
     ): MarketplacePluginLicense {
-        if ($plugin->anystack_product_id === null) {
-            throw new RuntimeException(
-                'Cannot activate license: plugin has no anystack_product_id configured',
-            );
-        }
+        throw_if($plugin->anystack_product_id === null, RuntimeException::class, 'Cannot activate license: plugin has no anystack_product_id configured');
 
         // Anystack requires a non-empty fingerprint; derive one from the site identifier
         // when the caller doesn't provide one explicitly.
-        $effectiveFingerprint = $fingerprint ?? hash('sha256', "site:{$siteId}");
+        $effectiveFingerprint = $fingerprint ?? hash('sha256', 'site:' . $siteId);
 
         $activation = $this->anystackClient->activateLicense(
             $plugin->anystack_product_id,

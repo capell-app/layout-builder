@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Filament\Schemas\Widgets;
 
-use Filament\Forms\Components\Group;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
 
 /**
  * Filament Schema for Modern CTA Section Widget

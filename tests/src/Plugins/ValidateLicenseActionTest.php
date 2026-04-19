@@ -12,7 +12,7 @@ use Capell\Plugins\Services\AnystackClient;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Http;
 
-class ValidateLicenseActionTest extends PluginsTestCase
+final class ValidateLicenseActionTest extends PluginsTestCase
 {
     public function test_happy_path_validates_and_updates_heartbeat(): void
     {
@@ -49,7 +49,7 @@ class ValidateLicenseActionTest extends PluginsTestCase
         CarbonImmutable::setTestNow();
 
         $this->assertSame(LicenseStatus::Active, $result->status);
-        $this->assertNotNull($result->last_heartbeat_at);
+        $this->assertInstanceOf(CarbonImmutable::class, $result->last_heartbeat_at);
         $this->assertSame($now->toDateTimeString(), $result->last_heartbeat_at->toDateTimeString());
 
         $this->assertTrue($plugin->auditLog()->where('action', 'license_validated')->exists());

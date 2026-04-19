@@ -40,7 +40,7 @@ final class StderrScrubber
         );
 
         if ($licenseKey !== null && $licenseKey !== '') {
-            $scrubbed = str_replace($licenseKey, self::REDACTED, $scrubbed);
+            return str_replace($licenseKey, self::REDACTED, $scrubbed);
         }
 
         return $scrubbed;

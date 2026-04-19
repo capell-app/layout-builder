@@ -191,8 +191,8 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
             serviceProviderClass: static::class,
             path: realpath(__DIR__ . '/../..'),
             description: static::getDescription(),
-            version: $this->getVersion(),
             permissions: $this->getPackagePermissions(),
+            version: $this->getVersion(),
             url: 'https://capell.app',
         );
 

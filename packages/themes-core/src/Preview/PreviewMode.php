@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Themes\Core\Preview;
 
+use Illuminate\Support\Facades\Date;
+
 class PreviewMode
 {
     public function __construct(
@@ -13,7 +15,7 @@ class PreviewMode
 
     public function generateToken(string $path, int $expiresInMinutes = 60): string
     {
-        $issuedAt = time();
+        $issuedAt = Date::now()->getTimestamp();
         $expiresAt = $issuedAt + ($expiresInMinutes * 60);
 
         $payload = json_encode([
@@ -44,7 +46,7 @@ class PreviewMode
         }
 
         [$encodedPayload, $signature] = $parts;
-        $payload = base64_decode($encodedPayload);
+        $payload = base64_decode($encodedPayload, true);
 
         if ($payload === false) {
             return false;
@@ -66,11 +68,7 @@ class PreviewMode
             return false;
         }
 
-        if (($data['exp'] ?? 0) < time()) {
-            return false;
-        }
-
-        return true;
+        return ! (($data['exp'] ?? 0) < Date::now()->getTimestamp());
     }
 
     public function isExpired(string $token): bool
@@ -82,7 +80,7 @@ class PreviewMode
         }
 
         [$encodedPayload] = $parts;
-        $payload = base64_decode($encodedPayload);
+        $payload = base64_decode($encodedPayload, true);
 
         if ($payload === false) {
             return true;
@@ -94,7 +92,7 @@ class PreviewMode
             return true;
         }
 
-        return ($data['exp'] ?? 0) < time();
+        return ($data['exp'] ?? 0) < Date::now()->getTimestamp();
     }
 
     public function tokenParam(): string

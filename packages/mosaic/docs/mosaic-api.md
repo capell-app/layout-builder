@@ -16,10 +16,10 @@ frontend assets.
 
 All three models are workspace-aware and ship a factory.
 
-| Model | Table | Notes |
-| --- | --- | --- |
-| `Capell\Mosaic\Models\Section` | `sections` | Reusable, translatable content record. Organised as a nested set. |
-| `Capell\Mosaic\Models\Widget` | `widgets` | A placed UI component instance — the thing editors drag onto a layout. |
+| Model                              | Table           | Notes                                                                              |
+| ---------------------------------- | --------------- | ---------------------------------------------------------------------------------- |
+| `Capell\Mosaic\Models\Section`     | `sections`      | Reusable, translatable content record. Organised as a nested set.                  |
+| `Capell\Mosaic\Models\Widget`      | `widgets`       | A placed UI component instance — the thing editors drag onto a layout.             |
 | `Capell\Mosaic\Models\WidgetAsset` | `widget_assets` | Polymorphic link between a widget and another record (usually media or a section). |
 
 > Mosaic still exposes the `Page::contents()`, `Site::contents()`, and
@@ -56,20 +56,20 @@ The big pieces are:
 Every piece of business logic sits in a single-purpose invokable under
 `src/Actions/`.
 
-| Action | Purpose |
-| --- | --- |
-| `AddHeroWidgetToLayoutAction` | Place the hero widget into the first row of a layout. |
-| `AddWidgetToLayoutContainerAction` | Place any widget in a named container at a given occurrence. |
-| `CreateContentAction` | Create a `Section` with its type and initial translations. |
-| `CreateHeroContentTypeAction` | Register the hero section type during setup. |
-| `CreateHeroWidgetAction` | Register the hero widget type during setup. |
-| `GetWidgetContainerWidthAction` | Resolve the rendered width class for a widget based on its container. |
-| `HeroWidgetHasPrimaryHeadingAction` | Check whether the hero widget provides the page's primary heading (so other schemas can defer to it). |
-| `InstallPackageAction` | Underlying work for `capell:mosaic-install`. |
-| `ModifyContentSelectCreateAction` | Customise the "create new" flow inside content selectors. |
-| `MutateContentDataBeforeFillAction` | Transform content data before a Filament form fills. |
-| `ReplicateContentAction` | Deep-clone a section (used by the clone page / clone widget actions). |
-| `SaveFormComponentRelationshipAction` | Persist relationships from nested form components. |
+| Action                                | Purpose                                                                                               |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `AddHeroWidgetToLayoutAction`         | Place the hero widget into the first row of a layout.                                                 |
+| `AddWidgetToLayoutContainerAction`    | Place any widget in a named container at a given occurrence.                                          |
+| `CreateContentAction`                 | Create a `Section` with its type and initial translations.                                            |
+| `CreateHeroContentTypeAction`         | Register the hero section type during setup.                                                          |
+| `CreateHeroWidgetAction`              | Register the hero widget type during setup.                                                           |
+| `GetWidgetContainerWidthAction`       | Resolve the rendered width class for a widget based on its container.                                 |
+| `HeroWidgetHasPrimaryHeadingAction`   | Check whether the hero widget provides the page's primary heading (so other schemas can defer to it). |
+| `InstallPackageAction`                | Underlying work for `capell:mosaic-install`.                                                          |
+| `ModifyContentSelectCreateAction`     | Customise the "create new" flow inside content selectors.                                             |
+| `MutateContentDataBeforeFillAction`   | Transform content data before a Filament form fills.                                                  |
+| `ReplicateContentAction`              | Deep-clone a section (used by the clone page / clone widget actions).                                 |
+| `SaveFormComponentRelationshipAction` | Persist relationships from nested form components.                                                    |
 
 ## Enums
 

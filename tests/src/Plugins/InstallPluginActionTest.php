@@ -14,11 +14,12 @@ use Capell\Plugins\Models\MarketplacePluginLicense;
 use Capell\Plugins\Services\AnystackClient;
 use Capell\Plugins\Services\ComposerRunner;
 use Capell\Tests\Plugins\Unit\StubComposerProcess;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 use Symfony\Component\Process\Process;
 
-class InstallPluginActionTest extends PluginsTestCase
+final class InstallPluginActionTest extends PluginsTestCase
 {
     /**
      * @var array<int, array<int, string>>
@@ -187,7 +188,7 @@ class InstallPluginActionTest extends PluginsTestCase
         }
 
         $auditRow = $plugin->auditLog()->where('action', 'install_failed')->first();
-        $this->assertNotNull($auditRow);
+        $this->assertInstanceOf(Model::class, $auditRow);
         $this->assertSame($expectedExitCode, $auditRow->data['exit_code']);
 
         $stderrTail = $auditRow->data['stderr_tail'];
@@ -224,9 +225,9 @@ class InstallPluginActionTest extends PluginsTestCase
         }
 
         $auditRow = $plugin->auditLog()->where('action', 'install_failed')->first();
-        $this->assertNotNull($auditRow);
-        $this->assertStringNotContainsString($licenseKey, $auditRow->data['stderr_tail']);
-        $this->assertStringContainsString('[REDACTED]', $auditRow->data['stderr_tail']);
+        $this->assertInstanceOf(Model::class, $auditRow);
+        $this->assertStringNotContainsString($licenseKey, (string) $auditRow->data['stderr_tail']);
+        $this->assertStringContainsString('[REDACTED]', (string) $auditRow->data['stderr_tail']);
     }
 
     public function test_paid_install_triggers_activate_license_action(): void
@@ -251,7 +252,7 @@ class InstallPluginActionTest extends PluginsTestCase
             ->where('site_id', 'site_abc')
             ->first();
 
-        $this->assertNotNull($license, 'Activation should have created a license row.');
+        $this->assertInstanceOf(MarketplacePluginLicense::class, $license, 'Activation should have created a license row.');
         $this->assertSame(LicenseStatus::Active, $license->status);
         $this->assertTrue($plugin->auditLog()->where('action', 'license_activated')->exists());
         $this->assertTrue($plugin->auditLog()->where('action', 'installed')->exists());
@@ -300,7 +301,7 @@ class InstallPluginActionTest extends PluginsTestCase
 
         $warnings = $action->previewCapabilityWarnings($plugin);
 
-        $this->assertEquals(CapabilityWarningLevel::Red, $warnings->highestLevel);
+        $this->assertSame(CapabilityWarningLevel::Red, $warnings->highestLevel);
         $this->assertCount(3, $warnings->warnings);
     }
 
@@ -318,7 +319,7 @@ class InstallPluginActionTest extends PluginsTestCase
 
         $warnings = $action->previewCapabilityWarnings($plugin);
 
-        $this->assertEquals(CapabilityWarningLevel::Green, $warnings->highestLevel);
+        $this->assertSame(CapabilityWarningLevel::Green, $warnings->highestLevel);
         $this->assertCount(0, $warnings->warnings);
     }
 
@@ -375,7 +376,7 @@ class InstallPluginActionTest extends PluginsTestCase
      */
     private function makePlugin(array $overrides = []): MarketplacePlugin
     {
-        return MarketplacePlugin::create(array_merge([
+        return MarketplacePlugin::query()->create(array_merge([
             'name' => 'Test Plugin',
             'slug' => 'test-plugin',
             'description' => 'Test description',

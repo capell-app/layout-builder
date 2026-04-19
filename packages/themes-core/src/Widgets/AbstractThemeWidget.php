@@ -27,9 +27,9 @@ abstract class AbstractThemeWidget
      */
     public array $fields = [];
 
-    public static function make(): static
+    public static function make(): self
     {
-        return new static;
+        return new self;
     }
 
     /**
@@ -43,7 +43,7 @@ abstract class AbstractThemeWidget
 
         if (function_exists('view') && function_exists('app')) {
             try {
-                return (string) view($this->view, $data)->render();
+                return view($this->view, $data)->render();
             } catch (Throwable) {
                 // Fall through to fallbackRender when no Laravel app / view factory is available.
             }
@@ -72,7 +72,7 @@ abstract class AbstractThemeWidget
      */
     public function fieldNames(): array
     {
-        return array_map(static fn (array $field) => $field['name'], $this->fields);
+        return array_map(static fn (array $field): string => $field['name'], $this->fields);
     }
 
     /**

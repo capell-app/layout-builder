@@ -1,7 +1,7 @@
 {{--
-  Modern Pricing Table Widget
-
-  Props:
+    Modern Pricing Table Widget
+    
+    Props:
     - title (string): Section heading
     - plans (array): Array of pricing plan objects
     - currency (string): Currency symbol - Default: '$'
@@ -45,12 +45,12 @@
     'customizable' => true,
 ])
 
-<section class="mosaic-pricing py-12 md:py-16 px-6 md:px-12">
+<section class="mosaic-pricing px-6 py-12 md:px-12 md:py-16">
     {{-- Header --}}
-    @if($title)
-        <div class="mb-12 text-center max-w-2xl mx-auto">
+    @if ($title)
+        <div class="mx-auto mb-12 max-w-2xl text-center">
             <h2
-                class="text-3xl md:text-4xl font-bold"
+                class="text-3xl font-bold md:text-4xl"
                 style="
                     color: var(--mosaic-on-surface);
                     font-family: var(--mosaic-font-headline);
@@ -62,11 +62,11 @@
     @endif
 
     {{-- Billing Toggle --}}
-    @if($billingOptions === 'both')
-        <div class="flex justify-center items-center gap-4 mb-12">
+    @if ($billingOptions === 'both')
+        <div class="mb-12 flex items-center justify-center gap-4">
             <span
                 class="billing-toggle-label"
-                style="color: var(--mosaic-on-surface);"
+                style="color: var(--mosaic-on-surface)"
             >
                 Monthly
             </span>
@@ -100,7 +100,7 @@
             </button>
             <span
                 class="billing-toggle-label"
-                style="color: var(--mosaic-on-surface);"
+                style="color: var(--mosaic-on-surface)"
             >
                 Annual
             </span>
@@ -119,27 +119,34 @@
     @endif
 
     {{-- Pricing Plans --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto pricing-grid" data-billing="{{ $billingOptions === 'both' ? 'monthly' : $billingOptions }}">
-        @forelse($plans as $plan)
+    <div
+        class="pricing-grid mx-auto grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+        data-billing="{{ $billingOptions === 'both' ? 'monthly' : $billingOptions }}"
+    >
+        @forelse ($plans as $plan)
             <div
                 @class([
-                    'mosaic-card relative pricing-plan',
+                    'mosaic-card pricing-plan relative',
                     'lg:scale-105' => $plan['featured'] ?? false,
                 ])
                 data-price-monthly="{{ $plan['price'] ?? '' }}"
                 data-price-annual="{{ $plan['priceAnnual'] ?? $plan['price'] ?? '' }}"
                 style="
                     background-color: var(--mosaic-surface-container);
-                    @if($plan['featured'] ?? false)
-                        background: linear-gradient(135deg, var(--mosaic-primary-container) 0%, #5a00c6 100%);
+                    @if ($plan['featured'] ?? false)
+                        background: linear-gradient(135deg,
+                        var(--mosaic-primary-container)
+                        0%,
+                        #5a00c6
+                        100%);
                     @endif
                 "
             >
                 {{-- Featured Badge --}}
-                @if($plan['featured'] ?? false)
+                @if ($plan['featured'] ?? false)
                     <div
-                        class="absolute -top-4 left-1/2 transform -translate-x-1/2"
-                        style="transform: translateX(-50%);"
+                        class="absolute -top-4 left-1/2 -translate-x-1/2 transform"
+                        style="transform: translateX(-50%)"
                     >
                         <span
                             class="mosaic-badge mosaic-badge-tertiary px-4 py-1"
@@ -155,47 +162,66 @@
 
                 {{-- Plan Name --}}
                 <h3
-                    class="text-2xl font-bold mb-2"
-                    style="color: {{ $plan['featured'] ?? false ? 'white' : 'var(--mosaic-on-surface)' }};"
+                    class="mb-2 text-2xl font-bold"
+                    style="
+                        color: {{ $plan['featured'] ?? false ? 'white' : 'var(--mosaic-on-surface)' }};
+                    "
                 >
                     {{ $plan['name'] }}
                 </h3>
 
                 {{-- Description --}}
-                @if(isset($plan['description']))
+                @if (isset($plan['description']))
                     <p
-                        class="text-sm mb-6"
-                        style="color: {{ $plan['featured'] ?? false ? 'rgba(255,255,255,0.8)' : 'var(--mosaic-on-surface-variant)' }};"
+                        class="mb-6 text-sm"
+                        style="
+                            color: {{ $plan['featured'] ?? false ? 'rgba(255,255,255,0.8)' : 'var(--mosaic-on-surface-variant)' }};
+                        "
                     >
                         {{ $plan['description'] }}
                     </p>
                 @endif
 
                 {{-- Price --}}
-                <div class="mb-6 price-container">
+                <div class="price-container mb-6">
                     <span
-                        class="text-4xl font-bold plan-price"
-                        style="color: {{ $plan['featured'] ?? false ? 'white' : 'var(--mosaic-on-surface)' }};"
+                        class="plan-price text-4xl font-bold"
+                        style="
+                            color: {{ $plan['featured'] ?? false ? 'white' : 'var(--mosaic-on-surface)' }};
+                        "
                     >
                         {{ $currency }}{{ $plan['price'] }}
                     </span>
-                    @if($plan['price'] !== 'Custom')
+                    @if ($plan['price'] !== 'Custom')
                         <span
                             class="billing-period"
-                            style="color: {{ $plan['featured'] ?? false ? 'rgba(255,255,255,0.7)' : 'var(--mosaic-on-surface-variant)' }};"
-                        >/month</span>
+                            style="
+                                color: {{ $plan['featured'] ?? false ? 'rgba(255,255,255,0.7)' : 'var(--mosaic-on-surface-variant)' }};
+                            "
+                        >
+                            /month
+                        </span>
                     @endif
                 </div>
 
                 {{-- Features List --}}
-                @if(isset($plan['features']))
+                @if (isset($plan['features']))
                     <ul class="mb-8 space-y-3">
-                        @foreach($plan['features'] as $feature)
+                        @foreach ($plan['features'] as $feature)
                             <li
                                 class="flex items-start gap-2"
-                                style="color: {{ $plan['featured'] ?? false ? 'rgba(255,255,255,0.9)' : 'var(--mosaic-on-surface)' }};"
+                                style="
+                                    color: {{ $plan['featured'] ?? false ? 'rgba(255,255,255,0.9)' : 'var(--mosaic-on-surface)' }};
+                                "
                             >
-                                <span style="color: var(--mosaic-tertiary); font-weight: bold;">✓</span>
+                                <span
+                                    style="
+                                        color: var(--mosaic-tertiary);
+                                        font-weight: bold;
+                                    "
+                                >
+                                    ✓
+                                </span>
                                 <span>{{ $feature }}</span>
                             </li>
                         @endforeach
@@ -203,7 +229,7 @@
                 @endif
 
                 {{-- CTA Button --}}
-                @if(isset($plan['cta']))
+                @if (isset($plan['cta']))
                     <a
                         href="{{ $plan['cta']['url'] }}"
                         @class([
@@ -212,7 +238,7 @@
                             'mosaic-btn-secondary' => ! ($plan['featured'] ?? false),
                         ])
                         style="
-                            @if($plan['featured'] ?? false)
+                            @if ($plan['featured'] ?? false)
                                 background: white;
                                 color: var(--mosaic-primary-container);
                             @endif
@@ -224,16 +250,25 @@
             </div>
         @empty
             <div class="col-span-full py-12 text-center">
-                <p style="color: var(--mosaic-on-surface-variant);">No pricing plans configured</p>
+                <p style="color: var(--mosaic-on-surface-variant)">
+                    No pricing plans configured
+                </p>
             </div>
         @endforelse
     </div>
 
     {{-- Admin Hint --}}
-    @if($customizable && auth()->check())
-        <div class="mt-12 pt-8 max-w-full text-center" style="border-top: 1px solid var(--mosaic-outline-variant); opacity: 0.6;">
+    @if ($customizable && auth()->check())
+        <div
+            class="mt-12 max-w-full pt-8 text-center"
+            style="
+                border-top: 1px solid var(--mosaic-outline-variant);
+                opacity: 0.6;
+            "
+        >
             <span class="mosaic-text-label text-xs">
-                ✨ Customize: Add plans, features, pricing, featured plan, billing cycle options
+                ✨ Customize: Add plans, features, pricing, featured plan,
+                billing cycle options
             </span>
         </div>
     @endif
@@ -241,109 +276,210 @@
 
 <script>
     function toggleBillingCycle(button) {
-        const grid = document.querySelector('.pricing-grid');
-        const currentBilling = grid.getAttribute('data-billing');
-        const newBilling = currentBilling === 'monthly' ? 'annual' : 'monthly';
+        const grid = document.querySelector('.pricing-grid')
+        const currentBilling = grid.getAttribute('data-billing')
+        const newBilling = currentBilling === 'monthly' ? 'annual' : 'monthly'
 
-        grid.setAttribute('data-billing', newBilling);
+        grid.setAttribute('data-billing', newBilling)
 
-        const plans = document.querySelectorAll('.pricing-plan');
+        const plans = document.querySelectorAll('.pricing-plan')
         plans.forEach((plan) => {
-            const priceElement = plan.querySelector('.plan-price');
-            const periodElement = plan.querySelector('.billing-period');
+            const priceElement = plan.querySelector('.plan-price')
+            const periodElement = plan.querySelector('.billing-period')
 
             if (newBilling === 'annual') {
-                const annualPrice = plan.getAttribute('data-price-annual');
+                const annualPrice = plan.getAttribute('data-price-annual')
                 priceElement.textContent = priceElement.textContent.replace(
                     plan.getAttribute('data-price-monthly'),
-                    annualPrice
-                );
+                    annualPrice,
+                )
                 if (annualPrice !== 'Custom' && periodElement) {
-                    periodElement.textContent = '/year';
+                    periodElement.textContent = '/year'
                 }
             } else {
-                const monthlyPrice = plan.getAttribute('data-price-monthly');
+                const monthlyPrice = plan.getAttribute('data-price-monthly')
                 priceElement.textContent = priceElement.textContent.replace(
                     plan.getAttribute('data-price-annual'),
-                    monthlyPrice
-                );
+                    monthlyPrice,
+                )
                 if (monthlyPrice !== 'Custom' && periodElement) {
-                    periodElement.textContent = '/month';
+                    periodElement.textContent = '/month'
                 }
             }
-        });
+        })
 
-        const dot = button.querySelector('.billing-toggle-dot');
+        const dot = button.querySelector('.billing-toggle-dot')
         if (newBilling === 'annual') {
-            dot.style.left = '30px';
+            dot.style.left = '30px'
         } else {
-            dot.style.left = '2px';
+            dot.style.left = '2px'
         }
     }
 </script>
 
 <style scoped>
-    .grid { display: grid; }
-    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-    .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid {
+        display: grid;
+    }
+    .grid-cols-1 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+    .md\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .lg\:grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 
-    .gap-6 { gap: 1.5rem; }
-    .space-y-3 > * + * { margin-top: 0.75rem; }
+    .gap-6 {
+        gap: 1.5rem;
+    }
+    .space-y-3 > * + * {
+        margin-top: 0.75rem;
+    }
 
-    .max-w-2xl { max-width: 42rem; }
-    .max-w-6xl { max-width: 72rem; }
-    .mx-auto { margin-left: auto; margin-right: auto; }
-    .max-w-full { max-width: 100%; }
+    .max-w-2xl {
+        max-width: 42rem;
+    }
+    .max-w-6xl {
+        max-width: 72rem;
+    }
+    .mx-auto {
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .max-w-full {
+        max-width: 100%;
+    }
 
-    .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
-    .py-16 { padding-top: 4rem; padding-bottom: 4rem; }
-    .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
-    .px-12 { padding-left: 3rem; padding-right: 3rem; }
-    .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
-    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .py-12 {
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+    }
+    .py-16 {
+        padding-top: 4rem;
+        padding-bottom: 4rem;
+    }
+    .px-6 {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+    .px-12 {
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
+    .py-1 {
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+    .px-4 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
 
-    .mb-12 { margin-bottom: 3rem; }
-    .mb-8 { margin-bottom: 2rem; }
-    .mb-6 { margin-bottom: 1.5rem; }
-    .mb-2 { margin-bottom: 0.5rem; }
-    .mt-12 { margin-top: 3rem; }
-    .pt-8 { padding-top: 2rem; }
+    .mb-12 {
+        margin-bottom: 3rem;
+    }
+    .mb-8 {
+        margin-bottom: 2rem;
+    }
+    .mb-6 {
+        margin-bottom: 1.5rem;
+    }
+    .mb-2 {
+        margin-bottom: 0.5rem;
+    }
+    .mt-12 {
+        margin-top: 3rem;
+    }
+    .pt-8 {
+        padding-top: 2rem;
+    }
 
-    .-top-4 { top: -1rem; }
+    .-top-4 {
+        top: -1rem;
+    }
 
-    .text-center { text-align: center; }
+    .text-center {
+        text-align: center;
+    }
 
-    .text-3xl { font-size: 1.875rem; }
-    .text-4xl { font-size: 2.25rem; }
-    .text-2xl { font-size: 1.5rem; }
-    .text-sm { font-size: 0.875rem; }
-    .text-xs { font-size: 0.75rem; }
+    .text-3xl {
+        font-size: 1.875rem;
+    }
+    .text-4xl {
+        font-size: 2.25rem;
+    }
+    .text-2xl {
+        font-size: 1.5rem;
+    }
+    .text-sm {
+        font-size: 0.875rem;
+    }
+    .text-xs {
+        font-size: 0.75rem;
+    }
 
-    .font-bold { font-weight: 700; }
+    .font-bold {
+        font-weight: 700;
+    }
 
-    .relative { position: relative; }
-    .absolute { position: absolute; }
+    .relative {
+        position: relative;
+    }
+    .absolute {
+        position: absolute;
+    }
 
-    .left-1/2 { left: 50%; }
+    .left-1/2 {
+        left: 50%;
+    }
 
-    .w-full { width: 100%; }
+    .w-full {
+        width: 100%;
+    }
 
-    .flex { display: flex; }
-    .flex-col { flex-direction: column; }
-    .items-start { align-items: flex-start; }
-    .items-center { align-items: center; }
-    .gap-2 { gap: 0.5rem; }
+    .flex {
+        display: flex;
+    }
+    .flex-col {
+        flex-direction: column;
+    }
+    .items-start {
+        align-items: flex-start;
+    }
+    .items-center {
+        align-items: center;
+    }
+    .gap-2 {
+        gap: 0.5rem;
+    }
 
-    .col-span-full { grid-column: 1 / -1; }
+    .col-span-full {
+        grid-column: 1 / -1;
+    }
 
-    ul { list-style: none; margin: 0; padding: 0; }
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
 
-    .lg\:scale-105 { transform: scale(1.05); }
+    .lg\:scale-105 {
+        transform: scale(1.05);
+    }
 
     @media (max-width: 768px) {
-        .md\:text-4xl { font-size: 2.25rem; }
-        .md\:py-16 { padding-top: 4rem; padding-bottom: 4rem; }
-        .md\:px-12 { padding-left: 3rem; padding-right: 3rem; }
+        .md\:text-4xl {
+            font-size: 2.25rem;
+        }
+        .md\:py-16 {
+            padding-top: 4rem;
+            padding-bottom: 4rem;
+        }
+        .md\:px-12 {
+            padding-left: 3rem;
+            padding-right: 3rem;
+        }
     }
 </style>

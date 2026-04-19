@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Capell\Plugins\Manifest;
 
-final class ManifestValidationResult
+final readonly class ManifestValidationResult
 {
     /**
      * @param  list<string>  $errors
      */
     public function __construct(
-        public readonly bool $isValid,
-        public readonly array $errors = [],
+        public bool $isValid,
+        public array $errors = [],
     ) {}
 }

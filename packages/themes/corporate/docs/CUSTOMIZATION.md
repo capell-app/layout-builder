@@ -8,7 +8,7 @@ no rebuild required for most changes.
 Override the palette by setting CSS variables on `<html>`:
 
 ```html
-<html style="--color-primary:#0e1b4c; --color-accent:#ffd166;">
+<html style="--color-primary:#0e1b4c; --color-accent:#ffd166;"></html>
 ```
 
 Or edit `resources/vendor/capell-themes/corporate/css/theme.css` after

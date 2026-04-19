@@ -25,20 +25,20 @@ Full-width hero section with customizable backgrounds, CTA buttons, and parallax
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| title | string | "Welcome to Capell" | Hero main heading |
-| subtitle | string | "" | Secondary text/description |
-| primaryCta | array | `['label' => 'Get Started', 'url' => '#']` | Primary button config |
-| secondaryCta | array | null | Secondary button config |
-| backgroundImage | string | null | Image URL for background |
-| backgroundGradient | string | `'linear-gradient(135deg, #7c3aed 0%, #3131c0 100%)'` | CSS gradient override |
-| videoUrl | string | null | MP4 video URL for background (overrides image) |
-| height | string | 'lg' | Height preset: 'sm', 'md', 'lg', 'xl' |
-| textAlign | string | 'center' | Text alignment: 'left', 'center', 'right' |
-| accentColor | string | 'tertiary' | Button color: 'primary', 'secondary', 'tertiary' |
-| parallax | boolean | false | Enable parallax scroll effect |
-| customizable | boolean | true | Show admin customize hints |
+| Prop               | Type    | Default                                               | Description                                      |
+| ------------------ | ------- | ----------------------------------------------------- | ------------------------------------------------ |
+| title              | string  | "Welcome to Capell"                                   | Hero main heading                                |
+| subtitle           | string  | ""                                                    | Secondary text/description                       |
+| primaryCta         | array   | `['label' => 'Get Started', 'url' => '#']`            | Primary button config                            |
+| secondaryCta       | array   | null                                                  | Secondary button config                          |
+| backgroundImage    | string  | null                                                  | Image URL for background                         |
+| backgroundGradient | string  | `'linear-gradient(135deg, #7c3aed 0%, #3131c0 100%)'` | CSS gradient override                            |
+| videoUrl           | string  | null                                                  | MP4 video URL for background (overrides image)   |
+| height             | string  | 'lg'                                                  | Height preset: 'sm', 'md', 'lg', 'xl'            |
+| textAlign          | string  | 'center'                                              | Text alignment: 'left', 'center', 'right'        |
+| accentColor        | string  | 'tertiary'                                            | Button color: 'primary', 'secondary', 'tertiary' |
+| parallax           | boolean | false                                                 | Enable parallax scroll effect                    |
+| customizable       | boolean | true                                                  | Show admin customize hints                       |
 
 ### Example
 
@@ -60,16 +60,16 @@ Responsive grid of cards with icons, images, badges, and hover effects.
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| title | string | "Featured Widgets" | Section heading |
-| description | string | "" | Section description |
-| cards | array | [] | Array of card objects |
-| columns | int | 3 | Grid columns: 2, 3, or 4 |
-| variant | string | 'default' | Card style: 'default', 'elevated', 'glass' |
-| accentColor | string | 'primary' | Color: 'primary', 'secondary', 'tertiary' |
-| hoverEffect | string | 'scale' | Hover effect: 'scale', 'shadow', 'lift' |
-| customizable | boolean | true | Show admin hints |
+| Prop         | Type    | Default            | Description                                |
+| ------------ | ------- | ------------------ | ------------------------------------------ |
+| title        | string  | "Featured Widgets" | Section heading                            |
+| description  | string  | ""                 | Section description                        |
+| cards        | array   | []                 | Array of card objects                      |
+| columns      | int     | 3                  | Grid columns: 2, 3, or 4                   |
+| variant      | string  | 'default'          | Card style: 'default', 'elevated', 'glass' |
+| accentColor  | string  | 'primary'          | Color: 'primary', 'secondary', 'tertiary'  |
+| hoverEffect  | string  | 'scale'            | Hover effect: 'scale', 'shadow', 'lift'    |
+| customizable | boolean | true               | Show admin hints                           |
 
 ### Card Object Properties
 
@@ -106,15 +106,15 @@ Feature showcase with animation system and flexible layouts.
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| title | string | "Powerful Features" | Section heading |
-| description | string | "" | Section description |
-| features | array | [] | Array of feature objects |
-| layout | string | 'grid' | Layout: 'grid' or 'vertical' |
-| columns | int | 3 | Grid columns (if grid layout): 2, 3, or 4 |
-| animation | string | 'fade-in' | Animation: 'fade-in', 'slide-up', 'zoom', 'bounce' |
-| customizable | boolean | true | Show admin hints |
+| Prop         | Type    | Default             | Description                                        |
+| ------------ | ------- | ------------------- | -------------------------------------------------- |
+| title        | string  | "Powerful Features" | Section heading                                    |
+| description  | string  | ""                  | Section description                                |
+| features     | array   | []                  | Array of feature objects                           |
+| layout       | string  | 'grid'              | Layout: 'grid' or 'vertical'                       |
+| columns      | int     | 3                   | Grid columns (if grid layout): 2, 3, or 4          |
+| animation    | string  | 'fade-in'           | Animation: 'fade-in', 'slide-up', 'zoom', 'bounce' |
+| customizable | boolean | true                | Show admin hints                                   |
 
 ### Feature Object Properties
 
@@ -145,13 +145,13 @@ Display key metrics with customizable layout.
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| title | string | "By The Numbers" | Section heading |
-| description | string | "" | Section description |
-| stats | array | [] | Array of stat objects |
-| layout | string | 'horizontal' | Layout: 'horizontal' or 'vertical' |
-| customizable | boolean | true | Show admin hints |
+| Prop         | Type    | Default          | Description                        |
+| ------------ | ------- | ---------------- | ---------------------------------- |
+| title        | string  | "By The Numbers" | Section heading                    |
+| description  | string  | ""               | Section description                |
+| stats        | array   | []               | Array of stat objects              |
+| layout       | string  | 'horizontal'     | Layout: 'horizontal' or 'vertical' |
+| customizable | boolean | true             | Show admin hints                   |
 
 ### Stat Object Properties
 
@@ -181,13 +181,13 @@ Customer testimonials with grid or carousel display modes.
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| title | string | "What Customers Say" | Section heading |
-| testimonials | array | [] | Array of testimonial objects |
-| columns | int | 2 | Grid columns: 1, 2, or 3 |
-| displayMode | string | 'grid' | Display: 'grid' or 'carousel' |
-| customizable | boolean | true | Show admin hints |
+| Prop         | Type    | Default              | Description                   |
+| ------------ | ------- | -------------------- | ----------------------------- |
+| title        | string  | "What Customers Say" | Section heading               |
+| testimonials | array   | []                   | Array of testimonial objects  |
+| columns      | int     | 2                    | Grid columns: 1, 2, or 3      |
+| displayMode  | string  | 'grid'               | Display: 'grid' or 'carousel' |
+| customizable | boolean | true                 | Show admin hints              |
 
 ### Testimonial Object Properties
 
@@ -218,12 +218,12 @@ Team showcase with social media links and role badges.
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| title | string | "Our Team" | Section heading |
-| members | array | [] | Array of member objects |
-| columns | int | 3 | Grid columns: 2, 3, or 4 |
-| customizable | boolean | true | Show admin hints |
+| Prop         | Type    | Default    | Description              |
+| ------------ | ------- | ---------- | ------------------------ |
+| title        | string  | "Our Team" | Section heading          |
+| members      | array   | []         | Array of member objects  |
+| columns      | int     | 3          | Grid columns: 2, 3, or 4 |
+| customizable | boolean | true       | Show admin hints         |
 
 ### Member Object Properties
 
@@ -260,13 +260,13 @@ Pricing plans with annual/monthly billing toggle.
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| title | string | "Simple, Transparent Pricing" | Section heading |
-| plans | array | [] | Array of plan objects |
-| currency | string | '$' | Currency symbol |
-| billingOptions | string | 'monthly' | Billing: 'monthly', 'annual', 'both' |
-| customizable | boolean | true | Show admin hints |
+| Prop           | Type    | Default                       | Description                          |
+| -------------- | ------- | ----------------------------- | ------------------------------------ |
+| title          | string  | "Simple, Transparent Pricing" | Section heading                      |
+| plans          | array   | []                            | Array of plan objects                |
+| currency       | string  | '$'                           | Currency symbol                      |
+| billingOptions | string  | 'monthly'                     | Billing: 'monthly', 'annual', 'both' |
+| customizable   | boolean | true                          | Show admin hints                     |
 
 ### Plan Object Properties
 
@@ -308,12 +308,12 @@ Accordion FAQ with category/tab filtering.
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| title | string | "Frequently Asked Questions" | Section heading |
-| faqs | array | [] | Array of FAQ objects |
-| categories | array | [] | Category list for filtering |
-| customizable | boolean | true | Show admin hints |
+| Prop         | Type    | Default                      | Description                 |
+| ------------ | ------- | ---------------------------- | --------------------------- |
+| title        | string  | "Frequently Asked Questions" | Section heading             |
+| faqs         | array   | []                           | Array of FAQ objects        |
+| categories   | array   | []                           | Category list for filtering |
+| customizable | boolean | true                         | Show admin hints            |
 
 ### FAQ Object Properties
 
@@ -343,14 +343,14 @@ Responsive image gallery with hover captions.
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| title | string | "Photo Gallery" | Section heading |
-| description | string | "" | Section description |
-| images | array | [] | Array of image objects |
-| columns | int | 3 | Grid columns: 2, 3, or 4 |
-| layout | string | 'grid' | Layout: 'grid' or 'masonry' |
-| customizable | boolean | true | Show admin hints |
+| Prop         | Type    | Default         | Description                 |
+| ------------ | ------- | --------------- | --------------------------- |
+| title        | string  | "Photo Gallery" | Section heading             |
+| description  | string  | ""              | Section description         |
+| images       | array   | []              | Array of image objects      |
+| columns      | int     | 3               | Grid columns: 2, 3, or 4    |
+| layout       | string  | 'grid'          | Layout: 'grid' or 'masonry' |
+| customizable | boolean | true            | Show admin hints            |
 
 ### Image Object Properties
 
@@ -379,11 +379,11 @@ Two-column layout with alternating text and image positioning.
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| title | string | "" | Section heading |
-| sections | array | [] | Array of section objects |
-| customizable | boolean | true | Show admin hints |
+| Prop         | Type    | Default | Description              |
+| ------------ | ------- | ------- | ------------------------ |
+| title        | string  | ""      | Section heading          |
+| sections     | array   | []      | Array of section objects |
+| customizable | boolean | true    | Show admin hints         |
 
 ### Section Object Properties
 
@@ -399,9 +399,7 @@ Two-column layout with alternating text and image positioning.
 ### Example
 
 ```blade
-<x-mosaic::modern.alternating-content
-    :sections="$steps"
-/>
+<x-mosaic::modern.alternating-content :sections="$steps" />
 ```
 
 ---
@@ -412,13 +410,13 @@ Timeline visualization in horizontal or vertical layout.
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| title | string | "Our Process" | Section heading |
-| description | string | "" | Section description |
-| steps | array | [] | Array of step objects |
-| layout | string | 'horizontal' | Layout: 'horizontal' or 'vertical' |
-| customizable | boolean | true | Show admin hints |
+| Prop         | Type    | Default       | Description                        |
+| ------------ | ------- | ------------- | ---------------------------------- |
+| title        | string  | "Our Process" | Section heading                    |
+| description  | string  | ""            | Section description                |
+| steps        | array   | []            | Array of step objects              |
+| layout       | string  | 'horizontal'  | Layout: 'horizontal' or 'vertical' |
+| customizable | boolean | true          | Show admin hints                   |
 
 ### Step Object Properties
 
@@ -448,15 +446,15 @@ Call-to-action section with custom layouts and buttons.
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| title | string | "Ready to Get Started?" | Section heading |
-| description | string | "" | Section description |
-| primaryButton | array | [] | Primary CTA button config |
-| secondaryButton | array | null | Secondary button config |
-| backgroundGradient | string | "" | CSS gradient background |
-| layout | string | 'centered' | Layout: 'centered' or 'split' |
-| customizable | boolean | true | Show admin hints |
+| Prop               | Type    | Default                 | Description                   |
+| ------------------ | ------- | ----------------------- | ----------------------------- |
+| title              | string  | "Ready to Get Started?" | Section heading               |
+| description        | string  | ""                      | Section description           |
+| primaryButton      | array   | []                      | Primary CTA button config     |
+| secondaryButton    | array   | null                    | Secondary button config       |
+| backgroundGradient | string  | ""                      | CSS gradient background       |
+| layout             | string  | 'centered'              | Layout: 'centered' or 'split' |
+| customizable       | boolean | true                    | Show admin hints              |
 
 ### Example
 
@@ -490,6 +488,7 @@ src/Filament/Schemas/Widgets/
 ```
 
 Each schema provides:
+
 - TextInput fields for content
 - Select dropdowns for layout options
 - Repeaters for dynamic arrays (cards, features, etc.)

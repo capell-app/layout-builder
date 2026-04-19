@@ -44,7 +44,7 @@ final class UninstallPluginAction extends Action
             ]);
 
             throw new RuntimeException(
-                "Plugin uninstallation failed with exit code {$uninstallResult->exitCode}: {$stderrTail}",
+                sprintf('Plugin uninstallation failed with exit code %d: %s', $uninstallResult->exitCode, $stderrTail),
             );
         }
     }

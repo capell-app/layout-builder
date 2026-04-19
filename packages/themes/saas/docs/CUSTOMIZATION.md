@@ -11,19 +11,19 @@ All colors, spacing, radii and shadows are declared at the top of
 styles on `<html>` (for example from a server-rendered partial):
 
 ```html
-<html style="--color-primary:#8b5cf6; --color-accent:#f472b6;">
+<html style="--color-primary:#8b5cf6; --color-accent:#f472b6;"></html>
 ```
 
 ### Default palette
 
-| Token                         | Value     | Purpose                           |
-| ----------------------------- | --------- | --------------------------------- |
-| `--color-primary`             | `#6366f1` | Electric indigo — main brand      |
-| `--color-accent`              | `#10b981` | Vibrant emerald — CTAs, checks    |
-| `--color-bg`                  | `#ffffff` | Light surface                     |
-| `--color-bg-muted`            | `#f9fafb` | Section backgrounds               |
-| `--color-fg`                  | `#0f172a` | Body text                         |
-| `--gradient-hero`             | (linear)  | Hero headline gradient            |
+| Token              | Value     | Purpose                        |
+| ------------------ | --------- | ------------------------------ |
+| `--color-primary`  | `#6366f1` | Electric indigo — main brand   |
+| `--color-accent`   | `#10b981` | Vibrant emerald — CTAs, checks |
+| `--color-bg`       | `#ffffff` | Light surface                  |
+| `--color-bg-muted` | `#f9fafb` | Section backgrounds            |
+| `--color-fg`       | `#0f172a` | Body text                      |
+| `--gradient-hero`  | (linear)  | Hero headline gradient         |
 
 Dark-mode values ship inside `[data-theme='dark']` and `@media (prefers-color-scheme: dark)`.
 

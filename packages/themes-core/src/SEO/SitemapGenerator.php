@@ -34,7 +34,7 @@ class SitemapGenerator
     ): self {
         $generator = new self;
         $baseUrl = rtrim($baseUrl, '/');
-        $columns = array_values(array_filter([$slugColumn, $updatedAtColumn]));
+        $columns = array_values(array_filter([$slugColumn, $updatedAtColumn], static fn ($value) => $value !== null));
 
         $rows = $db->table($table)->get($columns);
 
@@ -107,7 +107,7 @@ class SitemapGenerator
             $urlset->appendChild($urlElement);
         }
 
-        return $document->saveXML() ?: '';
+        return $document->saveXML() ?? '';
     }
 
     public function writeTo(string $path): bool

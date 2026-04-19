@@ -3,7 +3,8 @@
 @section('content')
     <x-saas::hero-with-screenshot
         :title="$hero['title'] ?? 'Ship faster. Scale without friction.'"
-        :subtitle="$hero['subtitle'] ?? 'The all-in-one platform teams love — built for modern product development.'" />
+        :subtitle="$hero['subtitle'] ?? 'The all-in-one platform teams love — built for modern product development.'"
+    />
 
     <x-saas::integrations-grid :integrations="$integrations ?? []" />
 

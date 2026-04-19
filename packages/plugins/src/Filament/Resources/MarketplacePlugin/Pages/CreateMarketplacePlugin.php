@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\Plugins\Filament\Resources\MarketplacePlugin\Pages;
 
 use Capell\Plugins\Filament\Resources\MarketplacePluginResource;
-use Filament\Actions;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateMarketplacePlugin extends CreateRecord
@@ -15,7 +15,7 @@ class CreateMarketplacePlugin extends CreateRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\ViewAction::make(),
+            ViewAction::make(),
         ];
     }
 }

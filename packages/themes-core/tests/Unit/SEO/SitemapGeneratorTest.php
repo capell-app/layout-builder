@@ -10,9 +10,9 @@ test('add() accumulates URLs and count() returns the correct count', function ()
 
     expect($sitemap->count())->toBe(0);
 
-    $sitemap->add('https://example.com/', priority: 1.0, changefreq: 'daily')
+    $sitemap->add('https://example.com/', changefreq: 'daily', priority: 1.0)
         ->add('https://example.com/about', priority: 0.8)
-        ->add('https://example.com/blog', priority: 0.7, changefreq: 'weekly');
+        ->add('https://example.com/blog', changefreq: 'weekly', priority: 0.7);
 
     expect($sitemap->count())->toBe(3);
 });

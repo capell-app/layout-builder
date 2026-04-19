@@ -20,6 +20,7 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Wizard;
+use Filament\Schemas\Components\Wizard\Step;
 use Illuminate\Support\Facades\Auth;
 use RuntimeException;
 use Throwable;
@@ -34,7 +35,7 @@ class AiCreatorAction extends Action
             ->label('AI Creator')
             ->icon('heroicon-o-sparkles')
             ->slideOver()
-            ->visible(fn (): bool => app(AiCreatorPolicy::class)->isEnabledFor(
+            ->visible(fn (): bool => resolve(AiCreatorPolicy::class)->isEnabledFor(
                 $this->resolveSiteFromRecord(),
             ))
             ->form(fn (): array => $this->buildWizardForm())
@@ -49,7 +50,7 @@ class AiCreatorAction extends Action
             Hidden::make('ai_session_id'),
 
             Wizard::make([
-                Wizard\Step::make('Describe')
+                Step::make('Describe')
                     ->label('What are we building?')
                     ->schema([
                         Textarea::make('intent')
@@ -64,14 +65,14 @@ class AiCreatorAction extends Action
                             ->visible(fn (): bool => $this->isMountedOnSiteResource()),
                     ]),
 
-                Wizard\Step::make('Brand')
+                Step::make('Brand')
                     ->label('Brand & tone')
                     ->schema(fn (): array => $this->buildBrandStep())
                     ->afterValidation(function (Get $get, Set $set): void {
                         $this->generateLayout($get, $set);
                     }),
 
-                Wizard\Step::make('Layout')
+                Step::make('Layout')
                     ->label('Proposed layout')
                     ->schema([
                         Repeater::make('layout_preview')
@@ -85,7 +86,7 @@ class AiCreatorAction extends Action
                             ->columns(2),
                     ]),
 
-                Wizard\Step::make('Review')
+                Step::make('Review')
                     ->label('Review & submit')
                     ->schema([
                         Textarea::make('review_notes')
@@ -103,7 +104,7 @@ class AiCreatorAction extends Action
     private function buildBrandStep(): array
     {
         $siteId = $this->resolveSiteId();
-        $existingContext = $siteId ? AiCreatorContext::where('site_id', $siteId)->first() : null;
+        $existingContext = $siteId ? AiCreatorContext::query()->where('site_id', $siteId)->first() : null;
 
         return [
             Select::make('tone')
@@ -141,15 +142,12 @@ class AiCreatorAction extends Action
         $siteId = $this->resolveSiteId() ?? 0;
         $userId = (int) Auth::id();
 
-        AiCreatorContext::updateOrCreate(
-            ['site_id' => $siteId],
-            [
-                'tone' => $get('tone') ?? 'professional',
-                'industry' => $get('industry') ?? '',
-                'target_audience' => $get('target_audience') ?? null,
-                'brand_voice_notes' => $get('brand_voice_notes') ?? null,
-            ],
-        );
+        AiCreatorContext::query()->updateOrCreate(['site_id' => $siteId], [
+            'tone' => $get('tone') ?? 'professional',
+            'industry' => $get('industry') ?? '',
+            'target_audience' => $get('target_audience') ?? null,
+            'brand_voice_notes' => $get('brand_voice_notes') ?? null,
+        ]);
 
         try {
             $creatorData = new AiCreatorData(
@@ -163,17 +161,15 @@ class AiCreatorAction extends Action
                 brandVoiceNotes: $get('brand_voice_notes') ?? null,
             );
 
-            $sections = app(GenerateAiLayoutAction::class)->handle($creatorData);
+            $sections = resolve(GenerateAiLayoutAction::class)->handle($creatorData);
 
-            $session = AiCreatorSession::where([
+            $session = AiCreatorSession::query()->where([
                 'site_id' => $siteId,
                 'user_id' => $userId,
                 'status' => 'review',
             ])->latest()->first();
 
-            if (! $session) {
-                throw new RuntimeException('AI session was not created. Please try again.');
-            }
+            throw_unless($session, RuntimeException::class, 'AI session was not created. Please try again.');
 
             $set('ai_session_id', $session->id);
 
@@ -183,10 +179,10 @@ class AiCreatorAction extends Action
             ], $sections);
 
             $set('layout_preview', $previewData);
-        } catch (Throwable $e) {
+        } catch (Throwable $throwable) {
             Notification::make()
                 ->title('AI generation failed')
-                ->body($e->getMessage())
+                ->body($throwable->getMessage())
                 ->danger()
                 ->send();
 
@@ -197,7 +193,7 @@ class AiCreatorAction extends Action
     private function runCreator(array $data): void
     {
         $sessionId = $data['ai_session_id'] ?? null;
-        $session = $sessionId ? AiCreatorSession::find((int) $sessionId) : null;
+        $session = $sessionId ? AiCreatorSession::query()->find((int) $sessionId) : null;
 
         if (! $session) {
             Notification::make()
@@ -210,17 +206,17 @@ class AiCreatorAction extends Action
         }
 
         try {
-            app(SubmitAiCreatorDraftAction::class)->handle($session);
+            resolve(SubmitAiCreatorDraftAction::class)->handle($session);
 
             Notification::make()
                 ->title('Layout submitted for review')
                 ->body('Your AI-generated layout has been sent to the workspace for approval.')
                 ->success()
                 ->send();
-        } catch (Throwable $e) {
+        } catch (Throwable $throwable) {
             Notification::make()
                 ->title('AI Creator failed')
-                ->body($e->getMessage())
+                ->body($throwable->getMessage())
                 ->danger()
                 ->send();
         }

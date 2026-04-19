@@ -17,7 +17,10 @@ use Throwable;
 
 final class ValidateLicensesJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public function handle(ValidateLicenseAction $action): void
     {

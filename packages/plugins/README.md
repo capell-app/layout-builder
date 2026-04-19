@@ -74,12 +74,12 @@ Once configured, access the Plugin Marketplace from the Capell admin panel:
 
 The `FirstPartyPluginsSeeder` automatically registers these plugins:
 
-| Plugin | Description | Capabilities |
-|--------|-------------|--------------|
-| **Mosaic** | Visual layout builder, widgets, and reusable content items | Admin pages, schema changes, frontend routes |
-| **Blog** | Article page type, tags, archives, and listing pages | Admin pages, schema changes, frontend routes |
-| **Assistant** | OpenAI-powered content drafting (requires API key) | Admin pages, queue jobs, external API calls |
-| **Address** | Country and address models for site settings | Admin pages, schema changes |
+| Plugin        | Description                                                | Capabilities                                 |
+| ------------- | ---------------------------------------------------------- | -------------------------------------------- |
+| **Mosaic**    | Visual layout builder, widgets, and reusable content items | Admin pages, schema changes, frontend routes |
+| **Blog**      | Article page type, tags, archives, and listing pages       | Admin pages, schema changes, frontend routes |
+| **Assistant** | OpenAI-powered content drafting (requires API key)         | Admin pages, queue jobs, external API calls  |
+| **Address**   | Country and address models for site settings               | Admin pages, schema changes                  |
 
 ## License Handling
 
@@ -98,22 +98,26 @@ If capell-plugins is enabled, the legacy PluginsPage (in Capell Admin) is automa
 ## Troubleshooting
 
 **Plugins not appearing in marketplace:**
+
 - Verify `CAPELL_PLUGINS_ENABLED=true` is set in `.env`
 - Check Anystack API credentials are valid
 - Run `php artisan cache:clear` to refresh cached plugin listings
 
 **License validation fails:**
+
 - Ensure `CAPELL_PLUGINS_ANYSTACK_SECRET` is correctly configured
 - Verify the license file is stored in `storage/capell-plugins/licenses/`
 - Check audit logs for validation errors
 
 **Migrations not running:**
+
 - Run `php artisan migrate` explicitly
 - Verify migrations are in `packages/plugins/database/migrations/`
 
 ## Architecture
 
 For detailed API reference and database schema, see:
+
 - [API Reference](./docs/API.md)
 - [Database Schema](./docs/Database.md)
 

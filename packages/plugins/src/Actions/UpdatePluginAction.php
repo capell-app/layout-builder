@@ -44,7 +44,7 @@ final class UpdatePluginAction extends Action
             ]);
 
             throw new RuntimeException(
-                "Plugin update failed with exit code {$updateResult->exitCode}: {$stderrTail}",
+                sprintf('Plugin update failed with exit code %d: %s', $updateResult->exitCode, $stderrTail),
             );
         }
     }

@@ -9,6 +9,7 @@ use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class ThemeSettingsSchema
 {
@@ -16,14 +17,14 @@ class ThemeSettingsSchema
     {
         return Tabs::make('Theme Settings')
             ->tabs([
-                Tabs\Tab::make('Theme')
+                Tab::make('Theme')
                     ->schema([
                         Select::make('active_theme')
                             ->label('Active Theme')
                             ->options(ThemeRegistrar::options())
                             ->required(),
                     ]),
-                Tabs\Tab::make('Colors')
+                Tab::make('Colors')
                     ->schema([
                         ColorPicker::make('primary_color')
                             ->label('Primary Color')
@@ -32,7 +33,7 @@ class ThemeSettingsSchema
                             ->label('Accent Color')
                             ->required(),
                     ]),
-                Tabs\Tab::make('Typography')
+                Tab::make('Typography')
                     ->schema([
                         Select::make('headline_font')
                             ->label('Headline Font')
@@ -50,7 +51,7 @@ class ThemeSettingsSchema
                             ])
                             ->required(),
                     ]),
-                Tabs\Tab::make('Layout')
+                Tab::make('Layout')
                     ->schema([
                         Select::make('hero_style')
                             ->label('Hero Background')
@@ -77,7 +78,7 @@ class ThemeSettingsSchema
                             ])
                             ->required(),
                     ]),
-                Tabs\Tab::make('Sections')
+                Tab::make('Sections')
                     ->schema([
                         Toggle::make('show_testimonials')
                             ->label('Show Testimonials Section'),

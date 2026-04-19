@@ -34,26 +34,14 @@ final class InstallPluginAction extends Action
             || $plugin->price_monthly !== null
             || $plugin->price_yearly !== null;
 
-        if ($isPaid && $licenseKey === null) {
-            throw new RuntimeException(
-                'Cannot install paid plugin without license key',
-            );
-        }
+        throw_if($isPaid && $licenseKey === null, RuntimeException::class, 'Cannot install paid plugin without license key');
 
-        if ($isPaid && $siteId === null) {
-            throw new RuntimeException(
-                'Cannot install paid plugin without siteId for license activation',
-            );
-        }
+        throw_if($isPaid && $siteId === null, RuntimeException::class, 'Cannot install paid plugin without siteId for license activation');
 
         $repoConfigured = false;
 
         if ($licenseKey !== null) {
-            if ($plugin->anystack_product_id === null) {
-                throw new RuntimeException(
-                    'Cannot configure Anystack repository: plugin has no anystack_product_id configured',
-                );
-            }
+            throw_if($plugin->anystack_product_id === null, RuntimeException::class, 'Cannot configure Anystack repository: plugin has no anystack_product_id configured');
 
             $repoUrl = $this->anystackClient->composerRepositoryUrl($plugin->anystack_product_id);
 
@@ -65,7 +53,7 @@ final class InstallPluginAction extends Action
 
             if (! $configResult->successful()) {
                 throw new RuntimeException(
-                    "Failed to configure Anystack repository ({$repoUrl}): {$configResult->stderr}",
+                    sprintf('Failed to configure Anystack repository (%s): %s', $repoUrl, $configResult->stderr),
                 );
             }
 
@@ -90,12 +78,12 @@ final class InstallPluginAction extends Action
                 $plugin->composer_name,
                 $plugin->latest_version,
             );
-        } catch (Throwable $runnerFailure) {
+        } catch (Throwable $throwable) {
             if ($repoConfigured) {
                 $this->cleanupAnystackRepo($plugin);
             }
 
-            throw $runnerFailure;
+            throw $throwable;
         }
 
         if ($installResult->successful()) {
@@ -132,7 +120,7 @@ final class InstallPluginAction extends Action
         }
 
         throw new RuntimeException(
-            "Plugin installation failed with exit code {$installResult->exitCode}: {$stderrTail}",
+            sprintf('Plugin installation failed with exit code %d: %s', $installResult->exitCode, $stderrTail),
         );
     }
 

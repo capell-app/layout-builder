@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Themes\Saas\Actions;
 
+use Capell\Themes\Admin\Schemas\ThemeSettingsSchema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -61,7 +62,7 @@ class InstallSaasThemeAction
                 'accent_color' => '#10b981',
             ]),
             'admin' => json_encode([
-                'schema' => 'Capell\\Themes\\Admin\\Schemas\\ThemeSettingsSchema',
+                'schema' => ThemeSettingsSchema::class,
             ]),
             'order' => 0,
             'default' => 0,
@@ -82,7 +83,7 @@ class InstallSaasThemeAction
         $payload['created_at'] = now();
         $id = DB::table('themes')->insertGetId($payload);
 
-        return (int) $id;
+        return $id;
     }
 
     /**

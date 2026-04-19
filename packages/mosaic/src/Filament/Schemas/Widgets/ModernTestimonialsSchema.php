@@ -50,7 +50,7 @@ class ModernTestimonialsSchema
                         ])
                         ->default('2')
                         ->helperText('Number of testimonials per row (desktop)')
-                        ->visible(fn (callable $get) => $get('data.displayMode') === 'grid'),
+                        ->visible(fn (callable $get): bool => $get('data.displayMode') === 'grid'),
                 ])->columns(1),
 
             Section::make('Display')

@@ -1,7 +1,7 @@
 {
-  "label": "Mosaic",
-  "slug": "mosaic",
-  "kind": "addon",
-  "dependsOn": [],
-  "order": 10
+    "label": "Mosaic",
+    "slug": "mosaic",
+    "kind": "addon",
+    "dependsOn": [],
+    "order": 10
 }

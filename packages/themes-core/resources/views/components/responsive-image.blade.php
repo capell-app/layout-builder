@@ -9,7 +9,9 @@
 ])
 
 @php
-    $responsive = $builder ?? new \Capell\Themes\Core\Images\ResponsiveImage();
+    use Capell\Themes\Core\Images\ResponsiveImage;
+
+    $responsive = $builder ?? new ResponsiveImage;
 @endphp
 
 {!! $responsive->render($src, $alt, (int) $width, (int) $height, $sizes, (bool) $lazy) !!}

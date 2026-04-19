@@ -52,7 +52,7 @@ class MarketplacePluginLicense extends Model
             return false;
         }
 
-        $nowCarbon = $now === null ? now() : CarbonImmutable::parse($now->format(DATE_ATOM));
+        $nowCarbon = $now instanceof DateTimeInterface ? CarbonImmutable::parse($now->format(DATE_ATOM)) : now();
         $graceDays = config('capell-plugins.license_heartbeat.offline_grace_days', 14);
 
         return $this->last_heartbeat_at->greaterThanOrEqualTo($nowCarbon->subDays($graceDays));

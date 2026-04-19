@@ -21,11 +21,11 @@ Then open **Settings → Theme** in the Filament admin and choose **Corporate**.
 
 ## Documentation
 
-| Doc | Description |
-|---|---|
-| [docs/INSTALLATION.md](docs/INSTALLATION.md) | Full install steps, publishing assets, uninstalling |
-| [docs/CUSTOMIZATION.md](docs/CUSTOMIZATION.md) | CSS tokens, typography, spacing presets, dark mode |
-| [docs/COMPONENTS.md](docs/COMPONENTS.md) | All seven widgets + support components |
+| Doc                                            | Description                                         |
+| ---------------------------------------------- | --------------------------------------------------- |
+| [docs/INSTALLATION.md](docs/INSTALLATION.md)   | Full install steps, publishing assets, uninstalling |
+| [docs/CUSTOMIZATION.md](docs/CUSTOMIZATION.md) | CSS tokens, typography, spacing presets, dark mode  |
+| [docs/COMPONENTS.md](docs/COMPONENTS.md)       | All seven widgets + support components              |
 
 ## License
 

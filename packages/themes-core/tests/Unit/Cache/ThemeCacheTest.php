@@ -9,7 +9,7 @@ use Illuminate\Cache\Repository;
 test('remember returns the computed value on first call', function (): void {
     $cache = new ThemeCache([ThemeCache::TAG_THEME], new Repository(new ArrayStore));
 
-    $value = $cache->remember('nav', 60, fn () => ['home', 'about']);
+    $value = $cache->remember('nav', 60, fn (): array => ['home', 'about']);
 
     expect($value)->toBe(['home', 'about']);
 });
@@ -18,12 +18,12 @@ test('remember serves from cache on subsequent calls', function (): void {
     $cache = new ThemeCache([ThemeCache::TAG_THEME], new Repository(new ArrayStore));
 
     $calls = 0;
-    $first = $cache->remember('nav', 60, function () use (&$calls) {
+    $first = $cache->remember('nav', 60, function () use (&$calls): array {
         $calls++;
 
         return ['home', 'about'];
     });
-    $second = $cache->remember('nav', 60, function () use (&$calls) {
+    $second = $cache->remember('nav', 60, function () use (&$calls): array {
         $calls++;
 
         return ['different'];
@@ -38,7 +38,7 @@ test('forget removes the keyed entry', function (): void {
     $cache = new ThemeCache([ThemeCache::TAG_THEME], new Repository(new ArrayStore));
 
     $calls = 0;
-    $cache->remember('x', 60, function () use (&$calls) {
+    $cache->remember('x', 60, function () use (&$calls): string {
         $calls++;
 
         return 'value';
@@ -46,7 +46,7 @@ test('forget removes the keyed entry', function (): void {
 
     $cache->forget('x');
 
-    $cache->remember('x', 60, function () use (&$calls) {
+    $cache->remember('x', 60, function () use (&$calls): string {
         $calls++;
 
         return 'value';
@@ -59,7 +59,7 @@ test('flush clears all cached entries', function (): void {
     $cache = new ThemeCache([ThemeCache::TAG_ASSETS], new Repository(new ArrayStore));
 
     $calls = 0;
-    $cache->remember('a', 60, function () use (&$calls) {
+    $cache->remember('a', 60, function () use (&$calls): int {
         $calls++;
 
         return 1;
@@ -67,7 +67,7 @@ test('flush clears all cached entries', function (): void {
 
     $cache->flush();
 
-    $cache->remember('a', 60, function () use (&$calls) {
+    $cache->remember('a', 60, function () use (&$calls): int {
         $calls++;
 
         return 1;

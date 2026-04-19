@@ -69,7 +69,7 @@ class PackagesTestCase extends AbstractTestCase
     /**
      * @param  Application  $app
      */
-    protected function getEnvironmentSetUp($app): void
+    protected function getEnvironmentSetUp(mixed $app): void
     {
         parent::getEnvironmentSetUp($app);
 

@@ -14,7 +14,7 @@ use Capell\Tests\Plugins\PluginsTestCase;
  * string-only Textarea state and the AsArrayObject-cast model columns;
  * without them, saves silently double-encode or break the cast.
  */
-class MarketplacePluginFormHelpersTest extends PluginsTestCase
+final class MarketplacePluginFormHelpersTest extends PluginsTestCase
 {
     public function test_decode_passes_arrays_through_unchanged(): void
     {

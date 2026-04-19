@@ -20,7 +20,7 @@ function makePipeline(
     ?AiRateLimiter $rateLimiter = null,
     ?SectionRegistry $registry = null,
 ): AiCreatorPipeline {
-    if ($rateLimiter === null) {
+    if (! $rateLimiter instanceof AiRateLimiter) {
         $rateLimiter = mock(AiRateLimiter::class, function (AiRateLimiter&MockInterface $mock): void {
             $mock->shouldReceive('checkLimit')->andReturnNull();
         });
@@ -65,7 +65,7 @@ it('creates a session and returns the proposed sections', function (): void {
 
     expect($result)->toBe($sections);
 
-    $session = AiCreatorSession::latest()->first();
+    $session = AiCreatorSession::query()->latest()->first();
     expect($session)->not->toBeNull()
         ->and($session->status)->toBe('review')
         ->and($session->stage)->toBe(3)
@@ -79,7 +79,7 @@ it('records an AIGenerationHistory entry after successful generation', function 
     $pipeline = makePipeline(makePrompts(), makeProvider($sections));
     $pipeline->execute(new AiCreatorData(siteId: 1, userId: 2, intent: 'Test intent'));
 
-    $history = AIGenerationHistory::latest()->first();
+    $history = AIGenerationHistory::query()->latest()->first();
     expect($history)->not->toBeNull()
         ->and($history->action)->toBe('ai_creator_layout')
         ->and($history->model)->toBe('gpt-4o')
@@ -88,7 +88,7 @@ it('records an AIGenerationHistory entry after successful generation', function 
 });
 
 it('loads an existing session when existingSessionId is provided', function (): void {
-    $existing = AiCreatorSession::create([
+    $existing = AiCreatorSession::query()->create([
         'site_id' => 1,
         'user_id' => 2,
         'status' => 'generating',
@@ -108,7 +108,7 @@ it('loads an existing session when existingSessionId is provided', function (): 
 
     $pipeline->execute($data);
 
-    expect(AiCreatorSession::count())->toBe(1);
+    expect(AiCreatorSession::query()->count())->toBe(1);
 
     $existing->refresh();
     expect($existing->status)->toBe('review');
@@ -159,7 +159,7 @@ it('strips markdown code fences before parsing the AI response', function (): vo
 });
 
 it('includes context brand voice and industry in the AI prompt', function (): void {
-    AiCreatorContext::create([
+    AiCreatorContext::query()->create([
         'site_id' => 5,
         'brand_voice_notes' => 'We speak like a trusted friend',
         'industry' => 'fintech',

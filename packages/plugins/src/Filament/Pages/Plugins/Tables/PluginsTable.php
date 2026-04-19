@@ -9,6 +9,7 @@ use Capell\Plugins\Actions\UninstallPluginAction;
 use Capell\Plugins\Actions\UpdatePluginAction;
 use Capell\Plugins\Filament\Pages\PluginsPage;
 use Capell\Plugins\Models\MarketplacePlugin;
+use Capell\Plugins\Models\MarketplacePluginLicense;
 use Capell\Plugins\Support\SiteIdResolver;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
@@ -154,9 +155,9 @@ class PluginsTable
 
                     $action->success();
                     $livewire->dispatch('refresh-table');
-                } catch (Throwable $exception) {
+                } catch (Throwable $throwable) {
                     $action->failureNotificationTitle(__('Installation Failed'));
-                    $action->failureNotificationBody($exception->getMessage());
+                    $action->failureNotificationBody($throwable->getMessage());
                     $action->failure();
                 }
             });
@@ -180,9 +181,9 @@ class PluginsTable
                     UninstallPluginAction::run($record);
                     $action->success();
                     $livewire->dispatch('refresh-table');
-                } catch (Throwable $exception) {
+                } catch (Throwable $throwable) {
                     $action->failureNotificationTitle(__('Uninstallation Failed'));
-                    $action->failureNotificationBody($exception->getMessage());
+                    $action->failureNotificationBody($throwable->getMessage());
                     $action->failure();
                 }
             });
@@ -201,9 +202,9 @@ class PluginsTable
                     UpdatePluginAction::run($record);
                     $action->success();
                     $livewire->dispatch('refresh-table');
-                } catch (Throwable $exception) {
+                } catch (Throwable $throwable) {
                     $action->failureNotificationTitle(__('Update Failed'));
-                    $action->failureNotificationBody($exception->getMessage());
+                    $action->failureNotificationBody($throwable->getMessage());
                     $action->failure();
                 }
             });
@@ -217,7 +218,7 @@ class PluginsTable
             ->icon(Heroicon::OutlinedCurrencyDollar)
             ->visible(fn (PluginsPage $livewire, MarketplacePlugin $record): bool => $livewire->isBrowseTab()
                 && ($record->price_once !== null || $record->price_monthly !== null || $record->price_yearly !== null)
-                && $record->activeLicense() === null)
+                && ! $record->activeLicense() instanceof MarketplacePluginLicense)
             ->url(fn (MarketplacePlugin $record): ?string => $record->getAttribute('purchase_url'), shouldOpenInNewTab: true);
     }
 }

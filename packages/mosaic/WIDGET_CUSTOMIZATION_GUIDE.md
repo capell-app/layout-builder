@@ -15,7 +15,10 @@ In your Blade layout or main CSS file:
 
 ```blade
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('vendor/mosaic/css/design-tokens.css') }}">
+    <link
+        rel="stylesheet"
+        href="{{ asset('vendor/mosaic/css/design-tokens.css') }}"
+    />
 @endpush
 ```
 
@@ -46,18 +49,18 @@ A full-width hero section with customizable gradient, text, and CTA buttons.
 
 **Props:**
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `title` | string | "Welcome to Capell" | Hero heading |
-| `subtitle` | string | "Create beautiful layouts without code" | Subheading |
-| `primaryCta` | array | `['label' => 'Get Started', 'url' => '#']` | Primary button |
-| `secondaryCta` | array | null | Secondary button (optional) |
-| `backgroundImage` | string | null | Background image URL |
-| `backgroundGradient` | string | Linear gradient | CSS gradient override |
-| `height` | string | 'lg' | 'sm', 'md', 'lg', 'xl' |
-| `textAlign` | string | 'center' | 'left', 'center', 'right' |
-| `accentColor` | string | 'tertiary' | 'primary', 'secondary', 'tertiary' |
-| `customizable` | bool | true | Show admin hints |
+| Prop                 | Type   | Default                                    | Description                        |
+| -------------------- | ------ | ------------------------------------------ | ---------------------------------- |
+| `title`              | string | "Welcome to Capell"                        | Hero heading                       |
+| `subtitle`           | string | "Create beautiful layouts without code"    | Subheading                         |
+| `primaryCta`         | array  | `['label' => 'Get Started', 'url' => '#']` | Primary button                     |
+| `secondaryCta`       | array  | null                                       | Secondary button (optional)        |
+| `backgroundImage`    | string | null                                       | Background image URL               |
+| `backgroundGradient` | string | Linear gradient                            | CSS gradient override              |
+| `height`             | string | 'lg'                                       | 'sm', 'md', 'lg', 'xl'             |
+| `textAlign`          | string | 'center'                                   | 'left', 'center', 'right'          |
+| `accentColor`        | string | 'tertiary'                                 | 'primary', 'secondary', 'tertiary' |
+| `customizable`       | bool   | true                                       | Show admin hints                   |
 
 **Example:**
 
@@ -65,15 +68,19 @@ A full-width hero section with customizable gradient, text, and CTA buttons.
 <x-mosaic::modern.hero-banner
     title="Launch Your Project"
     subtitle="Professional layouts, zero complexity"
-    :primaryCta="[
-        'label' => 'Start Free',
-        'url' => '#pricing',
-        'icon' => '🚀'
-    ]"
-    :secondaryCta="[
-        'label' => 'View Demo',
-        'url' => route('demo')
-    ]"
+    :primaryCta="
+        [
+            'label' => 'Start Free',
+            'url' => '#pricing',
+            'icon' => '🚀',
+        ]
+    "
+    :secondaryCta="
+        [
+            'label' => 'View Demo',
+            'url' => route('demo'),
+        ]
+    "
     height="xl"
     textAlign="center"
     accentColor="primary"
@@ -88,15 +95,15 @@ Responsive grid of customizable cards. Perfect for feature showcases, portfolios
 
 **Props:**
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `title` | string | "Featured Widgets" | Section heading |
-| `description` | string | "Choose from our collection..." | Section description |
-| `cards` | array | Sample cards | Array of card objects |
-| `columns` | int | 3 | 2, 3, or 4 columns |
-| `variant` | string | 'default' | 'default', 'elevated', 'glass' |
-| `accentColor` | string | 'primary' | 'primary', 'secondary', 'tertiary' |
-| `customizable` | bool | true | Show admin hints |
+| Prop           | Type   | Default                         | Description                        |
+| -------------- | ------ | ------------------------------- | ---------------------------------- |
+| `title`        | string | "Featured Widgets"              | Section heading                    |
+| `description`  | string | "Choose from our collection..." | Section description                |
+| `cards`        | array  | Sample cards                    | Array of card objects              |
+| `columns`      | int    | 3                               | 2, 3, or 4 columns                 |
+| `variant`      | string | 'default'                       | 'default', 'elevated', 'glass'     |
+| `accentColor`  | string | 'primary'                       | 'primary', 'secondary', 'tertiary' |
+| `customizable` | bool   | true                            | Show admin hints                   |
 
 **Card Object Structure:**
 
@@ -119,26 +126,28 @@ Responsive grid of customizable cards. Perfect for feature showcases, portfolios
 <x-mosaic::modern.card-grid
     title="Why Choose Capell?"
     description="Powerful features designed for content editors"
-    :cards="[
+    :cards="
         [
-            'icon' => '⚡',
-            'title' => 'Lightning Fast',
-            'description' => 'Optimized for speed and performance',
-            'link' => ['label' => 'Read More', 'url' => '#']
-        ],
-        [
-            'icon' => '🎨',
-            'title' => 'Fully Customizable',
-            'description' => 'Modern design system with unlimited possibilities',
-            'link' => ['label' => 'Explore', 'url' => '#']
-        ],
-        [
-            'icon' => '🔧',
-            'title' => 'No Coding',
-            'description' => 'Drag, drop, and publish. That\'s it.',
-            'link' => ['label' => 'Try Now', 'url' => '#']
-        ],
-    ]"
+            [
+                'icon' => '⚡',
+                'title' => 'Lightning Fast',
+                'description' => 'Optimized for speed and performance',
+                'link' => ['label' => 'Read More', 'url' => '#'],
+            ],
+            [
+                'icon' => '🎨',
+                'title' => 'Fully Customizable',
+                'description' => 'Modern design system with unlimited possibilities',
+                'link' => ['label' => 'Explore', 'url' => '#'],
+            ],
+            [
+                'icon' => '🔧',
+                'title' => 'No Coding',
+                'description' => 'Drag, drop, and publish. That\'s it.',
+                'link' => ['label' => 'Try Now', 'url' => '#'],
+            ],
+        ]
+    "
     columns="3"
     variant="default"
 />
@@ -152,16 +161,16 @@ Eye-catching call-to-action section with optional split layout.
 
 **Props:**
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `heading` | string | "Ready to Create..." | Main heading |
-| `subheading` | string | "No coding required..." | Secondary text |
-| `primaryButton` | array | Sample button | Primary CTA |
-| `secondaryButton` | array | null | Secondary button |
-| `layout` | string | 'centered' | 'centered' or 'split' |
-| `accentColor` | string | 'tertiary' | Color theme |
-| `backgroundGradient` | string | Purple gradient | Custom gradient CSS |
-| `customizable` | bool | true | Show admin hints |
+| Prop                 | Type   | Default                 | Description           |
+| -------------------- | ------ | ----------------------- | --------------------- |
+| `heading`            | string | "Ready to Create..."    | Main heading          |
+| `subheading`         | string | "No coding required..." | Secondary text        |
+| `primaryButton`      | array  | Sample button           | Primary CTA           |
+| `secondaryButton`    | array  | null                    | Secondary button      |
+| `layout`             | string | 'centered'              | 'centered' or 'split' |
+| `accentColor`        | string | 'tertiary'              | Color theme           |
+| `backgroundGradient` | string | Purple gradient         | Custom gradient CSS   |
+| `customizable`       | bool   | true                    | Show admin hints      |
 
 **Example:**
 
@@ -169,15 +178,19 @@ Eye-catching call-to-action section with optional split layout.
 <x-mosaic::modern.cta-section
     heading="Transform Your Content Management"
     subheading="Join hundreds of teams using Capell to build amazing websites"
-    :primaryButton="[
-        'label' => 'Start Free Trial',
-        'url' => route('register'),
-        'icon' => '🎯'
-    ]"
-    :secondaryButton="[
-        'label' => 'Schedule Demo',
-        'url' => route('demo')
-    ]"
+    :primaryButton="
+        [
+            'label' => 'Start Free Trial',
+            'url' => route('register'),
+            'icon' => '🎯',
+        ]
+    "
+    :secondaryButton="
+        [
+            'label' => 'Schedule Demo',
+            'url' => route('demo'),
+        ]
+    "
     layout="split"
     backgroundGradient="linear-gradient(135deg, #7c3aed 0%, #3131c0 100%)"
 />
@@ -195,7 +208,7 @@ All design tokens are CSS variables accessible as `var(--mosaic-*)`:
 --mosaic-primary: #d2bbff;
 --mosaic-primary-container: #7c3aed;
 --mosaic-secondary: #c0c1ff;
---mosaic-tertiary: #ffb784;           /* Gold accent */
+--mosaic-tertiary: #ffb784; /* Gold accent */
 --mosaic-surface: #1b1b20;
 --mosaic-on-surface: #e4e1e9;
 --mosaic-on-surface-variant: #ccc3d8;
@@ -274,7 +287,11 @@ All design tokens are CSS variables accessible as `var(--mosaic-*)`:
 ### Forms
 
 ```html
-<input type="text" class="mosaic-input" placeholder="Enter text...">
+<input
+    type="text"
+    class="mosaic-input"
+    placeholder="Enter text..."
+/>
 ```
 
 ### Badges
@@ -298,22 +315,22 @@ When rendering widgets with `customizable="true"`, admins see hints about what c
 ### Typical Widget Admin Properties:
 
 1. **Content**
-   - Heading / Title text
-   - Description / Subtitle
-   - Button labels and URLs
-   - Card content and images
+    - Heading / Title text
+    - Description / Subtitle
+    - Button labels and URLs
+    - Card content and images
 
 2. **Styling**
-   - Accent color (primary/secondary/tertiary)
-   - Background gradient or color
-   - Layout variant (centered/split/elevated)
-   - Column count (for grids)
+    - Accent color (primary/secondary/tertiary)
+    - Background gradient or color
+    - Layout variant (centered/split/elevated)
+    - Column count (for grids)
 
 3. **Advanced**
-   - Text alignment
-   - Height/size preset
-   - Show/hide elements
-   - Responsive behavior
+    - Text alignment
+    - Height/size preset
+    - Show/hide elements
+    - Responsive behavior
 
 ---
 
@@ -361,11 +378,11 @@ All widgets automatically support light/dark mode via CSS media queries:
 
 ```css
 @media (prefers-color-scheme: dark) {
-  /* Dark mode (default) */
+    /* Dark mode (default) */
 }
 
 @media (prefers-color-scheme: light) {
-  /* Light mode */
+    /* Light mode */
 }
 ```
 
@@ -413,7 +430,10 @@ Ensure design tokens CSS is loaded before component CSS:
 
 ```blade
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('vendor/mosaic/css/design-tokens.css') }}">
+    <link
+        rel="stylesheet"
+        href="{{ asset('vendor/mosaic/css/design-tokens.css') }}"
+    />
 @endpush
 ```
 

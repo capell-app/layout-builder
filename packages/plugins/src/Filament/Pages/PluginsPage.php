@@ -88,7 +88,7 @@ class PluginsPage extends Page implements HasActions, HasTable
             self::$browseTab => Tab::make()
                 ->label(__('Browse'))
                 ->badge(function (): ?int {
-                    $count = MarketplacePlugin::where('is_visible', true)->count();
+                    $count = MarketplacePlugin::query()->where('is_visible', true)->count();
 
                     return $count > 0 ? $count : null;
                 }),
@@ -104,10 +104,10 @@ class PluginsPage extends Page implements HasActions, HasTable
                 }),
             self::$updatesTab => Tab::make()
                 ->label(__('Updates'))
-                ->badge(function (): ?int {
+                ->badge(
                     // TODO: Implement available updates check
-                    return null;
-                }),
+                    fn (): ?int => null,
+                ),
         ];
     }
 

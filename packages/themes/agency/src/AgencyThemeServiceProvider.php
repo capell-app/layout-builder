@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Themes\Agency;
 
 use Capell\Mosaic\Facades\Mosaic;
+use Capell\Mosaic\Models\Widget;
 use Capell\Themes\Agency\Console\InstallCommand;
 use Capell\Themes\Agency\Widgets\AgencyFooterWidget;
 use Capell\Themes\Agency\Widgets\AwardsBadgesWidget;
@@ -97,7 +98,7 @@ class AgencyThemeServiceProvider extends ServiceProvider
      */
     protected function registerMosaicWidgets(): void
     {
-        if (! class_exists('Capell\\Mosaic\\Models\\Widget')) {
+        if (! class_exists(Widget::class)) {
             return;
         }
 

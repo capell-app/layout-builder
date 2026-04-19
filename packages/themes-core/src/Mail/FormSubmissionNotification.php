@@ -12,7 +12,8 @@ use Illuminate\Queue\SerializesModels;
 
 class FormSubmissionNotification extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * @param  array<string, scalar|null>  $fields

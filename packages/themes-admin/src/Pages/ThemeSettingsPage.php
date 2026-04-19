@@ -11,7 +11,7 @@ class ThemeSettingsPage extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-paint-brush';
 
-    protected static string $view = 'themes-admin::pages.theme-settings';
+    protected string $view = 'themes-admin::pages.theme-settings';
 
     protected static ?string $navigationLabel = 'Theme Settings';
 

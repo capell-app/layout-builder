@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Themes\Saas;
 
+use Capell\Mosaic\Models\Widget;
 use Capell\Themes\Core\Theme\ThemeRegistrar;
 use Capell\Themes\Saas\Console\InstallCommand;
 use Capell\Themes\Saas\Widgets\CTABannerWidget;
@@ -96,7 +97,7 @@ class SaasThemeServiceProvider extends ServiceProvider
      */
     protected function registerMosaicWidgets(): void
     {
-        if (! class_exists('Capell\\Mosaic\\Models\\Widget')) {
+        if (! class_exists(Widget::class)) {
             return;
         }
 

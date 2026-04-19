@@ -11,7 +11,7 @@ use Opis\JsonSchema\Errors\ErrorFormatter;
 use Opis\JsonSchema\Errors\ValidationError;
 use Opis\JsonSchema\Validator;
 
-final class ManifestValidator
+final readonly class ManifestValidator
 {
     private Validator $validator;
 
@@ -35,7 +35,7 @@ final class ManifestValidator
 
         $errors = [];
 
-        if (! $result->isValid() && $result->error() !== null) {
+        if (! $result->isValid() && $result->error() instanceof ValidationError) {
             $formatter = new ErrorFormatter;
             $errors = $formatter->formatFlat(
                 $result->error(),
@@ -43,7 +43,7 @@ final class ManifestValidator
                     $path = $formatter->formatErrorKey($error);
                     $message = $formatter->formatErrorMessage($error);
 
-                    return $path !== '' ? "{$path}: {$message}" : $message;
+                    return $path !== '' ? sprintf('%s: %s', $path, $message) : $message;
                 },
             );
         }
@@ -105,7 +105,7 @@ final class ManifestValidator
             $base = explode(':', $raw, 2)[0];
 
             if (! in_array($base, $knownValues, true)) {
-                $errors[] = "Unknown capability: {$raw}";
+                $errors[] = 'Unknown capability: ' . $raw;
             }
         }
 

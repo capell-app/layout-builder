@@ -66,7 +66,7 @@ class ValidateLicenseAction extends Action
                 ],
                 'created_at' => now(),
             ]);
-        } catch (Throwable $exception) {
+        } catch (Throwable $throwable) {
             if (! $license->isWithinGracePeriod()) {
                 $license->update(['status' => LicenseStatus::Expired]);
 
@@ -76,7 +76,7 @@ class ValidateLicenseAction extends Action
                     'data' => [
                         'site_id' => $license->site_id,
                         'reason' => 'Offline grace period exceeded',
-                        'error' => $exception->getMessage(),
+                        'error' => $throwable->getMessage(),
                     ],
                     'created_at' => now(),
                 ]);
@@ -86,7 +86,7 @@ class ValidateLicenseAction extends Action
                     'actor_id' => auth()->id(),
                     'data' => [
                         'site_id' => $license->site_id,
-                        'error' => $exception->getMessage(),
+                        'error' => $throwable->getMessage(),
                         'grace_period_remaining' => true,
                     ],
                     'created_at' => now(),
@@ -114,6 +114,6 @@ class ValidateLicenseAction extends Action
             return null;
         }
 
-        return hash('sha256', "site:{$license->site_id}");
+        return hash('sha256', 'site:' . $license->site_id);
     }
 }

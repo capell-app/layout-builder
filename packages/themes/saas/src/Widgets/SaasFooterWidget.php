@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Themes\Saas\Widgets;
 
+use Illuminate\Support\Facades\Date;
+
 class SaasFooterWidget extends AbstractSaasWidget
 {
     public string $name = 'SaaS Footer';
@@ -21,7 +23,7 @@ class SaasFooterWidget extends AbstractSaasWidget
         $this->fields = [
             ['name' => 'brand', 'label' => 'Brand', 'type' => 'text', 'default' => 'Capell'],
             ['name' => 'tagline', 'label' => 'Tagline', 'type' => 'text', 'default' => 'The all-in-one platform for modern product teams.'],
-            ['name' => 'copyright', 'label' => 'Copyright', 'type' => 'text', 'default' => '(c) ' . date('Y') . ' Capell. All rights reserved.'],
+            ['name' => 'copyright', 'label' => 'Copyright', 'type' => 'text', 'default' => '(c) ' . Date::now()->format('Y') . ' Capell. All rights reserved.'],
             ['name' => 'show_newsletter', 'label' => 'Show newsletter', 'type' => 'select', 'default' => 'yes', 'options' => ['yes' => 'Yes', 'no' => 'No']],
             ['name' => 'columns', 'label' => 'Link columns', 'type' => 'repeater', 'default' => [
                 ['heading' => 'Product', 'links' => [

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Assistant\Actions;
 
+use Capell\Assistant\Contracts\ContentTargetContract;
 use Capell\Assistant\Models\AiCreatorSession;
 use Capell\Assistant\Support\ContentTargetResolver;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -22,7 +23,7 @@ class SubmitAiCreatorDraftAction
 
         $target = $this->targetResolver->preferred();
 
-        if ($target !== null) {
+        if ($target instanceof ContentTargetContract) {
             $target->apply($sections, $session);
         }
 

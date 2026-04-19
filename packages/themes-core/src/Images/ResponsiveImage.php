@@ -115,6 +115,7 @@ class ResponsiveImage
             if ($value === '' && $name !== 'alt') {
                 continue;
             }
+
             $rendered[] = sprintf('%s="%s"', $name, htmlspecialchars($value, ENT_QUOTES, 'UTF-8'));
         }
 

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Http;
 use RuntimeException;
 use Throwable;
 
-class ValidateLicensesJobTest extends PluginsTestCase
+final class ValidateLicensesJobTest extends PluginsTestCase
 {
     public function test_job_only_processes_usable_statuses(): void
     {
@@ -83,8 +83,8 @@ class ValidateLicensesJobTest extends PluginsTestCase
 
         try {
             (new ValidateLicensesJob)->handle($action);
-        } catch (Throwable $exception) {
-            $this->fail('Job should swallow per-license errors: ' . $exception->getMessage());
+        } catch (Throwable $throwable) {
+            $this->fail('Job should swallow per-license errors: ' . $throwable->getMessage());
         }
 
         $seenIds = $action->getSeenIds();

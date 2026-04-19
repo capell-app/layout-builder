@@ -7,7 +7,7 @@ namespace Capell\Plugins\Services;
 use Closure;
 use Symfony\Component\Process\Process;
 
-final class ComposerRunner
+final readonly class ComposerRunner
 {
     /**
      * @var Closure(array<int, string>, string, int): Process
@@ -18,9 +18,9 @@ final class ComposerRunner
      * @param  null|Closure(array<int, string>, string, int): Process  $processFactory
      */
     public function __construct(
-        private readonly string $binary = 'composer',
-        private readonly int $timeoutSeconds = 600,
-        private readonly string $workingDirectory = '',
+        private string $binary = 'composer',
+        private int $timeoutSeconds = 600,
+        private string $workingDirectory = '',
         ?Closure $processFactory = null,
     ) {
         $this->processFactory = $processFactory ?? static function (array $command, string $workingDir, int $timeout): Process {
@@ -35,11 +35,7 @@ final class ComposerRunner
     {
         $args = ['require', '--no-interaction', '--update-with-all-dependencies'];
 
-        if ($constraint !== null) {
-            $args[] = "{$composerName}:{$constraint}";
-        } else {
-            $args[] = $composerName;
-        }
+        $args[] = $constraint !== null ? sprintf('%s:%s', $composerName, $constraint) : $composerName;
 
         return $this->runCommand($args);
     }
@@ -63,19 +59,19 @@ final class ComposerRunner
      */
     public function removeAnystackRepo(string $productId): ComposerResult
     {
-        $host = "{$productId}.composer.sh";
+        $host = $productId . '.composer.sh';
 
         $authResult = $this->runCommand([
             'config',
             '--global',
             '--unset',
-            "http-basic.{$host}",
+            'http-basic.' . $host,
         ]);
 
         $repoResult = $this->runCommand([
             'config',
             '--unset',
-            "repositories.anystack-{$productId}",
+            'repositories.anystack-' . $productId,
         ]);
 
         $worstExit = max($authResult->exitCode, $repoResult->exitCode);
@@ -94,16 +90,16 @@ final class ComposerRunner
         string $licenseKey,
         ?string $fingerprint = null,
     ): ComposerResult {
-        $host = "{$productId}.composer.sh";
+        $host = $productId . '.composer.sh';
         $contactEmailRaw = config('capell-plugins.anystack.composer_contact_email', 'unlock');
         $user = is_string($contactEmailRaw) && $contactEmailRaw !== '' ? $contactEmailRaw : 'unlock';
-        $password = $fingerprint === null ? $licenseKey : "{$licenseKey}:{$fingerprint}";
+        $password = $fingerprint === null ? $licenseKey : sprintf('%s:%s', $licenseKey, $fingerprint);
 
         $authResult = $this->runCommand([
             'config',
             '--global',
             '--auth',
-            "http-basic.{$host}",
+            'http-basic.' . $host,
             $user,
             $password,
         ]);
@@ -114,12 +110,12 @@ final class ComposerRunner
 
         $repositoryJson = json_encode([
             'type' => 'composer',
-            'url' => "https://{$host}",
+            'url' => 'https://' . $host,
         ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
 
         return $this->runCommand([
             'config',
-            "repositories.anystack-{$productId}",
+            'repositories.anystack-' . $productId,
             $repositoryJson,
         ]);
     }

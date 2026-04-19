@@ -23,12 +23,23 @@
             "pattern": "^[a-z0-9]([a-z0-9-]*[a-z0-9])?/[a-z0-9]([a-z0-9-]*[a-z0-9])?$"
         },
         "title": { "type": "string", "minLength": 1, "maxLength": 80 },
-        "slug": { "type": "string", "pattern": "^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" },
-        "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z\\-.]+)?(?:\\+[0-9A-Za-z\\-.]+)?$" },
+        "slug": {
+            "type": "string",
+            "pattern": "^[a-z0-9]([a-z0-9-]*[a-z0-9])?$"
+        },
+        "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z\\-.]+)?(?:\\+[0-9A-Za-z\\-.]+)?$"
+        },
         "description": { "type": "string", "minLength": 10, "maxLength": 180 },
         "long_description_file": { "type": "string" },
-        "vendor": { "type": "string", "pattern": "^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" },
-        "license_model": { "enum": ["free", "paid_one_time", "paid_subscription"] },
+        "vendor": {
+            "type": "string",
+            "pattern": "^[a-z0-9]([a-z0-9-]*[a-z0-9])?$"
+        },
+        "license_model": {
+            "enum": ["free", "paid_one_time", "paid_subscription"]
+        },
         "price": {
             "type": "object",
             "properties": {
@@ -66,8 +77,20 @@
             "items": { "type": "string" },
             "uniqueItems": true
         },
-        "kind": { "enum": ["theme", "page_type", "widget", "integration", "content_type", "full"] },
-        "entrypoint": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9_]*(?:\\\\[A-Z][A-Za-z0-9_]*)*$" },
+        "kind": {
+            "enum": [
+                "theme",
+                "page_type",
+                "widget",
+                "integration",
+                "content_type",
+                "full"
+            ]
+        },
+        "entrypoint": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Za-z0-9_]*(?:\\\\[A-Z][A-Za-z0-9_]*)*$"
+        },
         "requires": {
             "type": "array",
             "items": { "type": "string" }
@@ -104,7 +127,13 @@
             "then": { "not": { "required": ["price"] } }
         },
         {
-            "if": { "properties": { "license_model": { "enum": ["paid_one_time", "paid_subscription"] } } },
+            "if": {
+                "properties": {
+                    "license_model": {
+                        "enum": ["paid_one_time", "paid_subscription"]
+                    }
+                }
+            },
             "then": { "required": ["price"] }
         }
     ]

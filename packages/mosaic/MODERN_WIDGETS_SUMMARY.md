@@ -11,11 +11,13 @@ This implementation provides a complete, modern, customizable widget system for 
 ### 📁 13 Production-Ready Widgets
 
 #### Core Layout Widgets (3)
+
 1. **Hero Banner** — Full-width hero section with video backgrounds, parallax scrolling, customizable CTA buttons
 2. **Card Grid** — Responsive card layout with badges and hover effects (scale, shadow, lift)
 3. **CTA Section** — Call-to-action section with custom gradients and button layouts
 
 #### Content Display Widgets (7)
+
 4. **Feature List** — Feature showcase with animation system (fade-in, slide-up, zoom, bounce)
 5. **Stats Section** — Metrics display in horizontal or vertical layouts
 6. **Testimonials** — Customer testimonials with carousel/slider or grid modes
@@ -25,6 +27,7 @@ This implementation provides a complete, modern, customizable widget system for 
 10. **Alternating Content** — Two-column layout with alternating text/image positioning
 
 #### Interactive/Organizational Widgets (3)
+
 11. **FAQ Section** — Accordion with category/tab filtering for better organization
 12. **Process Steps** — Timeline visualization (horizontal or vertical layout)
 13. **Feature List** — Feature showcase with icon support
@@ -32,37 +35,37 @@ This implementation provides a complete, modern, customizable widget system for 
 ### 📁 Supporting Files
 
 1. **`resources/css/design-tokens.css`** (550+ lines)
-   - Complete design token system (colors, spacing, typography, shadows)
-   - CSS custom properties for easy theming
-   - Utility classes for quick styling
-   - Light/dark mode support via media queries
+    - Complete design token system (colors, spacing, typography, shadows)
+    - CSS custom properties for easy theming
+    - Utility classes for quick styling
+    - Light/dark mode support via media queries
 
 2. **`WIDGET_CUSTOMIZATION_GUIDE.md`** (500+ lines)
-   - Complete documentation
-   - Props reference for each widget
-   - CSS utility classes guide
-   - Admin integration examples (Filament)
-   - Accessibility notes
-   - Troubleshooting guide
+    - Complete documentation
+    - Props reference for each widget
+    - CSS utility classes guide
+    - Admin integration examples (Filament)
+    - Accessibility notes
+    - Troubleshooting guide
 
 3. **Filament Schema Files** (`src/Filament/Schemas/Widgets/`)
-   - ModernHeroBannerSchema.php
-   - ModernCardGridSchema.php
-   - ModernFeatureListSchema.php
-   - ModernStatsSectionSchema.php
-   - ModernTestimonialsSchema.php
-   - ModernTeamMembersSchema.php
-   - ModernPricingTableSchema.php
-   - ModernImageGallerySchema.php
-   - ModernAlternatingContentSchema.php
-   - ModernProcessStepsSchema.php
-   - ModernFaqSchema.php
+    - ModernHeroBannerSchema.php
+    - ModernCardGridSchema.php
+    - ModernFeatureListSchema.php
+    - ModernStatsSectionSchema.php
+    - ModernTestimonialsSchema.php
+    - ModernTeamMembersSchema.php
+    - ModernPricingTableSchema.php
+    - ModernImageGallerySchema.php
+    - ModernAlternatingContentSchema.php
+    - ModernProcessStepsSchema.php
+    - ModernFaqSchema.php
 
 4. **`tailwind-config.js`**
-   - Tailwind integration configuration
-   - All design tokens as Tailwind classes
-   - Gradients, shadows, typography scales
-   - Ready to extend in `tailwind.config.js`
+    - Tailwind integration configuration
+    - All design tokens as Tailwind classes
+    - Gradients, shadows, typography scales
+    - Ready to extend in `tailwind.config.js`
 
 ---
 
@@ -194,14 +197,14 @@ public function getSchema(): array
 
 ### Color Palette
 
-| Token | Hex | Usage |
-|-------|-----|-------|
-| Primary | #d2bbff | Headlines, focus states |
-| Primary Container | #7c3aed | Buttons, gradients |
-| Secondary | #c0c1ff | Secondary actions |
-| Tertiary | #ffb784 | Gold accents (stars) |
-| Surface | #1b1b20 | Base backgrounds |
-| On Surface | #e4e1e9 | Primary text |
+| Token             | Hex     | Usage                   |
+| ----------------- | ------- | ----------------------- |
+| Primary           | #d2bbff | Headlines, focus states |
+| Primary Container | #7c3aed | Buttons, gradients      |
+| Secondary         | #c0c1ff | Secondary actions       |
+| Tertiary          | #ffb784 | Gold accents (stars)    |
+| Surface           | #1b1b20 | Base backgrounds        |
+| On Surface        | #e4e1e9 | Primary text            |
 
 ### Spacing Scale
 
@@ -267,6 +270,7 @@ public function getSchema(): array
 ## Testing Checklist
 
 ### Widget Rendering
+
 - [x] All 13 widget components render correctly
 - [x] Design tokens load without errors
 - [x] Colors render properly in light/dark modes
@@ -274,6 +278,7 @@ public function getSchema(): array
 - [x] Admin hints display when `customizable="true"`
 
 ### Feature-Specific Tests
+
 - [x] Hero Banner: Video backgrounds and parallax scrolling work
 - [x] Card Grid: Badges and hover effects function properly
 - [x] Feature List: Animations trigger with correct delays
@@ -284,6 +289,7 @@ public function getSchema(): array
 - [x] Image Gallery: Gallery layout responds to column selection
 
 ### Accessibility & Performance
+
 - [ ] Buttons are clickable and styled properly
 - [ ] Accessibility: keyboard navigation works
 - [ ] Accessibility: color contrast passes WCAG AA
@@ -346,12 +352,15 @@ packages/mosaic/
 This widget system is built on three core principles:
 
 ### 1. **Tonal Depth Over Borders**
+
 Instead of harsh 1px borders, we use subtle shifts in background colors to define regions. This creates a premium, editorial feel.
 
 ### 2. **Glassmorphism for Emphasis**
+
 Floating elements (modals, tooltips) use semi-transparent backgrounds with backdrop blur to create a "frosted glass" effect. This suggests depth and sophistication.
 
 ### 3. **Asymmetry as Intent**
+
 Breaking the rigid 12-column grid with intentional white space and offset elements creates visual interest and guides the viewer's eye to important content.
 
 ---

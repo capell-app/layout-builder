@@ -37,11 +37,7 @@ final class SiteIdResolver
         }
 
         $appKey = config('app.key');
-        if (! is_string($appKey) || $appKey === '') {
-            throw new RuntimeException(
-                'Cannot resolve plugin site id: APP_KEY is not configured. Run `php artisan key:generate`.',
-            );
-        }
+        throw_if(! is_string($appKey) || $appKey === '', RuntimeException::class, 'Cannot resolve plugin site id: APP_KEY is not configured. Run `php artisan key:generate`.');
 
         $appName = config('app.name');
         $appNameString = is_string($appName) ? $appName : 'capell';

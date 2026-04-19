@@ -5,25 +5,20 @@
         :statement="$hero['statement'] ?? 'Brands worth the attention they demand.'"
         :subtitle="$hero['subtitle'] ?? 'We design identities, products and campaigns for ambitious teams.'"
         :cta-label="$hero['cta_label'] ?? 'Start a project'"
-        :cta-url="$hero['cta_url'] ?? '#inquiry'" />
+        :cta-url="$hero['cta_url'] ?? '#inquiry'"
+    />
 
-    <x-agency::clients-marquee
-        :clients="$clients ?? []" />
+    <x-agency::clients-marquee :clients="$clients ?? []" />
 
-    <x-agency::portfolio-grid
-        :projects="$projects ?? []" />
+    <x-agency::portfolio-grid :projects="$projects ?? []" />
 
-    <x-agency::services-showcase
-        :services="$services ?? []" />
+    <x-agency::services-showcase :services="$services ?? []" />
 
-    <x-agency::process-flow
-        :steps="$steps ?? []" />
+    <x-agency::process-flow :steps="$steps ?? []" />
 
-    <x-agency::testimonials-quote
-        :testimonials="$testimonials ?? []" />
+    <x-agency::testimonials-quote :testimonials="$testimonials ?? []" />
 
-    <x-agency::awards-badges
-        :awards="$awards ?? []" />
+    <x-agency::awards-badges :awards="$awards ?? []" />
 
     <x-agency::contact-inquiry />
 @endsection

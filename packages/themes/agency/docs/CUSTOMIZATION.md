@@ -8,23 +8,23 @@ component props. You can re-skin it without touching PHP.
 The theme ships with these CSS variables (defined in
 `resources/css/theme.css`):
 
-| Token | Default | Purpose |
-|---|---|---|
-| `--color-primary` | `#ff5a7e` | Coral/rose — CTAs, hover accents |
-| `--color-accent` | `#3b82f6` | Electric blue — filter pills, highlights |
-| `--color-bg` | `#ffffff` | Main background (light mode) |
-| `--color-fg` | `#111014` | Primary text color |
-| `--color-surface-dark` | `#0b0a0f` | Hero / footer dark surfaces |
-| `--font-headline` | `Sora, Inter, system-ui…` | Display type |
-| `--font-body` | `Inter, system-ui…` | Body copy |
-| `--section-y-spacious` | `8rem` | Vertical spacing for "spacious" preset |
+| Token                  | Default                   | Purpose                                  |
+| ---------------------- | ------------------------- | ---------------------------------------- |
+| `--color-primary`      | `#ff5a7e`                 | Coral/rose — CTAs, hover accents         |
+| `--color-accent`       | `#3b82f6`                 | Electric blue — filter pills, highlights |
+| `--color-bg`           | `#ffffff`                 | Main background (light mode)             |
+| `--color-fg`           | `#111014`                 | Primary text color                       |
+| `--color-surface-dark` | `#0b0a0f`                 | Hero / footer dark surfaces              |
+| `--font-headline`      | `Sora, Inter, system-ui…` | Display type                             |
+| `--font-body`          | `Inter, system-ui…`       | Body copy                                |
+| `--section-y-spacious` | `8rem`                    | Vertical spacing for "spacious" preset   |
 
 Override any of these inline on `<html>` or in your own stylesheet:
 
 ```css
 :root {
-  --color-primary: #ff3b6e;
-  --font-headline: 'Satoshi', system-ui, sans-serif;
+    --color-primary: #ff3b6e;
+    --font-headline: 'Satoshi', system-ui, sans-serif;
 }
 ```
 
@@ -46,7 +46,8 @@ the container:
 
 ```blade
 <x-agency::hero-statement statement="Make them look.">
-    <span class="text-[var(--color-primary)]">Custom</span> heading.
+    <span class="text-[var(--color-primary)]">Custom</span>
+    heading.
 </x-agency::hero-statement>
 ```
 

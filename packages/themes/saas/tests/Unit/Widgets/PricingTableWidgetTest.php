@@ -16,7 +16,7 @@ test('pricing-table default tiers include a highlighted plan', function (): void
     $widget = PricingTableWidget::make();
     $tiers = $widget->defaults()['tiers'];
 
-    $highlighted = array_filter($tiers, static fn ($t) => ! empty($t['highlight']));
+    $highlighted = array_filter($tiers, static fn (array $t): bool => ($t['highlight'] ?? false) !== false);
 
     expect($highlighted)->not->toBeEmpty();
 });

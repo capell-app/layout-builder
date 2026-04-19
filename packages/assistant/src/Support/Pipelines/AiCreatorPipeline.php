@@ -53,9 +53,9 @@ class AiCreatorPipeline
         $data = $payload['data'];
 
         if ($data->existingSessionId !== null) {
-            $session = AiCreatorSession::findOrFail($data->existingSessionId);
+            $session = AiCreatorSession::query()->findOrFail($data->existingSessionId);
         } else {
-            $session = AiCreatorSession::create([
+            $session = AiCreatorSession::query()->create([
                 'site_id' => $data->siteId,
                 'user_id' => $data->userId,
                 'status' => 'generating',
@@ -74,7 +74,7 @@ class AiCreatorPipeline
         /** @var AiCreatorData $data */
         $data = $payload['data'];
 
-        $payload['context'] = AiCreatorContext::where('site_id', $data->siteId)->first();
+        $payload['context'] = AiCreatorContext::query()->where('site_id', $data->siteId)->first();
 
         return $next($payload);
     }
@@ -149,7 +149,7 @@ class AiCreatorPipeline
         /** @var AiResponse $response */
         $response = $payload['response'];
 
-        $history = AIGenerationHistory::create([
+        $history = AIGenerationHistory::query()->create([
             'action' => 'ai_creator_layout',
             'model' => $response->model,
             'input' => $payload['data']->intent,

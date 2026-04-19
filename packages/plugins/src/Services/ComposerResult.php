@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Capell\Plugins\Services;
 
-final class ComposerResult
+final readonly class ComposerResult
 {
     public function __construct(
-        public readonly int $exitCode,
-        public readonly string $stdout,
-        public readonly string $stderr,
+        public int $exitCode,
+        public string $stdout,
+        public string $stderr,
     ) {}
 
     public function successful(): bool

@@ -4,21 +4,19 @@ declare(strict_types=1);
 
 use Capell\Themes\Core\SEO\AbstractThemeSchemaGenerator;
 
-$makeGenerator = function (): AbstractThemeSchemaGenerator {
-    return new class extends AbstractThemeSchemaGenerator
+$makeGenerator = (fn (): AbstractThemeSchemaGenerator => new class extends AbstractThemeSchemaGenerator
+{
+    protected function resolveOrgName(): string
     {
-        protected function resolveOrgName(): string
-        {
-            return 'Stub Corp';
-        }
+        return 'Stub Corp';
+    }
 
-        /** @return array<int, string> */
-        protected function resolveSameAs(): array
-        {
-            return ['https://twitter.com/stub'];
-        }
-    };
-};
+    /** @return array<int, string> */
+    protected function resolveSameAs(): array
+    {
+        return ['https://twitter.com/stub'];
+    }
+});
 
 test('organization() includes name, url, and sameAs', function () use ($makeGenerator): void {
     $result = $makeGenerator()->organization('https://example.com');
@@ -70,7 +68,7 @@ test('organization() includes logo when resolveOrgLogo returns a value', functio
             return [];
         }
 
-        protected function resolveOrgLogo(): ?string
+        protected function resolveOrgLogo(): string
         {
             return 'https://example.com/logo.png';
         }
@@ -94,7 +92,7 @@ test('organization() includes description when resolveOrgDescription returns a v
             return [];
         }
 
-        protected function resolveOrgDescription(): ?string
+        protected function resolveOrgDescription(): string
         {
             return 'A fine company.';
         }

@@ -14,7 +14,7 @@ final class CapabilityRegistry
     {
         if ($capability->acceptsParameter() && $parameter === null) {
             throw new InvalidArgumentException(
-                "Capability {$capability->value} requires a parameter",
+                sprintf('Capability %s requires a parameter', $capability->value),
             );
         }
 
@@ -78,27 +78,22 @@ final class CapabilityRegistry
         $capability = Capability::tryFrom($parts[0]);
 
         if ($capability === null) {
-            throw new InvalidArgumentException("Unknown capability: {$parts[0]}");
+            throw new InvalidArgumentException('Unknown capability: ' . $parts[0]);
         }
 
         $parameter = $parts[1] ?? null;
 
         if ($capability->acceptsParameter() && $parameter === null) {
-            throw new InvalidArgumentException("Capability {$capability->value} requires a parameter");
+            throw new InvalidArgumentException(sprintf('Capability %s requires a parameter', $capability->value));
         }
 
         if (! $capability->acceptsParameter() && $parameter !== null) {
-            throw new InvalidArgumentException("Capability {$capability->value} does not accept a parameter");
+            throw new InvalidArgumentException(sprintf('Capability %s does not accept a parameter', $capability->value));
         }
 
-        if ($capability === Capability::WritesFiles
+        throw_if($capability === Capability::WritesFiles
             && $parameter !== null
-            && ! in_array($parameter, ['storage', 'public', 'config'], true)
-        ) {
-            throw new InvalidArgumentException(
-                "Capability writes_files parameter must be one of: storage, public, config (got: {$parameter})",
-            );
-        }
+            && ! in_array($parameter, ['storage', 'public', 'config'], true), InvalidArgumentException::class, sprintf('Capability writes_files parameter must be one of: storage, public, config (got: %s)', $parameter));
 
         return self::describe($capability, $parameter);
     }

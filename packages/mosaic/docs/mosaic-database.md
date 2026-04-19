@@ -5,11 +5,11 @@ walks through each so you know what lives where.
 
 ## Migrations
 
-| File | Effect |
-| --- | --- |
-| `database/migrations/create_sections_table.php` | Creates `sections`. |
-| `database/migrations/create_widgets_table.php` | Creates `widgets`. |
-| `database/migrations/create_widget_assets_table.php` | Creates `widget_assets`. |
+| File                                                             | Effect                                                            |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `database/migrations/create_sections_table.php`                  | Creates `sections`.                                               |
+| `database/migrations/create_widgets_table.php`                   | Creates `widgets`.                                                |
+| `database/migrations/create_widget_assets_table.php`             | Creates `widget_assets`.                                          |
 | `database/migrations/add_container_widgets_to_layouts_table.php` | Adds container / widget JSON columns to the core `layouts` table. |
 
 Run them all at once with `php artisan capell:mosaic-install`, or use

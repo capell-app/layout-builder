@@ -131,7 +131,7 @@ final class ComposerRunnerTest extends PluginsTestCase
         $result = $runner->configureAnystackRepo('my-prod', 'abc');
 
         $this->assertFalse($result->successful());
-        $this->assertEquals(1, $result->exitCode);
+        $this->assertSame(1, $result->exitCode);
         $this->assertCount(1, $this->captured, 'second command must not be issued when auth fails');
     }
 

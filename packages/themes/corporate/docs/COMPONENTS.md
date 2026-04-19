@@ -8,15 +8,15 @@ All components are registered under the `corporate` namespace:
 
 ## Widgets
 
-| Widget                      | Blade view                                       | Purpose                                          |
-|-----------------------------|--------------------------------------------------|--------------------------------------------------|
-| `HeroSectionWidget`         | `corporate::components.hero-section`             | Primary hero with CTA                            |
-| `FeaturesGridWidget`        | `corporate::components.features-grid`            | Grid of product/service features                 |
-| `TeamGridWidget`            | `corporate::components.team-grid`                | Photos and bios of team members                  |
-| `CaseStudiesCarouselWidget` | `corporate::components.case-studies-carousel`    | Horizontal carousel of case studies              |
-| `BlogListingWidget`         | `corporate::components.blog-listing`             | Responsive grid of blog posts                    |
-| `ContactFormWidget`         | `corporate::components.contact-form`             | Accessible contact form with honeypot            |
-| `FooterWidget`              | `corporate::components.footer`                   | Expanded / minimal / newsletter footer layouts   |
+| Widget                      | Blade view                                    | Purpose                                        |
+| --------------------------- | --------------------------------------------- | ---------------------------------------------- |
+| `HeroSectionWidget`         | `corporate::components.hero-section`          | Primary hero with CTA                          |
+| `FeaturesGridWidget`        | `corporate::components.features-grid`         | Grid of product/service features               |
+| `TeamGridWidget`            | `corporate::components.team-grid`             | Photos and bios of team members                |
+| `CaseStudiesCarouselWidget` | `corporate::components.case-studies-carousel` | Horizontal carousel of case studies            |
+| `BlogListingWidget`         | `corporate::components.blog-listing`          | Responsive grid of blog posts                  |
+| `ContactFormWidget`         | `corporate::components.contact-form`          | Accessible contact form with honeypot          |
+| `FooterWidget`              | `corporate::components.footer`                | Expanded / minimal / newsletter footer layouts |
 
 ## Utility components
 

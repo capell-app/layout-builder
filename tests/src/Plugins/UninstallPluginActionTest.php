@@ -11,7 +11,7 @@ use Capell\Tests\Plugins\Unit\StubComposerProcess;
 use RuntimeException;
 use Symfony\Component\Process\Process;
 
-class UninstallPluginActionTest extends PluginsTestCase
+final class UninstallPluginActionTest extends PluginsTestCase
 {
     /**
      * @var array<int, array<int, string>>
@@ -65,15 +65,15 @@ class UninstallPluginActionTest extends PluginsTestCase
         try {
             $action->handle($plugin);
             $this->fail('Expected RuntimeException was not thrown.');
-        } catch (RuntimeException $exception) {
-            $this->assertStringContainsString('exit code 1', $exception->getMessage());
+        } catch (RuntimeException $runtimeException) {
+            $this->assertStringContainsString('exit code 1', $runtimeException->getMessage());
         }
 
         $auditEntry = $plugin->auditLog()->where('action', 'uninstall_failed')->first();
         $this->assertNotNull($auditEntry);
         $data = $auditEntry->data->getArrayCopy();
         $this->assertSame(1, $data['exit_code']);
-        $this->assertStringContainsString('Package not found', $data['stderr_tail']);
+        $this->assertStringContainsString('Package not found', (string) $data['stderr_tail']);
     }
 
     /**

@@ -11,7 +11,7 @@ use Capell\Tests\Plugins\Unit\StubComposerProcess;
 use RuntimeException;
 use Symfony\Component\Process\Process;
 
-class UpdatePluginActionTest extends PluginsTestCase
+final class UpdatePluginActionTest extends PluginsTestCase
 {
     /**
      * @var array<int, array<int, string>>
@@ -65,15 +65,15 @@ class UpdatePluginActionTest extends PluginsTestCase
         try {
             $action->handle($plugin);
             $this->fail('Expected RuntimeException was not thrown.');
-        } catch (RuntimeException $exception) {
-            $this->assertStringContainsString('exit code 2', $exception->getMessage());
+        } catch (RuntimeException $runtimeException) {
+            $this->assertStringContainsString('exit code 2', $runtimeException->getMessage());
         }
 
         $auditEntry = $plugin->auditLog()->where('action', 'update_failed')->first();
         $this->assertNotNull($auditEntry);
         $data = $auditEntry->data->getArrayCopy();
         $this->assertSame(2, $data['exit_code']);
-        $this->assertStringContainsString('Dependency conflict', $data['stderr_tail']);
+        $this->assertStringContainsString('Dependency conflict', (string) $data['stderr_tail']);
     }
 
     /**

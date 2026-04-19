@@ -37,10 +37,10 @@ class GenerateAiLayoutAction
             ));
 
             return $sections;
-        } catch (Throwable $e) {
-            Event::dispatch(new AiGenerationFailed(static::class, $e));
+        } catch (Throwable $throwable) {
+            Event::dispatch(new AiGenerationFailed(static::class, $throwable));
 
-            throw $e;
+            throw $throwable;
         }
     }
 }

@@ -13,7 +13,7 @@ class FirstPartyPluginsSeeder extends Seeder
 {
     public function run(): void
     {
-        MarketplacePlugin::updateOrCreate(['slug' => 'mosaic'], [
+        MarketplacePlugin::query()->updateOrCreate(['slug' => 'mosaic'], [
             'composer_name' => 'capell-app/capell-mosaic',
             'name' => 'Mosaic',
             'vendor' => 'capell',
@@ -26,7 +26,7 @@ class FirstPartyPluginsSeeder extends Seeder
             'sort_order' => 10,
         ]);
 
-        MarketplacePlugin::updateOrCreate(['slug' => 'blog'], [
+        MarketplacePlugin::query()->updateOrCreate(['slug' => 'blog'], [
             'composer_name' => 'capell-app/capell-blog',
             'name' => 'Blog',
             'vendor' => 'capell',
@@ -39,7 +39,7 @@ class FirstPartyPluginsSeeder extends Seeder
             'sort_order' => 20,
         ]);
 
-        MarketplacePlugin::updateOrCreate(['slug' => 'assistant'], [
+        MarketplacePlugin::query()->updateOrCreate(['slug' => 'assistant'], [
             'composer_name' => 'capell-app/capell-assistant',
             'name' => 'Assistant',
             'vendor' => 'capell',
@@ -52,7 +52,7 @@ class FirstPartyPluginsSeeder extends Seeder
             'sort_order' => 30,
         ]);
 
-        MarketplacePlugin::updateOrCreate(['slug' => 'address'], [
+        MarketplacePlugin::query()->updateOrCreate(['slug' => 'address'], [
             'composer_name' => 'capell-app/capell-address',
             'name' => 'Address',
             'vendor' => 'capell',

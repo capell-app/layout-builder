@@ -26,12 +26,12 @@ Complete guide to all documentation and resources for the Mosaic widget library.
 ### Test Files
 
 - **[tests/Feature/ModernWidgetsTest.php](./tests/Feature/ModernWidgetsTest.php)** — Comprehensive test suite with 25+ tests covering:
-  - Widget rendering and output
-  - Feature-specific functionality (animations, carousels, toggles, etc.)
-  - Props and customization options
-  - Schema existence validation
-  - Responsive behavior
-  - Empty state handling
+    - Widget rendering and output
+    - Feature-specific functionality (animations, carousels, toggles, etc.)
+    - Props and customization options
+    - Schema existence validation
+    - Responsive behavior
+    - Empty state handling
 
 ### Test Configuration
 
@@ -55,11 +55,13 @@ composer coverage
 ## 📋 13 Production-Ready Widgets
 
 ### Layout & Hero Widgets (3)
+
 1. **Hero Banner** — Full-width hero with video backgrounds, parallax scrolling
 2. **CTA Section** — Call-to-action sections with custom layouts
 3. **Card Grid** — Responsive card layouts with badges and hover effects
 
 ### Content Display Widgets (7)
+
 4. **Feature List** — Features with animation system (fade-in, slide-up, zoom, bounce)
 5. **Stats Section** — Metrics display in horizontal or vertical layouts
 6. **Testimonials** — Customer testimonials with carousel/grid modes
@@ -69,6 +71,7 @@ composer coverage
 10. **Alternating Content** — Two-column layouts with alternating text/image
 
 ### Interactive Widgets (3)
+
 11. **FAQ Section** — Accordion with category filtering
 12. **Process Steps** — Timeline visualization (horizontal or vertical)
 13. **Feature List** — Extended feature showcase with icons
@@ -96,6 +99,7 @@ src/Filament/Schemas/Widgets/
 ```
 
 Each schema provides:
+
 - Text inputs for content
 - Select dropdowns for options
 - Repeaters for dynamic content (cards, features, FAQs, etc.)
@@ -109,12 +113,12 @@ Each schema provides:
 ### CSS Design Tokens
 
 - **[resources/css/design-tokens.css](./resources/css/design-tokens.css)** — Complete design token system with:
-  - Color palette (primary, secondary, tertiary)
-  - Typography scales
-  - Spacing units
-  - Shadow effects
-  - Border radius
-  - Transitions and animations
+    - Color palette (primary, secondary, tertiary)
+    - Typography scales
+    - Spacing units
+    - Shadow effects
+    - Border radius
+    - Transitions and animations
 
 ### Tailwind Configuration
 
@@ -174,15 +178,15 @@ composer test
 
 ## 📊 Documentation Statistics
 
-| Metric | Value |
-|--------|-------|
-| Total Widgets | 13 |
-| Filament Schemas | 12 |
-| Documentation Pages | 6 |
-| Test Cases | 25+ |
-| Design Tokens | 50+ |
-| Code Examples | 40+ |
-| Total Lines (Docs) | 2000+ |
+| Metric              | Value |
+| ------------------- | ----- |
+| Total Widgets       | 13    |
+| Filament Schemas    | 12    |
+| Documentation Pages | 6     |
+| Test Cases          | 25+   |
+| Design Tokens       | 50+   |
+| Code Examples       | 40+   |
+| Total Lines (Docs)  | 2000+ |
 
 ---
 
@@ -203,6 +207,7 @@ composer test
 ### By Widget Name
 
 Every widget has a dedicated section in WIDGETS_REFERENCE.md with:
+
 - Props table
 - Object properties
 - Usage examples
@@ -225,6 +230,7 @@ Every widget has a dedicated section in WIDGETS_REFERENCE.md with:
 ### Accessibility
 
 All widgets are WCAG 2.1 AA compliant:
+
 - ✅ Semantic HTML
 - ✅ Proper heading hierarchy
 - ✅ Color contrast ratios
@@ -257,6 +263,7 @@ All widgets follow "The Sovereign Architect" design principles:
 ### Filament Admin
 
 All widgets are integrated with Filament through schemas that provide:
+
 - Zero-code customization forms
 - Field validation and helpers
 - Dynamic visibility rules
@@ -265,6 +272,7 @@ All widgets are integrated with Filament through schemas that provide:
 ### Laravel Blade
 
 Widgets render as simple Blade components:
+
 ```blade
 <x-mosaic::modern.hero-banner
     title="Welcome"
@@ -275,6 +283,7 @@ Widgets render as simple Blade components:
 ### Design System
 
 CSS custom properties enable:
+
 - Consistent theming
 - Dark/light mode support
 - Brand color customization
@@ -285,6 +294,7 @@ CSS custom properties enable:
 ## 📝 Version History
 
 ### v2.0 (April 18, 2026)
+
 - Added 10 new widgets (stats, testimonials carousel, pricing toggle, team members with social, FAQ filtering, etc.)
 - Enhanced 3 existing widgets (hero banner video/parallax, card grid badges/hover, feature list animations)
 - Complete widget documentation
@@ -292,6 +302,7 @@ CSS custom properties enable:
 - **Total: 13 widgets, all documented and tested**
 
 ### v1.0 (April 18, 2026)
+
 - Initial release with 3 core widgets (hero banner, card grid, CTA section)
 - Design token system
 - Filament schema integration
@@ -302,15 +313,15 @@ CSS custom properties enable:
 
 **Where do I find X?**
 
-| Need | Location |
-|------|----------|
-| Widget prop documentation | WIDGETS_REFERENCE.md |
-| Admin customization examples | WIDGET_CUSTOMIZATION_GUIDE.md |
-| Design token values | design-tokens.css |
-| Test examples | tests/Feature/ModernWidgetsTest.php |
-| Installation steps | README.md |
-| API documentation | docs/mosaic-api.md |
-| Database schema | docs/mosaic-database.md |
+| Need                         | Location                            |
+| ---------------------------- | ----------------------------------- |
+| Widget prop documentation    | WIDGETS_REFERENCE.md                |
+| Admin customization examples | WIDGET_CUSTOMIZATION_GUIDE.md       |
+| Design token values          | design-tokens.css                   |
+| Test examples                | tests/Feature/ModernWidgetsTest.php |
+| Installation steps           | README.md                           |
+| API documentation            | docs/mosaic-api.md                  |
+| Database schema              | docs/mosaic-database.md             |
 
 ---
 
@@ -333,9 +344,9 @@ CSS custom properties enable:
 
 ---
 
-**Last Updated:** April 18, 2026  
-**Version:** 2.0.0  
-**Status:** Production Ready ✅  
-**Widget Count:** 13/13 Complete  
-**Documentation:** Comprehensive  
+**Last Updated:** April 18, 2026
+**Version:** 2.0.0
+**Status:** Production Ready ✅
+**Widget Count:** 13/13 Complete
+**Documentation:** Comprehensive
 **Tests:** 25+ Test Cases

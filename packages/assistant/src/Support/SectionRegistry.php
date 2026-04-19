@@ -43,9 +43,9 @@ class SectionRegistry
                 $descriptor['label'] ?? $key,
                 $descriptor['description'] ?? '',
                 $goodFor !== '' ? $goodFor : 'general use',
-                $notFor ? " Avoid for: {$notFor}." : '',
+                $notFor !== '' && $notFor !== '0' ? sprintf(' Avoid for: %s.', $notFor) : '',
                 $fields !== '' ? $fields : 'none',
-                $media ? " Media: {$media}." : '',
+                $media !== '' && $media !== '0' ? sprintf(' Media: %s.', $media) : '',
                 ((bool) ($descriptor['repeatable'] ?? false)) ? ' Repeatable.' : '',
             );
         }

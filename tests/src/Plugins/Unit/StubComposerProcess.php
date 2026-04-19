@@ -20,7 +20,7 @@ final class StubComposerProcess
         // Use /bin/sh to echo stdout, emit stderr, then exit with the given code.
         $escapedOut = escapeshellarg($output);
         $escapedErr = escapeshellarg($errorOutput);
-        $script = "printf %s {$escapedOut}; printf %s {$escapedErr} 1>&2; exit {$exitCode}";
+        $script = sprintf('printf %%s %s; printf %%s %s 1>&2; exit %d', $escapedOut, $escapedErr, $exitCode);
 
         return Process::fromShellCommandline($script);
     }

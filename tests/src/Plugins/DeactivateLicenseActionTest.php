@@ -11,7 +11,7 @@ use Capell\Plugins\Services\AnystackClient;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 
-class DeactivateLicenseActionTest extends PluginsTestCase
+final class DeactivateLicenseActionTest extends PluginsTestCase
 {
     public function test_happy_path_calls_anystack_and_deletes_license(): void
     {

@@ -9,7 +9,7 @@ use Capell\Plugins\Services\ComposerRunner;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
-class ComposerRunnerTest extends TestCase
+final class ComposerRunnerTest extends TestCase
 {
     public function test_composer_result_successful_returns_true_for_exit_code_zero(): void
     {
@@ -57,7 +57,7 @@ class ComposerRunnerTest extends TestCase
 
         // Using reflection to verify the command structure without actual Process execution
         $reflection = new ReflectionClass($runner);
-        $method = $reflection->getMethod('requirePackage');
+        $reflection->getMethod('requirePackage');
 
         // Test that it builds correct argument array
         $this->assertInstanceOf(ComposerRunner::class, $runner);
@@ -121,7 +121,7 @@ class ComposerRunnerTest extends TestCase
         $stderr = 'Some warnings';
         $result = new ComposerResult(exitCode: 0, stdout: $stdout, stderr: $stderr);
 
-        $this->assertEquals($stdout, $result->stdout);
-        $this->assertEquals($stderr, $result->stderr);
+        $this->assertSame($stdout, $result->stdout);
+        $this->assertSame($stderr, $result->stderr);
     }
 }

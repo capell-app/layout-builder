@@ -21,11 +21,11 @@ Then open **Settings → Theme** in the Filament admin and choose **Agency**.
 
 ## Documentation
 
-| Doc | Description |
-|---|---|
-| [docs/INSTALLATION.md](docs/INSTALLATION.md) | Full install steps, publishing assets, uninstalling |
-| [docs/CUSTOMIZATION.md](docs/CUSTOMIZATION.md) | CSS tokens, dark mode, spacing presets, widget overrides |
-| [docs/COMPONENTS.md](docs/COMPONENTS.md) | All nine widgets + support components with prop signatures |
+| Doc                                            | Description                                                |
+| ---------------------------------------------- | ---------------------------------------------------------- |
+| [docs/INSTALLATION.md](docs/INSTALLATION.md)   | Full install steps, publishing assets, uninstalling        |
+| [docs/CUSTOMIZATION.md](docs/CUSTOMIZATION.md) | CSS tokens, dark mode, spacing presets, widget overrides   |
+| [docs/COMPONENTS.md](docs/COMPONENTS.md)       | All nine widgets + support components with prop signatures |
 
 ## License
 

@@ -31,7 +31,7 @@ abstract class AbstractThemeSchemaGenerator
             $data['description'] = $description;
         }
 
-        $sameAs = array_values(array_filter($this->resolveSameAs()));
+        $sameAs = array_values(array_filter($this->resolveSameAs(), static fn ($value) => $value !== null));
         if ($sameAs !== []) {
             $data['sameAs'] = $sameAs;
         }
@@ -116,7 +116,7 @@ abstract class AbstractThemeSchemaGenerator
             'dateModified' => $article['dateModified'] ?? ($article['datePublished'] ?? null),
             'author' => isset($article['author']) ? ['@type' => 'Person', 'name' => $article['author']] : null,
             'mainEntityOfPage' => $article['url'] ?? null,
-        ], static fn ($value) => $value !== null);
+        ], static fn (string|array|null $value): bool => $value !== null);
     }
 
     /** @param  array<string, mixed>  $data */
