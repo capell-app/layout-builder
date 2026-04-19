@@ -57,6 +57,7 @@ class AssistantServiceProvider extends AbstractPackageServiceProvider
     {
         $package->name(self::$name)
             ->hasViews(self::$name)
+            ->hasTranslations()
             ->hasConfigFile(self::$name)
             ->hasCommands([
                 ClearAiCacheCommand::class,

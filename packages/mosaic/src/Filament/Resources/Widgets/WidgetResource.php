@@ -39,9 +39,9 @@ class WidgetResource extends Resource
 
     protected static string $tableConfigurator = WidgetsTable::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBolt;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
 
-    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::Bolt;
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::Cube;
 
     public static function form(Schema $schema): Schema
     {
