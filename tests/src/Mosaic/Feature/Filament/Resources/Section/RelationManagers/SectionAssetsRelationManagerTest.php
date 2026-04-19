@@ -53,7 +53,7 @@ it('can search section assets', function (): void {
             AssetRelation::factory(['related_type' => AssetEnum::Section->value])
                 ->asset(
                     Capell\Core\Enums\AssetEnum::Page,
-                    ['name' => 'First'],
+                    ['name' => 'Third'],
                 ),
             'assets',
         )

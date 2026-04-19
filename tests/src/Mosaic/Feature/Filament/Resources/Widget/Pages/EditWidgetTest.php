@@ -119,6 +119,13 @@ test('can edit widget', function (WidgetTypeEnum $typeEum): void {
         WidgetTypeEnum::Assets => $typeCreator->assetsWidgetType(),
         WidgetTypeEnum::System => $typeCreator->systemWidgetType(),
         WidgetTypeEnum::SectionBuilder => $typeCreator->contentBuilderWidgetType(),
+        WidgetTypeEnum::Hero => $typeCreator->heroWidgetType(),
+        WidgetTypeEnum::HeroBanner => $typeCreator->heroBannerWidgetType(),
+        WidgetTypeEnum::CardGrid => $typeCreator->cardGridWidgetType(),
+        WidgetTypeEnum::FeatureList => $typeCreator->featureListWidgetType(),
+        WidgetTypeEnum::CTASection => $typeCreator->ctaSectionWidgetType(),
+        WidgetTypeEnum::ImageGallery => $typeCreator->imageGalleryWidgetType(),
+        WidgetTypeEnum::FormSection => $typeCreator->formSectionWidgetType(),
     };
 
     $newData = Widget::factory()->make();

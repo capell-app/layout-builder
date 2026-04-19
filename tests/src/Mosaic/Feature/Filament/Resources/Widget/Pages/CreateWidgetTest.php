@@ -107,7 +107,13 @@ describe('from list widgets', function (): void {
             WidgetTypeEnum::Assets => $typeCreator->assetsWidgetType(),
             WidgetTypeEnum::System => $typeCreator->systemWidgetType(),
             WidgetTypeEnum::SectionBuilder => $typeCreator->contentBuilderWidgetType(),
-            default => throw new Exception('Invalid widget type: ' . $typeEum->name),
+            WidgetTypeEnum::Hero => $typeCreator->heroWidgetType(),
+            WidgetTypeEnum::HeroBanner => $typeCreator->heroBannerWidgetType(),
+            WidgetTypeEnum::CardGrid => $typeCreator->cardGridWidgetType(),
+            WidgetTypeEnum::FeatureList => $typeCreator->featureListWidgetType(),
+            WidgetTypeEnum::CTASection => $typeCreator->ctaSectionWidgetType(),
+            WidgetTypeEnum::ImageGallery => $typeCreator->imageGalleryWidgetType(),
+            WidgetTypeEnum::FormSection => $typeCreator->formSectionWidgetType(),
         };
 
         livewire(ListWidgets::class)

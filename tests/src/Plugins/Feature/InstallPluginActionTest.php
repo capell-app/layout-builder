@@ -31,16 +31,16 @@ function makeInstallPlugin(array $overrides = []): MarketplacePlugin
     ], $overrides));
 }
 
-function makeInstallComposerRunner(array $exitCodes, array $errorOutputs = []): ComposerRunner
+function makeInstallComposerRunner(array $exitCodes, array $errorOutputs = [], ?array &$captured = null): ComposerRunner
 {
-    $captured = [];
-
     return new ComposerRunner(
         binary: 'composer',
         timeoutSeconds: 30,
         workingDirectory: sys_get_temp_dir(),
         processFactory: function (array $command, string $cwd, int $timeout) use (&$captured, &$exitCodes, &$errorOutputs): Process {
-            $captured[] = $command;
+            if ($captured !== null) {
+                $captured[] = $command;
+            }
             $exitCode = array_shift($exitCodes) ?? 0;
             $errorOutput = array_shift($errorOutputs) ?? '';
 
@@ -130,13 +130,17 @@ test('install paid plugin passes fingerprint to composer', function (): void {
         ], 200),
     ]);
 
+    $captured = [];
     $action = new InstallPluginAction(
-        makeInstallComposerRunner([0, 0, 0]),
+        makeInstallComposerRunner([0, 0, 0], [], $captured),
         makeInstallAnystackClient(),
     );
 
     $action->handle($plugin, 'lkey', 'site_abc', 'fp123');
-})->markTestIncomplete('Composer runner capture needed');
+
+    expect($captured)->not->toBeEmpty();
+    expect(collect($captured)->flatten()->toArray())->toContain('lkey:fp123');
+});
 
 test('install paid plugin without license key throws', function (): void {
     $plugin = makeInstallPlugin([
