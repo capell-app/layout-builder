@@ -45,7 +45,7 @@ class AddressesTable implements TableConfigurator
             ->filters([
                 SelectFilter::make('country_id')
                     ->relationship('country', 'name')
-                    ->label('Country'),
+                    ->label(__('capell-address::filter.country')),
                 StatusFilter::make('status'),
                 TrashedFilter::make(),
             ])
@@ -74,6 +74,18 @@ class AddressesTable implements TableConfigurator
                 ])
                 ->wrap(),
             StatusIconColumn::make('status'),
+            TextColumn::make('city')
+                ->label(__('capell-address::table.city'))
+                ->sortable()
+                ->toggleable(),
+            TextColumn::make('postal_code')
+                ->label(__('capell-address::table.postal_code'))
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
+            TextColumn::make('country.name')
+                ->label(__('capell-address::table.country'))
+                ->sortable()
+                ->toggleable(),
             DateColumn::make('created_at'),
             DateColumn::make('updated_at'),
             DateColumn::make('deleted_at'),
