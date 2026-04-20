@@ -132,8 +132,6 @@ final class LayoutHealthWidget extends CapellWidget
      */
     private function getLeastUsedWidgets(string $widgetModel): DataCollection
     {
-        CapellCore::getModel(ModelEnum::WidgetAsset);
-
         $leastUsed = $widgetModel::query()
             ->withCount(['assets' => fn (Builder $query) => $query->distinct('container')])
             ->orderBy('assets_count', 'asc')
