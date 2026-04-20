@@ -56,6 +56,7 @@ class WidgetsTable implements TableConfigurator
                     ->select('widgets.*')
                     ->withLayoutsCount(),
             )
+            ->defaultSort('name')
             ->columns(self::getTableColumns())
             ->filters(self::getTableFilters())
             ->recordClasses(fn (Widget $record): ?string => match (true) {

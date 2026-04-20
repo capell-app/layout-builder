@@ -74,6 +74,7 @@ class SectionsTable implements TableConfigurator
                         SoftDeletingScope::class,
                     ]),
             )
+            ->defaultSort('updated_at', 'desc')
             ->columns(static::getTableColumns())
             ->filters(static::getTableFilters())
             ->filtersFormWidth('4xl')

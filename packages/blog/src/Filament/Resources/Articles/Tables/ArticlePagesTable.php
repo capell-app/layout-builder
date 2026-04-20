@@ -56,6 +56,7 @@ class ArticlePagesTable implements TableConfigurator
     {
         return $table
             ->modifyQueryUsing(self::getTableQuery(...))
+            ->defaultSort('updated_at', 'desc')
             ->columns(static::getTableColumns())
             ->filters(static::getTableFilters())
             ->filtersFormWidth('4xl')

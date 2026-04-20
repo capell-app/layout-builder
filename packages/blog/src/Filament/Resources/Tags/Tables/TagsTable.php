@@ -33,6 +33,7 @@ class TagsTable implements TableConfigurator
                     ->select('*')
                     ->withTranslatedLocales('name'),
             )
+            ->defaultSort('name')
             ->columns(static::getTableColumns())
             ->filters([
                 SelectFilter::make('site_id')
