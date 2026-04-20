@@ -327,7 +327,7 @@ class DemoCommand extends Command
 
         $pageCreator = resolve(ArticleCreator::class);
 
-        $this->demoCreator->createPage($data, $site, $languages, type: $type, pageCreator: $pageCreator, layout: $layout);
+        $this->demoCreator->createPage($data, $site, $languages, type: $type, layout: $layout, pageCreator: $pageCreator);
 
         $this->advanceProgress();
 

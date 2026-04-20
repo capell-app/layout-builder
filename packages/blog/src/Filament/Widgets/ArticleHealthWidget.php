@@ -18,14 +18,14 @@ use Spatie\Tags\Tag;
 
 final class ArticleHealthWidget extends CapellWidget
 {
-    protected static ?string $heading = 'Article health';
-
     protected static string $settingsKey = 'article_health';
 
     /** @var list<string> */
     protected static array $rolesConfigKeys = ['developer', 'admin'];
 
     protected string $view = 'capell-blog::filament.widgets.article-health';
+
+    private static ?string $heading = 'Article health';
 
     /**
      * @return array<string, mixed>
@@ -88,7 +88,7 @@ final class ArticleHealthWidget extends CapellWidget
             ->orderByDesc('taggables_count')
             ->limit(5)
             ->get()
-            ->map(fn (Tag $tag) => new TagCountData(
+            ->map(fn (Tag $tag): TagCountData => new TagCountData(
                 name: $tag->name,
                 articleCount: $tag->taggables_count ?? 0,
             ));

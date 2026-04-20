@@ -17,14 +17,14 @@ use Spatie\LaravelData\DataCollection;
 
 final class LayoutHealthWidget extends CapellWidget
 {
-    protected static ?string $heading = 'Layout health';
-
     protected static string $settingsKey = 'layout_health';
 
     /** @var list<string> */
     protected static array $rolesConfigKeys = ['developer'];
 
     protected string $view = 'capell-mosaic::filament.widgets.layout-health';
+
+    private static ?string $heading = 'Layout health';
 
     /**
      * @return array<string, mixed>
@@ -68,8 +68,8 @@ final class LayoutHealthWidget extends CapellWidget
             draftSections: $draftSections,
             layoutsWithModifications: $layoutsWithModifications,
             widgetsByGroup: $widgetsByGroup,
-            leastUsedWidgets: $leastUsedWidgets,
             unusedWidgets: $unusedWidgets,
+            leastUsedWidgets: $leastUsedWidgets,
         );
     }
 
@@ -132,14 +132,14 @@ final class LayoutHealthWidget extends CapellWidget
      */
     private function getLeastUsedWidgets(string $widgetModel): DataCollection
     {
-        $widgetAssetModel = CapellCore::getModel(ModelEnum::WidgetAsset);
+        CapellCore::getModel(ModelEnum::WidgetAsset);
 
         $leastUsed = $widgetModel::query()
             ->withCount(['assets' => fn (Builder $query) => $query->distinct('container')])
             ->orderBy('assets_count', 'asc')
             ->limit(5)
             ->get()
-            ->map(fn (Widget $widget) => new LeastUsedWidgetData(
+            ->map(fn (Widget $widget): LeastUsedWidgetData => new LeastUsedWidgetData(
                 name: $widget->name ?? $widget->class,
                 layoutCount: $widget->assets_count ?? 0,
                 group: $widget->type?->group ?? 'default',
@@ -158,7 +158,7 @@ final class LayoutHealthWidget extends CapellWidget
         $usedWidgetClasses = $widgetModel::query()
             ->pluck('class')
             ->flip()
-            ->toArray();
+            ->all();
 
         $unused = [];
         foreach ($registryWidgets as $widget) {

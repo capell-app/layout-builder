@@ -14,14 +14,14 @@ use Spatie\LaravelData\DataCollection;
 
 final class AiMetricsWidget extends CapellWidget
 {
-    protected static ?string $heading = 'AI metrics';
-
     protected static string $settingsKey = 'ai_metrics';
 
     /** @var list<string> */
     protected static array $rolesConfigKeys = ['developer', 'admin'];
 
     protected string $view = 'capell-assistant::filament.widgets.ai-metrics';
+
+    private static ?string $heading = 'AI metrics';
 
     /**
      * @return array<string, mixed>
@@ -98,7 +98,7 @@ final class AiMetricsWidget extends CapellWidget
         }
 
         // Sort by count descending
-        usort($featureData, fn (FeatureUsageData $a, FeatureUsageData $b) => $b->count <=> $a->count);
+        usort($featureData, fn (FeatureUsageData $a, FeatureUsageData $b): int => $b->count <=> $a->count);
 
         return DataCollection::from($featureData);
     }

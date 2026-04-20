@@ -19,8 +19,6 @@ arch()
     ]);
 
 arch()
-    ->expect([
-        'Capell\Blog',
-    ])
+    ->expect('Capell\Blog')
     ->classes()
     ->toUseStrictEquality();

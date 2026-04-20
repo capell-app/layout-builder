@@ -70,7 +70,7 @@ class TagsTable implements TableConfigurator
                     },
                 ),
             TextColumn::make('slug')
-                ->label(__('capell-mosaic::table.slug'))
+                ->label(__('capell-blog::table.slug'))
                 ->searchable()
                 ->sortable()
                 ->color(FilamentColorEnum::LightGray->value)

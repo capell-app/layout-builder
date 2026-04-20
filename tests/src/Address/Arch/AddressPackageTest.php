@@ -7,8 +7,6 @@ arch()
     ->toOnlyBeUsedIn('Capell\\Address');
 
 arch()
-    ->expect([
-        'Capell\\Address',
-    ])
+    ->expect('Capell\\Address')
     ->classes()
     ->toUseStrictEquality();

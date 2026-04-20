@@ -7,8 +7,6 @@ arch()
     ->toOnlyBeUsedIn('Capell\\Assistant');
 
 arch()
-    ->expect([
-        'Capell\Mosaic',
-    ])
+    ->expect('Capell\Assistant')
     ->classes()
     ->toUseStrictEquality();
