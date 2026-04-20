@@ -1,0 +1,4 @@
+{{-- {{ class }} widget --}}
+<div class="widget widget--{{ name }}">
+    {{-- Widget content goes here --}}
+</div>

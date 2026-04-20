@@ -28,6 +28,7 @@ use Capell\Mosaic\Console\Commands\DemoCommand;
 use Capell\Mosaic\Console\Commands\Hero\DemoCommand as HeroDemoCommand;
 use Capell\Mosaic\Console\Commands\Hero\SetupCommand as HeroSetupCommand;
 use Capell\Mosaic\Console\Commands\InstallCommand;
+use Capell\Mosaic\Console\Commands\MakeWidgetCommand;
 use Capell\Mosaic\Console\Commands\SetupCommand;
 use Capell\Mosaic\Console\Commands\UpgradeCommand;
 use Capell\Mosaic\Enums\AssetEnum;
@@ -92,6 +93,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
                 HeroDemoCommand::class,
                 HeroSetupCommand::class,
                 InstallCommand::class,
+                MakeWidgetCommand::class,
                 SetupCommand::class,
                 UpgradeCommand::class,
             ]);
