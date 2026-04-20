@@ -3,38 +3,31 @@ name: Tests
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches:
+      - 4.x
 
 concurrency:
-  group: ${{ github.head_ref }}-phpunit
+  group: ${{ github.head_ref || github.ref }}-phpunit
   cancel-in-progress: true
 
 jobs:
-  test:
-    if: github.event.pull_request.draft == false
-    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }} - DB${{ matrix.db }}
-    runs-on: ${{ matrix.os }}
+  test-minimal:
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    name: Tests (PR - minimal)
+    runs-on: ubuntu-latest
     env:
       COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.ACCESS_TOKEN }}"} }'
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest]
-        php: [8.2, 8.3, 8.4]
-        laravel: [11.*, 12.*]
-        stability: [prefer-stable]
-        db: [sqlite, mysql]
+        php: [8.2]
+        laravel: [11.*]
+        db: [sqlite]
         include:
           - laravel: 11.*
             testbench: 9.*
-          - laravel: 12.*
-            testbench: 10.*
-        exclude:
-          - laravel: 11.*
-            php: 8.4
-          - laravel: 12.*
-            php: 8.3
-          - laravel: 12.*
-            php: 8.2
+
     services:
       mysql:
         image: mysql:8.0
@@ -48,6 +41,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -76,9 +70,7 @@ jobs:
         if: steps.php-cache.outputs.cache-hit != 'true'
         run: |
           if [ "${{ matrix.php }}" = "8.2" ]; then
-            # Add PHP 8.2-compatible constraints without immediate update
             composer remove --no-interaction --no-progress --ansi --dev --no-update mrpunyapal/peststan
-
             composer require --no-interaction --no-progress --ansi --dev --no-update \
               soyhuce/phpstan-extension:^1.1 \
               pestphp/pest:^3.0 \
@@ -95,8 +87,6 @@ jobs:
               rector/rector:^1.0 \
               driftingly/rector-laravel:^1.0 \
               larastan/larastan:^2.0
-
-            # Pin transitive dependencies to PHP 8.2-friendly ranges
             composer require --no-interaction --no-progress --ansi --no-update \
               livewire/livewire:^3.0 \
               filament/filament:^4.7 \
@@ -104,8 +94,133 @@ jobs:
               symfony/html-sanitizer:^7.0 \
               openspout/openspout:^4.22
           fi
+          composer update --no-interaction --no-progress --ansi --optimize-autoloader --with-all-dependencies -W
 
-          # Perform a single wide update to resolve all constraints for PHP 8.2
+      - name: Configure environment
+        run: |
+          if [ "${{ matrix.db }}" == "mysql" ]; then
+            echo "DB_CONNECTION=mysql" >> .env
+            echo "DB_HOST=127.0.0.1" >> .env
+            echo "DB_PORT=3306" >> .env
+            echo "DB_DATABASE=test_cms_multi" >> .env
+            echo "DB_USERNAME=root" >> .env
+            echo "DB_PASSWORD=root" >> .env
+          else
+            echo "DB_CONNECTION=sqlite" >> .env
+            echo "DB_DATABASE=:memory:" >> .env
+          fi
+
+      - name: Rector Cache
+        uses: actions/cache@v5
+        with:
+          path: /tmp/rector
+          key: ${{ runner.os }}-rector-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-rector-
+      - run: mkdir -p /tmp/rector
+
+      - name: PHPStan Cache
+        uses: actions/cache@v5
+        with:
+          path: /tmp/phpstan
+          key: ${{ runner.os }}-phpstan-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-phpstan-
+      - run: mkdir -p /tmp/phpstan
+
+      - name: Execute tests
+        run: php -d memory_limit=-1 vendor/bin/pest --colors=always --parallel --configuration=phpunit-pipelines.xml
+
+  test-full:
+    if: github.event_name == 'push'
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - DB${{ matrix.db }}
+    runs-on: ubuntu-latest
+    env:
+      COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.ACCESS_TOKEN }}"} }'
+    strategy:
+      fail-fast: true
+      matrix:
+        php: [8.2, 8.3, 8.4]
+        laravel: [11.*, 12.*]
+        stability: [prefer-stable]
+        db: [sqlite, mysql]
+        include:
+          - laravel: 11.*
+            testbench: 9.*
+          - laravel: 12.*
+            testbench: 10.*
+        exclude:
+          - laravel: 11.*
+            php: 8.4
+          - laravel: 12.*
+            php: 8.3
+          - laravel: 12.*
+            php: 8.2
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_cms_multi
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -proot || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Cache Dependencies PHP
+        id: php-cache
+        uses: actions/cache@v5
+        with:
+          path: vendor
+          key: dependencies-php-${{ matrix.php }}-${{ hashFiles('composer.lock') }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: curl, dom, fileinfo, intl, json, libxml, mbstring, simplexml, zip
+          tools: composer:v2
+          coverage: xdebug
+
+      - name: Setup problem matchers
+        run: |
+          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+          echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Install PHP dependencies
+        if: steps.php-cache.outputs.cache-hit != 'true'
+        run: |
+          if [ "${{ matrix.php }}" = "8.2" ]; then
+            composer remove --no-interaction --no-progress --ansi --dev --no-update mrpunyapal/peststan
+            composer require --no-interaction --no-progress --ansi --dev --no-update \
+              soyhuce/phpstan-extension:^1.1 \
+              pestphp/pest:^3.0 \
+              pestphp/pest-plugin-arch:^3.0 \
+              pestphp/pest-plugin-laravel:^3.0 \
+              pestphp/pest-plugin-livewire:^3.0 \
+              pestphp/pest-plugin-type-coverage:^3.0 \
+              phpstan/phpstan:^1.10.57 \
+              phpstan/phpstan-mockery:^1.0 \
+              phpstan/phpstan-strict-rules:^1.0 \
+              calebdw/larastan-livewire:^1.0 \
+              canvural/larastan-strict-rules:^2.0 \
+              phpstan/phpstan-beberlei-assert:^1.0 \
+              rector/rector:^1.0 \
+              driftingly/rector-laravel:^1.0 \
+              larastan/larastan:^2.0
+            composer require --no-interaction --no-progress --ansi --no-update \
+              livewire/livewire:^3.0 \
+              filament/filament:^4.7 \
+              filament/support:^4.7 \
+              symfony/html-sanitizer:^7.0 \
+              openspout/openspout:^4.22
+          fi
           composer update --no-interaction --no-progress --ansi --optimize-autoloader --with-all-dependencies -W
 
       - name: Configure environment
