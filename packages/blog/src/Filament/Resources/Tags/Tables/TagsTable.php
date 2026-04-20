@@ -21,6 +21,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -40,6 +41,11 @@ class TagsTable implements TableConfigurator
                 SelectFilter::make('site_id')
                     ->label(__('capell-admin::form.site'))
                     ->relationship(name: 'site', titleAttribute: 'name'),
+                TernaryFilter::make('featured')
+                    ->label(__('capell-mosaic::table.featured'))
+                    ->trueLabel(__('capell-admin::generic.yes'))
+                    ->falseLabel(__('capell-admin::generic.no'))
+                    ->placeholder(__('capell-admin::generic.all')),
                 StatusFilter::make('status'),
             ])
             ->recordActions([
