@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Plugins\Filament\Pages\Plugins\Tables;
 
+use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Plugins\Actions\InstallPluginAction;
 use Capell\Plugins\Actions\UninstallPluginAction;
 use Capell\Plugins\Actions\UpdatePluginAction;
@@ -15,7 +16,6 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -23,7 +23,7 @@ use Livewire\Attributes\On;
 use Throwable;
 
 #[On('refresh-table')]
-class PluginsTable
+class PluginsTable implements TableConfigurator
 {
     public static function configure(Table $table): Table
     {
@@ -32,14 +32,14 @@ class PluginsTable
             ->columns(static::getTableColumns())
             ->emptyStateDescription(function (PluginsPage $livewire): ?string {
                 if ($livewire->isBrowseTab()) {
-                    return __('No plugins available in the marketplace');
+                    return __('capell-plugins::table.no_plugins_browse');
                 }
 
                 if ($livewire->isInstalledTab()) {
-                    return __('No plugins installed yet');
+                    return __('capell-plugins::table.no_plugins_installed');
                 }
 
-                return __('All plugins are up to date');
+                return __('capell-plugins::table.all_up_to_date');
             })
             ->recordActions([
                 self::installAction(),
@@ -75,28 +75,29 @@ class PluginsTable
     {
         return [
             TextColumn::make('name')
-                ->label(__('Plugin'))
+                ->label(__('capell-plugins::table.name'))
                 ->description(fn (MarketplacePlugin $record): ?string => $record->description)
                 ->weight(FontWeight::Medium)
                 ->sortable()
                 ->searchable()
                 ->wrap(),
             TextColumn::make('vendor')
-                ->label(__('Vendor'))
+                ->label(__('capell-plugins::table.vendor'))
                 ->sortable()
                 ->searchable(),
             TextColumn::make('kind')
-                ->label(__('Type'))
+                ->label(__('capell-plugins::table.type'))
                 ->badge()
                 ->sortable(),
             TextColumn::make('license_model')
-                ->label(__('License'))
+                ->label(__('capell-plugins::table.license'))
                 ->badge()
                 ->sortable(),
-            BadgeColumn::make('activeLicense.status')
-                ->label(__('Status'))
+            TextColumn::make('activeLicense.status')
+                ->label(__('capell-plugins::table.status'))
+                ->badge()
                 ->visible(fn (PluginsPage $livewire): bool => $livewire->isInstalledTab())
-                ->formatStateUsing(fn (?string $state): string => $state ?? 'Not Licensed')
+                ->formatStateUsing(fn (?string $state): string => $state ?? __('capell-plugins::table.not_licensed'))
                 ->getStateUsing(function (MarketplacePlugin $record): ?string {
                     $license = $record->activeLicense();
 
