@@ -7,6 +7,7 @@ namespace Capell\Tests\Packages;
 use Capell\Address\Providers\AddressServiceProvider;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
+use Capell\Admin\Providers\Filament\AdminPanelProvider;
 use Capell\Assistant\Providers\AssistantServiceProvider;
 use Capell\Blog\Providers\BlogServiceProvider;
 use Capell\Core\Facades\CapellCore;
@@ -15,7 +16,6 @@ use Capell\Frontend\Contracts\SettingsMigrationProviderInterface;
 use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\Mosaic\Providers\MosaicServiceProvider;
 use Capell\Tests\AbstractTestCase;
-use Capell\Tests\Fixtures\Admin\AdminPanelProvider;
 use Illuminate\Foundation\Application;
 use Livewire\LivewireServiceProvider;
 

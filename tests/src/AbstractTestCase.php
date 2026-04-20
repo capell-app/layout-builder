@@ -48,6 +48,7 @@ use Oddvalue\LaravelDrafts\LaravelDraftsServiceProvider;
 use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase;
 use Orchestra\Workbench\WorkbenchServiceProvider;
+use Pboivin\FilamentPeek\FilamentPeekServiceProvider;
 use Saade\FilamentAdjacencyList\FilamentAdjacencyListServiceProvider;
 use Silber\PageCache\LaravelServiceProvider;
 use Sinnbeck\DomAssertions\DomAssertionsServiceProvider;
@@ -153,6 +154,7 @@ abstract class AbstractTestCase extends TestCase
             FilamentAuthenticationLogServiceProvider::class,
             FilamentServiceProvider::class,
             FilamentAdjacencyListServiceProvider::class,
+            FilamentPeekServiceProvider::class,
             FilamentShieldServiceProvider::class,
             FilamentSelectTreeServiceProvider::class,
             FilamentClearCacheServiceProvider::class,

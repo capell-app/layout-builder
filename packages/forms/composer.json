@@ -1,0 +1,54 @@
+{
+    "name": "capell-app/forms",
+    "description": "Forms package for Capell CMS",
+    "keywords": [
+        "capell",
+        "forms",
+        "laravel",
+        "filamentphp",
+        "cms"
+    ],
+    "homepage": "https://github.com/capell-app/forms",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Capell Team",
+            "email": "team@capell.app",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "capell-app/admin": "*",
+        "capell-app/frontend": "*"
+    },
+    "require-dev": {
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0",
+        "orchestra/testbench": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\Forms\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Capell\\Forms\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\Forms\\Providers\\FormsServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "test": "pest"
+    },
+    "prefer-stable": true
+}

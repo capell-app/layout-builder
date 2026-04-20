@@ -6,11 +6,11 @@ namespace Capell\Tests\Mosaic;
 
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
+use Capell\Admin\Providers\Filament\AdminPanelProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\Mosaic\Providers\MosaicServiceProvider;
 use Capell\Tests\AbstractTestCase;
-use Capell\Tests\Fixtures\Admin\AdminPanelProvider;
 use Illuminate\Foundation\Application;
 use Livewire\LivewireServiceProvider;
 use Override;

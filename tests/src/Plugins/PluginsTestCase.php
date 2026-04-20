@@ -6,10 +6,10 @@ namespace Capell\Tests\Plugins;
 
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
+use Capell\Admin\Providers\Filament\AdminPanelProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Plugins\Providers\PluginsServiceProvider;
 use Capell\Tests\AbstractTestCase;
-use Capell\Tests\Fixtures\Admin\AdminPanelProvider;
 use Illuminate\Foundation\Application;
 use Livewire\LivewireServiceProvider;
 use Override;
