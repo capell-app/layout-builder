@@ -11,7 +11,12 @@ class SetupCommand extends Command
 {
     protected $description = 'Setup blog package';
 
-    protected $signature = 'capell:blog-setup';
+    protected $signature = 'capell:blog-setup
+        {--user= : Ignored — accepted for compatibility with capell:install}
+        {--sites= : Ignored — accepted for compatibility with capell:install}
+        {--languages= : Ignored — accepted for compatibility with capell:install}
+        {--url= : Ignored — accepted for compatibility with capell:install}
+    ';
 
     /**
      * Execute the console command.

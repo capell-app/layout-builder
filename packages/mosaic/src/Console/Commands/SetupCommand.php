@@ -9,7 +9,13 @@ use Illuminate\Console\Command;
 
 class SetupCommand extends Command
 {
-    protected $signature = 'capell:mosaic-setup {--include-hero}';
+    protected $signature = 'capell:mosaic-setup
+        {--user= : Ignored — accepted for compatibility with capell:install}
+        {--sites= : Ignored — accepted for compatibility with capell:install}
+        {--languages= : Ignored — accepted for compatibility with capell:install}
+        {--url= : Ignored — accepted for compatibility with capell:install}
+        {--include-hero}
+    ';
 
     protected $description = 'Setting up the Capell Mosaic package';
 
