@@ -125,7 +125,6 @@ test('can edit widget', function (WidgetTypeEnum $typeEum): void {
         WidgetTypeEnum::FeatureList => $typeCreator->featureListWidgetType(),
         WidgetTypeEnum::CTASection => $typeCreator->ctaSectionWidgetType(),
         WidgetTypeEnum::ImageGallery => $typeCreator->imageGalleryWidgetType(),
-        WidgetTypeEnum::FormSection => $typeCreator->formSectionWidgetType(),
     };
 
     $newData = Widget::factory()->make();

@@ -328,10 +328,6 @@ class DemoCommand extends Command
         $apImageGalleryWidget = $widgetCreator->apImageGalleryWidget();
         $this->advanceProgress();
 
-        $this->setProgressMessage('Creating AP form section widget');
-        $apFormSectionWidget = $widgetCreator->apFormSectionWidget();
-        $this->advanceProgress();
-
         $containers['secondary'] = [
             'meta' => [
                 'colspan' => 12,
@@ -366,7 +362,6 @@ class DemoCommand extends Command
                 ['widget_key' => $apFeatureListWidget->key],
                 ['widget_key' => $apCtaSectionWidget->key],
                 ['widget_key' => $apImageGalleryWidget->key],
-                ['widget_key' => $apFormSectionWidget->key],
             ],
         ];
     }
@@ -393,10 +388,6 @@ class DemoCommand extends Command
         $imageGalleryWidget = $this->demoCreator->createApImageGalleryWidget();
         $this->advanceProgress();
 
-        $this->setProgressMessage('Creating AP Form Section widget');
-        $formSectionWidget = $this->demoCreator->createApFormSectionWidget();
-        $this->advanceProgress();
-
         $containers['ap-widgets'] = [
             'meta' => [
                 'colspan' => 12,
@@ -407,7 +398,6 @@ class DemoCommand extends Command
                 ['widget_key' => $featureListWidget->key],
                 ['widget_key' => $ctaSectionWidget->key],
                 ['widget_key' => $imageGalleryWidget->key],
-                ['widget_key' => $formSectionWidget->key],
             ],
         ];
     }

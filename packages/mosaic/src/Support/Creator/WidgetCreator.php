@@ -619,20 +619,4 @@ class WidgetCreator
             ],
         ]);
     }
-
-    public function apFormSectionWidget(?Type $type = null): Widget
-    {
-        $type ??= resolve(TypeCreator::class)->defaultWidgetType();
-
-        return $this->widgetModel::query()->firstOrCreate(['key' => 'ap-form-section'], [
-            'name' => 'AP Form Section',
-            'type_id' => $type->id,
-            'meta' => [
-                'component' => WidgetComponentEnum::ApFormSection,
-                'submit_button_text' => 'Submit',
-                'form_fields' => [],
-                'margin' => ['lg'],
-            ],
-        ]);
-    }
 }

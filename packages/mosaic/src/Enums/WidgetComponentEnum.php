@@ -32,5 +32,4 @@ enum WidgetComponentEnum: string
     case ApFeatureList = 'capell-mosaic::modern.feature-list';
     case ApCTASection = 'capell-mosaic::modern.cta-section';
     case ApImageGallery = 'capell-mosaic::modern.image-gallery';
-    case ApFormSection = 'capell-mosaic::modern.form-section';
 }

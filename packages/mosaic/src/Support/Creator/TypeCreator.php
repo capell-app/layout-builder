@@ -104,7 +104,6 @@ class TypeCreator
         $this->featureListWidgetType();
         $this->ctaSectionWidgetType();
         $this->imageGalleryWidgetType();
-        $this->formSectionWidgetType();
     }
 
     public function defaultWidgetType(): Type
@@ -406,23 +405,6 @@ class TypeCreator
             'admin' => [
                 'type_schema' => WidgetTypeSchema::getKey(),
                 'icon' => 'heroicon-o-photo',
-            ],
-            'meta' => [
-                'component' => WidgetComponentEnum::Default,
-            ],
-        ]);
-    }
-
-    public function formSectionWidgetType(): Type
-    {
-        return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::FormSection,
-            'type' => LayoutTypeEnum::Widget,
-        ], [
-            'name' => 'Form Section',
-            'admin' => [
-                'type_schema' => WidgetTypeSchema::getKey(),
-                'icon' => 'heroicon-o-document-text',
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::Default,

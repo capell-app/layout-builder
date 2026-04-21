@@ -1270,40 +1270,6 @@ class DemoCreator
         return $widget;
     }
 
-    public function createApFormSectionWidget(): Widget
-    {
-        $widgetType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', WidgetTypeEnum::FormSection)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-                ->firstWhere('key', WidgetTypeEnum::Default);
-
-        $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-form-section'], [
-            'name' => 'AP Form Section',
-            'type_id' => $widgetType->id,
-            'meta' => [
-                'title' => 'Get Early Access',
-                'description' => 'Join the waitlist and be first to know when new packages ship.',
-                'submit_text' => 'Request Access',
-                'submit_action' => '/early-access',
-                'fields' => [
-                    ['name' => 'name', 'label' => 'Full Name', 'type' => 'text', 'placeholder' => 'Ada Lovelace', 'required' => true],
-                    ['name' => 'email', 'label' => 'Work Email', 'type' => 'email', 'placeholder' => 'ada@example.com', 'required' => true, 'help_text' => 'No spam. Unsubscribe any time.'],
-                    ['name' => 'project', 'label' => 'Project Type', 'type' => 'select', 'placeholder' => 'Select...', 'required' => false],
-                ],
-                'margin' => ['lg'],
-            ],
-        ]);
-
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
-            $widget->translations()->updateOrCreate(
-                ['language_id' => $language->id],
-                ['title' => 'AP Form Section'],
-            );
-        }
-
-        return $widget;
-    }
-
     protected function navigationPageItems(Collection $siteTree, Language $language): array
     {
         $items = [];

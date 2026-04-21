@@ -113,7 +113,6 @@ describe('from list widgets', function (): void {
             WidgetTypeEnum::FeatureList => $typeCreator->featureListWidgetType(),
             WidgetTypeEnum::CTASection => $typeCreator->ctaSectionWidgetType(),
             WidgetTypeEnum::ImageGallery => $typeCreator->imageGalleryWidgetType(),
-            WidgetTypeEnum::FormSection => $typeCreator->formSectionWidgetType(),
         };
 
         livewire(ListWidgets::class)

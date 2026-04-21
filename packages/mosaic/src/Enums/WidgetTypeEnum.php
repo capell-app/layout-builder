@@ -37,6 +37,4 @@ enum WidgetTypeEnum: string
     case CTASection = 'cta-section';
 
     case ImageGallery = 'image-gallery';
-
-    case FormSection = 'form-section';
 }

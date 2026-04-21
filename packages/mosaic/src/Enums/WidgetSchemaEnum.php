@@ -10,7 +10,6 @@ use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\CarouselWidgetSchema;
 use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\CTASectionWidgetSchema;
 use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\DefaultWidgetSchema;
 use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\FeatureListWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\FormSectionWidgetSchema;
 use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\HeroBannerWidgetSchema;
 use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\HeroWidgetSchema;
 use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\ImageGalleryWidgetSchema;
@@ -39,6 +38,4 @@ enum WidgetSchemaEnum: string
     case CTASection = CTASectionWidgetSchema::class;
 
     case ImageGallery = ImageGalleryWidgetSchema::class;
-
-    case FormSection = FormSectionWidgetSchema::class;
 }
