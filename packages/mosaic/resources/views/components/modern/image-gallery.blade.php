@@ -70,11 +70,11 @@ declare(strict_types=1);
                 "
             >
                 @foreach ($widget->assets as $asset)
-                    @if ($asset->media->isNotEmpty())
-                        @php
-                            $media = $asset->media->first();
-                        @endphp
+                    @php
+                        $media = $asset->media->first() ?: $asset->asset->media->first();
+                    @endphp
 
+                    @if ($media)
                         <div
                             class="ap-gallery-item"
                             style="

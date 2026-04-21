@@ -1,226 +1,187 @@
-{{--
-    Modern Pricing Table Widget
-    
-    Props:
-    - title (string): Section heading
-    - plans (array): Array of pricing plan objects
-    - currency (string): Currency symbol - Default: '$'
-    - billingOptions (string): 'monthly|annual|both' - Default: 'monthly'
-    - customizable (bool): Show admin hints
---}}
+<?php
+
+declare(strict_types=1);
+
+?>
 
 @props([
-    'title' => 'Simple, Transparent Pricing',
-    'plans' => [
-        [
-            'name' => 'Starter',
-            'price' => '29',
-            'priceAnnual' => '290',
-            'description' => 'For individuals',
-            'features' => ['Up to 5 projects', '1 GB storage', 'Email support'],
-            'cta' => ['label' => 'Get Started', 'url' => '#'],
-            'featured' => false,
-        ],
-        [
-            'name' => 'Professional',
-            'price' => '79',
-            'priceAnnual' => '790',
-            'description' => 'For teams',
-            'features' => ['Unlimited projects', '100 GB storage', 'Priority support', 'Advanced analytics'],
-            'cta' => ['label' => 'Start Free', 'url' => '#'],
-            'featured' => true,
-        ],
-        [
-            'name' => 'Enterprise',
-            'price' => 'Custom',
-            'priceAnnual' => 'Custom',
-            'description' => 'For enterprises',
-            'features' => ['Everything in Pro', 'Unlimited storage', 'Dedicated support', 'Custom integrations'],
-            'cta' => ['label' => 'Contact Sales', 'url' => '#'],
-            'featured' => false,
-        ],
-    ],
-    'currency' => '$',
-    'billingOptions' => 'monthly',
-    'customizable' => true,
+    'currency' => $widget->getMeta('currency', '$'),
+    'billingOptions' => $widget->getMeta('billing_options', 'monthly'),
+    'container',
+    'containerKey',
+    'containerWidth' => null,
+    'loop',
+    'widget',
 ])
 
-<section class="px-6 py-12 md:px-12 md:py-16">
-    @if ($title)
-        <div class="mx-auto mb-12 max-w-2xl text-center">
-            <h2 class="text-3xl font-bold text-gray-900 md:text-4xl">
-                {{ $title }}
-            </h2>
-        </div>
-    @endif
-
-    @if ($billingOptions === 'both')
-        <div
-            class="mb-12 flex items-center justify-center gap-4"
-        >
-            <span
-                class="text-gray-700"
-            >
-                Monthly
-            </span>
-            {{-- format-ignore-start --}}
-                    <button
-                        class="billing-toggle-button relative h-8 w-14 rounded-full bg-indigo-600 transition-colors"
-                        onclick="toggleBillingCycle(this)"
+<x-capell-mosaic::widget.wrapper
+    class="widget-ap-pricing-table"
+    :$container
+    :$containerKey
+    :$containerWidth
+    :index="$loop->index"
+    :$widget
+>
+    <section class="px-6 py-12 md:px-12 md:py-16">
+        @if ($widget->translation)
+            <div class="mx-auto mb-12 max-w-2xl text-center">
+                @if ($widget->translation->title)
+                    <h2
+                        class="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl"
                     >
-                        <div
-                            class="billing-toggle-dot absolute left-1 top-1 h-6 w-6 rounded-full bg-white transition-all"
-                        ></div>
-                    </button>
-                    {{-- format-ignore-end --}}
-            <span
-                class="text-gray-700"
-            >
-                Annual
-            </span>
-            <span
-                class="text-sm font-semibold text-indigo-600"
-            >
-                Save
-                17%
-            </span>
-        </div>
-    @endif
+                        {{ $widget->translation->title }}
+                    </h2>
+                @endif
 
-    <div
-        class="pricing-grid mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3"
-        data-billing="{{ $billingOptions === 'both' ? 'monthly' : $billingOptions }}"
-    >
-        @forelse ($plans as $plan)
-            @if ($plan['featured'] ?? false)
-                <div
-                    class="pricing-plan relative rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-800 p-8 text-white shadow-xl md:-my-4"
-                    data-price-monthly="{{ $plan['price'] ?? '' }}"
-                    data-price-annual="{{ $plan['priceAnnual'] ?? $plan['price'] ?? '' }}"
-                >
-                    <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <span
-                            class="rounded-full bg-amber-400 px-4 py-1 text-xs font-bold text-amber-900"
-                        >
-                            Most Popular
-                        </span>
-                    </div>
-
-                    <h3 class="mb-1 text-2xl font-bold text-white">
-                        {{ $plan['name'] }}
-                    </h3>
-
-                    @if (isset($plan['description']))
-                        <p class="mb-6 text-sm text-indigo-200">
-                            {{ $plan['description'] }}
-                        </p>
-                    @endif
-
-                    <div class="price-container mb-6">
-                        <span class="plan-price text-4xl font-bold text-white">
-                            {{ $currency }}{{ $plan['price'] }}
-                        </span>
-                        @if ($plan['price'] !== 'Custom')
-                            <span class="billing-period text-indigo-200">
-                                /month
-                            </span>
-                        @endif
-                    </div>
-
-                    @if (isset($plan['features']))
-                        <ul class="mb-8 space-y-3">
-                            @foreach ($plan['features'] as $feature)
-                                <li
-                                    class="flex items-center gap-2 text-indigo-100"
-                                >
-                                    <span class="font-bold text-indigo-300">
-                                        ✓
-                                    </span>
-                                    <span>{{ $feature }}</span>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
-
-                    @if (isset($plan['cta']))
-                        <a
-                            href="{{ $plan['cta']['url'] }}"
-                            class="block w-full rounded-lg bg-white px-6 py-3 text-center font-semibold text-indigo-700 transition-opacity hover:opacity-90"
-                        >
-                            {{ $plan['cta']['label'] }}
-                        </a>
-                    @endif
-                </div>
-            @else
-                <div
-                    class="pricing-plan relative rounded-2xl border border-gray-100 bg-gray-50 p-8"
-                    data-price-monthly="{{ $plan['price'] ?? '' }}"
-                    data-price-annual="{{ $plan['priceAnnual'] ?? $plan['price'] ?? '' }}"
-                >
-                    <h3 class="mb-1 text-2xl font-bold text-gray-900">
-                        {{ $plan['name'] }}
-                    </h3>
-
-                    @if (isset($plan['description']))
-                        <p class="mb-6 text-sm text-gray-500">
-                            {{ $plan['description'] }}
-                        </p>
-                    @endif
-
-                    <div class="price-container mb-6">
-                        <span
-                            class="plan-price text-4xl font-bold text-gray-900"
-                        >
-                            {{ $currency }}{{ $plan['price'] }}
-                        </span>
-                        @if ($plan['price'] !== 'Custom')
-                            <span class="billing-period text-gray-500">
-                                /month
-                            </span>
-                        @endif
-                    </div>
-
-                    @if (isset($plan['features']))
-                        <ul class="mb-8 space-y-3">
-                            @foreach ($plan['features'] as $feature)
-                                <li
-                                    class="flex items-center gap-2 text-gray-700"
-                                >
-                                    <span class="font-bold text-indigo-500">
-                                        ✓
-                                    </span>
-                                    <span>{{ $feature }}</span>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
-
-                    @if (isset($plan['cta']))
-                        <a
-                            href="{{ $plan['cta']['url'] }}"
-                            class="block w-full rounded-lg border border-gray-200 bg-white px-6 py-3 text-center font-semibold text-gray-700 transition-colors hover:border-indigo-300 hover:text-indigo-600"
-                        >
-                            {{ $plan['cta']['label'] }}
-                        </a>
-                    @endif
-                </div>
-            @endif
-        @empty
-            <div class="col-span-full py-12 text-center">
-                <p class="text-gray-500">No pricing plans configured</p>
+                @if ($widget->translation->content)
+                    <p class="mt-3 text-lg text-gray-500">
+                        {{ strip_tags($widget->translation->content) }}
+                    </p>
+                @endif
             </div>
-        @endforelse
-    </div>
+        @endif
 
-    @if ($customizable && auth()->check())
-        <div class="mt-12 border-t border-gray-100 pt-8 text-center opacity-60">
-            <span class="text-xs text-gray-500">
-                ✨ Customize: Add plans, features, pricing, featured plan,
-                billing cycle options
-            </span>
+        @if ($billingOptions === 'both')
+            <div class="mb-12 flex items-center justify-center gap-4">
+                <span class="text-gray-700">Monthly</span>
+                {{-- format-ignore-start --}}
+                        <button
+                            class="billing-toggle-button relative h-8 w-14 rounded-full bg-stone-800 transition-colors"
+                            onclick="toggleBillingCycle(this)"
+                        >
+                            <div
+                                class="billing-toggle-dot absolute left-1 top-1 h-6 w-6 rounded-full bg-white transition-all"
+                            ></div>
+                        </button>
+                        {{-- format-ignore-end --}}
+                <span class="text-gray-700">Annual</span>
+                <span class="text-sm font-semibold text-emerald-700">
+                    Save 17%
+                </span>
+            </div>
+        @endif
+
+        <div
+            class="pricing-grid mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3"
+            data-billing="{{ $billingOptions === 'both' ? 'monthly' : $billingOptions }}"
+        >
+            @forelse ($widget->assets as $widgetAsset)
+                @php
+                    $price = $widgetAsset->asset->getMeta('price', '0');
+                    $priceAnnual = $widgetAsset->asset->getMeta('price_annual', $price);
+                    $featured = (bool) $widgetAsset->asset->getMeta('featured', false);
+                    $ctaLabel = $widgetAsset->asset->getMeta('cta_label', 'Get Started');
+                    $ctaUrl = $widgetAsset->asset->getMeta('cta_url', '#');
+                    $features = $widgetAsset->asset->getMeta('features', []);
+                @endphp
+
+                @if ($featured)
+                    <div
+                        class="pricing-plan relative rounded-xl bg-stone-900 p-8 text-white shadow-xl md:-my-4"
+                        data-price-monthly="{{ $price }}"
+                        data-price-annual="{{ $priceAnnual }}"
+                    >
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+                            <span
+                                class="rounded-full bg-amber-400 px-4 py-1 text-xs font-bold text-amber-900"
+                            >
+                                Most Popular
+                            </span>
+                        </div>
+
+                        @if ($widgetAsset->asset->translation?->title)
+                            <h3 class="mb-1 text-2xl font-bold tracking-tight text-white">
+                                {{ $widgetAsset->asset->translation->title }}
+                            </h3>
+                        @endif
+
+                        @if ($widgetAsset->asset->translation?->content)
+                            <p class="mb-6 text-sm text-stone-400">
+                                {{ strip_tags($widgetAsset->asset->translation->content) }}
+                            </p>
+                        @endif
+
+                        <div class="price-container mb-6">
+                            <span class="plan-price text-4xl font-bold text-white">
+                                {{ $price !== 'Custom' ? $currency : '' }}{{ $price }}
+                            </span>
+                            @if ($price !== 'Custom')
+                                <span class="billing-period text-stone-400">/month</span>
+                            @endif
+                        </div>
+
+                        @if (count($features) > 0)
+                            <ul class="mb-8 space-y-3">
+                                @foreach ($features as $feature)
+                                    <li class="flex items-center gap-2 text-stone-200">
+                                        <span class="font-bold text-emerald-400">✓</span>
+                                        <span>{{ $feature }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @endif
+
+                        <a
+                            href="{{ $ctaUrl }}"
+                            class="block w-full rounded-lg bg-white px-6 py-3 text-center font-semibold text-stone-900 transition-opacity hover:opacity-90"
+                        >
+                            {{ $ctaLabel }}
+                        </a>
+                    </div>
+                @else
+                    <div
+                        class="pricing-plan relative rounded-xl border border-stone-200 bg-white p-8"
+                        data-price-monthly="{{ $price }}"
+                        data-price-annual="{{ $priceAnnual }}"
+                    >
+                        @if ($widgetAsset->asset->translation?->title)
+                            <h3 class="mb-1 text-2xl font-bold tracking-tight text-gray-900">
+                                {{ $widgetAsset->asset->translation->title }}
+                            </h3>
+                        @endif
+
+                        @if ($widgetAsset->asset->translation?->content)
+                            <p class="mb-6 text-sm text-gray-500">
+                                {{ strip_tags($widgetAsset->asset->translation->content) }}
+                            </p>
+                        @endif
+
+                        <div class="price-container mb-6">
+                            <span class="plan-price text-4xl font-bold text-gray-900">
+                                {{ $price !== 'Custom' ? $currency : '' }}{{ $price }}
+                            </span>
+                            @if ($price !== 'Custom')
+                                <span class="billing-period text-gray-500">/month</span>
+                            @endif
+                        </div>
+
+                        @if (count($features) > 0)
+                            <ul class="mb-8 space-y-3">
+                                @foreach ($features as $feature)
+                                    <li class="flex items-center gap-2 text-gray-700">
+                                        <span class="font-bold text-emerald-600">✓</span>
+                                        <span>{{ $feature }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @endif
+
+                        <a
+                            href="{{ $ctaUrl }}"
+                            class="block w-full rounded-lg border border-stone-200 bg-white px-6 py-3 text-center font-semibold text-gray-700 transition-colors hover:border-emerald-300 hover:text-emerald-700"
+                        >
+                            {{ $ctaLabel }}
+                        </a>
+                    </div>
+                @endif
+            @empty
+                <div class="col-span-full py-12 text-center">
+                    <p class="text-gray-500">No pricing plans configured</p>
+                </div>
+            @endforelse
         </div>
-    @endif
-</section>
+    </section>
+</x-capell-mosaic::widget.wrapper>
 
 <script>
     function toggleBillingCycle(button) {
@@ -260,3 +221,5 @@
         dot.style.left = newBilling === 'annual' ? '30px' : '4px'
     }
 </script>
+
+<?php

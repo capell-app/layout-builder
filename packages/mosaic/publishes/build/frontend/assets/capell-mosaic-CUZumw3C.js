@@ -4937,35 +4937,33 @@ function Nt(e, t) {
     })
 }
 function Z(e, t, n, r) {
-    if (!t.dotsNode) return
-    let i = t.dotsNode.querySelectorAll(`.swiper-pagination-bullet`)
-    i.forEach((t, a) => {
-        t.dataset.carouselPaginationBound !== n.carouselId &&
-            ((t.dataset.carouselPaginationBound = n.carouselId),
-            t.addEventListener(
-                `click`,
-                (r) => {
-                    if ((r.preventDefault(), e.destroyed)) return
-                    let o = Number.parseInt(
-                            t.dataset.carouselBulletIndex ?? ``,
-                            10,
-                        ),
-                        s = Number.isNaN(o) ? a : o
-                    if (n.loop && typeof e.slideToLoop == `function`) {
-                        let t = e.realIndex ?? e.activeIndex,
-                            n = i.length - 1
-                        if (t === 0 && s === n) {
-                            e.slidePrev()
-                            return
-                        }
-                        e.slideToLoop(s)
-                        return
-                    }
-                    e.slideTo(s)
-                },
-                { signal: r },
-            ))
-    })
+    t.dotsNode &&
+        t.dotsNode
+            .querySelectorAll(`.swiper-pagination-bullet`)
+            .forEach((t, i) => {
+                t.dataset.carouselPaginationBound !== n.carouselId &&
+                    ((t.dataset.carouselPaginationBound = n.carouselId),
+                    t.addEventListener(
+                        `click`,
+                        (r) => {
+                            if ((r.preventDefault(), e.destroyed)) return
+                            let a = Number.parseInt(
+                                    t.dataset.carouselBulletIndex ?? ``,
+                                    10,
+                                ),
+                                o = Number.isNaN(a) ? i : a
+                            if (
+                                n.loop &&
+                                typeof e.getSlideIndexByData == `function`
+                            ) {
+                                e.slideTo(e.getSlideIndexByData(o))
+                                return
+                            }
+                            e.slideTo(o)
+                        },
+                        { signal: r },
+                    ))
+            })
 }
 function Q(e, t, n) {
     if ((e.classList.toggle(`swiper-disabled`, !n), t.autoplay)) {
@@ -5003,7 +5001,6 @@ function It(e, t, n, r) {
             grabCursor: t.grabCursor,
             initialSlide: t.initialSlide,
             loop: t.loop,
-            loopAdditionalSlides: t.loop ? t.slideCount : void 0,
             observeParents: !0,
             observer: !0,
             rewind: t.loop ? !1 : t.rewind,

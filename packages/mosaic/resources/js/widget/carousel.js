@@ -265,19 +265,11 @@ function bindPaginationBullets(swiperInstance, controls, options, signal) {
 
                 if (
                     options.loop &&
-                    typeof swiperInstance.slideToLoop === 'function'
+                    typeof swiperInstance.getSlideIndexByData === 'function'
                 ) {
-                    const realIndex =
-                        swiperInstance.realIndex ?? swiperInstance.activeIndex
-                    const lastBulletIndex = bullets.length - 1
-
-                    if (realIndex === 0 && targetIndex === lastBulletIndex) {
-                        swiperInstance.slidePrev()
-
-                        return
-                    }
-
-                    swiperInstance.slideToLoop(targetIndex)
+                    swiperInstance.slideTo(
+                        swiperInstance.getSlideIndexByData(targetIndex),
+                    )
 
                     return
                 }
@@ -340,7 +332,6 @@ export function buildSwiperSettings(swiperNode, options, controls, signal) {
         grabCursor: options.grabCursor,
         initialSlide: options.initialSlide,
         loop: options.loop,
-        loopAdditionalSlides: options.loop ? options.slideCount : undefined,
         observeParents: true,
         observer: true,
         rewind: options.loop ? false : options.rewind,

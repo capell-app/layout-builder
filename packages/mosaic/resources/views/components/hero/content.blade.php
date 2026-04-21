@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 @props([
     'color',
-    'content_class' => 'hero-content prose xl:prose-lg max-w-none tracking-wider',
+    'content_class' => 'hero-content prose max-w-none tracking-wider',
     'headingSize' => 'h1',
     'linkClass' => 'text-link hover:text-primary focus:text-primary font-medium focus:underline',
     'size' => 'md',

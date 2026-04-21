@@ -921,6 +921,7 @@ class DemoCreator
             'type_id' => $widgetType->id,
             'meta' => [
                 'component' => 'capell-mosaic::modern.team-members',
+                'columns' => 3,
                 'margin' => ['lg'],
             ],
         ]);
@@ -928,10 +929,62 @@ class DemoCreator
         foreach (Site::getDefault()?->languages ?? [] as $language) {
             $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
-                [
-                    'title' => 'Our Team',
-                ],
+                ['title' => 'Our Team'],
             );
+        }
+
+        if ($widget->assets()->exists()) {
+            return $widget;
+        }
+
+        $members = [
+            [
+                'icon' => '👩‍💼',
+                'name' => 'Alex Morgan',
+                'position' => 'Product Lead',
+                'bio' => 'Creative designer with 5+ years building user-centred digital products.',
+                'tags' => ['Design', 'Leadership'],
+                'social' => ['twitter' => 'https://twitter.com', 'linkedin' => 'https://linkedin.com'],
+            ],
+            [
+                'icon' => '👨‍🔬',
+                'name' => 'Emma Davis',
+                'position' => 'Engineering Manager',
+                'bio' => 'Full-stack developer and systems architect with a passion for clean APIs.',
+                'tags' => ['Engineering', 'Architecture'],
+                'social' => ['github' => 'https://github.com', 'linkedin' => 'https://linkedin.com'],
+            ],
+            [
+                'icon' => '🧑‍💼',
+                'name' => 'James Wilson',
+                'position' => 'CEO & Co-founder',
+                'bio' => 'Serial entrepreneur and technology visionary driving our strategic direction.',
+                'tags' => ['Strategy', 'Leadership'],
+                'social' => ['twitter' => 'https://twitter.com', 'linkedin' => 'https://linkedin.com'],
+            ],
+        ];
+
+        foreach ($members as $member) {
+            $section = Section::query()->firstOrCreate(['name' => $member['name']], [
+                'meta' => [
+                    'icon' => $member['icon'],
+                    'position' => $member['position'],
+                    'tags' => $member['tags'],
+                    'social' => $member['social'],
+                ],
+            ]);
+
+            foreach (Site::getDefault()?->languages ?? [] as $language) {
+                $section->translations()->firstOrCreate(
+                    ['language_id' => $language->id],
+                    ['title' => $member['name'], 'content' => sprintf('<p>%s</p>', $member['bio'])],
+                );
+            }
+
+            $widget->assets()->firstOrCreate([
+                'asset_id' => $section->id,
+                'asset_type' => resolve($this->contentModel)->getMorphClass(),
+            ]);
         }
 
         return $widget;
@@ -951,6 +1004,8 @@ class DemoCreator
             'type_id' => $widgetType->id,
             'meta' => [
                 'component' => 'capell-mosaic::modern.pricing-table',
+                'currency' => '$',
+                'billing_options' => 'both',
                 'margin' => ['lg'],
             ],
         ]);
@@ -958,10 +1013,70 @@ class DemoCreator
         foreach (Site::getDefault()?->languages ?? [] as $language) {
             $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
-                [
-                    'title' => 'Pricing Plans',
-                ],
+                ['title' => 'Simple, Transparent Pricing'],
             );
+        }
+
+        if ($widget->assets()->exists()) {
+            return $widget;
+        }
+
+        $plans = [
+            [
+                'name' => 'Starter',
+                'description' => 'For individuals and small projects',
+                'price' => '29',
+                'price_annual' => '290',
+                'featured' => false,
+                'cta_label' => 'Get Started',
+                'cta_url' => '#',
+                'features' => ['Up to 5 pages', '1 site', 'Email support', 'Basic widgets'],
+            ],
+            [
+                'name' => 'Professional',
+                'description' => 'For growing teams and businesses',
+                'price' => '79',
+                'price_annual' => '790',
+                'featured' => true,
+                'cta_label' => 'Start Free Trial',
+                'cta_url' => '#',
+                'features' => ['Unlimited pages', '5 sites', 'Priority support', 'All widgets', 'Multi-language'],
+            ],
+            [
+                'name' => 'Enterprise',
+                'description' => 'For large-scale deployments',
+                'price' => 'Custom',
+                'price_annual' => 'Custom',
+                'featured' => false,
+                'cta_label' => 'Contact Sales',
+                'cta_url' => '#',
+                'features' => ['Unlimited everything', 'Dedicated support', 'Custom integrations', 'SLA guarantee'],
+            ],
+        ];
+
+        foreach ($plans as $plan) {
+            $section = Section::query()->firstOrCreate(['name' => $plan['name']], [
+                'meta' => [
+                    'price' => $plan['price'],
+                    'price_annual' => $plan['price_annual'],
+                    'featured' => $plan['featured'],
+                    'cta_label' => $plan['cta_label'],
+                    'cta_url' => $plan['cta_url'],
+                    'features' => $plan['features'],
+                ],
+            ]);
+
+            foreach (Site::getDefault()?->languages ?? [] as $language) {
+                $section->translations()->firstOrCreate(
+                    ['language_id' => $language->id],
+                    ['title' => $plan['name'], 'content' => sprintf('<p>%s</p>', $plan['description'])],
+                );
+            }
+
+            $widget->assets()->firstOrCreate([
+                'asset_id' => $section->id,
+                'asset_type' => resolve($this->contentModel)->getMorphClass(),
+            ]);
         }
 
         return $widget;
@@ -981,6 +1096,7 @@ class DemoCreator
             'type_id' => $widgetType->id,
             'meta' => [
                 'component' => 'capell-mosaic::modern.testimonials',
+                'columns' => 2,
                 'margin' => ['lg'],
             ],
         ]);
@@ -988,10 +1104,39 @@ class DemoCreator
         foreach (Site::getDefault()?->languages ?? [] as $language) {
             $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
-                [
-                    'title' => 'What Customers Say',
-                ],
+                ['title' => 'What Customers Say'],
             );
+        }
+
+        if ($widget->assets()->exists()) {
+            return $widget;
+        }
+
+        $testimonials = [
+            ['icon' => '👩‍💼', 'author' => 'Sarah Johnson', 'position' => 'Marketing Manager', 'quote' => 'Amazing experience! Capell made it so easy to manage our content across multiple sites without any technical hassle.'],
+            ['icon' => '👨‍💼', 'author' => 'Mike Chen', 'position' => 'CEO', 'quote' => 'Switched from other CMS platforms and it was the best decision we ever made. The static caching alone paid for itself.'],
+            ['icon' => '🧑‍💻', 'author' => 'Priya Patel', 'position' => 'Lead Developer', 'quote' => 'The Filament integration and extensible package system means we can ship new features in days, not weeks.'],
+        ];
+
+        foreach ($testimonials as $testimonial) {
+            $section = Section::query()->firstOrCreate(['name' => $testimonial['author']], [
+                'meta' => [
+                    'icon' => $testimonial['icon'],
+                    'position' => $testimonial['position'],
+                ],
+            ]);
+
+            foreach (Site::getDefault()?->languages ?? [] as $language) {
+                $section->translations()->firstOrCreate(
+                    ['language_id' => $language->id],
+                    ['title' => $testimonial['author'], 'content' => sprintf('<p>%s</p>', $testimonial['quote'])],
+                );
+            }
+
+            $widget->assets()->firstOrCreate([
+                'asset_id' => $section->id,
+                'asset_type' => resolve($this->contentModel)->getMorphClass(),
+            ]);
         }
 
         return $widget;
@@ -1018,10 +1163,38 @@ class DemoCreator
         foreach (Site::getDefault()?->languages ?? [] as $language) {
             $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
-                [
-                    'title' => 'Frequently Asked Questions',
-                ],
+                ['title' => 'Frequently Asked Questions'],
             );
+        }
+
+        if ($widget->assets()->exists()) {
+            return $widget;
+        }
+
+        $faqs = [
+            ['category' => 'Getting Started', 'question' => 'How do I get started with Capell?', 'answer' => 'Install Capell via Composer, run the setup command, and follow our documentation. You can be up and running in under an hour.'],
+            ['category' => 'Getting Started', 'question' => 'Do I need coding knowledge?', 'answer' => 'No! Capell is designed for content editors. Use the Filament admin panel to manage all your content without writing a single line of code.'],
+            ['category' => 'Features', 'question' => 'Can I customise the design?', 'answer' => 'Absolutely. Capell provides a complete design system with tokens for colours, typography, and spacing. Customise everything to match your brand.'],
+            ['category' => 'Features', 'question' => 'Does it support multiple languages?', 'answer' => 'Yes. Capell has first-class multi-language support built in, including per-site language configuration and translation management.'],
+            ['category' => 'Pricing', 'question' => 'Is there a free trial?', 'answer' => 'Capell is open source. You can self-host for free. Commercial support and managed hosting plans are available separately.'],
+        ];
+
+        foreach ($faqs as $faq) {
+            $section = Section::query()->firstOrCreate(['name' => $faq['question']], [
+                'meta' => ['category' => $faq['category']],
+            ]);
+
+            foreach (Site::getDefault()?->languages ?? [] as $language) {
+                $section->translations()->firstOrCreate(
+                    ['language_id' => $language->id],
+                    ['title' => $faq['question'], 'content' => sprintf('<p>%s</p>', $faq['answer'])],
+                );
+            }
+
+            $widget->assets()->firstOrCreate([
+                'asset_id' => $section->id,
+                'asset_type' => resolve($this->contentModel)->getMorphClass(),
+            ]);
         }
 
         return $widget;
@@ -1048,10 +1221,37 @@ class DemoCreator
         foreach (Site::getDefault()?->languages ?? [] as $language) {
             $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
-                [
-                    'title' => 'By The Numbers',
-                ],
+                ['title' => 'By The Numbers'],
             );
+        }
+
+        if ($widget->assets()->exists()) {
+            return $widget;
+        }
+
+        $stats = [
+            ['icon' => '🚀', 'label' => 'Deployments per day', 'value' => '10,000+'],
+            ['icon' => '🌐', 'label' => 'Sites powered', 'value' => '2,500+'],
+            ['icon' => '⚡', 'label' => 'Avg page load time', 'value' => '< 50ms'],
+            ['icon' => '💯', 'label' => 'Customer satisfaction', 'value' => '99.8%'],
+        ];
+
+        foreach ($stats as $stat) {
+            $section = Section::query()->firstOrCreate(['name' => $stat['label']], [
+                'meta' => ['icon' => $stat['icon']],
+            ]);
+
+            foreach (Site::getDefault()?->languages ?? [] as $language) {
+                $section->translations()->firstOrCreate(
+                    ['language_id' => $language->id],
+                    ['title' => $stat['label'], 'content' => sprintf('<p>%s</p>', $stat['value'])],
+                );
+            }
+
+            $widget->assets()->firstOrCreate([
+                'asset_id' => $section->id,
+                'asset_type' => resolve($this->contentModel)->getMorphClass(),
+            ]);
         }
 
         return $widget;
@@ -1078,10 +1278,36 @@ class DemoCreator
         foreach (Site::getDefault()?->languages ?? [] as $language) {
             $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
-                [
-                    'title' => 'How It Works',
-                ],
+                ['title' => 'How It Works'],
             );
+        }
+
+        if ($widget->assets()->exists()) {
+            return $widget;
+        }
+
+        $steps = [
+            ['icon' => '🎨', 'position' => 'left', 'title' => 'Design Your Layout', 'description' => 'Choose from dozens of pre-built widget types and arrange them visually with the Mosaic layout builder.'],
+            ['icon' => '⚙️', 'position' => 'right', 'title' => 'Configure & Customise', 'description' => 'Adjust every detail — typography, colours, spacing — using Filament-powered admin forms with live preview.'],
+            ['icon' => '🚀', 'position' => 'left', 'title' => 'Publish Instantly', 'description' => 'One click publishes your changes. Static caching means your visitors see the update in milliseconds.'],
+        ];
+
+        foreach ($steps as $step) {
+            $section = Section::query()->firstOrCreate(['name' => $step['title']], [
+                'meta' => ['icon' => $step['icon'], 'position' => $step['position']],
+            ]);
+
+            foreach (Site::getDefault()?->languages ?? [] as $language) {
+                $section->translations()->firstOrCreate(
+                    ['language_id' => $language->id],
+                    ['title' => $step['title'], 'content' => sprintf('<p>%s</p>', $step['description'])],
+                );
+            }
+
+            $widget->assets()->firstOrCreate([
+                'asset_id' => $section->id,
+                'asset_type' => resolve($this->contentModel)->getMorphClass(),
+            ]);
         }
 
         return $widget;
@@ -1108,10 +1334,37 @@ class DemoCreator
         foreach (Site::getDefault()?->languages ?? [] as $language) {
             $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
-                [
-                    'title' => 'Our Process',
-                ],
+                ['title' => 'Our Process'],
             );
+        }
+
+        if ($widget->assets()->exists()) {
+            return $widget;
+        }
+
+        $steps = [
+            ['icon' => '📋', 'title' => 'Discovery', 'description' => 'We learn about your goals, audience, and content requirements in a focused kick-off session.'],
+            ['icon' => '🏗️', 'title' => 'Architecture', 'description' => 'Our team designs the site structure, widget library, and data model tailored to your needs.'],
+            ['icon' => '🎨', 'title' => 'Design & Build', 'description' => 'Layouts are assembled in Mosaic, styles applied through the design system, and content seeded.'],
+            ['icon' => '🚀', 'title' => 'Launch', 'description' => 'We run preflight checks, warm the cache, and hand over a fully documented, production-ready platform.'],
+        ];
+
+        foreach ($steps as $step) {
+            $section = Section::query()->firstOrCreate(['name' => $step['title']], [
+                'meta' => ['icon' => $step['icon']],
+            ]);
+
+            foreach (Site::getDefault()?->languages ?? [] as $language) {
+                $section->translations()->firstOrCreate(
+                    ['language_id' => $language->id],
+                    ['title' => $step['title'], 'content' => sprintf('<p>%s</p>', $step['description'])],
+                );
+            }
+
+            $widget->assets()->firstOrCreate([
+                'asset_id' => $section->id,
+                'asset_type' => resolve($this->contentModel)->getMorphClass(),
+            ]);
         }
 
         return $widget;

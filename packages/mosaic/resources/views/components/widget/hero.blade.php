@@ -67,7 +67,7 @@ $theme = Frontend::theme();
         'bg-gray-50 dark:bg-gray-900' => $color === 'light',
         'bg-gray-800 dark:bg-gray-900' => $color === 'dark',
         'min-h-[calc(100vh-var(--header-height))]' => $height === 'full',
-        'h-[calc(100vh-var(--header-height))] max-h-[var(--hero-height)]' => filled($height) && $height !== 'full',
+        'h-[calc(100vh-var(--header-height))]' => filled($height) && $height !== 'full',
     ])
     style="--hero-height: {{ $height }}"
 >
@@ -158,6 +158,7 @@ $theme = Frontend::theme();
                                     :color="$slideColorScheme"
                                     :size="! $images?->isNotEmpty() ? 'lg' : 'md'"
                                 >
+                                    index: #{{ $loop->index }}
                                     {!! $widgetAsset->asset->translation->content !!}
 
                                     @if ($widgetAsset->asset->getMeta('link_text'))

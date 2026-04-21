@@ -1,44 +1,16 @@
-{{--
-    Modern Team Members Widget
-    
-    Props:
-    - title (string): Section heading
-    - members (array): Array of team member objects
-    Each member: { name, role, avatar, bio, tags[], social[] }
-    - columns (int): Number of columns (2,3,4) - Default: 3
-    - customizable (bool): Show admin hints
---}}
+<?php
+
+declare(strict_types=1);
+
+?>
 
 @props([
-    'title' => 'Our Team',
-    'members' => [
-        [
-            'name' => 'Alex Morgan',
-            'role' => 'Product Lead',
-            'avatar' => '👨‍💻',
-            'bio' => 'Creative designer with 5+ years experience',
-            'tags' => ['Design', 'Leadership'],
-            'social' => ['twitter' => 'https://twitter.com', 'linkedin' => 'https://linkedin.com'],
-        ],
-        [
-            'name' => 'Emma Davis',
-            'role' => 'Engineering Manager',
-            'avatar' => '👩‍🔬',
-            'bio' => 'Full-stack developer and architect',
-            'tags' => ['Engineering', 'Architecture'],
-            'social' => ['github' => 'https://github.com', 'linkedin' => 'https://linkedin.com'],
-        ],
-        [
-            'name' => 'James Wilson',
-            'role' => 'CEO & Co-founder',
-            'avatar' => '🧑‍💼',
-            'bio' => 'Serial entrepreneur and visionary',
-            'tags' => ['Strategy', 'Leadership'],
-            'social' => ['twitter' => 'https://twitter.com', 'linkedin' => 'https://linkedin.com'],
-        ],
-    ],
-    'columns' => 3,
-    'customizable' => true,
+    'columns' => $widget->getMeta('columns', 3),
+    'container',
+    'containerKey',
+    'containerWidth' => null,
+    'loop',
+    'widget',
 ])
 
 @php
@@ -48,103 +20,136 @@
         4 => 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
     ];
 
-    $gridClass = $gridClasses[$columns] ?? $gridClasses[3];
+    $gridClass = $gridClasses[(int) $columns] ?? $gridClasses[3];
+
+    $socialIcons = [
+        'twitter' => '𝕏',
+        'linkedin' => 'in',
+        'github' => '🐙',
+        'website' => '🌐',
+        'email' => '✉',
+    ];
 @endphp
 
-<section class="px-6 py-12 md:px-12 md:py-16">
-    @if ($title)
-        <div class="mx-auto mb-12 max-w-2xl text-center">
-            <h2 class="mb-4 text-3xl font-bold text-gray-900 md:text-4xl">
-                {{ $title }}
-            </h2>
-        </div>
-    @endif
-
-    <div class="{{ $gridClass }} grid gap-6">
-        @forelse ($members as $member)
-            <div class="rounded-2xl bg-gray-50 p-6 text-center">
-                @if (isset($member['avatar']))
-                    <div
-                        class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 text-5xl"
+<x-capell-mosaic::widget.wrapper
+    class="widget-ap-team-members"
+    :$container
+    :$containerKey
+    :$containerWidth
+    :index="$loop->index"
+    :$widget
+>
+    <section class="px-6 py-12 md:px-12 md:py-16">
+        @if ($widget->translation)
+            <div class="mx-auto mb-12 max-w-2xl text-center">
+                @if ($widget->translation->title)
+                    <h2
+                        class="mb-4 text-3xl font-bold tracking-tight text-gray-900 md:text-4xl"
                     >
-                        {{ $member['avatar'] }}
-                    </div>
+                        {{ $widget->translation->title }}
+                    </h2>
                 @endif
 
-                @if (isset($member['name']))
-                    <h3 class="mb-1 text-lg font-bold text-gray-900">
-                        {{ $member['name'] }}
-                    </h3>
-                @endif
-
-                @if (isset($member['role']))
-                    <p
-                        class="mb-3 text-sm font-semibold uppercase tracking-wide text-indigo-600"
-                    >
-                        {{ $member['role'] }}
+                @if ($widget->translation->content)
+                    <p class="text-lg text-gray-500">
+                        {{ strip_tags($widget->translation->content) }}
                     </p>
                 @endif
+            </div>
+        @endif
 
-                @if (isset($member['bio']))
-                    <p class="mb-4 text-sm leading-relaxed text-gray-500">
-                        {{ $member['bio'] }}
-                    </p>
-                @endif
+        <div class="{{ $gridClass }} grid gap-6">
+            @forelse ($widget->assets as $widgetAsset)
+                @php
+                    $role = $widgetAsset->asset->getMeta('position');
+                    $tags = $widgetAsset->asset->getMeta('tags', []);
+                    $social = $widgetAsset->asset->getMeta('social', []);
+                    $media = $widgetAsset->asset->media->first() ?? $widgetAsset->asset->image ?? null;
+                    $icon = $widgetAsset->asset->getMeta('icon');
+                @endphp
 
-                @if (isset($member['tags']) && count($member['tags']) > 0)
-                    <div class="mb-4 flex flex-wrap justify-center gap-2">
-                        @foreach ($member['tags'] as $tag)
-                            <span
-                                class="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700"
-                            >
-                                {{ $tag }}
-                            </span>
-                        @endforeach
-                    </div>
-                @endif
+                <div
+                    class="rounded-xl border border-stone-200 bg-white p-6 text-center"
+                >
+                    @if ($media)
+                        <div
+                            class="mx-auto mb-4 h-20 w-20 overflow-hidden rounded-full"
+                        >
+                            <img
+                                src="{{ $media->getFullUrl() }}"
+                                alt="{{ $widgetAsset->asset->translation?->title }}"
+                                class="h-full w-full object-cover"
+                            />
+                        </div>
+                    @elseif ($icon)
+                        <div
+                            class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-stone-100 text-5xl"
+                        >
+                            {{ $icon }}
+                        </div>
+                    @endif
 
-                @if (isset($member['social']) && count($member['social']) > 0)
-                    @php
-                        $socialIcons = [
-                            'twitter' => '𝕏',
-                            'linkedin' => 'in',
-                            'github' => '🐙',
-                            'website' => '🌐',
-                            'email' => '✉',
-                        ];
-                    @endphp
+                    @if ($widgetAsset->asset->translation?->title)
+                        <h3
+                            class="mb-1 text-lg font-bold tracking-tight text-gray-900"
+                        >
+                            {{ $widgetAsset->asset->translation->title }}
+                        </h3>
+                    @endif
 
-                    <div
-                        class="flex justify-center gap-3 border-t border-gray-200 pt-4"
-                    >
-                        @foreach ($member['social'] as $platform => $url)
-                            @if ($url && isset($socialIcons[$platform]))
-                                <a
-                                    href="{{ $url }}"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    title="{{ ucfirst($platform) }}"
-                                    class="font-semibold text-gray-400 transition-colors hover:text-indigo-600"
+                    @if ($role)
+                        <p
+                            class="mb-3 text-sm font-semibold uppercase tracking-wide text-emerald-700"
+                        >
+                            {{ $role }}
+                        </p>
+                    @endif
+
+                    @if ($widgetAsset->asset->translation?->content)
+                        <p class="mb-4 text-sm leading-relaxed text-gray-500">
+                            {{ strip_tags($widgetAsset->asset->translation->content) }}
+                        </p>
+                    @endif
+
+                    @if (count($tags) > 0)
+                        <div class="mb-4 flex flex-wrap justify-center gap-2">
+                            @foreach ($tags as $tag)
+                                <span
+                                    class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800"
                                 >
-                                    {{ $socialIcons[$platform] }}
-                                </a>
-                            @endif
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-        @empty
-            <div class="col-span-full py-12 text-center">
-                <p class="text-gray-500">No team members configured</p>
-            </div>
-        @endforelse
-    </div>
+                                    {{ $tag }}
+                                </span>
+                            @endforeach
+                        </div>
+                    @endif
 
-    @if ($customizable && auth()->check())
-        <div class="mt-12 border-t border-gray-100 pt-8 text-center opacity-60">
-            <span class="text-xs text-gray-500">
-                ✨ Customize: Add members, tags, social links, change layout
-            </span>
+                    @if (count($social) > 0)
+                        <div
+                            class="flex justify-center gap-3 border-t border-stone-100 pt-4"
+                        >
+                            @foreach ($social as $platform => $url)
+                                @if ($url && isset($socialIcons[$platform]))
+                                    <a
+                                        href="{{ $url }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        title="{{ ucfirst($platform) }}"
+                                        class="font-semibold text-gray-400 transition-colors hover:text-emerald-700"
+                                    >
+                                        {{ $socialIcons[$platform] }}
+                                    </a>
+                                @endif
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            @empty
+                <div class="col-span-full py-12 text-center">
+                    <p class="text-gray-500">No team members configured</p>
+                </div>
+            @endforelse
         </div>
-    @endif
-</section>
+    </section>
+</x-capell-mosaic::widget.wrapper>
+
+<?php

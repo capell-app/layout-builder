@@ -81,7 +81,7 @@ declare(strict_types=1);
     @else
         <x-dynamic-component
             :component="$menu->getMeta('component', 'capell::list')"
-            class="widget-navigation-list widget-navigation-lit-children"
+            class="widget-navigation-list widget-navigation-lit-children text-sm"
         >
             @foreach ($items as $item)
                 <x-dynamic-component

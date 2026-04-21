@@ -155,7 +155,7 @@ describe('carousel runtime', () => {
         )
     })
 
-    it('binds pagination clicks to slideToLoop for looped carousels', () => {
+    it('binds pagination clicks via getSlideIndexByData for looped carousels', () => {
         document.body.innerHTML = createCarouselMarkup(
             [
                 'data-carousel-id="loop-carousel"',
@@ -187,8 +187,8 @@ describe('carousel runtime', () => {
             activeIndex: 0,
             destroyed: false,
             realIndex: 1,
+            getSlideIndexByData: vi.fn((index) => index + 1),
             slideTo: vi.fn(),
-            slideToLoop: vi.fn(),
             update: vi.fn(),
         }
 
@@ -200,8 +200,9 @@ describe('carousel runtime', () => {
 
         bullets[1].dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
-        expect(swiperInstance.slideToLoop).toHaveBeenCalledOnce()
-        expect(swiperInstance.slideToLoop).toHaveBeenCalledWith(1)
+        expect(swiperInstance.getSlideIndexByData).toHaveBeenCalledWith(1)
+        expect(swiperInstance.slideTo).toHaveBeenCalledOnce()
+        expect(swiperInstance.slideTo).toHaveBeenCalledWith(2)
         expect(swiperNode.classList.contains('swiper-ready')).toBe(true)
         expect(
             swiperNode.querySelectorAll('.swiper-slide-selected'),
