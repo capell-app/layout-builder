@@ -535,7 +535,8 @@ class WidgetCreator
             'type_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::BannerImage,
-                'margin' => ['lg'],
+                'margin' => ['none'],
+                'padding' => ['xl'],
             ],
         ]);
     }

@@ -42,89 +42,51 @@
     'customizable' => true,
 ])
 
-<section class="mosaic-stats px-6 py-12 md:px-12 md:py-16">
-    {{-- Header --}}
+<section class="px-6 py-12 md:px-12 md:py-16">
     @if ($title)
         <div class="mx-auto mb-12 max-w-2xl text-center">
-            <h2
-                class="mb-3 text-3xl font-bold md:text-4xl"
-                style="
-                    color: var(--mosaic-on-surface);
-                    font-family: var(--mosaic-font-headline);
-                "
-            >
+            <h2 class="mb-3 text-3xl font-bold text-gray-900 md:text-4xl">
                 {{ $title }}
             </h2>
             @if ($subtitle)
-                <p
-                    class="text-lg"
-                    style="color: var(--mosaic-on-surface-variant)"
-                >
-                    {{ $subtitle }}
-                </p>
+                <p class="text-lg text-gray-500">{{ $subtitle }}</p>
             @endif
         </div>
     @endif
 
-    {{-- Stats Grid --}}
     <div
-        class="{{ $layout === 'vertical' ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4' }} mx-auto grid max-w-6xl gap-6"
+        class="{{ $layout === 'vertical' ? 'max-w-md grid-cols-1' : 'max-w-5xl grid-cols-2 md:grid-cols-4' }} mx-auto grid gap-6"
     >
         @forelse ($stats as $stat)
-            <div
-                class="mosaic-card p-8 text-center"
-                style="background-color: var(--mosaic-surface-container)"
-            >
-                {{-- Icon --}}
+            <div class="rounded-2xl bg-gray-50 p-8 text-center">
                 @if (isset($stat['icon']))
-                    <div class="mb-4 text-5xl">
-                        {{ $stat['icon'] }}
-                    </div>
+                    <div class="mb-3 text-4xl">{{ $stat['icon'] }}</div>
                 @endif
 
-                {{-- Value --}}
                 @if (isset($stat['value']))
                     <p
-                        class="mb-2 text-4xl font-bold"
-                        style="
-                            color: var(
-                                --mosaic-{{ $stat['color'] ?? 'primary' }}
-                            );
-                        "
+                        class="mb-1 text-3xl font-bold text-indigo-600 md:text-4xl"
                     >
                         {{ $stat['value'] }}
                     </p>
                 @endif
 
-                {{-- Label --}}
                 @if (isset($stat['label']))
-                    <p
-                        class="text-base font-semibold"
-                        style="color: var(--mosaic-on-surface-variant)"
-                    >
+                    <p class="text-sm font-medium text-gray-500">
                         {{ $stat['label'] }}
                     </p>
                 @endif
             </div>
         @empty
             <div class="col-span-full py-12 text-center">
-                <p style="color: var(--mosaic-on-surface-variant)">
-                    No stats configured
-                </p>
+                <p class="text-gray-500">No stats configured</p>
             </div>
         @endforelse
     </div>
 
-    {{-- Admin Hint --}}
     @if ($customizable && auth()->check())
-        <div
-            class="mt-12 max-w-full pt-8 text-center"
-            style="
-                border-top: 1px solid var(--mosaic-outline-variant);
-                opacity: 0.6;
-            "
-        >
-            <span class="mosaic-text-label text-xs">
+        <div class="mt-12 border-t border-gray-100 pt-8 text-center opacity-60">
+            <span class="text-xs text-gray-500">
                 ✨ Customize: Add stats, change icons, values, and layout
             </span>
         </div>

@@ -51,89 +51,51 @@
     $gridClass = $gridClasses[$columns] ?? $gridClasses[3];
 @endphp
 
-<section class="mosaic-team-members px-6 py-12 md:px-12 md:py-16">
-    {{-- Header --}}
+<section class="px-6 py-12 md:px-12 md:py-16">
     @if ($title)
         <div class="mx-auto mb-12 max-w-2xl text-center">
-            <h2
-                class="mb-4 text-3xl font-bold md:text-4xl"
-                style="
-                    color: var(--mosaic-on-surface);
-                    font-family: var(--mosaic-font-headline);
-                "
-            >
+            <h2 class="mb-4 text-3xl font-bold text-gray-900 md:text-4xl">
                 {{ $title }}
             </h2>
         </div>
     @endif
 
-    {{-- Team Grid --}}
     <div class="{{ $gridClass }} grid gap-6">
         @forelse ($members as $member)
-            <div
-                class="mosaic-card overflow-hidden text-center"
-                style="background-color: var(--mosaic-surface-container)"
-            >
-                {{-- Avatar --}}
+            <div class="rounded-2xl bg-gray-50 p-6 text-center">
                 @if (isset($member['avatar']))
                     <div
-                        class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full text-5xl"
-                        style="
-                            background-color: var(
-                                --mosaic-surface-container-high
-                            );
-                        "
+                        class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 text-5xl"
                     >
                         {{ $member['avatar'] }}
                     </div>
                 @endif
 
-                {{-- Name --}}
                 @if (isset($member['name']))
-                    <h3
-                        class="mb-1 text-lg font-bold"
-                        style="color: var(--mosaic-on-surface)"
-                    >
+                    <h3 class="mb-1 text-lg font-bold text-gray-900">
                         {{ $member['name'] }}
                     </h3>
                 @endif
 
-                {{-- Role --}}
                 @if (isset($member['role']))
                     <p
-                        class="mb-3 text-sm font-semibold"
-                        style="
-                            color: var(--mosaic-tertiary);
-                            text-transform: uppercase;
-                            letter-spacing: 0.05em;
-                        "
+                        class="mb-3 text-sm font-semibold uppercase tracking-wide text-indigo-600"
                     >
                         {{ $member['role'] }}
                     </p>
                 @endif
 
-                {{-- Bio --}}
                 @if (isset($member['bio']))
-                    <p
-                        class="mb-4 text-base leading-relaxed"
-                        style="color: var(--mosaic-on-surface-variant)"
-                    >
+                    <p class="mb-4 text-sm leading-relaxed text-gray-500">
                         {{ $member['bio'] }}
                     </p>
                 @endif
 
-                {{-- Tags/Badges --}}
                 @if (isset($member['tags']) && count($member['tags']) > 0)
                     <div class="mb-4 flex flex-wrap justify-center gap-2">
                         @foreach ($member['tags'] as $tag)
                             <span
-                                class="rounded-full px-3 py-1 text-xs font-semibold"
-                                style="
-                                    background-color: var(
-                                        --mosaic-primary-container
-                                    );
-                                    color: var(--mosaic-on-primary-container);
-                                "
+                                class="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700"
                             >
                                 {{ $tag }}
                             </span>
@@ -141,24 +103,20 @@
                     </div>
                 @endif
 
-                {{-- Social Links --}}
                 @if (isset($member['social']) && count($member['social']) > 0)
-                    <div
-                        class="flex justify-center gap-3 pt-4"
-                        style="
-                            border-top: 1px solid var(--mosaic-outline-variant);
-                        "
-                    >
-                        @php
-                            $socialIcons = [
-                                'twitter' => '𝕏',
-                                'linkedin' => 'in',
-                                'github' => '🐙',
-                                'website' => '🌐',
-                                'email' => '✉',
-                            ];
-                        @endphp
+                    @php
+                        $socialIcons = [
+                            'twitter' => '𝕏',
+                            'linkedin' => 'in',
+                            'github' => '🐙',
+                            'website' => '🌐',
+                            'email' => '✉',
+                        ];
+                    @endphp
 
+                    <div
+                        class="flex justify-center gap-3 border-t border-gray-200 pt-4"
+                    >
                         @foreach ($member['social'] as $platform => $url)
                             @if ($url && isset($socialIcons[$platform]))
                                 <a
@@ -166,15 +124,7 @@
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     title="{{ ucfirst($platform) }}"
-                                    style="
-                                        color: var(--mosaic-primary);
-                                        text-decoration: none;
-                                        font-size: 1rem;
-                                        font-weight: 600;
-                                        transition: opacity 0.2s;
-                                    "
-                                    onmouseover="this.style.opacity = '0.7'"
-                                    onmouseout="this.style.opacity = '1'"
+                                    class="font-semibold text-gray-400 transition-colors hover:text-indigo-600"
                                 >
                                     {{ $socialIcons[$platform] }}
                                 </a>
@@ -185,23 +135,14 @@
             </div>
         @empty
             <div class="col-span-full py-12 text-center">
-                <p style="color: var(--mosaic-on-surface-variant)">
-                    No team members configured
-                </p>
+                <p class="text-gray-500">No team members configured</p>
             </div>
         @endforelse
     </div>
 
-    {{-- Admin Hint --}}
     @if ($customizable && auth()->check())
-        <div
-            class="mt-12 max-w-full pt-8 text-center"
-            style="
-                border-top: 1px solid var(--mosaic-outline-variant);
-                opacity: 0.6;
-            "
-        >
-            <span class="mosaic-text-label text-xs">
+        <div class="mt-12 border-t border-gray-100 pt-8 text-center opacity-60">
+            <span class="text-xs text-gray-500">
                 ✨ Customize: Add members, tags, social links, change layout
             </span>
         </div>

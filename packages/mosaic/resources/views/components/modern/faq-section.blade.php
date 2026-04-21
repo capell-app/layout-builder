@@ -40,34 +40,33 @@
     $hasCategories = count($categories ?? []) > 0;
 @endphp
 
-<section class="mosaic-faq px-6 py-12 md:px-12 md:py-16">
-    {{-- Header --}}
+<style>
+    @keyframes faqFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-4px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<section class="px-6 py-12 md:px-12 md:py-16">
     @if ($title)
         <div class="mx-auto mb-12 max-w-2xl text-center">
-            <h2
-                class="text-3xl font-bold md:text-4xl"
-                style="
-                    color: var(--mosaic-on-surface);
-                    font-family: var(--mosaic-font-headline);
-                "
-            >
+            <h2 class="text-3xl font-bold text-gray-900 md:text-4xl">
                 {{ $title }}
             </h2>
         </div>
     @endif
 
-    {{-- Category Tabs --}}
     @if ($hasCategories)
         <div class="mx-auto mb-8 flex max-w-3xl flex-wrap justify-center gap-2">
             <button
-                class="faq-category-tab rounded-full px-4 py-2 font-semibold transition-all"
+                class="faq-category-tab rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-all"
                 data-category="all"
-                style="
-                    background-color: var(--mosaic-primary);
-                    color: white;
-                    border: none;
-                    cursor: pointer;
-                "
                 onclick="filterFaqCategory(this, 'all')"
             >
                 All
@@ -75,14 +74,8 @@
 
             @foreach ($categories as $category)
                 <button
-                    class="faq-category-tab rounded-full px-4 py-2 font-semibold transition-all"
+                    class="faq-category-tab rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-600 transition-all hover:border-indigo-300 hover:text-indigo-600"
                     data-category="{{ $category }}"
-                    style="
-                        background-color: var(--mosaic-surface-container);
-                        color: var(--mosaic-on-surface);
-                        border: 1px solid var(--mosaic-outline);
-                        cursor: pointer;
-                    "
                     onclick="filterFaqCategory(this, '{{ $category }}')"
                 >
                     {{ $category }}
@@ -91,60 +84,39 @@
         </div>
     @endif
 
-    {{-- FAQ List --}}
     <div class="faq-container mx-auto max-w-3xl space-y-3">
-        @forelse ($faqs as $index => $faq)
+        @forelse ($faqs as $faq)
             <details
-                class="mosaic-card faq-item"
+                class="faq-item group rounded-xl border border-gray-100 bg-gray-50"
                 data-category="{{ $faq['category'] ?? 'uncategorized' }}"
-                style="background-color: var(--mosaic-surface-container)"
             >
                 <summary
-                    class="flex cursor-pointer select-none items-center justify-between p-4 text-lg font-bold"
-                    style="color: var(--mosaic-on-surface)"
+                    class="flex cursor-pointer select-none items-center justify-between p-5 text-base font-semibold text-gray-900"
                 >
                     <span>{{ $faq['question'] }}</span>
                     <span
-                        class="text-xl"
-                        style="
-                            color: var(--mosaic-tertiary);
-                            transition: transform 0.2s;
-                        "
+                        class="ml-4 flex-shrink-0 text-xl text-indigo-500 transition-transform group-open:rotate-45"
                     >
                         +
                     </span>
                 </summary>
 
                 <div
-                    class="px-4 pb-4"
-                    style="
-                        border-top: 1px solid var(--mosaic-outline-variant);
-                        color: var(--mosaic-on-surface-variant);
-                        line-height: 1.625;
-                    "
+                    class="border-t border-gray-100 px-5 pb-5 pt-4 leading-relaxed text-gray-600"
                 >
                     {{ $faq['answer'] }}
                 </div>
             </details>
         @empty
             <div class="py-12 text-center">
-                <p style="color: var(--mosaic-on-surface-variant)">
-                    No FAQs configured
-                </p>
+                <p class="text-gray-500">No FAQs configured</p>
             </div>
         @endforelse
     </div>
 
-    {{-- Admin Hint --}}
     @if ($customizable && auth()->check())
-        <div
-            class="mt-12 max-w-full pt-8 text-center"
-            style="
-                border-top: 1px solid var(--mosaic-outline-variant);
-                opacity: 0.6;
-            "
-        >
-            <span class="mosaic-text-label text-xs">
+        <div class="mt-12 border-t border-gray-100 pt-8 text-center opacity-60">
+            <span class="text-xs text-gray-500">
                 ✨ Customize: Add FAQs, categories, questions and answers
             </span>
         </div>
@@ -153,38 +125,19 @@
 
 <script>
     function filterFaqCategory(button, category) {
-        const tabs = document.querySelectorAll('.faq-category-tab');
-        const items = document.querySelectorAll('.faq-item');
+        document.querySelectorAll('.faq-category-tab').forEach((tab) => {
+            const isActive = tab.getAttribute('data-category') === category
+            tab.className = isActive
+                ? 'faq-category-tab rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-all'
+                : 'faq-category-tab rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-600 transition-all hover:border-indigo-300 hover:text-indigo-600'
+        })
 
-        tabs.forEach((tab) => {
-            if (tab.getAttribute('data-category') === category) {
-                tab.style.backgroundColor = 'var(--mosaic-primary)';
-                tab.style.color = 'white';
-                tab.style.borderColor = 'transparent';
-            } else {
-                tab.style.backgroundColor = 'var(--mosaic-surface-container)';
-                tab.style.color = 'var(--mosaic-on-surface)';
-                tab.style.borderColor = 'var(--mosaic-outline)';
-            }
-        });
-
-        items.forEach((item) => {
-            const itemCategory = item.getAttribute('data-category');
-            if (category === 'all' || itemCategory === category) {
-                item.style.display = 'block';
-                item.style.animation = 'fadeIn 0.3s ease-out';
-            } else {
-                item.style.display = 'none';
-            }
-        });
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
+        document.querySelectorAll('.faq-item').forEach((item) => {
+            const matches =
+                category === 'all' ||
+                item.getAttribute('data-category') === category
+            item.style.display = matches ? 'block' : 'none'
+            if (matches) item.style.animation = 'faqFadeIn 0.25s ease-out'
+        })
     }
 </script>

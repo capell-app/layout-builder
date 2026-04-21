@@ -32,97 +32,63 @@
     'customizable' => true,
 ])
 
-<section class="mosaic-alternating px-6 py-12 md:px-12 md:py-16">
-    {{-- Header --}}
+<section class="px-6 py-12 md:px-12 md:py-16">
     @if ($title)
         <div class="mx-auto mb-12 max-w-2xl text-center">
-            <h2
-                class="text-3xl font-bold md:text-4xl"
-                style="
-                    color: var(--mosaic-on-surface);
-                    font-family: var(--mosaic-font-headline);
-                "
-            >
+            <h2 class="text-3xl font-bold text-gray-900 md:text-4xl">
                 {{ $title }}
             </h2>
         </div>
     @endif
 
-    {{-- Content Sections --}}
-    <div class="mx-auto max-w-5xl space-y-12">
+    <div class="mx-auto max-w-5xl space-y-16">
         @forelse ($sections as $index => $section)
-            <div
-                class="grid grid-cols-1 items-center gap-8 md:grid-cols-2"
-                style="{{ ($section['position'] ?? 'left') === 'right' ? 'direction: rtl;' : '' }}"
-            >
+            @php
+                $isRight = ($section['position'] ?? 'left') === 'right';
+            @endphp
+
+            <div class="grid grid-cols-1 items-center gap-8 md:grid-cols-2">
                 {{-- Image Column --}}
                 @if (isset($section['image']))
                     <div
-                        class="flex items-center justify-center rounded-lg p-8"
-                        style="
-                            background-color: var(--mosaic-surface-container);
-                            direction: ltr;
-                            font-size: 6rem;
-                            min-height: 300px;
-                        "
+                        @class(['flex min-h-64 items-center justify-center rounded-2xl bg-gray-50 p-8 text-8xl', 'md:order-last' => $isRight])
                     >
                         {{ $section['image'] }}
                     </div>
                 @endif
 
                 {{-- Content Column --}}
-                <div style="direction: ltr">
-                    {{-- Heading --}}
+                <div>
+                    {{-- Step Number Badge --}}
+                    <div
+                        class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-sm font-bold text-white"
+                    >
+                        {{ $index + 1 }}
+                    </div>
+
                     @if (isset($section['heading']))
-                        <h3
-                            class="mb-4 text-2xl font-bold"
-                            style="color: var(--mosaic-on-surface)"
-                        >
+                        <h3 class="mb-3 text-2xl font-bold text-gray-900">
                             {{ $section['heading'] }}
                         </h3>
                     @endif
 
-                    {{-- Description --}}
                     @if (isset($section['description']))
-                        <p
-                            class="mb-6 text-base leading-relaxed"
-                            style="color: var(--mosaic-on-surface-variant)"
-                        >
+                        <p class="text-base leading-relaxed text-gray-600">
                             {{ $section['description'] }}
                         </p>
                     @endif
-
-                    {{-- Badge/Number --}}
-                    <div
-                        class="inline-flex h-10 w-10 items-center justify-center rounded-full font-bold"
-                        style="
-                            background-color: var(--mosaic-primary);
-                            color: var(--mosaic-on-primary);
-                        "
-                    >
-                        {{ $index + 1 }}
-                    </div>
                 </div>
             </div>
         @empty
             <div class="py-12 text-center">
-                <p style="color: var(--mosaic-on-surface-variant)">
-                    No content sections configured
-                </p>
+                <p class="text-gray-500">No content sections configured</p>
             </div>
         @endforelse
     </div>
 
-    {{-- Admin Hint --}}
     @if ($customizable && auth()->check())
-        <div
-            class="mt-12 max-w-full pt-8 text-center"
-            style="
-                border-top: 1px solid var(--mosaic-outline-variant);
-                opacity: 0.6;
-            "
-        >
-            <span class="mosaic-text-label text-xs">
+        <div class="mt-12 border-t border-gray-100 pt-8 text-center opacity-60">
+            <span class="text-xs text-gray-500">
                 ✨ Customize: Add sections, change images, toggle positions
             </span>
         </div>

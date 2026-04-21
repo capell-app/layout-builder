@@ -6,6 +6,7 @@ Complete guide to all documentation and resources for the Mosaic widget library.
 
 ### Overview Documents
 
+- **[MODERN_WIDGETS_DEVELOPER_GUIDE.md](MODERN_WIDGETS_DEVELOPER_GUIDE.md)** — **Start here.** Current (post-Tailwind rewrite) guide: how widgets work, anatomy, common mistakes, how to build new ones, and future widget roadmap
 - **[MODERN_WIDGETS_SUMMARY.md](MODERN_WIDGETS_SUMMARY.md)** — High-level overview of all 13 widgets, key features, design philosophy, file manifest, and implementation status
 - **[WIDGETS_REFERENCE.md](WIDGETS_REFERENCE.md)** — Complete reference for all 13 widgets with detailed prop documentation, examples, and integration guides
 - **[WIDGET_CUSTOMIZATION_GUIDE.md](WIDGET_CUSTOMIZATION_GUIDE.md)** — Comprehensive guide to customizing widgets, with admin integration examples and troubleshooting

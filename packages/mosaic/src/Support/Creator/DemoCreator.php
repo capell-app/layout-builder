@@ -187,26 +187,15 @@ class DemoCreator
 
         $media = $this->createWidgetMedia($widget);
 
+        $widget->meta['background_color'] = 'light-gray';
+        $widget->meta['background_image'] = $media->getFullUrl(MediaConversionEnum::Medium->value);
+
         foreach ($languages as $language) {
             $widget->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
                     'title' => 'Example Banner',
-                    'content' => [
-                        [
-                            'type' => 'image',
-                            'data' => [
-                                'src' => $media->getFullUrl(MediaConversionEnum::Medium->value),
-                                'alt' => 'Banner',
-                            ],
-                        ],
-                        [
-                            'type' => 'content',
-                            'data' => [
-                                'content' => DummyContentGeneratorAction::run($language->code),
-                            ],
-                        ],
-                    ],
+                    'content' => DummyContentGeneratorAction::run($language->code),
                 ],
             );
         }
