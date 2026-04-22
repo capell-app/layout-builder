@@ -30,7 +30,7 @@ it('creates asset block widget with expected meta', function (): void {
         ->key->toBe('assets-block')
         ->meta->scoped(
             fn (Expectation $meta) => $meta->view_file->toBe('capell-mosaic::components.widget.asset.blocks')
-                ->component_item->toBe('capell-mosaic::content.block'),
+                ->component_item->toBe('capell-mosaic::section.block'),
         )
         ->assets->toHaveCount(3);
 });

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Address\Enums;
 
-use Capell\Address\Filament\Resources\Addresses\Schemas\Types\DefaultAddressSchema;
-use Capell\Address\Filament\Resources\Countries\Schemas\Types\DefaultCountrySchema;
+use Capell\Address\Filament\Schemas\Addresses\DefaultAddressSchema;
+use Capell\Address\Filament\Schemas\Countries\DefaultCountrySchema;
 use Capell\Admin\Concerns\HasSchemaTypes;
 use Capell\Admin\Contracts\SchemaTypeEnumInterface;
 

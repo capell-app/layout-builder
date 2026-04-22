@@ -335,10 +335,13 @@ trait ManagesWidgets
                 fn (EloquentBuilder $query): EloquentBuilder => $query->with([
                     'assets' => fn (BuilderContract $query): BuilderContract => $query->when(
                         $this->page,
-                        fn (EloquentBuilder $query): EloquentBuilder => $query->where([
-                            'pageable_id' => $this->page->getKey(),
-                            'pageable_type' => $this->page->getMorphClass(),
-                        ]),
+                        fn (EloquentBuilder $query): EloquentBuilder => $query->where(
+                            fn (EloquentBuilder $query): EloquentBuilder => $query->where([
+                                'pageable_id' => $this->page->getKey(),
+                                'pageable_type' => $this->page->getMorphClass(),
+                            ])
+                                ->orWhereNull(['pageable_type', 'pageable_id']),
+                        ),
                         fn (EloquentBuilder $query): EloquentBuilder => $query->whereNull(['pageable_id', 'pageable_type']),
                     )
                         ->ordered()

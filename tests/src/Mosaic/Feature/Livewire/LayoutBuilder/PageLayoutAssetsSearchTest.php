@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Page;
 use Capell\Mosaic\Database\Factories\LayoutFactory;
-use Capell\Mosaic\Livewire\Assets\Table\ContentAssets;
 use Capell\Mosaic\Livewire\Assets\Table\PageAssets;
+use Capell\Mosaic\Livewire\Assets\Table\SectionAssets;
 use Capell\Mosaic\Models\Section;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
@@ -63,7 +63,7 @@ it('searches within section assets table in page layout context', function (): v
         'widgetIndex' => $widgetIndex,
     ];
 
-    livewire(ContentAssets::class, [
+    livewire(SectionAssets::class, [
         'actionModalId' => 'select-assets',
         'tableArguments' => $arguments,
     ])

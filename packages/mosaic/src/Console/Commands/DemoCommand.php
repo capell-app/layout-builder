@@ -34,6 +34,7 @@ class DemoCommand extends Command
     protected $signature = 'capell:mosaic-demo
          {--user= : Whether to associate the created demo content with the first user in the system. If not provided, content will be created without an associated user.}
          {--sites= : Comma-separated list of site names to target for demo content insertion. If not provided, all sites will be targeted.}
+         {--include-hero : Also run the hero demo command after creating mosaic demo content.}
      ';
 
     protected DemoCreator $demoCreator;
@@ -87,11 +88,13 @@ class DemoCommand extends Command
         $this->newLine();
         $this->info('Demo layouts have been successfully created.');
 
-        $this->newLine();
-        $this->comment('Running hero demo...');
-        $this->call('capell:hero-demo', [
-            '--sites' => $this->option('sites'),
-        ]);
+        if ($this->option('include-hero')) {
+            $this->newLine();
+            $this->comment('Running hero demo...');
+            $this->call('capell:hero-demo', [
+                '--sites' => $this->option('sites'),
+            ]);
+        }
 
         return Command::SUCCESS;
     }

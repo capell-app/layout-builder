@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Enums;
 
-use Capell\Mosaic\Filament\Resources\Sections\Schemas\Types\DefaultSectionSchema;
-use Capell\Mosaic\Filament\Resources\Sections\Schemas\Types\HeroSectionSchema;
-use Capell\Mosaic\Filament\Resources\Sections\Schemas\Types\TestimonialSectionSchema;
+use Capell\Mosaic\Filament\Schemas\Sections\DefaultSectionSchema;
+use Capell\Mosaic\Filament\Schemas\Sections\HeroSectionSchema;
+use Capell\Mosaic\Filament\Schemas\Sections\TestimonialSectionSchema;
 
 enum SectionSchemaEnum: string
 {

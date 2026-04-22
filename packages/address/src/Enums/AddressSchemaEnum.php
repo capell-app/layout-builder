@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Address\Enums;
 
-use Capell\Address\Filament\Resources\Addresses\Schemas\Types\DefaultAddressSchema;
+use Capell\Address\Filament\Schemas\Addresses\DefaultAddressSchema;
 
 enum AddressSchemaEnum: string
 {

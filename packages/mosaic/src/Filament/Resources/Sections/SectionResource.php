@@ -149,7 +149,7 @@ class SectionResource extends Resource
 
     public static function getPluralModelLabel(): string
     {
-        return __('capell-admin::generic.sections');
+        return __('capell-admin::generic.sections_content');
     }
 
     public static function getRelations(): array

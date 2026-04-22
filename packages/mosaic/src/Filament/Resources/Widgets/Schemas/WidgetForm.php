@@ -10,7 +10,7 @@ use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Type;
 use Capell\Mosaic\Enums\TypeSchemaEnum;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\DefaultWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\DefaultWidgetSchema;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 

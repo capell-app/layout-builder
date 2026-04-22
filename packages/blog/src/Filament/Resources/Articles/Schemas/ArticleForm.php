@@ -8,7 +8,7 @@ use Capell\Admin\Enums\SchemaTypeEnum;
 use Capell\Admin\Filament\Components\Forms\Type\TypeSchema;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Blog\Filament\Resources\Articles\ArticleResource;
-use Capell\Blog\Filament\Resources\Articles\Schemas\Types\ArticlePageSchema;
+use Capell\Blog\Filament\Schemas\Articles\ArticlePageSchema;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Support\Creator\BlogCreator;
 use Capell\Core\Contracts\Pageable;

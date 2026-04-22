@@ -6,7 +6,7 @@ namespace Capell\Mosaic\Livewire\Filament\Concerns;
 
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Mosaic\Enums\TypeSchemaEnum;
-use Capell\Mosaic\Filament\Resources\Layouts\Schemas\Types\Containers\DefaultLayoutContainerSchema;
+use Capell\Mosaic\Filament\Schemas\Layouts\DefaultLayoutContainerSchema;
 use Closure;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;

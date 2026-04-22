@@ -11,7 +11,7 @@ use Capell\Mosaic\Database\Factories\LayoutFactory;
 use Capell\Mosaic\Database\Factories\WidgetTypeFactory;
 use Capell\Mosaic\Enums\AssetEnum;
 use Capell\Mosaic\Enums\LivewireComponentsEnum;
-use Capell\Mosaic\Filament\Resources\Layouts\Schemas\Types\Widgets\DefaultLayoutWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Layouts\Widgets\DefaultLayoutWidgetSchema;
 use Capell\Mosaic\Livewire\Filament\LayoutBuilder;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;

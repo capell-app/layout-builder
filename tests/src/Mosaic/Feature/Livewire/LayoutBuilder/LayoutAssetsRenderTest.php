@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Page;
 use Capell\Mosaic\Database\Factories\LayoutFactory;
-use Capell\Mosaic\Livewire\Assets\Table\ContentAssets;
 use Capell\Mosaic\Livewire\Assets\Table\PageAssets;
+use Capell\Mosaic\Livewire\Assets\Table\SectionAssets;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Livewire\livewire;
@@ -26,7 +26,7 @@ it('renders assets tables for each asset type', function (string $assetType): vo
     $page = Page::factory()->layout($layout)->create();
 
     $component = match ($assetType) {
-        'content' => ContentAssets::class,
+        'content' => SectionAssets::class,
         'page' => PageAssets::class,
     };
 
@@ -55,7 +55,7 @@ it('renders assets tables with existing records for each asset type', function (
     $page = Page::factory()->layout($layout)->create();
 
     $component = match ($assetType) {
-        'content' => ContentAssets::class,
+        'content' => SectionAssets::class,
         'page' => PageAssets::class,
     };
 
@@ -84,7 +84,7 @@ it('renders assets tables without page context', function (string $assetType): v
     $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
 
     $component = match ($assetType) {
-        'content' => ContentAssets::class,
+        'content' => SectionAssets::class,
         'page' => PageAssets::class,
     };
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\Address\Filament\Resources\Countries\Schemas;
 
 use Capell\Address\Enums\SchemaTypeEnum;
-use Capell\Address\Filament\Resources\Countries\Schemas\Types\DefaultCountrySchema;
+use Capell\Address\Filament\Schemas\Countries\DefaultCountrySchema;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Filament\Schemas\Schema;

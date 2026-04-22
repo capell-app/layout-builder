@@ -7,8 +7,8 @@ namespace Capell\Mosaic\Enums;
 use Capell\Core\Enums\Attribute\Component;
 use Capell\Core\Enums\Attribute\EnumAttributeHelper;
 use Capell\Core\Enums\Attribute\EnumAttributeInterface;
-use Capell\Mosaic\Livewire\Assets\Table\ContentAssets;
 use Capell\Mosaic\Livewire\Assets\Table\PageAssets;
+use Capell\Mosaic\Livewire\Assets\Table\SectionAssets;
 use Capell\Mosaic\Livewire\Filament\LayoutBuilder;
 use Capell\Mosaic\Livewire\Filament\LayoutBuilder\WidgetTableSelect;
 use Capell\Mosaic\Livewire\Widget\Pages;
@@ -26,8 +26,8 @@ enum LivewireComponentsEnum: string implements EnumAttributeInterface
     #[Component(PageAssets::class)]
     case PageAssetsTable = 'capell-mosaic::assets.table.page-assets';
 
-    #[Component(ContentAssets::class)]
-    case ContentAssetsTable = 'capell-mosaic::assets.table.content-assets';
+    #[Component(SectionAssets::class)]
+    case ContentAssetsTable = 'capell-mosaic::assets.table.section-assets';
 
     #[Component(Pages::class)]
     case PagesWidget = 'capell-mosaic::widget.pages';
@@ -43,7 +43,7 @@ enum LivewireComponentsEnum: string implements EnumAttributeInterface
     {
         return match ($assetType) {
             'page' => self::PageAssetsTable,
-            'content' => self::ContentAssetsTable,
+            'section' => self::ContentAssetsTable,
         };
     }
 

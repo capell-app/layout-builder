@@ -14,6 +14,7 @@ return [
     'copy_page_layout' => 'Copy this layout? :link',
     'dark' => 'Dark',
     'default_value' => 'Default: :value',
+    'sections_content' => 'Sections Content',
     'exclude_types_info' => 'Exclude these types from selection.',
     'faq' => 'FAQ',
     'fixed_content_tree' => 'Content tree fixed successfully.',

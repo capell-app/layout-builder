@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Database\Factories;
 
-use Capell\Admin\Filament\Resources\Types\Schemas\Types\PageTypeSchema;
+use Capell\Admin\Filament\Schemas\Types\PageTypeSchema;
 use Capell\Blog\Enums\BlogTypeGroupEnum;
 use Capell\Blog\Enums\ResourceEnum;
-use Capell\Blog\Filament\Resources\Articles\Schemas\Types\ArticlePageSchema;
+use Capell\Blog\Filament\Schemas\Articles\ArticlePageSchema;
 use Capell\Core\Database\Factories\TypeFactory;
 use Capell\Core\Models\Page;
 use Illuminate\Database\Eloquent\Factories\Factory;

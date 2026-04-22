@@ -16,16 +16,16 @@ use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Enums\WidgetComponentEnum;
 use Capell\Mosaic\Enums\WidgetTypeEnum;
 use Capell\Mosaic\Enums\WidgetTypeGroupEnum;
-use Capell\Mosaic\Filament\Resources\Layouts\Schemas\Types\Widgets\DefaultLayoutWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Layouts\Schemas\Types\Widgets\PageLayoutWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Layouts\Schemas\Types\Widgets\ResultsLayoutWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Types\Schemas\Types\ContentTypeSchema;
-use Capell\Mosaic\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\AssetsWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\NavigationWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\PageContentWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\ResultsWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\SystemWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Layouts\Widgets\DefaultLayoutWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Layouts\Widgets\PageLayoutWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Layouts\Widgets\ResultsLayoutWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Types\ContentTypeSchema;
+use Capell\Mosaic\Filament\Schemas\Types\WidgetTypeSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\AssetsWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\NavigationWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\PageContentWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\ResultsWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\SystemWidgetSchema;
 use Exception;
 
 class TypeCreator

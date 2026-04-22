@@ -30,7 +30,7 @@ declare(strict_types=1);
     'widget',
 ])
 <x-capell-mosaic::widget.wrapper
-    class="widget-content-grid widget-content-accordion space-y-6"
+    class="widget-section-grid widget-accordion space-y-6"
     :$container
     :$containerKey
     :$containerWidth

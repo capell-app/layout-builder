@@ -16,7 +16,7 @@ use Capell\Mosaic\Enums\AssetEnum;
 use Capell\Mosaic\Enums\LivewireComponentsEnum;
 use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Enums\WidgetComponentEnum;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\CarouselWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\CarouselWidgetSchema;
 use Capell\Mosaic\Models\Widget;
 use Illuminate\Support\Collection;
 
@@ -403,7 +403,7 @@ class WidgetCreator
             'name' => 'Blocks',
             'type_id' => $type->id,
             'meta' => [
-                'component_item' => 'capell-mosaic::content.block',
+                'component_item' => 'capell-mosaic::section.block',
                 'view_file' => 'capell-mosaic::components.widget.asset.blocks',
                 'spacing' => 'none',
                 'columns' => 0,

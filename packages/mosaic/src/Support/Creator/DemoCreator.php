@@ -29,7 +29,7 @@ use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Enums\WidgetComponentEnum;
 use Capell\Mosaic\Enums\WidgetTypeEnum;
-use Capell\Mosaic\Filament\Resources\Sections\Schemas\Types\TestimonialSectionSchema;
+use Capell\Mosaic\Filament\Schemas\Sections\TestimonialSectionSchema;
 use Capell\Mosaic\Models\Section;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;
@@ -720,7 +720,7 @@ class DemoCreator
             'name' => 'Statistic Blocks',
             'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
-                'component_item' => 'capell-mosaic::content.block',
+                'component_item' => 'capell-mosaic::section.block',
                 'view_file' => 'capell-mosaic::components.widget.asset.blocks',
                 'spacing' => 'none',
                 'columns' => 4,
@@ -821,7 +821,7 @@ class DemoCreator
                 'carousel_loop' => true,
                 'carousel_auto_play' => true,
                 'carousel_auto_delay' => 50000,
-                'component_item' => 'capell-mosaic::content.team-member',
+                'component_item' => 'capell-mosaic::section.team-member',
             ],
         ]);
 

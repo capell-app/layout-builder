@@ -64,7 +64,8 @@ trait ManagesAssets
 
         return collect($assets)
             ->contains(
-                fn (array $asset): bool => $asset['pageable_type'] === $this->page->getMorphClass()
+                fn (array $asset): bool => isset($asset['pageable_type'], $asset['pageable_id'])
+                    && $asset['pageable_type'] === $this->page->getMorphClass()
                     && $asset['pageable_id'] === $this->page->getKey(),
             );
     }

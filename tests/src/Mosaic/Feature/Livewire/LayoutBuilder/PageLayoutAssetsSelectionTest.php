@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Models\Page;
 use Capell\Mosaic\Database\Factories\LayoutFactory;
-use Capell\Mosaic\Livewire\Assets\Table\ContentAssets;
 use Capell\Mosaic\Livewire\Assets\Table\PageAssets;
+use Capell\Mosaic\Livewire\Assets\Table\SectionAssets;
 use Capell\Mosaic\Models\Section;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;
@@ -17,7 +17,7 @@ use function Pest\Livewire\livewire;
 
 uses(CreatesAdminUser::class)->group('pages');
 
-$types = ['content', 'page'];
+$types = ['section', 'page'];
 
 beforeEach(function (): void {
     test()->actingAsAdmin();
@@ -89,7 +89,7 @@ it('excludes existing content assets when selecting new ones in page context', f
         'widgetIndex' => $widgetIndex,
     ];
 
-    livewire(ContentAssets::class, [
+    livewire(SectionAssets::class, [
         'actionModalId' => 'select-assets',
         'tableArguments' => $arguments,
         'existingRecords' => $existingAssets->pluck('asset_id')->toArray(),
@@ -109,12 +109,12 @@ it('dispatches sync-selected-assets for page layout context', function (string $
     $page = Page::factory()->layout($layout)->create();
 
     $records = match ($assetType) {
-        'content' => Section::factory()->count(3)->create(),
+        'section' => Section::factory()->count(3)->create(),
         'page' => Page::factory()->count(3)->create(),
     };
 
     $component = match ($assetType) {
-        'content' => ContentAssets::class,
+        'section' => SectionAssets::class,
         'page' => PageAssets::class,
     };
 

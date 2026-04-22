@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Enums;
 
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\AssetsWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\CardGridWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\CarouselWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\CTASectionWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\DefaultWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\FeatureListWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\HeroBannerWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\HeroWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\ImageGalleryWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\NavigationWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\PageContentWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\ResultsWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Widgets\Schemas\Types\SystemWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\AssetsWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\CardGridWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\CarouselWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\CTASectionWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\DefaultWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\FeatureListWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\HeroBannerWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\HeroWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\ImageGalleryWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\NavigationWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\PageContentWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\ResultsWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\SystemWidgetSchema;
 
 enum WidgetSchemaEnum: string
 {

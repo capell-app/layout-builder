@@ -138,7 +138,7 @@ declare(strict_types=1);
                                 :size="Size::ExtraSmall"
                                 class="absolute -right-2 -top-2 inline-flex"
                             >
-                                {{ $widget->assets?->count() ?? 0 }}
+                                {{ $this->countWidgetAssets($containerKey, $widgetIndex) }}
                             </x-filament::badge>
                         @endif
                     </span>

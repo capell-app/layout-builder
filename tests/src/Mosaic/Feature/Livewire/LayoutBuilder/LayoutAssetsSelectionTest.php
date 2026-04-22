@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Mosaic\Database\Factories\LayoutFactory;
-use Capell\Mosaic\Livewire\Assets\Table\ContentAssets;
 use Capell\Mosaic\Livewire\Assets\Table\PageAssets;
+use Capell\Mosaic\Livewire\Assets\Table\SectionAssets;
 use Capell\Mosaic\Models\Section;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
@@ -35,7 +35,7 @@ it('filters by site for sections assets', function (): void {
         'widgetIndex' => $widgetIndex,
     ];
 
-    livewire(ContentAssets::class, [
+    livewire(SectionAssets::class, [
         'actionModalId' => 'select-assets',
         'tableArguments' => $arguments,
     ])
@@ -87,7 +87,7 @@ it('dispatches sync-selected-assets event with selected records for each asset t
     };
 
     $component = match ($assetType) {
-        'section' => ContentAssets::class,
+        'section' => SectionAssets::class,
         'page' => PageAssets::class,
     };
 
@@ -131,7 +131,7 @@ it('searches within sections assets table', function (): void {
 
     $first = $sections->first();
 
-    livewire(ContentAssets::class, [
+    livewire(SectionAssets::class, [
         'actionModalId' => 'select-assets',
         'tableArguments' => $arguments,
     ])

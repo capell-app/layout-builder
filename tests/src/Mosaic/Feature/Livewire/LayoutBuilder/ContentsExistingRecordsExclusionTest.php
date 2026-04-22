@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Mosaic\Database\Factories\LayoutFactory;
-use Capell\Mosaic\Livewire\Assets\Table\ContentAssets;
+use Capell\Mosaic\Livewire\Assets\Table\SectionAssets;
 use Capell\Mosaic\Models\Section;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
@@ -28,7 +28,7 @@ it('shows all content records when no existing records are provided', function (
         'widgetIndex' => $widgetIndex,
     ];
 
-    livewire(ContentAssets::class, [
+    livewire(SectionAssets::class, [
         'actionModalId' => 'select-assets',
         'tableArguments' => $arguments,
     ])
@@ -53,7 +53,7 @@ it('excludes existing content records from selection list', function (): void {
         'widgetIndex' => $widgetIndex,
     ];
 
-    livewire(ContentAssets::class, [
+    livewire(SectionAssets::class, [
         'actionModalId' => 'select-assets',
         'tableArguments' => $arguments,
         'existingRecords' => $excluded->pluck('id')->toArray(),

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Enums;
 
-use Capell\Mosaic\Filament\Resources\Layouts\Schemas\Types\Widgets\DefaultLayoutWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Layouts\Schemas\Types\Widgets\PageLayoutWidgetSchema;
-use Capell\Mosaic\Filament\Resources\Layouts\Schemas\Types\Widgets\ResultsLayoutWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Layouts\Widgets\DefaultLayoutWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Layouts\Widgets\PageLayoutWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Layouts\Widgets\ResultsLayoutWidgetSchema;
 
 enum LayoutWidgetSchemaEnum: string
 {

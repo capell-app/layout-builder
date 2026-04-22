@@ -192,7 +192,7 @@ declare(strict_types=1);
                 @if ($mediaCount || $image)
                     <span class="relative">
                         @if ($image)
-                            {{ $image->img(MediaConversionEnum::Thumbnail->value)->lazy()->attributes(['class' => 'bg-gray-100 dark:bg-gray-800 max-h-10 max-w-10 ml-auto object-contain']) }}
+                            {{ $image->img(MediaConversionEnum::Thumbnail->value)->lazy()->attributes(['class' => 'bg-gray-100 dark:bg-gray-800 h-8 w-8 ml-auto object-contain rounded']) }}
                         @endif
 
                         @if ($mediaCount)
