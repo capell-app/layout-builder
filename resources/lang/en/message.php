@@ -8,7 +8,7 @@ return [
     'asset_updated' => 'Asset updated successfully.',
     'copy_layout_confirmation' => 'Are you sure you want to copy this layout?',
     'layout_container_key_not_unique' => 'Container key ":key" must be unique.',
-    'layout_count_on_pages' => 'This layout is used on :count pages. View: <a href=":url">Pages using this layout</a>.',
+    'layout_count_on_pages' => 'This layout is shared with :count other pages. View: <a href=":url">Pages using this layout</a>.',
     'layout_empty' => 'This layout is empty.',
     'layout_saved' => 'Layout saved successfully.',
     'layout_unsaved' => 'You have unsaved layout changes.',

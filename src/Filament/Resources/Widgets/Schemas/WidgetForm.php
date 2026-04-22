@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Widgets\Schemas;
+namespace Capell\Mosaic\Filament\Resources\Widgets\Schemas;
 
 use Capell\Admin\Filament\Components\Forms\Type\TypeSchema;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Type;
-use Capell\Layout\Enums\TypeSchemaEnum;
-use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\DefaultWidgetSchema;
+use Capell\Mosaic\Enums\TypeSchemaEnum;
+use Capell\Mosaic\Filament\Schemas\Widgets\DefaultWidgetSchema;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
@@ -29,7 +29,7 @@ class WidgetForm implements FormConfigurator
                 ->columns($schema->getColumns())
                 ->schema(
                     function (Get $get, TypeSchema $component) use ($schema): array {
-                        $typeId = $get('type_id');
+                        $typeId = $get('type_id') ?? null;
 
                         $record = $component->getRecord();
 
@@ -39,7 +39,7 @@ class WidgetForm implements FormConfigurator
                             /** @var class-string<Type> $model */
                             $model = CapellCore::getModel(ModelEnum::Type);
 
-                            $type = $typeId ? $model::query()->find($typeId, ['admin']) : null;
+                            $type = $typeId !== null ? $model::query()->find($typeId, ['admin']) : null;
 
                             $adminSchema = $type?->admin['schema'] ?? DefaultWidgetSchema::getKey();
                         }

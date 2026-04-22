@@ -15,10 +15,11 @@ return new class extends Migration
     {
         Schema::create('widgets', function (Blueprint $table): void {
             $table->id();
+            $table->unsignedBigInteger('workspace_id')->default(0)->index();
             $table->string('name');
             $table->foreignId('type_id')->constrained();
             $table->string('key', 128);
-            $table->publishDates();
+            $table->visibleDates();
             $table->longText('content')->nullable();
             $table->json('meta')->nullable();
             $table->json('admin')->nullable();
@@ -26,7 +27,7 @@ return new class extends Migration
             $table->boolean('status')->index()->default(1);
             $table->userstamps();
             $table->timestamps();
-            $table->unique(['key', 'deleted_at']);
+            $table->unique(['key', 'deleted_at', 'workspace_id']);
             $table->softDeletes();
         });
     }

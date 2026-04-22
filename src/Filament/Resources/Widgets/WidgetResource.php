@@ -2,29 +2,29 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Widgets;
+namespace Capell\Mosaic\Filament\Resources\Widgets;
 
 use BackedEnum;
 use Capell\Admin\Filament\Concerns\HasFormConfigurator;
 use Capell\Admin\Filament\Concerns\HasNavigationBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
-use Capell\Admin\Filament\Contracts\FormConfigurator;
-use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Core\Facades\CapellCore;
-use Capell\Layout\Enums\ModelEnum;
-use Capell\Layout\Filament\Resources\Widgets\Pages\CreateWidget;
-use Capell\Layout\Filament\Resources\Widgets\Pages\EditWidget;
-use Capell\Layout\Filament\Resources\Widgets\Pages\ListWidgets;
-use Capell\Layout\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager;
-use Capell\Layout\Filament\Resources\Widgets\Schemas\WidgetForm;
-use Capell\Layout\Filament\Resources\Widgets\Tables\WidgetsTable;
-use Capell\Layout\Models\Widget;
-use Capell\Layout\Providers\LayoutServiceProvider;
+use Capell\Mosaic\Enums\ModelEnum;
+use Capell\Mosaic\Filament\Resources\Widgets\Pages\CreateWidget;
+use Capell\Mosaic\Filament\Resources\Widgets\Pages\EditWidget;
+use Capell\Mosaic\Filament\Resources\Widgets\Pages\ListWidgets;
+use Capell\Mosaic\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager;
+use Capell\Mosaic\Filament\Resources\Widgets\Schemas\WidgetForm;
+use Capell\Mosaic\Filament\Resources\Widgets\Tables\WidgetsTable;
+use Capell\Mosaic\Models\Widget;
+use Capell\Mosaic\Providers\MosaicServiceProvider;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class WidgetResource extends Resource
@@ -35,11 +35,15 @@ class WidgetResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    /** @var class-string<FormConfigurator> */
     protected static string $formConfigurator = WidgetForm::class;
 
-    /** @var class-string<TableConfigurator> */
     protected static string $tableConfigurator = WidgetsTable::class;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
+
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::Cube;
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {
@@ -66,32 +70,52 @@ class WidgetResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return (string) (__('capell-layout::navigation.widgets'));
+        return (string) (__('capell-mosaic::navigation.widgets'));
     }
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_layouts'));
+        return (string) (__('capell-admin::navigation.group_design'));
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('capell-admin::generic.widgets');
+        return __('capell-mosaic::generic.widgets');
     }
 
-    public static function getNavigationIcon(): string|BackedEnum|null
+    public static function getNavigationIcon(): string|BackedEnum|Htmlable|null
     {
-        return config('capell-admin.resources.widgets.navigation_icon', Heroicon::OutlinedGift);
+        return config('capell-mosaic.resources.widget.icon', static::$navigationIcon);
+    }
+
+    public static function getActiveNavigationIcon(): string|BackedEnum|Htmlable|null
+    {
+        return config('capell-mosaic.resources.widget.active_icon', static::$activeNavigationIcon);
     }
 
     public static function shouldRegisterNavigation(): bool
     {
-        return CapellCore::getPackage(LayoutServiceProvider::$packageName)->isInstalled();
+        return CapellCore::getPackage(MosaicServiceProvider::$packageName)->isInstalled();
     }
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['name', 'key', 'translations.title', 'meta->component', 'meta->file', 'meta->component_item'];
+        return ['name', 'key', 'translations.title', 'meta->component', 'meta->file'];
+    }
+
+    /**
+     * @param  Model&Widget  $record
+     * @return array|string[]
+     */
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        $details = [];
+
+        if ($record->title) {
+            $details[__('capell-admin::generic.title')] = $record->title;
+        }
+
+        return $details;
     }
 
     public static function getEloquentQuery(): Builder

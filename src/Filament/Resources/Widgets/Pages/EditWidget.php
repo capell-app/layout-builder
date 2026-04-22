@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Widgets\Pages;
+namespace Capell\Mosaic\Filament\Resources\Widgets\Pages;
 
 use Capell\Admin\Contracts\PageCacheNotifiable;
 use Capell\Admin\Facades\CapellAdmin;
@@ -10,11 +10,11 @@ use Capell\Admin\Filament\Actions\DeleteAction;
 use Capell\Admin\Filament\Actions\ReplicateAction;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Admin\Filament\Concerns\HasTypeRelationManagers;
-use Capell\Layout\Enums\ResourceEnum;
-use Capell\Layout\Filament\Actions\CreateWidgetAction;
-use Capell\Layout\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager;
-use Capell\Layout\Filament\Resources\Widgets\WidgetResource;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Enums\ResourceEnum;
+use Capell\Mosaic\Filament\Actions\CreateWidgetAction;
+use Capell\Mosaic\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager;
+use Capell\Mosaic\Filament\Resources\Widgets\WidgetResource;
+use Capell\Mosaic\Models\Widget;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -55,7 +55,7 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
     public function getTitle(): string|Htmlable
     {
         return new HtmlString(
-            __('capell-layout::heading.edit_widget_record', [
+            __('capell-mosaic::heading.edit_widget_record', [
                 'name' => Str::limit($this->getRecordTitle(), 40),
             ]),
         );
@@ -68,13 +68,13 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
         $type = $this->record->type;
 
         if ($type) {
-            $subheading .= __('capell-layout::heading.widget_type', [
+            $subheading .= __('capell-mosaic::heading.widget_type', [
                 'type' => $type->name,
             ]);
         }
 
         if ($this->record->isDisabled()) {
-            if (! empty($subheading)) {
+            if ($subheading !== '') {
                 $subheading .= ' | ';
             }
 
@@ -136,6 +136,6 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
 
         $updated_at = $model::query()->find($this->record->id, [$attribute])->value($attribute);
 
-        return ! $updated_at || $this->record->updated_at > $updated_at;
+        return $updated_at === null || $this->record->updated_at > $updated_at;
     }
 }

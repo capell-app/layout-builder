@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Support\Creator;
+namespace Capell\Mosaic\Support\Creator;
 
 use Capell\Core\Enums\AssetComponentEnum as CapellAssetComponentEnum;
 use Capell\Core\Enums\AssetEnum;
@@ -10,23 +10,22 @@ use Capell\Core\Enums\ContentStructure;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Type;
-use Capell\Layout\Enums\AssetComponentEnum;
-use Capell\Layout\Enums\AssetEnum as LayoutAssetEnum;
-use Capell\Layout\Enums\ContentTypeEnum;
-use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Enums\WidgetComponentEnum;
-use Capell\Layout\Enums\WidgetTypeEnum;
-use Capell\Layout\Enums\WidgetTypeGroupEnum;
-use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Widgets\DefaultLayoutWidgetSchema;
-use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Widgets\PageLayoutWidgetSchema;
-use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Widgets\ResultsLayoutWidgetSchema;
-use Capell\Layout\Filament\Resources\Types\Schemas\Types\ContentTypeSchema;
-use Capell\Layout\Filament\Resources\Types\Schemas\Types\WidgetTypeSchema;
-use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\AssetsWidgetSchema;
-use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\NavigationWidgetSchema;
-use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\PageContentWidgetSchema;
-use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\ResultsWidgetSchema;
-use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\SystemWidgetSchema;
+use Capell\Mosaic\Enums\AssetEnum as LayoutAssetEnum;
+use Capell\Mosaic\Enums\ContentTypeEnum;
+use Capell\Mosaic\Enums\LayoutTypeEnum;
+use Capell\Mosaic\Enums\WidgetComponentEnum;
+use Capell\Mosaic\Enums\WidgetTypeEnum;
+use Capell\Mosaic\Enums\WidgetTypeGroupEnum;
+use Capell\Mosaic\Filament\Schemas\Layouts\Widgets\DefaultLayoutWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Layouts\Widgets\PageLayoutWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Layouts\Widgets\ResultsLayoutWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Types\ContentTypeSchema;
+use Capell\Mosaic\Filament\Schemas\Types\WidgetTypeSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\AssetsWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\NavigationWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\PageContentWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\ResultsWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Widgets\SystemWidgetSchema;
 use Exception;
 
 class TypeCreator
@@ -44,7 +43,7 @@ class TypeCreator
     public function create(string $key): void
     {
         switch ($key) {
-            case LayoutTypeEnum::Content->value:
+            case LayoutTypeEnum::Section->value:
                 $this->createDefaultContentType();
                 $this->createBuilderContentType();
                 break;
@@ -60,7 +59,7 @@ class TypeCreator
     {
         $this->typeModel::query()->firstOrCreate([
             'default' => true,
-            'type' => LayoutTypeEnum::Content,
+            'type' => LayoutTypeEnum::Section,
         ], [
             'name' => __('capell-admin::generic.default'),
             'key' => ContentTypeEnum::Default,
@@ -74,7 +73,7 @@ class TypeCreator
     {
         $this->typeModel::query()->firstOrCreate([
             'key' => ContentTypeEnum::Builder,
-            'type' => LayoutTypeEnum::Content,
+            'type' => LayoutTypeEnum::Section,
         ], [
             'name' => __('capell-admin::generic.contents_builder'),
             'admin' => [
@@ -89,8 +88,8 @@ class TypeCreator
 
     public function createWidgetTypes(): void
     {
-        $this->contentsWidgetType();
         $this->defaultWidgetType();
+        $this->contentsWidgetType();
         $this->contentBuilderWidgetType();
         $this->mediaWidgetType();
         $this->navigationWidgetType();
@@ -99,16 +98,22 @@ class TypeCreator
         $this->pagesWidgetType();
         $this->assetsWidgetType();
         $this->systemWidgetType();
+        $this->heroWidgetType();
+        $this->heroBannerWidgetType();
+        $this->cardGridWidgetType();
+        $this->featureListWidgetType();
+        $this->ctaSectionWidgetType();
+        $this->imageGalleryWidgetType();
     }
 
     public function defaultWidgetType(): Type
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::Default,
             'type' => LayoutTypeEnum::Widget,
+            'key' => 'default',
+            'default' => true,
         ], [
             'name' => __('capell-admin::generic.default'),
-            'default' => true,
             'admin' => [
                 'type_schema' => WidgetTypeSchema::getKey(),
                 'icon' => 'heroicon-o-puzzle-piece',
@@ -123,7 +128,7 @@ class TypeCreator
     public function contentBuilderWidgetType(): Type
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::ContentBuilder,
+            'key' => WidgetTypeEnum::SectionBuilder,
             'type' => LayoutTypeEnum::Widget,
         ], [
             'name' => __('capell-admin::generic.contents_builder'),
@@ -150,12 +155,12 @@ class TypeCreator
             'admin' => [
                 'schema' => AssetsWidgetSchema::getKey(),
                 'icon' => config('capell-admin.assets.media.icon'),
-                'asset_types' => [\Capell\Layout\Enums\AssetEnum::Content],
+                'asset_types' => [LayoutAssetEnum::Section],
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::Assets,
                 'component_item' => CapellAssetComponentEnum::Media,
-                'view_file' => 'capell-layout::components.widget.asset.media',
+                'view_file' => 'capell-mosaic::components.widget.asset.media',
             ],
         ]);
     }
@@ -195,7 +200,7 @@ class TypeCreator
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::Default,
-                'padding' => ['lg'],
+                'with_next_prev' => true,
             ],
         ]);
     }
@@ -254,7 +259,7 @@ class TypeCreator
                 'icon' => 'heroicon-o-rectangle-stack',
                 'asset_types' => [
                     AssetEnum::Page,
-                    LayoutAssetEnum::Content,
+                    LayoutAssetEnum::Section,
                 ],
             ],
             'meta' => [
@@ -286,7 +291,7 @@ class TypeCreator
     public function contentsWidgetType(): Type
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::Contents,
+            'key' => WidgetTypeEnum::Sections,
             'type' => LayoutTypeEnum::Widget,
         ], [
             'name' => __('capell-admin::generic.contents'),
@@ -295,12 +300,114 @@ class TypeCreator
                 'type_schema' => WidgetTypeSchema::getKey(),
                 'schema' => AssetsWidgetSchema::getKey(),
                 'icon' => 'heroicon-o-rectangle-stack',
-                'asset_types' => [LayoutAssetEnum::Content],
+                'asset_types' => [LayoutAssetEnum::Section],
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::Assets,
-                'component_item' => AssetComponentEnum::Content,
+                'component_item' => CapellAssetComponentEnum::Card,
                 'margin' => ['lg'],
+            ],
+        ]);
+    }
+
+    public function heroWidgetType(): Type
+    {
+        return $this->typeModel::query()->firstOrCreate([
+            'key' => WidgetTypeEnum::Hero,
+            'type' => LayoutTypeEnum::Widget,
+        ], [
+            'name' => 'Hero',
+            'admin' => [
+                'type_schema' => WidgetTypeSchema::getKey(),
+                'icon' => 'heroicon-o-rocket-launch',
+            ],
+            'meta' => [
+                'component' => WidgetComponentEnum::Default,
+            ],
+        ]);
+    }
+
+    public function heroBannerWidgetType(): Type
+    {
+        return $this->typeModel::query()->firstOrCreate([
+            'key' => WidgetTypeEnum::HeroBanner,
+            'type' => LayoutTypeEnum::Widget,
+        ], [
+            'name' => 'Hero Banner',
+            'admin' => [
+                'type_schema' => WidgetTypeSchema::getKey(),
+                'icon' => 'heroicon-o-flag',
+            ],
+            'meta' => [
+                'component' => WidgetComponentEnum::Default,
+            ],
+        ]);
+    }
+
+    public function cardGridWidgetType(): Type
+    {
+        return $this->typeModel::query()->firstOrCreate([
+            'key' => WidgetTypeEnum::CardGrid,
+            'type' => LayoutTypeEnum::Widget,
+        ], [
+            'name' => 'Card Grid',
+            'admin' => [
+                'type_schema' => WidgetTypeSchema::getKey(),
+                'icon' => 'heroicon-o-square-3-stack-3d',
+            ],
+            'meta' => [
+                'component' => WidgetComponentEnum::Default,
+            ],
+        ]);
+    }
+
+    public function featureListWidgetType(): Type
+    {
+        return $this->typeModel::query()->firstOrCreate([
+            'key' => WidgetTypeEnum::FeatureList,
+            'type' => LayoutTypeEnum::Widget,
+        ], [
+            'name' => 'Feature List',
+            'admin' => [
+                'type_schema' => WidgetTypeSchema::getKey(),
+                'icon' => 'heroicon-o-list-bullet',
+            ],
+            'meta' => [
+                'component' => WidgetComponentEnum::Default,
+            ],
+        ]);
+    }
+
+    public function ctaSectionWidgetType(): Type
+    {
+        return $this->typeModel::query()->firstOrCreate([
+            'key' => WidgetTypeEnum::CTASection,
+            'type' => LayoutTypeEnum::Widget,
+        ], [
+            'name' => 'CTA Section',
+            'admin' => [
+                'type_schema' => WidgetTypeSchema::getKey(),
+                'icon' => 'heroicon-o-megaphone',
+            ],
+            'meta' => [
+                'component' => WidgetComponentEnum::Default,
+            ],
+        ]);
+    }
+
+    public function imageGalleryWidgetType(): Type
+    {
+        return $this->typeModel::query()->firstOrCreate([
+            'key' => WidgetTypeEnum::ImageGallery,
+            'type' => LayoutTypeEnum::Widget,
+        ], [
+            'name' => 'Image Gallery',
+            'admin' => [
+                'type_schema' => WidgetTypeSchema::getKey(),
+                'icon' => 'heroicon-o-photo',
+            ],
+            'meta' => [
+                'component' => WidgetComponentEnum::Default,
             ],
         ]);
     }

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Enums;
+namespace Capell\Mosaic\Enums;
 
-use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Widgets\DefaultLayoutWidgetSchema;
-use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Widgets\PageLayoutWidgetSchema;
-use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Widgets\ResultsLayoutWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Layouts\Widgets\DefaultLayoutWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Layouts\Widgets\PageLayoutWidgetSchema;
+use Capell\Mosaic\Filament\Schemas\Layouts\Widgets\ResultsLayoutWidgetSchema;
 
 enum LayoutWidgetSchemaEnum: string
 {

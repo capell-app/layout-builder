@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Components\Forms\Layout;
+namespace Capell\Mosaic\Filament\Components\Forms\Layout;
 
 use Capell\Core\Models\Layout;
-use Capell\Layout\Livewire\LayoutBuilder;
+use Capell\Mosaic\Enums\LivewireComponentsEnum;
 use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
@@ -17,15 +17,15 @@ class LayoutTab extends Tab
     {
         parent::setUp();
 
-        $this->label(__('capell-layout::tab.layout'))
+        $this->label(__('capell-mosaic::tab.layout'))
             ->visibleOn(['edit', 'editOption'])
             ->icon(Heroicon::OutlinedPuzzlePiece)
             ->schema([
                 Livewire::make(
-                    LayoutBuilder::class,
+                    LivewireComponentsEnum::LayoutBuilder->value,
                     fn (Get $get, Layout $record): array => [
-                        'site_id' => $record->site_id,
-                        'layout_id' => $record->id,
+                        'site' => $record->site,
+                        'layout' => $record,
                     ],
                 ),
             ]);

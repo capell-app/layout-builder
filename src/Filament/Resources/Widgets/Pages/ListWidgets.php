@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Widgets\Pages;
+namespace Capell\Mosaic\Filament\Resources\Widgets\Pages;
 
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
@@ -10,9 +10,9 @@ use Capell\Admin\Filament\Concerns\ApplySearchRelationsTable;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
-use Capell\Layout\Enums\ResourceEnum as LayoutResourceEnum;
-use Capell\Layout\Filament\Actions\CreateWidgetAction;
-use Capell\Layout\Filament\Resources\Widgets\WidgetResource;
+use Capell\Mosaic\Enums\ResourceEnum as LayoutResourceEnum;
+use Capell\Mosaic\Filament\Actions\CreateWidgetAction;
+use Capell\Mosaic\Filament\Resources\Widgets\WidgetResource;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Resources\Pages\ListRecords;
@@ -32,7 +32,7 @@ class ListWidgets extends ListRecords
 
     public function getSubheading(): string|Htmlable|null
     {
-        return __('capell-layout::generic.widgets_subheading');
+        return __('capell-mosaic::generic.widget_info');
     }
 
     public function getFilteredTableQuery(): Builder
@@ -49,7 +49,7 @@ class ListWidgets extends ListRecords
         }
 
         $query->with([
-            'translation' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', (int) $language_id),
+            'translation' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', $language_id),
         ]);
 
         return $query;

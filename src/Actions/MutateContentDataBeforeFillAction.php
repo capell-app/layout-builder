@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Actions;
+namespace Capell\Mosaic\Actions;
 
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
-use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Exception;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -24,11 +25,9 @@ class MutateContentDataBeforeFillAction
     {
         $site = Site::getDefault();
 
-        $data['is_published'] = true;
-
         $data['type_id'] = $this->getDefaultType()->getKey();
 
-        $data['translations'] = $site?->translations->mapWithKeys(fn ($translation): array => [
+        $data['translations'] = $site?->translations->mapWithKeys(fn (Translation $translation): array => [
             (string) Str::uuid() => [
                 'language_id' => $translation->language_id,
             ],
@@ -44,7 +43,7 @@ class MutateContentDataBeforeFillAction
         $model = CapellCore::getModel(ModelEnum::Type);
 
         $contentType = $model::query()
-            ->where('type', LayoutTypeEnum::Content)
+            ->where('type', LayoutTypeEnum::Section)
             ->orderBy('default', 'desc')
             ->orderBy('id')
             ->first();

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Components\Forms;
+namespace Capell\Mosaic\Filament\Components\Forms;
 
 use Filament\Forms\Components\ToggleButtons;
 
@@ -14,9 +14,9 @@ class ColorSchemeComponent extends ToggleButtons
             ->inline()
             ->grouped()
             ->options([
-                '' => __('capell-layout::generic.auto'),
-                'light' => __('capell-layout::generic.light'),
-                'dark' => __('capell-layout::generic.dark'),
+                'auto' => __('capell-mosaic::generic.auto'),
+                'light' => __('capell-mosaic::generic.light'),
+                'dark' => __('capell-mosaic::generic.dark'),
             ]);
     }
 }

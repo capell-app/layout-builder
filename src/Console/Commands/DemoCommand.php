@@ -2,32 +2,40 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Console\Commands;
+namespace Capell\Mosaic\Console\Commands;
 
 use Capell\Core\Console\Commands\Concerns\HasSitesOption;
+use Capell\Core\Contracts\Pageable;
+use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Layout\Models\Content;
-use Capell\Layout\Support\Creator\ContentCreator;
-use Capell\Layout\Support\Creator\DemoCreator;
-use Capell\Layout\Support\Creator\TypeCreator;
+use Capell\Mosaic\Models\Section;
+use Capell\Mosaic\Support\Creator\ContentCreator;
+use Capell\Mosaic\Support\Creator\DemoCreator;
+use Capell\Mosaic\Support\Creator\TypeCreator;
+use Capell\Mosaic\Support\Creator\WidgetCreator;
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Auth\User;
+use Illuminate\Support\Collection;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class DemoCommand extends Command
 {
     use HasSitesOption;
 
-    protected $description = 'Inserts demo layout widgets';
+    protected $description = 'Inserts demo mosaic layout widgets';
 
-    protected $signature = 'capell:layout-demo {--user} {--sites=}';
+    protected $signature = 'capell:mosaic-demo
+         {--user= : Whether to associate the created demo content with the first user in the system. If not provided, content will be created without an associated user.}
+         {--sites= : Comma-separated list of site names to target for demo content insertion. If not provided, all sites will be targeted.}
+         {--include-hero : Also run the hero demo command after creating mosaic demo content.}
+     ';
 
     protected DemoCreator $demoCreator;
 
@@ -80,6 +88,14 @@ class DemoCommand extends Command
         $this->newLine();
         $this->info('Demo layouts have been successfully created.');
 
+        if ($this->option('include-hero')) {
+            $this->newLine();
+            $this->comment('Running hero demo...');
+            $this->call('capell:hero-demo', [
+                '--sites' => $this->option('sites'),
+            ]);
+        }
+
         return Command::SUCCESS;
     }
 
@@ -90,14 +106,13 @@ class DemoCommand extends Command
         /** @var Page $home */
         $home = $site->getHomePage();
 
-        if (! $home instanceof Page) {
+        if (! $home instanceof Pageable) {
             $this->error('Unable to find homepage for site: ' . $site->name);
 
             return false;
         }
 
-        // main(4) + faq(2) + secondary(8) + split-two(1) + background(1)
-        $totalSteps = 4 + 2 + 8 + 1 + 1;
+        $totalSteps = 4 + 2 + 17 + 1 + 1 + 6;
         $this->startProgress($totalSteps);
         $this->setupHomepage($home, $languages);
         $this->finishProgress();
@@ -105,7 +120,7 @@ class DemoCommand extends Command
         return true;
     }
 
-    public function setupHomepage(Page $page, Collection $languages): void
+    public function setupHomepage(Pageable $page, EloquentCollection $languages): void
     {
         $layout = $this->getHomeLayout();
         throw_unless($layout instanceof Layout, Exception::class, 'Unable to find homepage layout');
@@ -117,6 +132,7 @@ class DemoCommand extends Command
         $this->populateMainContainer($containers, $page);
         $this->populateFaqContainers($containers, $languages, $page);
         $this->populateSecondaryContainer($containers, $languages, $page);
+        $this->populateAPWidgetsContainer($containers);
         $this->populateSplitTwoContainer($containers, $languages);
         $this->addSplitTwoBackgroundMedia($layout);
 
@@ -130,11 +146,18 @@ class DemoCommand extends Command
         if ($this->option('sites')) {
             $sitesOption = $this->option('sites');
             if (is_string($sitesOption)) {
-                return array_values(array_filter(array_map(trim(...), explode(',', $sitesOption)), fn ($v): bool => $v !== ''));
+                return array_values(
+                    array_filter(
+                        array_map(trim(...), explode(',', $sitesOption)),
+                        fn (string $siteOption): bool => $siteOption !== '',
+                    ),
+                );
             }
 
             if (is_array($sitesOption)) {
-                return array_values(array_filter(array_map(trim(...), $sitesOption), fn ($v): bool => $v !== ''));
+                return array_values(
+                    array_filter(array_map(trim(...), $sitesOption), fn (string $siteOption): bool => $siteOption !== ''),
+                );
             }
 
             return [];
@@ -159,7 +182,7 @@ class DemoCommand extends Command
         return null;
     }
 
-    private function populateMainContainer(array &$containers, Page $page): void
+    private function populateMainContainer(array &$containers, Pageable $page): void
     {
         $this->setProgressMessage('Creating page cards widget');
         $pageCardsWidget = $this->demoCreator->createPageCardsWidget($page);
@@ -191,7 +214,7 @@ class DemoCommand extends Command
         ];
     }
 
-    private function populateFaqContainers(array &$containers, Collection $languages, Page $page): void
+    private function populateFaqContainers(array &$containers, EloquentCollection $languages, Pageable $page): void
     {
         $this->setProgressMessage('Creating FAQ widget');
         $faqWidget = $this->demoCreator->createFaqWidget($languages);
@@ -213,7 +236,7 @@ class DemoCommand extends Command
         $containers['faq-col'] = [
             'meta' => [
                 'colspan' => 4,
-                'container' => 'full',
+                'container' => ContainerWidthEnum::Full,
             ],
             'widgets' => [
                 ['widget_key' => $faqColWidget->key],
@@ -221,10 +244,18 @@ class DemoCommand extends Command
         ];
     }
 
-    private function populateSecondaryContainer(array &$containers, Collection $languages, Page $page): void
+    private function populateSecondaryContainer(array &$containers, EloquentCollection $languages, Pageable $page): void
     {
+        $this->setProgressMessage('Creating modern feature list widget');
+        $featureListWidget = $this->demoCreator->createModernFeatureListWidget();
+        $this->advanceProgress();
+
         $this->setProgressMessage('Creating team portfolio widget');
         $teamPortfolioWidget = $this->demoCreator->createTeamPortfolioWidget($languages);
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating modern team members widget');
+        $modernTeamWidget = $this->demoCreator->createModernTeamMembersWidget();
         $this->advanceProgress();
 
         $this->setProgressMessage('Creating banner image widget');
@@ -235,8 +266,12 @@ class DemoCommand extends Command
         $contentWidget = $this->demoCreator->createContentWidget($languages);
         $this->advanceProgress();
 
-        $this->setProgressMessage('Creating statistics widget');
+        $this->setProgressMessage('Creating statistics blocks widget');
         $statisticsWidget = $this->demoCreator->createStatisticsWidget();
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating modern pricing table widget');
+        $pricingWidget = $this->demoCreator->createModernPricingTableWidget();
         $this->advanceProgress();
 
         $this->setProgressMessage('Creating business features widget');
@@ -251,8 +286,50 @@ class DemoCommand extends Command
         $clientLogosWidget = $this->demoCreator->createClientLogosWidget($languages);
         $this->advanceProgress();
 
-        $this->setProgressMessage('Creating testimonials widget');
-        $testimonialsWidget = $this->demoCreator->createTestimonialsWidget($languages);
+        $this->setProgressMessage('Creating modern testimonials widget');
+        $testimonialsWidget = $this->demoCreator->createModernTestimonialsWidget();
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating modern FAQ section widget');
+        $faqWidget = $this->demoCreator->createModernFaqWidget();
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating modern stats section widget');
+        $statsWidget = $this->demoCreator->createModernStatsSectionWidget();
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating modern alternating content widget');
+        $alternatingWidget = $this->demoCreator->createModernAlternatingContentWidget();
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating modern process steps widget');
+        $processWidget = $this->demoCreator->createModernProcessStepsWidget();
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating modern image gallery widget');
+        $galleryWidget = $this->demoCreator->createModernImageGalleryWidget();
+        $this->advanceProgress();
+
+        $widgetCreator = resolve(WidgetCreator::class);
+
+        $this->setProgressMessage('Creating AP hero banner widget');
+        $apHeroBannerWidget = $widgetCreator->apHeroBannerWidget();
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating AP card grid widget');
+        $apCardGridWidget = $widgetCreator->apCardGridWidget();
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating AP feature list widget');
+        $apFeatureListWidget = $widgetCreator->apFeatureListWidget();
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating AP CTA section widget');
+        $apCtaSectionWidget = $widgetCreator->apCtaSectionWidget();
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating AP image gallery widget');
+        $apImageGalleryWidget = $widgetCreator->apImageGalleryWidget();
         $this->advanceProgress();
 
         $containers['secondary'] = [
@@ -260,19 +337,76 @@ class DemoCommand extends Command
                 'colspan' => 12,
             ],
             'widgets' => [
+                ['widget_key' => $featureListWidget->key],
                 ['widget_key' => $teamPortfolioWidget->key],
+                ['widget_key' => $modernTeamWidget->key],
                 ['widget_key' => $bannerImageWidget->key],
                 ['widget_key' => $contentWidget->key],
                 ['widget_key' => $statisticsWidget->key],
+                ['widget_key' => $pricingWidget->key],
                 ['widget_key' => $businessFeaturesWidget->key],
                 ['widget_key' => $bannersWidget->key],
                 ['widget_key' => $clientLogosWidget->key],
                 ['widget_key' => $testimonialsWidget->key],
+                ['widget_key' => $faqWidget->key],
+                ['widget_key' => $statsWidget->key],
+                ['widget_key' => $alternatingWidget->key],
+                ['widget_key' => $processWidget->key],
+                ['widget_key' => $galleryWidget->key],
+            ],
+        ];
+
+        $containers['ap-widgets'] = [
+            'meta' => [
+                'colspan' => 12,
+            ],
+            'widgets' => [
+                ['widget_key' => $apHeroBannerWidget->key],
+                ['widget_key' => $apCardGridWidget->key],
+                ['widget_key' => $apFeatureListWidget->key],
+                ['widget_key' => $apCtaSectionWidget->key],
+                ['widget_key' => $apImageGalleryWidget->key],
             ],
         ];
     }
 
-    private function populateSplitTwoContainer(array &$containers, Collection $languages): void
+    private function populateAPWidgetsContainer(array &$containers): void
+    {
+        $this->setProgressMessage('Creating AP Hero Banner widget');
+        $heroBannerWidget = $this->demoCreator->createApHeroBannerWidget();
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating AP Card Grid widget');
+        $cardGridWidget = $this->demoCreator->createApCardGridWidget();
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating AP Feature List widget');
+        $featureListWidget = $this->demoCreator->createApFeatureListWidget();
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating AP CTA Section widget');
+        $ctaSectionWidget = $this->demoCreator->createApCtaSectionWidget();
+        $this->advanceProgress();
+
+        $this->setProgressMessage('Creating AP Image Gallery widget');
+        $imageGalleryWidget = $this->demoCreator->createApImageGalleryWidget();
+        $this->advanceProgress();
+
+        $containers['ap-widgets'] = [
+            'meta' => [
+                'colspan' => 12,
+            ],
+            'widgets' => [
+                ['widget_key' => $heroBannerWidget->key],
+                ['widget_key' => $cardGridWidget->key],
+                ['widget_key' => $featureListWidget->key],
+                ['widget_key' => $ctaSectionWidget->key],
+                ['widget_key' => $imageGalleryWidget->key],
+            ],
+        ];
+    }
+
+    private function populateSplitTwoContainer(array &$containers, EloquentCollection $languages): void
     {
         $this->setProgressMessage('Creating split content widget');
         $splitContentWidget = $this->demoCreator->createSplitContentWidget($languages);
@@ -302,15 +436,15 @@ class DemoCommand extends Command
         $this->advanceProgress();
     }
 
-    private function createSiteContents(ContentCreator $contentCreator, array $data, Site $site, ?Collection $languages = null, ?Content $parent = null): void
+    private function createSiteContents(ContentCreator $contentCreator, array $data, Site $site, ?Collection $languages = null, ?Section $parent = null): void
     {
-        if ($site->contents()->count() > 28) {
+        if ($site->sections()->count() > 28) {
             $this->setProgressMessage('Content limit reached.');
 
             return;
         }
 
-        if (! $languages instanceof Collection) {
+        if (! $languages instanceof EloquentCollection) {
             $languages = $site->languages;
         }
 
@@ -318,7 +452,7 @@ class DemoCommand extends Command
             'name' => $data['name']['en'],
         ];
 
-        if ($parent instanceof Content) {
+        if ($parent instanceof Section) {
             $contentData['parent_id'] = $parent->id;
         }
 

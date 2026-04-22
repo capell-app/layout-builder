@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Widgets\Schemas;
+namespace Capell\Mosaic\Filament\Resources\Widgets\Schemas;
 
 use Capell\Admin\Filament\Components\Forms\Type\TypeSchema;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
-use Capell\Layout\Enums\TypeSchemaEnum;
-use Capell\Layout\Enums\WidgetAssetSchemaEnum;
-use Capell\Layout\Models\WidgetAsset;
+use Capell\Mosaic\Enums\TypeSchemaEnum;
+use Capell\Mosaic\Enums\WidgetAssetSchemaEnum;
+use Capell\Mosaic\Models\WidgetAsset;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use RuntimeException;
@@ -41,7 +41,7 @@ class WidgetAssetForm implements FormConfigurator
                             ?? null;
                     }
 
-                    if (! $adminSchema) {
+                    if ($adminSchema === null) {
                         $adminSchema = WidgetAssetSchemaEnum::fromName(ucfirst($assetType))->value::getKey();
                     }
 

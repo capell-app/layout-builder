@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Enums;
+namespace Capell\Mosaic\Enums;
 
-use Capell\Layout\Filament\Resources\Layouts\Schemas\Types\Containers\DefaultLayoutContainerSchema;
+use Capell\Mosaic\Filament\Schemas\Layouts\DefaultLayoutContainerSchema;
 
 enum LayoutContainerSchemaEnum: string
 {

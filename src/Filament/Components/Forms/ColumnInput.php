@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Components\Forms;
+namespace Capell\Mosaic\Filament\Components\Forms;
 
 use Filament\Forms\Components\TextInput;
 

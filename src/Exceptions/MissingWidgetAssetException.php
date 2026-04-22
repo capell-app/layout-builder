@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Exceptions;
+namespace Capell\Mosaic\Exceptions;
 
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Models\Widget;
 use Exception;
 
 class MissingWidgetAssetException extends Exception

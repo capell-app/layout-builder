@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Database\Factories;
+namespace Capell\Mosaic\Database\Factories;
 
 use Capell\Core\Database\Factories\TypeFactory;
-use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Models\Content;
+use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +17,7 @@ class ContentTypeFactory extends TypeFactory
     {
         return [
             ...parent::definition(),
-            'type' => LayoutTypeEnum::Content->value,
+            'type' => LayoutTypeEnum::Section->value,
         ];
     }
 }

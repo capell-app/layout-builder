@@ -2,17 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Database\Factories;
+namespace Capell\Mosaic\Database\Factories;
 
+use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
-use Capell\Layout\Enums\AssetEnum as LayoutAssetEnum;
-use Capell\Layout\Models\Content;
-use Capell\Layout\Models\Widget;
-use Capell\Layout\Models\WidgetAsset;
+use Capell\Mosaic\Enums\ActionLinkEnum;
+use Capell\Mosaic\Enums\AssetEnum as LayoutAssetEnum;
+use Capell\Mosaic\Models\Section;
+use Capell\Mosaic\Models\Widget;
+use Capell\Mosaic\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @extends Factory<WidgetAsset>
@@ -30,17 +33,18 @@ class WidgetAssetFactory extends Factory
     {
         $assetType = fake()->randomElement([
             AssetEnum::Page,
-            LayoutAssetEnum::Content,
+            LayoutAssetEnum::Section,
         ]);
 
         return [
             'widget_id' => Widget::factory(),
-            'page_id' => null,
             'asset_type' => $assetType->value,
             'asset_id' => fn (): string => match ($assetType) {
-                LayoutAssetEnum::Content => (string) Content::factory()->withTranslations()->linkedPage()->create()->id,
+                LayoutAssetEnum::Section => (string) Section::factory()->withTranslations()->linkedPage()->create()->id,
                 AssetEnum::Page => (string) Page::factory()->withTranslations()->create()->id,
             },
+            'pageable_id' => null,
+            'pageable_type' => null,
             'occurrence' => 1,
             'order' => fake()->randomNumber(1),
             'created_at' => fake()->dateTimeBetween('-1 year', '-6 month'),
@@ -62,23 +66,26 @@ class WidgetAssetFactory extends Factory
         ]);
     }
 
-    public function page(Page $page, string $container, int $occurrence): self
+    public function page(Pageable $page, ?string $container = null, ?int $occurrence = null): self
     {
         return $this->state(fn (array $attributes): array => [
-            'page_id' => $page->id,
-            'container' => $container,
-            'occurrence' => $occurrence,
+            'pageable_id' => $page->getKey(),
+            'pageable_type' => $page->getMorphClass(),
+            'container' => $container ?? $this->faker->slug,
+            'occurrence' => $occurrence ?? $this->faker->numberBetween(1, 10),
         ]);
     }
 
-    public function asset(AssetEnum|LayoutAssetEnum $type): self
+    public function asset(AssetEnum|LayoutAssetEnum|Model $asset): self
     {
         return $this->state(fn (array $attributes): array => [
-            'asset_type' => $type->value,
-            'asset_id' => fn (): string => match ($type) {
-                LayoutAssetEnum::Content => (string) Content::factory()->withTranslations()->linkedPage()->create()->id,
-                AssetEnum::Page => (string) Page::factory()->withTranslations()->create()->id,
-            },
+            'asset_type' => $asset instanceof Model ? $asset->getMorphClass() : $asset->value,
+            'asset_id' => fn (): mixed => $asset instanceof Model
+                ? $asset->getKey()
+                : match ($asset) {
+                    LayoutAssetEnum::Section => (string) Section::factory()->withTranslations()->linkedPage()->create()->getKey(),
+                    AssetEnum::Page => (string) Page::factory()->withTranslations()->create()->getKey(),
+                },
         ]);
     }
 
@@ -107,7 +114,7 @@ class WidgetAssetFactory extends Factory
     {
         return $this->afterCreating(function (WidgetAsset $widgetAsset) use ($count): void {
             $related = match ($widgetAsset->asset_type) {
-                LayoutAssetEnum::Content->value => Content::factory()
+                LayoutAssetEnum::Section->value => Section::factory()
                     ->count($count)
                     ->withTranslations()
                     ->linkedPage()
@@ -135,7 +142,7 @@ class WidgetAssetFactory extends Factory
             $actions = [];
             for ($i = 0; $i < $count; $i++) {
                 $actions[] = [
-                    'type' => 'link',
+                    'type' => ActionLinkEnum::Link->value,
                     'label' => fake()->sentence(2),
                     'url' => fake()->url(),
                 ];

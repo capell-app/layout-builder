@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Enums;
+namespace Capell\Mosaic\Enums;
 
 enum CapellLayoutCacheKeyEnum: string
 {

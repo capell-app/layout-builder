@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Actions;
+namespace Capell\Mosaic\Actions;
 
-use Capell\Layout\Models\Content;
+use Capell\Mosaic\Models\Section;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static Content run(Content $content, array $data = [])
+ * @method static Section run(Section $content, array $data = [])
  */
 class ReplicateContentAction
 {
     use AsObject;
 
-    public function handle(Content $content, array $data = []): Content
+    public function handle(Section $content, array $data = []): Section
     {
         $content->load('translations');
 
@@ -24,26 +24,17 @@ class ReplicateContentAction
             unset($data['translations']);
         }
 
-        /** @var Content $className */
+        /** @var class-string<Section> $className */
         $className = $content::class;
 
-        $model = $className::withDrafts()->find($content->getKey());
+        $model = $className::query()->find($content->getKey());
 
         $model->fill($data);
 
-        $replica = $model->duplicate([
-            'uuid',
-        ]);
+        $replica = $model->replicate();
 
         $replica->created_at = now();
         $replica->updated_at = now();
-
-        if ($content->isPublished()) {
-            $replica->is_published = true;
-            $replica->published_at = now();
-        }
-
-        $className::setupNewModel($replica);
 
         $replica->save();
 

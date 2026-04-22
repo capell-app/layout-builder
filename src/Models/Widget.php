@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Models;
+namespace Capell\Mosaic\Models;
 
 use Bkwld\Cloner\Cloneable;
+use Capell\Core\Contracts\Pageable;
 use Capell\Core\Contracts\PageCacheable;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Enums\PublishStatusEnum;
@@ -24,9 +25,10 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
-use Capell\Layout\Database\Factories\WidgetFactory;
-use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Observers\WidgetObserver;
+use Capell\Mosaic\Database\Factories\WidgetFactory;
+use Capell\Mosaic\Enums\LayoutTypeEnum;
+use Capell\Mosaic\Observers\WidgetObserver;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -50,8 +52,8 @@ use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
 /**
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WidgetAsset> $assets
  * @property-read int|null $assets_count
- * @property-read \Kalnoy\Nestedset\Collection<int, Content> $contents
- * @property-read int|null $contents_count
+ * @property-read \Aimeos\Nestedset\Collection<int, Section> $sections
+ * @property-read int|null $sections_count
  * @property-read User|null $creator
  * @property-read User|null $destroyer
  * @property-read User|null $editor
@@ -61,7 +63,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
  * @property-read int|null $languages_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Media> $media
  * @property-read int|null $media_count
- * @property-read \Kalnoy\Nestedset\Collection<int, Page> $pages
+ * @property-read \Aimeos\Nestedset\Collection<int, Page> $pages
  * @property-read int|null $pages_count
  * @property-read Translation|null $translation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Translation> $translations
@@ -97,6 +99,44 @@ use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
  * @property-read string|null $title
  *
  * @mixin Model
+ *
+ * @property int $id
+ * @property string $name
+ * @property int $type_id
+ * @property string $key
+ * @property CarbonImmutable|null $visible_from
+ * @property CarbonImmutable|null $visible_until
+ * @property string|null $content
+ * @property array<array-key, mixed>|null $meta
+ * @property array<array-key, mixed>|null $admin
+ * @property int $order
+ * @property bool $status
+ * @property int|null $created_by
+ * @property int|null $updated_by
+ * @property int|null $deleted_by
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
+ * @property CarbonImmutable|null $deleted_at
+ *
+ * @method static Builder<static>|Widget whereAdmin($value)
+ * @method static Builder<static>|Widget whereContent($value)
+ * @method static Builder<static>|Widget whereCreatedAt($value)
+ * @method static Builder<static>|Widget whereCreatedBy($value)
+ * @method static Builder<static>|Widget whereDeletedAt($value)
+ * @method static Builder<static>|Widget whereDeletedBy($value)
+ * @method static Builder<static>|Widget whereId($value)
+ * @method static Builder<static>|Widget whereKey($value)
+ * @method static Builder<static>|Widget whereMeta($value)
+ * @method static Builder<static>|Widget whereName($value)
+ * @method static Builder<static>|Widget whereOrder($value)
+ * @method static Builder<static>|Widget whereVisibleFrom($value)
+ * @method static Builder<static>|Widget wherePublishTo($value)
+ * @method static Builder<static>|Widget whereStatus($value)
+ * @method static Builder<static>|Widget whereTypeId($value)
+ * @method static Builder<static>|Widget whereUpdatedAt($value)
+ * @method static Builder<static>|Widget whereUpdatedBy($value)
+ *
+ * @mixin Model
  */
 #[ObservedBy(WidgetObserver::class)]
 class Widget extends Model implements HasMedia, PageCacheable, Publishable, Statusable, Typeable, Userstampable
@@ -118,8 +158,6 @@ class Widget extends Model implements HasMedia, PageCacheable, Publishable, Stat
     use LogsActivity;
     use SoftDeletes;
 
-    public const COMPONENT_SLOT = 'slot';
-
     /**
      * The attributes that are mass assignable.
      *
@@ -130,8 +168,8 @@ class Widget extends Model implements HasMedia, PageCacheable, Publishable, Stat
         'key',
         'meta',
         'name',
-        'publish_from',
-        'publish_to',
+        'visible_from',
+        'visible_until',
         'status',
         'type_id',
     ];
@@ -195,7 +233,7 @@ class Widget extends Model implements HasMedia, PageCacheable, Publishable, Stat
     public function getComponent(): ?string
     {
         return $this->getMetaComponent()
-            ?? config('capell-layout.default_widget', 'capell-layout::widget.default');
+            ?? config('capell-mosaic.default_widget', 'capell-mosaic::widget.default');
     }
 
     public function getMetaComponent(): ?string
@@ -207,9 +245,11 @@ class Widget extends Model implements HasMedia, PageCacheable, Publishable, Stat
 
     public function getMetaComponentType(): string
     {
-        $metaComponent = $this->getMetaComponent();
+        if (isset($this->meta['livewire']) && $this->meta['livewire'] === true) {
+            return 'livewire';
+        }
 
-        if ($metaComponent && str_contains($metaComponent, 'livewire')) {
+        if (isset($this->type->meta['livewire']) && $this->type->meta['livewire'] === true) {
             return 'livewire';
         }
 
@@ -235,19 +275,22 @@ class Widget extends Model implements HasMedia, PageCacheable, Publishable, Stat
     public function widgetAssets(): HasMany
     {
         return $this->assets()
-            ->whereNull('page_id');
+            ->whereNull('pageable_type')
+            ->whereNull('pageable_id');
     }
 
     public function widgetPageAssets(): HasMany
     {
         return $this->assets()
-            ->whereNotNull('page_id');
+            ->whereNotNull('pageable_type')
+            ->whereNotNull('pageable_id');
     }
 
-    public function pageAssets(Page $page, string $container, int $occurrence): HasMany
+    public function pageAssets(Pageable $page, string $container, int $occurrence): HasMany
     {
         return $this->assets()
-            ->where('widget_assets.page_id', $page->id)
+            ->where('widget_assets.pageable_type', $page->getMorphClass())
+            ->where('widget_assets.pageable_id', $page->getKey())
             ->where('widget_assets.container', $container)
             ->where('widget_assets.occurrence', $occurrence);
     }
@@ -263,10 +306,10 @@ class Widget extends Model implements HasMedia, PageCacheable, Publishable, Stat
         );
     }
 
-    public function contents(): MorphToMany
+    public function sections(): MorphToMany
     {
         return $this->morphedByMany(
-            Content::class,
+            Section::class,
             'asset',
             'widget_assets',
             'widget_id',
@@ -304,8 +347,8 @@ class Widget extends Model implements HasMedia, PageCacheable, Publishable, Stat
         return [
             'admin' => 'json',
             'meta' => 'json',
-            'publish_from' => 'datetime',
-            'publish_to' => 'datetime',
+            'visible_from' => 'datetime',
+            'visible_until' => 'datetime',
             'status' => 'boolean',
         ];
     }

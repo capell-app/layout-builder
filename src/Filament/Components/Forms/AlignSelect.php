@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Components\Forms;
+namespace Capell\Mosaic\Filament\Components\Forms;
 
 use Filament\Forms\Components\Select;
 
@@ -10,7 +10,7 @@ class AlignSelect extends Select
 {
     protected function setUp(): void
     {
-        $this->label(__('capell-layout::form.align'))
+        $this->label(__('capell-mosaic::form.align'))
             ->options([
                 'left' => __('capell-admin::generic.left'),
                 'right' => __('capell-admin::generic.right'),

@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 @props(['pageSlot', 'container' => null, 'containerKey' => null, 'containerWidth' => null, 'loop' => null, 'widget' => null])
 
-<x-capell-layout::widget.wrapper
+<x-capell-mosaic::widget.wrapper
     class="widget-page-slot"
     :$container
     :$containerKey
@@ -17,6 +17,6 @@ declare(strict_types=1);
     <div>
         {{ $pageSlot }}
     </div>
-</x-capell-layout::widget.wrapper>
+</x-capell-mosaic::widget.wrapper>
 
 <?php

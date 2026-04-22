@@ -1,14 +1,14 @@
 {
-    "name": "capell-app/layout",
-    "description": "Layout for Capell",
+    "name": "capell-app/mosaic",
+    "description": "Mosaic for Capell",
     "keywords": [
         "capell",
-        "layout",
+        "mosaic",
         "laravel",
         "filamentphp",
         "cms"
     ],
-    "homepage": "https://github.com/capell-app/layout",
+    "homepage": "https://github.com/capell-app/mosaic",
     "license": "proprietary",
     "authors": [
         {
@@ -24,14 +24,14 @@
     },
     "autoload": {
         "psr-4": {
-            "Capell\\Layout\\": "src/",
-            "Capell\\Layout\\Database\\Factories\\": "database/factories"
+            "Capell\\Mosaic\\": "src/",
+            "Capell\\Mosaic\\Database\\Factories\\": "database/factories"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Capell\\Layout\\Providers\\LayoutServiceProvider"
+                "Capell\\Mosaic\\Providers\\MosaicServiceProvider"
             ]
         }
     },

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Components\Forms;
+namespace Capell\Mosaic\Filament\Components\Forms;
 
 use Filament\Forms\Components\Select;
 
@@ -12,8 +12,7 @@ class SpacingSelect extends Select
     {
         parent::setUp();
 
-        $this->label(__('capell-layout::form.spacing'))
-            ->helperText(__('capell-admin::generic.spacing_help'))
+        $this->label(__('capell-mosaic::form.spacing'))
             ->options([
                 'none' => __('capell-admin::generic.none'),
                 'sm' => __('capell-admin::generic.small'),

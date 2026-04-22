@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Widgets\RelationManagers;
+namespace Capell\Mosaic\Filament\Resources\Widgets\RelationManagers;
 
 use Capell\Admin\Filament\Concerns\HasRelationManagerBadge;
-use Capell\Layout\Filament\Resources\Widgets\Schemas\WidgetAssetForm;
-use Capell\Layout\Filament\Resources\Widgets\Tables\WidgetAssetsTable;
+use Capell\Mosaic\Filament\Resources\Widgets\Schemas\WidgetAssetForm;
+use Capell\Mosaic\Filament\Resources\Widgets\Tables\WidgetAssetsTable;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;

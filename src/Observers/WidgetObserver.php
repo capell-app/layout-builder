@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Observers;
+namespace Capell\Mosaic\Observers;
 
 use Capell\Core\Actions\GenerateUniqueKeyAction;
 use Capell\Core\Models\Type;
-use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Enums\LayoutTypeEnum;
+use Capell\Mosaic\Models\Widget;
 use InvalidArgumentException;
 
 class WidgetObserver

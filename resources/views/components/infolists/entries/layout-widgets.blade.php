@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 @php
     use Capell\Admin\Facades\CapellAdmin;
-        use Capell\Layout\Enums\ResourceEnum;
+    use Capell\Mosaic\Enums\ResourceEnum;
 @endphp
 
 <ul class="divide-y divide-gray-100 dark:divide-gray-800">

@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Livewire\Widget;
+namespace Capell\Mosaic\Livewire\Widget;
 
 use Capell\Core\Enums\AssetComponentEnum;
 use Capell\Frontend\Facades\Frontend;
-use Capell\Layout\Enums\CapellLayoutCacheKeyEnum;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Enums\CapellLayoutCacheKeyEnum;
+use Capell\Mosaic\Models\Widget;
 use Closure;
+use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Computed;
@@ -31,9 +32,9 @@ abstract class AbstractWidget extends Component
 
     public array $widgetData = [];
 
-    protected static string $defaultView = 'capell-layout::components.widget.default';
+    protected static string $defaultView = 'capell-mosaic::components.widget.default';
 
-    protected $skipRender = false;
+    protected bool $skipRender = false;
 
     abstract protected function mountWidget(): void;
 
@@ -76,15 +77,14 @@ abstract class AbstractWidget extends Component
     #[Computed]
     public function widget(): Widget
     {
-        return self::getWidgetByKey($this->widgetData['widget_key']);
+        $widget = self::getWidgetByKey($this->widgetData['widget_key']);
+
+        throw_if(! $widget instanceof Widget, Exception::class, 'Widget not found');
+
+        return $widget;
     }
 
-    /**
-     * Get the view / contents that represent the component.
-     *
-     * @return View|Closure|string
-     */
-    public function render(array $data = [])
+    public function render(array $data = []): View|Closure|string
     {
         if ($this->skipRender) {
             return Utils::insertAttributesIntoHtmlRoot('<div></div>', [

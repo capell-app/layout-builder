@@ -2,22 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Enums;
+namespace Capell\Mosaic\Enums;
 
-use Capell\Layout\Filament\Resources\Contents\ContentResource;
-use Capell\Layout\Filament\Resources\Widgets\WidgetResource;
-use Capell\Layout\Support\Creator\TypeCreator;
+use Capell\Mosaic\Filament\Resources\Sections\SectionResource;
+use Capell\Mosaic\Filament\Resources\Widgets\WidgetResource;
+use Capell\Mosaic\Support\Creator\TypeCreator;
+use Filament\Support\Contracts\HasLabel;
 
-enum LayoutTypeEnum: string
+enum LayoutTypeEnum: string implements HasLabel
 {
-    case Content = 'content';
+    case Section = 'section';
 
     case Widget = 'widget';
 
     public function getResource(): string
     {
         return match ($this) {
-            self::Content => ContentResource::class,
+            self::Section => SectionResource::class,
             self::Widget => WidgetResource::class,
         };
     }
@@ -25,7 +26,7 @@ enum LayoutTypeEnum: string
     public function getModel(): string
     {
         return match ($this) {
-            self::Content => ModelEnum::Content->value,
+            self::Section => ModelEnum::Section->value,
             self::Widget => ModelEnum::Widget->value,
         };
     }
@@ -33,8 +34,17 @@ enum LayoutTypeEnum: string
     public function getTable(): string
     {
         return match ($this) {
-            self::Content => 'contents',
+            self::Section => 'sections',
             self::Widget => 'widgets',
+        };
+    }
+
+    // TODO when this is translated this causes Livewire error: Exception: Property type not supported in Livewire for property: [{}]
+    public function getLabel(): string
+    {
+        return match ($this) {
+            self::Section => 'Section',
+            self::Widget => 'Widget',
         };
     }
 

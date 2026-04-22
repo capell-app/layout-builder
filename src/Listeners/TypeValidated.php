@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Listeners;
+namespace Capell\Mosaic\Listeners;
 
 use Capell\Admin\Contracts\ValidationSubscriber;
 use Capell\Admin\Enums\ListenerEnum;

@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Concerns;
+namespace Capell\Mosaic\Filament\Concerns;
 
+use Aimeos\Nestedset\NestedSet;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Core\Contracts\Pageable;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Enums\TypeGroupEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models\Contracts\Draftable;
 use Capell\Core\Models\Page;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -20,10 +21,8 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
-use Kalnoy\Nestedset\NestedSet;
 use RuntimeException;
 
 /**
@@ -34,11 +33,11 @@ trait HasAssetsRelationManager
     protected static function createResourcesAction(): Action
     {
         return CreateAction::make()
-            ->label(__('capell-layout::button.add_asset'))
+            ->label(__('capell-mosaic::button.add_asset'))
             ->color('primary')
-            ->successNotificationTitle(__('capell-layout::message.asset_added'))
+            ->successNotificationTitle(__('capell-mosaic::message.asset_added'))
             ->using(function (array $data, self $livewire): Model {
-                throw_if(empty($data['asset_id']), RuntimeException::class, 'No asset selected');
+                throw_if(! isset($data['asset_id']), RuntimeException::class, 'No asset selected');
 
                 $asset = null;
 
@@ -86,13 +85,9 @@ trait HasAssetsRelationManager
                             ->where('related_id', $record->getKey()),
                     )
                     ->when(
-                        in_array(Draftable::class, class_implements($asset->model), true),
-                        fn (Builder $query) => $query->withDrafts(),
-                    )
-                    ->when(
                         $asset->model === Page::class,
                         fn (Builder $query) => $query->with([
-                            'ancestors' => fn (Relation $query) => $query->withDrafts(),
+                            'ancestors',
                             'site',
                         ])
                             ->whereHas(
@@ -136,7 +131,7 @@ trait HasAssetsRelationManager
                                 : $component->evaluate($createOptionUsing);
 
                             Notification::make()
-                                ->title(__('capell-layout::message.asset_created_successfully', ['name' => $asset->name]))
+                                ->title(__('capell-mosaic::message.asset_created_successfully', ['name' => $asset->name]))
                                 ->body($page->name)
                                 ->send();
 
@@ -148,17 +143,19 @@ trait HasAssetsRelationManager
             );
     }
 
-    protected static function getPageOptionLabel(Page $page): HtmlString
+    protected static function getPageOptionLabel(Pageable $page): HtmlString
     {
         $label = $page->site->name . ' &raquo; ';
 
-        $ancestors = $page->ancestors()->get();
+        if ($page instanceof Page) {
+            $ancestors = $page->ancestors()->get();
 
-        if ($ancestors->isNotEmpty()) {
-            $label .= $ancestors->pluck('name')
-                ->map(fn ($item) => Str::limit($item, 30))
-                ->implode(' &raquo; ')
-                . ' &raquo; ';
+            if ($ancestors->isNotEmpty()) {
+                $label .= $ancestors->pluck('name')
+                    ->map(fn (string $name): string => Str::limit($name, 30))
+                    ->implode(' &raquo; ')
+                    . ' &raquo; ';
+            }
         }
 
         return new HtmlString($label . Str::limit($page->name, 40));

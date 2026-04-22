@@ -14,18 +14,36 @@ declare(strict_types=1);
 @endphp
 
 @props([
-    'align' => $widget->meta['align'] ?? $widget->type->meta['align'] ?? 'center',
-    'color' => $widget->meta['color'] ?? $widget->type->meta['color'] ?? 'light',
+    'align' => $widget->getMeta('align', 'center'),
+    'carouselArrows' => (bool) $widget->getMeta('carousel_arrows', false),
+    'carouselFade' => $widget->getMeta('carousel_fade', true),
+    'carouselAutoPlay' => $widget->getMeta('carousel_auto_play', true),
+    'carouselAutoDelay' => $widget->getMeta('carousel_auto_delay', 5000),
+    'carouselDisableOnInteraction' => (bool) $widget->getMeta('carousel_disable_on_interaction', true),
+    'carouselDrag' => (bool) $widget->getMeta('carousel_drag', false),
+    'carouselEffect' => $widget->getMeta('carousel_effect', 'slide'),
+    'carouselLoop' => $widget->getMeta('carousel_loop', true),
+    'carouselPagination' => $widget->getMeta('carousel_pagination', true),
+    'carouselPauseOnHover' => (bool) $widget->getMeta('carousel_pause_on_hover', true),
+    'carouselRewind' => (bool) $widget->getMeta('carousel_rewind', false),
+    'carouselSpeed' => (int) $widget->getMeta('carousel_speed', 300),
+    'carouselTouch' => $widget->getMeta('carousel_touch'),
+    'carouselWheel' => (bool) $widget->getMeta('carousel_wheel', false),
+    'color' => $widget->getMeta('color', 'light'),
     'containerKey',
     'containerIndex',
     'containerWidth',
     'loop',
-    'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
+    'total' => $widget->assets->count(),
     'widget',
     'widgetIndex',
 ])
+@php
+    $carouselId = sprintf('testimonial-carousel-%s-%s', $widget->id ?? $widget->key, $loop->index);
+    $carouselEffect = $carouselFade ? 'fade' : $carouselEffect;
+@endphp
 
-<x-capell-layout::widget.wrapper
+<x-capell-mosaic::widget.wrapper
     class="widget-assets widget-assets-testimonials"
     :$container
     :$containerKey
@@ -40,11 +58,12 @@ declare(strict_types=1);
             :content="$widget->translation->content"
             :content-type="$widget->type->content_structure"
             :color="$color"
+            :divider="$widget->getMeta('content_divider')"
             :muted="in_array($containerKey, $theme->secondary_containers)"
             :title="$widget->translation->title"
             heading-weight="semibold"
             :text-align="$align"
-            :heading-style="($widget->meta['heading_style'] ?? null) ?: $widget->type->meta['heading_style'] ?? null"
+            :heading-style="$widget->getMeta('heading_style')"
             class="mt-4"
         />
     @endif
@@ -61,7 +80,32 @@ declare(strict_types=1);
                 --swiper-pagination-bullet-inactive-color: #fff;
             "
         >
-            <div class="swiper swiper-fade grid h-full w-full">
+            <div
+                data-carousel="1"
+                data-carousel-align="{{ $align }}"
+                data-carousel-autoplay="{{ (int) $carouselAutoPlay }}"
+                data-carousel-autoplay-delay="{{ $carouselAutoDelay }}"
+                data-carousel-disable-on-interaction="{{ (int) $carouselDisableOnInteraction }}"
+                data-carousel-drag="{{ (int) $carouselDrag }}"
+                data-carousel-effect="{{ $carouselEffect }}"
+                data-carousel-id="{{ $carouselId }}"
+                data-carousel-loop="{{ (int) $carouselLoop }}"
+                data-carousel-navigation="{{ (int) $carouselArrows }}"
+                data-carousel-pagination="{{ (int) $carouselPagination }}"
+                data-carousel-pause-on-hover="{{ (int) $carouselPauseOnHover }}"
+                data-carousel-rewind="{{ (int) $carouselRewind }}"
+                data-carousel-speed="{{ $carouselSpeed }}"
+                data-carousel-watch-overflow="1"
+                data-carousel-wheel="{{ (int) $carouselWheel }}"
+                data-auto="{{ (int) $carouselAutoPlay }}"
+                data-loop="{{ (int) $carouselLoop }}"
+                data-delay="{{ $carouselAutoDelay }}"
+                data-fade="{{ $carouselFade }}"
+                @if ($carouselTouch !== null)
+                    data-carousel-touch="{{ (int) $carouselTouch }}"
+                @endif
+                class="swiper grid h-full w-full"
+            >
                 <div class="swiper-wrapper h-full w-full">
                     @foreach ($widget->assets as $widgetAsset)
                         {{-- format-ignore-start --}}
@@ -69,6 +113,9 @@ declare(strict_types=1);
                             $title = '';
                             $content = '';
                             $media = $widgetAsset->media->first() ?: $widgetAsset->asset->image;
+
+                            $position = $widgetAsset->asset->translation->getMeta('position', '');
+                            $company = $widgetAsset->asset->translation->getMeta('company', '');
 
                             if (CapellCore::getAsset($widgetAsset->asset_type)->hasTranslations) {
                                 $title = $widgetAsset->asset->translation?->title;
@@ -122,22 +169,22 @@ declare(strict_types=1);
                                             </span>
                                         </div>
 
-                                        @if (! empty($widgetAsset->asset->translation->meta['position']) || ! empty($widgetAsset->asset->translation->meta['company']))
+                                        @if ($position || $company)
                                             <div
                                                 class="text-smaller block font-normal text-gray-300"
                                             >
                                                 <span itemprop="jobTitle">
-                                                    {{ $widgetAsset->asset->translation->meta['position'] ?? '' }}
+                                                    {{ $position }}
                                                 </span>
-                                                @if (! empty($widgetAsset->asset->translation->meta['company']))
-                                                    @if (! empty($widgetAsset->asset->translation->meta['position']))
+                                                @if ($company)
+                                                    @if ($position)
                                                         <span class="mx-1">
                                                             |
                                                         </span>
                                                     @endif
 
                                                     <span itemprop="worksFor">
-                                                        {{ $widgetAsset->asset->translation->meta['company'] }}
+                                                        {{ $company }}
                                                     </span>
                                                 @endif
                                             </div>
@@ -150,7 +197,25 @@ declare(strict_types=1);
                 </div>
             </div>
             @if ($total > 1)
-                <div class="swiper-controls">
+                <div
+                    data-carousel-controls="{{ $carouselId }}"
+                    class="swiper-controls space-y-4"
+                >
+                    @if ($carouselArrows)
+                        <div class="flex items-center justify-center gap-3">
+                            <button
+                                aria-label="{{ __('capell-frontend::generic.previous') }}"
+                                class="swiper-button-prev pointer-events-auto relative inset-auto m-0 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-gray-900 shadow-md transition hover:bg-white"
+                                type="button"
+                            ></button>
+                            <button
+                                aria-label="{{ __('capell-frontend::generic.next') }}"
+                                class="swiper-button-next pointer-events-auto relative inset-auto m-0 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-gray-900 shadow-md transition hover:bg-white"
+                                type="button"
+                            ></button>
+                        </div>
+                    @endif
+
                     <div
                         class="swiper-pagination flex justify-center"
                         wire:ignore
@@ -159,6 +224,6 @@ declare(strict_types=1);
             @endif
         </div>
     @endif
-</x-capell-layout::widget.wrapper>
+</x-capell-mosaic::widget.wrapper>
 
 <?php

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Support\Interceptors\Layouts;
+namespace Capell\Mosaic\Support\Interceptors\Layouts;
 
 use Capell\Core\Contracts\ModelInterceptors\LayoutInterceptorInterface;
 use Capell\Core\Models\Layout;
-use Capell\Layout\Support\Creator\WidgetCreator;
+use Capell\Mosaic\Support\Creator\WidgetCreator;
 
 final class HomeLayoutInterceptor implements LayoutInterceptorInterface
 {

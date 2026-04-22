@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Listeners;
+namespace Capell\Mosaic\Listeners;
 
 use Capell\Core\Contracts\EventSubscriber;
+use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
-use Capell\Core\Models\Page;
 use Capell\Frontend\Enums\ListenerEnum;
 use Capell\Frontend\Facades\Frontend;
-use Capell\Layout\Models\Widget;
-use Capell\Layout\Support\CapellLayoutManager;
-use Capell\Layout\Support\Loader\LayoutLoader;
+use Capell\Mosaic\Models\Widget;
+use Capell\Mosaic\Support\CapellLayoutManager;
+use Capell\Mosaic\Support\Loader\LayoutLoader;
 
 class LayoutLoaded implements EventSubscriber
 {
@@ -26,14 +26,14 @@ class LayoutLoaded implements EventSubscriber
         $language = Frontend::language();
         $page = Frontend::page();
 
-        if (! $layout instanceof Layout || ! $language instanceof Language || ! $page instanceof Page) {
+        if (! $layout instanceof Layout || ! $language instanceof Language || ! $page instanceof Pageable) {
             return;
         }
 
         $this->loadLayoutWidgets($layout, $page, $language);
     }
 
-    protected function loadLayoutWidgets(Layout $layout, Page $page, Language $language): void
+    protected function loadLayoutWidgets(Layout $layout, Pageable $page, Language $language): void
     {
         CapellLayoutManager::clearContainerWidgets();
 

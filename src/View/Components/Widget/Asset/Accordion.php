@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\View\Components\Widget\Asset;
+namespace Capell\Mosaic\View\Components\Widget\Asset;
 
-use Capell\Layout\View\Components\Widget\Asset;
+use Capell\Mosaic\View\Components\Widget\Asset;
 
 class Accordion extends Asset
 {
-    protected static string $defaultView = 'capell-layout::components.widget.asset.accordion';
+    protected static string $defaultView = 'capell-mosaic::components.widget.asset.accordion';
 }

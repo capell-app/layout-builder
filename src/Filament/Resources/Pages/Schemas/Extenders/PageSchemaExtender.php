@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Pages\Schemas\Extenders;
+namespace Capell\Mosaic\Filament\Resources\Pages\Schemas\Extenders;
 
 use Capell\Admin\Contracts\Extenders;
-use Capell\Layout\Filament\Components\Forms\Page\Tab\PageLayoutTab;
-use Capell\Layout\Filament\Resources\Pages\RelationManagers\ContentsRelationManager;
+use Capell\Admin\Enums\PageTranslationSchemaHookEnum;
+use Capell\Mosaic\Filament\Components\Forms\Page\Tab\LayoutTab;
+use Capell\Mosaic\Filament\Resources\Pages\RelationManagers\SectionsRelationManager;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
@@ -15,10 +17,10 @@ class PageSchemaExtender implements Extenders\PageSchemaExtender
 {
     public function extendRelationManagers(Model $record, array $relationManagers): array
     {
-        $alreadyHasContents = in_array(ContentsRelationManager::class, $relationManagers);
+        $alreadyHasContents = in_array(SectionsRelationManager::class, $relationManagers, true);
 
         if (! $alreadyHasContents) {
-            $relationManagers[] = ContentsRelationManager::class;
+            $relationManagers[] = SectionsRelationManager::class;
         }
 
         return $relationManagers;
@@ -26,17 +28,20 @@ class PageSchemaExtender implements Extenders\PageSchemaExtender
 
     public function extendTabs(Schema $schema, array $tabs): array
     {
-        $hasLayoutTab = collect($tabs)->contains(fn (Tab $tab): bool => $tab instanceof PageLayoutTab);
+        $hasLayoutTab = collect($tabs)->contains(fn (Tab $tab): bool => $tab instanceof LayoutTab);
 
         if (! $hasLayoutTab) {
-            array_unshift($tabs, PageLayoutTab::make());
+            array_unshift($tabs, LayoutTab::make());
         }
 
         return $tabs;
     }
 
-    public function extendTranslationComponents(Schema $schema, array $components): array
+    /**
+     * @return array<int, Component>
+     */
+    public function extendTranslationComponentsForHook(Schema $schema, PageTranslationSchemaHookEnum $hook): array
     {
-        return $components;
+        return [];
     }
 }

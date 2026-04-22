@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Support\Creator;
+namespace Capell\Mosaic\Support\Creator;
 
+use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Enums\DefaultColorEnum;
 use Capell\Core\Enums\ModelEnum as CoreModelEnum;
-use Capell\Core\Enums\TypeEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Navigation;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
-use Capell\Layout\Enums\AssetEnum;
-use Capell\Layout\Enums\ContainerWidthEnum;
-use Capell\Layout\Enums\ModelEnum;
-use Capell\Layout\Enums\WidgetComponentEnum;
-use Capell\Layout\Filament\Resources\Widgets\Schemas\Types\CarouselWidgetSchema;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Enums\AssetEnum;
+use Capell\Mosaic\Enums\LivewireComponentsEnum;
+use Capell\Mosaic\Enums\ModelEnum;
+use Capell\Mosaic\Enums\WidgetComponentEnum;
+use Capell\Mosaic\Filament\Schemas\Widgets\CarouselWidgetSchema;
+use Capell\Mosaic\Models\Widget;
 use Illuminate\Support\Collection;
 
 class WidgetCreator
@@ -100,6 +100,7 @@ class WidgetCreator
             'type_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::PageChildren,
+                'content_divider' => true,
                 'with_children_count' => true,
                 'with_summary' => true,
                 'with_image' => true,
@@ -115,7 +116,7 @@ class WidgetCreator
             $widget->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
-                'title' => __('capell-layout::heading.page_children'),
+                'title' => __('capell-mosaic::heading.page_children'),
             ]);
         });
 
@@ -129,7 +130,7 @@ class WidgetCreator
         return $this->widgetModel::query()->firstOrCreate([
             'key' => 'assets',
         ], [
-            'name' => __('capell-layout::generic.assets'),
+            'name' => __('capell-mosaic::generic.assets'),
             'type_id' => $type->id,
             'meta' => [
                 'limit' => 6,
@@ -162,7 +163,7 @@ class WidgetCreator
                 'widget_theme' => 'masonry',
                 'spacing' => 'md',
                 'margin' => ['lg'],
-                'container' => 'full',
+                'container' => ContainerWidthEnum::Full,
             ],
         ]);
 
@@ -170,7 +171,7 @@ class WidgetCreator
             $widget->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
-                'title' => __('capell-layout::heading.gallery'),
+                'title' => __('capell-mosaic::heading.gallery'),
             ]);
         });
 
@@ -192,12 +193,12 @@ class WidgetCreator
             'type_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::PageLatest,
+                'content_divider' => true,
                 'limit' => 6,
                 'pagination' => false,
-                'with_summary' => false,
+                'with_summary' => true,
                 'with_link_text' => true,
                 'with_image' => true,
-                'with_date' => true,
                 'columns' => 1,
             ],
             'admin' => [
@@ -210,6 +211,7 @@ class WidgetCreator
                 'language_id' => $language->id,
             ], [
                 'title' => __('capell-admin::heading.latest_pages'),
+                'content' => '<p>' . __('capell-mosaic::generic.latest_pages_description') . '</p>',
             ]);
         });
 
@@ -226,10 +228,25 @@ class WidgetCreator
             'name' => __('capell-admin::generic.media_carousel'),
             'type_id' => $type->id,
             'meta' => [
+                'carousel_align' => 'center',
+                'carousel_arrows' => true,
+                'carousel_auto_delay' => 5000,
+                'carousel_auto_play' => true,
+                'carousel_disable_on_interaction' => true,
+                'carousel_drag' => true,
+                'carousel_effect' => 'slide',
+                'carousel_fade' => false,
+                'carousel_loop' => true,
+                'carousel_pagination' => false,
+                'carousel_pause_on_hover' => true,
+                'carousel_speed' => 300,
+                'carousel_touch' => true,
+                'carousel_wheel' => true,
                 'component' => WidgetComponentEnum::AssetCarousel,
                 'limit' => 20,
-                'container' => 'full',
+                'container' => ContainerWidthEnum::Full,
                 'background_color' => 'light-gray',
+                'spacing' => 'md',
                 'margin' => 0,
                 'padding' => ['md'],
             ],
@@ -250,7 +267,7 @@ class WidgetCreator
             'type_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::PageContent,
-                'margin' => ['t-lg'],
+                'margin' => ['t-lg', 'b-xl'],
                 'page_content' => ['title', 'content'],
             ],
         ]);
@@ -266,6 +283,8 @@ class WidgetCreator
             'name' => __('capell-admin::generic.pages_card'),
             'type_id' => $type->id,
             'meta' => [
+                'component' => LivewireComponentsEnum::PagesWidget,
+                'livewire' => true,
                 'limit' => 10,
                 'with_image' => true,
                 'with_summary' => true,
@@ -307,6 +326,7 @@ class WidgetCreator
             'type_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::PageSiblings,
+                'content_divider' => true,
                 'with_children_count' => true,
                 'with_summary' => true,
                 'heading_style' => 'secondary',
@@ -321,7 +341,7 @@ class WidgetCreator
             $widget->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
-                'title' => __('capell-layout::heading.page_siblings'),
+                'title' => __('capell-mosaic::heading.page_siblings'),
             ]);
         });
 
@@ -344,7 +364,7 @@ class WidgetCreator
 
         return $this->widgetModel::query()->firstOrCreate(['key' => 'assets-accordion'], [
             'key' => 'assets-accordion',
-            'name' => __('capell-layout::generic.accordion'),
+            'name' => __('capell-mosaic::generic.accordion'),
             'type_id' => $type->id,
             'meta' => [
                 'icon' => 'heroicon-m-question-mark-circle',
@@ -354,7 +374,7 @@ class WidgetCreator
             ],
             'admin' => [
                 'asset_types' => [
-                    AssetEnum::Content->value,
+                    AssetEnum::Section->value,
                 ],
             ],
         ]);
@@ -370,7 +390,7 @@ class WidgetCreator
             'meta' => [
                 'align' => 'center',
                 'background_overlay' => true,
-                'view_file' => 'capell-layout::components.widget.asset.banners',
+                'view_file' => 'capell-mosaic::components.widget.asset.banners',
             ],
         ]);
     }
@@ -383,11 +403,12 @@ class WidgetCreator
             'name' => 'Blocks',
             'type_id' => $type->id,
             'meta' => [
-                'component_item' => 'capell-layout::content.block',
-                'view_file' => 'capell-layout::components.widget.asset.blocks',
+                'component_item' => 'capell-mosaic::section.block',
+                'view_file' => 'capell-mosaic::components.widget.asset.blocks',
                 'spacing' => 'none',
                 'columns' => 0,
-                'margin' => '',
+                'margin' => 'none',
+                'with_summary' => true,
                 'container' => ContainerWidthEnum::Small->value,
             ],
             'admin' => [
@@ -406,7 +427,7 @@ class WidgetCreator
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
-                'view_file' => 'capell-layout::components.widget.asset.features',
+                'view_file' => 'capell-mosaic::components.widget.asset.features',
             ],
         ]);
     }
@@ -420,9 +441,27 @@ class WidgetCreator
             'type_id' => $type->id,
             'meta' => [
                 'align' => 'center',
+                'spacing' => 'none',
                 'background_overlay' => true,
                 'background_color' => DefaultColorEnum::Gray->value,
-                'view_file' => 'capell-layout::components.widget.asset.testimonials',
+                'carousel' => true,
+                'carousel_arrows' => false,
+                'carousel_auto_delay' => 5000,
+                'carousel_disable_on_interaction' => true,
+                'carousel_drag' => false,
+                'carousel_effect' => 'fade',
+                'carousel_fade' => true,
+                'carousel_auto_play' => true,
+                'carousel_loop' => true,
+                'carousel_pagination' => true,
+                'carousel_pause_on_hover' => true,
+                'carousel_speed' => 300,
+                'carousel_touch' => false,
+                'carousel_wheel' => false,
+                'view_file' => 'capell-mosaic::components.widget.asset.testimonials',
+            ],
+            'admin' => [
+                'schema' => CarouselWidgetSchema::getKey(),
             ],
         ]);
     }
@@ -432,9 +471,9 @@ class WidgetCreator
         ?Site $site = null,
         string $widgetKey = 'widget-navigation',
         array $widgetMeta = [],
-        string $navigatonKey = 'navigation',
-        string $navigatonName = 'Navigation',
-        array $navigatonItems = [],
+        string $navigationKey = 'navigation',
+        string $navigationName = 'Navigation',
+        array $navigationItems = [],
     ): Widget {
         $type ??= resolve(TypeCreator::class)->navigationWidgetType();
         $typeModel = CapellCore::getModel(CoreModelEnum::Type);
@@ -442,22 +481,17 @@ class WidgetCreator
 
         $navigationType = $typeModel::navigationType()->default()->first();
         if (! $navigationType) {
-            $navigationType = $typeModel::query()->create([
-                'key' => 'navigation',
-                'type' => TypeEnum::Navigation->value,
-                'name' => 'Navigation',
-                'default' => true,
-            ]);
+            $navigationType = resolve(\Capell\Core\Support\Creator\TypeCreator::class)->createNavigationType();
         }
 
         /** @var Navigation $navigation */
         $navigation = $navigationModel::query()->firstOrCreate([
-            'key' => $navigatonKey,
+            'key' => $navigationKey,
             'type_id' => $navigationType->id,
             'site_id' => $site?->id,
         ], [
-            'name' => $navigatonName,
-            'items' => $navigatonItems,
+            'name' => $navigationName,
+            'items' => $navigationItems,
         ]);
 
         return $this->widgetModel::query()->firstOrCreate(['key' => $widgetKey], [
@@ -476,20 +510,20 @@ class WidgetCreator
         ?Site $site = null,
         string $widgetKey = 'widget-navigation-tabs',
         array $widgetMeta = [
-            'view_file' => 'capell-layout::components.widget.navigation.tabs',
+            'view_file' => 'capell-mosaic::components.widget.navigation.tabs',
         ],
-        string $navigatonKey = 'navigation-tabs',
-        string $navigatonName = 'Tabs',
-        array $navigatonItems = [],
+        string $navigationKey = 'navigation-tabs',
+        string $navigationName = 'Tabs',
+        array $navigationItems = [],
     ): Widget {
         return $this->navigationWidget(
             type: $type,
             site: $site,
             widgetKey: $widgetKey,
             widgetMeta: $widgetMeta,
-            navigatonKey: $navigatonKey,
-            navigatonName: $navigatonName,
-            navigatonItems: $navigatonItems,
+            navigationKey: $navigationKey,
+            navigationName: $navigationName,
+            navigationItems: $navigationItems,
         );
     }
 
@@ -502,6 +536,86 @@ class WidgetCreator
             'type_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::BannerImage,
+                'margin' => ['none'],
+                'padding' => ['xl'],
+            ],
+        ]);
+    }
+
+    public function apHeroBannerWidget(?Type $type = null): Widget
+    {
+        $type ??= resolve(TypeCreator::class)->defaultWidgetType();
+
+        return $this->widgetModel::query()->firstOrCreate(['key' => 'ap-hero-banner'], [
+            'name' => 'AP Hero Banner',
+            'type_id' => $type->id,
+            'meta' => [
+                'component' => WidgetComponentEnum::ApHeroBanner,
+                'primary_button_text' => 'Get Started',
+                'primary_button_url' => '#',
+                'margin' => ['lg'],
+            ],
+        ]);
+    }
+
+    public function apCardGridWidget(?Type $type = null): Widget
+    {
+        $type ??= resolve(TypeCreator::class)->defaultWidgetType();
+
+        return $this->widgetModel::query()->firstOrCreate(['key' => 'ap-card-grid'], [
+            'name' => 'AP Card Grid',
+            'type_id' => $type->id,
+            'meta' => [
+                'component' => WidgetComponentEnum::ApCardGrid,
+                'columns' => 3,
+                'margin' => ['lg'],
+            ],
+        ]);
+    }
+
+    public function apFeatureListWidget(?Type $type = null): Widget
+    {
+        $type ??= resolve(TypeCreator::class)->defaultWidgetType();
+
+        return $this->widgetModel::query()->firstOrCreate(['key' => 'ap-feature-list'], [
+            'name' => 'AP Feature List',
+            'type_id' => $type->id,
+            'meta' => [
+                'component' => WidgetComponentEnum::ApFeatureList,
+                'layout' => 'grid',
+                'margin' => ['lg'],
+            ],
+        ]);
+    }
+
+    public function apCtaSectionWidget(?Type $type = null): Widget
+    {
+        $type ??= resolve(TypeCreator::class)->defaultWidgetType();
+
+        return $this->widgetModel::query()->firstOrCreate(['key' => 'ap-cta-section'], [
+            'name' => 'AP CTA Section',
+            'type_id' => $type->id,
+            'meta' => [
+                'component' => WidgetComponentEnum::ApCTASection,
+                'primary_button_text' => 'Get Started',
+                'primary_button_url' => '#',
+                'margin' => ['lg'],
+            ],
+        ]);
+    }
+
+    public function apImageGalleryWidget(?Type $type = null): Widget
+    {
+        $type ??= resolve(TypeCreator::class)->defaultWidgetType();
+
+        return $this->widgetModel::query()->firstOrCreate(['key' => 'ap-image-gallery'], [
+            'name' => 'AP Image Gallery',
+            'type_id' => $type->id,
+            'meta' => [
+                'component' => WidgetComponentEnum::ApImageGallery,
+                'columns' => 3,
+                'layout' => 'grid',
+                'lightbox' => true,
                 'margin' => ['lg'],
             ],
         ]);

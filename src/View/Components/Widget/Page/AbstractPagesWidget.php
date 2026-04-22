@@ -2,18 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\View\Components\Widget\Page;
+namespace Capell\Mosaic\View\Components\Widget\Page;
 
-use Capell\Layout\View\Components\Widget\AbstractWidget;
+use Capell\Mosaic\View\Components\Widget\AbstractWidget;
+use Closure;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 
 abstract class AbstractPagesWidget extends AbstractWidget
 {
-    protected static string $defaultView = 'capell-layout::components.widget.asset.pages';
+    protected static string $defaultView = 'capell-mosaic::components.widget.asset.pages';
 
     protected Collection $pages;
 
-    public function render(array $data = [])
+    public function render(array $data = []): View|string|Closure
     {
         if ($this->skipRender) {
             return '';

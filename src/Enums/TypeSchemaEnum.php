@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Enums;
+namespace Capell\Mosaic\Enums;
 
 use Capell\Admin\Concerns\HasSchemaTypes;
 use Capell\Admin\Contracts\SchemaTypeEnumInterface;
@@ -11,7 +11,7 @@ enum TypeSchemaEnum: string implements SchemaTypeEnumInterface
 {
     use HasSchemaTypes;
 
-    case Content = 'Contents';
+    case Section = 'Sections';
 
     case LayoutContainer = 'LayoutContainers';
 
@@ -24,7 +24,7 @@ enum TypeSchemaEnum: string implements SchemaTypeEnumInterface
     public function getSchemas(): array
     {
         return match ($this) {
-            self::Content => ContentSchemaEnum::cases(),
+            self::Section => SectionSchemaEnum::cases(),
             self::LayoutContainer => LayoutContainerSchemaEnum::cases(),
             self::LayoutWidget => LayoutWidgetSchemaEnum::cases(),
             self::Widget => WidgetSchemaEnum::cases(),

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Components\Forms;
+namespace Capell\Mosaic\Filament\Components\Forms;
 
 use Filament\Forms\Components\Select;
 
@@ -10,7 +10,7 @@ class SizeSelect extends Select
 {
     protected function setUp(): void
     {
-        $this->label(__('capell-layout::form.size'))
+        $this->label(__('capell-mosaic::form.size'))
             ->options([
                 'sm' => __('capell-admin::generic.small'),
                 'md' => __('capell-admin::generic.medium'),

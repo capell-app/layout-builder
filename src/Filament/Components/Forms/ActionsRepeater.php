@@ -2,20 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Components\Forms;
+namespace Capell\Mosaic\Filament\Components\Forms;
 
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\PageSelect;
-use Capell\Admin\Filament\Components\Forms\Site\SiteSelect;
-use Capell\Core\Models\Page;
-use Filament\Forms\Components\Radio;
+use Capell\Admin\Filament\Components\Forms\SiteSelect;
+use Capell\Mosaic\Enums\ActionLinkEnum;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class ActionsRepeater extends Repeater
 {
@@ -29,47 +31,75 @@ class ActionsRepeater extends Repeater
             ->collapsed(function (?Schema $item): bool {
                 $state = $item->getRawState();
 
-                return ! empty($state['page_id']) || ! empty($state['url']);
+                return (isset($state['pageable_id']) && filled($state['pageable_id'])) || (isset($state['url']) && filled($state['url']));
             })
             ->cloneable()
             ->orderColumn()
             ->defaultItems(0)
-            ->addActionLabel(__('capell-layout::button.add_action'))
-            ->itemLabel(function (array $state): string {
-                if (! empty($state['label'])) {
-                    return $state['label'];
+            ->addActionLabel(__('capell-mosaic::button.add_action'))
+            ->itemLabel(function (array $state, string $key): ?string {
+                $type = $this->getItemType($key);
+
+                if (! $type instanceof ActionLinkEnum) {
+                    return null;
                 }
 
-                return match ($state['type']) {
-                    'page' => Page::query()->find($state['page_id'], ['name'])?->name,
-                    'url' => $state['url'],
-                    default => null
-                } ?? __('capell-admin::generic.action');
+                $label = $state['label'] ?? null;
+
+                if (filled($label)) {
+                    return $label;
+                }
+
+                $itemLabel = match ($type) {
+                    ActionLinkEnum::Page => (function () use ($state): ?string {
+                        $pageableType = $state['pageable_type'] ?? null;
+                        $pageableId = $state['pageable_id'] ?? null;
+
+                        if (! is_string($pageableType) || blank($pageableType) || blank($pageableId)) {
+                            return null;
+                        }
+
+                        $modelClass = Relation::getMorphedModel($pageableType) ?? $pageableType;
+
+                        if (! is_string($modelClass) || ! is_subclass_of($modelClass, Model::class)) {
+                            return null;
+                        }
+
+                        return $modelClass::query()->find($pageableId, ['name'])?->name;
+                    })(),
+                    ActionLinkEnum::Link => $state['url'],
+                };
+
+                if (filled($itemLabel)) {
+                    return __(
+                        'capell-mosaic::generic.action_type_label',
+                        ['type' => $type->getLabel(), 'label' => $itemLabel],
+                    );
+                }
+
+                return __('capell-admin::generic.action');
             })
             ->schema([
-                Radio::make('type')
+                ToggleButtons::make('type')
                     ->label(__('capell-admin::form.type'))
                     ->required()
-                    ->inline()
-                    ->default('page')
-                    ->hiddenLabel()
-                    ->options([
-                        'page' => __('capell-admin::generic.page'),
-                        'url' => __('capell-admin::generic.url'),
-                    ])
-                    ->afterStateUpdated(function (Get $get, Set $set): void {
-                        if ($get('type') === 'page') {
+                    ->grouped()
+                    ->live()
+                    ->options(ActionLinkEnum::class)
+                    ->afterStateUpdated(function (?ActionLinkEnum $state, Set $set): void {
+                        if ($state === ActionLinkEnum::Page) {
                             $set('url', null);
-                        } else {
-                            $set('page_id', null);
+                        }
+
+                        if ($state === ActionLinkEnum::Link) {
+                            $set('pageable_id', null);
                         }
                     }),
                 Grid::make(['md' => 2, 'lg' => 3])
-                    ->visibleJs(<<<'JS'
-                         $get('type') === 'page'
-                    JS)
+                    ->visible(fn (Get $get): bool => $get('type') === ActionLinkEnum::Page)
+                    ->columnSpanFull()
                     ->schema([
-                        PageSelect::make('page_id')
+                        PageSelect::make('pageable_id')
                             ->required()
                             ->reactive()
                             ->columnSpan(['lg' => 2]),
@@ -80,15 +110,14 @@ class ActionsRepeater extends Repeater
 
                 TextInput::make('url')
                     ->label(__('capell-admin::form.url'))
-                    ->visibleJs(<<<'JS'
-                         $get('type') === 'url'
-                    JS)
+                    ->columnSpanFull()
+                    ->visible(fn (Get $get): bool => $get('type') === ActionLinkEnum::Link)
                     ->validationAttribute(__('capell-admin::form.url'))
-                    ->columnSpan(2)
                     ->required()
                     ->lazy(),
 
                 Grid::make()
+                    ->columnSpanFull()
                     ->schema([
                         TextInput::make('label')
                             ->label(__('capell-admin::form.label')),
@@ -107,5 +136,20 @@ class ActionsRepeater extends Repeater
                             ]),
                     ]),
             ]);
+    }
+
+    private function getItemType(string $key): ?ActionLinkEnum
+    {
+        $type = $this->getRawState()[$key]['type'] ?? null;
+
+        if ($type === null) {
+            return null;
+        }
+
+        if ($type instanceof ActionLinkEnum) {
+            return $type;
+        }
+
+        return ActionLinkEnum::from($type);
     }
 }

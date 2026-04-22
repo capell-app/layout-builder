@@ -2,49 +2,49 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Enums;
+namespace Capell\Mosaic\Enums;
 
 use Capell\Core\Enums\Attribute\Component;
 use Capell\Core\Enums\Attribute\EnumAttributeHelper;
 use Capell\Core\Enums\Attribute\EnumAttributeInterface;
-use Capell\Layout\Filament\Resources\Pages\RelationManagers\ContentsRelationManager;
-use Capell\Layout\Filament\Resources\Widgets\RelationManagers\WidgetAssetsRelationManager;
-use Capell\Layout\Livewire\Assets\Table\ContentAssetsTable;
-use Capell\Layout\Livewire\Assets\Table\PageAssetsTable;
-use Capell\Layout\Livewire\Layout\WidgetTableSelect;
-use Capell\Layout\Livewire\LayoutBuilder;
-use Capell\Layout\Livewire\Widget\PagesWidget;
+use Capell\Mosaic\Livewire\Assets\Table\PageAssets;
+use Capell\Mosaic\Livewire\Assets\Table\SectionAssets;
+use Capell\Mosaic\Livewire\Filament\LayoutBuilder;
+use Capell\Mosaic\Livewire\Filament\LayoutBuilder\WidgetTableSelect;
+use Capell\Mosaic\Livewire\Widget\Pages;
 
 enum LivewireComponentsEnum: string implements EnumAttributeInterface
 {
     use EnumAttributeHelper;
 
     #[Component(LayoutBuilder::class)]
-    case LayoutBuilder = 'capell.layout.livewire.layout-builder';
-
-    #[Component(ContentsRelationManager::class)]
-    case ContentsRelationManager = 'capell.layout.filament.resources.page-resource.relation-managers.contents-relation-manager';
-
-    #[Component(WidgetAssetsRelationManager::class)]
-    case WidgetAssetsRelationManager = 'capell.layout.filament.resources.widget-resource.relation-managers.widget-assets-relation-manager';
+    case LayoutBuilder = 'capell-mosaic::filament.layout-builder';
 
     #[Component(WidgetTableSelect::class)]
-    case WidgetTableSelect = 'capell.layout.livewire.layout.widget-table-select';
+    case WidgetTableSelect = 'capell-mosaic::filament.layout-builder.widget-table-select';
 
-    #[Component(PageAssetsTable::class)]
-    case PageAssetsTable = 'capell.layout.livewire.assets.table.page';
+    #[Component(PageAssets::class)]
+    case PageAssetsTable = 'capell-mosaic::assets.table.page-assets';
 
-    #[Component(ContentAssetsTable::class)]
-    case ContentAssetsTable = 'capell.layout.livewire.assets.table.content';
+    #[Component(SectionAssets::class)]
+    case ContentAssetsTable = 'capell-mosaic::assets.table.section-assets';
 
-    #[Component(PagesWidget::class)]
-    case PagesWidget = 'capell.layout.livewire.widget.pages';
+    #[Component(Pages::class)]
+    case PagesWidget = 'capell-mosaic::widget.pages';
 
     public static function getComponents(): array
     {
         $attributes = self::getAllCaseAttributes(Component::class);
 
         return array_map(fn (?Component $attribute): ?string => $attribute?->class ?? null, $attributes);
+    }
+
+    public static function loadAssetComponent(string $assetType): self
+    {
+        return match ($assetType) {
+            'page' => self::PageAssetsTable,
+            'section' => self::ContentAssetsTable,
+        };
     }
 
     public function getComponent(): ?string

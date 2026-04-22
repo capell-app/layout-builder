@@ -10,27 +10,28 @@ $theme = Frontend::theme();
 @php
     use Capell\Core\Enums\AssetComponentEnum;
     use Capell\Core\Facades\CapellCore;
+    use Capell\Frontend\Contracts\AssetsRegistryInterface;
 @endphp
 
 @props([
-    'color' => $widget->meta['color'] ?? 'dark',
+    'color' => $widget->getMeta('color', 'dark'),
     'container',
     'containerKey',
     'containerWidth' => null,
     'loop',
-    'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
+    'total' => $widget->assets->count(),
     'widget',
     'widgetIndex',
-    'withChildCount' => $widget->meta['with_child_count'] ?? ($widget->type->meta['with_child_count'] ?? false),
-    'withImage' => $widget->meta['with_image'] ?? ($widget->type->meta['with_image'] ?? true),
-    'withParent' => $widget->meta['with_parent'] ?? ($widget->type->meta['with_parent'] ?? false),
-    'withDate' => $widget->meta['with_date'] ?? ($widget->type->meta['with_date'] ?? true),
-    'withSummary' => $widget->meta['with_summary'] ?? ($widget->type->meta['with_summary'] ?? true),
-    'spacing' => $widget->meta['spacing'] ?? ($widget->type->meta['spacing'] ?? true),
-    'columns' => $widget->meta['columns'] ?? ($widget->type->meta['columns'] ?? null),
+    'withChildCount' => (bool) $widget->getMeta('with_child_count'),
+    'withImage' => (bool) $widget->getMeta('with_image', true),
+    'withParent' => (bool) $widget->getMeta('with_parent'),
+    'withDate' => (bool) $widget->getMeta('with_date'),
+    'withSummary' => (bool) $widget->getMeta('with_summary'),
+    'spacing' => $widget->getMeta('spacing', true),
+    'columns' => (int) $widget->getMeta('columns'),
 ])
 
-@capture($extendedBackground, $color, $position)
+@capellBuffer($extendedBackground, $color, $position)
     <div
         @class([
             '-z-1 absolute top-0 h-full w-1/2',
@@ -52,9 +53,9 @@ $theme = Frontend::theme();
             },
         ])
     ></div>
-@endcapture
+@endcapellBuffer
 
-<x-capell-layout::widget.wrapper
+<x-capell-mosaic::widget.wrapper
     class="widget-assets-blocks relative"
     :$container
     :$containerKey
@@ -69,36 +70,35 @@ $theme = Frontend::theme();
             :content="$widget->translation->content"
             :content-type="$widget->type->content_structure"
             :color="$color"
+            :divider="$widget->getMeta('content_divider')"
             :muted="in_array($containerKey, $theme->secondary_containers)"
             :title="$widget->translation->title"
-            :text-align="$widget->meta['align'] ?? $widget->type->meta['align'] ?? null"
-            :heading-style="($widget->meta['heading_style'] ?? null) ?: $widget->type->meta['heading_style'] ?? null"
+            :text-align="$widget->getMeta('align')"
+            :heading-style="$widget->getMeta('heading_style')"
         />
     @endif
 
     @if ($widget->assets->isNotEmpty())
         <div>
-            @if ($color = $widget->assets->first()->asset->meta['color'] ?? null)
+            @if ($color = $widget->assets->first()->asset->getMeta('color'))
                 {{ $extendedBackground($color, 'left') }}
             @endif
 
             <div
-                @if ($columns === 0) style="--columns: {{ $widget->assets->count() }};" @endif
+                style="--columns: {{ $columns ?: $total }}"
                 @class([
-                    'grid',
+                    'grid md:grid-cols-[repeat(var(--columns),minmax(0,1fr))]',
                     'gap-x-8 gap-y-6 lg:gap-x-10 lg:gap-y-10' => $spacing && $spacing !== 'none',
-                    'sm:grid-cols-2' => $columns === 0 && $widget->assets->count() > 2,
-                    'md:grid-cols-[repeat(var(--columns),minmax(0,1fr))]' => $columns === 0,
-                    'md:grid-cols-[repeat($columns,minmax(0,1fr))]' => $columns && $columns !== 0,
-                    'md:grid-cols-2' => $total >= 2 && (! $columns && $columns !== 0),
-                    'lg:grid-cols-3' => $total >= 3 && (! $columns && $columns !== 0),
-                    '2xl:grid-cols-4' => $total > 7 && (! $columns && $columns !== 0),
+                    'sm:grid-cols-2' => $total >= 2 && $columns === 0,
+                    'md:grid-cols-2' => $total >= 2 && $columns !== 0 && $total <= $columns,
+                    'lg:grid-cols-4' => $total >= 4 && $columns !== 0 && $total <= $columns,
+                    '2xl:grid-cols-6' => $total >= 6 && $columns !== 0 && $total <= $columns,
                 ])
             >
                 @foreach ($widget->assets as $asset)
                     <x-dynamic-component
-                        :component="app(\Capell\Frontend\Contracts\AssetsRegistryInterface::class)->getAsset($asset['asset_type'])->component"
-                        :component-item="$widget->meta['component_item'] ?? AssetComponentEnum::Card->value"
+                        :component="app(AssetsRegistryInterface::class)->getAsset($asset['asset_type'])->component"
+                        :component-item="$widget->getMeta('component_item', AssetComponentEnum::Card->value)"
                         :$container
                         :$containerKey
                         :$loop
@@ -112,11 +112,11 @@ $theme = Frontend::theme();
                     />
                 @endforeach
             </div>
-            @if ($color = $widget->assets->last()->asset->meta['color'] ?? null)
+            @if ($color = $widget->assets->last()->asset->getMeta('color'))
                 {{ $extendedBackground($color, 'right') }}
             @endif
         </div>
     @endif
-</x-capell-layout::widget.wrapper>
+</x-capell-mosaic::widget.wrapper>
 
 <?php

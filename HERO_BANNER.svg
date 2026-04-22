@@ -1,0 +1,91 @@
+<svg viewBox="0 0 1200 280" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @keyframes float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-20px) rotate(2deg); } }
+      @keyframes blockPulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+      @keyframes lineSlide { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.8; } }
+      .shape { animation: float 6s ease-in-out infinite; }
+      .shape-1 { animation-delay: 0s; }
+      .shape-2 { animation-delay: 1s; }
+      .shape-3 { animation-delay: 0.5s; }
+      .block { animation: blockPulse 2s ease-in-out infinite; }
+      .block-1 { animation-delay: 0s; }
+      .block-2 { animation-delay: 0.3s; }
+      .block-3 { animation-delay: 0.6s; }
+      .block-4 { animation-delay: 0.9s; }
+      .line { animation: lineSlide 2s ease-in-out infinite; }
+      <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#ff006e;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#8338ec;stop-opacity:1" />
+      </linearGradient>
+      <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#06ffa5;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#00d9ff;stop-opacity:1" />
+      </linearGradient>
+      <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#ffbe0b;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#fb5607;stop-opacity:1" />
+      </linearGradient>
+      <linearGradient id="grad4" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#06ffa5;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#ff006e;stop-opacity:1" />
+      </linearGradient>
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0e27;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a1f3a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="280" fill="url(#bgGrad)"/>
+
+  <!-- Grid background -->
+  <defs>
+    <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="280" fill="url(#grid)"/>
+
+  <!-- Floating shapes -->
+  <polygon class="shape shape-1" points="900,50 950,75 950,175 900,200 850,175 850,75" fill="url(#grad1)" opacity="0.15"/>
+  <polygon class="shape shape-2" points="950,150 1000,175 950,200 900,175" fill="url(#grad2)" opacity="0.15"/>
+  <rect class="shape shape-3" x="850" y="20" width="180" height="180" fill="url(#grad3)" opacity="0.15" transform="rotate(45 940 110)"/>
+
+  <!-- Content -->
+  <text x="80" y="80" font-size="56" font-weight="800" fill="url(#titleGrad)" letter-spacing="-1" font-family="Hoefler Text, Georgia, serif">Mosaic</text>
+  <defs>
+    <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d0d0ff;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <text x="80" y="110" font-size="16" fill="rgba(255,255,255,0.75)" font-weight="400">Visual layout builder for crafting pixel-perfect pages with interactive widgets and content blocks.</text>
+
+  <!-- Visual grid -->
+  <g transform="translate(850, 60)">
+    <!-- Background frame -->
+    <rect x="0" y="0" width="240" height="180" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" rx="4"/>
+
+    <!-- Grid lines -->
+    <line class="line" x1="80" y1="0" x2="80" y2="180" stroke="rgba(255,182,193,0.3)" stroke-width="0.5"/>
+    <line class="line" x1="140" y1="0" x2="140" y2="180" stroke="rgba(255,182,193,0.3)" stroke-width="0.5"/>
+    <line class="line" x1="200" y1="0" x2="200" y2="180" stroke="rgba(255,182,193,0.3)" stroke-width="0.5"/>
+    <line class="line" x1="0" y1="60" x2="240" y2="60" stroke="rgba(255,182,193,0.3)" stroke-width="0.5"/>
+    <line class="line" x1="0" y1="120" x2="240" y2="120" stroke="rgba(255,182,193,0.3)" stroke-width="0.5"/>
+
+    <!-- Blocks -->
+    <rect class="block block-1" x="10" y="10" width="100" height="100" fill="url(#grad1)" rx="2" opacity="0.8"/>
+    <rect class="block block-2" x="140" y="10" width="80" height="50" fill="url(#grad2)" rx="2" opacity="0.7"/>
+    <rect class="block block-3" x="140" y="75" width="80" height="85" fill="url(#grad3)" rx="2" opacity="0.75"/>
+    <rect class="block block-4" x="10" y="125" width="110" height="45" fill="url(#grad4)" rx="2" opacity="0.7"/>
+
+    <!-- Accents -->
+    <circle cx="130" cy="140" r="3" fill="rgba(255,255,255,0.4)" class="block block-1"/>
+    <circle cx="150" cy="150" r="2" fill="rgba(255,255,255,0.3)" class="block block-2"/>
+    <circle cx="170" cy="130" r="2.5" fill="rgba(255,255,255,0.35)" class="block block-3"/>
+  </g>
+</svg>

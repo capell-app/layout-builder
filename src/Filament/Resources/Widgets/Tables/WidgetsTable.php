@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Widgets\Tables;
+namespace Capell\Mosaic\Filament\Resources\Widgets\Tables;
 
 use Capell\Admin\Enums\FilamentColorEnum;
 use Capell\Admin\Enums\ResourceEnum;
@@ -20,9 +20,9 @@ use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
-use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Filament\Resources\Widgets\Pages\ListWidgets;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Enums\LayoutTypeEnum;
+use Capell\Mosaic\Filament\Resources\Widgets\Pages\ListWidgets;
+use Capell\Mosaic\Models\Widget;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -56,6 +56,7 @@ class WidgetsTable implements TableConfigurator
                     ->select('widgets.*')
                     ->withLayoutsCount(),
             )
+            ->defaultSort('name')
             ->columns(self::getTableColumns())
             ->filters(self::getTableFilters())
             ->recordClasses(fn (Widget $record): ?string => match (true) {
@@ -101,7 +102,7 @@ class WidgetsTable implements TableConfigurator
                 ->label(__('capell-admin::table.content'))
                 ->sortable()
                 ->searchable(
-                    query: fn (Builder $query, $search): Builder => $query->whereRelation(
+                    query: fn (Builder $query, string $search): Builder => $query->whereRelation(
                         'translations',
                         'content',
                         'like',
@@ -122,7 +123,7 @@ class WidgetsTable implements TableConfigurator
                     ),
                 )
                 ->description(function (ListWidgets $livewire, TextColumn $column, Widget $record): ?HtmlString {
-                    if (! $record->translation?->content) {
+                    if ($record->translation?->content === null) {
                         return null;
                     }
 
@@ -138,11 +139,10 @@ class WidgetsTable implements TableConfigurator
                 ->label(__('capell-admin::table.key'))
                 ->searchable()
                 ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true)
-                ->searchable('key'),
+                ->toggleable(isToggledHiddenByDefault: true),
             TextColumn::make('meta.component')
                 ->label(__('capell-admin::table.component'))
-                ->searchable(query: function (Builder $query, $search): Builder {
+                ->searchable(query: function (Builder $query, string $search): Builder {
                     /** @var Connection $databaseConnection */
                     $databaseConnection = $query->getConnection();
 
@@ -167,41 +167,50 @@ class WidgetsTable implements TableConfigurator
                         __('capell-admin::form.component_item') => $record->meta['component_item'] ?? '',
                     ];
 
-                    $components = array_filter($components);
+                    $components = array_filter($components, fn (string $value): bool => $value !== '');
 
                     if ($components === []) {
                         return null;
                     }
 
-                    array_walk($components, fn ($value, string $key): string => sprintf('%s: %s', $key, $value));
+                    array_walk(
+                        $components,
+                        fn (string $value, string $key): string => sprintf('%s: %s', $key, $value),
+                    );
 
                     return new HtmlString(implode('<br />', $components));
                 })
                 ->toggleable(isToggledHiddenByDefault: true),
             TextColumn::make('widget_assets_count')
-                ->label(__('capell-layout::table.total_assets'))
+                ->label(__('capell-mosaic::table.total_assets'))
                 ->counts('widgetAssets')
                 ->sortable()
                 ->alignCenter()
                 ->numeric()
                 ->toggleable(),
             TextColumn::make('layouts_count')
-                ->label(__('capell-layout::table.total_layouts'))
+                ->label(__('capell-mosaic::table.total_layouts'))
                 ->sortable()
                 ->alignCenter()
                 ->numeric()
                 ->toggleable()
                 ->disabledClick()
                 ->formatStateUsing(
-                    fn (Widget $record, $state): HtmlString => new HtmlString(
-                        Blade::render(
-                            'capell-admin::components.tables.url',
-                            [
-                                'state' => $state,
-                                'url' => CapellAdmin::getResource(ResourceEnum::Layout)::getUrl('index', ['tableFilters[widget_id][value]' => $record->key]),
-                            ],
-                        ),
-                    ),
+                    function (Widget $record, int $state): ?HtmlString {
+                        if ($state === 0) {
+                            return null;
+                        }
+
+                        return new HtmlString(
+                            Blade::render(
+                                'capell-admin::components.tables.url',
+                                [
+                                    'state' => $state,
+                                    'url' => CapellAdmin::getResource(ResourceEnum::Layout)::getUrl('index', ['filters[widget_id][value]' => $record->key]),
+                                ],
+                            ),
+                        );
+                    },
                 ),
             StatusIconColumn::make('status'),
             DateColumn::make('created_at'),
@@ -214,7 +223,7 @@ class WidgetsTable implements TableConfigurator
     {
         return [
             SelectFilter::make('type_id')
-                ->label(__('capell-layout::form.widget_type'))
+                ->label(__('capell-mosaic::form.widget_type'))
                 ->relationship(
                     name: 'type',
                     titleAttribute: 'name',
@@ -247,7 +256,7 @@ class WidgetsTable implements TableConfigurator
                 ->indicateUsing(function (array $data): array {
                     $indicators = [];
 
-                    if (! empty($data['language_id'])) {
+                    if (isset($data['language_id']) && $data['language_id'] !== '') {
                         /** @var class-string<Language> $model */
                         $model = CapellCore::getModel(ModelEnum::Language);
 

@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 {{-- format-ignore-start --}}
 @php
-    use Capell\Frontend\Facades\Frontend;
+    use Capell\Core\Models\Page;use Capell\Frontend\Facades\Frontend;
     use Capell\Frontend\Support\Loader\PageLoader;
 
     $page = Frontend::page();
@@ -22,13 +22,17 @@ declare(strict_types=1);
     'widget',
 ])
 @php
-    $currentPageLabel = __($page->translation->label, \Capell\Frontend\Actions\GetPageVariablesAction::run());
+    if (! $page instanceof Page) {
+        return;
+    }
 
     $ancestors = PageLoader::getPageAncestors($page, $language, $site);
 
     if (! $ancestors) {
         return;
     }
+
+    $currentPageLabel = __($page->translation->label, \Capell\Frontend\Actions\GetPageVariablesAction::run());
 
     $home = $site->getHomePage($language);
 @endphp
@@ -37,7 +41,7 @@ declare(strict_types=1);
     class="breadcrumbs my-4 text-gray-800"
     aria-label="{{ __('capell-frontend::generic.breadcrumbs') }}"
 >
-    <x-capell-layout::widget.wrapper
+    <x-capell-mosaic::widget.wrapper
         :$container
         :$containerKey
         :$containerWidth
@@ -90,7 +94,7 @@ declare(strict_types=1);
                 </div>
             </li>
         </ol>
-    </x-capell-layout::widget.wrapper>
+    </x-capell-mosaic::widget.wrapper>
 </nav>
 
 <?php

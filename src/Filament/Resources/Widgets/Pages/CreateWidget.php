@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Widgets\Pages;
+namespace Capell\Mosaic\Filament\Resources\Widgets\Pages;
 
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Layout\Enums\ResourceEnum;
-use Capell\Layout\Filament\Resources\Widgets\WidgetResource;
+use Capell\Mosaic\Enums\ResourceEnum;
+use Capell\Mosaic\Filament\Resources\Widgets\WidgetResource;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateWidget extends CreateRecord

@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Components\Forms\Content;
+namespace Capell\Mosaic\Filament\Components\Forms\Content;
 
-use Capell\Layout\Actions\ReplicateContentAction;
-use Capell\Layout\Models\Content;
+use Capell\Mosaic\Actions\ReplicateContentAction;
+use Capell\Mosaic\Filament\Components\Forms\ContentSelect;
+use Capell\Mosaic\Models\Section;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
@@ -16,7 +17,7 @@ class RelatedRepeater
     public static function make(Schema $schema): Repeater
     {
         return Repeater::make('related')
-            ->label(__('capell-layout::form.related_contents'))
+            ->label(__('capell-mosaic::form.related_contents'))
             ->statePath('related')
             ->hiddenLabel()
             ->cloneable()
@@ -32,7 +33,7 @@ class RelatedRepeater
 
                         $newData = $items[$arguments['item']];
 
-                        $existingContent = Content::query()->withDrafts()->find($newData['content_id']);
+                        $existingContent = Section::query()->find($newData['content_id']);
 
                         throw_unless($existingContent, Exception::class, 'Content not found with ID: ' . $newData['content_id']);
 

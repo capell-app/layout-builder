@@ -6,7 +6,7 @@ export default defineConfig(async () => {
         plugins: [
             laravel({
                 input: [
-                    'resources/css/admin/capell-layout-filament.css',
+                    'resources/css/admin/capell-mosaic-filament.css',
                     'resources/js/admin/layout-builder.js',
                 ],
                 publicDirectory: 'publishes',

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Enums;
+namespace Capell\Mosaic\Enums;
 
 enum AssetComponentEnum: string
 {
-    case Content = 'capell-layout::content.asset';
+    case Section = 'capell-mosaic::section.asset';
 }

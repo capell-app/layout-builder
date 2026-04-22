@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Actions;
+namespace Capell\Mosaic\Actions;
 
 use Capell\Core\Facades\CapellCore;
-use Capell\Layout\Enums\ModelEnum;
-use Capell\Layout\Models\Content;
+use Capell\Mosaic\Enums\ModelEnum;
+use Capell\Mosaic\Models\Section;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static Content run(array $data)
+ * @method static Section run(array $data)
  */
 class CreateContentAction
 {
     use AsObject;
 
-    public function createTranslations(Content $content, array $translations): void
+    public function createTranslations(Section $content, array $translations): void
     {
         foreach ($translations as $translation) {
             $content->translations()->create([
@@ -27,18 +27,18 @@ class CreateContentAction
         }
     }
 
-    public function handle(array $data): Content
+    public function handle(array $data): Section
     {
-        /** @var class-string<Content> $model */
-        $model = CapellCore::getModel(ModelEnum::Content->name);
+        /** @var class-string<Section> $model */
+        $model = CapellCore::getModel(ModelEnum::Section->name);
 
-        if (empty($data['name']) && ! empty($data['translations'])) {
+        if (! isset($data['name']) && blank($data['name']) && isset($data['translations'])) {
             $data['name'] = collect($data['translations'])->first()['title'];
         }
 
-        $content = $model::create($data);
+        $content = $model::query()->create($data);
 
-        if (! empty($data['translations'])) {
+        if (isset($data['translations'])) {
             $this->createTranslations($content, $data['translations']);
         }
 

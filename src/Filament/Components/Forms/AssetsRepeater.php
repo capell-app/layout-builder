@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Components\Forms;
+namespace Capell\Mosaic\Filament\Components\Forms;
 
+use Aimeos\Nestedset\NestedSet;
 use Capell\Admin\Actions\GetAssetResourceUrlAction;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Forms\SelectWithBelongsToRelation;
+use Capell\Core\Contracts\Pageable;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Enums\TypeGroupEnum;
 use Capell\Core\Facades\CapellCore;
@@ -26,10 +28,8 @@ use Illuminate\Contracts\Database\Query\Builder as BuilderContract;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
-use Kalnoy\Nestedset\NestedSet;
 
 class AssetsRepeater extends Repeater
 {
@@ -48,27 +48,24 @@ class AssetsRepeater extends Repeater
             ->extraItemActions([
                 Action::make('edit_asset')
                     ->visible(
-                        fn (array $arguments, Repeater $component): bool => ! empty(
-                            $component->getRawItemState($arguments['item'])['asset_id']
+                        fn (array $arguments, Repeater $component): bool => filled(
+                            $component->getRawItemState($arguments['item'])['asset_id'],
                         ),
                     )
                     ->tooltip(function (array $arguments, Repeater $component): ?string {
                         $itemData = $component->getRawItemState($arguments['item']);
 
                         return __(
-                            'capell-layout::button.edit_asset_type',
+                            'capell-mosaic::button.edit_asset_type',
                             ['type' => $itemData['asset_type']],
                         );
                     })
                     ->icon(Heroicon::PencilSquare)
-                    ->url(
-                        function (array $arguments, Repeater $component): ?string {
-                            $itemData = $component->getRawItemState($arguments['item']);
+                    ->url(function (array $arguments, Repeater $component): ?string {
+                        $itemData = $component->getRawItemState($arguments['item']);
 
-                            return GetAssetResourceUrlAction::run($itemData['asset_type'], $itemData['asset_id']);
-                        },
-                        shouldOpenInNewTab: true,
-                    ),
+                        return GetAssetResourceUrlAction::run($itemData['asset_type'], $itemData['asset_id']);
+                    }),
             ])
             ->registerActions([
                 fn (self $component): Action => $component->getAddAssetAction(),
@@ -110,7 +107,7 @@ class AssetsRepeater extends Repeater
         return [
             Hidden::make('asset_type'),
             $select
-                ->label(__('capell-layout::form.select_add_asset_type'))
+                ->label(__('capell-mosaic::form.select_add_asset_type'))
                 ->required()
                 ->searchable()
                 ->relationship(
@@ -119,10 +116,9 @@ class AssetsRepeater extends Repeater
                     modifyQueryUsing: fn (Builder $query, Get $get): Builder => $query->when(
                         $get('asset_type') === 'page',
                         fn (BuilderContract $query): BuilderContract => $query->with([
-                            'ancestors' => fn (Relation $query) => $query->withDrafts(),
+                            'ancestors',
                             'site',
                         ])
-                            ->withDrafts()
                             ->orderBy('site_id')
                             ->orderBy(NestedSet::LFT, 'DESC')
                             ->whereHas(
@@ -157,19 +153,21 @@ class AssetsRepeater extends Repeater
                 )
                 ->selectablePlaceholder(false)
                 ->getOptionLabelFromRecordUsing(function (Select $component, Model $record): HtmlString {
-                    if (! $record instanceof Page) {
-                        return new HtmlString($record->{$component->getRelationshipTitleAttribute()});
+                    if (! $record instanceof Pageable) {
+                        return new HtmlString($record->getAttribute($component->getRelationshipTitleAttribute()));
                     }
 
                     $label = $record->site->name . ' &raquo; ';
 
-                    $ancestors = $record->ancestors()->get();
+                    if ($record instanceof Page) {
+                        $ancestors = $record->ancestors()->get();
 
-                    if ($ancestors->isNotEmpty()) {
-                        $label .= $ancestors->pluck('name')
-                            ->map(fn ($item) => Str::limit($item, 30))
-                            ->implode(' &raquo; ')
-                            . ' &raquo; ';
+                        if ($ancestors->isNotEmpty()) {
+                            $label .= $ancestors->pluck('name')
+                                ->map(fn (string $name): string => Str::limit($name, 30))
+                                ->implode(' &raquo; ')
+                                . ' &raquo; ';
+                        }
                     }
 
                     return new HtmlString($label . Str::limit($record->name, 40));
@@ -193,7 +191,7 @@ class AssetsRepeater extends Repeater
                     $schema->model($record)->saveRelationships();
 
                     Notification::make()
-                        ->title(__('capell-layout::message.page_created_successfully'))
+                        ->title(__('capell-mosaic::message.page_created_successfully'))
                         ->body($record->name)
                         ->send();
 
@@ -228,7 +226,7 @@ class AssetsRepeater extends Repeater
             ->icon(Heroicon::Plus);
 
         return $action->group($actions)
-            ->view('capell-admin::filament.components.actions.dropdown-group');
+            ->view('capell-admin::components.actions.dropdown-group');
     }
 
     private static function modifyCreateAction(Action $action): Action

@@ -5,6 +5,8 @@ declare(strict_types=1);
 ?>
 
 @php
+    use Capell\Core\Contracts\Pageable;
+    use Capell\Core\Enums\MediaCollectionEnum;
     use Capell\Core\Facades\CapellCore;
     use Capell\Core\Models\Page;
     use Capell\Frontend\Facades\Frontend;
@@ -17,12 +19,15 @@ declare(strict_types=1);
 @props([
     'containerKey',
     'containerIndex',
-    'backgroundOverlay' => $widget->meta['background_overlay'] ?? false,
+    'backgroundOverlay' => (bool) $widget->getMeta('background_overlay'),
     'loop',
-    'total' => $widget->assets->isNotEmpty() ? $widget->assets->count() : 1,
+    'total' => $widget->assets->count(),
     'widget',
     'widgetIndex',
 ])
+@php
+    $carouselId = sprintf('banner-carousel-%s-%s', $widget->id ?? $widget->key, $loop->index);
+@endphp
 
 <section
     class="widget-assets-banner relative flex w-full items-center justify-center overflow-hidden"
@@ -30,13 +35,29 @@ declare(strict_types=1);
         --swiper-pagination-bottom: 2rem;
         --swiper-pagination-bullet-inactive-color: #fff;
     "
+    data-carousel-scope
 >
-    <div class="swiper relative grid h-full w-full">
+    <div
+        class="swiper relative grid h-full w-full"
+        data-auto="0"
+        data-carousel="1"
+        data-carousel-autoplay="0"
+        data-carousel-effect="slide"
+        data-carousel-id="{{ $carouselId }}"
+        data-carousel-loop="0"
+        data-carousel-navigation="0"
+        data-carousel-pagination="{{ (int) ($total > 1) }}"
+        data-carousel-touch="1"
+        data-carousel-watch-overflow="1"
+        data-loop="0"
+    >
         <div class="swiper-wrapper h-full w-full">
             @foreach ($widget->assets as $widgetAsset)
                 {{-- format-ignore-start --}}
                 @php
-                    $image = $widgetAsset->media->first() ?: $widgetAsset->asset->image ?: $widget->backgroundImage;
+                    $image = $widgetAsset->media->first()
+                        ?: $widgetAsset->asset->image
+                        ?: $widget->getMedia(MediaCollectionEnum::BackgroundImage->value);
                     $title = '';
                     $content = '';
                     if (CapellCore::getAsset($widgetAsset->asset_type)->hasTranslations) {
@@ -44,7 +65,9 @@ declare(strict_types=1);
                         $content = $widgetAsset->asset->translation?->content;
                     }
 
-                    $linkedPage = $widgetAsset->asset instanceof Page ? $widgetAsset->asset : $widgetAsset->asset->linkedPage;
+                    $linkedPage = $widgetAsset->asset instanceof Pageable
+                        ? $widgetAsset->asset
+                        : $widgetAsset->asset->linkedPage;
                 @endphp
                 {{-- format-ignore-end --}}
                 <div
@@ -62,7 +85,7 @@ declare(strict_types=1);
                             :alt="$widgetAsset->asset->translation->label"
                             :loading="$loop->first ? 'eager' : 'lazy'"
                             :class="
-                                Illuminate\Support\Arr::toCssClasses([
+                                Arr::toCssClasses([
                                     'absolute inset-0 w-full h-full object-cover pointer-events-none z-0 bg-no-repeat bg-center bg-cover',
                                 ])
                             "
@@ -118,7 +141,10 @@ declare(strict_types=1);
             @endforeach
         </div>
         @if ($total > 1)
-            <div class="swiper-controls">
+            <div
+                class="swiper-controls"
+                data-carousel-controls="{{ $carouselId }}"
+            >
                 <div
                     class="swiper-pagination flex justify-center"
                     wire:ignore

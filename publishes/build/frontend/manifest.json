@@ -1,8 +1,8 @@
 {
-    "resources/js/capell-layout.js": {
-        "file": "assets/capell-layout-B8ZFRmcB.js",
-        "name": "capell-layout",
-        "src": "resources/js/capell-layout.js",
+    "resources/js/capell-mosaic.js": {
+        "file": "assets/capell-mosaic-CMZmeCPZ.js",
+        "name": "capell-mosaic",
+        "src": "resources/js/capell-mosaic.js",
         "isEntry": true
     }
 }

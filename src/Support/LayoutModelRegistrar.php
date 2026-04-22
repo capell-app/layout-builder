@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Support;
+namespace Capell\Mosaic\Support;
 
 use Capell\Core\Facades\CapellCore;
-use Capell\Layout\Enums\ModelEnum;
+use Capell\Mosaic\Enums\ModelEnum;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 

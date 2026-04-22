@@ -6,7 +6,7 @@ export default defineConfig(async () => {
     return {
         plugins: [
             laravel({
-                input: ['resources/js/capell-layout.js'],
+                input: ['resources/js/capell-mosaic.js'],
                 publicDirectory: 'publishes',
                 refresh: false,
             }),

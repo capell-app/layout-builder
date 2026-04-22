@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Resources\Layouts\Schemas\Extenders;
+namespace Capell\Mosaic\Filament\Resources\Layouts\Schemas\Extenders;
 
 use Capell\Admin\Contracts\Extenders;
-use Capell\Layout\Filament\Components\Forms\Layout\LayoutTab;
+use Capell\Mosaic\Filament\Components\Forms\Layout\LayoutTab;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Components\Forms\Widget\Tab;
+namespace Capell\Mosaic\Filament\Components\Forms\Widget\Tab;
 
-use Capell\Layout\Filament\Components\Forms\Widget\WidgetSettingsSchema;
+use Capell\Mosaic\Filament\Components\Forms\Widget\SettingsSchema;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -16,6 +16,6 @@ class WidgetSettingsTab
         return Tab::make(__('capell-admin::tab.settings'))
             ->icon(Heroicon::OutlinedCog)
             ->columns()
-            ->schema(WidgetSettingsSchema::make($schema));
+            ->schema(SettingsSchema::make($schema));
     }
 }

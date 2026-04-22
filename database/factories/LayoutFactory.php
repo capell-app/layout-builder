@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Database\Factories;
+namespace Capell\Mosaic\Database\Factories;
 
 use Capell\Core\Models\Layout;
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Models\Widget;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Collection;
 
@@ -18,11 +18,15 @@ class LayoutFactory extends \Capell\Core\Database\Factories\LayoutFactory
     {
         return $this->state([
             'containers' => function (): array {
-                $firstWidget = Widget::query()->firstWhere('key', 'first')
-                    ?: Widget::factory(['key' => 'first'])->create();
+                $firstWidget = Widget::query()->firstWhere('key', 'first');
+                if (! $firstWidget instanceof Widget) {
+                    $firstWidget = Widget::factory(['key' => 'first'])->create();
+                }
 
-                $secondWidget = Widget::query()->firstWhere('key', 'second')
-                    ?: Widget::factory(['key' => 'second'])->create();
+                $secondWidget = Widget::query()->firstWhere('key', 'second');
+                if (! $secondWidget instanceof Widget) {
+                    $secondWidget = Widget::factory(['key' => 'second'])->create();
+                }
 
                 return [
                     'main' => [
@@ -55,7 +59,7 @@ class LayoutFactory extends \Capell\Core\Database\Factories\LayoutFactory
 
                 foreach ($widgets as $widget) {
                     $widgetEntries[] = [
-                        'widget_key' => $widget instanceof $widget ? $widget->key : $widget,
+                        'widget_key' => $widget instanceof Widget ? $widget->key : $widget,
                         'occurrence' => 1,
                     ];
                 }

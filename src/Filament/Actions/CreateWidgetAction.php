@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Filament\Actions;
+namespace Capell\Mosaic\Filament\Actions;
 
 use Capell\Admin\Actions\BuildDefaultTranslationsAction;
 use Capell\Admin\Filament\Actions\CreateAction;
 use Capell\Core\Models\Type;
-use Capell\Layout\Enums\LayoutTypeEnum;
+use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Filament\Support\Enums\Width;
 use Override;
 
@@ -28,7 +28,7 @@ class CreateWidgetAction extends CreateAction
 
         $data['status'] = true;
 
-        if (empty($data['translations'])) {
+        if (! isset($data['translations'])) {
             $data['translations'] = BuildDefaultTranslationsAction::run($data['site_id'] ?? null);
         }
 

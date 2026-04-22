@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Support\Creator;
+namespace Capell\Mosaic\Support\Creator;
 
 use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models;
 use Capell\Core\Models\Site;
-use Capell\Layout\Enums\LayoutTypeEnum;
-use Capell\Layout\Enums\ModelEnum;
-use Capell\Layout\Models\Content;
-use Illuminate\Database\Eloquent\Collection;
+use Capell\Mosaic\Enums\LayoutTypeEnum;
+use Capell\Mosaic\Enums\ModelEnum;
+use Capell\Mosaic\Models\Section;
+use Illuminate\Support\Collection;
 
 class ContentCreator
 {
     /**
-     * @var class-string<Content>
+     * @var class-string<Section>
      */
     private readonly string $contentModel;
 
@@ -27,16 +27,16 @@ class ContentCreator
 
     public function __construct()
     {
-        $this->contentModel = CapellCore::getModel(ModelEnum::Content->name);
+        $this->contentModel = CapellCore::getModel(ModelEnum::Section->name);
 
         $this->typeModel = CapellCore::getModel(CoreModelEnum::Type);
     }
 
-    public function createContent(array $data, ?Site $site, Collection $languages): Content
+    public function createContent(array $data, ?Site $site, Collection $languages): Section
     {
-        $type = $this->typeModel::query()->where('type', LayoutTypeEnum::Content)->default()->first();
+        $type = $this->typeModel::query()->where('type', LayoutTypeEnum::Section)->default()->first();
 
-        if (! empty($data['type'])) {
+        if (isset($data['type']) && $data['type'] !== '') {
             $type->where('key', $data['type'])->first();
         } else {
             $type->default()->first();
@@ -49,10 +49,9 @@ class ContentCreator
             'site_id' => $site?->id,
             'type_id' => $type->id,
             'parent_id' => $parentId,
-            'is_published' => true,
         ];
 
-        /** @var Content $content */
+        /** @var Section $content */
         $content = $this->contentModel::query()->firstOrCreate($payload);
 
         foreach ($languages as $language) {

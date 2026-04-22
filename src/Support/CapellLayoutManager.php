@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Support;
+namespace Capell\Mosaic\Support;
 
-use Capell\Layout\Models\Widget;
+use Capell\Mosaic\Models\Widget;
 use Illuminate\Support\Collection;
 
 class CapellLayoutManager
@@ -14,9 +14,10 @@ class CapellLayoutManager
     public static function getMigrations(): array
     {
         return [
-            'create_contents_table',
+            'create_sections_table',
             'create_widgets_table',
             'create_widget_assets_table',
+            'add_container_widgets_to_layouts_table',
         ];
     }
 

@@ -2,17 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Capell\Layout\Enums;
+namespace Capell\Mosaic\Enums;
 
 enum WidgetTypeEnum: string
 {
     case Assets = 'assets';
 
-    case Contents = 'contents';
+    case Sections = 'sections';
 
-    case ContentBuilder = 'content-builder';
+    case SectionBuilder = 'section-builder';
 
     case Default = 'default';
+
+    case Hero = 'hero';
 
     case Media = 'media';
 
@@ -25,4 +27,14 @@ enum WidgetTypeEnum: string
     case Pages = 'pages';
 
     case System = 'system';
+
+    case HeroBanner = 'hero-banner';
+
+    case CardGrid = 'card-grid';
+
+    case FeatureList = 'feature-list';
+
+    case CTASection = 'cta-section';
+
+    case ImageGallery = 'image-gallery';
 }
