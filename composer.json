@@ -58,10 +58,6 @@
         },
         {
             "type": "path",
-            "url": "packages/workspaces"
-        },
-        {
-            "type": "path",
             "url": "./packages/themes/*",
             "options": {
                 "symlink": true

@@ -9,6 +9,7 @@
     ],
     "require": {
         "php": "^8.2",
+        "capell-app/core": "*",
         "capell-app/admin": "*"
     },
     "autoload": {
