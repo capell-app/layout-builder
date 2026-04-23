@@ -8,7 +8,7 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
 use Capell\Core\Facades\CapellCore;
-use Capell\SeoTools\Providers\AssistantServiceProvider;
+use Capell\SeoTools\Providers\SeoToolsServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Illuminate\Foundation\Application;
 use Livewire\LivewireServiceProvider;
@@ -34,7 +34,7 @@ class AssistantTestCase extends AbstractTestCase
                 'create_assistant_settings',
                 '2026_04_18_000001_update_assistant_settings_add_ai_creator',
             ],
-            __DIR__ . '/../../../packages/assistant/database/settings',
+            __DIR__ . '/../../../packages/seo-tools/database/settings',
         );
     }
 
@@ -51,7 +51,7 @@ class AssistantTestCase extends AbstractTestCase
     {
         return [
             ...parent::getPackageProviders($app),
-            AssistantServiceProvider::class,
+            SeoToolsServiceProvider::class,
             AdminPanelProvider::class,
             AdminServiceProvider::class,
             LivewireServiceProvider::class,
@@ -68,6 +68,6 @@ class AssistantTestCase extends AbstractTestCase
         parent::getEnvironmentSetUp($app);
 
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(AssistantServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(SeoToolsServiceProvider::$packageName);
     }
 }

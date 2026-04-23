@@ -56,9 +56,7 @@ class CloneWorkspaceAction
             $dispatcher = resolve(WorkspaceEventDispatcher::class);
 
             // Dispatch beforeClone event
-            if (! $dispatcher->beforeClone($source, $clone)) {
-                throw new Exception('Clone prevented by subscriber');
-            }
+            throw_unless($dispatcher->beforeClone($source, $clone), Exception::class, 'Clone prevented by subscriber');
 
             if ($options->copyDrafts) {
                 $this->copyDraftableRows($source, $clone);

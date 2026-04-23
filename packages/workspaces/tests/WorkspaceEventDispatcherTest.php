@@ -38,7 +38,7 @@ test('dispatcher calls beforePublish on all subscribers', function (): void {
         public function afterDelete(Workspace $workspace): void {}
     };
 
-    CapellWorkspaces::subscribe(get_class($subscriber));
+    CapellWorkspaces::subscribe($subscriber::class);
 
     $dispatcher = resolve(WorkspaceEventDispatcher::class);
     $workspace = Workspace::factory()->create();
@@ -74,7 +74,7 @@ test('dispatcher stops on subscriber returning false', function (): void {
         public function afterDelete(Workspace $workspace): void {}
     };
 
-    CapellWorkspaces::subscribe(get_class($blockingSubscriber));
+    CapellWorkspaces::subscribe($blockingSubscriber::class);
 
     $dispatcher = resolve(WorkspaceEventDispatcher::class);
     $workspace = Workspace::factory()->create();
@@ -116,7 +116,7 @@ test('dispatcher calls afterPublish on all subscribers', function (): void {
         public function afterDelete(Workspace $workspace): void {}
     };
 
-    CapellWorkspaces::subscribe(get_class($subscriber));
+    CapellWorkspaces::subscribe($subscriber::class);
 
     $dispatcher = resolve(WorkspaceEventDispatcher::class);
     $workspace = Workspace::factory()->create();

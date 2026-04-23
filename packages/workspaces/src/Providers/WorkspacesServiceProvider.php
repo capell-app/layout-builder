@@ -49,7 +49,7 @@ class WorkspacesServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton(WorkspacesManager::class, fn () => new WorkspacesManager);
+        $this->app->singleton(WorkspacesManager::class, fn (): WorkspacesManager => new WorkspacesManager);
         $this->app->singleton(WorkspaceEventDispatcher::class);
     }
 

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Capell\Workspaces\Facades\CapellWorkspaces;
 use Capell\Workspaces\Events\Contracts\WorkspaceEventSubscriber;
+use Capell\Workspaces\Facades\CapellWorkspaces;
 use Capell\Workspaces\Models\Workspace;
 
 test('can register subscriber via facade', function (): void {
@@ -44,27 +44,21 @@ class TestSubscriber implements WorkspaceEventSubscriber
         return true;
     }
 
-    public function afterClone(Workspace $source, Workspace $target): void
-    {
-    }
+    public function afterClone(Workspace $source, Workspace $target): void {}
 
     public function beforePublish(Workspace $workspace): bool
     {
         return true;
     }
 
-    public function afterPublish(Workspace $workspace): void
-    {
-    }
+    public function afterPublish(Workspace $workspace): void {}
 
     public function beforeDelete(Workspace $workspace): bool
     {
         return true;
     }
 
-    public function afterDelete(Workspace $workspace): void
-    {
-    }
+    public function afterDelete(Workspace $workspace): void {}
 }
 
 class AnotherTestSubscriber implements WorkspaceEventSubscriber
@@ -74,25 +68,19 @@ class AnotherTestSubscriber implements WorkspaceEventSubscriber
         return true;
     }
 
-    public function afterClone(Workspace $source, Workspace $target): void
-    {
-    }
+    public function afterClone(Workspace $source, Workspace $target): void {}
 
     public function beforePublish(Workspace $workspace): bool
     {
         return true;
     }
 
-    public function afterPublish(Workspace $workspace): void
-    {
-    }
+    public function afterPublish(Workspace $workspace): void {}
 
     public function beforeDelete(Workspace $workspace): bool
     {
         return true;
     }
 
-    public function afterDelete(Workspace $workspace): void
-    {
-    }
+    public function afterDelete(Workspace $workspace): void {}
 }

@@ -65,9 +65,7 @@ class Publisher
         $dispatcher = resolve(WorkspaceEventDispatcher::class);
 
         // Dispatch beforePublish event
-        if (! $dispatcher->beforePublish($workspace)) {
-            throw new Exception('Publish prevented by subscriber');
-        }
+        throw_unless($dispatcher->beforePublish($workspace), Exception::class, 'Publish prevented by subscriber');
 
         if (! $bypassWindow) {
             $windowGuard = new ReleaseWindowGuard;

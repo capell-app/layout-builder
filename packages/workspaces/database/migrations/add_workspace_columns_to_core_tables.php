@@ -34,6 +34,7 @@ return new class extends Migration
                 if (! Schema::hasColumn($schema->getTable(), 'workspace_id')) {
                     $schema->unsignedBigInteger('workspace_id')->default(0)->index();
                 }
+
                 if (! Schema::hasColumn($schema->getTable(), 'shadowed_by_workspace_id')) {
                     $schema->unsignedBigInteger('shadowed_by_workspace_id')->default(0)->index();
                 }
@@ -54,6 +55,7 @@ return new class extends Migration
                     $schema->dropIndex([sprintf('%s_workspace_id_index', $schema->getTable())]);
                     $schema->dropColumn('workspace_id');
                 }
+
                 if (Schema::hasColumn($schema->getTable(), 'shadowed_by_workspace_id')) {
                     // Index naming convention: {table_name}_{column_name}_index
                     $schema->dropIndex([sprintf('%s_shadowed_by_workspace_id_index', $schema->getTable())]);
