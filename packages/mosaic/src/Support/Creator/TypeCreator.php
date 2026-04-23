@@ -31,12 +31,7 @@ class TypeCreator
     /**
      * @var class-string<Type>
      */
-    public string $typeModel;
-
-    public function __construct()
-    {
-        $this->typeModel = Type::class;
-    }
+    public string $typeModel = Type::class;
 
     public function create(string $key): void
     {

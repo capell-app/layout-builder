@@ -55,13 +55,13 @@ class FieldCommentThread extends Component
 
     public function resolveComment(int $commentId): void
     {
-        $comment = WorkspaceFieldComment::findOrFail($commentId);
+        $comment = WorkspaceFieldComment::query()->findOrFail($commentId);
         $comment->resolve();
     }
 
     public function reopenComment(int $commentId): void
     {
-        $comment = WorkspaceFieldComment::findOrFail($commentId);
+        $comment = WorkspaceFieldComment::query()->findOrFail($commentId);
         $comment->reopen();
     }
 

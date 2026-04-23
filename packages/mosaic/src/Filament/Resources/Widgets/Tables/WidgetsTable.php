@@ -246,7 +246,7 @@ class WidgetsTable implements TableConfigurator
                             /* @var class-string<\Capell\Core\Models\Language> $model */
                             $model = Language::class;
 
-                            return $model::ordered()
+                            return $model::query()->ordered()
                                 ->pluck('name', 'id')
                                 ->toArray();
                         }),

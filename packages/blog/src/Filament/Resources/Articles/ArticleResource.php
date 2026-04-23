@@ -15,7 +15,6 @@ use Capell\Blog\Filament\Resources\Articles\Pages\ListArticles;
 use Capell\Blog\Filament\Resources\Articles\Schemas\ArticleForm;
 use Capell\Blog\Filament\Resources\Articles\Tables\ArticlePagesTable;
 use Capell\Blog\Models\Article;
-use Capell\Blog\Models\Article;
 use Capell\Blog\Providers\BlogServiceProvider;
 use Capell\Blog\Support\Loader\BlogLoader;
 use Capell\Core\Actions\GetNameFromTranslationsAction;

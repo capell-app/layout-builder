@@ -34,7 +34,7 @@ class DiffPanel extends Component
 
     public function render(): View
     {
-        $workspace = Workspace::findOrFail($this->workspaceId);
+        $workspace = Workspace::query()->findOrFail($this->workspaceId);
         $diffs = (new WorkspaceDiffService)->diffTree($workspace);
 
         return view('capell-admin::components.workspaces.diff-panel', [
