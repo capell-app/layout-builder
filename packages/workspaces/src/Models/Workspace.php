@@ -12,6 +12,7 @@ use Capell\Workspaces\Enums\WorkspaceApprovalActionEnum;
 use Capell\Workspaces\Enums\WorkspaceKindEnum;
 use Capell\Workspaces\Enums\WorkspaceStatusEnum;
 use Capell\Workspaces\Enums\WorkspaceTransitionEnum;
+use Capell\Workspaces\Events\WorkspaceEventDispatcher;
 use Capell\Workspaces\Events\WorkspaceStateChanged;
 use Capell\Workspaces\WorkspaceContext;
 use Carbon\CarbonImmutable;
@@ -250,6 +251,29 @@ class Workspace extends Model implements Userstampable
             ->logExcept(['created_at', 'updated_at', 'deleted_at', 'created_by', 'updated_by', 'deleted_by'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::deleting(function (Workspace $workspace): ?bool {
+            /** @var WorkspaceEventDispatcher $dispatcher */
+            $dispatcher = resolve(WorkspaceEventDispatcher::class);
+
+            if (! $dispatcher->beforeDelete($workspace)) {
+                return false;
+            }
+
+            return null; // Continue with deletion
+        });
+
+        static::deleted(function (Workspace $workspace): void {
+            /** @var WorkspaceEventDispatcher $dispatcher */
+            $dispatcher = resolve(WorkspaceEventDispatcher::class);
+
+            $dispatcher->afterDelete($workspace);
+        });
     }
 
     protected static function booted(): void
