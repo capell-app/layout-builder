@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\SeoTools\Assistant\Support\Admin;
 
-use Capell\Admin\Contracts\Extenders\SearchMetaDataSectionExtender as SearchMetaDataSectionExtenderContract;
+use Capell\SeoTools\Contracts\Extenders\SearchMetaDataSectionExtender as SearchMetaDataSectionExtenderContract;
 use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;

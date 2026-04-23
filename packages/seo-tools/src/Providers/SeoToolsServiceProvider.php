@@ -7,6 +7,8 @@ namespace Capell\SeoTools\Providers;
 use Capell\Core\Enums\PackageTypeEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\SeoTools\Contracts\Schemas\SearchMetaDataSectionExtenderResolverInterface;
+use Capell\SeoTools\Support\Schemas\SearchMetaDataSectionExtenderResolver;
 use Composer\InstalledVersions;
 use Spatie\LaravelPackageTools\Package;
 
@@ -29,6 +31,15 @@ class SeoToolsServiceProvider extends AbstractPackageServiceProvider
     public function registeringPackage(): void
     {
         $this->registerPackageMetadata();
+        $this->registerExtenderResolvers();
+    }
+
+    private function registerExtenderResolvers(): void
+    {
+        $this->app->singleton(
+            SearchMetaDataSectionExtenderResolverInterface::class,
+            fn (): SearchMetaDataSectionExtenderResolver => new SearchMetaDataSectionExtenderResolver,
+        );
     }
 
     /**

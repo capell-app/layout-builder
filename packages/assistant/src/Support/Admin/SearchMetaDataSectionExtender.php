@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Assistant\Support\Admin;
 
-use Capell\Admin\Contracts\Extenders\SearchMetaDataSectionExtender as SearchMetaDataSectionExtenderContract;
+use Capell\SeoTools\Contracts\Extenders\SearchMetaDataSectionExtender as SearchMetaDataSectionExtenderContract;
 use Capell\Assistant\Actions\SuggestMetaDescriptionsAction;
 use Capell\Assistant\Exceptions\OpenAICircuitBreakerOpenException;
 use Capell\Assistant\Settings\AssistantSettings;
