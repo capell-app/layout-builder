@@ -25,7 +25,7 @@ class WorkspaceForm implements FormConfigurator
                 ->collapsible()
                 ->visible(fn (?Workspace $record): bool => $record instanceof Workspace && $record->approvals()->exists())
                 ->schema([
-                    Livewire::make('capell-admin::workspace-approval-history'),
+                    Livewire::make('capell-workspaces::workspace-approval-history'),
                 ]),
             TextInput::make('name')
                 ->label(__('capell-admin::table.name'))
