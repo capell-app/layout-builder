@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Capell\Blog\Models\Tag;
 use Capell\Core\Models\Site;
+use Capell\Tags\Models\Tag;
 
 it('has many tags', function (): void {
     $site = Site::factory()->create();

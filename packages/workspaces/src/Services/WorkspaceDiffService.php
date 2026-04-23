@@ -188,6 +188,7 @@ class WorkspaceDiffService
      */
     public function renderHtmlDiff(mixed $before, mixed $after): string
     {
+        /** @phpstan-ignore-next-line class.notFound */
         return DiffHelper::calculate(
             $this->stringify($before),
             $this->stringify($after),

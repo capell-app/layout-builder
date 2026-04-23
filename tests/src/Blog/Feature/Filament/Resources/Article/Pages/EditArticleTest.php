@@ -3,14 +3,14 @@
 declare(strict_types=1);
 
 use Capell\Admin\Filament\Resources\Pages\PageResource;
-use Capell\Blog\Enums\TagTypeEnum;
 use Capell\Blog\Filament\Resources\Articles\ArticleResource;
 use Capell\Blog\Filament\Resources\Articles\Pages\EditArticle;
 use Capell\Blog\Models\Article;
-use Capell\Blog\Models\Tag;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
+use Capell\Tags\Enums\TagTypeEnum;
+use Capell\Tags\Models\Tag;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\DeleteAction;
 use Illuminate\Database\Eloquent\Model;

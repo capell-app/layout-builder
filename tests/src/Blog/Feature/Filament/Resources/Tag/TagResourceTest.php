@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Capell\Blog\Filament\Resources\Tags\TagResource;
 use Capell\Core\Models\Language;
+use Capell\Tags\Filament\Resources\Tags\TagResource;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Laravel\get;

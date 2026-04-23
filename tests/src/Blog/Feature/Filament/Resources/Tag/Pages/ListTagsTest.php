@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Capell\Blog\Filament\Resources\Tags\Pages\ListTags;
-use Capell\Blog\Models\Tag;
 use Capell\Core\Models\Language;
+use Capell\Tags\Filament\Resources\Tags\Pages\ListTags;
+use Capell\Tags\Models\Tag;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;

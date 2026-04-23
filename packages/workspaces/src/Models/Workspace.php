@@ -284,7 +284,7 @@ class Workspace extends Model implements Userstampable
             }
 
             if ($workspace->base_version_id === null) {
-                $liveVersion = Version::query()->live()->first();
+                $liveVersion = Version::currentLive();
                 if ($liveVersion instanceof Version) {
                     $workspace->base_version_id = $liveVersion->id;
                 }

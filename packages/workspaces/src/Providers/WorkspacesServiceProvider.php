@@ -59,7 +59,6 @@ class WorkspacesServiceProvider extends ServiceProvider
             ->registerWorkspaceDraftables()
             ->applyBehaviorToExternalModels()
             ->registerBuilderMacros()
-            ->registerModelMacros()
             ->registerMiddleware()
             ->registerEventListeners();
     }
@@ -287,21 +286,6 @@ class WorkspacesServiceProvider extends ServiceProvider
         Builder::macro('withoutWorkspaceScope', function (): Builder {
             /** @var Builder $this */
             return $this->withoutGlobalScope(WorkspaceContextScope::class);
-        });
-
-        return $this;
-    }
-
-    private function registerModelMacros(): self
-    {
-        Model::macro('isLive', function (): bool {
-            /** @var Model $this */
-            return (int) $this->getAttribute('workspace_id') === 0;
-        });
-
-        Model::macro('isInWorkspace', function (): bool {
-            /** @var Model $this */
-            return (int) $this->getAttribute('workspace_id') > 0;
         });
 
         return $this;

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Capell\Blog\Filament\Resources\Tags\Pages\EditTag;
-use Capell\Blog\Filament\Resources\Tags\RelationManagers\PagesRelationManager;
-use Capell\Blog\Models\Tag;
 use Capell\Core\Models\Page;
+use Capell\Tags\Filament\Resources\Tags\Pages\EditTag;
+use Capell\Tags\Filament\Resources\Tags\RelationManagers\PagesRelationManager;
+use Capell\Tags\Models\Tag;
 
 use function Pest\Livewire\livewire;
 

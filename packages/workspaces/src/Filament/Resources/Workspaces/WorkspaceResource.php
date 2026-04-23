@@ -83,6 +83,7 @@ class WorkspaceResource extends Resource
     #[Override]
     public static function getModel(): string
     {
+        /** @phpstan-ignore-next-line classConstant.notFound */
         return CapellCore::getModel(ModelEnum::Workspace);
     }
 

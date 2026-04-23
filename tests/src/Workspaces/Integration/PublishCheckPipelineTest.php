@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Capell\Tests\Workspaces\Integration;
+
 use Capell\Workspaces\Checks\PublishCheck;
 use Capell\Workspaces\Checks\PublishCheckPipeline;
 use Capell\Workspaces\Checks\PublishCheckResult;

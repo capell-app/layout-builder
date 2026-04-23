@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Capell\Blog\Models\Tag;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Tags\Models\Tag;
 
 it('belongs to a site', function (): void {
     $site = Site::factory()->create();

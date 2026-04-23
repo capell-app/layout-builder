@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Capell\Blog\Models\Tag;
 use Capell\Mosaic\Models\Section;
+use Capell\Tags\Models\Tag;
 
 it('has many tags', function (): void {
     $content = Section::factory()->create();

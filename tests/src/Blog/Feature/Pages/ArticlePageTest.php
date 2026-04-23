@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Capell\Blog\Enums\TagTypeEnum;
 use Capell\Blog\Models\Article;
-use Capell\Blog\Models\Tag;
 use Capell\Blog\Support\Creator\BlogCreator;
 use Capell\Core\Models\Site;
+use Capell\Tags\Enums\TagTypeEnum;
+use Capell\Tags\Models\Tag;
 use Capell\Tests\Fixtures\Models\User;
 use Capell\Tests\Support\Concerns\TestingFrontend;
 

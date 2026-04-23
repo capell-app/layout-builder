@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 use Capell\Blog\Actions\GenerateArchiveUrl;
 use Capell\Blog\Data\ArchiveMonthData;
-use Capell\Blog\Enums\TagTypeEnum;
 use Capell\Blog\Models\Article;
-use Capell\Blog\Models\Tag;
 use Capell\Blog\Support\Creator\BlogCreator;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
 use Capell\Frontend\Enums\CacheEnum;
+use Capell\Tags\Enums\TagTypeEnum;
+use Capell\Tags\Models\Tag;
 use Capell\Tests\Support\Concerns\TestingFrontend;
 use Carbon\CarbonImmutable;
 

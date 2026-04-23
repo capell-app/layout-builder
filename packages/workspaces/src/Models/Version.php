@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Capell\Workspaces\Models;
 
 use Carbon\CarbonImmutable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -52,12 +51,12 @@ class Version extends Model
 
     public static function liveId(): ?int
     {
-        return self::query()->live()->value('id');
+        return self::query()->withoutGlobalScopes()->where('is_live', true)->value('id');
     }
 
     public static function currentLive(): ?self
     {
-        return self::query()->live()->first();
+        return self::query()->withoutGlobalScopes()->where('is_live', true)->first();
     }
 
     public function sourceWorkspace(): BelongsTo
@@ -79,11 +78,6 @@ class Version extends Model
     public function manifestIdsFor(string $modelClass): array
     {
         return $this->manifest[$modelClass] ?? [];
-    }
-
-    protected function scopeLive(Builder $query): Builder
-    {
-        return $query->where('is_live', true);
     }
 
     protected function casts(): array

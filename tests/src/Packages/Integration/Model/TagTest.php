@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Capell\Blog\Models\Tag;
 use Capell\Mosaic\Models\Section;
+use Capell\Tags\Models\Tag;
 
 it('can be attached to sections', function (): void {
     $tag = Tag::factory()->create();

@@ -250,7 +250,7 @@ class SeoToolsServiceProvider extends AbstractPackageServiceProvider
             return [];
         }
 
-        $files = glob($directory . '/*.php') ?: [];
+        $files = glob($directory . '/*.php') !== false ? glob($directory . '/*.php') : [];
 
         return array_map(
             static fn (string $path): string => pathinfo($path, PATHINFO_FILENAME),
