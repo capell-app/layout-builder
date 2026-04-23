@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace Capell\Workspaces\Providers;
 
+use Capell\Admin\Contracts\DashboardSettingsContributor;
 use Capell\Admin\Enums\DashboardEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Workspaces\Events\WorkspaceStateChanged;
+use Capell\Workspaces\Filament\Settings\Contributors\DefaultDashboardSettingsContributor;
+use Capell\Workspaces\Filament\Settings\Contributors\SystemHealthSettingsContributor;
 use Capell\Workspaces\Filament\Widgets\WorkspaceActivityWidgetAbstract;
 use Capell\Workspaces\Listeners\SendWorkspaceStateNotification;
 use Capell\Workspaces\Livewire\DiffPanel;
 use Capell\Workspaces\Livewire\FieldCommentThread;
+use Capell\Workspaces\Livewire\PageApprovalStatus;
+use Capell\Workspaces\Livewire\PublishStatusPanel;
 use Capell\Workspaces\Livewire\WorkspaceApprovalHistory;
 use Capell\Workspaces\Livewire\WorkspaceContextBanner;
 use Capell\Workspaces\Livewire\WorkspaceSwitcher;
@@ -27,7 +32,13 @@ use Livewire\Livewire;
 
 class AdminServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->tag(
+            [DefaultDashboardSettingsContributor::class, SystemHealthSettingsContributor::class],
+            DashboardSettingsContributor::TAG,
+        );
+    }
 
     public function boot(): void
     {
@@ -45,6 +56,8 @@ class AdminServiceProvider extends ServiceProvider
         Livewire::component('capell-workspaces::workspace-approval-history', WorkspaceApprovalHistory::class);
         Livewire::component('capell-workspaces::field-comment-thread', FieldCommentThread::class);
         Livewire::component('capell-workspaces::diff-panel', DiffPanel::class);
+        Livewire::component('capell-admin::publish-status-panel', PublishStatusPanel::class);
+        Livewire::component('capell-admin::page-approval-status', PageApprovalStatus::class);
 
         Livewire::addNamespace(
             namespace: 'capell-workspaces',
