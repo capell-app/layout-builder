@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\SeoTools\Assistant\Data\PromptData;
+use Capell\SeoTools\Data\PromptData;
 
 uses()->group('admin-ai');
 

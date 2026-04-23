@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\SeoTools\Filament\Components\Forms\Site;
 
-use Capell\SeoTools\Filament\Components\Forms\SearchMetaDataSection;
 use Capell\Core\Models\Translation;
+use Capell\SeoTools\Filament\Components\Forms\SearchMetaDataSection;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Group;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\SeoTools\Assistant\Models\AIGenerationHistory;
+use Capell\SeoTools\Models\AIGenerationHistory;
 
 uses()->group('admin-ai');
 

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use Capell\Admin\Contracts\Extenders\PageHeaderActionExtender;
 use Capell\Admin\Contracts\Extenders\SiteHeaderActionExtender;
-use Capell\SeoTools\Assistant\Filament\Actions\AiCreatorAction;
-use Capell\SeoTools\Assistant\Support\Admin\AiCreatorPageExtender;
-use Capell\SeoTools\Assistant\Support\Admin\AiCreatorSiteExtender;
+use Capell\SeoTools\Filament\Actions\AiCreatorAction;
+use Capell\SeoTools\Support\Admin\AiCreatorPageExtender;
+use Capell\SeoTools\Support\Admin\AiCreatorSiteExtender;
 
 it('AiCreatorPageExtender implements PageHeaderActionExtender', function (): void {
     expect(new AiCreatorPageExtender)->toBeInstanceOf(PageHeaderActionExtender::class);

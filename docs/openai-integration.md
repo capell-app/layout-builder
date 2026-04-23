@@ -106,7 +106,7 @@ Stored fields include action name, model, input/output, `prompt_tokens`/`complet
 
 ## Configuration
 
-Config file: `config/capell-assistant.php`. Full reference lives in the [package README](../packages/assistant/README.md#configuration). Key defaults:
+Config file: `config/capell-seo-tools.php`. Full reference lives in the [package README](../packages/seo-tools/README.md#configuration). Key defaults:
 
 - `openai.default_model` = `gpt-4`
 - `openai.max_tokens` = `512`

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Tests\Assistant\Integration\AI;
 
-use Capell\SeoTools\Assistant\Exceptions\OpenAICircuitBreakerOpenException;
-use Capell\SeoTools\Assistant\Support\AiResponse;
-use Capell\SeoTools\Assistant\Support\PrismProvider;
+use Capell\SeoTools\Exceptions\OpenAICircuitBreakerOpenException;
+use Capell\SeoTools\Support\AiResponse;
+use Capell\SeoTools\Support\PrismProvider;
 use Illuminate\Support\Facades\Cache;
 
 it('calls the OpenAI provider chat successfully structure-wise', function (): void {

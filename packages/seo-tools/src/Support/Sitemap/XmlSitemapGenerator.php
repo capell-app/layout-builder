@@ -284,7 +284,7 @@ class XmlSitemapGenerator
 
         // --- paginated: write chunks then an index ---
         $chunks = array_chunk($items, $maxPerFile);
-        $xmlPath = rtrim(config('capell.sitemap.xml_path', '/sitemap-xml'), '/');
+        $xmlPath = rtrim((string) config('capell.sitemap.xml_path', '/sitemap-xml'), '/');
         $baseUrl = rtrim($domain->full_url, '/') . $xmlPath;
         $now = now()->format(DATE_ATOM);
         $indexEntries = [];
@@ -386,11 +386,11 @@ class XmlSitemapGenerator
             }
 
             if ($item->changefreq !== null && $item->changefreq !== '') {
-                $xml .= '<changefreq>' . htmlspecialchars($item->changefreq, ENT_XML1 | ENT_COMPAT, 'UTF-8') . '</changefreq>';
+                $xml .= '<changefreq>' . htmlspecialchars((string) $item->changefreq, ENT_XML1 | ENT_COMPAT, 'UTF-8') . '</changefreq>';
             }
 
             if ($item->priority !== null && $item->priority !== '') {
-                $xml .= '<priority>' . htmlspecialchars($item->priority, ENT_XML1 | ENT_COMPAT, 'UTF-8') . '</priority>';
+                $xml .= '<priority>' . htmlspecialchars((string) $item->priority, ENT_XML1 | ENT_COMPAT, 'UTF-8') . '</priority>';
             }
 
             $xml .= '</url>';

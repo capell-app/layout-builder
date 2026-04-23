@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Capell\Admin\Filament\Resources\Pages\Pages\EditPage;
 use Capell\Admin\Support\AdminEventRegistry;
 use Capell\Core\Models\Page;
-use Capell\SeoTools\Assistant\Handlers\ClearCircuitBreakerHandler;
-use Capell\SeoTools\Assistant\Support\PrismProvider;
+use Capell\SeoTools\Handlers\ClearCircuitBreakerHandler;
+use Capell\SeoTools\Support\PrismProvider;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Notifications\Notification;
 

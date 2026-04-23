@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\SeoTools\Assistant\Filament\Widgets\AiUsageWidget;
+use Capell\SeoTools\Filament\Widgets\AiUsageWidget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Livewire\livewire;

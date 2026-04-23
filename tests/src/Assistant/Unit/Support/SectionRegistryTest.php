@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\SeoTools\Assistant\Support\SectionRegistry;
+use Capell\SeoTools\Support\SectionRegistry;
 
 it('registers and retrieves section descriptors', function (): void {
     $registry = new SectionRegistry;

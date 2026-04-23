@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Capell\SeoTools\Assistant\Actions\SubmitAiCreatorDraftAction;
-use Capell\SeoTools\Assistant\Contracts\ContentTargetContract;
-use Capell\SeoTools\Assistant\Models\AiCreatorSession;
-use Capell\SeoTools\Assistant\Support\ContentTargetResolver;
+use Capell\SeoTools\Actions\SubmitAiCreatorDraftAction;
+use Capell\SeoTools\Contracts\ContentTargetContract;
+use Capell\SeoTools\Models\AiCreatorSession;
+use Capell\SeoTools\Support\ContentTargetResolver;
 
 it('applies sections via preferred target and marks session submitted', function (): void {
     $session = Mockery::mock(AiCreatorSession::class)->makePartial();

@@ -24,14 +24,13 @@
     "autoload": {
         "psr-4": {
             "Capell\\SeoTools\\": "src/",
-            "Capell\\SeoTools\\Assistant\\Database\\Factories\\": "src/Assistant/database/factories"
+            "Capell\\SeoTools\\Database\\Factories\\": "database/factories"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Capell\\SeoTools\\Providers\\SeoToolsServiceProvider",
-                "Capell\\SeoTools\\Assistant\\Providers\\AssistantServiceProvider"
+                "Capell\\SeoTools\\Providers\\SeoToolsServiceProvider"
             ]
         }
     },

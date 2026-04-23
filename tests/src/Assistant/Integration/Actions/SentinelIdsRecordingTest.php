@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Capell\SeoTools\Assistant\Actions\SuggestMetaDescriptionsAction;
-use Capell\SeoTools\Assistant\Support\Context\ContentActionContext;
-use Capell\SeoTools\Assistant\Support\PrismProvider;
+use Capell\SeoTools\Actions\SuggestMetaDescriptionsAction;
+use Capell\SeoTools\Support\Context\ContentActionContext;
+use Capell\SeoTools\Support\PrismProvider;
 use Capell\Tests\Assistant\Fixtures\FakeOpenAIProviderForDescriptions;
 
 uses()->group('admin-ai');

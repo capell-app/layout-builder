@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Capell\Admin\Filament\Contracts\HasSchema;
 use Capell\Admin\Filament\Pages\SettingsPage;
 use Capell\Core\Support\Settings\SettingsSchemaRegistry;
-use Capell\SeoTools\Assistant\Filament\Settings\AssistantSettingsSchema;
-use Capell\SeoTools\Assistant\Settings\AssistantSettings;
+use Capell\SeoTools\Filament\Settings\AssistantSettingsSchema;
+use Capell\SeoTools\Settings\AssistantSettings;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Schemas\Schema;
 

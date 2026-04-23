@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Tests\Assistant\Integration\Actions\Ai;
 
-use Capell\SeoTools\Assistant\Actions\GeneratorPageContentAction;
-use Capell\SeoTools\Assistant\Support\AiResponse;
-use Capell\SeoTools\Assistant\Support\Context\ContentActionContext;
-use Capell\SeoTools\Assistant\Support\PrismProvider;
+use Capell\SeoTools\Actions\GeneratorPageContentAction;
+use Capell\SeoTools\Support\AiResponse;
+use Capell\SeoTools\Support\Context\ContentActionContext;
+use Capell\SeoTools\Support\PrismProvider;
 use Capell\Tests\Assistant\Fixtures\FakeContext;
 use Capell\Tests\Assistant\Fixtures\FakeOpenAIProviderForContent;
 use RuntimeException;
@@ -70,7 +70,7 @@ it('generates long-form page content through pipeline', function (): void {
 });
 
 it('throws when rate limited for content generation', function (): void {
-    config()->set('capell-assistant.rate_limiting', ['enabled' => true, 'requests_per_minute' => 0]);
+    config()->set('capell-seo-tools.rate_limiting', ['enabled' => true, 'requests_per_minute' => 0]);
 
     $context = new ContentActionContext(content: 'Laravel development tips', keywords: 'laravel, php', pageId: 1, pageType: 'page', languageId: 1);
 

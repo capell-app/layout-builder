@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\SeoTools\Assistant\Support\Cache\AIGenerationCache;
+use Capell\SeoTools\Support\Cache\AIGenerationCache;
 
 it('composes cache keys and TTLs correctly', function (): void {
     $cache = new AIGenerationCache('array', 60);

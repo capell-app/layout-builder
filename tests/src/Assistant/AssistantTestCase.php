@@ -8,7 +8,7 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
 use Capell\Core\Facades\CapellCore;
-use Capell\SeoTools\Assistant\Providers\AssistantServiceProvider;
+use Capell\SeoTools\Providers\AssistantServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Illuminate\Foundation\Application;
 use Livewire\LivewireServiceProvider;
@@ -40,7 +40,7 @@ class AssistantTestCase extends AbstractTestCase
 
     protected function getPackageServiceName(): string
     {
-        return 'capell-assistant';
+        return 'capell-seo-tools';
     }
 
     /**

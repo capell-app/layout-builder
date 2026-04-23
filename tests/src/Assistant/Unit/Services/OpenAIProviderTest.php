@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\SeoTools\Assistant\Support\PrismProvider;
+use Capell\SeoTools\Support\PrismProvider;
 use Illuminate\Support\Facades\Cache;
 
 uses()->group('admin-ai');

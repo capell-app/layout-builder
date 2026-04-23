@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\SeoTools\Assistant\Support\AiResponseParser;
+use Capell\SeoTools\Support\AiResponseParser;
 
 it('parses structured JSON responses', function (): void {
     $parser = new AiResponseParser;

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Capell\SeoTools\Assistant\Actions\RecordAiGenerationAction;
-use Capell\SeoTools\Assistant\Events\AiGenerationCompleted;
-use Capell\SeoTools\Assistant\Models\AIGenerationHistory;
+use Capell\SeoTools\Actions\RecordAiGenerationAction;
+use Capell\SeoTools\Events\AiGenerationCompleted;
+use Capell\SeoTools\Models\AIGenerationHistory;
 use Illuminate\Support\Facades\Event;
 
 uses()->group('admin-ai');

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Capell\SeoTools\Assistant\Support\AiResponse;
-use Capell\SeoTools\Assistant\Support\PrismProvider;
+use Capell\SeoTools\Support\AiResponse;
+use Capell\SeoTools\Support\PrismProvider;
 use Prism\Prism\Facades\Prism;
 use Prism\Prism\Testing\TextResponseFake;
 use Prism\Prism\ValueObjects\Usage;

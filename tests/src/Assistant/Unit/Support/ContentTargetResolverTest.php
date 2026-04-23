@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Capell\SeoTools\Assistant\Contracts\ContentTargetContract;
-use Capell\SeoTools\Assistant\Models\AiCreatorSession;
-use Capell\SeoTools\Assistant\Support\ContentTargetResolver;
+use Capell\SeoTools\Contracts\ContentTargetContract;
+use Capell\SeoTools\Models\AiCreatorSession;
+use Capell\SeoTools\Support\ContentTargetResolver;
 
 function makeTarget(string $handle): ContentTargetContract
 {

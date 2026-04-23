@@ -14,7 +14,7 @@ use Capell\Core\Providers\CapellServiceProvider;
 use Capell\Frontend\Contracts\SettingsMigrationProviderInterface;
 use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\Mosaic\Providers\MosaicServiceProvider;
-use Capell\SeoTools\Assistant\Providers\AssistantServiceProvider;
+use Capell\SeoTools\Providers\AssistantServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Illuminate\Foundation\Application;
 use Livewire\LivewireServiceProvider;

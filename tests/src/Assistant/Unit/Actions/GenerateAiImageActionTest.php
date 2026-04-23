@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Capell\SeoTools\Assistant\Actions\GenerateAiImageAction;
-use Capell\SeoTools\Assistant\DataObjects\AiImageData;
+use Capell\SeoTools\Actions\GenerateAiImageAction;
+use Capell\SeoTools\DataObjects\AiImageData;
 use Prism\Prism\Facades\Prism;
 use Prism\Prism\Testing\ImageResponseFake;
 use Prism\Prism\ValueObjects\GeneratedImage;

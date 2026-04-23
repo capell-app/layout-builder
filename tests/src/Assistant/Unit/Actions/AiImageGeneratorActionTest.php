@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\SeoTools\Assistant\Filament\Actions\AiImageGeneratorAction;
+use Capell\SeoTools\Filament\Actions\AiImageGeneratorAction;
 use Filament\Actions\Action;
 
 it('AiImageGeneratorAction is a form Action', function (): void {

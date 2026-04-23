@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Capell\SeoTools\Assistant\Filament\Actions\AiCreatorAction;
-use Capell\SeoTools\Assistant\Policies\AiCreatorPolicy;
-use Capell\SeoTools\Assistant\Settings\AssistantSettings;
+use Capell\SeoTools\Filament\Actions\AiCreatorAction;
+use Capell\SeoTools\Policies\AiCreatorPolicy;
+use Capell\SeoTools\Settings\AssistantSettings;
 use Filament\Actions\Action;
 
 function makeCreatorSettings(bool $enabled): AssistantSettings

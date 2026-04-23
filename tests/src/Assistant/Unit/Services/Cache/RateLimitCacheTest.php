@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\SeoTools\Assistant\Support\Cache\RateLimitCache;
+use Capell\SeoTools\Support\Cache\RateLimitCache;
 
 it('returns TTL and key composition for rate limiting', function (): void {
     $cache = new RateLimitCache('array');

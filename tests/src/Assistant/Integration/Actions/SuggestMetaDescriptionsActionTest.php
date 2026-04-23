@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\Tests\Assistant\Integration\Actions\Ai;
 
-use Capell\SeoTools\Assistant\Actions\SuggestMetaDescriptionsAction;
-use Capell\SeoTools\Assistant\Events\AiGenerationCompleted;
-use Capell\SeoTools\Assistant\Support\AiResponse;
-use Capell\SeoTools\Assistant\Support\Context\ContentActionContext;
-use Capell\SeoTools\Assistant\Support\PrismProvider;
+use Capell\SeoTools\Actions\SuggestMetaDescriptionsAction;
+use Capell\SeoTools\Events\AiGenerationCompleted;
+use Capell\SeoTools\Support\AiResponse;
+use Capell\SeoTools\Support\Context\ContentActionContext;
+use Capell\SeoTools\Support\PrismProvider;
 use Capell\Tests\Assistant\Fixtures\FakeContext;
 use Capell\Tests\Assistant\Fixtures\FakeOpenAIProviderForDescriptions;
 use Illuminate\Support\Facades\Event;
