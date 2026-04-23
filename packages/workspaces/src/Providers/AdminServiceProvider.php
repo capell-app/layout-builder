@@ -4,13 +4,20 @@ declare(strict_types=1);
 
 namespace Capell\Workspaces\Providers;
 
+use Capell\Admin\Enums\DashboardEnum;
+use Capell\Admin\Facades\CapellAdmin;
 use Capell\Workspaces\Events\WorkspaceStateChanged;
+use Capell\Workspaces\Filament\Widgets\WorkspaceActivityWidgetAbstract;
 use Capell\Workspaces\Listeners\SendWorkspaceStateNotification;
 use Capell\Workspaces\Livewire\WorkspaceApprovalHistory;
 use Capell\Workspaces\Livewire\WorkspaceContextBanner;
 use Capell\Workspaces\Livewire\WorkspaceSwitcher;
 use Capell\Workspaces\Models\Workspace;
 use Capell\Workspaces\Policies\WorkspacePolicy;
+use Capell\Workspaces\WorkspaceContext;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -23,6 +30,8 @@ class AdminServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->registerLivewireComponents()
+            ->registerRenderHooks()
+            ->registerDashboardWidgets()
             ->registerEventListeners()
             ->registerPolicies();
     }
@@ -38,6 +47,45 @@ class AdminServiceProvider extends ServiceProvider
             classNamespace: 'Capell\\Workspaces\\Livewire',
             classPath: __DIR__ . '/../Livewire',
         );
+
+        return $this;
+    }
+
+    private function registerRenderHooks(): self
+    {
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
+            fn (): string => Blade::render('@livewire($component)', ['component' => WorkspaceSwitcher::class]),
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::BODY_START,
+            function (): string {
+                $workspace = WorkspaceContext::current();
+
+                if (! ($workspace instanceof Workspace)) {
+                    return '';
+                }
+
+                $color = ($workspace->color !== null && $workspace->color !== '')
+                    ? e($workspace->color)
+                    : '#f59e0b';
+
+                return '<div class="fixed inset-x-0 top-0 z-50" style="height:3px;background-color:' . $color . ';pointer-events:none;"></div>';
+            },
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::BODY_START,
+            fn (): string => Blade::render('@livewire($component)', ['component' => WorkspaceContextBanner::class]),
+        );
+
+        return $this;
+    }
+
+    private function registerDashboardWidgets(): self
+    {
+        CapellAdmin::registerDashboardWidget(WorkspaceActivityWidgetAbstract::class, DashboardEnum::Main);
 
         return $this;
     }
