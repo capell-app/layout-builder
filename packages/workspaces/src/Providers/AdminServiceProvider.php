@@ -8,6 +8,8 @@ use Capell\Admin\Contracts\DashboardSettingsContributor;
 use Capell\Admin\Enums\DashboardEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Workspaces\Events\WorkspaceStateChanged;
+use Capell\Workspaces\Filament\Pages\ImportPagesPage;
+use Capell\Workspaces\Filament\Resources\Workspaces\WorkspaceResource;
 use Capell\Workspaces\Filament\Settings\Contributors\DefaultDashboardSettingsContributor;
 use Capell\Workspaces\Filament\Settings\Contributors\SystemHealthSettingsContributor;
 use Capell\Workspaces\Filament\Widgets\WorkspaceActivityWidgetAbstract;
@@ -44,7 +46,7 @@ class AdminServiceProvider extends ServiceProvider
     {
         $this->registerLivewireComponents()
             ->registerRenderHooks()
-            ->registerDashboardWidgets()
+            ->registerFilamentExtensions()
             ->registerEventListeners()
             ->registerPolicies();
     }
@@ -100,9 +102,11 @@ class AdminServiceProvider extends ServiceProvider
         return $this;
     }
 
-    private function registerDashboardWidgets(): self
+    private function registerFilamentExtensions(): self
     {
         CapellAdmin::registerDashboardWidget(WorkspaceActivityWidgetAbstract::class, DashboardEnum::Main);
+        CapellAdmin::registerResource('Workspace', WorkspaceResource::class);
+        CapellAdmin::registerPage(ImportPagesPage::class);
 
         return $this;
     }
