@@ -25,6 +25,7 @@
         </testsuite>
         <testsuite name="Integration">
             <directory suffix="Test.php">./tests/src/*/Integration</directory>
+            <directory suffix="Test.php">./packages/*/tests/Integration</directory>
         </testsuite>
         <testsuite name="Unit">
             <directory suffix="Test.php">./tests/src/*/Unit</directory>

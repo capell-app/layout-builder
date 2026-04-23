@@ -187,6 +187,7 @@
     "autoload-dev": {
         "psr-4": {
             "Capell\\Tests\\": "tests/src",
+            "Capell\\Workspaces\\Tests\\": "packages/workspaces/tests",
             "Capell\\Themes\\Agency\\Tests\\": "packages/themes/agency/tests",
             "Capell\\Themes\\Core\\Tests\\": "packages/themes-core/tests",
             "Capell\\Themes\\Admin\\Tests\\": "packages/themes-admin/tests",
