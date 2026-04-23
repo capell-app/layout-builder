@@ -2,6 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Capell\Core\Workspaces;
+namespace Capell\Workspaces;
 
 trait BelongsToWorkspace {}
