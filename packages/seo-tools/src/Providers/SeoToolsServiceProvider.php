@@ -23,14 +23,24 @@ class SeoToolsServiceProvider extends AbstractPackageServiceProvider
         $package
             ->name(self::$name)
             ->hasTranslations()
-            ->hasViews()
-            ->hasConfigFile('capell-assistant')
-            ->hasMigrations($this->discoverMigrations());
+            ->hasViews();
     }
 
     public function registeringPackage(): void
     {
         $this->registerPackageMetadata();
+    }
+
+    /**
+     * Discover migrations in database/migrations as filenames (no extension).
+     *
+     * Kept for future use when core SEO primitives with migrations land here.
+     *
+     * @return array<int, string>
+     */
+    protected function discoveredMigrations(): array
+    {
+        return $this->discoverMigrations();
     }
 
     /**
