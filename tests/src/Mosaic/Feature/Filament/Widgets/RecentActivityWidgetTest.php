@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Capell\Core\Enums\ModelEnum;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Capell\Mosaic\Filament\Widgets\RecentActivityWidgetAbstract;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
@@ -28,7 +26,7 @@ it('shows empty state when no pages exist', function (): void {
     test()->actingAsAdmin();
 
     /** @var class-string<Page> $pageModel */
-    $pageModel = CapellCore::getModel(ModelEnum::Page);
+    $pageModel = Page::class;
     $pageModel::query()->delete();
 
     livewire(RecentActivityWidgetAbstract::class)
@@ -40,7 +38,7 @@ it('shows draft status when visible_from is null', function (): void {
     test()->actingAsAdmin();
 
     /** @var class-string<Page> $pageModel */
-    $pageModel = CapellCore::getModel(ModelEnum::Page);
+    $pageModel = Page::class;
     $pageModel::factory()->withTranslations()->create([
         'name' => 'Draft Page',
         'visible_from' => null,
@@ -56,7 +54,7 @@ it('shows published status when visible_from is in the past and no visible_until
     test()->actingAsAdmin();
 
     /** @var class-string<Page> $pageModel */
-    $pageModel = CapellCore::getModel(ModelEnum::Page);
+    $pageModel = Page::class;
     $pageModel::factory()->withTranslations()->create([
         'name' => 'Published Page',
         'visible_from' => now()->subDay(),
@@ -72,7 +70,7 @@ it('shows expired status when visible_until is in the past', function (): void {
     test()->actingAsAdmin();
 
     /** @var class-string<Page> $pageModel */
-    $pageModel = CapellCore::getModel(ModelEnum::Page);
+    $pageModel = Page::class;
     $pageModel::factory()->withTranslations()->create([
         'name' => 'Expired Page',
         'visible_from' => now()->subMonth(),

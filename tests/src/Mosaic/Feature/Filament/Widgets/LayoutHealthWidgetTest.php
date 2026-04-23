@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Capell\Core\Facades\CapellCore;
-use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Filament\Widgets\LayoutHealthWidgetAbstract;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;
@@ -30,7 +28,7 @@ it('shows a widget with no assets in unused widgets section', function (): void 
     test()->actingAsRole(config('capell.roles.developer', 'developer'));
 
     /** @var class-string<Widget> $widgetModel */
-    $widgetModel = CapellCore::getModel(ModelEnum::Widget);
+    $widgetModel = Widget::class;
     $unusedWidget = $widgetModel::factory()->create(['name' => 'My Unused Widget']);
 
     livewire(LayoutHealthWidgetAbstract::class)
@@ -43,7 +41,7 @@ it('does not show unused widgets section when all widgets are in use', function 
     test()->actingAsRole(config('capell.roles.developer', 'developer'));
 
     /** @var class-string<Widget> $widgetModel */
-    $widgetModel = CapellCore::getModel(ModelEnum::Widget);
+    $widgetModel = Widget::class;
     $usedWidget = $widgetModel::factory()->create(['name' => 'Active Widget']);
     WidgetAsset::factory()->widget($usedWidget)->create();
 
@@ -56,7 +54,7 @@ it('shows only unused widgets in the unused widgets section', function (): void 
     test()->actingAsRole(config('capell.roles.developer', 'developer'));
 
     /** @var class-string<Widget> $widgetModel */
-    $widgetModel = CapellCore::getModel(ModelEnum::Widget);
+    $widgetModel = Widget::class;
     $unusedWidget = $widgetModel::factory()->create(['name' => 'Orphan Widget']);
     $usedWidget = $widgetModel::factory()->create(['name' => 'Used Widget']);
     WidgetAsset::factory()->widget($usedWidget)->create();

@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 use Capell\Address\Models\Address;
 use Capell\Address\Models\Country;
-use Capell\Core\Enums\ModelEnum;
-use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Language;
+use Capell\Core\Models\Site;
 
 use function Pest\Laravel\artisan;
 
 describe('capell:address-demo command', function (): void {
     it('creates demo address and links it to the site', function (): void {
-        $languageModel = CapellCore::getModel(ModelEnum::Language);
+        $languageModel = Language::class;
         $language = $languageModel::factory()->english()->create();
 
-        $siteModel = CapellCore::getModel(ModelEnum::Site);
+        $siteModel = Site::class;
         $site = $siteModel::factory()
             ->language($language)
             ->create([
