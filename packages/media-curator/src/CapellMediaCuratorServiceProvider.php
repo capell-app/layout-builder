@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\MediaCurator;
 
 use Capell\Core\Contracts\Media\MediaFieldFactory;
+use Capell\MediaCurator\Console\MigrateSpatieToCuratorCommand;
 use Capell\MediaCurator\Filament\Components\CuratorMediaFieldFactory;
 use Capell\MediaCurator\Models\CuratorMedia;
 use Illuminate\Support\ServiceProvider;
@@ -14,10 +15,7 @@ use Illuminate\Support\ServiceProvider;
  *   - capell.media.model  → CuratorMedia
  *   - capell.media.backend → 'curator'
  *   - MediaFieldFactory contract → CuratorMediaFieldFactory
- *
- * The data-migration command (MigrateSpatieToCuratorCommand) ships in
- * Phase 4 of the media-decoupling plan; its registration is guarded so
- * this provider boots cleanly while the class does not yet exist.
+ *   - MigrateSpatieToCuratorCommand (console only)
  */
 final class CapellMediaCuratorServiceProvider extends ServiceProvider
 {
@@ -31,14 +29,8 @@ final class CapellMediaCuratorServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        if (! $this->app->runningInConsole()) {
-            return;
-        }
-
-        $commandClass = 'Capell\\MediaCurator\\Console\\MigrateSpatieToCuratorCommand';
-
-        if (class_exists($commandClass)) {
-            $this->commands([$commandClass]);
+        if ($this->app->runningInConsole()) {
+            $this->commands([MigrateSpatieToCuratorCommand::class]);
         }
     }
 }
