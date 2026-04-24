@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Capell\Media\Filament\Resources\Media;
 
 use BackedEnum;
-use Capell\Admin\Filament\Concerns\HasNavigationBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
-use Capell\Core\Models\Media;
 use Capell\Media\Filament\Resources\Media\Pages\ListMedia;
 use Capell\Media\Filament\Resources\Media\Tables\MediaTable;
+use Capell\Media\Models\Media;
+use Capell\Navigation\Filament\Concerns\HasNavigationBadge;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;

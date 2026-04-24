@@ -21,6 +21,7 @@
         "php": "^8.2",
         "capell-app/admin": "*",
         "capell-app/frontend": "*",
+        "capell-app/media": "*",
         "capell-app/navigation": "*",
         "capell-app/seo-tools": "*",
         "capell-app/tags": "*"
