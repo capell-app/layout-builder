@@ -172,8 +172,6 @@
             "Capell\\Workspaces\\Database\\Factories\\": "packages/workspaces/database/factories",
             "Capell\\Address\\": "packages/address/src",
             "Capell\\Address\\Database\\Factories\\": "packages/address/database/factories",
-            "Capell\\Assistant\\": "packages/assistant/src",
-            "Capell\\Assistant\\Database\\Factories\\": "packages/assistant/database/factories",
             "Capell\\Blog\\": "packages/blog/src",
             "Capell\\Blog\\Database\\Factories\\": "packages/blog/database/factories",
             "Capell\\Mosaic\\": "packages/mosaic/src",

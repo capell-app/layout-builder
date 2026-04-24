@@ -11,7 +11,8 @@ use Capell\Tests\Plugins\PluginsTestCase;
 use Capell\Tests\Tags\TagsTestCase;
 use Capell\Tests\ThemesAdmin\ThemesAdminTestCase;
 use Capell\Tests\ThemesCore\ThemesCoreTestCase;
-use Capell\Workspaces\Tests\WorkspacesTestCase;
+use Capell\Tests\Workspaces\WorkspacesTestCase;
+use Capell\Workspaces\Tests\WorkspacesTestCase as WorkspacesPackageTestCase;
 
 $testsRoot = __DIR__ . DIRECTORY_SEPARATOR . 'src';
 
@@ -45,5 +46,5 @@ pest()->extends(ThemesAdminTestCase::class)
 pest()->extends(WorkspacesTestCase::class)
     ->in($testsRoot . DIRECTORY_SEPARATOR . 'Workspaces');
 
-pest()->extends(WorkspacesTestCase::class)
+pest()->extends(WorkspacesPackageTestCase::class)
     ->in(__DIR__ . '/../packages/workspaces/tests');
