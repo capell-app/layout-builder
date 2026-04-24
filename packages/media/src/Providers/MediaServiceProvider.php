@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Capell\Media\Providers;
 
+use Capell\Core\Contracts\ModelMediaExtender as ModelMediaExtenderContract;
 use Capell\Core\Enums\PackageTypeEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\Media\Extenders\ModelMediaExtender;
 use Composer\InstalledVersions;
 use Spatie\LaravelPackageTools\Package;
+use Spatie\MediaLibrary\MediaLibraryServiceProvider;
 
 class MediaServiceProvider extends AbstractPackageServiceProvider
 {
@@ -27,7 +30,13 @@ class MediaServiceProvider extends AbstractPackageServiceProvider
 
     public function registeringPackage(): void
     {
+        $this->app->register(MediaLibraryServiceProvider::class);
         $this->registerPackageMetadata();
+    }
+
+    public function bootingPackage(): void
+    {
+        $this->app->tag([ModelMediaExtender::class], ModelMediaExtenderContract::TAG);
     }
 
     private function registerPackageMetadata(): void

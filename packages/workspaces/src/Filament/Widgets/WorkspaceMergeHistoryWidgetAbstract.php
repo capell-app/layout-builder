@@ -22,7 +22,7 @@ final class WorkspaceMergeHistoryWidgetAbstract extends Widget implements Capell
 
     protected static string $settingsKey = 'workspace_merge_history';
 
-    protected string $view = 'capell-admin::widgets.workspace-merge-history';
+    protected string $view = 'capell-workspaces::widgets.workspace-merge-history';
 
     /** @var int|string|array<mixed> */
     protected int|string|array $columnSpan = 2;

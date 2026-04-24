@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Workspaces\Actions\Dashboard;
 
-use Capell\Admin\Data\Dashboard\MergeHistoryEntryData;
 use Capell\Core\Models\Page;
+use Capell\Workspaces\Data\Dashboard\MergeHistoryEntryData;
 use Capell\Workspaces\Data\Dashboard\WorkspaceMergeHistoryData;
 use Capell\Workspaces\Enums\WorkspaceStatusEnum;
 use Capell\Workspaces\Models\Workspace;

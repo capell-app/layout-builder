@@ -7,6 +7,8 @@ namespace Capell\Workspaces\Database\Factories;
 use Capell\Workspaces\Enums\WorkspaceKindEnum;
 use Capell\Workspaces\Enums\WorkspaceStatusEnum;
 use Capell\Workspaces\Models\Workspace;
+use Carbon\CarbonImmutable;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -27,5 +29,41 @@ class WorkspaceFactory extends Factory
             'status' => WorkspaceStatusEnum::Open,
             'kind' => WorkspaceKindEnum::Manual,
         ];
+    }
+
+    public function open(): static
+    {
+        return $this->state(['status' => WorkspaceStatusEnum::Open]);
+    }
+
+    public function approved(): static
+    {
+        return $this->state(['status' => WorkspaceStatusEnum::Approved]);
+    }
+
+    public function inReview(): static
+    {
+        return $this->state(['status' => WorkspaceStatusEnum::InReview]);
+    }
+
+    public function scheduled(DateTimeInterface|string $publishAt): static
+    {
+        return $this->state([
+            'status' => WorkspaceStatusEnum::Scheduled,
+            'publish_at' => $publishAt instanceof DateTimeInterface ? $publishAt : CarbonImmutable::parse($publishAt),
+        ]);
+    }
+
+    public function published(): static
+    {
+        return $this->state([
+            'status' => WorkspaceStatusEnum::Published,
+            'published_at' => CarbonImmutable::now(),
+        ]);
+    }
+
+    public function abandoned(): static
+    {
+        return $this->state(['status' => WorkspaceStatusEnum::Abandoned]);
     }
 }

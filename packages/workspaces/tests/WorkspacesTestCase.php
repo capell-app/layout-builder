@@ -4,46 +4,161 @@ declare(strict_types=1);
 
 namespace Capell\Workspaces\Tests;
 
+use AmidEsfahani\FilamentTinyEditor\TinyeditorServiceProvider;
+use Awcodes\BadgeableColumn\BadgeableColumnServiceProvider;
+use BezhanSalleh\FilamentShield\FilamentShieldServiceProvider;
+use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
+use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Providers\AdminServiceProvider;
+use Capell\Admin\Providers\Filament\AdminPanelProvider;
 use Capell\Core\Facades\CapellCore;
+use Capell\Frontend\Contracts\SettingsMigrationProviderInterface;
+use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\Tests\AbstractTestCase;
+use Capell\Tests\Support\Concerns\CreatesAdminUser;
+use Capell\Workspaces\Providers\AdminServiceProvider as WorkspacesAdminServiceProvider;
+use Capell\Workspaces\Providers\ConsoleServiceProvider as WorkspacesConsoleServiceProvider;
 use Capell\Workspaces\Providers\WorkspacesServiceProvider;
+use CmsMulti\FilamentClearCache\FilamentClearCacheServiceProvider;
+use CodeWithDennis\FilamentSelectTree\FilamentSelectTreeServiceProvider;
+use Filament\Actions\ActionsServiceProvider;
+use Filament\FilamentServiceProvider;
+use Filament\Forms\FormsServiceProvider;
+use Filament\Notifications\NotificationsServiceProvider;
+use Filament\Schemas\SchemasServiceProvider;
+use Filament\Support\SupportServiceProvider;
+use Filament\Tables\TablesServiceProvider;
+use Filament\Widgets\WidgetsServiceProvider;
+use Guava\IconPicker\IconPickerServiceProvider;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Gate;
+use LaraZeus\SpatieTranslatable\SpatieTranslatableServiceProvider;
 use Livewire\LivewireServiceProvider;
+use MichalOravec\PaginateRoute\PaginateRouteServiceProvider;
 use Override;
+use Pboivin\FilamentPeek\FilamentPeekServiceProvider;
+use Saade\FilamentAdjacencyList\FilamentAdjacencyListServiceProvider;
+use STS\FilamentImpersonate\FilamentImpersonateServiceProvider;
+use Tanmuhittin\LaravelGoogleTranslate\LaravelGoogleTranslateServiceProvider;
+use Tapp\FilamentAuthenticationLog\FilamentAuthenticationLogServiceProvider;
 
 class WorkspacesTestCase extends AbstractTestCase
 {
-    #[Override]
-    protected function getPackageServiceName(): string
-    {
-        return 'workspaces';
-    }
+    use CreatesAdminUser;
 
-    #[Override]
-    protected function getEnvironmentSetUp(mixed $app): void
+    protected function setUp(): void
     {
-        parent::getEnvironmentSetUp($app);
+        parent::setUp();
 
-        CapellCore::registerPackage(
-            'capell-app/workspaces',
-            path: realpath(__DIR__ . '/..'),
+        $this->withoutVite();
+
+        // NavigationServiceProvider is excluded from providers to avoid duplicate migrations
+        // (BuildsOrderedMigrationWorkspace also discovers navigation's migrations). Register
+        // the view namespace here so capell-navigation:: references resolve in tests.
+        $this->app['view']->addNamespace(
+            'capell-navigation',
+            realpath(__DIR__ . '/../../../packages/navigation/resources/views') ?: '',
         );
 
-        CapellCore::forcePackageInstalled('capell-app/workspaces');
+        $this->registerAndMigrateSettings(
+            CapellCore::getSettingMigrations(),
+            __DIR__ . '/../../../vendor/capell-app/core/database/settings',
+        );
+
+        $this->registerAndMigrateSettings(
+            CapellAdmin::getSettingMigrations(),
+            __DIR__ . '/../../../vendor/capell-app/admin/database/settings',
+        );
+
+        $this->registerAndMigrateSettings(
+            resolve(SettingsMigrationProviderInterface::class)->getSettingMigrations(),
+            __DIR__ . '/../../../vendor/capell-app/frontend/database/settings',
+        );
+    }
+
+    protected function tearDown(): void
+    {
+        Model::clearBootedModels();
+        parent::tearDown();
+    }
+
+    protected function getPackageServiceName(): string
+    {
+        return 'capell-workspaces';
     }
 
     /**
-     * @param  Application  $app
      * @return class-string[]
      */
     #[Override]
-    protected function getPackageProviders(mixed $app): array
+    protected function getPackageProviders($app): array
     {
-        $providers = parent::getPackageProviders($app);
-
-        return array_merge($providers, [
+        return [
+            ...parent::getPackageProviders($app),
+            ActionsServiceProvider::class,
+            BadgeableColumnServiceProvider::class,
+            SpatieTranslatableServiceProvider::class,
+            TinyeditorServiceProvider::class,
+            FilamentAuthenticationLogServiceProvider::class,
+            FilamentServiceProvider::class,
+            FilamentAdjacencyListServiceProvider::class,
+            FilamentShieldServiceProvider::class,
+            FilamentSelectTreeServiceProvider::class,
+            FilamentClearCacheServiceProvider::class,
+            FilamentPeekServiceProvider::class,
+            FilamentImpersonateServiceProvider::class,
+            FormsServiceProvider::class,
+            BladeHeroiconsServiceProvider::class,
+            IconPickerServiceProvider::class,
+            LaravelGoogleTranslateServiceProvider::class,
+            SupportServiceProvider::class,
+            SchemasServiceProvider::class,
+            TablesServiceProvider::class,
+            WidgetsServiceProvider::class,
+            NotificationsServiceProvider::class,
+            AdminServiceProvider::class,
+            AdminPanelProvider::class,
+            FrontendServiceProvider::class,
+            PaginateRouteServiceProvider::class,
             LivewireServiceProvider::class,
             WorkspacesServiceProvider::class,
-        ]);
+            WorkspacesAdminServiceProvider::class,
+            WorkspacesConsoleServiceProvider::class,
+        ];
+    }
+
+    #[Override]
+    protected function getEnvironmentSetUp($app): void
+    {
+        parent::getEnvironmentSetUp($app);
+
+        CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled('capell-app/workspaces');
+
+        // Navigation and Tags have no capell.json so they're not auto-discovered;
+        // register them explicitly so BuildsOrderedMigrationWorkspace loads their migrations.
+        CapellCore::registerPackage('capell-app/navigation', path: realpath(__DIR__ . '/../../../packages/navigation'));
+        CapellCore::forcePackageInstalled('capell-app/navigation');
+
+        CapellCore::registerPackage('capell-app/tags', path: realpath(__DIR__ . '/../../../packages/tags'));
+        CapellCore::forcePackageInstalled('capell-app/tags');
+
+        // Shield's super_admin Gate::before bypass is normally registered by FilamentShieldPlugin.
+        // Since AdminPanelProvider does not include that plugin, we register the bypass here so
+        // permission checks in policies never throw PermissionDoesNotExist for super_admin users.
+        Gate::before(
+            fn (mixed $user, string $ability): ?bool => $user?->hasRole('super_admin') ? true : null,
+        );
+    }
+
+    #[Override]
+    protected function registerPackageConfigs(Application $app, ?array $packages = null): void
+    {
+        parent::registerPackageConfigs($app, $packages);
+
+        $this->registerPublishConfig('admin');
+        $this->registerPublishConfig('frontend');
     }
 }

@@ -172,6 +172,8 @@
             "Capell\\Navigation\\Database\\Factories\\": "packages/navigation/database/factories",
             "Capell\\Forms\\": "packages/forms/src",
             "Capell\\Forms\\Database\\Factories\\": "packages/forms/database/factories",
+            "Capell\\Media\\": "packages/media/src",
+            "Capell\\Media\\Database\\Factories\\": "packages/media/database/factories",
             "Capell\\Workspaces\\": "packages/workspaces/src",
             "Capell\\Workspaces\\Database\\Factories\\": "packages/workspaces/database/factories",
             "Capell\\Address\\": "packages/address/src",
@@ -193,13 +195,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Capell\\Tests\\": "tests/src",
-            "Capell\\Workspaces\\Tests\\": "packages/workspaces/tests",
-            "Capell\\Themes\\Agency\\Tests\\": "packages/themes/agency/tests",
-            "Capell\\Themes\\Core\\Tests\\": "packages/themes-core/tests",
-            "Capell\\Themes\\Admin\\Tests\\": "packages/themes-admin/tests",
-            "Capell\\Themes\\Corporate\\Tests\\": "packages/themes/corporate/tests",
-            "Capell\\Themes\\Saas\\Tests\\": "packages/themes/saas/tests"
+            "Capell\\Tests\\": "tests/src"
         }
     },
     "config": {

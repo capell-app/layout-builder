@@ -2,8 +2,14 @@ includes:
     - ./phpstan-ignore-errors.neon
 
 parameters:
-    reportUnmatchedIgnoredErrors: false
     level: 1
+    peststan:
+        pestConfigFiles:
+            - tests/Pest.php
+            - packages/workspaces/tests/Integration/Pest.php
+            - packages/themes/corporate/tests/Pest.php
+            - packages/themes/agency/tests/Pest.php
+            - packages/themes/saas/tests/Pest.php
     paths:
         - packages
         - tests
@@ -46,9 +52,7 @@ parameters:
     scanFiles:
         - phpstan/stubs/admin-extenders.php
         - phpstan/stubs/admin-widgets.php
-        - phpstan/stubs/admin-classes.php
         - phpstan/stubs/core-workspaces.php
-        - phpstan/stubs/test-helpers.php
     excludePaths:
         # OpenAIProvider class does not exist — this test is stale and references a removed class
         - tests/src/Assistant/Integration/AI/OpenAIProviderTest.php

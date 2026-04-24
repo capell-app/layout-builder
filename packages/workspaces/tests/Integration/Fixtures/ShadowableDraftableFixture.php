@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Workspaces\Tests\Integration\Fixtures;
 
+use Capell\Workspaces\BelongsToWorkspace;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,7 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class ShadowableDraftableFixture extends Model
 {
-    // use BelongsToWorkspace;
+    use BelongsToWorkspace;
     use HasFactory;
     use SoftDeletes;
 

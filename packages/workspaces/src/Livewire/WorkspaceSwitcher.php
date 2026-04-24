@@ -107,6 +107,6 @@ class WorkspaceSwitcher extends Component
 
     public function render(): View
     {
-        return view('capell-admin::livewire.header.workspace-switcher');
+        return view('capell-workspaces::livewire.header.workspace-switcher');
     }
 }

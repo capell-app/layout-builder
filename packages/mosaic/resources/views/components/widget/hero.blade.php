@@ -105,7 +105,7 @@ $theme = Frontend::theme();
                         $url = $linkedPage->pageUrl->full_url;
                     }
 
-                    if ($widgetAsset->asset instanceof \Capell\Core\Models\Media) {
+                    if ($widgetAsset->asset instanceof \Capell\Media\Models\Media) {
                         $bgImage = $widgetAsset->asset;
                         $images = null;
                     } else {

@@ -16,8 +16,6 @@ use Capell\Workspaces\Filament\Widgets\WorkspaceActivityWidgetAbstract;
 use Capell\Workspaces\Listeners\SendWorkspaceStateNotification;
 use Capell\Workspaces\Livewire\DiffPanel;
 use Capell\Workspaces\Livewire\FieldCommentThread;
-use Capell\Workspaces\Livewire\PageApprovalStatus;
-use Capell\Workspaces\Livewire\PublishStatusPanel;
 use Capell\Workspaces\Livewire\WorkspaceApprovalHistory;
 use Capell\Workspaces\Livewire\WorkspaceContextBanner;
 use Capell\Workspaces\Livewire\WorkspaceSwitcher;
@@ -44,6 +42,8 @@ class AdminServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'capell-workspaces');
+
         $this->registerLivewireComponents()
             ->registerRenderHooks()
             ->registerFilamentExtensions()
@@ -58,9 +58,6 @@ class AdminServiceProvider extends ServiceProvider
         Livewire::component('capell-workspaces::workspace-approval-history', WorkspaceApprovalHistory::class);
         Livewire::component('capell-workspaces::field-comment-thread', FieldCommentThread::class);
         Livewire::component('capell-workspaces::diff-panel', DiffPanel::class);
-        Livewire::component('capell-admin::publish-status-panel', PublishStatusPanel::class);
-        Livewire::component('capell-admin::page-approval-status', PageApprovalStatus::class);
-
         Livewire::addNamespace(
             namespace: 'capell-workspaces',
             classNamespace: 'Capell\\Workspaces\\Livewire',

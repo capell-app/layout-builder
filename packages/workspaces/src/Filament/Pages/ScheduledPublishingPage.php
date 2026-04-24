@@ -6,7 +6,7 @@ namespace Capell\Workspaces\Filament\Pages;
 
 use BackedEnum;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
-use Capell\Admin\Filament\Concerns\HasNavigationBadge;
+use Capell\Navigation\Filament\Concerns\HasNavigationBadge;
 use Capell\Workspaces\Filament\Pages\Tables\ScheduledPublishingTable;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;

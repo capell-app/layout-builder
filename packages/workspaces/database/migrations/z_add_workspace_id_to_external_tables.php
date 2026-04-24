@@ -24,12 +24,14 @@ return new class extends Migration
                 continue;
             }
 
-            if (Schema::hasColumn($tableName, 'workspace_id')) {
-                continue;
-            }
+            Schema::table($tableName, function (Blueprint $table) use ($tableName): void {
+                if (! Schema::hasColumn($tableName, 'workspace_id')) {
+                    $table->unsignedBigInteger('workspace_id')->default(0)->index();
+                }
 
-            Schema::table($tableName, function (Blueprint $table): void {
-                $table->unsignedBigInteger('workspace_id')->default(0)->index();
+                if (! Schema::hasColumn($tableName, 'shadowed_by_workspace_id')) {
+                    $table->unsignedBigInteger('shadowed_by_workspace_id')->default(0)->index();
+                }
             });
         }
     }
@@ -41,13 +43,16 @@ return new class extends Migration
                 continue;
             }
 
-            if (! Schema::hasColumn($tableName, 'workspace_id')) {
-                continue;
-            }
+            Schema::table($tableName, function (Blueprint $table) use ($tableName): void {
+                if (Schema::hasColumn($tableName, 'shadowed_by_workspace_id')) {
+                    $table->dropIndex([sprintf('%s_shadowed_by_workspace_id_index', $tableName)]);
+                    $table->dropColumn('shadowed_by_workspace_id');
+                }
 
-            Schema::table($tableName, function (Blueprint $table): void {
-                $table->dropIndex(['workspace_id']);
-                $table->dropColumn('workspace_id');
+                if (Schema::hasColumn($tableName, 'workspace_id')) {
+                    $table->dropIndex([sprintf('%s_workspace_id_index', $tableName)]);
+                    $table->dropColumn('workspace_id');
+                }
             });
         }
     }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Capell\Mosaic\Filament\Schemas\Widgets;
 
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
-use Capell\Admin\Filament\Components\Forms\NavigationSelect;
 use Capell\Mosaic\Filament\Components\Forms\Widget\ComponentSection;
 use Capell\Mosaic\Filament\Components\Forms\Widget\CreateDetailsSchema;
 use Capell\Mosaic\Filament\Components\Forms\Widget\DisplaySection;
@@ -13,6 +12,7 @@ use Capell\Mosaic\Filament\Components\Forms\Widget\SettingsSchema;
 use Capell\Mosaic\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\Mosaic\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\Mosaic\Filament\Components\Forms\Widget\TranslationsRepeater;
+use Capell\Navigation\Filament\Components\Forms\NavigationSelect;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;

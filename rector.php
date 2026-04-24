@@ -10,6 +10,7 @@ use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRecto
 use RectorLaravel\Rector\MethodCall\ContainerBindConcreteWithClosureOnlyRector;
 use RectorLaravel\Set\LaravelSetList;
 use RectorLaravel\Set\LaravelSetProvider;
+use Sinnbeck\DomAssertions\Rector\Rules\AssertElementToAssertContainsElementRule;
 
 return RectorConfig::configure()
     ->withSetProviders(LaravelSetProvider::class)
@@ -54,6 +55,7 @@ return RectorConfig::configure()
     )
     ->withRules([
         AddOverrideAttributeToOverriddenMethodsRector::class,
+        AssertElementToAssertContainsElementRule::class,
     ])
     ->withSkip([
         PostIncDecToPreIncDecRector::class,

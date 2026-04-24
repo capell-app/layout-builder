@@ -22,7 +22,7 @@ final class WorkspaceActivityWidgetAbstract extends Widget implements CapellWidg
 
     protected static string $settingsKey = 'workspace_activity';
 
-    protected string $view = 'capell-admin::widgets.workspace-activity';
+    protected string $view = 'capell-workspaces::widgets.workspace-activity';
 
     #[Computed(persist: true, seconds: 60)]
     public function data(): WorkspaceActivityData

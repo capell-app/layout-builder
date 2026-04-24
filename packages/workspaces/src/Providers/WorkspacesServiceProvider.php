@@ -8,6 +8,7 @@ use Capell\Admin\Contracts\Extenders\PageEditExtender;
 use Capell\Admin\Contracts\Extenders\PageExportExtender;
 use Capell\Admin\Contracts\Extenders\PageTableExtender;
 use Capell\Blog\Models\Article;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\AssetRelation;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
@@ -56,6 +57,8 @@ class WorkspacesServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        CapellCore::registerPackage('capell-app/workspaces', path: realpath(__DIR__ . '/../..'));
+
         $this->app->singleton(WorkspacesManager::class, fn (): WorkspacesManager => new WorkspacesManager);
         $this->app->singleton(WorkspaceEventDispatcher::class);
         $this->app->singleton('capell.workspace.page-draft-handler', WorkspacePageDraftHandler::class);
@@ -68,8 +71,13 @@ class WorkspacesServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
 
-        $this->registerMorphMap()
-            ->registerWorkspaceDraftables()
+        $this->registerMorphMap();
+
+        if (! CapellCore::isPackageInstalled('capell-app/workspaces')) {
+            return;
+        }
+
+        $this->registerWorkspaceDraftables()
             ->applyBehaviorToExternalModels()
             ->registerBuilderMacros()
             ->registerMiddleware()
@@ -253,6 +261,8 @@ class WorkspacesServiceProvider extends ServiceProvider
             });
 
             $modelClass::resolveRelationUsing('workspace', static fn (Model $model): BelongsTo => $model->belongsTo(Workspace::class, 'workspace_id'));
+            $modelClass::resolveRelationUsing('isLive', static fn (Model $model): bool => (int) $model->getAttribute('workspace_id') === 0);
+            $modelClass::resolveRelationUsing('isInWorkspace', static fn (Model $model): bool => (int) $model->getAttribute('workspace_id') > 0);
         }
 
         return $this;

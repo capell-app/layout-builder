@@ -2,49 +2,22 @@
 
 declare(strict_types=1);
 
-use Capell\Tests\Address\AddressTestCase;
-use Capell\Tests\Assistant\AssistantTestCase;
-use Capell\Tests\Blog\BlogTestCase;
-use Capell\Tests\Mosaic\MosaicTestCase;
+use Capell\Address\Tests\AddressTestCase;
+use Capell\Blog\Tests\BlogTestCase;
+use Capell\Mosaic\Tests\MosaicTestCase;
+use Capell\Plugins\Tests\PluginsTestCase;
+use Capell\Tags\Tests\TagsTestCase;
 use Capell\Tests\Packages\PackagesTestCase;
-use Capell\Tests\Plugins\PluginsTestCase;
-use Capell\Tests\Tags\TagsTestCase;
-use Capell\Tests\ThemesAdmin\ThemesAdminTestCase;
-use Capell\Tests\ThemesCore\ThemesCoreTestCase;
-use Capell\Tests\Workspaces\WorkspacesTestCase;
-use Capell\Workspaces\Tests\WorkspacesTestCase as WorkspacesPackageTestCase;
+use Capell\Themes\Admin\Tests\ThemesAdminTestCase;
+use Capell\Themes\Core\Tests\ThemesCoreTestCase;
+use Capell\Workspaces\Tests\WorkspacesTestCase;
 
-$testsRoot = __DIR__ . DIRECTORY_SEPARATOR . 'src';
-
-pest()->extends(PackagesTestCase::class)
-    ->in($testsRoot . DIRECTORY_SEPARATOR . 'Packages');
-
-pest()->extends(AddressTestCase::class)
-    ->in($testsRoot . DIRECTORY_SEPARATOR . 'Address');
-
-pest()->extends(BlogTestCase::class)
-    ->in($testsRoot . DIRECTORY_SEPARATOR . 'Blog');
-
-pest()->extends(MosaicTestCase::class)
-    ->in($testsRoot . DIRECTORY_SEPARATOR . 'Mosaic');
-
-pest()->extends(AssistantTestCase::class)
-    ->in($testsRoot . DIRECTORY_SEPARATOR . 'Assistant');
-
-pest()->extends(PluginsTestCase::class)
-    ->in($testsRoot . DIRECTORY_SEPARATOR . 'Plugins');
-
-pest()->extends(TagsTestCase::class)
-    ->in($testsRoot . DIRECTORY_SEPARATOR . 'Tags');
-
-pest()->extends(ThemesCoreTestCase::class)
-    ->in($testsRoot . DIRECTORY_SEPARATOR . 'ThemesCore');
-
-pest()->extends(ThemesAdminTestCase::class)
-    ->in($testsRoot . DIRECTORY_SEPARATOR . 'ThemesAdmin');
-
-pest()->extends(WorkspacesTestCase::class)
-    ->in($testsRoot . DIRECTORY_SEPARATOR . 'Workspaces');
-
-pest()->extends(WorkspacesPackageTestCase::class)
-    ->in(__DIR__ . '/../packages/workspaces/tests');
+pest()->extend(PackagesTestCase::class)->in('Packages');
+pest()->extend(AddressTestCase::class)->in('../packages/address/tests');
+pest()->extend(BlogTestCase::class)->in('../packages/blog/tests');
+pest()->extend(MosaicTestCase::class)->in('../packages/mosaic/tests');
+pest()->extend(PluginsTestCase::class)->in('../packages/plugins/tests');
+pest()->extend(TagsTestCase::class)->in('../packages/tags/tests');
+pest()->extend(ThemesCoreTestCase::class)->in('../packages/themes-core/tests');
+pest()->extend(ThemesAdminTestCase::class)->in('../packages/themes-admin/tests');
+pest()->extend(WorkspacesTestCase::class)->in('../packages/workspaces/tests');

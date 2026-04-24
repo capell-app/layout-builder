@@ -6,7 +6,6 @@ namespace Capell\Mosaic\Filament\Resources\Widgets;
 
 use BackedEnum;
 use Capell\Admin\Filament\Concerns\HasFormConfigurator;
-use Capell\Admin\Filament\Concerns\HasNavigationBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
 use Capell\Core\Facades\CapellCore;
 use Capell\Mosaic\Filament\Resources\Widgets\Pages\CreateWidget;
@@ -17,6 +16,7 @@ use Capell\Mosaic\Filament\Resources\Widgets\Schemas\WidgetForm;
 use Capell\Mosaic\Filament\Resources\Widgets\Tables\WidgetsTable;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Providers\MosaicServiceProvider;
+use Capell\Navigation\Filament\Concerns\HasNavigationBadge;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;

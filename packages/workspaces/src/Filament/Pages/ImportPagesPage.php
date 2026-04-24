@@ -239,8 +239,12 @@ class ImportPagesPage extends Page implements HasForms
             'status' => ImportSessionStatus::Draft,
             'source_filename' => $sourceFilename,
             'source_package_path' => $archiveDiskPath,
-            'workspace_id' => $workspace->getKey(),
         ]);
+
+        // workspace_id is added by the workspaces migration but not in core's $fillable;
+        // use setAttribute to bypass mass-assignment guard.
+        $session->setAttribute('workspace_id', $workspace->getKey());
+        $session->save();
 
         try {
             $package = (new PackageReader)->read($absolutePath);

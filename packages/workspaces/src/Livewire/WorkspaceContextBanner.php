@@ -41,6 +41,6 @@ class WorkspaceContextBanner extends Component
 
     public function render(): View
     {
-        return view('capell-admin::livewire.header.workspace-context-banner');
+        return view('capell-workspaces::livewire.header.workspace-context-banner');
     }
 }
