@@ -24,6 +24,7 @@ use Capell\SeoTools\Enums\ModelEnum;
 use Capell\SeoTools\Events\AiGenerationCompleted;
 use Capell\SeoTools\Events\AiGenerationFailed;
 use Capell\SeoTools\Filament\Settings\AssistantSettingsSchema;
+use Capell\SeoTools\Filament\Settings\SeoSettingsSchema;
 use Capell\SeoTools\Handlers\ClearCircuitBreakerHandler;
 use Capell\SeoTools\Listeners\LogAiGeneration;
 use Capell\SeoTools\Listeners\NotifyAiFailure;
@@ -212,6 +213,14 @@ class SeoToolsServiceProvider extends AbstractPackageServiceProvider
         $registry = $this->app->make(SettingsSchemaRegistry::class);
         $registry->register('assistant', AssistantSettingsSchema::class);
         $registry->registerSettingsClass('assistant', AssistantSettings::class);
+        $registry->register('core', SeoSettingsSchema::class);
+
+        return $this;
+    }
+
+    protected function registerFrontendViews(): self
+    {
+        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'capell');
 
         return $this;
     }
@@ -223,7 +232,8 @@ class SeoToolsServiceProvider extends AbstractPackageServiceProvider
             ->registerAdminExtenders()
             ->registerAiServices()
             ->registerAiEventListeners()
-            ->registerSettingsSchema();
+            ->registerSettingsSchema()
+            ->registerFrontendViews();
     }
 
     private function isPackageInstalled(): bool
