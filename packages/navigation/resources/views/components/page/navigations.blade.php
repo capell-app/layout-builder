@@ -5,7 +5,6 @@ declare(strict_types=1);
 ?>
 
 @php
-    use Capell\Admin\Facades\CapellAdmin;
     use Capell\Core\Contracts\Pageable;
     use Capell\Navigation\Filament\Resources\Navigations\NavigationResource;
     use Capell\Navigation\Models\Navigation;
