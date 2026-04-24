@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\Navigation\Exceptions;
 
-use Exception;
+use RuntimeException;
 
-class NavigationItemPageNotFoundException extends Exception {}
+class NavigationItemPageNotFoundException extends RuntimeException {}
