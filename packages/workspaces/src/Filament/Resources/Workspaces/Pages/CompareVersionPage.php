@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Capell\Workspaces\Filament\Resources\Workspaces\Pages;
 
 use BackedEnum;
+use Capell\Workspaces\Checks\PublishCheckPipeline;
 use Capell\Workspaces\Checks\PublishCheckResult;
 use Capell\Workspaces\Checks\PublishCheckSeverity;
 use Capell\Workspaces\Filament\Resources\Workspaces\WorkspaceResource;
 use Capell\Workspaces\Models\Workspace;
-use Capell\Workspaces\Publisher;
 use Capell\Workspaces\Services\WorkspaceDiffService;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
@@ -91,7 +91,7 @@ class CompareVersionPage extends Page
      */
     public function getCheckResults(): array
     {
-        return app(Publisher::class)->dryRun($this->getWorkspace())->checkResults;
+        return app(PublishCheckPipeline::class)->run($this->getWorkspace());
     }
 
     public function checkSeverityColor(PublishCheckSeverity $severity): string

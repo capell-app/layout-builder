@@ -36,25 +36,42 @@ class BrokenLinkCheck implements PublishCheck
             ->select(['uuid', 'slug', 'body'])
             ->get();
 
-        $messages = [];
-        $entityRefs = [];
+        // Build a map of pageUuid => hrefs[] and collect all unique hrefs in one pass.
+        $pageHrefMap = [];
+        $allHrefs = [];
 
         foreach ($pages as $page) {
             $internalLinks = $this->extractInternalLinks((string) $page->body);
 
-            foreach ($internalLinks as $href) {
-                $exists = DB::table('page_urls')
-                    ->where('url', $href)
-                    ->where(function ($query) use ($workspace): void {
-                        $query->where('workspace_id', 0)
-                            ->orWhere('workspace_id', $workspace->id);
-                    })
-                    ->exists();
+            if ($internalLinks !== []) {
+                $pageHrefMap[$page->uuid] = ['slug' => $page->slug, 'hrefs' => $internalLinks];
+                foreach ($internalLinks as $href) {
+                    $allHrefs[$href] = true;
+                }
+            }
+        }
 
-                if (! $exists) {
-                    $pageIdentifier = $page->slug ?? $page->uuid;
-                    $messages[] = "Page '{$pageIdentifier}' contains broken link: {$href}";
-                    $entityRefs[] = ['model' => 'Page', 'uuid' => $page->uuid];
+        $messages = [];
+        $entityRefs = [];
+
+        if ($allHrefs !== []) {
+            $existingUrls = DB::table('page_urls')
+                ->whereIn('url', array_keys($allHrefs))
+                ->where(function ($query) use ($workspace): void {
+                    $query->where('workspace_id', 0)
+                        ->orWhere('workspace_id', $workspace->id);
+                })
+                ->pluck('url')
+                ->flip()
+                ->all();
+
+            foreach ($pageHrefMap as $pageUuid => $pageData) {
+                foreach ($pageData['hrefs'] as $href) {
+                    if (! array_key_exists($href, $existingUrls)) {
+                        $pageIdentifier = $pageData['slug'] ?? $pageUuid;
+                        $messages[] = "Page '{$pageIdentifier}' contains broken link: {$href}";
+                        $entityRefs[] = ['model' => 'Page', 'uuid' => $pageUuid];
+                    }
                 }
             }
         }
