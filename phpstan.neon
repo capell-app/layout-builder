@@ -53,6 +53,3 @@ parameters:
         - phpstan/stubs/admin-extenders.php
         - phpstan/stubs/admin-widgets.php
         - phpstan/stubs/core-workspaces.php
-    excludePaths:
-        # OpenAIProvider class does not exist — this test is stale and references a removed class
-        - tests/src/Assistant/Integration/AI/OpenAIProviderTest.php

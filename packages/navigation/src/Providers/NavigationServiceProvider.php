@@ -6,6 +6,15 @@ namespace Capell\Navigation\Providers;
 
 use Capell\Admin\Enums\SchemaExtenderEnum;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Core\Contracts\Navigation\DemoNavigationCreatorContract;
+use Capell\Core\Contracts\Navigation\NavigationNamesResolver;
+use Capell\Core\Contracts\Navigation\NavigationPageSyncer;
+use Capell\Core\Exchanger\Enums\RelationOwnership;
+use Capell\Core\Exchanger\Policy\OwnershipMap;
+use Capell\Core\Models\Site;
+use Capell\Navigation\Adapters\DemoNavigationCreatorAdapter;
+use Capell\Navigation\Adapters\NavigationNamesResolverAdapter;
+use Capell\Navigation\Adapters\NavigationPageSyncerAdapter;
 use Capell\Navigation\Filament\Extenders\NavigationPageSchemaExtender;
 use Capell\Navigation\Filament\Extenders\NavigationSiteExtender;
 use Capell\Navigation\Filament\Resources\Navigations\NavigationResource;
@@ -20,6 +29,10 @@ class NavigationServiceProvider extends ServiceProvider
     {
         $this->registerSchemaExtender(SchemaExtenderEnum::Page->value, NavigationPageSchemaExtender::class);
         $this->registerSchemaExtender(SchemaExtenderEnum::Site->value, NavigationSiteExtender::class);
+
+        $this->app->singleton(NavigationPageSyncer::class, NavigationPageSyncerAdapter::class);
+        $this->app->singleton(NavigationNamesResolver::class, NavigationNamesResolverAdapter::class);
+        $this->app->singleton(DemoNavigationCreatorContract::class, DemoNavigationCreatorAdapter::class);
     }
 
     public function boot(): void
@@ -30,6 +43,10 @@ class NavigationServiceProvider extends ServiceProvider
         Gate::policy(Navigation::class, NavigationPolicy::class);
 
         CapellAdmin::registerResource('Navigation', NavigationResource::class);
+
+        OwnershipMap::register(Navigation::class, RelationOwnership::Shared);
+
+        Site::resolveRelationUsing('navigations', fn (Site $site) => $site->hasMany(Navigation::class));
     }
 
     private function registerSchemaExtender(string $tag, string $class): void
