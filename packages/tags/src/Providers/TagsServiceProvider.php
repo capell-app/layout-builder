@@ -26,6 +26,7 @@ class TagsServiceProvider extends AbstractPackageServiceProvider
     {
         $package
             ->name(self::$name)
+            ->hasMigrations(['alter_tags_table'])
             ->hasTranslations();
     }
 

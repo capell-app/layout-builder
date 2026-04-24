@@ -3,7 +3,7 @@
     "kind": "package",
     "capell-version": "^4.0",
     "contexts": ["admin", "frontend", "console"],
-    "requires": ["capell-app/core", "capell-app/admin", "capell-app/frontend"],
+    "requires": ["capell-app/core", "capell-app/admin", "capell-app/frontend", "capell-app/tags"],
     "providers": {
         "shared": ["Capell\\Blog\\Providers\\BlogServiceProvider"],
         "admin": ["Capell\\Blog\\Providers\\AdminServiceProvider"],
