@@ -54,17 +54,17 @@ class WorkspacesTestCase extends AbstractTestCase
 
         $this->registerAndMigrateSettings(
             CapellCore::getSettingMigrations(),
-            __DIR__ . '/../../../packages/core/database/settings',
+            __DIR__ . '/../../../vendor/capell-app/core/database/settings',
         );
 
         $this->registerAndMigrateSettings(
             CapellAdmin::getSettingMigrations(),
-            __DIR__ . '/../../../packages/admin/database/settings',
+            __DIR__ . '/../../../vendor/capell-app/admin/database/settings',
         );
 
         $this->registerAndMigrateSettings(
             resolve(SettingsMigrationProviderInterface::class)->getSettingMigrations(),
-            __DIR__ . '/../../../packages/frontend/database/settings',
+            __DIR__ . '/../../../vendor/capell-app/frontend/database/settings',
         );
     }
 
