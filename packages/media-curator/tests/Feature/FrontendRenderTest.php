@@ -8,7 +8,7 @@ use Capell\MediaCurator\Tests\Fixtures\TestCuratorOwner;
 use Illuminate\Http\UploadedFile;
 
 test('CuratorMedia contract methods return expected scalar types', function (): void {
-    $mediaRow = CuratorMedia::create([
+    $mediaRow = CuratorMedia::query()->create([
         'disk' => 'public',
         'directory' => 'media',
         'visibility' => 'public',
@@ -34,7 +34,7 @@ test('CuratorMedia contract methods return expected scalar types', function (): 
 });
 
 test('getFirstMedia returns an object satisfying MediaContract for view components', function (): void {
-    $owner = TestCuratorOwner::create(['name' => 'Render Owner']);
+    $owner = TestCuratorOwner::query()->create(['name' => 'Render Owner']);
 
     $owner->addMediaFromUploadedFile(
         UploadedFile::fake()->image('view-test.jpg'),

@@ -31,11 +31,11 @@ If a consumer model needs multi-item collections or Spatie conversions, keep it 
 
 Replace `use HasCapellMedia` with `use InteractsWithCuratorMedia` on any owner model, and add one FK column per media collection it uses. Column name is `Str::snake($collection) . '_id'`:
 
-| Collection      | FK column          |
-| --------------- | ------------------ |
-| `image`         | `image_id`         |
-| `socialImage`   | `social_image_id`  |
-| `hero`          | `hero_id`          |
+| Collection    | FK column         |
+| ------------- | ----------------- |
+| `image`       | `image_id`        |
+| `socialImage` | `social_image_id` |
+| `hero`        | `hero_id`         |
 
 Example migration:
 

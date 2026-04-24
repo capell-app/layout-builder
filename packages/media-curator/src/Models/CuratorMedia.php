@@ -6,6 +6,7 @@ namespace Capell\MediaCurator\Models;
 
 use Awcodes\Curator\Models\Media as BaseCuratorMedia;
 use Capell\Core\Contracts\Media\MediaContract;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Curator's Media model, extended to satisfy Capell's backend-agnostic
@@ -19,6 +20,8 @@ use Capell\Core\Contracts\Media\MediaContract;
  */
 final class CuratorMedia extends BaseCuratorMedia implements MediaContract
 {
+    use HasFactory;
+
     public function getUrl(string $conversion = ''): string
     {
         // `url` is an Eloquent accessor on BaseCuratorMedia; reading

@@ -7,7 +7,7 @@ use Capell\Core\Contracts\Media\MediaFieldFactory;
 use Capell\MediaCurator\Filament\Components\CuratorMediaFieldFactory;
 
 test('factory make returns a CuratorPicker field instance', function (): void {
-    $factory = app(MediaFieldFactory::class);
+    $factory = resolve(MediaFieldFactory::class);
 
     $field = $factory->make('image');
 
@@ -15,7 +15,7 @@ test('factory make returns a CuratorPicker field instance', function (): void {
 });
 
 test('MediaFieldFactory contract resolves to CuratorMediaFieldFactory when plugin registered', function (): void {
-    $factory = app(MediaFieldFactory::class);
+    $factory = resolve(MediaFieldFactory::class);
 
     expect($factory)->toBeInstanceOf(CuratorMediaFieldFactory::class);
 });

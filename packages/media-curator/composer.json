@@ -56,17 +56,23 @@
         {
             "type": "path",
             "url": "../../../../../../capell-4/packages/core",
-            "options": { "symlink": true }
+            "options": {
+                "symlink": true
+            }
         },
         {
             "type": "path",
             "url": "../../../../../../capell-4/packages/admin",
-            "options": { "symlink": true }
+            "options": {
+                "symlink": true
+            }
         },
         {
             "type": "path",
             "url": "../../../../../../capell-4/packages/frontend",
-            "options": { "symlink": true }
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "minimum-stability": "dev",

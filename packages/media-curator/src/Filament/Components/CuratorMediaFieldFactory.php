@@ -6,7 +6,6 @@ namespace Capell\MediaCurator\Filament\Components;
 
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Capell\Core\Contracts\Media\MediaFieldFactory;
-use Filament\Forms\Components\Field;
 
 /**
  * MediaFieldFactory implementation that returns a CuratorPicker Filament
@@ -16,7 +15,7 @@ use Filament\Forms\Components\Field;
  */
 final class CuratorMediaFieldFactory implements MediaFieldFactory
 {
-    public function make(string $name): Field
+    public function make(string $name): CuratorPicker
     {
         return CuratorPicker::make($name);
     }

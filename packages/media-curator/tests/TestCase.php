@@ -6,6 +6,8 @@ namespace Capell\MediaCurator\Tests;
 
 use Awcodes\Curator\CuratorServiceProvider;
 use Capell\MediaCurator\CapellMediaCuratorServiceProvider;
+use Illuminate\Contracts\Config\Repository;
+use Illuminate\Database\ConnectionResolverInterface;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Storage;
@@ -47,21 +49,21 @@ class TestCase extends OrchestraTestCase
      */
     protected function getEnvironmentSetUp($app): void
     {
-        $app->make('config')->set('database.default', 'testing');
-        $app->make('config')->set('database.connections.testing', [
+        $app->make(Repository::class)->set('database.default', 'testing');
+        $app->make(Repository::class)->set('database.connections.testing', [
             'driver' => 'sqlite',
             'database' => ':memory:',
             'prefix' => '',
         ]);
 
         // Curator reads its glide token from the environment.
-        $app->make('config')->set('curator.glide_token', 'test-token');
+        $app->make(Repository::class)->set('curator.glide_token', 'test-token');
     }
 
     protected function defineDatabaseMigrations(): void
     {
         // Create the Curator media table (mirrors the migration stub).
-        $this->app->make('db')->getSchemaBuilder()->create('curator', function (Blueprint $table): void {
+        $this->app->make(ConnectionResolverInterface::class)->getSchemaBuilder()->create('curator', function (Blueprint $table): void {
             $table->id();
             $table->string('disk');
             $table->string('directory')->nullable();
@@ -84,7 +86,7 @@ class TestCase extends OrchestraTestCase
         });
 
         // Owner fixture table — one FK column per media collection.
-        $this->app->make('db')->getSchemaBuilder()->create('test_curator_owners', function (Blueprint $table): void {
+        $this->app->make(ConnectionResolverInterface::class)->getSchemaBuilder()->create('test_curator_owners', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
             $table->unsignedBigInteger('image_id')->nullable();
