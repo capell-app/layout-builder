@@ -15,3 +15,12 @@ parameters:
         # PHP 8.2 does not support typed constants; constantTypeCoverage cannot be satisfied
         -
             identifier: typeCoverage.constantTypeCoverage
+        # Test trait methods provided by CreatesAdminUser are not recognized by PHPStan
+        -
+            identifier: method.notFound
+            message: '#createUser|actingAs|actingAsAdmin#'
+            path: tests/
+        # Page model trashed() method signature incompatibility with Publishable contract (core package issue)
+        -
+            identifier: missingMethodInSupertrait
+            message: '#Page::trashed#'

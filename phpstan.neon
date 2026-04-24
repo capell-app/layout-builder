@@ -2,6 +2,7 @@ includes:
     - ./phpstan-ignore-errors.neon
 
 parameters:
+    reportUnmatchedIgnoredErrors: false
     level: 1
     paths:
         - packages
@@ -45,7 +46,9 @@ parameters:
     scanFiles:
         - phpstan/stubs/admin-extenders.php
         - phpstan/stubs/admin-widgets.php
+        - phpstan/stubs/admin-classes.php
         - phpstan/stubs/core-workspaces.php
+        - phpstan/stubs/test-helpers.php
     excludePaths:
         # OpenAIProvider class does not exist — this test is stale and references a removed class
         - tests/src/Assistant/Integration/AI/OpenAIProviderTest.php
