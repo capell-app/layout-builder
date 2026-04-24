@@ -23,7 +23,8 @@
     },
     "require-dev": {
         "orchestra/testbench": "^9.0|^10.0",
-        "pestphp/pest": "^3.0"
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0"
     },
     "autoload": {
         "psr-4": {
@@ -54,17 +55,17 @@
     "repositories": [
         {
             "type": "path",
-            "url": "../../../capell-4/packages/core",
+            "url": "../../../../../../capell-4/packages/core",
             "options": { "symlink": true }
         },
         {
             "type": "path",
-            "url": "../../../capell-4/packages/admin",
+            "url": "../../../../../../capell-4/packages/admin",
             "options": { "symlink": true }
         },
         {
             "type": "path",
-            "url": "../../../capell-4/packages/frontend",
+            "url": "../../../../../../capell-4/packages/frontend",
             "options": { "symlink": true }
         }
     ],
