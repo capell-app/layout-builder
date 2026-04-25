@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Navigation\Adapters;
+namespace Capell\Navigation\Support\Creator;
 
 use Capell\Core\Contracts\Navigation\DemoNavigationCreatorContract;
 use Capell\Core\Models\Language;
@@ -13,13 +13,12 @@ use Capell\Navigation\Actions\AddPageToNavigationAction;
 use Capell\Navigation\Enums\NavigationHandle;
 use Capell\Navigation\Enums\NavigationItemType;
 use Capell\Navigation\Models\Navigation;
-use Capell\Navigation\Support\Creator\NavigationCreator;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Str;
 
-class DemoNavigationCreatorAdapter implements DemoNavigationCreatorContract
+class NavigationDemoCreator implements DemoNavigationCreatorContract
 {
     public function setupMainNavigation(Site $site, Language $language, Page $home, SupportCollection $pages): void
     {

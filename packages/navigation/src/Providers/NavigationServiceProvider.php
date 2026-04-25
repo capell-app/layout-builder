@@ -12,14 +12,15 @@ use Capell\Core\Contracts\Navigation\NavigationPageSyncer;
 use Capell\Core\Exchanger\Enums\RelationOwnership;
 use Capell\Core\Exchanger\Policy\OwnershipMap;
 use Capell\Core\Models\Site;
-use Capell\Navigation\Adapters\DemoNavigationCreatorAdapter;
 use Capell\Navigation\Adapters\NavigationNamesResolverAdapter;
 use Capell\Navigation\Adapters\NavigationPageSyncerAdapter;
+use Capell\Navigation\Console\Commands\DemoCommand;
 use Capell\Navigation\Filament\Extenders\NavigationPageSchemaExtender;
 use Capell\Navigation\Filament\Extenders\NavigationSiteExtender;
 use Capell\Navigation\Filament\Resources\Navigations\NavigationResource;
 use Capell\Navigation\Models\Navigation;
 use Capell\Navigation\Policies\NavigationPolicy;
+use Capell\Navigation\Support\Creator\NavigationDemoCreator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -32,7 +33,9 @@ class NavigationServiceProvider extends ServiceProvider
 
         $this->app->singleton(NavigationPageSyncer::class, NavigationPageSyncerAdapter::class);
         $this->app->singleton(NavigationNamesResolver::class, NavigationNamesResolverAdapter::class);
-        $this->app->singleton(DemoNavigationCreatorContract::class, DemoNavigationCreatorAdapter::class);
+        $this->app->singleton(DemoNavigationCreatorContract::class, NavigationDemoCreator::class);
+
+        $this->commands([DemoCommand::class]);
         $this->app->singleton(\Capell\Navigation\Support\NavigationNamesResolver::class, fn ($app) => new \Capell\Navigation\Support\NavigationNamesResolver($app['cache']));
     }
 

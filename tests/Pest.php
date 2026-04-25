@@ -21,3 +21,6 @@ pest()->extend(TagsTestCase::class)->in('../packages/tags/tests');
 pest()->extend(ThemesCoreTestCase::class)->in('../packages/themes-core/tests');
 pest()->extend(ThemesAdminTestCase::class)->in('../packages/themes-admin/tests');
 pest()->extend(WorkspacesTestCase::class)->in('../packages/workspaces/tests');
+
+// Navigation tests extend PackagesTestCase directly
+pest()->extend(PackagesTestCase::class)->in('../packages/navigation/tests');
