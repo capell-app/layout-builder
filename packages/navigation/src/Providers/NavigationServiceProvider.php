@@ -33,6 +33,7 @@ class NavigationServiceProvider extends ServiceProvider
         $this->app->singleton(NavigationPageSyncer::class, NavigationPageSyncerAdapter::class);
         $this->app->singleton(NavigationNamesResolver::class, NavigationNamesResolverAdapter::class);
         $this->app->singleton(DemoNavigationCreatorContract::class, DemoNavigationCreatorAdapter::class);
+        $this->app->singleton(\Capell\Navigation\Support\NavigationNamesResolver::class, fn ($app) => new \Capell\Navigation\Support\NavigationNamesResolver($app['cache']));
     }
 
     public function boot(): void

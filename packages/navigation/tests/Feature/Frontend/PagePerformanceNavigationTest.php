@@ -65,7 +65,7 @@ function buildQuerySignature(array $queryEntry): string
     return $queryEntry['query'] . '|' . serialize($queryEntry['bindings']);
 }
 
-it('loads a large, deeply nested frontend page efficiently', function (): void {
+it('loads a large, deeply nested page with navigation efficiently', function (): void {
     $languageCount = 3;
     $siteCount = 2;
     $mediaPerSite = 5;
@@ -119,7 +119,7 @@ it('loads a large, deeply nested frontend page efficiently', function (): void {
         $ancestor = $page;
 
         foreach (range(1, $childrenPerAncestor) as $childIndex) {
-            Page::factory()
+            $childPage = Page::factory()
                 ->recycle($site)
                 ->withTranslations($languages)
                 ->state([
