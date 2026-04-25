@@ -39,6 +39,8 @@ test('does not register duplicate subscribers', function (): void {
 
 class TestSubscriber implements WorkspaceEventSubscriber
 {
+    public function handle(string $event, object $context): void {}
+
     public function beforeClone(Workspace $source, Workspace $target): bool
     {
         return true;
@@ -63,6 +65,8 @@ class TestSubscriber implements WorkspaceEventSubscriber
 
 class AnotherTestSubscriber implements WorkspaceEventSubscriber
 {
+    public function handle(string $event, object $context): void {}
+
     public function beforeClone(Workspace $source, Workspace $target): bool
     {
         return true;

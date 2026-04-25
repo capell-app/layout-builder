@@ -14,6 +14,8 @@ test('dispatcher calls beforePublish on all subscribers', function (): void {
     {
         public function __construct(public bool &$wasCalled) {}
 
+        public function handle(string $event, object $context): void {}
+
         public function beforeClone(Workspace $source, Workspace $target): bool
         {
             return true;
@@ -53,6 +55,8 @@ test('dispatcher calls beforePublish on all subscribers', function (): void {
 test('dispatcher stops on subscriber returning false', function (): void {
     $blockingSubscriber = new class implements WorkspaceEventSubscriber
     {
+        public function handle(string $event, object $context): void {}
+
         public function beforePublish(Workspace $workspace): bool
         {
             return false; // Block
@@ -91,6 +95,8 @@ test('dispatcher calls afterPublish on all subscribers', function (): void {
     $subscriber = new class($called) implements WorkspaceEventSubscriber
     {
         public function __construct(public bool &$wasCalled) {}
+
+        public function handle(string $event, object $context): void {}
 
         public function beforeClone(Workspace $source, Workspace $target): bool
         {
