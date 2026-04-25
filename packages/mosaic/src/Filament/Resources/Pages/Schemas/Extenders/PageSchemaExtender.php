@@ -44,4 +44,12 @@ class PageSchemaExtender implements Extenders\PageSchemaExtender
     {
         return [];
     }
+
+    /**
+     * @return array<int, Component>
+     */
+    public function extendSettingsTabComponents(): array
+    {
+        return [];
+    }
 }

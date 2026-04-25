@@ -7,6 +7,7 @@ namespace Capell\Address\Filament\Resources\Sites\Schemas\Extenders;
 use Capell\Address\Filament\Components\Forms\AddressSelect;
 use Capell\Admin\Contracts\Extenders;
 use Capell\Admin\Enums\PageTranslationSchemaHookEnum;
+use Capell\Admin\Enums\SiteCreateWizardHookEnum;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 
@@ -34,6 +35,11 @@ class SiteSchemaExtender implements Extenders\SiteSchemaExtender
         $components[] = $this->getAddressSelect($schema);
 
         return $components;
+    }
+
+    public function extendCreateWizardComponentsForHook(Schema $schema, SiteCreateWizardHookEnum $hook): array
+    {
+        return [];
     }
 
     private function getAddressSelect(Schema $schema): AddressSelect

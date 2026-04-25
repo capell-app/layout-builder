@@ -9,6 +9,10 @@ use Spatie\LaravelPackageTools\Package;
 
 class FormsServiceProvider extends AbstractPackageServiceProvider
 {
+    public static string $name = 'capell-forms';
+
+    public static string $packageName = 'capell-app/forms';
+
     public function configurePackage(Package $package): void
     {
         $package
