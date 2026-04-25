@@ -7,7 +7,7 @@ namespace Capell\Navigation\Console\Commands;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Core\Support\Creator\DemoCreator;
+use Capell\Navigation\Support\Creator\NavigationDemoCreator;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -22,12 +22,12 @@ class DemoCommand extends Command
     public function handle(): int
     {
         try {
-            $demoCreator = app(DemoCreator::class);
+            $navigationDemoCreator = app(NavigationDemoCreator::class);
 
             $sites = $this->resolveSites();
             $languageCodes = $this->resolveLanguageCodes();
 
-            $sites->each(function (Site $site) use ($demoCreator, $languageCodes): void {
+            $sites->each(function (Site $site) use ($navigationDemoCreator, $languageCodes): void {
                 $home = Page::getSiteHomePage($site);
 
                 if (! $home instanceof Page) {
@@ -40,11 +40,14 @@ class DemoCommand extends Command
 
                 foreach ($languages as $language) {
                     $this->line(sprintf('Setting up navigation for "%s" (%s)', $site->name, $language->code));
-                    $demoCreator->setupMainNavigation($site, $language, $home);
-                    $demoCreator->setupFooterNavigation($site, $language);
-                    $demoCreator->subFooterNavigation($site, $language);
+                    $navigationDemoCreator->setupMainNavigation($site, $language, $home);
+                    $navigationDemoCreator->setupFooterNavigation($site, $language);
+                    $navigationDemoCreator->setupSubFooterNavigation($site, $language);
                 }
             });
+
+            $this->line('Updating related site navigations');
+            $navigationDemoCreator->updateRelatedSiteNavigations();
         } catch (Throwable $throwable) {
             $this->error('Navigation demo command failed: ' . $throwable->getMessage());
             throw_if(app()->environment('testing'), $throwable);
