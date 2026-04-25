@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\SeoTools\Support\Sitemap;
 
-use Capell\Core\Contracts\Sitemapable;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
+use Capell\SeoTools\Contracts\Sitemapable;
 
 abstract class AbstractSitemapPages implements Sitemapable
 {

@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Capell\SeoTools\Support\Sitemap;
 
 use Capell\Core\Enums\CacheEnum;
-use Capell\Core\Exceptions\SitemapGeneratorException;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
 use Capell\SeoTools\Data\SitemapPageData;
 use Capell\SeoTools\Data\SitemapUrlItemData;
+use Capell\SeoTools\Exceptions\SitemapGeneratorException;
 use Closure;
 use DateTimeInterface;
 use Illuminate\Contracts\Filesystem\Filesystem;
