@@ -38,6 +38,7 @@ use Capell\SeoTools\Listeners\NotifyAiFailure;
 use Capell\SeoTools\Listeners\Sitemap\RegenerateSitemapsOnPageDeleted;
 use Capell\SeoTools\Listeners\Sitemap\RegenerateSitemapsOnPageSaved;
 use Capell\SeoTools\Listeners\Sitemap\RegenerateSitemapsOnSiteCreated;
+use Capell\SeoTools\Livewire\Page\Sitemap as SitemapLivewireComponent;
 use Capell\SeoTools\Models\AiCreatorContext;
 use Capell\SeoTools\Models\AiCreatorSession;
 use Capell\SeoTools\Models\AIGenerationHistory;
@@ -69,6 +70,7 @@ use Composer\InstalledVersions;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
+use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 
 class SeoToolsServiceProvider extends AbstractPackageServiceProvider
@@ -253,6 +255,13 @@ class SeoToolsServiceProvider extends AbstractPackageServiceProvider
         return $this;
     }
 
+    protected function registerLivewireComponents(): self
+    {
+        Livewire::component('capell::page.sitemap', SitemapLivewireComponent::class);
+
+        return $this;
+    }
+
     protected function registerSitemapPageType(): self
     {
         /** @var class-string<Type> $typeModel */
@@ -317,6 +326,7 @@ class SeoToolsServiceProvider extends AbstractPackageServiceProvider
             ->registerSitemapRegistry()
             ->registerSitemapEventListeners()
             ->registerFilamentPages()
+            ->registerLivewireComponents()
             ->registerFrontendViews();
     }
 
