@@ -7,6 +7,7 @@ namespace Capell\SeoTools\Providers;
 use Capell\Admin\Contracts\Extenders\PageHeaderActionExtender;
 use Capell\Admin\Contracts\Extenders\PageSchemaExtender;
 use Capell\Admin\Contracts\Extenders\SiteHeaderActionExtender;
+use Capell\Admin\Contracts\Extenders\SiteSchemaExtender;
 use Capell\Admin\Filament\Resources\Pages\Pages\EditPage;
 use Capell\Admin\Support\AdminEventRegistry;
 use Capell\Admin\Support\CapellAdminManager;
@@ -32,6 +33,8 @@ use Capell\SeoTools\Events\AiGenerationCompleted;
 use Capell\SeoTools\Events\AiGenerationFailed;
 use Capell\SeoTools\Filament\Extenders\Page\RobotsDirectiveSchemaExtender;
 use Capell\SeoTools\Filament\Extenders\Page\SearchMetaSchemaExtender;
+use Capell\SeoTools\Filament\Extenders\Site\SiteDetailsMetaExtender;
+use Capell\SeoTools\Filament\Extenders\Site\SiteTranslationMetaExtender;
 use Capell\SeoTools\Filament\Pages\SitemapPage;
 use Capell\SeoTools\Filament\Settings\AssistantSettingsSchema;
 use Capell\SeoTools\Filament\Settings\SeoSettingsSchema;
@@ -244,6 +247,19 @@ class SeoToolsServiceProvider extends AbstractPackageServiceProvider
         return $this;
     }
 
+    protected function registerSiteSchemaExtenders(): self
+    {
+        $this->app->tag(
+            [
+                SiteTranslationMetaExtender::class,
+                SiteDetailsMetaExtender::class,
+            ],
+            SiteSchemaExtender::TAG,
+        );
+
+        return $this;
+    }
+
     protected function registerSettingsSchema(): self
     {
         /** @var SettingsSchemaRegistry $registry */
@@ -335,6 +351,7 @@ class SeoToolsServiceProvider extends AbstractPackageServiceProvider
             ->registerAdminEvents()
             ->registerAdminExtenders()
             ->registerPageSchemaExtenders()
+            ->registerSiteSchemaExtenders()
             ->registerAiServices()
             ->registerAiEventListeners()
             ->registerSettingsSchema()
