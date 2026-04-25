@@ -1,0 +1,19 @@
+{
+    "name": "capell-app/navigation",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "contexts": ["admin", "frontend", "console"],
+    "requires": [
+        "capell-app/core",
+        "capell-app/admin"
+    ],
+    "providers": {
+        "shared": ["Capell\\Navigation\\Providers\\NavigationServiceProvider"]
+    },
+    "commands": {
+        "setup": "capell:navigation-setup",
+        "setupParams": ["sites"],
+        "demo": "capell:navigation-demo",
+        "demoParams": ["sites", "languages"]
+    }
+}
