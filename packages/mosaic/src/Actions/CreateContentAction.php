@@ -27,17 +27,17 @@ class CreateContentAction
 
     public function handle(array $data): Section
     {
-        /** @var class-string<Section> $model */
-        $model = Section::class;
+        $translations = $data['translations'] ?? [];
+        unset($data['translations']);
 
-        if (! isset($data['name']) && blank($data['name']) && isset($data['translations'])) {
-            $data['name'] = collect($data['translations'])->first()['title'];
+        if (! isset($data['name']) && isset($translations[0])) {
+            $data['name'] = $translations[0]['title'];
         }
 
-        $content = $model::query()->create($data);
+        $content = Section::query()->create($data);
 
-        if (isset($data['translations'])) {
-            $this->createTranslations($content, $data['translations']);
+        if ($translations !== []) {
+            $this->createTranslations($content, $translations);
         }
 
         return $content;

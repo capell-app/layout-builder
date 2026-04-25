@@ -2,14 +2,34 @@
 
 declare(strict_types=1);
 
+use Capell\Blog\Providers\BlogServiceProvider;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
+use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
-use Capell\Media\Models\Media;
 use Illuminate\Support\Facades\File;
 
 use function Pest\Laravel\artisan;
+
+// Adds blog package providers and migrations for the --include-hero test path that queries articles.
+trait WithBlogMigrations
+{
+    protected function getPackageProviders(mixed $app): array
+    {
+        return [...parent::getPackageProviders($app), BlogServiceProvider::class];
+    }
+
+    protected function getEnvironmentSetUp(mixed $app): void
+    {
+        parent::getEnvironmentSetUp($app);
+
+        CapellCore::forcePackageInstalled(BlogServiceProvider::$packageName);
+    }
+}
+
+uses(WithBlogMigrations::class);
 
 it('runs the demo command and creates demo layouts for a site', function (): void {
     $capellDirectory = storage_path('app/capell');

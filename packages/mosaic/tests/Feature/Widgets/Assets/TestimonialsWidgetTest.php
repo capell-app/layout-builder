@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Language;
+use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Media\Models\Media;
 use Capell\Mosaic\Database\Factories\LayoutFactory;
 use Capell\Mosaic\Database\Factories\WidgetAssetFactory;
 use Capell\Mosaic\Models\Widget;

@@ -60,7 +60,7 @@ final class MigrateSpatieToCuratorCommand extends Command
         $label = $isDryRun ? ' (dry run)' : '';
 
         $this->newLine();
-        $this->line("<fg=cyan>Migration summary{$label}</>");
+        $this->line(sprintf('<fg=cyan>Migration summary%s</>', $label));
         $this->table(
             ['Stat', 'Count'],
             [

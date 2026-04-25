@@ -35,7 +35,6 @@ use Capell\Mosaic\Enums\AssetEnum;
 use Capell\Mosaic\Enums\ComponentTypeEnum;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Enums\LivewireComponentsEnum;
-use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Enums\ResourceEnum as LayoutResourceEnum;
 use Capell\Mosaic\Enums\TypeSchemaEnum;
 use Capell\Mosaic\Filament\Extenders\Page\HeroPageSchemaExtender;
@@ -50,6 +49,8 @@ use Capell\Mosaic\Listeners\LayoutSavingListener;
 use Capell\Mosaic\Listeners\SiteTreeRebuilt;
 use Capell\Mosaic\Listeners\TypeValidated;
 use Capell\Mosaic\Models\Section;
+use Capell\Mosaic\Models\Widget;
+use Capell\Mosaic\Models\WidgetAsset;
 use Capell\Mosaic\Support\CapellLayoutManager;
 use Capell\Mosaic\Support\Interceptors\Layouts\DefaultLayoutInterceptor;
 use Capell\Mosaic\Support\Interceptors\Layouts\HomeLayoutInterceptor;
@@ -502,8 +503,8 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
         Page::resolveRelationUsing(
             'sections',
             fn (Page $model): HasManyThrough => $model->hasManyThrough(
-                ModelEnum::Section->value,
-                ModelEnum::WidgetAsset->value,
+                Section::class,
+                WidgetAsset::class,
                 'pageable_id',
                 'id',
                 'id',
@@ -515,13 +516,13 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
 
         Page::resolveRelationUsing(
             'widgetAssets',
-            fn (Page $model): MorphMany => $model->morphMany(ModelEnum::WidgetAsset->value, 'pageable'),
+            fn (Page $model): MorphMany => $model->morphMany(WidgetAsset::class, 'pageable'),
         );
 
         Page::resolveRelationUsing(
             'widgets',
             fn (Page $model): MorphToMany => $model->morphToMany(
-                ModelEnum::Widget->value,
+                Widget::class,
                 'asset',
                 'widget_assets',
                 'asset_id',
@@ -532,23 +533,23 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
 
         Site::resolveRelationUsing(
             'sections',
-            fn (Site $model): HasMany => $model->hasMany(ModelEnum::Section->value, 'site_id'),
+            fn (Site $model): HasMany => $model->hasMany(Section::class, 'site_id'),
         );
 
         Type::resolveRelationUsing(
             'sections',
-            fn (Type $model): HasMany => $model->hasMany(ModelEnum::Section->value, 'type_id'),
+            fn (Type $model): HasMany => $model->hasMany(Section::class, 'type_id'),
         );
 
         Type::resolveRelationUsing(
             'widgets',
-            fn (Type $model) => $model->hasMany(ModelEnum::Widget->value, 'type_id'),
+            fn (Type $model) => $model->hasMany(Widget::class, 'type_id'),
         );
 
         Layout::resolveRelationUsing(
             'layoutWidgets',
             fn (Layout $model): BelongsToJson => $model->belongsToJson(
-                ModelEnum::Widget->value,
+                Widget::class,
                 'widgets',
                 'key',
             ),

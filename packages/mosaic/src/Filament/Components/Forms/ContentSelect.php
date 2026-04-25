@@ -8,7 +8,6 @@ use Aimeos\Nestedset\NestedSet;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\HasCustomSelectOption;
 use Capell\Core\Facades\CapellCore;
-use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Models\Section;
 use Closure;
 use Filament\Actions\Action;
@@ -81,9 +80,9 @@ class ContentSelect extends Select
 
     public function withCreateForm(): Select
     {
-        $asset = CapellCore::getAsset(ModelEnum::Section->name);
+        $asset = CapellCore::getAsset('Section');
 
-        $adminAsset = CapellAdmin::getAsset(ModelEnum::Section);
+        $adminAsset = CapellAdmin::getAsset('Section');
 
         $createOptionUsing = $this->getCreateOptionUsing();
 
@@ -113,7 +112,7 @@ class ContentSelect extends Select
 
     public function withEditForm(): self
     {
-        $asset = CapellAdmin::getAsset(ModelEnum::Section);
+        $asset = CapellAdmin::getAsset('Section');
 
         return $this->editOptionForm(function (?int $state, Schema $schema) use ($asset): Schema {
             if ($state === null) {

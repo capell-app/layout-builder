@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Capell\Core\Console\Commands\DoctorCommand;
-use Capell\Core\Enums\ModelEnum;
 use Capell\Core\Models\Page;
 use Capell\Core\Observers\PageUrlObserver;
 use Capell\Core\Upgrade\EnsureMorphMapUpgradeStep;
@@ -16,8 +15,6 @@ arch('core does not reference Capell\\Workspaces namespace')
         'Capell\Core\Exchanger',
         // Page model uses the BelongsToWorkspace trait
         Page::class,
-        // ModelEnum lists workspace model classes for morph-map registration
-        ModelEnum::class,
         // PageUrlObserver needs WorkspaceContextScope for draft-aware URL queries
         PageUrlObserver::class,
         // Upgrade step and doctor command inspect workspace registry at runtime

@@ -6,6 +6,7 @@ namespace Capell\Mosaic\Filament\Resources\Sections;
 
 use BackedEnum;
 use Capell\Admin\Filament\Concerns\HasFormConfigurator;
+use Capell\Admin\Filament\Concerns\HasNavigationBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
 use Capell\Core\Facades\CapellCore;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
@@ -20,7 +21,6 @@ use Capell\Mosaic\Filament\Resources\Sections\Tables\SectionsTable;
 use Capell\Mosaic\Filament\Resources\Sections\Widgets\SectionAlertsWidget;
 use Capell\Mosaic\Models\Section;
 use Capell\Mosaic\Providers\MosaicServiceProvider;
-use Capell\Navigation\Filament\Concerns\HasNavigationBadge;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;

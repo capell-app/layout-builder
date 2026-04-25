@@ -301,7 +301,7 @@ abstract class AbstractTestCase extends TestCase
 
     private function getPackageFile(array $package): string
     {
-        $path = '/../vendor/' . basename((string) $package['user']) . '/' . basename((string) $package['name']) . '/config';
+        $path = '/vendor/' . basename((string) $package['user']) . '/' . basename((string) $package['name']) . '/config';
         $file = basename((string) $package['file']) . '.php';
 
         return sprintf('%s/%s', $path, $file);

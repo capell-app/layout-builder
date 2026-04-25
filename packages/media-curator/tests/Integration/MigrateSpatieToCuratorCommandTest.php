@@ -21,7 +21,7 @@ function seedSpatieFixture(int $rowCount, array $collections = ['image']): void
     $collectionCount = count($collections);
 
     for ($index = 0; $index < $rowCount; $index++) {
-        $owner = TestCuratorOwner::create(['name' => "Owner {$index}"]);
+        $owner = TestCuratorOwner::query()->create(['name' => 'Owner ' . $index]);
         $collection = $collections[$index % $collectionCount];
 
         DB::table('media')->insert([
@@ -29,8 +29,8 @@ function seedSpatieFixture(int $rowCount, array $collections = ['image']): void
             'model_id' => $owner->getKey(),
             'uuid' => (string) Str::uuid(),
             'collection_name' => $collection,
-            'name' => "file-{$index}",
-            'file_name' => "media/file-{$index}.jpg",
+            'name' => 'file-' . $index,
+            'file_name' => sprintf('media/file-%d.jpg', $index),
             'mime_type' => 'image/jpeg',
             'disk' => 'public',
             'conversions_disk' => null,
@@ -154,8 +154,8 @@ test('command_populates_only_null_fk_columns', function (): void {
         'updated_at' => now(),
     ]);
 
-    $ownerWithMedia = TestCuratorOwner::create(['name' => 'Already has media', 'image_id' => $existingCuratorId]);
-    $ownerWithoutMedia = TestCuratorOwner::create(['name' => 'No media yet']);
+    $ownerWithMedia = TestCuratorOwner::query()->create(['name' => 'Already has media', 'image_id' => $existingCuratorId]);
+    $ownerWithoutMedia = TestCuratorOwner::query()->create(['name' => 'No media yet']);
 
     // Only ownerWithoutMedia has a Spatie row pointing at it.
     DB::table('media')->insert([

@@ -11,9 +11,9 @@ use Capell\Address\Filament\Resources\Addresses\Tables\AddressesTable;
 use Capell\Address\Models\Address;
 use Capell\Address\Providers\AddressServiceProvider;
 use Capell\Admin\Filament\Concerns\HasFormConfigurator;
+use Capell\Admin\Filament\Concerns\HasNavigationBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
 use Capell\Core\Facades\CapellCore;
-use Capell\Navigation\Filament\Concerns\HasNavigationBadge;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -72,6 +72,12 @@ class AddressResource extends Resource
     public static function shouldRegisterNavigation(): bool
     {
         return CapellCore::getPackage(AddressServiceProvider::$packageName)->isInstalled();
+    }
+
+    public static function canGloballySearch(): bool
+    {
+        return CapellCore::getPackage(AddressServiceProvider::$packageName)->isInstalled()
+            && parent::canGloballySearch();
     }
 
     #[Override]

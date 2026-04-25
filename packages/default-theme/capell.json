@@ -1,0 +1,12 @@
+{
+    "name": "capell-app/default-theme",
+    "kind": "theme",
+    "capell-version": "^4.0",
+    "contexts": ["frontend", "admin"],
+    "extends": null,
+    "providers": {
+        "shared": [
+            "Capell\\DefaultTheme\\Providers\\DefaultThemeServiceProvider"
+        ]
+    }
+}

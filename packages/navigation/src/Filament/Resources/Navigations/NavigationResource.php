@@ -6,8 +6,8 @@ namespace Capell\Navigation\Filament\Resources\Navigations;
 
 use BackedEnum;
 use Capell\Admin\Filament\Concerns\HasFormConfigurator;
+use Capell\Admin\Filament\Concerns\HasNavigationBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
-use Capell\Navigation\Filament\Concerns\HasNavigationBadge;
 use Capell\Navigation\Filament\Resources\Navigations\Pages\CreateNavigation;
 use Capell\Navigation\Filament\Resources\Navigations\Pages\EditNavigation;
 use Capell\Navigation\Filament\Resources\Navigations\Pages\ListNavigations;

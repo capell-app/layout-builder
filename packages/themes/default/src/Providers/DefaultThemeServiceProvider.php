@@ -7,6 +7,7 @@ namespace Capell\DefaultTheme\Providers;
 use Capell\Core\Data\VendorAssetData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Theme;
+use Capell\DefaultTheme\Support\Blade\BladeDirectives;
 use Capell\DefaultTheme\Support\Interceptors\Themes\DefaultThemeInterceptor;
 use Illuminate\Support\ServiceProvider;
 
@@ -20,6 +21,9 @@ class DefaultThemeServiceProvider extends ServiceProvider
         CapellCore::registerModelInterceptor($themeModel, interceptorClass: DefaultThemeInterceptor::class);
 
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'capell-default-theme');
+        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'capell');
+
+        BladeDirectives::register();
 
         CapellCore::registerVendorAsset(
             VendorAssetData::tailwindImport('resources/css/default-theme.css', self::$packageName),

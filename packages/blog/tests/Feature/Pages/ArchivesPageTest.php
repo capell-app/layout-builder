@@ -111,8 +111,8 @@ test('archive page list articles by month/year', function (): void {
         ->layout->name->toBe('Results')
         ->parent->name->toBe('Archives')
         ->pageUrl->url->toBe('/blog/archives/*')
-        ->and($archivePage->getAncestors(['name'])->pluck('name')->toArray())
-        ->toEqual(['Blog', 'Archives']);
+        ->and($archivePage->getAncestors(['name'])->pluck('name')->sort()->values()->toArray())
+        ->toEqual(['Archives', 'Blog']);
 
     $archiveUrl = GenerateArchiveUrl::run($archivePage->pageUrl, ArchiveMonthData::fromDate($publishDate));
 

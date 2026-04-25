@@ -6,10 +6,10 @@ namespace Capell\Tags\Filament\Resources\Tags;
 
 use BackedEnum;
 use Capell\Admin\Filament\Concerns\HasFormConfigurator;
+use Capell\Admin\Filament\Concerns\HasNavigationBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
-use Capell\Navigation\Filament\Concerns\HasNavigationBadge;
 use Capell\Tags\Filament\Resources\Tags\Pages\CreateTag;
 use Capell\Tags\Filament\Resources\Tags\Pages\EditTag;
 use Capell\Tags\Filament\Resources\Tags\Pages\ListTags;

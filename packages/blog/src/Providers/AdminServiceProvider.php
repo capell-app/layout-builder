@@ -25,13 +25,17 @@ use Illuminate\Support\ServiceProvider;
 
 final class AdminServiceProvider extends ServiceProvider
 {
+    public function register(): void
+    {
+        $this->registerResources();
+    }
+
     public function boot(): void
     {
         if (! CapellCore::getPackage('capell-app/blog')->isInstalled()) {
             return;
         }
 
-        $this->registerResources();
         $this->registerWidgetComponents();
         $this->registerSchemas();
         $this->registerDefaultPages();

@@ -8,8 +8,9 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Media;
+use Capell\DefaultTheme\Providers\DefaultThemeServiceProvider;
 use Capell\Frontend\Providers\FrontendServiceProvider;
-use Capell\Media\Models\Media;
 use Capell\Mosaic\Providers\MosaicServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Illuminate\Foundation\Application;
@@ -50,6 +51,7 @@ class MosaicTestCase extends AbstractTestCase
             AdminPanelProvider::class,
             AdminServiceProvider::class,
             FrontendServiceProvider::class,
+            DefaultThemeServiceProvider::class,
             LivewireServiceProvider::class,
         ];
     }
@@ -65,6 +67,9 @@ class MosaicTestCase extends AbstractTestCase
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(MosaicServiceProvider::$packageName);
+
+        CapellCore::registerPackage('capell-app/navigation', path: realpath(__DIR__ . '/../../../packages/navigation'));
+        CapellCore::forcePackageInstalled('capell-app/navigation');
 
         $app->make('config')->set('media-library.media_model', Media::class);
     }

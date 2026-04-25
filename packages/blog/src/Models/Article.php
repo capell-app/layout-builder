@@ -9,6 +9,7 @@ use Capell\Blog\Database\Factories\ArticleFactory;
 use Capell\Blog\Enums\BlogPageTypeEnum;
 use Capell\Blog\Observers\ArticleObserver;
 use Capell\Blog\Support\Loader\BlogLoader;
+use Capell\Core\Concerns\HasCapellMedia;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Contracts\PageCacheable;
 use Capell\Core\Enums\MediaCollectionEnum;
@@ -32,7 +33,6 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\PageUrl;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
-use Capell\Media\Models\Concerns\InteractsWithMedia;
 use Capell\Tags\Models\Concerns\HasTags;
 use Capell\Workspaces\BelongsToWorkspace;
 use Carbon\CarbonImmutable;
@@ -59,6 +59,7 @@ class Article extends Model implements HasMedia, Pageable, PageCacheable, Publis
     use Cloneable;
     use CloneableExcept;
     use HasAssets;
+    use HasCapellMedia;
 
     /** @use HasFactory<ArticleFactory> */
     use HasFactory;
@@ -73,7 +74,6 @@ class Article extends Model implements HasMedia, Pageable, PageCacheable, Publis
     use HasType;
     use HasTypes;
     use HasUserstamps;
-    use InteractsWithMedia;
     use LogsActivity;
     use SoftDeletes;
 
@@ -103,7 +103,7 @@ class Article extends Model implements HasMedia, Pageable, PageCacheable, Publis
     {
         return Type::query()
             ->pageType()
-            ->adminResource($group)
+            ->when($group !== null, fn (Builder $query): Builder => $query->adminResource($group))
             ->where('key', BlogPageTypeEnum::Article->value)
             ->ordered()
             ->first();

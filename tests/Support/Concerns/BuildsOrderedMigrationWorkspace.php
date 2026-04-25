@@ -121,15 +121,15 @@ trait BuildsOrderedMigrationWorkspace
      */
     private function orderedMigrationSourceFiles(): array
     {
-        $coreMigrationPath = realpath(__DIR__ . '/../../../../vendor/capell-app/core/database/migrations');
+        $coreMigrationPath = realpath(__DIR__ . '/../../../vendor/capell-app/core/database/migrations');
 
         if ($coreMigrationPath === false) {
-            $coreMigrationPath = realpath(__DIR__ . '/../../../../vendor/capell-app/core/packages/core/database/migrations');
+            $coreMigrationPath = realpath(__DIR__ . '/../../../vendor/capell-app/core/packages/core/database/migrations');
         }
 
         throw_unless($coreMigrationPath, RuntimeException::class, 'Could not find core migrations path.');
 
-        $testMigrations = glob(__DIR__ . '/../../../database/migrations/*.php');
+        $testMigrations = glob(__DIR__ . '/../../database/migrations/*.php');
 
         if ($testMigrations === false) {
             $testMigrations = [];

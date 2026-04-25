@@ -11,13 +11,11 @@ use Capell\Blog\Support\BlogModelRegistrar;
 use Capell\Blog\Support\Creator\ArticleCreator;
 use Capell\Core\Data\PageTypeData;
 use Capell\Core\Data\VendorAssetData;
-use Capell\Core\Enums\ModelEnum as CoreModelEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
-use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Models\Section;
 use Capell\Tags\Models\Tag;
 use Composer\InstalledVersions;
@@ -140,8 +138,8 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
 
     private function registerModelRelations(): self
     {
-        CapellCore::registerModelRelations(CoreModelEnum::Page, 'tags');
-        CapellCore::registerModelRelations(ModelEnum::Section, 'tags');
+        CapellCore::registerModelRelations(Page::class, 'tags');
+        CapellCore::registerModelRelations(Section::class, 'tags');
 
         Tag::resolveRelationUsing(
             'articles',

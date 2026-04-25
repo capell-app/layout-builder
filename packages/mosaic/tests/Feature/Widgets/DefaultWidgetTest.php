@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
-use Capell\Media\Models\Media;
 use Capell\Mosaic\Database\Factories\LayoutFactory;
 use Capell\Mosaic\Enums\ActionLinkEnum;
 use Capell\Mosaic\Models\Widget;

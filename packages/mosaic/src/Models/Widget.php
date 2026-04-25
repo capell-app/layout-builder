@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Mosaic\Models;
 
 use Bkwld\Cloner\Cloneable;
+use Capell\Core\Concerns\HasCapellMedia;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Contracts\PageCacheable;
 use Capell\Core\Enums\MediaCollectionEnum;
@@ -24,7 +25,6 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
-use Capell\Media\Models\Concerns\InteractsWithMedia;
 use Capell\Mosaic\Database\Factories\WidgetFactory;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Observers\WidgetObserver;
@@ -142,6 +142,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
 class Widget extends Model implements HasMedia, PageCacheable, Publishable, Statusable, Typeable, Userstampable
 {
     use Cloneable;
+    use HasCapellMedia;
 
     /** @use HasFactory<WidgetFactory> */
     use HasFactory;
@@ -154,7 +155,6 @@ class Widget extends Model implements HasMedia, PageCacheable, Publishable, Stat
     use HasTranslations;
     use HasType;
     use HasUserstamps;
-    use InteractsWithMedia;
     use LogsActivity;
     use SoftDeletes;
 

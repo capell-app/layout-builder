@@ -180,6 +180,7 @@
             "Capell\\Blog\\Database\\Factories\\": "packages/blog/database/factories",
             "Capell\\Mosaic\\": "packages/mosaic/src",
             "Capell\\Mosaic\\Database\\Factories\\": "packages/mosaic/database/factories",
+            "Capell\\DefaultTheme\\": "packages/themes/default/src",
             "Capell\\Themes\\Admin\\": "packages/themes-admin/src",
             "Capell\\Themes\\Agency\\": "packages/themes/agency/src",
             "Capell\\Themes\\Core\\": "packages/themes-core/src",

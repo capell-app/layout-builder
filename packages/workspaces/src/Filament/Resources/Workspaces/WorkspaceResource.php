@@ -6,8 +6,8 @@ namespace Capell\Workspaces\Filament\Resources\Workspaces;
 
 use BackedEnum;
 use Capell\Admin\Filament\Concerns\HasFormConfigurator;
+use Capell\Admin\Filament\Concerns\HasNavigationBadge;
 use Capell\Admin\Filament\Concerns\HasTableConfigurator;
-use Capell\Navigation\Filament\Concerns\HasNavigationBadge;
 use Capell\Workspaces\Enums\WorkspaceStatusEnum;
 use Capell\Workspaces\Filament\Resources\Workspaces\Pages\CompareVersionPage;
 use Capell\Workspaces\Filament\Resources\Workspaces\Pages\ManageWorkspaces;
