@@ -12,22 +12,22 @@ use Capell\Core\Events\ThemeColorsUpdated;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Core\Support\Settings\SettingsSchemaRegistry;
+use Capell\DefaultTheme\Console\Commands\GenerateTailwindAssetsCommand;
+use Capell\DefaultTheme\Enums\DefaultThemeAssetEnum;
+use Capell\DefaultTheme\Filament\Settings\DefaultThemeSettingsSchema;
+use Capell\DefaultTheme\Listeners\RegenerateTailwindAssetsOnThemeColorsUpdated;
+use Capell\DefaultTheme\Listeners\RunTailwindAssetsOnPackageChange;
+use Capell\DefaultTheme\Settings\DefaultThemeSettings;
+use Capell\DefaultTheme\Support\Blade\BladeDirectives;
+use Capell\DefaultTheme\Support\Media\CapellUrlGenerator;
 use Capell\DefaultTheme\Support\Tailwind\TailwindAssetsGenerator;
+use Capell\DefaultTheme\View\Components\Media\Svg;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Spatie\LaravelPackageTools\Package;
-use theme\src\Console\Commands\GenerateTailwindAssetsCommand;
-use theme\src\Enums\DefaultThemeAssetEnum;
-use theme\src\Filament\Settings\DefaultThemeSettingsSchema;
-use theme\src\Listeners\RegenerateTailwindAssetsOnThemeColorsUpdated;
-use theme\src\Listeners\RunTailwindAssetsOnPackageChange;
-use theme\src\Settings\DefaultThemeSettings;
-use theme\src\Support\Blade\BladeDirectives;
-use theme\src\Support\Media\CapellUrlGenerator;
-use theme\src\View\Components\Media\Svg;
 
 final class DefaultThemeServiceProvider extends AbstractPackageServiceProvider
 {
