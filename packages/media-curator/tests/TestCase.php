@@ -26,6 +26,10 @@ class TestCase extends OrchestraTestCase
 {
     protected function setUp(): void
     {
+        if (! class_exists(CuratorServiceProvider::class)) {
+            $this->markTestSkipped('awcodes/filament-curator is not installed.');
+        }
+
         parent::setUp();
 
         Storage::fake('public');
@@ -37,6 +41,10 @@ class TestCase extends OrchestraTestCase
      */
     protected function getPackageProviders($app): array
     {
+        if (! class_exists(CuratorServiceProvider::class)) {
+            return [LivewireServiceProvider::class];
+        }
+
         return [
             LivewireServiceProvider::class,
             CuratorServiceProvider::class,

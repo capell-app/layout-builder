@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Filament\Pages\SitemapPage;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Support\Creator\BlogCreator;
 use Capell\Core\Models\Site;
+use Capell\SeoTools\Filament\Pages\SitemapPage;
 use Capell\SeoTools\Support\Creator\SitemapPageCreator;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 

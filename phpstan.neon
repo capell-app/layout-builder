@@ -13,6 +13,9 @@ parameters:
     paths:
         - packages
         - tests
+    excludePaths:
+        # media-curator requires awcodes/filament-curator which is not in the root vendor
+        - packages/media-curator
     checkAuthCallsWhenInRequestScope: true
     checkConfigTypes: true
     checkExplicitMixedMissingReturn: true
@@ -38,6 +41,7 @@ parameters:
     configDirectories:
         - packages/assistant/config
         - packages/blog/config
+        - packages/default-theme/config
         - packages/mosaic/config
         - packages/plugins/config
     translationDirectories:

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Workspaces\Events\Contracts;
 
+use Capell\Core\Support\Subscriber\Contracts\Subscriber;
 use Capell\Workspaces\Models\Workspace;
 
 /**
@@ -12,7 +13,7 @@ use Capell\Workspaces\Models\Workspace;
  * Implement this interface and register via CapellWorkspaces::subscribe()
  * to hook into workspace operations (clone, publish, approve, etc.).
  */
-interface WorkspaceEventSubscriber
+interface WorkspaceEventSubscriber extends Subscriber
 {
     /**
      * Called before a workspace is cloned.

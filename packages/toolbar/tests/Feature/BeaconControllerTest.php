@@ -9,7 +9,6 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
 use Capell\Frontend\Contracts\AdminAccessCheckerInterface;
 use Capell\Tests\Fixtures\Models\User;
-use Capell\Toolbar\Tests\ToolbarTestCase;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View as ViewContract;
@@ -18,8 +17,6 @@ use Illuminate\Support\Facades\View;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\postJson;
-
-uses(ToolbarTestCase::class);
 
 beforeEach(function (): void {
     Config::set('capell-frontend-toolbar.enabled', true);

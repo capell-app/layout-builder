@@ -26,6 +26,9 @@ use Illuminate\Support\ServiceProvider;
 
 class NavigationServiceProvider extends ServiceProvider
 {
+    /** @var string */
+    public static $packageName = 'capell-app/navigation';
+
     public function register(): void
     {
         $this->registerSchemaExtender(SchemaExtenderEnum::Page->value, NavigationPageSchemaExtender::class);
@@ -40,7 +43,14 @@ class NavigationServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
+        // Skip auto-loading migrations during unit tests: the ordered migration workspace
+        // (BuildsOrderedMigrationWorkspace) copies navigation's migrations into a temp
+        // directory and calls loadMigrationsFrom() on that directory. Loading the same
+        // migrations from two different paths would create the same tables twice.
+        if (! $this->app->runningUnitTests()) {
+            $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
+        }
+
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'capell-navigation');
 
         Gate::policy(Navigation::class, NavigationPolicy::class);

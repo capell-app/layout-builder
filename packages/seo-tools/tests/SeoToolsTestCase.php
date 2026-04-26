@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace Capell\SeoTools\Tests;
 
+use Capell\Admin\Providers\AdminServiceProvider;
+use Capell\Admin\Providers\Filament\AdminPanelProvider;
 use Capell\Core\Facades\CapellCore;
+use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\SeoTools\Providers\SeoToolsServiceProvider;
 use Capell\Tests\AbstractTestCase;
+use Livewire\LivewireServiceProvider;
+use MichalOravec\PaginateRoute\PaginateRouteServiceProvider;
 use Override;
 
 class SeoToolsTestCase extends AbstractTestCase
@@ -24,6 +29,11 @@ class SeoToolsTestCase extends AbstractTestCase
     {
         return [
             ...parent::getPackageProviders($app),
+            AdminServiceProvider::class,
+            AdminPanelProvider::class,
+            FrontendServiceProvider::class,
+            LivewireServiceProvider::class,
+            PaginateRouteServiceProvider::class,
             SeoToolsServiceProvider::class,
         ];
     }
@@ -33,6 +43,8 @@ class SeoToolsTestCase extends AbstractTestCase
     {
         parent::getEnvironmentSetUp($app);
 
+        CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(SeoToolsServiceProvider::$packageName);
     }
 }

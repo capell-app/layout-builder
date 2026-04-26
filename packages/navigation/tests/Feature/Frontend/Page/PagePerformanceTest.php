@@ -17,7 +17,7 @@ use function Pest\Laravel\get;
 
 uses(TestingFrontend::class);
 
-require __DIR__ . '/../Helpers.php';
+require_once __DIR__ . '/../Helpers.php';
 
 it('loads a large, deeply nested frontend page efficiently', function (): void {
     $languageCount = 3;

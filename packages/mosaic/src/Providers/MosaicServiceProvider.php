@@ -243,7 +243,6 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
                     model: $type->getModel(),
                     // TODO when this is translated this causes Livewire error: Exception: Property type not supported in Livewire for property: [{}]
                     label: $type->getLabel(),
-                    creatorClass: $type->getCreatorClass(),
                 ),
             );
         }

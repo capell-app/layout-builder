@@ -8,7 +8,6 @@ use Capell\Blog\Enums\LivewirePageComponentEnum;
 use Capell\Blog\Listeners\ArticleTranslationSavedListener;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Support\BlogModelRegistrar;
-use Capell\Blog\Support\Creator\ArticleCreator;
 use Capell\Core\Data\PageTypeData;
 use Capell\Core\Data\VendorAssetData;
 use Capell\Core\Facades\CapellCore;
@@ -251,7 +250,6 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
                 name: 'article',
                 model: Article::class,
                 label: fn (): string => __('capell-blog::generic.article'),
-                creatorClass: ArticleCreator::class,
             ),
         );
 

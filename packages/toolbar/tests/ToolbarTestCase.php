@@ -39,10 +39,10 @@ class ToolbarTestCase extends AbstractTestCase
     /**
      * @return class-string[]
      */
-    protected function getPackageProviders($app): array
+    protected function getPackageProviders(mixed $app): array
     {
         return [
-            ...parent::getDefaultPackageProviders(),
+            ...parent::getPackageProviders($app),
             FrontendServiceProvider::class,
             PaginateRouteServiceProvider::class,
             LivewireServiceProvider::class,

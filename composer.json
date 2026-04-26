@@ -188,13 +188,30 @@
             "Capell\\Themes\\Saas\\": "packages/themes/saas/src",
             "Capell\\Tags\\": "packages/tags/src",
             "Capell\\Tags\\Database\\Factories\\": "packages/tags/database/factories",
+            "Capell\\MediaCurator\\": "packages/media-curator/src",
             "Capell\\SeoTools\\": "packages/seo-tools/src",
-            "Capell\\SeoTools\\Database\\Factories\\": "packages/seo-tools/database/factories"
+            "Capell\\SeoTools\\Database\\Factories\\": "packages/seo-tools/database/factories",
+            "Capell\\Toolbar\\": "packages/toolbar/src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Capell\\Tests\\": "tests/src"
+            "Capell\\Tests\\": "tests",
+            "Capell\\Address\\Tests\\": "packages/address/tests",
+            "Capell\\Blog\\Tests\\": "packages/blog/tests",
+            "Capell\\Forms\\Tests\\": "packages/forms/tests",
+            "Capell\\MediaCurator\\Tests\\": "packages/media-curator/tests",
+            "Capell\\Mosaic\\Tests\\": "packages/mosaic/tests",
+            "Capell\\Navigation\\Tests\\": "packages/navigation/tests",
+            "Capell\\Tests\\Packages\\": "tests/Packages",
+            "Capell\\Plugins\\Tests\\": "packages/plugins/tests",
+            "Capell\\SeoTools\\Tests\\": "packages/seo-tools/tests",
+            "Capell\\Tags\\Tests\\": "packages/tags/tests",
+            "Capell\\Themes\\Admin\\Tests\\": "packages/themes-admin/tests",
+            "Capell\\Themes\\Core\\Tests\\": "packages/themes-core/tests",
+            "Capell\\Themes\\Tests\\": "packages/themes/tests",
+            "Capell\\Toolbar\\Tests\\": "packages/toolbar/tests",
+            "Capell\\Workspaces\\Tests\\": "packages/workspaces/tests"
         }
     },
     "config": {
