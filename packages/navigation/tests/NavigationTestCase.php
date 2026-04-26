@@ -12,6 +12,7 @@ use Capell\Frontend\Contracts\SettingsMigrationProviderInterface;
 use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\Navigation\Providers\NavigationServiceProvider;
 use Capell\Tests\AbstractTestCase;
+use Illuminate\Database\Connection;
 use Illuminate\Foundation\Application;
 use Livewire\LivewireServiceProvider;
 use MichalOravec\PaginateRoute\PaginateRouteServiceProvider;
@@ -42,6 +43,14 @@ class NavigationTestCase extends AbstractTestCase
     protected function getPackageServiceName(): string
     {
         return 'capell-navigation';
+    }
+
+    /**
+     * Return the default database connection for direct query-builder access in tests.
+     */
+    protected function connection(): Connection
+    {
+        return $this->app['db']->connection();
     }
 
     /**

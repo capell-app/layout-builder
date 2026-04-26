@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Actions\SavedPageAction;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Navigation\Actions\AddPageToNavigationAction;
 use Capell\Navigation\Data\NavigationItemData;
 use Capell\Navigation\Models\Navigation;
 use Illuminate\Support\Collection;
@@ -21,7 +21,9 @@ it('adds the saved page to provided navigations', function (): void {
         'items' => [],
     ]);
 
-    SavedPageAction::run($page, new Collection([$navigation]));
+    (new Collection([$navigation]))->each(
+        static fn (Navigation $nav): mixed => AddPageToNavigationAction::run($page, $nav),
+    );
 
     $navigation->refresh();
 

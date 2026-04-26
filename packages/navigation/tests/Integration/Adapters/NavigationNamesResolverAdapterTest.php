@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Capell\Core\Contracts\Navigation\NavigationNamesResolver;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
+use Capell\Navigation\Contracts\NavigationNamesResolver;
 use Capell\Navigation\Models\Navigation;
 
 it('is bound in the container when the navigation package is loaded', function (): void {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Actions\ReplicateSiteAction;
+use Capell\Core\Actions\SiteReplicatedAction;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
@@ -36,7 +36,7 @@ it('replicates a site with navigations and pages', function (): void {
         ])
         ->create();
 
-    $clone = ReplicateSiteAction::run($site, [
+    $clone = SiteReplicatedAction::run($site, [
         'copy_pages' => true,
         'copy_navigations' => true,
     ]);
@@ -76,7 +76,7 @@ it('replicates only navigations when setup pages is used', function (): void {
 
     $defaultPages = CapellCore::getDefaultPages()->keys()->all();
 
-    $clone = ReplicateSiteAction::run(
+    $clone = SiteReplicatedAction::run(
         $site,
         [
             'setup_pages' => true,
@@ -98,7 +98,7 @@ it('does not copy navigations when disabled', function (): void {
     $site = Site::factory()->create();
     Navigation::factory()->site($site)->count(2)->create();
 
-    $clone = ReplicateSiteAction::run($site, [
+    $clone = SiteReplicatedAction::run($site, [
         'copy_pages' => true,
         'copy_navigations' => false,
     ]);

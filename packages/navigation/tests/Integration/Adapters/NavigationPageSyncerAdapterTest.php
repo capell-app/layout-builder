@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Capell\Core\Contracts\Navigation\NavigationPageSyncer;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Navigation\Contracts\NavigationPageSyncer;
 use Capell\Navigation\Enums\NavigationItemType;
 use Capell\Navigation\Models\Navigation;
 use Illuminate\Support\Str;
