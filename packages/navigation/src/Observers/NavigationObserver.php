@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Capell\Navigation\Observers;
 
 use Capell\Core\Actions\GenerateUniqueKeyAction;
-use Capell\Core\Enums\CacheEnum;
 use Capell\Core\Support\CapellCoreHelper;
+use Capell\Navigation\Enums\NavigationCacheEnum;
 use Capell\Navigation\Models\Navigation;
 
 class NavigationObserver
@@ -35,6 +35,6 @@ class NavigationObserver
 
     private function clearCache(): void
     {
-        CapellCoreHelper::flushCache([CacheEnum::NavigationNames]);
+        CapellCoreHelper::flushCache([NavigationCacheEnum::NavigationNames]);
     }
 }

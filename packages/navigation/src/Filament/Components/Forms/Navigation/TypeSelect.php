@@ -9,5 +9,6 @@ use Capell\Core\Enums\TypeEnum;
 
 class TypeSelect extends BaseTypeSelect
 {
-    protected null|TypeEnum|string $type = TypeEnum::Navigation;
+    // 'navigation' is not a core TypeEnum case; use the string value directly
+    protected null|TypeEnum|string $type = 'navigation';
 }

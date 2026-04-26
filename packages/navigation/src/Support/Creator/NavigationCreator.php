@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\Navigation\Support\Creator;
 
-use Capell\Core\Enums\TypeEnum;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
@@ -212,7 +211,7 @@ class NavigationCreator
         if ($type === null) {
             $type = $this->typeQuery()->create([
                 'key' => 'navigation',
-                'type' => TypeEnum::Navigation->value,
+                'type' => 'navigation',
                 'name' => 'Navigation',
             ]);
         }

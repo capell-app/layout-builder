@@ -6,8 +6,6 @@ namespace Capell\Navigation\Providers;
 
 use Capell\Admin\Enums\SchemaExtenderEnum;
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Core\Contracts\Navigation\NavigationNamesResolver;
-use Capell\Core\Contracts\Navigation\NavigationPageSyncer;
 use Capell\Core\Exchanger\Enums\RelationOwnership;
 use Capell\Core\Exchanger\Policy\OwnershipMap;
 use Capell\Core\Models\Site;
@@ -15,6 +13,8 @@ use Capell\Navigation\Adapters\NavigationNamesResolverAdapter;
 use Capell\Navigation\Adapters\NavigationPageSyncerAdapter;
 use Capell\Navigation\Console\Commands\DemoCommand;
 use Capell\Navigation\Console\Commands\SetupCommand;
+use Capell\Navigation\Contracts\NavigationNamesResolver;
+use Capell\Navigation\Contracts\NavigationPageSyncer;
 use Capell\Navigation\Filament\Extenders\NavigationPageSchemaExtender;
 use Capell\Navigation\Filament\Extenders\NavigationSiteExtender;
 use Capell\Navigation\Filament\Resources\Navigations\NavigationResource;

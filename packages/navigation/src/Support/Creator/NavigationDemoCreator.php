@@ -174,13 +174,16 @@ class NavigationDemoCreator
             if (! $page instanceof Page) {
                 continue;
             }
+
             if (! $page->relationLoaded('children')) {
                 continue;
             }
+
             $children = $page->children;
             if (! $children instanceof Collection) {
                 continue;
             }
+
             if ($children->isEmpty()) {
                 continue;
             }

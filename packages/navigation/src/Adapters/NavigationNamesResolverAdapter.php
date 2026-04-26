@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Navigation\Adapters;
 
-use Capell\Core\Contracts\Navigation\NavigationNamesResolver;
+use Capell\Navigation\Contracts\NavigationNamesResolver;
 use Capell\Navigation\Models\Navigation;
 use Illuminate\Database\Eloquent\Builder;
 

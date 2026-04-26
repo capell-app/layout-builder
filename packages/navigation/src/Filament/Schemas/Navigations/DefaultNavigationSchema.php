@@ -7,7 +7,6 @@ namespace Capell\Navigation\Filament\Schemas\Navigations;
 use Capell\Admin\Contracts\SchemaTypeEnumInterface;
 use Capell\Admin\Contracts\TypeSchemaInterface;
 use Capell\Admin\Enums\SchemaExtenderEnum;
-use Capell\Admin\Enums\SchemaTypeEnum;
 use Capell\Admin\Filament\Components\Forms\CustomSelectGroup;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
@@ -17,16 +16,17 @@ use Capell\Admin\Filament\Components\Forms\PageMorphToOptionSelect;
 use Capell\Admin\Filament\Components\Forms\PublishSection;
 use Capell\Admin\Filament\Components\Forms\SiteSelect;
 use Capell\Admin\Filament\Concerns\HasTypeSchema;
-use Capell\Admin\Support\SlugGenerator;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\PageVariationEnum;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\CapellCoreHelper;
+use Capell\Core\Support\Slug\SlugGenerator;
 use Capell\Navigation\Data\NavigationItemData;
 use Capell\Navigation\Enums\NavigationHandle;
 use Capell\Navigation\Enums\NavigationItemTarget;
 use Capell\Navigation\Enums\NavigationItemType;
+use Capell\Navigation\Enums\NavigationSchemaTypeEnum;
 use Capell\Navigation\Filament\Components\Forms\Navigation\TypeSelect;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
@@ -52,7 +52,7 @@ class DefaultNavigationSchema implements TypeSchemaInterface
 {
     use HasTypeSchema;
 
-    public static SchemaTypeEnumInterface $schemaType = SchemaTypeEnum::Navigation;
+    public static SchemaTypeEnumInterface $schemaType = NavigationSchemaTypeEnum::Navigation;
 
     /**
      * Array cache for loaded Page models by ID.
