@@ -6,7 +6,7 @@ namespace Capell\Mosaic\Filament\Components\Forms\Widget;
 
 use Capell\Admin\Filament\Components\Forms\NameInput;
 use Capell\Admin\Filament\Components\Forms\StatusToggle;
-use Capell\Admin\Support\SlugGenerator;
+use Capell\Core\Support\Slug\SlugGenerator;
 use Capell\Mosaic\Models\Widget;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
