@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Workspaces\Http\Livewire;
 
 use Capell\Admin\Filament\Resources\Pages\Pages\EditPage;
+use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Page;
 use Capell\Workspaces\Actions\CreatePageDraftWorkspaceAction;
 use Capell\Workspaces\Actions\DeletePageDraftAction;
@@ -60,6 +61,19 @@ class WorkspacePageDraftHandler
             ->title(__('capell-admin::message.draft_deleted_notification', ['workspace' => $workspaceName]))
             ->success()
             ->send();
+    }
+
+    public function countDrafts(Pageable $record): int
+    {
+        if (! isset($record->uuid) || $record->uuid === null || $record->uuid === '') {
+            return 0;
+        }
+
+        return Page::query()
+            ->withoutGlobalScopes()
+            ->where('uuid', $record->uuid)
+            ->where('workspace_id', '>', 0)
+            ->count();
     }
 
     public function redirectToLive(EditPage $editPage): void
