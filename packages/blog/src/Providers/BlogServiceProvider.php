@@ -71,7 +71,6 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
     {
         return $this
             ->registerModelRelations()
-            ->registerPublishCommands()
             ->registerAboutCommand()
             ->registerBladeComponents()
             ->registerLivewireComponents()
@@ -193,15 +192,6 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
                 self::$name => fn () => InstalledVersions::getPrettyVersion('capell-app/blog'),
             ]);
         }
-
-        return $this;
-    }
-
-    private function registerPublishCommands(): self
-    {
-        $this->publishes([
-            $this->package->basePath('/../publishes/config/') => config_path(),
-        ], 'capell-blog-config');
 
         return $this;
     }

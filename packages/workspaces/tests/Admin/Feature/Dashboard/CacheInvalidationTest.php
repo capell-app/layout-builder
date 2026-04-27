@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Admin\Actions\ReplicatePageAction;
-use Capell\Admin\Actions\SavedPageAction;
+use Capell\Core\Actions\PageSavedAction;
 use Capell\Core\Models\Page;
 use Capell\Workspaces\Filament\Widgets\WorkspaceMergeHistoryWidgetAbstract as WorkspaceMergeHistoryWidget;
 use Illuminate\Support\Facades\Cache;
@@ -36,7 +36,7 @@ it('invalidates workspace merge history cache when saving a page', function (): 
     expect(Cache::has('dashboard:workspace-merge-history'))->toBeTrue();
 
     // Save should clear cache
-    SavedPageAction::run($page);
+    PageSavedAction::run($page);
 
     // Verify cache was invalidated
     expect(Cache::has('dashboard:workspace-merge-history'))->toBeFalse();

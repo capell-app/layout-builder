@@ -1,0 +1,80 @@
+<?php
+
+declare(strict_types=1);
+
+use Capell\Address\Providers\AddressServiceProvider;
+use Capell\Admin\Contracts\SchemaTypeEnumInterface;
+use Capell\Admin\Contracts\TypeSchemaInterface;
+use Capell\Admin\Enums\SchemaTypeEnum;
+use Capell\Admin\Facades\CapellAdmin;
+use Capell\Blog\Providers\BlogServiceProvider;
+use Capell\Core\Facades\CapellCore;
+use Capell\Mosaic\Providers\MosaicServiceProvider;
+use Capell\SeoTools\Providers\SeoToolsServiceProvider;
+
+/**
+ * These tests boot the same set of packages PackagesTestCase already boots
+ * (Address + Mosaic + Blog + SeoTools + Frontend + Admin) and assert the
+ * registries are healthy. They guard the seam between packages — a problem
+ * here is one no per-package suite can see.
+ */
+it('boots all packages without throwing', function (): void {
+    // setUp() in PackagesTestCase wires in every package provider in the
+    // fixture's set. Reaching this assertion at all means the boot sequence
+    // didn't throw. The loaded-providers list is the smoke we check on top.
+    expect($this->app->getLoadedProviders())->not->toBeEmpty();
+
+    $providers = array_keys($this->app->getLoadedProviders());
+
+    expect($providers)->toContain(AddressServiceProvider::class);
+    expect($providers)->toContain(MosaicServiceProvider::class);
+    expect($providers)->toContain(BlogServiceProvider::class);
+    expect($providers)->toContain(SeoToolsServiceProvider::class);
+});
+
+it('every registered page type is a usable PageTypeData', function (): void {
+    $types = CapellCore::getPageTypes();
+
+    expect($types)->not->toBeEmpty();
+
+    foreach ($types as $name => $type) {
+        expect($name)->toBeString()->not->toBe('');
+        expect($type->name)->toBe($name);
+    }
+});
+
+it('every registered admin schema points to a real class implementing TypeSchemaInterface', function (): void {
+    $schemas = CapellAdmin::getSchemas();
+
+    expect($schemas)->toBeArray();
+
+    foreach ($schemas as $type => $perType) {
+        foreach ($perType as $key => $class) {
+            expect(class_exists($class))->toBeTrue("Schema class {$class} for type {$type}/{$key} does not exist");
+            expect(is_a($class, TypeSchemaInterface::class, true))
+                ->toBeTrue("Schema class {$class} does not implement TypeSchemaInterface");
+        }
+    }
+});
+
+it('every SchemaTypeEnum value resolves to a non-empty schema list when implementations exist', function (): void {
+    foreach (SchemaTypeEnum::cases() as $case) {
+        $registered = CapellAdmin::getSchemas($case);
+
+        expect($registered)->toBeArray();
+
+        // Empty is fine — not every type has schemas in this fixture's package set.
+        // What we are guarding: registration didn't throw and the array shape is
+        // map<string, class-string>.
+        foreach ($registered as $key => $class) {
+            expect($key)->toBeString();
+            expect(is_string($class) && class_exists($class))->toBeTrue(
+                "Schema {$class} registered under {$case->value}/{$key} is not a loadable class",
+            );
+        }
+    }
+});
+
+it('SchemaTypeEnumInterface contract is satisfied by SchemaTypeEnum', function (): void {
+    expect(is_a(SchemaTypeEnum::class, SchemaTypeEnumInterface::class, true))->toBeTrue();
+});

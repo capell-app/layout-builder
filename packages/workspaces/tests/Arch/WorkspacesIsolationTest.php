@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Capell\Core\Console\Commands\DoctorCommand;
 use Capell\Core\Models\Page;
 use Capell\Core\Observers\PageUrlObserver;
-use Capell\Core\Upgrade\EnsureMorphMapUpgradeStep;
+use Capell\Core\Support\Upgrade\EnsureMorphMapUpgradeStep;
 
 arch('core does not reference Capell\\Workspaces namespace')
     ->expect('Capell\Core')

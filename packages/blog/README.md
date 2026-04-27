@@ -43,7 +43,7 @@ Article publishing for Capell. Adds a dedicated **Article** page type, tagging, 
 php artisan capell:blog-install
 ```
 
-The installer registers the Article page type, Filament resources, and permissions; publishes the tags config and the `alter_tags_table` migration; and runs migrations.
+The installer registers the Article page type, Filament resources, and permissions; and runs migrations.
 
 Create the default Blog, Archives, and Tags pages for a site:
 

@@ -6,22 +6,16 @@ use Capell\SeoTools\Actions\GeneratorPageContentAction;
 
 return [
     'prism' => [
-        /** @phpstan-ignore-next-line larastan.noEnvCallsOutsideOfConfig */
         'provider' => env('AI_PROVIDER', 'openai'),
-        /** @phpstan-ignore-next-line larastan.noEnvCallsOutsideOfConfig */
         'model' => env('AI_MODEL', 'gpt-4o'),
         'max_retries' => 3,
         'retry_delay_ms' => 500,
         'max_tokens' => 4096,
-        /** @phpstan-ignore-next-line larastan.noEnvCallsOutsideOfConfig */
         'image_provider' => env('AI_IMAGE_PROVIDER', 'openai'),
-        /** @phpstan-ignore-next-line larastan.noEnvCallsOutsideOfConfig */
         'image_model' => env('AI_IMAGE_MODEL', 'dall-e-3'),
-        /** @phpstan-ignore-next-line larastan.noEnvCallsOutsideOfConfig */
         'image_size' => env('AI_IMAGE_SIZE', '1024x1024'),
     ],
     'ai_creator' => [
-        /** @phpstan-ignore-next-line larastan.noEnvCallsOutsideOfConfig */
         'enabled' => env('AI_CREATOR_ENABLED', true),
     ],
     'prompts' => [

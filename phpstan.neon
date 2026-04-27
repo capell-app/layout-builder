@@ -44,6 +44,11 @@ parameters:
         - packages/default-theme/config
         - packages/mosaic/config
         - packages/plugins/config
+        - packages/seo-tools/config
+        - packages/themes/agency/config
+        - packages/themes/corporate/config
+        - packages/themes/saas/config
+        - packages/toolbar/config
     translationDirectories:
         - packages/address/resources/lang
         - packages/blog/resources/lang

@@ -61,7 +61,9 @@ class WorkspacesTestCase extends AbstractTestCase
         // the view namespace here so capell-navigation:: references resolve in tests.
         $this->app->make(Factory::class)->addNamespace(
             'capell-navigation',
-            realpath(__DIR__ . '/../../../packages/navigation/resources/views') ?: '',
+            realpath(__DIR__ . '/../../../packages/navigation/resources/views') === false
+                ? ''
+                : realpath(__DIR__ . '/../../../packages/navigation/resources/views'),
         );
 
         $this->registerAndMigrateSettings(

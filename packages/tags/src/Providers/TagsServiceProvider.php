@@ -7,6 +7,7 @@ namespace Capell\Tags\Providers;
 use Capell\Core\Enums\PackageTypeEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\Tags\Console\Commands\InstallCommand;
 use Capell\Tags\Models\Tag;
 use Capell\Tags\Models\Taggable;
 use Capell\Tags\Support\TagModelRegistrar;
@@ -26,7 +27,9 @@ class TagsServiceProvider extends AbstractPackageServiceProvider
     {
         $package
             ->name(self::$name)
-            ->hasMigrations(['alter_tags_table'])
+            ->hasCommands([
+                InstallCommand::class,
+            ])
             ->hasTranslations();
     }
 
@@ -35,6 +38,7 @@ class TagsServiceProvider extends AbstractPackageServiceProvider
         TagModelRegistrar::register();
         $this->registerWorkspaces();
         $this->registerPackageMetadata();
+        $this->registerPublishCommands();
     }
 
     private function registerWorkspaces(): void
@@ -53,9 +57,17 @@ class TagsServiceProvider extends AbstractPackageServiceProvider
             serviceProviderClass: static::class,
             path: realpath(__DIR__ . '/../..'),
             version: $this->getVersion(),
-            permissions: [],
             description: fn (): string => __('capell-tags::package.description'),
         );
+    }
+
+    private function registerPublishCommands(): self
+    {
+        $this->publishes([
+            $this->package->basePath('/../publishes/config/') => config_path(),
+        ], 'capell-tags-config');
+
+        return $this;
     }
 
     private function getVersion(): string
