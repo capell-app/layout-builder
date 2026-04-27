@@ -80,6 +80,7 @@ class PluginsServiceProvider extends AbstractPackageServiceProvider
             type: static::getType(),
             serviceProviderClass: static::class,
             path: realpath(__DIR__ . '/../..'),
+            description: fn (): string => __('capell-plugins::package.description'),
         );
     }
 }

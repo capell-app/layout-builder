@@ -54,6 +54,7 @@ class TagsServiceProvider extends AbstractPackageServiceProvider
             path: realpath(__DIR__ . '/../..'),
             version: $this->getVersion(),
             permissions: [],
+            description: fn (): string => __('capell-tags::package.description'),
         );
     }
 

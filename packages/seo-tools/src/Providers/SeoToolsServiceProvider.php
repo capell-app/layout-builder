@@ -458,6 +458,7 @@ class SeoToolsServiceProvider extends AbstractPackageServiceProvider
             version: $this->getVersion(),
             setting: AssistantSettings::class,
             permissions: [],
+            description: fn (): string => __('capell-seo-tools::package.description'),
         );
     }
 

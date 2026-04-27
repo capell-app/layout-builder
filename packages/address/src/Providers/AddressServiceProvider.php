@@ -81,6 +81,7 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
             serviceProviderClass: static::class,
             path: realpath(__DIR__ . '/../..'),
             version: $this->getVersion(),
+            description: fn (): string => __('capell-address::package.description'),
         );
 
         return $this;

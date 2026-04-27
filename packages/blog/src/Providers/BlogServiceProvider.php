@@ -87,6 +87,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             path: realpath(__DIR__ . '/../..'),
             version: $this->getVersion(),
             permissions: $this->getPackagePermissions(),
+            description: fn (): string => __('capell-blog::package.description'),
         );
 
         return $this;
