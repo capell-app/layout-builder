@@ -38,11 +38,10 @@ class TagsServiceProvider extends AbstractPackageServiceProvider
         TagModelRegistrar::register();
         $this->registerWorkspaces();
         $this->registerPackageMetadata();
-    }
 
-    public function packageRegistered(): void
-    {
-        $this->registerPublishCommands();
+        $this->booted(function (): void {
+            $this->registerPublishCommands();
+        });
     }
 
     private function registerWorkspaces(): void
