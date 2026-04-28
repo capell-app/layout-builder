@@ -7,8 +7,11 @@ namespace Capell\Workspaces\Providers;
 use Capell\Admin\Contracts\DashboardSettingsContributor;
 use Capell\Admin\Enums\DashboardEnum;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Core\Events\PageSaved;
+use Capell\Core\Models\Page;
 use Capell\Workspaces\Events\WorkspaceStateChanged;
 use Capell\Workspaces\Filament\Pages\ImportPagesPage;
+use Capell\Workspaces\Filament\Resources\PreviewLinks\PreviewLinkResource;
 use Capell\Workspaces\Filament\Resources\Workspaces\WorkspaceResource;
 use Capell\Workspaces\Filament\Settings\Contributors\DefaultDashboardSettingsContributor;
 use Capell\Workspaces\Filament\Settings\Contributors\SystemHealthSettingsContributor;
@@ -25,6 +28,7 @@ use Capell\Workspaces\WorkspaceContext;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -38,6 +42,8 @@ class AdminServiceProvider extends ServiceProvider
             [DefaultDashboardSettingsContributor::class, SystemHealthSettingsContributor::class],
             DashboardSettingsContributor::TAG,
         );
+
+        $this->registerFilamentExtensions();
     }
 
     public function boot(): void
@@ -46,7 +52,6 @@ class AdminServiceProvider extends ServiceProvider
 
         $this->registerLivewireComponents()
             ->registerRenderHooks()
-            ->registerFilamentExtensions()
             ->registerEventListeners()
             ->registerPolicies();
     }
@@ -103,6 +108,7 @@ class AdminServiceProvider extends ServiceProvider
     {
         CapellAdmin::registerDashboardWidget(WorkspaceActivityWidgetAbstract::class, DashboardEnum::Main);
         CapellAdmin::registerResource('Workspace', WorkspaceResource::class);
+        CapellAdmin::registerResource('PreviewLink', PreviewLinkResource::class);
         CapellAdmin::registerPage(ImportPagesPage::class);
 
         return $this;
@@ -111,6 +117,13 @@ class AdminServiceProvider extends ServiceProvider
     private function registerEventListeners(): self
     {
         Event::listen(WorkspaceStateChanged::class, SendWorkspaceStateNotification::class);
+
+        $clearMergeHistoryCache = static function (): void {
+            Cache::forget('dashboard:workspace-merge-history');
+        };
+
+        Event::listen(PageSaved::class, $clearMergeHistoryCache);
+        Page::created($clearMergeHistoryCache);
 
         return $this;
     }

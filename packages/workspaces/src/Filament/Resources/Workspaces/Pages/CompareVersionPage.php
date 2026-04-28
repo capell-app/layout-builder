@@ -36,7 +36,7 @@ class CompareVersionPage extends Page
 
     protected static bool $shouldRegisterNavigation = false;
 
-    protected string $view = 'capell-admin::components.pages.workspaces.compare';
+    protected string $view = 'capell-workspaces::components.pages.workspaces.compare';
 
     public function mount(string|int $record): void
     {

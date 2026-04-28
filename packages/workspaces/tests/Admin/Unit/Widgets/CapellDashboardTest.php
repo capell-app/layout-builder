@@ -13,6 +13,7 @@ use Capell\Admin\Filament\Widgets\Dashboard\TopPagesWidget;
 use Capell\Admin\Filament\Widgets\Health\AuthenticationLogsWidget;
 use Capell\Admin\Filament\Widgets\Health\SiteHealthWidgetAbstract;
 use Capell\Admin\Filament\Widgets\Health\TotalAccessLogsWidget;
+use Capell\Core\Models\SiteDomain;
 use Capell\Tests\Fixtures\Models\User;
 use Capell\Workspaces\Filament\Widgets\WorkspaceActivityWidgetAbstract;
 use Filament\Widgets\FilamentInfoWidget;
@@ -23,6 +24,8 @@ it('getColumns returns 3', function (): void {
 });
 
 it('getWidgets contains all expected widget classes', function (): void {
+    SiteDomain::factory()->default()->create();
+
     $dashboard = new CapellDashboard;
     $widgets = $dashboard->getWidgets();
 

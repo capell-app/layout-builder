@@ -81,7 +81,7 @@ class FieldCommentThread extends Component
 
     public function render(): View
     {
-        return view('capell-admin::components.workspaces.field-comment-thread', [
+        return view('capell-workspaces::components.workspaces.field-comment-thread', [
             'comments' => $this->comments,
         ]);
     }

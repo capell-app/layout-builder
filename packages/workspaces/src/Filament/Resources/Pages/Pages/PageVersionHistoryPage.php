@@ -41,7 +41,7 @@ class PageVersionHistoryPage extends FilamentPage
 
     protected static bool $shouldRegisterNavigation = false;
 
-    protected string $view = 'capell-admin::filament.resources.pages.version-history';
+    protected string $view = 'capell-workspaces::filament.resources.pages.version-history';
 
     /** @return class-string<PageResource> */
     public static function getResource(): string

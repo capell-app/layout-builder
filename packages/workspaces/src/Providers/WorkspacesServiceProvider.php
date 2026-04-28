@@ -6,6 +6,7 @@ namespace Capell\Workspaces\Providers;
 
 use Capell\Admin\Contracts\Extenders\PageEditExtender;
 use Capell\Admin\Contracts\Extenders\PageExportExtender;
+use Capell\Admin\Contracts\Extenders\PageResourcePageExtender;
 use Capell\Admin\Contracts\Extenders\PageTableExtender;
 use Capell\Blog\Models\Article;
 use Capell\Core\Facades\CapellCore;
@@ -20,6 +21,8 @@ use Capell\Core\Models\SiteDomain;
 use Capell\Core\Models\Theme;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
+use Capell\Frontend\Enums\RenderHookLocation;
+use Capell\Frontend\Support\Render\RenderHookRegistry;
 use Capell\Mosaic\Models\Section;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;
@@ -29,6 +32,7 @@ use Capell\Workspaces\BelongsToWorkspace;
 use Capell\Workspaces\Events\WorkspaceEventDispatcher;
 use Capell\Workspaces\Extenders\WorkspacesPageEditExtender;
 use Capell\Workspaces\Extenders\WorkspacesPageExportExtender;
+use Capell\Workspaces\Extenders\WorkspacesPageResourcePageExtender;
 use Capell\Workspaces\Extenders\WorkspacesPageTableExtender;
 use Capell\Workspaces\Http\Livewire\WorkspacePageDraftHandler;
 use Capell\Workspaces\Http\Middleware\ResolveWorkspaceContext;
@@ -65,11 +69,13 @@ class WorkspacesServiceProvider extends ServiceProvider
         $this->app->tag([WorkspacesPageTableExtender::class], PageTableExtender::TAG);
         $this->app->tag([WorkspacesPageEditExtender::class], PageEditExtender::TAG);
         $this->app->tag([WorkspacesPageExportExtender::class], PageExportExtender::TAG);
+        $this->app->tag([WorkspacesPageResourcePageExtender::class], PageResourcePageExtender::TAG);
     }
 
     public function boot(): void
     {
         $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
+        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'capell-workspaces');
 
         $this->registerMorphMap();
 
@@ -81,7 +87,8 @@ class WorkspacesServiceProvider extends ServiceProvider
             ->applyBehaviorToExternalModels()
             ->registerBuilderMacros()
             ->registerMiddleware()
-            ->registerEventListeners();
+            ->registerEventListeners()
+            ->registerFrontendRenderHooks();
     }
 
     private function registerMorphMap(): self
@@ -109,7 +116,6 @@ class WorkspacesServiceProvider extends ServiceProvider
             Layout::class,
             Language::class,
             Media::class,
-            Translation::class,
             PageUrl::class,
             AssetRelation::class,
         ];
@@ -145,28 +151,53 @@ class WorkspacesServiceProvider extends ServiceProvider
                 ->where('workspace_id', 0)
                 ->update(['pageable_id' => $draftPageId]);
 
+            // CoW-cloned translations have translatable_id = oldLiveId (the live page id),
+            // because they were cloned before the page itself was copied. Retarget them to
+            // draftPageId so they point to the correct page after the workspace_id flip.
             $coveredLanguageIds = Translation::query()
                 ->withoutGlobalScopes()
                 ->where('translatable_type', $morphClass)
-                ->where('translatable_id', $draftPageId)
+                ->where('translatable_id', $oldLiveId)
                 ->where('workspace_id', $workspaceId)
                 ->pluck('language_id')
                 ->all();
 
-            $translationQuery = Translation::query()
+            if ($coveredLanguageIds !== []) {
+                Translation::query()
+                    ->withoutGlobalScopes()
+                    ->where('translatable_type', $morphClass)
+                    ->where('translatable_id', $oldLiveId)
+                    ->where('workspace_id', $workspaceId)
+                    ->update(['translatable_id' => $draftPageId]);
+
+                // Delete live translations that are superseded by workspace ones so the
+                // unique constraint is not violated when workspace translations are flipped
+                // to workspace_id = 0.
+                Translation::query()
+                    ->withoutGlobalScopes()
+                    ->where('translatable_type', $morphClass)
+                    ->where('translatable_id', $oldLiveId)
+                    ->where('workspace_id', 0)
+                    ->whereIn('language_id', $coveredLanguageIds)
+                    ->delete();
+            }
+
+            // Retarget uncovered live translations to the new page id.
+            Translation::query()
                 ->withoutGlobalScopes()
                 ->where('translatable_type', $morphClass)
                 ->where('translatable_id', $oldLiveId)
-                ->where('workspace_id', 0);
-
-            if ($coveredLanguageIds !== []) {
-                $translationQuery->whereNotIn('language_id', $coveredLanguageIds);
-            }
-
-            $translationQuery->update(['translatable_id' => $draftPageId]);
+                ->where('workspace_id', 0)
+                ->when($coveredLanguageIds !== [], static fn ($query) => $query->whereNotIn('language_id', $coveredLanguageIds))
+                ->update(['translatable_id' => $draftPageId]);
 
             return $draftRow;
         });
+
+        // Translation is registered AFTER Page so that Publisher processes Page first
+        // during publish. Page's finalizeOnPublish retargets and deletes conflicting
+        // live translations before Translation rows are flipped to workspace_id = 0.
+        WorkspaceRegistry::register(Translation::class);
 
         $this->registerExternalModels();
 
@@ -331,6 +362,20 @@ class WorkspacesServiceProvider extends ServiceProvider
         Event::listen(
             'eloquent.creating: ' . $activityModel,
             [StampWorkspaceOnActivity::class, 'handle'],
+        );
+
+        return $this;
+    }
+
+    private function registerFrontendRenderHooks(): self
+    {
+        if (! $this->app->bound(RenderHookRegistry::class)) {
+            return $this;
+        }
+
+        $this->app->make(RenderHookRegistry::class)->register(
+            RenderHookLocation::BodyEnd,
+            static fn (): string => view('capell-workspaces::components.workspace-preview-pill')->render(),
         );
 
         return $this;

@@ -30,10 +30,15 @@ class BrokenLinkCheck implements PublishCheck
             );
         }
 
+        $columns = ['uuid', 'body'];
+        if (Schema::hasColumn('pages', 'slug')) {
+            $columns[] = 'slug';
+        }
+
         $pages = DB::table('pages')
             ->where('workspace_id', $workspace->id)
             ->whereNotNull('body')
-            ->select(['uuid', 'slug', 'body'])
+            ->select($columns)
             ->get();
 
         // Build a map of pageUuid => hrefs[] and collect all unique hrefs in one pass.
@@ -44,7 +49,7 @@ class BrokenLinkCheck implements PublishCheck
             $internalLinks = $this->extractInternalLinks((string) $page->body);
 
             if ($internalLinks !== []) {
-                $pageHrefMap[$page->uuid] = ['slug' => $page->slug, 'hrefs' => $internalLinks];
+                $pageHrefMap[$page->uuid] = ['slug' => $page->slug ?? null, 'hrefs' => $internalLinks];
                 foreach ($internalLinks as $href) {
                     $allHrefs[$href] = true;
                 }

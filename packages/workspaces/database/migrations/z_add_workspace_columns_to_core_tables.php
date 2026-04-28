@@ -40,10 +40,33 @@ return new class extends Migration
                 }
             });
         }
+
+        // The translations table has a unique constraint on (language_id, translatable_type,
+        // translatable_id). Workspace-scoped clones share the same translatable_id as their
+        // live counterpart, so workspace_id must be part of the key to avoid conflicts.
+        if (Schema::hasTable('translations')) {
+            Schema::table('translations', function (Blueprint $schema): void {
+                $schema->dropUnique('translations_key_unique');
+                $schema->unique(
+                    ['language_id', 'translatable_type', 'translatable_id', 'workspace_id'],
+                    'translations_workspace_key_unique',
+                );
+            });
+        }
     }
 
     public function down(): void
     {
+        if (Schema::hasTable('translations')) {
+            Schema::table('translations', function (Blueprint $schema): void {
+                $schema->dropUnique('translations_workspace_key_unique');
+                $schema->unique(
+                    ['language_id', 'translatable_type', 'translatable_id'],
+                    'translations_key_unique',
+                );
+            });
+        }
+
         foreach ($this->tablesToUpdate as $table) {
             if (! Schema::hasTable($table)) {
                 continue;

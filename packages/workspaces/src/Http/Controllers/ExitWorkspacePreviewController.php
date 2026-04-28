@@ -13,11 +13,9 @@ class ExitWorkspacePreviewController
 {
     public function __invoke(Request $request): RedirectResponse
     {
-        Cookie::queue(Cookie::forget(ResolveWorkspaceContext::COOKIE_NAME));
-
         $redirect = $request->query('redirect');
         $target = is_string($redirect) && $redirect !== '' ? $redirect : '/';
 
-        return redirect($target);
+        return redirect($target)->withCookie(Cookie::forget(ResolveWorkspaceContext::COOKIE_NAME));
     }
 }

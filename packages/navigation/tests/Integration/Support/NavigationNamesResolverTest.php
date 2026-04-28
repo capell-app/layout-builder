@@ -11,7 +11,7 @@ test('resolves navigation names for site and languages', function (): void {
     $typeId = $this->connection()->table('types')->insertGetId([
         'key' => 'navigation',
         'name' => 'Navigation',
-        'description' => 'Navigation type',
+
     ]);
 
     // Insert Navigations
@@ -52,7 +52,7 @@ test('caches result with correct key', function (): void {
     $typeId = $this->connection()->table('types')->insertGetId([
         'key' => 'navigation',
         'name' => 'Navigation',
-        'description' => 'Navigation type',
+
     ]);
 
     $this->connection()->table('navigations')->insert([
@@ -80,7 +80,7 @@ test('includes navigations with null site id', function (): void {
     $typeId = $this->connection()->table('types')->insertGetId([
         'key' => 'navigation',
         'name' => 'Navigation',
-        'description' => 'Navigation type',
+
     ]);
 
     $this->connection()->table('navigations')->insert([
@@ -117,7 +117,7 @@ test('handles string site id', function (): void {
     $typeId = $this->connection()->table('types')->insertGetId([
         'key' => 'navigation',
         'name' => 'Navigation',
-        'description' => 'Navigation type',
+
     ]);
 
     $this->connection()->table('navigations')->insert([
@@ -143,7 +143,7 @@ test('returns id name mapping', function (): void {
     $typeId = $this->connection()->table('types')->insertGetId([
         'key' => 'navigation',
         'name' => 'Navigation',
-        'description' => 'Navigation type',
+
     ]);
 
     $navId = $this->connection()->table('navigations')->insertGetId([

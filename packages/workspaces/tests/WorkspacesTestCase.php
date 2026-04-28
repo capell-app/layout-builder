@@ -11,6 +11,7 @@ use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
+use Capell\Blog\Providers\BlogServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Media;
 use Capell\Frontend\Contracts\SettingsMigrationProviderInterface;
@@ -20,6 +21,7 @@ use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Capell\Workspaces\Providers\AdminServiceProvider as WorkspacesAdminServiceProvider;
 use Capell\Workspaces\Providers\ConsoleServiceProvider as WorkspacesConsoleServiceProvider;
 use Capell\Workspaces\Providers\WorkspacesServiceProvider;
+use Capell\Workspaces\WorkspaceContext;
 use CmsMulti\FilamentClearCache\FilamentClearCacheServiceProvider;
 use CodeWithDennis\FilamentSelectTree\FilamentSelectTreeServiceProvider;
 use Filament\Actions\ActionsServiceProvider;
@@ -84,6 +86,7 @@ class WorkspacesTestCase extends AbstractTestCase
 
     protected function tearDown(): void
     {
+        WorkspaceContext::clear();
         Model::clearBootedModels();
         parent::tearDown();
     }
@@ -130,6 +133,7 @@ class WorkspacesTestCase extends AbstractTestCase
             WorkspacesServiceProvider::class,
             WorkspacesAdminServiceProvider::class,
             WorkspacesConsoleServiceProvider::class,
+            BlogServiceProvider::class,
         ];
     }
 
@@ -149,6 +153,9 @@ class WorkspacesTestCase extends AbstractTestCase
 
         CapellCore::registerPackage('capell-app/tags', path: realpath(__DIR__ . '/../../../packages/tags'));
         CapellCore::forcePackageInstalled('capell-app/tags');
+
+        CapellCore::registerPackage(BlogServiceProvider::$packageName, path: realpath(__DIR__ . '/../../../packages/blog'));
+        CapellCore::forcePackageInstalled(BlogServiceProvider::$packageName);
 
         $app->make(Repository::class)->set('media-library.media_model', Media::class);
 

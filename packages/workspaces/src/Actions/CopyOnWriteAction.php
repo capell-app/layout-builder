@@ -56,16 +56,16 @@ final readonly class CopyOnWriteAction
         $clone->setAttribute('workspace_id', $workspace->id);
         $clone->setAttribute('shadowed_by_workspace_id', 0);
 
-        foreach ($dirtyAttributes as $attribute => $value) {
-            if ($attribute === 'workspace_id') {
-                continue;
-            }
+        // Merge dirty attributes via setRawAttributes to avoid double-encoding:
+        // getDirty() returns raw stored values (e.g. JSON strings for json casts),
+        // and setAttribute() would re-apply the cast, corrupting already-encoded values.
+        $filteredDirty = array_diff_key(
+            $dirtyAttributes,
+            ['workspace_id' => null, 'shadowed_by_workspace_id' => null],
+        );
 
-            if ($attribute === 'shadowed_by_workspace_id') {
-                continue;
-            }
-
-            $clone->setAttribute($attribute, $value);
+        if ($filteredDirty !== []) {
+            $clone->setRawAttributes(array_merge($clone->getAttributes(), $filteredDirty));
         }
 
         // Preserve the live row's primary-key-linked uuid when present so the

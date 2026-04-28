@@ -8,7 +8,10 @@ use Capell\Admin\Enums\SchemaExtenderEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Exchanger\Enums\RelationOwnership;
 use Capell\Core\Exchanger\Policy\OwnershipMap;
+use Capell\Core\Models\Language;
+use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Core\Support\Creator\DemoCreator;
 use Capell\Navigation\Adapters\NavigationNamesResolverAdapter;
 use Capell\Navigation\Adapters\NavigationPageSyncerAdapter;
 use Capell\Navigation\Console\Commands\DemoCommand;
@@ -20,6 +23,7 @@ use Capell\Navigation\Filament\Extenders\NavigationSiteExtender;
 use Capell\Navigation\Filament\Resources\Navigations\NavigationResource;
 use Capell\Navigation\Models\Navigation;
 use Capell\Navigation\Policies\NavigationPolicy;
+use Capell\Navigation\Support\Creator\NavigationDemoCreator;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -60,6 +64,23 @@ class NavigationServiceProvider extends ServiceProvider
         OwnershipMap::register(Navigation::class, RelationOwnership::Shared);
 
         Site::resolveRelationUsing('navigations', fn (Site $site): HasMany => $site->hasMany(Navigation::class));
+
+        $this->registerDemoCreatorMacros();
+    }
+
+    private function registerDemoCreatorMacros(): void
+    {
+        DemoCreator::macro('setupMainNavigation', function (Site $site, Language $language, Page $home): void {
+            resolve(NavigationDemoCreator::class)->setupMainNavigation($site, $language, $home);
+        });
+
+        DemoCreator::macro('setupFooterNavigation', function (Site $site, Language $language): void {
+            resolve(NavigationDemoCreator::class)->setupFooterNavigation($site, $language);
+        });
+
+        DemoCreator::macro('subFooterNavigation', function (Site $site, ?Language $language): void {
+            resolve(NavigationDemoCreator::class)->setupSubFooterNavigation($site, $language);
+        });
     }
 
     private function registerSchemaExtender(string $tag, string $class): void

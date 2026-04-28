@@ -16,7 +16,6 @@ use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\PublishStatusEnum;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Cache\PageCacheService;
-use Capell\Workspaces\BelongsToWorkspace;
 use Capell\Workspaces\Filament\Resources\Workspaces\WorkspaceResource;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -208,8 +207,9 @@ class PageAlertsWidget extends ResourceAlertsWidget
     {
         $record = $this->record;
 
-        if (! in_array(BelongsToWorkspace::class, class_uses_recursive($record), true)
-            || $record->isLive()) {
+        $workspaceId = $record->getAttribute('workspace_id');
+
+        if ($workspaceId === null || (int) $workspaceId === 0) {
             return null;
         }
 

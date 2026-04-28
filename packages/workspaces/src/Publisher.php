@@ -111,6 +111,11 @@ class Publisher
             foreach ($this->registry::all() as $modelClass => $registeredDraftable) {
                 $modelInstance = new $modelClass;
                 $table = $modelInstance->getTable();
+
+                if (! DB::getSchemaBuilder()->hasTable($table)) {
+                    continue;
+                }
+
                 $hasUuid = in_array('uuid', $modelInstance->getFillable(), true)
                     || $this->tableHasColumn($table, 'uuid');
 
@@ -329,6 +334,12 @@ class Publisher
         $counts = [];
 
         foreach (array_keys($this->registry::all()) as $modelClass) {
+            $table = (new $modelClass)->getTable();
+
+            if (! DB::getSchemaBuilder()->hasTable($table)) {
+                continue;
+            }
+
             $count = $modelClass::query()
                 ->withoutGlobalScopes()
                 ->where('workspace_id', $workspace->id)
