@@ -30,3 +30,21 @@ it('returns unknown when location is invalid or missing', function (): void {
         ->and($resolver->resolveFromLocation(null))->toBe(AnalyticsConsentRegion::Unknown)
         ->and($resolver->resolveFromLocation(['country' => null]))->toBe(AnalyticsConsentRegion::Unknown);
 });
+
+it('maps uk and europe country codes to uk or europe consent region', function (string $countryCode): void {
+    config()->set('capell-analytics.default_consent_region', null);
+
+    $resolver = app(ConsentRegionResolver::class);
+
+    expect($resolver->resolveFromLocation(['iso_code' => $countryCode]))
+        ->toBe(AnalyticsConsentRegion::UkOrEurope);
+})->with(['GB', 'FR', 'NO', 'CH']);
+
+it('maps non-listed country codes to outside uk or europe consent region', function (): void {
+    config()->set('capell-analytics.default_consent_region', null);
+
+    $resolver = app(ConsentRegionResolver::class);
+
+    expect($resolver->resolveFromLocation(['iso_code' => 'US']))
+        ->toBe(AnalyticsConsentRegion::OutsideUkOrEurope);
+});
