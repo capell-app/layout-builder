@@ -42,6 +42,9 @@ final class TrendingPagesWidget extends BaseWidget implements CapellWidgetContra
                 TextColumn::make('current_page_views')
                     ->label(__('capell-analytics::widgets.current_page_views'))
                     ->numeric(),
+                TextColumn::make('previous_page_views')
+                    ->label(__('capell-analytics::widgets.previous_page_views'))
+                    ->numeric(),
                 TextColumn::make('change')
                     ->label(__('capell-analytics::widgets.change'))
                     ->numeric(),

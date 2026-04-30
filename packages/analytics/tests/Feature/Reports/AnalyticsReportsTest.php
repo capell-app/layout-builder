@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use Capell\Analytics\Actions\BuildJourneyTimelineAction;
 use Capell\Analytics\Actions\BuildPopularPagesQueryAction;
+use Capell\Analytics\Actions\BuildRecentJourneysQueryAction;
+use Capell\Analytics\Actions\BuildTopActionsQueryAction;
 use Capell\Analytics\Actions\BuildTrendingPagesQueryAction;
 use Capell\Analytics\Data\AnalyticsWindowData;
 use Capell\Analytics\Enums\AnalyticsEventType;
@@ -83,6 +85,58 @@ it('builds an ordered journey timeline with seconds since previous step', functi
         ->and($steps[2]->eventName)->toBe('signup_started');
 });
 
+it('returns recent journeys ordered by last seen date', function (): void {
+    $olderVisit = AnalyticsVisit::factory()->create([
+        'last_seen_at' => CarbonImmutable::parse('2026-04-20 10:00:00'),
+    ]);
+    $recentVisit = AnalyticsVisit::factory()->create([
+        'last_seen_at' => CarbonImmutable::parse('2026-04-21 10:00:00'),
+    ]);
+    $emptyVisit = AnalyticsVisit::factory()->create([
+        'last_seen_at' => CarbonImmutable::parse('2026-04-22 10:00:00'),
+    ]);
+
+    analyticsReportEvent($olderVisit, AnalyticsEventType::PageView, '/older', 'https://example.test/older', CarbonImmutable::parse('2026-04-20 10:00:00'));
+    analyticsReportEvent($recentVisit, AnalyticsEventType::PageView, '/recent', 'https://example.test/recent', CarbonImmutable::parse('2026-04-21 10:00:00'), sequence: 1);
+    analyticsReportEvent($recentVisit, AnalyticsEventType::Click, '/recent/contact', 'https://example.test/recent/contact', CarbonImmutable::parse('2026-04-21 10:01:00'), sequence: 2);
+
+    $journeys = BuildRecentJourneysQueryAction::run();
+
+    expect($journeys->pluck('visit')->all())->toBe([$recentVisit->uuid, $olderVisit->uuid])
+        ->and($journeys->pluck('visit')->all())->not->toContain($emptyVisit->uuid)
+        ->and($journeys->first())->toMatchArray([
+            'visit' => $recentVisit->uuid,
+            'steps' => 2,
+            'last_path' => '/recent/contact',
+        ]);
+});
+
+it('groups top actions in the current window and excludes page views', function (): void {
+    $window = analyticsReportWindow();
+    $visit = AnalyticsVisit::factory()->create();
+
+    analyticsReportEvent($visit, AnalyticsEventType::Custom, '/pricing', 'https://example.test/pricing', $window->startsAt->addHour(), eventName: 'signup_started');
+    analyticsReportEvent($visit, AnalyticsEventType::Custom, '/pricing', 'https://example.test/pricing', $window->startsAt->addHours(2), eventName: 'signup_started');
+    analyticsReportEvent($visit, AnalyticsEventType::Click, '/pricing', 'https://example.test/pricing', $window->startsAt->addHours(3), label: 'Pricing CTA', location: 'hero');
+    analyticsReportEvent($visit, AnalyticsEventType::PageView, '/pricing', 'https://example.test/pricing', $window->startsAt->addHours(4));
+    analyticsReportEvent($visit, AnalyticsEventType::Custom, '/outside', 'https://example.test/outside', $window->startsAt->subDay(), eventName: 'outside_window');
+
+    $actions = BuildTopActionsQueryAction::run($window);
+
+    expect($actions->pluck('action')->all())->toBe(['signup_started', 'Pricing CTA'])
+        ->and($actions->first())->toMatchArray([
+            'action' => 'signup_started',
+            'event_name' => 'signup_started',
+            'events' => 2,
+        ])
+        ->and($actions->last())->toMatchArray([
+            'action' => 'Pricing CTA',
+            'label' => 'Pricing CTA',
+            'location' => 'hero',
+            'events' => 1,
+        ]);
+});
+
 function analyticsReportWindow(): AnalyticsWindowData
 {
     return new AnalyticsWindowData(
@@ -99,6 +153,8 @@ function analyticsReportEvent(
     CarbonImmutable $occurredAt,
     int $sequence = 1,
     ?string $eventName = null,
+    ?string $label = null,
+    ?string $location = null,
 ): AnalyticsEvent {
     return AnalyticsEvent::factory()->create([
         'visit_id' => $visit->getKey(),
@@ -108,5 +164,7 @@ function analyticsReportEvent(
         'occurred_at' => $occurredAt,
         'sequence' => $sequence,
         'event_name' => $eventName,
+        'label' => $label,
+        'location' => $location,
     ]);
 }

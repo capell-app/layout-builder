@@ -27,7 +27,39 @@ it('exposes analytics dashboard settings keys with translated labels', function 
 
     foreach ($entries as $entry) {
         expect($entry['label'])->toBeString()->not->toBe('')
+            ->and(str_contains($entry['label'], 'capell-analytics::'))->toBeFalse()
             ->and($entry['group'])->toBeString()->not->toBe('');
+    }
+});
+
+it('has concrete translations for analytics widget labels', function (): void {
+    $translationKeys = [
+        'analytics_overview',
+        'popular_pages',
+        'trending_pages',
+        'recent_journeys',
+        'top_actions',
+        'metric',
+        'value',
+        'path',
+        'page_views',
+        'unique_visits',
+        'clicks',
+        'current_page_views',
+        'previous_page_views',
+        'change',
+        'change_percentage',
+        'visit',
+        'steps',
+        'last_path',
+        'action',
+        'events',
+    ];
+
+    foreach ($translationKeys as $translationKey) {
+        $translated = __("capell-analytics::widgets.{$translationKey}");
+
+        expect($translated)->toBeString()->not->toBe("capell-analytics::widgets.{$translationKey}");
     }
 });
 
@@ -47,3 +79,9 @@ it('renders analytics dashboard widgets', function (string $widgetClass): void {
     RecentJourneysWidget::class,
     TopActionsWidget::class,
 ]);
+
+it('renders trending pages with previous count column', function (): void {
+    Livewire::test(TrendingPagesWidget::class)
+        ->assertOk()
+        ->assertSee(__('capell-analytics::widgets.previous_page_views'));
+});

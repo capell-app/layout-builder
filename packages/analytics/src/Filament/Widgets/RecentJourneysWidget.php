@@ -6,6 +6,7 @@ namespace Capell\Analytics\Filament\Widgets;
 
 use Capell\Admin\Contracts\CapellWidgetContract;
 use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
+use Capell\Analytics\Actions\BuildRecentJourneysQueryAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -49,6 +50,10 @@ final class RecentJourneysWidget extends BaseWidget implements CapellWidgetContr
      */
     private function getRecords(): Collection
     {
-        return collect();
+        return BuildRecentJourneysQueryAction::run(5)
+            ->map(fn (array $journey): array => [
+                ...$journey,
+                'id' => 'journey-' . $journey['id'],
+            ]);
     }
 }
