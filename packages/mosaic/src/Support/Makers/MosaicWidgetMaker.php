@@ -23,7 +23,12 @@ class MosaicWidgetMaker extends AbstractFileMaker
     public function run(MakerInputData $input): MakerResultData
     {
         $preview = $this->preview($input);
-        $result = MakeWidgetAction::run((string) ($input->values['name'] ?? ''), null, (bool) ($input->values['livewire'] ?? false));
+        $result = MakeWidgetAction::run(
+            (string) ($input->values['name'] ?? ''),
+            null,
+            (bool) ($input->values['livewire'] ?? false),
+            $input->force,
+        );
 
         return new MakerResultData(
             maker: $input->maker,

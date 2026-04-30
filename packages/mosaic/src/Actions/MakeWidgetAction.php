@@ -11,14 +11,14 @@ use Lorisleiva\Actions\Concerns\AsObject;
 use RuntimeException;
 
 /**
- * @method static WidgetScaffoldData run(string $name, ?string $viewsDirectory = null, bool $livewire = false)
+ * @method static WidgetScaffoldData run(string $name, ?string $viewsDirectory = null, bool $livewire = false, bool $force = false)
  */
 class MakeWidgetAction
 {
     use AsFake;
     use AsObject;
 
-    public function handle(string $name, ?string $viewsDirectory = null, bool $livewire = false): WidgetScaffoldData
+    public function handle(string $name, ?string $viewsDirectory = null, bool $livewire = false, bool $force = false): WidgetScaffoldData
     {
         $studly = Str::studly($name);
 
@@ -36,7 +36,7 @@ class MakeWidgetAction
             mkdir($viewDirectory, 0755, true);
         }
 
-        if (! file_exists($viewPath)) {
+        if ($force || ! file_exists($viewPath)) {
             $stubPath = __DIR__ . '/../../stubs/widget.view.stub';
             $stub = (string) file_get_contents($stubPath);
 
@@ -52,7 +52,7 @@ class MakeWidgetAction
         }
 
         if ($livewire) {
-            $this->writeLivewireFiles($studly, $kebab);
+            $this->writeLivewireFiles($studly, $kebab, $force);
         }
 
         return new WidgetScaffoldData(
@@ -84,7 +84,7 @@ class MakeWidgetAction
             PHP;
     }
 
-    private function writeLivewireFiles(string $studly, string $kebab): void
+    private function writeLivewireFiles(string $studly, string $kebab, bool $force): void
     {
         $classDirectory = app_path('Livewire/Widgets');
         $viewDirectory = resource_path('views/widgets/livewire');
@@ -100,7 +100,7 @@ class MakeWidgetAction
         $classPath = $classDirectory . DIRECTORY_SEPARATOR . $studly . 'Widget.php';
         $viewPath = $viewDirectory . DIRECTORY_SEPARATOR . $kebab . '.blade.php';
 
-        if (! file_exists($classPath)) {
+        if ($force || ! file_exists($classPath)) {
             file_put_contents($classPath, str_replace(
                 ['{{ class }}', '{{ view }}'],
                 [$studly . 'Widget', 'widgets.livewire.' . $kebab],
@@ -108,7 +108,7 @@ class MakeWidgetAction
             ));
         }
 
-        if (! file_exists($viewPath)) {
+        if ($force || ! file_exists($viewPath)) {
             file_put_contents($viewPath, (string) file_get_contents(__DIR__ . '/../../stubs/widget.livewire-view.stub'));
         }
     }

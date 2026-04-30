@@ -39,6 +39,19 @@ it('does not overwrite an existing view', function (): void {
     expect(file_get_contents($second->viewPath))->toBe('custom content');
 });
 
+it('overwrites an existing view when force is enabled', function (): void {
+    $first = MakeWidgetAction::run('HeroBanner', $this->tempViewsDirectory);
+    file_put_contents($first->viewPath, 'custom content');
+
+    $second = MakeWidgetAction::run('HeroBanner', $this->tempViewsDirectory, false, true);
+
+    expect($second->created)->toBeTrue();
+    expect($second->viewPath)->toBe($first->viewPath);
+    expect(file_get_contents($second->viewPath))
+        ->toContain('HeroBanner widget')
+        ->toContain('widget--hero-banner');
+});
+
 it('builds a seeder snippet with matching keys and component path', function (): void {
     $result = MakeWidgetAction::run('HeroBanner', $this->tempViewsDirectory);
 
