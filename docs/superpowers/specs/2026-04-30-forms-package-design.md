@@ -156,6 +156,8 @@ Indexes:
 
 The package already has `forms` and `submissions` migrations. They should be adjusted in place while the package is still unreleased.
 
+Forms are site-scoped in v1. This keeps handle lookups simple and lets the database enforce `site_id, handle` uniqueness without nullable-index edge cases.
+
 ## Admin
 
 Add a `FormResource` for managing form definitions:

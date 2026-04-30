@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Forms\Database\Factories;
 
+use Capell\Core\Database\Factories\SiteFactory;
+use Capell\Core\Models\Site;
 use Capell\Forms\Models\Form;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -17,12 +19,12 @@ class FormFactory extends Factory
 
     public function definition(): array
     {
-        $name = $this->faker->words(2, true);
+        $handle = $this->faker->unique()->slug(2);
 
         return [
-            'site_id' => null,
-            'name' => Str::headline($name),
-            'handle' => Str::slug($name),
+            'site_id' => fn (): SiteFactory => Site::factory()->withTranslations(),
+            'name' => Str::headline($handle),
+            'handle' => Str::slug($handle),
             'description' => $this->faker->sentence(),
             'schema' => [
                 [

@@ -564,7 +564,7 @@ return new class extends Migration
     {
         Schema::create('forms', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('site_id')->nullable()->constrained('sites')->cascadeOnDelete();
+            $table->foreignId('site_id')->constrained('sites')->cascadeOnDelete();
             $table->string('name');
             $table->string('handle');
             $table->text('description')->nullable();
@@ -604,9 +604,9 @@ return new class extends Migration
         Schema::create('submissions', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('form_id')->constrained('forms')->cascadeOnDelete();
-            $table->foreignId('site_id')->nullable()->constrained('sites')->cascadeOnDelete();
-            $table->json('payload')->nullable();
-            $table->json('meta')->nullable();
+            $table->foreignId('site_id')->constrained('sites')->cascadeOnDelete();
+            $table->longText('payload')->nullable();
+            $table->longText('meta')->nullable();
             $table->string('status')->default('new');
             $table->timestamp('submitted_at')->nullable();
             $table->timestamps();
@@ -700,6 +700,7 @@ declare(strict_types=1);
 namespace Capell\Forms\Models;
 
 use Capell\Core\Models\Site;
+use Capell\Forms\Casts\EncryptedDataCast;
 use Capell\Forms\Data\SubmissionMetaData;
 use Capell\Forms\Data\SubmissionPayloadData;
 use Capell\Forms\Database\Factories\SubmissionFactory;
@@ -715,7 +716,6 @@ class Submission extends Model
 
     protected $fillable = [
         'form_id',
-        'site_id',
         'payload',
         'meta',
         'status',
@@ -737,8 +737,8 @@ class Submission extends Model
     protected function casts(): array
     {
         return [
-            'payload' => SubmissionPayloadData::class,
-            'meta' => SubmissionMetaData::class,
+            'payload' => EncryptedDataCast::class . ':' . SubmissionPayloadData::class,
+            'meta' => EncryptedDataCast::class . ':' . SubmissionMetaData::class,
             'status' => SubmissionStatus::class,
             'submitted_at' => 'datetime',
         ];
@@ -757,6 +757,8 @@ declare(strict_types=1);
 
 namespace Capell\Forms\Database\Factories;
 
+use Capell\Core\Database\Factories\SiteFactory;
+use Capell\Core\Models\Site;
 use Capell\Forms\Models\Form;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -770,12 +772,12 @@ class FormFactory extends Factory
 
     public function definition(): array
     {
-        $name = $this->faker->words(2, true);
+        $handle = $this->faker->unique()->slug(2);
 
         return [
-            'site_id' => null,
-            'name' => Str::headline($name),
-            'handle' => Str::slug($name),
+            'site_id' => fn (): SiteFactory => Site::factory()->withTranslations(),
+            'name' => Str::headline($handle),
+            'handle' => Str::slug($handle),
             'description' => $this->faker->sentence(),
             'schema' => [
                 [
@@ -808,6 +810,7 @@ declare(strict_types=1);
 
 namespace Capell\Forms\Database\Factories;
 
+use Capell\Core\Models\Site;
 use Capell\Forms\Enums\SubmissionStatus;
 use Capell\Forms\Models\Form;
 use Capell\Forms\Models\Submission;
@@ -820,11 +823,30 @@ class SubmissionFactory extends Factory
 {
     protected $model = Submission::class;
 
+    public function configure(): static
+    {
+        return $this->afterMaking(function (Submission $submission): void {
+            if ($submission->site_id !== null) {
+                return;
+            }
+
+            if ($submission->relationLoaded('form') && $submission->form !== null) {
+                $submission->site_id = $submission->form->site_id;
+
+                return;
+            }
+
+            if ($submission->form_id !== null) {
+                $submission->site_id = Form::query()->findOrFail($submission->form_id)->site_id;
+            }
+        });
+    }
+
     public function definition(): array
     {
         return [
             'form_id' => Form::factory(),
-            'site_id' => null,
+            'site_id' => fn (array $attributes): int => Form::query()->findOrFail($attributes['form_id'])->site_id,
             'payload' => [
                 'values' => [
                     'email' => $this->faker->safeEmail(),
@@ -839,6 +861,11 @@ class SubmissionFactory extends Factory
             'status' => SubmissionStatus::New,
             'submitted_at' => now(),
         ];
+    }
+
+    public function site(Site $site): static
+    {
+        return $this->for(Form::factory()->for($site));
     }
 }
 ```

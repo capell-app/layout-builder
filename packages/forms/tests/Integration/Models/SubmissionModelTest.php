@@ -35,6 +35,14 @@ it('belongs to a form', function (): void {
     expect($submission->form->is($form))->toBeTrue();
 });
 
+it('stores the same site as its form', function (): void {
+    $form = Form::factory()->create();
+    $submission = Submission::factory()->for($form)->create();
+
+    expect($submission->site_id)->toBe($form->site_id)
+        ->and($submission->site->is($form->site))->toBeTrue();
+});
+
 it('encrypts payload and meta at rest while restoring structured data', function (): void {
     $submission = Submission::factory()->create([
         'payload' => ['values' => ['email' => 'ben@example.com']],

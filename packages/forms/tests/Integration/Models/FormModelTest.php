@@ -7,6 +7,7 @@ use Capell\Forms\Data\FormSettingsData;
 use Capell\Forms\Enums\FormFieldType;
 use Capell\Forms\Models\Form;
 use Capell\Forms\Models\Submission;
+use Illuminate\Database\QueryException;
 use Spatie\LaravelData\DataCollection;
 
 it('casts schema and settings to structured data', function (): void {
@@ -47,4 +48,15 @@ it('scopes active forms', function (): void {
     Form::factory()->create(['handle' => 'disabled', 'is_active' => false]);
 
     expect(Form::query()->active()->pluck('handle')->all())->toBe(['enabled']);
+});
+
+it('enforces unique handles per site', function (): void {
+    $form = Form::factory()->create(['handle' => 'contact']);
+
+    expect(fn (): Form => Form::factory()->create([
+        'site_id' => $form->site_id,
+        'handle' => 'contact',
+    ]))->toThrow(QueryException::class);
+
+    expect(Form::factory()->create(['handle' => 'contact'])->handle)->toBe('contact');
 });
