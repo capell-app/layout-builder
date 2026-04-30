@@ -186,7 +186,9 @@ git commit -m "feat(workspaces): add table action contributors"
 - Create: `packages/filament-peek/src/Providers/FilamentPeekServiceProvider.php`
 - Create: `packages/filament-peek/src/Providers/AdminServiceProvider.php`
 - Create: `packages/filament-peek/resources/lang/en/package.php`
+- Create: `packages/filament-peek/tests/FilamentPeekTestCase.php`
 - Modify: `composer.json`
+- Modify: `tests/Pest.php`
 - Test: `packages/filament-peek/tests/Unit/Providers/FilamentPeekServiceProviderTest.php`
 
 - [ ] **Step 1: Write provider registration test**
@@ -269,7 +271,64 @@ Add to `autoload-dev.psr-4`:
 
 Keep `pboivin/filament-peek` in root `require` until Task 5 removes direct admin usage. This avoids breaking the current symlinked admin package mid-plan.
 
-- [ ] **Step 4: Create service providers and translation**
+- [ ] **Step 4: Create package test case and Pest mapping**
+
+Create `packages/filament-peek/tests/FilamentPeekTestCase.php`:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\FilamentPeek\Tests;
+
+use Capell\Core\Facades\CapellCore;
+use Capell\FilamentPeek\Providers\FilamentPeekServiceProvider;
+use Capell\Tests\AbstractTestCase;
+use Override;
+
+abstract class FilamentPeekTestCase extends AbstractTestCase
+{
+    protected function getPackageServiceName(): string
+    {
+        return 'capell-filament-peek';
+    }
+
+    /**
+     * @return class-string[]
+     */
+    #[Override]
+    protected function getPackageProviders(mixed $app): array
+    {
+        return [
+            ...parent::getPackageProviders($app),
+            FilamentPeekServiceProvider::class,
+        ];
+    }
+
+    #[Override]
+    protected function getEnvironmentSetUp(mixed $app): void
+    {
+        parent::getEnvironmentSetUp($app);
+
+        CapellCore::forcePackageInstalled(FilamentPeekServiceProvider::$packageName);
+    }
+}
+```
+
+In `tests/Pest.php`, add the import:
+
+```php
+use Capell\FilamentPeek\Tests\FilamentPeekTestCase;
+```
+
+Add the Pest mapping near the other package mappings:
+
+```php
+pest()->extend(FilamentPeekTestCase::class)->in('../packages/filament-peek/tests');
+```
+
+- [ ] **Step 5: Create service providers and translation**
 
 Create `packages/filament-peek/src/Providers/FilamentPeekServiceProvider.php`:
 
@@ -345,7 +404,7 @@ return [
 ];
 ```
 
-- [ ] **Step 5: Run composer dump-autoload and provider test**
+- [ ] **Step 6: Run composer dump-autoload and provider test**
 
 Run:
 
@@ -356,10 +415,10 @@ vendor/bin/pest packages/filament-peek/tests/Unit/Providers/FilamentPeekServiceP
 
 Expected: pass.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add composer.json packages/filament-peek
+git add composer.json tests/Pest.php packages/filament-peek
 git commit -m "feat(filament-peek): add optional package skeleton"
 ```
 
