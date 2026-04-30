@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Analytics\Actions\BuildAnalyticsOverviewStatsAction;
 use Capell\Analytics\Actions\BuildJourneyTimelineAction;
 use Capell\Analytics\Actions\BuildPopularPagesQueryAction;
 use Capell\Analytics\Actions\BuildRecentJourneysQueryAction;
@@ -135,6 +136,24 @@ it('groups top actions in the current window and excludes page views', function 
             'location' => 'hero',
             'events' => 1,
         ]);
+});
+
+it('builds overview stats without double counting visits across pages', function (): void {
+    $window = analyticsReportWindow();
+    $firstVisit = AnalyticsVisit::factory()->create();
+    $secondVisit = AnalyticsVisit::factory()->create();
+
+    analyticsReportEvent($firstVisit, AnalyticsEventType::PageView, '/first', 'https://example.test/first', $window->startsAt->addHour());
+    analyticsReportEvent($firstVisit, AnalyticsEventType::PageView, '/second', 'https://example.test/second', $window->startsAt->addHours(2));
+    analyticsReportEvent($firstVisit, AnalyticsEventType::Click, '/unviewed-click', 'https://example.test/unviewed-click', $window->startsAt->addHours(3));
+    analyticsReportEvent($secondVisit, AnalyticsEventType::PageView, '/third', 'https://example.test/third', $window->startsAt->addHours(4));
+    analyticsReportEvent($secondVisit, AnalyticsEventType::Click, '/third', 'https://example.test/third', $window->startsAt->subDay());
+
+    $stats = BuildAnalyticsOverviewStatsAction::run($window)->keyBy('id');
+
+    expect($stats['page-views']['value'])->toBe(3)
+        ->and($stats['unique-visits']['value'])->toBe(2)
+        ->and($stats['clicks']['value'])->toBe(1);
 });
 
 function analyticsReportWindow(): AnalyticsWindowData

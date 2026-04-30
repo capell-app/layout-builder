@@ -16,6 +16,11 @@ final class PurgeAnalyticsDataCommand extends Command
     public function handle(): int
     {
         $retentionDays = $this->resolveRetentionDaysOption();
+
+        if ($retentionDays === 0) {
+            return self::FAILURE;
+        }
+
         $deletedRecords = PurgeAnalyticsDataAction::run($retentionDays);
 
         $this->info("Purged {$deletedRecords} analytics records.");
@@ -31,6 +36,20 @@ final class PurgeAnalyticsDataCommand extends Command
             return null;
         }
 
-        return (int) $daysOption;
+        if (! is_string($daysOption) && ! is_int($daysOption)) {
+            $this->error('The --days option must be a positive integer.');
+
+            return 0;
+        }
+
+        $daysValue = (string) $daysOption;
+
+        if (! ctype_digit($daysValue) || (int) $daysValue < 1) {
+            $this->error('The --days option must be a positive integer.');
+
+            return 0;
+        }
+
+        return (int) $daysValue;
     }
 }

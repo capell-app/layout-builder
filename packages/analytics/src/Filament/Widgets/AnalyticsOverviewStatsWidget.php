@@ -6,7 +6,7 @@ namespace Capell\Analytics\Filament\Widgets;
 
 use Capell\Admin\Contracts\CapellWidgetContract;
 use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
-use Capell\Analytics\Actions\BuildPopularPagesQueryAction;
+use Capell\Analytics\Actions\BuildAnalyticsOverviewStatsAction;
 use Capell\Analytics\Data\AnalyticsWindowData;
 use Carbon\CarbonImmutable;
 use Filament\Tables\Columns\TextColumn;
@@ -50,25 +50,7 @@ final class AnalyticsOverviewStatsWidget extends BaseWidget implements CapellWid
      */
     private function getRecords(): Collection
     {
-        $summaries = BuildPopularPagesQueryAction::run($this->getAnalyticsWindow(), null);
-
-        return collect([
-            [
-                'id' => 'page-views',
-                'label' => __('capell-analytics::widgets.page_views'),
-                'value' => (int) $summaries->sum('page_views'),
-            ],
-            [
-                'id' => 'unique-visits',
-                'label' => __('capell-analytics::widgets.unique_visits'),
-                'value' => (int) $summaries->sum('unique_visits'),
-            ],
-            [
-                'id' => 'clicks',
-                'label' => __('capell-analytics::widgets.clicks'),
-                'value' => (int) $summaries->sum('clicks'),
-            ],
-        ]);
+        return BuildAnalyticsOverviewStatsAction::run($this->getAnalyticsWindow());
     }
 
     private function getAnalyticsWindow(): AnalyticsWindowData

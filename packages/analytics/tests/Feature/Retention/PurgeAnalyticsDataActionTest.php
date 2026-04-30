@@ -9,6 +9,7 @@ use Capell\Analytics\Models\AnalyticsEvent;
 use Capell\Analytics\Models\AnalyticsVisit;
 use Capell\Analytics\Tests\AnalyticsTestCase;
 use Carbon\CarbonImmutable;
+use Illuminate\Console\Command;
 
 uses(AnalyticsTestCase::class);
 
@@ -76,3 +77,16 @@ it('uses configured retention days when no override is provided', function (): v
     expect(AnalyticsVisit::query()->whereKey($oldVisit->getKey())->exists())->toBeFalse()
         ->and(AnalyticsVisit::query()->whereKey($recentVisit->getKey())->exists())->toBeTrue();
 });
+
+it('rejects invalid purge command retention days before deleting records', function (string $daysOption): void {
+    $oldVisit = AnalyticsVisit::factory()->create([
+        'started_at' => now()->subDays(45)->toImmutable(),
+        'last_seen_at' => now()->subDays(45)->toImmutable(),
+    ]);
+
+    $this->artisan('analytics:purge', ['--days' => $daysOption])
+        ->expectsOutput('The --days option must be a positive integer.')
+        ->assertExitCode(Command::FAILURE);
+
+    expect(AnalyticsVisit::query()->whereKey($oldVisit->getKey())->exists())->toBeTrue();
+})->with(['abc', '-1', '0']);
