@@ -24,6 +24,7 @@ use Capell\Workspaces\Filament\Resources\Workspaces\Actions\SubmitForApprovalAct
 use Capell\Workspaces\Filament\Resources\Workspaces\Actions\UnscheduleAction;
 use Capell\Workspaces\Filament\Resources\Workspaces\Actions\ValidateAction;
 use Capell\Workspaces\Models\Workspace;
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -65,6 +66,9 @@ class WorkspacesTable implements TableConfigurator
             ->emptyStateIcon('heroicon-o-beaker');
     }
 
+    /**
+     * @return array<int, Action|ActionGroup>
+     */
     protected static function getRecordActions(): array
     {
         return [
@@ -93,6 +97,9 @@ class WorkspacesTable implements TableConfigurator
         ];
     }
 
+    /**
+     * @return array<int, Action|ActionGroup>
+     */
     protected static function getContributorRecordActions(): array
     {
         /** @var iterable<WorkspaceTableActionContributor> $contributors */
