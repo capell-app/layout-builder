@@ -6,10 +6,7 @@ use Capell\Analytics\Enums\AnalyticsConsentRegion;
 use Capell\Analytics\Enums\AnalyticsConsentStatus;
 use Capell\Analytics\Models\AnalyticsConsent;
 use Capell\Analytics\Models\AnalyticsVisit;
-use Capell\Analytics\Tests\AnalyticsTestCase;
 use Carbon\CarbonImmutable;
-
-uses(AnalyticsTestCase::class);
 
 it('rejects granular consent without accepted terms', function (): void {
     $this->postJson(route('capell-analytics.consent'), [

@@ -7,7 +7,7 @@ use Capell\Analytics\Http\Controllers\AnalyticsConsentController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
-$routePrefix = trim((string) config('capell-analytics.route_prefix', 'capell/analytics'), '/');
+$routePrefix = trim(config('capell-analytics.route_prefix', 'capell/analytics'), '/');
 
 Route::prefix($routePrefix)
     ->middleware(['web'])

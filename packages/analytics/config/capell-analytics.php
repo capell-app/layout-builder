@@ -14,7 +14,7 @@ return [
     'policy_version' => '1.0',
     'retention_days' => 365,
     'hash_visitor_data' => true,
-    'hash_salt' => env('APP_KEY', 'capell-analytics'),
+    'hash_salt' => 'capell-analytics',
     'ignored_paths' => [
         '/admin*',
         '/livewire*',

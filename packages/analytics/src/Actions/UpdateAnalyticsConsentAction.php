@@ -38,7 +38,7 @@ final class UpdateAnalyticsConsentAction
             'consent_region' => $region,
             'status' => $status,
             'categories' => $data,
-            'policy_version' => (string) config('capell-analytics.policy_version', '1.0'),
+            'policy_version' => $this->policyVersion(),
             'terms_accepted_at' => $acceptedTerms ? now()->toImmutable() : null,
             'decided_at' => now()->toImmutable(),
             'ip_hash' => $this->hashVisitorValue($request->ip()),
@@ -75,7 +75,7 @@ final class UpdateAnalyticsConsentAction
 
     private function hashVisitorValue(?string $value): ?string
     {
-        if (! (bool) config('capell-analytics.hash_visitor_data', true)) {
+        if (config('capell-analytics.hash_visitor_data', true) !== true) {
             return null;
         }
 
@@ -83,6 +83,20 @@ final class UpdateAnalyticsConsentAction
             return null;
         }
 
-        return hash_hmac('sha256', $value, (string) config('capell-analytics.hash_salt', 'capell-analytics'));
+        return hash_hmac('sha256', $value, $this->hashSalt());
+    }
+
+    private function policyVersion(): string
+    {
+        $policyVersion = config('capell-analytics.policy_version', '1.0');
+
+        return is_string($policyVersion) && $policyVersion !== '' ? $policyVersion : '1.0';
+    }
+
+    private function hashSalt(): string
+    {
+        $salt = config('capell-analytics.hash_salt', 'capell-analytics');
+
+        return is_string($salt) && $salt !== '' ? $salt : 'capell-analytics';
     }
 }

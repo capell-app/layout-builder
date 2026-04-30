@@ -10,7 +10,7 @@ use Capell\Analytics\Enums\AnalyticsConsentStatus;
 use Capell\Analytics\Models\AnalyticsConsent;
 use Capell\Analytics\Models\AnalyticsEvent;
 use Capell\Analytics\Models\AnalyticsVisit;
-use Illuminate\Support\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -20,7 +20,7 @@ final class RecordAnalyticsEventAction
 
     public function handle(?string $visitUuid, AnalyticsEventData $data, ?string $occurredAt = null): ?AnalyticsEvent
     {
-        if (! (bool) config('capell-analytics.enabled', true)) {
+        if (config('capell-analytics.enabled', true) !== true) {
             return null;
         }
 
@@ -98,14 +98,14 @@ final class RecordAnalyticsEventAction
 
     private function canRecordForVisit(AnalyticsVisit $visit): bool
     {
-        if (! (bool) config('capell-analytics.require_consent_for_all_regions', false)
+        if (config('capell-analytics.require_consent_for_all_regions', false) !== true
             && $visit->consent_region === AnalyticsConsentRegion::OutsideUkOrEurope) {
             return true;
         }
 
         if ($visit->consent_region === AnalyticsConsentRegion::UkOrEurope
             || $visit->consent_region === AnalyticsConsentRegion::Unknown
-            || (bool) config('capell-analytics.require_consent_for_all_regions', false)) {
+            || config('capell-analytics.require_consent_for_all_regions', false) === true) {
             return $this->hasAnalyticsConsent($visit);
         }
 
@@ -125,12 +125,12 @@ final class RecordAnalyticsEventAction
         return $visit->consent_status === AnalyticsConsentStatus::AcceptedAll;
     }
 
-    private function occurredAt(?string $occurredAt): Carbon
+    private function occurredAt(?string $occurredAt): CarbonImmutable
     {
         if ($occurredAt === null || trim($occurredAt) === '') {
-            return now();
+            return now()->toImmutable();
         }
 
-        return Carbon::parse($occurredAt);
+        return CarbonImmutable::parse($occurredAt);
     }
 }

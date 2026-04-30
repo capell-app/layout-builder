@@ -47,9 +47,9 @@ final class BuildPopularPagesQueryAction
             ->map(fn (AnalyticsEvent $event): array => [
                 'path' => (string) $event->path,
                 'url' => (string) $event->url,
-                'page_views' => (int) $event->page_views,
+                'page_views' => $event->page_views,
                 'unique_visits' => (int) $event->unique_visits,
-                'clicks' => (int) ($clicksByPath[$event->path] ?? 0),
+                'clicks' => $clicksByPath[$event->path] ?? 0,
             ])
             ->values();
     }

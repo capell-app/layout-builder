@@ -3,11 +3,8 @@
 declare(strict_types=1);
 
 use Capell\Analytics\Providers\AnalyticsServiceProvider;
-use Capell\Analytics\Tests\AnalyticsTestCase;
 use Capell\Core\Facades\CapellCore;
 use Illuminate\Support\Facades\Route;
-
-uses(AnalyticsTestCase::class);
 
 it('registers the analytics package metadata', function (): void {
     $package = CapellCore::getPackage(AnalyticsServiceProvider::$packageName);

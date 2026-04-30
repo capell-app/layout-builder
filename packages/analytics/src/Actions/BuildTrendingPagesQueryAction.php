@@ -37,8 +37,8 @@ final class BuildTrendingPagesQueryAction
             ->groupBy('path')
             ->get()
             ->map(function (AnalyticsEvent $event) use ($previousPageViews): array {
-                $currentPageViews = (int) $event->current_page_views;
-                $previousCount = (int) ($previousPageViews[$event->path] ?? 0);
+                $currentPageViews = $event->current_page_views;
+                $previousCount = $previousPageViews[$event->path] ?? 0;
                 $change = $currentPageViews - $previousCount;
 
                 return [

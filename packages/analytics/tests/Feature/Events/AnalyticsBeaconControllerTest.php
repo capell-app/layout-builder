@@ -8,9 +8,6 @@ use Capell\Analytics\Enums\AnalyticsEventType;
 use Capell\Analytics\Models\AnalyticsConsent;
 use Capell\Analytics\Models\AnalyticsEvent;
 use Capell\Analytics\Models\AnalyticsVisit;
-use Capell\Analytics\Tests\AnalyticsTestCase;
-
-uses(AnalyticsTestCase::class);
 
 it('does not store a uk or europe event without analytics consent', function (): void {
     $visit = AnalyticsVisit::factory()->create([

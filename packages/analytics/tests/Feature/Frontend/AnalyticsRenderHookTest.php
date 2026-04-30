@@ -2,11 +2,8 @@
 
 declare(strict_types=1);
 
-use Capell\Analytics\Tests\AnalyticsTestCase;
 use Capell\Frontend\Enums\RenderHookLocation;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
-
-uses(AnalyticsTestCase::class);
 
 it('injects the frontend analytics tracker at the end of the body', function (): void {
     config()->set('capell-analytics.ignored_selectors', [

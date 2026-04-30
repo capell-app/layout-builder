@@ -7,11 +7,8 @@ use Capell\Analytics\Enums\AnalyticsEventType;
 use Capell\Analytics\Models\AnalyticsConsent;
 use Capell\Analytics\Models\AnalyticsEvent;
 use Capell\Analytics\Models\AnalyticsVisit;
-use Capell\Analytics\Tests\AnalyticsTestCase;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
-
-uses(AnalyticsTestCase::class);
 
 it('purges analytics events consents and eligible visits older than retention', function (): void {
     $oldTimestamp = CarbonImmutable::parse('2025-01-01 00:00:00');

@@ -4,9 +4,9 @@
     $analyticsConfig = [
         'eventsUrl' => route('capell-analytics.events'),
         'consentUrl' => route('capell-analytics.consent'),
-        'trackPageViews' => (bool) config('capell-analytics.track_page_views', true),
-        'trackClicks' => (bool) config('capell-analytics.track_clicks', true),
-        'automaticClickTracking' => (bool) config('capell-analytics.automatic_click_tracking', true),
+        'trackPageViews' => config('capell-analytics.track_page_views', true) === true,
+        'trackClicks' => config('capell-analytics.track_clicks', true) === true,
+        'automaticClickTracking' => config('capell-analytics.automatic_click_tracking', true) === true,
         'ignoredSelectors' => config('capell-analytics.ignored_selectors', []),
         'policyVersion' => config('capell-analytics.policy_version', '1.0'),
     ];

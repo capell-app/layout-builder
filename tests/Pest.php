@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Address\Tests\AddressTestCase;
+use Capell\Analytics\Tests\AnalyticsTestCase;
 use Capell\Blog\Tests\BlogTestCase;
 use Capell\DeveloperTools\Tests\DeveloperToolsTestCase;
 use Capell\FilamentPeek\Tests\FilamentPeekTestCase;
@@ -21,6 +22,7 @@ use Capell\Toolbar\Tests\ToolbarTestCase;
 use Capell\Workspaces\Tests\WorkspacesTestCase;
 
 pest()->extend(AddressTestCase::class)->in('../packages/address/tests');
+pest()->extend(AnalyticsTestCase::class)->in('../packages/analytics/tests');
 pest()->extend(PackagesTestCase::class)->in('../packages/authentication-log/tests');
 pest()->extend(BlogTestCase::class)->in('../packages/blog/tests');
 pest()->extend(DeveloperToolsTestCase::class)->in('../packages/developer-tools/tests');

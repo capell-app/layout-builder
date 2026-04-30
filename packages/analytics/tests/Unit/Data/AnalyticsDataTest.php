@@ -9,10 +9,7 @@ use Capell\Analytics\Data\AnalyticsJourneyStepData;
 use Capell\Analytics\Enums\AnalyticsConsentCategory;
 use Capell\Analytics\Enums\AnalyticsEventType;
 use Capell\Analytics\Models\AnalyticsEvent;
-use Capell\Analytics\Tests\AnalyticsTestCase;
 use Carbon\CarbonImmutable;
-
-uses(AnalyticsTestCase::class);
 
 it('serializes consent categories as data', function (): void {
     $data = AnalyticsConsentData::from([

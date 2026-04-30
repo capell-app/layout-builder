@@ -9,10 +9,7 @@ use Capell\Analytics\Filament\Widgets\PopularPagesWidget;
 use Capell\Analytics\Filament\Widgets\RecentJourneysWidget;
 use Capell\Analytics\Filament\Widgets\TopActionsWidget;
 use Capell\Analytics\Filament\Widgets\TrendingPagesWidget;
-use Capell\Analytics\Tests\AnalyticsTestCase;
 use Livewire\Livewire;
-
-uses(AnalyticsTestCase::class);
 
 it('exposes analytics dashboard settings keys with translated labels', function (): void {
     $entries = (new AnalyticsDashboardSettingsContributor)->settingsKeys();

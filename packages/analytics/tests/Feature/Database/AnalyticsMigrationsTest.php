@@ -2,10 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Analytics\Tests\AnalyticsTestCase;
 use Illuminate\Support\Facades\Schema;
-
-uses(AnalyticsTestCase::class);
 
 it('loads analytics migrations', function (): void {
     expect(Schema::hasTable('analytics_visits'))->toBeTrue()

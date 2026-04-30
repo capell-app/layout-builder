@@ -55,7 +55,7 @@ class AnalyticsServiceProvider extends AbstractPackageServiceProvider
 
     public function packageBooted(): void
     {
-        if ((bool) config('capell-analytics.enabled', true) && $this->app->bound(RenderHookRegistry::class)) {
+        if (config('capell-analytics.enabled', true) === true && $this->app->bound(RenderHookRegistry::class)) {
             $this->app->make(RegisterAnalyticsTrackerHook::class)->register();
         }
 

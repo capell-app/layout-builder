@@ -12,10 +12,7 @@ use Capell\Analytics\Data\AnalyticsWindowData;
 use Capell\Analytics\Enums\AnalyticsEventType;
 use Capell\Analytics\Models\AnalyticsEvent;
 use Capell\Analytics\Models\AnalyticsVisit;
-use Capell\Analytics\Tests\AnalyticsTestCase;
 use Carbon\CarbonImmutable;
-
-uses(AnalyticsTestCase::class);
 
 it('sorts popular pages by page view count descending', function (): void {
     $window = analyticsReportWindow();

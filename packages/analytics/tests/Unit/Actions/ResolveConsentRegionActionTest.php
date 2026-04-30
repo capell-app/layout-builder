@@ -5,9 +5,6 @@ declare(strict_types=1);
 use Capell\Analytics\Actions\ResolveConsentRegionAction;
 use Capell\Analytics\Enums\AnalyticsConsentRegion;
 use Capell\Analytics\Support\Consent\ConsentRegionResolver;
-use Capell\Analytics\Tests\AnalyticsTestCase;
-
-uses(AnalyticsTestCase::class);
 
 it('returns forced uk or europe consent region from config', function (): void {
     config()->set('capell-analytics.default_consent_region', 'uk_or_europe');

@@ -11,9 +11,6 @@ use Capell\Analytics\Enums\AnalyticsEventType;
 use Capell\Analytics\Models\AnalyticsConsent;
 use Capell\Analytics\Models\AnalyticsEvent;
 use Capell\Analytics\Models\AnalyticsVisit;
-use Capell\Analytics\Tests\AnalyticsTestCase;
-
-uses(AnalyticsTestCase::class);
 
 it('skips events when the package is disabled', function (): void {
     config()->set('capell-analytics.enabled', false);

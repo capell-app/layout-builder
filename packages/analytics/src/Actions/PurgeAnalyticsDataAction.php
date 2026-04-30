@@ -44,6 +44,8 @@ final class PurgeAnalyticsDataAction
             return $settings->retention_days;
         }
 
-        return (int) config('capell-analytics.retention_days', 365);
+        $retentionDays = config('capell-analytics.retention_days', 365);
+
+        return is_int($retentionDays) ? $retentionDays : 365;
     }
 }

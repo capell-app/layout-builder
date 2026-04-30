@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 use Capell\Analytics\Filament\Settings\AnalyticsSettingsSchema;
 use Capell\Analytics\Settings\AnalyticsSettings;
-use Capell\Analytics\Tests\AnalyticsTestCase;
 use Spatie\LaravelSettings\Migrations\SettingsMigrator;
-
-uses(AnalyticsTestCase::class);
 
 it('loads analytics settings defaults', function (): void {
     /** @var SettingsMigrator $settingsMigrator */

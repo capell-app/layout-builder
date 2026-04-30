@@ -17,14 +17,16 @@ final class CreateAnalyticsVisitAction
 
     public function handle(Request $request, AnalyticsConsentRegion $region): AnalyticsVisit
     {
+        $referer = $request->headers->get('referer');
+
         return AnalyticsVisit::query()->create([
             'uuid' => (string) Str::uuid(),
             'site_id' => $this->integerInput($request, 'site_id'),
             'language_id' => $this->integerInput($request, 'language_id'),
             'consent_region' => $region,
             'consent_status' => AnalyticsConsentStatus::Pending,
-            'landing_url' => $request->headers->get('referer') ?: $request->fullUrl(),
-            'referrer_url' => $request->headers->get('referer'),
+            'landing_url' => $referer !== null ? $referer : $request->fullUrl(),
+            'referrer_url' => $referer,
             'utm_source' => $this->stringInput($request, 'utm_source'),
             'utm_medium' => $this->stringInput($request, 'utm_medium'),
             'utm_campaign' => $this->stringInput($request, 'utm_campaign'),
@@ -37,7 +39,7 @@ final class CreateAnalyticsVisitAction
 
     private function hashVisitorValue(?string $value): ?string
     {
-        if (! (bool) config('capell-analytics.hash_visitor_data', true)) {
+        if (config('capell-analytics.hash_visitor_data', true) !== true) {
             return null;
         }
 
@@ -45,7 +47,7 @@ final class CreateAnalyticsVisitAction
             return null;
         }
 
-        return hash_hmac('sha256', $value, (string) config('capell-analytics.hash_salt', 'capell-analytics'));
+        return hash_hmac('sha256', $value, $this->hashSalt());
     }
 
     private function integerInput(Request $request, string $key): ?int
@@ -68,5 +70,12 @@ final class CreateAnalyticsVisitAction
         }
 
         return $value;
+    }
+
+    private function hashSalt(): string
+    {
+        $salt = config('capell-analytics.hash_salt', 'capell-analytics');
+
+        return is_string($salt) && $salt !== '' ? $salt : 'capell-analytics';
     }
 }
