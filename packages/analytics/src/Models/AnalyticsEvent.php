@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Analytics\Models;
 
+use Capell\Analytics\Data\AnalyticsEventMetadataData;
 use Capell\Analytics\Database\Factories\AnalyticsEventFactory;
 use Capell\Analytics\Enums\AnalyticsEventType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -37,7 +38,7 @@ class AnalyticsEvent extends Model
         return [
             'type' => AnalyticsEventType::class,
             'occurred_at' => 'immutable_datetime',
-            'metadata' => 'array',
+            'metadata' => AnalyticsEventMetadataData::class,
         ];
     }
 }

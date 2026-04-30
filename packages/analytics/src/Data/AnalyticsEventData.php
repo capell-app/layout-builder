@@ -12,9 +12,6 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 #[MapName(SnakeCaseMapper::class)]
 final class AnalyticsEventData extends Data
 {
-    /**
-     * @param  array<string, mixed>|null  $metadata
-     */
     public function __construct(
         public AnalyticsEventType $type,
         public string $url,
@@ -27,7 +24,7 @@ final class AnalyticsEventData extends Data
         public ?int $viewportY = null,
         public ?int $documentX = null,
         public ?int $documentY = null,
-        public ?array $metadata = null,
+        public ?AnalyticsEventMetadataData $metadata = null,
     ) {}
 
     public function path(): string

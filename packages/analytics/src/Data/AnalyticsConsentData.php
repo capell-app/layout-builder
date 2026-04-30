@@ -21,11 +21,9 @@ final class AnalyticsConsentData extends Data
      */
     public function enabledCategories(): array
     {
-        $categories = [];
-
-        if ($this->essential) {
-            $categories[] = AnalyticsConsentCategory::Essential;
-        }
+        $categories = [
+            AnalyticsConsentCategory::Essential,
+        ];
 
         if ($this->analytics) {
             $categories[] = AnalyticsConsentCategory::Analytics;
