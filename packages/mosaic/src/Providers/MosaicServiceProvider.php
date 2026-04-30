@@ -12,6 +12,7 @@ use Capell\Admin\Enums\SchemaExtenderEnum;
 use Capell\Admin\Enums\SchemaTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
+use Capell\Core\Contracts\Makers\MakerRegistryInterface;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Data\PageTypeData;
 use Capell\Core\Data\VendorAssetData;
@@ -57,6 +58,7 @@ use Capell\Mosaic\Support\Interceptors\Layouts\DefaultLayoutInterceptor;
 use Capell\Mosaic\Support\Interceptors\Layouts\HomeLayoutInterceptor;
 use Capell\Mosaic\Support\Interceptors\Layouts\ResultsLayoutInterceptor;
 use Capell\Mosaic\Support\LayoutModelRegistrar;
+use Capell\Mosaic\Support\Makers\MosaicWidgetMaker;
 use Composer\InstalledVersions;
 use Exception;
 use Filament\Facades\Filament;
@@ -109,6 +111,10 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
             ->registerRelationships()
             ->registerPackageMetadata()
             ->registerBlazeComponents();
+
+        $this->callAfterResolving(MakerRegistryInterface::class, function (MakerRegistryInterface $registry): void {
+            $registry->register($this->app->make(MosaicWidgetMaker::class));
+        });
 
         $this->booted(function (): void {
             if (! $this->isPackageInstalled()) {

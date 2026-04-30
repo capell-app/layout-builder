@@ -4,38 +4,27 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Tests\Integration\Commands;
 
-use Capell\Mosaic\Actions\MakeWidgetAction;
-use Capell\Mosaic\Data\WidgetScaffoldData;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 
 use function Pest\Laravel\artisan;
 
 it('reports the created view path and prints the seeder snippet', function (): void {
-    MakeWidgetAction::shouldRun()
-        ->once()
-        ->andReturn(new WidgetScaffoldData(
-            viewPath: '/tmp/views/widgets/hero-banner.blade.php',
-            created: true,
-            seederSnippet: '// seeder snippet',
-        ));
+    File::delete(resource_path('views/widgets/hero-banner.blade.php'));
 
     artisan('capell:mosaic-make-widget', ['name' => 'HeroBanner'])
-        ->expectsOutputToContain('/tmp/views/widgets/hero-banner.blade.php')
-        ->expectsOutputToContain('// seeder snippet')
+        ->expectsOutputToContain(resource_path('views/widgets/hero-banner.blade.php'))
+        ->expectsOutputToContain("'component' => 'widgets.hero-banner'")
         ->assertExitCode(Command::SUCCESS);
 });
 
-it('warns when the view already exists and still prints the snippet', function (): void {
-    MakeWidgetAction::shouldRun()
-        ->once()
-        ->andReturn(new WidgetScaffoldData(
-            viewPath: '/tmp/views/widgets/hero-banner.blade.php',
-            created: false,
-            seederSnippet: '// seeder snippet',
-        ));
+it('supports livewire widget scaffolding', function (): void {
+    File::delete(resource_path('views/widgets/card-promo.blade.php'));
+    File::delete(resource_path('views/widgets/livewire/card-promo.blade.php'));
+    File::delete(app_path('Livewire/Widgets/CardPromoWidget.php'));
 
-    artisan('capell:mosaic-make-widget', ['name' => 'HeroBanner'])
-        ->expectsOutputToContain('already exists')
-        ->expectsOutputToContain('// seeder snippet')
+    artisan('capell:mosaic-make-widget', ['name' => 'CardPromo', '--livewire' => true])
+        ->expectsOutputToContain(app_path('Livewire/Widgets/CardPromoWidget.php'))
+        ->expectsOutputToContain(resource_path('views/widgets/livewire/card-promo.blade.php'))
         ->assertExitCode(Command::SUCCESS);
 });

@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Console\Commands;
 
-use Capell\Mosaic\Actions\MakeWidgetAction;
+use Capell\Core\Actions\Makers\RunMakerAction;
+use Capell\Core\Data\Makers\MakerInputData;
 use Illuminate\Console\Command;
+use Throwable;
 
 class MakeWidgetCommand extends Command
 {
-    protected $signature = 'capell:mosaic-make-widget {name : The widget name (e.g. HeroBanner)}';
+    protected $signature = 'capell:mosaic-make-widget
+        {name : The widget name (e.g. HeroBanner)}
+        {--livewire : Also scaffold a Livewire widget class and view}
+        {--F|force : Overwrite existing files after warning}';
 
     protected $description = 'Scaffold a Mosaic widget Blade view and print the seeder snippet for its Type + Widget rows';
 
@@ -17,19 +22,29 @@ class MakeWidgetCommand extends Command
     {
         $name = (string) $this->argument('name');
 
-        $result = MakeWidgetAction::run($name);
+        try {
+            $result = RunMakerAction::run(new MakerInputData(
+                maker: 'mosaic.widget',
+                values: ['name' => $name, 'livewire' => (bool) $this->option('livewire')],
+                dryRun: false,
+                force: (bool) $this->option('force'),
+                databaseWrites: false,
+            ));
+        } catch (Throwable $throwable) {
+            $this->error($throwable->getMessage());
 
-        if ($result->created) {
-            $this->info(sprintf('Blade view created at %s', $result->viewPath));
-        } else {
-            $this->warn(sprintf('Blade view already exists at %s — left untouched.', $result->viewPath));
+            return self::FAILURE;
+        }
+
+        foreach ($result->files as $file) {
+            $this->info(sprintf('%s: %s', $file->operation, $file->path));
         }
 
         $this->newLine();
-        $this->line('Paste the following into a seeder or migration to register the widget:');
-        $this->newLine();
-        $this->line($result->seederSnippet);
-        $this->newLine();
+
+        foreach ($result->notes as $note) {
+            $this->line($note);
+        }
 
         return self::SUCCESS;
     }
