@@ -23,7 +23,9 @@ class AnalyticsConsent extends Model
 
     public function getTable(): string
     {
-        return (string) config('capell-analytics.tables.consents', 'analytics_consents');
+        $tableName = config('capell-analytics.tables.consents');
+
+        return is_string($tableName) ? $tableName : 'analytics_consents';
     }
 
     public function visit(): BelongsTo

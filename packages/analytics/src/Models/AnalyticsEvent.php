@@ -22,7 +22,9 @@ class AnalyticsEvent extends Model
 
     public function getTable(): string
     {
-        return (string) config('capell-analytics.tables.events', 'analytics_events');
+        $tableName = config('capell-analytics.tables.events');
+
+        return is_string($tableName) ? $tableName : 'analytics_events';
     }
 
     public function visit(): BelongsTo

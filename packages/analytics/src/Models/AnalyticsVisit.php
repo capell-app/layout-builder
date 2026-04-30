@@ -22,7 +22,9 @@ class AnalyticsVisit extends Model
 
     public function getTable(): string
     {
-        return (string) config('capell-analytics.tables.visits', 'analytics_visits');
+        $tableName = config('capell-analytics.tables.visits');
+
+        return is_string($tableName) ? $tableName : 'analytics_visits';
     }
 
     public function consents(): HasMany

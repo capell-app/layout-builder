@@ -9,6 +9,7 @@ use Capell\Analytics\Models\AnalyticsConsent;
 use Capell\Analytics\Models\AnalyticsEvent;
 use Capell\Analytics\Models\AnalyticsVisit;
 use Capell\Analytics\Settings\AnalyticsSettings;
+use Capell\Analytics\Settings\AnalyticsSettingsMigrationProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Core\Support\Settings\SettingsSchemaRegistry;
@@ -46,7 +47,22 @@ class AnalyticsServiceProvider extends AbstractPackageServiceProvider
             ->registerPackageMetadata()
             ->registerModels()
             ->registerSettings()
+            ->registerSettingsMigrations()
             ->registerProtectedTables();
+    }
+
+    public function packageBooted(): void
+    {
+        if (! $this->app->runningInConsole()) {
+            return;
+        }
+
+        /** @var AnalyticsSettingsMigrationProvider $provider */
+        $provider = $this->app->make(AnalyticsSettingsMigrationProvider::class);
+
+        $this->publishes([
+            $provider->path() . '/create_analytics_settings.php' => database_path('settings/create_analytics_settings.php'),
+        ], 'capell-analytics-settings');
     }
 
     private function registerPackageMetadata(): self
@@ -81,6 +97,13 @@ class AnalyticsServiceProvider extends AbstractPackageServiceProvider
 
         $registry->registerSettingsClass('analytics', AnalyticsSettings::class);
         $registry->register('analytics', AnalyticsSettingsSchema::class);
+
+        return $this;
+    }
+
+    private function registerSettingsMigrations(): self
+    {
+        $this->app->singleton(AnalyticsSettingsMigrationProvider::class);
 
         return $this;
     }

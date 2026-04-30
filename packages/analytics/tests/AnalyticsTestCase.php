@@ -7,6 +7,7 @@ namespace Capell\Analytics\Tests;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Analytics\Providers\AnalyticsServiceProvider;
+use Capell\Analytics\Settings\AnalyticsSettingsMigrationProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Frontend\Contracts\SettingsMigrationProviderInterface;
 use Capell\Frontend\Providers\FrontendServiceProvider;
@@ -38,6 +39,14 @@ class AnalyticsTestCase extends AbstractTestCase
                 __DIR__ . '/../../../vendor/capell-app/frontend/database/settings',
             );
         }
+
+        /** @var AnalyticsSettingsMigrationProvider $analyticsSettingsMigrationProvider */
+        $analyticsSettingsMigrationProvider = resolve(AnalyticsSettingsMigrationProvider::class);
+
+        $this->registerAndMigrateSettings(
+            $analyticsSettingsMigrationProvider->getSettingMigrations(),
+            $analyticsSettingsMigrationProvider->path(),
+        );
     }
 
     protected function getPackageServiceName(): string
