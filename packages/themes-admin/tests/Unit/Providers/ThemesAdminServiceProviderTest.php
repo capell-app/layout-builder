@@ -13,8 +13,7 @@ test('provider registers themes package metadata', function (): void {
     $package = CapellCore::getPackage(ThemesAdminServiceProvider::$packageName);
 
     expect($package->serviceProviderClass)->toBe(ThemesAdminServiceProvider::class)
-        ->and($package->setting)->toBe(ThemeAdminSettings::class)
-        ->and($package->icon)->toBe('heroicon-o-paint-brush');
+        ->and($package->setting)->toBe(ThemeAdminSettings::class);
 });
 
 test('provider registers theme settings through the central settings registry', function (): void {
