@@ -28,11 +28,17 @@ final class SiteSearchServiceProvider extends AbstractPackageServiceProvider
         $package
             ->name(self::$name)
             ->hasConfigFile('capell-site-search')
-            ->hasTranslations()
-            ->hasViews()
-            ->hasMigrations([
+            ->hasTranslations();
+
+        if (is_dir(__DIR__ . '/../../resources/views')) {
+            $package->hasViews();
+        }
+
+        if (file_exists(__DIR__ . '/../../database/migrations/create_site_search_logs_table.php')) {
+            $package->hasMigrations([
                 'create_site_search_logs_table',
             ]);
+        }
 
         if (file_exists(__DIR__ . '/../../routes/web.php')) {
             $package->hasRoute('web');
