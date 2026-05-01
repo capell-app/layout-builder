@@ -2,9 +2,17 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Facades\CapellCore;
 use Capell\Themes\Core\ThemesCoreServiceProvider;
 use Illuminate\Support\Facades\Artisan;
 use Livewire\Blaze\Blaze;
+
+it('registers themes-core package metadata with Capell', function (): void {
+    app()->register(ThemesCoreServiceProvider::class);
+
+    expect(CapellCore::hasPackage('capell-app/themes-core'))->toBeTrue()
+        ->and(CapellCore::getPackage('capell-app/themes-core')->getRequirements())->toBe(['capell-app/seo-tools']);
+});
 
 it('registers themes-core views and components with Blaze', function (): void {
     app()->register(ThemesCoreServiceProvider::class);

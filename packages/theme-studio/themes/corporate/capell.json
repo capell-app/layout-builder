@@ -7,7 +7,11 @@
     "bundle": "theme-studio",
     "contexts": ["frontend", "admin"],
     "extends": "capell-app/default-theme",
-    "requires": ["capell-app/themes-core", "capell-app/themes-admin"],
+    "requires": [
+        "capell-app/default-theme",
+        "capell-app/themes-core",
+        "capell-app/themes-admin"
+    ],
     "providers": {
         "shared": ["Capell\\Themes\\Corporate\\CorporateThemeServiceProvider"]
     }

@@ -230,9 +230,13 @@ abstract class AbstractTestCase extends TestCase
 
         Config::set('auth.providers.users.model', User::class);
 
+        $pageCacheDirectory = getenv('TEST_TOKEN')
+            ? 'page-cache-' . getenv('TEST_TOKEN')
+            : 'page-cache';
+
         Config::set('filesystems.disks.page_cache', [
             'driver' => 'local',
-            'root' => public_path('page-cache'),
+            'root' => public_path($pageCacheDirectory),
             'throw' => false,
         ]);
 

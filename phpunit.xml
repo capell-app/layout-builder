@@ -19,11 +19,13 @@
         <testsuite name="Architecture">
             <directory suffix="Test.php">./packages/*/*/tests/Arch</directory>
             <directory suffix="Test.php">./packages/*/themes/*/tests/Arch</directory>
+            <exclude>./packages/*/themes/tests/Arch</exclude>
             <directory suffix="Test.php">./packages/*/themes/tests/Arch</directory>
         </testsuite>
         <testsuite name="Feature">
             <directory suffix="Test.php">./packages/*/*/tests/Feature</directory>
             <directory suffix="Test.php">./packages/*/themes/*/tests/Feature</directory>
+            <exclude>./packages/*/themes/tests/Feature</exclude>
             <directory suffix="Test.php">./packages/*/themes/tests/Feature</directory>
             <directory suffix="Test.php">./tests/Packages/Feature</directory>
             <!-- media-curator requires awcodes/filament-curator which is not in the root vendor -->
@@ -32,6 +34,7 @@
         <testsuite name="Integration">
             <directory suffix="Test.php">./packages/*/*/tests/Integration</directory>
             <directory suffix="Test.php">./packages/*/themes/*/tests/Integration</directory>
+            <exclude>./packages/*/themes/tests/Integration</exclude>
             <directory suffix="Test.php">./packages/*/themes/tests/Integration</directory>
             <directory suffix="Test.php">./tests/Packages/Integration</directory>
             <!-- media-curator requires awcodes/filament-curator which is not in the root vendor -->
@@ -40,6 +43,7 @@
         <testsuite name="Unit">
             <directory suffix="Test.php">./packages/*/*/tests/Unit</directory>
             <directory suffix="Test.php">./packages/*/themes/*/tests/Unit</directory>
+            <exclude>./packages/*/themes/tests/Unit</exclude>
             <directory suffix="Test.php">./packages/*/themes/tests/Unit</directory>
         </testsuite>
     </testsuites>
