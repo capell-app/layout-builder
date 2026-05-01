@@ -17,6 +17,7 @@ use Capell\SiteSearch\Models\SiteSearchLog;
 use Capell\SiteSearch\Settings\SiteSearchSettings;
 use Capell\SiteSearch\Support\RenderHooks\RegisterHeaderSearchHook;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Database\ConnectionResolverInterface;
 use Spatie\LaravelPackageTools\Package;
 
 final class SiteSearchServiceProvider extends AbstractPackageServiceProvider
@@ -95,7 +96,7 @@ final class SiteSearchServiceProvider extends AbstractPackageServiceProvider
             }
 
             return new DatabaseSiteSearch(
-                db: $app['db']->connection(),
+                db: $app->make(ConnectionResolverInterface::class)->connection(),
                 table: (string) config('capell-site-search.database.table', 'pages'),
                 columns: (array) config('capell-site-search.database.columns', ['title', 'excerpt', 'body']),
                 urlColumn: (string) config('capell-site-search.database.url_column', 'slug'),

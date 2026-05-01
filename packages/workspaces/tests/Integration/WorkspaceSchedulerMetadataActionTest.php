@@ -19,10 +19,12 @@ it('sets workspace scheduler metadata', function (): void {
     $reviewReminderAt = CarbonImmutable::parse('2026-05-02 12:00:00', 'UTC');
 
     $updated = SetWorkspaceSchedulerMetadataAction::run(
-        workspace: $workspace,
-        unpublishAt: $unpublishAt,
-        embargoUntil: $embargoUntil,
-        reviewReminderAt: $reviewReminderAt,
+        $workspace,
+        [
+            'unpublish_at' => $unpublishAt,
+            'embargo_until' => $embargoUntil,
+            'review_reminder_at' => $reviewReminderAt,
+        ],
     );
 
     expect($updated->unpublish_at?->equalTo($unpublishAt))->toBeTrue()
@@ -40,9 +42,11 @@ it('clears only the scheduler metadata fields passed as null', function (): void
     ]);
 
     $updated = SetWorkspaceSchedulerMetadataAction::run(
-        workspace: $workspace,
-        unpublishAt: null,
-        embargoUntil: null,
+        $workspace,
+        [
+            'unpublish_at' => null,
+            'embargo_until' => null,
+        ],
     );
 
     expect($updated->unpublish_at)->toBeNull()

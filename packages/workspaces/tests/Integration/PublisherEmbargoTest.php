@@ -52,7 +52,7 @@ it('blocks publishing before the workspace embargo date', function (): void {
 
     makeEmbargoedDraft($workspace);
 
-    expect(fn () => (new Publisher)->publish($workspace))
+    expect(fn (): mixed => (new Publisher)->publish($workspace))
         ->toThrow(EmbargoActiveException::class);
 
     expect($workspace->fresh()->status)->toBe(WorkspaceStatusEnum::Approved);

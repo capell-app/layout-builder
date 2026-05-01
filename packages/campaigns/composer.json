@@ -1,0 +1,57 @@
+{
+    "name": "capell-app/campaigns",
+    "description": "Campaign landing pages, CTA blocks, UTM attribution, conversion goals, and campaign analytics.",
+    "keywords": [
+        "capell",
+        "campaigns",
+        "laravel",
+        "filamentphp",
+        "cms"
+    ],
+    "homepage": "https://github.com/capell-app/campaigns",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Capell Team",
+            "email": "team@capell.app",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "capell-app/admin": "^2.0",
+        "capell-app/analytics": "^2.0",
+        "capell-app/core": "^2.0",
+        "capell-app/forms": "^2.0",
+        "capell-app/frontend": "^2.0",
+        "capell-app/mosaic": "^2.0",
+        "lorisleiva/laravel-actions": "^2.8",
+        "spatie/laravel-data": "^4.5",
+        "spatie/laravel-package-tools": "^1.14.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\Campaigns\\": "src/",
+            "Capell\\Campaigns\\Database\\Factories\\": "database/factories"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Capell\\Campaigns\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\Campaigns\\Providers\\CampaignsServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "test": "pest"
+    },
+    "prefer-stable": true
+}

@@ -45,6 +45,9 @@ use Spatie\Activitylog\Traits\LogsActivity;
  * @property CarbonImmutable|null $submitted_at
  * @property CarbonImmutable|null $approved_at
  * @property CarbonImmutable|null $publish_at
+ * @property CarbonImmutable|null $unpublish_at
+ * @property CarbonImmutable|null $embargo_until
+ * @property CarbonImmutable|null $review_reminder_at
  * @property CarbonImmutable|null $published_at
  * @property int|null $created_by
  * @property int|null $updated_by
@@ -80,6 +83,9 @@ class Workspace extends Model implements Userstampable
         'submitted_at',
         'approved_at',
         'publish_at',
+        'unpublish_at',
+        'embargo_until',
+        'review_reminder_at',
         'published_at',
     ];
 
@@ -330,6 +336,9 @@ class Workspace extends Model implements Userstampable
             'submitted_at' => 'immutable_datetime',
             'approved_at' => 'immutable_datetime',
             'publish_at' => 'immutable_datetime',
+            'unpublish_at' => 'immutable_datetime',
+            'embargo_until' => 'immutable_datetime',
+            'review_reminder_at' => 'immutable_datetime',
             'published_at' => 'immutable_datetime',
         ];
     }

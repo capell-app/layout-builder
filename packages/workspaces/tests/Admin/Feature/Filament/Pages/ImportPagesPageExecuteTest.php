@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Actions\InstallExchangerPermissionsAction;
+use Capell\Admin\Actions\InstallBackupPermissionsAction;
 use Capell\Backup\Enums\ImportSessionStatus;
 use Capell\Backup\Jobs\ExecuteImportPlanJob;
 use Capell\Backup\Models\ImportSession;
@@ -67,7 +67,7 @@ function stageExecutePackage(string $relativePath, string $uuid, int $siteId, st
 
 beforeEach(function (): void {
     Permission::findOrCreate('View:ImportPagesPage', 'web');
-    InstallExchangerPermissionsAction::run();
+    InstallBackupPermissionsAction::run();
     test()->actingAsAdmin();
     auth()->user()->givePermissionTo('View:ImportPagesPage');
     Storage::fake('local');

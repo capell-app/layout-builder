@@ -1,0 +1,20 @@
+{
+    "name": "capell-app/campaigns",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "contexts": ["admin", "frontend"],
+    "description": "Campaign landing pages, CTA blocks, UTM attribution, conversion goals, and campaign analytics.",
+    "providers": {
+        "shared": ["Capell\\Campaigns\\Providers\\CampaignsServiceProvider"],
+        "admin": ["Capell\\Campaigns\\Providers\\AdminServiceProvider"],
+        "frontend": ["Capell\\Campaigns\\Providers\\FrontendServiceProvider"]
+    },
+    "requires": [
+        "capell-app/core",
+        "capell-app/admin",
+        "capell-app/frontend",
+        "capell-app/mosaic",
+        "capell-app/forms"
+    ],
+    "optional": ["capell-app/analytics", "capell-app/seo-tools"]
+}

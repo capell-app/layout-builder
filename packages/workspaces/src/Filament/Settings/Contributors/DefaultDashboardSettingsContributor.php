@@ -21,6 +21,7 @@ final class DefaultDashboardSettingsContributor implements DashboardSettingsCont
             ['key' => 'site_traffic', 'label' => 'Site traffic', 'group' => 'Admin'],
             ['key' => 'top_pages', 'label' => 'Top pages', 'group' => 'Admin'],
             ['key' => 'cache_health', 'label' => 'Cache health', 'group' => 'Admin'],
+            ['key' => 'content_scheduler', 'label' => 'Content scheduler', 'group' => 'Editor'],
             ['key' => 'workspace_activity', 'label' => 'Workspace activity', 'group' => 'Admin'],
         ];
     }

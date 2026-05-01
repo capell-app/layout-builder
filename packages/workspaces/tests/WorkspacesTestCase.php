@@ -11,6 +11,7 @@ use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
+use Capell\Backup\Providers\BackupServiceProvider;
 use Capell\Blog\Providers\BlogServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Media;
@@ -124,6 +125,7 @@ class WorkspacesTestCase extends AbstractTestCase
             WidgetsServiceProvider::class,
             NotificationsServiceProvider::class,
             AdminServiceProvider::class,
+            BackupServiceProvider::class,
             AdminPanelProvider::class,
             FrontendServiceProvider::class,
             PaginateRouteServiceProvider::class,
@@ -141,6 +143,8 @@ class WorkspacesTestCase extends AbstractTestCase
         parent::getEnvironmentSetUp($app);
 
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
+        CapellCore::registerPackage(BackupServiceProvider::$packageName, path: realpath(__DIR__ . '/../../../vendor/capell-app/backup'));
+        CapellCore::forcePackageInstalled(BackupServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled('capell-app/workspaces');
 

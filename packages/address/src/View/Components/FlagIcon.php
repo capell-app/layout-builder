@@ -19,7 +19,7 @@ class FlagIcon extends Component
         public ?string $label = null,
         public string $style = '4x3',
     ) {
-        $renderer = app(FlagIconRenderer::class);
+        $renderer = resolve(FlagIconRenderer::class);
 
         $this->asset = $renderer->assetPath($this->flag, $this->style);
         $this->fallbackLabel = $renderer->fallbackLabel($this->flag, $this->label, $this->style);

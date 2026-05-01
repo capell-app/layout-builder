@@ -9,6 +9,7 @@ use Capell\Workspaces\Enums\WorkspaceStatusEnum;
 use Capell\Workspaces\Enums\WorkspaceTransitionEnum;
 use Capell\Workspaces\Events\WorkspaceEventDispatcher;
 use Capell\Workspaces\Events\WorkspaceStateChanged;
+use Capell\Workspaces\Exceptions\EmbargoActiveException;
 use Capell\Workspaces\Exceptions\PublishBlockedByChecksException;
 use Capell\Workspaces\Exceptions\ReleaseWindowClosedException;
 use Capell\Workspaces\Exceptions\StaleWorkspaceException;
@@ -62,6 +63,10 @@ class Publisher
                 $workspace->id,
                 $workspace->status->value,
             ));
+        }
+
+        if ($workspace->embargo_until !== null && $workspace->embargo_until->isFuture()) {
+            throw new EmbargoActiveException($workspace, $workspace->embargo_until);
         }
 
         if (! $bypassChecks) {

@@ -18,6 +18,7 @@ use Capell\Workspaces\Filament\Resources\PreviewLinks\PreviewLinkResource;
 use Capell\Workspaces\Filament\Resources\Workspaces\WorkspaceResource;
 use Capell\Workspaces\Filament\Settings\Contributors\DefaultDashboardSettingsContributor;
 use Capell\Workspaces\Filament\Settings\Contributors\SystemHealthSettingsContributor;
+use Capell\Workspaces\Filament\Widgets\ContentSchedulerOverviewWidget;
 use Capell\Workspaces\Filament\Widgets\WorkspaceActivityWidgetAbstract;
 use Capell\Workspaces\Listeners\SendWorkspaceStateNotification;
 use Capell\Workspaces\Livewire\DiffPanel;
@@ -52,6 +53,7 @@ class AdminServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'capell-workspaces');
+        $this->loadTranslationsFrom(__DIR__ . '/../../resources/lang', 'capell-workspaces');
 
         $this->registerLivewireComponents()
             ->registerRenderHooks()
@@ -110,6 +112,7 @@ class AdminServiceProvider extends ServiceProvider
     private function registerFilamentExtensions(): self
     {
         CapellAdmin::registerDashboardWidget(WorkspaceActivityWidgetAbstract::class, DashboardEnum::Main);
+        CapellAdmin::registerDashboardWidget(ContentSchedulerOverviewWidget::class, DashboardEnum::Main);
         CapellAdmin::registerResource('Workspace', WorkspaceResource::class);
         CapellAdmin::registerResource('PreviewLink', PreviewLinkResource::class);
         CapellAdmin::registerPage(ActivityTrailPage::class);

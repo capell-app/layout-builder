@@ -21,7 +21,7 @@ it('resolves a published blade country flag asset from an iso code', function ()
     File::ensureDirectoryExists(public_path('vendor/blade-country-flags'));
     File::put(public_path('vendor/blade-country-flags/4x3-fr.svg'), '<svg></svg>');
 
-    expect(app(FlagIconRenderer::class)->assetPath('fr'))->toBe('vendor/blade-country-flags/4x3-fr.svg');
+    expect(resolve(FlagIconRenderer::class)->assetPath('fr'))->toBe('vendor/blade-country-flags/4x3-fr.svg');
 });
 
 it('renders a published country flag through the admin renderer contract', function (): void {
@@ -47,11 +47,11 @@ it('resolves a published blade country flag asset from a blade icon name', funct
     File::ensureDirectoryExists(public_path('vendor/blade-country-flags'));
     File::put(public_path('vendor/blade-country-flags/4x3-gb-eng.svg'), '<svg></svg>');
 
-    expect(app(FlagIconRenderer::class)->assetPath('flag-4x3-gb-eng'))->toBe('vendor/blade-country-flags/4x3-gb-eng.svg');
+    expect(resolve(FlagIconRenderer::class)->assetPath('flag-4x3-gb-eng'))->toBe('vendor/blade-country-flags/4x3-gb-eng.svg');
 });
 
 it('falls back to a readable label for missing or invalid assets', function (): void {
-    $renderer = app(FlagIconRenderer::class);
+    $renderer = resolve(FlagIconRenderer::class);
 
     expect($renderer->assetPath('flag-4x3-fr'))->toBeNull()
         ->and($renderer->fallbackLabel('flag-4x3-fr', 'France'))->toBe('France')

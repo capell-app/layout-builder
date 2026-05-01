@@ -20,6 +20,7 @@ use Capell\Workspaces\Filament\Resources\Workspaces\Actions\RequestChangesAction
 use Capell\Workspaces\Filament\Resources\Workspaces\Actions\RollbackAction;
 use Capell\Workspaces\Filament\Resources\Workspaces\Actions\SaveAsDraftAction;
 use Capell\Workspaces\Filament\Resources\Workspaces\Actions\ScheduleAction;
+use Capell\Workspaces\Filament\Resources\Workspaces\Actions\SchedulerMetadataAction;
 use Capell\Workspaces\Filament\Resources\Workspaces\Actions\SubmitForApprovalAction;
 use Capell\Workspaces\Filament\Resources\Workspaces\Actions\UnscheduleAction;
 use Capell\Workspaces\Filament\Resources\Workspaces\Actions\ValidateAction;
@@ -83,6 +84,7 @@ class WorkspacesTable implements TableConfigurator
             RejectAction::make(),
             PublishAction::make(),
             ScheduleAction::make(),
+            SchedulerMetadataAction::make(),
             UnscheduleAction::make(),
             PreviewAction::make(),
             ...static::getContributorRecordActions(),

@@ -7,7 +7,10 @@ namespace Capell\Workspaces\Filament\Pages;
 use BackedEnum;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Capell\Admin\Filament\Concerns\HasNavigationBadge;
+use Capell\Workspaces\Actions\Reports\BuildContentSchedulerEventsAction;
 use Capell\Workspaces\Filament\Pages\Tables\ScheduledPublishingTable;
+use Capell\Workspaces\Filament\Widgets\ContentSchedulerCalendarWidget;
+use Capell\Workspaces\Filament\Widgets\ContentSchedulerOverviewWidget;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Pages\Page;
@@ -25,24 +28,34 @@ class ScheduledPublishingPage extends Page implements HasActions, HasTable
     use InteractsWithActions;
     use InteractsWithTable;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendar;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
-    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::Calendar;
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::CalendarDays;
 
-    protected string $view = 'capell-admin::filament.pages.scheduled-publishing';
+    protected string $view = 'capell-admin::components.pages.table';
 
     protected static ?string $slug = 'scheduled-publishing';
+
+    protected static ?int $navigationSort = -5;
 
     #[Override]
     public static function getNavigationLabel(): string
     {
-        return (string) (__('capell-admin::navigation.scheduled_publishing'));
+        return (string) __('capell-workspaces::scheduler.navigation.label');
     }
 
     #[Override]
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_monitoring'));
+        return (string) __('capell-workspaces::scheduler.navigation.group');
+    }
+
+    #[Override]
+    public static function getNavigationBadge(): ?string
+    {
+        $count = BuildContentSchedulerEventsAction::run()->count();
+
+        return $count > 0 ? (string) $count : null;
     }
 
     public static function table(Table $table): Table
@@ -52,12 +65,20 @@ class ScheduledPublishingPage extends Page implements HasActions, HasTable
 
     public function getSubheading(): string|Htmlable|null
     {
-        return __('capell-admin::generic.scheduled_publishing_info');
+        return __('capell-workspaces::scheduler.subheading');
     }
 
     #[Override]
     public function getTitle(): string|Htmlable
     {
-        return __('capell-admin::heading.scheduled_publishing');
+        return __('capell-workspaces::scheduler.title');
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            ContentSchedulerOverviewWidget::class,
+            ContentSchedulerCalendarWidget::class,
+        ];
     }
 }

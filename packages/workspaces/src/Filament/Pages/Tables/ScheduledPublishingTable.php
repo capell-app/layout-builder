@@ -4,90 +4,93 @@ declare(strict_types=1);
 
 namespace Capell\Workspaces\Filament\Pages\Tables;
 
-use Capell\Admin\Filament\Components\Tables\Columns\DateColumn;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
-use Capell\Admin\Filament\Resources\Pages\Actions\BulkCancelScheduleBulkAction;
-use Capell\Admin\Filament\Resources\Pages\Actions\BulkPublishNowBulkAction;
-use Capell\Core\Models\Page;
-use Capell\Workspaces\Actions\Reports\BuildScheduledPublishingQueryAction;
-use Carbon\CarbonInterface;
+use Capell\Workspaces\Actions\Reports\BuildContentSchedulerEventsAction;
+use Capell\Workspaces\Data\SchedulerEventData;
+use Capell\Workspaces\Enums\SchedulerEventTypeEnum;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 class ScheduledPublishingTable implements TableConfigurator
 {
     public static function configure(Table $table): Table
     {
         return $table
-            ->query(fn (): Builder => BuildScheduledPublishingQueryAction::run())
+            ->records(fn (?array $filters = null): Collection => self::records($filters ?? []))
             ->columns([
-                TextColumn::make('name')
+                TextColumn::make('title')
                     ->label(__('capell-admin::table.name'))
                     ->size('sm')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('action')
-                    ->label(__('capell-admin::table.action'))
+                TextColumn::make('event_type_label')
+                    ->label(__('capell-workspaces::scheduler.table.event_type'))
                     ->size('sm')
                     ->badge()
-                    ->state(fn (Page $record): string => self::resolveAction($record))
-                    ->formatStateUsing(fn (string $state): string => (string) __('capell-admin::table.' . $state)),
-                DateColumn::make('visible_from')
-                    ->label(__('capell-admin::table.visible_from'))
+                    ->color(fn (array $record): string => $record['event_type_color'] ?? 'gray'),
+                TextColumn::make('source_type')
+                    ->label(__('capell-workspaces::scheduler.table.source'))
                     ->size('sm')
-                    ->sortable(),
-                DateColumn::make('visible_until')
-                    ->label(__('capell-admin::table.visible_until'))
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => (string) __('capell-workspaces::scheduler.sources.' . $state)),
+                TextColumn::make('status')
+                    ->label(__('capell-admin::table.status'))
                     ->size('sm')
-                    ->sortable(),
+                    ->badge(),
                 TextColumn::make('scheduled_for')
-                    ->label(__('capell-admin::table.scheduled_for'))
+                    ->label(__('capell-workspaces::scheduler.table.scheduled_for'))
                     ->size('sm')
-                    ->dateTime()
-                    ->state(fn (Page $record): ?CarbonInterface => self::resolveScheduledFor($record))
-                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderByRaw(
-                        "CASE WHEN COALESCE(visible_from, '9999-12-31') < COALESCE(visible_until, '9999-12-31') THEN COALESCE(visible_from, '9999-12-31') ELSE COALESCE(visible_until, '9999-12-31') END " . ($direction === 'asc' ? 'asc' : 'desc'),
-                    )),
+                    ->dateTime(),
+                TextColumn::make('description')
+                    ->label(__('capell-workspaces::scheduler.table.description'))
+                    ->size('sm')
+                    ->wrap()
+                    ->toggleable(),
             ])
-            ->toolbarActions([
-                BulkPublishNowBulkAction::make(),
-                BulkCancelScheduleBulkAction::make(),
+            ->filters([
+                SelectFilter::make('event_type')
+                    ->label(__('capell-workspaces::scheduler.filters.event_type'))
+                    ->options(SchedulerEventTypeEnum::class),
+                SelectFilter::make('source_type')
+                    ->label(__('capell-workspaces::scheduler.filters.source'))
+                    ->options([
+                        'workspace' => __('capell-workspaces::scheduler.sources.workspace'),
+                        'page' => __('capell-workspaces::scheduler.sources.page'),
+                    ]),
             ])
-            ->defaultSort(column: 'scheduled_for', direction: 'asc');
+            ->recordUrl(fn (array $record): ?string => $record['record_url'] ?? null)
+            ->defaultSort(column: 'scheduled_for', direction: 'asc')
+            ->paginated([10, 25, 50]);
     }
 
-    private static function resolveAction(Page $record): string
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return Collection<int, array<string, mixed>>
+     */
+    private static function records(array $filters): Collection
     {
-        $visibleFrom = $record->visible_from;
+        $eventType = self::filterValue($filters, 'event_type');
+        $sourceType = self::filterValue($filters, 'source_type');
 
-        if ($visibleFrom !== null && $visibleFrom->isFuture()) {
-            return 'publish';
-        }
-
-        return 'unpublish';
+        return BuildContentSchedulerEventsAction::run(
+            eventType: $eventType !== null ? SchedulerEventTypeEnum::tryFrom($eventType) : null,
+            sourceType: $sourceType,
+        )->map(fn (SchedulerEventData $event): array => $event->toTableRecord());
     }
 
-    private static function resolveScheduledFor(Page $record): ?CarbonInterface
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    private static function filterValue(array $filters, string $key): ?string
     {
-        $visibleFrom = $record->visible_from;
-        $visibleUntil = $record->visible_until;
+        $value = $filters[$key]['value'] ?? $filters[$key] ?? null;
 
-        $fromIsFuture = $visibleFrom !== null && $visibleFrom->isFuture();
-        $untilIsFuture = $visibleUntil !== null && $visibleUntil->isFuture();
-
-        if ($fromIsFuture && $untilIsFuture) {
-            return $visibleFrom->lessThan($visibleUntil) ? $visibleFrom : $visibleUntil;
+        if (! is_string($value) || $value === '') {
+            return null;
         }
 
-        if ($fromIsFuture) {
-            return $visibleFrom;
-        }
-
-        if ($untilIsFuture) {
-            return $visibleUntil;
-        }
-
-        return null;
+        return $value;
     }
 }

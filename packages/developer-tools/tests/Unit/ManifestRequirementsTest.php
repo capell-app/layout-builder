@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use Capell\DeveloperTools\Providers\AdminServiceProvider;
+use Capell\DeveloperTools\Providers\DeveloperToolsServiceProvider;
+
 describe('developer-tools capell.json manifest', function (): void {
     it('declares admin and console package metadata', function (): void {
         $manifest = json_decode(
@@ -16,7 +19,7 @@ describe('developer-tools capell.json manifest', function (): void {
                 'capell-version' => '^4.0',
             ])
             ->and($manifest['contexts'])->toContain('admin')
-            ->and($manifest['providers']['shared'])->toContain('Capell\\DeveloperTools\\Providers\\DeveloperToolsServiceProvider')
-            ->and($manifest['providers']['admin'])->toContain('Capell\\DeveloperTools\\Providers\\AdminServiceProvider');
+            ->and($manifest['providers']['shared'])->toContain(DeveloperToolsServiceProvider::class)
+            ->and($manifest['providers']['admin'])->toContain(AdminServiceProvider::class);
     });
 });

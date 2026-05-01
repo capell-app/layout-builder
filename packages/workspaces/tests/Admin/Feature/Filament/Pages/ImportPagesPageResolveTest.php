@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Actions\InstallExchangerPermissionsAction;
+use Capell\Admin\Actions\InstallBackupPermissionsAction;
 use Capell\Backup\Data\RelationResolveRow;
 use Capell\Backup\Jobs\ExecuteImportPlanJob;
 use Capell\Backup\Models\ImportSession;
@@ -114,7 +114,7 @@ function stageResolvePackage(string $relativePath, string $pageUuid, int $siteId
 
 beforeEach(function (): void {
     Permission::findOrCreate('View:ImportPagesPage', 'web');
-    InstallExchangerPermissionsAction::run();
+    InstallBackupPermissionsAction::run();
     test()->actingAsAdmin();
     auth()->user()->givePermissionTo('View:ImportPagesPage');
     Storage::fake('local');
@@ -170,7 +170,7 @@ it('hides update_existing when the user lacks the permission', function (): void
 });
 
 it('exposes update_existing once the permission is granted', function (): void {
-    auth()->user()->givePermissionTo(InstallExchangerPermissionsAction::PERMISSION_PAGE_IMPORT_UPDATE_SHARED);
+    auth()->user()->givePermissionTo(InstallBackupPermissionsAction::PERMISSION_PAGE_IMPORT_UPDATE_SHARED);
 
     expect((new ImportPagesPage)->canUpdateSharedRelations())->toBeTrue();
 });
@@ -182,7 +182,7 @@ it('denies publish-live when the user lacks page.import.publish-live', function 
 });
 
 it('allows publish-live once page.import.publish-live is granted', function (): void {
-    auth()->user()->givePermissionTo(InstallExchangerPermissionsAction::PERMISSION_PAGE_IMPORT_PUBLISH_LIVE);
+    auth()->user()->givePermissionTo(InstallBackupPermissionsAction::PERMISSION_PAGE_IMPORT_PUBLISH_LIVE);
 
     expect((new ImportPagesPage)->canPublishLive())->toBeTrue();
 });

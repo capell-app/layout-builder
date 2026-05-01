@@ -6,7 +6,7 @@ namespace Capell\Workspaces\Filament\Pages;
 
 use BackedEnum;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
-use Capell\Admin\Actions\InstallExchangerPermissionsAction;
+use Capell\Admin\Actions\InstallBackupPermissionsAction;
 use Capell\Admin\Filament\Resources\ImportSessions\ImportSessionResource;
 use Capell\Backup\Actions\BuildImportValidationSummaryAction;
 use Capell\Backup\Actions\BuildPageReviewRows;
@@ -589,7 +589,7 @@ class ImportPagesPage extends Page implements HasForms
 
     public function canUpdateSharedRelations(): bool
     {
-        return auth()->user()?->can(InstallExchangerPermissionsAction::PERMISSION_PAGE_IMPORT_UPDATE_SHARED) ?? false;
+        return auth()->user()?->can(InstallBackupPermissionsAction::PERMISSION_PAGE_IMPORT_UPDATE_SHARED) ?? false;
     }
 
     /**
@@ -603,7 +603,7 @@ class ImportPagesPage extends Page implements HasForms
      */
     public function canPublishLive(): bool
     {
-        return auth()->user()?->can(InstallExchangerPermissionsAction::PERMISSION_PAGE_IMPORT_PUBLISH_LIVE) ?? false;
+        return auth()->user()?->can(InstallBackupPermissionsAction::PERMISSION_PAGE_IMPORT_PUBLISH_LIVE) ?? false;
     }
 
     private function shouldSkipResolveStep(): bool

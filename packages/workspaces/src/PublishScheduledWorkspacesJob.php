@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Workspaces;
 
 use Capell\Workspaces\Enums\WorkspaceStatusEnum;
+use Capell\Workspaces\Exceptions\EmbargoActiveException;
 use Capell\Workspaces\Exceptions\ReleaseWindowClosedException;
 use Capell\Workspaces\Models\Workspace;
 use Illuminate\Bus\Queueable;
@@ -37,6 +38,8 @@ class PublishScheduledWorkspacesJob implements ShouldQueue
             ->each(function (Workspace $workspace) use ($publisher): void {
                 try {
                     $publisher->publish($workspace);
+                } catch (EmbargoActiveException) {
+                    // Leave Scheduled — next tick will retry once the embargo has passed.
                 } catch (ReleaseWindowClosedException) {
                     // Leave Scheduled — next tick will retry once the window opens.
                 } catch (Throwable $failure) {
