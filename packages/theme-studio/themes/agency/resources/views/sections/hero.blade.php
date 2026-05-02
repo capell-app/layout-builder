@@ -31,20 +31,16 @@
                 @endforeach
             </div>
         </div>
-        <div
-            class="rotate-2 rounded-[2rem] bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-accent)] p-3 shadow-2xl"
-        >
-            @if ($section->mediaUrl)
+        @if ($section->mediaUrl)
+            <div
+                class="rotate-2 rounded-[2rem] bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-accent)] p-3 shadow-2xl"
+            >
                 <img
                     src="{{ $section->mediaUrl }}"
                     alt="{{ $section->mediaAlt ?? '' }}"
                     class="aspect-[4/3] w-full rounded-[1.5rem] border border-white/25 object-cover"
                 />
-            @else
-                <div
-                    class="aspect-[4/3] rounded-[1.5rem] border border-white/25 bg-white/20"
-                ></div>
-            @endif
-        </div>
+            </div>
+        @endif
     </div>
 </section>

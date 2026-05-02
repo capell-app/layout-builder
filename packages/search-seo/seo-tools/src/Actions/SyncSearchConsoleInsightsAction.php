@@ -38,7 +38,11 @@ final class SyncSearchConsoleInsightsAction
         foreach ($metricRows as $metricRow) {
             $url = $metricRow['url'] ?? null;
 
-            if (! is_string($url) || trim($url) === '') {
+            if (! is_string($url)) {
+                continue;
+            }
+
+            if (trim($url) === '') {
                 continue;
             }
 

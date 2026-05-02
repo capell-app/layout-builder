@@ -34,22 +34,16 @@
                 @endforeach
             </div>
         </div>
-        <div
-            class="rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl"
-        >
-            @if ($section->mediaUrl)
+        @if ($section->mediaUrl)
+            <div
+                class="rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl"
+            >
                 <img
                     src="{{ $section->mediaUrl }}"
                     alt="{{ $section->mediaAlt ?? '' }}"
                     class="aspect-[4/3] w-full rounded-xl object-cover"
                 />
-            @else
-                <div class="aspect-[4/3] rounded-xl bg-slate-950 p-4">
-                    <div
-                        class="h-full rounded-lg bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-accent)] opacity-80"
-                    ></div>
-                </div>
-            @endif
-        </div>
+            </div>
+        @endif
     </div>
 </section>

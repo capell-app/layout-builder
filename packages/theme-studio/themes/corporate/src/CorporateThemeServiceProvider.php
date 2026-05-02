@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\ThemeStudio\Corporate;
 
-use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\ThemeStudio\Core\Data\ThemeDefinitionData;
 use Capell\ThemeStudio\Core\Data\ThemePresetData;
 use Capell\ThemeStudio\Core\Rendering\BladeThemeRenderer;
@@ -78,8 +77,6 @@ class CorporateThemeServiceProvider extends ServiceProvider
     public function boot(ThemeRegistry $registry): void
     {
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'capell-theme-corporate');
-
-        RegisterBlazeOptimizedViewsAction::run(__DIR__ . '/../resources/views/sections');
 
         $sectionRenderers = $this->sectionRenderers();
 

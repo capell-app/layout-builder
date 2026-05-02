@@ -76,11 +76,20 @@
         fetch(url, {
             method: 'POST',
             body: json,
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
             keepalive: true,
         })
             .then(function (response) {
-                if (handleResponse && response.ok) {
+                var contentType = response.headers.get('content-type') || ''
+
+                if (
+                    handleResponse &&
+                    response.ok &&
+                    contentType.indexOf('application/json') !== -1
+                ) {
                     response
                         .json()
                         .then(handleResponse)

@@ -10,6 +10,7 @@ use Capell\ThemeStudio\Admin\Actions\PublishThemeDraftAction;
 use Capell\ThemeStudio\Admin\Actions\ResolveThemePublishingReadinessAction;
 use Capell\ThemeStudio\Admin\Actions\ResolveThemePublishLabelAction;
 use Capell\ThemeStudio\Admin\Actions\StageThemeDraftAction;
+use Capell\ThemeStudio\Admin\Contracts\ThemeDraftPublisher;
 use Capell\ThemeStudio\Core\Data\ThemeDefinitionData;
 use Capell\ThemeStudio\Core\Settings\ThemeStudioSettings;
 use Capell\ThemeStudio\Core\Theme\ThemeRegistry;
@@ -103,9 +104,18 @@ class ThemeStudioPage extends Page
         return ResolveThemePublishLabelAction::run();
     }
 
+    public function publishNotificationTitle(): string
+    {
+        if (resolve(ThemeDraftPublisher::class)->requiresApproval()) {
+            return __('capell-theme-studio-admin::studio.notifications.draft_submitted');
+        }
+
+        return __('capell-theme-studio-admin::studio.notifications.draft_published');
+    }
+
     public function previewUrl(string $themeKey, string $presetKey): string
     {
-        return GenerateThemePreviewUrlAction::run($themeKey, $presetKey, request()->getPathInfo());
+        return GenerateThemePreviewUrlAction::run($themeKey, $presetKey, '/');
     }
 
     public function stageTheme(string $themeKey, string $presetKey): void
@@ -124,7 +134,7 @@ class ThemeStudioPage extends Page
 
         Notification::make('theme-studio-draft-published')
             ->success()
-            ->title(__('capell-theme-studio-admin::studio.notifications.draft_published'))
+            ->title($this->publishNotificationTitle())
             ->send();
     }
 }

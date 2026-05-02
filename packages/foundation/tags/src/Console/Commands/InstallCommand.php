@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Tags\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Schema;
 
 class InstallCommand extends Command
 {
@@ -31,10 +32,13 @@ class InstallCommand extends Command
 
     private function publishMigrations(): bool
     {
-        $migrations = [
-            base_path('vendor/spatie/laravel-tags/database/migrations/create_tag_tables.php.stub'),
-            __DIR__ . '/../../../database/migrations/alter_tags_table.php',
-        ];
+        $migrations = [];
+
+        if (! Schema::hasTable('tags') && ! Schema::hasTable('taggables')) {
+            $migrations[] = base_path('vendor/spatie/laravel-tags/database/migrations/create_tag_tables.php.stub');
+        }
+
+        $migrations[] = __DIR__ . '/../../../database/migrations/alter_tags_table.php';
 
         $this->call('capell:publish-migrations', ['--items' => $migrations]);
 

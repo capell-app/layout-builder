@@ -8,12 +8,15 @@ use Capell\Blog\Models\Article;
 use Capell\Blog\Support\Loader\BlogLoader;
 use Capell\Core\Actions\UpdatePageUrlAction;
 use Capell\Core\Models\Translation;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 final class ArticleTranslationSavedListener
 {
     public function __invoke(Translation $translation): void
     {
-        if ($translation->translatable_type !== resolve(Article::class)->getMorphClass()) {
+        $articleMorphAlias = Relation::getMorphAlias(Article::class);
+
+        if ($articleMorphAlias === Article::class || $translation->translatable_type !== $articleMorphAlias) {
             return;
         }
 

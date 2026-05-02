@@ -35,12 +35,28 @@
 
         fetch(window.beaconData.url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
             body: JSON.stringify(payload),
         })
-            .then((response) => response.json())
+            .then((response) => {
+                const contentType = response.headers.get('content-type') || ''
+
+                if (!response.ok || !contentType.includes('application/json')) {
+                    throw new Error(
+                        `Beacon request failed with status ${response.status}`,
+                    )
+                }
+
+                return response.json()
+            })
             .then((data) => {
-                setCsrfToken(data.csrf_token)
+                if (data.csrf_token) {
+                    setCsrfToken(data.csrf_token)
+                }
+
                 const toolbar = document.getElementById(
                     'capell-frontend-toolbar',
                 )

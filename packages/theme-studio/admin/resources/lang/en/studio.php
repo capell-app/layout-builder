@@ -100,6 +100,7 @@ return [
     ],
     'notifications' => [
         'draft_staged' => 'Theme draft staged.',
+        'draft_submitted' => 'Theme draft submitted for approval.',
         'draft_published' => 'Theme draft published.',
     ],
 ];
