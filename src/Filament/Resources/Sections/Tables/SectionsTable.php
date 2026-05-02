@@ -17,14 +17,11 @@ use Capell\Admin\Filament\Components\Tables\Columns\Page\PageNameColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\SiteColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\TypeColumn;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
-use Capell\Core\Enums\ModelEnum as CoreModelEnum;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Mosaic\Actions\ReplicateContentAction;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
-use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Filament\Components\Tables\Columns\Content\ContentNameColumn;
 use Capell\Mosaic\Models\Section;
 use Filament\Actions\ActionGroup;
@@ -84,18 +81,18 @@ class SectionsTable implements TableConfigurator
             ])
             ->columnManagerColumns(3)
             ->recordActions([
-                EditAction::make(),
+                EditAction::make('edit'),
                 ActionGroup::make([
-                    ReplicateAction::make()
+                    ReplicateAction::make('replicate')
                         ->replicaModelAction(ReplicateContentAction::class),
-                    DeleteAction::make(),
+                    DeleteAction::make('delete'),
                 ])
                     ->color('gray'),
             ])
             ->toolbarActions([
-                DeleteBulkAction::make(),
-                RestoreBulkAction::make(),
-                ForceDeleteBulkAction::make(),
+                DeleteBulkAction::make('delete'),
+                RestoreBulkAction::make('restore'),
+                ForceDeleteBulkAction::make('forceDelete'),
             ])
             ->recordClasses(fn (Section $record): ?string => match (true) {
                 (bool) $record->deleted_at => 'table-row-warning',
@@ -170,7 +167,7 @@ class SectionsTable implements TableConfigurator
                 ->formatStateUsing(fn (Section $record): int => $record->assets_count),
             SiteColumn::make('site.name')
                 ->hidden(
-                    fn (HasTable $livewire): bool => $livewire->activeTab
+                    fn (HasTable $livewire): bool => ($livewire instanceof ListRecords && $livewire->activeTab)
                         || ($livewire->getTableFilterState('filter')['site_id'] ?? null) !== null && $livewire->getTableFilterState('filter')['site_id'] !== '',
                 ),
             DateColumn::make('visible_from')
@@ -192,7 +189,7 @@ class SectionsTable implements TableConfigurator
                 ->label(__('capell-admin::form.site'))
                 ->options(function (): array {
                     /** @var class-string<Site> $model */
-                    $model = CapellCore::getModel(CoreModelEnum::Site);
+                    $model = Site::class;
 
                     return $model::query()
                         ->ordered()
@@ -234,7 +231,7 @@ class SectionsTable implements TableConfigurator
                             $siteId = static::getSiteId($livewire);
 
                             /* @var class-string<\Capell\Core\Models\Language> $model */
-                            $model = CapellCore::getModel(CoreModelEnum::Language);
+                            $model = Language::class;
 
                             return $model::query()->when($siteId, fn (Builder $query, int $siteId): Builder => $query->whereHas(
                                 'sites',
@@ -252,7 +249,7 @@ class SectionsTable implements TableConfigurator
                             $siteId = static::getSiteId($livewire);
 
                             /** @var class-string<Section> $model */
-                            $model = CapellCore::getModel(ModelEnum::Section->name);
+                            $model = Section::class;
 
                             $sections = $model::with([
                                 'site',
@@ -317,7 +314,7 @@ class SectionsTable implements TableConfigurator
 
                     if (isset($data['language_id']) && $data['language_id'] !== null && $data['language_id'] !== '') {
                         /** @var class-string<Language> $model */
-                        $model = CapellCore::getModel(CoreModelEnum::Language);
+                        $model = Language::class;
 
                         $indicators['language_id'] = __(
                             'capell-admin::filter.language',
@@ -327,7 +324,7 @@ class SectionsTable implements TableConfigurator
 
                     if (isset($data['parent_id']) && $data['parent_id'] !== null && $data['parent_id'] !== '') {
                         /** @var class-string<Section> $model */
-                        $model = CapellCore::getModel(ModelEnum::Section->name);
+                        $model = Section::class;
 
                         $indicators['parent_id'] = __(
                             'capell-admin::filter.parent',

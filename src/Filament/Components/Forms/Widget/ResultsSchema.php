@@ -12,7 +12,7 @@ use Filament\Schemas\Schema;
 
 class ResultsSchema
 {
-    public static function make(Schema $schema): array
+    public static function make(Schema $configurator): array
     {
         return [
             Checkbox::make('with_author')
@@ -29,7 +29,7 @@ class ResultsSchema
                 ->label(__('capell-admin::form.link_text')),
             Checkbox::make('with_parent')
                 ->label(__('capell-admin::form.parent_page')),
-            ...ResultsOverrideSchema::make($schema),
+            ...ResultsOverrideSchema::make($configurator),
             Grid::make()
                 ->schema([
                     TextInput::make('columns')

@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Capell\Mosaic\Console\Commands\Hero;
 
 use Capell\Core\Enums\LayoutEnum;
-use Capell\Core\Enums\ModelEnum;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Mosaic\Actions\AddHeroWidgetToLayoutAction;
 use Capell\Mosaic\Actions\CreateHeroWidgetAction;
@@ -21,7 +19,7 @@ class SetupCommand extends Command
     public function handle(): int
     {
         /** @var class-string<Layout> $layoutModel */
-        $layoutModel = CapellCore::getModel(ModelEnum::Layout);
+        $layoutModel = Layout::class;
 
         $heroWidget = CreateHeroWidgetAction::run();
 

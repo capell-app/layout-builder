@@ -29,7 +29,7 @@ abstract class AbstractWidget extends Component
 
     public function render(array $data = []): View|string|Closure
     {
-        if ($this->skipRender) {
+        if ($this->skipRender && config('capell-mosaic.widget.skip_render_empty', true)) {
             return '';
         }
 

@@ -7,10 +7,12 @@ namespace Capell\Mosaic\Providers;
 use Capell\Admin\Actions\CreatedModelAction;
 use Capell\Admin\Actions\DeletedModelAction;
 use Capell\Admin\Data\AdminAssetData;
+use Capell\Admin\Enums\ConfiguratorTypeEnum as AdminConfiguratorTypeEnum;
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Enums\SchemaExtenderEnum;
-use Capell\Admin\Enums\SchemaTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
+use Capell\Core\Contracts\Makers\MakerRegistryInterface;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Data\PageTypeData;
 use Capell\Core\Data\VendorAssetData;
@@ -21,7 +23,6 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
-use Capell\Core\Workspaces\WorkspaceRegistry;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
 use Capell\Mosaic\Console\Commands\DemoCommand;
@@ -34,17 +35,16 @@ use Capell\Mosaic\Console\Commands\SetupCommand;
 use Capell\Mosaic\Console\Commands\UpgradeCommand;
 use Capell\Mosaic\Enums\AssetEnum;
 use Capell\Mosaic\Enums\ComponentTypeEnum;
+use Capell\Mosaic\Enums\ConfiguratorTypeEnum;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Enums\LivewireComponentsEnum;
-use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Enums\ResourceEnum as LayoutResourceEnum;
-use Capell\Mosaic\Enums\TypeSchemaEnum;
+use Capell\Mosaic\Filament\Configurators\Types\ContentTypeConfigurator;
+use Capell\Mosaic\Filament\Configurators\Types\WidgetTypeConfigurator;
 use Capell\Mosaic\Filament\Extenders\Page\HeroPageSchemaExtender;
 use Capell\Mosaic\Filament\Resources\Layouts\LayoutResource;
 use Capell\Mosaic\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender;
 use Capell\Mosaic\Filament\Resources\Pages\Schemas\Extenders\PageSchemaExtender;
-use Capell\Mosaic\Filament\Schemas\Types\ContentTypeSchema;
-use Capell\Mosaic\Filament\Schemas\Types\WidgetTypeSchema;
 use Capell\Mosaic\Listeners\AfterRecordSaved;
 use Capell\Mosaic\Listeners\LayoutLoaded;
 use Capell\Mosaic\Listeners\LayoutSavingListener;
@@ -57,7 +57,11 @@ use Capell\Mosaic\Support\CapellLayoutManager;
 use Capell\Mosaic\Support\Interceptors\Layouts\DefaultLayoutInterceptor;
 use Capell\Mosaic\Support\Interceptors\Layouts\HomeLayoutInterceptor;
 use Capell\Mosaic\Support\Interceptors\Layouts\ResultsLayoutInterceptor;
+use Capell\Mosaic\Support\LayoutAssetBridgeRegistry;
 use Capell\Mosaic\Support\LayoutModelRegistrar;
+use Capell\Mosaic\Support\LayoutPresets\LayoutPresetRegistry;
+use Capell\Mosaic\Support\Makers\MosaicWidgetMaker;
+use Capell\Workspaces\WorkspaceRegistry;
 use Composer\InstalledVersions;
 use Exception;
 use Filament\Facades\Filament;
@@ -108,7 +112,14 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
             ->registerModels()
             ->registerModelFillableAndCasts()
             ->registerRelationships()
-            ->registerPackageMetadata();
+            ->registerLayoutAssetBridgeRegistry()
+            ->registerLayoutPresetRegistry()
+            ->registerPackageMetadata()
+            ->registerBlazeComponents();
+
+        $this->callAfterResolving(MakerRegistryInterface::class, function (MakerRegistryInterface $registry): void {
+            $registry->register($this->app->make(MosaicWidgetMaker::class));
+        });
 
         $this->booted(function (): void {
             if (! $this->isPackageInstalled()) {
@@ -137,7 +148,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
     {
         return $this
             ->registerListeners()
-            ->registerSchemas()
+            ->registerConfigurators()
             ->registerManager()
             ->registerFilamentServing()
             ->registerTypes()
@@ -152,7 +163,8 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
             ->registerPublishCommands()
             ->registerLivewireComponents()
             ->registerBladeComponents()
-            ->registerVendorAssets();
+            ->registerVendorAssets()
+            ->registerWorkspaces();
     }
 
     private function registerModelEvents(): self
@@ -176,7 +188,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
 
     private function registerModelInterceptors(): self
     {
-        $layoutModel = CapellCore::getModel(\Capell\Core\Enums\ModelEnum::Layout);
+        $layoutModel = Layout::class;
 
         CapellCore::registerModelInterceptor($layoutModel, DefaultLayoutInterceptor::class, LayoutEnum::Default);
         CapellCore::registerModelInterceptor($layoutModel, HomeLayoutInterceptor::class, LayoutEnum::Home);
@@ -193,7 +205,14 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
             serviceProviderClass: static::class,
             path: realpath(__DIR__ . '/../..'),
             version: $this->getVersion(),
+            description: fn (): string => __('capell-mosaic::package.description'),
+            setupCommand: 'capell:mosaic-setup',
         );
+
+        $package = CapellCore::getPackage(static::$packageName);
+        $package->installCommand = 'capell:mosaic-install';
+        $package->demoCommand = 'capell:mosaic-demo';
+        $package->demoParams = ['sites', 'user'];
 
         return $this;
     }
@@ -214,6 +233,20 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
     private function registerManager(): self
     {
         App::singleton(CapellLayoutManager::class, fn (): CapellLayoutManager => new CapellLayoutManager);
+
+        return $this;
+    }
+
+    private function registerLayoutAssetBridgeRegistry(): self
+    {
+        App::singleton(LayoutAssetBridgeRegistry::class, fn (): LayoutAssetBridgeRegistry => new LayoutAssetBridgeRegistry);
+
+        return $this;
+    }
+
+    private function registerLayoutPresetRegistry(): self
+    {
+        App::singleton(LayoutPresetRegistry::class, fn (): LayoutPresetRegistry => new LayoutPresetRegistry);
 
         return $this;
     }
@@ -245,7 +278,6 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
                     model: $type->getModel(),
                     // TODO when this is translated this causes Livewire error: Exception: Property type not supported in Livewire for property: [{}]
                     label: $type->getLabel(),
-                    creatorClass: $type->getCreatorClass(),
                 ),
             );
         }
@@ -356,6 +388,13 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
         return $this;
     }
 
+    private function registerBlazeComponents(): self
+    {
+        RegisterBlazeOptimizedViewsAction::run(__DIR__ . '/../../resources/views/components');
+
+        return $this;
+    }
+
     private function registerThemeViewPath(): self
     {
         $dir = $this->package->basePath('/../resources/views/capell/');
@@ -440,6 +479,15 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
     {
         LayoutModelRegistrar::register();
 
+        return $this;
+    }
+
+    private function registerWorkspaces(): self
+    {
+        if (! class_exists(WorkspaceRegistry::class)) {
+            return $this;
+        }
+
         WorkspaceRegistry::register(Section::class);
         WorkspaceRegistry::register(Widget::class);
         WorkspaceRegistry::register(WidgetAsset::class);
@@ -460,7 +508,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
     private function registerEvents(): self
     {
         $createDeleteModels = [
-            CapellCore::getModel(ModelEnum::Section->name),
+            Section::class,
         ];
 
         foreach ($createDeleteModels as $modelClass) {
@@ -485,14 +533,14 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
         return $this;
     }
 
-    private function registerSchemas(): self
+    private function registerConfigurators(): self
     {
-        foreach (TypeSchemaEnum::getAllSchemas() as $type => $schemas) {
-            CapellAdmin::registerSchemas($type, $schemas, defaultSchemas: true);
+        foreach (ConfiguratorTypeEnum::getAllConfigurators() as $type => $configurators) {
+            CapellAdmin::registerConfigurators($type, $configurators, defaultConfigurators: true);
         }
 
-        CapellAdmin::registerSchema(SchemaTypeEnum::Type, ContentTypeSchema::class);
-        CapellAdmin::registerSchema(SchemaTypeEnum::Type, WidgetTypeSchema::class);
+        CapellAdmin::registerConfigurator(AdminConfiguratorTypeEnum::Type, ContentTypeConfigurator::class);
+        CapellAdmin::registerConfigurator(AdminConfiguratorTypeEnum::Type, WidgetTypeConfigurator::class);
 
         return $this;
     }
@@ -509,8 +557,8 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
         Page::resolveRelationUsing(
             'sections',
             fn (Page $model): HasManyThrough => $model->hasManyThrough(
-                ModelEnum::Section->value,
-                ModelEnum::WidgetAsset->value,
+                Section::class,
+                WidgetAsset::class,
                 'pageable_id',
                 'id',
                 'id',
@@ -522,13 +570,13 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
 
         Page::resolveRelationUsing(
             'widgetAssets',
-            fn (Page $model): MorphMany => $model->morphMany(ModelEnum::WidgetAsset->value, 'pageable'),
+            fn (Page $model): MorphMany => $model->morphMany(WidgetAsset::class, 'pageable'),
         );
 
         Page::resolveRelationUsing(
             'widgets',
             fn (Page $model): MorphToMany => $model->morphToMany(
-                ModelEnum::Widget->value,
+                Widget::class,
                 'asset',
                 'widget_assets',
                 'asset_id',
@@ -539,23 +587,23 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
 
         Site::resolveRelationUsing(
             'sections',
-            fn (Site $model): HasMany => $model->hasMany(ModelEnum::Section->value, 'site_id'),
+            fn (Site $model): HasMany => $model->hasMany(Section::class, 'site_id'),
         );
 
         Type::resolveRelationUsing(
             'sections',
-            fn (Type $model): HasMany => $model->hasMany(ModelEnum::Section->value, 'type_id'),
+            fn (Type $model): HasMany => $model->hasMany(Section::class, 'type_id'),
         );
 
         Type::resolveRelationUsing(
             'widgets',
-            fn (Type $model) => $model->hasMany(ModelEnum::Widget->value, 'type_id'),
+            fn (Type $model) => $model->hasMany(Widget::class, 'type_id'),
         );
 
         Layout::resolveRelationUsing(
             'layoutWidgets',
             fn (Layout $model): BelongsToJson => $model->belongsToJson(
-                ModelEnum::Widget->value,
+                Widget::class,
                 'widgets',
                 'key',
             ),

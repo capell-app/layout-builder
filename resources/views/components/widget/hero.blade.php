@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 use Capell\Frontend\Facades\Frontend;
 
 $page = Frontend::page();
@@ -59,41 +56,42 @@ $theme = Frontend::theme();
     $pageVariables = GetPageVariablesAction::run();
 @endphp
 {{-- format-ignore-end --}}
-<section
-    @class([
-        'widget-hero relative z-10 grid w-full',
-        'mb-10' => ! $loop->last,
-        'mt-10' => ! $loop->first,
-        'bg-gray-50 dark:bg-gray-900' => $color === 'light',
-        'bg-gray-800 dark:bg-gray-900' => $color === 'dark',
-        'min-h-[calc(100vh-var(--header-height))]' => $height === 'full',
-        'h-[calc(100vh-var(--header-height))]' => filled($height) && $height !== 'full',
-    ])
-    style="--hero-height: {{ $height }}"
->
-    <x-capell-mosaic::hero.wrapper
-        :key="$containerKey . '-widget-' . $widgetIndex"
-        :total="$total"
-        :carousel-align="$carouselAlign"
-        :carousel-arrows="$carouselArrows"
-        :carousel-auto-play="$carouselAutoPlay"
-        :carousel-auto-delay="$carouselAutoDelay"
-        :carousel-button-class="$carouselButtonClass"
-        :carousel-disable-on-interaction="$carouselDisableOnInteraction"
-        :carousel-drag="$carouselDrag"
-        :carousel-effect="$carouselEffect"
-        :carousel-fade="$carouselFade"
-        :carousel-loop="$carouselLoop"
-        :carousel-pagination="$carouselPagination"
-        :carousel-pause-on-hover="$carouselPauseOnHover"
-        :carousel-rewind="$carouselRewind"
-        :carousel-speed="$carouselSpeed"
-        :carousel-touch="$carouselTouch"
-        :carousel-wheel="$carouselWheel"
+@if ($widget->assets->isNotEmpty() || $page->translation->getMeta('hero') || ! config('capell-mosaic.widget.skip_render_empty', true))
+    <section
+        @class([
+            'widget-hero relative z-10 grid w-full',
+            'mb-10' => ! $loop->last,
+            'mt-10' => ! $loop->first,
+            'bg-gray-50 dark:bg-gray-900' => $color === 'light',
+            'bg-gray-800 dark:bg-gray-900' => $color === 'dark',
+            'min-h-[calc(100vh-var(--header-height))]' => $height === 'full',
+            'h-[calc(100vh-var(--header-height))]' => filled($height) && $height !== 'full',
+        ])
+        style="--hero-height: {{ $height }}"
     >
-        @if ($widget->assets->isNotEmpty())
-            @foreach ($widget->assets as $widgetAsset)
-                {{-- format-ignore-start --}}
+        <x-capell-mosaic::hero.wrapper
+            :key="$containerKey . '-widget-' . $widgetIndex"
+            :total="$total"
+            :carousel-align="$carouselAlign"
+            :carousel-arrows="$carouselArrows"
+            :carousel-auto-play="$carouselAutoPlay"
+            :carousel-auto-delay="$carouselAutoDelay"
+            :carousel-button-class="$carouselButtonClass"
+            :carousel-disable-on-interaction="$carouselDisableOnInteraction"
+            :carousel-drag="$carouselDrag"
+            :carousel-effect="$carouselEffect"
+            :carousel-fade="$carouselFade"
+            :carousel-loop="$carouselLoop"
+            :carousel-pagination="$carouselPagination"
+            :carousel-pause-on-hover="$carouselPauseOnHover"
+            :carousel-rewind="$carouselRewind"
+            :carousel-speed="$carouselSpeed"
+            :carousel-touch="$carouselTouch"
+            :carousel-wheel="$carouselWheel"
+        >
+            @if ($widget->assets->isNotEmpty())
+                @foreach ($widget->assets as $widgetAsset)
+                    {{-- format-ignore-start --}}
                 @php
                     /** @var \Capell\Mosaic\Models\WidgetAsset $widgetAsset */
                     $slideColorScheme = $widgetAsset->asset->getMeta('color', $color);
@@ -121,151 +119,150 @@ $theme = Frontend::theme();
                     }
                 @endphp
                 {{-- format-ignore-end --}}
-                <x-capell-mosaic::hero.slide
-                    :background-image="$bgImage"
-                    :background-color="$widgetAsset->asset->getMeta('background_color', $backgroundColor)"
-                    :background-size="$widgetAsset->asset->getMeta('background_size', $widget->getMeta('background_size', 'cover'))"
-                    :background-position="$widgetAsset->asset->getMeta('background_position', $widget->getMeta('background_position', 'center'))"
-                    :background-attachment="$widgetAsset->asset->getMeta('background_attachment', $widget->getMeta('background_attachment', 'scroll'))"
-                    :background-repeat="$widgetAsset->asset->getMeta('background_repeat', $widget->getMeta('background_repeat', 'no-repeat'))"
-                    :background-overlay="$bgImage && $widgetAsset->asset->translation ? $color : ''"
-                    :first="$loop->first"
-                    :total="$total"
-                    :title="$widgetAsset->asset->translation->title"
-                    :color="$slideColorScheme"
-                    :container-class="$containerClass->getContainerClass()"
-                    :class="$slideClass"
-                >
-                    <div
-                        @class([
-                            '@container grid select-text gap-4 gap-x-10 gap-y-8 py-14 lg:gap-x-16 lg:py-24',
-                            'lg:grid-cols-12' => $images?->isNotEmpty(),
-                        ])
+                    <x-capell-mosaic::hero.slide
+                        :background-image="$bgImage"
+                        :background-color="$widgetAsset->asset->getMeta('background_color', $backgroundColor)"
+                        :background-size="$widgetAsset->asset->getMeta('background_size', $widget->getMeta('background_size', 'cover'))"
+                        :background-position="$widgetAsset->asset->getMeta('background_position', $widget->getMeta('background_position', 'center'))"
+                        :background-attachment="$widgetAsset->asset->getMeta('background_attachment', $widget->getMeta('background_attachment', 'scroll'))"
+                        :background-repeat="$widgetAsset->asset->getMeta('background_repeat', $widget->getMeta('background_repeat', 'no-repeat'))"
+                        :background-overlay="$bgImage && $widgetAsset->asset->translation ? $color : ''"
+                        :first="$loop->first"
+                        :total="$total"
+                        :title="$widgetAsset->asset->translation->title"
+                        :color="$slideColorScheme"
+                        :container-class="$containerClass->getContainerClass()"
+                        :class="$slideClass"
                     >
                         <div
                             @class([
-                                'flex flex-col justify-center',
-                                'items-center text-center' => ! $images?->isNotEmpty(),
-                                'lg:col-span-5 xl:col-span-7' => $images?->isNotEmpty(),
-                                'py-[4vh]' => ! $widgetAsset->asset->image && ! $bgImage,
+                                '@container grid select-text gap-4 gap-x-10 gap-y-8 py-14 lg:gap-x-16 lg:py-24',
+                                'lg:grid-cols-12' => $images?->isNotEmpty(),
                             ])
                         >
-                            @if ($widgetAsset->asset)
-                                <x-capell-mosaic::hero.content
-                                    :title="$widgetAsset->asset->translation->title"
-                                    :heading-size="$loop->first ? 'h1' : 'h2'"
-                                    :$url
-                                    :color="$slideColorScheme"
-                                    :size="! $images?->isNotEmpty() ? 'lg' : 'md'"
+                            <div
+                                @class([
+                                    'flex flex-col justify-center',
+                                    'items-center text-center' => ! $images?->isNotEmpty(),
+                                    'lg:col-span-5 xl:col-span-7' => $images?->isNotEmpty(),
+                                    'py-[4vh]' => ! $widgetAsset->asset->image && ! $bgImage,
+                                ])
+                            >
+                                @if ($widgetAsset->asset)
+                                    <x-capell-mosaic::hero.content
+                                        :title="$widgetAsset->asset->translation->title"
+                                        :heading-size="$loop->first ? 'h1' : 'h2'"
+                                        :$url
+                                        :color="$slideColorScheme"
+                                        :size="! $images?->isNotEmpty() ? 'lg' : 'md'"
+                                    >
+                                        {!! $widgetAsset->asset->translation->content !!}
+
+                                        @if ($widgetAsset->asset->getMeta('link_text'))
+                                            <a
+                                                class="text-link hover:text-primary font-medium no-underline focus:underline"
+                                                href="{{ $url }}"
+                                                wire:navigate
+                                            >
+                                                @svg('heroicon-s-chevron-right', 'mr-2 inline-block h-6 w-6')
+                                                {{ $widgetAsset->asset->getMeta('link_text') }}
+                                            </a>
+                                        @endif
+
+                                        @if ($loop->first && $heroContent)
+                                            {{ $heroContent }}
+                                        @endif
+                                    </x-capell-mosaic::hero.content>
+                                @endif
+
+                                @if ($widgetAsset->asset->related?->isNotEmpty())
+                                    <x-capell-mosaic::hero.related
+                                        class="w-full"
+                                        :related="$widgetAsset->asset->related"
+                                        :key="$containerKey . '-widget-' . $widgetIndex . '-related'"
+                                    />
+                                @endif
+
+                                @if ($widgetAsset->asset->getMeta('actions'))
+                                    <x-capell-mosaic::actions
+                                        class="hero-actions mt-8 w-full"
+                                        :actions="$widgetAsset->asset->getMeta('actions')"
+                                        :color="$slideColorScheme"
+                                        action-item-class="hero-action-item"
+                                    />
+                                @endif
+                            </div>
+
+                            @if ($images?->isNotEmpty())
+                                <div
+                                    class="relative z-30 flex w-full items-center lg:col-span-6 xl:col-span-5"
                                 >
-                                    {!! $widgetAsset->asset->translation->content !!}
+                                    @foreach ($images as $media)
+                                        @capellBuffer($mediaContent)
+                                            <x-capell::media
+                                                format="webp"
+                                                :media="$media"
+                                                :alt="$widgetAsset->asset->translation->title"
+                                                class="hero-slide-img h-full max-h-[40vh] w-full object-cover object-center lg:max-h-[400px]"
+                                                :loading="$loop->first ? 'eager' : 'lazy'"
+                                            />
+                                        @endcapellBuffer
 
-                                    @if ($widgetAsset->asset->getMeta('link_text'))
-                                        <a
-                                            class="text-link hover:text-primary font-medium no-underline focus:underline"
-                                            href="{{ $url }}"
-                                            wire:navigate
+                                        @if ($loop->first)
+                                            {{ $mediaContent() }}
+                                            @continue
+                                        @endif
+
+                                        <div
+                                            class="z-12 absolute -bottom-4 left-4 w-2/3 rounded-lg bg-gray-200 shadow-lg lg:-left-8 dark:bg-gray-800"
                                         >
-                                            @svg('heroicon-s-chevron-right', 'mr-2 inline-block h-6 w-6')
-                                            {{ $widgetAsset->asset->getMeta('link_text') }}
-                                        </a>
-                                    @endif
-
-                                    @if ($loop->first && $heroContent)
-                                        {{ $heroContent }}
-                                    @endif
-                                </x-capell-mosaic::hero.content>
-                            @endif
-
-                            @if ($widgetAsset->asset->related?->isNotEmpty())
-                                <x-capell-mosaic::hero.related
-                                    class="w-full"
-                                    :related="$widgetAsset->asset->related"
-                                    :key="$containerKey . '-widget-' . $widgetIndex . '-related'"
-                                />
-                            @endif
-
-                            @if ($widgetAsset->asset->getMeta('actions'))
-                                <x-capell-mosaic::actions
-                                    class="hero-actions mt-8 w-full"
-                                    :actions="$widgetAsset->asset->getMeta('actions')"
-                                    :color="$slideColorScheme"
-                                    action-item-class="hero-action-item"
-                                />
+                                            {{ $mediaContent() }}
+                                        </div>
+                                    @endforeach
+                                </div>
                             @endif
                         </div>
+                    </x-capell-mosaic::hero.slide>
+                @endforeach
+            @elseif ($page->translation->getMeta('hero'))
+                <x-capell-mosaic::hero.slide
+                    :background-image="$widget->image"
+                    :background-color="$widget->getMeta('background_color', $theme->getMeta('background_color'))"
+                    :background-size="$widget->getMeta('background_size', 'cover')"
+                    :background-position="$widget->getMeta('background_position', 'center')"
+                    :background-attachment="$widget->getMeta('background_attachment', 'scroll')"
+                    :background-repeat="$widget->getMeta('background_repeat', 'no-repeat')"
+                    :first="true"
+                    :total="1"
+                    :color="$color"
+                    container-class="container"
+                >
+                    <div class="@lg:py-16 flex select-text items-center py-20">
+                        <x-capell-mosaic::hero.content
+                            :title="
+                                $widget->translation
+                                ? __($widget->translation->title, $pageVariables)
+                                : null
+                            "
+                            :color="$color"
+                            size="lg"
+                            class="hero-page-content"
+                        >
+                            {!! __($page->translation->getMeta('hero'), $pageVariables) !!}
 
-                        @if ($images?->isNotEmpty())
-                            <div
-                                class="relative z-30 flex w-full items-center lg:col-span-6 xl:col-span-5"
-                            >
-                                @foreach ($images as $media)
-                                    @capellBuffer($mediaContent)
-                                        <x-capell::media
-                                            format="webp"
-                                            :media="$media"
-                                            :alt="$widgetAsset->asset->translation->title"
-                                            class="hero-slide-img h-full max-h-[40vh] w-full object-cover object-center lg:max-h-[400px]"
-                                            :loading="$loop->first ? 'eager' : 'lazy'"
-                                        />
-                                    @endcapellBuffer
+                            @if (isset($this->results) && $this->results instanceof LengthAwarePaginator && $this->results->hasPages())
+                                @php
+                                    Frontend::setFrontendData('has_pagination_summary', true);
+                                @endphp
 
-                                    @if ($loop->first)
-                                        {{ $mediaContent() }}
-                                        @continue
-                                    @endif
-
-                                    <div
-                                        class="z-12 absolute -bottom-4 left-4 w-2/3 rounded-lg bg-gray-200 shadow-lg lg:-left-8 dark:bg-gray-800"
-                                    >
-                                        {{ $mediaContent() }}
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endif
+                                <x-capell-mosaic::pagination.hero-summary
+                                    :results="$this->results"
+                                />
+                            @endif
+                        </x-capell-mosaic::hero.content>
                     </div>
                 </x-capell-mosaic::hero.slide>
-            @endforeach
-        @elseif ($page->translation->getMeta('hero'))
-            <x-capell-mosaic::hero.slide
-                :background-image="$widget->image"
-                :background-color="$widget->getMeta('background_color', $theme->getMeta('background_color'))"
-                :background-size="$widget->getMeta('background_size', 'cover')"
-                :background-position="$widget->getMeta('background_position', 'center')"
-                :background-attachment="$widget->getMeta('background_attachment', 'scroll')"
-                :background-repeat="$widget->getMeta('background_repeat', 'no-repeat')"
-                :first="true"
-                :total="1"
-                :color="$color"
-                container-class="container"
-            >
-                <div class="@lg:py-16 flex select-text items-center py-20">
-                    <x-capell-mosaic::hero.content
-                        :title="
-                            $widget->translation
-                            ? __($widget->translation->title, $pageVariables)
-                            : null
-                        "
-                        :color="$color"
-                        size="lg"
-                        class="hero-page-content"
-                    >
-                        {!! __($page->translation->getMeta('hero'), $pageVariables) !!}
-
-                        @if (isset($this->results) && $this->results instanceof LengthAwarePaginator && $this->results->hasPages())
-                            @php
-                                Frontend::setFrontendData('has_pagination_summary', true);
-                            @endphp
-
-                            <x-capell-mosaic::pagination.hero-summary
-                                :results="$this->results"
-                            />
-                        @endif
-                    </x-capell-mosaic::hero.content>
-                </div>
-            </x-capell-mosaic::hero.slide>
-        @endif
-    </x-capell-mosaic::hero.wrapper>
-</section>
-
-<?php
+            @endif
+        </x-capell-mosaic::hero.wrapper>
+    </section>
+@endif

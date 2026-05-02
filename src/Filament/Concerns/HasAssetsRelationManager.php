@@ -121,8 +121,8 @@ trait HasAssetsRelationManager
                     $adminAsset = CapellAdmin::getAsset($asset->name);
 
                     return $select->createOptionForm(
-                        fn (Schema $schema): Schema => $adminAsset->formClass::configure(
-                            $schema->operation('createOption')->model($asset->model),
+                        fn (Schema $configurator): Schema => $adminAsset->formClass::configure(
+                            $configurator->operation('createOption')->model($asset->model),
                         ),
                     )
                         ->createOptionUsing(function (Select $component, array $data) use ($asset, $adminAsset, $createOptionUsing): int|string {

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Enums;
 
+use Capell\Mosaic\Models\Section;
+use Capell\Mosaic\Models\Widget;
+
 enum TypeEnum: string
 {
     case Section = 'section';
@@ -13,8 +16,8 @@ enum TypeEnum: string
     public function getModel(): string
     {
         return match ($this) {
-            self::Section => ModelEnum::Section->value,
-            self::Widget => ModelEnum::Widget->value
+            self::Section => Section::class,
+            self::Widget => Widget::class,
         };
     }
 

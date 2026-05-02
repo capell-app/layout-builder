@@ -6,18 +6,14 @@ namespace Capell\Mosaic\Support\Creator;
 
 use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Enums\DefaultColorEnum;
-use Capell\Core\Enums\ModelEnum as CoreModelEnum;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
-use Capell\Core\Models\Navigation;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Mosaic\Enums\AssetEnum;
-use Capell\Mosaic\Enums\LivewireComponentsEnum;
-use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Enums\WidgetComponentEnum;
-use Capell\Mosaic\Filament\Schemas\Widgets\CarouselWidgetSchema;
+use Capell\Mosaic\Filament\Configurators\Widgets\CarouselWidgetConfigurator;
 use Capell\Mosaic\Models\Widget;
+use Capell\Navigation\Models\Navigation;
 use Illuminate\Support\Collection;
 
 class WidgetCreator
@@ -29,7 +25,7 @@ class WidgetCreator
 
     public function __construct()
     {
-        $this->widgetModel = CapellCore::getModel(ModelEnum::Widget->name);
+        $this->widgetModel = Widget::class;
     }
 
     public function createWidgets(Collection $languages, bool $extraWidgets = false): void
@@ -88,7 +84,7 @@ class WidgetCreator
     public function childrenWidget(?Type $type = null, ?Collection $languages = null): Widget
     {
         /** @var class-string<Language> $model */
-        $model = CapellCore::getModel(CoreModelEnum::Language);
+        $model = Language::class;
 
         $languages ??= $model::query()->get();
         $type ??= resolve(TypeCreator::class)->resultsWidgetType();
@@ -111,6 +107,13 @@ class WidgetCreator
                 'icon' => 'heroicon-c-users',
             ],
         ]);
+
+        $widget->forceFill([
+            'meta' => [
+                ...$widget->meta,
+                'component' => WidgetComponentEnum::PageChildren->value,
+            ],
+        ])->save();
 
         $languages->each(function (Language $language) use ($widget): void {
             $widget->translations()->firstOrCreate([
@@ -149,7 +152,7 @@ class WidgetCreator
     public function galleryWidget(?Type $type = null, ?Collection $languages = null): Widget
     {
         /** @var class-string<Language> $model */
-        $model = CapellCore::getModel(CoreModelEnum::Language);
+        $model = Language::class;
 
         $languages ??= $model::query()->get();
         $type ??= resolve(TypeCreator::class)->mediaWidgetType();
@@ -181,7 +184,7 @@ class WidgetCreator
     public function latestPagesWidget(?Type $type = null, ?Collection $languages = null): Widget
     {
         /** @var class-string<Language> $model */
-        $model = CapellCore::getModel(CoreModelEnum::Language);
+        $model = Language::class;
 
         $languages ??= $model::query()->get();
         $type ??= resolve(TypeCreator::class)->resultsWidgetType();
@@ -205,6 +208,13 @@ class WidgetCreator
                 'icon' => 'heroicon-o-rectangle-stack',
             ],
         ]);
+
+        $widget->forceFill([
+            'meta' => [
+                ...$widget->meta,
+                'component' => WidgetComponentEnum::PageLatest->value,
+            ],
+        ])->save();
 
         $languages->each(function (Language $language) use ($widget): void {
             $widget->translations()->firstOrCreate([
@@ -251,7 +261,7 @@ class WidgetCreator
                 'padding' => ['md'],
             ],
             'admin' => [
-                'schema' => CarouselWidgetSchema::getKey(),
+                'configurator' => CarouselWidgetConfigurator::getKey(),
             ],
         ]);
     }
@@ -283,8 +293,7 @@ class WidgetCreator
             'name' => __('capell-admin::generic.pages_card'),
             'type_id' => $type->id,
             'meta' => [
-                'component' => LivewireComponentsEnum::PagesWidget,
-                'livewire' => true,
+                'component' => WidgetComponentEnum::Pages,
                 'limit' => 10,
                 'with_image' => true,
                 'with_summary' => true,
@@ -314,7 +323,7 @@ class WidgetCreator
     public function siblingsWidget(?Type $type = null, ?Collection $languages = null): Widget
     {
         /** @var class-string<Language> $model */
-        $model = CapellCore::getModel(CoreModelEnum::Language);
+        $model = Language::class;
 
         $languages ??= $model::query()->get();
         $type ??= resolve(TypeCreator::class)->resultsWidgetType();
@@ -336,6 +345,13 @@ class WidgetCreator
                 'icon' => 'heroicon-c-user-group',
             ],
         ]);
+
+        $widget->forceFill([
+            'meta' => [
+                ...$widget->meta,
+                'component' => WidgetComponentEnum::PageSiblings->value,
+            ],
+        ])->save();
 
         $languages->each(function (Language $language) use ($widget): void {
             $widget->translations()->firstOrCreate([
@@ -390,7 +406,7 @@ class WidgetCreator
             'meta' => [
                 'align' => 'center',
                 'background_overlay' => true,
-                'view_file' => 'capell-mosaic::components.widget.asset.banners',
+                'component' => WidgetComponentEnum::AssetBanner,
             ],
         ]);
     }
@@ -403,8 +419,8 @@ class WidgetCreator
             'name' => 'Blocks',
             'type_id' => $type->id,
             'meta' => [
+                'component' => WidgetComponentEnum::AssetBlock,
                 'component_item' => 'capell-mosaic::section.block',
-                'view_file' => 'capell-mosaic::components.widget.asset.blocks',
                 'spacing' => 'none',
                 'columns' => 0,
                 'margin' => 'none',
@@ -426,8 +442,8 @@ class WidgetCreator
             'type_id' => $type->id,
             'meta' => [
                 'align' => 'center',
+                'component' => WidgetComponentEnum::AssetFeatures,
                 'margin' => ['lg'],
-                'view_file' => 'capell-mosaic::components.widget.asset.features',
             ],
         ]);
     }
@@ -458,10 +474,10 @@ class WidgetCreator
                 'carousel_speed' => 300,
                 'carousel_touch' => false,
                 'carousel_wheel' => false,
-                'view_file' => 'capell-mosaic::components.widget.asset.testimonials',
+                'component' => WidgetComponentEnum::AssetTestimonials,
             ],
             'admin' => [
-                'schema' => CarouselWidgetSchema::getKey(),
+                'configurator' => CarouselWidgetConfigurator::getKey(),
             ],
         ]);
     }
@@ -476,10 +492,10 @@ class WidgetCreator
         array $navigationItems = [],
     ): Widget {
         $type ??= resolve(TypeCreator::class)->navigationWidgetType();
-        $typeModel = CapellCore::getModel(CoreModelEnum::Type);
-        $navigationModel = CapellCore::getModel(CoreModelEnum::Navigation);
+        $typeModel = Type::class;
+        $navigationModel = Navigation::class;
 
-        $navigationType = $typeModel::navigationType()->default()->first();
+        $navigationType = $typeModel::query()->navigationType()->default()->first();
         if (! $navigationType) {
             $navigationType = resolve(\Capell\Core\Support\Creator\TypeCreator::class)->createNavigationType();
         }
@@ -493,6 +509,10 @@ class WidgetCreator
             'name' => $navigationName,
             'items' => $navigationItems,
         ]);
+
+        if ($navigationItems !== [] && $navigation->items !== $navigationItems) {
+            $navigation->forceFill(['items' => $navigationItems])->save();
+        }
 
         return $this->widgetModel::query()->firstOrCreate(['key' => $widgetKey], [
             'name' => __('Navigation'),
@@ -510,13 +530,14 @@ class WidgetCreator
         ?Site $site = null,
         string $widgetKey = 'widget-navigation-tabs',
         array $widgetMeta = [
+            'component' => 'capell-mosaic::widget.navigation.tabs',
             'view_file' => 'capell-mosaic::components.widget.navigation.tabs',
         ],
         string $navigationKey = 'navigation-tabs',
         string $navigationName = 'Tabs',
         array $navigationItems = [],
     ): Widget {
-        return $this->navigationWidget(
+        $widget = $this->navigationWidget(
             type: $type,
             site: $site,
             widgetKey: $widgetKey,
@@ -525,6 +546,17 @@ class WidgetCreator
             navigationName: $navigationName,
             navigationItems: $navigationItems,
         );
+
+        if (($widget->meta['view_file'] ?? null) !== ($widgetMeta['view_file'] ?? null)) {
+            $widget->forceFill([
+                'meta' => [
+                    ...$widget->meta,
+                    ...$widgetMeta,
+                ],
+            ])->save();
+        }
+
+        return $widget;
     }
 
     public function bannerImageWidget(?Type $type = null): Widget

@@ -47,6 +47,7 @@ class Children extends AbstractPagesWidget
             withImage: $this->widget->meta['with_image'] ?? false,
             withParent: $this->widget->meta['with_parent'] ?? false,
             withDate: $this->widget->meta['with_date'] ?? false,
+            useCache: false,
         );
 
         if ($this->pages->isEmpty()) {

@@ -9,7 +9,7 @@ use Filament\Schemas\Schema;
 
 class DetailsSchema
 {
-    public static function make(Schema $schema): array
+    public static function make(Schema $configurator): array
     {
         return [
             NameInput::make('name')
@@ -17,7 +17,7 @@ class DetailsSchema
             TypeSelect::make('type_id')
                 ->withRelation()
                 ->when(
-                    $schema->isCreating(),
+                    $configurator->isCreating(),
                     fn (TypeSelect $component): TypeSelect => $component->withCreateForm(),
                     fn (TypeSelect $component): TypeSelect => $component->withEditForm(),
                 ),

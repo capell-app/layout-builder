@@ -17,7 +17,7 @@ class LayoutSchemaExtender implements Extenders\LayoutSchemaExtender
         return [];
     }
 
-    public function extendTabs(Schema $schema, array $tabs): array
+    public function extendTabs(Schema $configurator, array $tabs): array
     {
         $hasLayoutTab = collect($tabs)->contains(fn (Tab $tab): bool => $tab instanceof LayoutTab);
 

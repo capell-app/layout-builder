@@ -15,7 +15,6 @@ use Capell\Mosaic\Filament\Actions\CreateWidgetAction;
 use Capell\Mosaic\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager;
 use Capell\Mosaic\Filament\Resources\Widgets\WidgetResource;
 use Capell\Mosaic\Models\Widget;
-use Filament\Actions\ActionGroup;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
@@ -108,15 +107,13 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
     protected function getActions(): array
     {
         return [
-            RestoreAction::make(),
-            DeleteAction::make(),
-            ForceDeleteAction::make(),
-            ActionGroup::make([
-                CreateWidgetAction::make()
-                    ->redirectAfterCreate(),
-                ReplicateAction::make()
-                    ->hidden($this->record->trashed()),
-            ]),
+            RestoreAction::make('restore'),
+            DeleteAction::make('delete'),
+            ForceDeleteAction::make('forceDelete'),
+            CreateWidgetAction::make('create')
+                ->redirectAfterCreate(),
+            ReplicateAction::make('replicate')
+                ->hidden($this->record->trashed()),
         ];
     }
 

@@ -28,7 +28,8 @@ class SectionAlertsWidget extends Widget implements HasActions, HasForms
 
     public ?Section $record = null;
 
-    protected int|string|array $columnSpan = 'full';
+    /** @var int|string|array<string, int|string|null> */
+    protected int|string|array $columnSpan = ['default' => 'full'];
 
     protected string $view = 'capell-admin::components.widgets.alerts';
 

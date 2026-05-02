@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @php
     use Capell\Frontend\Facades\Frontend;
 
@@ -43,5 +37,3 @@ declare(strict_types=1);
     :url="$withUrl && $asset->linkedPage ? $asset->linkedPage->pageUrl?->full_url : null"
     :attributes="$attributes->merge(['class' => 'section-asset'])"
 />
-
-<?php

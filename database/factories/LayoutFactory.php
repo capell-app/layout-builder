@@ -71,7 +71,20 @@ class LayoutFactory extends \Capell\Core\Database\Factories\LayoutFactory
                     ],
                 ];
             },
-        ]);
+            'widgets' => fn (): array => collect($widgets)
+                ->map(fn (Widget|string $widget): string => $widget instanceof Widget ? $widget->key : $widget)
+                ->unique()
+                ->values()
+                ->all(),
+        ])->afterCreating(function (Layout $layout) use ($widgets): void {
+            $widgetKeys = collect($widgets)
+                ->map(fn (Widget|string $widget): string => $widget instanceof Widget ? $widget->key : $widget)
+                ->unique()
+                ->values()
+                ->all();
+
+            $layout->forceFill(['widgets' => $widgetKeys])->save();
+        });
     }
 
     /**

@@ -10,15 +10,15 @@ use Filament\Schemas\Schema;
 
 class CreateDetailsSchema
 {
-    public static function make(Schema $schema): Grid
+    public static function make(Schema $configurator): Grid
     {
         return Grid::make()
             ->visibleOn(['create', 'createOption', 'replicate'])
-            ->schema(self::getSchema($schema))
+            ->schema(self::getConfigurator($configurator))
             ->columnSpanFull();
     }
 
-    private static function getSchema(Schema $schema): array
+    private static function getConfigurator(Schema $configurator): array
     {
         return [
             Grid::make()
@@ -30,7 +30,7 @@ class CreateDetailsSchema
                         ->live()
                         ->withRelation()
                         ->when(
-                            $schema->isCreating(),
+                            $configurator->isCreating(),
                             fn (TypeSelect $component): TypeSelect => $component->withCreateForm(),
                             fn (TypeSelect $component): TypeSelect => $component->withEditForm(),
                         ),

@@ -303,7 +303,7 @@ public function getSchema(): array
 ## File Manifest
 
 ```
-packages/mosaic/
+packages/foundation/mosaic/
 ├── resources/
 │   ├── css/
 │   │   └── design-tokens.css

@@ -1,13 +1,9 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @php
     use Capell\Core\Enums\ContainerWidthEnum;
     use Capell\Core\Enums\MediaConversionEnum;
     use Capell\Frontend\Actions\GetLayoutContainerWidthAction;
+    use Capell\Mosaic\Enums\ContainerAlignmentEnum;
+    use Capell\Mosaic\Enums\ResponsiveVisibilityEnum;
     use Capell\Mosaic\Facades\CapellLayout;
     use Spatie\MediaLibrary\MediaCollections\Models\Media;
 @endphp
@@ -35,6 +31,14 @@ declare(strict_types=1);
     if (! empty($container['meta']['html_class'])) {
         $htmlClass .= ' ' . $container['meta']['html_class'];
     }
+
+    $alignment = ContainerAlignmentEnum::tryFrom((string) ($container['meta']['alignment'] ?? ''))
+        ?? ContainerAlignmentEnum::Stretch;
+
+    $hiddenOn = (array) ($container['meta']['hidden_on'] ?? []);
+    $hideOnMobile = in_array(ResponsiveVisibilityEnum::Mobile->value, $hiddenOn, true);
+    $hideOnTablet = in_array(ResponsiveVisibilityEnum::Tablet->value, $hiddenOn, true);
+    $hideOnDesktop = in_array(ResponsiveVisibilityEnum::Desktop->value, $hiddenOn, true);
 
     /** @var ?Media $backgroundImage */
     $backgroundImage = $layout->getFirstMedia($containerKey . '-background');
@@ -86,6 +90,17 @@ declare(strict_types=1);
     @class([
         'layout-container',
         $htmlClass => (bool) $htmlClass,
+        'self-start justify-self-start' => $alignment === ContainerAlignmentEnum::Start,
+        'self-center justify-self-center' => $alignment === ContainerAlignmentEnum::Center,
+        'self-end justify-self-end' => $alignment === ContainerAlignmentEnum::End,
+        'w-full self-stretch justify-self-stretch' => $alignment === ContainerAlignmentEnum::Stretch,
+        'hidden' => $hideOnMobile && $hideOnTablet && $hideOnDesktop,
+        'hidden lg:block' => $hideOnMobile && $hideOnTablet && ! $hideOnDesktop,
+        'hidden md:block lg:hidden' => $hideOnMobile && ! $hideOnTablet && $hideOnDesktop,
+        'hidden md:block' => $hideOnMobile && ! $hideOnTablet && ! $hideOnDesktop,
+        'md:hidden' => ! $hideOnMobile && $hideOnTablet && $hideOnDesktop,
+        'md:hidden lg:block' => ! $hideOnMobile && $hideOnTablet && ! $hideOnDesktop,
+        'lg:hidden' => ! $hideOnMobile && ! $hideOnTablet && $hideOnDesktop,
         'space-y-4' => $spacing === 'sm',
         'space-y-2' => $spacing === 'md',
         'space-y-10' => $spacing === 'lg',
@@ -172,5 +187,3 @@ declare(strict_types=1);
 @endif
 @endif
 {{-- format-ignore-end --}}
-
-<?php

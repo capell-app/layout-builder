@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @php
     use Capell\Admin\Facades\CapellAdmin;
     use Capell\Mosaic\Enums\ResourceEnum;
@@ -41,5 +35,3 @@ declare(strict_types=1);
         </li>
     @endforeach
 </ul>
-
-<?php

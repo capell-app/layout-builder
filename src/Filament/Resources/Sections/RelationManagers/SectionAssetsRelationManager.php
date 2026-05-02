@@ -37,9 +37,9 @@ class SectionAssetsRelationManager extends RelationManager
         return __('capell-admin::tab.assets');
     }
 
-    public function form(Schema $schema): Schema
+    public function form(Schema $configurator): Schema
     {
-        return $schema->components(static::getAssetForm())->columns(1);
+        return $configurator->components(static::getAssetForm())->columns(1);
     }
 
     public function table(Table $table): Table

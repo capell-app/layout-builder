@@ -42,7 +42,8 @@ class CapellLayoutManager
      */
     public static function getContainerWidget(string $containerKey, string $widgetKey, int $occurrence = 1): ?Widget
     {
-        return static::$containerWidgets[$containerKey][$widgetKey][$occurrence] ?? null;
+        return static::$containerWidgets[$containerKey][$widgetKey][$occurrence]
+            ?? Widget::query()->with('type')->firstWhere('key', $widgetKey);
     }
 
     public static function getContainerWidgets(?string $containerKey = null): Collection

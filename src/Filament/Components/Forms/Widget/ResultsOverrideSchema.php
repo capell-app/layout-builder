@@ -9,7 +9,7 @@ use Filament\Schemas\Schema;
 
 class ResultsOverrideSchema
 {
-    public static function make(Schema $schema): array
+    public static function make(Schema $configurator): array
     {
         return [
             Checkbox::make('show_page_title')

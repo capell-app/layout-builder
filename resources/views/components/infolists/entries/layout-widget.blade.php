@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @php
     use Capell\Admin\Facades\CapellAdmin;
 @endphp
@@ -34,5 +28,3 @@ declare(strict_types=1);
         </p>
     </div>
 </div>
-
-<?php

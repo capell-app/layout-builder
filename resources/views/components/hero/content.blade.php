@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @aware(['carouselArrows'])
 
 @props([
@@ -50,10 +44,10 @@ declare(strict_types=1);
                     href="{{ $url }}"
                     wire:navigate
                 >
-                    {!! $title !!}
+                    {{ $title }}
                 </a>
             @else
-                {!! $title !!}
+                {{ $title }}
             @endif
         </{{ $headingSize }}>
     @endif
@@ -62,5 +56,3 @@ declare(strict_types=1);
 </div>
 
 {{-- format-ignore-end --}}
-
-<?php

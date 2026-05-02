@@ -17,8 +17,6 @@ use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\StatusIconColumn;
 use Capell\Admin\Filament\Components\Tables\Filters\StatusFilter;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
-use Capell\Core\Enums\ModelEnum;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Filament\Resources\Widgets\Pages\ListWidgets;
@@ -64,17 +62,17 @@ class WidgetsTable implements TableConfigurator
                 default => null,
             })
             ->recordActions([
-                EditAction::make(),
+                EditAction::make('edit'),
                 ActionGroup::make([
-                    ReplicateAction::make(),
-                    DeleteAction::make(),
+                    ReplicateAction::make('replicate'),
+                    DeleteAction::make('delete'),
                 ])
                     ->color('gray'),
             ])
             ->toolbarActions([
-                DeleteBulkAction::make(),
-                ForceDeleteBulkAction::make(),
-                RestoreBulkAction::make(),
+                DeleteBulkAction::make('delete'),
+                ForceDeleteBulkAction::make('forceDelete'),
+                RestoreBulkAction::make('restore'),
             ]);
     }
 
@@ -246,9 +244,9 @@ class WidgetsTable implements TableConfigurator
                         ->label(__('capell-admin::table.language'))
                         ->options(function (): array {
                             /* @var class-string<\Capell\Core\Models\Language> $model */
-                            $model = CapellCore::getModel(ModelEnum::Language);
+                            $model = Language::class;
 
-                            return $model::ordered()
+                            return $model::query()->ordered()
                                 ->pluck('name', 'id')
                                 ->toArray();
                         }),
@@ -258,7 +256,7 @@ class WidgetsTable implements TableConfigurator
 
                     if (isset($data['language_id']) && $data['language_id'] !== '') {
                         /** @var class-string<Language> $model */
-                        $model = CapellCore::getModel(ModelEnum::Language);
+                        $model = Language::class;
 
                         $indicators['language_id'] = __(
                             'capell-admin::filter.language',

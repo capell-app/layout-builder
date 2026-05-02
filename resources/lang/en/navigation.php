@@ -3,6 +3,6 @@
 declare(strict_types=1);
 
 return [
-    'sections' => 'Sections Content',
+    'sections' => 'Sections',
     'widgets' => 'Widgets',
 ];

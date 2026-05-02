@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @props(['containerKey', 'hasPageAssets', 'occurrence', 'widget', 'widgetIndex'])
 @php
     use Capell\Core\Facades\CapellCore;
@@ -120,5 +114,3 @@ declare(strict_types=1);
         </div>
     @endif
 </div>
-
-<?php

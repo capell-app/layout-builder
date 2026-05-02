@@ -3,7 +3,7 @@
  *
  * Import this in your tailwind.config.js to use Mosaic design tokens:
  *
- * const mosaicTheme = require('./packages/mosaic/tailwind-config.js');
+ * const mosaicTheme = require('./packages/foundation/mosaic/tailwind-config.js');
  *
  * module.exports = {
  *   theme: {

@@ -5,19 +5,28 @@ declare(strict_types=1);
 namespace Capell\Mosaic\Support;
 
 use Capell\Core\Facades\CapellCore;
-use Capell\Mosaic\Enums\ModelEnum;
+use Capell\Mosaic\Models\Section;
+use Capell\Mosaic\Models\Widget;
+use Capell\Mosaic\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 
 class LayoutModelRegistrar
 {
+    /** @var list<class-string> */
+    private const MODELS = [
+        Section::class,
+        Widget::class,
+        WidgetAsset::class,
+    ];
+
     public static function register(): void
     {
-        CapellCore::registerModels(ModelEnum::cases());
+        CapellCore::registerModels(self::MODELS);
 
         Relation::morphMap(
-            collect(ModelEnum::cases())
-                ->mapWithKeys(fn (ModelEnum $model): array => [Str::snake($model->name) => $model->value])
+            collect(self::MODELS)
+                ->mapWithKeys(fn (string $modelClass): array => [Str::snake(class_basename($modelClass)) => $modelClass])
                 ->all(),
         );
     }

@@ -172,23 +172,23 @@ class AssetsRepeater extends Repeater
 
                     return new HtmlString($label . Str::limit($record->name, 40));
                 })
-                ->createOptionForm(function (Schema $schema, Get $get): Schema {
+                ->createOptionForm(function (Schema $configurator, Get $get): Schema {
                     $asset = CapellCore::getAsset($get('asset_type'));
 
                     $assetAdmin = CapellAdmin::getAsset($get('asset_type'));
 
                     return $assetAdmin->formClass::configure(
-                        $schema->operation('createOption')->model($asset->model),
+                        $configurator->operation('createOption')->model($asset->model),
                     );
                 })
-                ->createOptionUsing(function (Select $component, Schema $schema, Get $get, array $data) use ($createOptionUsing): int|string {
+                ->createOptionUsing(function (Select $component, Schema $configurator, Get $get, array $data) use ($createOptionUsing): int|string {
                     $asset = CapellAdmin::getAsset($get('asset_type'));
 
                     $record = in_array($asset->createAction, [null, '', '0'], true)
                         ? $component->evaluate($createOptionUsing)
                         : $asset->createAction::run($data);
 
-                    $schema->model($record)->saveRelationships();
+                    $configurator->model($record)->saveRelationships();
 
                     Notification::make()
                         ->title(__('capell-mosaic::message.page_created_successfully'))

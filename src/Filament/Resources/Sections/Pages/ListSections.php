@@ -34,7 +34,7 @@ class ListSections extends ListRecords
     protected function getActions(): array
     {
         return [
-            CreateContentAction::make()
+            CreateContentAction::make('create')
                 ->redirectAfterCreate(),
         ];
     }

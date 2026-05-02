@@ -4,49 +4,41 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Filament\Resources\Widgets\Schemas;
 
-use Capell\Admin\Filament\Components\Forms\Type\TypeSchema;
+use Capell\Admin\Data\Configurators\ConfiguratorContextData;
+use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
-use Capell\Mosaic\Enums\TypeSchemaEnum;
-use Capell\Mosaic\Enums\WidgetAssetSchemaEnum;
+use Capell\Mosaic\Enums\ConfiguratorTypeEnum;
+use Capell\Mosaic\Enums\WidgetAssetConfiguratorEnum;
 use Capell\Mosaic\Models\WidgetAsset;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use RuntimeException;
 
 class WidgetAssetForm implements FormConfigurator
 {
-    public static function configure(Schema $schema): Schema
+    public static function configure(Schema $configurator, ?ConfiguratorContextData $context = null): Schema
     {
-        return $schema->components(static::getFormSchema($schema))
-            ->columns();
-    }
+        $record = $configurator->getRecord();
+        $state = $configurator->getRawState();
+        $assetType = $state['asset_type'] ?? ($record instanceof WidgetAsset ? $record->asset_type : null);
 
-    protected static function getFormSchema(Schema $schema): array
-    {
-        return [
-            TypeSchema::make()
-                ->columns($schema->getColumns())
-                ->schema(function (TypeSchema $component, Get $get, ?WidgetAsset $record) use ($schema): array {
-                    $assetType = $get('asset_type') ?? $record?->asset_type;
+        throw_unless($assetType, RuntimeException::class, 'Asset type is required to load the asset schema');
 
-                    throw_unless($assetType, RuntimeException::class, 'Asset type is required to load the asset schema');
+        $adminSchema = null;
 
-                    $adminSchema = null;
+        if ($record instanceof WidgetAsset && $record->exists) {
+            $widget = $record->widget;
 
-                    if ($record instanceof WidgetAsset) {
-                        $widget = $record->widget;
+            $adminSchema = $widget->admin['widget_asset_configurator'][$assetType]
+                ?? $widget->type->admin['widget_asset_configurator'][$assetType]
+                ?? null;
+        }
 
-                        $adminSchema = $widget->admin['widget_asset_schema'][$assetType]
-                            ?? $widget->type->admin['widget_asset_schema'][$assetType]
-                            ?? null;
-                    }
+        if ($adminSchema === null) {
+            $adminSchema = WidgetAssetConfiguratorEnum::fromName(ucfirst((string) $assetType))->value::getKey();
+        }
 
-                    if ($adminSchema === null) {
-                        $adminSchema = WidgetAssetSchemaEnum::fromName(ucfirst($assetType))->value::getKey();
-                    }
+        $adminType = CapellAdmin::getConfigurator(ConfiguratorTypeEnum::WidgetAsset, $adminSchema);
 
-                    return $component->getTypeSchema($schema, TypeSchemaEnum::WidgetAsset, name: $adminSchema);
-                }),
-        ];
+        return $adminType::configure($configurator)->columns();
     }
 }

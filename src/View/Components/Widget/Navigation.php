@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\View\Components\Widget;
 
-use Capell\Core\Models;
 use Capell\Frontend\Facades\Frontend;
-use Capell\Frontend\Support\Loader\NavigationItemsLoader;
-use Capell\Frontend\Support\Loader\NavigationLoader;
+use Capell\Navigation\Models;
+use Capell\Navigation\Support\Loader\NavigationItemsLoader;
+use Capell\Navigation\Support\Loader\NavigationLoader;
 use Illuminate\Support\Collection;
 
 class Navigation extends AbstractWidget

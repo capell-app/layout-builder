@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @props([
     'results' => '',
     'resultsFoundText' => __('capell-frontend::messages.results_found'),
@@ -44,5 +38,3 @@ declare(strict_types=1);
     </span>
     {{ $resultsFoundText }}
 </div>
-
-<?php

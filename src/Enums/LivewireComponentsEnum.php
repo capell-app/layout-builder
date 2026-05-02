@@ -10,7 +10,6 @@ use Capell\Core\Enums\Attribute\EnumAttributeInterface;
 use Capell\Mosaic\Livewire\Assets\Table\PageAssets;
 use Capell\Mosaic\Livewire\Assets\Table\SectionAssets;
 use Capell\Mosaic\Livewire\Filament\LayoutBuilder;
-use Capell\Mosaic\Livewire\Filament\LayoutBuilder\WidgetTableSelect;
 use Capell\Mosaic\Livewire\Widget\Pages;
 
 enum LivewireComponentsEnum: string implements EnumAttributeInterface
@@ -19,9 +18,6 @@ enum LivewireComponentsEnum: string implements EnumAttributeInterface
 
     #[Component(LayoutBuilder::class)]
     case LayoutBuilder = 'capell-mosaic::filament.layout-builder';
-
-    #[Component(WidgetTableSelect::class)]
-    case WidgetTableSelect = 'capell-mosaic::filament.layout-builder.widget-table-select';
 
     #[Component(PageAssets::class)]
     case PageAssetsTable = 'capell-mosaic::assets.table.page-assets';
@@ -37,14 +33,6 @@ enum LivewireComponentsEnum: string implements EnumAttributeInterface
         $attributes = self::getAllCaseAttributes(Component::class);
 
         return array_map(fn (?Component $attribute): ?string => $attribute?->class ?? null, $attributes);
-    }
-
-    public static function loadAssetComponent(string $assetType): self
-    {
-        return match ($assetType) {
-            'page' => self::PageAssetsTable,
-            'section' => self::ContentAssetsTable,
-        };
     }
 
     public function getComponent(): ?string

@@ -1,23 +1,17 @@
 {
-    "label": "Mosaic",
-    "slug": "mosaic",
-    "kind": "addon",
-    "order": 10,
-    "dependsOn": [],
-    "description": "Visual layout builder with drag-and-drop widgets and reusable content blocks.",
-    "icon": null,
-    "url": "https://capell.app",
-    "scopes": [],
-    "commands": {
-        "install": "capell:mosaic-install",
-        "afterInstall": null,
-        "afterInstallParams": [],
-        "setup": "capell:mosaic-setup",
-        "setupParams": [],
-        "upgrade": "capell:mosaic-upgrade",
-        "demo": "capell:mosaic-demo",
-        "demoParams": ["user", "sites"],
-        "faker": "capell:mosaic-faker",
-        "fakerParams": []
+    "name": "capell-app/mosaic",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Foundation",
+    "tier": "free",
+    "bundle": "foundation",
+    "contexts": ["admin", "frontend"],
+    "requires": [
+        "capell-app/admin",
+        "capell-app/frontend",
+        "capell-app/workspaces"
+    ],
+    "providers": {
+        "shared": ["Capell\\Mosaic\\Providers\\MosaicServiceProvider"]
     }
 }

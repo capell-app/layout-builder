@@ -27,7 +27,13 @@ class Pages extends AbstractWidget
     {
         $data['pages'] = $this->pages;
 
-        return parent::render($data);
+        $view = parent::render($data);
+
+        if ($view instanceof View) {
+            return '<div class="contents">' . $view->render() . '</div>';
+        }
+
+        return $view;
     }
 
     protected function mountWidget(): void

@@ -4,24 +4,30 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Livewire\Filament\Concerns;
 
+use BackedEnum;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Facades\CapellCore;
-use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Enumerable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
+use Throwable;
 
 trait ManagesAssets
 {
     public function reorderAssets(string $containerKey, int $widgetIndex, int $index, int $newIndex): void
     {
+        $this->assertCanUpdateLayout();
+
         $assets = $this->assets[$containerKey][$widgetIndex];
 
         $widgetAsset = $this->getWidgetAsset($containerKey, $widgetIndex, $index);
@@ -100,6 +106,8 @@ trait ManagesAssets
 
     public function selectAllAssets(string $containerKey, int $widgetIndex): void
     {
+        $this->assertCanUpdateLayout();
+
         $this->selectedRecords[$containerKey][$widgetIndex] = $this->getAllSelectableAssetsKeys(
             $containerKey,
             $widgetIndex,
@@ -108,6 +116,8 @@ trait ManagesAssets
 
     public function deSelectAllAssets(string $containerKey, int $widgetIndex): void
     {
+        $this->assertCanUpdateLayout();
+
         $this->selectedRecords[$containerKey][$widgetIndex] = [];
     }
 
@@ -289,17 +299,25 @@ trait ManagesAssets
 
     protected function addAssets(string $containerKey, int $widgetIndex, ?bool $hasPageAssets, string $type, mixed $assets, array $assetsMeta = []): void
     {
+        $this->assertCanUpdateLayout();
+
         if (! isset($this->assets[$containerKey][$widgetIndex])) {
             $this->assets[$containerKey][$widgetIndex] = [];
         }
 
         $widget = $this->getContainerWidget($containerKey, $widgetIndex);
 
+        $validatedAssetIds = $this->getValidatedAssetIds($widget, $type, $assets);
+
+        if ($validatedAssetIds === []) {
+            return;
+        }
+
         $occurrence = $this->getContainerWidgetOccurrence($containerKey, $widgetIndex);
 
         $order = $this->countWidgetAssets($containerKey, $widgetIndex);
 
-        foreach (Arr::wrap($assets) as $assetId) {
+        foreach ($validatedAssetIds as $assetId) {
             $order++;
 
             $meta = $assetsMeta[$assetId] ?? [];
@@ -342,6 +360,141 @@ trait ManagesAssets
         ]);
 
         $this->containerWidgets[$containerKey][$widgetIndex] = $widget;
+    }
+
+    protected function getValidatedAssetIds(Widget $widget, string $type, mixed $assetIds): array
+    {
+        $normalizedType = $this->normalizeAssetType($type);
+
+        if (! in_array($normalizedType, $this->getAllowedAssetTypes($widget), true)) {
+            return [];
+        }
+
+        $registeredType = ucfirst($normalizedType);
+
+        if (! CapellCore::hasAsset($registeredType)) {
+            return [];
+        }
+
+        $assetData = CapellCore::getAsset($registeredType);
+        $model = $assetData->model;
+
+        if (! is_subclass_of($model, Model::class)) {
+            return [];
+        }
+
+        $requestedAssetIds = collect(Arr::wrap($assetIds))
+            ->filter(fn (mixed $assetId): bool => (is_int($assetId) || is_string($assetId)) && $assetId !== '')
+            ->values();
+
+        if ($requestedAssetIds->isEmpty()) {
+            return [];
+        }
+
+        /** @var EloquentBuilder $query */
+        $query = $model::query()->whereKey($requestedAssetIds->all());
+
+        $this->constrainAssetQueryToCurrentContext($query, new $model);
+
+        $recordsByKey = $query->get()
+            ->filter(fn (Model $record): bool => $this->canUseAssetRecord($record))
+            ->keyBy(fn (Model $record): string => (string) $record->getKey());
+
+        return $requestedAssetIds
+            ->map(fn (int|string $assetId): mixed => $recordsByKey->get((string) $assetId)?->getKey())
+            ->filter(fn (mixed $assetId): bool => $assetId !== null)
+            ->values()
+            ->all();
+    }
+
+    protected function getAllowedAssetTypes(Widget $widget): array
+    {
+        $assetTypes = isset($widget->admin['asset_types']) && $widget->admin['asset_types'] !== []
+            ? $widget->admin['asset_types']
+            : ($widget->type->admin['asset_types'] ?? []);
+
+        if ($assetTypes === []) {
+            return CapellCore::getAssets()
+                ->keys()
+                ->map(fn (string $assetType): string => $this->normalizeAssetType($assetType))
+                ->values()
+                ->all();
+        }
+
+        return collect($assetTypes)
+            ->map(fn (mixed $assetType): string => $this->normalizeAssetType($assetType))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    protected function normalizeAssetType(mixed $assetType): string
+    {
+        if ($assetType instanceof BackedEnum) {
+            $assetType = $assetType->value;
+        }
+
+        return mb_strtolower((string) $assetType);
+    }
+
+    protected function constrainAssetQueryToCurrentContext(EloquentBuilder $query, Model $assetModel): void
+    {
+        $table = $assetModel->getTable();
+        $site = $this->getSite();
+        $assetModelClass = $assetModel::class;
+
+        if ($site !== null && Schema::hasColumn($table, 'site_id')) {
+            $query->where(
+                fn (EloquentBuilder $query): EloquentBuilder => $query->where('site_id', $site->getKey())
+                    ->orWhereNull('site_id'),
+            );
+        }
+
+        if (
+            $this->page instanceof Model
+            && $this->page instanceof $assetModelClass
+        ) {
+            $query->whereKeyNot($this->page->getKey());
+        }
+
+        $workspaceId = $this->getCurrentWorkspaceId();
+
+        if ($workspaceId !== null && Schema::hasColumn($table, 'workspace_id')) {
+            $query->where(
+                fn (EloquentBuilder $query): EloquentBuilder => $query->where('workspace_id', $workspaceId)
+                    ->orWhere('workspace_id', 0),
+            );
+        }
+    }
+
+    protected function canUseAssetRecord(Model $record): bool
+    {
+        if (Gate::getPolicyFor($record) === null) {
+            return true;
+        }
+
+        try {
+            return Gate::allows('view', $record);
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    protected function getCurrentWorkspaceId(): ?int
+    {
+        foreach ([$this->page, $this->layout] as $record) {
+            if (! $record instanceof Model) {
+                continue;
+            }
+
+            if (! array_key_exists('workspace_id', $record->getAttributes())) {
+                continue;
+            }
+
+            return (int) $record->getAttribute('workspace_id');
+        }
+
+        return null;
     }
 
     protected function updateAssets(string $containerKey, int $widgetIndex, ?string $oldContainerKey = null): void
@@ -554,6 +707,8 @@ trait ManagesAssets
 
     protected function removeSelectedAssets(string $containerKey, int $widgetIndex): void
     {
+        $this->assertCanUpdateLayout();
+
         foreach ($this->selectedRecords[$containerKey][$widgetIndex] as $asset) {
             [$type, $uuid] = explode('.', (string) $asset);
 
@@ -573,6 +728,8 @@ trait ManagesAssets
 
     protected function togglePageAssets(string $containerKey, int $widgetIndex, ?Pageable $page): void
     {
+        $this->assertCanUpdateLayout();
+
         $hasPageAssets = $page instanceof Pageable;
 
         $this->updatePageAssets($containerKey, $widgetIndex, $hasPageAssets);
@@ -582,6 +739,8 @@ trait ManagesAssets
 
     protected function updateWidgetAsset(string $containerKey, int $widgetIndex, int $index, array $data): void
     {
+        $this->assertCanUpdateLayout();
+
         $widgetAsset = $this->assets[$containerKey][$widgetIndex][$index];
 
         $this->assets[$containerKey][$widgetIndex][$index] = array_merge_recursive($widgetAsset, $data);
@@ -635,7 +794,7 @@ trait ManagesAssets
     protected function loadWidgetAssets(Widget $widget, string $containerKey, int $widgetOccurrence): Collection
     {
         /** @var class-string<WidgetAsset> $model */
-        $model = CapellCore::getModel(ModelEnum::WidgetAsset->name);
+        $model = WidgetAsset::class;
 
         $assets = $model::query()
             ->with([
@@ -714,7 +873,7 @@ trait ManagesAssets
     protected function buildPreloadedWidgetAssets(array $existingIds, array $newAssets): Collection
     {
         /** @var class-string<WidgetAsset> $model */
-        $model = CapellCore::getModel(ModelEnum::WidgetAsset->name);
+        $model = WidgetAsset::class;
 
         $existingAssets = $existingIds === []
             ? (new $model)->newCollection()
@@ -768,15 +927,15 @@ trait ManagesAssets
     protected function filterContainerWidgetAssets(Collection $assets, string $containerKey, int $widgetOccurrence): SupportCollection|Enumerable
     {
         return $assets->filter(function (WidgetAsset $widgetAsset) use ($containerKey, $widgetOccurrence): bool {
+            if ((int) $widgetAsset->occurrence !== $widgetOccurrence) {
+                return false;
+            }
+
             if ($widgetAsset->container === null) {
                 return true;
             }
 
             if ($widgetAsset->container !== $containerKey) {
-                return false;
-            }
-
-            if ((int) $widgetAsset->occurrence !== $widgetOccurrence) {
                 return false;
             }
 

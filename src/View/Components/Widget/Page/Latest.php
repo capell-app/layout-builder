@@ -37,6 +37,7 @@ class Latest extends AbstractPagesWidget
             withDate: $this->widget->meta['with_date'] ?? false,
             cacheKeyPrepend: 'latest-widget-' . $this->widget->id,
             morphModel: $modelClass,
+            useCache: false,
             modifyQuery: fn (Builder $query) => $query->whereKeyNot(Frontend::page()->id),
         );
 

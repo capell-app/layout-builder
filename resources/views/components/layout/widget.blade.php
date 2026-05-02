@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @props([
     'component',
     'container',
@@ -52,5 +46,3 @@ declare(strict_types=1);
         ],
         key($containerKey . '-' . $widget->key . '-' . $occurrence))
 @endif
-
-<?php

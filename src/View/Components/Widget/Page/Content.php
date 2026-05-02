@@ -8,6 +8,8 @@ use Capell\Core\Contracts\Pageable;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Frontend\Support\Loader\PageLoader;
 use Capell\Mosaic\View\Components\Widget\AbstractWidget;
+use Closure;
+use Illuminate\Contracts\View\View;
 
 class Content extends AbstractWidget
 {
@@ -16,6 +18,15 @@ class Content extends AbstractWidget
     public ?Pageable $previousPage = null;
 
     protected static string $defaultView = 'capell-mosaic::components.widget.page.content';
+
+    public function render(array $data = []): View|string|Closure
+    {
+        return parent::render([
+            ...$data,
+            'previousPage' => $this->previousPage,
+            'nextPage' => $this->nextPage,
+        ]);
+    }
 
     protected function mountWidget(): void
     {

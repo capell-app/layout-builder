@@ -26,7 +26,7 @@ class PageSchemaExtender implements Extenders\PageSchemaExtender
         return $relationManagers;
     }
 
-    public function extendTabs(Schema $schema, array $tabs): array
+    public function extendTabs(Schema $configurator, array $tabs): array
     {
         $hasLayoutTab = collect($tabs)->contains(fn (Tab $tab): bool => $tab instanceof LayoutTab);
 
@@ -40,7 +40,15 @@ class PageSchemaExtender implements Extenders\PageSchemaExtender
     /**
      * @return array<int, Component>
      */
-    public function extendTranslationComponentsForHook(Schema $schema, PageTranslationSchemaHookEnum $hook): array
+    public function extendTranslationComponentsForHook(Schema $configurator, PageTranslationSchemaHookEnum $hook): array
+    {
+        return [];
+    }
+
+    /**
+     * @return array<int, Component>
+     */
+    public function extendSettingsTabComponents(): array
     {
         return [];
     }

@@ -6,6 +6,8 @@ namespace Capell\Mosaic\Enums;
 
 use Capell\Mosaic\Filament\Resources\Sections\SectionResource;
 use Capell\Mosaic\Filament\Resources\Widgets\WidgetResource;
+use Capell\Mosaic\Models\Section;
+use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Support\Creator\TypeCreator;
 use Filament\Support\Contracts\HasLabel;
 
@@ -26,8 +28,8 @@ enum LayoutTypeEnum: string implements HasLabel
     public function getModel(): string
     {
         return match ($this) {
-            self::Section => ModelEnum::Section->value,
-            self::Widget => ModelEnum::Widget->value,
+            self::Section => Section::class,
+            self::Widget => Widget::class,
         };
     }
 

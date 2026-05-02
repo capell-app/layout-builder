@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Capell\Mosaic\Filament\Components\Forms\Page\Tab;
 
 use Capell\Core\Contracts\Pageable;
-use Capell\Core\Enums\ModelEnum;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Mosaic\Enums\LivewireComponentsEnum;
 use Filament\Schemas\Components\Livewire;
@@ -29,7 +27,7 @@ class LayoutTab
 
                         if ($get('layout_id') !== null && $layout->id !== $get('layout_id')) {
                             /** @var class-string<Layout> $model */
-                            $model = CapellCore::getModel(ModelEnum::Layout);
+                            $model = Layout::class;
 
                             $layout = $model::query()->find($get('layout_id'));
                         }

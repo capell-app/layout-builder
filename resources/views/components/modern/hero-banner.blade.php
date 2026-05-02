@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @props([
     'title' => $widget->translation?->title,
     'content' => $widget->translation?->content,
@@ -108,5 +102,3 @@ declare(strict_types=1);
         </div>
     </section>
 </x-capell-mosaic::widget.wrapper>
-
-<?php

@@ -8,6 +8,7 @@ use Capell\Core\Contracts\ModelInterceptors\LayoutInterceptorInterface;
 use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Models\Layout;
 use Capell\Mosaic\Support\Creator\WidgetCreator;
+use Illuminate\Support\Facades\Schema;
 
 final class ResultsLayoutInterceptor implements LayoutInterceptorInterface
 {
@@ -18,6 +19,10 @@ final class ResultsLayoutInterceptor implements LayoutInterceptorInterface
 
     public function afterCreated(Layout $layout, array $data): void
     {
+        if (! Schema::hasColumn('layouts', 'containers')) {
+            return;
+        }
+
         $widgetCreator = resolve(WidgetCreator::class);
         $widgetCreator->pageContentWidget();
         $widgetCreator->breadcrumbWidget();

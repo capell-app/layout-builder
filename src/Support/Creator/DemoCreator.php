@@ -10,10 +10,6 @@ use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Enums\MediaConversionEnum;
-use Capell\Core\Enums\ModelEnum as CoreModelEnum;
-use Capell\Core\Enums\NavigationItemType;
-use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Media;
@@ -21,24 +17,24 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Core\Support\Creator\DemoCreator as AdminDemoCreator;
-use Capell\Core\Support\Creator\NavigationCreator;
 use Capell\Mosaic\Enums\ActionLinkEnum;
 use Capell\Mosaic\Enums\AssetEnum;
 use Capell\Mosaic\Enums\ContentTypeEnum;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
-use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Enums\WidgetComponentEnum;
 use Capell\Mosaic\Enums\WidgetTypeEnum;
-use Capell\Mosaic\Filament\Schemas\Sections\TestimonialSectionSchema;
+use Capell\Mosaic\Filament\Configurators\Sections\TestimonialSectionConfigurator;
 use Capell\Mosaic\Models\Section;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Models\WidgetAsset;
+use Capell\Navigation\Enums\NavigationItemType;
+use Capell\Navigation\Models\Navigation;
+use Capell\Navigation\Support\Creator\NavigationCreator;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use RuntimeException;
 use Spatie\Image\Image;
 use Spatie\MediaLibrary\HasMedia;
 
@@ -67,10 +63,10 @@ class DemoCreator
     public function __construct(
         protected readonly ?Model $user = null,
     ) {
-        $this->contentModel = CapellCore::getModel(ModelEnum::Section->name);
-        $this->widgetModel = CapellCore::getModel(ModelEnum::Widget->name);
-        $this->typeModel = CapellCore::getModel(CoreModelEnum::Type);
-        $this->pageModel = CapellCore::getModel(CoreModelEnum::Page);
+        $this->contentModel = Section::class;
+        $this->widgetModel = Widget::class;
+        $this->typeModel = Type::class;
+        $this->pageModel = Page::class;
     }
 
     public function createContentWidget(Collection $languages): Widget
@@ -248,7 +244,9 @@ class DemoCreator
             ->limit(3)
             ->get();
 
-        throw_if($relatedPages->isEmpty(), RuntimeException::class, 'No pages with images found to associate with the widget.');
+        if ($relatedPages->isEmpty()) {
+            return $widget;
+        }
 
         $relatedPages->each(fn (Page $relatedPage): WidgetAsset => $widget->assets()->create([
             'pageable_id' => $page->id,
@@ -406,8 +404,8 @@ class DemoCreator
 
     public function createStaticNavigationWidget(Collection $languages, Site $site): Widget
     {
-        /** @var class-string<Models\Navigation> $model */
-        $model = CapellCore::getModel(CoreModelEnum::Navigation);
+        /** @var class-string<Navigation> $model */
+        $model = Navigation::class;
 
         // Create menu + items
         $name = 'Example Menu';
@@ -1831,7 +1829,7 @@ class DemoCreator
             'name' => 'Testimonial',
             'admin' => [
                 'icon' => 'heroicon-o-chat-bubble-left-right',
-                'schema' => TestimonialSectionSchema::getKey(),
+                'configurator' => TestimonialSectionConfigurator::getKey(),
             ],
         ]);
 

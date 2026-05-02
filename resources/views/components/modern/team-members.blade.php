@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @props([
     'columns' => $widget->getMeta('columns', 3),
     'container',
@@ -151,5 +145,3 @@ declare(strict_types=1);
         </div>
     </section>
 </x-capell-mosaic::widget.wrapper>
-
-<?php

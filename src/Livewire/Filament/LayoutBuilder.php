@@ -26,7 +26,11 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
@@ -69,6 +73,12 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     public bool $layoutModified = false;
 
+    public string $widgetPaletteSearch = '';
+
+    public int $widgetPalettePage = 1;
+
+    public int $widgetPalettePerPage = 12;
+
     protected array $containerWidgets;
 
     protected string $view = 'capell-mosaic::livewire.filament.layout-builder.index';
@@ -80,12 +90,73 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     public function mount(): void
     {
+        $this->assertCanUpdateLayout();
+
         $this->loadNew();
     }
 
     public function boot(): void
     {
         throw_if(! Filament::auth()->check(), AuthenticationException::class);
+    }
+
+    public function updatedWidgetPaletteSearch(): void
+    {
+        $this->resetWidgetPalettePage();
+    }
+
+    #[Computed]
+    public function widgetPalette(): LengthAwarePaginator
+    {
+        $search = trim($this->widgetPaletteSearch);
+
+        return $this->getWidgetQuery()
+            ->when(
+                $search !== '',
+                fn (EloquentBuilder $query): EloquentBuilder => $query->where(
+                    fn (EloquentBuilder $query): EloquentBuilder => $query
+                        ->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('key', 'like', '%' . $search . '%')
+                        ->orWhereHas(
+                            'type',
+                            fn (EloquentBuilder $query): EloquentBuilder => $query
+                                ->where('name', 'like', '%' . $search . '%')
+                                ->orWhere('key', 'like', '%' . $search . '%'),
+                        )
+                        ->orWhereHas(
+                            'translations',
+                            fn (EloquentBuilder $query): EloquentBuilder => $query->where('title', 'like', '%' . $search . '%'),
+                        ),
+                ),
+            )
+            ->ordered()
+            ->paginate(
+                perPage: $this->widgetPalettePerPage,
+                page: $this->widgetPalettePage,
+            );
+    }
+
+    public function resetWidgetPalettePage(): void
+    {
+        $this->widgetPalettePage = 1;
+    }
+
+    public function previousWidgetPalettePage(): void
+    {
+        $this->widgetPalettePage = max(1, $this->widgetPalettePage - 1);
+
+        unset($this->widgetPalette);
+    }
+
+    public function nextWidgetPalettePage(): void
+    {
+        if ($this->widgetPalettePage >= $this->widgetPalette->lastPage()) {
+            return;
+        }
+
+        $this->widgetPalettePage++;
+
+        unset($this->widgetPalette);
     }
 
     #[Computed]
@@ -103,6 +174,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     #[On('save-layout')]
     public function saveLayout(bool $withNotifications = false): void
     {
+        $this->assertCanUpdateLayout();
+
         if (! $this->layoutModified) {
             return;
         }
@@ -166,6 +239,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     #[On('add-widgets-to-container')]
     public function addWidgetsToContainer(string $containerKey, array $widgets, ?string $actionModalId = null): void
     {
+        $this->assertCanUpdateLayout();
+
         if ($widgets === []) {
             Notification::make('no-widgets-selected')
                 ->body(__('capell-mosaic::message.no_widgets_selected'))
@@ -200,9 +275,34 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         }
     }
 
+    public function addPaletteWidgetToContainer(int $widgetId, string $containerKey, ?int $position = null): void
+    {
+        $this->assertCanUpdateLayout();
+
+        $this->ensureLoaded();
+
+        $widget = $this->getWidget($widgetId);
+
+        $widgetIndex = $this->addWidgetToContainerAtPosition($widget, $containerKey, $position);
+
+        $widget = $this->loadWidget($containerKey, $widgetIndex);
+
+        $this->assets[$containerKey][$widgetIndex] = $this->mapWidgetAssets($widget, $containerKey);
+
+        $this->updatePageAssets($containerKey, $widgetIndex);
+
+        session(['layout-builder.container' => $containerKey]);
+
+        $this->setupSelectedAssets();
+
+        $this->layoutUpdated();
+    }
+
     #[On('sync-selected-assets')]
     public function addAssetsToWidget(array $arguments, string $type, array $assets): void
     {
+        $this->assertCanUpdateLayout();
+
         $this->ensureLoaded();
 
         $containerKey = $arguments['containerKey'];
@@ -312,6 +412,19 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     protected function inPageContext(): bool
     {
         return $this->page instanceof Pageable;
+    }
+
+    protected function assertCanUpdateLayout(): void
+    {
+        $actor = Filament::auth()->user();
+
+        throw_if($actor === null, AuthenticationException::class);
+
+        if ($this->page instanceof Model) {
+            Gate::forUser($actor)->authorize('update', $this->page);
+        }
+
+        Gate::forUser($actor)->authorize('update', $this->layout);
     }
 
     protected function layoutUpdated(bool $modified = true): void

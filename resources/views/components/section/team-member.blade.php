@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @php
     use Capell\Core\Enums\MediaConversionEnum;
     use Capell\Frontend\Facades\Frontend;
@@ -36,7 +30,7 @@ declare(strict_types=1);
     @endif
 
     @if ($title)
-        <h3 class="text-xl font-semibold">{!! $title !!}</h3>
+        <h3 class="text-xl font-semibold">{{ $title }}</h3>
     @endif
 
     @if (! empty($meta['position']))
@@ -45,9 +39,7 @@ declare(strict_types=1);
 
     @if (filled($summary))
         <div class="mt-2 text-sm text-gray-600 dark:text-gray-300">
-            {!! $summary !!}
+            {{ $summary }}
         </div>
     @endif
 </div>
-
-<?php

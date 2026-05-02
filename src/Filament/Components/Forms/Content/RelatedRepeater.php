@@ -14,7 +14,7 @@ use Filament\Schemas\Schema;
 
 class RelatedRepeater
 {
-    public static function make(Schema $schema): Repeater
+    public static function make(Schema $configurator): Repeater
     {
         return Repeater::make('related')
             ->label(__('capell-mosaic::form.related_contents'))
@@ -60,7 +60,7 @@ class RelatedRepeater
                     ->required()
                     ->preload(fn (string $operation): bool => in_array($operation, ['create', 'createOption'], true))
                     ->when(
-                        $schema->isCreating(),
+                        $configurator->isCreating(),
                         fn (ContentSelect $component): ContentSelect => $component->withCreateForm(),
                         fn (ContentSelect $component): ContentSelect => $component->withEditForm(),
                     ),

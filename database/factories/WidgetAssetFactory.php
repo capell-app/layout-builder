@@ -31,18 +31,10 @@ class WidgetAssetFactory extends Factory
      */
     public function definition(): array
     {
-        $assetType = fake()->randomElement([
-            AssetEnum::Page,
-            LayoutAssetEnum::Section,
-        ]);
-
         return [
             'widget_id' => Widget::factory(),
-            'asset_type' => $assetType->value,
-            'asset_id' => fn (): string => match ($assetType) {
-                LayoutAssetEnum::Section => (string) Section::factory()->withTranslations()->linkedPage()->create()->id,
-                AssetEnum::Page => (string) Page::factory()->withTranslations()->create()->id,
-            },
+            'asset_type' => LayoutAssetEnum::Section->value,
+            'asset_id' => fn (): string => (string) Section::factory()->withTranslations()->linkedPage()->create()->id,
             'pageable_id' => null,
             'pageable_type' => null,
             'occurrence' => 1,

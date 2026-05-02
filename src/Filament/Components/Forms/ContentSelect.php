@@ -8,7 +8,6 @@ use Aimeos\Nestedset\NestedSet;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\HasCustomSelectOption;
 use Capell\Core\Facades\CapellCore;
-use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Models\Section;
 use Closure;
 use Filament\Actions\Action;
@@ -81,9 +80,9 @@ class ContentSelect extends Select
 
     public function withCreateForm(): Select
     {
-        $asset = CapellCore::getAsset(ModelEnum::Section->name);
+        $asset = CapellCore::getAsset('Section');
 
-        $adminAsset = CapellAdmin::getAsset(ModelEnum::Section);
+        $adminAsset = CapellAdmin::getAsset('Section');
 
         $createOptionUsing = $this->getCreateOptionUsing();
 
@@ -92,8 +91,8 @@ class ContentSelect extends Select
                 ->fillForm(fn (): array => in_array($adminAsset->defaultDataAction, [null, '', '0'], true) ? [] : $adminAsset->defaultDataAction::run()),
         )
             ->createOptionForm(
-                fn (Schema $schema): Schema => $adminAsset->formClass::configure(
-                    $schema->operation('createOption')->model($asset->model),
+                fn (Schema $configurator): Schema => $adminAsset->formClass::configure(
+                    $configurator->operation('createOption')->model($asset->model),
                 ),
             )
             ->createOptionUsing(function (Select $component, array $data) use ($asset, $adminAsset, $createOptionUsing): int|string {
@@ -113,14 +112,14 @@ class ContentSelect extends Select
 
     public function withEditForm(): self
     {
-        $asset = CapellAdmin::getAsset(ModelEnum::Section);
+        $asset = CapellAdmin::getAsset('Section');
 
-        return $this->editOptionForm(function (?int $state, Schema $schema) use ($asset): Schema {
+        return $this->editOptionForm(function (?int $state, Schema $configurator) use ($asset): Schema {
             if ($state === null) {
-                return $schema;
+                return $configurator;
             }
 
-            return $asset->formClass::configure($schema->operation('editOption'));
+            return $asset->formClass::configure($configurator->operation('editOption'));
         })
             ->editOptionAction(
                 fn (Action $action): Action => $action
@@ -149,8 +148,8 @@ class ContentSelect extends Select
                 return $record?->attributesToArray() ?? [];
             })
             ->getSelectedRecordUsing(static fn (?int $state): ?Section => Section::query()->find($state))
-            ->updateOptionUsing(static function (array $data, Schema $schema): void {
-                $schema->getRecord()->update($data);
+            ->updateOptionUsing(static function (array $data, Schema $configurator): void {
+                $configurator->getRecord()->update($data);
             });
     }
 
@@ -186,7 +185,7 @@ class ContentSelect extends Select
         $parentContentType = $this->parentContentType;
 
         /** @var class-string<Section> $model */
-        $model = CapellCore::getModel(ModelEnum::Section->name);
+        $model = Section::class;
 
         /** @var Section $content */
         $contents = $model::query()->select('sections.*')

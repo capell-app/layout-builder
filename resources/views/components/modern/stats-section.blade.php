@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @props([
     'layout' => $widget->getMeta('layout', 'horizontal'),
     'container',
@@ -79,5 +73,3 @@ declare(strict_types=1);
         </div>
     </section>
 </x-capell-mosaic::widget.wrapper>
-
-<?php

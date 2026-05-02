@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @props([
     'containerKey',
     'containerWidget',
@@ -273,5 +267,3 @@ declare(strict_types=1);
         />
     @endif
 </div>
-
-<?php

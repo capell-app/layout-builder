@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class SettingsSchema
 {
-    public static function make(Schema $schema): array
+    public static function make(Schema $configurator): array
     {
         return [
             ContentSelect::make('parent_id')
@@ -24,7 +24,7 @@ class SettingsSchema
                     }
                 })
                 ->when(
-                    $schema->isCreating(),
+                    $configurator->isCreating(),
                     fn (ContentSelect $component): ContentSelect => $component->withCreateForm(),
                     fn (ContentSelect $component): ContentSelect => $component->withEditForm(),
                 ),

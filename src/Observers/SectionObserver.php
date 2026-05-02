@@ -49,9 +49,6 @@ class SectionObserver
             $section->nodeDeleteDescendants();
         }
 
-        // Shadow-column maintenance runs in the BelongsToWorkspace trait's
-        // `deleting` hook, before this observer fires.
-
         CapellCoreHelper::flushCache([
             CacheEnum::RelationExists,
         ]);

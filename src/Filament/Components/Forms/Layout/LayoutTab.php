@@ -8,7 +8,6 @@ use Capell\Core\Models\Layout;
 use Capell\Mosaic\Enums\LivewireComponentsEnum;
 use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 
 class LayoutTab extends Tab
@@ -20,14 +19,14 @@ class LayoutTab extends Tab
         $this->label(__('capell-mosaic::tab.layout'))
             ->visibleOn(['edit', 'editOption'])
             ->icon(Heroicon::OutlinedPuzzlePiece)
-            ->schema([
+            ->schema(fn (?Layout $record): array => $record instanceof Layout ? [
                 Livewire::make(
                     LivewireComponentsEnum::LayoutBuilder->value,
-                    fn (Get $get, Layout $record): array => [
+                    fn (Layout $record): array => [
                         'site' => $record->site,
                         'layout' => $record,
                     ],
                 ),
-            ]);
+            ] : []);
     }
 }

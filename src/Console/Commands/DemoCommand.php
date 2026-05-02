@@ -8,8 +8,6 @@ use Capell\Core\Console\Commands\Concerns\HasSitesOption;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Enums\LayoutEnum;
-use Capell\Core\Enums\ModelEnum;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
@@ -34,7 +32,7 @@ class DemoCommand extends Command
     protected $signature = 'capell:mosaic-demo
          {--user= : Whether to associate the created demo content with the first user in the system. If not provided, content will be created without an associated user.}
          {--sites= : Comma-separated list of site names to target for demo content insertion. If not provided, all sites will be targeted.}
-         {--include-hero : Also run the hero demo command after creating mosaic demo content.}
+         {--skip-hero : Skip hero demo content after creating mosaic demo content.}
      ';
 
     protected DemoCreator $demoCreator;
@@ -49,7 +47,7 @@ class DemoCommand extends Command
         $siteOptions = $this->getSiteOptions();
 
         /** @var class-string<Site> $model */
-        $model = CapellCore::getModel(ModelEnum::Site);
+        $model = Site::class;
 
         $sites = $model::query()->with(['languages'])->whereIn('name', $siteOptions)->get();
 
@@ -88,7 +86,7 @@ class DemoCommand extends Command
         $this->newLine();
         $this->info('Demo layouts have been successfully created.');
 
-        if ($this->option('include-hero')) {
+        if (! $this->option('skip-hero')) {
             $this->newLine();
             $this->comment('Running hero demo...');
             $this->call('capell:hero-demo', [
@@ -170,7 +168,7 @@ class DemoCommand extends Command
     {
         if ($this->option('user')) {
             /** @var class-string<User> $model */
-            $model = CapellCore::getModel('User');
+            $model = config('auth.providers.users.model');
 
             return $model::query()->first();
         }
@@ -480,7 +478,7 @@ class DemoCommand extends Command
 
     private function getHomeLayout(): ?Layout
     {
-        $model = CapellCore::getModel(ModelEnum::Layout);
+        $model = Layout::class;
         $layout = $model::query()->firstWhere('key', LayoutEnum::Home);
 
         return $layout instanceof Layout ? $layout : null;
@@ -503,7 +501,6 @@ class DemoCommand extends Command
         $this->progress = $this->output->createProgressBar($max);
         $this->progress->setFormat(' [%bar%] %percent:3s%% | %message%');
         $this->progress->setMessage('');
-        $this->progress->start();
     }
 
     private function setProgressMessage(string $message): void

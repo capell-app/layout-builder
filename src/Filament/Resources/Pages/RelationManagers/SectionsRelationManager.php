@@ -6,9 +6,9 @@ namespace Capell\Mosaic\Filament\Resources\Pages\RelationManagers;
 
 use BackedEnum;
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Admin\Filament\Concerns\HasFormConfigurator;
+use Capell\Admin\Filament\Concerns\HasConfiguredForm;
+use Capell\Admin\Filament\Concerns\HasConfiguredTable;
 use Capell\Admin\Filament\Concerns\HasRelationManagerBadge;
-use Capell\Admin\Filament\Concerns\HasTableConfigurator;
 use Capell\Mosaic\Enums\ResourceEnum;
 use Capell\Mosaic\Filament\Resources\Sections\Schemas\SectionForm;
 use Capell\Mosaic\Filament\Resources\Sections\Tables\SectionsTable;
@@ -19,9 +19,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class SectionsRelationManager extends RelationManager
 {
-    use HasFormConfigurator;
+    use HasConfiguredForm;
+    use HasConfiguredTable;
     use HasRelationManagerBadge;
-    use HasTableConfigurator;
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -41,9 +41,9 @@ class SectionsRelationManager extends RelationManager
         return CapellAdmin::getResource(ResourceEnum::Section)::getNavigationIcon();
     }
 
-    public function form(Schema $schema): Schema
+    public function form(Schema $configurator): Schema
     {
-        return static::getFormConfigurator()::configure($schema);
+        return static::getFormConfigurator()::configure($configurator);
     }
 
     public function table(Table $table): Table

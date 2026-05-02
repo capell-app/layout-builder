@@ -6,9 +6,7 @@ namespace Capell\Mosaic\Filament\Resources\Layouts\Tables;
 
 use Capell\Admin\Enums\FilamentColorEnum;
 use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
-use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Models\Widget;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\ViewEntry;
@@ -83,7 +81,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                 ->label(__('capell-mosaic::form.widget'))
                 ->options(function () {
                     /** @var class-string<Widget> $model */
-                    $model = CapellCore::getModel(ModelEnum::Widget);
+                    $model = Widget::class;
 
                     return $model::getOptions('key', 'name');
                 })
@@ -92,7 +90,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
 
                     if (isset($state['value']) && $state['value'] !== '') {
                         /** @var class-string<Widget> $model */
-                        $model = CapellCore::getModel(ModelEnum::Widget);
+                        $model = Widget::class;
 
                         $indicators['widget_key'] = __(
                             'capell-mosaic::filter.widget',

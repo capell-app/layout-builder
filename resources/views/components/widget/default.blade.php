@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 use Capell\Frontend\Facades\Frontend;
 
 $theme = Frontend::theme();
@@ -84,5 +81,3 @@ $theme = Frontend::theme();
         </div>
     @endif
 </x-capell-mosaic::widget.wrapper>
-
-<?php

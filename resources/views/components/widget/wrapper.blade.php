@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @php
     use Capell\Core\Enums\ContainerWidthEnum;
     use Capell\Core\Enums\DefaultColorEnum;
@@ -125,5 +119,3 @@ declare(strict_types=1);
         {{ $slot }}
     @endif
 </{{ $tag }}>
-
-<?php

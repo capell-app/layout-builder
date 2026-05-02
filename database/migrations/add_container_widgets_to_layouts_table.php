@@ -14,8 +14,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('layouts', function (Blueprint $table): void {
-            $table->json('containers')->nullable();
-            $table->json('widgets')->nullable();
+            if (! Schema::hasColumn('layouts', 'containers')) {
+                $table->json('containers')->nullable();
+            }
+
+            if (! Schema::hasColumn('layouts', 'widgets')) {
+                $table->json('widgets')->nullable();
+            }
         });
     }
 
@@ -25,8 +30,13 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('layouts', function (Blueprint $table): void {
-            $table->dropColumn('containers');
-            $table->dropColumn('widgets');
+            if (Schema::hasColumn('layouts', 'containers')) {
+                $table->dropColumn('containers');
+            }
+
+            if (Schema::hasColumn('layouts', 'widgets')) {
+                $table->dropColumn('widgets');
+            }
         });
     }
 };

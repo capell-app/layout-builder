@@ -17,7 +17,6 @@ use Capell\Mosaic\Filament\Actions\CreateContentAction;
 use Capell\Mosaic\Filament\Resources\Sections\SectionResource;
 use Capell\Mosaic\Filament\Resources\Sections\Widgets\SectionAlertsWidget;
 use Capell\Mosaic\Models\Section;
-use Filament\Actions\ActionGroup;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
@@ -77,16 +76,14 @@ class EditSection extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            RestoreAction::make(),
-            DeleteAction::make(),
-            ForceDeleteAction::make(),
-            ActionGroup::make([
-                CreateContentAction::make()
-                    ->redirectAfterCreate(),
-                ReplicateAction::make()
-                    ->replicaModelAction(ReplicateContentAction::class)
-                    ->hidden($this->record->trashed()),
-            ]),
+            RestoreAction::make('restore'),
+            DeleteAction::make('delete'),
+            ForceDeleteAction::make('forceDelete'),
+            CreateContentAction::make('create')
+                ->redirectAfterCreate(),
+            ReplicateAction::make('replicate')
+                ->replicaModelAction(ReplicateContentAction::class)
+                ->hidden($this->record->trashed()),
         ];
     }
 

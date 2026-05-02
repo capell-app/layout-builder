@@ -11,11 +11,11 @@ use Filament\Support\Icons\Heroicon;
 
 class WidgetSettingsTab
 {
-    public static function make(Schema $schema): Tab
+    public static function make(Schema $configurator): Tab
     {
         return Tab::make(__('capell-admin::tab.settings'))
             ->icon(Heroicon::OutlinedCog)
             ->columns()
-            ->schema(SettingsSchema::make($schema));
+            ->schema(SettingsSchema::make($configurator));
     }
 }

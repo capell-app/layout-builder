@@ -7,14 +7,11 @@ namespace Capell\Mosaic\Filament\Resources\Widgets\Pages;
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\ApplySearchRelationsTable;
-use Capell\Core\Enums\ModelEnum;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Mosaic\Enums\ResourceEnum as LayoutResourceEnum;
 use Capell\Mosaic\Filament\Actions\CreateWidgetAction;
 use Capell\Mosaic\Filament\Resources\Widgets\WidgetResource;
 use Filament\Actions\Action;
-use Filament\Actions\ActionGroup;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Contracts\Support\Htmlable;
@@ -43,7 +40,7 @@ class ListWidgets extends ListRecords
             $language_id = $this->getTableFilterState('filter')['language_id'];
         } else {
             /** @var class-string<Language> $model */
-            $model = CapellCore::getModel(ModelEnum::Language);
+            $model = Language::class;
 
             $language_id = $model::query()->default()->value('id');
         }
@@ -60,14 +57,12 @@ class ListWidgets extends ListRecords
         $layoutResource = CapellAdmin::getResource(ResourceEnum::Layout);
 
         return [
-            CreateWidgetAction::make()
+            CreateWidgetAction::make('create')
                 ->redirectAfterCreate(),
-            ActionGroup::make([
-                Action::make('layouts')
-                    ->url($layoutResource::getUrl())
-                    ->label($layoutResource::getNavigationLabel())
-                    ->groupedIcon($layoutResource::getNavigationIcon()),
-            ]),
+            Action::make('layouts')
+                ->url($layoutResource::getUrl())
+                ->label($layoutResource::getNavigationLabel())
+                ->groupedIcon($layoutResource::getNavigationIcon()),
         ];
     }
 

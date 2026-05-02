@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @props([
     'columns' => $widget->getMeta('columns', 2),
     'displayMode' => $widget->getMeta('display_mode', 'grid'),
@@ -244,5 +238,3 @@ declare(strict_types=1);
         })
     }
 </script>
-
-<?php

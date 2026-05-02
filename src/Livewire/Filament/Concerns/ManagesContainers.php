@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Capell\Mosaic\Livewire\Filament\Concerns;
 
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Mosaic\Enums\TypeSchemaEnum;
-use Capell\Mosaic\Filament\Schemas\Layouts\DefaultLayoutContainerSchema;
+use Capell\Mosaic\Enums\ConfiguratorTypeEnum;
+use Capell\Mosaic\Filament\Configurators\Layouts\DefaultLayoutContainerConfigurator;
 use Closure;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -14,19 +14,41 @@ use Illuminate\Support\Collection as SupportCollection;
 
 trait ManagesContainers
 {
-    public function addContainer(string $key): void
+    public function addContainer(string $key, ?int $position = null): void
     {
-        $this->containers[$key] = [
+        $this->assertCanUpdateLayout();
+
+        $container = [
             'widgets' => [],
         ];
 
-        $this->containerWidgets[$key] = [];
+        if ($position === null) {
+            $this->containers[$key] = $container;
+            $this->containerWidgets[$key] = [];
+            $this->assets[$key] = [];
 
-        $this->assets[$key] = [];
+            return;
+        }
+
+        $position = min(count($this->containers), max(0, $position));
+
+        $this->containers = array_slice($this->containers, 0, $position, true) +
+            [$key => $container] +
+            array_slice($this->containers, $position, null, true);
+
+        $this->containerWidgets = array_slice($this->containerWidgets, 0, $position, true) +
+            [$key => []] +
+            array_slice($this->containerWidgets, $position, null, true);
+
+        $this->assets = array_slice($this->assets, 0, $position, true) +
+            [$key => []] +
+            array_slice($this->assets, $position, null, true);
     }
 
     public function reorderContainers(string $containerKey, int $position): void
     {
+        $this->assertCanUpdateLayout();
+
         $containers = $this->containers;
 
         $container = $containers[$containerKey];
@@ -42,8 +64,85 @@ trait ManagesContainers
         $this->layoutUpdated();
     }
 
-    protected function saveContainer(array $data, ?string $key = null): void
+    public function insertContainerAtPosition(int $position): void
     {
+        $this->assertCanUpdateLayout();
+
+        $this->ensureLoaded();
+
+        $containerKey = $this->uniqueContainerKey();
+
+        $this->addContainer($containerKey, $position);
+
+        $this->layoutUpdated();
+    }
+
+    public function resizeContainer(string $containerKey, int $colspan): void
+    {
+        $this->assertCanUpdateLayout();
+
+        $this->ensureLoaded();
+
+        if (! isset($this->containers[$containerKey])) {
+            return;
+        }
+
+        $this->containers[$containerKey]['meta'] ??= [];
+        $this->containers[$containerKey]['meta']['colspan'] = min(12, max(1, $colspan));
+
+        $this->layoutUpdated();
+    }
+
+    protected function duplicateContainer(string $containerKey): void
+    {
+        $this->assertCanUpdateLayout();
+
+        $this->ensureLoaded();
+
+        if (! isset($this->containers[$containerKey])) {
+            return;
+        }
+
+        $newContainerKey = $this->uniqueContainerKey();
+        $containerPosition = array_search($containerKey, array_keys($this->containers), true);
+
+        if ($containerPosition === false) {
+            return;
+        }
+
+        $insertPosition = $containerPosition + 1;
+
+        $this->containers = array_slice($this->containers, 0, $insertPosition, true) +
+            [$newContainerKey => $this->containers[$containerKey]] +
+            array_slice($this->containers, $insertPosition, null, true);
+
+        $this->containerWidgets = array_slice($this->containerWidgets, 0, $insertPosition, true) +
+            [$newContainerKey => $this->containerWidgets[$containerKey] ?? []] +
+            array_slice($this->containerWidgets, $insertPosition, null, true);
+
+        $this->assets = array_slice($this->assets, 0, $insertPosition, true) +
+            [$newContainerKey => $this->assets[$containerKey] ?? []] +
+            array_slice($this->assets, $insertPosition, null, true);
+
+        $this->selectedRecords[$newContainerKey] = [];
+
+        foreach (array_keys($this->containers[$newContainerKey]['widgets']) as $widgetIndex) {
+            foreach ($this->assets[$newContainerKey][$widgetIndex] ?? [] as $assetIndex => $asset) {
+                if (isset($asset['container'])) {
+                    $this->assets[$newContainerKey][$widgetIndex][$assetIndex]['container'] = $newContainerKey;
+                }
+            }
+        }
+
+        $this->setupSelectedAssets();
+
+        $this->layoutUpdated();
+    }
+
+    protected function saveContainer(array $data, ?string $key = null, ?int $position = null): void
+    {
+        $this->assertCanUpdateLayout();
+
         $this->ensureLoaded();
 
         if (in_array($key, [null, '', '0'], true)) {
@@ -55,7 +154,7 @@ trait ManagesContainers
         }
 
         if (! isset($this->containers[$key])) {
-            $this->addContainer($key);
+            $this->addContainer($key, $position);
         }
 
         $this->containers[$key]['meta'] = $data['meta'] ?? [];
@@ -67,6 +166,8 @@ trait ManagesContainers
 
     protected function removeContainer(string $containerKey): void
     {
+        $this->assertCanUpdateLayout();
+
         foreach (['containers', 'containerWidgets', 'assets'] as $property) {
             if (! isset($this->{$property}[$containerKey])) {
                 continue;
@@ -119,6 +220,18 @@ trait ManagesContainers
         return $newKey;
     }
 
+    protected function uniqueContainerKey(): string
+    {
+        $index = count($this->containers) + 1;
+
+        do {
+            $key = 'container-' . $index;
+            $index++;
+        } while (isset($this->containers[$key]));
+
+        return $key;
+    }
+
     protected function setupContainers(): void
     {
         if ($this->containers !== null) {
@@ -139,16 +252,16 @@ trait ManagesContainers
         }
     }
 
-    protected function getContainerSchema(Schema $schema, array $arguments): array
+    protected function getContainerSchema(Schema $configurator, array $arguments): array
     {
         $containerKey = $arguments['containerKey'] ?? null;
 
-        $adminSchema = CapellAdmin::getSchema(
-            TypeSchemaEnum::LayoutContainer->value,
-            $this->layout->admin['container_schema'][$containerKey] ?? DefaultLayoutContainerSchema::getKey(),
+        $adminSchema = CapellAdmin::getConfigurator(
+            ConfiguratorTypeEnum::LayoutContainer->value,
+            $this->layout->admin['container_schema'][$containerKey] ?? DefaultLayoutContainerConfigurator::getKey(),
         );
 
-        $typeSchema = resolve($adminSchema)->make($schema);
+        $typeSchema = resolve($adminSchema)->make($configurator);
 
         return [
             TextInput::make('key')

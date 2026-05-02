@@ -9,11 +9,11 @@ use Filament\Support\Icons\Heroicon;
 
 class WidgetDisplayTab
 {
-    public static function make(array $schema = []): Tab
+    public static function make(array $configurator = []): Tab
     {
         return Tab::make(__('capell-mosaic::tab.display'))
             ->icon(Heroicon::OutlinedSparkles)
             ->columns()
-            ->schema($schema);
+            ->schema($configurator);
     }
 }

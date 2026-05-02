@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Capell\Mosaic\Filament\Resources\Sections;
 
 use BackedEnum;
-use Capell\Admin\Filament\Concerns\HasFormConfigurator;
+use Capell\Admin\Filament\Concerns\HasConfiguredForm;
+use Capell\Admin\Filament\Concerns\HasConfiguredTable;
 use Capell\Admin\Filament\Concerns\HasNavigationBadge;
-use Capell\Admin\Filament\Concerns\HasTableConfigurator;
 use Capell\Core\Facades\CapellCore;
+use Capell\Mosaic\Enums\ConfiguratorTypeEnum;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
-use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Filament\Resources\Sections\Pages\CreateSection;
 use Capell\Mosaic\Filament\Resources\Sections\Pages\EditSection;
 use Capell\Mosaic\Filament\Resources\Sections\Pages\ListSections;
@@ -33,9 +33,9 @@ use Illuminate\Support\HtmlString;
 
 class SectionResource extends Resource
 {
-    use HasFormConfigurator;
+    use HasConfiguredForm;
+    use HasConfiguredTable;
     use HasNavigationBadge;
-    use HasTableConfigurator;
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -43,9 +43,9 @@ class SectionResource extends Resource
 
     protected static string $tableConfigurator = SectionsTable::class;
 
-    public static function form(Schema $schema): Schema
+    public static function form(Schema $configurator): Schema
     {
-        return static::getFormConfigurator()::configure($schema);
+        return static::getFormConfigurator()::configure($configurator);
     }
 
     public static function table(Table $table): Table
@@ -58,9 +58,9 @@ class SectionResource extends Resource
         return CapellCore::getPackage(MosaicServiceProvider::$packageName)->isInstalled();
     }
 
-    public static function getResourceType(): string
+    public static function getResourceType(): ConfiguratorTypeEnum
     {
-        return 'Sections';
+        return ConfiguratorTypeEnum::Section;
     }
 
     public static function getEloquentQuery(): Builder
@@ -110,7 +110,7 @@ class SectionResource extends Resource
      */
     public static function getModel(): string
     {
-        return CapellCore::getModel(ModelEnum::Section->name);
+        return Section::class;
     }
 
     public static function getNavigationGroup(): ?string
@@ -144,12 +144,12 @@ class SectionResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return __('capell-admin::generic.section');
+        return __('capell-mosaic::generic.section');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('capell-admin::generic.sections_content');
+        return __('capell-mosaic::generic.sections');
     }
 
     public static function getRelations(): array

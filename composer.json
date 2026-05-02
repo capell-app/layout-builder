@@ -20,7 +20,8 @@
     "require": {
         "php": "^8.2",
         "capell-app/admin": "*",
-        "capell-app/frontend": "*"
+        "capell-app/frontend": "*",
+        "capell-app/navigation": "*"
     },
     "autoload": {
         "psr-4": {
@@ -33,6 +34,9 @@
             "providers": [
                 "Capell\\Mosaic\\Providers\\MosaicServiceProvider"
             ]
+        },
+        "branch-alias": {
+            "dev-main": "4.x-dev"
         }
     },
     "config": {

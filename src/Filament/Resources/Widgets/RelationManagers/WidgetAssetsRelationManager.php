@@ -23,9 +23,9 @@ class WidgetAssetsRelationManager extends RelationManager
         return __('capell-admin::tab.assets');
     }
 
-    public function form(Schema $schema): Schema
+    public function form(Schema $configurator): Schema
     {
-        return WidgetAssetForm::configure($schema);
+        return WidgetAssetForm::configure($configurator);
     }
 
     public function table(Table $table): Table

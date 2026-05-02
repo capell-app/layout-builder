@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Models;
 
+use Capell\Core\Concerns\HasCapellMedia;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Contracts\PageCacheable;
 use Capell\Core\Enums\MediaCollectionEnum;
@@ -11,7 +12,6 @@ use Capell\Core\Models\AssetRelation;
 use Capell\Core\Models\Concerns\HasAssets;
 use Capell\Core\Models\Concerns\HasMetaData;
 use Capell\Core\Models\Concerns\HasUserstamps;
-use Capell\Core\Models\Concerns\InteractsWithMedia;
 use Capell\Core\Models\Contracts\Userstampable;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Translation;
@@ -98,13 +98,13 @@ class WidgetAsset extends Model implements HasMedia, PageCacheable, Userstampabl
 {
     use ComposhipsJsonRelationshipsTrait;
     use HasAssets;
+    use HasCapellMedia;
 
     /** @use HasFactory<WidgetAssetFactory> */
     use HasFactory;
 
     use HasMetaData;
     use HasUserstamps;
-    use InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.

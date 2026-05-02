@@ -1,8 +1,3 @@
-<?php
-
-declare(strict_types=1);
-?>
-
 @php
     use Capell\Core\Contracts\Pageable;
     use Capell\Core\Enums\AssetComponentEnum;
@@ -98,69 +93,69 @@ declare(strict_types=1);
     </div>
 @endcapellBuffer
 
-<x-capell-mosaic::widget.wrapper
-    class="widget-assets widget-assets-features"
-    :$container
-    :$containerKey
-    :$containerWidth
-    container-class="space-y-6 md:space-y-10"
-    :index="$loop->index"
-    :$widget
->
-    @if ($widget->translation)
-        <x-capell::content
-            :compact="true"
-            :content="$widget->translation->content"
-            :content-type="$widget->type->content_structure"
-            :color="$color"
-            :divider="$widget->getMeta('content_divider')"
-            :muted="in_array($containerKey, $theme->secondary_containers)"
-            :title="$widget->translation->title"
-            :text-align="$widget->getMeta('align')"
-            :heading-style="$widget->getMeta('heading_style')"
-            align="center"
-        />
-    @endif
+@if ($widget->assets->isNotEmpty() || ! config('capell-mosaic.widget.skip_render_empty', true))
+    <x-capell-mosaic::widget.wrapper
+        class="widget-assets widget-assets-features"
+        :$container
+        :$containerKey
+        :$containerWidth
+        container-class="space-y-6 md:space-y-10"
+        :index="$loop->index"
+        :$widget
+    >
+        @if ($widget->translation)
+            <x-capell::content
+                :compact="true"
+                :content="$widget->translation->content"
+                :content-type="$widget->type->content_structure"
+                :color="$color"
+                :divider="$widget->getMeta('content_divider')"
+                :muted="in_array($containerKey, $theme->secondary_containers)"
+                :title="$widget->translation->title"
+                :text-align="$widget->getMeta('align')"
+                :heading-style="$widget->getMeta('heading_style')"
+                align="center"
+            />
+        @endif
 
-    @if ($widget->assets->isNotEmpty())
-        <div
-            @class([
-                'grid grid-cols-1 items-start gap-x-10 gap-y-6 md:grid-cols-2',
-                'lg:grid-cols-3' => $widget->image,
-            ])
-        >
-            @if ($widget->image)
+        @if ($widget->assets->isNotEmpty())
+            <div
+                @class([
+                    'grid grid-cols-1 items-start gap-x-10 gap-y-6 md:grid-cols-2',
+                    'lg:grid-cols-3' => $widget->image,
+                ])
+            >
+                @if ($widget->image)
+                    <div
+                        class="flex min-h-full justify-center md:col-span-2 lg:order-2 lg:col-span-1"
+                    >
+                        <x-capell::media
+                            :media="$widget->image"
+                            format="webp"
+                            size="xl"
+                            fit="fit"
+                            loading="lazy"
+                            class="object-cover"
+                        />
+                    </div>
+                @endif
+
                 <div
-                    class="flex min-h-full justify-center md:col-span-2 lg:order-2 lg:col-span-1"
+                    class="grid space-y-6 md:min-h-full md:auto-rows-fr lg:order-1 lg:space-y-8"
                 >
-                    <x-capell::media
-                        :media="$widget->image"
-                        format="webp"
-                        size="xl"
-                        fit="fit"
-                        loading="lazy"
-                        class="object-cover"
-                    />
+                    @foreach ($widget->assets->slice(0, ceil($widget->assets->count() / 2)) as $widgetAsset)
+                        {{ $assetBlock($widgetAsset, 1) }}
+                    @endforeach
                 </div>
-            @endif
 
-            <div
-                class="grid space-y-6 md:min-h-full md:auto-rows-fr lg:order-1 lg:space-y-8"
-            >
-                @foreach ($widget->assets->slice(0, ceil($widget->assets->count() / 2)) as $widgetAsset)
-                    {{ $assetBlock($widgetAsset, 1) }}
-                @endforeach
+                <div
+                    class="grid space-y-6 md:min-h-full md:auto-rows-fr lg:order-3 lg:space-y-8"
+                >
+                    @foreach ($widget->assets->slice(ceil($widget->assets->count() / 2)) as $widgetAsset)
+                        {{ $assetBlock($widgetAsset, 2) }}
+                    @endforeach
+                </div>
             </div>
-
-            <div
-                class="grid space-y-6 md:min-h-full md:auto-rows-fr lg:order-3 lg:space-y-8"
-            >
-                @foreach ($widget->assets->slice(ceil($widget->assets->count() / 2)) as $widgetAsset)
-                    {{ $assetBlock($widgetAsset, 2) }}
-                @endforeach
-            </div>
-        </div>
-    @endif
-</x-capell-mosaic::widget.wrapper>
-
-<?php
+        @endif
+    </x-capell-mosaic::widget.wrapper>
+@endif

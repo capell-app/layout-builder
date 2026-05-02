@@ -15,11 +15,11 @@ use Filament\Schemas\Schema;
 
 class TranslationsRepeater
 {
-    public static function make(Schema $schema, array $components = []): RepeaterTabs
+    public static function make(Schema $configurator, array $components = []): RepeaterTabs
     {
         return BaseTranslationsRepeater::make('translations')
             ->when(
-                $schema->getOperation() === 'replicate',
+                $configurator->getOperation() === 'replicate',
                 fn (TranslationsRepeater $repeater): TranslationsRepeater => $repeater->withoutRelationship(),
             )
             ->schema([
@@ -35,7 +35,7 @@ class TranslationsRepeater
                             ->hidden(fn (?int $state): bool => (bool) $state),
                     ]),
 
-                ContentEditor::make(structure: $schema->getRecord()?->type->content_structure)
+                ContentEditor::make(structure: $configurator->getRecord()?->type->content_structure)
                     ->requiredBasedOnType(),
 
                 ...$components,

@@ -40,6 +40,7 @@ class Siblings extends AbstractPagesWidget
             withParent: $this->widget->meta['with_parent'] ?? false,
             withDate: $this->widget->meta['with_date'] ?? false,
             cacheKeyPrepend: 'page-not-' . $page->id,
+            useCache: false,
             modifyQuery: fn (BuilderContract $query): BuilderContract => $query->whereKeyNot($page->id),
         );
 

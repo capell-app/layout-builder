@@ -19,7 +19,7 @@ class AfterRecordSaved implements EventSubscriber
         }
 
         if ($context instanceof EditPage || $context instanceof EditLayout) {
-            $context->dispatch('save-layout')->to(LivewireComponentsEnum::LayoutBuilder->value);
+            $context->dispatch('save-layout', withNotifications: true)->to(LivewireComponentsEnum::LayoutBuilder->value);
         }
     }
 }

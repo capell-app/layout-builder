@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Actions;
 
-use Capell\Core\Enums\ModelEnum;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
@@ -35,7 +33,7 @@ class ModifyContentSelectCreateAction
                         $site = Site::getDefault();
 
                         /** @var class-string<Type> $model */
-                        $model = CapellCore::getModel(ModelEnum::Type);
+                        $model = Type::class;
 
                         return [
                             'type_id' => $model::query()

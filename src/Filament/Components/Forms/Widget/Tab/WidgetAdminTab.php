@@ -9,7 +9,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 
 class WidgetAdminTab
 {
-    public static function make(array $schema = []): Tab
+    public static function make(array $configurator = []): Tab
     {
         return Tab::make(__('capell-admin::generic.admin'))
             ->statePath('admin')
@@ -17,7 +17,7 @@ class WidgetAdminTab
             ->columns(['md' => 2])
             ->schema([
                 ...AdminSchema::make(),
-                ...$schema,
+                ...$configurator,
             ]);
     }
 }

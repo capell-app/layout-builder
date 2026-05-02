@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @php
     $fieldWrapperView = $getFieldWrapperView();
     $statePath = $getStatePath();
@@ -346,5 +340,3 @@ declare(strict_types=1);
         </div>
     </div>
 </x-dynamic-component>
-
-<?php

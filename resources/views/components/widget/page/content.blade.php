@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @php
     use Capell\Core\Contracts\Pageable;
     use Capell\Core\Enums\ContentStructure;
@@ -26,6 +20,11 @@ declare(strict_types=1);
     'widget',
     'widgetData',
 ])
+@php
+    $nextPage ??= null;
+    $previousPage ??= null;
+@endphp
+
 {{-- format-ignore-start --}}
 @php
     $hasPrimaryHeading = Frontend::getFrontendData('has_primary_heading');
@@ -103,5 +102,3 @@ declare(strict_types=1);
         @endif
     </x-capell-mosaic::widget.wrapper>
 @endif
-
-<?php

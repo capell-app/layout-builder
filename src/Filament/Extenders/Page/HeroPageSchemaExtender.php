@@ -18,7 +18,7 @@ class HeroPageSchemaExtender implements PageSchemaExtender
         return $relationManagers;
     }
 
-    public function extendTabs(Schema $schema, array $tabs): array
+    public function extendTabs(Schema $configurator, array $tabs): array
     {
         return $tabs;
     }
@@ -26,12 +26,17 @@ class HeroPageSchemaExtender implements PageSchemaExtender
     /**
      * @return array<int, Component>
      */
-    public function extendTranslationComponentsForHook(Schema $schema, PageTranslationSchemaHookEnum $hook): array
+    public function extendTranslationComponentsForHook(Schema $configurator, PageTranslationSchemaHookEnum $hook): array
     {
         if ($hook !== PageTranslationSchemaHookEnum::AfterTitle) {
             return [];
         }
 
         return [HeroEditor::make()];
+    }
+
+    public function extendSettingsTabComponents(): array
+    {
+        return [];
     }
 }

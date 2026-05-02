@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Actions;
 
-use Capell\Core\Facades\CapellCore;
-use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Models\Section;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -29,17 +27,17 @@ class CreateContentAction
 
     public function handle(array $data): Section
     {
-        /** @var class-string<Section> $model */
-        $model = CapellCore::getModel(ModelEnum::Section->name);
+        $translations = $data['translations'] ?? [];
+        unset($data['translations']);
 
-        if (! isset($data['name']) && blank($data['name']) && isset($data['translations'])) {
-            $data['name'] = collect($data['translations'])->first()['title'];
+        if (! isset($data['name']) && isset($translations[0])) {
+            $data['name'] = $translations[0]['title'];
         }
 
-        $content = $model::query()->create($data);
+        $content = Section::query()->create($data);
 
-        if (isset($data['translations'])) {
-            $this->createTranslations($content, $data['translations']);
+        if ($translations !== []) {
+            $this->createTranslations($content, $translations);
         }
 
         return $content;

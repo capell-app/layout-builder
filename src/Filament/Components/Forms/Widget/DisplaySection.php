@@ -20,7 +20,7 @@ use Filament\Schemas\Components\Utilities\Get;
 
 class DisplaySection
 {
-    public static function make(array $schema = []): Section
+    public static function make(array $configurator = []): Section
     {
         return Section::make(__('capell-admin::generic.display_settings'))
             ->icon('heroicon-o-adjustments-horizontal')
@@ -32,7 +32,7 @@ class DisplaySection
                 Grid::make(3)
                     ->statePath('meta')
                     ->schema([
-                        ...$schema,
+                        ...$configurator,
                         PaddingSelect::make('padding'),
                         MarginSelect::make('margin'),
                         SizeSelect::make('size'),

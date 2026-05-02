@@ -6,9 +6,8 @@ namespace Capell\Mosaic\Filament\Components\Forms\Widget;
 
 use Capell\Admin\Filament\Components\Forms\NameInput;
 use Capell\Admin\Filament\Components\Forms\StatusToggle;
-use Capell\Admin\Support\SlugGenerator;
-use Capell\Core\Facades\CapellCore;
-use Capell\Mosaic\Enums\ModelEnum;
+use Capell\Core\Support\Slug\SlugGenerator;
+use Capell\Mosaic\Models\Widget;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
@@ -16,7 +15,7 @@ use Illuminate\Validation\Rules\Unique;
 
 class SettingsSchema
 {
-    public static function make(Schema $schema, array $components = []): array
+    public static function make(Schema $configurator, array $components = []): array
     {
         return [
             NameInput::make('name')
@@ -36,15 +35,15 @@ class SettingsSchema
                 ->required()
                 ->maxLength(128)
                 ->unique(
-                    table: CapellCore::getModel(ModelEnum::Widget->name),
-                    ignoreRecord: $schema->getOperation() !== 'replicate',
+                    table: Widget::class,
+                    ignoreRecord: $configurator->getOperation() !== 'replicate',
                     modifyRuleUsing: fn (Unique $rule) => $rule->withoutTrashed(),
                 ),
 
             TypeSelect::make('type_id')
                 ->withRelation()
                 ->when(
-                    $schema->isCreating(),
+                    $configurator->isCreating(),
                     fn (TypeSelect $component): TypeSelect => $component->withCreateForm(),
                     fn (TypeSelect $component): TypeSelect => $component->withEditForm(),
                 ),

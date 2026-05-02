@@ -25,7 +25,7 @@ Filament admin schema
 Each widget is a **self-contained Blade component** at:
 
 ```
-packages/mosaic/resources/views/components/modern/
+packages/foundation/mosaic/resources/views/components/modern/
 ```
 
 Registered under the `mosaic` namespace, used like:

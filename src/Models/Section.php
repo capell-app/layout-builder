@@ -8,6 +8,7 @@ use Aimeos\Nestedset\Collection;
 use Aimeos\Nestedset\NodeTrait;
 use Aimeos\Nestedset\QueryBuilder;
 use Bkwld\Cloner\Cloneable;
+use Capell\Core\Concerns\HasCapellMedia;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Contracts\PageCacheable;
 use Capell\Core\Enums\MediaCollectionEnum;
@@ -21,7 +22,6 @@ use Capell\Core\Models\Concerns\HasTranslations;
 use Capell\Core\Models\Concerns\HasType;
 use Capell\Core\Models\Concerns\HasTypes;
 use Capell\Core\Models\Concerns\HasUserstamps;
-use Capell\Core\Models\Concerns\InteractsWithMedia;
 use Capell\Core\Models\Contracts\Publishable;
 use Capell\Core\Models\Contracts\Typeable;
 use Capell\Core\Models\Contracts\Userstampable;
@@ -30,7 +30,6 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
-use Capell\Core\Workspaces\BelongsToWorkspace;
 use Capell\Mosaic\Database\Factories\SectionFactory;
 use Capell\Mosaic\Models\Concerns\ComposhipsJsonRelationshipsTrait;
 use Capell\Mosaic\Observers\SectionObserver;
@@ -118,10 +117,10 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
 #[ObservedBy(SectionObserver::class)]
 class Section extends Model implements HasMedia, PageCacheable, Publishable, Typeable, Userstampable
 {
-    use BelongsToWorkspace;
     use Cloneable;
     use ComposhipsJsonRelationshipsTrait;
     use HasAssets;
+    use HasCapellMedia;
     use HasFactory;
     use HasMetaData;
     use HasMorphModelRelations;
@@ -130,7 +129,6 @@ class Section extends Model implements HasMedia, PageCacheable, Publishable, Typ
     use HasType;
     use HasTypes;
     use HasUserstamps;
-    use InteractsWithMedia;
     use LogsActivity;
     use NodeTrait;
     use SoftDeletes;

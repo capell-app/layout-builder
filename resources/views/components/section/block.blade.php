@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @props([
     'color' => null,
     'icon' => null,
@@ -44,7 +38,7 @@ declare(strict_types=1);
     <h2 class="space-y-8">
         @if ($summary)
             <span class="mb-1 block text-2xl font-bold tracking-tight">
-                {!! $summary !!}
+                {{ $summary }}
             </span>
         @endif
 
@@ -62,5 +56,3 @@ declare(strict_types=1);
         @endif
     </h2>
 </div>
-
-<?php

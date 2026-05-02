@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @props([
     'backgroundColor' => $widget->getMeta('background_color'),
     'container',

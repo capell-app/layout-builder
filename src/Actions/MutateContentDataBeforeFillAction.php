@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Actions;
 
-use Capell\Core\Enums\ModelEnum;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
@@ -40,7 +38,7 @@ class MutateContentDataBeforeFillAction
     private function getDefaultType(): Type
     {
         /** @var class-string<Type> $model */
-        $model = CapellCore::getModel(ModelEnum::Type);
+        $model = Type::class;
 
         $contentType = $model::query()
             ->where('type', LayoutTypeEnum::Section)

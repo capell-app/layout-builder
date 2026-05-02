@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @php
     use Capell\Core\Models\PageUrl;
     use Capell\Frontend\Facades\Frontend;
@@ -51,13 +45,25 @@ declare(strict_types=1);
                     $url = $action['url'] ?? '';
                     break;
                 case ActionLinkEnum::Page:
-                    $targetSite = $action['site_id'] === $site->id
+                    if (
+                        blank($action['site_id'] ?? null)
+                        || blank($action['pageable_type'] ?? null)
+                        || blank($action['pageable_id'] ?? null)
+                    ) {
+                        continue 2;
+                    }
+
+                    $targetSite = (int) $action['site_id'] === (int) $site->id
                         ? $site
                         : SiteLoader::getSites()->firstWhere('id', $action['site_id']);
 
+                    if (! $targetSite instanceof \Capell\Core\Models\Site) {
+                        continue 2;
+                    }
+
                     $pageUrl = PageLoader::getUrlById(
                         pageType: $action['pageable_type'],
-                        pageId: $action['pageable_id'],
+                        pageId: (int) $action['pageable_id'],
                         site: $targetSite,
                         language: $language,
                     );
@@ -100,5 +106,3 @@ declare(strict_types=1);
         </x-capell::button>
     @endforeach
 </div>
-
-<?php

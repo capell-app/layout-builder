@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @props([
     'key',
     'total',
@@ -98,5 +92,3 @@ declare(strict_types=1);
         </div>
     @endif
 </div>
-
-<?php

@@ -11,10 +11,10 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
-use Capell\Mosaic\Enums\LivewireComponentsEnum;
-use Capell\Mosaic\Enums\ModelEnum;
-use Capell\Mosaic\Enums\TypeSchemaEnum;
+use Capell\Mosaic\Enums\ConfiguratorTypeEnum;
 use Capell\Mosaic\Exceptions\MissingWidgetAssetException;
+use Capell\Mosaic\Filament\Resources\Pages\Tables\PageSelectionTable;
+use Capell\Mosaic\Filament\Resources\Sections\Tables\SectionSelectionTable;
 use Capell\Mosaic\Filament\Resources\Widgets\Schemas\WidgetAssetForm;
 use Capell\Mosaic\Filament\Resources\Widgets\Schemas\WidgetForm;
 use Capell\Mosaic\Models\Widget;
@@ -22,6 +22,7 @@ use Capell\Mosaic\Models\WidgetAsset;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TableSelect;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\IconSize;
@@ -29,7 +30,6 @@ use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 
 trait HasLayoutActions
@@ -79,11 +79,14 @@ trait HasLayoutActions
             ->modalWidth(Width::ThreeExtraLarge)
             ->modalSubmitActionLabel(fn (Action $action): string => $action->getTooltip())
             ->schema(
-                static fn (self $livewire, Schema $schema, array $arguments): Schema => $schema->operation('createOption')
-                    ->schema($livewire->getContainerSchema($schema, $arguments)),
+                static fn (self $livewire, Schema $configurator, array $arguments): Schema => $configurator->operation('createOption')
+                    ->schema($livewire->getContainerSchema($configurator, $arguments)),
             )
-            ->action(function (Action $action, self $livewire, array $data): void {
-                $livewire->saveContainer($data);
+            ->action(function (Action $action, self $livewire, array $data, array $arguments): void {
+                $livewire->saveContainer(
+                    $data,
+                    position: isset($arguments['position']) ? (int) $arguments['position'] : null,
+                );
 
                 $action->success();
             });
@@ -107,8 +110,8 @@ trait HasLayoutActions
             )
             ->modalSubmitActionLabel(fn (Action $action): string => $action->getLabel())
             ->schema(
-                static fn (self $livewire, Schema $schema, array $arguments): Schema => $schema->operation('editOption')
-                    ->schema($livewire->getContainerSchema($schema, $arguments)),
+                static fn (self $livewire, Schema $configurator, array $arguments): Schema => $configurator->operation('editOption')
+                    ->schema($livewire->getContainerSchema($configurator, $arguments)),
             )
             ->fillForm(fn (self $livewire, array $arguments): array => [
                 'key' => $arguments['containerKey'],
@@ -136,6 +139,21 @@ trait HasLayoutActions
             });
     }
 
+    public function duplicateContainerAction(): Action
+    {
+        return Action::make('duplicateContainer')
+            ->label(__('capell-mosaic::button.duplicate_container'))
+            ->groupedIcon('heroicon-o-square-2-stack')
+            ->color('gray')
+            ->size(Size::Small)
+            ->grouped()
+            ->action(function (Action $action, self $livewire, array $arguments): void {
+                $livewire->duplicateContainer($arguments['containerKey']);
+
+                $action->success();
+            });
+    }
+
     public function editLayoutWidgetAction(): Action
     {
         return Action::make('editLayoutWidget')
@@ -144,7 +162,7 @@ trait HasLayoutActions
             ->color('gray')
             ->grouped()
             ->visible(
-                fn (array $arguments, self $livewire): bool => (bool) $livewire->getContainerWidgetSchema(
+                fn (array $arguments, self $livewire): bool => (bool) $livewire->getContainerWidgetConfigurator(
                     $arguments['containerKey'],
                     $arguments['widgetIndex'],
                 ),
@@ -161,15 +179,15 @@ trait HasLayoutActions
                 ),
             )
             ->modalWidth(Width::ScreenSmall)
-            ->schema(function (array $arguments, self $livewire, Schema $schema): Schema {
-                $adminSchema = CapellAdmin::getSchema(
-                    TypeSchemaEnum::LayoutWidget->value,
-                    $livewire->getContainerWidgetSchema($arguments['containerKey'], $arguments['widgetIndex']),
+            ->schema(function (array $arguments, self $livewire, Schema $configurator): Schema {
+                $adminSchema = CapellAdmin::getConfigurator(
+                    ConfiguratorTypeEnum::LayoutWidget->value,
+                    $livewire->getContainerWidgetConfigurator($arguments['containerKey'], $arguments['widgetIndex']),
                 );
 
-                $typeSchema = resolve($adminSchema)->make($schema);
+                $typeSchema = resolve($adminSchema)->make($configurator);
 
-                return $schema->operation('editOption')->components($typeSchema);
+                return $configurator->operation('editOption')->components($typeSchema);
             })
             ->fillForm(
                 fn (self $livewire, array $arguments): array => $livewire->containers[$arguments['containerKey']]['widgets'][$arguments['widgetIndex']]['meta'] ?? [],
@@ -196,33 +214,52 @@ trait HasLayoutActions
             ->extraModalWindowAttributes([
                 'class' => 'capell-mosaic-builder-assets-table',
             ])
-            ->modalContent(function (Action $action, array $arguments): HtmlString {
-                /** @var self $livewire */
-                $livewire = $action->getLivewire();
-
-                return new HtmlString(Blade::render(
-                    <<<'blade'
-                       @livewire($component, [
-                           'actionModalId' => $actionModalId,
-                           'containerKey' => $containerKey,
-                           'containers' => $containers,
-                       ], key($livewireKey))
-                   blade,
-                    [
-                        'actionModalId' => sprintf('fi-%s-action-%s', $livewire->getId(), $action->getNestingIndex()),
-                        'containerKey' => $arguments['containerKey'] ?? '',
-                        'component' => LivewireComponentsEnum::WidgetTableSelect->value,
-                        'livewireKey' => sprintf('fi-%s-action-%s-widgets-table', $livewire->getId(), $action->getNestingIndex()),
-                        'containers' => self::getContainerOptions(),
-                    ],
-                ));
-            })
-            ->formWrapper(false)
             ->closeModalByClickingAway(false)
-            ->modalSubmitAction(false)
-            ->modalCancelAction(false)
-            ->action(null)
-            ->submit(null);
+            ->schema(function (Schema $configurator, array $arguments, self $livewire): Schema {
+                $containerOptions = $livewire->getContainerOptions();
+                $containerKey = $arguments['containerKey'] ?? null;
+
+                $components = [];
+
+                if (! $containerKey && $containerOptions->count() > 1) {
+                    $components[] = Select::make('container')
+                        ->label(__('capell-admin::form.container'))
+                        ->hiddenLabel()
+                        ->prefix(fn (Select $component): string => $component->getLabel() . ': ')
+                        ->required()
+                        ->options($containerOptions);
+                }
+
+                $components[] = Select::make('widgets')
+                    ->label(__('capell-mosaic::button.widget'))
+                    ->options(
+                        $livewire->getWidgetQuery(withRelations: false)
+                            ->ordered()
+                            ->pluck('name', 'id')
+                            ->all(),
+                    )
+                    ->multiple()
+                    ->searchable()
+                    ->preload()
+                    ->required();
+
+                return $configurator->schema($components);
+            })
+            ->action(function (array $data, array $arguments, self $livewire): void {
+                $containerOptions = $livewire->getContainerOptions();
+                $containerKey = $arguments['containerKey'] ?? null;
+
+                if (! $containerKey) {
+                    $containerKey = $containerOptions->count() === 1
+                        ? $containerOptions->keys()->first()
+                        : ($data['container'] ?? null);
+                }
+
+                $livewire->addWidgetsToContainer(
+                    containerKey: (string) $containerKey,
+                    widgets: $data['widgets'] ?? [],
+                );
+            });
     }
 
     public function editWidgetAction(): Action
@@ -255,13 +292,13 @@ trait HasLayoutActions
             ->successNotificationTitle(__('capell-mosaic::message.widget_updated'))
             ->fillForm(fn (Widget $record): array => $record->attributesToArray())
             ->schema(
-                fn (Action $action, Schema $schema): Schema => WidgetForm::configure(
-                    $schema->operation('editOption')
+                fn (Action $action, Schema $configurator): Schema => WidgetForm::configure(
+                    $configurator->operation('editOption')
                         ->record(fn (): Widget => $action->getRecord()->fresh()),
                 ),
             )
-            ->action(function (Action $action, Widget $record, Schema $schema, array $data): void {
-                $this->saveWidgetForm(schema: $schema, record: $record, data: $data);
+            ->action(function (Action $action, Widget $record, Schema $configurator, array $data): void {
+                $this->saveWidgetForm(configurator: $configurator, record: $record, data: $data);
 
                 $action->success();
             });
@@ -328,46 +365,49 @@ trait HasLayoutActions
                     ? __('capell-admin::generic.select_page_widget_asset_description', ['type' => $arguments['type']])
                     : __('capell-admin::generic.select_widget_asset_description', ['type' => $arguments['type']]);
             })
-            ->modalContent(function (Action $action, array $arguments): HtmlString {
-                /** @var self $livewire */
-                $livewire = $action->getLivewire();
+            ->closeModalByClickingAway(false)
+            ->schema(function (Schema $configurator, array $arguments, self $livewire): Schema {
+                $tableConfiguration = match ($arguments['type']) {
+                    'page' => PageSelectionTable::class,
+                    default => SectionSelectionTable::class,
+                };
 
-                $component = LivewireComponentsEnum::loadAssetComponent($arguments['type'])->value;
-
-                $existingRecords = $livewire->getWidgetAssetsByType(
+                $excludeIds = $livewire->getWidgetAssetsByType(
                     $arguments['containerKey'],
-                    $arguments['widgetIndex'],
+                    (int) $arguments['widgetIndex'],
                     $arguments['type'],
                 );
 
-                return new HtmlString(Blade::render(
-                    <<<'blade'
-                       @livewire($component, [
-                           'actionModalId' => $actionModalId,
-                           'tableArguments' => $arguments,
-                           'existingRecords' => $existingRecords,
-                       ], key($actionModalId))
-                   blade,
-                    [
-                        'actionModalId' => sprintf('fi-%s-action-%s', $livewire->getId(), $action->getNestingIndex()),
-                        'arguments' => [
-                            'containerKey' => $arguments['containerKey'],
-                            'widgetIndex' => $arguments['widgetIndex'],
-                            'pageableId' => $livewire->page?->getKey(),
-                            'pageableType' => $livewire->page?->getMorphClass(),
-                            'siteId' => $livewire->site?->getKey(),
-                        ],
-                        'component' => $component,
-                        'existingRecords' => $existingRecords,
-                    ],
-                ));
+                return $configurator->schema([
+                    TableSelect::make('assets')
+                        ->tableConfiguration($tableConfiguration)
+                        ->multiple()
+                        ->hiddenLabel()
+                        ->tableArguments([
+                            'excludeIds' => $excludeIds,
+                            'pageId' => $livewire->page?->getKey(),
+                        ]),
+                ]);
             })
-            ->formWrapper(false)
-            ->closeModalByClickingAway(false)
-            ->modalSubmitAction(false)
-            ->modalCancelAction(false)
-            ->action(null)
-            ->submit(null);
+            ->action(function (array $data, array $arguments, self $livewire): void {
+                $containerKey = $arguments['containerKey'];
+                $widgetIndex = (int) $arguments['widgetIndex'];
+                $type = $arguments['type'];
+
+                $hasPageAssets = $livewire->countWidgetAssets($containerKey, $widgetIndex) > 0
+                    ? $livewire->hasPageAssets($containerKey, $widgetIndex)
+                    : $livewire->inPageContext();
+
+                $livewire->addAssetsToWidget(
+                    arguments: [
+                        'containerKey' => $containerKey,
+                        'widgetIndex' => $widgetIndex,
+                        'hasPageAssets' => $hasPageAssets,
+                    ],
+                    type: $type,
+                    assets: $data['assets'] ?? [],
+                );
+            });
     }
 
     public function addAssetAction(): Action
@@ -405,12 +445,12 @@ trait HasLayoutActions
             )
             ->successNotificationTitle(__('capell-mosaic::message.asset_added'))
             ->schema(
-                fn (array $arguments, Schema $schema): Schema => self::getWidgetAssetSchema(
-                    $schema->operation('createOption')
+                fn (array $arguments, Schema $configurator): Schema => self::getWidgetAssetSchema(
+                    $configurator->operation('createOption')
                         ->record(fn (): WidgetAsset => $this->makeWidgetAssetRecordForCreate($arguments)),
                 ),
             )
-            ->model(fn (): string => CapellCore::getModel(ModelEnum::WidgetAsset->name))
+            ->model(fn (): string => WidgetAsset::class)
             ->fillForm(function (array $arguments): array {
                 $containerKey = $arguments['containerKey'];
                 $widgetIndex = $arguments['widgetIndex'];
@@ -460,8 +500,8 @@ trait HasLayoutActions
             ->modalSubmitActionLabel(__('capell-mosaic::button.save_changes'))
             ->successNotificationTitle(__('capell-mosaic::message.asset_updated'))
             ->schema(
-                fn (self $livewire, Schema $schema, array $arguments): Schema => self::getWidgetAssetSchema(
-                    $schema->operation('editOption'),
+                fn (self $livewire, Schema $configurator, array $arguments): Schema => self::getWidgetAssetSchema(
+                    $configurator->operation('editOption'),
                 ),
             )
             ->fillForm(fn (WidgetAsset $record, array $arguments): array => [
@@ -470,13 +510,13 @@ trait HasLayoutActions
             ->record(fn (array $arguments): WidgetAsset => $this->resolveEditableWidgetAsset($arguments))
             ->disabled(fn (WidgetAsset $record): bool => ! $record->exists)
             ->action(
-                fn (WidgetAsset $record, array $data, self $livewire, array $arguments, Action $action, Schema $schema) => $this->applyWidgetAssetUpdate(
+                fn (WidgetAsset $record, array $data, self $livewire, array $arguments, Action $action, Schema $configurator) => $this->applyWidgetAssetUpdate(
                     record: $record,
                     data: $data,
                     livewire: $livewire,
                     arguments: $arguments,
                     action: $action,
-                    schema: $schema,
+                    configurator: $configurator,
                 ),
             );
     }
@@ -527,7 +567,7 @@ trait HasLayoutActions
             ->modalWidth(Width::Small)
             ->visible(fn (): bool => $this->inPageContext())
             ->schema(
-                fn (Schema $schema, self $livewire): Schema => $schema->operation('editOption')
+                fn (Schema $configurator, self $livewire): Schema => $configurator->operation('editOption')
                     ->schema($livewire->getChangeLayoutSchema()),
             )
             ->fillForm(fn (self $livewire): array => ['layout_id' => $livewire->layout->getKey()])
@@ -623,9 +663,17 @@ trait HasLayoutActions
             });
     }
 
-    protected function addAssetFromAction(Action $action, Schema $schema, array $arguments, array $data): void
+    protected function addAssetFromAction(Action $action, array $arguments, array $data): void
     {
+        $this->assertCanUpdateLayout();
+
         $this->loadFromStore();
+
+        $configurator = $this->getMountedActionSchema();
+
+        throw_unless($configurator instanceof Schema, Exception::class, 'Mounted action schema not found.');
+
+        $configurator->livewire($this);
 
         $containerKey = $arguments['containerKey'];
         $widgetIndex = $arguments['widgetIndex'];
@@ -638,7 +686,7 @@ trait HasLayoutActions
         $order = $this->countWidgetAssets($containerKey, $widgetIndex) + 1;
 
         /** @var WidgetAsset $widgetAsset */
-        $widgetAsset = $schema->getRecord();
+        $widgetAsset = $configurator->getRecord();
 
         // Fake exists to ensure assets relations are saved correctly
         $widgetAsset->exists = true;
@@ -647,8 +695,8 @@ trait HasLayoutActions
         $data['widget_id'] = $widget->id;
 
         // Ensure UpdatedModelAction is not triggered
-        WidgetAsset::withoutEvents(function () use ($schema): void {
-            $schema->saveRelationships();
+        WidgetAsset::withoutEvents(function () use ($configurator): void {
+            $configurator->saveRelationships();
         });
 
         if (! isset($this->assets[$containerKey][$widgetIndex])) {
@@ -701,6 +749,8 @@ trait HasLayoutActions
 
     protected function duplicateLayout(): void
     {
+        $this->assertCanUpdateLayout();
+
         $newLayout = ReplicateLayoutAction::run($this->layout);
 
         $this->dispatch('page-layout-changed', id: $newLayout->getKey());
@@ -708,6 +758,8 @@ trait HasLayoutActions
 
     protected function changePageLayout(int $layoutId): void
     {
+        $this->assertCanUpdateLayout();
+
         if (! $this->inPageContext()) {
             return;
         }
@@ -726,7 +778,7 @@ trait HasLayoutActions
         $widget = $this->getContainerWidget($containerKey, $widgetIndex);
 
         /** @var class-string<WidgetAsset> $model */
-        $model = CapellCore::getModel(ModelEnum::WidgetAsset->name);
+        $model = WidgetAsset::class;
 
         $record = $model::query()->make([
             'widget_id' => $widget->id,
@@ -791,11 +843,13 @@ trait HasLayoutActions
         return __('capell-mosaic::heading.page_widget_asset', ['name' => $livewire->page->name]);
     }
 
-    protected function applyWidgetAssetUpdate(WidgetAsset $record, array $data, self $livewire, array $arguments, Action $action, Schema $schema): void
+    protected function applyWidgetAssetUpdate(WidgetAsset $record, array $data, self $livewire, array $arguments, Action $action, Schema $configurator): void
     {
+        $this->assertCanUpdateLayout();
+
         $this->loadFromStore();
 
-        $schema->saveRelationships();
+        $configurator->saveRelationships();
 
         if ($data !== []) {
             $record->update($data);
@@ -812,9 +866,9 @@ trait HasLayoutActions
         $action->success();
     }
 
-    protected function getWidgetAssetSchema(Schema $schema): Schema
+    protected function getWidgetAssetSchema(Schema $configurator): Schema
     {
-        return WidgetAssetForm::configure($schema);
+        return WidgetAssetForm::configure($configurator);
     }
 
     protected function getChangeLayoutSchema(): array
@@ -843,7 +897,7 @@ trait HasLayoutActions
                 )
                 ->default(function () {
                     /** @var class-string<Layout> $model */
-                    $model = CapellCore::getModel(\Capell\Core\Enums\ModelEnum::Layout);
+                    $model = Layout::class;
 
                     return $model::query()->default()->first(['id'])?->id;
                 })
@@ -874,11 +928,13 @@ trait HasLayoutActions
         ];
     }
 
-    protected function saveWidgetForm(Schema $schema, Widget $record, array $data): void
+    protected function saveWidgetForm(Schema $configurator, Widget $record, array $data): void
     {
+        $this->assertCanUpdateLayout();
+
         $this->ensureLoaded();
 
-        $schema->saveRelationships();
+        $configurator->saveRelationships();
 
         $record->update($data);
     }

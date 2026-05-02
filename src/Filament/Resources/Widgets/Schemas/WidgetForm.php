@@ -4,49 +4,39 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Filament\Resources\Widgets\Schemas;
 
-use Capell\Admin\Filament\Components\Forms\Type\TypeSchema;
+use Capell\Admin\Data\Configurators\ConfiguratorContextData;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
-use Capell\Core\Enums\ModelEnum;
-use Capell\Core\Facades\CapellCore;
+use Capell\Admin\Support\Configurators\ConfiguratorResolver;
 use Capell\Core\Models\Type;
-use Capell\Mosaic\Enums\TypeSchemaEnum;
-use Capell\Mosaic\Filament\Schemas\Widgets\DefaultWidgetSchema;
-use Filament\Schemas\Components\Utilities\Get;
+use Capell\Mosaic\Enums\ConfiguratorTypeEnum;
+use Capell\Mosaic\Filament\Configurators\Widgets\DefaultWidgetConfigurator;
 use Filament\Schemas\Schema;
 
 class WidgetForm implements FormConfigurator
 {
-    public static function configure(Schema $schema): Schema
+    public static function configure(Schema $configurator, ?ConfiguratorContextData $context = null): Schema
     {
-        return $schema->components(static::getFormSchema($schema))
-            ->columns();
-    }
+        $resolver = resolve(ConfiguratorResolver::class);
+        $record = $configurator->getRecord();
+        $type = null;
 
-    protected static function getFormSchema(Schema $schema): array
-    {
-        return [
-            TypeSchema::make()
-                ->columns($schema->getColumns())
-                ->schema(
-                    function (Get $get, TypeSchema $component) use ($schema): array {
-                        $typeId = $get('type_id') ?? null;
+        if ($record?->relationLoaded('type') && $record->type instanceof Type) {
+            $type = $record->type;
+        }
 
-                        $record = $component->getRecord();
+        $typeId = $configurator->getRawState()['type_id'] ?? $record?->type_id ?? null;
 
-                        $adminSchema = $record?->admin['schema'] ?? null;
+        if (! $type instanceof Type && $typeId !== null) {
+            /** @var class-string<Type> $model */
+            $model = Type::class;
 
-                        if (! $adminSchema) {
-                            /** @var class-string<Type> $model */
-                            $model = CapellCore::getModel(ModelEnum::Type);
+            $type = $model::query()->find($typeId);
+        }
 
-                            $type = $typeId !== null ? $model::query()->find($typeId, ['admin']) : null;
+        $adminType = $type instanceof Type
+            ? $resolver->resolveForType($type, ConfiguratorTypeEnum::Widget, DefaultWidgetConfigurator::getKey())
+            : DefaultWidgetConfigurator::class;
 
-                            $adminSchema = $type?->admin['schema'] ?? DefaultWidgetSchema::getKey();
-                        }
-
-                        return $component->getTypeSchema($schema, TypeSchemaEnum::Widget, $adminSchema);
-                    },
-                ),
-        ];
+        return $adminType::configure($configurator)->columns();
     }
 }

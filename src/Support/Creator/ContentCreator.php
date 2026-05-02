@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Support\Creator;
 
-use Capell\Core\Enums\ModelEnum as CoreModelEnum;
-use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Type;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
-use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Models\Section;
 use Illuminate\Support\Collection;
 
@@ -21,15 +18,15 @@ class ContentCreator
     private readonly string $contentModel;
 
     /**
-     * @var class-string<Models\Type>
+     * @var class-string<Type>
      */
     private readonly string $typeModel;
 
     public function __construct()
     {
-        $this->contentModel = CapellCore::getModel(ModelEnum::Section->name);
+        $this->contentModel = Section::class;
 
-        $this->typeModel = CapellCore::getModel(CoreModelEnum::Type);
+        $this->typeModel = Type::class;
     }
 
     public function createContent(array $data, ?Site $site, Collection $languages): Section

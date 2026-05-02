@@ -7,6 +7,7 @@ namespace Capell\Mosaic\Support\Interceptors\Layouts;
 use Capell\Core\Contracts\ModelInterceptors\LayoutInterceptorInterface;
 use Capell\Core\Models\Layout;
 use Capell\Mosaic\Support\Creator\WidgetCreator;
+use Illuminate\Support\Facades\Schema;
 
 final class HomeLayoutInterceptor implements LayoutInterceptorInterface
 {
@@ -17,6 +18,10 @@ final class HomeLayoutInterceptor implements LayoutInterceptorInterface
 
     public function afterCreated(Layout $layout, array $data): void
     {
+        if (! Schema::hasColumn('layouts', 'containers')) {
+            return;
+        }
+
         $widgetCreator = resolve(WidgetCreator::class);
         $widgetCreator->pageContentWidget();
 

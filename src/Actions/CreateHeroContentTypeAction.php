@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Actions;
 
-use Capell\Core\Enums\ModelEnum;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Type;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
-use Capell\Mosaic\Filament\Schemas\Sections\HeroSectionSchema;
+use Capell\Mosaic\Filament\Configurators\Sections\HeroSectionConfigurator;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -23,7 +21,7 @@ class CreateHeroContentTypeAction
     public function handle(): Type
     {
         /** @var class-string<Type> */
-        $type = CapellCore::getModel(ModelEnum::Type->name);
+        $type = Type::class;
 
         return $type::query()->firstOrCreate([
             'key' => 'hero',
@@ -31,7 +29,7 @@ class CreateHeroContentTypeAction
         ], [
             'name' => __('capell-mosaic::generic.hero'),
             'admin' => [
-                'schema' => HeroSectionSchema::getKey(),
+                'configurator' => HeroSectionConfigurator::getKey(),
             ],
         ]);
     }

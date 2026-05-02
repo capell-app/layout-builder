@@ -2,7 +2,7 @@
 
 This page is a map of the classes you're most likely to touch when working
 with — or extending — the Mosaic package. For anything not listed here,
-`packages/mosaic/src/` in the `capell-packages-4` repository is the source of
+`packages/foundation/mosaic/src/` in the `capell-packages-4` repository is the source of
 truth.
 
 ## Service provider
@@ -144,4 +144,4 @@ For the full walkthrough, see [Extending Capell](extending-capell.md).
 
 - [Mosaic database reference](mosaic-database.md)
 - [Packages & add-ons](packages.md#mosaic-builder)
-- `packages/mosaic/README.md` in the `capell-packages-4` repository.
+- `packages/foundation/mosaic/README.md` in the `capell-packages-4` repository.

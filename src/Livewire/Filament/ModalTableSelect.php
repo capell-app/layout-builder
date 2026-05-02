@@ -19,7 +19,6 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Locked;
-use Livewire\Attributes\Modelable;
 use Livewire\Component;
 use Livewire\WithoutUrlPagination;
 use LogicException;
@@ -45,9 +44,6 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
 
     #[Locked]
     public array $tableArguments = [];
-
-    #[Modelable]
-    public string|array|null $selectedRecords = null;
 
     public ?array $data = [];
 
@@ -99,7 +95,7 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
                 'lg' => 3,
             ])
             ->deferFilters(false)
-            ->currentSelectionLivewireProperty('selectedRecords')
+            ->currentSelectionLivewireProperty('selectedTableRecords')
             ->maxSelectableRecords($this->maxSelectableRecords)
             ->deselectAllRecordsWhenFiltered(false)
             ->disabledSelection($this->isDisabled)
@@ -108,9 +104,9 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
         return $table;
     }
 
-    public function form(Schema $schema): Schema
+    public function form(Schema $configurator): Schema
     {
-        return $schema
+        return $configurator
             ->statePath('data');
     }
 
@@ -138,7 +134,7 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
             ->label($this->getSelectRecordsLabel())
             ->button()
             ->color('primary')
-            ->action('selectRecords');
+            ->action(fn () => $this->selectRecords());
     }
 
     public function render(): View

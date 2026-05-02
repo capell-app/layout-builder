@@ -17,12 +17,12 @@ use Filament\Schemas\Schema;
 class TranslationsRepeater
 {
     public static function make(
-        Schema $schema,
+        Schema $configurator,
         array $components = [],
         bool $hasTitle = true,
         bool $hasContent = true,
     ): RepeaterTabs {
-        $operation = $schema->getOperation();
+        $operation = $configurator->getOperation();
 
         return BaseTranslationsRepeater::make('translations')
             ->when(
@@ -31,20 +31,20 @@ class TranslationsRepeater
             )
             ->schema([
                 ...($hasTitle ? self::getTitleSchema() : []),
-                ...($hasContent ? self::getContentSchema($schema) : []),
+                ...($hasContent ? self::getContentSchema($configurator) : []),
                 ...$components,
             ]);
     }
 
-    private static function getContentSchema(Schema $schema): array
+    private static function getContentSchema(Schema $configurator): array
     {
-        $record = $schema->getRecord();
+        $record = $configurator->getRecord();
 
         if ($record && $record->relationLoaded('type')) {
             $type = $record->type;
         } else {
             $type = CapellCoreHelper::getType(
-                typeId: $schema->getRawState()['type_id'] ?? null,
+                typeId: $configurator->getRawState()['type_id'] ?? null,
             );
         }
 

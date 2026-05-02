@@ -1,9 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-?>
-
 @php
     use Capell\Core\Contracts\Pageable;
     use Capell\Core\Enums\MediaCollectionEnum;
@@ -29,31 +23,32 @@ declare(strict_types=1);
     $carouselId = sprintf('banner-carousel-%s-%s', $widget->id ?? $widget->key, $loop->index);
 @endphp
 
-<section
-    class="widget-assets-banner relative flex w-full items-center justify-center overflow-hidden"
-    style="
-        --swiper-pagination-bottom: 2rem;
-        --swiper-pagination-bullet-inactive-color: #fff;
-    "
-    data-carousel-scope
->
-    <div
-        class="swiper relative grid h-full w-full"
-        data-auto="0"
-        data-carousel="1"
-        data-carousel-autoplay="0"
-        data-carousel-effect="slide"
-        data-carousel-id="{{ $carouselId }}"
-        data-carousel-loop="0"
-        data-carousel-navigation="0"
-        data-carousel-pagination="{{ (int) ($total > 1) }}"
-        data-carousel-touch="1"
-        data-carousel-watch-overflow="1"
-        data-loop="0"
+@if ($widget->assets->isNotEmpty() || ! config('capell-mosaic.widget.skip_render_empty', true))
+    <section
+        class="widget-assets-banner relative flex w-full items-center justify-center overflow-hidden"
+        style="
+            --swiper-pagination-bottom: 2rem;
+            --swiper-pagination-bullet-inactive-color: #fff;
+        "
+        data-carousel-scope
     >
-        <div class="swiper-wrapper h-full w-full">
-            @foreach ($widget->assets as $widgetAsset)
-                {{-- format-ignore-start --}}
+        <div
+            class="swiper relative grid h-full w-full"
+            data-auto="0"
+            data-carousel="1"
+            data-carousel-autoplay="0"
+            data-carousel-effect="slide"
+            data-carousel-id="{{ $carouselId }}"
+            data-carousel-loop="0"
+            data-carousel-navigation="0"
+            data-carousel-pagination="{{ (int) ($total > 1) }}"
+            data-carousel-touch="1"
+            data-carousel-watch-overflow="1"
+            data-loop="0"
+        >
+            <div class="swiper-wrapper h-full w-full">
+                @foreach ($widget->assets as $widgetAsset)
+                    {{-- format-ignore-start --}}
                 @php
                     $image = $widgetAsset->media->first()
                         ?: $widgetAsset->asset->image
@@ -70,88 +65,87 @@ declare(strict_types=1);
                         : $widgetAsset->asset->linkedPage;
                 @endphp
                 {{-- format-ignore-end --}}
-                <div
-                    @class([
-                        'swiper-slide widget-banner-item relative flex min-h-[20rem] w-full shrink-0 basis-full items-center justify-center',
-                        'swiper-slide-active' => $loop->first,
-                    ])
-                >
-                    @if ($image)
-                        <x-capell::media
-                            format="webp"
-                            curation="hero"
-                            :media="$image"
-                            height="100vh"
-                            :alt="$widgetAsset->asset->translation->label"
-                            :loading="$loop->first ? 'eager' : 'lazy'"
-                            :class="
-                                Arr::toCssClasses([
-                                    'absolute inset-0 w-full h-full object-cover pointer-events-none z-0 bg-no-repeat bg-center bg-cover',
-                                ])
-                            "
-                        />
-                        @if ($backgroundOverlay)
-                            <div
-                                class="absolute inset-0 z-10 bg-black/40 shadow-[inset_0_0_8rem_4rem_rgba(0,0,0,0.7)]"
-                            ></div>
-                        @endif
-                    @endif
-
-                    @if ($title || $content)
-                        <div
-                            class="relative z-20 flex flex-col items-center justify-center space-y-6 px-4 py-20 text-center"
-                        >
-                            @if ($title)
-                                <h4
-                                    class="font-heading text-2xl font-bold text-white md:text-4xl"
-                                >
-                                    @if ($linkedPage?->pageUrl?->full_url)
-                                        <a
-                                            href="{{ $linkedPage->pageUrl->full_url }}"
-                                            class="hover:underline"
-                                        >
-                                            {{ $title }}
-                                        </a>
-                                    @else
-                                        {{ $title }}
-                                    @endif
-                                </h4>
-                            @endif
-
-                            @if ($content)
+                    <div
+                        @class([
+                            'swiper-slide widget-banner-item relative flex min-h-[20rem] w-full shrink-0 basis-full items-center justify-center',
+                            'swiper-slide-active' => $loop->first,
+                        ])
+                    >
+                        @if ($image)
+                            <x-capell::media
+                                format="webp"
+                                curation="hero"
+                                :media="$image"
+                                height="100vh"
+                                :alt="$widgetAsset->asset->translation->label"
+                                :loading="$loop->first ? 'eager' : 'lazy'"
+                                :class="
+                                    Arr::toCssClasses([
+                                        'absolute inset-0 w-full h-full object-cover pointer-events-none z-0 bg-no-repeat bg-center bg-cover',
+                                    ])
+                                "
+                            />
+                            @if ($backgroundOverlay)
                                 <div
-                                    class="max-w-2xl text-lg text-white md:text-2xl"
-                                >
-                                    {!! $content !!}
-                                </div>
+                                    class="absolute inset-0 z-10 bg-black/40 shadow-[inset_0_0_8rem_4rem_rgba(0,0,0,0.7)]"
+                                ></div>
                             @endif
+                        @endif
 
-                            @if ($linkedPage?->translation)
-                                <x-capell::button
-                                    :url="$linkedPage?->pageUrl?->full_url"
-                                    color="primary"
-                                    icon="heroicon-o-chevron-right"
-                                >
-                                    {{ $linkedPage->translation->link_text }}
-                                </x-capell::button>
-                            @endif
-                        </div>
-                    @endif
-                </div>
-            @endforeach
-        </div>
-        @if ($total > 1)
-            <div
-                class="swiper-controls"
-                data-carousel-controls="{{ $carouselId }}"
-            >
-                <div
-                    class="swiper-pagination flex justify-center"
-                    wire:ignore
-                ></div>
+                        @if ($title || $content)
+                            <div
+                                class="relative z-20 flex flex-col items-center justify-center space-y-6 px-4 py-20 text-center"
+                            >
+                                @if ($title)
+                                    <h4
+                                        class="font-heading text-2xl font-bold text-white md:text-4xl"
+                                    >
+                                        @if ($linkedPage?->pageUrl?->full_url)
+                                            <a
+                                                href="{{ $linkedPage->pageUrl->full_url }}"
+                                                class="hover:underline"
+                                            >
+                                                {{ $title }}
+                                            </a>
+                                        @else
+                                            {{ $title }}
+                                        @endif
+                                    </h4>
+                                @endif
+
+                                @if ($content)
+                                    <div
+                                        class="max-w-2xl text-lg text-white md:text-2xl"
+                                    >
+                                        {!! $content !!}
+                                    </div>
+                                @endif
+
+                                @if ($linkedPage?->translation)
+                                    <x-capell::button
+                                        :url="$linkedPage?->pageUrl?->full_url"
+                                        color="primary"
+                                        icon="heroicon-o-chevron-right"
+                                    >
+                                        {{ $linkedPage->translation->link_text }}
+                                    </x-capell::button>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
             </div>
-        @endif
-    </div>
-</section>
-
-<?php
+            @if ($total > 1)
+                <div
+                    class="swiper-controls"
+                    data-carousel-controls="{{ $carouselId }}"
+                >
+                    <div
+                        class="swiper-pagination flex justify-center"
+                        wire:ignore
+                    ></div>
+                </div>
+            @endif
+        </div>
+    </section>
+@endif

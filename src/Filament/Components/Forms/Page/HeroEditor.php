@@ -10,9 +10,7 @@ use Capell\Admin\Filament\Components\Forms\Editor\ContentBuilder;
 use Capell\Admin\Filament\Components\Forms\Editor\RichEditor;
 use Capell\Admin\Filament\Components\Forms\Editor\TinyEditor;
 use Capell\Core\Contracts\Pageable;
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Translation;
-use Capell\Mosaic\Enums\ModelEnum;
 use Capell\Mosaic\Models\WidgetAsset;
 use Filament\Schemas\Components\Group;
 use Illuminate\Database\Eloquent\Builder;
@@ -62,7 +60,7 @@ class HeroEditor extends Group
             sprintf('page-%d-has-hero-widget-assets', $page->id),
             function () use ($page): bool {
                 /** @var class-string<WidgetAsset> $model */
-                $model = CapellCore::getModel(ModelEnum::WidgetAsset);
+                $model = WidgetAsset::class;
 
                 return $model::query()
                     ->where('pageable_type', $page->getMorphClass())
