@@ -24,7 +24,7 @@ The implementation should expand the existing page instead of creating a new pac
 
 ## Architecture
 
-The feature stays in `packages/publishing-pro/workspaces`.
+The feature stays in `packages/workspaces`.
 
 `ScheduledPublishingPage` will become the prominent Content Scheduler admin page. It may keep its class name and slug for compatibility, but its labels, title, badge, grouping, and subheading should describe the richer content scheduler.
 

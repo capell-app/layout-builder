@@ -11,7 +11,7 @@ This is a follow-up to `docs/superpowers/specs/2026-05-01-seo-tools-expansion-de
 - Editors should see clear SEO guidance without understanding technical SEO internals.
 - Admin reports should be site-wide and filterable, including healthy pages and passed checks.
 - Tables should read queryable stored state where site-wide filtering or trend comparison is required.
-- Redirects remain owned by `packages/foundation/redirects`; SEO Tools integrates through public Actions or class-checked optional boundaries.
+- Redirects remain owned by `packages/redirects`; SEO Tools integrates through public Actions or class-checked optional boundaries.
 - Search Console remains optional, but any sync action that exists should produce useful stored/reportable data.
 - The package should avoid unnecessary architecture. Use one SEO snapshot table, one Search Console metrics table, and one redirect health cache only if existing redirect storage cannot hold the needed state cleanly.
 
@@ -231,9 +231,9 @@ Add focused Pest coverage:
 Run package tests with:
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests
-vendor/bin/pest packages/foundation/redirects/tests
-vendor/bin/pest packages/publishing-pro/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php
+vendor/bin/pest packages/seo-tools/tests
+vendor/bin/pest packages/redirects/tests
+vendor/bin/pest packages/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php
 ```
 
 Use `composer preflight` before committing the implementation branch.

@@ -183,15 +183,15 @@ packages/
 
 **Files:**
 
-- Create: `packages/theme-studio/themes/corporate/composer.json`
-- Create: `packages/theme-studio/themes/agency/composer.json`
-- Create: `packages/theme-studio/themes/saas/composer.json`
-- Create: `packages/theme-studio/themes/corporate/README.md`
-- Create: `packages/theme-studio/themes/corporate/.gitignore`
+- Create: `packages/theme-corporate/composer.json`
+- Create: `packages/theme-agency/composer.json`
+- Create: `packages/theme-saas/composer.json`
+- Create: `packages/theme-corporate/README.md`
+- Create: `packages/theme-corporate/.gitignore`
 
 - [ ] **Step 1: Create corporate package composer.json**
 
-Create `packages/theme-studio/themes/corporate/composer.json`:
+Create `packages/theme-corporate/composer.json`:
 
 ```json
 {
@@ -246,7 +246,7 @@ Repeat for saas theme.
 
 - [ ] **Step 3: Create .gitignore**
 
-Create `packages/theme-studio/themes/corporate/.gitignore`:
+Create `packages/theme-corporate/.gitignore`:
 
 ```
 /vendor
@@ -259,7 +259,7 @@ Create `packages/theme-studio/themes/corporate/.gitignore`:
 
 - [ ] **Step 4: Create README.md**
 
-Create `packages/theme-studio/themes/corporate/README.md`:
+Create `packages/theme-corporate/README.md`:
 
 ````markdown
 # Capell Corporate Theme
@@ -296,9 +296,9 @@ MIT
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/theme-studio/themes/corporate/composer.json packages/theme-studio/themes/corporate/README.md packages/theme-studio/themes/corporate/.gitignore
-git add packages/theme-studio/themes/agency/composer.json packages/theme-studio/themes/agency/README.md packages/theme-studio/themes/agency/.gitignore
-git add packages/theme-studio/themes/saas/composer.json packages/theme-studio/themes/saas/README.md packages/theme-studio/themes/saas/.gitignore
+git add packages/theme-corporate/composer.json packages/theme-corporate/README.md packages/theme-corporate/.gitignore
+git add packages/theme-agency/composer.json packages/theme-agency/README.md packages/theme-agency/.gitignore
+git add packages/theme-saas/composer.json packages/theme-saas/README.md packages/theme-saas/.gitignore
 git commit -m "chore: create theme package scaffolding and composer configs"
 ````
 
@@ -615,12 +615,12 @@ git commit -m "feat: add ThemeSettingsSchema for admin panel configuration"
 
 **Files:**
 
-- Create: `packages/theme-studio/themes/corporate/src/CorporateThemeServiceProvider.php`
-- Create: `packages/theme-studio/themes/corporate/tests/Feature/ServiceProviderTest.php`
+- Create: `packages/theme-corporate/src/CorporateThemeServiceProvider.php`
+- Create: `packages/theme-corporate/tests/Feature/ServiceProviderTest.php`
 
 - [ ] **Step 1: Write failing test**
 
-Create `packages/theme-studio/themes/corporate/tests/Feature/ServiceProviderTest.php`:
+Create `packages/theme-corporate/tests/Feature/ServiceProviderTest.php`:
 
 ```php
 <?php
@@ -657,7 +657,7 @@ class ServiceProviderTest extends TestCase
 - [ ] **Step 2: Run test to verify it fails**
 
 ```bash
-cd packages/theme-studio/themes/corporate
+cd packages/theme-corporate
 composer test -- tests/Feature/ServiceProviderTest.php -v
 ```
 
@@ -665,7 +665,7 @@ Expected: FAIL with "Class Capell\Themes\Corporate\CorporateThemeServiceProvider
 
 - [ ] **Step 3: Create ServiceProvider**
 
-Create `packages/theme-studio/themes/corporate/src/CorporateThemeServiceProvider.php`:
+Create `packages/theme-corporate/src/CorporateThemeServiceProvider.php`:
 
 ```php
 <?php

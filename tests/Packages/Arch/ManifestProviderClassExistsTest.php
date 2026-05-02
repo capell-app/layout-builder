@@ -67,14 +67,14 @@ it('no two packages declare the same name in their capell.json manifest', functi
 
     $duplicates = array_filter($byName, fn (array $paths): bool => count($paths) > 1);
 
-    // Tracked in docs/test-coverage-plan.md §4a — `packages/foundation/default-theme/`
-    // and `packages/foundation/themes/default/` both publish under this name. When the
+    // Tracked in docs/test-coverage-plan.md §4a — `packages/default-theme/`
+    // and `packages/theme-default/` both publish under this name. When the
     // duplicate is resolved, remove this expected entry and the test will
     // continue to enforce uniqueness.
     $expected = [
         'capell-app/default-theme' => [
-            'foundation/default-theme/capell.json',
-            'foundation/themes/default/capell.json',
+            'default-theme/capell.json',
+            'theme-default/capell.json',
         ],
     ];
 

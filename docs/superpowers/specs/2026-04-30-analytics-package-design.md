@@ -12,7 +12,7 @@ Use **Analytics**:
 
 - Composer package: `capell-app/analytics`
 - Namespace: `Capell\Analytics`
-- Package directory: `packages/growth/analytics`
+- Package directory: `packages/analytics`
 - Translation namespace: `capell-analytics`
 - Config key: `capell-analytics`
 - Admin settings group: `analytics`
@@ -354,13 +354,13 @@ Tests should cover:
 Run the package tests with:
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests
+vendor/bin/pest packages/analytics/tests
 ```
 
 Run affected frontend/theme tests with:
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests packages/theme-studio/themes-core/tests
+vendor/bin/pest packages/analytics/tests packages/theme-studio/themes-core/tests
 ```
 
 ## Implementation Sequence

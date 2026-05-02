@@ -14,76 +14,77 @@
 
 ### SEO Tools Snapshots and Audit
 
-- Create: `packages/search-seo/seo-tools/database/migrations/create_page_seo_snapshots_table.php`
-- Create: `packages/search-seo/seo-tools/src/Models/PageSeoSnapshot.php`
-- Create: `packages/search-seo/seo-tools/src/Enums/SeoSnapshotStatusEnum.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/PersistPageSeoSnapshotAction.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/RefreshPageSeoSnapshotAction.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/RefreshSiteSeoSnapshotsAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Data/PageSeoReportData.php`
-- Modify: `packages/search-seo/seo-tools/src/Actions/Reports/BuildSEOAuditQueryAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Filament/Pages/Tables/SEOAuditTable.php`
-- Test: `packages/search-seo/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php`
-- Test: `packages/search-seo/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php`
+- Create: `packages/seo-tools/database/migrations/create_page_seo_snapshots_table.php`
+- Create: `packages/seo-tools/src/Models/PageSeoSnapshot.php`
+- Create: `packages/seo-tools/src/Enums/SeoSnapshotStatusEnum.php`
+- Create: `packages/seo-tools/src/Actions/PersistPageSeoSnapshotAction.php`
+- Create: `packages/seo-tools/src/Actions/RefreshPageSeoSnapshotAction.php`
+- Create: `packages/seo-tools/src/Actions/RefreshSiteSeoSnapshotsAction.php`
+- Modify: `packages/seo-tools/src/Data/PageSeoReportData.php`
+- Modify: `packages/seo-tools/src/Actions/Reports/BuildSEOAuditQueryAction.php`
+- Modify: `packages/seo-tools/src/Filament/Pages/Tables/SEOAuditTable.php`
+- Test: `packages/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php`
+- Test: `packages/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php`
 
 ### Editor Panel
 
-- Modify: `packages/search-seo/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php`
-- Modify: `packages/search-seo/seo-tools/resources/views/filament/components/page-seo-panel.blade.php`
-- Modify: `packages/search-seo/seo-tools/resources/lang/en/generic.php`
-- Test: `packages/search-seo/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php`
+- Modify: `packages/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php`
+- Modify: `packages/seo-tools/resources/views/filament/components/page-seo-panel.blade.php`
+- Modify: `packages/seo-tools/resources/lang/en/generic.php`
+- Test: `packages/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php`
 
 ### Redirect Defaults and Health
 
-- Create: `packages/foundation/redirects/database/migrations/create_redirect_health_snapshots_table.php`
-- Create: `packages/foundation/redirects/src/Models/RedirectHealthSnapshot.php`
-- Create: `packages/foundation/redirects/src/Actions/BuildRedirectCreateUrlAction.php`
-- Create: `packages/foundation/redirects/src/Actions/RefreshRedirectHealthSnapshotAction.php`
-- Create: `packages/foundation/redirects/src/Actions/RefreshRedirectHealthSnapshotsAction.php`
-- Modify: `packages/foundation/redirects/src/Filament/Resources/Redirects/Pages/ManageRedirects.php`
-- Modify: `packages/foundation/redirects/src/Filament/Resources/Redirects/Tables/RedirectsTable.php`
-- Modify: `packages/search-seo/seo-tools/src/Filament/Actions/CreateRedirectFromBrokenLinkAction.php`
-- Modify: `packages/foundation/redirects/resources/lang/en/table.php`
-- Test: `packages/foundation/redirects/tests/Integration/Actions/BuildRedirectCreateUrlActionTest.php`
-- Test: `packages/foundation/redirects/tests/Integration/Actions/RedirectHealthSnapshotActionTest.php`
-- Test: `packages/foundation/redirects/tests/Integration/Filament/RedirectsTableSeoColumnsTest.php`
-- Test: `packages/search-seo/seo-tools/tests/Integration/Actions/CreateRedirectForBrokenLinkActionTest.php`
+- Create: `packages/redirects/database/migrations/create_redirect_health_snapshots_table.php`
+- Create: `packages/redirects/src/Models/RedirectHealthSnapshot.php`
+- Create: `packages/redirects/src/Actions/BuildRedirectCreateUrlAction.php`
+- Create: `packages/redirects/src/Actions/RefreshRedirectHealthSnapshotAction.php`
+- Create: `packages/redirects/src/Actions/RefreshRedirectHealthSnapshotsAction.php`
+- Modify: `packages/redirects/src/Filament/Resources/Redirects/Pages/ManageRedirects.php`
+- Modify: `packages/redirects/src/Filament/Resources/Redirects/Tables/RedirectsTable.php`
+- Modify: `packages/seo-tools/src/Filament/Actions/CreateRedirectFromBrokenLinkAction.php`
+- Modify: `packages/redirects/resources/lang/en/table.php`
+- Test: `packages/redirects/tests/Integration/Actions/BuildRedirectCreateUrlActionTest.php`
+- Test: `packages/redirects/tests/Integration/Actions/RedirectHealthSnapshotActionTest.php`
+- Test: `packages/redirects/tests/Integration/Filament/RedirectsTableSeoColumnsTest.php`
+- Test: `packages/seo-tools/tests/Integration/Actions/CreateRedirectForBrokenLinkActionTest.php`
 
 ### Search Console Metrics
 
-- Create: `packages/search-seo/seo-tools/database/migrations/create_search_console_url_metrics_table.php`
-- Create: `packages/search-seo/seo-tools/src/Models/SearchConsoleUrlMetric.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/PersistSearchConsoleUrlMetricAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Contracts/SearchConsoleClientInterface.php`
-- Modify: `packages/search-seo/seo-tools/src/Support/SearchConsole/GoogleSearchConsoleClient.php`
-- Modify: `packages/search-seo/seo-tools/src/Support/SearchConsole/NullSearchConsoleClient.php`
-- Modify: `packages/search-seo/seo-tools/src/Actions/SyncSearchConsoleInsightsAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Actions/BuildPageSearchConsoleInsightsAction.php`
-- Test: `packages/search-seo/seo-tools/tests/Unit/SearchConsole/GoogleSearchConsoleClientTest.php`
-- Test: `packages/search-seo/seo-tools/tests/Unit/SearchConsole/NullSearchConsoleClientTest.php`
-- Test: `packages/search-seo/seo-tools/tests/Feature/Actions/SyncSearchConsoleInsightsActionTest.php`
+- Create: `packages/seo-tools/database/migrations/create_search_console_url_metrics_table.php`
+- Create: `packages/seo-tools/src/Models/SearchConsoleUrlMetric.php`
+- Create: `packages/seo-tools/src/Actions/PersistSearchConsoleUrlMetricAction.php`
+- Modify: `packages/seo-tools/src/Contracts/SearchConsoleClientInterface.php`
+- Modify: `packages/seo-tools/src/Support/SearchConsole/GoogleSearchConsoleClient.php`
+- Modify: `packages/seo-tools/src/Support/SearchConsole/NullSearchConsoleClient.php`
+- Modify: `packages/seo-tools/src/Actions/SyncSearchConsoleInsightsAction.php`
+- Modify: `packages/seo-tools/src/Actions/BuildPageSearchConsoleInsightsAction.php`
+- Test: `packages/seo-tools/tests/Unit/SearchConsole/GoogleSearchConsoleClientTest.php`
+- Test: `packages/seo-tools/tests/Unit/SearchConsole/NullSearchConsoleClientTest.php`
+- Test: `packages/seo-tools/tests/Feature/Actions/SyncSearchConsoleInsightsActionTest.php`
 
 ### Publish Gates
 
-- Modify: `packages/search-seo/seo-tools/config/capell-seo-tools.php`
-- Modify: `packages/search-seo/seo-tools/src/Support/Publishing/SeoPublishReportProviderAdapter.php`
-- Modify: `packages/publishing-pro/workspaces/src/Checks/SeoMetaCheck.php`
-- Test: `packages/publishing-pro/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php`
+- Modify: `packages/seo-tools/config/capell-seo-tools.php`
+- Modify: `packages/seo-tools/src/Support/Publishing/SeoPublishReportProviderAdapter.php`
+- Modify: `packages/workspaces/src/Checks/SeoMetaCheck.php`
+- Test: `packages/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php`
 
 ---
 
 ## Task 1: Add Page SEO Snapshot Storage
 
 **Files:**
-- Create: `packages/search-seo/seo-tools/database/migrations/create_page_seo_snapshots_table.php`
-- Create: `packages/search-seo/seo-tools/src/Models/PageSeoSnapshot.php`
-- Create: `packages/search-seo/seo-tools/src/Enums/SeoSnapshotStatusEnum.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/PersistPageSeoSnapshotAction.php`
-- Test: `packages/search-seo/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php`
+
+- Create: `packages/seo-tools/database/migrations/create_page_seo_snapshots_table.php`
+- Create: `packages/seo-tools/src/Models/PageSeoSnapshot.php`
+- Create: `packages/seo-tools/src/Enums/SeoSnapshotStatusEnum.php`
+- Create: `packages/seo-tools/src/Actions/PersistPageSeoSnapshotAction.php`
+- Test: `packages/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php`
 
 - [ ] **Step 1: Write the failing snapshot persistence test**
 
-Create `packages/search-seo/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php`:
+Create `packages/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php`:
 
 ```php
 <?php
@@ -148,14 +149,14 @@ it('upserts one seo snapshot per page site and language', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php
 ```
 
 Expected: FAIL because `PageSeoSnapshot` and `PersistPageSeoSnapshotAction` do not exist.
 
 - [ ] **Step 3: Add the migration**
 
-Create `packages/search-seo/seo-tools/database/migrations/create_page_seo_snapshots_table.php`:
+Create `packages/seo-tools/database/migrations/create_page_seo_snapshots_table.php`:
 
 ```php
 <?php
@@ -210,7 +211,7 @@ return new class extends Migration
 
 - [ ] **Step 4: Add snapshot status enum**
 
-Create `packages/search-seo/seo-tools/src/Enums/SeoSnapshotStatusEnum.php`:
+Create `packages/seo-tools/src/Enums/SeoSnapshotStatusEnum.php`:
 
 ```php
 <?php
@@ -231,7 +232,7 @@ enum SeoSnapshotStatusEnum: string
 
 - [ ] **Step 5: Add the model**
 
-Create `packages/search-seo/seo-tools/src/Models/PageSeoSnapshot.php`:
+Create `packages/seo-tools/src/Models/PageSeoSnapshot.php`:
 
 ```php
 <?php
@@ -275,7 +276,7 @@ class PageSeoSnapshot extends Model
 
 - [ ] **Step 6: Add the persistence Action**
 
-Create `packages/search-seo/seo-tools/src/Actions/PersistPageSeoSnapshotAction.php`:
+Create `packages/seo-tools/src/Actions/PersistPageSeoSnapshotAction.php`:
 
 ```php
 <?php
@@ -379,7 +380,7 @@ final class PersistPageSeoSnapshotAction
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php
 ```
 
 Expected: PASS.
@@ -387,16 +388,17 @@ Expected: PASS.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add packages/search-seo/seo-tools/database/migrations/create_page_seo_snapshots_table.php packages/search-seo/seo-tools/src/Models/PageSeoSnapshot.php packages/search-seo/seo-tools/src/Enums/SeoSnapshotStatusEnum.php packages/search-seo/seo-tools/src/Actions/PersistPageSeoSnapshotAction.php packages/search-seo/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php
+git add packages/seo-tools/database/migrations/create_page_seo_snapshots_table.php packages/seo-tools/src/Models/PageSeoSnapshot.php packages/seo-tools/src/Enums/SeoSnapshotStatusEnum.php packages/seo-tools/src/Actions/PersistPageSeoSnapshotAction.php packages/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php
 git commit -m "feat: add page seo snapshots"
 ```
 
 ## Task 2: Refresh Page and Site SEO Snapshots
 
 **Files:**
-- Create: `packages/search-seo/seo-tools/src/Actions/RefreshPageSeoSnapshotAction.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/RefreshSiteSeoSnapshotsAction.php`
-- Modify: `packages/search-seo/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php`
+
+- Create: `packages/seo-tools/src/Actions/RefreshPageSeoSnapshotAction.php`
+- Create: `packages/seo-tools/src/Actions/RefreshSiteSeoSnapshotsAction.php`
+- Modify: `packages/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php`
 
 - [ ] **Step 1: Add failing refresh tests**
 
@@ -439,14 +441,14 @@ it('refreshes seo snapshots for every page in a site', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php
 ```
 
 Expected: FAIL because refresh Actions do not exist.
 
 - [ ] **Step 3: Add single-page refresh Action**
 
-Create `packages/search-seo/seo-tools/src/Actions/RefreshPageSeoSnapshotAction.php`:
+Create `packages/seo-tools/src/Actions/RefreshPageSeoSnapshotAction.php`:
 
 ```php
 <?php
@@ -479,7 +481,7 @@ final class RefreshPageSeoSnapshotAction
 
 - [ ] **Step 4: Add site refresh Action**
 
-Create `packages/search-seo/seo-tools/src/Actions/RefreshSiteSeoSnapshotsAction.php`:
+Create `packages/seo-tools/src/Actions/RefreshSiteSeoSnapshotsAction.php`:
 
 ```php
 <?php
@@ -538,7 +540,7 @@ final class RefreshSiteSeoSnapshotsAction
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php
 ```
 
 Expected: PASS.
@@ -546,16 +548,17 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/search-seo/seo-tools/src/Actions/RefreshPageSeoSnapshotAction.php packages/search-seo/seo-tools/src/Actions/RefreshSiteSeoSnapshotsAction.php packages/search-seo/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php
+git add packages/seo-tools/src/Actions/RefreshPageSeoSnapshotAction.php packages/seo-tools/src/Actions/RefreshSiteSeoSnapshotsAction.php packages/seo-tools/tests/Feature/Actions/PageSeoSnapshotActionTest.php
 git commit -m "feat: refresh seo snapshots"
 ```
 
 ## Task 3: Make the SEO Audit Site-Wide and Snapshot-Backed
 
 **Files:**
-- Modify: `packages/search-seo/seo-tools/src/Actions/Reports/BuildSEOAuditQueryAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Filament/Pages/Tables/SEOAuditTable.php`
-- Modify: `packages/search-seo/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php`
+
+- Modify: `packages/seo-tools/src/Actions/Reports/BuildSEOAuditQueryAction.php`
+- Modify: `packages/seo-tools/src/Filament/Pages/Tables/SEOAuditTable.php`
+- Modify: `packages/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php`
 
 - [ ] **Step 1: Replace the existing narrow audit test**
 
@@ -614,7 +617,7 @@ it('exposes snapshot backed seo audit filters', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php
 ```
 
 Expected: FAIL because the query excludes healthy pages and table filters are missing.
@@ -681,7 +684,7 @@ Use the same pattern for severity counts, score bands, statuses, redirect opport
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php
 ```
 
 Expected: PASS.
@@ -689,18 +692,19 @@ Expected: PASS.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add packages/search-seo/seo-tools/src/Actions/Reports/BuildSEOAuditQueryAction.php packages/search-seo/seo-tools/src/Filament/Pages/Tables/SEOAuditTable.php packages/search-seo/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php
+git add packages/seo-tools/src/Actions/Reports/BuildSEOAuditQueryAction.php packages/seo-tools/src/Filament/Pages/Tables/SEOAuditTable.php packages/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php
 git commit -m "feat: make seo audit snapshot backed"
 ```
 
 ## Task 4: Add Report Grouping Helpers and Rich PageSeoPanel Sections
 
 **Files:**
-- Modify: `packages/search-seo/seo-tools/src/Data/PageSeoReportData.php`
-- Modify: `packages/search-seo/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php`
-- Modify: `packages/search-seo/seo-tools/resources/views/filament/components/page-seo-panel.blade.php`
-- Modify: `packages/search-seo/seo-tools/resources/lang/en/generic.php`
-- Modify: `packages/search-seo/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php`
+
+- Modify: `packages/seo-tools/src/Data/PageSeoReportData.php`
+- Modify: `packages/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php`
+- Modify: `packages/seo-tools/resources/views/filament/components/page-seo-panel.blade.php`
+- Modify: `packages/seo-tools/resources/lang/en/generic.php`
+- Modify: `packages/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php`
 
 - [ ] **Step 1: Add failing helper tests**
 
@@ -738,7 +742,7 @@ it('groups seo report data for panel sections', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php
+vendor/bin/pest packages/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php
 ```
 
 Expected: FAIL because grouping helpers do not exist.
@@ -818,7 +822,9 @@ return [
 Update `page-seo-panel.blade.php` to render section headings and grouped lists. Keep it compact and avoid nested cards. Use top-level `div` sections with borders:
 
 ```blade
-<div class="space-y-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+<div
+    class="space-y-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900"
+>
     @if (! $hasReport)
         <div class="text-sm text-gray-600 dark:text-gray-300">
             {{ __('capell-seo-tools::generic.seo_panel_empty_state') }}
@@ -835,9 +841,19 @@ Update `page-seo-panel.blade.php` to render section headings and grouped lists. 
             </div>
             <div class="flex items-start gap-3">
                 {{ $schemaComponent->getAction('ai_content_brief') }}
-                <div class="rounded-md bg-gray-50 px-3 py-2 text-right dark:bg-gray-800">
-                    <div class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ __('capell-seo-tools::generic.seo_panel_score') }}</div>
-                    <div class="text-2xl font-semibold text-gray-950 dark:text-white">{{ $report->score }}</div>
+                <div
+                    class="rounded-md bg-gray-50 px-3 py-2 text-right dark:bg-gray-800"
+                >
+                    <div
+                        class="text-xs font-medium text-gray-500 dark:text-gray-400"
+                    >
+                        {{ __('capell-seo-tools::generic.seo_panel_score') }}
+                    </div>
+                    <div
+                        class="text-2xl font-semibold text-gray-950 dark:text-white"
+                    >
+                        {{ $report->score }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -875,7 +891,7 @@ Add keys to `resources/lang/en/generic.php`:
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php
+vendor/bin/pest packages/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php
 ```
 
 Expected: PASS.
@@ -883,21 +899,22 @@ Expected: PASS.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add packages/search-seo/seo-tools/src/Data/PageSeoReportData.php packages/search-seo/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php packages/search-seo/seo-tools/resources/views/filament/components/page-seo-panel.blade.php packages/search-seo/seo-tools/resources/lang/en/generic.php packages/search-seo/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php
+git add packages/seo-tools/src/Data/PageSeoReportData.php packages/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php packages/seo-tools/resources/views/filament/components/page-seo-panel.blade.php packages/seo-tools/resources/lang/en/generic.php packages/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php
 git commit -m "feat: expand page seo panel sections"
 ```
 
 ## Task 5: Add Redirect Create Defaults Through Redirects Package
 
 **Files:**
-- Create: `packages/foundation/redirects/src/Actions/BuildRedirectCreateUrlAction.php`
-- Modify: `packages/foundation/redirects/src/Filament/Resources/Redirects/Pages/ManageRedirects.php`
-- Modify: `packages/search-seo/seo-tools/src/Filament/Actions/CreateRedirectFromBrokenLinkAction.php`
-- Test: `packages/foundation/redirects/tests/Integration/Actions/BuildRedirectCreateUrlActionTest.php`
+
+- Create: `packages/redirects/src/Actions/BuildRedirectCreateUrlAction.php`
+- Modify: `packages/redirects/src/Filament/Resources/Redirects/Pages/ManageRedirects.php`
+- Modify: `packages/seo-tools/src/Filament/Actions/CreateRedirectFromBrokenLinkAction.php`
+- Test: `packages/redirects/tests/Integration/Actions/BuildRedirectCreateUrlActionTest.php`
 
 - [ ] **Step 1: Write the failing Redirects Action test**
 
-Create `packages/foundation/redirects/tests/Integration/Actions/BuildRedirectCreateUrlActionTest.php`:
+Create `packages/redirects/tests/Integration/Actions/BuildRedirectCreateUrlActionTest.php`:
 
 ```php
 <?php
@@ -930,14 +947,14 @@ it('builds a redirects manager url with create defaults', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/foundation/redirects/tests/Integration/Actions/BuildRedirectCreateUrlActionTest.php
+vendor/bin/pest packages/redirects/tests/Integration/Actions/BuildRedirectCreateUrlActionTest.php
 ```
 
 Expected: FAIL because the Action does not exist.
 
 - [ ] **Step 3: Add `BuildRedirectCreateUrlAction`**
 
-Create `packages/foundation/redirects/src/Actions/BuildRedirectCreateUrlAction.php`:
+Create `packages/redirects/src/Actions/BuildRedirectCreateUrlAction.php`:
 
 ```php
 <?php
@@ -1037,7 +1054,7 @@ Normalize absolute same-site paths with `parse_url($url, PHP_URL_PATH)` and retu
 Run:
 
 ```bash
-vendor/bin/pest packages/foundation/redirects/tests/Integration/Actions/BuildRedirectCreateUrlActionTest.php packages/search-seo/seo-tools/tests/Integration/Actions/CreateRedirectForBrokenLinkActionTest.php
+vendor/bin/pest packages/redirects/tests/Integration/Actions/BuildRedirectCreateUrlActionTest.php packages/seo-tools/tests/Integration/Actions/CreateRedirectForBrokenLinkActionTest.php
 ```
 
 Expected: PASS.
@@ -1045,24 +1062,25 @@ Expected: PASS.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/foundation/redirects/src/Actions/BuildRedirectCreateUrlAction.php packages/foundation/redirects/src/Filament/Resources/Redirects/Pages/ManageRedirects.php packages/search-seo/seo-tools/src/Filament/Actions/CreateRedirectFromBrokenLinkAction.php packages/foundation/redirects/tests/Integration/Actions/BuildRedirectCreateUrlActionTest.php
+git add packages/redirects/src/Actions/BuildRedirectCreateUrlAction.php packages/redirects/src/Filament/Resources/Redirects/Pages/ManageRedirects.php packages/seo-tools/src/Filament/Actions/CreateRedirectFromBrokenLinkAction.php packages/redirects/tests/Integration/Actions/BuildRedirectCreateUrlActionTest.php
 git commit -m "feat: prefill redirects from seo broken links"
 ```
 
 ## Task 6: Cache Redirect Health Instead of Validating Per Row
 
 **Files:**
-- Create: `packages/foundation/redirects/database/migrations/create_redirect_health_snapshots_table.php`
-- Create: `packages/foundation/redirects/src/Models/RedirectHealthSnapshot.php`
-- Create: `packages/foundation/redirects/src/Actions/RefreshRedirectHealthSnapshotAction.php`
-- Create: `packages/foundation/redirects/src/Actions/RefreshRedirectHealthSnapshotsAction.php`
-- Modify: `packages/foundation/redirects/src/Filament/Resources/Redirects/Tables/RedirectsTable.php`
-- Modify: `packages/foundation/redirects/tests/Integration/Filament/RedirectsTableSeoColumnsTest.php`
-- Test: `packages/foundation/redirects/tests/Integration/Actions/RedirectHealthSnapshotActionTest.php`
+
+- Create: `packages/redirects/database/migrations/create_redirect_health_snapshots_table.php`
+- Create: `packages/redirects/src/Models/RedirectHealthSnapshot.php`
+- Create: `packages/redirects/src/Actions/RefreshRedirectHealthSnapshotAction.php`
+- Create: `packages/redirects/src/Actions/RefreshRedirectHealthSnapshotsAction.php`
+- Modify: `packages/redirects/src/Filament/Resources/Redirects/Tables/RedirectsTable.php`
+- Modify: `packages/redirects/tests/Integration/Filament/RedirectsTableSeoColumnsTest.php`
+- Test: `packages/redirects/tests/Integration/Actions/RedirectHealthSnapshotActionTest.php`
 
 - [ ] **Step 1: Write redirect health tests**
 
-Create `packages/foundation/redirects/tests/Integration/Actions/RedirectHealthSnapshotActionTest.php`:
+Create `packages/redirects/tests/Integration/Actions/RedirectHealthSnapshotActionTest.php`:
 
 ```php
 <?php
@@ -1111,7 +1129,7 @@ it('stores redirect health warnings without rendering the table', function (): v
 Run:
 
 ```bash
-vendor/bin/pest packages/foundation/redirects/tests/Integration/Actions/RedirectHealthSnapshotActionTest.php
+vendor/bin/pest packages/redirects/tests/Integration/Actions/RedirectHealthSnapshotActionTest.php
 ```
 
 Expected: FAIL because redirect health storage does not exist.
@@ -1191,7 +1209,7 @@ expect(collect($reflection->getMethods())->map(fn (ReflectionMethod $method): st
 Run:
 
 ```bash
-vendor/bin/pest packages/foundation/redirects/tests/Integration/Actions/RedirectHealthSnapshotActionTest.php packages/foundation/redirects/tests/Integration/Filament/RedirectsTableSeoColumnsTest.php
+vendor/bin/pest packages/redirects/tests/Integration/Actions/RedirectHealthSnapshotActionTest.php packages/redirects/tests/Integration/Filament/RedirectsTableSeoColumnsTest.php
 ```
 
 Expected: PASS.
@@ -1199,23 +1217,24 @@ Expected: PASS.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add packages/foundation/redirects/database/migrations/create_redirect_health_snapshots_table.php packages/foundation/redirects/src/Models/RedirectHealthSnapshot.php packages/foundation/redirects/src/Actions/RefreshRedirectHealthSnapshotAction.php packages/foundation/redirects/src/Actions/RefreshRedirectHealthSnapshotsAction.php packages/foundation/redirects/src/Filament/Resources/Redirects/Tables/RedirectsTable.php packages/foundation/redirects/tests/Integration/Actions/RedirectHealthSnapshotActionTest.php packages/foundation/redirects/tests/Integration/Filament/RedirectsTableSeoColumnsTest.php
+git add packages/redirects/database/migrations/create_redirect_health_snapshots_table.php packages/redirects/src/Models/RedirectHealthSnapshot.php packages/redirects/src/Actions/RefreshRedirectHealthSnapshotAction.php packages/redirects/src/Actions/RefreshRedirectHealthSnapshotsAction.php packages/redirects/src/Filament/Resources/Redirects/Tables/RedirectsTable.php packages/redirects/tests/Integration/Actions/RedirectHealthSnapshotActionTest.php packages/redirects/tests/Integration/Filament/RedirectsTableSeoColumnsTest.php
 git commit -m "feat: cache redirect health warnings"
 ```
 
 ## Task 7: Store Search Console URL Metrics and Declining Pages
 
 **Files:**
-- Create: `packages/search-seo/seo-tools/database/migrations/create_search_console_url_metrics_table.php`
-- Create: `packages/search-seo/seo-tools/src/Models/SearchConsoleUrlMetric.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/PersistSearchConsoleUrlMetricAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Support/SearchConsole/GoogleSearchConsoleClient.php`
-- Modify: `packages/search-seo/seo-tools/src/Actions/SyncSearchConsoleInsightsAction.php`
-- Test: `packages/search-seo/seo-tools/tests/Feature/Actions/SyncSearchConsoleInsightsActionTest.php`
+
+- Create: `packages/seo-tools/database/migrations/create_search_console_url_metrics_table.php`
+- Create: `packages/seo-tools/src/Models/SearchConsoleUrlMetric.php`
+- Create: `packages/seo-tools/src/Actions/PersistSearchConsoleUrlMetricAction.php`
+- Modify: `packages/seo-tools/src/Support/SearchConsole/GoogleSearchConsoleClient.php`
+- Modify: `packages/seo-tools/src/Actions/SyncSearchConsoleInsightsAction.php`
+- Test: `packages/seo-tools/tests/Feature/Actions/SyncSearchConsoleInsightsActionTest.php`
 
 - [ ] **Step 1: Write Search Console sync tests**
 
-Create `packages/search-seo/seo-tools/tests/Feature/Actions/SyncSearchConsoleInsightsActionTest.php`:
+Create `packages/seo-tools/tests/Feature/Actions/SyncSearchConsoleInsightsActionTest.php`:
 
 ```php
 <?php
@@ -1273,7 +1292,7 @@ it('reports declining pages from stored search console metrics', function (): vo
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Feature/Actions/SyncSearchConsoleInsightsActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Feature/Actions/SyncSearchConsoleInsightsActionTest.php
 ```
 
 Expected: FAIL because metric storage does not exist.
@@ -1325,7 +1344,7 @@ Update `SyncSearchConsoleInsightsAction` so it returns `configured: false` witho
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Feature/Actions/SyncSearchConsoleInsightsActionTest.php packages/search-seo/seo-tools/tests/Unit/SearchConsole
+vendor/bin/pest packages/seo-tools/tests/Feature/Actions/SyncSearchConsoleInsightsActionTest.php packages/seo-tools/tests/Unit/SearchConsole
 ```
 
 Expected: PASS.
@@ -1333,17 +1352,18 @@ Expected: PASS.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add packages/search-seo/seo-tools/database/migrations/create_search_console_url_metrics_table.php packages/search-seo/seo-tools/src/Models/SearchConsoleUrlMetric.php packages/search-seo/seo-tools/src/Actions/PersistSearchConsoleUrlMetricAction.php packages/search-seo/seo-tools/src/Support/SearchConsole/GoogleSearchConsoleClient.php packages/search-seo/seo-tools/src/Actions/SyncSearchConsoleInsightsAction.php packages/search-seo/seo-tools/tests/Feature/Actions/SyncSearchConsoleInsightsActionTest.php packages/search-seo/seo-tools/tests/Unit/SearchConsole
+git add packages/seo-tools/database/migrations/create_search_console_url_metrics_table.php packages/seo-tools/src/Models/SearchConsoleUrlMetric.php packages/seo-tools/src/Actions/PersistSearchConsoleUrlMetricAction.php packages/seo-tools/src/Support/SearchConsole/GoogleSearchConsoleClient.php packages/seo-tools/src/Actions/SyncSearchConsoleInsightsAction.php packages/seo-tools/tests/Feature/Actions/SyncSearchConsoleInsightsActionTest.php packages/seo-tools/tests/Unit/SearchConsole
 git commit -m "feat: store search console url metrics"
 ```
 
 ## Task 8: Wire Publish Gates Config
 
 **Files:**
-- Modify: `packages/search-seo/seo-tools/config/capell-seo-tools.php`
-- Modify: `packages/search-seo/seo-tools/src/Support/Publishing/SeoPublishReportProviderAdapter.php`
-- Modify: `packages/publishing-pro/workspaces/src/Checks/SeoMetaCheck.php`
-- Modify: `packages/publishing-pro/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php`
+
+- Modify: `packages/seo-tools/config/capell-seo-tools.php`
+- Modify: `packages/seo-tools/src/Support/Publishing/SeoPublishReportProviderAdapter.php`
+- Modify: `packages/workspaces/src/Checks/SeoMetaCheck.php`
+- Modify: `packages/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php`
 
 - [ ] **Step 1: Add publish gate config tests**
 
@@ -1382,7 +1402,7 @@ it('maps seo issue keys through seo tools publish gate config', function (): voi
 Run:
 
 ```bash
-vendor/bin/pest packages/publishing-pro/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php
+vendor/bin/pest packages/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php
 ```
 
 Expected: FAIL because config mapping is not used yet.
@@ -1446,7 +1466,7 @@ private function publishGateMode(mixed $key, ?string $severity): string
 Run:
 
 ```bash
-vendor/bin/pest packages/publishing-pro/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php
+vendor/bin/pest packages/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php
 ```
 
 Expected: PASS.
@@ -1454,16 +1474,17 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/search-seo/seo-tools/config/capell-seo-tools.php packages/publishing-pro/workspaces/src/Checks/SeoMetaCheck.php packages/publishing-pro/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php
+git add packages/seo-tools/config/capell-seo-tools.php packages/workspaces/src/Checks/SeoMetaCheck.php packages/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php
 git commit -m "feat: configure seo publish gates"
 ```
 
 ## Task 9: Final Verification and Documentation
 
 **Files:**
-- Modify: `packages/search-seo/seo-tools/docs/seo-intelligence.md`
-- Modify: `packages/search-seo/seo-tools/docs/search-console.md`
-- Modify: `packages/foundation/redirects/docs/redirects.md`
+
+- Modify: `packages/seo-tools/docs/seo-intelligence.md`
+- Modify: `packages/seo-tools/docs/search-console.md`
+- Modify: `packages/redirects/docs/redirects.md`
 
 - [ ] **Step 1: Document the new refresh model**
 
@@ -1494,9 +1515,9 @@ Redirect chain and loop badges are read from `redirect_health_snapshots`. Run `R
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests
-vendor/bin/pest packages/foundation/redirects/tests
-vendor/bin/pest packages/publishing-pro/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php
+vendor/bin/pest packages/seo-tools/tests
+vendor/bin/pest packages/redirects/tests
+vendor/bin/pest packages/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php
 ```
 
 Expected: PASS.
@@ -1514,7 +1535,7 @@ Expected: PASS.
 - [ ] **Step 6: Commit docs and final fixes**
 
 ```bash
-git add packages/search-seo/seo-tools/docs/seo-intelligence.md packages/search-seo/seo-tools/docs/search-console.md packages/foundation/redirects/docs/redirects.md
+git add packages/seo-tools/docs/seo-intelligence.md packages/seo-tools/docs/search-console.md packages/redirects/docs/redirects.md
 git commit -m "docs: explain seo intelligence refreshes"
 ```
 
@@ -1529,8 +1550,8 @@ git commit -m "docs: explain seo intelligence refreshes"
 
 ## Final Verification Checklist
 
-- [ ] `vendor/bin/pest packages/search-seo/seo-tools/tests` passes.
-- [ ] `vendor/bin/pest packages/foundation/redirects/tests` passes.
-- [ ] `vendor/bin/pest packages/publishing-pro/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php` passes.
+- [ ] `vendor/bin/pest packages/seo-tools/tests` passes.
+- [ ] `vendor/bin/pest packages/redirects/tests` passes.
+- [ ] `vendor/bin/pest packages/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php` passes.
 - [ ] `composer preflight` passes.
 - [ ] No unrelated dirty files were staged.

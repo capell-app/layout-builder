@@ -15,21 +15,21 @@ description: Capell Packages coding standards, architecture rules, and package c
 
 ## Architecture: Actions + Data (reach for these first)
 
-**All domain logic lives in Actions** (`packages/{group}/{pkg}/src/Actions/`):
+**All domain logic lives in Actions** (`packages/{pkg}/src/Actions/`):
 
 - Suffix: `VerbNounAction` (`CreateBlogPostAction`, `PublishContentWidgetAction`).
 - Single `handle()` method. Split by verb, never god-actions.
 - Extend `Lorisleiva\Actions\Action` or use `AsObject` trait.
 - Components, resources, commands call `::run()` — no domain logic inside them.
 
-**Pass structured data across layer boundaries** (`packages/{group}/{pkg}/src/Data/`, suffix `Data`):
+**Pass structured data across layer boundaries** (`packages/{pkg}/src/Data/`, suffix `Data`):
 
 - Inbound: `Data::from($request)` — no `$request->input()` in actions.
 - Outbound: Filament form state, Livewire wire-props, Blade view models.
 - Model JSON/struct columns cast via `AsData` / `AsDataCollection`.
 - No DTOs wrapping a single scalar.
 
-**Enums** (`packages/{group}/{pkg}/src/Enums/`):
+**Enums** (`packages/{pkg}/src/Enums/`):
 
 - Backed enums for persisted values (prefer string-backed).
 - PascalCase multi-word cases; UPPER_SNAKE_CASE for status/state flags only.
@@ -72,7 +72,7 @@ Any package model in draft/publish must implement `Capell\Core\Contracts\Draftab
 ## Testing
 
 - Test actions directly: `MyAction::run($input)` — not through HTTP.
-- Run a single package: `vendor/bin/pest packages/foundation/mosaic/tests`
+- Run a single package: `vendor/bin/pest packages/mosaic/tests`
 - Minimum 80% coverage. Full suite: `composer test`.
 - Arch tests enforce package boundaries — don't suppress them.
 
@@ -86,12 +86,12 @@ Any package model in draft/publish must implement `Capell\Core\Contracts\Draftab
 
 ## Key commands
 
-| Command                                            | Purpose                         |
-| -------------------------------------------------- | ------------------------------- |
-| `composer test`                                    | Pest tests (parallel)           |
-| `composer preflight`                               | Rector + Pint + PHPStan         |
-| `composer lint`                                    | Pint only                       |
-| `composer analyze`                                 | PHPStan only                    |
-| `composer prepare`                                 | Seed demo workbench             |
-| `composer serve`                                   | Build + serve at localhost:8000 |
-| `vendor/bin/pest packages/{group}/{package}/tests` | Run single package tests        |
+| Command                                    | Purpose                         |
+| ------------------------------------------ | ------------------------------- |
+| `composer test`                            | Pest tests (parallel)           |
+| `composer preflight`                       | Rector + Pint + PHPStan         |
+| `composer lint`                            | Pint only                       |
+| `composer analyze`                         | PHPStan only                    |
+| `composer prepare`                         | Seed demo workbench             |
+| `composer serve`                           | Build + serve at localhost:8000 |
+| `vendor/bin/pest packages/{package}/tests` | Run single package tests        |

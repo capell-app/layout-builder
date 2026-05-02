@@ -1,6 +1,6 @@
 # Test Plan: Actions & Services Coverage
 
-> **Historical note.** This document predates the move of AI functionality into `capell-app/seo-tools`. Entries in the _Admin Package → AI/\*_ section are legacy planning notes. New AI-assisted SEO tests belong under `packages/search-seo/seo-tools/tests/`.
+> **Historical note.** This document predates the move of AI functionality into `capell-app/seo-tools`. Entries in the _Admin Package → AI/\*_ section are legacy planning notes. New AI-assisted SEO tests belong under `packages/seo-tools/tests/`.
 
 This document inventories Actions and Services across the Core, Admin, and SEO Tools-era packages and defines the test scope (Unit vs Integration) and representative scenarios per class. Tests live under each package's `tests/` directory.
 

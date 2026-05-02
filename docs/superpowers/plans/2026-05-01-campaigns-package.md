@@ -18,9 +18,9 @@
 - Every PHP file must start with `declare(strict_types=1);`.
 - All closures must declare parameter and return types.
 - Do not introduce single-letter or cryptic variable names.
-- Domain behavior lives in `packages/growth/campaigns/src/Actions`.
-- Structured input/output lives in `packages/growth/campaigns/src/Data`.
-- Persisted string values use backed enums in `packages/growth/campaigns/src/Enums`.
+- Domain behavior lives in `packages/campaigns/src/Actions`.
+- Structured input/output lives in `packages/campaigns/src/Data`.
+- Persisted string values use backed enums in `packages/campaigns/src/Enums`.
 - User-facing strings use `__('capell-campaigns::...')`.
 - The package may import Mosaic, Forms, Analytics, and SEO Tools classes. Core must not import Campaigns classes.
 
@@ -49,85 +49,85 @@ Leave these out of v1:
 
 Create these files:
 
-- `packages/growth/campaigns/composer.json`: package metadata and provider discovery.
-- `packages/growth/campaigns/capell.json`: Capell package manifest with dependencies.
-- `packages/growth/campaigns/config/capell-campaigns.php`: table names, UTM keys, conversion cookie, and layout preset settings.
-- `packages/growth/campaigns/resources/lang/en/package.php`: package description.
-- `packages/growth/campaigns/resources/lang/en/generic.php`: shared labels.
-- `packages/growth/campaigns/resources/lang/en/form.php`: form labels.
-- `packages/growth/campaigns/resources/lang/en/navigation.php`: navigation labels.
-- `packages/growth/campaigns/resources/lang/en/widgets.php`: dashboard widget labels.
-- `packages/growth/campaigns/resources/views/components/widget/campaign-hero.blade.php`: campaign hero Mosaic widget view.
-- `packages/growth/campaigns/resources/views/components/widget/campaign-cta-block.blade.php`: reusable CTA block Mosaic widget view.
-- `packages/growth/campaigns/resources/views/components/widget/campaign-lead-form.blade.php`: lead form Mosaic widget view.
-- `packages/growth/campaigns/resources/views/components/tracking/attributes.blade.php`: reusable tracking attributes partial.
-- `packages/growth/campaigns/src/Providers/CampaignsServiceProvider.php`: shared package registration.
-- `packages/growth/campaigns/src/Providers/AdminServiceProvider.php`: Filament resources and widgets.
-- `packages/growth/campaigns/src/Providers/FrontendServiceProvider.php`: frontend components and render hooks.
-- `packages/growth/campaigns/src/Enums/CampaignStatus.php`: campaign lifecycle enum.
-- `packages/growth/campaigns/src/Enums/ConversionGoalType.php`: conversion goal trigger enum.
-- `packages/growth/campaigns/src/Enums/AttributionModel.php`: attribution model enum.
-- `packages/growth/campaigns/src/Enums/ResourceEnum.php`: admin resource enum.
-- `packages/growth/campaigns/src/Enums/CampaignWidgetComponentEnum.php`: Mosaic widget view enum.
-- `packages/growth/campaigns/src/Enums/CampaignWidgetConfiguratorEnum.php`: Mosaic widget configurator enum.
-- `packages/growth/campaigns/src/Data/UtmData.php`: structured UTM values.
-- `packages/growth/campaigns/src/Data/CampaignCtaActionData.php`: CTA action value object.
-- `packages/growth/campaigns/src/Data/ConversionAttributionData.php`: conversion attribution snapshot.
-- `packages/growth/campaigns/src/Data/Dashboard/CampaignConversionSummaryData.php`: campaign dashboard summary.
-- `packages/growth/campaigns/src/Data/Dashboard/CampaignLandingPageSummaryData.php`: landing page dashboard summary.
-- `packages/growth/campaigns/src/Models/CampaignGroup.php`: campaign group model.
-- `packages/growth/campaigns/src/Models/CampaignLandingPage.php`: campaign landing page model.
-- `packages/growth/campaigns/src/Models/CampaignCtaBlock.php`: reusable CTA block model.
-- `packages/growth/campaigns/src/Models/CampaignConversionGoal.php`: conversion goal model.
-- `packages/growth/campaigns/src/Models/CampaignConversion.php`: recorded conversion model.
-- `packages/growth/campaigns/src/Actions/ResolveCampaignFromUrlAction.php`: resolve campaign from UTM or page URL.
-- `packages/growth/campaigns/src/Actions/BuildCampaignUrlAction.php`: append missing UTM values to CTA URLs.
-- `packages/growth/campaigns/src/Actions/BuildConversionAttributionAction.php`: build conversion attribution snapshots.
-- `packages/growth/campaigns/src/Actions/RecordCampaignConversionAction.php`: record idempotent conversions.
-- `packages/growth/campaigns/src/Actions/RecordCtaClickConversionAction.php`: record CTA click conversions.
-- `packages/growth/campaigns/src/Actions/RecordFormSubmissionConversionAction.php`: record form submission conversions.
-- `packages/growth/campaigns/src/Actions/RecordPageViewConversionAction.php`: record page view conversions.
-- `packages/growth/campaigns/src/Actions/InstallCampaignLayoutsAction.php`: install Mosaic campaign layouts.
-- `packages/growth/campaigns/src/Actions/BuildCampaignOverviewStatsAction.php`: dashboard totals.
-- `packages/growth/campaigns/src/Actions/BuildCampaignConversionFunnelAction.php`: funnel summaries.
-- `packages/growth/campaigns/src/Actions/BuildTopCampaignsQueryAction.php`: top campaigns report.
-- `packages/growth/campaigns/src/Actions/BuildTopLandingPagesQueryAction.php`: top landing pages report.
-- `packages/growth/campaigns/src/Listeners/RecordFormSubmissionConversion.php`: Forms event listener.
-- `packages/growth/campaigns/src/Filament/Resources/CampaignGroups/CampaignGroupResource.php`: campaign group resource.
-- `packages/growth/campaigns/src/Filament/Resources/CampaignLandingPages/CampaignLandingPageResource.php`: landing page resource.
-- `packages/growth/campaigns/src/Filament/Resources/CampaignCtaBlocks/CampaignCtaBlockResource.php`: CTA block resource.
-- `packages/growth/campaigns/src/Filament/Resources/CampaignConversionGoals/CampaignConversionGoalResource.php`: conversion goal resource.
-- `packages/growth/campaigns/src/Filament/Configurators/Widgets/CampaignHeroWidgetConfigurator.php`: campaign hero widget form.
-- `packages/growth/campaigns/src/Filament/Configurators/Widgets/CampaignCtaBlockWidgetConfigurator.php`: CTA block widget form.
-- `packages/growth/campaigns/src/Filament/Configurators/Widgets/CampaignLeadFormWidgetConfigurator.php`: lead form widget form.
-- `packages/growth/campaigns/src/Filament/Extenders/Page/CampaignPageSchemaExtender.php`: page campaign metadata fields.
-- `packages/growth/campaigns/src/Filament/Widgets/CampaignOverviewStatsWidget.php`: campaign stats dashboard widget.
-- `packages/growth/campaigns/src/Filament/Widgets/TopCampaignsWidget.php`: top campaigns dashboard widget.
-- `packages/growth/campaigns/src/Filament/Widgets/TopLandingPagesWidget.php`: top landing pages dashboard widget.
-- `packages/growth/campaigns/database/migrations/create_campaign_groups_table.php`: campaign groups table.
-- `packages/growth/campaigns/database/migrations/create_campaign_landing_pages_table.php`: landing pages table.
-- `packages/growth/campaigns/database/migrations/create_campaign_cta_blocks_table.php`: CTA blocks table.
-- `packages/growth/campaigns/database/migrations/create_campaign_conversion_goals_table.php`: conversion goals table.
-- `packages/growth/campaigns/database/migrations/create_campaign_conversions_table.php`: conversions table.
-- `packages/growth/campaigns/database/factories/CampaignGroupFactory.php`: group factory.
-- `packages/growth/campaigns/database/factories/CampaignLandingPageFactory.php`: landing page factory.
-- `packages/growth/campaigns/database/factories/CampaignCtaBlockFactory.php`: CTA block factory.
-- `packages/growth/campaigns/database/factories/CampaignConversionGoalFactory.php`: goal factory.
-- `packages/growth/campaigns/database/factories/CampaignConversionFactory.php`: conversion factory.
-- `packages/growth/campaigns/tests/CampaignsTestCase.php`: package test case.
-- `packages/growth/campaigns/tests/Pest.php`: Pest setup.
-- `packages/growth/campaigns/tests/Unit/Providers/CampaignsServiceProviderTest.php`: provider smoke tests.
-- `packages/growth/campaigns/tests/Unit/Actions/ResolveCampaignFromUrlActionTest.php`: campaign URL resolution tests.
-- `packages/growth/campaigns/tests/Unit/Actions/CampaignReportingActionsTest.php`: reporting action tests.
-- `packages/growth/campaigns/tests/Integration/Database/CampaignMigrationsTest.php`: migration tests.
-- `packages/growth/campaigns/tests/Integration/Models/CampaignRelationshipsTest.php`: model relationship tests.
-- `packages/growth/campaigns/tests/Integration/Actions/RecordCampaignConversionActionTest.php`: conversion action tests.
-- `packages/growth/campaigns/tests/Integration/Actions/InstallCampaignLayoutsActionTest.php`: layout installer tests.
-- `packages/growth/campaigns/tests/Integration/Listeners/FormSubmissionConversionTest.php`: Forms listener tests.
-- `packages/growth/campaigns/tests/Feature/Filament/CampaignResourcesTest.php`: admin resource tests.
-- `packages/growth/campaigns/tests/Feature/Filament/CampaignAnalyticsWidgetsTest.php`: dashboard widget tests.
-- `packages/growth/campaigns/tests/Feature/Mosaic/CampaignWidgetsTest.php`: Mosaic widget tests.
-- `packages/growth/campaigns/tests/Feature/PageSchema/CampaignPageSchemaExtenderTest.php`: page schema extender tests.
+- `packages/campaigns/composer.json`: package metadata and provider discovery.
+- `packages/campaigns/capell.json`: Capell package manifest with dependencies.
+- `packages/campaigns/config/capell-campaigns.php`: table names, UTM keys, conversion cookie, and layout preset settings.
+- `packages/campaigns/resources/lang/en/package.php`: package description.
+- `packages/campaigns/resources/lang/en/generic.php`: shared labels.
+- `packages/campaigns/resources/lang/en/form.php`: form labels.
+- `packages/campaigns/resources/lang/en/navigation.php`: navigation labels.
+- `packages/campaigns/resources/lang/en/widgets.php`: dashboard widget labels.
+- `packages/campaigns/resources/views/components/widget/campaign-hero.blade.php`: campaign hero Mosaic widget view.
+- `packages/campaigns/resources/views/components/widget/campaign-cta-block.blade.php`: reusable CTA block Mosaic widget view.
+- `packages/campaigns/resources/views/components/widget/campaign-lead-form.blade.php`: lead form Mosaic widget view.
+- `packages/campaigns/resources/views/components/tracking/attributes.blade.php`: reusable tracking attributes partial.
+- `packages/campaigns/src/Providers/CampaignsServiceProvider.php`: shared package registration.
+- `packages/campaigns/src/Providers/AdminServiceProvider.php`: Filament resources and widgets.
+- `packages/campaigns/src/Providers/FrontendServiceProvider.php`: frontend components and render hooks.
+- `packages/campaigns/src/Enums/CampaignStatus.php`: campaign lifecycle enum.
+- `packages/campaigns/src/Enums/ConversionGoalType.php`: conversion goal trigger enum.
+- `packages/campaigns/src/Enums/AttributionModel.php`: attribution model enum.
+- `packages/campaigns/src/Enums/ResourceEnum.php`: admin resource enum.
+- `packages/campaigns/src/Enums/CampaignWidgetComponentEnum.php`: Mosaic widget view enum.
+- `packages/campaigns/src/Enums/CampaignWidgetConfiguratorEnum.php`: Mosaic widget configurator enum.
+- `packages/campaigns/src/Data/UtmData.php`: structured UTM values.
+- `packages/campaigns/src/Data/CampaignCtaActionData.php`: CTA action value object.
+- `packages/campaigns/src/Data/ConversionAttributionData.php`: conversion attribution snapshot.
+- `packages/campaigns/src/Data/Dashboard/CampaignConversionSummaryData.php`: campaign dashboard summary.
+- `packages/campaigns/src/Data/Dashboard/CampaignLandingPageSummaryData.php`: landing page dashboard summary.
+- `packages/campaigns/src/Models/CampaignGroup.php`: campaign group model.
+- `packages/campaigns/src/Models/CampaignLandingPage.php`: campaign landing page model.
+- `packages/campaigns/src/Models/CampaignCtaBlock.php`: reusable CTA block model.
+- `packages/campaigns/src/Models/CampaignConversionGoal.php`: conversion goal model.
+- `packages/campaigns/src/Models/CampaignConversion.php`: recorded conversion model.
+- `packages/campaigns/src/Actions/ResolveCampaignFromUrlAction.php`: resolve campaign from UTM or page URL.
+- `packages/campaigns/src/Actions/BuildCampaignUrlAction.php`: append missing UTM values to CTA URLs.
+- `packages/campaigns/src/Actions/BuildConversionAttributionAction.php`: build conversion attribution snapshots.
+- `packages/campaigns/src/Actions/RecordCampaignConversionAction.php`: record idempotent conversions.
+- `packages/campaigns/src/Actions/RecordCtaClickConversionAction.php`: record CTA click conversions.
+- `packages/campaigns/src/Actions/RecordFormSubmissionConversionAction.php`: record form submission conversions.
+- `packages/campaigns/src/Actions/RecordPageViewConversionAction.php`: record page view conversions.
+- `packages/campaigns/src/Actions/InstallCampaignLayoutsAction.php`: install Mosaic campaign layouts.
+- `packages/campaigns/src/Actions/BuildCampaignOverviewStatsAction.php`: dashboard totals.
+- `packages/campaigns/src/Actions/BuildCampaignConversionFunnelAction.php`: funnel summaries.
+- `packages/campaigns/src/Actions/BuildTopCampaignsQueryAction.php`: top campaigns report.
+- `packages/campaigns/src/Actions/BuildTopLandingPagesQueryAction.php`: top landing pages report.
+- `packages/campaigns/src/Listeners/RecordFormSubmissionConversion.php`: Forms event listener.
+- `packages/campaigns/src/Filament/Resources/CampaignGroups/CampaignGroupResource.php`: campaign group resource.
+- `packages/campaigns/src/Filament/Resources/CampaignLandingPages/CampaignLandingPageResource.php`: landing page resource.
+- `packages/campaigns/src/Filament/Resources/CampaignCtaBlocks/CampaignCtaBlockResource.php`: CTA block resource.
+- `packages/campaigns/src/Filament/Resources/CampaignConversionGoals/CampaignConversionGoalResource.php`: conversion goal resource.
+- `packages/campaigns/src/Filament/Configurators/Widgets/CampaignHeroWidgetConfigurator.php`: campaign hero widget form.
+- `packages/campaigns/src/Filament/Configurators/Widgets/CampaignCtaBlockWidgetConfigurator.php`: CTA block widget form.
+- `packages/campaigns/src/Filament/Configurators/Widgets/CampaignLeadFormWidgetConfigurator.php`: lead form widget form.
+- `packages/campaigns/src/Filament/Extenders/Page/CampaignPageSchemaExtender.php`: page campaign metadata fields.
+- `packages/campaigns/src/Filament/Widgets/CampaignOverviewStatsWidget.php`: campaign stats dashboard widget.
+- `packages/campaigns/src/Filament/Widgets/TopCampaignsWidget.php`: top campaigns dashboard widget.
+- `packages/campaigns/src/Filament/Widgets/TopLandingPagesWidget.php`: top landing pages dashboard widget.
+- `packages/campaigns/database/migrations/create_campaign_groups_table.php`: campaign groups table.
+- `packages/campaigns/database/migrations/create_campaign_landing_pages_table.php`: landing pages table.
+- `packages/campaigns/database/migrations/create_campaign_cta_blocks_table.php`: CTA blocks table.
+- `packages/campaigns/database/migrations/create_campaign_conversion_goals_table.php`: conversion goals table.
+- `packages/campaigns/database/migrations/create_campaign_conversions_table.php`: conversions table.
+- `packages/campaigns/database/factories/CampaignGroupFactory.php`: group factory.
+- `packages/campaigns/database/factories/CampaignLandingPageFactory.php`: landing page factory.
+- `packages/campaigns/database/factories/CampaignCtaBlockFactory.php`: CTA block factory.
+- `packages/campaigns/database/factories/CampaignConversionGoalFactory.php`: goal factory.
+- `packages/campaigns/database/factories/CampaignConversionFactory.php`: conversion factory.
+- `packages/campaigns/tests/CampaignsTestCase.php`: package test case.
+- `packages/campaigns/tests/Pest.php`: Pest setup.
+- `packages/campaigns/tests/Unit/Providers/CampaignsServiceProviderTest.php`: provider smoke tests.
+- `packages/campaigns/tests/Unit/Actions/ResolveCampaignFromUrlActionTest.php`: campaign URL resolution tests.
+- `packages/campaigns/tests/Unit/Actions/CampaignReportingActionsTest.php`: reporting action tests.
+- `packages/campaigns/tests/Integration/Database/CampaignMigrationsTest.php`: migration tests.
+- `packages/campaigns/tests/Integration/Models/CampaignRelationshipsTest.php`: model relationship tests.
+- `packages/campaigns/tests/Integration/Actions/RecordCampaignConversionActionTest.php`: conversion action tests.
+- `packages/campaigns/tests/Integration/Actions/InstallCampaignLayoutsActionTest.php`: layout installer tests.
+- `packages/campaigns/tests/Integration/Listeners/FormSubmissionConversionTest.php`: Forms listener tests.
+- `packages/campaigns/tests/Feature/Filament/CampaignResourcesTest.php`: admin resource tests.
+- `packages/campaigns/tests/Feature/Filament/CampaignAnalyticsWidgetsTest.php`: dashboard widget tests.
+- `packages/campaigns/tests/Feature/Mosaic/CampaignWidgetsTest.php`: Mosaic widget tests.
+- `packages/campaigns/tests/Feature/PageSchema/CampaignPageSchemaExtenderTest.php`: page schema extender tests.
 
 Modify these files:
 
@@ -139,22 +139,22 @@ Modify these files:
 
 **Files:**
 
-- Create: `packages/growth/campaigns/composer.json`
-- Create: `packages/growth/campaigns/capell.json`
-- Create: `packages/growth/campaigns/config/capell-campaigns.php`
-- Create: `packages/growth/campaigns/resources/lang/en/package.php`
-- Create: `packages/growth/campaigns/resources/lang/en/generic.php`
-- Create: `packages/growth/campaigns/src/Providers/CampaignsServiceProvider.php`
-- Create: `packages/growth/campaigns/src/Providers/AdminServiceProvider.php`
-- Create: `packages/growth/campaigns/src/Providers/FrontendServiceProvider.php`
-- Create: `packages/growth/campaigns/tests/Pest.php`
-- Create: `packages/growth/campaigns/tests/CampaignsTestCase.php`
-- Create: `packages/growth/campaigns/tests/Unit/Providers/CampaignsServiceProviderTest.php`
+- Create: `packages/campaigns/composer.json`
+- Create: `packages/campaigns/capell.json`
+- Create: `packages/campaigns/config/capell-campaigns.php`
+- Create: `packages/campaigns/resources/lang/en/package.php`
+- Create: `packages/campaigns/resources/lang/en/generic.php`
+- Create: `packages/campaigns/src/Providers/CampaignsServiceProvider.php`
+- Create: `packages/campaigns/src/Providers/AdminServiceProvider.php`
+- Create: `packages/campaigns/src/Providers/FrontendServiceProvider.php`
+- Create: `packages/campaigns/tests/Pest.php`
+- Create: `packages/campaigns/tests/CampaignsTestCase.php`
+- Create: `packages/campaigns/tests/Unit/Providers/CampaignsServiceProviderTest.php`
 - Modify: `composer.json`
 
 - [ ] **Step 1: Write the failing provider smoke tests**
 
-Create `packages/growth/campaigns/tests/Pest.php`:
+Create `packages/campaigns/tests/Pest.php`:
 
 ```php
 <?php
@@ -166,7 +166,7 @@ use Capell\Campaigns\Tests\CampaignsTestCase;
 uses(CampaignsTestCase::class)->in(__DIR__);
 ```
 
-Create `packages/growth/campaigns/tests/Unit/Providers/CampaignsServiceProviderTest.php`:
+Create `packages/campaigns/tests/Unit/Providers/CampaignsServiceProviderTest.php`:
 
 ```php
 <?php
@@ -193,14 +193,14 @@ it('loads the campaigns config', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests/Unit/Providers/CampaignsServiceProviderTest.php
+vendor/bin/pest packages/campaigns/tests/Unit/Providers/CampaignsServiceProviderTest.php
 ```
 
 Expected: FAIL because the campaigns provider does not exist yet.
 
 - [ ] **Step 3: Add package metadata and provider classes**
 
-Create `packages/growth/campaigns/capell.json`:
+Create `packages/campaigns/capell.json`:
 
 ```json
 {
@@ -220,7 +220,7 @@ Create `packages/growth/campaigns/capell.json`:
 }
 ```
 
-Create `packages/growth/campaigns/config/capell-campaigns.php`:
+Create `packages/campaigns/config/capell-campaigns.php`:
 
 ```php
 <?php
@@ -243,7 +243,7 @@ return [
 ];
 ```
 
-Create `packages/growth/campaigns/src/Providers/CampaignsServiceProvider.php`:
+Create `packages/campaigns/src/Providers/CampaignsServiceProvider.php`:
 
 ```php
 <?php
@@ -335,17 +335,17 @@ final class CampaignsServiceProvider extends AbstractPackageServiceProvider
 
 - [ ] **Step 4: Add test case and autoload entries**
 
-Create `packages/growth/campaigns/tests/CampaignsTestCase.php` using the same provider style as Analytics, with Admin, Frontend, Mosaic, Forms, Analytics, and Campaigns providers installed through `CapellCore::forcePackageInstalled(...)`.
+Create `packages/campaigns/tests/CampaignsTestCase.php` using the same provider style as Analytics, with Admin, Frontend, Mosaic, Forms, Analytics, and Campaigns providers installed through `CapellCore::forcePackageInstalled(...)`.
 
 Modify root `composer.json` autoload sections:
 
 ```json
-"Capell\\Campaigns\\": "packages/growth/campaigns/src",
-"Capell\\Campaigns\\Database\\Factories\\": "packages/growth/campaigns/database/factories"
+"Capell\\Campaigns\\": "packages/campaigns/src",
+"Capell\\Campaigns\\Database\\Factories\\": "packages/campaigns/database/factories"
 ```
 
 ```json
-"Capell\\Campaigns\\Tests\\": "packages/growth/campaigns/tests"
+"Capell\\Campaigns\\Tests\\": "packages/campaigns/tests"
 ```
 
 - [ ] **Step 5: Verify package discovery**
@@ -354,7 +354,7 @@ Run:
 
 ```bash
 composer dump-autoload
-vendor/bin/pest packages/growth/campaigns/tests/Unit/Providers/CampaignsServiceProviderTest.php
+vendor/bin/pest packages/campaigns/tests/Unit/Providers/CampaignsServiceProviderTest.php
 ```
 
 Expected: PASS.
@@ -362,7 +362,7 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add composer.json packages/growth/campaigns
+git add composer.json packages/campaigns
 git commit -m "feat: add campaigns package skeleton"
 ```
 
@@ -370,29 +370,29 @@ git commit -m "feat: add campaigns package skeleton"
 
 **Files:**
 
-- Create: `packages/growth/campaigns/database/migrations/create_campaign_groups_table.php`
-- Create: `packages/growth/campaigns/database/migrations/create_campaign_landing_pages_table.php`
-- Create: `packages/growth/campaigns/database/migrations/create_campaign_cta_blocks_table.php`
-- Create: `packages/growth/campaigns/database/migrations/create_campaign_conversion_goals_table.php`
-- Create: `packages/growth/campaigns/database/migrations/create_campaign_conversions_table.php`
-- Create: `packages/growth/campaigns/src/Enums/CampaignStatus.php`
-- Create: `packages/growth/campaigns/src/Enums/ConversionGoalType.php`
-- Create: `packages/growth/campaigns/src/Enums/AttributionModel.php`
-- Create: `packages/growth/campaigns/src/Data/UtmData.php`
-- Create: `packages/growth/campaigns/src/Data/CampaignCtaActionData.php`
-- Create: `packages/growth/campaigns/src/Data/ConversionAttributionData.php`
-- Create: `packages/growth/campaigns/src/Models/CampaignGroup.php`
-- Create: `packages/growth/campaigns/src/Models/CampaignLandingPage.php`
-- Create: `packages/growth/campaigns/src/Models/CampaignCtaBlock.php`
-- Create: `packages/growth/campaigns/src/Models/CampaignConversionGoal.php`
-- Create: `packages/growth/campaigns/src/Models/CampaignConversion.php`
-- Create: `packages/growth/campaigns/database/factories/CampaignGroupFactory.php`
-- Create: `packages/growth/campaigns/database/factories/CampaignLandingPageFactory.php`
-- Create: `packages/growth/campaigns/database/factories/CampaignCtaBlockFactory.php`
-- Create: `packages/growth/campaigns/database/factories/CampaignConversionGoalFactory.php`
-- Create: `packages/growth/campaigns/database/factories/CampaignConversionFactory.php`
-- Create: `packages/growth/campaigns/tests/Integration/Database/CampaignMigrationsTest.php`
-- Create: `packages/growth/campaigns/tests/Integration/Models/CampaignRelationshipsTest.php`
+- Create: `packages/campaigns/database/migrations/create_campaign_groups_table.php`
+- Create: `packages/campaigns/database/migrations/create_campaign_landing_pages_table.php`
+- Create: `packages/campaigns/database/migrations/create_campaign_cta_blocks_table.php`
+- Create: `packages/campaigns/database/migrations/create_campaign_conversion_goals_table.php`
+- Create: `packages/campaigns/database/migrations/create_campaign_conversions_table.php`
+- Create: `packages/campaigns/src/Enums/CampaignStatus.php`
+- Create: `packages/campaigns/src/Enums/ConversionGoalType.php`
+- Create: `packages/campaigns/src/Enums/AttributionModel.php`
+- Create: `packages/campaigns/src/Data/UtmData.php`
+- Create: `packages/campaigns/src/Data/CampaignCtaActionData.php`
+- Create: `packages/campaigns/src/Data/ConversionAttributionData.php`
+- Create: `packages/campaigns/src/Models/CampaignGroup.php`
+- Create: `packages/campaigns/src/Models/CampaignLandingPage.php`
+- Create: `packages/campaigns/src/Models/CampaignCtaBlock.php`
+- Create: `packages/campaigns/src/Models/CampaignConversionGoal.php`
+- Create: `packages/campaigns/src/Models/CampaignConversion.php`
+- Create: `packages/campaigns/database/factories/CampaignGroupFactory.php`
+- Create: `packages/campaigns/database/factories/CampaignLandingPageFactory.php`
+- Create: `packages/campaigns/database/factories/CampaignCtaBlockFactory.php`
+- Create: `packages/campaigns/database/factories/CampaignConversionGoalFactory.php`
+- Create: `packages/campaigns/database/factories/CampaignConversionFactory.php`
+- Create: `packages/campaigns/tests/Integration/Database/CampaignMigrationsTest.php`
+- Create: `packages/campaigns/tests/Integration/Models/CampaignRelationshipsTest.php`
 
 - [ ] **Step 1: Write failing migration and model relationship tests**
 
@@ -407,7 +407,7 @@ Test the following:
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests/Integration/Database packages/growth/campaigns/tests/Integration/Models
+vendor/bin/pest packages/campaigns/tests/Integration/Database packages/campaigns/tests/Integration/Models
 ```
 
 Expected: FAIL because migrations and models do not exist.
@@ -493,7 +493,7 @@ Add `CapellCore::registerModels([...])` to `CampaignsServiceProvider`.
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests/Integration/Database packages/growth/campaigns/tests/Integration/Models
+vendor/bin/pest packages/campaigns/tests/Integration/Database packages/campaigns/tests/Integration/Models
 ```
 
 Expected: PASS.
@@ -501,7 +501,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/growth/campaigns
+git add packages/campaigns
 git commit -m "feat: add campaign domain models"
 ```
 
@@ -509,16 +509,16 @@ git commit -m "feat: add campaign domain models"
 
 **Files:**
 
-- Create: `packages/growth/campaigns/src/Actions/ResolveCampaignFromUrlAction.php`
-- Create: `packages/growth/campaigns/src/Actions/BuildConversionAttributionAction.php`
-- Create: `packages/growth/campaigns/src/Actions/RecordCampaignConversionAction.php`
-- Create: `packages/growth/campaigns/src/Actions/RecordCtaClickConversionAction.php`
-- Create: `packages/growth/campaigns/src/Actions/RecordFormSubmissionConversionAction.php`
-- Create: `packages/growth/campaigns/src/Actions/RecordPageViewConversionAction.php`
-- Create: `packages/growth/campaigns/src/Listeners/RecordFormSubmissionConversion.php`
-- Create: `packages/growth/campaigns/tests/Unit/Actions/ResolveCampaignFromUrlActionTest.php`
-- Create: `packages/growth/campaigns/tests/Integration/Actions/RecordCampaignConversionActionTest.php`
-- Create: `packages/growth/campaigns/tests/Integration/Listeners/FormSubmissionConversionTest.php`
+- Create: `packages/campaigns/src/Actions/ResolveCampaignFromUrlAction.php`
+- Create: `packages/campaigns/src/Actions/BuildConversionAttributionAction.php`
+- Create: `packages/campaigns/src/Actions/RecordCampaignConversionAction.php`
+- Create: `packages/campaigns/src/Actions/RecordCtaClickConversionAction.php`
+- Create: `packages/campaigns/src/Actions/RecordFormSubmissionConversionAction.php`
+- Create: `packages/campaigns/src/Actions/RecordPageViewConversionAction.php`
+- Create: `packages/campaigns/src/Listeners/RecordFormSubmissionConversion.php`
+- Create: `packages/campaigns/tests/Unit/Actions/ResolveCampaignFromUrlActionTest.php`
+- Create: `packages/campaigns/tests/Integration/Actions/RecordCampaignConversionActionTest.php`
+- Create: `packages/campaigns/tests/Integration/Listeners/FormSubmissionConversionTest.php`
 
 - [ ] **Step 1: Write failing action tests**
 
@@ -533,7 +533,7 @@ Test:
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests/Unit/Actions packages/growth/campaigns/tests/Integration/Actions packages/growth/campaigns/tests/Integration/Listeners
+vendor/bin/pest packages/campaigns/tests/Unit/Actions packages/campaigns/tests/Integration/Actions packages/campaigns/tests/Integration/Listeners
 ```
 
 Expected: FAIL because actions do not exist.
@@ -579,7 +579,7 @@ Listen to `Capell\Forms\Events\FormSubmitted`. For goals with `type = FormSubmis
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests/Unit/Actions packages/growth/campaigns/tests/Integration/Actions packages/growth/campaigns/tests/Integration/Listeners
+vendor/bin/pest packages/campaigns/tests/Unit/Actions packages/campaigns/tests/Integration/Actions packages/campaigns/tests/Integration/Listeners
 ```
 
 Expected: PASS.
@@ -587,7 +587,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/growth/campaigns
+git add packages/campaigns
 git commit -m "feat: record campaign conversions"
 ```
 
@@ -595,34 +595,34 @@ git commit -m "feat: record campaign conversions"
 
 **Files:**
 
-- Create: `packages/growth/campaigns/resources/lang/en/form.php`
-- Create: `packages/growth/campaigns/resources/lang/en/navigation.php`
-- Create: `packages/growth/campaigns/src/Enums/ResourceEnum.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignGroups/CampaignGroupResource.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignGroups/Pages/ListCampaignGroups.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignGroups/Pages/CreateCampaignGroup.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignGroups/Pages/EditCampaignGroup.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignGroups/Schemas/CampaignGroupForm.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignGroups/Tables/CampaignGroupsTable.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignLandingPages/CampaignLandingPageResource.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignLandingPages/Pages/ListCampaignLandingPages.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignLandingPages/Pages/CreateCampaignLandingPage.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignLandingPages/Pages/EditCampaignLandingPage.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignLandingPages/Schemas/CampaignLandingPageForm.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignLandingPages/Tables/CampaignLandingPagesTable.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignCtaBlocks/CampaignCtaBlockResource.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignCtaBlocks/Pages/ListCampaignCtaBlocks.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignCtaBlocks/Pages/CreateCampaignCtaBlock.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignCtaBlocks/Pages/EditCampaignCtaBlock.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignCtaBlocks/Schemas/CampaignCtaBlockForm.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignCtaBlocks/Tables/CampaignCtaBlocksTable.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignConversionGoals/CampaignConversionGoalResource.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignConversionGoals/Pages/ListCampaignConversionGoals.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignConversionGoals/Pages/CreateCampaignConversionGoal.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignConversionGoals/Pages/EditCampaignConversionGoal.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignConversionGoals/Schemas/CampaignConversionGoalForm.php`
-- Create: `packages/growth/campaigns/src/Filament/Resources/CampaignConversionGoals/Tables/CampaignConversionGoalsTable.php`
-- Create: `packages/growth/campaigns/tests/Feature/Filament/CampaignResourcesTest.php`
+- Create: `packages/campaigns/resources/lang/en/form.php`
+- Create: `packages/campaigns/resources/lang/en/navigation.php`
+- Create: `packages/campaigns/src/Enums/ResourceEnum.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignGroups/CampaignGroupResource.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignGroups/Pages/ListCampaignGroups.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignGroups/Pages/CreateCampaignGroup.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignGroups/Pages/EditCampaignGroup.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignGroups/Schemas/CampaignGroupForm.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignGroups/Tables/CampaignGroupsTable.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignLandingPages/CampaignLandingPageResource.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignLandingPages/Pages/ListCampaignLandingPages.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignLandingPages/Pages/CreateCampaignLandingPage.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignLandingPages/Pages/EditCampaignLandingPage.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignLandingPages/Schemas/CampaignLandingPageForm.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignLandingPages/Tables/CampaignLandingPagesTable.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignCtaBlocks/CampaignCtaBlockResource.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignCtaBlocks/Pages/ListCampaignCtaBlocks.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignCtaBlocks/Pages/CreateCampaignCtaBlock.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignCtaBlocks/Pages/EditCampaignCtaBlock.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignCtaBlocks/Schemas/CampaignCtaBlockForm.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignCtaBlocks/Tables/CampaignCtaBlocksTable.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignConversionGoals/CampaignConversionGoalResource.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignConversionGoals/Pages/ListCampaignConversionGoals.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignConversionGoals/Pages/CreateCampaignConversionGoal.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignConversionGoals/Pages/EditCampaignConversionGoal.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignConversionGoals/Schemas/CampaignConversionGoalForm.php`
+- Create: `packages/campaigns/src/Filament/Resources/CampaignConversionGoals/Tables/CampaignConversionGoalsTable.php`
+- Create: `packages/campaigns/tests/Feature/Filament/CampaignResourcesTest.php`
 
 - [ ] **Step 1: Write failing resource tests**
 
@@ -636,7 +636,7 @@ Test that:
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests/Feature/Filament/CampaignResourcesTest.php
+vendor/bin/pest packages/campaigns/tests/Feature/Filament/CampaignResourcesTest.php
 ```
 
 Expected: FAIL because resources do not exist.
@@ -674,7 +674,7 @@ Tables should include:
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests/Feature/Filament/CampaignResourcesTest.php
+vendor/bin/pest packages/campaigns/tests/Feature/Filament/CampaignResourcesTest.php
 ```
 
 Expected: PASS.
@@ -682,7 +682,7 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/growth/campaigns
+git add packages/campaigns
 git commit -m "feat: add campaign admin resources"
 ```
 
@@ -690,16 +690,16 @@ git commit -m "feat: add campaign admin resources"
 
 **Files:**
 
-- Create: `packages/growth/campaigns/src/Enums/CampaignWidgetComponentEnum.php`
-- Create: `packages/growth/campaigns/src/Enums/CampaignWidgetConfiguratorEnum.php`
-- Create: `packages/growth/campaigns/src/Filament/Configurators/Widgets/CampaignHeroWidgetConfigurator.php`
-- Create: `packages/growth/campaigns/src/Filament/Configurators/Widgets/CampaignCtaBlockWidgetConfigurator.php`
-- Create: `packages/growth/campaigns/src/Filament/Configurators/Widgets/CampaignLeadFormWidgetConfigurator.php`
-- Create: `packages/growth/campaigns/resources/views/components/widget/campaign-hero.blade.php`
-- Create: `packages/growth/campaigns/resources/views/components/widget/campaign-cta-block.blade.php`
-- Create: `packages/growth/campaigns/resources/views/components/widget/campaign-lead-form.blade.php`
-- Create: `packages/growth/campaigns/resources/views/components/tracking/attributes.blade.php`
-- Create: `packages/growth/campaigns/tests/Feature/Mosaic/CampaignWidgetsTest.php`
+- Create: `packages/campaigns/src/Enums/CampaignWidgetComponentEnum.php`
+- Create: `packages/campaigns/src/Enums/CampaignWidgetConfiguratorEnum.php`
+- Create: `packages/campaigns/src/Filament/Configurators/Widgets/CampaignHeroWidgetConfigurator.php`
+- Create: `packages/campaigns/src/Filament/Configurators/Widgets/CampaignCtaBlockWidgetConfigurator.php`
+- Create: `packages/campaigns/src/Filament/Configurators/Widgets/CampaignLeadFormWidgetConfigurator.php`
+- Create: `packages/campaigns/resources/views/components/widget/campaign-hero.blade.php`
+- Create: `packages/campaigns/resources/views/components/widget/campaign-cta-block.blade.php`
+- Create: `packages/campaigns/resources/views/components/widget/campaign-lead-form.blade.php`
+- Create: `packages/campaigns/resources/views/components/tracking/attributes.blade.php`
+- Create: `packages/campaigns/tests/Feature/Mosaic/CampaignWidgetsTest.php`
 
 - [ ] **Step 1: Write failing widget registration tests**
 
@@ -712,7 +712,7 @@ Test that:
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests/Feature/Mosaic/CampaignWidgetsTest.php
+vendor/bin/pest packages/campaigns/tests/Feature/Mosaic/CampaignWidgetsTest.php
 ```
 
 Expected: FAIL because widget components do not exist.
@@ -752,7 +752,7 @@ Create `BuildCampaignUrlAction::handle(string $url, UtmData $utm): string`. It s
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests/Feature/Mosaic/CampaignWidgetsTest.php
+vendor/bin/pest packages/campaigns/tests/Feature/Mosaic/CampaignWidgetsTest.php
 ```
 
 Expected: PASS.
@@ -760,7 +760,7 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/growth/campaigns
+git add packages/campaigns
 git commit -m "feat: add campaign mosaic widgets"
 ```
 
@@ -768,13 +768,13 @@ git commit -m "feat: add campaign mosaic widgets"
 
 **Files:**
 
-- Create: `packages/growth/campaigns/src/Actions/InstallCampaignLayoutsAction.php`
-- Create: `packages/growth/campaigns/src/Console/Commands/InstallCampaignLayoutsCommand.php`
-- Create: `packages/growth/campaigns/src/Support/LayoutPresets/CampaignLayoutPreset.php`
-- Create: `packages/growth/campaigns/src/Support/LayoutPresets/LeadGenerationPreset.php`
-- Create: `packages/growth/campaigns/src/Support/LayoutPresets/ProductLaunchPreset.php`
-- Create: `packages/growth/campaigns/src/Support/LayoutPresets/WebinarPreset.php`
-- Create: `packages/growth/campaigns/tests/Integration/Actions/InstallCampaignLayoutsActionTest.php`
+- Create: `packages/campaigns/src/Actions/InstallCampaignLayoutsAction.php`
+- Create: `packages/campaigns/src/Console/Commands/InstallCampaignLayoutsCommand.php`
+- Create: `packages/campaigns/src/Support/LayoutPresets/CampaignLayoutPreset.php`
+- Create: `packages/campaigns/src/Support/LayoutPresets/LeadGenerationPreset.php`
+- Create: `packages/campaigns/src/Support/LayoutPresets/ProductLaunchPreset.php`
+- Create: `packages/campaigns/src/Support/LayoutPresets/WebinarPreset.php`
+- Create: `packages/campaigns/tests/Integration/Actions/InstallCampaignLayoutsActionTest.php`
 
 - [ ] **Step 1: Write failing layout install tests**
 
@@ -787,7 +787,7 @@ Test that:
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests/Integration/Actions/InstallCampaignLayoutsActionTest.php
+vendor/bin/pest packages/campaigns/tests/Integration/Actions/InstallCampaignLayoutsActionTest.php
 ```
 
 Expected: FAIL because layout presets do not exist.
@@ -817,7 +817,7 @@ The command should call the action and report created, updated, skipped counts.
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests/Integration/Actions/InstallCampaignLayoutsActionTest.php
+vendor/bin/pest packages/campaigns/tests/Integration/Actions/InstallCampaignLayoutsActionTest.php
 ```
 
 Expected: PASS.
@@ -825,7 +825,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/growth/campaigns
+git add packages/campaigns
 git commit -m "feat: add campaign layout presets"
 ```
 
@@ -833,17 +833,17 @@ git commit -m "feat: add campaign layout presets"
 
 **Files:**
 
-- Create: `packages/growth/campaigns/src/Data/Dashboard/CampaignConversionSummaryData.php`
-- Create: `packages/growth/campaigns/src/Data/Dashboard/CampaignLandingPageSummaryData.php`
-- Create: `packages/growth/campaigns/src/Actions/BuildCampaignOverviewStatsAction.php`
-- Create: `packages/growth/campaigns/src/Actions/BuildCampaignConversionFunnelAction.php`
-- Create: `packages/growth/campaigns/src/Actions/BuildTopCampaignsQueryAction.php`
-- Create: `packages/growth/campaigns/src/Actions/BuildTopLandingPagesQueryAction.php`
-- Create: `packages/growth/campaigns/src/Filament/Widgets/CampaignOverviewStatsWidget.php`
-- Create: `packages/growth/campaigns/src/Filament/Widgets/TopCampaignsWidget.php`
-- Create: `packages/growth/campaigns/src/Filament/Widgets/TopLandingPagesWidget.php`
-- Create: `packages/growth/campaigns/tests/Feature/Filament/CampaignAnalyticsWidgetsTest.php`
-- Create: `packages/growth/campaigns/tests/Unit/Actions/CampaignReportingActionsTest.php`
+- Create: `packages/campaigns/src/Data/Dashboard/CampaignConversionSummaryData.php`
+- Create: `packages/campaigns/src/Data/Dashboard/CampaignLandingPageSummaryData.php`
+- Create: `packages/campaigns/src/Actions/BuildCampaignOverviewStatsAction.php`
+- Create: `packages/campaigns/src/Actions/BuildCampaignConversionFunnelAction.php`
+- Create: `packages/campaigns/src/Actions/BuildTopCampaignsQueryAction.php`
+- Create: `packages/campaigns/src/Actions/BuildTopLandingPagesQueryAction.php`
+- Create: `packages/campaigns/src/Filament/Widgets/CampaignOverviewStatsWidget.php`
+- Create: `packages/campaigns/src/Filament/Widgets/TopCampaignsWidget.php`
+- Create: `packages/campaigns/src/Filament/Widgets/TopLandingPagesWidget.php`
+- Create: `packages/campaigns/tests/Feature/Filament/CampaignAnalyticsWidgetsTest.php`
+- Create: `packages/campaigns/tests/Unit/Actions/CampaignReportingActionsTest.php`
 
 - [ ] **Step 1: Write failing reporting tests**
 
@@ -857,7 +857,7 @@ Test:
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests/Unit/Actions/CampaignReportingActionsTest.php packages/growth/campaigns/tests/Feature/Filament/CampaignAnalyticsWidgetsTest.php
+vendor/bin/pest packages/campaigns/tests/Unit/Actions/CampaignReportingActionsTest.php packages/campaigns/tests/Feature/Filament/CampaignAnalyticsWidgetsTest.php
 ```
 
 Expected: FAIL because reporting actions and widgets do not exist.
@@ -889,7 +889,7 @@ Use `GatedByRoleAndSettings` if the Analytics widgets use the same convention.
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests/Unit/Actions/CampaignReportingActionsTest.php packages/growth/campaigns/tests/Feature/Filament/CampaignAnalyticsWidgetsTest.php
+vendor/bin/pest packages/campaigns/tests/Unit/Actions/CampaignReportingActionsTest.php packages/campaigns/tests/Feature/Filament/CampaignAnalyticsWidgetsTest.php
 ```
 
 Expected: PASS.
@@ -897,7 +897,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/growth/campaigns
+git add packages/campaigns
 git commit -m "feat: add campaign analytics reporting"
 ```
 
@@ -905,9 +905,9 @@ git commit -m "feat: add campaign analytics reporting"
 
 **Files:**
 
-- Create: `packages/growth/campaigns/src/Filament/Extenders/Page/CampaignPageSchemaExtender.php`
-- Create: `packages/growth/campaigns/src/Actions/ApplyCampaignPageDefaultsAction.php`
-- Create: `packages/growth/campaigns/tests/Feature/PageSchema/CampaignPageSchemaExtenderTest.php`
+- Create: `packages/campaigns/src/Filament/Extenders/Page/CampaignPageSchemaExtender.php`
+- Create: `packages/campaigns/src/Actions/ApplyCampaignPageDefaultsAction.php`
+- Create: `packages/campaigns/tests/Feature/PageSchema/CampaignPageSchemaExtenderTest.php`
 
 - [ ] **Step 1: Write failing schema extender tests**
 
@@ -921,7 +921,7 @@ Test:
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests/Feature/PageSchema/CampaignPageSchemaExtenderTest.php
+vendor/bin/pest packages/campaigns/tests/Feature/PageSchema/CampaignPageSchemaExtenderTest.php
 ```
 
 Expected: FAIL because the schema extender does not exist.
@@ -946,7 +946,7 @@ In `CampaignsServiceProvider`, bind the extender as singleton and tag it with `P
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests/Feature/PageSchema/CampaignPageSchemaExtenderTest.php
+vendor/bin/pest packages/campaigns/tests/Feature/PageSchema/CampaignPageSchemaExtenderTest.php
 ```
 
 Expected: PASS.
@@ -954,7 +954,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/growth/campaigns
+git add packages/campaigns
 git commit -m "feat: add campaign page schema"
 ```
 
@@ -962,11 +962,11 @@ git commit -m "feat: add campaign page schema"
 
 **Files:**
 
-- Create: `packages/growth/campaigns/README.md`
-- Create: `packages/growth/campaigns/docs/campaigns-api.md`
-- Create: `packages/growth/campaigns/docs/campaigns-database.md`
-- Create: `packages/growth/campaigns/tests/Arch/CampaignsPackageTest.php`
-- Create: `packages/growth/campaigns/tests/Unit/ManifestRequirementsTest.php`
+- Create: `packages/campaigns/README.md`
+- Create: `packages/campaigns/docs/campaigns-api.md`
+- Create: `packages/campaigns/docs/campaigns-database.md`
+- Create: `packages/campaigns/tests/Arch/CampaignsPackageTest.php`
+- Create: `packages/campaigns/tests/Unit/ManifestRequirementsTest.php`
 - Modify: `tests/Packages/PackagesTestCase.php`
 - Modify: `tests/Packages/Integration/CrossPackageBootTest.php`
 
@@ -982,7 +982,7 @@ Test:
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests/Arch packages/growth/campaigns/tests/Unit/ManifestRequirementsTest.php
+vendor/bin/pest packages/campaigns/tests/Arch packages/campaigns/tests/Unit/ManifestRequirementsTest.php
 ```
 
 Expected: PASS once package files are complete.
@@ -1006,7 +1006,7 @@ Update the shared package tests to register and force-install Campaigns after Mo
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests
+vendor/bin/pest packages/campaigns/tests
 ```
 
 Expected: PASS.
@@ -1014,7 +1014,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/growth/campaigns tests/Packages
+git add packages/campaigns tests/Packages
 git commit -m "test: cover campaigns package integration"
 ```
 
@@ -1027,7 +1027,7 @@ git commit -m "test: cover campaigns package integration"
 - [ ] **Step 1: Run package tests**
 
 ```bash
-vendor/bin/pest packages/growth/campaigns/tests
+vendor/bin/pest packages/campaigns/tests
 ```
 
 Expected: PASS.
@@ -1035,7 +1035,7 @@ Expected: PASS.
 - [ ] **Step 2: Run affected package tests**
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests packages/forms/forms/tests packages/foundation/mosaic/tests packages/growth/campaigns/tests
+vendor/bin/pest packages/analytics/tests packages/forms/tests packages/mosaic/tests packages/campaigns/tests
 ```
 
 Expected: PASS.
@@ -1059,7 +1059,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit any final fixes**
 
 ```bash
-git add packages/growth/campaigns composer.json tests/Packages
+git add packages/campaigns composer.json tests/Packages
 git commit -m "chore: finalize campaigns package"
 ```
 

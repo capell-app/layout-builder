@@ -285,7 +285,7 @@ abstract class AbstractTestCase extends TestCase
 
     protected function getPublishConfigs(string $package): array
     {
-        $path = realpath(__DIR__ . '/../../packages/' . $package . '/publishes/config');
+        $path = realpath(__DIR__ . '/../packages/' . $package . '/publishes/config');
 
         if (in_array($path, ['', '0', false], true)) {
             return [];

@@ -117,7 +117,7 @@ git status --short --untracked-files=all
 git diff --name-only --diff-filter=U
 ```
 
-Expected: no unresolved files. If `packages/publishing-pro/workspaces/tests/Integration/WorkspaceSchedulerMetadataActionTest.php` is still unresolved, stop before implementation and ask Ben whether to resolve, stash, or move the Events work to a clean worktree.
+Expected: no unresolved files. If `packages/workspaces/tests/Integration/WorkspaceSchedulerMetadataActionTest.php` is still unresolved, stop before implementation and ask Ben whether to resolve, stash, or move the Events work to a clean worktree.
 
 - [ ] **Step 2: Confirm docs-only plan files are present**
 
@@ -1287,7 +1287,7 @@ The calendar view renders a `.events-calendar` wrapper, month navigation buttons
 
 - [ ] **Step 5: Add feed route**
 
-Create `routes/web.php` with a named route returning `response(BuildIcsFeedAction::run($site, $language), 200, ['Content-Type' => 'text/calendar; charset=UTF-8'])`. Resolve site/language using existing frontend state or route parameters matching package conventions discovered in `packages/foundation/blog` and `packages/search-seo/seo-tools`.
+Create `routes/web.php` with a named route returning `response(BuildIcsFeedAction::run($site, $language), 200, ['Content-Type' => 'text/calendar; charset=UTF-8'])`. Resolve site/language using existing frontend state or route parameters matching package conventions discovered in `packages/blog` and `packages/seo-tools`.
 
 - [ ] **Step 6: Run frontend tests and commit**
 

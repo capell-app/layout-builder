@@ -59,12 +59,12 @@ This panel should be powered by Actions and Data classes, not Filament-only logi
 
 Recommended files:
 
-- `packages/search-seo/seo-tools/src/Actions/BuildPageSeoReportAction.php`
-- `packages/search-seo/seo-tools/src/Data/PageSeoReportData.php`
-- `packages/search-seo/seo-tools/src/Data/SeoIssueData.php`
-- `packages/search-seo/seo-tools/src/Enums/SeoIssueSeverityEnum.php`
-- `packages/search-seo/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php`
-- `packages/search-seo/seo-tools/resources/views/filament/components/page-seo-panel.blade.php`
+- `packages/seo-tools/src/Actions/BuildPageSeoReportAction.php`
+- `packages/seo-tools/src/Data/PageSeoReportData.php`
+- `packages/seo-tools/src/Data/SeoIssueData.php`
+- `packages/seo-tools/src/Enums/SeoIssueSeverityEnum.php`
+- `packages/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php`
+- `packages/seo-tools/resources/views/filament/components/page-seo-panel.blade.php`
 
 ### 2. Expanded SEO Audit
 
@@ -130,9 +130,9 @@ The first version should be deterministic and local. No external SEO API is requ
 
 Recommended files:
 
-- `packages/search-seo/seo-tools/src/Actions/SuggestInternalLinksAction.php`
-- `packages/search-seo/seo-tools/src/Data/InternalLinkSuggestionData.php`
-- `packages/search-seo/seo-tools/src/Support/InternalLinks/InternalLinkCandidateRepository.php`
+- `packages/seo-tools/src/Actions/SuggestInternalLinksAction.php`
+- `packages/seo-tools/src/Data/InternalLinkSuggestionData.php`
+- `packages/seo-tools/src/Support/InternalLinks/InternalLinkCandidateRepository.php`
 
 ### 5. Schema Templates
 
@@ -318,8 +318,8 @@ Required test groups:
 
 Commands:
 
-- `vendor/bin/pest packages/search-seo/seo-tools/tests`
-- `vendor/bin/pest packages/foundation/redirects/tests`
+- `vendor/bin/pest packages/seo-tools/tests`
+- `vendor/bin/pest packages/redirects/tests`
 - `vendor/bin/pest tests/Packages`
 
 Run `composer preflight` before merge if the release branch is otherwise clean.
@@ -328,16 +328,16 @@ Run `composer preflight` before merge if the release branch is otherwise clean.
 
 Update:
 
-- `packages/search-seo/seo-tools/README.md`
-- `packages/search-seo/seo-tools/docs/seo-meta-and-discoverability.md`
-- `packages/foundation/redirects/docs/redirects.md`
+- `packages/seo-tools/README.md`
+- `packages/seo-tools/docs/seo-meta-and-discoverability.md`
+- `packages/redirects/docs/redirects.md`
 - `docs/openai-integration.md` for AI briefs
 
 Add new docs:
 
-- `packages/search-seo/seo-tools/docs/seo-intelligence.md`
-- `packages/search-seo/seo-tools/docs/search-console.md`
-- `packages/search-seo/seo-tools/docs/schema-templates.md`
+- `packages/seo-tools/docs/seo-intelligence.md`
+- `packages/seo-tools/docs/search-console.md`
+- `packages/seo-tools/docs/schema-templates.md`
 
 ## Release Acceptance Criteria
 

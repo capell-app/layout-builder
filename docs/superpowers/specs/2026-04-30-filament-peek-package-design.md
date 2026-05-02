@@ -14,7 +14,7 @@ The new package should move the Peek dependency and integration out of the globa
 
 ## Package Shape
 
-The package lives at `packages/publishing-pro/filament-peek`.
+The package lives at `packages/filament-peek`.
 
 - Composer package: `capell-app/filament-peek`
 - Namespace: `Capell\FilamentPeek`
@@ -102,7 +102,7 @@ This avoids adding `Pboivin\FilamentPeek\Pages\Concerns\HasPreviewModal` to Work
 
 ## Translations
 
-All user-facing strings live under `packages/publishing-pro/filament-peek/resources/lang/en`.
+All user-facing strings live under `packages/filament-peek/resources/lang/en`.
 
 Suggested keys:
 
@@ -126,7 +126,7 @@ Filament Peek package tests should cover:
 Run focused tests first:
 
 ```bash
-vendor/bin/pest packages/publishing-pro/workspaces/tests packages/publishing-pro/filament-peek/tests --no-coverage
+vendor/bin/pest packages/workspaces/tests packages/filament-peek/tests --no-coverage
 ```
 
 Then run the full suite or at least `composer preflight` before committing the implementation.

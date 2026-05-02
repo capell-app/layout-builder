@@ -17,40 +17,27 @@
 >
     <testsuites>
         <testsuite name="Architecture">
-            <directory suffix="Test.php">./packages/*/*/tests/Arch</directory>
-            <directory suffix="Test.php">./packages/*/themes/*/tests/Arch</directory>
-            <exclude>./packages/*/themes/tests/Arch</exclude>
-            <directory suffix="Test.php">./packages/*/themes/tests/Arch</directory>
+            <directory suffix="Test.php">./packages/*/tests/Arch</directory>
         </testsuite>
         <testsuite name="Feature">
-            <directory suffix="Test.php">./packages/*/*/tests/Feature</directory>
-            <directory suffix="Test.php">./packages/*/themes/*/tests/Feature</directory>
-            <exclude>./packages/*/themes/tests/Feature</exclude>
-            <directory suffix="Test.php">./packages/*/themes/tests/Feature</directory>
+            <directory suffix="Test.php">./packages/*/tests/Feature</directory>
             <directory suffix="Test.php">./tests/Packages/Feature</directory>
             <!-- media-curator requires awcodes/filament-curator which is not in the root vendor -->
-            <exclude>./packages/foundation/media-curator/tests</exclude>
+            <exclude>./packages/media-curator/tests</exclude>
         </testsuite>
         <testsuite name="Integration">
-            <directory suffix="Test.php">./packages/*/*/tests/Integration</directory>
-            <directory suffix="Test.php">./packages/*/themes/*/tests/Integration</directory>
-            <exclude>./packages/*/themes/tests/Integration</exclude>
-            <directory suffix="Test.php">./packages/*/themes/tests/Integration</directory>
+            <directory suffix="Test.php">./packages/*/tests/Integration</directory>
             <directory suffix="Test.php">./tests/Packages/Integration</directory>
             <!-- media-curator requires awcodes/filament-curator which is not in the root vendor -->
-            <exclude>./packages/foundation/media-curator/tests</exclude>
+            <exclude>./packages/media-curator/tests</exclude>
         </testsuite>
         <testsuite name="Unit">
-            <directory suffix="Test.php">./packages/*/*/tests/Unit</directory>
-            <directory suffix="Test.php">./packages/*/themes/*/tests/Unit</directory>
-            <exclude>./packages/*/themes/tests/Unit</exclude>
-            <directory suffix="Test.php">./packages/*/themes/tests/Unit</directory>
+            <directory suffix="Test.php">./packages/*/tests/Unit</directory>
         </testsuite>
     </testsuites>
     <source>
         <include>
-            <directory suffix=".php">./packages/*/*/src</directory>
-            <directory suffix=".php">./packages/*/themes/*/src</directory>
+            <directory suffix=".php">./packages/*/src</directory>
         </include>
         <exclude>
             <directory>./vendor</directory>
@@ -59,16 +46,12 @@
             <directory>./storage</directory>
             <directory>./database</directory>
             <directory>./.temp</directory>
-            <directory suffix=".php">./packages/*/*/tests</directory>
-            <directory suffix=".php">./packages/*/themes/*/tests</directory>
-            <directory suffix=".php">./packages/*/themes/tests</directory>
-            <directory suffix=".php">./packages/*/*/resources</directory>
-            <directory suffix=".php">./packages/*/themes/*/resources</directory>
-            <directory suffix=".php">./packages/*/*/config</directory>
-            <directory suffix=".php">./packages/*/themes/*/config</directory>
+            <directory suffix=".php">./packages/*/tests</directory>
+            <directory suffix=".php">./packages/*/resources</directory>
+            <directory suffix=".php">./packages/*/config</directory>
             <!-- Service providers and middleware are integration-level; excluded from unit coverage -->
-            <directory suffix=".php">./packages/theme-studio/*/src/Providers</directory>
-            <directory suffix=".php">./packages/theme-studio/core/src/Http/Middleware</directory>
+            <directory suffix=".php">./packages/theme-*/src/*ServiceProvider.php</directory>
+            <directory suffix=".php">./packages/theme-studio-core/src/Http/Middleware</directory>
         </exclude>
     </source>
     <php>

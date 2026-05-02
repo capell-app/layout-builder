@@ -14,61 +14,61 @@
 
 **Create package files:**
 
-- `packages/search-seo/site-search/composer.json`
-- `packages/search-seo/site-search/config/capell-site-search.php`
-- `packages/search-seo/site-search/src/Providers/SiteSearchServiceProvider.php`
-- `packages/search-seo/site-search/src/Providers/AdminServiceProvider.php`
-- `packages/search-seo/site-search/src/Contracts/SiteSearch.php`
-- `packages/search-seo/site-search/src/Data/SearchRequestData.php`
-- `packages/search-seo/site-search/src/Data/SearchResultData.php`
-- `packages/search-seo/site-search/src/Data/SearchAnalyticsWindowData.php`
-- `packages/search-seo/site-search/src/Data/SearchTermSummaryData.php`
-- `packages/search-seo/site-search/src/Enums/SearchDriver.php`
-- `packages/search-seo/site-search/src/Drivers/DatabaseSiteSearch.php`
-- `packages/search-seo/site-search/src/Drivers/ScoutSiteSearch.php`
-- `packages/search-seo/site-search/src/Actions/NormalizeSearchQueryAction.php`
-- `packages/search-seo/site-search/src/Actions/RunSiteSearchAction.php`
-- `packages/search-seo/site-search/src/Actions/RecordSiteSearchAction.php`
-- `packages/search-seo/site-search/src/Actions/RecordSearchResultClickAction.php`
-- `packages/search-seo/site-search/src/Actions/BuildTopSearchesQueryAction.php`
-- `packages/search-seo/site-search/src/Actions/BuildTrendingSearchesQueryAction.php`
-- `packages/search-seo/site-search/src/Actions/BuildZeroResultSearchesQueryAction.php`
-- `packages/search-seo/site-search/src/Actions/PurgeSiteSearchLogsAction.php`
-- `packages/search-seo/site-search/src/Http/Controllers/SearchController.php`
-- `packages/search-seo/site-search/src/Models/SiteSearchLog.php`
-- `packages/search-seo/site-search/database/factories/SiteSearchLogFactory.php`
-- `packages/search-seo/site-search/database/migrations/create_site_search_logs_table.php`
-- `packages/search-seo/site-search/database/settings/add_site_search_settings.php`
-- `packages/search-seo/site-search/resources/views/components/form.blade.php`
-- `packages/search-seo/site-search/resources/views/components/results.blade.php`
-- `packages/search-seo/site-search/resources/views/pages/search.blade.php`
-- `packages/search-seo/site-search/resources/views/filament/widgets/search-overview-stats.blade.php`
-- `packages/search-seo/site-search/resources/lang/en/actions.php`
-- `packages/search-seo/site-search/resources/lang/en/button.php`
-- `packages/search-seo/site-search/resources/lang/en/dashboard.php`
-- `packages/search-seo/site-search/resources/lang/en/generic.php`
-- `packages/search-seo/site-search/resources/lang/en/package.php`
-- `packages/search-seo/site-search/resources/lang/en/settings.php`
-- `packages/search-seo/site-search/routes/web.php`
-- `packages/search-seo/site-search/src/Settings/SiteSearchSettings.php`
-- `packages/search-seo/site-search/src/Filament/Settings/SiteSearchSettingsSchema.php`
-- `packages/search-seo/site-search/src/Filament/Settings/Contributors/SiteSearchDashboardSettingsContributor.php`
-- `packages/search-seo/site-search/src/Filament/Widgets/SearchOverviewStatsWidget.php`
-- `packages/search-seo/site-search/src/Filament/Widgets/TopSearchesWidget.php`
-- `packages/search-seo/site-search/src/Filament/Widgets/TrendingSearchesWidget.php`
-- `packages/search-seo/site-search/src/Filament/Widgets/ZeroResultSearchesWidget.php`
-- `packages/search-seo/site-search/src/Support/RenderHooks/RegisterHeaderSearchHook.php`
-- `packages/search-seo/site-search/src/Console/Commands/PurgeSiteSearchLogsCommand.php`
-- `packages/search-seo/site-search/tests/SiteSearchTestCase.php`
-- `packages/search-seo/site-search/tests/Unit/Search/SearchResultDataTest.php`
-- `packages/search-seo/site-search/tests/Unit/Search/DatabaseSiteSearchTest.php`
-- `packages/search-seo/site-search/tests/Unit/Search/ScoutSiteSearchTest.php`
-- `packages/search-seo/site-search/tests/Unit/Actions/NormalizeSearchQueryActionTest.php`
-- `packages/search-seo/site-search/tests/Feature/Actions/RecordSiteSearchActionTest.php`
-- `packages/search-seo/site-search/tests/Feature/Actions/SearchAnalyticsActionsTest.php`
-- `packages/search-seo/site-search/tests/Feature/Http/SearchControllerTest.php`
-- `packages/search-seo/site-search/tests/Feature/Providers/SiteSearchServiceProviderTest.php`
-- `packages/search-seo/site-search/tests/Feature/Widgets/SiteSearchWidgetsTest.php`
+- `packages/site-search/composer.json`
+- `packages/site-search/config/capell-site-search.php`
+- `packages/site-search/src/Providers/SiteSearchServiceProvider.php`
+- `packages/site-search/src/Providers/AdminServiceProvider.php`
+- `packages/site-search/src/Contracts/SiteSearch.php`
+- `packages/site-search/src/Data/SearchRequestData.php`
+- `packages/site-search/src/Data/SearchResultData.php`
+- `packages/site-search/src/Data/SearchAnalyticsWindowData.php`
+- `packages/site-search/src/Data/SearchTermSummaryData.php`
+- `packages/site-search/src/Enums/SearchDriver.php`
+- `packages/site-search/src/Drivers/DatabaseSiteSearch.php`
+- `packages/site-search/src/Drivers/ScoutSiteSearch.php`
+- `packages/site-search/src/Actions/NormalizeSearchQueryAction.php`
+- `packages/site-search/src/Actions/RunSiteSearchAction.php`
+- `packages/site-search/src/Actions/RecordSiteSearchAction.php`
+- `packages/site-search/src/Actions/RecordSearchResultClickAction.php`
+- `packages/site-search/src/Actions/BuildTopSearchesQueryAction.php`
+- `packages/site-search/src/Actions/BuildTrendingSearchesQueryAction.php`
+- `packages/site-search/src/Actions/BuildZeroResultSearchesQueryAction.php`
+- `packages/site-search/src/Actions/PurgeSiteSearchLogsAction.php`
+- `packages/site-search/src/Http/Controllers/SearchController.php`
+- `packages/site-search/src/Models/SiteSearchLog.php`
+- `packages/site-search/database/factories/SiteSearchLogFactory.php`
+- `packages/site-search/database/migrations/create_site_search_logs_table.php`
+- `packages/site-search/database/settings/add_site_search_settings.php`
+- `packages/site-search/resources/views/components/form.blade.php`
+- `packages/site-search/resources/views/components/results.blade.php`
+- `packages/site-search/resources/views/pages/search.blade.php`
+- `packages/site-search/resources/views/filament/widgets/search-overview-stats.blade.php`
+- `packages/site-search/resources/lang/en/actions.php`
+- `packages/site-search/resources/lang/en/button.php`
+- `packages/site-search/resources/lang/en/dashboard.php`
+- `packages/site-search/resources/lang/en/generic.php`
+- `packages/site-search/resources/lang/en/package.php`
+- `packages/site-search/resources/lang/en/settings.php`
+- `packages/site-search/routes/web.php`
+- `packages/site-search/src/Settings/SiteSearchSettings.php`
+- `packages/site-search/src/Filament/Settings/SiteSearchSettingsSchema.php`
+- `packages/site-search/src/Filament/Settings/Contributors/SiteSearchDashboardSettingsContributor.php`
+- `packages/site-search/src/Filament/Widgets/SearchOverviewStatsWidget.php`
+- `packages/site-search/src/Filament/Widgets/TopSearchesWidget.php`
+- `packages/site-search/src/Filament/Widgets/TrendingSearchesWidget.php`
+- `packages/site-search/src/Filament/Widgets/ZeroResultSearchesWidget.php`
+- `packages/site-search/src/Support/RenderHooks/RegisterHeaderSearchHook.php`
+- `packages/site-search/src/Console/Commands/PurgeSiteSearchLogsCommand.php`
+- `packages/site-search/tests/SiteSearchTestCase.php`
+- `packages/site-search/tests/Unit/Search/SearchResultDataTest.php`
+- `packages/site-search/tests/Unit/Search/DatabaseSiteSearchTest.php`
+- `packages/site-search/tests/Unit/Search/ScoutSiteSearchTest.php`
+- `packages/site-search/tests/Unit/Actions/NormalizeSearchQueryActionTest.php`
+- `packages/site-search/tests/Feature/Actions/RecordSiteSearchActionTest.php`
+- `packages/site-search/tests/Feature/Actions/SearchAnalyticsActionsTest.php`
+- `packages/site-search/tests/Feature/Http/SearchControllerTest.php`
+- `packages/site-search/tests/Feature/Providers/SiteSearchServiceProviderTest.php`
+- `packages/site-search/tests/Feature/Widgets/SiteSearchWidgetsTest.php`
 
 **Modify existing files:**
 
@@ -93,15 +93,15 @@
 
 **Files:**
 
-- Create: `packages/search-seo/site-search/composer.json`
-- Create: `packages/search-seo/site-search/src/Providers/SiteSearchServiceProvider.php`
-- Create: `packages/search-seo/site-search/src/Providers/AdminServiceProvider.php`
-- Create: `packages/search-seo/site-search/resources/lang/en/package.php`
+- Create: `packages/site-search/composer.json`
+- Create: `packages/site-search/src/Providers/SiteSearchServiceProvider.php`
+- Create: `packages/site-search/src/Providers/AdminServiceProvider.php`
+- Create: `packages/site-search/resources/lang/en/package.php`
 - Modify: `composer.json`
 
 - [ ] **Step 1: Add package composer.json**
 
-Create `packages/search-seo/site-search/composer.json`:
+Create `packages/site-search/composer.json`:
 
 ```json
 {
@@ -150,7 +150,7 @@ Create `packages/search-seo/site-search/composer.json`:
 
 - [ ] **Step 2: Add package translation**
 
-Create `packages/search-seo/site-search/resources/lang/en/package.php`:
+Create `packages/site-search/resources/lang/en/package.php`:
 
 ```php
 <?php
@@ -164,7 +164,7 @@ return [
 
 - [ ] **Step 3: Add the service provider**
 
-Create `packages/search-seo/site-search/src/Providers/SiteSearchServiceProvider.php`:
+Create `packages/site-search/src/Providers/SiteSearchServiceProvider.php`:
 
 ```php
 <?php
@@ -293,7 +293,7 @@ final class SiteSearchServiceProvider extends AbstractPackageServiceProvider
 
 - [ ] **Step 4: Add the admin provider**
 
-Create `packages/search-seo/site-search/src/Providers/AdminServiceProvider.php`:
+Create `packages/site-search/src/Providers/AdminServiceProvider.php`:
 
 ```php
 <?php
@@ -344,14 +344,14 @@ final class AdminServiceProvider extends ServiceProvider
 Modify the root `composer.json` autoload sections:
 
 ```json
-"Capell\\SiteSearch\\": "packages/search-seo/site-search/src",
-"Capell\\SiteSearch\\Database\\Factories\\": "packages/search-seo/site-search/database/factories",
+"Capell\\SiteSearch\\": "packages/site-search/src",
+"Capell\\SiteSearch\\Database\\Factories\\": "packages/site-search/database/factories",
 ```
 
 and in `autoload-dev`:
 
 ```json
-"Capell\\SiteSearch\\Tests\\": "packages/search-seo/site-search/tests",
+"Capell\\SiteSearch\\Tests\\": "packages/site-search/tests",
 ```
 
 - [ ] **Step 6: Run Composer validation**
@@ -365,7 +365,7 @@ Expected: validation passes. Existing warnings about root package metadata are a
 - [ ] **Step 7: Commit**
 
 ```bash
-git add composer.json packages/search-seo/site-search/composer.json packages/search-seo/site-search/resources/lang/en/package.php packages/search-seo/site-search/src/Providers
+git add composer.json packages/site-search/composer.json packages/site-search/resources/lang/en/package.php packages/site-search/src/Providers
 git commit -m "feat(site-search): add package skeleton"
 ```
 
@@ -375,20 +375,20 @@ git commit -m "feat(site-search): add package skeleton"
 
 **Files:**
 
-- Create: `packages/search-seo/site-search/src/Contracts/SiteSearch.php`
-- Create: `packages/search-seo/site-search/src/Data/SearchResultData.php`
-- Create: `packages/search-seo/site-search/src/Drivers/DatabaseSiteSearch.php`
-- Create: `packages/search-seo/site-search/src/Drivers/ScoutSiteSearch.php`
-- Create: `packages/search-seo/site-search/tests/SiteSearchTestCase.php`
-- Create: `packages/search-seo/site-search/tests/Unit/Search/SearchResultDataTest.php`
-- Create: `packages/search-seo/site-search/tests/Unit/Search/DatabaseSiteSearchTest.php`
-- Create: `packages/search-seo/site-search/tests/Unit/Search/ScoutSiteSearchTest.php`
+- Create: `packages/site-search/src/Contracts/SiteSearch.php`
+- Create: `packages/site-search/src/Data/SearchResultData.php`
+- Create: `packages/site-search/src/Drivers/DatabaseSiteSearch.php`
+- Create: `packages/site-search/src/Drivers/ScoutSiteSearch.php`
+- Create: `packages/site-search/tests/SiteSearchTestCase.php`
+- Create: `packages/site-search/tests/Unit/Search/SearchResultDataTest.php`
+- Create: `packages/site-search/tests/Unit/Search/DatabaseSiteSearchTest.php`
+- Create: `packages/site-search/tests/Unit/Search/ScoutSiteSearchTest.php`
 - Delete: `packages/theme-studio/themes-core/src/Search/*.php`
 - Delete: `packages/theme-studio/themes-core/tests/Unit/Search/*.php`
 
 - [ ] **Step 1: Create the search contract**
 
-Create `packages/search-seo/site-search/src/Contracts/SiteSearch.php`:
+Create `packages/site-search/src/Contracts/SiteSearch.php`:
 
 ```php
 <?php
@@ -412,7 +412,7 @@ interface SiteSearch
 
 - [ ] **Step 2: Create the result data object**
 
-Create `packages/search-seo/site-search/src/Data/SearchResultData.php`:
+Create `packages/site-search/src/Data/SearchResultData.php`:
 
 ```php
 <?php
@@ -437,7 +437,7 @@ final class SearchResultData extends Data
 
 - [ ] **Step 3: Move the database driver**
 
-Create `packages/search-seo/site-search/src/Drivers/DatabaseSiteSearch.php`:
+Create `packages/site-search/src/Drivers/DatabaseSiteSearch.php`:
 
 ```php
 <?php
@@ -543,7 +543,7 @@ final class DatabaseSiteSearch implements SiteSearch
 
 - [ ] **Step 4: Move the Scout driver**
 
-Create `packages/search-seo/site-search/src/Drivers/ScoutSiteSearch.php`:
+Create `packages/site-search/src/Drivers/ScoutSiteSearch.php`:
 
 ```php
 <?php
@@ -619,7 +619,7 @@ final class ScoutSiteSearch implements SiteSearch
 
 - [ ] **Step 5: Move and update tests**
 
-Move the existing search tests from `packages/theme-studio/themes-core/tests/Unit/Search` to `packages/search-seo/site-search/tests/Unit/Search` and update imports:
+Move the existing search tests from `packages/theme-studio/themes-core/tests/Unit/Search` to `packages/site-search/tests/Unit/Search` and update imports:
 
 ```php
 use Capell\SiteSearch\Contracts\SiteSearch;
@@ -659,7 +659,7 @@ packages/theme-studio/themes-core/tests/Unit/Search/SearchResultTest.php
 - [ ] **Step 7: Run moved search tests**
 
 ```bash
-vendor/bin/pest packages/search-seo/site-search/tests/Unit/Search --no-coverage
+vendor/bin/pest packages/site-search/tests/Unit/Search --no-coverage
 ```
 
 Expected: all moved search tests pass.
@@ -667,7 +667,7 @@ Expected: all moved search tests pass.
 - [ ] **Step 8: Verify themes-core has no search namespace**
 
 ```bash
-rg -F "Capell\\Themes\\Core\\Search" packages/theme-studio/themes-core packages/search-seo/site-search tests
+rg -F "Capell\\Themes\\Core\\Search" packages/theme-studio/themes-core packages/site-search tests
 ```
 
 Expected: no output.
@@ -675,7 +675,7 @@ Expected: no output.
 - [ ] **Step 9: Commit**
 
 ```bash
-git add packages/search-seo/site-search/src/Contracts packages/search-seo/site-search/src/Data packages/search-seo/site-search/src/Drivers packages/search-seo/site-search/tests packages/theme-studio/themes-core/src packages/theme-studio/themes-core/tests
+git add packages/site-search/src/Contracts packages/site-search/src/Data packages/site-search/src/Drivers packages/site-search/tests packages/theme-studio/themes-core/src packages/theme-studio/themes-core/tests
 git commit -m "feat(site-search): move search core out of themes-core"
 ```
 
@@ -685,20 +685,20 @@ git commit -m "feat(site-search): move search core out of themes-core"
 
 **Files:**
 
-- Create: `packages/search-seo/site-search/config/capell-site-search.php`
-- Create: `packages/search-seo/site-search/src/Data/SearchRequestData.php`
-- Create: `packages/search-seo/site-search/src/Data/SearchAnalyticsWindowData.php`
-- Create: `packages/search-seo/site-search/src/Data/SearchTermSummaryData.php`
-- Create: `packages/search-seo/site-search/src/Enums/SearchDriver.php`
-- Create: `packages/search-seo/site-search/src/Settings/SiteSearchSettings.php`
-- Create: `packages/search-seo/site-search/src/Filament/Settings/SiteSearchSettingsSchema.php`
-- Create: `packages/search-seo/site-search/database/settings/add_site_search_settings.php`
-- Create: `packages/search-seo/site-search/resources/lang/en/settings.php`
-- Create: `packages/search-seo/site-search/tests/Feature/Providers/SiteSearchServiceProviderTest.php`
+- Create: `packages/site-search/config/capell-site-search.php`
+- Create: `packages/site-search/src/Data/SearchRequestData.php`
+- Create: `packages/site-search/src/Data/SearchAnalyticsWindowData.php`
+- Create: `packages/site-search/src/Data/SearchTermSummaryData.php`
+- Create: `packages/site-search/src/Enums/SearchDriver.php`
+- Create: `packages/site-search/src/Settings/SiteSearchSettings.php`
+- Create: `packages/site-search/src/Filament/Settings/SiteSearchSettingsSchema.php`
+- Create: `packages/site-search/database/settings/add_site_search_settings.php`
+- Create: `packages/site-search/resources/lang/en/settings.php`
+- Create: `packages/site-search/tests/Feature/Providers/SiteSearchServiceProviderTest.php`
 
 - [ ] **Step 1: Add package config**
 
-Create `packages/search-seo/site-search/config/capell-site-search.php`:
+Create `packages/site-search/config/capell-site-search.php`:
 
 ```php
 <?php
@@ -803,7 +803,7 @@ final class SearchTermSummaryData extends Data
 
 - [ ] **Step 3: Add driver enum**
 
-Create `packages/search-seo/site-search/src/Enums/SearchDriver.php`:
+Create `packages/site-search/src/Enums/SearchDriver.php`:
 
 ```php
 <?php
@@ -828,7 +828,7 @@ enum SearchDriver: string implements HasLabel
 
 - [ ] **Step 4: Add settings**
 
-Create `packages/search-seo/site-search/src/Settings/SiteSearchSettings.php`:
+Create `packages/site-search/src/Settings/SiteSearchSettings.php`:
 
 ```php
 <?php
@@ -874,7 +874,7 @@ final class SiteSearchSettings extends Settings implements SettingsContract
 
 - [ ] **Step 5: Add settings schema and translations**
 
-Create `packages/search-seo/site-search/src/Filament/Settings/SiteSearchSettingsSchema.php`:
+Create `packages/site-search/src/Filament/Settings/SiteSearchSettingsSchema.php`:
 
 ```php
 <?php
@@ -945,7 +945,7 @@ final class SiteSearchSettingsSchema implements HasSchema
 }
 ```
 
-Create `packages/search-seo/site-search/resources/lang/en/settings.php`:
+Create `packages/site-search/resources/lang/en/settings.php`:
 
 ```php
 <?php
@@ -975,7 +975,7 @@ return [
 
 - [ ] **Step 6: Add settings migration**
 
-Create `packages/search-seo/site-search/database/settings/add_site_search_settings.php`:
+Create `packages/site-search/database/settings/add_site_search_settings.php`:
 
 ```php
 <?php
@@ -1010,7 +1010,7 @@ return new class extends SettingsMigration
 
 - [ ] **Step 7: Test provider binding**
 
-Create `packages/search-seo/site-search/tests/Feature/Providers/SiteSearchServiceProviderTest.php`:
+Create `packages/site-search/tests/Feature/Providers/SiteSearchServiceProviderTest.php`:
 
 ```php
 <?php
@@ -1030,7 +1030,7 @@ test('provider binds the configured database search driver', function (): void {
 - [ ] **Step 8: Run config/settings tests**
 
 ```bash
-vendor/bin/pest packages/search-seo/site-search/tests/Feature/Providers --no-coverage
+vendor/bin/pest packages/site-search/tests/Feature/Providers --no-coverage
 ```
 
 Expected: provider tests pass.
@@ -1038,7 +1038,7 @@ Expected: provider tests pass.
 - [ ] **Step 9: Commit**
 
 ```bash
-git add packages/search-seo/site-search/config packages/search-seo/site-search/src/Data packages/search-seo/site-search/src/Settings packages/search-seo/site-search/src/Filament/Settings packages/search-seo/site-search/database/settings packages/search-seo/site-search/resources/lang/en/settings.php packages/search-seo/site-search/tests/Feature/Providers
+git add packages/site-search/config packages/site-search/src/Data packages/site-search/src/Settings packages/site-search/src/Filament/Settings packages/site-search/database/settings packages/site-search/resources/lang/en/settings.php packages/site-search/tests/Feature/Providers
 git commit -m "feat(site-search): add config and settings"
 ```
 
@@ -1048,22 +1048,22 @@ git commit -m "feat(site-search): add config and settings"
 
 **Files:**
 
-- Create: `packages/search-seo/site-search/routes/web.php`
-- Create: `packages/search-seo/site-search/src/Http/Controllers/SearchController.php`
-- Create: `packages/search-seo/site-search/src/Actions/NormalizeSearchQueryAction.php`
-- Create: `packages/search-seo/site-search/src/Actions/RunSiteSearchAction.php`
-- Create: `packages/search-seo/site-search/src/Support/RenderHooks/RegisterHeaderSearchHook.php`
-- Create: `packages/search-seo/site-search/resources/views/components/form.blade.php`
-- Create: `packages/search-seo/site-search/resources/views/components/results.blade.php`
-- Create: `packages/search-seo/site-search/resources/views/pages/search.blade.php`
-- Create: `packages/search-seo/site-search/resources/lang/en/generic.php`
-- Create: `packages/search-seo/site-search/resources/lang/en/button.php`
-- Create: `packages/search-seo/site-search/tests/Unit/Actions/NormalizeSearchQueryActionTest.php`
-- Create: `packages/search-seo/site-search/tests/Feature/Http/SearchControllerTest.php`
+- Create: `packages/site-search/routes/web.php`
+- Create: `packages/site-search/src/Http/Controllers/SearchController.php`
+- Create: `packages/site-search/src/Actions/NormalizeSearchQueryAction.php`
+- Create: `packages/site-search/src/Actions/RunSiteSearchAction.php`
+- Create: `packages/site-search/src/Support/RenderHooks/RegisterHeaderSearchHook.php`
+- Create: `packages/site-search/resources/views/components/form.blade.php`
+- Create: `packages/site-search/resources/views/components/results.blade.php`
+- Create: `packages/site-search/resources/views/pages/search.blade.php`
+- Create: `packages/site-search/resources/lang/en/generic.php`
+- Create: `packages/site-search/resources/lang/en/button.php`
+- Create: `packages/site-search/tests/Unit/Actions/NormalizeSearchQueryActionTest.php`
+- Create: `packages/site-search/tests/Feature/Http/SearchControllerTest.php`
 
 - [ ] **Step 1: Add the route**
 
-Create `packages/search-seo/site-search/routes/web.php`:
+Create `packages/site-search/routes/web.php`:
 
 ```php
 <?php
@@ -1224,7 +1224,7 @@ Create the form component:
 </form>
 ```
 
-Create `packages/search-seo/site-search/resources/views/components/results.blade.php`:
+Create `packages/site-search/resources/views/components/results.blade.php`:
 
 ```blade
 @props([
@@ -1380,7 +1380,7 @@ Write tests for blank query, valid query, and result rendering.
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/site-search/tests/Unit/Actions/NormalizeSearchQueryActionTest.php packages/search-seo/site-search/tests/Feature/Http/SearchControllerTest.php --no-coverage
+vendor/bin/pest packages/site-search/tests/Unit/Actions/NormalizeSearchQueryActionTest.php packages/site-search/tests/Feature/Http/SearchControllerTest.php --no-coverage
 ```
 
 Expected: action and controller tests pass.
@@ -1388,7 +1388,7 @@ Expected: action and controller tests pass.
 - [ ] **Step 9: Commit**
 
 ```bash
-git add packages/search-seo/site-search/routes packages/search-seo/site-search/src/Http packages/search-seo/site-search/src/Actions packages/search-seo/site-search/src/Support packages/search-seo/site-search/resources/views packages/search-seo/site-search/resources/lang/en packages/search-seo/site-search/tests
+git add packages/site-search/routes packages/site-search/src/Http packages/site-search/src/Actions packages/site-search/src/Support packages/site-search/resources/views packages/site-search/resources/lang/en packages/site-search/tests
 git commit -m "feat(site-search): add frontend search page"
 ```
 
@@ -1398,12 +1398,12 @@ git commit -m "feat(site-search): add frontend search page"
 
 **Files:**
 
-- Create: `packages/search-seo/site-search/database/migrations/create_site_search_logs_table.php`
-- Create: `packages/search-seo/site-search/src/Models/SiteSearchLog.php`
-- Create: `packages/search-seo/site-search/database/factories/SiteSearchLogFactory.php`
-- Create: `packages/search-seo/site-search/src/Actions/RecordSiteSearchAction.php`
-- Create: `packages/search-seo/site-search/src/Actions/RecordSearchResultClickAction.php`
-- Create: `packages/search-seo/site-search/tests/Feature/Actions/RecordSiteSearchActionTest.php`
+- Create: `packages/site-search/database/migrations/create_site_search_logs_table.php`
+- Create: `packages/site-search/src/Models/SiteSearchLog.php`
+- Create: `packages/site-search/database/factories/SiteSearchLogFactory.php`
+- Create: `packages/site-search/src/Actions/RecordSiteSearchAction.php`
+- Create: `packages/site-search/src/Actions/RecordSearchResultClickAction.php`
+- Create: `packages/site-search/tests/Feature/Actions/RecordSiteSearchActionTest.php`
 
 - [ ] **Step 1: Add migration**
 
@@ -1604,7 +1604,7 @@ Test:
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/site-search/tests/Feature/Actions/RecordSiteSearchActionTest.php --no-coverage
+vendor/bin/pest packages/site-search/tests/Feature/Actions/RecordSiteSearchActionTest.php --no-coverage
 ```
 
 Expected: logging action tests pass.
@@ -1612,7 +1612,7 @@ Expected: logging action tests pass.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/search-seo/site-search/database/migrations packages/search-seo/site-search/database/factories packages/search-seo/site-search/src/Models packages/search-seo/site-search/src/Actions/RecordSiteSearchAction.php packages/search-seo/site-search/src/Actions/RecordSearchResultClickAction.php packages/search-seo/site-search/tests/Feature/Actions
+git add packages/site-search/database/migrations packages/site-search/database/factories packages/site-search/src/Models packages/site-search/src/Actions/RecordSiteSearchAction.php packages/site-search/src/Actions/RecordSearchResultClickAction.php packages/site-search/tests/Feature/Actions
 git commit -m "feat(site-search): record optional search logs"
 ```
 
@@ -1622,18 +1622,18 @@ git commit -m "feat(site-search): record optional search logs"
 
 **Files:**
 
-- Create: `packages/search-seo/site-search/src/Actions/BuildTopSearchesQueryAction.php`
-- Create: `packages/search-seo/site-search/src/Actions/BuildTrendingSearchesQueryAction.php`
-- Create: `packages/search-seo/site-search/src/Actions/BuildZeroResultSearchesQueryAction.php`
-- Create: `packages/search-seo/site-search/src/Filament/Widgets/SearchOverviewStatsWidget.php`
-- Create: `packages/search-seo/site-search/src/Filament/Widgets/TopSearchesWidget.php`
-- Create: `packages/search-seo/site-search/src/Filament/Widgets/TrendingSearchesWidget.php`
-- Create: `packages/search-seo/site-search/src/Filament/Widgets/ZeroResultSearchesWidget.php`
-- Create: `packages/search-seo/site-search/src/Filament/Settings/Contributors/SiteSearchDashboardSettingsContributor.php`
-- Create: `packages/search-seo/site-search/resources/views/filament/widgets/search-overview-stats.blade.php`
-- Create: `packages/search-seo/site-search/resources/lang/en/dashboard.php`
-- Create: `packages/search-seo/site-search/tests/Feature/Actions/SearchAnalyticsActionsTest.php`
-- Create: `packages/search-seo/site-search/tests/Feature/Widgets/SiteSearchWidgetsTest.php`
+- Create: `packages/site-search/src/Actions/BuildTopSearchesQueryAction.php`
+- Create: `packages/site-search/src/Actions/BuildTrendingSearchesQueryAction.php`
+- Create: `packages/site-search/src/Actions/BuildZeroResultSearchesQueryAction.php`
+- Create: `packages/site-search/src/Filament/Widgets/SearchOverviewStatsWidget.php`
+- Create: `packages/site-search/src/Filament/Widgets/TopSearchesWidget.php`
+- Create: `packages/site-search/src/Filament/Widgets/TrendingSearchesWidget.php`
+- Create: `packages/site-search/src/Filament/Widgets/ZeroResultSearchesWidget.php`
+- Create: `packages/site-search/src/Filament/Settings/Contributors/SiteSearchDashboardSettingsContributor.php`
+- Create: `packages/site-search/resources/views/filament/widgets/search-overview-stats.blade.php`
+- Create: `packages/site-search/resources/lang/en/dashboard.php`
+- Create: `packages/site-search/tests/Feature/Actions/SearchAnalyticsActionsTest.php`
+- Create: `packages/site-search/tests/Feature/Widgets/SiteSearchWidgetsTest.php`
 
 - [ ] **Step 1: Add analytics query actions**
 
@@ -1713,7 +1713,7 @@ return [
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/site-search/tests/Feature/Actions/SearchAnalyticsActionsTest.php packages/search-seo/site-search/tests/Feature/Widgets/SiteSearchWidgetsTest.php --no-coverage
+vendor/bin/pest packages/site-search/tests/Feature/Actions/SearchAnalyticsActionsTest.php packages/site-search/tests/Feature/Widgets/SiteSearchWidgetsTest.php --no-coverage
 ```
 
 Expected: analytics action and widget tests pass.
@@ -1721,7 +1721,7 @@ Expected: analytics action and widget tests pass.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/search-seo/site-search/src/Actions/Build*SearchesQueryAction.php packages/search-seo/site-search/src/Filament packages/search-seo/site-search/resources/views/filament packages/search-seo/site-search/resources/lang/en/dashboard.php packages/search-seo/site-search/tests/Feature
+git add packages/site-search/src/Actions/Build*SearchesQueryAction.php packages/site-search/src/Filament packages/site-search/resources/views/filament packages/site-search/resources/lang/en/dashboard.php packages/site-search/tests/Feature
 git commit -m "feat(site-search): add search analytics widgets"
 ```
 
@@ -1731,9 +1731,9 @@ git commit -m "feat(site-search): add search analytics widgets"
 
 **Files:**
 
-- Create: `packages/search-seo/site-search/src/Actions/PurgeSiteSearchLogsAction.php`
-- Create: `packages/search-seo/site-search/src/Console/Commands/PurgeSiteSearchLogsCommand.php`
-- Create: `packages/search-seo/site-search/resources/lang/en/actions.php`
+- Create: `packages/site-search/src/Actions/PurgeSiteSearchLogsAction.php`
+- Create: `packages/site-search/src/Console/Commands/PurgeSiteSearchLogsCommand.php`
+- Create: `packages/site-search/resources/lang/en/actions.php`
 
 - [ ] **Step 1: Add purge action**
 
@@ -1815,7 +1815,7 @@ Add a test that creates one old log and one recent log, runs the action, and ass
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/site-search/tests/Feature/Actions --no-coverage
+vendor/bin/pest packages/site-search/tests/Feature/Actions --no-coverage
 ```
 
 Expected: purge action tests pass.
@@ -1823,7 +1823,7 @@ Expected: purge action tests pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/search-seo/site-search/src/Actions/PurgeSiteSearchLogsAction.php packages/search-seo/site-search/src/Console packages/search-seo/site-search/resources/lang/en/actions.php packages/search-seo/site-search/tests/Feature/Actions
+git add packages/site-search/src/Actions/PurgeSiteSearchLogsAction.php packages/site-search/src/Console packages/site-search/resources/lang/en/actions.php packages/site-search/tests/Feature/Actions
 git commit -m "feat(site-search): purge old search logs"
 ```
 
@@ -1853,7 +1853,7 @@ Inspect `packages/theme-studio/themes-core/composer.json`. It should not require
 - [ ] **Step 3: Run affected tests**
 
 ```bash
-vendor/bin/pest packages/search-seo/site-search/tests packages/theme-studio/themes-core/tests --no-coverage
+vendor/bin/pest packages/site-search/tests packages/theme-studio/themes-core/tests --no-coverage
 ```
 
 Expected: site-search tests pass and themes-core tests pass without the old search tests.
@@ -1869,7 +1869,7 @@ Expected: no output.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/theme-studio/themes-core packages/search-seo/site-search composer.json
+git add packages/theme-studio/themes-core packages/site-search composer.json
 git commit -m "chore(site-search): verify themes-core search extraction"
 ```
 
@@ -1884,7 +1884,7 @@ git commit -m "chore(site-search): verify themes-core search extraction"
 - [ ] **Step 1: Run focused tests**
 
 ```bash
-vendor/bin/pest packages/search-seo/site-search/tests packages/theme-studio/themes-core/tests --no-coverage
+vendor/bin/pest packages/site-search/tests packages/theme-studio/themes-core/tests --no-coverage
 ```
 
 Expected: all focused tests pass.
@@ -1917,6 +1917,6 @@ Expected: all preflight checks pass.
 - [ ] **Step 5: Commit final fixes**
 
 ```bash
-git add composer.json packages/search-seo/site-search packages/theme-studio/themes-core
+git add composer.json packages/site-search packages/theme-studio/themes-core
 git commit -m "chore(site-search): pass package verification"
 ```

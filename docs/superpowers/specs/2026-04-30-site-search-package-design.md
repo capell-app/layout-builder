@@ -12,7 +12,7 @@ Use **Site Search**:
 
 - Composer package: `capell-app/site-search`
 - Namespace: `Capell\SiteSearch`
-- Package directory: `packages/search-seo/site-search`
+- Package directory: `packages/site-search`
 - Translation namespace: `capell-site-search`
 - Config key: `capell-site-search`
 - Admin settings group: `site_search`
@@ -36,8 +36,8 @@ Their new homes should be:
 - `Capell\SiteSearch\Data\SearchResultData`
 - `Capell\SiteSearch\Drivers\DatabaseSiteSearch`
 - `Capell\SiteSearch\Drivers\ScoutSiteSearch`
-- `packages/search-seo/site-search/resources/views/components/results.blade.php`
-- `packages/search-seo/site-search/tests/Unit/Search`
+- `packages/site-search/resources/views/components/results.blade.php`
+- `packages/site-search/tests/Unit/Search`
 
 Do not keep compatibility aliases in `themes-core` for the first implementation. A full extraction should make search ownership obvious and let tests catch stale imports.
 
@@ -238,13 +238,13 @@ Tests should cover:
 Run the package tests with:
 
 ```bash
-vendor/bin/pest packages/search-seo/site-search/tests
+vendor/bin/pest packages/site-search/tests
 ```
 
 Run affected extraction tests with:
 
 ```bash
-vendor/bin/pest packages/search-seo/site-search/tests packages/theme-studio/themes-core/tests
+vendor/bin/pest packages/site-search/tests packages/theme-studio/themes-core/tests
 ```
 
 ## Implementation Sequence

@@ -12,19 +12,19 @@
 
 ## File Map
 
-- `packages/publishing-pro/workspaces/src/Contracts/WorkspaceTableActionContributor.php` — new optional action extension contract for Workspaces tables.
-- `packages/publishing-pro/workspaces/src/Filament/Resources/Workspaces/Tables/WorkspacesTable.php` — append tagged contributor actions after the existing new-tab preview action.
-- `packages/publishing-pro/workspaces/tests/Unit/WorkspaceTableActionContributorTest.php` — verifies the contract tag and table action merge without Peek.
-- `packages/publishing-pro/workspaces/tests/WorkspacesTestCase.php` — remove direct `FilamentPeekServiceProvider` registration.
+- `packages/workspaces/src/Contracts/WorkspaceTableActionContributor.php` — new optional action extension contract for Workspaces tables.
+- `packages/workspaces/src/Filament/Resources/Workspaces/Tables/WorkspacesTable.php` — append tagged contributor actions after the existing new-tab preview action.
+- `packages/workspaces/tests/Unit/WorkspaceTableActionContributorTest.php` — verifies the contract tag and table action merge without Peek.
+- `packages/workspaces/tests/WorkspacesTestCase.php` — remove direct `FilamentPeekServiceProvider` registration.
 - `tests/AbstractTestCase.php` — remove direct `FilamentPeekServiceProvider` registration once the root test harness no longer needs it.
-- `packages/publishing-pro/filament-peek/composer.json` — new optional package manifest.
-- `packages/publishing-pro/filament-peek/src/Providers/FilamentPeekServiceProvider.php` — register package metadata, translations, admin provider.
-- `packages/publishing-pro/filament-peek/src/Providers/AdminServiceProvider.php` — tag the admin panel extender and Workspaces action contributor.
-- `packages/publishing-pro/filament-peek/src/Filament/Extenders/FilamentPeekAdminPanelExtender.php` — registers `Pboivin\FilamentPeek\FilamentPeekPlugin` on the panel.
-- `packages/publishing-pro/filament-peek/src/Filament/Resources/Workspaces/Actions/WorkspacePeekPreviewAction.php` — action that dispatches Peek's iframe modal event with a Workspaces preview URL.
-- `packages/publishing-pro/filament-peek/src/Workspaces/WorkspacePeekPreviewActionContributor.php` — returns the modal preview action when required packages are installed.
-- `packages/publishing-pro/filament-peek/resources/lang/en/workspace.php` — labels for the modal preview action.
-- `packages/publishing-pro/filament-peek/tests/...` — focused unit and feature tests for provider registration, action contribution, and URL generation.
+- `packages/filament-peek/composer.json` — new optional package manifest.
+- `packages/filament-peek/src/Providers/FilamentPeekServiceProvider.php` — register package metadata, translations, admin provider.
+- `packages/filament-peek/src/Providers/AdminServiceProvider.php` — tag the admin panel extender and Workspaces action contributor.
+- `packages/filament-peek/src/Filament/Extenders/FilamentPeekAdminPanelExtender.php` — registers `Pboivin\FilamentPeek\FilamentPeekPlugin` on the panel.
+- `packages/filament-peek/src/Filament/Resources/Workspaces/Actions/WorkspacePeekPreviewAction.php` — action that dispatches Peek's iframe modal event with a Workspaces preview URL.
+- `packages/filament-peek/src/Workspaces/WorkspacePeekPreviewActionContributor.php` — returns the modal preview action when required packages are installed.
+- `packages/filament-peek/resources/lang/en/workspace.php` — labels for the modal preview action.
+- `packages/filament-peek/tests/...` — focused unit and feature tests for provider registration, action contribution, and URL generation.
 - `composer.json` — add package path autoload entries and move `pboivin/filament-peek` out of root/global require if possible.
 - Companion admin repo: `vendor/capell-app/admin/composer.json` and `vendor/capell-app/admin/src/Providers/Filament/AdminPanelProvider.php` — remove hard Filament Peek dependency and direct plugin registration.
 
@@ -32,14 +32,14 @@
 
 **Files:**
 
-- Create: `packages/publishing-pro/workspaces/src/Contracts/WorkspaceTableActionContributor.php`
-- Modify: `packages/publishing-pro/workspaces/src/Filament/Resources/Workspaces/Tables/WorkspacesTable.php`
-- Test: `packages/publishing-pro/workspaces/tests/Unit/WorkspaceTableActionContributorTest.php`
-- Modify: `packages/publishing-pro/workspaces/tests/WorkspacesTestCase.php`
+- Create: `packages/workspaces/src/Contracts/WorkspaceTableActionContributor.php`
+- Modify: `packages/workspaces/src/Filament/Resources/Workspaces/Tables/WorkspacesTable.php`
+- Test: `packages/workspaces/tests/Unit/WorkspaceTableActionContributorTest.php`
+- Modify: `packages/workspaces/tests/WorkspacesTestCase.php`
 
 - [ ] **Step 1: Write the contract test**
 
-Create `packages/publishing-pro/workspaces/tests/Unit/WorkspaceTableActionContributorTest.php`:
+Create `packages/workspaces/tests/Unit/WorkspaceTableActionContributorTest.php`:
 
 ```php
 <?php
@@ -59,14 +59,14 @@ it('defines the workspace table action contributor tag', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/publishing-pro/workspaces/tests/Unit/WorkspaceTableActionContributorTest.php --no-coverage
+vendor/bin/pest packages/workspaces/tests/Unit/WorkspaceTableActionContributorTest.php --no-coverage
 ```
 
 Expected: fail because `Capell\Workspaces\Contracts\WorkspaceTableActionContributor` does not exist.
 
 - [ ] **Step 3: Create the contract**
 
-Create `packages/publishing-pro/workspaces/src/Contracts/WorkspaceTableActionContributor.php`:
+Create `packages/workspaces/src/Contracts/WorkspaceTableActionContributor.php`:
 
 ```php
 <?php
@@ -88,7 +88,7 @@ interface WorkspaceTableActionContributor
 
 - [ ] **Step 4: Make WorkspacesTable append contributor actions**
 
-In `packages/publishing-pro/workspaces/src/Filament/Resources/Workspaces/Tables/WorkspacesTable.php`, import the contract:
+In `packages/workspaces/src/Filament/Resources/Workspaces/Tables/WorkspacesTable.php`, import the contract:
 
 ```php
 use Capell\Workspaces\Contracts\WorkspaceTableActionContributor;
@@ -148,7 +148,7 @@ Add this method before `getTableColumns()`:
 
 - [ ] **Step 5: Remove direct Peek provider from Workspaces tests**
 
-In `packages/publishing-pro/workspaces/tests/WorkspacesTestCase.php`, delete:
+In `packages/workspaces/tests/WorkspacesTestCase.php`, delete:
 
 ```php
 use Pboivin\FilamentPeek\FilamentPeekServiceProvider;
@@ -165,7 +165,7 @@ Remove this provider from `getPackageProviders()`:
 Run:
 
 ```bash
-vendor/bin/pest packages/publishing-pro/workspaces/tests/Unit/WorkspaceTableActionContributorTest.php packages/publishing-pro/workspaces/tests/Feature/Actions/GenerateWorkspacePreviewUrlActionTest.php --no-coverage
+vendor/bin/pest packages/workspaces/tests/Unit/WorkspaceTableActionContributorTest.php packages/workspaces/tests/Feature/Actions/GenerateWorkspacePreviewUrlActionTest.php --no-coverage
 ```
 
 Expected: pass.
@@ -173,10 +173,10 @@ Expected: pass.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/publishing-pro/workspaces/src/Contracts/WorkspaceTableActionContributor.php \
-        packages/publishing-pro/workspaces/src/Filament/Resources/Workspaces/Tables/WorkspacesTable.php \
-        packages/publishing-pro/workspaces/tests/Unit/WorkspaceTableActionContributorTest.php \
-        packages/publishing-pro/workspaces/tests/WorkspacesTestCase.php
+git add packages/workspaces/src/Contracts/WorkspaceTableActionContributor.php \
+        packages/workspaces/src/Filament/Resources/Workspaces/Tables/WorkspacesTable.php \
+        packages/workspaces/tests/Unit/WorkspaceTableActionContributorTest.php \
+        packages/workspaces/tests/WorkspacesTestCase.php
 git commit -m "feat(workspaces): add table action contributors"
 ```
 
@@ -184,18 +184,18 @@ git commit -m "feat(workspaces): add table action contributors"
 
 **Files:**
 
-- Create: `packages/publishing-pro/filament-peek/composer.json`
-- Create: `packages/publishing-pro/filament-peek/src/Providers/FilamentPeekServiceProvider.php`
-- Create: `packages/publishing-pro/filament-peek/src/Providers/AdminServiceProvider.php`
-- Create: `packages/publishing-pro/filament-peek/resources/lang/en/package.php`
-- Create: `packages/publishing-pro/filament-peek/tests/FilamentPeekTestCase.php`
+- Create: `packages/filament-peek/composer.json`
+- Create: `packages/filament-peek/src/Providers/FilamentPeekServiceProvider.php`
+- Create: `packages/filament-peek/src/Providers/AdminServiceProvider.php`
+- Create: `packages/filament-peek/resources/lang/en/package.php`
+- Create: `packages/filament-peek/tests/FilamentPeekTestCase.php`
 - Modify: `composer.json`
 - Modify: `tests/Pest.php`
-- Test: `packages/publishing-pro/filament-peek/tests/Unit/Providers/FilamentPeekServiceProviderTest.php`
+- Test: `packages/filament-peek/tests/Unit/Providers/FilamentPeekServiceProviderTest.php`
 
 - [ ] **Step 1: Write provider registration test**
 
-Create `packages/publishing-pro/filament-peek/tests/Unit/Providers/FilamentPeekServiceProviderTest.php`:
+Create `packages/filament-peek/tests/Unit/Providers/FilamentPeekServiceProviderTest.php`:
 
 ```php
 <?php
@@ -213,7 +213,7 @@ it('registers the package with Capell Core', function (): void {
 
 - [ ] **Step 2: Create package manifest**
 
-Create `packages/publishing-pro/filament-peek/composer.json`:
+Create `packages/filament-peek/composer.json`:
 
 ```json
 {
@@ -257,20 +257,20 @@ Create `packages/publishing-pro/filament-peek/composer.json`:
 In root `composer.json`, add to `autoload.psr-4`:
 
 ```json
-"Capell\\FilamentPeek\\": "packages/publishing-pro/filament-peek/src",
+"Capell\\FilamentPeek\\": "packages/filament-peek/src",
 ```
 
 Add to `autoload-dev.psr-4`:
 
 ```json
-"Capell\\FilamentPeek\\Tests\\": "packages/publishing-pro/filament-peek/tests",
+"Capell\\FilamentPeek\\Tests\\": "packages/filament-peek/tests",
 ```
 
 Keep `pboivin/filament-peek` in root `require` until Task 5 removes direct admin usage. This avoids breaking the current symlinked admin package mid-plan.
 
 - [ ] **Step 4: Create package test case and Pest mapping**
 
-Create `packages/publishing-pro/filament-peek/tests/FilamentPeekTestCase.php`:
+Create `packages/filament-peek/tests/FilamentPeekTestCase.php`:
 
 ```php
 <?php
@@ -322,12 +322,12 @@ use Capell\FilamentPeek\Tests\FilamentPeekTestCase;
 Add the Pest mapping near the other package mappings:
 
 ```php
-pest()->extend(FilamentPeekTestCase::class)->in('../packages/publishing-pro/filament-peek/tests');
+pest()->extend(FilamentPeekTestCase::class)->in('../packages/filament-peek/tests');
 ```
 
 - [ ] **Step 5: Create service providers and translation**
 
-Create `packages/publishing-pro/filament-peek/src/Providers/FilamentPeekServiceProvider.php`:
+Create `packages/filament-peek/src/Providers/FilamentPeekServiceProvider.php`:
 
 ```php
 <?php
@@ -372,7 +372,7 @@ final class FilamentPeekServiceProvider extends AbstractPackageServiceProvider
 }
 ```
 
-Create `packages/publishing-pro/filament-peek/src/Providers/AdminServiceProvider.php`:
+Create `packages/filament-peek/src/Providers/AdminServiceProvider.php`:
 
 ```php
 <?php
@@ -389,7 +389,7 @@ final class AdminServiceProvider extends ServiceProvider
 }
 ```
 
-Create `packages/publishing-pro/filament-peek/resources/lang/en/package.php`:
+Create `packages/filament-peek/resources/lang/en/package.php`:
 
 ```php
 <?php
@@ -407,7 +407,7 @@ Run:
 
 ```bash
 composer dump-autoload
-vendor/bin/pest packages/publishing-pro/filament-peek/tests/Unit/Providers/FilamentPeekServiceProviderTest.php --no-coverage
+vendor/bin/pest packages/filament-peek/tests/Unit/Providers/FilamentPeekServiceProviderTest.php --no-coverage
 ```
 
 Expected: pass.
@@ -415,7 +415,7 @@ Expected: pass.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add composer.json tests/Pest.php packages/publishing-pro/filament-peek
+git add composer.json tests/Pest.php packages/filament-peek
 git commit -m "feat(filament-peek): add optional package skeleton"
 ```
 
@@ -423,13 +423,13 @@ git commit -m "feat(filament-peek): add optional package skeleton"
 
 **Files:**
 
-- Create: `packages/publishing-pro/filament-peek/src/Filament/Extenders/FilamentPeekAdminPanelExtender.php`
-- Modify: `packages/publishing-pro/filament-peek/src/Providers/AdminServiceProvider.php`
-- Test: `packages/publishing-pro/filament-peek/tests/Unit/Filament/Extenders/FilamentPeekAdminPanelExtenderTest.php`
+- Create: `packages/filament-peek/src/Filament/Extenders/FilamentPeekAdminPanelExtender.php`
+- Modify: `packages/filament-peek/src/Providers/AdminServiceProvider.php`
+- Test: `packages/filament-peek/tests/Unit/Filament/Extenders/FilamentPeekAdminPanelExtenderTest.php`
 
 - [ ] **Step 1: Write extender test**
 
-Create `packages/publishing-pro/filament-peek/tests/Unit/Filament/Extenders/FilamentPeekAdminPanelExtenderTest.php`:
+Create `packages/filament-peek/tests/Unit/Filament/Extenders/FilamentPeekAdminPanelExtenderTest.php`:
 
 ```php
 <?php
@@ -455,7 +455,7 @@ it('is tagged as an admin panel extender', function (): void {
 
 - [ ] **Step 2: Implement extender**
 
-Create `packages/publishing-pro/filament-peek/src/Filament/Extenders/FilamentPeekAdminPanelExtender.php`:
+Create `packages/filament-peek/src/Filament/Extenders/FilamentPeekAdminPanelExtender.php`:
 
 ```php
 <?php
@@ -481,7 +481,7 @@ final class FilamentPeekAdminPanelExtender implements AdminPanelExtender
 }
 ```
 
-Modify `packages/publishing-pro/filament-peek/src/Providers/AdminServiceProvider.php`:
+Modify `packages/filament-peek/src/Providers/AdminServiceProvider.php`:
 
 ```php
 <?php
@@ -508,7 +508,7 @@ final class AdminServiceProvider extends ServiceProvider
 Run:
 
 ```bash
-vendor/bin/pest packages/publishing-pro/filament-peek/tests/Unit/Filament/Extenders/FilamentPeekAdminPanelExtenderTest.php --no-coverage
+vendor/bin/pest packages/filament-peek/tests/Unit/Filament/Extenders/FilamentPeekAdminPanelExtenderTest.php --no-coverage
 ```
 
 Expected: pass.
@@ -516,9 +516,9 @@ Expected: pass.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add packages/publishing-pro/filament-peek/src/Filament/Extenders \
-        packages/publishing-pro/filament-peek/src/Providers/AdminServiceProvider.php \
-        packages/publishing-pro/filament-peek/tests/Unit/Filament/Extenders
+git add packages/filament-peek/src/Filament/Extenders \
+        packages/filament-peek/src/Providers/AdminServiceProvider.php \
+        packages/filament-peek/tests/Unit/Filament/Extenders
 git commit -m "feat(filament-peek): register peek panel plugin"
 ```
 
@@ -526,16 +526,16 @@ git commit -m "feat(filament-peek): register peek panel plugin"
 
 **Files:**
 
-- Create: `packages/publishing-pro/filament-peek/src/Filament/Resources/Workspaces/Actions/WorkspacePeekPreviewAction.php`
-- Create: `packages/publishing-pro/filament-peek/src/Workspaces/WorkspacePeekPreviewActionContributor.php`
-- Modify: `packages/publishing-pro/filament-peek/src/Providers/AdminServiceProvider.php`
-- Create: `packages/publishing-pro/filament-peek/resources/lang/en/workspace.php`
-- Test: `packages/publishing-pro/filament-peek/tests/Unit/Workspaces/WorkspacePeekPreviewActionContributorTest.php`
-- Test: `packages/publishing-pro/filament-peek/tests/Feature/Workspaces/WorkspacePeekPreviewActionTest.php`
+- Create: `packages/filament-peek/src/Filament/Resources/Workspaces/Actions/WorkspacePeekPreviewAction.php`
+- Create: `packages/filament-peek/src/Workspaces/WorkspacePeekPreviewActionContributor.php`
+- Modify: `packages/filament-peek/src/Providers/AdminServiceProvider.php`
+- Create: `packages/filament-peek/resources/lang/en/workspace.php`
+- Test: `packages/filament-peek/tests/Unit/Workspaces/WorkspacePeekPreviewActionContributorTest.php`
+- Test: `packages/filament-peek/tests/Feature/Workspaces/WorkspacePeekPreviewActionTest.php`
 
 - [ ] **Step 1: Write contributor test**
 
-Create `packages/publishing-pro/filament-peek/tests/Unit/Workspaces/WorkspacePeekPreviewActionContributorTest.php`:
+Create `packages/filament-peek/tests/Unit/Workspaces/WorkspacePeekPreviewActionContributorTest.php`:
 
 ```php
 <?php
@@ -561,7 +561,7 @@ it('contributes the workspace peek preview action', function (): void {
 
 - [ ] **Step 2: Implement contributor and translations**
 
-Create `packages/publishing-pro/filament-peek/src/Workspaces/WorkspacePeekPreviewActionContributor.php`:
+Create `packages/filament-peek/src/Workspaces/WorkspacePeekPreviewActionContributor.php`:
 
 ```php
 <?php
@@ -584,7 +584,7 @@ final class WorkspacePeekPreviewActionContributor implements WorkspaceTableActio
 }
 ```
 
-Create `packages/publishing-pro/filament-peek/resources/lang/en/workspace.php`:
+Create `packages/filament-peek/resources/lang/en/workspace.php`:
 
 ```php
 <?php
@@ -600,7 +600,7 @@ return [
 ];
 ```
 
-Modify `packages/publishing-pro/filament-peek/src/Providers/AdminServiceProvider.php` to tag the contributor:
+Modify `packages/filament-peek/src/Providers/AdminServiceProvider.php` to tag the contributor:
 
 ```php
 use Capell\FilamentPeek\Workspaces\WorkspacePeekPreviewActionContributor;
@@ -615,7 +615,7 @@ Inside `register()`:
 
 - [ ] **Step 3: Implement modal action**
 
-Create `packages/publishing-pro/filament-peek/src/Filament/Resources/Workspaces/Actions/WorkspacePeekPreviewAction.php`:
+Create `packages/filament-peek/src/Filament/Resources/Workspaces/Actions/WorkspacePeekPreviewAction.php`:
 
 ```php
 <?php
@@ -669,7 +669,7 @@ final class WorkspacePeekPreviewAction extends Action
 
 - [ ] **Step 4: Write URL generation feature test**
 
-Create `packages/publishing-pro/filament-peek/tests/Feature/Workspaces/WorkspacePeekPreviewActionTest.php`:
+Create `packages/filament-peek/tests/Feature/Workspaces/WorkspacePeekPreviewActionTest.php`:
 
 ```php
 <?php
@@ -698,7 +698,7 @@ it('generates a workspace draft preview link for the iframe modal', function ():
 Run:
 
 ```bash
-vendor/bin/pest packages/publishing-pro/filament-peek/tests/Unit/Workspaces/WorkspacePeekPreviewActionContributorTest.php packages/publishing-pro/filament-peek/tests/Feature/Workspaces/WorkspacePeekPreviewActionTest.php --no-coverage
+vendor/bin/pest packages/filament-peek/tests/Unit/Workspaces/WorkspacePeekPreviewActionContributorTest.php packages/filament-peek/tests/Feature/Workspaces/WorkspacePeekPreviewActionTest.php --no-coverage
 ```
 
 Expected: pass.
@@ -708,7 +708,7 @@ Expected: pass.
 Run:
 
 ```bash
-vendor/bin/pest packages/publishing-pro/workspaces/tests/Unit/WorkspaceTableActionContributorTest.php packages/publishing-pro/filament-peek/tests --no-coverage
+vendor/bin/pest packages/workspaces/tests/Unit/WorkspaceTableActionContributorTest.php packages/filament-peek/tests --no-coverage
 ```
 
 Expected: pass.
@@ -716,7 +716,7 @@ Expected: pass.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/publishing-pro/filament-peek/src packages/publishing-pro/filament-peek/resources packages/publishing-pro/filament-peek/tests
+git add packages/filament-peek/src packages/filament-peek/resources packages/filament-peek/tests
 git commit -m "feat(filament-peek): add workspace modal preview"
 ```
 
@@ -766,7 +766,7 @@ The panel should still register:
 
 - [ ] **Step 3: Move Composer dependency**
 
-In root `composer.json`, keep `pboivin/filament-peek` only if the monorepo needs it to run package tests before Composer path resolution includes `packages/publishing-pro/filament-peek`. If Composer accepts the local package dependency, remove this root require line:
+In root `composer.json`, keep `pboivin/filament-peek` only if the monorepo needs it to run package tests before Composer path resolution includes `packages/filament-peek`. If Composer accepts the local package dependency, remove this root require line:
 
 ```json
 "pboivin/filament-peek": "^4.0",
@@ -778,7 +778,7 @@ In `vendor/capell-app/admin/composer.json`, remove:
 "pboivin/filament-peek": "^4.0",
 ```
 
-Do not remove it from `packages/publishing-pro/filament-peek/composer.json`.
+Do not remove it from `packages/filament-peek/composer.json`.
 
 - [ ] **Step 4: Refresh autoload**
 
@@ -795,7 +795,7 @@ Expected: autoload completes without class resolution errors.
 Run:
 
 ```bash
-vendor/bin/pest packages/publishing-pro/workspaces/tests/Unit/WorkspaceTableActionContributorTest.php packages/publishing-pro/filament-peek/tests --no-coverage
+vendor/bin/pest packages/workspaces/tests/Unit/WorkspaceTableActionContributorTest.php packages/filament-peek/tests --no-coverage
 ```
 
 Expected: pass.
@@ -830,7 +830,7 @@ If `vendor/capell-app/admin` is not a standalone git root, stage those files in 
 Run:
 
 ```bash
-vendor/bin/pest packages/publishing-pro/workspaces/tests packages/publishing-pro/filament-peek/tests --no-coverage
+vendor/bin/pest packages/workspaces/tests packages/filament-peek/tests --no-coverage
 ```
 
 Expected: pass.
@@ -855,7 +855,7 @@ rg -n "Pboivin\\\\FilamentPeek|FilamentPeekPlugin|FilamentPeekServiceProvider|pb
 
 Expected:
 
-- `packages/publishing-pro/filament-peek` references Peek classes and Composer dependency.
+- `packages/filament-peek` references Peek classes and Composer dependency.
 - no Workspaces source or tests import Peek classes.
 - no root shared test harness imports `FilamentPeekServiceProvider`.
 - companion admin panel provider no longer registers `FilamentPeekPlugin` directly.
@@ -866,6 +866,6 @@ If verification required fixes, commit only files from this plan:
 
 ```bash
 git status --short
-git add composer.json tests/AbstractTestCase.php packages/publishing-pro/workspaces packages/publishing-pro/filament-peek docs/superpowers/plans/2026-04-30-filament-peek-package.md
+git add composer.json tests/AbstractTestCase.php packages/workspaces packages/filament-peek docs/superpowers/plans/2026-04-30-filament-peek-package.md
 git commit -m "fix(filament-peek): complete optional preview integration"
 ```

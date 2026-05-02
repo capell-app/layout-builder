@@ -4,7 +4,7 @@
 
 **Goal:** Make `capell-app/theme-studio-core` own Theme Studio runtime settings so frontend rendering works without `capell-app/theme-studio-admin`, while keeping the admin package as an optional editor and publishing layer.
 
-**Architecture:** Move `ThemeStudioSettings` and its published settings migration into `packages/theme-studio/core`, bind `ThemeRuntimeSettings` from the core service provider, and leave schema registration plus publishing UI in `packages/theme-studio/admin`. Then update admin consumers to import the moved settings class and add regression tests for both core-only and admin-enabled installs.
+**Architecture:** Move `ThemeStudioSettings` and its published settings migration into `packages/theme-studio-core`, bind `ThemeRuntimeSettings` from the core service provider, and leave schema registration plus publishing UI in `packages/theme-studio-admin`. Then update admin consumers to import the moved settings class and add regression tests for both core-only and admin-enabled installs.
 
 **Tech Stack:** PHP 8.2, Laravel package service providers, Spatie Laravel Settings, Pest, Filament, Livewire, Capell Actions + Data conventions
 
@@ -12,38 +12,38 @@
 
 ## File Map
 
-- Create: `packages/theme-studio/core/src/Settings/ThemeStudioSettings.php`
-- Create: `packages/theme-studio/core/database/settings/create_theme_studio_settings.php`
-- Modify: `packages/theme-studio/core/src/ThemeStudioCoreServiceProvider.php`
-- Modify: `packages/theme-studio/core/tests/ThemeStudioCoreTestCase.php`
-- Modify: `packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php`
-- Modify: `packages/theme-studio/admin/src/ThemeStudioAdminServiceProvider.php`
-- Modify: `packages/theme-studio/admin/src/Actions/ActivateApprovedThemeDraftAction.php`
-- Modify: `packages/theme-studio/admin/src/Actions/PublishThemeDraftAction.php`
-- Modify: `packages/theme-studio/admin/src/Actions/ResolveThemePublishingReadinessAction.php`
-- Modify: `packages/theme-studio/admin/src/Actions/StageThemeDraftAction.php`
-- Modify: `packages/theme-studio/admin/src/Contracts/ThemeDraftPublisher.php`
-- Modify: `packages/theme-studio/admin/src/Filament/Pages/ThemeStudioPage.php`
-- Modify: `packages/theme-studio/admin/src/Publishing/StandaloneThemeDraftPublisher.php`
-- Modify: `packages/theme-studio/admin/src/Publishing/WorkspaceThemeDraftPublisher.php`
-- Modify: `packages/theme-studio/admin/src/Schemas/ThemeStudioSettingsSchema.php`
-- Modify: `packages/theme-studio/admin/tests/ThemeStudioAdminTestCase.php`
-- Modify: `packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php`
-- Delete: `packages/theme-studio/admin/src/Settings/ThemeStudioSettings.php`
-- Delete: `packages/theme-studio/admin/database/settings/create_theme_studio_settings.php`
+- Create: `packages/theme-studio-core/src/Settings/ThemeStudioSettings.php`
+- Create: `packages/theme-studio-core/database/settings/create_theme_studio_settings.php`
+- Modify: `packages/theme-studio-core/src/ThemeStudioCoreServiceProvider.php`
+- Modify: `packages/theme-studio-core/tests/ThemeStudioCoreTestCase.php`
+- Modify: `packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php`
+- Modify: `packages/theme-studio-admin/src/ThemeStudioAdminServiceProvider.php`
+- Modify: `packages/theme-studio-admin/src/Actions/ActivateApprovedThemeDraftAction.php`
+- Modify: `packages/theme-studio-admin/src/Actions/PublishThemeDraftAction.php`
+- Modify: `packages/theme-studio-admin/src/Actions/ResolveThemePublishingReadinessAction.php`
+- Modify: `packages/theme-studio-admin/src/Actions/StageThemeDraftAction.php`
+- Modify: `packages/theme-studio-admin/src/Contracts/ThemeDraftPublisher.php`
+- Modify: `packages/theme-studio-admin/src/Filament/Pages/ThemeStudioPage.php`
+- Modify: `packages/theme-studio-admin/src/Publishing/StandaloneThemeDraftPublisher.php`
+- Modify: `packages/theme-studio-admin/src/Publishing/WorkspaceThemeDraftPublisher.php`
+- Modify: `packages/theme-studio-admin/src/Schemas/ThemeStudioSettingsSchema.php`
+- Modify: `packages/theme-studio-admin/tests/ThemeStudioAdminTestCase.php`
+- Modify: `packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php`
+- Delete: `packages/theme-studio-admin/src/Settings/ThemeStudioSettings.php`
+- Delete: `packages/theme-studio-admin/database/settings/create_theme_studio_settings.php`
 
 ### Task 1: Move runtime settings ownership into core
 
 **Files:**
 
-- Create: `packages/theme-studio/core/src/Settings/ThemeStudioSettings.php`
-- Create: `packages/theme-studio/core/database/settings/create_theme_studio_settings.php`
-- Modify: `packages/theme-studio/core/src/ThemeStudioCoreServiceProvider.php`
-- Test: `packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php`
+- Create: `packages/theme-studio-core/src/Settings/ThemeStudioSettings.php`
+- Create: `packages/theme-studio-core/database/settings/create_theme_studio_settings.php`
+- Modify: `packages/theme-studio-core/src/ThemeStudioCoreServiceProvider.php`
+- Test: `packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php`
 
 - [ ] **Step 1: Write the failing core runtime test that expects the core package to provide runtime settings**
 
-Add this test near the existing runtime tests in [packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php):
+Add this test near the existing runtime tests in [packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php):
 
 ```php
 use Capell\ThemeStudio\Core\Settings\ThemeStudioSettings;
@@ -62,14 +62,14 @@ it('binds theme runtime settings from the core package', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php
+vendor/bin/pest packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php
 ```
 
 Expected: FAIL because `ThemeRuntimeSettings` is not bound when only the core package is loaded.
 
 - [ ] **Step 3: Create the core-owned settings class with the existing runtime shape**
 
-Create [packages/theme-studio/core/src/Settings/ThemeStudioSettings.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/core/src/Settings/ThemeStudioSettings.php):
+Create [packages/theme-studio-core/src/Settings/ThemeStudioSettings.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-core/src/Settings/ThemeStudioSettings.php):
 
 ```php
 <?php
@@ -141,7 +141,7 @@ class ThemeStudioSettings extends Settings implements SettingsContract, ThemeRun
 
 - [ ] **Step 4: Create the core-owned settings migration with the existing defaults**
 
-Create [packages/theme-studio/core/database/settings/create_theme_studio_settings.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/core/database/settings/create_theme_studio_settings.php):
+Create [packages/theme-studio-core/database/settings/create_theme_studio_settings.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-core/database/settings/create_theme_studio_settings.php):
 
 ```php
 <?php
@@ -188,7 +188,7 @@ return new class extends SettingsMigration
 
 - [ ] **Step 5: Bind runtime settings and publish the migration from the core service provider**
 
-Update [packages/theme-studio/core/src/ThemeStudioCoreServiceProvider.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/core/src/ThemeStudioCoreServiceProvider.php):
+Update [packages/theme-studio-core/src/ThemeStudioCoreServiceProvider.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-core/src/ThemeStudioCoreServiceProvider.php):
 
 ```php
 use Capell\Core\Support\Settings\SettingsSchemaRegistry;
@@ -228,7 +228,7 @@ public function packageBooted(): void
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php
+vendor/bin/pest packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php
 ```
 
 Expected: PASS, including the new assertion that `ThemeRuntimeSettings` resolves to the core settings class.
@@ -236,7 +236,7 @@ Expected: PASS, including the new assertion that `ThemeRuntimeSettings` resolves
 - [ ] **Step 7: Commit the core runtime ownership move**
 
 ```bash
-git add packages/theme-studio/core/src/Settings/ThemeStudioSettings.php packages/theme-studio/core/database/settings/create_theme_studio_settings.php packages/theme-studio/core/src/ThemeStudioCoreServiceProvider.php packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php
+git add packages/theme-studio-core/src/Settings/ThemeStudioSettings.php packages/theme-studio-core/database/settings/create_theme_studio_settings.php packages/theme-studio-core/src/ThemeStudioCoreServiceProvider.php packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php
 git commit -m "refactor: move theme studio runtime settings to core"
 ```
 
@@ -244,23 +244,23 @@ git commit -m "refactor: move theme studio runtime settings to core"
 
 **Files:**
 
-- Modify: `packages/theme-studio/admin/src/ThemeStudioAdminServiceProvider.php`
-- Modify: `packages/theme-studio/admin/src/Actions/ActivateApprovedThemeDraftAction.php`
-- Modify: `packages/theme-studio/admin/src/Actions/PublishThemeDraftAction.php`
-- Modify: `packages/theme-studio/admin/src/Actions/ResolveThemePublishingReadinessAction.php`
-- Modify: `packages/theme-studio/admin/src/Actions/StageThemeDraftAction.php`
-- Modify: `packages/theme-studio/admin/src/Contracts/ThemeDraftPublisher.php`
-- Modify: `packages/theme-studio/admin/src/Filament/Pages/ThemeStudioPage.php`
-- Modify: `packages/theme-studio/admin/src/Publishing/StandaloneThemeDraftPublisher.php`
-- Modify: `packages/theme-studio/admin/src/Publishing/WorkspaceThemeDraftPublisher.php`
-- Modify: `packages/theme-studio/admin/src/Schemas/ThemeStudioSettingsSchema.php`
-- Delete: `packages/theme-studio/admin/src/Settings/ThemeStudioSettings.php`
-- Delete: `packages/theme-studio/admin/database/settings/create_theme_studio_settings.php`
-- Test: `packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php`
+- Modify: `packages/theme-studio-admin/src/ThemeStudioAdminServiceProvider.php`
+- Modify: `packages/theme-studio-admin/src/Actions/ActivateApprovedThemeDraftAction.php`
+- Modify: `packages/theme-studio-admin/src/Actions/PublishThemeDraftAction.php`
+- Modify: `packages/theme-studio-admin/src/Actions/ResolveThemePublishingReadinessAction.php`
+- Modify: `packages/theme-studio-admin/src/Actions/StageThemeDraftAction.php`
+- Modify: `packages/theme-studio-admin/src/Contracts/ThemeDraftPublisher.php`
+- Modify: `packages/theme-studio-admin/src/Filament/Pages/ThemeStudioPage.php`
+- Modify: `packages/theme-studio-admin/src/Publishing/StandaloneThemeDraftPublisher.php`
+- Modify: `packages/theme-studio-admin/src/Publishing/WorkspaceThemeDraftPublisher.php`
+- Modify: `packages/theme-studio-admin/src/Schemas/ThemeStudioSettingsSchema.php`
+- Delete: `packages/theme-studio-admin/src/Settings/ThemeStudioSettings.php`
+- Delete: `packages/theme-studio-admin/database/settings/create_theme_studio_settings.php`
+- Test: `packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php`
 
 - [ ] **Step 1: Write the failing admin imports test by switching the test file to the core namespace first**
 
-In [packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php), replace:
+In [packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php), replace:
 
 ```php
 use Capell\ThemeStudio\Admin\Settings\ThemeStudioSettings;
@@ -277,14 +277,14 @@ use Capell\ThemeStudio\Core\Settings\ThemeStudioSettings;
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php
+vendor/bin/pest packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php
 ```
 
 Expected: FAIL with import or type resolution errors until the admin package is rewired.
 
 - [ ] **Step 3: Remove runtime registration from the admin service provider and keep only schema registration**
 
-Update [packages/theme-studio/admin/src/ThemeStudioAdminServiceProvider.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/admin/src/ThemeStudioAdminServiceProvider.php):
+Update [packages/theme-studio-admin/src/ThemeStudioAdminServiceProvider.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-admin/src/ThemeStudioAdminServiceProvider.php):
 
 ```php
 use Capell\ThemeStudio\Core\Settings\ThemeStudioSettings;
@@ -318,15 +318,15 @@ $registry->register(ThemeStudioSettings::group(), ThemeStudioSettingsSchema::cla
 
 In each of the following files, replace the admin settings import with the core settings import:
 
-- [packages/theme-studio/admin/src/Actions/ActivateApprovedThemeDraftAction.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/admin/src/Actions/ActivateApprovedThemeDraftAction.php)
-- [packages/theme-studio/admin/src/Actions/PublishThemeDraftAction.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/admin/src/Actions/PublishThemeDraftAction.php)
-- [packages/theme-studio/admin/src/Actions/ResolveThemePublishingReadinessAction.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/admin/src/Actions/ResolveThemePublishingReadinessAction.php)
-- [packages/theme-studio/admin/src/Actions/StageThemeDraftAction.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/admin/src/Actions/StageThemeDraftAction.php)
-- [packages/theme-studio/admin/src/Contracts/ThemeDraftPublisher.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/admin/src/Contracts/ThemeDraftPublisher.php)
-- [packages/theme-studio/admin/src/Filament/Pages/ThemeStudioPage.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/admin/src/Filament/Pages/ThemeStudioPage.php)
-- [packages/theme-studio/admin/src/Publishing/StandaloneThemeDraftPublisher.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/admin/src/Publishing/StandaloneThemeDraftPublisher.php)
-- [packages/theme-studio/admin/src/Publishing/WorkspaceThemeDraftPublisher.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/admin/src/Publishing/WorkspaceThemeDraftPublisher.php)
-- [packages/theme-studio/admin/src/Schemas/ThemeStudioSettingsSchema.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/admin/src/Schemas/ThemeStudioSettingsSchema.php) if it imports the settings class later during cleanup
+- [packages/theme-studio-admin/src/Actions/ActivateApprovedThemeDraftAction.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-admin/src/Actions/ActivateApprovedThemeDraftAction.php)
+- [packages/theme-studio-admin/src/Actions/PublishThemeDraftAction.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-admin/src/Actions/PublishThemeDraftAction.php)
+- [packages/theme-studio-admin/src/Actions/ResolveThemePublishingReadinessAction.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-admin/src/Actions/ResolveThemePublishingReadinessAction.php)
+- [packages/theme-studio-admin/src/Actions/StageThemeDraftAction.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-admin/src/Actions/StageThemeDraftAction.php)
+- [packages/theme-studio-admin/src/Contracts/ThemeDraftPublisher.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-admin/src/Contracts/ThemeDraftPublisher.php)
+- [packages/theme-studio-admin/src/Filament/Pages/ThemeStudioPage.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-admin/src/Filament/Pages/ThemeStudioPage.php)
+- [packages/theme-studio-admin/src/Publishing/StandaloneThemeDraftPublisher.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-admin/src/Publishing/StandaloneThemeDraftPublisher.php)
+- [packages/theme-studio-admin/src/Publishing/WorkspaceThemeDraftPublisher.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-admin/src/Publishing/WorkspaceThemeDraftPublisher.php)
+- [packages/theme-studio-admin/src/Schemas/ThemeStudioSettingsSchema.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-admin/src/Schemas/ThemeStudioSettingsSchema.php) if it imports the settings class later during cleanup
 
 The replacement import should be:
 
@@ -339,8 +339,8 @@ use Capell\ThemeStudio\Core\Settings\ThemeStudioSettings;
 Remove:
 
 ```text
-packages/theme-studio/admin/src/Settings/ThemeStudioSettings.php
-packages/theme-studio/admin/database/settings/create_theme_studio_settings.php
+packages/theme-studio-admin/src/Settings/ThemeStudioSettings.php
+packages/theme-studio-admin/database/settings/create_theme_studio_settings.php
 ```
 
 - [ ] **Step 6: Run the admin feature tests to verify the page and publishing flow still work**
@@ -348,7 +348,7 @@ packages/theme-studio/admin/database/settings/create_theme_studio_settings.php
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php
+vendor/bin/pest packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php
 ```
 
 Expected: PASS with the admin package reading and mutating the core-owned settings class.
@@ -356,8 +356,8 @@ Expected: PASS with the admin package reading and mutating the core-owned settin
 - [ ] **Step 7: Commit the admin rewiring**
 
 ```bash
-git add packages/theme-studio/admin/src packages/theme-studio/admin/tests
-git rm packages/theme-studio/admin/src/Settings/ThemeStudioSettings.php packages/theme-studio/admin/database/settings/create_theme_studio_settings.php
+git add packages/theme-studio-admin/src packages/theme-studio-admin/tests
+git rm packages/theme-studio-admin/src/Settings/ThemeStudioSettings.php packages/theme-studio-admin/database/settings/create_theme_studio_settings.php
 git commit -m "refactor: decouple theme studio admin from runtime settings"
 ```
 
@@ -365,15 +365,15 @@ git commit -m "refactor: decouple theme studio admin from runtime settings"
 
 **Files:**
 
-- Modify: `packages/theme-studio/core/tests/ThemeStudioCoreTestCase.php`
-- Modify: `packages/theme-studio/admin/tests/ThemeStudioAdminTestCase.php`
-- Modify: `packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php`
-- Test: `packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php`
-- Test: `packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php`
+- Modify: `packages/theme-studio-core/tests/ThemeStudioCoreTestCase.php`
+- Modify: `packages/theme-studio-admin/tests/ThemeStudioAdminTestCase.php`
+- Modify: `packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php`
+- Test: `packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php`
+- Test: `packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php`
 
 - [ ] **Step 1: Make the core test case load the moved settings migration**
 
-Update [packages/theme-studio/core/tests/ThemeStudioCoreTestCase.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/core/tests/ThemeStudioCoreTestCase.php) to register the core settings migration during setup:
+Update [packages/theme-studio-core/tests/ThemeStudioCoreTestCase.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-core/tests/ThemeStudioCoreTestCase.php) to register the core settings migration during setup:
 
 ```php
 protected function setUp(): void
@@ -392,14 +392,14 @@ protected function setUp(): void
 Ensure this path exists and contains the moved migration:
 
 ```text
-packages/theme-studio/core/database/settings/create_theme_studio_settings.php
+packages/theme-studio-core/database/settings/create_theme_studio_settings.php
 ```
 
 No separate test-only migration copy is needed; reuse the package migration path above.
 
 - [ ] **Step 3: Point the admin test case at the core migration path**
 
-Update [packages/theme-studio/admin/tests/ThemeStudioAdminTestCase.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/admin/tests/ThemeStudioAdminTestCase.php):
+Update [packages/theme-studio-admin/tests/ThemeStudioAdminTestCase.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-admin/tests/ThemeStudioAdminTestCase.php):
 
 ```php
 $this->registerAndMigrateSettings(
@@ -410,7 +410,7 @@ $this->registerAndMigrateSettings(
 
 - [ ] **Step 4: Tighten the admin test assertion so it no longer expects a schema method on the settings class**
 
-Replace this assertion in [packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php):
+Replace this assertion in [packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php):
 
 ```php
 expect(ThemeStudioSettings::group())->toBe('theme_studio')
@@ -432,7 +432,7 @@ This keeps the test aligned with the new ownership split: the settings class liv
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php
+vendor/bin/pest packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php
 ```
 
 Expected: PASS for both files, proving the core-only path and admin-enabled path both work.
@@ -440,7 +440,7 @@ Expected: PASS for both files, proving the core-only path and admin-enabled path
 - [ ] **Step 6: Commit the bootstrap and regression coverage updates**
 
 ```bash
-git add packages/theme-studio/core/tests/ThemeStudioCoreTestCase.php packages/theme-studio/admin/tests/ThemeStudioAdminTestCase.php packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php
+git add packages/theme-studio-core/tests/ThemeStudioCoreTestCase.php packages/theme-studio-admin/tests/ThemeStudioAdminTestCase.php packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php
 git commit -m "test: cover core-only theme studio runtime settings"
 ```
 
@@ -448,20 +448,20 @@ git commit -m "test: cover core-only theme studio runtime settings"
 
 **Files:**
 
-- Modify: `packages/theme-studio/core/README.md`
-- Modify: `packages/theme-studio/admin/README.md`
-- Test: `packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php`
-- Test: `packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php`
+- Modify: `packages/theme-studio-core/README.md`
+- Modify: `packages/theme-studio-admin/README.md`
+- Test: `packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php`
+- Test: `packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php`
 
 - [ ] **Step 1: Update the package READMEs to reflect the new ownership split**
 
-In [packages/theme-studio/core/README.md](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/core/README.md), add or revise copy like:
+In [packages/theme-studio-core/README.md](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-core/README.md), add or revise copy like:
 
 ```md
 Theme Studio Core provides the runtime theme registry, preview context, portable page rendering, and persisted Theme Studio runtime settings used by frontend rendering.
 ```
 
-In [packages/theme-studio/admin/README.md](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio/admin/README.md), revise the admin surface description to make the dependency direction explicit:
+In [packages/theme-studio-admin/README.md](/Users/ben/Sites/packages/capell/capell-packages-4/packages/theme-studio-admin/README.md), revise the admin surface description to make the dependency direction explicit:
 
 ```md
 Theme Studio Admin adds the optional Filament Studio page for choosing, previewing, staging, and publishing themes on top of Theme Studio Core.
@@ -472,7 +472,7 @@ Theme Studio Admin adds the optional Filament Studio page for choosing, previewi
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/core/tests
+vendor/bin/pest packages/theme-studio-core/tests
 ```
 
 Expected: PASS for all Theme Studio core tests.
@@ -482,7 +482,7 @@ Expected: PASS for all Theme Studio core tests.
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/admin/tests
+vendor/bin/pest packages/theme-studio-admin/tests
 ```
 
 Expected: PASS for all Theme Studio admin tests.
@@ -504,7 +504,7 @@ Expected:
 - [ ] **Step 5: Commit the final metadata and verification pass**
 
 ```bash
-git add packages/theme-studio/core/README.md packages/theme-studio/admin/README.md
+git add packages/theme-studio-core/README.md packages/theme-studio-admin/README.md
 git commit -m "docs: clarify theme studio core and admin roles"
 ```
 

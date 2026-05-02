@@ -12,7 +12,7 @@ The extraction keeps the current section behavior available by moving the sectio
 
 ## Package Boundary
 
-- New package path: `packages/foundation/content-blocks`.
+- New package path: `packages/content-blocks`.
 - Composer package: `capell-app/content-blocks`.
 - Namespace: `Capell\ContentBlocks`.
 - Required dependencies: PHP, `capell-app/core`, `capell-app/admin`, `capell-app/frontend`.

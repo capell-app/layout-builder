@@ -25,59 +25,59 @@
 
 Create these package files unless a task states otherwise:
 
-- `packages/growth/analytics/composer.json`: package metadata and provider discovery.
-- `packages/growth/analytics/capell.json`: Capell package manifest.
-- `packages/growth/analytics/config/capell-analytics.php`: defaults for route prefix, tracking, consent, ignored paths/selectors, retention, hashing, and table names.
-- `packages/growth/analytics/resources/lang/en/package.php`: package registry description.
-- `packages/growth/analytics/resources/lang/en/settings.php`: settings labels and helper text.
-- `packages/growth/analytics/resources/lang/en/consent.php`: consent modal copy and validation text.
-- `packages/growth/analytics/resources/lang/en/widgets.php`: widget labels.
-- `packages/growth/analytics/resources/views/tracker.blade.php`: script/bootstrap render hook view.
-- `packages/growth/analytics/resources/js/capell-analytics.js`: beacon tracker.
-- `packages/growth/analytics/routes/web.php`: beacon and consent endpoints, with CSRF middleware excluded because `navigator.sendBeacon()` cannot reliably attach Laravel's CSRF token during unload events.
-- `packages/growth/analytics/src/Providers/AnalyticsServiceProvider.php`: package registration, config, views, translations, migrations, routes, settings, models, protected tables, frontend hook.
-- `packages/growth/analytics/src/Providers/AdminServiceProvider.php`: dashboard widgets, settings contributor, retention schedule, command registration.
-- `packages/growth/analytics/src/Settings/AnalyticsSettings.php`: settings object.
-- `packages/growth/analytics/src/Filament/Settings/AnalyticsSettingsSchema.php`: settings schema.
-- `packages/growth/analytics/src/Filament/Settings/Contributors/AnalyticsDashboardSettingsContributor.php`: dashboard settings contributor.
-- `packages/growth/analytics/src/Console/Commands/PurgeAnalyticsDataCommand.php`: retention command.
-- `packages/growth/analytics/src/Enums/*.php`: event, consent category, consent region, consent status enums.
-- `packages/growth/analytics/src/Data/*.php`: beacon, consent, event, visit, summary, journey, and window data.
-- `packages/growth/analytics/src/Models/*.php`: `AnalyticsVisit`, `AnalyticsConsent`, `AnalyticsEvent`.
-- `packages/growth/analytics/src/Actions/*.php`: consent, event recording, reporting, journey, and purge actions.
-- `packages/growth/analytics/src/Http/Controllers/*.php`: beacon and consent controllers.
-- `packages/growth/analytics/src/Support/RenderHooks/RegisterAnalyticsTrackerHook.php`: frontend BodyEnd render hook.
-- `packages/growth/analytics/src/Support/Consent/ConsentRegionResolver.php`: server-side region resolver.
-- `packages/growth/analytics/src/Filament/Widgets/*.php`: overview, popular, trending, journeys, and actions widgets.
-- `packages/growth/analytics/database/migrations/*.php`: analytics table migrations.
-- `packages/growth/analytics/database/settings/create_analytics_settings.php`: settings migration.
-- `packages/growth/analytics/database/factories/*.php`: model factories.
-- `packages/growth/analytics/tests/AnalyticsTestCase.php`: package test case.
-- `packages/growth/analytics/tests/Pest.php`: Pest setup.
-- `packages/growth/analytics/tests/Feature` and `packages/growth/analytics/tests/Unit`: focused tests.
+- `packages/analytics/composer.json`: package metadata and provider discovery.
+- `packages/analytics/capell.json`: Capell package manifest.
+- `packages/analytics/config/capell-analytics.php`: defaults for route prefix, tracking, consent, ignored paths/selectors, retention, hashing, and table names.
+- `packages/analytics/resources/lang/en/package.php`: package registry description.
+- `packages/analytics/resources/lang/en/settings.php`: settings labels and helper text.
+- `packages/analytics/resources/lang/en/consent.php`: consent modal copy and validation text.
+- `packages/analytics/resources/lang/en/widgets.php`: widget labels.
+- `packages/analytics/resources/views/tracker.blade.php`: script/bootstrap render hook view.
+- `packages/analytics/resources/js/capell-analytics.js`: beacon tracker.
+- `packages/analytics/routes/web.php`: beacon and consent endpoints, with CSRF middleware excluded because `navigator.sendBeacon()` cannot reliably attach Laravel's CSRF token during unload events.
+- `packages/analytics/src/Providers/AnalyticsServiceProvider.php`: package registration, config, views, translations, migrations, routes, settings, models, protected tables, frontend hook.
+- `packages/analytics/src/Providers/AdminServiceProvider.php`: dashboard widgets, settings contributor, retention schedule, command registration.
+- `packages/analytics/src/Settings/AnalyticsSettings.php`: settings object.
+- `packages/analytics/src/Filament/Settings/AnalyticsSettingsSchema.php`: settings schema.
+- `packages/analytics/src/Filament/Settings/Contributors/AnalyticsDashboardSettingsContributor.php`: dashboard settings contributor.
+- `packages/analytics/src/Console/Commands/PurgeAnalyticsDataCommand.php`: retention command.
+- `packages/analytics/src/Enums/*.php`: event, consent category, consent region, consent status enums.
+- `packages/analytics/src/Data/*.php`: beacon, consent, event, visit, summary, journey, and window data.
+- `packages/analytics/src/Models/*.php`: `AnalyticsVisit`, `AnalyticsConsent`, `AnalyticsEvent`.
+- `packages/analytics/src/Actions/*.php`: consent, event recording, reporting, journey, and purge actions.
+- `packages/analytics/src/Http/Controllers/*.php`: beacon and consent controllers.
+- `packages/analytics/src/Support/RenderHooks/RegisterAnalyticsTrackerHook.php`: frontend BodyEnd render hook.
+- `packages/analytics/src/Support/Consent/ConsentRegionResolver.php`: server-side region resolver.
+- `packages/analytics/src/Filament/Widgets/*.php`: overview, popular, trending, journeys, and actions widgets.
+- `packages/analytics/database/migrations/*.php`: analytics table migrations.
+- `packages/analytics/database/settings/create_analytics_settings.php`: settings migration.
+- `packages/analytics/database/factories/*.php`: model factories.
+- `packages/analytics/tests/AnalyticsTestCase.php`: package test case.
+- `packages/analytics/tests/Pest.php`: Pest setup.
+- `packages/analytics/tests/Feature` and `packages/analytics/tests/Unit`: focused tests.
 - Modify `composer.json`: add `Capell\\Analytics\\` and `Capell\\Analytics\\Database\\Factories\\` autoload entries.
 
 ## Task 1: Package Skeleton And Registration
 
 **Files:**
 
-- Create: `packages/growth/analytics/composer.json`
-- Create: `packages/growth/analytics/capell.json`
-- Create: `packages/growth/analytics/config/capell-analytics.php`
-- Create: `packages/growth/analytics/resources/lang/en/package.php`
-- Create: `packages/growth/analytics/resources/lang/en/settings.php`
-- Create: `packages/growth/analytics/resources/lang/en/consent.php`
-- Create: `packages/growth/analytics/resources/lang/en/widgets.php`
-- Create: `packages/growth/analytics/src/Providers/AnalyticsServiceProvider.php`
-- Create: `packages/growth/analytics/src/Providers/AdminServiceProvider.php`
-- Create: `packages/growth/analytics/tests/AnalyticsTestCase.php`
-- Create: `packages/growth/analytics/tests/Pest.php`
-- Create: `packages/growth/analytics/tests/Unit/Providers/AnalyticsServiceProviderTest.php`
+- Create: `packages/analytics/composer.json`
+- Create: `packages/analytics/capell.json`
+- Create: `packages/analytics/config/capell-analytics.php`
+- Create: `packages/analytics/resources/lang/en/package.php`
+- Create: `packages/analytics/resources/lang/en/settings.php`
+- Create: `packages/analytics/resources/lang/en/consent.php`
+- Create: `packages/analytics/resources/lang/en/widgets.php`
+- Create: `packages/analytics/src/Providers/AnalyticsServiceProvider.php`
+- Create: `packages/analytics/src/Providers/AdminServiceProvider.php`
+- Create: `packages/analytics/tests/AnalyticsTestCase.php`
+- Create: `packages/analytics/tests/Pest.php`
+- Create: `packages/analytics/tests/Unit/Providers/AnalyticsServiceProviderTest.php`
 - Modify: `composer.json`
 
 - [ ] **Step 1: Write provider smoke tests**
 
-Create `packages/growth/analytics/tests/Pest.php`:
+Create `packages/analytics/tests/Pest.php`:
 
 ```php
 <?php
@@ -89,7 +89,7 @@ use Capell\Analytics\Tests\AnalyticsTestCase;
 uses(AnalyticsTestCase::class)->in(__DIR__);
 ```
 
-Create `packages/growth/analytics/tests/AnalyticsTestCase.php`:
+Create `packages/analytics/tests/AnalyticsTestCase.php`:
 
 ```php
 <?php
@@ -170,7 +170,7 @@ class AnalyticsTestCase extends AbstractTestCase
 }
 ```
 
-Create `packages/growth/analytics/tests/Unit/Providers/AnalyticsServiceProviderTest.php`:
+Create `packages/analytics/tests/Unit/Providers/AnalyticsServiceProviderTest.php`:
 
 ```php
 <?php
@@ -203,14 +203,14 @@ it('registers analytics routes', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests/Unit/Providers/AnalyticsServiceProviderTest.php
+vendor/bin/pest packages/analytics/tests/Unit/Providers/AnalyticsServiceProviderTest.php
 ```
 
 Expected: FAIL because `Capell\Analytics\Providers\AnalyticsServiceProvider` and package routes do not exist yet.
 
 - [ ] **Step 3: Add package metadata, config, translations, routes, and providers**
 
-Create `packages/growth/analytics/composer.json`:
+Create `packages/analytics/composer.json`:
 
 ```json
 {
@@ -257,7 +257,7 @@ Create `packages/growth/analytics/composer.json`:
 }
 ```
 
-Create `packages/growth/analytics/capell.json`:
+Create `packages/analytics/capell.json`:
 
 ```json
 {
@@ -270,7 +270,7 @@ Create `packages/growth/analytics/capell.json`:
 }
 ```
 
-Create `packages/growth/analytics/config/capell-analytics.php`:
+Create `packages/analytics/config/capell-analytics.php`:
 
 ```php
 <?php
@@ -307,7 +307,7 @@ return [
 ];
 ```
 
-Create `packages/growth/analytics/resources/lang/en/package.php`:
+Create `packages/analytics/resources/lang/en/package.php`:
 
 ```php
 <?php
@@ -331,11 +331,11 @@ return [];
 
 Use that content for:
 
-- `packages/growth/analytics/resources/lang/en/settings.php`
-- `packages/growth/analytics/resources/lang/en/consent.php`
-- `packages/growth/analytics/resources/lang/en/widgets.php`
+- `packages/analytics/resources/lang/en/settings.php`
+- `packages/analytics/resources/lang/en/consent.php`
+- `packages/analytics/resources/lang/en/widgets.php`
 
-Create `packages/growth/analytics/routes/web.php`:
+Create `packages/analytics/routes/web.php`:
 
 ```php
 <?php
@@ -384,7 +384,7 @@ final class AnalyticsBeaconController
 
 Use the same body for `AnalyticsConsentController`, changing only the class name.
 
-Create `packages/growth/analytics/src/Providers/AdminServiceProvider.php`:
+Create `packages/analytics/src/Providers/AdminServiceProvider.php`:
 
 ```php
 <?php
@@ -407,7 +407,7 @@ final class AdminServiceProvider extends ServiceProvider
 }
 ```
 
-Create `packages/growth/analytics/src/Providers/AnalyticsServiceProvider.php`:
+Create `packages/analytics/src/Providers/AnalyticsServiceProvider.php`:
 
 ```php
 <?php
@@ -467,14 +467,14 @@ final class AnalyticsServiceProvider extends AbstractPackageServiceProvider
 Modify root `composer.json` only in `autoload.psr-4` and `autoload-dev.psr-4`:
 
 ```json
-"Capell\\Analytics\\": "packages/growth/analytics/src",
-"Capell\\Analytics\\Database\\Factories\\": "packages/growth/analytics/database/factories",
+"Capell\\Analytics\\": "packages/analytics/src",
+"Capell\\Analytics\\Database\\Factories\\": "packages/analytics/database/factories",
 ```
 
 and:
 
 ```json
-"Capell\\Analytics\\Tests\\": "packages/growth/analytics/tests",
+"Capell\\Analytics\\Tests\\": "packages/analytics/tests",
 ```
 
 Run:
@@ -490,7 +490,7 @@ Expected: composer regenerates autoload files without package discovery errors.
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests/Unit/Providers/AnalyticsServiceProviderTest.php
+vendor/bin/pest packages/analytics/tests/Unit/Providers/AnalyticsServiceProviderTest.php
 ```
 
 Expected: PASS.
@@ -500,38 +500,38 @@ Expected: PASS.
 Run:
 
 ```bash
-git add composer.json packages/growth/analytics
-git commit -m "feat: add analytics package skeleton" -- composer.json packages/growth/analytics
+git add composer.json packages/analytics
+git commit -m "feat: add analytics package skeleton" -- composer.json packages/analytics
 ```
 
 ## Task 2: Database Models, Enums, Data Objects, And Settings
 
 **Files:**
 
-- Create: `packages/growth/analytics/src/Enums/AnalyticsEventType.php`
-- Create: `packages/growth/analytics/src/Enums/AnalyticsConsentCategory.php`
-- Create: `packages/growth/analytics/src/Enums/AnalyticsConsentRegion.php`
-- Create: `packages/growth/analytics/src/Enums/AnalyticsConsentStatus.php`
-- Create: `packages/growth/analytics/src/Data/AnalyticsConsentData.php`
-- Create: `packages/growth/analytics/src/Data/AnalyticsEventData.php`
-- Create: `packages/growth/analytics/src/Data/AnalyticsBeaconData.php`
-- Create: `packages/growth/analytics/src/Data/AnalyticsVisitData.php`
-- Create: `packages/growth/analytics/src/Data/AnalyticsPageSummaryData.php`
-- Create: `packages/growth/analytics/src/Data/AnalyticsJourneyStepData.php`
-- Create: `packages/growth/analytics/src/Data/AnalyticsWindowData.php`
-- Create: `packages/growth/analytics/src/Models/AnalyticsVisit.php`
-- Create: `packages/growth/analytics/src/Models/AnalyticsConsent.php`
-- Create: `packages/growth/analytics/src/Models/AnalyticsEvent.php`
-- Create: `packages/growth/analytics/database/migrations/create_analytics_visits_table.php`
-- Create: `packages/growth/analytics/database/migrations/create_analytics_consents_table.php`
-- Create: `packages/growth/analytics/database/migrations/create_analytics_events_table.php`
-- Create: `packages/growth/analytics/database/settings/create_analytics_settings.php`
-- Create: `packages/growth/analytics/src/Settings/AnalyticsSettings.php`
-- Create: `packages/growth/analytics/src/Filament/Settings/AnalyticsSettingsSchema.php`
-- Modify: `packages/growth/analytics/src/Providers/AnalyticsServiceProvider.php`
-- Create: `packages/growth/analytics/tests/Feature/Database/AnalyticsMigrationsTest.php`
-- Create: `packages/growth/analytics/tests/Unit/Data/AnalyticsDataTest.php`
-- Create: `packages/growth/analytics/tests/Feature/Settings/AnalyticsSettingsTest.php`
+- Create: `packages/analytics/src/Enums/AnalyticsEventType.php`
+- Create: `packages/analytics/src/Enums/AnalyticsConsentCategory.php`
+- Create: `packages/analytics/src/Enums/AnalyticsConsentRegion.php`
+- Create: `packages/analytics/src/Enums/AnalyticsConsentStatus.php`
+- Create: `packages/analytics/src/Data/AnalyticsConsentData.php`
+- Create: `packages/analytics/src/Data/AnalyticsEventData.php`
+- Create: `packages/analytics/src/Data/AnalyticsBeaconData.php`
+- Create: `packages/analytics/src/Data/AnalyticsVisitData.php`
+- Create: `packages/analytics/src/Data/AnalyticsPageSummaryData.php`
+- Create: `packages/analytics/src/Data/AnalyticsJourneyStepData.php`
+- Create: `packages/analytics/src/Data/AnalyticsWindowData.php`
+- Create: `packages/analytics/src/Models/AnalyticsVisit.php`
+- Create: `packages/analytics/src/Models/AnalyticsConsent.php`
+- Create: `packages/analytics/src/Models/AnalyticsEvent.php`
+- Create: `packages/analytics/database/migrations/create_analytics_visits_table.php`
+- Create: `packages/analytics/database/migrations/create_analytics_consents_table.php`
+- Create: `packages/analytics/database/migrations/create_analytics_events_table.php`
+- Create: `packages/analytics/database/settings/create_analytics_settings.php`
+- Create: `packages/analytics/src/Settings/AnalyticsSettings.php`
+- Create: `packages/analytics/src/Filament/Settings/AnalyticsSettingsSchema.php`
+- Modify: `packages/analytics/src/Providers/AnalyticsServiceProvider.php`
+- Create: `packages/analytics/tests/Feature/Database/AnalyticsMigrationsTest.php`
+- Create: `packages/analytics/tests/Unit/Data/AnalyticsDataTest.php`
+- Create: `packages/analytics/tests/Feature/Settings/AnalyticsSettingsTest.php`
 
 - [ ] **Step 1: Write failing migration, enum, data, and settings tests**
 
@@ -621,7 +621,7 @@ it('loads analytics settings defaults', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests/Feature/Database/AnalyticsMigrationsTest.php packages/growth/analytics/tests/Unit/Data/AnalyticsDataTest.php packages/growth/analytics/tests/Feature/Settings/AnalyticsSettingsTest.php
+vendor/bin/pest packages/analytics/tests/Feature/Database/AnalyticsMigrationsTest.php packages/analytics/tests/Unit/Data/AnalyticsDataTest.php packages/analytics/tests/Feature/Settings/AnalyticsSettingsTest.php
 ```
 
 Expected: FAIL because migrations, enums, data, models, and settings do not exist.
@@ -758,7 +758,7 @@ Settings schema uses toggles, text inputs, and textarea fields with translation 
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests/Feature/Database/AnalyticsMigrationsTest.php packages/growth/analytics/tests/Unit/Data/AnalyticsDataTest.php packages/growth/analytics/tests/Feature/Settings/AnalyticsSettingsTest.php
+vendor/bin/pest packages/analytics/tests/Feature/Database/AnalyticsMigrationsTest.php packages/analytics/tests/Unit/Data/AnalyticsDataTest.php packages/analytics/tests/Feature/Settings/AnalyticsSettingsTest.php
 ```
 
 Expected: PASS.
@@ -768,21 +768,21 @@ Expected: PASS.
 Run:
 
 ```bash
-git add packages/growth/analytics
-git commit -m "feat: add analytics data model" -- packages/growth/analytics
+git add packages/analytics
+git commit -m "feat: add analytics data model" -- packages/analytics
 ```
 
 ## Task 3: Consent Region Resolution And Consent Recording
 
 **Files:**
 
-- Create: `packages/growth/analytics/src/Support/Consent/ConsentRegionResolver.php`
-- Create: `packages/growth/analytics/src/Actions/ResolveConsentRegionAction.php`
-- Create: `packages/growth/analytics/src/Actions/CreateAnalyticsVisitAction.php`
-- Create: `packages/growth/analytics/src/Actions/UpdateAnalyticsConsentAction.php`
-- Modify: `packages/growth/analytics/src/Http/Controllers/AnalyticsConsentController.php`
-- Create: `packages/growth/analytics/tests/Unit/Actions/ResolveConsentRegionActionTest.php`
-- Create: `packages/growth/analytics/tests/Feature/Consent/AnalyticsConsentControllerTest.php`
+- Create: `packages/analytics/src/Support/Consent/ConsentRegionResolver.php`
+- Create: `packages/analytics/src/Actions/ResolveConsentRegionAction.php`
+- Create: `packages/analytics/src/Actions/CreateAnalyticsVisitAction.php`
+- Create: `packages/analytics/src/Actions/UpdateAnalyticsConsentAction.php`
+- Modify: `packages/analytics/src/Http/Controllers/AnalyticsConsentController.php`
+- Create: `packages/analytics/tests/Unit/Actions/ResolveConsentRegionActionTest.php`
+- Create: `packages/analytics/tests/Feature/Consent/AnalyticsConsentControllerTest.php`
 
 - [ ] **Step 1: Write failing consent tests**
 
@@ -815,7 +815,7 @@ $this->postJson(route('capell-analytics.consent'), [
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests/Unit/Actions/ResolveConsentRegionActionTest.php packages/growth/analytics/tests/Feature/Consent/AnalyticsConsentControllerTest.php
+vendor/bin/pest packages/analytics/tests/Unit/Actions/ResolveConsentRegionActionTest.php packages/analytics/tests/Feature/Consent/AnalyticsConsentControllerTest.php
 ```
 
 Expected: FAIL because actions and controller behavior do not exist.
@@ -877,7 +877,7 @@ For `accepted_all`, set all categories true. For `rejected_non_essential`, set a
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests/Unit/Actions/ResolveConsentRegionActionTest.php packages/growth/analytics/tests/Feature/Consent/AnalyticsConsentControllerTest.php
+vendor/bin/pest packages/analytics/tests/Unit/Actions/ResolveConsentRegionActionTest.php packages/analytics/tests/Feature/Consent/AnalyticsConsentControllerTest.php
 ```
 
 Expected: PASS.
@@ -887,21 +887,21 @@ Expected: PASS.
 Run:
 
 ```bash
-git add packages/growth/analytics
-git commit -m "feat: add analytics consent tracking" -- packages/growth/analytics
+git add packages/analytics
+git commit -m "feat: add analytics consent tracking" -- packages/analytics
 ```
 
 ## Task 4: Beacon Event Recording
 
 **Files:**
 
-- Create: `packages/growth/analytics/src/Actions/RecordAnalyticsEventAction.php`
-- Create: `packages/growth/analytics/src/Actions/RecordPageViewAction.php`
-- Create: `packages/growth/analytics/src/Actions/RecordClickAction.php`
-- Create: `packages/growth/analytics/src/Actions/RecordCustomActionAction.php`
-- Modify: `packages/growth/analytics/src/Http/Controllers/AnalyticsBeaconController.php`
-- Create: `packages/growth/analytics/tests/Feature/Events/AnalyticsBeaconControllerTest.php`
-- Create: `packages/growth/analytics/tests/Unit/Actions/RecordAnalyticsEventActionTest.php`
+- Create: `packages/analytics/src/Actions/RecordAnalyticsEventAction.php`
+- Create: `packages/analytics/src/Actions/RecordPageViewAction.php`
+- Create: `packages/analytics/src/Actions/RecordClickAction.php`
+- Create: `packages/analytics/src/Actions/RecordCustomActionAction.php`
+- Modify: `packages/analytics/src/Http/Controllers/AnalyticsBeaconController.php`
+- Create: `packages/analytics/tests/Feature/Events/AnalyticsBeaconControllerTest.php`
+- Create: `packages/analytics/tests/Unit/Actions/RecordAnalyticsEventActionTest.php`
 
 - [ ] **Step 1: Write failing event tests**
 
@@ -946,7 +946,7 @@ Use route `capell-analytics.events` with payload:
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests/Feature/Events/AnalyticsBeaconControllerTest.php packages/growth/analytics/tests/Unit/Actions/RecordAnalyticsEventActionTest.php
+vendor/bin/pest packages/analytics/tests/Feature/Events/AnalyticsBeaconControllerTest.php packages/analytics/tests/Unit/Actions/RecordAnalyticsEventActionTest.php
 ```
 
 Expected: FAIL because event actions are not implemented.
@@ -1012,7 +1012,7 @@ Dispatch by enum type. Return `response()->noContent()`.
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests/Feature/Events/AnalyticsBeaconControllerTest.php packages/growth/analytics/tests/Unit/Actions/RecordAnalyticsEventActionTest.php
+vendor/bin/pest packages/analytics/tests/Feature/Events/AnalyticsBeaconControllerTest.php packages/analytics/tests/Unit/Actions/RecordAnalyticsEventActionTest.php
 ```
 
 Expected: PASS.
@@ -1022,20 +1022,20 @@ Expected: PASS.
 Run:
 
 ```bash
-git add packages/growth/analytics
-git commit -m "feat: record analytics beacon events" -- packages/growth/analytics
+git add packages/analytics
+git commit -m "feat: record analytics beacon events" -- packages/analytics
 ```
 
 ## Task 5: Frontend Tracker And Render Hook
 
 **Files:**
 
-- Create: `packages/growth/analytics/resources/views/tracker.blade.php`
-- Create: `packages/growth/analytics/resources/js/capell-analytics.js`
-- Create: `packages/growth/analytics/src/Support/RenderHooks/RegisterAnalyticsTrackerHook.php`
-- Modify: `packages/growth/analytics/src/Providers/AnalyticsServiceProvider.php`
-- Create: `packages/growth/analytics/tests/Feature/Frontend/AnalyticsRenderHookTest.php`
-- Create: `packages/growth/analytics/tests/Unit/Frontend/AnalyticsScriptTest.php`
+- Create: `packages/analytics/resources/views/tracker.blade.php`
+- Create: `packages/analytics/resources/js/capell-analytics.js`
+- Create: `packages/analytics/src/Support/RenderHooks/RegisterAnalyticsTrackerHook.php`
+- Modify: `packages/analytics/src/Providers/AnalyticsServiceProvider.php`
+- Create: `packages/analytics/tests/Feature/Frontend/AnalyticsRenderHookTest.php`
+- Create: `packages/analytics/tests/Unit/Frontend/AnalyticsScriptTest.php`
 
 - [ ] **Step 1: Write failing frontend tests**
 
@@ -1058,7 +1058,7 @@ Test JavaScript source contains:
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests/Feature/Frontend/AnalyticsRenderHookTest.php packages/growth/analytics/tests/Unit/Frontend/AnalyticsScriptTest.php
+vendor/bin/pest packages/analytics/tests/Feature/Frontend/AnalyticsRenderHookTest.php packages/analytics/tests/Unit/Frontend/AnalyticsScriptTest.php
 ```
 
 Expected: FAIL because render hook and JS do not exist.
@@ -1126,7 +1126,7 @@ Call it from `AnalyticsServiceProvider::packageBooted()` only when package enabl
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests/Feature/Frontend/AnalyticsRenderHookTest.php packages/growth/analytics/tests/Unit/Frontend/AnalyticsScriptTest.php
+vendor/bin/pest packages/analytics/tests/Feature/Frontend/AnalyticsRenderHookTest.php packages/analytics/tests/Unit/Frontend/AnalyticsScriptTest.php
 ```
 
 Expected: PASS.
@@ -1136,29 +1136,29 @@ Expected: PASS.
 Run:
 
 ```bash
-git add packages/growth/analytics
-git commit -m "feat: inject analytics tracker" -- packages/growth/analytics
+git add packages/analytics
+git commit -m "feat: inject analytics tracker" -- packages/analytics
 ```
 
 ## Task 6: Reporting, Journeys, Admin Widgets, And Retention
 
 **Files:**
 
-- Create: `packages/growth/analytics/src/Actions/BuildPopularPagesQueryAction.php`
-- Create: `packages/growth/analytics/src/Actions/BuildTrendingPagesQueryAction.php`
-- Create: `packages/growth/analytics/src/Actions/BuildJourneyTimelineAction.php`
-- Create: `packages/growth/analytics/src/Actions/PurgeAnalyticsDataAction.php`
-- Create: `packages/growth/analytics/src/Console/Commands/PurgeAnalyticsDataCommand.php`
-- Create: `packages/growth/analytics/src/Filament/Widgets/AnalyticsOverviewStatsWidget.php`
-- Create: `packages/growth/analytics/src/Filament/Widgets/PopularPagesWidget.php`
-- Create: `packages/growth/analytics/src/Filament/Widgets/TrendingPagesWidget.php`
-- Create: `packages/growth/analytics/src/Filament/Widgets/RecentJourneysWidget.php`
-- Create: `packages/growth/analytics/src/Filament/Widgets/TopActionsWidget.php`
-- Create: `packages/growth/analytics/src/Filament/Settings/Contributors/AnalyticsDashboardSettingsContributor.php`
-- Modify: `packages/growth/analytics/src/Providers/AdminServiceProvider.php`
-- Create: `packages/growth/analytics/tests/Feature/Reports/AnalyticsReportsTest.php`
-- Create: `packages/growth/analytics/tests/Feature/Retention/PurgeAnalyticsDataActionTest.php`
-- Create: `packages/growth/analytics/tests/Feature/Filament/AnalyticsWidgetsTest.php`
+- Create: `packages/analytics/src/Actions/BuildPopularPagesQueryAction.php`
+- Create: `packages/analytics/src/Actions/BuildTrendingPagesQueryAction.php`
+- Create: `packages/analytics/src/Actions/BuildJourneyTimelineAction.php`
+- Create: `packages/analytics/src/Actions/PurgeAnalyticsDataAction.php`
+- Create: `packages/analytics/src/Console/Commands/PurgeAnalyticsDataCommand.php`
+- Create: `packages/analytics/src/Filament/Widgets/AnalyticsOverviewStatsWidget.php`
+- Create: `packages/analytics/src/Filament/Widgets/PopularPagesWidget.php`
+- Create: `packages/analytics/src/Filament/Widgets/TrendingPagesWidget.php`
+- Create: `packages/analytics/src/Filament/Widgets/RecentJourneysWidget.php`
+- Create: `packages/analytics/src/Filament/Widgets/TopActionsWidget.php`
+- Create: `packages/analytics/src/Filament/Settings/Contributors/AnalyticsDashboardSettingsContributor.php`
+- Modify: `packages/analytics/src/Providers/AdminServiceProvider.php`
+- Create: `packages/analytics/tests/Feature/Reports/AnalyticsReportsTest.php`
+- Create: `packages/analytics/tests/Feature/Retention/PurgeAnalyticsDataActionTest.php`
+- Create: `packages/analytics/tests/Feature/Filament/AnalyticsWidgetsTest.php`
 
 - [ ] **Step 1: Write failing reporting and retention tests**
 
@@ -1175,7 +1175,7 @@ Seed analytics events with current and previous windows. Assert:
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests/Feature/Reports/AnalyticsReportsTest.php packages/growth/analytics/tests/Feature/Retention/PurgeAnalyticsDataActionTest.php packages/growth/analytics/tests/Feature/Filament/AnalyticsWidgetsTest.php
+vendor/bin/pest packages/analytics/tests/Feature/Reports/AnalyticsReportsTest.php packages/analytics/tests/Feature/Retention/PurgeAnalyticsDataActionTest.php packages/analytics/tests/Feature/Filament/AnalyticsWidgetsTest.php
 ```
 
 Expected: FAIL because reporting, widgets, and retention are not implemented.
@@ -1237,7 +1237,7 @@ Widgets can be minimal version 1 Filament widgets that expose headings and call 
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests/Feature/Reports/AnalyticsReportsTest.php packages/growth/analytics/tests/Feature/Retention/PurgeAnalyticsDataActionTest.php packages/growth/analytics/tests/Feature/Filament/AnalyticsWidgetsTest.php
+vendor/bin/pest packages/analytics/tests/Feature/Reports/AnalyticsReportsTest.php packages/analytics/tests/Feature/Retention/PurgeAnalyticsDataActionTest.php packages/analytics/tests/Feature/Filament/AnalyticsWidgetsTest.php
 ```
 
 Expected: PASS.
@@ -1247,8 +1247,8 @@ Expected: PASS.
 Run:
 
 ```bash
-git add packages/growth/analytics
-git commit -m "feat: add analytics reporting widgets" -- packages/growth/analytics
+git add packages/analytics
+git commit -m "feat: add analytics reporting widgets" -- packages/analytics
 ```
 
 ## Task 7: Integration Verification And Polish
@@ -1256,11 +1256,11 @@ git commit -m "feat: add analytics reporting widgets" -- packages/growth/analyti
 **Files:**
 
 - Modify only files required by failing tests or static analysis.
-- Update: `packages/growth/analytics/README.md` if absent.
+- Update: `packages/analytics/README.md` if absent.
 
 - [ ] **Step 1: Add README**
 
-Create `packages/growth/analytics/README.md` with:
+Create `packages/analytics/README.md` with:
 
 ````markdown
 # Capell Analytics
@@ -1272,7 +1272,7 @@ First-party analytics, visitor journeys, click tracking, and consent management 
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests
+vendor/bin/pest packages/analytics/tests
 ```
 ````
 
@@ -1283,7 +1283,7 @@ vendor/bin/pest packages/growth/analytics/tests
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests
+vendor/bin/pest packages/analytics/tests
 ````
 
 Expected: PASS.
@@ -1293,7 +1293,7 @@ Expected: PASS.
 Run:
 
 ```bash
-vendor/bin/pest packages/growth/analytics/tests packages/theme-studio/themes-core/tests
+vendor/bin/pest packages/analytics/tests packages/theme-studio/themes-core/tests
 ```
 
 Expected: PASS or only unrelated existing failures. If there are failures, inspect and fix only analytics-caused failures.
@@ -1303,13 +1303,13 @@ Expected: PASS or only unrelated existing failures. If there are failures, inspe
 Run:
 
 ```bash
-composer lint -- packages/growth/analytics
+composer lint -- packages/analytics
 ```
 
 If the project script does not accept a path argument, run:
 
 ```bash
-vendor/bin/pint packages/growth/analytics
+vendor/bin/pint packages/analytics
 ```
 
 Expected: no formatting errors after Pint completes.
@@ -1329,8 +1329,8 @@ Expected: PASS or unrelated existing failures. Record any unrelated failures in 
 Run:
 
 ```bash
-git add packages/growth/analytics composer.json
-git commit -m "chore: verify analytics package" -- packages/growth/analytics composer.json
+git add packages/analytics composer.json
+git commit -m "chore: verify analytics package" -- packages/analytics composer.json
 ```
 
 Skip this commit if there are no file changes after verification.

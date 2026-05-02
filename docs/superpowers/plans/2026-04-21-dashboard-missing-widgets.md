@@ -30,23 +30,23 @@
 
 ### New files
 
-- `packages/foundation/blog/src/Filament/Widgets/TrafficChartWidget.php` — combined views + visitors chart
-- `packages/foundation/blog/src/Data/Dashboard/TrafficChartData.php` — daily views/visitors series data
-- `packages/foundation/blog/src/Data/Dashboard/TrafficPointData.php` — single data point (date, views, visitors)
-- `packages/foundation/blog/resources/views/filament/widgets/traffic-chart.blade.php` — chart Blade view
-- `packages/foundation/blog/src/Filament/Widgets/TopPagesWidget.php` — top pages by view count
-- `packages/foundation/blog/src/Data/Dashboard/TopPagesData.php` — list of top pages
-- `packages/foundation/blog/src/Data/Dashboard/TopPageData.php` — single page entry (path, views)
-- `packages/foundation/blog/resources/views/filament/widgets/top-pages.blade.php` — top pages Blade view
-- `packages/foundation/mosaic/src/Filament/Widgets/RecentActivityWidget.php` — cross-content recent activity feed
-- `packages/foundation/mosaic/src/Data/Dashboard/RecentActivityData.php` — list of activity items
-- `packages/foundation/mosaic/src/Data/Dashboard/ActivityItemData.php` — single item (title, type, status, updated_at)
-- `packages/foundation/mosaic/resources/views/filament/widgets/recent-activity.blade.php` — activity feed Blade view
+- `packages/blog/src/Filament/Widgets/TrafficChartWidget.php` — combined views + visitors chart
+- `packages/blog/src/Data/Dashboard/TrafficChartData.php` — daily views/visitors series data
+- `packages/blog/src/Data/Dashboard/TrafficPointData.php` — single data point (date, views, visitors)
+- `packages/blog/resources/views/filament/widgets/traffic-chart.blade.php` — chart Blade view
+- `packages/blog/src/Filament/Widgets/TopPagesWidget.php` — top pages by view count
+- `packages/blog/src/Data/Dashboard/TopPagesData.php` — list of top pages
+- `packages/blog/src/Data/Dashboard/TopPageData.php` — single page entry (path, views)
+- `packages/blog/resources/views/filament/widgets/top-pages.blade.php` — top pages Blade view
+- `packages/mosaic/src/Filament/Widgets/RecentActivityWidget.php` — cross-content recent activity feed
+- `packages/mosaic/src/Data/Dashboard/RecentActivityData.php` — list of activity items
+- `packages/mosaic/src/Data/Dashboard/ActivityItemData.php` — single item (title, type, status, updated_at)
+- `packages/mosaic/resources/views/filament/widgets/recent-activity.blade.php` — activity feed Blade view
 
 ### Modified files
 
-- `packages/foundation/blog/src/Providers/BlogServiceProvider.php` — register new widgets
-- `packages/foundation/mosaic/src/Providers/MosaicServiceProvider.php` — register RecentActivityWidget
+- `packages/blog/src/Providers/BlogServiceProvider.php` — register new widgets
+- `packages/mosaic/src/Providers/MosaicServiceProvider.php` — register RecentActivityWidget
 - `tests/src/Blog/Feature/Filament/Widgets/TrafficChartWidgetTest.php` — new test
 - `tests/src/Blog/Feature/Filament/Widgets/TopPagesWidgetTest.php` — new test
 - `tests/src/Mosaic/Feature/Filament/Widgets/RecentActivityWidgetTest.php` — new test
@@ -57,8 +57,8 @@
 
 **Files:**
 
-- Create: `packages/foundation/blog/src/Data/Dashboard/TrafficPointData.php`
-- Create: `packages/foundation/blog/src/Data/Dashboard/TrafficChartData.php`
+- Create: `packages/blog/src/Data/Dashboard/TrafficPointData.php`
+- Create: `packages/blog/src/Data/Dashboard/TrafficChartData.php`
 
 - [ ] **Step 1: Create `TrafficPointData`**
 
@@ -109,7 +109,7 @@ final class TrafficChartData extends Data
 - [ ] **Step 3: Commit**
 
 ```bash
-git add packages/foundation/blog/src/Data/Dashboard/TrafficPointData.php packages/foundation/blog/src/Data/Dashboard/TrafficChartData.php
+git add packages/blog/src/Data/Dashboard/TrafficPointData.php packages/blog/src/Data/Dashboard/TrafficChartData.php
 git commit -m "feat(blog): add TrafficChartData and TrafficPointData"
 ```
 
@@ -119,8 +119,8 @@ git commit -m "feat(blog): add TrafficChartData and TrafficPointData"
 
 **Files:**
 
-- Create: `packages/foundation/blog/src/Filament/Widgets/TrafficChartWidget.php`
-- Create: `packages/foundation/blog/resources/views/filament/widgets/traffic-chart.blade.php`
+- Create: `packages/blog/src/Filament/Widgets/TrafficChartWidget.php`
+- Create: `packages/blog/resources/views/filament/widgets/traffic-chart.blade.php`
 - Create: `tests/src/Blog/Feature/Filament/Widgets/TrafficChartWidgetTest.php`
 
 - [ ] **Step 1: Write the failing test**
@@ -227,7 +227,7 @@ final class TrafficChartWidget extends CapellWidget
 
 - [ ] **Step 4: Create the Blade view**
 
-`packages/foundation/blog/resources/views/filament/widgets/traffic-chart.blade.php`:
+`packages/blog/resources/views/filament/widgets/traffic-chart.blade.php`:
 
 ```blade
 <x-filament-widgets::widget>
@@ -303,16 +303,16 @@ Expected: PASS.
 
 - [ ] **Step 6: Register widget in BlogServiceProvider**
 
-Find the widget registration section in `packages/foundation/blog/src/Providers/BlogServiceProvider.php` and add `TrafficChartWidget::class`.
+Find the widget registration section in `packages/blog/src/Providers/BlogServiceProvider.php` and add `TrafficChartWidget::class`.
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/foundation/blog/src/Filament/Widgets/TrafficChartWidget.php \
-        packages/foundation/blog/src/Data/Dashboard/ \
-        packages/foundation/blog/resources/views/filament/widgets/traffic-chart.blade.php \
+git add packages/blog/src/Filament/Widgets/TrafficChartWidget.php \
+        packages/blog/src/Data/Dashboard/ \
+        packages/blog/resources/views/filament/widgets/traffic-chart.blade.php \
         tests/src/Blog/Feature/Filament/Widgets/TrafficChartWidgetTest.php \
-        packages/foundation/blog/src/Providers/BlogServiceProvider.php
+        packages/blog/src/Providers/BlogServiceProvider.php
 git commit -m "feat(blog): add combined TrafficChartWidget"
 ```
 
@@ -322,8 +322,8 @@ git commit -m "feat(blog): add combined TrafficChartWidget"
 
 **Files:**
 
-- Create: `packages/foundation/blog/src/Data/Dashboard/TopPageData.php`
-- Create: `packages/foundation/blog/src/Data/Dashboard/TopPagesData.php`
+- Create: `packages/blog/src/Data/Dashboard/TopPageData.php`
+- Create: `packages/blog/src/Data/Dashboard/TopPagesData.php`
 
 - [ ] **Step 1: Create data classes**
 
@@ -373,7 +373,7 @@ final class TopPagesData extends Data
 - [ ] **Step 2: Commit**
 
 ```bash
-git add packages/foundation/blog/src/Data/Dashboard/TopPageData.php packages/foundation/blog/src/Data/Dashboard/TopPagesData.php
+git add packages/blog/src/Data/Dashboard/TopPageData.php packages/blog/src/Data/Dashboard/TopPagesData.php
 git commit -m "feat(blog): add TopPageData and TopPagesData"
 ```
 
@@ -383,8 +383,8 @@ git commit -m "feat(blog): add TopPageData and TopPagesData"
 
 **Files:**
 
-- Create: `packages/foundation/blog/src/Filament/Widgets/TopPagesWidget.php`
-- Create: `packages/foundation/blog/resources/views/filament/widgets/top-pages.blade.php`
+- Create: `packages/blog/src/Filament/Widgets/TopPagesWidget.php`
+- Create: `packages/blog/resources/views/filament/widgets/top-pages.blade.php`
 - Create: `tests/src/Blog/Feature/Filament/Widgets/TopPagesWidgetTest.php`
 
 - [ ] **Step 1: Write the failing test**
@@ -485,7 +485,7 @@ final class TopPagesWidget extends CapellWidget
 
 - [ ] **Step 4: Create the Blade view**
 
-`packages/foundation/blog/resources/views/filament/widgets/top-pages.blade.php`:
+`packages/blog/resources/views/filament/widgets/top-pages.blade.php`:
 
 ```blade
 <x-filament-widgets::widget>
@@ -531,11 +531,11 @@ Add `TopPagesWidget::class` to the widget registration alongside `TrafficChartWi
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/foundation/blog/src/Filament/Widgets/TopPagesWidget.php \
-        packages/foundation/blog/src/Data/Dashboard/ \
-        packages/foundation/blog/resources/views/filament/widgets/top-pages.blade.php \
+git add packages/blog/src/Filament/Widgets/TopPagesWidget.php \
+        packages/blog/src/Data/Dashboard/ \
+        packages/blog/resources/views/filament/widgets/top-pages.blade.php \
         tests/src/Blog/Feature/Filament/Widgets/TopPagesWidgetTest.php \
-        packages/foundation/blog/src/Providers/BlogServiceProvider.php
+        packages/blog/src/Providers/BlogServiceProvider.php
 git commit -m "feat(blog): add TopPagesWidget"
 ```
 
@@ -545,8 +545,8 @@ git commit -m "feat(blog): add TopPagesWidget"
 
 **Files:**
 
-- Create: `packages/foundation/mosaic/src/Data/Dashboard/ActivityItemData.php`
-- Create: `packages/foundation/mosaic/src/Data/Dashboard/RecentActivityData.php`
+- Create: `packages/mosaic/src/Data/Dashboard/ActivityItemData.php`
+- Create: `packages/mosaic/src/Data/Dashboard/RecentActivityData.php`
 
 - [ ] **Step 1: Create data classes**
 
@@ -599,7 +599,7 @@ final class RecentActivityData extends Data
 - [ ] **Step 2: Commit**
 
 ```bash
-git add packages/foundation/mosaic/src/Data/Dashboard/ActivityItemData.php packages/foundation/mosaic/src/Data/Dashboard/RecentActivityData.php
+git add packages/mosaic/src/Data/Dashboard/ActivityItemData.php packages/mosaic/src/Data/Dashboard/RecentActivityData.php
 git commit -m "feat(mosaic): add ActivityItemData and RecentActivityData"
 ```
 
@@ -611,8 +611,8 @@ The widget queries the core `Page` model (and optionally `Article` from blog if 
 
 **Files:**
 
-- Create: `packages/foundation/mosaic/src/Filament/Widgets/RecentActivityWidget.php`
-- Create: `packages/foundation/mosaic/resources/views/filament/widgets/recent-activity.blade.php`
+- Create: `packages/mosaic/src/Filament/Widgets/RecentActivityWidget.php`
+- Create: `packages/mosaic/resources/views/filament/widgets/recent-activity.blade.php`
 - Create: `tests/src/Mosaic/Feature/Filament/Widgets/RecentActivityWidgetTest.php`
 
 - [ ] **Step 1: Write the failing test**
@@ -730,7 +730,7 @@ final class RecentActivityWidget extends CapellWidget
 
 - [ ] **Step 4: Create the Blade view**
 
-`packages/foundation/mosaic/resources/views/filament/widgets/recent-activity.blade.php`:
+`packages/mosaic/resources/views/filament/widgets/recent-activity.blade.php`:
 
 ```blade
 <x-filament-widgets::widget>
@@ -780,16 +780,16 @@ Expected: PASS.
 
 - [ ] **Step 6: Register widget in MosaicServiceProvider**
 
-Add `RecentActivityWidget::class` to the widget registration in `packages/foundation/mosaic/src/Providers/MosaicServiceProvider.php`.
+Add `RecentActivityWidget::class` to the widget registration in `packages/mosaic/src/Providers/MosaicServiceProvider.php`.
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/foundation/mosaic/src/Filament/Widgets/RecentActivityWidget.php \
-        packages/foundation/mosaic/src/Data/Dashboard/ \
-        packages/foundation/mosaic/resources/views/filament/widgets/recent-activity.blade.php \
+git add packages/mosaic/src/Filament/Widgets/RecentActivityWidget.php \
+        packages/mosaic/src/Data/Dashboard/ \
+        packages/mosaic/resources/views/filament/widgets/recent-activity.blade.php \
         tests/src/Mosaic/Feature/Filament/Widgets/RecentActivityWidgetTest.php \
-        packages/foundation/mosaic/src/Providers/MosaicServiceProvider.php
+        packages/mosaic/src/Providers/MosaicServiceProvider.php
 git commit -m "feat(mosaic): add RecentActivityWidget"
 ```
 

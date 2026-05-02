@@ -69,46 +69,46 @@ As of May 2, 2026:
 
 ### Theme Studio Runtime
 
-- Modify: `packages/theme-studio/core/composer.json`
-- Modify: `packages/theme-studio/core/src/Actions/RenderThemePageAction.php`
-- Modify: `packages/theme-studio/core/src/Actions/ResolveThemeRuntimeAction.php`
-- Create: `packages/theme-studio/core/src/Actions/RenderCurrentThemePageAction.php`
-- Create: `packages/theme-studio/core/src/Contracts/ThemeRuntimeSettings.php`
-- Create: `packages/theme-studio/core/src/Contracts/ThemePageAdapter.php`
-- Create: `packages/theme-studio/core/src/Adapters/CapellFrontendThemePageAdapter.php`
-- Create: `packages/theme-studio/core/src/Assets/ThemeTokenStore.php`
-- Create: `packages/theme-studio/core/src/Support/ThemeStudioReadiness.php`
-- Modify: `packages/theme-studio/core/src/Rendering/ViewSectionRenderer.php`
-- Modify: `packages/theme-studio/core/src/ThemeStudioCoreServiceProvider.php`
-- Create: `packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php`
-- Create: `packages/theme-studio/core/tests/Unit/ThemeTokenStoreTest.php`
-- Modify: `packages/theme-studio/core/tests/Unit/ThemeRegistryTest.php`
+- Modify: `packages/theme-studio-core/composer.json`
+- Modify: `packages/theme-studio-core/src/Actions/RenderThemePageAction.php`
+- Modify: `packages/theme-studio-core/src/Actions/ResolveThemeRuntimeAction.php`
+- Create: `packages/theme-studio-core/src/Actions/RenderCurrentThemePageAction.php`
+- Create: `packages/theme-studio-core/src/Contracts/ThemeRuntimeSettings.php`
+- Create: `packages/theme-studio-core/src/Contracts/ThemePageAdapter.php`
+- Create: `packages/theme-studio-core/src/Adapters/CapellFrontendThemePageAdapter.php`
+- Create: `packages/theme-studio-core/src/Assets/ThemeTokenStore.php`
+- Create: `packages/theme-studio-core/src/Support/ThemeStudioReadiness.php`
+- Modify: `packages/theme-studio-core/src/Rendering/ViewSectionRenderer.php`
+- Modify: `packages/theme-studio-core/src/ThemeStudioCoreServiceProvider.php`
+- Create: `packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php`
+- Create: `packages/theme-studio-core/tests/Unit/ThemeTokenStoreTest.php`
+- Modify: `packages/theme-studio-core/tests/Unit/ThemeRegistryTest.php`
 
 ### Theme Studio Admin
 
-- Modify: `packages/theme-studio/admin/src/Actions/GenerateThemePreviewUrlAction.php`
-- Modify: `packages/theme-studio/admin/src/Actions/PublishThemeDraftAction.php`
-- Modify: `packages/theme-studio/admin/src/Filament/Pages/ThemeStudioPage.php`
-- Modify: `packages/theme-studio/admin/src/Schemas/ThemeStudioSettingsSchema.php`
-- Modify: `packages/theme-studio/admin/src/Settings/ThemeStudioSettings.php`
-- Modify: `packages/theme-studio/admin/src/ThemeStudioAdminServiceProvider.php`
-- Create: `packages/theme-studio/admin/src/Actions/ResolveThemePublishLabelAction.php`
-- Create: `packages/theme-studio/admin/src/Publishing/StandaloneThemeDraftPublisher.php`
-- Create: `packages/theme-studio/admin/src/Publishing/WorkspaceThemeDraftPublisher.php`
-- Test: `packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php`
-- Modify: `packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php`
+- Modify: `packages/theme-studio-admin/src/Actions/GenerateThemePreviewUrlAction.php`
+- Modify: `packages/theme-studio-admin/src/Actions/PublishThemeDraftAction.php`
+- Modify: `packages/theme-studio-admin/src/Filament/Pages/ThemeStudioPage.php`
+- Modify: `packages/theme-studio-admin/src/Schemas/ThemeStudioSettingsSchema.php`
+- Modify: `packages/theme-studio-admin/src/Settings/ThemeStudioSettings.php`
+- Modify: `packages/theme-studio-admin/src/ThemeStudioAdminServiceProvider.php`
+- Create: `packages/theme-studio-admin/src/Actions/ResolveThemePublishLabelAction.php`
+- Create: `packages/theme-studio-admin/src/Publishing/StandaloneThemeDraftPublisher.php`
+- Create: `packages/theme-studio-admin/src/Publishing/WorkspaceThemeDraftPublisher.php`
+- Test: `packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php`
+- Modify: `packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php`
 
 ### Bundled Themes
 
-- Modify: `packages/theme-studio/themes/corporate/capell.json`
-- Modify: `packages/theme-studio/themes/agency/capell.json`
-- Modify: `packages/theme-studio/themes/saas/capell.json`
-- Create: `packages/theme-studio/themes/corporate/resources/views/livewire/page/page.blade.php`
-- Create: `packages/theme-studio/themes/agency/resources/views/livewire/page/page.blade.php`
-- Create: `packages/theme-studio/themes/saas/resources/views/livewire/page/page.blade.php`
-- Modify: `packages/theme-studio/themes/corporate/src/CorporateThemeServiceProvider.php`
-- Modify: `packages/theme-studio/themes/agency/src/AgencyThemeServiceProvider.php`
-- Modify: `packages/theme-studio/themes/saas/src/SaasThemeServiceProvider.php`
+- Modify: `packages/theme-corporate/capell.json`
+- Modify: `packages/theme-agency/capell.json`
+- Modify: `packages/theme-saas/capell.json`
+- Create: `packages/theme-corporate/resources/views/livewire/page/page.blade.php`
+- Create: `packages/theme-agency/resources/views/livewire/page/page.blade.php`
+- Create: `packages/theme-saas/resources/views/livewire/page/page.blade.php`
+- Modify: `packages/theme-corporate/src/CorporateThemeServiceProvider.php`
+- Modify: `packages/theme-agency/src/AgencyThemeServiceProvider.php`
+- Modify: `packages/theme-saas/src/SaasThemeServiceProvider.php`
 - Modify: bundled theme definition tests.
 
 ### Capell Frontend Companion Changes
@@ -119,42 +119,42 @@ As of May 2, 2026:
 
 ### Mosaic Creator Surface
 
-- Create: `packages/foundation/mosaic/src/Data/LayoutPresetData.php`
-- Create: `packages/foundation/mosaic/src/Data/LayoutPlanData.php`
-- Create: `packages/foundation/mosaic/src/Data/LayoutPlanResultData.php`
-- Create: `packages/foundation/mosaic/src/Support/LayoutPresets/LayoutPresetRegistry.php`
-- Create: `packages/foundation/mosaic/src/Actions/ListLayoutPresetsAction.php`
-- Create: `packages/foundation/mosaic/src/Actions/FindReusableWidgetsAction.php`
-- Create: `packages/foundation/mosaic/src/Actions/PreviewLayoutPlanAction.php`
-- Create: `packages/foundation/mosaic/src/Actions/ApplyLayoutPlanAction.php`
-- Modify: `packages/foundation/mosaic/src/Providers/MosaicServiceProvider.php`
-- Modify: `packages/foundation/mosaic/src/Livewire/Filament/LayoutBuilder.php`
-- Modify: `packages/foundation/mosaic/resources/views/livewire/filament/layout-builder/index.blade.php`
-- Create: `packages/foundation/mosaic/tests/Feature/Livewire/LayoutBuilder/LayoutScopeNoticeTest.php`
-- Create: `packages/foundation/mosaic/tests/Integration/Actions/ApplyLayoutPlanActionTest.php`
+- Create: `packages/mosaic/src/Data/LayoutPresetData.php`
+- Create: `packages/mosaic/src/Data/LayoutPlanData.php`
+- Create: `packages/mosaic/src/Data/LayoutPlanResultData.php`
+- Create: `packages/mosaic/src/Support/LayoutPresets/LayoutPresetRegistry.php`
+- Create: `packages/mosaic/src/Actions/ListLayoutPresetsAction.php`
+- Create: `packages/mosaic/src/Actions/FindReusableWidgetsAction.php`
+- Create: `packages/mosaic/src/Actions/PreviewLayoutPlanAction.php`
+- Create: `packages/mosaic/src/Actions/ApplyLayoutPlanAction.php`
+- Modify: `packages/mosaic/src/Providers/MosaicServiceProvider.php`
+- Modify: `packages/mosaic/src/Livewire/Filament/LayoutBuilder.php`
+- Modify: `packages/mosaic/resources/views/livewire/filament/layout-builder/index.blade.php`
+- Create: `packages/mosaic/tests/Feature/Livewire/LayoutBuilder/LayoutScopeNoticeTest.php`
+- Create: `packages/mosaic/tests/Integration/Actions/ApplyLayoutPlanActionTest.php`
 
 ### Capell Assistant
 
-- Create: `packages/commercial/assistant/composer.json`
-- Create: `packages/commercial/assistant/capell.json`
-- Create: `packages/commercial/assistant/src/Providers/AssistantServiceProvider.php`
-- Create: `packages/commercial/assistant/src/Contracts/AssistantModule.php`
-- Create: `packages/commercial/assistant/src/Contracts/AssistantProviderConnector.php`
-- Create: `packages/commercial/assistant/src/Data/AssistantCapabilityData.php`
-- Create: `packages/commercial/assistant/src/Data/AssistantRunData.php`
-- Create: `packages/commercial/assistant/src/Enums/AssistantApprovalLevel.php`
-- Create: `packages/commercial/assistant/src/Support/AssistantModuleRegistry.php`
-- Create: `packages/commercial/assistant/src/Actions/RegisterAssistantModuleAction.php`
-- Create: `packages/commercial/assistant/src/Actions/RunAssistantCapabilityAction.php`
-- Create: `packages/commercial/assistant/src/Actions/ListAssistantCapabilitiesAction.php`
-- Create: `packages/commercial/assistant/src/Integrations/Mosaic/MosaicAssistantModule.php`
-- Create: `packages/commercial/assistant/src/Integrations/Mosaic/PreviewMosaicLayoutPlanAction.php`
-- Create: `packages/commercial/assistant/src/Providers/OpenAiConnector.php`
-- Create: `packages/commercial/assistant/src/Providers/ClaudeConnector.php`
-- Create: `packages/commercial/assistant/src/Providers/GeminiConnector.php`
-- Create: `packages/commercial/assistant/tests/Unit/AssistantModuleRegistryTest.php`
-- Create: `packages/commercial/assistant/tests/Feature/RunAssistantCapabilityActionTest.php`
-- Create: `packages/commercial/assistant/tests/Feature/MosaicAssistantModuleTest.php`
+- Create: `packages/assistant/composer.json`
+- Create: `packages/assistant/capell.json`
+- Create: `packages/assistant/src/Providers/AssistantServiceProvider.php`
+- Create: `packages/assistant/src/Contracts/AssistantModule.php`
+- Create: `packages/assistant/src/Contracts/AssistantProviderConnector.php`
+- Create: `packages/assistant/src/Data/AssistantCapabilityData.php`
+- Create: `packages/assistant/src/Data/AssistantRunData.php`
+- Create: `packages/assistant/src/Enums/AssistantApprovalLevel.php`
+- Create: `packages/assistant/src/Support/AssistantModuleRegistry.php`
+- Create: `packages/assistant/src/Actions/RegisterAssistantModuleAction.php`
+- Create: `packages/assistant/src/Actions/RunAssistantCapabilityAction.php`
+- Create: `packages/assistant/src/Actions/ListAssistantCapabilitiesAction.php`
+- Create: `packages/assistant/src/Integrations/Mosaic/MosaicAssistantModule.php`
+- Create: `packages/assistant/src/Integrations/Mosaic/PreviewMosaicLayoutPlanAction.php`
+- Create: `packages/assistant/src/Providers/OpenAiConnector.php`
+- Create: `packages/assistant/src/Providers/ClaudeConnector.php`
+- Create: `packages/assistant/src/Providers/GeminiConnector.php`
+- Create: `packages/assistant/tests/Unit/AssistantModuleRegistryTest.php`
+- Create: `packages/assistant/tests/Feature/RunAssistantCapabilityActionTest.php`
+- Create: `packages/assistant/tests/Feature/MosaicAssistantModuleTest.php`
 
 ---
 
@@ -166,19 +166,19 @@ As of May 2, 2026:
 - Modify: `composer.local.json`
 - Modify: `tests/Pest.php`
 - Modify: `phpunit.xml`
-- Test: `packages/theme-studio/core/tests/Unit/ThemeDataTest.php`
-- Test: `packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php`
+- Test: `packages/theme-studio-core/tests/Unit/ThemeDataTest.php`
+- Test: `packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php`
 
 - [ ] **Step 1: Replace old Theme Studio test namespaces**
 
 Update root and local autoload so new test namespaces resolve:
 
 ```json
-"Capell\\ThemeStudio\\Core\\Tests\\": "packages/theme-studio/core/tests/",
-"Capell\\ThemeStudio\\Admin\\Tests\\": "packages/theme-studio/admin/tests/",
-"Capell\\ThemeStudio\\Corporate\\Tests\\": "packages/theme-studio/themes/corporate/tests/",
-"Capell\\ThemeStudio\\Agency\\Tests\\": "packages/theme-studio/themes/agency/tests/",
-"Capell\\ThemeStudio\\Saas\\Tests\\": "packages/theme-studio/themes/saas/tests/"
+"Capell\\ThemeStudio\\Core\\Tests\\": "packages/theme-studio-core/tests/",
+"Capell\\ThemeStudio\\Admin\\Tests\\": "packages/theme-studio-admin/tests/",
+"Capell\\ThemeStudio\\Corporate\\Tests\\": "packages/theme-corporate/tests/",
+"Capell\\ThemeStudio\\Agency\\Tests\\": "packages/theme-agency/tests/",
+"Capell\\ThemeStudio\\Saas\\Tests\\": "packages/theme-saas/tests/"
 ```
 
 Remove references to:
@@ -204,7 +204,7 @@ Expected: Composer reports generated autoload files without `Capell\Themes\Admin
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/core/tests packages/theme-studio/admin/tests
+vendor/bin/pest packages/theme-studio-core/tests packages/theme-studio-admin/tests
 ```
 
 Expected: tests either pass or fail on real product behavior, not missing `ThemesAdminTestCase`.
@@ -220,9 +220,9 @@ git commit -m "chore: align theme studio test bootstrap"
 
 **Files:**
 
-- Modify: `packages/theme-studio/themes/corporate/capell.json`
-- Modify: `packages/theme-studio/themes/agency/capell.json`
-- Modify: `packages/theme-studio/themes/saas/capell.json`
+- Modify: `packages/theme-corporate/capell.json`
+- Modify: `packages/theme-agency/capell.json`
+- Modify: `packages/theme-saas/capell.json`
 - Modify: `../capell-4/packages/core/src/Support/Manifest/CapellManifestData.php`
 - Modify: `../capell-4/packages/frontend/src/Support/View/ThemeChainResolver.php`
 - Test: `../capell-4/packages/frontend/tests/Unit/View/ThemeChainResolverThemeKeyTest.php`
@@ -325,7 +325,7 @@ Add the exact values:
 Run:
 
 ```bash
-vendor/bin/pest ../capell-4/packages/frontend/tests/Unit/View/ThemeChainResolverThemeKeyTest.php packages/theme-studio/themes/corporate/tests/Unit/CorporateThemeDefinitionTest.php packages/theme-studio/themes/agency/tests/Unit/AgencyThemeDefinitionTest.php packages/theme-studio/themes/saas/tests/Unit/SaasThemeDefinitionTest.php
+vendor/bin/pest ../capell-4/packages/frontend/tests/Unit/View/ThemeChainResolverThemeKeyTest.php packages/theme-corporate/tests/Unit/CorporateThemeDefinitionTest.php packages/theme-agency/tests/Unit/AgencyThemeDefinitionTest.php packages/theme-saas/tests/Unit/SaasThemeDefinitionTest.php
 ```
 
 Expected: all selected tests pass.
@@ -341,18 +341,18 @@ git commit -m "fix: resolve theme studio package keys"
 
 **Files:**
 
-- Modify: `packages/theme-studio/core/composer.json`
-- Create: `packages/theme-studio/core/src/Contracts/ThemeRuntimeSettings.php`
-- Create: `packages/theme-studio/core/src/Contracts/ThemePageAdapter.php`
-- Create: `packages/theme-studio/core/src/Adapters/CapellFrontendThemePageAdapter.php`
-- Create: `packages/theme-studio/core/src/Actions/RenderCurrentThemePageAction.php`
-- Modify: `packages/theme-studio/core/src/ThemeStudioCoreServiceProvider.php`
-- Create: `packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php`
+- Modify: `packages/theme-studio-core/composer.json`
+- Create: `packages/theme-studio-core/src/Contracts/ThemeRuntimeSettings.php`
+- Create: `packages/theme-studio-core/src/Contracts/ThemePageAdapter.php`
+- Create: `packages/theme-studio-core/src/Adapters/CapellFrontendThemePageAdapter.php`
+- Create: `packages/theme-studio-core/src/Actions/RenderCurrentThemePageAction.php`
+- Modify: `packages/theme-studio-core/src/ThemeStudioCoreServiceProvider.php`
+- Create: `packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php`
 - Create: theme `resources/views/livewire/page/page.blade.php` files.
 
 - [ ] **Step 1: Write the failing runtime test**
 
-Create `packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php`:
+Create `packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php`:
 
 ```php
 <?php
@@ -410,14 +410,14 @@ it('renders the current frontend page through the active theme runtime', functio
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php
+vendor/bin/pest packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php
 ```
 
 Expected: FAIL because `ThemePageAdapter` and `RenderCurrentThemePageAction` do not exist.
 
 - [ ] **Step 3: Add shallow runtime contracts**
 
-Create `packages/theme-studio/core/src/Contracts/ThemePageAdapter.php`:
+Create `packages/theme-studio-core/src/Contracts/ThemePageAdapter.php`:
 
 ```php
 <?php
@@ -434,7 +434,7 @@ interface ThemePageAdapter
 }
 ```
 
-Create `packages/theme-studio/core/src/Contracts/ThemeRuntimeSettings.php`:
+Create `packages/theme-studio-core/src/Contracts/ThemeRuntimeSettings.php`:
 
 ```php
 <?php
@@ -462,7 +462,7 @@ interface ThemeRuntimeSettings
 
 - [ ] **Step 4: Add the current render Action**
 
-Create `packages/theme-studio/core/src/Actions/RenderCurrentThemePageAction.php`:
+Create `packages/theme-studio-core/src/Actions/RenderCurrentThemePageAction.php`:
 
 ```php
 <?php
@@ -499,7 +499,7 @@ Modify `ThemeStudioSettings` to implement `ThemeRuntimeSettings` with methods th
 
 - [ ] **Step 5: Add the Capell frontend adapter**
 
-Create `packages/theme-studio/core/src/Adapters/CapellFrontendThemePageAdapter.php`:
+Create `packages/theme-studio-core/src/Adapters/CapellFrontendThemePageAdapter.php`:
 
 ```php
 <?php
@@ -569,7 +569,7 @@ Create `resources/views/livewire/page/page.blade.php` in each bundled theme:
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php
+vendor/bin/pest packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php
 ```
 
 Expected: PASS.
@@ -577,7 +577,7 @@ Expected: PASS.
 - [ ] **Step 9: Commit**
 
 ```bash
-git add packages/theme-studio/core packages/theme-studio/themes/*/resources/views/livewire/page/page.blade.php
+git add packages/theme-studio-core packages/theme-studio/themes/*/resources/views/livewire/page/page.blade.php
 git commit -m "feat: render theme studio pages through frontend"
 ```
 
@@ -585,11 +585,11 @@ git commit -m "feat: render theme studio pages through frontend"
 
 **Files:**
 
-- Modify: `packages/theme-studio/core/src/Actions/ResolveThemeRuntimeAction.php`
-- Modify: `packages/theme-studio/core/src/Actions/RenderCurrentThemePageAction.php`
-- Modify: `packages/theme-studio/admin/src/Actions/GenerateThemePreviewUrlAction.php`
-- Test: `packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php`
-- Test: `packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php`
+- Modify: `packages/theme-studio-core/src/Actions/ResolveThemeRuntimeAction.php`
+- Modify: `packages/theme-studio-core/src/Actions/RenderCurrentThemePageAction.php`
+- Modify: `packages/theme-studio-admin/src/Actions/GenerateThemePreviewUrlAction.php`
+- Test: `packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php`
+- Test: `packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php`
 
 - [ ] **Step 1: Add preview assertions**
 
@@ -625,7 +625,7 @@ it('uses preview theme and preset without mutating published settings', function
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php
+vendor/bin/pest packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php
 ```
 
 Expected: FAIL if preview context is not passed through the runtime path.
@@ -657,7 +657,7 @@ return GenerateThemePreviewUrlAction::run($themeKey, $presetKey, request()->getP
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php
+vendor/bin/pest packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php
 ```
 
 Expected: PASS.
@@ -665,7 +665,7 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/theme-studio/core packages/theme-studio/admin
+git add packages/theme-studio-core packages/theme-studio-admin
 git commit -m "feat: apply theme studio preview context at runtime"
 ```
 
@@ -673,15 +673,15 @@ git commit -m "feat: apply theme studio preview context at runtime"
 
 **Files:**
 
-- Modify: `packages/theme-studio/core/src/Assets/ThemeTokenRenderer.php`
-- Create: `packages/theme-studio/core/src/Assets/ThemeTokenStore.php`
-- Modify: `packages/theme-studio/core/src/Actions/ResolveThemeRuntimeAction.php`
-- Modify: `packages/theme-studio/core/src/ThemeStudioCoreServiceProvider.php`
-- Test: `packages/theme-studio/core/tests/Unit/ThemeTokenStoreTest.php`
+- Modify: `packages/theme-studio-core/src/Assets/ThemeTokenRenderer.php`
+- Create: `packages/theme-studio-core/src/Assets/ThemeTokenStore.php`
+- Modify: `packages/theme-studio-core/src/Actions/ResolveThemeRuntimeAction.php`
+- Modify: `packages/theme-studio-core/src/ThemeStudioCoreServiceProvider.php`
+- Test: `packages/theme-studio-core/tests/Unit/ThemeTokenStoreTest.php`
 
 - [ ] **Step 1: Write token isolation test**
 
-Create `packages/theme-studio/core/tests/Unit/ThemeTokenStoreTest.php`:
+Create `packages/theme-studio-core/tests/Unit/ThemeTokenStoreTest.php`:
 
 ```php
 <?php
@@ -723,7 +723,7 @@ it('stores token css under isolated theme preset brand keys', function (): void 
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/core/tests/Unit/ThemeTokenStoreTest.php
+vendor/bin/pest packages/theme-studio-core/tests/Unit/ThemeTokenStoreTest.php
 ```
 
 Expected: FAIL because `ThemeTokenStore` does not exist.
@@ -806,7 +806,7 @@ return '<link rel="stylesheet" href="' . e(asset('vendor/capell-theme-studio/tok
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/core/tests/Unit/ThemeTokenStoreTest.php packages/theme-studio/core/tests/Feature/FrontendRuntimeRenderingTest.php
+vendor/bin/pest packages/theme-studio-core/tests/Unit/ThemeTokenStoreTest.php packages/theme-studio-core/tests/Feature/FrontendRuntimeRenderingTest.php
 ```
 
 Expected: PASS.
@@ -814,7 +814,7 @@ Expected: PASS.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add packages/theme-studio/core
+git add packages/theme-studio-core
 git commit -m "feat: isolate theme studio token assets"
 ```
 
@@ -822,12 +822,12 @@ git commit -m "feat: isolate theme studio token assets"
 
 **Files:**
 
-- Modify: `packages/theme-studio/admin/src/Actions/PublishThemeDraftAction.php`
-- Create: `packages/theme-studio/admin/src/Actions/ResolveThemePublishLabelAction.php`
-- Create: `packages/theme-studio/admin/src/Support/StandaloneThemeDraftPublisher.php`
-- Create: `packages/theme-studio/admin/src/Support/WorkspaceThemeDraftPublisher.php`
-- Modify: `packages/theme-studio/admin/src/ThemeStudioAdminServiceProvider.php`
-- Test: `packages/theme-studio/admin/tests/Feature/ThemeStudioWorkspacePublishingTest.php`
+- Modify: `packages/theme-studio-admin/src/Actions/PublishThemeDraftAction.php`
+- Create: `packages/theme-studio-admin/src/Actions/ResolveThemePublishLabelAction.php`
+- Create: `packages/theme-studio-admin/src/Support/StandaloneThemeDraftPublisher.php`
+- Create: `packages/theme-studio-admin/src/Support/WorkspaceThemeDraftPublisher.php`
+- Modify: `packages/theme-studio-admin/src/ThemeStudioAdminServiceProvider.php`
+- Test: `packages/theme-studio-admin/tests/Feature/ThemeStudioWorkspacePublishingTest.php`
 
 - [ ] **Step 1: Write publishing mode tests**
 
@@ -878,7 +878,7 @@ it('delegates publish when a workspace publisher is bound', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/admin/tests/Feature/ThemeStudioWorkspacePublishingTest.php
+vendor/bin/pest packages/theme-studio-admin/tests/Feature/ThemeStudioWorkspacePublishingTest.php
 ```
 
 Expected: FAIL because `ResolveThemePublishLabelAction` does not exist.
@@ -931,7 +931,7 @@ public function publish(ThemeStudioSettings $settings): ThemeStudioSettings;
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/admin/tests/Feature/ThemeStudioWorkspacePublishingTest.php packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php
+vendor/bin/pest packages/theme-studio-admin/tests/Feature/ThemeStudioWorkspacePublishingTest.php packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php
 ```
 
 Expected: PASS.
@@ -939,7 +939,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/theme-studio/admin
+git add packages/theme-studio-admin
 git commit -m "feat: add workspace aware theme publishing adapter"
 ```
 
@@ -947,10 +947,10 @@ git commit -m "feat: add workspace aware theme publishing adapter"
 
 **Files:**
 
-- Modify: `packages/theme-studio/admin/src/Schemas/ThemeStudioSettingsSchema.php`
-- Modify: `packages/theme-studio/core/src/Actions/ResolveBrandProfileAction.php`
-- Test: `packages/theme-studio/core/tests/Unit/ThemeDataTest.php`
-- Test: `packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php`
+- Modify: `packages/theme-studio-admin/src/Schemas/ThemeStudioSettingsSchema.php`
+- Modify: `packages/theme-studio-core/src/Actions/ResolveBrandProfileAction.php`
+- Test: `packages/theme-studio-core/tests/Unit/ThemeDataTest.php`
+- Test: `packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php`
 
 - [ ] **Step 1: Add merge order test**
 
@@ -1016,7 +1016,7 @@ Use nullable fields so unset values inherit from the global brand profile.
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/core/tests/Unit/ThemeDataTest.php packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php
+vendor/bin/pest packages/theme-studio-core/tests/Unit/ThemeDataTest.php packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php
 ```
 
 Expected: PASS.
@@ -1024,7 +1024,7 @@ Expected: PASS.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add packages/theme-studio/core packages/theme-studio/admin
+git add packages/theme-studio-core packages/theme-studio-admin
 git commit -m "feat: add compact theme override controls"
 ```
 
@@ -1032,9 +1032,9 @@ git commit -m "feat: add compact theme override controls"
 
 **Files:**
 
-- Modify: `packages/theme-studio/core/src/Rendering/ViewSectionRenderer.php`
+- Modify: `packages/theme-studio-core/src/Rendering/ViewSectionRenderer.php`
 - Modify: bundled theme service providers
-- Test: `packages/theme-studio/core/tests/Unit/ThemeRegistryTest.php`
+- Test: `packages/theme-studio-core/tests/Unit/ThemeRegistryTest.php`
 
 - [ ] **Step 1: Add fallback behavior tests**
 
@@ -1073,7 +1073,7 @@ it('allows optional extension renderer fallback', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/core/tests/Unit/ThemeRegistryTest.php
+vendor/bin/pest packages/theme-studio-core/tests/Unit/ThemeRegistryTest.php
 ```
 
 Expected: FAIL because `allowFallback` is not supported.
@@ -1112,7 +1112,7 @@ Leave bundled theme providers using the default `allowFallback: false`. Optional
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/core/tests packages/theme-studio/themes/corporate/tests packages/theme-studio/themes/agency/tests packages/theme-studio/themes/saas/tests
+vendor/bin/pest packages/theme-studio-core/tests packages/theme-corporate/tests packages/theme-agency/tests packages/theme-saas/tests
 ```
 
 Expected: PASS.
@@ -1120,7 +1120,7 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/theme-studio/core packages/theme-studio/themes
+git add packages/theme-studio-core packages/theme-studio/themes
 git commit -m "fix: make first party theme renderer failures visible"
 ```
 
@@ -1128,10 +1128,10 @@ git commit -m "fix: make first party theme renderer failures visible"
 
 **Files:**
 
-- Create: `packages/theme-studio/core/src/Support/ThemeStudioReadiness.php`
-- Modify: `packages/theme-studio/admin/src/Filament/Pages/ThemeStudioPage.php`
-- Modify: `packages/theme-studio/admin/resources/views/filament/pages/theme-studio.blade.php`
-- Test: `packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php`
+- Create: `packages/theme-studio-core/src/Support/ThemeStudioReadiness.php`
+- Modify: `packages/theme-studio-admin/src/Filament/Pages/ThemeStudioPage.php`
+- Modify: `packages/theme-studio-admin/resources/views/filament/pages/theme-studio.blade.php`
+- Test: `packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php`
 
 - [ ] **Step 1: Add readiness tests**
 
@@ -1156,7 +1156,7 @@ it('reports missing renderer and token asset readiness states', function (): voi
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php
+vendor/bin/pest packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php
 ```
 
 Expected: FAIL because `ThemeStudioReadiness` does not exist.
@@ -1242,7 +1242,7 @@ Back each status from methods on the page class or readiness service. Do not inf
 Run:
 
 ```bash
-vendor/bin/pest packages/theme-studio/admin/tests/Feature/ThemeStudioAdminTest.php
+vendor/bin/pest packages/theme-studio-admin/tests/Feature/ThemeStudioAdminTest.php
 ```
 
 Expected: PASS.
@@ -1250,7 +1250,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/theme-studio/core packages/theme-studio/admin
+git add packages/theme-studio-core packages/theme-studio-admin
 git commit -m "feat: polish theme studio readiness states"
 ```
 
@@ -1258,16 +1258,16 @@ git commit -m "feat: polish theme studio readiness states"
 
 **Files:**
 
-- Create: `packages/foundation/mosaic/src/Data/LayoutPresetData.php`
-- Create: `packages/foundation/mosaic/src/Data/LayoutPlanData.php`
-- Create: `packages/foundation/mosaic/src/Data/LayoutPlanResultData.php`
-- Create: `packages/foundation/mosaic/src/Support/LayoutPresets/LayoutPresetRegistry.php`
-- Create: `packages/foundation/mosaic/src/Actions/ListLayoutPresetsAction.php`
-- Create: `packages/foundation/mosaic/src/Actions/FindReusableWidgetsAction.php`
-- Create: `packages/foundation/mosaic/src/Actions/PreviewLayoutPlanAction.php`
-- Create: `packages/foundation/mosaic/src/Actions/ApplyLayoutPlanAction.php`
-- Modify: `packages/foundation/mosaic/src/Providers/MosaicServiceProvider.php`
-- Test: `packages/foundation/mosaic/tests/Integration/Actions/ApplyLayoutPlanActionTest.php`
+- Create: `packages/mosaic/src/Data/LayoutPresetData.php`
+- Create: `packages/mosaic/src/Data/LayoutPlanData.php`
+- Create: `packages/mosaic/src/Data/LayoutPlanResultData.php`
+- Create: `packages/mosaic/src/Support/LayoutPresets/LayoutPresetRegistry.php`
+- Create: `packages/mosaic/src/Actions/ListLayoutPresetsAction.php`
+- Create: `packages/mosaic/src/Actions/FindReusableWidgetsAction.php`
+- Create: `packages/mosaic/src/Actions/PreviewLayoutPlanAction.php`
+- Create: `packages/mosaic/src/Actions/ApplyLayoutPlanAction.php`
+- Modify: `packages/mosaic/src/Providers/MosaicServiceProvider.php`
+- Test: `packages/mosaic/tests/Integration/Actions/ApplyLayoutPlanActionTest.php`
 
 - [ ] **Step 1: Write layout plan tests**
 
@@ -1313,7 +1313,7 @@ it('applies a structured layout plan to a layout without embedding page content'
 Run:
 
 ```bash
-vendor/bin/pest packages/foundation/mosaic/tests/Integration/Actions/ApplyLayoutPlanActionTest.php
+vendor/bin/pest packages/mosaic/tests/Integration/Actions/ApplyLayoutPlanActionTest.php
 ```
 
 Expected: FAIL because layout plan data/actions do not exist.
@@ -1354,7 +1354,7 @@ public function __construct(
 Run:
 
 ```bash
-vendor/bin/pest packages/foundation/mosaic/tests/Integration/Actions/ApplyLayoutPlanActionTest.php
+vendor/bin/pest packages/mosaic/tests/Integration/Actions/ApplyLayoutPlanActionTest.php
 ```
 
 Expected: PASS.
@@ -1362,7 +1362,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/foundation/mosaic/src packages/foundation/mosaic/tests/Integration/Actions/ApplyLayoutPlanActionTest.php
+git add packages/mosaic/src packages/mosaic/tests/Integration/Actions/ApplyLayoutPlanActionTest.php
 git commit -m "feat: add mosaic layout plan actions"
 ```
 
@@ -1370,9 +1370,9 @@ git commit -m "feat: add mosaic layout plan actions"
 
 **Files:**
 
-- Modify: `packages/foundation/mosaic/src/Livewire/Filament/LayoutBuilder.php`
-- Modify: `packages/foundation/mosaic/resources/views/livewire/filament/layout-builder/index.blade.php`
-- Test: `packages/foundation/mosaic/tests/Feature/Livewire/LayoutBuilder/LayoutScopeNoticeTest.php`
+- Modify: `packages/mosaic/src/Livewire/Filament/LayoutBuilder.php`
+- Modify: `packages/mosaic/resources/views/livewire/filament/layout-builder/index.blade.php`
+- Test: `packages/mosaic/tests/Feature/Livewire/LayoutBuilder/LayoutScopeNoticeTest.php`
 
 - [ ] **Step 1: Write scope notice tests**
 
@@ -1401,7 +1401,7 @@ Replace `createLayoutUsedByMultiplePages()` with the existing Mosaic test factor
 Run:
 
 ```bash
-vendor/bin/pest packages/foundation/mosaic/tests/Feature/Livewire/LayoutBuilder/LayoutScopeNoticeTest.php
+vendor/bin/pest packages/mosaic/tests/Feature/Livewire/LayoutBuilder/LayoutScopeNoticeTest.php
 ```
 
 Expected: FAIL until the warning and action labels exist.
@@ -1441,7 +1441,7 @@ At the top of the builder view, render:
 Run:
 
 ```bash
-vendor/bin/pest packages/foundation/mosaic/tests/Feature/Livewire/LayoutBuilder/LayoutScopeNoticeTest.php packages/foundation/mosaic/tests/Feature/Livewire/LayoutBuilder/LayoutBuilderTest.php
+vendor/bin/pest packages/mosaic/tests/Feature/Livewire/LayoutBuilder/LayoutScopeNoticeTest.php packages/mosaic/tests/Feature/Livewire/LayoutBuilder/LayoutBuilderTest.php
 ```
 
 Expected: PASS once the current Theme Studio test bootstrap blocker is fixed.
@@ -1449,7 +1449,7 @@ Expected: PASS once the current Theme Studio test bootstrap blocker is fixed.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/foundation/mosaic
+git add packages/mosaic
 git commit -m "feat: clarify mosaic layout editing scope"
 ```
 
@@ -1457,15 +1457,15 @@ git commit -m "feat: clarify mosaic layout editing scope"
 
 **Files:**
 
-- Create: `packages/commercial/assistant/composer.json`
-- Create: `packages/commercial/assistant/capell.json`
-- Create: `packages/commercial/assistant/src/Providers/AssistantServiceProvider.php`
-- Create: `packages/commercial/assistant/src/Contracts/AssistantModule.php`
-- Create: `packages/commercial/assistant/src/Data/AssistantCapabilityData.php`
-- Create: `packages/commercial/assistant/src/Enums/AssistantApprovalLevel.php`
-- Create: `packages/commercial/assistant/src/Support/AssistantModuleRegistry.php`
-- Create: `packages/commercial/assistant/src/Actions/ListAssistantCapabilitiesAction.php`
-- Test: `packages/commercial/assistant/tests/Unit/AssistantModuleRegistryTest.php`
+- Create: `packages/assistant/composer.json`
+- Create: `packages/assistant/capell.json`
+- Create: `packages/assistant/src/Providers/AssistantServiceProvider.php`
+- Create: `packages/assistant/src/Contracts/AssistantModule.php`
+- Create: `packages/assistant/src/Data/AssistantCapabilityData.php`
+- Create: `packages/assistant/src/Enums/AssistantApprovalLevel.php`
+- Create: `packages/assistant/src/Support/AssistantModuleRegistry.php`
+- Create: `packages/assistant/src/Actions/ListAssistantCapabilitiesAction.php`
+- Test: `packages/assistant/tests/Unit/AssistantModuleRegistryTest.php`
 
 - [ ] **Step 1: Write registry test**
 
@@ -1521,7 +1521,7 @@ it('registers shallow assistant modules and lists capabilities', function (): vo
 Run:
 
 ```bash
-vendor/bin/pest packages/commercial/assistant/tests/Unit/AssistantModuleRegistryTest.php
+vendor/bin/pest packages/assistant/tests/Unit/AssistantModuleRegistryTest.php
 ```
 
 Expected: FAIL because the package does not exist.
@@ -1577,7 +1577,7 @@ $this->app->singleton(\Capell\Assistant\Support\AssistantModuleRegistry::class);
 Run:
 
 ```bash
-vendor/bin/pest packages/commercial/assistant/tests/Unit/AssistantModuleRegistryTest.php
+vendor/bin/pest packages/assistant/tests/Unit/AssistantModuleRegistryTest.php
 ```
 
 Expected: PASS.
@@ -1585,7 +1585,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/commercial/assistant
+git add packages/assistant
 git commit -m "feat: add capell assistant module registry"
 ```
 
@@ -1593,12 +1593,12 @@ git commit -m "feat: add capell assistant module registry"
 
 **Files:**
 
-- Create: `packages/foundation/mosaic/src/Assistant/MosaicAssistantModule.php`
-- Modify: `packages/foundation/mosaic/src/Providers/MosaicServiceProvider.php`
-- Create: `packages/theme-studio/core/src/Assistant/ThemeStudioAssistantModule.php`
-- Modify: `packages/theme-studio/core/src/ThemeStudioCoreServiceProvider.php`
-- Test: `packages/foundation/mosaic/tests/Unit/Assistant/MosaicAssistantModuleTest.php`
-- Test: `packages/theme-studio/core/tests/Unit/ThemeStudioAssistantModuleTest.php`
+- Create: `packages/mosaic/src/Assistant/MosaicAssistantModule.php`
+- Modify: `packages/mosaic/src/Providers/MosaicServiceProvider.php`
+- Create: `packages/theme-studio-core/src/Assistant/ThemeStudioAssistantModule.php`
+- Modify: `packages/theme-studio-core/src/ThemeStudioCoreServiceProvider.php`
+- Test: `packages/mosaic/tests/Unit/Assistant/MosaicAssistantModuleTest.php`
+- Test: `packages/theme-studio-core/tests/Unit/ThemeStudioAssistantModuleTest.php`
 
 - [ ] **Step 1: Write Mosaic module test**
 
@@ -1692,7 +1692,7 @@ Use Theme Studio Actions where they already exist. Create thin Actions only when
 Run:
 
 ```bash
-vendor/bin/pest packages/foundation/mosaic/tests/Unit/Assistant/MosaicAssistantModuleTest.php packages/theme-studio/core/tests/Unit/ThemeStudioAssistantModuleTest.php
+vendor/bin/pest packages/mosaic/tests/Unit/Assistant/MosaicAssistantModuleTest.php packages/theme-studio-core/tests/Unit/ThemeStudioAssistantModuleTest.php
 ```
 
 Expected: PASS.
@@ -1700,7 +1700,7 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/foundation/mosaic packages/theme-studio/core
+git add packages/mosaic packages/theme-studio-core
 git commit -m "feat: expose assistant modules for mosaic and theme studio"
 ```
 
@@ -1708,9 +1708,9 @@ git commit -m "feat: expose assistant modules for mosaic and theme studio"
 
 **Files:**
 
-- Create: `packages/commercial/assistant/src/Actions/RunAssistantCapabilityAction.php`
-- Create: `packages/commercial/assistant/src/Data/AssistantRunData.php`
-- Test: `packages/commercial/assistant/tests/Feature/RunAssistantCapabilityActionTest.php`
+- Create: `packages/assistant/src/Actions/RunAssistantCapabilityAction.php`
+- Create: `packages/assistant/src/Data/AssistantRunData.php`
+- Test: `packages/assistant/tests/Feature/RunAssistantCapabilityActionTest.php`
 
 - [ ] **Step 1: Write run action test**
 
@@ -1770,7 +1770,7 @@ it('runs a registered capability through its action', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/commercial/assistant/tests/Feature/RunAssistantCapabilityActionTest.php
+vendor/bin/pest packages/assistant/tests/Feature/RunAssistantCapabilityActionTest.php
 ```
 
 Expected: FAIL because `RunAssistantCapabilityAction` and `AssistantRunData` do not exist.
@@ -1835,7 +1835,7 @@ class RunAssistantCapabilityAction
 Run:
 
 ```bash
-vendor/bin/pest packages/commercial/assistant/tests
+vendor/bin/pest packages/assistant/tests
 ```
 
 Expected: PASS.
@@ -1843,7 +1843,7 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/commercial/assistant
+git add packages/assistant
 git commit -m "feat: run capell assistant capabilities"
 ```
 
@@ -1851,11 +1851,11 @@ git commit -m "feat: run capell assistant capabilities"
 
 **Files:**
 
-- Inspect: `packages/search-seo/seo-tools/src/Support/AiFeatureRegistry.php`
-- Inspect: `packages/search-seo/seo-tools/src/Support/Pipelines/AiCreatorPipeline.php`
-- Create: `packages/search-seo/seo-tools/src/Assistant/SeoAssistantModule.php`
-- Modify: `packages/search-seo/seo-tools/src/Providers/SeoToolsServiceProvider.php`
-- Test: `packages/search-seo/seo-tools/tests/Unit/Assistant/SeoAssistantModuleTest.php`
+- Inspect: `packages/seo-tools/src/Support/AiFeatureRegistry.php`
+- Inspect: `packages/seo-tools/src/Support/Pipelines/AiCreatorPipeline.php`
+- Create: `packages/seo-tools/src/Assistant/SeoAssistantModule.php`
+- Modify: `packages/seo-tools/src/Providers/SeoToolsServiceProvider.php`
+- Test: `packages/seo-tools/tests/Unit/Assistant/SeoAssistantModuleTest.php`
 
 - [ ] **Step 1: Add SEO module test**
 
@@ -1896,7 +1896,7 @@ In `SeoToolsServiceProvider`, register the module only when `AssistantModuleRegi
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Unit/Assistant/SeoAssistantModuleTest.php
+vendor/bin/pest packages/seo-tools/tests/Unit/Assistant/SeoAssistantModuleTest.php
 ```
 
 Expected: PASS.
@@ -1904,7 +1904,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/search-seo/seo-tools
+git add packages/seo-tools
 git commit -m "feat: expose seo assistant capabilities"
 ```
 
@@ -1912,13 +1912,13 @@ git commit -m "feat: expose seo assistant capabilities"
 
 **Files:**
 
-- Create: `packages/commercial/assistant/src/Contracts/AssistantProviderConnector.php`
-- Create: `packages/commercial/assistant/src/Providers/OpenAiConnector.php`
-- Create: `packages/commercial/assistant/src/Providers/ClaudeConnector.php`
-- Create: `packages/commercial/assistant/src/Providers/GeminiConnector.php`
-- Create: `packages/commercial/assistant/src/Settings/AssistantSettings.php`
-- Create: `packages/commercial/assistant/src/Schemas/AssistantSettingsSchema.php`
-- Test: `packages/commercial/assistant/tests/Unit/AssistantProviderConnectorTest.php`
+- Create: `packages/assistant/src/Contracts/AssistantProviderConnector.php`
+- Create: `packages/assistant/src/Providers/OpenAiConnector.php`
+- Create: `packages/assistant/src/Providers/ClaudeConnector.php`
+- Create: `packages/assistant/src/Providers/GeminiConnector.php`
+- Create: `packages/assistant/src/Settings/AssistantSettings.php`
+- Create: `packages/assistant/src/Schemas/AssistantSettingsSchema.php`
+- Test: `packages/assistant/tests/Unit/AssistantProviderConnectorTest.php`
 
 - [ ] **Step 1: Add connector contract test**
 
@@ -1996,7 +1996,7 @@ public array $approvalDefaults = [
 Run:
 
 ```bash
-vendor/bin/pest packages/commercial/assistant/tests/Unit/AssistantProviderConnectorTest.php packages/commercial/assistant/tests
+vendor/bin/pest packages/assistant/tests/Unit/AssistantProviderConnectorTest.php packages/assistant/tests
 ```
 
 Expected: PASS.
@@ -2004,7 +2004,7 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/commercial/assistant
+git add packages/assistant
 git commit -m "feat: add capell assistant provider connectors"
 ```
 
@@ -2013,10 +2013,10 @@ git commit -m "feat: add capell assistant provider connectors"
 Run focused tests first:
 
 ```bash
-vendor/bin/pest packages/theme-studio/core/tests packages/theme-studio/admin/tests packages/theme-studio/themes/corporate/tests packages/theme-studio/themes/agency/tests packages/theme-studio/themes/saas/tests
-vendor/bin/pest packages/foundation/mosaic/tests/Integration/Actions packages/foundation/mosaic/tests/Feature/Livewire/LayoutBuilder
-vendor/bin/pest packages/commercial/assistant/tests
-vendor/bin/pest packages/search-seo/seo-tools/tests/Unit/Assistant
+vendor/bin/pest packages/theme-studio-core/tests packages/theme-studio-admin/tests packages/theme-corporate/tests packages/theme-agency/tests packages/theme-saas/tests
+vendor/bin/pest packages/mosaic/tests/Integration/Actions packages/mosaic/tests/Feature/Livewire/LayoutBuilder
+vendor/bin/pest packages/assistant/tests
+vendor/bin/pest packages/seo-tools/tests/Unit/Assistant
 ```
 
 Then run:

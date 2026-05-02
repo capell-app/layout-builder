@@ -11,61 +11,63 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - package_directory: packages/commercial/assistant
+          - package_directory: packages/assistant
             repository_name: assistant
-          - package_directory: packages/foundation/address
+          - package_directory: packages/address
             repository_name: address
-          - package_directory: packages/growth/analytics
+          - package_directory: packages/analytics
             repository_name: analytics
-          - package_directory: packages/operations/backup
+          - package_directory: packages/backup
             repository_name: backup
-          - package_directory: packages/foundation/blog
+          - package_directory: packages/blog
             repository_name: blog
-          - package_directory: packages/growth/campaigns
+          - package_directory: packages/campaigns
             repository_name: campaigns
-          - package_directory: packages/foundation/content-blocks
+          - package_directory: packages/content-blocks
             repository_name: content-blocks
-          - package_directory: packages/foundation/default-theme
+          - package_directory: packages/default-theme
             repository_name: default-theme
-          - package_directory: packages/operations/developer-tools
+          - package_directory: packages/developer-tools
             repository_name: developer-tools
-          - package_directory: packages/publishing-pro/filament-peek
+          - package_directory: packages/filament-peek
             repository_name: filament-peek
-          - package_directory: packages/forms/forms
+          - package_directory: packages/forms
             repository_name: forms
-          - package_directory: packages/foundation/html-minify
+          - package_directory: packages/html-minify
             repository_name: html-minify
-          - package_directory: packages/operations/authentication-log
+          - package_directory: packages/authentication-log
             repository_name: authentication-log
-          - package_directory: packages/foundation/media-curator
+          - package_directory: packages/mcp
+            repository_name: mcp
+          - package_directory: packages/media-curator
             repository_name: media-curator
-          - package_directory: packages/foundation/mosaic
+          - package_directory: packages/mosaic
             repository_name: mosaic
-          - package_directory: packages/foundation/navigation
+          - package_directory: packages/navigation
             repository_name: navigation
-          - package_directory: packages/foundation/redirects
+          - package_directory: packages/redirects
             repository_name: redirects
-          - package_directory: packages/search-seo/seo-tools
+          - package_directory: packages/seo-tools
             repository_name: seo-tools
-          - package_directory: packages/search-seo/site-search
+          - package_directory: packages/site-search
             repository_name: site-search
-          - package_directory: packages/foundation/tags
+          - package_directory: packages/tags
             repository_name: tags
-          - package_directory: packages/theme-studio/theme-studio
+          - package_directory: packages/theme-studio
             repository_name: theme-studio
-          - package_directory: packages/theme-studio/admin
+          - package_directory: packages/theme-studio-admin
             repository_name: theme-studio-admin
-          - package_directory: packages/theme-studio/core
+          - package_directory: packages/theme-studio-core
             repository_name: theme-studio-core
-          - package_directory: packages/theme-studio/themes/agency
+          - package_directory: packages/theme-agency
             repository_name: theme-agency
-          - package_directory: packages/theme-studio/themes/corporate
+          - package_directory: packages/theme-corporate
             repository_name: theme-corporate
-          - package_directory: packages/theme-studio/themes/saas
+          - package_directory: packages/theme-saas
             repository_name: theme-saas
-          - package_directory: packages/foundation/toolbar
+          - package_directory: packages/toolbar
             repository_name: frontend-toolbar
-          - package_directory: packages/publishing-pro/workspaces
+          - package_directory: packages/workspaces
             repository_name: workspaces
     steps:
       - uses: actions/checkout@v6

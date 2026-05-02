@@ -27,45 +27,45 @@ parameters:
         # See also: https://github.com/larastan/larastan/issues/1272
         dynamicCallOnStaticMethod: false
     databaseMigrationsPath:
-        - packages/foundation/address/database/migrations
-        - packages/foundation/blog/database/migrations
-        - packages/forms/forms/database/migrations
-        - packages/foundation/mosaic/database/migrations
-        - packages/foundation/navigation/database/migrations
+        - packages/address/database/migrations
+        - packages/blog/database/migrations
+        - packages/forms/database/migrations
+        - packages/mosaic/database/migrations
+        - packages/navigation/database/migrations
         - packages/plugins/database/migrations
-        - packages/search-seo/seo-tools/database/migrations
-        - packages/foundation/tags/database/migrations
-        - packages/publishing-pro/workspaces/database/migrations
+        - packages/seo-tools/database/migrations
+        - packages/tags/database/migrations
+        - packages/workspaces/database/migrations
     configDirectories:
-        - packages/operations/backup/config
-        - packages/foundation/default-theme/config
-        - packages/foundation/mosaic/config
+        - packages/backup/config
+        - packages/default-theme/config
+        - packages/mosaic/config
         - packages/plugins/config
-        - packages/foundation/redirects/config
-        - packages/search-seo/seo-tools/config
-        - packages/search-seo/site-search/config
-        - packages/foundation/tags/publishes/config
-        - packages/foundation/toolbar/config
+        - packages/redirects/config
+        - packages/seo-tools/config
+        - packages/site-search/config
+        - packages/tags/publishes/config
+        - packages/toolbar/config
     translationDirectories:
-        - packages/foundation/address/resources/lang
-        - packages/foundation/blog/resources/lang
-        - packages/foundation/mosaic/resources/lang
+        - packages/address/resources/lang
+        - packages/blog/resources/lang
+        - packages/mosaic/resources/lang
         - packages/plugins/resources/lang
-        - packages/search-seo/seo-tools/resources/lang
-        - packages/foundation/tags/resources/lang
-        - packages/foundation/toolbar/resources/lang
-        - packages/theme-studio/admin/resources/lang
+        - packages/seo-tools/resources/lang
+        - packages/tags/resources/lang
+        - packages/toolbar/resources/lang
+        - packages/theme-studio-admin/resources/lang
     viewDirectories:
-        - packages/foundation/blog/resources/views
-        - packages/foundation/default-theme/resources/views
-        - packages/foundation/mosaic/resources/views
-        - packages/foundation/navigation/resources/views
-        - packages/search-seo/seo-tools/resources/views
-        - packages/theme-studio/admin/resources/views
-        - packages/theme-studio/themes/agency/resources/views
-        - packages/theme-studio/themes/corporate/resources/views
-        - packages/foundation/themes/default/resources/views
-        - packages/theme-studio/themes/saas/resources/views
-        - packages/foundation/toolbar/resources/views
-        - packages/publishing-pro/workspaces/resources/views
+        - packages/blog/resources/views
+        - packages/default-theme/resources/views
+        - packages/mosaic/resources/views
+        - packages/navigation/resources/views
+        - packages/seo-tools/resources/views
+        - packages/theme-studio-admin/resources/views
+        - packages/theme-agency/resources/views
+        - packages/theme-corporate/resources/views
+        - packages/theme-default/resources/views
+        - packages/theme-saas/resources/views
+        - packages/toolbar/resources/views
+        - packages/workspaces/resources/views
     tmpDir: /tmp/phpstan

@@ -42,7 +42,7 @@ Skewed ratios are the first place to look for missing coverage:
 
 These apply to all new tests added under this plan. They follow what is already in `CLAUDE.md` and the Capell standards skill, and we don't want to drift from them.
 
-1. **Test Actions through `::run()`, not via HTTP.** Domain logic lives in `packages/{group}/{pkg}/src/Actions/`. Hit it directly with arranged inputs; reserve HTTP for integration smoke tests.
+1. **Test Actions through `::run()`, not via HTTP.** Domain logic lives in `packages/{pkg}/src/Actions/`. Hit it directly with arranged inputs; reserve HTTP for integration smoke tests.
 2. **Every Action gets at least one happy path + one negative/edge path.** Mirror the convention from `docs/test-plan-actions-services.md`.
 3. **Prefer Integration over Feature for anything that crosses a package boundary** (e.g. blog → mosaic widget rendering, plugins → admin panel registration). Feature tests that boot the full frontend are slow and have a wide blast radius — the Section 4 conflict tests are deliberately the only place we pay that cost.
 4. **Snapshot tests must be reviewed.** A failing snapshot is not a green light to regenerate; the failing seo-tools sitemap snapshot is exactly that anti-pattern.
@@ -121,8 +121,8 @@ Implementation lands in this PR (see `tests/Packages/Integration/CrossPackage*Te
 
 The cross-package tests added in this PR (`tests/Packages/Arch/`) are passing in their final form, but two of them initially failed against the live tree and revealed pre-existing bugs the per-package suites have never caught. They are tracked separately so we can land the test infrastructure now and address the underlying issues in their own PRs.
 
-1. **Two packages claim the composer name `capell-app/default-theme`.** `packages/foundation/default-theme/` (the rich one — Console, Enums, Filament, Settings, View) and `packages/foundation/themes/default/` (a thin shim — Providers, Support only) both publish under the same name. When the host app installs by composer name the install order is undefined. One of these needs to be deleted or renamed.
-2. **`alter_tags_table.php` exists in both `packages/foundation/blog/database/migrations/` and `packages/foundation/tags/database/migrations/`.** Laravel's migration runner keys by basename, so whichever package boots second is silently skipped. The file likely got duplicated when `tags/` was extracted from `blog/`. Decide which package owns the alteration, delete the other.
+1. **Two packages claim the composer name `capell-app/default-theme`.** `packages/default-theme/` (the rich one — Console, Enums, Filament, Settings, View) and `packages/theme-default/` (a thin shim — Providers, Support only) both publish under the same name. When the host app installs by composer name the install order is undefined. One of these needs to be deleted or renamed.
+2. **`alter_tags_table.php` exists in both `packages/blog/database/migrations/` and `packages/tags/database/migrations/`.** Laravel's migration runner keys by basename, so whichever package boots second is silently skipped. The file likely got duplicated when `tags/` was extracted from `blog/`. Decide which package owns the alteration, delete the other.
 
 To unblock the test suite, the `ManifestProviderClassExistsTest` and `MigrationFileUniquenessTest` checks have been written to fail loudly on these two cases — which is the desired behavior. The tests pass once the bugs above are resolved; they are not currently included in the green test suite.
 

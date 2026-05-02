@@ -12,8 +12,8 @@
 
 ## File Structure
 
-- Create `packages/foundation/content-blocks/composer.json`, `capell.json`, language files, migrations, factories, service provider, model, observer, enums, actions, Filament resources/configurators, Livewire selector, and tests.
-- Create Mosaic bridge contracts in `packages/foundation/mosaic/src/Contracts` and support registry in `packages/foundation/mosaic/src/Support`.
+- Create `packages/content-blocks/composer.json`, `capell.json`, language files, migrations, factories, service provider, model, observer, enums, actions, Filament resources/configurators, Livewire selector, and tests.
+- Create Mosaic bridge contracts in `packages/mosaic/src/Contracts` and support registry in `packages/mosaic/src/Support`.
 - Modify Mosaic provider/enums/models/forms/loaders to remove direct Section ownership and use the bridge registry for optional content block assets.
 - Modify root `composer.json`, `composer.local.json`, package manifest arch tests, and shared test bootstrap autoload/morph map entries.
 
@@ -21,9 +21,9 @@
 
 **Files:**
 
-- Create: `packages/foundation/content-blocks/composer.json`
-- Create: `packages/foundation/content-blocks/capell.json`
-- Create: `packages/foundation/content-blocks/src/Providers/ContentBlocksServiceProvider.php`
+- Create: `packages/content-blocks/composer.json`
+- Create: `packages/content-blocks/capell.json`
+- Create: `packages/content-blocks/src/Providers/ContentBlocksServiceProvider.php`
 - Modify: `composer.json`
 - Modify: `composer.local.json`
 - Modify: `tests/Packages/Arch/ProductGroupManifestTest.php`
@@ -57,13 +57,13 @@ Expected: package manifest tests pass.
 
 **Files:**
 
-- Move/create: `packages/foundation/content-blocks/src/Models/ContentBlock.php`
-- Move/create: `packages/foundation/content-blocks/src/Observers/ContentBlockObserver.php`
-- Move/create: `packages/foundation/content-blocks/database/factories/ContentBlockFactory.php`
-- Move/create: `packages/foundation/content-blocks/database/migrations/create_content_blocks_table.php`
-- Move/create: `packages/foundation/content-blocks/resources/lang/en/*.php`
-- Modify: `packages/foundation/mosaic/src/Models/Widget.php`
-- Modify: `packages/foundation/mosaic/src/Models/WidgetAsset.php`
+- Move/create: `packages/content-blocks/src/Models/ContentBlock.php`
+- Move/create: `packages/content-blocks/src/Observers/ContentBlockObserver.php`
+- Move/create: `packages/content-blocks/database/factories/ContentBlockFactory.php`
+- Move/create: `packages/content-blocks/database/migrations/create_content_blocks_table.php`
+- Move/create: `packages/content-blocks/resources/lang/en/*.php`
+- Modify: `packages/mosaic/src/Models/Widget.php`
+- Modify: `packages/mosaic/src/Models/WidgetAsset.php`
 
 - [ ] **Step 1: Add ContentBlock model by renaming Section**
 
@@ -83,7 +83,7 @@ Delete the hard-coded `sections()` relation from `Capell\Mosaic\Models\Widget`. 
 
 - [ ] **Step 5: Run focused model tests**
 
-Run: `vendor/bin/pest packages/foundation/content-blocks/tests/Integration/Models`
+Run: `vendor/bin/pest packages/content-blocks/tests/Integration/Models`
 
 Expected: content block model tests pass after test files are moved in Task 7.
 
@@ -91,12 +91,12 @@ Expected: content block model tests pass after test files are moved in Task 7.
 
 **Files:**
 
-- Create: `packages/foundation/mosaic/src/Contracts/LayoutAssetBridge.php`
-- Create: `packages/foundation/mosaic/src/Data/LayoutAssetBridgeData.php`
-- Create: `packages/foundation/mosaic/src/Support/LayoutAssetBridgeRegistry.php`
-- Modify: `packages/foundation/mosaic/src/Providers/MosaicServiceProvider.php`
-- Modify: `packages/foundation/mosaic/src/Livewire/Assets/Table/AbstractAssets.php`
-- Modify: `packages/foundation/mosaic/src/Livewire/Assets/Table/PageAssets.php`
+- Create: `packages/mosaic/src/Contracts/LayoutAssetBridge.php`
+- Create: `packages/mosaic/src/Data/LayoutAssetBridgeData.php`
+- Create: `packages/mosaic/src/Support/LayoutAssetBridgeRegistry.php`
+- Modify: `packages/mosaic/src/Providers/MosaicServiceProvider.php`
+- Modify: `packages/mosaic/src/Livewire/Assets/Table/AbstractAssets.php`
+- Modify: `packages/mosaic/src/Livewire/Assets/Table/PageAssets.php`
 
 - [ ] **Step 1: Create bridge data object**
 
@@ -116,7 +116,7 @@ Update Mosaic asset selector/rendering paths to read bridge assets from the regi
 
 - [ ] **Step 5: Verify Mosaic boots without Content Blocks**
 
-Run: `vendor/bin/pest packages/foundation/mosaic/tests/Arch/LayoutPackageTest.php`
+Run: `vendor/bin/pest packages/mosaic/tests/Arch/LayoutPackageTest.php`
 
 Expected: no Content Blocks classes are required for Mosaic package loading.
 
@@ -124,10 +124,10 @@ Expected: no Content Blocks classes are required for Mosaic package loading.
 
 **Files:**
 
-- Modify: `packages/foundation/content-blocks/src/Providers/ContentBlocksServiceProvider.php`
-- Create: `packages/foundation/content-blocks/src/Enums/ContentBlockAssetEnum.php`
-- Create: `packages/foundation/content-blocks/src/Enums/ContentBlockTypeEnum.php`
-- Create: `packages/foundation/content-blocks/src/Support/Mosaic/ContentBlockLayoutAssetBridge.php`
+- Modify: `packages/content-blocks/src/Providers/ContentBlocksServiceProvider.php`
+- Create: `packages/content-blocks/src/Enums/ContentBlockAssetEnum.php`
+- Create: `packages/content-blocks/src/Enums/ContentBlockTypeEnum.php`
+- Create: `packages/content-blocks/src/Support/Mosaic/ContentBlockLayoutAssetBridge.php`
 
 - [ ] **Step 1: Register package metadata**
 
@@ -153,10 +153,10 @@ If `Capell\Workspaces\WorkspaceRegistry` exists, register `ContentBlock::class`.
 
 **Files:**
 
-- Move/create: `packages/foundation/content-blocks/src/Filament/Resources/ContentBlocks/*`
-- Move/create: `packages/foundation/content-blocks/src/Filament/Configurators/ContentBlocks/*`
-- Move/create: `packages/foundation/content-blocks/src/Livewire/Assets/Table/ContentBlockAssets.php`
-- Move/create: `packages/foundation/content-blocks/resources/views/components/content-block/*.blade.php`
+- Move/create: `packages/content-blocks/src/Filament/Resources/ContentBlocks/*`
+- Move/create: `packages/content-blocks/src/Filament/Configurators/ContentBlocks/*`
+- Move/create: `packages/content-blocks/src/Livewire/Assets/Table/ContentBlockAssets.php`
+- Move/create: `packages/content-blocks/resources/views/components/content-block/*.blade.php`
 - Modify: moved namespaces and translations.
 
 - [ ] **Step 1: Move Filament resource tree**
@@ -177,7 +177,7 @@ Move `resources/views/components/section/*` to Content Blocks and update compone
 
 - [ ] **Step 5: Run focused UI tests**
 
-Run: `vendor/bin/pest packages/foundation/content-blocks/tests/Feature/Filament packages/foundation/content-blocks/tests/Feature/Livewire`
+Run: `vendor/bin/pest packages/content-blocks/tests/Feature/Filament packages/content-blocks/tests/Feature/Livewire`
 
 Expected: moved UI tests pass.
 
@@ -185,15 +185,15 @@ Expected: moved UI tests pass.
 
 **Files:**
 
-- Modify: `packages/foundation/mosaic/src/Providers/MosaicServiceProvider.php`
-- Modify: `packages/foundation/mosaic/src/Enums/LayoutTypeEnum.php`
-- Modify: `packages/foundation/mosaic/src/Enums/ResourceEnum.php`
-- Modify: `packages/foundation/mosaic/src/Enums/TypeEnum.php`
-- Modify: `packages/foundation/mosaic/src/Enums/AssetEnum.php`
-- Modify: `packages/foundation/mosaic/src/Enums/ConfiguratorTypeEnum.php`
-- Modify: `packages/foundation/mosaic/src/Enums/LivewireComponentsEnum.php`
-- Modify: `packages/foundation/mosaic/src/Support/LayoutModelRegistrar.php`
-- Modify: `packages/foundation/mosaic/src/Support/Loader/LayoutLoader.php`
+- Modify: `packages/mosaic/src/Providers/MosaicServiceProvider.php`
+- Modify: `packages/mosaic/src/Enums/LayoutTypeEnum.php`
+- Modify: `packages/mosaic/src/Enums/ResourceEnum.php`
+- Modify: `packages/mosaic/src/Enums/TypeEnum.php`
+- Modify: `packages/mosaic/src/Enums/AssetEnum.php`
+- Modify: `packages/mosaic/src/Enums/ConfiguratorTypeEnum.php`
+- Modify: `packages/mosaic/src/Enums/LivewireComponentsEnum.php`
+- Modify: `packages/mosaic/src/Support/LayoutModelRegistrar.php`
+- Modify: `packages/mosaic/src/Support/Loader/LayoutLoader.php`
 - Modify: Mosaic creators/demo commands that currently create sections.
 
 - [ ] **Step 1: Strip provider section registration**
@@ -210,7 +210,7 @@ Move content block demo creation into Content Blocks or guard Mosaic demo paths 
 
 - [ ] **Step 4: Run Mosaic package tests**
 
-Run: `vendor/bin/pest packages/foundation/mosaic/tests`
+Run: `vendor/bin/pest packages/mosaic/tests`
 
 Expected: Mosaic tests pass after section tests are moved or rewritten.
 
@@ -218,15 +218,15 @@ Expected: Mosaic tests pass after section tests are moved or rewritten.
 
 **Files:**
 
-- Move: Mosaic section tests to `packages/foundation/content-blocks/tests`
-- Create: `packages/foundation/content-blocks/tests/Arch/ContentBlocksPackageTest.php`
-- Create: `packages/foundation/mosaic/tests/Feature/ContentBlocksOptionalBootTest.php`
-- Create: `packages/foundation/mosaic/tests/Feature/ContentBlocksBridgeTest.php`
+- Move: Mosaic section tests to `packages/content-blocks/tests`
+- Create: `packages/content-blocks/tests/Arch/ContentBlocksPackageTest.php`
+- Create: `packages/mosaic/tests/Feature/ContentBlocksOptionalBootTest.php`
+- Create: `packages/mosaic/tests/Feature/ContentBlocksBridgeTest.php`
 - Modify: `tests/AbstractTestCase.php`
 
 - [ ] **Step 1: Move section tests**
 
-Move tests under `packages/foundation/mosaic/tests/Feature/Filament/Resources/Section`, section model tests, and section asset Livewire tests into Content Blocks, updating namespaces/imports.
+Move tests under `packages/mosaic/tests/Feature/Filament/Resources/Section`, section model tests, and section asset Livewire tests into Content Blocks, updating namespaces/imports.
 
 - [ ] **Step 2: Add arch boundary tests**
 
@@ -242,7 +242,7 @@ With both packages registered, create a `ContentBlock`, attach it to a Mosaic wi
 
 - [ ] **Step 5: Run package test slices**
 
-Run: `vendor/bin/pest packages/foundation/content-blocks/tests packages/foundation/mosaic/tests`
+Run: `vendor/bin/pest packages/content-blocks/tests packages/mosaic/tests`
 
 Expected: Content Blocks and Mosaic tests pass together.
 
@@ -260,17 +260,17 @@ Expected: autoload generation succeeds.
 
 - [ ] **Step 2: Run focused test suite**
 
-Run: `vendor/bin/pest packages/foundation/content-blocks/tests packages/foundation/mosaic/tests tests/Packages/Arch`
+Run: `vendor/bin/pest packages/content-blocks/tests packages/mosaic/tests tests/Packages/Arch`
 
 Expected: focused tests pass.
 
 - [ ] **Step 3: Run static checks for boundary leaks**
 
-Run: `rg -n 'Capell\\\\Mosaic' packages/foundation/content-blocks/src packages/foundation/content-blocks/tests`
+Run: `rg -n 'Capell\\\\Mosaic' packages/content-blocks/src packages/content-blocks/tests`
 
 Expected: only explicitly approved optional bridge file references, or no matches.
 
-Run: `rg -n 'Capell\\\\ContentBlocks' packages/foundation/mosaic/src`
+Run: `rg -n 'Capell\\\\ContentBlocks' packages/mosaic/src`
 
 Expected: no matches.
 

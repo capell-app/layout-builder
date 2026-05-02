@@ -16,90 +16,90 @@ Create or modify these files. Keep each file focused on one responsibility.
 
 ### SEO Tools Core Report
 
-- Create: `packages/search-seo/seo-tools/src/Enums/SeoIssueSeverityEnum.php`
-- Create: `packages/search-seo/seo-tools/src/Enums/SeoCheckKeyEnum.php`
-- Create: `packages/search-seo/seo-tools/src/Enums/SeoCheckModeEnum.php`
-- Create: `packages/search-seo/seo-tools/src/Data/SeoIssueData.php`
-- Create: `packages/search-seo/seo-tools/src/Data/SeoPreviewData.php`
-- Create: `packages/search-seo/seo-tools/src/Data/PageSeoReportData.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/CalculateSeoScoreAction.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/BuildPageSeoReportAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Actions/Reports/BuildSEOAuditQueryAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Filament/Pages/Tables/SEOAuditTable.php`
+- Create: `packages/seo-tools/src/Enums/SeoIssueSeverityEnum.php`
+- Create: `packages/seo-tools/src/Enums/SeoCheckKeyEnum.php`
+- Create: `packages/seo-tools/src/Enums/SeoCheckModeEnum.php`
+- Create: `packages/seo-tools/src/Data/SeoIssueData.php`
+- Create: `packages/seo-tools/src/Data/SeoPreviewData.php`
+- Create: `packages/seo-tools/src/Data/PageSeoReportData.php`
+- Create: `packages/seo-tools/src/Actions/CalculateSeoScoreAction.php`
+- Create: `packages/seo-tools/src/Actions/BuildPageSeoReportAction.php`
+- Modify: `packages/seo-tools/src/Actions/Reports/BuildSEOAuditQueryAction.php`
+- Modify: `packages/seo-tools/src/Filament/Pages/Tables/SEOAuditTable.php`
 
 ### Editor Panel
 
-- Create: `packages/search-seo/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php`
-- Create: `packages/search-seo/seo-tools/src/Filament/Extenders/Page/PageSeoPanelSchemaExtender.php`
-- Create: `packages/search-seo/seo-tools/resources/views/filament/components/page-seo-panel.blade.php`
-- Modify: `packages/search-seo/seo-tools/src/Providers/SeoToolsServiceProvider.php`
-- Modify: `packages/search-seo/seo-tools/resources/lang/en/form.php`
-- Modify: `packages/search-seo/seo-tools/resources/lang/en/generic.php`
+- Create: `packages/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php`
+- Create: `packages/seo-tools/src/Filament/Extenders/Page/PageSeoPanelSchemaExtender.php`
+- Create: `packages/seo-tools/resources/views/filament/components/page-seo-panel.blade.php`
+- Modify: `packages/seo-tools/src/Providers/SeoToolsServiceProvider.php`
+- Modify: `packages/seo-tools/resources/lang/en/form.php`
+- Modify: `packages/seo-tools/resources/lang/en/generic.php`
 
 ### Redirect Integration
 
-- Create: `packages/search-seo/seo-tools/src/Data/RedirectOpportunityData.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/BuildRedirectOpportunityReportAction.php`
-- Create: `packages/search-seo/seo-tools/src/Filament/Actions/CreateRedirectFromBrokenLinkAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Filament/Pages/Tables/BrokenLinksTable.php`
-- Modify: `packages/search-seo/seo-tools/src/Filament/Pages/Tables/SEOAuditTable.php`
-- Modify: `packages/foundation/redirects/src/Filament/Resources/Redirects/Tables/RedirectsTable.php`
-- Modify: `packages/foundation/redirects/resources/lang/en/table.php`
-- Modify: `packages/foundation/redirects/docs/redirects.md`
+- Create: `packages/seo-tools/src/Data/RedirectOpportunityData.php`
+- Create: `packages/seo-tools/src/Actions/BuildRedirectOpportunityReportAction.php`
+- Create: `packages/seo-tools/src/Filament/Actions/CreateRedirectFromBrokenLinkAction.php`
+- Modify: `packages/seo-tools/src/Filament/Pages/Tables/BrokenLinksTable.php`
+- Modify: `packages/seo-tools/src/Filament/Pages/Tables/SEOAuditTable.php`
+- Modify: `packages/redirects/src/Filament/Resources/Redirects/Tables/RedirectsTable.php`
+- Modify: `packages/redirects/resources/lang/en/table.php`
+- Modify: `packages/redirects/docs/redirects.md`
 
 ### Internal Links
 
-- Create: `packages/search-seo/seo-tools/src/Data/InternalLinkSuggestionData.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/SuggestInternalLinksAction.php`
-- Create: `packages/search-seo/seo-tools/src/Support/InternalLinks/InternalLinkCandidateRepository.php`
+- Create: `packages/seo-tools/src/Data/InternalLinkSuggestionData.php`
+- Create: `packages/seo-tools/src/Actions/SuggestInternalLinksAction.php`
+- Create: `packages/seo-tools/src/Support/InternalLinks/InternalLinkCandidateRepository.php`
 
 ### Schema Templates
 
-- Create: `packages/search-seo/seo-tools/src/Contracts/SchemaTemplate.php`
-- Create: `packages/search-seo/seo-tools/src/Data/SchemaTemplateReportData.php`
-- Create: `packages/search-seo/seo-tools/src/Enums/SchemaTemplateTypeEnum.php`
-- Create: `packages/search-seo/seo-tools/src/Support/SchemaTemplates/SchemaTemplateRegistry.php`
-- Create: `packages/search-seo/seo-tools/src/Support/SchemaTemplates/WebPageSchemaTemplate.php`
-- Create: `packages/search-seo/seo-tools/src/Support/SchemaTemplates/ArticleSchemaTemplate.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/BuildSchemaTemplateReportAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Actions/SchemaGraphAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Providers/SeoToolsServiceProvider.php`
+- Create: `packages/seo-tools/src/Contracts/SchemaTemplate.php`
+- Create: `packages/seo-tools/src/Data/SchemaTemplateReportData.php`
+- Create: `packages/seo-tools/src/Enums/SchemaTemplateTypeEnum.php`
+- Create: `packages/seo-tools/src/Support/SchemaTemplates/SchemaTemplateRegistry.php`
+- Create: `packages/seo-tools/src/Support/SchemaTemplates/WebPageSchemaTemplate.php`
+- Create: `packages/seo-tools/src/Support/SchemaTemplates/ArticleSchemaTemplate.php`
+- Create: `packages/seo-tools/src/Actions/BuildSchemaTemplateReportAction.php`
+- Modify: `packages/seo-tools/src/Actions/SchemaGraphAction.php`
+- Modify: `packages/seo-tools/src/Providers/SeoToolsServiceProvider.php`
 
 ### Search Console
 
-- Create: `packages/search-seo/seo-tools/src/Contracts/SearchConsoleClientInterface.php`
-- Create: `packages/search-seo/seo-tools/src/Data/SearchConsoleInsightData.php`
-- Create: `packages/search-seo/seo-tools/src/Enums/SearchConsoleMetricEnum.php`
-- Create: `packages/search-seo/seo-tools/src/Support/SearchConsole/NullSearchConsoleClient.php`
-- Create: `packages/search-seo/seo-tools/src/Support/SearchConsole/GoogleSearchConsoleClient.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/BuildPageSearchConsoleInsightsAction.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/SyncSearchConsoleInsightsAction.php`
-- Modify: `packages/search-seo/seo-tools/config/capell-seo-tools.php`
-- Modify: `packages/search-seo/seo-tools/src/Providers/SeoToolsServiceProvider.php`
+- Create: `packages/seo-tools/src/Contracts/SearchConsoleClientInterface.php`
+- Create: `packages/seo-tools/src/Data/SearchConsoleInsightData.php`
+- Create: `packages/seo-tools/src/Enums/SearchConsoleMetricEnum.php`
+- Create: `packages/seo-tools/src/Support/SearchConsole/NullSearchConsoleClient.php`
+- Create: `packages/seo-tools/src/Support/SearchConsole/GoogleSearchConsoleClient.php`
+- Create: `packages/seo-tools/src/Actions/BuildPageSearchConsoleInsightsAction.php`
+- Create: `packages/seo-tools/src/Actions/SyncSearchConsoleInsightsAction.php`
+- Modify: `packages/seo-tools/config/capell-seo-tools.php`
+- Modify: `packages/seo-tools/src/Providers/SeoToolsServiceProvider.php`
 
 ### Publish Gates
 
-- Create: `packages/search-seo/seo-tools/src/Contracts/SeoPublishReportProvider.php`
-- Create: `packages/search-seo/seo-tools/src/Support/Publishing/SeoPublishReportProviderAdapter.php`
-- Modify: `packages/publishing-pro/workspaces/src/Checks/SeoMetaCheck.php`
-- Modify: `packages/publishing-pro/workspaces/src/Checks/PublishCheckSeverity.php` only if it lacks blocker/warn/info levels needed by this integration.
+- Create: `packages/seo-tools/src/Contracts/SeoPublishReportProvider.php`
+- Create: `packages/seo-tools/src/Support/Publishing/SeoPublishReportProviderAdapter.php`
+- Modify: `packages/workspaces/src/Checks/SeoMetaCheck.php`
+- Modify: `packages/workspaces/src/Checks/PublishCheckSeverity.php` only if it lacks blocker/warn/info levels needed by this integration.
 
 ### AI Briefs
 
-- Create: `packages/search-seo/seo-tools/src/Data/AiContentBriefData.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/GenerateAiContentBriefAction.php`
-- Create: `packages/search-seo/seo-tools/src/Filament/Actions/AiContentBriefAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Support/PromptRepository.php`
-- Modify: `packages/search-seo/seo-tools/config/capell-seo-tools.php`
+- Create: `packages/seo-tools/src/Data/AiContentBriefData.php`
+- Create: `packages/seo-tools/src/Actions/GenerateAiContentBriefAction.php`
+- Create: `packages/seo-tools/src/Filament/Actions/AiContentBriefAction.php`
+- Modify: `packages/seo-tools/src/Support/PromptRepository.php`
+- Modify: `packages/seo-tools/config/capell-seo-tools.php`
 
 ### Tests and Docs
 
-- Create tests under `packages/search-seo/seo-tools/tests/Unit` and `packages/search-seo/seo-tools/tests/Integration` matching each task below.
-- Modify: `packages/search-seo/seo-tools/README.md`
-- Modify: `packages/search-seo/seo-tools/docs/seo-meta-and-discoverability.md`
-- Create: `packages/search-seo/seo-tools/docs/seo-intelligence.md`
-- Create: `packages/search-seo/seo-tools/docs/search-console.md`
-- Create: `packages/search-seo/seo-tools/docs/schema-templates.md`
+- Create tests under `packages/seo-tools/tests/Unit` and `packages/seo-tools/tests/Integration` matching each task below.
+- Modify: `packages/seo-tools/README.md`
+- Modify: `packages/seo-tools/docs/seo-meta-and-discoverability.md`
+- Create: `packages/seo-tools/docs/seo-intelligence.md`
+- Create: `packages/seo-tools/docs/search-console.md`
+- Create: `packages/seo-tools/docs/schema-templates.md`
 - Modify: `docs/openai-integration.md`
 
 ---
@@ -107,18 +107,19 @@ Create or modify these files. Keep each file focused on one responsibility.
 ## Task 1: SEO Report Data, Enums, and Scoring
 
 **Files:**
-- Create: `packages/search-seo/seo-tools/src/Enums/SeoIssueSeverityEnum.php`
-- Create: `packages/search-seo/seo-tools/src/Enums/SeoCheckKeyEnum.php`
-- Create: `packages/search-seo/seo-tools/src/Enums/SeoCheckModeEnum.php`
-- Create: `packages/search-seo/seo-tools/src/Data/SeoIssueData.php`
-- Create: `packages/search-seo/seo-tools/src/Data/SeoPreviewData.php`
-- Create: `packages/search-seo/seo-tools/src/Data/PageSeoReportData.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/CalculateSeoScoreAction.php`
-- Test: `packages/search-seo/seo-tools/tests/Unit/Actions/CalculateSeoScoreActionTest.php`
+
+- Create: `packages/seo-tools/src/Enums/SeoIssueSeverityEnum.php`
+- Create: `packages/seo-tools/src/Enums/SeoCheckKeyEnum.php`
+- Create: `packages/seo-tools/src/Enums/SeoCheckModeEnum.php`
+- Create: `packages/seo-tools/src/Data/SeoIssueData.php`
+- Create: `packages/seo-tools/src/Data/SeoPreviewData.php`
+- Create: `packages/seo-tools/src/Data/PageSeoReportData.php`
+- Create: `packages/seo-tools/src/Actions/CalculateSeoScoreAction.php`
+- Test: `packages/seo-tools/tests/Unit/Actions/CalculateSeoScoreActionTest.php`
 
 - [ ] **Step 1: Write the failing scoring tests**
 
-Create `packages/search-seo/seo-tools/tests/Unit/Actions/CalculateSeoScoreActionTest.php`:
+Create `packages/seo-tools/tests/Unit/Actions/CalculateSeoScoreActionTest.php`:
 
 ```php
 <?php
@@ -176,7 +177,7 @@ it('returns full score when there are no issues', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Unit/Actions/CalculateSeoScoreActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Unit/Actions/CalculateSeoScoreActionTest.php
 ```
 
 Expected: FAIL because the new classes do not exist.
@@ -417,7 +418,7 @@ class CalculateSeoScoreAction
 Run:
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Unit/Actions/CalculateSeoScoreActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Unit/Actions/CalculateSeoScoreActionTest.php
 ```
 
 Expected: PASS.
@@ -425,14 +426,14 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/search-seo/seo-tools/src/Enums/SeoIssueSeverityEnum.php \
-  packages/search-seo/seo-tools/src/Enums/SeoCheckKeyEnum.php \
-  packages/search-seo/seo-tools/src/Enums/SeoCheckModeEnum.php \
-  packages/search-seo/seo-tools/src/Data/SeoIssueData.php \
-  packages/search-seo/seo-tools/src/Data/SeoPreviewData.php \
-  packages/search-seo/seo-tools/src/Data/PageSeoReportData.php \
-  packages/search-seo/seo-tools/src/Actions/CalculateSeoScoreAction.php \
-  packages/search-seo/seo-tools/tests/Unit/Actions/CalculateSeoScoreActionTest.php
+git add packages/seo-tools/src/Enums/SeoIssueSeverityEnum.php \
+  packages/seo-tools/src/Enums/SeoCheckKeyEnum.php \
+  packages/seo-tools/src/Enums/SeoCheckModeEnum.php \
+  packages/seo-tools/src/Data/SeoIssueData.php \
+  packages/seo-tools/src/Data/SeoPreviewData.php \
+  packages/seo-tools/src/Data/PageSeoReportData.php \
+  packages/seo-tools/src/Actions/CalculateSeoScoreAction.php \
+  packages/seo-tools/tests/Unit/Actions/CalculateSeoScoreActionTest.php
 git commit -m "feat: add seo report scoring primitives"
 ```
 
@@ -441,9 +442,10 @@ git commit -m "feat: add seo report scoring primitives"
 ## Task 2: Page SEO Report Action and Previews
 
 **Files:**
-- Create: `packages/search-seo/seo-tools/src/Actions/BuildPageSeoReportAction.php`
-- Modify: `packages/search-seo/seo-tools/resources/lang/en/generic.php`
-- Test: `packages/search-seo/seo-tools/tests/Integration/Actions/BuildPageSeoReportActionTest.php`
+
+- Create: `packages/seo-tools/src/Actions/BuildPageSeoReportAction.php`
+- Modify: `packages/seo-tools/resources/lang/en/generic.php`
+- Test: `packages/seo-tools/tests/Integration/Actions/BuildPageSeoReportActionTest.php`
 
 - [ ] **Step 1: Write failing report tests**
 
@@ -527,7 +529,7 @@ it('warns when robots directives noindex a page', function (): void {
 - [ ] **Step 2: Run the tests to verify they fail**
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Integration/Actions/BuildPageSeoReportActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Integration/Actions/BuildPageSeoReportActionTest.php
 ```
 
 Expected: FAIL because `BuildPageSeoReportAction` does not exist.
@@ -560,12 +562,12 @@ private function hasNoIndexDirective(Page $page): bool
 
 - [ ] **Step 4: Add translation strings**
 
-Add strings for issue labels and messages to `packages/search-seo/seo-tools/resources/lang/en/generic.php`. Use `capell-seo-tools::generic.*` keys and keep all UI text package-owned.
+Add strings for issue labels and messages to `packages/seo-tools/resources/lang/en/generic.php`. Use `capell-seo-tools::generic.*` keys and keep all UI text package-owned.
 
 - [ ] **Step 5: Run tests to verify the report passes**
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Integration/Actions/BuildPageSeoReportActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Integration/Actions/BuildPageSeoReportActionTest.php
 ```
 
 Expected: PASS.
@@ -573,9 +575,9 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/search-seo/seo-tools/src/Actions/BuildPageSeoReportAction.php \
-  packages/search-seo/seo-tools/resources/lang/en/generic.php \
-  packages/search-seo/seo-tools/tests/Integration/Actions/BuildPageSeoReportActionTest.php
+git add packages/seo-tools/src/Actions/BuildPageSeoReportAction.php \
+  packages/seo-tools/resources/lang/en/generic.php \
+  packages/seo-tools/tests/Integration/Actions/BuildPageSeoReportActionTest.php
 git commit -m "feat: build page seo reports"
 ```
 
@@ -584,14 +586,15 @@ git commit -m "feat: build page seo reports"
 ## Task 3: Editor SEO Panel and Expanded Audit Table
 
 **Files:**
-- Create: `packages/search-seo/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php`
-- Create: `packages/search-seo/seo-tools/src/Filament/Extenders/Page/PageSeoPanelSchemaExtender.php`
-- Create: `packages/search-seo/seo-tools/resources/views/filament/components/page-seo-panel.blade.php`
-- Modify: `packages/search-seo/seo-tools/src/Providers/SeoToolsServiceProvider.php`
-- Modify: `packages/search-seo/seo-tools/src/Actions/Reports/BuildSEOAuditQueryAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Filament/Pages/Tables/SEOAuditTable.php`
-- Test: `packages/search-seo/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php`
-- Test: `packages/search-seo/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php`
+
+- Create: `packages/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php`
+- Create: `packages/seo-tools/src/Filament/Extenders/Page/PageSeoPanelSchemaExtender.php`
+- Create: `packages/seo-tools/resources/views/filament/components/page-seo-panel.blade.php`
+- Modify: `packages/seo-tools/src/Providers/SeoToolsServiceProvider.php`
+- Modify: `packages/seo-tools/src/Actions/Reports/BuildSEOAuditQueryAction.php`
+- Modify: `packages/seo-tools/src/Filament/Pages/Tables/SEOAuditTable.php`
+- Test: `packages/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php`
+- Test: `packages/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php`
 
 - [ ] **Step 1: Write failing tests**
 
@@ -602,7 +605,7 @@ Add an audit table test that creates pages with healthy and unhealthy metadata, 
 - [ ] **Step 2: Run tests to verify they fail**
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php packages/search-seo/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php packages/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php
 ```
 
 Expected: FAIL because the extender and expanded audit query are not implemented.
@@ -647,7 +650,7 @@ Keep table queries site-scoped through `SiteScope::applyForCurrentActor()`.
 - [ ] **Step 6: Run tests**
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php packages/search-seo/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php packages/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php
 ```
 
 Expected: PASS.
@@ -655,14 +658,14 @@ Expected: PASS.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/search-seo/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php \
-  packages/search-seo/seo-tools/src/Filament/Extenders/Page/PageSeoPanelSchemaExtender.php \
-  packages/search-seo/seo-tools/resources/views/filament/components/page-seo-panel.blade.php \
-  packages/search-seo/seo-tools/src/Providers/SeoToolsServiceProvider.php \
-  packages/search-seo/seo-tools/src/Actions/Reports/BuildSEOAuditQueryAction.php \
-  packages/search-seo/seo-tools/src/Filament/Pages/Tables/SEOAuditTable.php \
-  packages/search-seo/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php \
-  packages/search-seo/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php
+git add packages/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php \
+  packages/seo-tools/src/Filament/Extenders/Page/PageSeoPanelSchemaExtender.php \
+  packages/seo-tools/resources/views/filament/components/page-seo-panel.blade.php \
+  packages/seo-tools/src/Providers/SeoToolsServiceProvider.php \
+  packages/seo-tools/src/Actions/Reports/BuildSEOAuditQueryAction.php \
+  packages/seo-tools/src/Filament/Pages/Tables/SEOAuditTable.php \
+  packages/seo-tools/tests/Feature/Filament/PageSeoPanelTest.php \
+  packages/seo-tools/tests/Feature/Actions/Reports/BuildSEOAuditQueryActionTest.php
 git commit -m "feat: add editor seo panel and richer audit"
 ```
 
@@ -671,14 +674,15 @@ git commit -m "feat: add editor seo panel and richer audit"
 ## Task 4: Redirect Opportunities and Redirect Manager SEO Improvements
 
 **Files:**
-- Create: `packages/search-seo/seo-tools/src/Data/RedirectOpportunityData.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/BuildRedirectOpportunityReportAction.php`
-- Create: `packages/search-seo/seo-tools/src/Filament/Actions/CreateRedirectFromBrokenLinkAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Filament/Pages/Tables/BrokenLinksTable.php`
-- Modify: `packages/foundation/redirects/src/Filament/Resources/Redirects/Tables/RedirectsTable.php`
-- Modify: `packages/foundation/redirects/resources/lang/en/table.php`
-- Test: `packages/search-seo/seo-tools/tests/Integration/Actions/BuildRedirectOpportunityReportActionTest.php`
-- Test: `packages/foundation/redirects/tests/Integration/Filament/RedirectsTableSeoColumnsTest.php`
+
+- Create: `packages/seo-tools/src/Data/RedirectOpportunityData.php`
+- Create: `packages/seo-tools/src/Actions/BuildRedirectOpportunityReportAction.php`
+- Create: `packages/seo-tools/src/Filament/Actions/CreateRedirectFromBrokenLinkAction.php`
+- Modify: `packages/seo-tools/src/Filament/Pages/Tables/BrokenLinksTable.php`
+- Modify: `packages/redirects/src/Filament/Resources/Redirects/Tables/RedirectsTable.php`
+- Modify: `packages/redirects/resources/lang/en/table.php`
+- Test: `packages/seo-tools/tests/Integration/Actions/BuildRedirectOpportunityReportActionTest.php`
+- Test: `packages/redirects/tests/Integration/Filament/RedirectsTableSeoColumnsTest.php`
 
 - [ ] **Step 1: Write failing redirect opportunity tests**
 
@@ -687,7 +691,7 @@ Test that broken links with the same target URL are grouped into one `RedirectOp
 - [ ] **Step 2: Run tests to verify they fail**
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Integration/Actions/BuildRedirectOpportunityReportActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Integration/Actions/BuildRedirectOpportunityReportActionTest.php
 ```
 
 Expected: FAIL because the Action and Data do not exist.
@@ -729,7 +733,7 @@ Do not perform live HTTP status checks during table rendering.
 - [ ] **Step 6: Run redirect tests**
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Integration/Actions/BuildRedirectOpportunityReportActionTest.php packages/foundation/redirects/tests
+vendor/bin/pest packages/seo-tools/tests/Integration/Actions/BuildRedirectOpportunityReportActionTest.php packages/redirects/tests
 ```
 
 Expected: PASS.
@@ -737,14 +741,14 @@ Expected: PASS.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/search-seo/seo-tools/src/Data/RedirectOpportunityData.php \
-  packages/search-seo/seo-tools/src/Actions/BuildRedirectOpportunityReportAction.php \
-  packages/search-seo/seo-tools/src/Filament/Actions/CreateRedirectFromBrokenLinkAction.php \
-  packages/search-seo/seo-tools/src/Filament/Pages/Tables/BrokenLinksTable.php \
-  packages/foundation/redirects/src/Filament/Resources/Redirects/Tables/RedirectsTable.php \
-  packages/foundation/redirects/resources/lang/en/table.php \
-  packages/search-seo/seo-tools/tests/Integration/Actions/BuildRedirectOpportunityReportActionTest.php \
-  packages/foundation/redirects/tests/Integration/Filament/RedirectsTableSeoColumnsTest.php
+git add packages/seo-tools/src/Data/RedirectOpportunityData.php \
+  packages/seo-tools/src/Actions/BuildRedirectOpportunityReportAction.php \
+  packages/seo-tools/src/Filament/Actions/CreateRedirectFromBrokenLinkAction.php \
+  packages/seo-tools/src/Filament/Pages/Tables/BrokenLinksTable.php \
+  packages/redirects/src/Filament/Resources/Redirects/Tables/RedirectsTable.php \
+  packages/redirects/resources/lang/en/table.php \
+  packages/seo-tools/tests/Integration/Actions/BuildRedirectOpportunityReportActionTest.php \
+  packages/redirects/tests/Integration/Filament/RedirectsTableSeoColumnsTest.php
 git commit -m "feat: connect seo tools to redirect opportunities"
 ```
 
@@ -753,11 +757,12 @@ git commit -m "feat: connect seo tools to redirect opportunities"
 ## Task 5: Internal-Link Suggestions
 
 **Files:**
-- Create: `packages/search-seo/seo-tools/src/Data/InternalLinkSuggestionData.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/SuggestInternalLinksAction.php`
-- Create: `packages/search-seo/seo-tools/src/Support/InternalLinks/InternalLinkCandidateRepository.php`
-- Modify: `packages/search-seo/seo-tools/src/Actions/BuildPageSeoReportAction.php`
-- Test: `packages/search-seo/seo-tools/tests/Integration/Actions/SuggestInternalLinksActionTest.php`
+
+- Create: `packages/seo-tools/src/Data/InternalLinkSuggestionData.php`
+- Create: `packages/seo-tools/src/Actions/SuggestInternalLinksAction.php`
+- Create: `packages/seo-tools/src/Support/InternalLinks/InternalLinkCandidateRepository.php`
+- Modify: `packages/seo-tools/src/Actions/BuildPageSeoReportAction.php`
+- Test: `packages/seo-tools/tests/Integration/Actions/SuggestInternalLinksActionTest.php`
 
 - [ ] **Step 1: Write failing suggestion tests**
 
@@ -766,7 +771,7 @@ Test that a page with content terms matching another page title receives a sugge
 - [ ] **Step 2: Run tests to verify they fail**
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Integration/Actions/SuggestInternalLinksActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Integration/Actions/SuggestInternalLinksActionTest.php
 ```
 
 Expected: FAIL because the Action does not exist.
@@ -802,7 +807,7 @@ Set `$report->internalLinkSuggestions` from `SuggestInternalLinksAction::run($pa
 - [ ] **Step 6: Run tests**
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Integration/Actions/SuggestInternalLinksActionTest.php packages/search-seo/seo-tools/tests/Integration/Actions/BuildPageSeoReportActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Integration/Actions/SuggestInternalLinksActionTest.php packages/seo-tools/tests/Integration/Actions/BuildPageSeoReportActionTest.php
 ```
 
 Expected: PASS.
@@ -810,11 +815,11 @@ Expected: PASS.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/search-seo/seo-tools/src/Data/InternalLinkSuggestionData.php \
-  packages/search-seo/seo-tools/src/Actions/SuggestInternalLinksAction.php \
-  packages/search-seo/seo-tools/src/Support/InternalLinks/InternalLinkCandidateRepository.php \
-  packages/search-seo/seo-tools/src/Actions/BuildPageSeoReportAction.php \
-  packages/search-seo/seo-tools/tests/Integration/Actions/SuggestInternalLinksActionTest.php
+git add packages/seo-tools/src/Data/InternalLinkSuggestionData.php \
+  packages/seo-tools/src/Actions/SuggestInternalLinksAction.php \
+  packages/seo-tools/src/Support/InternalLinks/InternalLinkCandidateRepository.php \
+  packages/seo-tools/src/Actions/BuildPageSeoReportAction.php \
+  packages/seo-tools/tests/Integration/Actions/SuggestInternalLinksActionTest.php
 git commit -m "feat: suggest internal links for seo reports"
 ```
 
@@ -823,18 +828,19 @@ git commit -m "feat: suggest internal links for seo reports"
 ## Task 6: Schema Template Registry and Reports
 
 **Files:**
-- Create: `packages/search-seo/seo-tools/src/Contracts/SchemaTemplate.php`
-- Create: `packages/search-seo/seo-tools/src/Data/SchemaTemplateReportData.php`
-- Create: `packages/search-seo/seo-tools/src/Enums/SchemaTemplateTypeEnum.php`
-- Create: `packages/search-seo/seo-tools/src/Support/SchemaTemplates/SchemaTemplateRegistry.php`
-- Create: `packages/search-seo/seo-tools/src/Support/SchemaTemplates/WebPageSchemaTemplate.php`
-- Create: `packages/search-seo/seo-tools/src/Support/SchemaTemplates/ArticleSchemaTemplate.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/BuildSchemaTemplateReportAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Actions/SchemaGraphAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Actions/BuildPageSeoReportAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Providers/SeoToolsServiceProvider.php`
-- Test: `packages/search-seo/seo-tools/tests/Unit/Support/SchemaTemplateRegistryTest.php`
-- Test: `packages/search-seo/seo-tools/tests/Integration/Actions/BuildSchemaTemplateReportActionTest.php`
+
+- Create: `packages/seo-tools/src/Contracts/SchemaTemplate.php`
+- Create: `packages/seo-tools/src/Data/SchemaTemplateReportData.php`
+- Create: `packages/seo-tools/src/Enums/SchemaTemplateTypeEnum.php`
+- Create: `packages/seo-tools/src/Support/SchemaTemplates/SchemaTemplateRegistry.php`
+- Create: `packages/seo-tools/src/Support/SchemaTemplates/WebPageSchemaTemplate.php`
+- Create: `packages/seo-tools/src/Support/SchemaTemplates/ArticleSchemaTemplate.php`
+- Create: `packages/seo-tools/src/Actions/BuildSchemaTemplateReportAction.php`
+- Modify: `packages/seo-tools/src/Actions/SchemaGraphAction.php`
+- Modify: `packages/seo-tools/src/Actions/BuildPageSeoReportAction.php`
+- Modify: `packages/seo-tools/src/Providers/SeoToolsServiceProvider.php`
+- Test: `packages/seo-tools/tests/Unit/Support/SchemaTemplateRegistryTest.php`
+- Test: `packages/seo-tools/tests/Integration/Actions/BuildSchemaTemplateReportActionTest.php`
 
 - [ ] **Step 1: Write failing schema registry tests**
 
@@ -843,7 +849,7 @@ Test that registry can register templates by `SchemaTemplateTypeEnum`, return th
 - [ ] **Step 2: Run tests to verify they fail**
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Unit/Support/SchemaTemplateRegistryTest.php packages/search-seo/seo-tools/tests/Integration/Actions/BuildSchemaTemplateReportActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Unit/Support/SchemaTemplateRegistryTest.php packages/seo-tools/tests/Integration/Actions/BuildSchemaTemplateReportActionTest.php
 ```
 
 Expected: FAIL because schema template classes do not exist.
@@ -881,24 +887,24 @@ Register `WebPageSchemaTemplate` and `ArticleSchemaTemplate` in `SeoToolsService
 - [ ] **Step 7: Run tests**
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Unit/Support/SchemaTemplateRegistryTest.php packages/search-seo/seo-tools/tests/Integration/Actions/BuildSchemaTemplateReportActionTest.php packages/search-seo/seo-tools/tests/Integration/Actions/SchemaGraphActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Unit/Support/SchemaTemplateRegistryTest.php packages/seo-tools/tests/Integration/Actions/BuildSchemaTemplateReportActionTest.php packages/seo-tools/tests/Integration/Actions/SchemaGraphActionTest.php
 ```
 
-Expected: PASS. If `SchemaGraphActionTest.php` does not exist, run the existing schema integration tests in `packages/search-seo/seo-tools/tests/Integration/Actions`.
+Expected: PASS. If `SchemaGraphActionTest.php` does not exist, run the existing schema integration tests in `packages/seo-tools/tests/Integration/Actions`.
 
 - [ ] **Step 8: Commit**
 
 ```bash
-git add packages/search-seo/seo-tools/src/Contracts/SchemaTemplate.php \
-  packages/search-seo/seo-tools/src/Data/SchemaTemplateReportData.php \
-  packages/search-seo/seo-tools/src/Enums/SchemaTemplateTypeEnum.php \
-  packages/search-seo/seo-tools/src/Support/SchemaTemplates \
-  packages/search-seo/seo-tools/src/Actions/BuildSchemaTemplateReportAction.php \
-  packages/search-seo/seo-tools/src/Actions/SchemaGraphAction.php \
-  packages/search-seo/seo-tools/src/Actions/BuildPageSeoReportAction.php \
-  packages/search-seo/seo-tools/src/Providers/SeoToolsServiceProvider.php \
-  packages/search-seo/seo-tools/tests/Unit/Support/SchemaTemplateRegistryTest.php \
-  packages/search-seo/seo-tools/tests/Integration/Actions/BuildSchemaTemplateReportActionTest.php
+git add packages/seo-tools/src/Contracts/SchemaTemplate.php \
+  packages/seo-tools/src/Data/SchemaTemplateReportData.php \
+  packages/seo-tools/src/Enums/SchemaTemplateTypeEnum.php \
+  packages/seo-tools/src/Support/SchemaTemplates \
+  packages/seo-tools/src/Actions/BuildSchemaTemplateReportAction.php \
+  packages/seo-tools/src/Actions/SchemaGraphAction.php \
+  packages/seo-tools/src/Actions/BuildPageSeoReportAction.php \
+  packages/seo-tools/src/Providers/SeoToolsServiceProvider.php \
+  packages/seo-tools/tests/Unit/Support/SchemaTemplateRegistryTest.php \
+  packages/seo-tools/tests/Integration/Actions/BuildSchemaTemplateReportActionTest.php
 git commit -m "feat: add schema template registry"
 ```
 
@@ -907,18 +913,19 @@ git commit -m "feat: add schema template registry"
 ## Task 7: Search Console Insights
 
 **Files:**
-- Create: `packages/search-seo/seo-tools/src/Contracts/SearchConsoleClientInterface.php`
-- Create: `packages/search-seo/seo-tools/src/Data/SearchConsoleInsightData.php`
-- Create: `packages/search-seo/seo-tools/src/Enums/SearchConsoleMetricEnum.php`
-- Create: `packages/search-seo/seo-tools/src/Support/SearchConsole/NullSearchConsoleClient.php`
-- Create: `packages/search-seo/seo-tools/src/Support/SearchConsole/GoogleSearchConsoleClient.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/BuildPageSearchConsoleInsightsAction.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/SyncSearchConsoleInsightsAction.php`
-- Modify: `packages/search-seo/seo-tools/config/capell-seo-tools.php`
-- Modify: `packages/search-seo/seo-tools/src/Providers/SeoToolsServiceProvider.php`
-- Modify: `packages/search-seo/seo-tools/src/Actions/BuildPageSeoReportAction.php`
-- Test: `packages/search-seo/seo-tools/tests/Unit/SearchConsole/NullSearchConsoleClientTest.php`
-- Test: `packages/search-seo/seo-tools/tests/Unit/Actions/BuildPageSearchConsoleInsightsActionTest.php`
+
+- Create: `packages/seo-tools/src/Contracts/SearchConsoleClientInterface.php`
+- Create: `packages/seo-tools/src/Data/SearchConsoleInsightData.php`
+- Create: `packages/seo-tools/src/Enums/SearchConsoleMetricEnum.php`
+- Create: `packages/seo-tools/src/Support/SearchConsole/NullSearchConsoleClient.php`
+- Create: `packages/seo-tools/src/Support/SearchConsole/GoogleSearchConsoleClient.php`
+- Create: `packages/seo-tools/src/Actions/BuildPageSearchConsoleInsightsAction.php`
+- Create: `packages/seo-tools/src/Actions/SyncSearchConsoleInsightsAction.php`
+- Modify: `packages/seo-tools/config/capell-seo-tools.php`
+- Modify: `packages/seo-tools/src/Providers/SeoToolsServiceProvider.php`
+- Modify: `packages/seo-tools/src/Actions/BuildPageSeoReportAction.php`
+- Test: `packages/seo-tools/tests/Unit/SearchConsole/NullSearchConsoleClientTest.php`
+- Test: `packages/seo-tools/tests/Unit/Actions/BuildPageSearchConsoleInsightsActionTest.php`
 
 - [ ] **Step 1: Write failing Null client tests**
 
@@ -927,7 +934,7 @@ Test that `NullSearchConsoleClient` returns setup-required insights and never th
 - [ ] **Step 2: Run tests to verify they fail**
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Unit/SearchConsole/NullSearchConsoleClientTest.php packages/search-seo/seo-tools/tests/Unit/Actions/BuildPageSearchConsoleInsightsActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Unit/SearchConsole/NullSearchConsoleClientTest.php packages/seo-tools/tests/Unit/Actions/BuildPageSearchConsoleInsightsActionTest.php
 ```
 
 Expected: FAIL because classes do not exist.
@@ -974,7 +981,7 @@ Set `$report->searchConsoleInsights` from `BuildPageSearchConsoleInsightsAction:
 - [ ] **Step 7: Run tests**
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Unit/SearchConsole/NullSearchConsoleClientTest.php packages/search-seo/seo-tools/tests/Unit/Actions/BuildPageSearchConsoleInsightsActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Unit/SearchConsole/NullSearchConsoleClientTest.php packages/seo-tools/tests/Unit/Actions/BuildPageSearchConsoleInsightsActionTest.php
 ```
 
 Expected: PASS.
@@ -982,17 +989,17 @@ Expected: PASS.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add packages/search-seo/seo-tools/src/Contracts/SearchConsoleClientInterface.php \
-  packages/search-seo/seo-tools/src/Data/SearchConsoleInsightData.php \
-  packages/search-seo/seo-tools/src/Enums/SearchConsoleMetricEnum.php \
-  packages/search-seo/seo-tools/src/Support/SearchConsole \
-  packages/search-seo/seo-tools/src/Actions/BuildPageSearchConsoleInsightsAction.php \
-  packages/search-seo/seo-tools/src/Actions/SyncSearchConsoleInsightsAction.php \
-  packages/search-seo/seo-tools/config/capell-seo-tools.php \
-  packages/search-seo/seo-tools/src/Providers/SeoToolsServiceProvider.php \
-  packages/search-seo/seo-tools/src/Actions/BuildPageSeoReportAction.php \
-  packages/search-seo/seo-tools/tests/Unit/SearchConsole/NullSearchConsoleClientTest.php \
-  packages/search-seo/seo-tools/tests/Unit/Actions/BuildPageSearchConsoleInsightsActionTest.php
+git add packages/seo-tools/src/Contracts/SearchConsoleClientInterface.php \
+  packages/seo-tools/src/Data/SearchConsoleInsightData.php \
+  packages/seo-tools/src/Enums/SearchConsoleMetricEnum.php \
+  packages/seo-tools/src/Support/SearchConsole \
+  packages/seo-tools/src/Actions/BuildPageSearchConsoleInsightsAction.php \
+  packages/seo-tools/src/Actions/SyncSearchConsoleInsightsAction.php \
+  packages/seo-tools/config/capell-seo-tools.php \
+  packages/seo-tools/src/Providers/SeoToolsServiceProvider.php \
+  packages/seo-tools/src/Actions/BuildPageSeoReportAction.php \
+  packages/seo-tools/tests/Unit/SearchConsole/NullSearchConsoleClientTest.php \
+  packages/seo-tools/tests/Unit/Actions/BuildPageSearchConsoleInsightsActionTest.php
 git commit -m "feat: add search console insight boundary"
 ```
 
@@ -1001,11 +1008,12 @@ git commit -m "feat: add search console insight boundary"
 ## Task 8: Publishing Gates Integration
 
 **Files:**
-- Create: `packages/search-seo/seo-tools/src/Contracts/SeoPublishReportProvider.php`
-- Create: `packages/search-seo/seo-tools/src/Support/Publishing/SeoPublishReportProviderAdapter.php`
-- Modify: `packages/search-seo/seo-tools/src/Providers/SeoToolsServiceProvider.php`
-- Modify: `packages/publishing-pro/workspaces/src/Checks/SeoMetaCheck.php`
-- Test: `packages/publishing-pro/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php`
+
+- Create: `packages/seo-tools/src/Contracts/SeoPublishReportProvider.php`
+- Create: `packages/seo-tools/src/Support/Publishing/SeoPublishReportProviderAdapter.php`
+- Modify: `packages/seo-tools/src/Providers/SeoToolsServiceProvider.php`
+- Modify: `packages/workspaces/src/Checks/SeoMetaCheck.php`
+- Test: `packages/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php`
 
 - [ ] **Step 1: Write failing publish check tests**
 
@@ -1018,7 +1026,7 @@ Test that `SeoMetaCheck` uses `SeoPublishReportProvider` when available and maps
 - [ ] **Step 2: Run tests to verify they fail**
 
 ```bash
-vendor/bin/pest packages/publishing-pro/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php
+vendor/bin/pest packages/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php
 ```
 
 Expected: FAIL because the provider contract does not exist and `SeoMetaCheck` still performs direct DB checks.
@@ -1045,7 +1053,7 @@ In `SeoToolsServiceProvider`, bind `SeoPublishReportProvider::class` to `SeoPubl
 - [ ] **Step 6: Run tests**
 
 ```bash
-vendor/bin/pest packages/publishing-pro/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php packages/search-seo/seo-tools/tests/Integration/Actions/BuildPageSeoReportActionTest.php
+vendor/bin/pest packages/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php packages/seo-tools/tests/Integration/Actions/BuildPageSeoReportActionTest.php
 ```
 
 Expected: PASS.
@@ -1053,11 +1061,11 @@ Expected: PASS.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/search-seo/seo-tools/src/Contracts/SeoPublishReportProvider.php \
-  packages/search-seo/seo-tools/src/Support/Publishing/SeoPublishReportProviderAdapter.php \
-  packages/search-seo/seo-tools/src/Providers/SeoToolsServiceProvider.php \
-  packages/publishing-pro/workspaces/src/Checks/SeoMetaCheck.php \
-  packages/publishing-pro/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php
+git add packages/seo-tools/src/Contracts/SeoPublishReportProvider.php \
+  packages/seo-tools/src/Support/Publishing/SeoPublishReportProviderAdapter.php \
+  packages/seo-tools/src/Providers/SeoToolsServiceProvider.php \
+  packages/workspaces/src/Checks/SeoMetaCheck.php \
+  packages/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php
 git commit -m "feat: use seo reports for publish checks"
 ```
 
@@ -1066,13 +1074,14 @@ git commit -m "feat: use seo reports for publish checks"
 ## Task 9: AI Content Briefs
 
 **Files:**
-- Create: `packages/search-seo/seo-tools/src/Data/AiContentBriefData.php`
-- Create: `packages/search-seo/seo-tools/src/Actions/GenerateAiContentBriefAction.php`
-- Create: `packages/search-seo/seo-tools/src/Filament/Actions/AiContentBriefAction.php`
-- Modify: `packages/search-seo/seo-tools/src/Support/PromptRepository.php`
-- Modify: `packages/search-seo/seo-tools/config/capell-seo-tools.php`
-- Modify: `packages/search-seo/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php`
-- Test: `packages/search-seo/seo-tools/tests/Unit/Actions/GenerateAiContentBriefActionTest.php`
+
+- Create: `packages/seo-tools/src/Data/AiContentBriefData.php`
+- Create: `packages/seo-tools/src/Actions/GenerateAiContentBriefAction.php`
+- Create: `packages/seo-tools/src/Filament/Actions/AiContentBriefAction.php`
+- Modify: `packages/seo-tools/src/Support/PromptRepository.php`
+- Modify: `packages/seo-tools/config/capell-seo-tools.php`
+- Modify: `packages/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php`
+- Test: `packages/seo-tools/tests/Unit/Actions/GenerateAiContentBriefActionTest.php`
 
 - [ ] **Step 1: Write failing AI brief tests**
 
@@ -1089,7 +1098,7 @@ Test that fake AI response JSON is parsed into:
 - [ ] **Step 2: Run tests to verify they fail**
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Unit/Actions/GenerateAiContentBriefActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Unit/Actions/GenerateAiContentBriefActionTest.php
 ```
 
 Expected: FAIL because AI brief classes do not exist.
@@ -1131,7 +1140,7 @@ Add an `ai_content_brief` prompt to `capell-seo-tools.php`. Require JSON output 
 - [ ] **Step 7: Run tests**
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests/Unit/Actions/GenerateAiContentBriefActionTest.php
+vendor/bin/pest packages/seo-tools/tests/Unit/Actions/GenerateAiContentBriefActionTest.php
 ```
 
 Expected: PASS.
@@ -1139,13 +1148,13 @@ Expected: PASS.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add packages/search-seo/seo-tools/src/Data/AiContentBriefData.php \
-  packages/search-seo/seo-tools/src/Actions/GenerateAiContentBriefAction.php \
-  packages/search-seo/seo-tools/src/Filament/Actions/AiContentBriefAction.php \
-  packages/search-seo/seo-tools/src/Support/PromptRepository.php \
-  packages/search-seo/seo-tools/config/capell-seo-tools.php \
-  packages/search-seo/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php \
-  packages/search-seo/seo-tools/tests/Unit/Actions/GenerateAiContentBriefActionTest.php
+git add packages/seo-tools/src/Data/AiContentBriefData.php \
+  packages/seo-tools/src/Actions/GenerateAiContentBriefAction.php \
+  packages/seo-tools/src/Filament/Actions/AiContentBriefAction.php \
+  packages/seo-tools/src/Support/PromptRepository.php \
+  packages/seo-tools/config/capell-seo-tools.php \
+  packages/seo-tools/src/Filament/Components/Forms/Page/PageSeoPanel.php \
+  packages/seo-tools/tests/Unit/Actions/GenerateAiContentBriefActionTest.php
 git commit -m "feat: generate ai seo content briefs"
 ```
 
@@ -1154,14 +1163,15 @@ git commit -m "feat: generate ai seo content briefs"
 ## Task 10: Documentation, Arch Tests, and Final Verification
 
 **Files:**
-- Modify: `packages/search-seo/seo-tools/README.md`
-- Modify: `packages/search-seo/seo-tools/docs/seo-meta-and-discoverability.md`
-- Create: `packages/search-seo/seo-tools/docs/seo-intelligence.md`
-- Create: `packages/search-seo/seo-tools/docs/search-console.md`
-- Create: `packages/search-seo/seo-tools/docs/schema-templates.md`
-- Modify: `packages/foundation/redirects/docs/redirects.md`
+
+- Modify: `packages/seo-tools/README.md`
+- Modify: `packages/seo-tools/docs/seo-meta-and-discoverability.md`
+- Create: `packages/seo-tools/docs/seo-intelligence.md`
+- Create: `packages/seo-tools/docs/search-console.md`
+- Create: `packages/seo-tools/docs/schema-templates.md`
+- Modify: `packages/redirects/docs/redirects.md`
 - Modify: `docs/openai-integration.md`
-- Modify: `packages/search-seo/seo-tools/tests/Arch/SeoToolsBoundaryTest.php`
+- Modify: `packages/seo-tools/tests/Arch/SeoToolsBoundaryTest.php`
 
 - [ ] **Step 1: Update documentation**
 
@@ -1184,9 +1194,9 @@ Update `SeoToolsBoundaryTest` so SEO Tools is allowed to use public Redirects co
 - [ ] **Step 3: Run focused package tests**
 
 ```bash
-vendor/bin/pest packages/search-seo/seo-tools/tests
-vendor/bin/pest packages/foundation/redirects/tests
-vendor/bin/pest packages/publishing-pro/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php
+vendor/bin/pest packages/seo-tools/tests
+vendor/bin/pest packages/redirects/tests
+vendor/bin/pest packages/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php
 ```
 
 Expected: PASS.
@@ -1210,14 +1220,14 @@ Expected: PASS.
 - [ ] **Step 6: Commit docs and final checks**
 
 ```bash
-git add packages/search-seo/seo-tools/README.md \
-  packages/search-seo/seo-tools/docs/seo-meta-and-discoverability.md \
-  packages/search-seo/seo-tools/docs/seo-intelligence.md \
-  packages/search-seo/seo-tools/docs/search-console.md \
-  packages/search-seo/seo-tools/docs/schema-templates.md \
-  packages/foundation/redirects/docs/redirects.md \
+git add packages/seo-tools/README.md \
+  packages/seo-tools/docs/seo-meta-and-discoverability.md \
+  packages/seo-tools/docs/seo-intelligence.md \
+  packages/seo-tools/docs/search-console.md \
+  packages/seo-tools/docs/schema-templates.md \
+  packages/redirects/docs/redirects.md \
   docs/openai-integration.md \
-  packages/search-seo/seo-tools/tests/Arch/SeoToolsBoundaryTest.php
+  packages/seo-tools/tests/Arch/SeoToolsBoundaryTest.php
 git commit -m "docs: document seo tools expansion"
 ```
 

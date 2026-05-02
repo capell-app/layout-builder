@@ -12,7 +12,7 @@ Keep the package name as **Forms**:
 
 - Composer package: `capell-app/forms`
 - Namespace: `Capell\Forms`
-- Package directory: `packages/forms/forms`
+- Package directory: `packages/forms`
 - Admin navigation group: `Forms`
 - Submission resource label: `Inbox`
 
@@ -70,7 +70,7 @@ This establishes the package pattern for future Mosaic-dependent form experience
 
 ## Architecture
 
-The existing `packages/forms/forms` stub remains the base. It should be expanded rather than renamed.
+The existing `packages/forms` stub remains the base. It should be expanded rather than renamed.
 
 Domain behavior belongs in actions:
 
@@ -226,7 +226,7 @@ Tests should focus on behavior rather than HTTP-heavy flows:
 Single package command:
 
 ```bash
-vendor/bin/pest packages/forms/forms/tests
+vendor/bin/pest packages/forms/tests
 ```
 
 ## Implementation Sequence

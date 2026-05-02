@@ -14,69 +14,69 @@
 
 ### Modify
 
-- `packages/forms/forms/composer.json` - move factory autoloading into package `autoload`, keep package dependencies lean.
-- `packages/forms/forms/database/migrations/create_forms_table.php` - add handle, schema, settings, active state, site scoped uniqueness.
-- `packages/forms/forms/database/migrations/create_submissions_table.php` - add site, payload, meta, status, submitted timestamp indexes.
-- `packages/forms/forms/src/Models/Form.php` - casts, relationships, scopes, factory, fillable.
-- `packages/forms/forms/src/Models/Submission.php` - casts, relationships, status scopes, factory, fillable.
-- `packages/forms/forms/src/Providers/FormsServiceProvider.php` - package metadata, translations, views, resources, Livewire, Blade components.
-- `packages/forms/forms/tests/FormsTestCase.php` - load migrations and Livewire package support needed by the new tests.
-- `packages/forms/forms/README.md` - document install, usage, admin areas, extension points.
+- `packages/forms/composer.json` - move factory autoloading into package `autoload`, keep package dependencies lean.
+- `packages/forms/database/migrations/create_forms_table.php` - add handle, schema, settings, active state, site scoped uniqueness.
+- `packages/forms/database/migrations/create_submissions_table.php` - add site, payload, meta, status, submitted timestamp indexes.
+- `packages/forms/src/Models/Form.php` - casts, relationships, scopes, factory, fillable.
+- `packages/forms/src/Models/Submission.php` - casts, relationships, status scopes, factory, fillable.
+- `packages/forms/src/Providers/FormsServiceProvider.php` - package metadata, translations, views, resources, Livewire, Blade components.
+- `packages/forms/tests/FormsTestCase.php` - load migrations and Livewire package support needed by the new tests.
+- `packages/forms/README.md` - document install, usage, admin areas, extension points.
 
 ### Create
 
-- `packages/forms/forms/config/capell-forms.php`
-- `packages/forms/forms/database/factories/FormFactory.php`
-- `packages/forms/forms/database/factories/SubmissionFactory.php`
-- `packages/forms/forms/resources/lang/en/form.php`
-- `packages/forms/forms/resources/lang/en/generic.php`
-- `packages/forms/forms/resources/lang/en/messages.php`
-- `packages/forms/forms/resources/lang/en/navigation.php`
-- `packages/forms/forms/resources/lang/en/package.php`
-- `packages/forms/forms/resources/lang/en/table.php`
-- `packages/forms/forms/resources/views/components/form.blade.php`
-- `packages/forms/forms/resources/views/livewire/form.blade.php`
-- `packages/forms/forms/resources/views/fields/checkbox.blade.php`
-- `packages/forms/forms/resources/views/fields/email.blade.php`
-- `packages/forms/forms/resources/views/fields/honeypot.blade.php`
-- `packages/forms/forms/resources/views/fields/hidden.blade.php`
-- `packages/forms/forms/resources/views/fields/select.blade.php`
-- `packages/forms/forms/resources/views/fields/text.blade.php`
-- `packages/forms/forms/resources/views/fields/textarea.blade.php`
-- `packages/forms/forms/src/Actions/ArchiveSubmissionAction.php`
-- `packages/forms/forms/src/Actions/BuildFormValidationRulesAction.php`
-- `packages/forms/forms/src/Actions/CreateSubmissionAction.php`
-- `packages/forms/forms/src/Actions/MarkSubmissionReadAction.php`
-- `packages/forms/forms/src/Actions/MarkSubmissionSpamAction.php`
-- `packages/forms/forms/src/Data/FormFieldData.php`
-- `packages/forms/forms/src/Data/FormSettingsData.php`
-- `packages/forms/forms/src/Data/SubmissionMetaData.php`
-- `packages/forms/forms/src/Data/SubmissionPayloadData.php`
-- `packages/forms/forms/src/Enums/FormFieldType.php`
-- `packages/forms/forms/src/Enums/LivewireComponentEnum.php`
-- `packages/forms/forms/src/Enums/ResourceEnum.php`
-- `packages/forms/forms/src/Enums/SubmissionStatus.php`
-- `packages/forms/forms/src/Events/FormSubmitted.php`
-- `packages/forms/forms/src/Filament/Resources/Forms/FormResource.php`
-- `packages/forms/forms/src/Filament/Resources/Forms/Pages/ManageForms.php`
-- `packages/forms/forms/src/Filament/Resources/Forms/Schemas/FormForm.php`
-- `packages/forms/forms/src/Filament/Resources/Forms/Tables/FormsTable.php`
-- `packages/forms/forms/src/Filament/Resources/Submissions/Pages/ListSubmissions.php`
-- `packages/forms/forms/src/Filament/Resources/Submissions/Pages/ViewSubmission.php`
-- `packages/forms/forms/src/Filament/Resources/Submissions/SubmissionResource.php`
-- `packages/forms/forms/src/Filament/Resources/Submissions/Schemas/SubmissionInfolist.php`
-- `packages/forms/forms/src/Filament/Resources/Submissions/Tables/SubmissionsTable.php`
-- `packages/forms/forms/src/Livewire/FormComponent.php`
-- `packages/forms/forms/src/View/Components/Form.php`
-- `packages/forms/forms/tests/Feature/Filament/FormResourceTest.php`
-- `packages/forms/forms/tests/Feature/Filament/SubmissionResourceTest.php`
-- `packages/forms/forms/tests/Feature/Livewire/FormComponentTest.php`
-- `packages/forms/forms/tests/Integration/Actions/CreateSubmissionActionTest.php`
-- `packages/forms/forms/tests/Integration/Actions/SubmissionStatusActionsTest.php`
-- `packages/forms/forms/tests/Integration/Models/FormModelTest.php`
-- `packages/forms/forms/tests/Integration/Models/SubmissionModelTest.php`
-- `packages/forms/forms/tests/Unit/Actions/BuildFormValidationRulesActionTest.php`
-- `packages/forms/forms/tests/Unit/Data/FormFieldDataTest.php`
+- `packages/forms/config/capell-forms.php`
+- `packages/forms/database/factories/FormFactory.php`
+- `packages/forms/database/factories/SubmissionFactory.php`
+- `packages/forms/resources/lang/en/form.php`
+- `packages/forms/resources/lang/en/generic.php`
+- `packages/forms/resources/lang/en/messages.php`
+- `packages/forms/resources/lang/en/navigation.php`
+- `packages/forms/resources/lang/en/package.php`
+- `packages/forms/resources/lang/en/table.php`
+- `packages/forms/resources/views/components/form.blade.php`
+- `packages/forms/resources/views/livewire/form.blade.php`
+- `packages/forms/resources/views/fields/checkbox.blade.php`
+- `packages/forms/resources/views/fields/email.blade.php`
+- `packages/forms/resources/views/fields/honeypot.blade.php`
+- `packages/forms/resources/views/fields/hidden.blade.php`
+- `packages/forms/resources/views/fields/select.blade.php`
+- `packages/forms/resources/views/fields/text.blade.php`
+- `packages/forms/resources/views/fields/textarea.blade.php`
+- `packages/forms/src/Actions/ArchiveSubmissionAction.php`
+- `packages/forms/src/Actions/BuildFormValidationRulesAction.php`
+- `packages/forms/src/Actions/CreateSubmissionAction.php`
+- `packages/forms/src/Actions/MarkSubmissionReadAction.php`
+- `packages/forms/src/Actions/MarkSubmissionSpamAction.php`
+- `packages/forms/src/Data/FormFieldData.php`
+- `packages/forms/src/Data/FormSettingsData.php`
+- `packages/forms/src/Data/SubmissionMetaData.php`
+- `packages/forms/src/Data/SubmissionPayloadData.php`
+- `packages/forms/src/Enums/FormFieldType.php`
+- `packages/forms/src/Enums/LivewireComponentEnum.php`
+- `packages/forms/src/Enums/ResourceEnum.php`
+- `packages/forms/src/Enums/SubmissionStatus.php`
+- `packages/forms/src/Events/FormSubmitted.php`
+- `packages/forms/src/Filament/Resources/Forms/FormResource.php`
+- `packages/forms/src/Filament/Resources/Forms/Pages/ManageForms.php`
+- `packages/forms/src/Filament/Resources/Forms/Schemas/FormForm.php`
+- `packages/forms/src/Filament/Resources/Forms/Tables/FormsTable.php`
+- `packages/forms/src/Filament/Resources/Submissions/Pages/ListSubmissions.php`
+- `packages/forms/src/Filament/Resources/Submissions/Pages/ViewSubmission.php`
+- `packages/forms/src/Filament/Resources/Submissions/SubmissionResource.php`
+- `packages/forms/src/Filament/Resources/Submissions/Schemas/SubmissionInfolist.php`
+- `packages/forms/src/Filament/Resources/Submissions/Tables/SubmissionsTable.php`
+- `packages/forms/src/Livewire/FormComponent.php`
+- `packages/forms/src/View/Components/Form.php`
+- `packages/forms/tests/Feature/Filament/FormResourceTest.php`
+- `packages/forms/tests/Feature/Filament/SubmissionResourceTest.php`
+- `packages/forms/tests/Feature/Livewire/FormComponentTest.php`
+- `packages/forms/tests/Integration/Actions/CreateSubmissionActionTest.php`
+- `packages/forms/tests/Integration/Actions/SubmissionStatusActionsTest.php`
+- `packages/forms/tests/Integration/Models/FormModelTest.php`
+- `packages/forms/tests/Integration/Models/SubmissionModelTest.php`
+- `packages/forms/tests/Unit/Actions/BuildFormValidationRulesActionTest.php`
+- `packages/forms/tests/Unit/Data/FormFieldDataTest.php`
 - `packages/newsletter/composer.json`
 - `packages/newsletter/capell.json`
 - `packages/newsletter/resources/lang/en/generic.php`
@@ -98,17 +98,17 @@
 
 **Files:**
 
-- Create: `packages/forms/forms/src/Enums/FormFieldType.php`
-- Create: `packages/forms/forms/src/Enums/SubmissionStatus.php`
-- Create: `packages/forms/forms/src/Data/FormFieldData.php`
-- Create: `packages/forms/forms/src/Data/FormSettingsData.php`
-- Create: `packages/forms/forms/src/Data/SubmissionPayloadData.php`
-- Create: `packages/forms/forms/src/Data/SubmissionMetaData.php`
-- Create: `packages/forms/forms/tests/Unit/Data/FormFieldDataTest.php`
+- Create: `packages/forms/src/Enums/FormFieldType.php`
+- Create: `packages/forms/src/Enums/SubmissionStatus.php`
+- Create: `packages/forms/src/Data/FormFieldData.php`
+- Create: `packages/forms/src/Data/FormSettingsData.php`
+- Create: `packages/forms/src/Data/SubmissionPayloadData.php`
+- Create: `packages/forms/src/Data/SubmissionMetaData.php`
+- Create: `packages/forms/tests/Unit/Data/FormFieldDataTest.php`
 
 - [ ] **Step 1: Write enum and data tests**
 
-Create `packages/forms/forms/tests/Unit/Data/FormFieldDataTest.php`:
+Create `packages/forms/tests/Unit/Data/FormFieldDataTest.php`:
 
 ```php
 <?php
@@ -169,14 +169,14 @@ it('wraps submitted values in payload data', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/forms/forms/tests/Unit/Data/FormFieldDataTest.php
+vendor/bin/pest packages/forms/tests/Unit/Data/FormFieldDataTest.php
 ```
 
 Expected: fail because the data and enum classes do not exist.
 
 - [ ] **Step 3: Add field type enum**
 
-Create `packages/forms/forms/src/Enums/FormFieldType.php`:
+Create `packages/forms/src/Enums/FormFieldType.php`:
 
 ```php
 <?php
@@ -219,7 +219,7 @@ enum FormFieldType: string implements HasLabel
 
 - [ ] **Step 4: Add submission status enum**
 
-Create `packages/forms/forms/src/Enums/SubmissionStatus.php`:
+Create `packages/forms/src/Enums/SubmissionStatus.php`:
 
 ```php
 <?php
@@ -274,7 +274,7 @@ enum SubmissionStatus: string implements HasColor, HasIcon, HasLabel
 
 - [ ] **Step 5: Add data objects**
 
-Create `packages/forms/forms/src/Data/FormFieldData.php`:
+Create `packages/forms/src/Data/FormFieldData.php`:
 
 ```php
 <?php
@@ -309,7 +309,7 @@ class FormFieldData extends Data
 }
 ```
 
-Create `packages/forms/forms/src/Data/FormSettingsData.php`:
+Create `packages/forms/src/Data/FormSettingsData.php`:
 
 ```php
 <?php
@@ -335,7 +335,7 @@ class FormSettingsData extends Data
 }
 ```
 
-Create `packages/forms/forms/src/Data/SubmissionPayloadData.php`:
+Create `packages/forms/src/Data/SubmissionPayloadData.php`:
 
 ```php
 <?php
@@ -357,7 +357,7 @@ class SubmissionPayloadData extends Data
 }
 ```
 
-Create `packages/forms/forms/src/Data/SubmissionMetaData.php`:
+Create `packages/forms/src/Data/SubmissionMetaData.php`:
 
 ```php
 <?php
@@ -387,7 +387,7 @@ class SubmissionMetaData extends Data
 Run:
 
 ```bash
-vendor/bin/pest packages/forms/forms/tests/Unit/Data/FormFieldDataTest.php
+vendor/bin/pest packages/forms/tests/Unit/Data/FormFieldDataTest.php
 ```
 
 Expected: pass.
@@ -395,7 +395,7 @@ Expected: pass.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/forms/forms/src/Enums/FormFieldType.php packages/forms/forms/src/Enums/SubmissionStatus.php packages/forms/forms/src/Data/FormFieldData.php packages/forms/forms/src/Data/FormSettingsData.php packages/forms/forms/src/Data/SubmissionPayloadData.php packages/forms/forms/src/Data/SubmissionMetaData.php packages/forms/forms/tests/Unit/Data/FormFieldDataTest.php
+git add packages/forms/src/Enums/FormFieldType.php packages/forms/src/Enums/SubmissionStatus.php packages/forms/src/Data/FormFieldData.php packages/forms/src/Data/FormSettingsData.php packages/forms/src/Data/SubmissionPayloadData.php packages/forms/src/Data/SubmissionMetaData.php packages/forms/tests/Unit/Data/FormFieldDataTest.php
 git commit -m "feat: add forms data objects"
 ```
 
@@ -405,19 +405,19 @@ git commit -m "feat: add forms data objects"
 
 **Files:**
 
-- Modify: `packages/forms/forms/composer.json`
-- Modify: `packages/forms/forms/database/migrations/create_forms_table.php`
-- Modify: `packages/forms/forms/database/migrations/create_submissions_table.php`
-- Modify: `packages/forms/forms/src/Models/Form.php`
-- Modify: `packages/forms/forms/src/Models/Submission.php`
-- Create: `packages/forms/forms/database/factories/FormFactory.php`
-- Create: `packages/forms/forms/database/factories/SubmissionFactory.php`
-- Create: `packages/forms/forms/tests/Integration/Models/FormModelTest.php`
-- Create: `packages/forms/forms/tests/Integration/Models/SubmissionModelTest.php`
+- Modify: `packages/forms/composer.json`
+- Modify: `packages/forms/database/migrations/create_forms_table.php`
+- Modify: `packages/forms/database/migrations/create_submissions_table.php`
+- Modify: `packages/forms/src/Models/Form.php`
+- Modify: `packages/forms/src/Models/Submission.php`
+- Create: `packages/forms/database/factories/FormFactory.php`
+- Create: `packages/forms/database/factories/SubmissionFactory.php`
+- Create: `packages/forms/tests/Integration/Models/FormModelTest.php`
+- Create: `packages/forms/tests/Integration/Models/SubmissionModelTest.php`
 
 - [ ] **Step 1: Write model tests**
 
-Create `packages/forms/forms/tests/Integration/Models/FormModelTest.php`:
+Create `packages/forms/tests/Integration/Models/FormModelTest.php`:
 
 ```php
 <?php
@@ -470,7 +470,7 @@ it('scopes active forms', function (): void {
 });
 ```
 
-Create `packages/forms/forms/tests/Integration/Models/SubmissionModelTest.php`:
+Create `packages/forms/tests/Integration/Models/SubmissionModelTest.php`:
 
 ```php
 <?php
@@ -514,14 +514,14 @@ it('belongs to a form', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/forms/forms/tests/Integration/Models
+vendor/bin/pest packages/forms/tests/Integration/Models
 ```
 
 Expected: fail because factories, columns, casts, and scopes are missing.
 
 - [ ] **Step 3: Update composer factory autoload**
 
-Modify `packages/forms/forms/composer.json` so factories match other Capell packages:
+Modify `packages/forms/composer.json` so factories match other Capell packages:
 
 ```json
 "autoload": {
@@ -547,7 +547,7 @@ Expected: autoload files regenerate successfully.
 
 - [ ] **Step 4: Update migrations**
 
-Replace `packages/forms/forms/database/migrations/create_forms_table.php` with:
+Replace `packages/forms/database/migrations/create_forms_table.php` with:
 
 ```php
 <?php
@@ -586,7 +586,7 @@ return new class extends Migration
 };
 ```
 
-Replace `packages/forms/forms/database/migrations/create_submissions_table.php` with:
+Replace `packages/forms/database/migrations/create_submissions_table.php` with:
 
 ```php
 <?php
@@ -627,7 +627,7 @@ return new class extends Migration
 
 - [ ] **Step 5: Update models**
 
-Update `packages/forms/forms/src/Models/Form.php`:
+Update `packages/forms/src/Models/Form.php`:
 
 ```php
 <?php
@@ -690,7 +690,7 @@ class Form extends Model
 }
 ```
 
-Update `packages/forms/forms/src/Models/Submission.php`:
+Update `packages/forms/src/Models/Submission.php`:
 
 ```php
 <?php
@@ -748,7 +748,7 @@ class Submission extends Model
 
 - [ ] **Step 6: Add factories**
 
-Create `packages/forms/forms/database/factories/FormFactory.php`:
+Create `packages/forms/database/factories/FormFactory.php`:
 
 ```php
 <?php
@@ -801,7 +801,7 @@ class FormFactory extends Factory
 }
 ```
 
-Create `packages/forms/forms/database/factories/SubmissionFactory.php`:
+Create `packages/forms/database/factories/SubmissionFactory.php`:
 
 ```php
 <?php
@@ -875,7 +875,7 @@ class SubmissionFactory extends Factory
 Run:
 
 ```bash
-vendor/bin/pest packages/forms/forms/tests/Integration/Models
+vendor/bin/pest packages/forms/tests/Integration/Models
 ```
 
 Expected: pass.
@@ -883,7 +883,7 @@ Expected: pass.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add packages/forms/forms/composer.json packages/forms/forms/database/migrations/create_forms_table.php packages/forms/forms/database/migrations/create_submissions_table.php packages/forms/forms/src/Models/Form.php packages/forms/forms/src/Models/Submission.php packages/forms/forms/database/factories/FormFactory.php packages/forms/forms/database/factories/SubmissionFactory.php packages/forms/forms/tests/Integration/Models/FormModelTest.php packages/forms/forms/tests/Integration/Models/SubmissionModelTest.php
+git add packages/forms/composer.json packages/forms/database/migrations/create_forms_table.php packages/forms/database/migrations/create_submissions_table.php packages/forms/src/Models/Form.php packages/forms/src/Models/Submission.php packages/forms/database/factories/FormFactory.php packages/forms/database/factories/SubmissionFactory.php packages/forms/tests/Integration/Models/FormModelTest.php packages/forms/tests/Integration/Models/SubmissionModelTest.php
 git commit -m "feat: add forms persistence model"
 ```
 
@@ -893,15 +893,15 @@ git commit -m "feat: add forms persistence model"
 
 **Files:**
 
-- Create: `packages/forms/forms/src/Actions/BuildFormValidationRulesAction.php`
-- Create: `packages/forms/forms/src/Actions/CreateSubmissionAction.php`
-- Create: `packages/forms/forms/src/Events/FormSubmitted.php`
-- Create: `packages/forms/forms/tests/Unit/Actions/BuildFormValidationRulesActionTest.php`
-- Create: `packages/forms/forms/tests/Integration/Actions/CreateSubmissionActionTest.php`
+- Create: `packages/forms/src/Actions/BuildFormValidationRulesAction.php`
+- Create: `packages/forms/src/Actions/CreateSubmissionAction.php`
+- Create: `packages/forms/src/Events/FormSubmitted.php`
+- Create: `packages/forms/tests/Unit/Actions/BuildFormValidationRulesActionTest.php`
+- Create: `packages/forms/tests/Integration/Actions/CreateSubmissionActionTest.php`
 
 - [ ] **Step 1: Write validation action tests**
 
-Create `packages/forms/forms/tests/Unit/Actions/BuildFormValidationRulesActionTest.php`:
+Create `packages/forms/tests/Unit/Actions/BuildFormValidationRulesActionTest.php`:
 
 ```php
 <?php
@@ -965,7 +965,7 @@ it('ignores unsupported editor validation rules', function (): void {
 
 - [ ] **Step 2: Write submission action tests**
 
-Create `packages/forms/forms/tests/Integration/Actions/CreateSubmissionActionTest.php`:
+Create `packages/forms/tests/Integration/Actions/CreateSubmissionActionTest.php`:
 
 ```php
 <?php
@@ -1046,14 +1046,14 @@ it('throws a validation exception for invalid data', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/forms/forms/tests/Unit/Actions/BuildFormValidationRulesActionTest.php packages/forms/forms/tests/Integration/Actions/CreateSubmissionActionTest.php
+vendor/bin/pest packages/forms/tests/Unit/Actions/BuildFormValidationRulesActionTest.php packages/forms/tests/Integration/Actions/CreateSubmissionActionTest.php
 ```
 
 Expected: fail because actions and event do not exist.
 
 - [ ] **Step 4: Add validation action**
 
-Create `packages/forms/forms/src/Actions/BuildFormValidationRulesAction.php`:
+Create `packages/forms/src/Actions/BuildFormValidationRulesAction.php`:
 
 ```php
 <?php
@@ -1137,7 +1137,7 @@ class BuildFormValidationRulesAction
 
 - [ ] **Step 5: Add submitted event**
 
-Create `packages/forms/forms/src/Events/FormSubmitted.php`:
+Create `packages/forms/src/Events/FormSubmitted.php`:
 
 ```php
 <?php
@@ -1163,7 +1163,7 @@ class FormSubmitted
 
 - [ ] **Step 6: Add create submission action**
 
-Create `packages/forms/forms/src/Actions/CreateSubmissionAction.php`:
+Create `packages/forms/src/Actions/CreateSubmissionAction.php`:
 
 ```php
 <?php
@@ -1236,7 +1236,7 @@ class CreateSubmissionAction
 Run:
 
 ```bash
-vendor/bin/pest packages/forms/forms/tests/Unit/Actions/BuildFormValidationRulesActionTest.php packages/forms/forms/tests/Integration/Actions/CreateSubmissionActionTest.php
+vendor/bin/pest packages/forms/tests/Unit/Actions/BuildFormValidationRulesActionTest.php packages/forms/tests/Integration/Actions/CreateSubmissionActionTest.php
 ```
 
 Expected: pass.
@@ -1244,7 +1244,7 @@ Expected: pass.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add packages/forms/forms/src/Actions/BuildFormValidationRulesAction.php packages/forms/forms/src/Actions/CreateSubmissionAction.php packages/forms/forms/src/Events/FormSubmitted.php packages/forms/forms/tests/Unit/Actions/BuildFormValidationRulesActionTest.php packages/forms/forms/tests/Integration/Actions/CreateSubmissionActionTest.php
+git add packages/forms/src/Actions/BuildFormValidationRulesAction.php packages/forms/src/Actions/CreateSubmissionAction.php packages/forms/src/Events/FormSubmitted.php packages/forms/tests/Unit/Actions/BuildFormValidationRulesActionTest.php packages/forms/tests/Integration/Actions/CreateSubmissionActionTest.php
 git commit -m "feat: store form submissions"
 ```
 
@@ -1254,14 +1254,14 @@ git commit -m "feat: store form submissions"
 
 **Files:**
 
-- Create: `packages/forms/forms/src/Actions/ArchiveSubmissionAction.php`
-- Create: `packages/forms/forms/src/Actions/MarkSubmissionReadAction.php`
-- Create: `packages/forms/forms/src/Actions/MarkSubmissionSpamAction.php`
-- Create: `packages/forms/forms/tests/Integration/Actions/SubmissionStatusActionsTest.php`
+- Create: `packages/forms/src/Actions/ArchiveSubmissionAction.php`
+- Create: `packages/forms/src/Actions/MarkSubmissionReadAction.php`
+- Create: `packages/forms/src/Actions/MarkSubmissionSpamAction.php`
+- Create: `packages/forms/tests/Integration/Actions/SubmissionStatusActionsTest.php`
 
 - [ ] **Step 1: Write status action tests**
 
-Create `packages/forms/forms/tests/Integration/Actions/SubmissionStatusActionsTest.php`:
+Create `packages/forms/tests/Integration/Actions/SubmissionStatusActionsTest.php`:
 
 ```php
 <?php
@@ -1304,14 +1304,14 @@ it('marks a submission as spam', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/forms/forms/tests/Integration/Actions/SubmissionStatusActionsTest.php
+vendor/bin/pest packages/forms/tests/Integration/Actions/SubmissionStatusActionsTest.php
 ```
 
 Expected: fail because the status actions do not exist.
 
 - [ ] **Step 3: Add status actions**
 
-Create `packages/forms/forms/src/Actions/MarkSubmissionReadAction.php`:
+Create `packages/forms/src/Actions/MarkSubmissionReadAction.php`:
 
 ```php
 <?php
@@ -1337,7 +1337,7 @@ class MarkSubmissionReadAction
 }
 ```
 
-Create `packages/forms/forms/src/Actions/ArchiveSubmissionAction.php`:
+Create `packages/forms/src/Actions/ArchiveSubmissionAction.php`:
 
 ```php
 <?php
@@ -1363,7 +1363,7 @@ class ArchiveSubmissionAction
 }
 ```
 
-Create `packages/forms/forms/src/Actions/MarkSubmissionSpamAction.php`:
+Create `packages/forms/src/Actions/MarkSubmissionSpamAction.php`:
 
 ```php
 <?php
@@ -1394,7 +1394,7 @@ class MarkSubmissionSpamAction
 Run:
 
 ```bash
-vendor/bin/pest packages/forms/forms/tests/Integration/Actions/SubmissionStatusActionsTest.php
+vendor/bin/pest packages/forms/tests/Integration/Actions/SubmissionStatusActionsTest.php
 ```
 
 Expected: pass.
@@ -1402,7 +1402,7 @@ Expected: pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/forms/forms/src/Actions/ArchiveSubmissionAction.php packages/forms/forms/src/Actions/MarkSubmissionReadAction.php packages/forms/forms/src/Actions/MarkSubmissionSpamAction.php packages/forms/forms/tests/Integration/Actions/SubmissionStatusActionsTest.php
+git add packages/forms/src/Actions/ArchiveSubmissionAction.php packages/forms/src/Actions/MarkSubmissionReadAction.php packages/forms/src/Actions/MarkSubmissionSpamAction.php packages/forms/tests/Integration/Actions/SubmissionStatusActionsTest.php
 git commit -m "feat: add submission status actions"
 ```
 
@@ -1412,20 +1412,20 @@ git commit -m "feat: add submission status actions"
 
 **Files:**
 
-- Modify: `packages/forms/forms/src/Providers/FormsServiceProvider.php`
-- Create: `packages/forms/forms/config/capell-forms.php`
-- Create: `packages/forms/forms/src/Enums/ResourceEnum.php`
-- Create: `packages/forms/forms/src/Enums/LivewireComponentEnum.php`
-- Create: `packages/forms/forms/resources/lang/en/form.php`
-- Create: `packages/forms/forms/resources/lang/en/generic.php`
-- Create: `packages/forms/forms/resources/lang/en/messages.php`
-- Create: `packages/forms/forms/resources/lang/en/navigation.php`
-- Create: `packages/forms/forms/resources/lang/en/package.php`
-- Create: `packages/forms/forms/resources/lang/en/table.php`
+- Modify: `packages/forms/src/Providers/FormsServiceProvider.php`
+- Create: `packages/forms/config/capell-forms.php`
+- Create: `packages/forms/src/Enums/ResourceEnum.php`
+- Create: `packages/forms/src/Enums/LivewireComponentEnum.php`
+- Create: `packages/forms/resources/lang/en/form.php`
+- Create: `packages/forms/resources/lang/en/generic.php`
+- Create: `packages/forms/resources/lang/en/messages.php`
+- Create: `packages/forms/resources/lang/en/navigation.php`
+- Create: `packages/forms/resources/lang/en/package.php`
+- Create: `packages/forms/resources/lang/en/table.php`
 
 - [ ] **Step 1: Add translation files**
 
-Create `packages/forms/forms/resources/lang/en/generic.php`:
+Create `packages/forms/resources/lang/en/generic.php`:
 
 ```php
 <?php
@@ -1448,7 +1448,7 @@ return [
 ];
 ```
 
-Create `packages/forms/forms/resources/lang/en/form.php`:
+Create `packages/forms/resources/lang/en/form.php`:
 
 ```php
 <?php
@@ -1475,7 +1475,7 @@ return [
 ];
 ```
 
-Create `packages/forms/forms/resources/lang/en/navigation.php`:
+Create `packages/forms/resources/lang/en/navigation.php`:
 
 ```php
 <?php
@@ -1488,7 +1488,7 @@ return [
 ];
 ```
 
-Create `packages/forms/forms/resources/lang/en/messages.php`:
+Create `packages/forms/resources/lang/en/messages.php`:
 
 ```php
 <?php
@@ -1500,7 +1500,7 @@ return [
 ];
 ```
 
-Create `packages/forms/forms/resources/lang/en/package.php`:
+Create `packages/forms/resources/lang/en/package.php`:
 
 ```php
 <?php
@@ -1512,7 +1512,7 @@ return [
 ];
 ```
 
-Create `packages/forms/forms/resources/lang/en/table.php`:
+Create `packages/forms/resources/lang/en/table.php`:
 
 ```php
 <?php
@@ -1534,7 +1534,7 @@ return [
 
 - [ ] **Step 2: Add config**
 
-Create `packages/forms/forms/config/capell-forms.php`:
+Create `packages/forms/config/capell-forms.php`:
 
 ```php
 <?php
@@ -1550,7 +1550,7 @@ return [
 
 - [ ] **Step 3: Add resource and Livewire enums**
 
-Create `packages/forms/forms/src/Enums/ResourceEnum.php`:
+Create `packages/forms/src/Enums/ResourceEnum.php`:
 
 ```php
 <?php
@@ -1569,7 +1569,7 @@ enum ResourceEnum: string
 }
 ```
 
-Create `packages/forms/forms/src/Enums/LivewireComponentEnum.php`:
+Create `packages/forms/src/Enums/LivewireComponentEnum.php`:
 
 ```php
 <?php
@@ -1601,7 +1601,7 @@ enum LivewireComponentEnum: string implements EnumAttributeInterface
 
 - [ ] **Step 4: Update service provider**
 
-Modify `packages/forms/forms/src/Providers/FormsServiceProvider.php` to follow the Blog/Address package pattern:
+Modify `packages/forms/src/Providers/FormsServiceProvider.php` to follow the Blog/Address package pattern:
 
 ```php
 <?php
@@ -1754,7 +1754,7 @@ class FormsServiceProvider extends AbstractPackageServiceProvider
 Run:
 
 ```bash
-vendor/bin/pest packages/forms/forms/tests/Arch/FormsIsolationTest.php packages/forms/forms/tests/Unit/Data/FormFieldDataTest.php
+vendor/bin/pest packages/forms/tests/Arch/FormsIsolationTest.php packages/forms/tests/Unit/Data/FormFieldDataTest.php
 ```
 
 Expected: pass. The resource enum references classes created in later tasks, so defer full package suite until Task 7.
@@ -1762,7 +1762,7 @@ Expected: pass. The resource enum references classes created in later tasks, so 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/forms/forms/config/capell-forms.php packages/forms/forms/src/Providers/FormsServiceProvider.php packages/forms/forms/src/Enums/ResourceEnum.php packages/forms/forms/src/Enums/LivewireComponentEnum.php packages/forms/forms/resources/lang/en/form.php packages/forms/forms/resources/lang/en/generic.php packages/forms/forms/resources/lang/en/messages.php packages/forms/forms/resources/lang/en/navigation.php packages/forms/forms/resources/lang/en/package.php packages/forms/forms/resources/lang/en/table.php
+git add packages/forms/config/capell-forms.php packages/forms/src/Providers/FormsServiceProvider.php packages/forms/src/Enums/ResourceEnum.php packages/forms/src/Enums/LivewireComponentEnum.php packages/forms/resources/lang/en/form.php packages/forms/resources/lang/en/generic.php packages/forms/resources/lang/en/messages.php packages/forms/resources/lang/en/navigation.php packages/forms/resources/lang/en/package.php packages/forms/resources/lang/en/table.php
 git commit -m "feat: register forms package surfaces"
 ```
 
@@ -1772,15 +1772,15 @@ git commit -m "feat: register forms package surfaces"
 
 **Files:**
 
-- Create: `packages/forms/forms/src/Filament/Resources/Forms/FormResource.php`
-- Create: `packages/forms/forms/src/Filament/Resources/Forms/Pages/ManageForms.php`
-- Create: `packages/forms/forms/src/Filament/Resources/Forms/Schemas/FormForm.php`
-- Create: `packages/forms/forms/src/Filament/Resources/Forms/Tables/FormsTable.php`
-- Create: `packages/forms/forms/tests/Feature/Filament/FormResourceTest.php`
+- Create: `packages/forms/src/Filament/Resources/Forms/FormResource.php`
+- Create: `packages/forms/src/Filament/Resources/Forms/Pages/ManageForms.php`
+- Create: `packages/forms/src/Filament/Resources/Forms/Schemas/FormForm.php`
+- Create: `packages/forms/src/Filament/Resources/Forms/Tables/FormsTable.php`
+- Create: `packages/forms/tests/Feature/Filament/FormResourceTest.php`
 
 - [ ] **Step 1: Write resource tests**
 
-Create `packages/forms/forms/tests/Feature/Filament/FormResourceTest.php`:
+Create `packages/forms/tests/Feature/Filament/FormResourceTest.php`:
 
 ```php
 <?php
@@ -1834,14 +1834,14 @@ it('creates a form with a simple schema', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/forms/forms/tests/Feature/Filament/FormResourceTest.php
+vendor/bin/pest packages/forms/tests/Feature/Filament/FormResourceTest.php
 ```
 
 Expected: fail because the resource classes do not exist.
 
 - [ ] **Step 3: Add Forms table**
 
-Create `packages/forms/forms/src/Filament/Resources/Forms/Tables/FormsTable.php`:
+Create `packages/forms/src/Filament/Resources/Forms/Tables/FormsTable.php`:
 
 ```php
 <?php
@@ -1900,7 +1900,7 @@ class FormsTable implements TableConfigurator
 
 - [ ] **Step 4: Add Forms schema**
 
-Create `packages/forms/forms/src/Filament/Resources/Forms/Schemas/FormForm.php` with a simple repeater-driven schema:
+Create `packages/forms/src/Filament/Resources/Forms/Schemas/FormForm.php` with a simple repeater-driven schema:
 
 ```php
 <?php
@@ -1986,7 +1986,7 @@ class FormForm implements FormConfigurator
 
 - [ ] **Step 5: Add resource and page**
 
-Create `packages/forms/forms/src/Filament/Resources/Forms/FormResource.php`:
+Create `packages/forms/src/Filament/Resources/Forms/FormResource.php`:
 
 ```php
 <?php
@@ -2065,7 +2065,7 @@ class FormResource extends Resource
 }
 ```
 
-Create `packages/forms/forms/src/Filament/Resources/Forms/Pages/ManageForms.php`:
+Create `packages/forms/src/Filament/Resources/Forms/Pages/ManageForms.php`:
 
 ```php
 <?php
@@ -2103,7 +2103,7 @@ class ManageForms extends ManageRecords
 Run:
 
 ```bash
-vendor/bin/pest packages/forms/forms/tests/Feature/Filament/FormResourceTest.php
+vendor/bin/pest packages/forms/tests/Feature/Filament/FormResourceTest.php
 ```
 
 Expected: pass.
@@ -2111,7 +2111,7 @@ Expected: pass.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/forms/forms/src/Filament/Resources/Forms packages/forms/forms/tests/Feature/Filament/FormResourceTest.php
+git add packages/forms/src/Filament/Resources/Forms packages/forms/tests/Feature/Filament/FormResourceTest.php
 git commit -m "feat: add forms admin resource"
 ```
 
@@ -2121,16 +2121,16 @@ git commit -m "feat: add forms admin resource"
 
 **Files:**
 
-- Create: `packages/forms/forms/src/Filament/Resources/Submissions/SubmissionResource.php`
-- Create: `packages/forms/forms/src/Filament/Resources/Submissions/Pages/ListSubmissions.php`
-- Create: `packages/forms/forms/src/Filament/Resources/Submissions/Pages/ViewSubmission.php`
-- Create: `packages/forms/forms/src/Filament/Resources/Submissions/Schemas/SubmissionInfolist.php`
-- Create: `packages/forms/forms/src/Filament/Resources/Submissions/Tables/SubmissionsTable.php`
-- Create: `packages/forms/forms/tests/Feature/Filament/SubmissionResourceTest.php`
+- Create: `packages/forms/src/Filament/Resources/Submissions/SubmissionResource.php`
+- Create: `packages/forms/src/Filament/Resources/Submissions/Pages/ListSubmissions.php`
+- Create: `packages/forms/src/Filament/Resources/Submissions/Pages/ViewSubmission.php`
+- Create: `packages/forms/src/Filament/Resources/Submissions/Schemas/SubmissionInfolist.php`
+- Create: `packages/forms/src/Filament/Resources/Submissions/Tables/SubmissionsTable.php`
+- Create: `packages/forms/tests/Feature/Filament/SubmissionResourceTest.php`
 
 - [ ] **Step 1: Write inbox tests**
 
-Create `packages/forms/forms/tests/Feature/Filament/SubmissionResourceTest.php`:
+Create `packages/forms/tests/Feature/Filament/SubmissionResourceTest.php`:
 
 ```php
 <?php
@@ -2166,14 +2166,14 @@ it('archives submissions from the inbox table', function (): void {
 Run:
 
 ```bash
-vendor/bin/pest packages/forms/forms/tests/Feature/Filament/SubmissionResourceTest.php
+vendor/bin/pest packages/forms/tests/Feature/Filament/SubmissionResourceTest.php
 ```
 
 Expected: fail because the submission resource classes do not exist.
 
 - [ ] **Step 3: Add submissions table**
 
-Create `packages/forms/forms/src/Filament/Resources/Submissions/Tables/SubmissionsTable.php`:
+Create `packages/forms/src/Filament/Resources/Submissions/Tables/SubmissionsTable.php`:
 
 ```php
 <?php
@@ -2239,7 +2239,7 @@ class SubmissionsTable implements TableConfigurator
 
 - [ ] **Step 4: Add resource, list page, and view page**
 
-Create `packages/forms/forms/src/Filament/Resources/Submissions/SubmissionResource.php`:
+Create `packages/forms/src/Filament/Resources/Submissions/SubmissionResource.php`:
 
 ```php
 <?php
@@ -2313,7 +2313,7 @@ class SubmissionResource extends Resource
 }
 ```
 
-Create `packages/forms/forms/src/Filament/Resources/Submissions/Pages/ListSubmissions.php`:
+Create `packages/forms/src/Filament/Resources/Submissions/Pages/ListSubmissions.php`:
 
 ```php
 <?php
@@ -2337,7 +2337,7 @@ class ListSubmissions extends ListRecords
 }
 ```
 
-Create `packages/forms/forms/src/Filament/Resources/Submissions/Schemas/SubmissionInfolist.php`:
+Create `packages/forms/src/Filament/Resources/Submissions/Schemas/SubmissionInfolist.php`:
 
 ```php
 <?php
@@ -2387,7 +2387,7 @@ class SubmissionInfolist
 }
 ```
 
-Create `packages/forms/forms/src/Filament/Resources/Submissions/Pages/ViewSubmission.php`:
+Create `packages/forms/src/Filament/Resources/Submissions/Pages/ViewSubmission.php`:
 
 ```php
 <?php
@@ -2424,7 +2424,7 @@ class ViewSubmission extends ViewRecord
 Run:
 
 ```bash
-vendor/bin/pest packages/forms/forms/tests/Feature/Filament/SubmissionResourceTest.php
+vendor/bin/pest packages/forms/tests/Feature/Filament/SubmissionResourceTest.php
 ```
 
 Expected: pass.
@@ -2432,7 +2432,7 @@ Expected: pass.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/forms/forms/src/Filament/Resources/Submissions packages/forms/forms/tests/Feature/Filament/SubmissionResourceTest.php
+git add packages/forms/src/Filament/Resources/Submissions packages/forms/tests/Feature/Filament/SubmissionResourceTest.php
 git commit -m "feat: add forms inbox resource"
 ```
 
@@ -2442,22 +2442,22 @@ git commit -m "feat: add forms inbox resource"
 
 **Files:**
 
-- Create: `packages/forms/forms/src/View/Components/Form.php`
-- Create: `packages/forms/forms/src/Livewire/FormComponent.php`
-- Create: `packages/forms/forms/resources/views/components/form.blade.php`
-- Create: `packages/forms/forms/resources/views/livewire/form.blade.php`
-- Create: `packages/forms/forms/resources/views/fields/checkbox.blade.php`
-- Create: `packages/forms/forms/resources/views/fields/email.blade.php`
-- Create: `packages/forms/forms/resources/views/fields/honeypot.blade.php`
-- Create: `packages/forms/forms/resources/views/fields/hidden.blade.php`
-- Create: `packages/forms/forms/resources/views/fields/select.blade.php`
-- Create: `packages/forms/forms/resources/views/fields/text.blade.php`
-- Create: `packages/forms/forms/resources/views/fields/textarea.blade.php`
-- Create: `packages/forms/forms/tests/Feature/Livewire/FormComponentTest.php`
+- Create: `packages/forms/src/View/Components/Form.php`
+- Create: `packages/forms/src/Livewire/FormComponent.php`
+- Create: `packages/forms/resources/views/components/form.blade.php`
+- Create: `packages/forms/resources/views/livewire/form.blade.php`
+- Create: `packages/forms/resources/views/fields/checkbox.blade.php`
+- Create: `packages/forms/resources/views/fields/email.blade.php`
+- Create: `packages/forms/resources/views/fields/honeypot.blade.php`
+- Create: `packages/forms/resources/views/fields/hidden.blade.php`
+- Create: `packages/forms/resources/views/fields/select.blade.php`
+- Create: `packages/forms/resources/views/fields/text.blade.php`
+- Create: `packages/forms/resources/views/fields/textarea.blade.php`
+- Create: `packages/forms/tests/Feature/Livewire/FormComponentTest.php`
 
 - [ ] **Step 1: Write frontend tests**
 
-Create `packages/forms/forms/tests/Feature/Livewire/FormComponentTest.php`:
+Create `packages/forms/tests/Feature/Livewire/FormComponentTest.php`:
 
 ```php
 <?php
@@ -2505,14 +2505,14 @@ it('stores a valid submission and shows the success message', function (): void 
 Run:
 
 ```bash
-vendor/bin/pest packages/forms/forms/tests/Feature/Livewire/FormComponentTest.php
+vendor/bin/pest packages/forms/tests/Feature/Livewire/FormComponentTest.php
 ```
 
 Expected: fail because the component and views do not exist.
 
 - [ ] **Step 3: Add Blade wrapper component**
 
-Create `packages/forms/forms/src/View/Components/Form.php`:
+Create `packages/forms/src/View/Components/Form.php`:
 
 ```php
 <?php
@@ -2538,7 +2538,7 @@ class Form extends Component
 }
 ```
 
-Create `packages/forms/forms/resources/views/components/form.blade.php`:
+Create `packages/forms/resources/views/components/form.blade.php`:
 
 ```blade
 <livewire:capell-forms::form :handle="$handle" />
@@ -2546,7 +2546,7 @@ Create `packages/forms/forms/resources/views/components/form.blade.php`:
 
 - [ ] **Step 4: Add Livewire component**
 
-Create `packages/forms/forms/src/Livewire/FormComponent.php`:
+Create `packages/forms/src/Livewire/FormComponent.php`:
 
 ```php
 <?php
@@ -2613,7 +2613,7 @@ class FormComponent extends Component
 
 - [ ] **Step 5: Add Livewire view and field partials**
 
-Create `packages/forms/forms/resources/views/livewire/form.blade.php`:
+Create `packages/forms/resources/views/livewire/form.blade.php`:
 
 ```blade
 <form wire:submit="submit">
@@ -2633,7 +2633,7 @@ Create `packages/forms/forms/resources/views/livewire/form.blade.php`:
 </form>
 ```
 
-Create `packages/forms/forms/resources/views/fields/email.blade.php`:
+Create `packages/forms/resources/views/fields/email.blade.php`:
 
 ```blade
 <label>
@@ -2649,7 +2649,7 @@ Create `packages/forms/forms/resources/views/fields/email.blade.php`:
 @enderror
 ```
 
-Create `packages/forms/forms/resources/views/fields/text.blade.php`:
+Create `packages/forms/resources/views/fields/text.blade.php`:
 
 ```blade
 <label>
@@ -2665,7 +2665,7 @@ Create `packages/forms/forms/resources/views/fields/text.blade.php`:
 @enderror
 ```
 
-Create `packages/forms/forms/resources/views/fields/textarea.blade.php`:
+Create `packages/forms/resources/views/fields/textarea.blade.php`:
 
 ```blade
 <label>
@@ -2680,7 +2680,7 @@ Create `packages/forms/forms/resources/views/fields/textarea.blade.php`:
 @enderror
 ```
 
-Create `packages/forms/forms/resources/views/fields/select.blade.php`:
+Create `packages/forms/resources/views/fields/select.blade.php`:
 
 ```blade
 <label>
@@ -2697,7 +2697,7 @@ Create `packages/forms/forms/resources/views/fields/select.blade.php`:
 @enderror
 ```
 
-Create `packages/forms/forms/resources/views/fields/checkbox.blade.php`:
+Create `packages/forms/resources/views/fields/checkbox.blade.php`:
 
 ```blade
 <label>
@@ -2712,7 +2712,7 @@ Create `packages/forms/forms/resources/views/fields/checkbox.blade.php`:
 @enderror
 ```
 
-Create `packages/forms/forms/resources/views/fields/hidden.blade.php`:
+Create `packages/forms/resources/views/fields/hidden.blade.php`:
 
 ```blade
 <input
@@ -2721,7 +2721,7 @@ Create `packages/forms/forms/resources/views/fields/hidden.blade.php`:
 />
 ```
 
-Create `packages/forms/forms/resources/views/fields/honeypot.blade.php`:
+Create `packages/forms/resources/views/fields/honeypot.blade.php`:
 
 ```blade
 <div
@@ -2745,7 +2745,7 @@ Create `packages/forms/forms/resources/views/fields/honeypot.blade.php`:
 Run:
 
 ```bash
-vendor/bin/pest packages/forms/forms/tests/Feature/Livewire/FormComponentTest.php
+vendor/bin/pest packages/forms/tests/Feature/Livewire/FormComponentTest.php
 ```
 
 Expected: pass.
@@ -2753,7 +2753,7 @@ Expected: pass.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/forms/forms/src/View/Components/Form.php packages/forms/forms/src/Livewire/FormComponent.php packages/forms/forms/resources/views/components/form.blade.php packages/forms/forms/resources/views/livewire/form.blade.php packages/forms/forms/resources/views/fields packages/forms/forms/resources/lang/en/generic.php packages/forms/forms/tests/Feature/Livewire/FormComponentTest.php
+git add packages/forms/src/View/Components/Form.php packages/forms/src/Livewire/FormComponent.php packages/forms/resources/views/components/form.blade.php packages/forms/resources/views/livewire/form.blade.php packages/forms/resources/views/fields packages/forms/resources/lang/en/generic.php packages/forms/tests/Feature/Livewire/FormComponentTest.php
 git commit -m "feat: add frontend form component"
 ```
 
@@ -2763,11 +2763,11 @@ git commit -m "feat: add frontend form component"
 
 **Files:**
 
-- Modify: `packages/forms/forms/README.md`
+- Modify: `packages/forms/README.md`
 
 - [ ] **Step 1: Update README**
 
-Replace `packages/forms/forms/README.md` with concise package documentation:
+Replace `packages/forms/README.md` with concise package documentation:
 
 ````markdown
 # Capell Forms
@@ -2807,7 +2807,7 @@ Run the host application's normal migration/deployment flow after installation.
 Run:
 
 ```bash
-vendor/bin/pest packages/forms/forms/tests
+vendor/bin/pest packages/forms/tests
 ````
 
 Expected: pass.
@@ -2836,7 +2836,7 @@ Expected: pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/forms/forms/README.md
+git add packages/forms/README.md
 git commit -m "docs: document forms package"
 ```
 
@@ -3394,4 +3394,4 @@ git commit -m "feat: add newsletter signup package"
 - The plan keeps excluded v1 features out: uploads, payments, multi-step forms, analytics, conditional logic, and CRM/webhook delivery.
 - The plan uses Capell conventions: strict types, Actions, Data objects, enums for persisted values, package translations, Filament labels via methods/configurators, and direct package test commands.
 - The plan does not modify unrelated packages.
-- The final implementation must run `vendor/bin/pest packages/forms/forms/tests` and `composer preflight` before merge or PR.
+- The final implementation must run `vendor/bin/pest packages/forms/tests` and `composer preflight` before merge or PR.

@@ -51,9 +51,9 @@ trait RegistersPublishedConfigs
     protected function getPublishConfigs(string $package, bool $vendorPackage): array
     {
         if ($vendorPackage) {
-            $path = realpath(__DIR__ . '/../../../../vendor/capell-app/' . $package . '/publishes/config');
+            $path = realpath(__DIR__ . '/../../../vendor/capell-app/' . $package . '/publishes/config');
         } else {
-            $path = realpath(__DIR__ . '/../../../../packages/' . $package . '/publishes/config');
+            $path = realpath(__DIR__ . '/../../../packages/' . $package . '/publishes/config');
         }
 
         if (in_array($path, ['', '0', false], true)) {

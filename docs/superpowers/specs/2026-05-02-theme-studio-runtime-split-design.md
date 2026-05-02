@@ -34,7 +34,7 @@ After this refactor:
 
 ## Recommended Approach
 
-Move runtime settings ownership into `packages/theme-studio/core`, and leave `packages/theme-studio/admin` responsible only for optional admin-facing behavior.
+Move runtime settings ownership into `packages/theme-studio-core`, and leave `packages/theme-studio-admin` responsible only for optional admin-facing behavior.
 
 This keeps the architecture simple:
 
@@ -47,7 +47,7 @@ This is preferable to adding fallback bindings in `core`, because fallback behav
 
 ### Theme Studio Core
 
-`packages/theme-studio/core` will own:
+`packages/theme-studio-core` will own:
 
 - `ThemeStudioSettings`
 - the settings defaults migration
@@ -65,7 +65,7 @@ Core will continue to own:
 
 ### Theme Studio Admin
 
-`packages/theme-studio/admin` will own:
+`packages/theme-studio-admin` will own:
 
 - `ThemeStudioPage`
 - the editable Filament schema used to manage Theme Studio settings
@@ -85,11 +85,11 @@ Admin will stop owning:
 
 `ThemeStudioSettings` should move from:
 
-- `packages/theme-studio/admin/src/Settings/ThemeStudioSettings.php`
+- `packages/theme-studio-admin/src/Settings/ThemeStudioSettings.php`
 
 to:
 
-- `packages/theme-studio/core/src/Settings/ThemeStudioSettings.php`
+- `packages/theme-studio-core/src/Settings/ThemeStudioSettings.php`
 
 The class should continue to:
 
@@ -207,7 +207,7 @@ Moving the migration between packages risks duplicate or missing publish paths. 
 
 ### Core tests
 
-Add or update tests in `packages/theme-studio/core/tests` to prove:
+Add or update tests in `packages/theme-studio-core/tests` to prove:
 
 - `ThemeRuntimeSettings` resolves when only core is loaded
 - `RenderCurrentThemePageAction` still renders correctly without the admin provider
@@ -216,7 +216,7 @@ Add or update tests in `packages/theme-studio/core/tests` to prove:
 
 ### Admin tests
 
-Update tests in `packages/theme-studio/admin/tests` to prove:
+Update tests in `packages/theme-studio-admin/tests` to prove:
 
 - the Theme Studio page still resolves and renders
 - the settings schema still targets the `theme_studio` settings group
