@@ -53,6 +53,14 @@ class BackupServiceProvider extends AbstractPackageServiceProvider
 
     public function packageRegistered(): void
     {
+        CapellCore::registerPackage(
+            static::$packageName,
+            serviceProviderClass: static::class,
+            path: realpath(__DIR__ . '/../..'),
+            version: CapellCore::getInstalledPrettyVersion(static::$packageName),
+            description: fn (): string => __('backup::package.description'),
+        );
+
         CapellCore::registerModels([
             BackupRestore::class,
             ImportSession::class,

@@ -59,6 +59,7 @@ use Capell\Mosaic\Support\Interceptors\Layouts\HomeLayoutInterceptor;
 use Capell\Mosaic\Support\Interceptors\Layouts\ResultsLayoutInterceptor;
 use Capell\Mosaic\Support\LayoutAssetBridgeRegistry;
 use Capell\Mosaic\Support\LayoutModelRegistrar;
+use Capell\Mosaic\Support\LayoutPresets\LayoutPresetRegistry;
 use Capell\Mosaic\Support\Makers\MosaicWidgetMaker;
 use Capell\Workspaces\WorkspaceRegistry;
 use Composer\InstalledVersions;
@@ -112,6 +113,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
             ->registerModelFillableAndCasts()
             ->registerRelationships()
             ->registerLayoutAssetBridgeRegistry()
+            ->registerLayoutPresetRegistry()
             ->registerPackageMetadata()
             ->registerBlazeComponents();
 
@@ -238,6 +240,13 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
     private function registerLayoutAssetBridgeRegistry(): self
     {
         App::singleton(LayoutAssetBridgeRegistry::class, fn (): LayoutAssetBridgeRegistry => new LayoutAssetBridgeRegistry);
+
+        return $this;
+    }
+
+    private function registerLayoutPresetRegistry(): self
+    {
+        App::singleton(LayoutPresetRegistry::class, fn (): LayoutPresetRegistry => new LayoutPresetRegistry);
 
         return $this;
     }

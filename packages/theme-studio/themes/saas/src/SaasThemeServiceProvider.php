@@ -2,118 +2,112 @@
 
 declare(strict_types=1);
 
-namespace Capell\Themes\Saas;
+namespace Capell\ThemeStudio\Saas;
 
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
-use Capell\Mosaic\Models\Widget;
-use Capell\Themes\Core\Theme\ThemeRegistrar;
-use Capell\Themes\Saas\Console\InstallCommand;
-use Capell\Themes\Saas\Widgets\CTABannerWidget;
-use Capell\Themes\Saas\Widgets\FAQAccordionWidget;
-use Capell\Themes\Saas\Widgets\FeatureMatrixWidget;
-use Capell\Themes\Saas\Widgets\HeroWithScreenshotWidget;
-use Capell\Themes\Saas\Widgets\IntegrationsGridWidget;
-use Capell\Themes\Saas\Widgets\PricingTableWidget;
-use Capell\Themes\Saas\Widgets\SaasFooterWidget;
-use Capell\Themes\Saas\Widgets\TestimonialsWallWidget;
-use Capell\Themes\Saas\Widgets\UseCasesTabsWidget;
+use Capell\ThemeStudio\Core\Data\ThemeDefinitionData;
+use Capell\ThemeStudio\Core\Data\ThemePresetData;
+use Capell\ThemeStudio\Core\Rendering\BladeThemeRenderer;
+use Capell\ThemeStudio\Core\Rendering\ViewSectionRenderer;
+use Capell\ThemeStudio\Core\Theme\ThemeRegistry;
 use Illuminate\Support\ServiceProvider;
 
 class SaasThemeServiceProvider extends ServiceProvider
 {
     public const THEME_KEY = 'saas';
 
-    public const VERSION = '1.0.0';
+    public static function definition(): ThemeDefinitionData
+    {
+        return new ThemeDefinitionData(
+            key: self::THEME_KEY,
+            name: 'SaaS',
+            description: 'Conversion-led layouts with product framing, compact proof, and clear feature hierarchy.',
+            package: 'capell-app/theme-saas',
+            previewImage: '/vendor/capell/theme-studio/saas-launch.jpg',
+            tags: ['Product', 'Conversion', 'Growth'],
+            bestFit: ['Software products', 'Startups', 'Subscription services'],
+            includedSections: ['navigation', 'hero', 'features', 'proof', 'content-listing', 'cta', 'footer'],
+            presets: [
+                new ThemePresetData(
+                    key: 'launch',
+                    name: 'Launch',
+                    description: 'High-conversion product framing with crisp cards and proof near the fold.',
+                    previewImage: '/vendor/capell/theme-studio/saas-launch.jpg',
+                    values: [
+                        'primaryColor' => '#6366f1',
+                        'accentColor' => '#10b981',
+                        'headingFont' => 'inter',
+                        'cardStyle' => 'elevated',
+                        'navigationStyle' => 'prominent',
+                        'layoutPresentation' => 'structured',
+                    ],
+                ),
+                new ThemePresetData(
+                    key: 'platform',
+                    name: 'Platform',
+                    description: 'Enterprise SaaS positioning with denser proof and measured motion.',
+                    previewImage: '/vendor/capell/theme-studio/saas-platform.jpg',
+                    values: [
+                        'primaryColor' => '#2563eb',
+                        'accentColor' => '#14b8a6',
+                        'headingFont' => 'manrope',
+                        'cardStyle' => 'bordered',
+                        'navigationStyle' => 'standard',
+                        'motionIntensity' => 'subtle',
+                    ],
+                ),
+                new ThemePresetData(
+                    key: 'labs',
+                    name: 'Labs',
+                    description: 'More expressive product storytelling for AI, developer, and beta products.',
+                    previewImage: '/vendor/capell/theme-studio/saas-labs.jpg',
+                    values: [
+                        'primaryColor' => '#7c3aed',
+                        'accentColor' => '#22d3ee',
+                        'headingFont' => 'sora',
+                        'cardStyle' => 'layered',
+                        'layoutPresentation' => 'immersive',
+                        'motionIntensity' => 'expressive',
+                        'mediaTreatment' => 'framed',
+                    ],
+                ),
+            ],
+            assets: ['css' => 'vendor/capell/theme-studio/saas.css'],
+        );
+    }
+
+    public function boot(ThemeRegistry $registry): void
+    {
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'capell-theme-saas');
+
+        RegisterBlazeOptimizedViewsAction::run(__DIR__ . '/../resources/views/sections');
+
+        $sectionRenderers = $this->sectionRenderers();
+
+        $registry->register(
+            definition: self::definition(),
+            themeRenderer: new BladeThemeRenderer(
+                themeKey: self::THEME_KEY,
+                layoutView: 'capell-theme-saas::page',
+                sectionRenderers: $sectionRenderers,
+            ),
+            sectionRenderers: array_values($sectionRenderers),
+        );
+    }
 
     /**
-     * Return list of widget classes bundled with this theme.
-     *
-     * @return array<int, class-string>
+     * @return array<string, ViewSectionRenderer>
      */
-    public static function widgets(): array
+    private function sectionRenderers(): array
     {
         return [
-            HeroWithScreenshotWidget::class,
-            FeatureMatrixWidget::class,
-            PricingTableWidget::class,
-            IntegrationsGridWidget::class,
-            UseCasesTabsWidget::class,
-            TestimonialsWallWidget::class,
-            FAQAccordionWidget::class,
-            CTABannerWidget::class,
-            SaasFooterWidget::class,
+            'navigation' => new ViewSectionRenderer(self::THEME_KEY, 'navigation', 'capell-theme-saas::sections.navigation', failLoudly: true),
+            'hero' => new ViewSectionRenderer(self::THEME_KEY, 'hero', 'capell-theme-saas::sections.hero', failLoudly: true),
+            'features' => new ViewSectionRenderer(self::THEME_KEY, 'features', 'capell-theme-saas::sections.features', failLoudly: true),
+            'proof' => new ViewSectionRenderer(self::THEME_KEY, 'proof', 'capell-theme-saas::sections.proof', failLoudly: true),
+            'content-listing' => new ViewSectionRenderer(self::THEME_KEY, 'content-listing', 'capell-theme-saas::sections.content-listing', failLoudly: true),
+            'cta' => new ViewSectionRenderer(self::THEME_KEY, 'cta', 'capell-theme-saas::sections.cta', failLoudly: true),
+            'footer' => new ViewSectionRenderer(self::THEME_KEY, 'footer', 'capell-theme-saas::sections.footer', failLoudly: true),
         ];
-    }
-
-    /**
-     * Register bindings.
-     */
-    public function register(): void
-    {
-        $this->mergeConfigFrom(__DIR__ . '/../config/saas.php', 'capell-saas');
-    }
-
-    /**
-     * Bootstrap the package.
-     */
-    public function boot(): void
-    {
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'saas');
-        RegisterBlazeOptimizedViewsAction::run(__DIR__ . '/../resources/views/components');
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
-
-        ThemeRegistrar::register('saas', 'SaaS');
-
-        if ($this->app->runningInConsole()) {
-            $this->publishes([
-                __DIR__ . '/../resources/views' => resource_path('vendor/capell-themes/saas/views'),
-            ], 'capell-saas-views');
-
-            $this->publishes([
-                __DIR__ . '/../resources/css' => resource_path('vendor/capell-themes/saas/css'),
-            ], 'capell-saas-css');
-
-            $this->publishes([
-                __DIR__ . '/../resources/views' => resource_path('vendor/capell-themes/saas/views'),
-                __DIR__ . '/../resources/css' => resource_path('vendor/capell-themes/saas/css'),
-            ], 'capell-saas');
-
-            $this->registerCommands();
-        }
-
-        $this->registerMosaicWidgets();
-    }
-
-    /**
-     * Register artisan console commands provided by the theme.
-     */
-    protected function registerCommands(): void
-    {
-        $this->commands([
-            InstallCommand::class,
-        ]);
-    }
-
-    /**
-     * Register widgets with Mosaic if it is installed.
-     */
-    protected function registerMosaicWidgets(): void
-    {
-        if (! class_exists(Widget::class)) {
-            return;
-        }
-
-        if (! class_exists('Capell\\Mosaic\\Facades\\Mosaic')) {
-            return;
-        }
-
-        /** @var object $mosaic */
-        $mosaic = $this->app->make('mosaic');
-
-        foreach (self::widgets() as $widget) {
-            if (method_exists($mosaic, 'registerWidget')) {
-                $mosaic->registerWidget(new $widget);
-            }
-        }
     }
 }

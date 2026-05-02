@@ -1,0 +1,1 @@
+{!! RenderCurrentThemePageAction::run() !!}

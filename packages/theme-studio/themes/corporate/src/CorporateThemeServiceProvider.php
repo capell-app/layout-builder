@@ -2,125 +2,111 @@
 
 declare(strict_types=1);
 
-namespace Capell\Themes\Corporate;
+namespace Capell\ThemeStudio\Corporate;
 
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
-use Capell\Mosaic\Facades\Mosaic;
-use Capell\Mosaic\Models\Widget;
-use Capell\Themes\Core\Theme\ThemeRegistrar;
-use Capell\Themes\Corporate\Console\InstallCommand;
-use Capell\Themes\Corporate\Widgets\BlogListingWidget;
-use Capell\Themes\Corporate\Widgets\CaseStudiesCarouselWidget;
-use Capell\Themes\Corporate\Widgets\ContactFormWidget;
-use Capell\Themes\Corporate\Widgets\FeaturesGridWidget;
-use Capell\Themes\Corporate\Widgets\FooterWidget;
-use Capell\Themes\Corporate\Widgets\HeroSectionWidget;
-use Capell\Themes\Corporate\Widgets\TeamGridWidget;
+use Capell\ThemeStudio\Core\Data\ThemeDefinitionData;
+use Capell\ThemeStudio\Core\Data\ThemePresetData;
+use Capell\ThemeStudio\Core\Rendering\BladeThemeRenderer;
+use Capell\ThemeStudio\Core\Rendering\ViewSectionRenderer;
+use Capell\ThemeStudio\Core\Theme\ThemeRegistry;
 use Illuminate\Support\ServiceProvider;
 
 class CorporateThemeServiceProvider extends ServiceProvider
 {
     public const THEME_KEY = 'corporate';
 
-    public const VERSION = '1.0.0';
+    public static function definition(): ThemeDefinitionData
+    {
+        return new ThemeDefinitionData(
+            key: self::THEME_KEY,
+            name: 'Corporate',
+            description: 'Trust-led layouts with restrained hierarchy, formal navigation, and structured proof.',
+            package: 'capell-app/theme-corporate',
+            previewImage: '/vendor/capell/theme-studio/corporate-boardroom.jpg',
+            tags: ['Trust', 'Clarity', 'B2B'],
+            bestFit: ['Professional services', 'Public sector', 'Established businesses'],
+            includedSections: ['navigation', 'hero', 'features', 'proof', 'content-listing', 'cta', 'footer'],
+            presets: [
+                new ThemePresetData(
+                    key: 'boardroom',
+                    name: 'Boardroom',
+                    description: 'Deep navy, measured spacing, and formal card structure.',
+                    previewImage: '/vendor/capell/theme-studio/corporate-boardroom.jpg',
+                    values: [
+                        'primaryColor' => '#1a2d6d',
+                        'accentColor' => '#f59e0b',
+                        'headingFont' => 'playfair',
+                        'cardStyle' => 'bordered',
+                        'navigationStyle' => 'standard',
+                        'layoutPresentation' => 'structured',
+                    ],
+                ),
+                new ThemePresetData(
+                    key: 'civic',
+                    name: 'Civic',
+                    description: 'Accessible contrast, calm typography, and clear information hierarchy.',
+                    previewImage: '/vendor/capell/theme-studio/corporate-civic.jpg',
+                    values: [
+                        'primaryColor' => '#0f766e',
+                        'accentColor' => '#facc15',
+                        'headingFont' => 'inter',
+                        'cardStyle' => 'subtle',
+                        'navigationStyle' => 'prominent',
+                        'layoutPresentation' => 'structured',
+                    ],
+                ),
+                new ThemePresetData(
+                    key: 'advisory',
+                    name: 'Advisory',
+                    description: 'Editorial trust signals with generous whitespace and refined proof blocks.',
+                    previewImage: '/vendor/capell/theme-studio/corporate-advisory.jpg',
+                    values: [
+                        'primaryColor' => '#312e81',
+                        'accentColor' => '#c084fc',
+                        'headingFont' => 'manrope',
+                        'cardStyle' => 'elevated',
+                        'navigationStyle' => 'minimal',
+                        'layoutPresentation' => 'editorial',
+                    ],
+                ),
+            ],
+            assets: ['css' => 'vendor/capell/theme-studio/corporate.css'],
+        );
+    }
+
+    public function boot(ThemeRegistry $registry): void
+    {
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'capell-theme-corporate');
+
+        RegisterBlazeOptimizedViewsAction::run(__DIR__ . '/../resources/views/sections');
+
+        $sectionRenderers = $this->sectionRenderers();
+
+        $registry->register(
+            definition: self::definition(),
+            themeRenderer: new BladeThemeRenderer(
+                themeKey: self::THEME_KEY,
+                layoutView: 'capell-theme-corporate::page',
+                sectionRenderers: $sectionRenderers,
+            ),
+            sectionRenderers: array_values($sectionRenderers),
+        );
+    }
 
     /**
-     * Return list of widget classes bundled with this theme.
-     *
-     * @return array<int, class-string>
+     * @return array<string, ViewSectionRenderer>
      */
-    public static function widgets(): array
+    private function sectionRenderers(): array
     {
         return [
-            HeroSectionWidget::class,
-            FeaturesGridWidget::class,
-            TeamGridWidget::class,
-            CaseStudiesCarouselWidget::class,
-            BlogListingWidget::class,
-            ContactFormWidget::class,
-            FooterWidget::class,
+            'navigation' => new ViewSectionRenderer(self::THEME_KEY, 'navigation', 'capell-theme-corporate::sections.navigation', failLoudly: true),
+            'hero' => new ViewSectionRenderer(self::THEME_KEY, 'hero', 'capell-theme-corporate::sections.hero', failLoudly: true),
+            'features' => new ViewSectionRenderer(self::THEME_KEY, 'features', 'capell-theme-corporate::sections.features', failLoudly: true),
+            'proof' => new ViewSectionRenderer(self::THEME_KEY, 'proof', 'capell-theme-corporate::sections.proof', failLoudly: true),
+            'content-listing' => new ViewSectionRenderer(self::THEME_KEY, 'content-listing', 'capell-theme-corporate::sections.content-listing', failLoudly: true),
+            'cta' => new ViewSectionRenderer(self::THEME_KEY, 'cta', 'capell-theme-corporate::sections.cta', failLoudly: true),
+            'footer' => new ViewSectionRenderer(self::THEME_KEY, 'footer', 'capell-theme-corporate::sections.footer', failLoudly: true),
         ];
-    }
-
-    /**
-     * Register bindings.
-     */
-    public function register(): void
-    {
-        $this->mergeConfigFrom(__DIR__ . '/../config/corporate.php', 'capell-corporate');
-    }
-
-    /**
-     * Bootstrap the package.
-     */
-    public function boot(): void
-    {
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'corporate');
-        RegisterBlazeOptimizedViewsAction::run(__DIR__ . '/../resources/views/components');
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
-
-        ThemeRegistrar::register('corporate', 'Corporate');
-
-        if ($this->app->runningInConsole()) {
-            $this->publishes([
-                __DIR__ . '/../resources/views' => resource_path('vendor/capell-themes/corporate/views'),
-            ], 'capell-corporate-views');
-
-            $this->publishes([
-                __DIR__ . '/../resources/css' => resource_path('vendor/capell-themes/corporate/css'),
-            ], 'capell-corporate-css');
-
-            $this->publishes([
-                __DIR__ . '/../resources/views' => resource_path('vendor/capell-themes/corporate/views'),
-                __DIR__ . '/../resources/css' => resource_path('vendor/capell-themes/corporate/css'),
-            ], 'capell-corporate');
-
-            $this->registerCommands();
-        }
-
-        $this->registerMosaicWidgets();
-    }
-
-    /**
-     * Register artisan console commands provided by the theme.
-     */
-    protected function registerCommands(): void
-    {
-        $this->commands([
-            InstallCommand::class,
-        ]);
-    }
-
-    /**
-     * Register widgets with Mosaic if it is installed.
-     */
-    protected function registerMosaicWidgets(): void
-    {
-        if (! class_exists(Widget::class)) {
-            return;
-        }
-
-        $widgets = [
-            HeroSectionWidget::class,
-            FeaturesGridWidget::class,
-            TeamGridWidget::class,
-            CaseStudiesCarouselWidget::class,
-            BlogListingWidget::class,
-            ContactFormWidget::class,
-            FooterWidget::class,
-        ];
-
-        if (! class_exists('Capell\\Mosaic\\Facades\\Mosaic')) {
-            return;
-        }
-
-        /** @var Mosaic $mosaic */
-        $mosaic = $this->app->make('mosaic');
-
-        foreach ($widgets as $widget) {
-            if (method_exists($mosaic, 'registerWidget')) {
-                $mosaic->registerWidget(new $widget);
-            }
-        }
     }
 }

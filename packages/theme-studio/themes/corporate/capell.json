@@ -1,18 +1,17 @@
 {
-    "name": "capell-app/capell-theme-corporate",
+    "name": "capell-app/theme-corporate",
     "kind": "theme",
     "capell-version": "^4.0",
     "productGroup": "Capell Theme Studio",
     "tier": "premium",
     "bundle": "theme-studio",
-    "contexts": ["frontend", "admin"],
+    "themeKey": "corporate",
+    "contexts": ["frontend"],
     "extends": "capell-app/default-theme",
-    "requires": [
-        "capell-app/default-theme",
-        "capell-app/themes-core",
-        "capell-app/themes-admin"
-    ],
+    "requires": ["capell-app/default-theme", "capell-app/theme-studio-core"],
     "providers": {
-        "shared": ["Capell\\Themes\\Corporate\\CorporateThemeServiceProvider"]
+        "shared": [
+            "Capell\\ThemeStudio\\Corporate\\CorporateThemeServiceProvider"
+        ]
     }
 }

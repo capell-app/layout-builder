@@ -23,14 +23,15 @@ Tags and Media Curator are Foundation packages because taxonomy and media manage
 
 ## Premium Groups
 
-| Product group         | Bundle key       | Packages                                                             |
-| --------------------- | ---------------- | -------------------------------------------------------------------- |
-| Capell Forms          | `forms`          | Forms                                                                |
-| Capell Publishing Pro | `publishing-pro` | Workspaces, Filament Peek                                            |
-| Capell Operations     | `operations`     | Backup, Developer Tools, Authentication Log                          |
-| Capell Growth         | `growth`         | Analytics, Campaigns                                                 |
-| Capell Search & SEO   | `search-seo`     | SEO Tools, Site Search                                               |
-| Capell Theme Studio   | `theme-studio`   | Themes Core, Themes Admin, Agency Theme, Corporate Theme, SaaS Theme |
+| Product group         | Bundle key       | Packages                                                                         |
+| --------------------- | ---------------- | -------------------------------------------------------------------------------- |
+| Capell Commercial     | `commercial`     | Assistant                                                                        |
+| Capell Forms          | `forms`          | Forms                                                                            |
+| Capell Publishing Pro | `publishing-pro` | Workspaces, Filament Peek                                                        |
+| Capell Operations     | `operations`     | Backup, Developer Tools, Authentication Log                                      |
+| Capell Growth         | `growth`         | Analytics, Campaigns                                                             |
+| Capell Search & SEO   | `search-seo`     | SEO Tools, Site Search                                                           |
+| Capell Theme Studio   | `theme-studio`   | Theme Studio Core, Theme Studio Admin, Agency Theme, Corporate Theme, SaaS Theme |
 
 ## Manifest Fields
 

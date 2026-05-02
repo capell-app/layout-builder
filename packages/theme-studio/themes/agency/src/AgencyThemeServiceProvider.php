@@ -2,121 +2,114 @@
 
 declare(strict_types=1);
 
-namespace Capell\Themes\Agency;
+namespace Capell\ThemeStudio\Agency;
 
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
-use Capell\Mosaic\Facades\Mosaic;
-use Capell\Mosaic\Models\Widget;
-use Capell\Themes\Agency\Console\InstallCommand;
-use Capell\Themes\Agency\Widgets\AgencyFooterWidget;
-use Capell\Themes\Agency\Widgets\AwardsBadgesWidget;
-use Capell\Themes\Agency\Widgets\ClientsMarqueeWidget;
-use Capell\Themes\Agency\Widgets\ContactInquiryWidget;
-use Capell\Themes\Agency\Widgets\HeroStatementWidget;
-use Capell\Themes\Agency\Widgets\PortfolioGridWidget;
-use Capell\Themes\Agency\Widgets\ProcessFlowWidget;
-use Capell\Themes\Agency\Widgets\ServicesShowcaseWidget;
-use Capell\Themes\Agency\Widgets\TestimonialsQuoteWidget;
-use Capell\Themes\Core\Theme\ThemeRegistrar;
+use Capell\ThemeStudio\Core\Data\ThemeDefinitionData;
+use Capell\ThemeStudio\Core\Data\ThemePresetData;
+use Capell\ThemeStudio\Core\Rendering\BladeThemeRenderer;
+use Capell\ThemeStudio\Core\Rendering\ViewSectionRenderer;
+use Capell\ThemeStudio\Core\Theme\ThemeRegistry;
 use Illuminate\Support\ServiceProvider;
 
 class AgencyThemeServiceProvider extends ServiceProvider
 {
     public const THEME_KEY = 'agency';
 
-    public const VERSION = '1.0.0';
+    public static function definition(): ThemeDefinitionData
+    {
+        return new ThemeDefinitionData(
+            key: self::THEME_KEY,
+            name: 'Agency',
+            description: 'Expressive layouts with bold rhythm, immersive media, and confident calls to action.',
+            package: 'capell-app/theme-agency',
+            previewImage: '/vendor/capell/theme-studio/agency-signal.jpg',
+            tags: ['Expressive', 'Portfolio', 'Creative'],
+            bestFit: ['Studios', 'Agencies', 'Brand-led teams'],
+            includedSections: ['navigation', 'hero', 'features', 'proof', 'content-listing', 'cta', 'footer'],
+            presets: [
+                new ThemePresetData(
+                    key: 'signal',
+                    name: 'Signal',
+                    description: 'Sharp contrast, strong statements, and energetic section pacing.',
+                    previewImage: '/vendor/capell/theme-studio/agency-signal.jpg',
+                    values: [
+                        'primaryColor' => '#ff5a7e',
+                        'accentColor' => '#3b82f6',
+                        'headingFont' => 'sora',
+                        'spacing' => 'spacious',
+                        'cardStyle' => 'layered',
+                        'layoutPresentation' => 'immersive',
+                        'motionIntensity' => 'expressive',
+                    ],
+                ),
+                new ThemePresetData(
+                    key: 'gallery',
+                    name: 'Gallery',
+                    description: 'Media-forward presentation with calmer motion and framed project surfaces.',
+                    previewImage: '/vendor/capell/theme-studio/agency-gallery.jpg',
+                    values: [
+                        'primaryColor' => '#7c3aed',
+                        'accentColor' => '#fb7185',
+                        'headingFont' => 'manrope',
+                        'spacing' => 'spacious',
+                        'cardStyle' => 'elevated',
+                        'mediaTreatment' => 'framed',
+                        'layoutPresentation' => 'editorial',
+                    ],
+                ),
+                new ThemePresetData(
+                    key: 'atelier',
+                    name: 'Atelier',
+                    description: 'Editorial studio feel with soft neutrals and refined proof.',
+                    previewImage: '/vendor/capell/theme-studio/agency-atelier.jpg',
+                    values: [
+                        'primaryColor' => '#be123c',
+                        'accentColor' => '#f97316',
+                        'headingFont' => 'playfair',
+                        'spacing' => 'balanced',
+                        'cardStyle' => 'subtle',
+                        'layoutPresentation' => 'editorial',
+                        'motionIntensity' => 'subtle',
+                    ],
+                ),
+            ],
+            assets: ['css' => 'vendor/capell/theme-studio/agency.css'],
+        );
+    }
+
+    public function boot(ThemeRegistry $registry): void
+    {
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'capell-theme-agency');
+
+        RegisterBlazeOptimizedViewsAction::run(__DIR__ . '/../resources/views/sections');
+
+        $sectionRenderers = $this->sectionRenderers();
+
+        $registry->register(
+            definition: self::definition(),
+            themeRenderer: new BladeThemeRenderer(
+                themeKey: self::THEME_KEY,
+                layoutView: 'capell-theme-agency::page',
+                sectionRenderers: $sectionRenderers,
+            ),
+            sectionRenderers: array_values($sectionRenderers),
+        );
+    }
 
     /**
-     * Return list of widget classes bundled with this theme.
-     *
-     * @return array<int, class-string>
+     * @return array<string, ViewSectionRenderer>
      */
-    public static function widgets(): array
+    private function sectionRenderers(): array
     {
         return [
-            HeroStatementWidget::class,
-            PortfolioGridWidget::class,
-            ProcessFlowWidget::class,
-            ServicesShowcaseWidget::class,
-            ClientsMarqueeWidget::class,
-            TestimonialsQuoteWidget::class,
-            AwardsBadgesWidget::class,
-            ContactInquiryWidget::class,
-            AgencyFooterWidget::class,
+            'navigation' => new ViewSectionRenderer(self::THEME_KEY, 'navigation', 'capell-theme-agency::sections.navigation', failLoudly: true),
+            'hero' => new ViewSectionRenderer(self::THEME_KEY, 'hero', 'capell-theme-agency::sections.hero', failLoudly: true),
+            'features' => new ViewSectionRenderer(self::THEME_KEY, 'features', 'capell-theme-agency::sections.features', failLoudly: true),
+            'proof' => new ViewSectionRenderer(self::THEME_KEY, 'proof', 'capell-theme-agency::sections.proof', failLoudly: true),
+            'content-listing' => new ViewSectionRenderer(self::THEME_KEY, 'content-listing', 'capell-theme-agency::sections.content-listing', failLoudly: true),
+            'cta' => new ViewSectionRenderer(self::THEME_KEY, 'cta', 'capell-theme-agency::sections.cta', failLoudly: true),
+            'footer' => new ViewSectionRenderer(self::THEME_KEY, 'footer', 'capell-theme-agency::sections.footer', failLoudly: true),
         ];
-    }
-
-    /**
-     * Register bindings.
-     */
-    public function register(): void
-    {
-        $this->mergeConfigFrom(__DIR__ . '/../config/agency.php', 'capell-agency');
-    }
-
-    /**
-     * Bootstrap the package.
-     */
-    public function boot(): void
-    {
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'agency');
-        RegisterBlazeOptimizedViewsAction::run(__DIR__ . '/../resources/views/components');
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
-
-        ThemeRegistrar::register('agency', 'Agency');
-
-        if ($this->app->runningInConsole()) {
-            $this->publishes([
-                __DIR__ . '/../resources/views' => resource_path('vendor/capell-themes/agency/views'),
-            ], 'capell-agency-views');
-
-            $this->publishes([
-                __DIR__ . '/../resources/css' => resource_path('vendor/capell-themes/agency/css'),
-            ], 'capell-agency-css');
-
-            $this->publishes([
-                __DIR__ . '/../resources/views' => resource_path('vendor/capell-themes/agency/views'),
-                __DIR__ . '/../resources/css' => resource_path('vendor/capell-themes/agency/css'),
-            ], 'capell-agency');
-
-            $this->registerCommands();
-        }
-
-        $this->registerMosaicWidgets();
-    }
-
-    /**
-     * Register artisan console commands provided by the theme.
-     */
-    protected function registerCommands(): void
-    {
-        $this->commands([
-            InstallCommand::class,
-        ]);
-    }
-
-    /**
-     * Register widgets with Mosaic if it is installed.
-     */
-    protected function registerMosaicWidgets(): void
-    {
-        if (! class_exists(Widget::class)) {
-            return;
-        }
-
-        $widgets = static::widgets();
-
-        if (! class_exists('Capell\\Mosaic\\Facades\\Mosaic')) {
-            return;
-        }
-
-        /** @var Mosaic $mosaic */
-        $mosaic = $this->app->make('mosaic');
-
-        foreach ($widgets as $widget) {
-            if (method_exists($mosaic, 'registerWidget')) {
-                $mosaic->registerWidget(new $widget);
-            }
-        }
     }
 }

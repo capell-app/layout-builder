@@ -7,6 +7,7 @@ namespace Capell\Redirects\Providers;
 use Capell\Admin\Contracts\Redirects\RedirectUrlRecorder;
 use Capell\Admin\Support\CapellAdminManager;
 use Capell\Core\Events\PageSaved;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\PageUrl;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Redirects\Contracts\RedirectRecorder;
@@ -38,6 +39,14 @@ class RedirectsServiceProvider extends AbstractPackageServiceProvider
 
     public function packageRegistered(): void
     {
+        CapellCore::registerPackage(
+            static::$packageName,
+            serviceProviderClass: static::class,
+            path: realpath(__DIR__ . '/../..'),
+            version: CapellCore::getInstalledPrettyVersion(static::$packageName),
+            description: fn (): string => __('redirects::package.description'),
+        );
+
         $this->app->singleton(RedirectResolver::class, PageUrlRedirectResolver::class);
         $this->app->singleton(RedirectRecorder::class, PageUrlRedirectRecorder::class);
 

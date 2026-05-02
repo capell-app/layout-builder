@@ -53,17 +53,9 @@ class TagsSitemap extends AbstractSitemapPages
 
     public function format(Page $tagPage, Tag $tag): SitemapPageData
     {
-        $url = $tagPage->pageUrl->full_url;
-
-        if (str_ends_with($url, '/*')) {
-            $url = mb_substr($url, 0, -2);
-        }
-
-        $url .= '/' . $tag->getTranslation('slug', $this->language->code);
-
         return new SitemapPageData(
             label: $tag->getTranslation('name', $this->language->code) . ' (' . $tag->taggables_count . ')',
-            url: $url,
+            url: $tag->getUrl($tagPage, $this->language),
             editUrl: $this->withEditUrl ? TagResource::getUrl('edit', ['record' => $tag]) : null,
             pageableType: $tag->getMorphClass(),
             pageId: $tag->id,

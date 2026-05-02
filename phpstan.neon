@@ -35,9 +35,6 @@ parameters:
         - packages/plugins/database/migrations
         - packages/search-seo/seo-tools/database/migrations
         - packages/foundation/tags/database/migrations
-        - packages/theme-studio/themes/agency/database/migrations
-        - packages/theme-studio/themes/corporate/database/migrations
-        - packages/theme-studio/themes/saas/database/migrations
         - packages/publishing-pro/workspaces/database/migrations
     configDirectories:
         - packages/operations/backup/config
@@ -48,9 +45,6 @@ parameters:
         - packages/search-seo/seo-tools/config
         - packages/search-seo/site-search/config
         - packages/foundation/tags/publishes/config
-        - packages/theme-studio/themes/agency/config
-        - packages/theme-studio/themes/corporate/config
-        - packages/theme-studio/themes/saas/config
         - packages/foundation/toolbar/config
     translationDirectories:
         - packages/foundation/address/resources/lang
@@ -60,13 +54,14 @@ parameters:
         - packages/search-seo/seo-tools/resources/lang
         - packages/foundation/tags/resources/lang
         - packages/foundation/toolbar/resources/lang
+        - packages/theme-studio/admin/resources/lang
     viewDirectories:
         - packages/foundation/blog/resources/views
         - packages/foundation/default-theme/resources/views
         - packages/foundation/mosaic/resources/views
         - packages/foundation/navigation/resources/views
         - packages/search-seo/seo-tools/resources/views
-        - packages/theme-studio/themes-core/resources/views
+        - packages/theme-studio/admin/resources/views
         - packages/theme-studio/themes/agency/resources/views
         - packages/theme-studio/themes/corporate/resources/views
         - packages/foundation/themes/default/resources/views

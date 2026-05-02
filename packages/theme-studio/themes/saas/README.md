@@ -1,43 +1,27 @@
 # Capell SaaS Theme
 
+**Composer package:** `capell-app/theme-saas`
 **Product group:** Capell Theme Studio
 **Tier:** Premium
 
-The SaaS theme gives Capell a conversion-focused marketing frontend: hero sections, feature matrices, pricing, integrations, testimonials, FAQ, and CTA blocks.
+SaaS is the conversion and product-framing theme for software, subscription, and platform sites. It renders the shared Theme Studio content model with compact proof, product-led hierarchy, and optional extension room for pricing, integrations, and feature emphasis.
 
-## When to install it
-
-Install this theme for software, subscription, platform, or product-led marketing sites that need polished landing pages quickly.
-
-## Quick install
+## Install
 
 ```bash
-composer require capell-app/capell-theme-saas
-php artisan migrate
-php artisan saas:install --seed-layouts
+composer require capell-app/theme-saas
 ```
 
-Then open **Settings -> Theme** and choose **SaaS**.
+For the full commercial system, install `capell-app/theme-studio`.
 
-## What appears in the admin
+## Includes
 
-| Area           | What editors can do                                                                |
-| -------------- | ---------------------------------------------------------------------------------- |
-| Theme settings | Select SaaS and tune brand colors                                                  |
-| Mosaic widgets | Use SaaS-specific hero, pricing, FAQ, testimonials, integrations, and CTA blocks   |
-| Layouts        | Start from seeded home, pricing, and feature layouts when `--seed-layouts` is used |
+- Three presets: Launch, Platform, Labs.
+- Renderers for navigation, hero, features, proof, content listings, CTA, and footer.
+- Fallback-friendly section rendering through `capell-app/theme-studio-core`.
 
-## What developers get
+## Tests
 
-- Tailwind-based responsive theme components.
-- JSON-LD for Organization, SoftwareApplication, Product, FAQPage, and BreadcrumbList.
-- Dark mode and `prefers-reduced-motion` support.
-- Accessible landmarks, skip links, and ARIA labels.
-
-## Deeper docs
-
-| Doc                                    | Covers                                        |
-| -------------------------------------- | --------------------------------------------- |
-| [Installation](docs/INSTALLATION.md)   | Full install, publishing assets, uninstalling |
-| [Customization](docs/CUSTOMIZATION.md) | CSS tokens, typography, spacing, dark mode    |
-| [Components](docs/COMPONENTS.md)       | SaaS widgets and component props              |
+```bash
+php -d memory_limit=-1 vendor/bin/pest packages/theme-studio/themes/saas/tests --no-coverage
+```

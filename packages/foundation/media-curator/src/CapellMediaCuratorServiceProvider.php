@@ -22,10 +22,20 @@ use Illuminate\Support\ServiceProvider;
  */
 final class CapellMediaCuratorServiceProvider extends ServiceProvider
 {
+    public static string $packageName = 'capell-app/media-curator';
+
     public function register(): void
     {
         config()->set('capell.media.backend', 'curator');
         config()->set('capell.media.model', CuratorMedia::class);
+
+        CapellCore::registerPackage(
+            self::$packageName,
+            serviceProviderClass: self::class,
+            path: realpath(__DIR__ . '/..'),
+            version: CapellCore::getInstalledPrettyVersion(self::$packageName),
+            description: fn (): string => __('capell-media-curator::package.description'),
+        );
 
         CapellCore::registerModels([CuratorMedia::class]);
 

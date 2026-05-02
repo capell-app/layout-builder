@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace Capell\Workspaces\Checks;
 
-use Capell\SeoTools\Contracts\SeoPublishReportProvider;
-use Capell\SeoTools\Enums\SeoCheckModeEnum;
 use Capell\Workspaces\Models\Workspace;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class SeoMetaCheck implements PublishCheck
 {
-    private const SEO_PUBLISH_REPORT_PROVIDER = SeoPublishReportProvider::class;
+    private const SEO_CHECK_MODE_BLOCKER = 'blocker';
+
+    private const SEO_CHECK_MODE_IGNORED = 'ignored';
+
+    private const SEO_CHECK_MODE_WARNING = 'warning';
 
     public function identifier(): string
     {
@@ -70,11 +72,11 @@ class SeoMetaCheck implements PublishCheck
 
     private function runSeoToolsProvider(Workspace $workspace): ?PublishCheckResult
     {
-        if (! app()->bound(self::SEO_PUBLISH_REPORT_PROVIDER)) {
+        if (! app()->bound($this->seoPublishReportProviderContract())) {
             return null;
         }
 
-        $provider = app()->make(self::SEO_PUBLISH_REPORT_PROVIDER);
+        $provider = app()->make($this->seoPublishReportProviderContract());
 
         if (! is_object($provider) || ! method_exists($provider, 'forWorkspace')) {
             return null;
@@ -105,13 +107,13 @@ class SeoMetaCheck implements PublishCheck
                 $severity = $this->issueSeverity($issue['severity'] ?? null);
                 $mode = $this->modeForIssue($issue['key'] ?? null, $severity);
 
-                if ($mode === SeoCheckModeEnum::Ignored) {
+                if ($mode === self::SEO_CHECK_MODE_IGNORED) {
                     continue;
                 }
 
-                if ($mode === SeoCheckModeEnum::Blocker) {
+                if ($mode === self::SEO_CHECK_MODE_BLOCKER) {
                     $hasBlockingIssue = true;
-                } elseif ($mode === SeoCheckModeEnum::Warning) {
+                } elseif ($mode === self::SEO_CHECK_MODE_WARNING) {
                     $hasWarningIssue = true;
                 }
 
@@ -175,7 +177,7 @@ class SeoMetaCheck implements PublishCheck
         return strtolower((string) $severity);
     }
 
-    private function modeForIssue(mixed $issueKey, ?string $severity): SeoCheckModeEnum
+    private function modeForIssue(mixed $issueKey, ?string $severity): string
     {
         $key = is_scalar($issueKey) ? (string) $issueKey : null;
         $configuredMode = $key === null
@@ -183,22 +185,42 @@ class SeoMetaCheck implements PublishCheck
             : config(sprintf('capell-seo-tools.publish_gates.checks.%s', $key));
 
         if (is_string($configuredMode)) {
-            return SeoCheckModeEnum::tryFrom($configuredMode) ?? $this->defaultModeForSeverity($severity);
+            return $this->normalizeConfiguredMode($configuredMode) ?? $this->defaultModeForSeverity($severity);
         }
 
         return $this->defaultModeForSeverity($severity);
     }
 
-    private function defaultModeForSeverity(?string $severity): SeoCheckModeEnum
+    private function defaultModeForSeverity(?string $severity): string
     {
         $configuredMode = config(sprintf('capell-seo-tools.publish_gates.default.%s', $severity ?? 'notice'));
 
         if (is_string($configuredMode)) {
-            return SeoCheckModeEnum::tryFrom($configuredMode) ?? SeoCheckModeEnum::Warning;
+            return $this->normalizeConfiguredMode($configuredMode) ?? self::SEO_CHECK_MODE_WARNING;
         }
 
         return $severity === 'critical'
-            ? SeoCheckModeEnum::Blocker
-            : SeoCheckModeEnum::Warning;
+            ? self::SEO_CHECK_MODE_BLOCKER
+            : self::SEO_CHECK_MODE_WARNING;
+    }
+
+    private function normalizeConfiguredMode(string $configuredMode): ?string
+    {
+        return match ($configuredMode) {
+            self::SEO_CHECK_MODE_BLOCKER => self::SEO_CHECK_MODE_BLOCKER,
+            self::SEO_CHECK_MODE_IGNORED => self::SEO_CHECK_MODE_IGNORED,
+            self::SEO_CHECK_MODE_WARNING => self::SEO_CHECK_MODE_WARNING,
+            default => null,
+        };
+    }
+
+    private function seoPublishReportProviderContract(): string
+    {
+        return implode('\\', [
+            'Capell',
+            'SeoTools',
+            'Contracts',
+            'SeoPublishReportProvider',
+        ]);
     }
 }

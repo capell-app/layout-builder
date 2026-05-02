@@ -22,13 +22,13 @@ composer test             # all packages, parallel
 Run a single package:
 
 ```bash
-php -d memory_limit=-1 vendor/bin/pest packages/theme-studio/themes-core/tests
+php -d memory_limit=-1 vendor/bin/pest packages/theme-studio/core/tests
 ```
 
 Run a single file:
 
 ```bash
-php -d memory_limit=-1 vendor/bin/pest packages/theme-studio/themes-core/tests/Unit/Search/
+php -d memory_limit=-1 vendor/bin/pest packages/theme-studio/core/tests/Unit
 ```
 
 ## Test suites

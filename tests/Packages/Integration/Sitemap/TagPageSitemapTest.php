@@ -24,6 +24,7 @@ it('builds recursive sitemap for tag results page with parent chain and tag chil
     $blogPage = $blogCreator->createBlogPage($site);
     $tagsPage = $blogCreator->createTagsPage($site, $blogPage);
     $tagPage = $blogCreator->createTagPage($site, $tagsPage);
+    $tagPage->pageUrl->setRelation('siteDomain', $domain);
 
     // Create some tags
     /** @var Collection<int, Tag> $tags */

@@ -7,6 +7,7 @@ use Symfony\Component\Finder\Finder;
 it('keeps every package manifest in an approved product group', function (): void {
     $allowedProductGroups = [
         'foundation' => ['productGroup' => 'Capell Foundation', 'tier' => 'free'],
+        'commercial' => ['productGroup' => 'Capell Commercial', 'tier' => 'premium'],
         'forms' => ['productGroup' => 'Capell Forms', 'tier' => 'premium'],
         'publishing-pro' => ['productGroup' => 'Capell Publishing Pro', 'tier' => 'premium'],
         'operations' => ['productGroup' => 'Capell Operations', 'tier' => 'premium'],
@@ -63,6 +64,9 @@ it('groups packages into the current product bundles', function (): void {
     }
 
     expect($packagesByBundle)->toBe([
+        'commercial' => [
+            'commercial/assistant/capell.json',
+        ],
         'forms' => [
             'forms/forms/capell.json',
         ],
@@ -98,8 +102,9 @@ it('groups packages into the current product bundles', function (): void {
             'search-seo/site-search/capell.json',
         ],
         'theme-studio' => [
-            'theme-studio/themes-admin/capell.json',
-            'theme-studio/themes-core/capell.json',
+            'theme-studio/admin/capell.json',
+            'theme-studio/core/capell.json',
+            'theme-studio/theme-studio/capell.json',
             'theme-studio/themes/agency/capell.json',
             'theme-studio/themes/corporate/capell.json',
             'theme-studio/themes/saas/capell.json',

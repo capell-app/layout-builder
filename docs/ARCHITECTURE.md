@@ -1,77 +1,65 @@
-# Capell Themes — Architectural Boundaries
+# Capell Theme Studio And Assistant Boundaries
 
-## Package responsibilities
+## Package Responsibilities
 
-### capell-app/frontend (external)
+### `capell-app/frontend`
 
-Owns the **CMS rendering pipeline** — the code that turns a Capell page record into HTML:
+Owns Capell's public rendering context: site, language, page, layout, theme key, route params, render hooks, frontend assets, and page cache integration. Theme Studio consumes this context through adapters; Frontend does not import Theme Studio.
 
-- **Per-page SEO**: Open Graph / Twitter Card tags and JSON-LD derived from the CMS page record (`BuildSocialMetaAction`, `PageMetaSchemaAction`, `SiteMetaSchemaAction`, `BreadcrumbsSchemaAction`).
-- **Full-page HTML caching**: `PageCache` (Silber-based), `HtmlCacheMiddleware`, `PageCachePolicy`, `DeleteCachedPageController`.
-- **Preview UI**: `workspace-preview-pill` Blade component, `ExitWorkspacePreviewController` — the visible bar shown to editors previewing a draft.
-- **Rendering pipeline**: `FrontendContextReader` (page/site/layout/language context), `RenderHookRegistry` (inject HTML at named positions), asset registry, scoped singletons per request.
+### `capell-app/default-theme`
 
-### capell-app/themes-core
+Stays the free infrastructure theme layer. It provides the baseline Blade/Tailwind rendering surface that every install can use. Premium themes must not replace this package as the platform fallback.
 
-Themes Core is part of **Capell Theme Studio**, the premium theme group.
+### `capell-app/theme-studio-core`
 
-Owns **theme infrastructure** — reusable utilities shared across all themes. Nothing here depends on the CMS page record; everything depends on `ThemeSettings` or is stateless.
+Owns the premium theme runtime:
 
-| Module          | Responsibility                                                                                                                                          |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Analytics`     | GA4 init script (`<script>` tag), UTM param capture; `AnalyticsProvider` interface for swapping backends                                                |
-| `Cache`         | Tagged component-level cache wrapper (not full-page)                                                                                                    |
-| `SEO`           | Default Open Graph/Twitter from ThemeSettings, JSON-LD builder, canonical URL, sitemap writer; `AbstractThemeSchemaGenerator` base for per-theme schema |
-| `Search`        | `SiteSearch` contract + `DatabaseSiteSearch` LIKE-query driver + `ScoutSiteSearch` Meilisearch/Algolia driver                                           |
-| `Accessibility` | ARIA attribute string helpers, WCAG 2.1 contrast ratio                                                                                                  |
-| `Preview`       | HMAC-SHA256 token generation and validation                                                                                                             |
-| `Forms`         | Honeypot, Cloudflare Turnstile widget + verification                                                                                                    |
-| `Language`      | Hreflang tag generation, language resolution helpers                                                                                                    |
-| `Images`        | `srcset`/`sizes` builder                                                                                                                                |
-| `Performance`   | Critical CSS inliner, asset optimizer                                                                                                                   |
-| `Http`          | `ThemeTokensController` — CSS custom property endpoint                                                                                                  |
-| `Theme`         | `ThemeRegistrar` — dynamic theme discovery for admin UI                                                                                                 |
-| `Widgets`       | `AbstractThemeWidget` — shared widget base class                                                                                                        |
+| Area              | Responsibility                                                                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Definitions       | Theme metadata, presets, included sections, renderer maps, and gallery data.                                                    |
+| Portable sections | Shared hero, features, proof, content listing, CTA, navigation, and footer data.                                                |
+| Runtime adapter   | Converts the current Capell frontend page into portable section data, including loaded Mosaic widgets when Mosaic is installed. |
+| Preview           | Signed theme/preset preview context without mutating active settings.                                                           |
+| Assets            | Token CSS rendering and isolated cache keys per theme, preset, and brand profile.                                               |
+| Rendering         | Theme and section renderer contracts. First-party renderers should fail loudly in tests/local development.                      |
 
-### capell-app/capell-theme-{corporate,agency,saas}
+Theme Studio Core owns the shared content model. Individual themes translate that model into visual language; they do not define separate content schemas.
 
-The Corporate, Agency, and SaaS themes are premium **Capell Theme Studio** themes.
+### `capell-app/theme-studio-admin`
 
-Owns **visual presentation** for one named theme:
+Owns the Filament Studio experience: gallery, staging, preview URLs, compact brand controls, per-theme overrides, readiness checks, and publish actions.
 
-- **Widgets**: Mosaic content blocks specific to the theme's design language, extending `AbstractThemeWidget`
-- **SEO**: `StructuredDataGenerator` extending `AbstractThemeSchemaGenerator` — generates Organization/WebSite schema from theme-specific settings (not from the CMS page record)
-- **Blade views**: layouts, components, CSS custom properties
-- **ServiceProvider**: calls `ThemeRegistrar::register(key, label)` in `boot()` so the admin UI discovers it automatically
+When `capell-app/workspaces` is installed, publishing a staged theme draft submits a Workspaces approval item. Approval of that linked workspace promotes the staged theme and preset to the active state. Without Workspaces, the same action publishes directly and clears the draft.
 
-### capell-app/themes-admin
+### `capell-app/theme-corporate`, `capell-app/theme-agency`, `capell-app/theme-saas`
 
-Themes Admin is part of **Capell Theme Studio** and owns the admin-facing theme settings experience.
+Own polished premium renderers for the shared Theme Studio section model. They register definitions, curated presets, page renderers, and section renderers. They may own views and visual assets, but not a private content model.
 
-Owns **Filament UI** for the theme system — the settings page and schema form. Reads from `ThemeRegistrar` to populate the active-theme dropdown dynamically; has no rendering logic.
+### `capell-app/mosaic`
 
----
+Owns structured layout building, containers, widgets, widget assets, page-level widget asset overrides, layout presets, and layout creator actions. Mosaic remains a Foundation package and does not import the commercial Assistant package.
 
-## Composition model
+### `capell-app/assistant`
 
-These layers compose in request order:
+Owns the commercial AI orchestration layer: provider connectors, prompt runs, capability registry, approval levels, and optional package integrations. Assistant wraps package-owned Actions such as Mosaic layout previewing; packages expose normal Actions and do not need commercial AI dependencies.
 
-```
-HTTP Request
-  → frontend: resolve site/language/page, check HTML cache
-  → frontend: render layout (via RenderHooks)
-  → themes-core: GA4 init, hreflang, canonical URL, preview middleware
-  → theme (corporate/agency/saas): render widgets, apply CSS tokens
-  → frontend: generate per-page OG/Twitter/JSON-LD from page record
-  → themes-core: generate Organization/WebSite JSON-LD from ThemeSettings
+## Composition Model
+
+```text
+HTTP request
+  -> frontend resolves site, language, page, layout, and active theme key
+  -> Theme Studio preview middleware optionally supplies preview theme/preset
+  -> Theme Studio runtime resolves active or preview theme/preset and brand profile
+  -> CapellFrontendThemePageAdapter maps the page and Mosaic layout widgets into portable sections
+  -> theme renderer renders shared section data through the selected premium theme
+  -> token CSS asset is loaded using the isolated theme/preset/brand cache key
 ```
 
 ## Rules
 
-1. **themes-core must not import from any theme** — core cannot know about `CorporateThemeSettings`.
-2. **frontend must not import from themes-core** — they are siblings, not parent/child.
-3. **themes may import from themes-core** — that is what themes-core is for.
-4. **New schema types that depend on the CMS page record** → add to frontend's `*SchemaAction` classes.
-5. **New schema types that depend on ThemeSettings** → add to `AbstractThemeSchemaGenerator` or a theme subclass.
-6. **New reusable theme utilities** → add to themes-core with an interface.
-7. **New themes** → call `ThemeRegistrar::register(key, label)` in the theme's `ServiceProvider::boot()`.
+1. Theme Studio themes render shared section data; they do not own content schemas.
+2. Mosaic owns layout/widget storage and page-level widget asset overrides.
+3. Assistant owns AI integration and optional package wrappers; Foundation packages do not import Assistant classes.
+4. Frontend stays the public context provider and does not import Theme Studio.
+5. Workspaces approval is optional and detected at runtime through the Theme Studio publisher adapter; approval completion is handled by Theme Studio Admin, not by Workspaces knowing Theme Studio internals.
+6. New reusable theme runtime behavior belongs in `theme-studio-core`; admin workflow belongs in `theme-studio-admin`; visual treatment belongs in the theme package.

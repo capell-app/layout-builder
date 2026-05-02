@@ -1,43 +1,27 @@
 # Capell Agency Theme
 
+**Composer package:** `capell-app/theme-agency`
 **Product group:** Capell Theme Studio
 **Tier:** Premium
 
-The Agency theme gives Capell a bold frontend for design studios, marketing teams, creative portfolios, and case-study-led sites.
+Agency is the expressive theme for studios, creative teams, and case-study-led sites. It renders the shared Theme Studio content model with immersive media, bold typography, playful proof, and high-energy CTA treatment.
 
-## When to install it
-
-Install this theme when the site needs expressive landing pages, portfolio grids, case studies, client logos, and strong visual sections managed from Capell.
-
-## Quick install
+## Install
 
 ```bash
-composer require capell-app/capell-theme-agency
-php artisan migrate
-php artisan agency:install --seed-layouts
+composer require capell-app/theme-agency
 ```
 
-Then open **Settings -> Theme** and choose **Agency**.
+For the full commercial system, install `capell-app/theme-studio`.
 
-## What appears in the admin
+## Includes
 
-| Area           | What editors can do                                                             |
-| -------------- | ------------------------------------------------------------------------------- |
-| Theme settings | Select Agency and tune brand colors                                             |
-| Mosaic widgets | Use agency hero, portfolio, logo marquee, case study, and CTA blocks            |
-| Layouts        | Start from seeded home, work, and contact layouts when `--seed-layouts` is used |
+- Three presets: Signal, Gallery, Atelier.
+- Renderers for navigation, hero, features, proof, content listings, CTA, and footer.
+- Fallback-friendly section rendering through `capell-app/theme-studio-core`.
 
-## What developers get
+## Tests
 
-- Responsive Blade and Tailwind theme components.
-- Portfolio and case-study patterns.
-- Dark mode via `prefers-color-scheme`.
-- Accessible components that target WCAG 2.1 AA.
-
-## Deeper docs
-
-| Doc                                    | Covers                                           |
-| -------------------------------------- | ------------------------------------------------ |
-| [Installation](docs/INSTALLATION.md)   | Full install, publishing assets, uninstalling    |
-| [Customization](docs/CUSTOMIZATION.md) | CSS tokens, dark mode, spacing, widget overrides |
-| [Components](docs/COMPONENTS.md)       | Agency widgets and component props               |
+```bash
+php -d memory_limit=-1 vendor/bin/pest packages/theme-studio/themes/agency/tests --no-coverage
+```

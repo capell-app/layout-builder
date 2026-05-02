@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Capell\Address\Tests\AddressTestCase;
 use Capell\Analytics\Tests\AnalyticsTestCase;
+use Capell\Assistant\Tests\AssistantTestCase;
 use Capell\Backup\Tests\BackupTestCase;
 use Capell\Blog\Tests\BlogTestCase;
 use Capell\Campaigns\Tests\CampaignsTestCase;
@@ -19,14 +20,14 @@ use Capell\SeoTools\Tests\SeoToolsTestCase;
 use Capell\SiteSearch\Tests\SiteSearchTestCase;
 use Capell\Tags\Tests\TagsTestCase;
 use Capell\Tests\Packages\PackagesTestCase;
-use Capell\Themes\Admin\Tests\ThemesAdminTestCase;
-use Capell\Themes\Core\Tests\ThemesCoreTestCase;
-use Capell\Themes\Tests\ThemesTestCase;
+use Capell\ThemeStudio\Admin\Tests\ThemeStudioAdminTestCase;
+use Capell\ThemeStudio\Core\Tests\ThemeStudioCoreTestCase;
 use Capell\Toolbar\Tests\ToolbarTestCase;
 use Capell\Workspaces\Tests\WorkspacesTestCase;
 
 pest()->extend(AddressTestCase::class)->in('../packages/foundation/address/tests');
 pest()->extend(AnalyticsTestCase::class)->in('../packages/growth/analytics/tests');
+pest()->extend(AssistantTestCase::class)->in('../packages/commercial/assistant/tests');
 pest()->extend(BackupTestCase::class)->group('backup')->in('../packages/operations/backup/tests');
 pest()->extend(PackagesTestCase::class)->in('../packages/operations/authentication-log/tests');
 pest()->extend(BlogTestCase::class)->in('../packages/foundation/blog/tests');
@@ -43,9 +44,8 @@ pest()->extend(RedirectsTestCase::class)->group('redirects')->in('../packages/fo
 pest()->extend(SeoToolsTestCase::class)->in('../packages/search-seo/seo-tools/tests');
 pest()->extend(SiteSearchTestCase::class)->in('../packages/search-seo/site-search/tests');
 pest()->extend(TagsTestCase::class)->in('../packages/foundation/tags/tests');
-pest()->extend(ThemesAdminTestCase::class)->in('../packages/theme-studio/themes-admin/tests');
-pest()->extend(ThemesCoreTestCase::class)->in('../packages/theme-studio/themes-core/tests');
-pest()->extend(ThemesTestCase::class)->in('../packages/theme-studio/themes/tests');
+pest()->extend(ThemeStudioAdminTestCase::class)->in('../packages/theme-studio/admin/tests');
+pest()->extend(ThemeStudioCoreTestCase::class)->in('../packages/theme-studio/core/tests');
 pest()->extend(ToolbarTestCase::class)->in('../packages/foundation/toolbar/tests');
 pest()->extend(WorkspacesTestCase::class)->in('../packages/publishing-pro/workspaces/tests');
 

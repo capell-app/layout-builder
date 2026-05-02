@@ -66,19 +66,9 @@
             <directory suffix=".php">./packages/*/themes/*/resources</directory>
             <directory suffix=".php">./packages/*/*/config</directory>
             <directory suffix=".php">./packages/*/themes/*/config</directory>
-            <!-- ServiceProviders, Install commands, and seeders are integration-level; excluded from unit coverage -->
-            <file>./packages/theme-studio/themes/corporate/src/CorporateThemeServiceProvider.php</file>
-            <file>./packages/theme-studio/themes/agency/src/AgencyThemeServiceProvider.php</file>
-            <file>./packages/theme-studio/themes/saas/src/SaasThemeServiceProvider.php</file>
-            <file>./packages/theme-studio/themes-admin/src/ThemesAdminServiceProvider.php</file>
-            <directory suffix=".php">./packages/theme-studio/themes/corporate/src/Actions</directory>
-            <directory suffix=".php">./packages/theme-studio/themes/agency/src/Actions</directory>
-            <directory suffix=".php">./packages/theme-studio/themes/saas/src/Actions</directory>
-            <directory suffix=".php">./packages/theme-studio/themes/corporate/src/Console</directory>
-            <directory suffix=".php">./packages/theme-studio/themes/agency/src/Console</directory>
-            <directory suffix=".php">./packages/theme-studio/themes/saas/src/Console</directory>
-            <directory suffix=".php">./packages/theme-studio/themes-core/src/Console</directory>
-            <directory suffix=".php">./packages/theme-studio/themes-core/src/Middleware</directory>
+            <!-- Service providers and middleware are integration-level; excluded from unit coverage -->
+            <directory suffix=".php">./packages/theme-studio/*/src/Providers</directory>
+            <directory suffix=".php">./packages/theme-studio/core/src/Http/Middleware</directory>
         </exclude>
     </source>
     <php>
