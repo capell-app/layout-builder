@@ -38,7 +38,7 @@ class CampaignsTestCase extends AbstractTestCase
             FrontendServiceProvider::class,
             MosaicServiceProvider::class,
             FormsServiceProvider::class,
-            ...$this->optionalAnalyticsProviders(),
+            AnalyticsServiceProvider::class,
             CampaignsServiceProvider::class,
             CampaignsAdminServiceProvider::class,
             CampaignsFrontendServiceProvider::class,
@@ -58,26 +58,7 @@ class CampaignsTestCase extends AbstractTestCase
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(MosaicServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FormsServiceProvider::$packageName);
-
-        if (class_exists(AnalyticsServiceProvider::class)) {
-            /** @var class-string $analyticsServiceProvider */
-            $analyticsServiceProvider = AnalyticsServiceProvider::class;
-
-            CapellCore::forcePackageInstalled($analyticsServiceProvider::$packageName);
-        }
-
+        CapellCore::forcePackageInstalled(AnalyticsServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(CampaignsServiceProvider::$packageName);
-    }
-
-    /**
-     * @return class-string[]
-     */
-    private function optionalAnalyticsProviders(): array
-    {
-        if (! class_exists(AnalyticsServiceProvider::class)) {
-            return [];
-        }
-
-        return [AnalyticsServiceProvider::class];
     }
 }

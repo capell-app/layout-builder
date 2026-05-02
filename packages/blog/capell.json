@@ -11,6 +11,7 @@
         "capell-app/admin",
         "capell-app/frontend",
         "capell-app/mosaic",
+        "capell-app/navigation",
         "capell-app/tags"
     ],
     "providers": {

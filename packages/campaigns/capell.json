@@ -17,7 +17,8 @@
         "capell-app/admin",
         "capell-app/frontend",
         "capell-app/mosaic",
+        "capell-app/analytics",
         "capell-app/forms"
     ],
-    "optional": ["capell-app/analytics", "capell-app/seo-tools"]
+    "optional": ["capell-app/seo-tools"]
 }

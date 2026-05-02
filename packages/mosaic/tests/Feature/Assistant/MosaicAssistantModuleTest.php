@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use Capell\Assistant\Data\AssistantRunData;
 use Capell\Assistant\Enums\AssistantApprovalLevel;
-use Capell\Assistant\Integrations\Mosaic\MosaicAssistantModule;
-use Capell\Assistant\Integrations\Mosaic\PreviewMosaicLayoutPlanAction;
 use Capell\Mosaic\Actions\ListLayoutPresetsAction;
+use Capell\Mosaic\Assistant\MosaicAssistantModule;
+use Capell\Mosaic\Assistant\PreviewMosaicLayoutPlanAction;
 
 it('exposes a shallow assistant capability for Mosaic layout planning', function (): void {
     $module = new MosaicAssistantModule;

@@ -7,6 +7,23 @@ use Capell\Blog\Support\Sitemap\ArticlesSitemap;
 use Capell\Blog\Support\Sitemap\TagsSitemap;
 use Symfony\Component\Finder\Finder;
 
+it('declares navigation as an explicit package dependency', function (): void {
+    $packagePath = dirname(__DIR__, 2);
+    $capellManifest = json_decode(
+        file_get_contents($packagePath . '/capell.json') ?: '[]',
+        associative: true,
+        flags: JSON_THROW_ON_ERROR,
+    );
+    $composerManifest = json_decode(
+        file_get_contents($packagePath . '/composer.json') ?: '[]',
+        associative: true,
+        flags: JSON_THROW_ON_ERROR,
+    );
+
+    expect($capellManifest['requires'])->toContain('capell-app/navigation')
+        ->and($composerManifest['require'])->toHaveKey('capell-app/navigation');
+});
+
 it('keeps blog package references inside the blog source package except intentional bridges', function (): void {
     $rootPath = dirname(__DIR__, 4);
     $violations = [];

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Assistant\Integrations\Mosaic;
+namespace Capell\Mosaic\Assistant;
 
 use Capell\Assistant\Contracts\AssistantModule;
 use Capell\Assistant\Data\AssistantCapabilityData;

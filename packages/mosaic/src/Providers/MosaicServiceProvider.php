@@ -11,6 +11,7 @@ use Capell\Admin\Enums\ConfiguratorTypeEnum as AdminConfiguratorTypeEnum;
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Enums\SchemaExtenderEnum;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Assistant\Support\AssistantModuleRegistry;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Contracts\Makers\MakerRegistryInterface;
 use Capell\Core\Data\AssetData;
@@ -25,6 +26,7 @@ use Capell\Core\Models\Type;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
+use Capell\Mosaic\Assistant\MosaicAssistantModule;
 use Capell\Mosaic\Console\Commands\DemoCommand;
 use Capell\Mosaic\Console\Commands\FakerCommand;
 use Capell\Mosaic\Console\Commands\Hero\DemoCommand as HeroDemoCommand;
@@ -144,6 +146,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
             ->registerRelationships()
             ->registerLayoutAssetBridgeRegistry()
             ->registerLayoutPresetRegistry()
+            ->registerAssistantModule()
             ->registerResources()
             ->registerListeners()
             ->registerConfigurators()
@@ -246,6 +249,26 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
     private function registerLayoutPresetRegistry(): self
     {
         App::singleton(LayoutPresetRegistry::class, fn (): LayoutPresetRegistry => new LayoutPresetRegistry);
+
+        return $this;
+    }
+
+    private function registerAssistantModule(): self
+    {
+        if (! class_exists(AssistantModuleRegistry::class)) {
+            return $this;
+        }
+
+        if (! CapellCore::isPackageInstalled('capell-app/assistant')) {
+            return $this;
+        }
+
+        $this->app->afterResolving(
+            AssistantModuleRegistry::class,
+            function (AssistantModuleRegistry $registry): void {
+                $registry->register(new MosaicAssistantModule);
+            },
+        );
 
         return $this;
     }
