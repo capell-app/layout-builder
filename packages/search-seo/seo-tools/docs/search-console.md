@@ -32,4 +32,4 @@ CAPELL_SEO_TOOLS_SEARCH_CONSOLE_PROPERTY_URL=https://example.com/
 
 `BuildPageSearchConsoleInsightsAction` is called by `BuildPageSeoReportAction`. It normalizes client responses into `SearchConsoleInsightData`, so UI components never need to know which client is active.
 
-`SyncSearchConsoleInsightsAction` is intentionally a boundary action. It can be scheduled by host applications to fetch top declining pages for admin opportunities. The current package returns normalized results but does not write Search Console metrics to the database.
+`SyncSearchConsoleInsightsAction` reports from stored URL metric windows. When credentials are missing it returns `configured` false; when metrics exist it can report declining pages from `search_console_url_metrics`.

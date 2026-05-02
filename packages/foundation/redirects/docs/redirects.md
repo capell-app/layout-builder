@@ -60,6 +60,8 @@ SEO Tools records broken-link events and groups repeated failures into redirect 
 
 This keeps SEO analysis in SEO Tools while preserving the Redirect Manager as the single place that stores and validates redirects.
 
+Redirect chain and loop badges are read from `redirect_health_snapshots`. Run `RefreshRedirectHealthSnapshotAction` after changing one redirect or `RefreshRedirectHealthSnapshotsAction` after imports.
+
 ## Configuration
 
 ```php

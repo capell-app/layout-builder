@@ -39,6 +39,18 @@ The panel is advisory. Saving and publishing remain owned by the normal Capell p
 
 `BuildSEOAuditQueryAction` and `SEOAuditTable` provide an admin-wide view of page SEO health. The query includes all pages visible to the current admin site and language scope, then lets the report builder classify missing metadata, duplicate titles, robots issues, schema gaps, internal-link gaps, Search Console signals, sitemap or `llms.txt` setup, and redirect opportunities. Use it for content QA, launch reviews, and recurring editorial cleanup.
 
+## Page SEO snapshots
+
+Page SEO snapshots store filterable admin state for page SEO health. They are query projections, not the source SEO report. Use `BuildPageSeoReportAction` when an editor or integration needs the full report detail.
+
+## Audit filters
+
+Audit filters read from the snapshot state so admin tables can stay fast and sortable across pages, sites, and languages. When a filterable admin view needs fresh state, refresh the relevant snapshots before relying on the filter results.
+
+## Manual refresh actions
+
+Run `RefreshPageSeoSnapshotAction` after changing one page or `RefreshSiteSeoSnapshotsAction` when a site-wide admin view needs fresh SEO state. These actions rebuild the projection from the report pipeline; they do not replace `BuildPageSeoReportAction` as the detailed report source.
+
 ## Internal links
 
 `SuggestInternalLinksAction` compares source-page tokens with candidate page titles and meta descriptions. Suggestions are intentionally simple and deterministic so editors can trust the reason shown beside each link. The action returns at most five suggestions.
