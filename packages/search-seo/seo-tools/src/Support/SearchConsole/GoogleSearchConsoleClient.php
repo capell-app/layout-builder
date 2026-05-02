@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\SeoTools\Support\SearchConsole;
 
+use Capell\Core\Models\Site;
+use Capell\Core\Models\SiteDomain;
 use Capell\SeoTools\Actions\BuildDecliningSearchConsolePagesAction;
 use Capell\SeoTools\Contracts\SearchConsoleClientInterface;
 use Capell\SeoTools\Data\SearchConsoleInsightData;
@@ -100,6 +102,57 @@ final class GoogleSearchConsoleClient implements SearchConsoleClientInterface
         return BuildDecliningSearchConsolePagesAction::run($siteId, $limit);
     }
 
+    public function urlMetricRows(int $siteId, int $limit = 100): array
+    {
+        if (! $this->isConfigured()) {
+            return [];
+        }
+
+        $propertyUrl = $this->sitePropertyUrl($siteId);
+
+        if ($propertyUrl === null) {
+            return [];
+        }
+
+        $currentWindowEnd = Date::now()->subDay();
+        $currentWindowStart = $currentWindowEnd->copy()->subDays(27);
+        $previousWindowEnd = $currentWindowStart->copy()->subDay();
+        $previousWindowStart = $previousWindowEnd->copy()->subDays(27);
+
+        try {
+            $currentRows = $this->searchAnalyticsRowsByUrl($this->querySearchAnalytics($propertyUrl, [
+                'startDate' => $currentWindowStart->toDateString(),
+                'endDate' => $currentWindowEnd->toDateString(),
+                'dimensions' => ['page'],
+                'rowLimit' => $limit,
+            ]));
+            $previousRows = $this->searchAnalyticsRowsByUrl($this->querySearchAnalytics($propertyUrl, [
+                'startDate' => $previousWindowStart->toDateString(),
+                'endDate' => $previousWindowEnd->toDateString(),
+                'dimensions' => ['page'],
+                'rowLimit' => $limit,
+            ]));
+        } catch (Throwable) {
+            return [];
+        }
+
+        $urls = array_values(array_unique([
+            ...array_keys($currentRows),
+            ...array_keys($previousRows),
+        ]));
+
+        return array_map(
+            fn (string $url): array => $this->comparisonRow(
+                url: $url,
+                currentRow: $currentRows[$url] ?? [],
+                previousRow: $previousRows[$url] ?? [],
+                windowStart: $currentWindowStart->toDateString(),
+                windowEnd: $currentWindowEnd->toDateString(),
+            ),
+            $urls,
+        );
+    }
+
     /**
      * @param  array<string, mixed>  $payload
      * @return list<array<string, mixed>>
@@ -121,6 +174,98 @@ final class GoogleSearchConsoleClient implements SearchConsoleClientInterface
         $rows = $response->json('rows', []);
 
         return $rows;
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $rows
+     * @return array<string, array<string, mixed>>
+     */
+    private function searchAnalyticsRowsByUrl(array $rows): array
+    {
+        $rowsByUrl = [];
+
+        foreach ($rows as $row) {
+            $url = $this->searchAnalyticsRowUrl($row);
+
+            if ($url === null) {
+                continue;
+            }
+
+            $rowsByUrl[$url] = $row;
+        }
+
+        return $rowsByUrl;
+    }
+
+    /**
+     * @param  array<string, mixed>  $row
+     */
+    private function searchAnalyticsRowUrl(array $row): ?string
+    {
+        $keys = $row['keys'] ?? [];
+
+        if (is_array($keys)) {
+            $keyUrl = $keys[0] ?? null;
+
+            if (is_string($keyUrl) && trim($keyUrl) !== '') {
+                return $keyUrl;
+            }
+        }
+
+        $url = $row['url'] ?? null;
+
+        if (is_string($url) && trim($url) !== '') {
+            return $url;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $currentRow
+     * @param  array<string, mixed>  $previousRow
+     * @return array{url: string, clicks: int, impressions: int, ctr: float, average_position: float, previous_clicks: int, previous_impressions: int, previous_ctr: float, previous_average_position: float, window_start: string, window_end: string}
+     */
+    private function comparisonRow(
+        string $url,
+        array $currentRow,
+        array $previousRow,
+        string $windowStart,
+        string $windowEnd,
+    ): array {
+        return [
+            'url' => $url,
+            'clicks' => $this->integerMetric($currentRow, 'clicks'),
+            'impressions' => $this->integerMetric($currentRow, 'impressions'),
+            'ctr' => $this->floatMetric($currentRow, 'ctr'),
+            'average_position' => $this->floatMetric($currentRow, 'position'),
+            'previous_clicks' => $this->integerMetric($previousRow, 'clicks'),
+            'previous_impressions' => $this->integerMetric($previousRow, 'impressions'),
+            'previous_ctr' => $this->floatMetric($previousRow, 'ctr'),
+            'previous_average_position' => $this->floatMetric($previousRow, 'position'),
+            'window_start' => $windowStart,
+            'window_end' => $windowEnd,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $row
+     */
+    private function integerMetric(array $row, string $key): int
+    {
+        $value = $row[$key] ?? 0;
+
+        return is_numeric($value) ? (int) $value : 0;
+    }
+
+    /**
+     * @param  array<string, mixed>  $row
+     */
+    private function floatMetric(array $row, string $key): float
+    {
+        $value = $row[$key] ?? 0.0;
+
+        return is_numeric($value) ? (float) $value : 0.0;
     }
 
     /**
@@ -216,5 +361,33 @@ final class GoogleSearchConsoleClient implements SearchConsoleClientInterface
         }
 
         return $scheme . '://' . $host . '/';
+    }
+
+    private function sitePropertyUrl(int $siteId): ?string
+    {
+        $configuredProperty = $this->config['property_url'] ?? null;
+
+        if (is_string($configuredProperty) && trim($configuredProperty) !== '') {
+            return $configuredProperty;
+        }
+
+        $site = Site::query()
+            ->with('siteDomains')
+            ->find($siteId);
+
+        if (! $site instanceof Site) {
+            return null;
+        }
+
+        $siteDomain = $site->siteDomains->first(fn (SiteDomain $domain): bool => $domain->default)
+            ?? $site->siteDomains->first();
+
+        $fullUrl = $siteDomain?->full_url;
+
+        if (! is_string($fullUrl) || trim($fullUrl) === '') {
+            return null;
+        }
+
+        return rtrim($fullUrl, '/') . '/';
     }
 }

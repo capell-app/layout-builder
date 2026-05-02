@@ -108,29 +108,30 @@ it('only returns declining pages from the latest search console window', functio
     expect($urls)->toBe(['https://example.com/current-drop']);
 });
 
-it('returns configured sync results from the search console client', function (): void {
+it('persists configured search console metric rows before returning declining pages', function (): void {
     $site = Site::factory()->create();
-    $pages = [
+    $metricRows = [
         [
             'url' => 'https://example.com/a',
             'clicks' => 10,
+            'impressions' => 100,
+            'ctr' => 0.1,
+            'average_position' => 4.2,
             'previous_clicks' => 30,
-            'click_delta' => -20,
-        ],
-        [
-            'url' => 'https://example.com/b',
-            'clicks' => 8,
-            'previous_clicks' => 12,
-            'click_delta' => -4,
+            'previous_impressions' => 180,
+            'previous_ctr' => 0.16,
+            'previous_average_position' => 3.1,
+            'window_start' => now()->subDays(28)->toDateString(),
+            'window_end' => now()->toDateString(),
         ],
     ];
 
-    app()->instance(SearchConsoleClientInterface::class, new class($pages) implements SearchConsoleClientInterface
+    app()->instance(SearchConsoleClientInterface::class, new class($metricRows) implements SearchConsoleClientInterface
     {
         /**
-         * @param  array<int, array{url: string, clicks: int, previous_clicks: int, click_delta: int}>  $pages
+         * @param  array<int, array<string, mixed>>  $metricRows
          */
-        public function __construct(private readonly array $pages) {}
+        public function __construct(private readonly array $metricRows) {}
 
         public function isConfigured(): bool
         {
@@ -144,15 +145,31 @@ it('returns configured sync results from the search console client', function ()
 
         public function decliningPages(int $siteId, int $limit = 10): array
         {
-            return array_slice($this->pages, 0, $limit);
+            return [];
+        }
+
+        public function urlMetricRows(int $siteId, int $limit = 100): array
+        {
+            return array_slice($this->metricRows, 0, $limit);
         }
     });
 
     $result = SyncSearchConsoleInsightsAction::run((int) $site->getKey(), 10);
+    $metric = SearchConsoleUrlMetric::query()->first();
 
-    expect($result)->toBe([
-        'synced' => 2,
-        'configured' => true,
-        'pages' => $pages,
-    ]);
+    expect($metric)->not()->toBeNull()
+        ->and($metric->url)->toBe('https://example.com/a')
+        ->and($metric->click_delta)->toBe(-20)
+        ->and($result)->toBe([
+            'synced' => 1,
+            'configured' => true,
+            'pages' => [
+                [
+                    'url' => 'https://example.com/a',
+                    'clicks' => 10,
+                    'previous_clicks' => 30,
+                    'click_delta' => -20,
+                ],
+            ],
+        ]);
 });

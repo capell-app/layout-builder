@@ -68,6 +68,11 @@ it('returns page insights from the configured client for the resolved page url',
         {
             return [];
         }
+
+        public function urlMetricRows(int $siteId, int $limit = 100): array
+        {
+            return [];
+        }
     };
     app()->instance(SearchConsoleClientInterface::class, $client);
 
