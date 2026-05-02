@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Capell\ThemeStudio\Core\Settings;
 
+use Capell\Core\Contracts\SettingsContract;
 use Capell\ThemeStudio\Core\Contracts\ThemeRuntimeSettings;
 use Capell\ThemeStudio\Core\Data\BrandProfileData;
 use Spatie\LaravelSettings\Settings;
 
-class ThemeStudioSettings extends Settings implements ThemeRuntimeSettings
+class ThemeStudioSettings extends Settings implements SettingsContract, ThemeRuntimeSettings
 {
     public string $activeTheme = 'corporate';
 

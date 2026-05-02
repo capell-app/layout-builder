@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\SeoTools\Settings;
 
+use Capell\Core\Contracts\SettingsContract;
 use Spatie\LaravelSettings\Settings;
 
-class AssistantSettings extends Settings
+class AssistantSettings extends Settings implements SettingsContract
 {
     public bool $page_content_generator;
 
