@@ -3,7 +3,7 @@
 **Product group:** Capell Theme Studio
 **Tier:** Premium
 
-Theme Studio Core is the runtime contract for commercial Capell themes. It owns portable section data, brand tokens, presets, preview context, cache key isolation, and renderer registration.
+Theme Studio Core is the runtime contract for commercial Capell themes. It provides the runtime theme registry, preview context, portable page rendering, and persisted Theme Studio runtime settings used by frontend rendering. It also owns portable section data, brand tokens, presets, cache key isolation, and renderer registration.
 
 ## Install
 

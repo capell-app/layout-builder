@@ -40,11 +40,16 @@ class ManageRedirects extends ManageRecords
             return;
         }
 
+        $siteId = request()->integer('site_id');
+        $languageId = request()->integer('language_id');
+        $url = request()->string('url')->toString();
+        $targetUrl = request()->string('target_url')->toString();
+
         $createRedirectData = [
-            'site_id' => request()->integer('site_id') ?: null,
-            'language_id' => request()->integer('language_id') ?: null,
-            'url' => request()->string('url')->toString() ?: null,
-            'target_url' => request()->string('target_url')->toString() ?: null,
+            'site_id' => $siteId !== 0 ? $siteId : null,
+            'language_id' => $languageId !== 0 ? $languageId : null,
+            'url' => $url !== '' ? $url : null,
+            'target_url' => $targetUrl !== '' ? $targetUrl : null,
             'status_code' => request()->integer('status_code', RedirectStatusCodeEnum::Permanent->value),
         ];
 

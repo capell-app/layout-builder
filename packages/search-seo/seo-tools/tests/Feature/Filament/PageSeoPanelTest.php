@@ -102,7 +102,6 @@ it('exposes redirect opportunities to the page SEO panel view data', function ()
 
     $reflection = new ReflectionClass(PageSeoPanel::class);
     $method = $reflection->getMethod('viewDataForReport');
-    $method->setAccessible(true);
 
     $viewData = $method->invoke(PageSeoPanel::make(), $report);
 

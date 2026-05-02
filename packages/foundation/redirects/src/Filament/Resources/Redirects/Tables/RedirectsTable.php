@@ -172,7 +172,7 @@ class RedirectsTable implements TableConfigurator
     {
         $redirectHealth = self::redirectHealthFor($record);
 
-        if ($redirectHealth === null) {
+        if (! $redirectHealth instanceof RedirectHealthSnapshot) {
             return __('redirects::table.chain_warning_unknown');
         }
 

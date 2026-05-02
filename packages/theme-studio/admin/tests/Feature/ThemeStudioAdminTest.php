@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Support\Settings\SettingsSchemaRegistry;
 use Capell\Tests\Fixtures\Models\User;
 use Capell\ThemeStudio\Admin\Actions\GenerateThemePreviewUrlAction;
 use Capell\ThemeStudio\Admin\Actions\PublishThemeDraftAction;
@@ -60,9 +61,13 @@ it('registers a dedicated Theme Studio page', function (): void {
 });
 
 it('exposes settings through the theme studio group and schema', function (): void {
+    $registry = resolve(SettingsSchemaRegistry::class);
     $components = ThemeStudioSettingsSchema::make(Schema::make());
 
-    expect(ThemeStudioSettings::group())->toBe('theme_studio')
+    expect($registry->getSettingsClass(ThemeStudioSettings::group()))
+        ->toBe(ThemeStudioSettings::class)
+        ->and($registry->getSchema(ThemeStudioSettings::group(), 'ThemeStudioSettingsSchema'))
+        ->toBe(ThemeStudioSettingsSchema::class)
         ->and($components)->not->toBeEmpty();
 });
 

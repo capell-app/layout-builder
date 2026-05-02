@@ -3,7 +3,7 @@
 **Product group:** Capell Theme Studio
 **Tier:** Premium
 
-Theme Studio Admin adds the dedicated Filament Studio page for choosing, previewing, staging, and publishing premium themes. It is intentionally more integrated than a settings schema: editors get a curated gallery, theme status, readiness checks, and compact brand controls.
+Theme Studio Admin adds the optional Filament Studio page for choosing, previewing, staging, and publishing premium themes on top of Theme Studio Core. It is intentionally more integrated than a settings schema: editors get a curated gallery, theme status, readiness checks, and compact brand controls.
 
 ## Install
 

@@ -11,6 +11,16 @@ use Livewire\LivewireServiceProvider;
 
 class ThemeStudioCoreTestCase extends AbstractTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->registerAndMigrateSettings(
+            ['create_theme_studio_settings'],
+            __DIR__ . '/../database/settings',
+        );
+    }
+
     protected function getPackageServiceName(): string
     {
         return 'capell-theme-studio-core';

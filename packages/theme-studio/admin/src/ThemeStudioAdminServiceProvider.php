@@ -63,7 +63,6 @@ final class ThemeStudioAdminServiceProvider extends AbstractPackageServiceProvid
         $this->app->afterResolving(
             SettingsSchemaRegistry::class,
             function (SettingsSchemaRegistry $registry): void {
-                $registry->registerSettingsClass(ThemeStudioSettings::group(), ThemeStudioSettings::class);
                 $registry->register(ThemeStudioSettings::group(), ThemeStudioSettingsSchema::class);
             },
         );
