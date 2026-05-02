@@ -184,6 +184,38 @@
 
         <section class="border-t border-gray-200 pt-4 dark:border-gray-700">
             <div class="text-sm font-medium text-gray-950 dark:text-white">
+                {{ __('capell-seo-tools::generic.seo_panel_redirects') }}
+                ({{ count($redirectOpportunities) }})
+            </div>
+            @if ($redirectOpportunities === [])
+                <div class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                    {{ __('capell-seo-tools::generic.seo_panel_no_redirects') }}
+                </div>
+            @else
+                <ul
+                    class="mt-2 space-y-2 text-sm text-gray-700 dark:text-gray-300"
+                >
+                    @foreach ($redirectOpportunities as $opportunity)
+                        <li>
+                            <span class="font-medium">
+                                {{ $opportunity->sourceUrl }}
+                            </span>
+                            <span class="text-gray-500 dark:text-gray-400">
+                                {{ __('capell-seo-tools::generic.seo_panel_redirect_hits', ['count' => $opportunity->hits]) }}
+                            </span>
+                            @if ($opportunity->suggestedTargetUrl !== null)
+                                <span class="text-gray-500 dark:text-gray-400">
+                                    {{ $opportunity->suggestedTargetUrl }}
+                                </span>
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </section>
+
+        <section class="border-t border-gray-200 pt-4 dark:border-gray-700">
+            <div class="text-sm font-medium text-gray-950 dark:text-white">
                 {{ __('capell-seo-tools::generic.seo_panel_search_console') }}
             </div>
             @if ($searchConsoleIssues === [] && $report->searchConsoleInsights === [])

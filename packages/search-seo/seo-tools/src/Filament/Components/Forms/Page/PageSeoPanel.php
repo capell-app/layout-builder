@@ -82,7 +82,14 @@ class PageSeoPanel extends View
      */
     private function reportViewData(null|int|string $languageId = null): array
     {
-        $report = $this->buildReport($languageId);
+        return $this->viewDataForReport($this->buildReport($languageId));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function viewDataForReport(?PageSeoReportData $report): array
+    {
         $hasReport = $report instanceof PageSeoReportData;
 
         return [
@@ -96,6 +103,7 @@ class PageSeoPanel extends View
             'linkIssues' => $hasReport ? $report->issuesForKey(SeoCheckKeyEnum::InternalLinks) : [],
             'schemaIssues' => $hasReport ? $report->issuesForKey(SeoCheckKeyEnum::Schema) : [],
             'searchConsoleIssues' => $hasReport ? $report->issuesForKey(SeoCheckKeyEnum::SearchConsole) : [],
+            'redirectOpportunities' => $hasReport ? $report->redirectOpportunities : [],
             'robotsIssues' => $hasReport ? [
                 ...$report->issuesForKey(SeoCheckKeyEnum::Robots),
                 ...$report->issuesForKey(SeoCheckKeyEnum::Canonical),
