@@ -21,7 +21,6 @@ final class BuildSEOAuditQueryAction
                 'site.language',
                 'translation.language',
                 'translations.language',
-                'type',
             ]);
 
         return SiteScope::applyForCurrentActor($query);

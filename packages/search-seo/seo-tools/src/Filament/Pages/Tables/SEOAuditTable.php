@@ -11,75 +11,194 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
-use Capell\SeoTools\Actions\BuildPageSeoReportAction;
 use Capell\SeoTools\Actions\Reports\BuildSEOAuditQueryAction;
-use Capell\SeoTools\Data\PageSeoReportData;
+use Capell\SeoTools\Enums\SeoCheckKeyEnum;
+use Capell\SeoTools\Enums\SeoSnapshotStatusEnum;
+use Capell\SeoTools\Models\PageSeoSnapshot;
+use Closure;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Throwable;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
 class SEOAuditTable implements TableConfigurator
 {
     /**
-     * @var array<string, PageSeoReportData|null>
+     * @var array<string, PageSeoSnapshot|null>
      */
-    private static array $reports = [];
+    private static array $snapshots = [];
 
     public static function configure(Table $table): Table
     {
         return $table
             ->query(fn (): Builder => BuildSEOAuditQueryAction::run())
-            ->columns([
-                PageNameColumn::make('name')
-                    ->label(__('capell-admin::table.name'))
-                    ->size('sm')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('site.name')
-                    ->label(__('capell-admin::table.site'))
-                    ->size('sm')
-                    ->sortable(),
-                TextColumn::make('seo_score')
-                    ->label(__('capell-seo-tools::generic.seo_panel_score'))
-                    ->state(fn (Page $record): ?int => self::reportFor($record)?->score)
-                    ->size('sm')
-                    ->sortable(false),
-                TextColumn::make('critical_issues_count')
-                    ->label(__('capell-seo-tools::generic.seo_severity_critical'))
-                    ->state(fn (Page $record): ?int => self::reportFor($record)?->criticalCount())
-                    ->size('sm')
-                    ->sortable(false),
-                TextColumn::make('warning_issues_count')
-                    ->label(__('capell-seo-tools::generic.seo_severity_warning'))
-                    ->state(fn (Page $record): ?int => self::reportFor($record)?->warningCount())
-                    ->size('sm')
-                    ->sortable(false),
-                TextColumn::make('schema_status')
-                    ->label(__('capell-seo-tools::generic.seo_check_schema'))
-                    ->size('sm')
-                    ->state(fn (Page $record): ?string => self::schemaStatusFor($record))
-                    ->badge()
-                    ->sortable(false),
-                TextColumn::make('search_preview_title')
-                    ->label(__('capell-seo-tools::generic.seo_panel_search_preview'))
-                    ->state(fn (Page $record): ?string => self::reportFor($record)?->searchPreview->title)
-                    ->limit(60)
-                    ->size('sm')
-                    ->sortable(false),
-                TextColumn::make('creator.name')
-                    ->label(__('capell-admin::table.author'))
-                    ->size('sm')
-                    ->sortable(),
-                DateColumn::make('created_at')
-                    ->label(__('capell-admin::table.created_at'))
-                    ->size('sm')
-                    ->sortable(),
-            ])
+            ->columns(static::getTableColumns())
+            ->filters(static::getTableFilters())
             ->defaultSort('created_at', 'desc');
     }
 
-    private static function reportFor(Page $record): ?PageSeoReportData
+    protected static function getTableColumns(): array
+    {
+        return [
+            PageNameColumn::make('name')
+                ->label(__('capell-admin::table.name'))
+                ->size('sm')
+                ->searchable()
+                ->sortable(),
+            TextColumn::make('site.name')
+                ->label(__('capell-admin::table.site'))
+                ->size('sm')
+                ->sortable(),
+            TextColumn::make('seo_score')
+                ->label(__('capell-seo-tools::generic.seo_panel_score'))
+                ->state(fn (Page $record): ?int => self::snapshotFor($record)?->score)
+                ->placeholder(__('capell-seo-tools::generic.seo_snapshot_not_scanned'))
+                ->size('sm')
+                ->sortable(false),
+            TextColumn::make('critical_issues_count')
+                ->label(__('capell-seo-tools::generic.seo_severity_critical'))
+                ->state(fn (Page $record): ?int => self::snapshotFor($record)?->critical_count)
+                ->size('sm')
+                ->sortable(false),
+            TextColumn::make('warning_issues_count')
+                ->label(__('capell-seo-tools::generic.seo_severity_warning'))
+                ->state(fn (Page $record): ?int => self::snapshotFor($record)?->warning_count)
+                ->size('sm')
+                ->sortable(false),
+            TextColumn::make('schema_status')
+                ->label(__('capell-seo-tools::generic.seo_check_schema'))
+                ->size('sm')
+                ->state(fn (Page $record): ?string => self::snapshotFor($record)?->schema_status)
+                ->placeholder(__('capell-seo-tools::generic.seo_snapshot_not_scanned'))
+                ->badge()
+                ->sortable(false),
+            TextColumn::make('search_preview_title')
+                ->label(__('capell-seo-tools::generic.seo_panel_search_preview'))
+                ->state(fn (Page $record): ?string => self::searchPreviewTitleFor($record))
+                ->limit(60)
+                ->size('sm')
+                ->sortable(false),
+            TextColumn::make('creator.name')
+                ->label(__('capell-admin::table.author'))
+                ->size('sm')
+                ->sortable(),
+            DateColumn::make('created_at')
+                ->label(__('capell-admin::table.created_at'))
+                ->size('sm')
+                ->sortable(),
+        ];
+    }
+
+    protected static function getTableFilters(): array
+    {
+        return [
+            SelectFilter::make('severity')
+                ->label(__('capell-seo-tools::generic.seo_audit_severity'))
+                ->options([
+                    'critical' => __('capell-seo-tools::generic.seo_severity_critical'),
+                    'warning' => __('capell-seo-tools::generic.seo_severity_warning'),
+                    'notice' => __('capell-seo-tools::generic.seo_severity_notice'),
+                    'clean' => __('capell-seo-tools::generic.seo_audit_severity_clean'),
+                ])
+                ->query(fn (Builder $query, array $data): Builder => match ($data['value'] ?? null) {
+                    'critical' => self::whereSnapshot($query, function (QueryBuilder $snapshotQuery): void {
+                        $snapshotQuery->where('critical_count', '>', 0);
+                    }),
+                    'warning' => self::whereSnapshot($query, function (QueryBuilder $snapshotQuery): void {
+                        $snapshotQuery->where('warning_count', '>', 0);
+                    }),
+                    'notice' => self::whereSnapshot($query, function (QueryBuilder $snapshotQuery): void {
+                        $snapshotQuery->where('notice_count', '>', 0);
+                    }),
+                    'clean' => self::whereSnapshot($query, function (QueryBuilder $snapshotQuery): void {
+                        $snapshotQuery
+                            ->where('critical_count', 0)
+                            ->where('warning_count', 0)
+                            ->where('notice_count', 0);
+                    }),
+                    default => $query,
+                }),
+            SelectFilter::make('issue_key')
+                ->label(__('capell-seo-tools::generic.seo_audit_issue_category'))
+                ->options(SeoCheckKeyEnum::class)
+                ->query(fn (Builder $query, array $data): Builder => $data['value'] === null || $data['value'] === ''
+                    ? $query
+                    : self::whereSnapshot($query, function (QueryBuilder $snapshotQuery) use ($data): void {
+                        $snapshotQuery->whereJsonContains('issue_keys', $data['value']);
+                    })),
+            SelectFilter::make('score_band')
+                ->label(__('capell-seo-tools::generic.seo_audit_score_band'))
+                ->options([
+                    'excellent' => __('capell-seo-tools::generic.seo_audit_score_band_excellent'),
+                    'good' => __('capell-seo-tools::generic.seo_audit_score_band_good'),
+                    'needs_work' => __('capell-seo-tools::generic.seo_audit_score_band_needs_work'),
+                    'poor' => __('capell-seo-tools::generic.seo_audit_score_band_poor'),
+                ])
+                ->query(fn (Builder $query, array $data): Builder => match ($data['value'] ?? null) {
+                    'excellent' => self::whereSnapshot($query, function (QueryBuilder $snapshotQuery): void {
+                        $snapshotQuery->where('score', '>=', 90);
+                    }),
+                    'good' => self::whereSnapshot($query, function (QueryBuilder $snapshotQuery): void {
+                        $snapshotQuery->whereBetween('score', [70, 89]);
+                    }),
+                    'needs_work' => self::whereSnapshot($query, function (QueryBuilder $snapshotQuery): void {
+                        $snapshotQuery->whereBetween('score', [40, 69]);
+                    }),
+                    'poor' => self::whereSnapshot($query, function (QueryBuilder $snapshotQuery): void {
+                        $snapshotQuery->where('score', '<', 40);
+                    }),
+                    default => $query,
+                }),
+            SelectFilter::make('schema_status')
+                ->label(__('capell-seo-tools::generic.seo_check_schema'))
+                ->options(self::snapshotStatusOptions())
+                ->query(fn (Builder $query, array $data): Builder => self::whereSnapshotStatus($query, 'schema_status', $data['value'] ?? null)),
+            SelectFilter::make('robots_status')
+                ->label(__('capell-seo-tools::generic.seo_check_robots'))
+                ->options(self::snapshotStatusOptions())
+                ->query(fn (Builder $query, array $data): Builder => self::whereSnapshotStatus($query, 'robots_status', $data['value'] ?? null)),
+            SelectFilter::make('canonical_status')
+                ->label(__('capell-seo-tools::generic.seo_check_canonical'))
+                ->options(self::snapshotStatusOptions())
+                ->query(fn (Builder $query, array $data): Builder => self::whereSnapshotStatus($query, 'canonical_status', $data['value'] ?? null)),
+            TernaryFilter::make('has_redirect_opportunities')
+                ->label(__('capell-seo-tools::generic.seo_audit_redirect_opportunities'))
+                ->trueLabel(__('capell-seo-tools::generic.seo_audit_has_redirect_opportunities'))
+                ->falseLabel(__('capell-seo-tools::generic.seo_audit_no_redirect_opportunities'))
+                ->queries(
+                    true: fn (Builder $query): Builder => self::whereSnapshot($query, function (QueryBuilder $snapshotQuery): void {
+                        $snapshotQuery->where('redirect_opportunities_count', '>', 0);
+                    }),
+                    false: fn (Builder $query): Builder => self::whereSnapshot($query, function (QueryBuilder $snapshotQuery): void {
+                        $snapshotQuery->where('redirect_opportunities_count', 0);
+                    }),
+                    blank: fn (Builder $query): Builder => $query,
+                ),
+            SelectFilter::make('search_console_status')
+                ->label(__('capell-seo-tools::generic.seo_check_search_console'))
+                ->options(self::snapshotStatusOptions())
+                ->query(fn (Builder $query, array $data): Builder => self::whereSnapshotStatus($query, 'search_console_status', $data['value'] ?? null)),
+            SelectFilter::make('snapshot_state')
+                ->label(__('capell-seo-tools::generic.seo_audit_snapshot_state'))
+                ->options([
+                    'missing' => __('capell-seo-tools::generic.seo_audit_snapshot_missing'),
+                    'scanned' => __('capell-seo-tools::generic.seo_audit_snapshot_scanned'),
+                    'stale' => __('capell-seo-tools::generic.seo_audit_snapshot_stale'),
+                ])
+                ->query(fn (Builder $query, array $data): Builder => match ($data['value'] ?? null) {
+                    'missing' => self::whereMissingSnapshot($query),
+                    'scanned' => self::whereSnapshot($query),
+                    'stale' => self::whereSnapshot($query, function (QueryBuilder $snapshotQuery): void {
+                        $snapshotQuery->where('computed_at', '<', now()->subDay());
+                    }),
+                    default => $query,
+                }),
+        ];
+    }
+
+    private static function snapshotFor(Page $record): ?PageSeoSnapshot
     {
         $record->loadMissing([
             'site.language',
@@ -91,19 +210,19 @@ class SEOAuditTable implements TableConfigurator
         $language = self::auditLanguageFor($record) ?? $record->translation?->language ?? $site?->language;
         $cacheKey = sprintf('%s:%s', $record->getKey(), $language?->getKey() ?? 'none');
 
-        if (array_key_exists($cacheKey, self::$reports)) {
-            return self::$reports[$cacheKey];
+        if (array_key_exists($cacheKey, self::$snapshots)) {
+            return self::$snapshots[$cacheKey];
         }
 
         if (! $site instanceof Site || ! $language instanceof Language) {
-            return self::$reports[$cacheKey] = null;
+            return self::$snapshots[$cacheKey] = null;
         }
 
-        try {
-            return self::$reports[$cacheKey] = BuildPageSeoReportAction::run($record, $site, $language);
-        } catch (Throwable) {
-            return self::$reports[$cacheKey] = null;
-        }
+        return self::$snapshots[$cacheKey] = PageSeoSnapshot::query()
+            ->where('page_id', $record->getKey())
+            ->where('site_id', $site->getKey())
+            ->where('language_id', $language->getKey())
+            ->first();
     }
 
     private static function auditLanguageFor(Page $record): ?Language
@@ -122,16 +241,66 @@ class SEOAuditTable implements TableConfigurator
         return $translation?->language;
     }
 
-    private static function schemaStatusFor(Page $record): ?string
+    private static function searchPreviewTitleFor(Page $record): ?string
     {
-        $report = self::reportFor($record);
+        $translation = $record->translation;
 
-        if (! $report instanceof PageSeoReportData) {
-            return null;
+        if (! $translation instanceof Translation) {
+            return $record->name;
         }
 
-        return $report->schemaReports === []
-            ? __('capell-seo-tools::generic.seo_schema_status_missing')
-            : __('capell-seo-tools::generic.seo_schema_status_configured');
+        return $translation->getMeta('title')
+            ?? $translation->title
+            ?? $translation->label
+            ?? $record->name;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function snapshotStatusOptions(): array
+    {
+        return [
+            SeoSnapshotStatusEnum::Passed->value => __('capell-seo-tools::generic.seo_audit_status_passed'),
+            SeoSnapshotStatusEnum::Warning->value => __('capell-seo-tools::generic.seo_audit_status_warning'),
+            SeoSnapshotStatusEnum::Missing->value => __('capell-seo-tools::generic.seo_audit_status_missing'),
+            SeoSnapshotStatusEnum::Unknown->value => __('capell-seo-tools::generic.seo_audit_status_unknown'),
+            SeoSnapshotStatusEnum::Declining->value => __('capell-seo-tools::generic.seo_audit_status_declining'),
+        ];
+    }
+
+    private static function whereSnapshotStatus(Builder $query, string $column, mixed $value): Builder
+    {
+        if (! is_string($value) || $value === '') {
+            return $query;
+        }
+
+        return self::whereSnapshot($query, function (QueryBuilder $snapshotQuery) use ($column, $value): void {
+            $snapshotQuery->where($column, $value);
+        });
+    }
+
+    private static function whereSnapshot(Builder $query, ?Closure $constraint = null): Builder
+    {
+        return $query->whereExists(function (QueryBuilder $snapshotQuery) use ($constraint): void {
+            $snapshotQuery
+                ->selectRaw('1')
+                ->from('page_seo_snapshots')
+                ->whereColumn('page_seo_snapshots.page_id', 'pages.id');
+
+            if ($constraint instanceof Closure) {
+                $constraint($snapshotQuery);
+            }
+        });
+    }
+
+    private static function whereMissingSnapshot(Builder $query): Builder
+    {
+        return $query->whereNotExists(function (QueryBuilder $snapshotQuery): void {
+            $snapshotQuery
+                ->selectRaw('1')
+                ->from('page_seo_snapshots')
+                ->whereColumn('page_seo_snapshots.page_id', 'pages.id');
+        });
     }
 }
