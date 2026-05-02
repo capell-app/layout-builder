@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\SeoTools\Actions\GeneratorPageContentAction;
+use Capell\SeoTools\Enums\SeoCheckModeEnum;
 
 return [
     'prism' => [
@@ -24,13 +25,16 @@ return [
         'property_url' => env('CAPELL_SEO_TOOLS_SEARCH_CONSOLE_PROPERTY_URL'),
     ],
     'publish_gates' => [
-        'default' => [
-            'critical' => 'blocker',
-            'warning' => 'warning',
-            'notice' => 'warning',
-        ],
         'checks' => [
-            // Example: 'search_console' => 'ignored',
+            'meta_title' => SeoCheckModeEnum::Blocker->value,
+            'meta_description' => SeoCheckModeEnum::Blocker->value,
+            'robots' => SeoCheckModeEnum::Blocker->value,
+            'canonical' => SeoCheckModeEnum::Warning->value,
+            'schema' => SeoCheckModeEnum::Warning->value,
+            'internal_links' => SeoCheckModeEnum::Warning->value,
+            'social_image' => SeoCheckModeEnum::Warning->value,
+            'redirects' => SeoCheckModeEnum::Blocker->value,
+            'search_console' => SeoCheckModeEnum::Ignored->value,
         ],
     ],
     'prompts' => [

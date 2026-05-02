@@ -34,6 +34,8 @@ it('uses a bound SEO publish report provider and maps critical issues to errors'
 });
 
 it('maps warning and notice SEO issues to warnings', function (): void {
+    config()->set('capell-seo-tools.publish_gates.checks', []);
+
     app()->instance(SEO_PUBLISH_REPORT_PROVIDER, new class
     {
         public function forWorkspace(Workspace $workspace): array
@@ -54,6 +56,34 @@ it('maps warning and notice SEO issues to warnings', function (): void {
 
     expect($result->severity)->toBe(PublishCheckSeverity::Warn)
         ->and($result->messages)->toHaveCount(2);
+});
+
+it('uses configured publish gates to block and ignore SEO issues by check key', function (): void {
+    config()->set('capell-seo-tools.publish_gates.checks', [
+        'meta_title' => 'blocker',
+        'search_console' => 'ignored',
+    ]);
+
+    app()->instance(SEO_PUBLISH_REPORT_PROVIDER, new class
+    {
+        public function forWorkspace(Workspace $workspace): array
+        {
+            return [
+                [
+                    'page' => ['id' => 14, 'label' => 'home'],
+                    'issues' => [
+                        ['key' => 'meta_title', 'severity' => 'critical', 'message' => 'Missing title.'],
+                        ['key' => 'search_console', 'severity' => 'notice', 'message' => 'Low impressions.'],
+                    ],
+                ],
+            ];
+        }
+    });
+
+    $result = (new SeoMetaCheck)->run(Workspace::factory()->create());
+
+    expect($result->severity)->toBe(PublishCheckSeverity::Error)
+        ->and($result->messages)->toBe(["Page 'home': Missing title."]);
 });
 
 it('returns an info result when the SEO provider has no issues', function (): void {

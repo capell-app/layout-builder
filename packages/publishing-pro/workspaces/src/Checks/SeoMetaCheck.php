@@ -105,7 +105,7 @@ class SeoMetaCheck implements PublishCheck
                 }
 
                 $severity = $this->issueSeverity($issue['severity'] ?? null);
-                $mode = $this->modeForIssue($issue['key'] ?? null, $severity);
+                $mode = $this->publishGateMode($issue['key'] ?? null, $severity);
 
                 if ($mode === self::SEO_CHECK_MODE_IGNORED) {
                     continue;
@@ -177,15 +177,19 @@ class SeoMetaCheck implements PublishCheck
         return strtolower((string) $severity);
     }
 
-    private function modeForIssue(mixed $issueKey, ?string $severity): string
+    private function publishGateMode(mixed $key, ?string $severity): string
     {
-        $key = is_scalar($issueKey) ? (string) $issueKey : null;
-        $configuredMode = $key === null
+        $keyValue = is_scalar($key) ? trim((string) $key) : null;
+        $configuredMode = $keyValue === null || $keyValue === ''
             ? null
-            : config(sprintf('capell-seo-tools.publish_gates.checks.%s', $key));
+            : config(sprintf('capell-seo-tools.publish_gates.checks.%s', $keyValue));
 
         if (is_string($configuredMode)) {
-            return $this->normalizeConfiguredMode($configuredMode) ?? $this->defaultModeForSeverity($severity);
+            $normalizedMode = $this->normalizeConfiguredMode($configuredMode);
+
+            if ($normalizedMode !== null) {
+                return $normalizedMode;
+            }
         }
 
         return $this->defaultModeForSeverity($severity);
@@ -193,12 +197,6 @@ class SeoMetaCheck implements PublishCheck
 
     private function defaultModeForSeverity(?string $severity): string
     {
-        $configuredMode = config(sprintf('capell-seo-tools.publish_gates.default.%s', $severity ?? 'notice'));
-
-        if (is_string($configuredMode)) {
-            return $this->normalizeConfiguredMode($configuredMode) ?? self::SEO_CHECK_MODE_WARNING;
-        }
-
         return $severity === 'critical'
             ? self::SEO_CHECK_MODE_BLOCKER
             : self::SEO_CHECK_MODE_WARNING;
