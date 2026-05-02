@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\SeoTools\Support\SearchConsole;
 
+use Capell\SeoTools\Actions\BuildDecliningSearchConsolePagesAction;
 use Capell\SeoTools\Contracts\SearchConsoleClientInterface;
 use Capell\SeoTools\Data\SearchConsoleInsightData;
 use Capell\SeoTools\Enums\SearchConsoleMetricEnum;
 use Capell\SeoTools\Enums\SeoIssueSeverityEnum;
-use Capell\SeoTools\Models\SearchConsoleUrlMetric;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
 use JsonException;
@@ -97,17 +97,7 @@ final class GoogleSearchConsoleClient implements SearchConsoleClientInterface
             return [];
         }
 
-        return SearchConsoleUrlMetric::query()
-            ->decliningPages($siteId, $limit)
-            ->get(['url', 'clicks', 'previous_clicks', 'click_delta'])
-            ->map(fn (SearchConsoleUrlMetric $metric): array => [
-                'url' => $metric->url,
-                'clicks' => $metric->clicks,
-                'previous_clicks' => $metric->previous_clicks,
-                'click_delta' => $metric->click_delta,
-            ])
-            ->values()
-            ->all();
+        return BuildDecliningSearchConsolePagesAction::run($siteId, $limit);
     }
 
     /**
