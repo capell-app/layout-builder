@@ -17,7 +17,7 @@ it('registers the page SEO panel schema extender', function (): void {
 });
 
 it('adds the page SEO panel after search meta', function (): void {
-    $extender = app(PageSeoPanelSchemaExtender::class);
+    $extender = resolve(PageSeoPanelSchemaExtender::class);
     $components = $extender->extendTranslationComponentsForHook(
         Schema::make(),
         PageTranslationSchemaHookEnum::AfterSearchMeta,

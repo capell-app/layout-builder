@@ -57,7 +57,7 @@ class SchemaGraphAction
         $nodes[] = $pageSchema;
 
         /** @var SchemaTemplateRegistry $schemaTemplateRegistry */
-        $schemaTemplateRegistry = app(SchemaTemplateRegistry::class);
+        $schemaTemplateRegistry = resolve(SchemaTemplateRegistry::class);
         $breadcrumbReference = $pageSchema['breadcrumb'] ?? null;
 
         foreach ($schemaTemplateRegistry->matching($page) as $template) {

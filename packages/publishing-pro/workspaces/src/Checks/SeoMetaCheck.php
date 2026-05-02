@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Capell\Workspaces\Checks;
 
+use Capell\SeoTools\Contracts\SeoPublishReportProvider;
 use Capell\Workspaces\Models\Workspace;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class SeoMetaCheck implements PublishCheck
 {
-    private const SEO_PUBLISH_REPORT_PROVIDER = 'Capell\\SeoTools\\Contracts\\SeoPublishReportProvider';
+    private const SEO_PUBLISH_REPORT_PROVIDER = SeoPublishReportProvider::class;
 
     public function identifier(): string
     {
@@ -110,8 +111,8 @@ class SeoMetaCheck implements PublishCheck
                     continue;
                 }
 
-                $message = is_scalar($issue['message'] ?? null)
-                    ? trim((string) $issue['message'])
+                $message = is_string($issue['message'] ?? null)
+                    ? trim($issue['message'])
                     : 'SEO issue detected.';
 
                 $messages[] = sprintf("Page '%s': %s", $pageLabel, $message !== '' ? $message : 'SEO issue detected.');
@@ -139,7 +140,11 @@ class SeoMetaCheck implements PublishCheck
         }
 
         foreach (['label', 'slug', 'uuid', 'id'] as $key) {
-            if (! array_key_exists($key, $page) || ! is_scalar($page[$key])) {
+            if (! array_key_exists($key, $page)) {
+                continue;
+            }
+
+            if (! is_scalar($page[$key])) {
                 continue;
             }
 

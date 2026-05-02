@@ -31,7 +31,7 @@ class PageSeoPanel extends View
 
     public static function make(?string $view = null): static
     {
-        $static = app(static::class, ['view' => $view ?? self::VIEW_NAME]);
+        $static = resolve(static::class, ['view' => $view ?? self::VIEW_NAME]);
         $static->configure();
 
         return $static;

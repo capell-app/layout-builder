@@ -7,6 +7,7 @@ This page is for developers wiring or extending the current SEO Tools implementa
 ## What you get
 
 - Suggested page titles and meta descriptions.
+- AI content briefs built from the live SEO report.
 - Long-form page content drafts when enabled.
 - AI image and layout draft helpers.
 - Generation history with token usage and timings.
@@ -25,7 +26,7 @@ This page is for developers wiring or extending the current SEO Tools implementa
 
 | Layer              | Classes                                                                                                                                                            |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Actions            | `Capell\SeoTools\Actions\SuggestPageTitlesAction`, `SuggestMetaDescriptionsAction`, `GeneratorPageContentAction`, `ApplyAiDraftAction`, `RecordAiGenerationAction` |
+| Actions            | `Capell\SeoTools\Actions\SuggestPageTitlesAction`, `SuggestMetaDescriptionsAction`, `GenerateAiContentBriefAction`, `GeneratorPageContentAction`, `ApplyAiDraftAction`, `RecordAiGenerationAction` |
 | Provider           | `Capell\SeoTools\Support\PrismProvider`                                                                                                                            |
 | Settings           | `Capell\SeoTools\Settings\AssistantSettings`                                                                                                                       |
 | Parsing and limits | `AiResponseParser`, `AiRateLimiter`, `AiTokenCounter`, `AiFeatureRegistry`                                                                                         |
@@ -69,6 +70,16 @@ use Capell\SeoTools\Actions\ApplyAiDraftAction;
 ApplyAiDraftAction::run($page, $chosenText);
 ```
 
+Generate a read-only content brief from the current SEO report:
+
+```php
+use Capell\SeoTools\Actions\GenerateAiContentBriefAction;
+
+$brief = GenerateAiContentBriefAction::run($page, $site, $language);
+```
+
+The brief returns structured fields for content angle, missing topics, headings, FAQ ideas, schema opportunities, internal links, and meta alternatives.
+
 ## Configuration
 
 Configuration lives in `config/capell-seo-tools.php`. Keep provider keys in environment variables, not in committed config.
@@ -89,11 +100,20 @@ SEO Tools registers settings and admin extenders that add AI-assist controls whe
 
 The settings schema is `Capell\SeoTools\Filament\Settings\AssistantSettingsSchema`.
 
+`PageSeoPanel` also exposes an AI content brief action when AI is configured. The action is deliberately advisory: it records generation history and shows suggestions, but it does not automatically alter page content, metadata, schema, or links.
+
+## Safety model
+
+AI actions should receive bounded context and return structured data. `GenerateAiContentBriefAction` sends the page, site, language, SEO issues, schema reports, internal-link suggestions, and Search Console insights to the provider, then validates that the response is a JSON object before returning `AiContentBriefData`.
+
+Keep generated output behind editor review. Use `ApplyAiDraftAction` only after a user has selected a draft, and keep any automatic publish decisions in deterministic checks such as SEO score, missing metadata, or schema coverage.
+
 ## Troubleshooting
 
 | Symptom               | Check                                                                                |
 | --------------------- | ------------------------------------------------------------------------------------ |
 | Suggestions are empty | The context content is empty or the parser could not find the requested output shape |
+| Brief generation fails | The provider returned non-JSON content or a required brief field was not parseable    |
 | Rate limit exceeded   | Lower request frequency or adjust SEO Tools rate limits                              |
 | Provider failures     | Check provider credentials, network access, and Capell logs                          |
 | Repeated suggestions  | Clear the AI result cache or change content/keywords                                 |
@@ -102,5 +122,6 @@ The settings schema is `Capell\SeoTools\Filament\Settings\AssistantSettingsSchem
 
 - [SEO Tools README](../packages/search-seo/seo-tools/README.md)
 - [SEO metadata and discoverability](../packages/search-seo/seo-tools/docs/seo-meta-and-discoverability.md)
+- [SEO intelligence](../packages/search-seo/seo-tools/docs/seo-intelligence.md)
 - [Sitemaps](../packages/search-seo/seo-tools/docs/sitemaps.md)
 - [Test plan for actions and services](test-plan-actions-services.md)

@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Capell\Workspaces\Tests\Unit\Checks;
 
+use Capell\SeoTools\Contracts\SeoPublishReportProvider;
 use Capell\Workspaces\Checks\PublishCheckSeverity;
 use Capell\Workspaces\Checks\SeoMetaCheck;
 use Capell\Workspaces\Models\Workspace;
 
-const SEO_PUBLISH_REPORT_PROVIDER = 'Capell\\SeoTools\\Contracts\\SeoPublishReportProvider';
+const SEO_PUBLISH_REPORT_PROVIDER = SeoPublishReportProvider::class;
 
 it('uses a bound SEO publish report provider and maps critical issues to errors', function (): void {
     app()->instance(SEO_PUBLISH_REPORT_PROVIDER, new class

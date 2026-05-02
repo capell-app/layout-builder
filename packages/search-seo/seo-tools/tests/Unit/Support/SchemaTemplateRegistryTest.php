@@ -69,6 +69,7 @@ it('lists templates matching the page schema type', function (): void {
     $page = new Page;
     $type = new Type;
     $type->meta = ['schema' => ['type' => 'BlogPosting']];
+
     $page->setRelation('type', $type);
 
     $registry->register(SchemaTemplateTypeEnum::WebPage, $webPageTemplate);

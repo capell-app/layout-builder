@@ -10,7 +10,6 @@ function redirectTableConfigurationItems(string $methodName): array
 {
     $reflection = new ReflectionClass(RedirectsTable::class);
     $method = $reflection->getMethod($methodName);
-    $method->setAccessible(true);
 
     return $method->invoke(null);
 }

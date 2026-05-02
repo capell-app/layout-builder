@@ -81,7 +81,7 @@ final class SuggestInternalLinksAction
             $this->stringValue($translation->title),
             $this->stringValue($translation->meta_description),
             $this->contentValue($translation->content),
-        ])));
+        ], static fn (?string $contentPart): bool => $contentPart !== null && $contentPart !== '')));
     }
 
     /**
@@ -92,7 +92,7 @@ final class SuggestInternalLinksAction
     {
         return ($this->matchingTokenCount($sourceTokens, $candidate['title']) * 5)
             + ($this->matchingTokenCount($sourceTokens, $candidate['meta_title']) * 3)
-            + ($this->matchingTokenCount($sourceTokens, $candidate['meta_description']) * 1);
+            + ($this->matchingTokenCount($sourceTokens, $candidate['meta_description']));
     }
 
     /**
@@ -114,7 +114,11 @@ final class SuggestInternalLinksAction
      */
     private function tokenize(string $text): array
     {
-        $tokens = preg_split('/[^\p{L}\p{N}]+/u', mb_strtolower(strip_tags($text))) ?: [];
+        $tokens = preg_split('/[^\p{L}\p{N}]+/u', mb_strtolower(strip_tags($text)));
+
+        if ($tokens === false) {
+            return [];
+        }
 
         return collect($tokens)
             ->map(fn (string $token): string => trim($token))

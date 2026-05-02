@@ -1,6 +1,6 @@
 # SEO Meta & Discoverability
 
-The SEO Tools package owns the page-level meta pipeline: social-sharing tags, JSON-LD `@graph` structured data, robots/canonical handling, and the `/llms.txt` AI-discoverability feed.
+The SEO Tools package owns the page-level meta pipeline: social-sharing tags, JSON-LD `@graph` structured data, robots/canonical handling, page SEO scoring, Search Console signals, and the `/llms.txt` AI-discoverability feed.
 
 ## Social meta
 
@@ -33,6 +33,8 @@ The graph is rendered through `resources/views/components/schema/graph.blade.php
 
 DTO: `Capell\Core\Data\SchemaGraphData` (lives in `capell/core` because the data shape is shared with non-SEO callers).
 
+Schema requirements are also surfaced to editors through the [schema template registry](schema-templates.md).
+
 ## Robots & canonical
 
 - `Capell\SeoTools\Enums\RobotsDirectiveEnum` replaces inline checkbox options, emitting combinations like `index, follow`, `noindex, nofollow`, `noindex, follow`, etc.
@@ -47,6 +49,12 @@ DTO: `Capell\Core\Data\SchemaGraphData` (lives in `capell/core` because the data
 - Cached for 1 hour (key scoped by site + language).
 - Toggleable per site via the `llms_txt_enabled` site meta.
 
+## SEO report
+
+`Capell\SeoTools\Actions\BuildPageSeoReportAction` combines metadata checks, previews, internal-link suggestions, schema coverage, and Search Console insights into `PageSeoReportData`. The page editor panel and SEO audit table both consume this report shape.
+
+See [SEO intelligence](seo-intelligence.md) for score semantics, publish-check integration, redirect opportunities, and AI content briefs.
+
 ## Related files
 
 | Concern           | File                                                                                                |
@@ -54,9 +62,12 @@ DTO: `Capell\Core\Data\SchemaGraphData` (lives in `capell/core` because the data
 | Social meta       | `src/Actions/BuildSocialMetaAction.php`, `src/Data/SocialMetaData.php`                              |
 | Schema `@graph`   | `src/Actions/SchemaGraphAction.php`, `src/Enums/SchemaEntityTypeEnum.php`                           |
 | Schema views      | `resources/views/components/schema/{graph,website,webpage,breadcrumb,image,organization}.blade.php` |
+| SEO reports       | `src/Actions/BuildPageSeoReportAction.php`, `src/Data/PageSeoReportData.php`                        |
+| Schema templates  | `src/Support/SchemaTemplates/SchemaTemplateRegistry.php`                                            |
+| Search Console    | `src/Actions/BuildPageSearchConsoleInsightsAction.php`, `src/Support/SearchConsole/*`               |
 | llms.txt          | `src/Actions/GenerateLlmsTxtAction.php`, `src/Http/Controllers/LlmsTxtController.php`               |
 | Enums             | `src/Enums/{OpenGraphTypeEnum,RobotsDirectiveEnum,SchemaEntityTypeEnum,MetaSchemaEnum}.php`         |
 | Hook registration | `src/Support/RenderHooks/RegisterSeoHeadHooks.php`                                                  |
 | Shared DTOs       | `capell/core` → `src/Data/{SchemaGraphData,LlmsTxtEntryData}.php`                                   |
 
-For the editor-facing SEO checklist widgets in the admin panel, see [SEO audit widgets](https://docs.capell.app/seo-audit-widgets/) (in the `capell/admin` package).
+For editor-facing checks, start with [SEO intelligence](seo-intelligence.md).

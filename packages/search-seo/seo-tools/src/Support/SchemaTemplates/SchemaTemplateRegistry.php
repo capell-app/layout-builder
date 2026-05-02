@@ -19,7 +19,7 @@ class SchemaTemplateRegistry
     public function register(SchemaTemplateTypeEnum $type, SchemaTemplate $template): void
     {
         if (isset($this->templates[$type->value])) {
-            throw new InvalidArgumentException("Schema template [{$type->value}] is already registered.");
+            throw new InvalidArgumentException(sprintf('Schema template [%s] is already registered.', $type->value));
         }
 
         $this->templates[$type->value] = $template;

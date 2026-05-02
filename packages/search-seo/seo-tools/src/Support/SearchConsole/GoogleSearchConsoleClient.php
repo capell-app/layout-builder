@@ -8,6 +8,7 @@ use Capell\SeoTools\Contracts\SearchConsoleClientInterface;
 use Capell\SeoTools\Data\SearchConsoleInsightData;
 use Capell\SeoTools\Enums\SearchConsoleMetricEnum;
 use Capell\SeoTools\Enums\SeoIssueSeverityEnum;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
 use JsonException;
 use Throwable;
@@ -25,9 +26,9 @@ final class GoogleSearchConsoleClient implements SearchConsoleClientInterface
 
     public function isConfigured(): bool
     {
-        return (bool) ($this->config['enabled'] ?? false)
+        return ($this->config['enabled'] ?? false) === true
             && is_string($this->config['credentials_path'] ?? null)
-            && trim((string) $this->config['credentials_path']) !== '';
+            && trim($this->config['credentials_path']) !== '';
     }
 
     public function pageInsights(string $url): array
@@ -151,7 +152,7 @@ final class GoogleSearchConsoleClient implements SearchConsoleClientInterface
     private function accessToken(): string
     {
         $credentials = $this->credentials();
-        $issuedAt = time();
+        $issuedAt = Date::now()->getTimestamp();
         $expiresAt = $issuedAt + 3600;
         $assertion = $this->jwt([
             'iss' => $credentials['client_email'],

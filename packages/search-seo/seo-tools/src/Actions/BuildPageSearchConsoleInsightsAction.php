@@ -45,7 +45,7 @@ final class BuildPageSearchConsoleInsightsAction
         }
 
         return array_values(array_map(
-            fn (mixed $insight): SearchConsoleInsightData => $this->toInsightData($insight),
+            $this->toInsightData(...),
             $client->pageInsights($url),
         ));
     }

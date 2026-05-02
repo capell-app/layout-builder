@@ -27,22 +27,20 @@ final class BuildRedirectOpportunityReportAction
     {
         return BrokenLink::query()
             ->where('http_status', '>=', 400)
-            ->whereHas('page', function (Builder $query) use ($siteId, $languageId): Builder {
-                return $query
-                    ->when($siteId !== null, fn (Builder $query): Builder => $query->where('site_id', $siteId))
-                    ->when(
-                        $languageId !== null,
-                        fn (Builder $query): Builder => $query->where(function (Builder $query) use ($languageId): void {
-                            $query->whereHas(
-                                'pageUrls',
-                                fn (Builder $query): Builder => $query->where('language_id', $languageId),
-                            )->orWhereHas(
-                                'translations',
-                                fn (Builder $query): Builder => $query->where('language_id', $languageId),
-                            );
-                        }),
-                    );
-            })
+            ->whereHas('page', fn (Builder $query): Builder => $query
+                ->when($siteId !== null, fn (Builder $query): Builder => $query->where('site_id', $siteId))
+                ->when(
+                    $languageId !== null,
+                    fn (Builder $query): Builder => $query->where(function (Builder $query) use ($languageId): void {
+                        $query->whereHas(
+                            'pageUrls',
+                            fn (Builder $query): Builder => $query->where('language_id', $languageId),
+                        )->orWhereHas(
+                            'translations',
+                            fn (Builder $query): Builder => $query->where('language_id', $languageId),
+                        );
+                    }),
+                ))
             ->with([
                 'page.site',
                 'page.pageUrls.siteDomain',

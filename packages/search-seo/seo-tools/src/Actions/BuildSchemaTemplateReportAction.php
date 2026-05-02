@@ -25,7 +25,7 @@ class BuildSchemaTemplateReportAction
      */
     public function handle(Page $page, Site $site, Language $language): array
     {
-        $registry = app(SchemaTemplateRegistry::class);
+        $registry = resolve(SchemaTemplateRegistry::class);
         $reports = [];
 
         foreach ($registry->matching($page) as $type => $template) {
@@ -83,10 +83,6 @@ class BuildSchemaTemplateReportAction
             return false;
         }
 
-        if (is_array($schema[$field]) && $schema[$field] === []) {
-            return false;
-        }
-
-        return true;
+        return ! (is_array($schema[$field]) && $schema[$field] === []);
     }
 }

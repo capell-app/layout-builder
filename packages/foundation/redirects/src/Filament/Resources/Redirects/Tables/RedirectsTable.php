@@ -153,7 +153,7 @@ class RedirectsTable implements TableConfigurator
                 ->toggleable(),
             TextColumn::make('chain_warning')
                 ->label(__('redirects::table.chain_warning'))
-                ->state(fn (PageUrl $record): string => static::chainWarningState($record))
+                ->state(fn (PageUrl $record): string => self::chainWarningState($record))
                 ->badge()
                 ->color(fn (string $state): string => $state === __('redirects::table.chain_warning_detected') ? 'warning' : 'gray')
                 ->toggleable(),

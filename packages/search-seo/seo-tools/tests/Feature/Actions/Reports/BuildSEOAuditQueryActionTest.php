@@ -66,7 +66,7 @@ it('uses the unhealthy translation language for audit report columns', function 
         ->firstOrFail();
 
     $reflectionMethod = new ReflectionMethod(SEOAuditTable::class, 'reportFor');
-    $reflectionMethod->setAccessible(true);
+
     $report = $reflectionMethod->invoke(null, $auditedPage);
 
     expect($report?->searchPreview->title)->not->toBe('A healthy English search title')
