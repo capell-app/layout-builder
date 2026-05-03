@@ -1663,6 +1663,15 @@ class DemoCreator
         return $widget;
     }
 
+    public function addSplitTwoBackgroundMedia(Layout $layout): void
+    {
+        if ($layout->getMedia('split-two-background')->isNotEmpty()) {
+            return;
+        }
+
+        $this->createMedia($layout, collection: 'split-two-background');
+    }
+
     protected function navigationPageItems(Collection $siteTree, Language $language): array
     {
         $items = [];

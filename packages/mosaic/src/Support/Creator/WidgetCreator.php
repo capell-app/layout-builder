@@ -9,6 +9,7 @@ use Capell\Core\Enums\DefaultColorEnum;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
+use Capell\Mosaic\Actions\InstallMosaicWidgetCatalogAction;
 use Capell\Mosaic\Enums\AssetEnum;
 use Capell\Mosaic\Enums\WidgetComponentEnum;
 use Capell\Mosaic\Filament\Configurators\Widgets\CarouselWidgetConfigurator;
@@ -30,40 +31,7 @@ class WidgetCreator
 
     public function createWidgets(Collection $languages, bool $extraWidgets = false): void
     {
-        $typeCreator = resolve(TypeCreator::class);
-
-        $assetsWidgetType = $typeCreator->assetsWidgetType();
-        $contentsWidgetType = $typeCreator->contentsWidgetType();
-        $defaultWidgetType = $typeCreator->defaultWidgetType();
-        $mediaWidgetType = $typeCreator->mediaWidgetType();
-        $navigationWidgetType = $typeCreator->navigationWidgetType();
-        $pageContentWidgetType = $typeCreator->pageContentWidgetType();
-        $resultsWidgetType = $typeCreator->resultsWidgetType();
-        $pagesWidgetType = $typeCreator->pagesWidgetType();
-        $systemWidgetType = $typeCreator->systemWidgetType();
-
-        $this->breadcrumbWidget($systemWidgetType);
-        $this->childrenWidget($resultsWidgetType, $languages);
-        $this->assetsWidget($contentsWidgetType);
-        $this->galleryWidget($mediaWidgetType, $languages);
-        $this->latestPagesWidget($resultsWidgetType, $languages);
-        $this->mediaCarouselWidget($mediaWidgetType);
-        $this->pageContentWidget($pageContentWidgetType);
-        $this->pageSlotWidget($systemWidgetType);
-        $this->pagesCardWidget($pagesWidgetType);
-        $this->siblingsWidget($resultsWidgetType, $languages);
-
-        if ($extraWidgets) {
-            $this->defaultWidget($defaultWidgetType);
-            $this->accordionWidget($contentsWidgetType);
-            $this->bannerWidget($contentsWidgetType);
-            $this->blockWidget($assetsWidgetType);
-            $this->featuresWidget($contentsWidgetType);
-            $this->testimonialsWidget($contentsWidgetType);
-            $this->navigationWidget($navigationWidgetType);
-            $this->navigationTabsWidget($navigationWidgetType);
-            $this->bannerImageWidget();
-        }
+        InstallMosaicWidgetCatalogAction::run($languages, $extraWidgets);
     }
 
     public function breadcrumbWidget(?Type $type = null): Widget
