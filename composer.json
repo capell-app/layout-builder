@@ -61,6 +61,26 @@
         },
         {
             "type": "vcs",
+            "url": "https://github.com/capell-app/admin"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/capell-app/core"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/capell-app/frontend"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/capell-app/installer"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/capell-app/marketplace"
+        },
+        {
+            "type": "vcs",
             "url": "https://github.com/howdu/filament-adjacency-list"
         }
     ],
