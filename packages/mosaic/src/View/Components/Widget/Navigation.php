@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Capell\Mosaic\View\Components\Widget;
 
 use Capell\Frontend\Facades\Frontend;
+use Capell\Navigation\Actions\BuildNavigationRenderModelAction;
+use Capell\Navigation\Data\NavigationRenderContextData;
+use Capell\Navigation\Data\NavigationRenderData;
 use Capell\Navigation\Models;
-use Capell\Navigation\Support\Loader\NavigationItemsLoader;
 use Capell\Navigation\Support\Loader\NavigationLoader;
 use Illuminate\Support\Collection;
 
@@ -15,6 +17,8 @@ class Navigation extends AbstractWidget
     public ?Collection $items = null;
 
     public ?Models\Navigation $menu = null;
+
+    public ?NavigationRenderData $navigationRenderData = null;
 
     protected static string $defaultView = 'capell-mosaic::components.widget.navigation.index';
 
@@ -32,15 +36,15 @@ class Navigation extends AbstractWidget
 
         $this->menu = $menu;
 
-        $navigationLoader = new NavigationItemsLoader(
+        $this->navigationRenderData = BuildNavigationRenderModelAction::run(new NavigationRenderContextData(
             navigation: $this->menu,
             page: Frontend::page(),
             site: Frontend::site(),
             language: Frontend::language(),
             siteDomain: Frontend::site()->siteDomain,
-        );
+        ));
 
-        $this->items = $navigationLoader->fetchMenuItems();
+        $this->items = $this->navigationRenderData->items;
 
         if ($this->items->isEmpty()) {
             if (config('capell-mosaic.widget.skip_render_empty', true)) {
@@ -49,8 +53,6 @@ class Navigation extends AbstractWidget
 
             return;
         }
-
-        $navigationLoader->activeMenuItems($this->items);
     }
 
     private function getWidgetMenu(): ?Models\Navigation

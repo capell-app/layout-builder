@@ -8,9 +8,11 @@ use Capell\Core\Models\Site;
 use Capell\Mosaic\Database\Factories\LayoutFactory;
 use Capell\Mosaic\Models\Widget;
 use Capell\Mosaic\Support\Creator\WidgetCreator;
+use Capell\Navigation\Data\NavigationItemData;
 use Capell\Navigation\Enums\NavigationItemType;
 use Capell\Tests\Support\Concerns\TestingFrontend;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Blade;
 use Pest\Expectation;
 
 use function Pest\Laravel\get;
@@ -139,6 +141,35 @@ it('renders navigation widget on page', function (): void {
                         ),
                 ),
         );
+});
+
+it('renders supplied legacy navigation item data', function (): void {
+    $legacyItem = new NavigationItemData(
+        label: 'Legacy supplied item',
+        type: NavigationItemType::Link,
+        data: [
+            'url' => '/legacy-supplied-item',
+            'component_item' => 'capell::list.item',
+        ],
+    );
+
+    $html = Blade::render(
+        <<<'BLADE'
+        @php
+            use Capell\Navigation\Data\NavigationItemRenderData;
+        @endphp
+
+        <x-dynamic-component
+            :component="$item instanceof NavigationItemRenderData ? ($item->componentItem ?: 'capell::list.item') : (! empty($item->data['component_item']) ? $item->data['component_item'] : 'capell::list.item')"
+            :$item
+        />
+        BLADE,
+        ['item' => $legacyItem],
+    );
+
+    expect($html)
+        ->toContain('Legacy supplied item')
+        ->toContain('/legacy-supplied-item');
 });
 
 it('empty navigation widget hidden', function (): void {

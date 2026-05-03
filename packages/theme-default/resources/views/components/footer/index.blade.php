@@ -7,9 +7,10 @@
     use Capell\Frontend\Facades\Frontend;
     use Capell\Frontend\Support\Loader\SiteLoader;
     use Capell\Frontend\Support\Render\RenderHookRegistry;
+    use Capell\Navigation\Actions\BuildNavigationRenderModelAction;
+    use Capell\Navigation\Data\NavigationRenderContextData;
     use Capell\Navigation\Enums\NavigationHandle;
     use Capell\Navigation\Models\Navigation;
-    use Capell\Navigation\Support\Loader\NavigationItemsLoader;
     use Capell\Navigation\Support\Loader\NavigationLoader;
 
     $language = Frontend::language();
@@ -23,20 +24,16 @@
 
         $items = null;
 
-        if ($menu instanceof Navigation) {
-            $navigationLoader = new NavigationItemsLoader(
+        if ($menu instanceof Navigation && $language instanceof Language) {
+            $navigationRenderData = BuildNavigationRenderModelAction::run(new NavigationRenderContextData(
                 navigation: $menu,
                 page: $page,
                 site: $site,
                 language: $language,
                 siteDomain: $site->siteDomain,
-            );
+            ));
 
-            $items = $navigationLoader->fetchMenuItems();
-
-            if ($items->isNotEmpty()) {
-                $navigationLoader->activeMenuItems($items);
-            }
+            $items = $navigationRenderData->items;
         }
 
         return [$menu, $items];
