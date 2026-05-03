@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\MediaCurator;
 
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Contracts\Media\MediaFieldFactory;
 use Capell\Core\Facades\CapellCore;
@@ -63,7 +64,7 @@ final class CapellMediaCuratorServiceProvider extends ServiceProvider
         $this->app->bind(MediaFieldFactory::class, CuratorMediaFieldFactory::class);
 
         if (class_exists(CapellAdmin::class)) {
-            CapellAdmin::registerPage(MediaHealthPage::class);
+            CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(MediaHealthPage::class));
         }
     }
 

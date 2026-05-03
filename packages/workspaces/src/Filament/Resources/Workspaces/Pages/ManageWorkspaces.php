@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Workspaces\Filament\Resources\Workspaces\Pages;
 
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\CreateAction;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Workspaces\Enums\ResourceEnum;
 use Capell\Workspaces\Enums\WorkspaceStatusEnum;
 use Capell\Workspaces\Filament\Resources\Workspaces\WorkspaceResource;
@@ -22,7 +22,7 @@ class ManageWorkspaces extends ManageRecords
     /** @return class-string<WorkspaceResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Workspace);
+        return AdminSurfaceLookup::resource(ResourceEnum::Workspace);
     }
 
     public function getSubheading(): string|Htmlable|null

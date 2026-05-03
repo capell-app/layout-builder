@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Capell\Mosaic\Livewire\Assets\Table;
 
 use Capell\Admin\Enums\ResourceEnum;
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Contracts\HasPageResource;
 use Capell\Admin\Filament\Resources\Pages\Tables\PagesTable;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
@@ -23,7 +23,7 @@ class PageAssets extends AbstractAssets implements HasPageResource
 
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Page);
+        return AdminSurfaceLookup::resource(ResourceEnum::Page);
     }
 
     public function getFilteredTableQuery(): Builder

@@ -50,7 +50,7 @@ it('does not register admin surfaces when authentication-log is not installed', 
     $provider->register();
     $provider->boot();
 
-    expect(CapellAdmin::getExtraResources())
+    expect(CapellAdmin::getAdminSurfaceRegistry()->resources())
         ->not->toContain(AuthenticationLogResource::class)
         ->and(CapellAdmin::getDashboardWidgets(DashboardEnum::SystemHealth))
         ->not->toContain(AuthenticationLogsWidget::class);
@@ -67,7 +67,7 @@ it('registers admin surfaces when authentication-log is installed', function ():
     $provider->register();
     $provider->boot();
 
-    expect(CapellAdmin::getExtraResources())
+    expect(CapellAdmin::getAdminSurfaceRegistry()->resources())
         ->toContain(AuthenticationLogResource::class)
         ->and(CapellAdmin::getDashboardWidgets(DashboardEnum::SystemHealth))
         ->toContain(AuthenticationLogsWidget::class);

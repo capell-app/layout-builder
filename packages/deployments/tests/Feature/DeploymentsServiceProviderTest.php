@@ -15,7 +15,7 @@ it('registers the deployments package metadata', function (): void {
 });
 
 it('registers the deployment connections admin page', function (): void {
-    expect(CapellAdmin::getExtraPages())->toContain(DeploymentConnectionPage::class)
+    expect(CapellAdmin::getAdminSurfaceRegistry()->pages())->toContain(DeploymentConnectionPage::class)
         ->and(DeploymentConnectionPage::getNavigationLabel())->toBe('Deployment Repository')
         ->and(app()->bound(PublishesComposerChanges::class))->toBeTrue();
 });

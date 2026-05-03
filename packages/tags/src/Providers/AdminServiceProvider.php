@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Tags\Providers;
 
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
 use Capell\Tags\Enums\ResourceEnum;
@@ -22,7 +23,10 @@ class AdminServiceProvider extends ServiceProvider
             return;
         }
 
-        CapellAdmin::registerResource(ResourceEnum::Tag->name, class: ResourceEnum::Tag->value);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+            class: ResourceEnum::Tag->value,
+            group: ResourceEnum::Tag->name,
+        ));
     }
 
     private function isPackageInstalled(): bool

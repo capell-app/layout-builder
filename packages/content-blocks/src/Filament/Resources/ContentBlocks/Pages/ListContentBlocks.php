@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\ContentBlocks\Filament\Resources\ContentBlocks\Pages;
 
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\ApplySearchRelationsTable;
 use Capell\Admin\Filament\Concerns\HasSiteTableFilterTabs;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\ContentBlocks\Enums\ResourceEnum;
 use Capell\ContentBlocks\Filament\Actions\CreateContentAction;
 use Capell\ContentBlocks\Filament\Resources\ContentBlocks\ContentBlockResource;
@@ -23,7 +23,7 @@ class ListContentBlocks extends ListRecords
     /** @return class-string<ContentBlockResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::ContentBlock);
+        return AdminSurfaceLookup::resource(ResourceEnum::ContentBlock);
     }
 
     public function getSubheading(): string|Htmlable|null

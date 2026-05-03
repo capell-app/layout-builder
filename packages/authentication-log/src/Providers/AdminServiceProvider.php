@@ -6,6 +6,7 @@ namespace Capell\AuthenticationLog\Providers;
 
 use Capell\Admin\Contracts\DashboardSettingsContributor;
 use Capell\Admin\Contracts\Extenders\AdminPanelExtender;
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\DashboardEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\AuthenticationLog\Actions\ApplyAuthenticationLogSettingsAction;
@@ -38,7 +39,10 @@ class AdminServiceProvider extends ServiceProvider
         $this->app->tag([AuthenticationLogAdminPanelExtender::class], AdminPanelExtender::TAG);
         $this->app->tag([AuthenticationLogDashboardSettingsContributor::class], DashboardSettingsContributor::TAG);
 
-        CapellAdmin::registerExtraResource(AuthenticationLogResource::class);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+            class: AuthenticationLogResource::class,
+            group: 'AuthenticationLog',
+        ));
         CapellAdmin::registerDashboardWidget(AuthenticationLogsWidget::class, DashboardEnum::SystemHealth);
 
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {

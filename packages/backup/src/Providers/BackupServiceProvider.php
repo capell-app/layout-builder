@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Backup\Providers;
 
 use Capell\Admin\Contracts\Backup\PageExporter;
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Support\CapellAdminManager;
 use Capell\Backup\Contracts\BackupContextResolver;
 use Capell\Backup\Contracts\BackupRowContributor;
@@ -47,7 +48,6 @@ class BackupServiceProvider extends AbstractPackageServiceProvider
             ->hasConfigFile('backup')
             ->hasMigrations([
                 'create_import_sessions_table',
-                'drop_workspace_id_from_import_sessions_table',
                 'create_backup_restores_table',
             ]);
     }
@@ -126,11 +126,10 @@ class BackupServiceProvider extends AbstractPackageServiceProvider
     {
         if (class_exists(CapellAdminManager::class) && class_exists(ImportSessionResource::class)) {
             $registerImportSessionResource = static function (CapellAdminManager $capellAdminManager): void {
-                if (! $capellAdminManager->hasResource('ImportSession')) {
-                    $capellAdminManager->registerResource('ImportSession', ImportSessionResource::class);
-                }
-
-                $capellAdminManager->registerPage(ImportSitesPage::class);
+                $capellAdminManager->contributeToAdminSurface(
+                    AdminSurfaceContributionData::resource(ImportSessionResource::class, group: 'ImportSession'),
+                );
+                $capellAdminManager->contributeToAdminSurface(AdminSurfaceContributionData::page(ImportSitesPage::class));
             };
 
             $this->app->afterResolving(CapellAdminManager::class, $registerImportSessionResource);

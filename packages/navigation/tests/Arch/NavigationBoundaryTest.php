@@ -10,7 +10,7 @@ arch('navigation does not import packages that depend on it')
         'Capell\Forms',
         'Capell\Media',
         'Capell\Mosaic',
-        'Capell\Plugins',
+        'Capell\Marketplace',
         'Capell\SeoTools',
         'Capell\Tags',
         'Capell\Themes',

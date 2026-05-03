@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Redirects\Filament\Resources\Redirects\Pages;
 
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\CreateAction;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Enums\RedirectStatusCodeEnum;
 use Capell\Redirects\Filament\Exports\RedirectExporter;
 use Capell\Redirects\Filament\Imports\RedirectImporter;
@@ -23,7 +23,7 @@ class ManageRedirects extends ManageRecords
     #[Override]
     public static function getResource(): string
     {
-        return CapellAdmin::getResource('Redirect');
+        return AdminSurfaceLookup::resource('Redirect');
     }
 
     public function getSubheading(): string|Htmlable|null

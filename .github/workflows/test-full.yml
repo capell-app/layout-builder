@@ -1,4 +1,4 @@
-name: Tests (full)
+name: Tests (full suite)
 
 on:
   push:
@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   test-full:
-    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - DB${{ matrix.db }}
+    name: Tests + coverage - P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - DB${{ matrix.db }}
     runs-on: ubuntu-latest
     env:
       COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.ACCESS_TOKEN }}"} }'
@@ -61,9 +61,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: curl, dom, fileinfo, gd, intl, json, libxml, mbstring, pdo_mysql, pdo_sqlite, simplexml, sqlite3, zip
+          extensions: curl, dom, fileinfo, gd, intl, json, libxml, mbstring, pcov, pdo_mysql, pdo_sqlite, simplexml, sqlite3, zip
           tools: composer:v2
-          coverage: xdebug
+          coverage: pcov
 
       - name: Setup problem matchers
         run: |
@@ -119,28 +119,16 @@ jobs:
             echo "DB_DATABASE=:memory:" >> .env
           fi
 
-      - name: Rector Cache
-        uses: actions/cache@v5
-        with:
-          path: /tmp/rector
-          key: ${{ runner.os }}-rector-${{ hashFiles('composer.lock') }}
-          restore-keys: ${{ runner.os }}-rector-
-      - run: mkdir -p /tmp/rector
+      - name: Execute full test suite
+        run: php -d memory_limit=-1 vendor/bin/pest --colors=always --parallel --configuration=phpunit.xml
 
-      - name: PHPStan Cache
-        uses: actions/cache@v5
-        with:
-          path: /tmp/phpstan
-          key: ${{ runner.os }}-phpstan-${{ hashFiles('composer.lock') }}
-          restore-keys: ${{ runner.os }}-phpstan-
-      - run: mkdir -p /tmp/phpstan
+      - name: Check coverage threshold
+        if: matrix.db == 'mysql'
+        run: php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=packages -d pcov.exclude="~vendor|tests|storage|bootstrap|.temp~" vendor/bin/pest --coverage --min=80 --coverage-clover=coverage/clover.xml --colors=always --configuration=phpunit.xml
 
-      - name: Execute full tests
-        run: php -d memory_limit=-1 vendor/bin/pest --colors=always --parallel --configuration=phpunit-pipelines.xml
-
-      - name: Upload coverage
-        uses: gaelgirodon/ci-badges-action@v1
-        if: github.ref == 'refs/heads/master'
+      - name: Upload Clover XML for codecov
+        if: matrix.db == 'mysql'
+        uses: actions/upload-artifact@v7
         with:
-          gist-id: 9dd8e508cb2433728d42a258193770eb
-          token: ${{ secrets.GIST_TOKEN }}
+          name: pest-coverage-clover
+          path: coverage/clover.xml

@@ -7,6 +7,7 @@ namespace Capell\Workspaces\Providers;
 use Capell\Admin\Contracts\Dashboard\MyWorkQueueDataProvider;
 use Capell\Admin\Contracts\Dashboard\RecentlyPublishedDataProvider;
 use Capell\Admin\Contracts\DashboardSettingsContributor;
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\DashboardEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Widgets\Dashboard\MyWorkQueueWidget;
@@ -147,12 +148,12 @@ class AdminServiceProvider extends ServiceProvider
         CapellAdmin::registerDashboardWidget(RecentlyPublishedWidget::class, DashboardEnum::Main);
         CapellAdmin::registerDashboardWidget(WorkspaceActivityWidgetAbstract::class, DashboardEnum::Main);
         CapellAdmin::registerDashboardWidget(ContentSchedulerOverviewWidget::class, DashboardEnum::Main);
-        CapellAdmin::registerResource('Workspace', WorkspaceResource::class);
-        CapellAdmin::registerResource('PreviewLink', PreviewLinkResource::class);
-        CapellAdmin::registerPage(ActivityTrailPage::class);
-        CapellAdmin::registerPage(ImportPagesPage::class);
-        CapellAdmin::registerPage(ScheduledPublishingPage::class);
-        CapellAdmin::registerPage(StaleDraftsPage::class);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(WorkspaceResource::class, group: 'Workspace'));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(PreviewLinkResource::class, group: 'PreviewLink'));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(ActivityTrailPage::class));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(ImportPagesPage::class));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(ScheduledPublishingPage::class));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(StaleDraftsPage::class));
 
         return $this;
     }

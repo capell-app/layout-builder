@@ -41,7 +41,6 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 
 - backup_restores stores restore UUID, user, status, and source archive path.
 - import_sessions stores import kind, status, manifest, and result summary.
-- drop_workspace_id_from_import_sessions_table indicates workspace coupling has been reduced.
 - Retention and deletion rules should be verified against the host application policy.
 
 ## Install Impact

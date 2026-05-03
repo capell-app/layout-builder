@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Analytics\Providers;
 
 use Capell\Admin\Contracts\DashboardSettingsContributor;
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\DashboardEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Analytics\Console\Commands\PurgeAnalyticsDataCommand;
@@ -78,7 +79,7 @@ class AdminServiceProvider extends ServiceProvider
 
     private function registerPages(): self
     {
-        CapellAdmin::registerPage(AnalyticsPage::class);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(AnalyticsPage::class));
 
         return $this;
     }

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Filament\Resources\Sections\Pages;
 
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\DeleteAction;
 use Capell\Admin\Filament\Actions\ReplicateAction;
 use Capell\Admin\Filament\Concerns\HasAncestorBreadcrumbs;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Admin\Filament\Concerns\HasTypeRelationManagers;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Mosaic\Actions\ReplicateContentAction;
 use Capell\Mosaic\Enums\LivewireComponentsEnum;
 use Capell\Mosaic\Enums\ResourceEnum;
@@ -43,7 +43,7 @@ class EditSection extends EditRecord
     /** @return class-string<SectionResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Section);
+        return AdminSurfaceLookup::resource(ResourceEnum::Section);
     }
 
     public function getTitle(): string|Htmlable

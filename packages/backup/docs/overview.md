@@ -39,7 +39,6 @@ Supports controlled migration and recovery workflows where content, media, and r
 
 - backup_restores stores restore UUID, user, status, and source archive path.
 - import_sessions stores import kind, status, manifest, and result summary.
-- drop_workspace_id_from_import_sessions_table indicates workspace coupling has been reduced.
 - Retention and deletion rules should be verified against the host application policy.
 
 ## Screenshot Plan
@@ -94,7 +93,6 @@ Supports controlled migration and recovery workflows where content, media, and r
 
 - Migration: create_backup_restores_table.php
 - Migration: create_import_sessions_table.php
-- Migration: drop_workspace_id_from_import_sessions_table.php
 
 ## ERD Excerpt
 

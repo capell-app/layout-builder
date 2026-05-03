@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Campaigns\Providers;
 
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\DashboardEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Campaigns\Enums\CampaignWidgetConfiguratorEnum;
@@ -42,7 +43,10 @@ final class AdminServiceProvider extends ServiceProvider
     private function registerResources(): self
     {
         foreach (ResourceEnum::cases() as $resource) {
-            CapellAdmin::registerResource($resource->name, class: $resource->value);
+            CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+                class: $resource->value,
+                group: $resource->name,
+            ));
         }
 
         return $this;
@@ -51,7 +55,13 @@ final class AdminServiceProvider extends ServiceProvider
     private function registerConfigurators(): self
     {
         foreach (CampaignWidgetConfiguratorEnum::cases() as $configurator) {
-            CapellAdmin::registerConfigurator(MosaicConfiguratorTypeEnum::Widget, $configurator->value);
+            $configuratorClass = $configurator->value;
+
+            CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
+                class: $configuratorClass,
+                group: MosaicConfiguratorTypeEnum::Widget->value,
+                name: $configuratorClass::getKey(),
+            ));
         }
 
         return $this;

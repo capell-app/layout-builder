@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Capell\ContentBlocks\Filament\Resources\ContentBlocks\Tables;
 
 use Capell\Admin\Enums\ResourceEnum;
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Tables\Actions\EditAction;
 use Capell\Admin\Filament\Components\Tables\Actions\ReplicateAction;
 use Capell\Admin\Filament\Components\Tables\Columns\BadgeableColumn;
@@ -17,6 +16,7 @@ use Capell\Admin\Filament\Components\Tables\Columns\Page\PageNameColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\SiteColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\TypeColumn;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\ContentBlocks\Actions\ReplicateContentAction;
 use Capell\ContentBlocks\Enums\LayoutTypeEnum;
 use Capell\ContentBlocks\Filament\Components\Tables\Columns\Content\ContentNameColumn;
@@ -150,7 +150,7 @@ class ContentBlocksTable implements TableConfigurator
                     }
 
                     /** @var resource $resource */
-                    $resource = CapellAdmin::getResource(ResourceEnum::Page);
+                    $resource = AdminSurfaceLookup::resource(ResourceEnum::Page);
 
                     return $resource::getUrl(
                         'index',

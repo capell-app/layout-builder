@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Filament\Resources\Sections\Pages;
 
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\ApplySearchRelationsTable;
 use Capell\Admin\Filament\Concerns\HasSiteTableFilterTabs;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Mosaic\Enums\ResourceEnum;
 use Capell\Mosaic\Filament\Actions\CreateContentAction;
 use Capell\Mosaic\Filament\Resources\Sections\SectionResource;
@@ -23,7 +23,7 @@ class ListSections extends ListRecords
     /** @return class-string<SectionResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Section);
+        return AdminSurfaceLookup::resource(ResourceEnum::Section);
     }
 
     public function getSubheading(): string|Htmlable|null

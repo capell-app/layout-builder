@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\ContentBlocks\Filament\Resources\ContentBlocks\Pages;
 
-use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\ContentBlocks\Actions\MutateContentDataBeforeFillAction;
 use Capell\ContentBlocks\Enums\ResourceEnum;
 use Capell\ContentBlocks\Filament\Resources\ContentBlocks\ContentBlockResource;
@@ -15,7 +15,7 @@ class CreateContentBlock extends CreateRecord
     /** @return class-string<ContentBlockResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::ContentBlock);
+        return AdminSurfaceLookup::resource(ResourceEnum::ContentBlock);
     }
 
     protected function fillForm(): void

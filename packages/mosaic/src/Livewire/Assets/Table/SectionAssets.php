@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Livewire\Assets\Table;
 
-use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Models\Language;
 use Capell\Mosaic\Enums\ResourceEnum;
 use Capell\Mosaic\Filament\Resources\Sections\Tables\SectionsTable;
@@ -22,7 +22,7 @@ class SectionAssets extends AbstractAssets
 
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Section);
+        return AdminSurfaceLookup::resource(ResourceEnum::Section);
     }
 
     public function getFilteredTableQuery(): Builder

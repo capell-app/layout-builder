@@ -8,6 +8,7 @@ use BackedEnum;
 use Capell\Admin\Actions\ReplicateLayoutAction;
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
@@ -180,7 +181,7 @@ trait HasLayoutActions
             )
             ->modalWidth(Width::ScreenSmall)
             ->schema(function (array $arguments, self $livewire, Schema $configurator): Schema {
-                $adminSchema = CapellAdmin::getConfigurator(
+                $adminSchema = AdminSurfaceLookup::configurator(
                     ConfiguratorTypeEnum::LayoutWidget->value,
                     $livewire->getContainerWidgetConfigurator($arguments['containerKey'], $arguments['widgetIndex']),
                 );
@@ -916,7 +917,7 @@ trait HasLayoutActions
                                 $total,
                                 [
                                     'count' => $total,
-                                    'url' => CapellAdmin::getResource(ResourceEnum::Page)::getUrl(
+                                    'url' => AdminSurfaceLookup::resource(ResourceEnum::Page)::getUrl(
                                         'index',
                                         ['filters' => ['layout_id' => ['value' => $state]]],
                                     ),

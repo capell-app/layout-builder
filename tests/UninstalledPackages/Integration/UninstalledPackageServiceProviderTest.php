@@ -205,7 +205,9 @@ it('registers package metadata but skips runtime models, tables, settings, and a
 });
 
 it('does not expose admin resources, pages, widgets, or routes for uninstalled packages', function (): void {
-    expect(CapellAdmin::getAllResources())->not->toContain(
+    $adminSurfaceRegistry = CapellAdmin::getAdminSurfaceRegistry();
+
+    expect($adminSurfaceRegistry->resources())->not->toContain(
         AddressResource::class,
         CountryResource::class,
         ArticleResource::class,
@@ -227,9 +229,9 @@ it('does not expose admin resources, pages, widgets, or routes for uninstalled p
         PreviewLinkResource::class,
     );
 
-    expect(CapellAdmin::getExtraResources())->not->toContain(AuthenticationLogResource::class);
+    expect($adminSurfaceRegistry->resources())->not->toContain(AuthenticationLogResource::class);
 
-    expect(CapellAdmin::getExtraPages())->not->toContain(
+    expect($adminSurfaceRegistry->pages())->not->toContain(
         BrokenLinksPage::class,
         CapellMcpPromptBuilderPage::class,
         DeveloperToolsPage::class,

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Capell\Tags\Filament\Resources\Tags\Pages;
 
 use Capell\Admin\Contracts\PageCacheNotifiable;
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\DeleteAction;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Tags\Enums\ResourceEnum;
 use Capell\Tags\Filament\Resources\Tags\TagResource;
 use Capell\Tags\Models\Tag;
@@ -30,7 +30,7 @@ class EditTag extends EditRecord implements PageCacheNotifiable
     #[Override]
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Tag);
+        return AdminSurfaceLookup::resource(ResourceEnum::Tag);
     }
 
     #[Override]

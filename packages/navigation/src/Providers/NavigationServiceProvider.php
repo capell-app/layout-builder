@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Navigation\Providers;
 
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\SchemaExtenderEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Data\PageTypeData;
@@ -89,7 +90,10 @@ class NavigationServiceProvider extends ServiceProvider
 
     private function registerResources(): self
     {
-        CapellAdmin::registerResource('Navigation', NavigationResource::class);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+            class: NavigationResource::class,
+            group: 'Navigation',
+        ));
 
         return $this;
     }
@@ -115,7 +119,13 @@ class NavigationServiceProvider extends ServiceProvider
     private function registerConfigurators(): self
     {
         foreach (NavigationConfiguratorTypeEnum::getAllConfigurators() as $type => $configurators) {
-            CapellAdmin::registerConfigurators($type, $configurators, defaultConfigurators: true);
+            foreach ($configurators as $configuratorClass) {
+                CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
+                    class: $configuratorClass,
+                    group: $type,
+                    name: $configuratorClass::getKey(),
+                ));
+            }
         }
 
         return $this;

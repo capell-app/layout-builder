@@ -14,8 +14,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Capell\\Backup\\": "src",
-            "Capell\\Backup\\Database\\Factories\\": "database/factories"
+            "Capell\\Backup\\": "src"
         }
     },
     "autoload-dev": {

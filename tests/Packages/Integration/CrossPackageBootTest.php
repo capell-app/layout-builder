@@ -6,7 +6,7 @@ use Capell\Address\Providers\AddressServiceProvider;
 use Capell\Admin\Contracts\ConfiguratorInterface;
 use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
 use Capell\Admin\Enums\ConfiguratorTypeEnum;
-use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Blog\Providers\BlogServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Mosaic\Providers\MosaicServiceProvider;
@@ -44,7 +44,7 @@ it('every registered page type is a usable PageTypeData', function (): void {
 });
 
 it('every registered admin configurator points to a real class implementing ConfiguratorInterface', function (): void {
-    $configurators = CapellAdmin::getConfigurators();
+    $configurators = AdminSurfaceLookup::configuratorGroups();
 
     expect($configurators)->toBeArray();
 
@@ -59,7 +59,7 @@ it('every registered admin configurator points to a real class implementing Conf
 
 it('every ConfiguratorTypeEnum value resolves to a configurator map', function (): void {
     foreach (ConfiguratorTypeEnum::cases() as $case) {
-        $registered = CapellAdmin::getConfigurators($case);
+        $registered = AdminSurfaceLookup::configurators($case);
 
         expect($registered)->toBeArray();
 

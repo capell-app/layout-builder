@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Capell\ContentBlocks\Filament\Resources\ContentBlocks\Pages;
 
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\DeleteAction;
 use Capell\Admin\Filament\Actions\ReplicateAction;
 use Capell\Admin\Filament\Concerns\HasAncestorBreadcrumbs;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Admin\Filament\Concerns\HasTypeRelationManagers;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\ContentBlocks\Actions\ReplicateContentAction;
 use Capell\ContentBlocks\Enums\LivewireComponentsEnum;
 use Capell\ContentBlocks\Enums\ResourceEnum;
@@ -43,7 +43,7 @@ class EditContentBlock extends EditRecord
     /** @return class-string<ContentBlockResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::ContentBlock);
+        return AdminSurfaceLookup::resource(ResourceEnum::ContentBlock);
     }
 
     public function getTitle(): string|Htmlable

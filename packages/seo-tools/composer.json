@@ -20,6 +20,10 @@
         "icamys/php-sitemap-generator": "^4.4",
         "prism-php/prism": "^0.100"
     },
+    "suggest": {
+        "capell-app/redirects": "Enables redirect creation from broken link reports.",
+        "capell-app/workspaces": "Enables workspace-aware SEO publish reports."
+    },
     "require-dev": {
         "orchestra/testbench": "^9.0"
     },

@@ -121,8 +121,7 @@ Implementation lands in this PR (see `tests/Packages/Integration/CrossPackage*Te
 
 The cross-package tests added in this PR (`tests/Packages/Arch/`) are passing in their final form, but two of them initially failed against the live tree and revealed pre-existing bugs the per-package suites have never caught. They are tracked separately so we can land the test infrastructure now and address the underlying issues in their own PRs.
 
-1. **Two packages claim the composer name `capell-app/default-theme`.** `packages/default-theme/` (the rich one — Console, Enums, Filament, Settings, View) and `packages/theme-default/` (a thin shim — Providers, Support only) both publish under the same name. When the host app installs by composer name the install order is undefined. One of these needs to be deleted or renamed.
-2. **`alter_tags_table.php` exists in both `packages/blog/database/migrations/` and `packages/tags/database/migrations/`.** Laravel's migration runner keys by basename, so whichever package boots second is silently skipped. The file likely got duplicated when `tags/` was extracted from `blog/`. Decide which package owns the alteration, delete the other.
+1. **`alter_tags_table.php` exists in both `packages/blog/database/migrations/` and `packages/tags/database/migrations/`.** Laravel's migration runner keys by basename, so whichever package boots second is silently skipped. The file likely got duplicated when `tags/` was extracted from `blog/`. Decide which package owns the alteration, delete the other.
 
 To unblock the test suite, the `ManifestProviderClassExistsTest` and `MigrationFileUniquenessTest` checks have been written to fail loudly on these two cases — which is the desired behavior. The tests pass once the bugs above are resolved; they are not currently included in the green test suite.
 

@@ -57,7 +57,7 @@ function registerThemeStudioAdminTestTheme(): void
 }
 
 it('registers a dedicated Theme Studio page', function (): void {
-    expect(CapellAdmin::getExtraPages())->toContain(ThemeStudioPage::class)
+    expect(CapellAdmin::getAdminSurfaceRegistry()->pages())->toContain(ThemeStudioPage::class)
         ->and(ThemeStudioPage::getNavigationLabel())->toBe('Theme Studio');
 });
 

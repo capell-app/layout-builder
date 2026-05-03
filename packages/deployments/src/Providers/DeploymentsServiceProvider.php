@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Deployments\Providers;
 
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
@@ -56,7 +57,7 @@ class DeploymentsServiceProvider extends AbstractPackageServiceProvider
         });
 
         if (config('capell-deployments.enabled', true)) {
-            CapellAdmin::registerPage(DeploymentConnectionPage::class);
+            CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(DeploymentConnectionPage::class));
         }
     }
 

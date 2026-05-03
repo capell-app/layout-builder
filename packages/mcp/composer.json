@@ -22,6 +22,8 @@
     },
     "require": {
         "php": "^8.2",
+        "capell-app/admin": "*",
+        "capell-app/core": "*",
         "laravel/framework": "^11.45.3|^12.41.1|^13.0",
         "laravel/mcp": "^0.6|^0.7",
         "lorisleiva/laravel-actions": "^2.8",

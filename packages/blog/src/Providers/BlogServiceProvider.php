@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Providers;
 
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\ResourceEnum as AdminResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Blog\Enums\LivewirePageComponentEnum;
@@ -143,13 +144,16 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
 
     private function registerAdminResources(): self
     {
-        CapellAdmin::registerResource(
-            AdminResourceEnum::Page,
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
             class: ResourceEnum::Article->value,
+            group: AdminResourceEnum::Page->name,
             name: strtolower(ResourceEnum::Article->name),
-        );
+        ));
 
-        CapellAdmin::registerResource(ResourceEnum::Tag->name, class: ResourceEnum::Tag->value);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+            class: ResourceEnum::Tag->value,
+            group: ResourceEnum::Tag->name,
+        ));
 
         return $this;
     }

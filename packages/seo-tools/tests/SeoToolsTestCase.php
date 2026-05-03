@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\SeoTools\Tests;
 
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
@@ -62,11 +63,11 @@ class SeoToolsTestCase extends AbstractTestCase
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(SeoToolsServiceProvider::$packageName);
 
-        CapellAdmin::registerPage(NotFoundUrlsPage::class);
-        CapellAdmin::registerPage(BrokenLinksPage::class);
-        CapellAdmin::registerPage(SEOAuditPage::class);
-        CapellAdmin::registerPage(TranslationCoveragePage::class);
-        CapellAdmin::registerPage(SitemapPage::class);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(NotFoundUrlsPage::class));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(BrokenLinksPage::class));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(SEOAuditPage::class));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(TranslationCoveragePage::class));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(SitemapPage::class));
 
         // Register navigation with its path so BuildsOrderedMigrationWorkspace can
         // discover and include navigation's migrations in the ordered workspace.

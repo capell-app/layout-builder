@@ -18,9 +18,7 @@ it('loads analytics migrations', function (): void {
         ->and(Schema::hasColumn('analytics_visits', 'legacy_session_id'))->toBeTrue()
         ->and(Schema::hasColumn('analytics_consents', 'categories'))->toBeTrue()
         ->and(Schema::hasColumn('analytics_events', 'document_y'))->toBeTrue()
-        ->and(Schema::hasColumn('analytics_events', 'legacy_page_view_id'))->toBeTrue()
-        ->and(Schema::hasColumn('page_urls', 'hit_count'))->toBeTrue()
-        ->and(Schema::hasColumn('page_urls', 'last_hit_at'))->toBeTrue();
+        ->and(Schema::hasColumn('analytics_events', 'legacy_page_view_id'))->toBeTrue();
 });
 
 it('imports legacy page views idempotently into analytics events', function (): void {

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Filament\Resources\Widgets\Tables;
 
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Tables\Actions\EditAction;
 use Capell\Admin\Filament\Components\Tables\Actions\ReplicateAction;
 use Capell\Admin\Filament\Components\Tables\Columns\DateColumn;
@@ -12,6 +11,7 @@ use Capell\Admin\Filament\Components\Tables\Columns\IdentifierColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\Page\PageNameColumn;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Actions\GetEditPageResourceUrlAction;
 use Capell\Core\Actions\ResolvePageableMorphModelAction;
 use Capell\Core\Enums\TypeEnum;
@@ -47,7 +47,7 @@ class WidgetAssetsTable implements TableConfigurator
             ->recordUrl(
                 fn (WidgetAsset $record): ?string => match ($record->asset_type) {
                     TypeEnum::Page->value => GetEditPageResourceUrlAction::run($record->asset),
-                    default => CapellAdmin::getResource(ucfirst((string) $record->asset_type))::getUrl(
+                    default => AdminSurfaceLookup::resource(ucfirst((string) $record->asset_type))::getUrl(
                         'edit',
                         ['record' => $record->asset],
                     ),

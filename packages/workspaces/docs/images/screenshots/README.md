@@ -5,15 +5,11 @@ These are embedded in [page-creation-and-approval-flow.md](../../page-creation-a
 
 ## Files
 
-| File                                     | What it shows                                                                                     |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `01-pages-list.png`                      | Pages list with SEO Overview summary and the table of pages                                       |
-| `02-edit-page-save-as-draft.png`         | Bottom of the page edit form showing the `Save changes` + `Save as Draft` + `Cancel` button group |
-| `03-edit-page-save-as-draft-tooltip.png` | Hover tooltip on `Save as Draft`: _"Save your changes without publishing…"_                       |
-| `04-create-page-save-as-draft.png`       | `/admin/pages/create` form with `Create` + `Save as Draft` + `Create & create another` buttons    |
-| `05-workspaces-list.png`                 | Workspaces list with status badges + `Latest review note` column + action buttons per row         |
-| `06-request-changes-modal.png`           | `Request changes` modal with required notes textarea                                              |
-| `07-approval-history-panel.png`          | Workspace edit form with the Approval history Livewire panel at the top                           |
+| File                               | What it shows                                                                                  |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `01-pages-list.png`                | Pages list with SEO Overview summary and the table of pages                                    |
+| `04-create-page-save-as-draft.png` | `/admin/pages/create` form with `Create` + `Save as Draft` + `Create & create another` buttons |
+| `05-workspaces-list.png`           | Workspaces list with status badges + `Latest review note` column + action buttons per row      |
 
 ## Regenerating
 
@@ -43,4 +39,4 @@ ADMIN_PASSWORD=secret \
 node scripts/capture-admin-screenshots.mjs
 ```
 
-The script logs in, captures each of the 7 views, and writes them into this directory. Workspace-specific screens (05–07) are skipped with a warning if the host panel doesn't register `WorkspaceResource`.
+The script logs in, captures the documented views, and writes them into this directory. Workspace-specific screens are skipped with a warning if the host panel doesn't register `WorkspaceResource`.

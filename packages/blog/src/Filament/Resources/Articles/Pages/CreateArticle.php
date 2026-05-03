@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Capell\Blog\Filament\Resources\Articles\Pages;
 
 use Capell\Admin\Enums\ResourceEnum as AdminResourceEnum;
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Resources\Pages\Pages\CreatePage;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Blog\Actions\GetArticleLayoutAction;
 use Capell\Blog\Enums\BlogPageTypeEnum;
 use Capell\Blog\Enums\ResourceEnum;
@@ -18,7 +18,7 @@ class CreateArticle extends CreatePage
     /** @return class-string<ArticleResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResourceIfExists(AdminResourceEnum::Page, strtolower(ResourceEnum::Article->name))
+        return AdminSurfaceLookup::resourceIfRegistered(AdminResourceEnum::Page, strtolower(ResourceEnum::Article->name))
             ?? ArticleResource::class;
     }
 

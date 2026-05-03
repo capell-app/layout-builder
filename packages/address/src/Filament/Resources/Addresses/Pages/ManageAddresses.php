@@ -6,7 +6,7 @@ namespace Capell\Address\Filament\Resources\Addresses\Pages;
 
 use Capell\Address\Enums\ResourceEnum;
 use Capell\Address\Filament\Resources\Addresses\AddressResource;
-use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
@@ -18,12 +18,12 @@ class ManageAddresses extends ManageRecords
     #[Override]
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Address);
+        return AdminSurfaceLookup::resource(ResourceEnum::Address);
     }
 
     protected function getActions(): array
     {
-        $countryResource = CapellAdmin::getResource(ResourceEnum::Country);
+        $countryResource = AdminSurfaceLookup::resource(ResourceEnum::Country);
 
         return [
             CreateAction::make(),

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\ContentBlocks\Support\Mosaic\Livewire;
 
-use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\ContentBlocks\Enums\ResourceEnum;
 use Capell\ContentBlocks\Filament\Resources\ContentBlocks\Tables\ContentBlocksTable;
 use Capell\ContentBlocks\Models\ContentBlock;
@@ -23,7 +23,7 @@ class ContentBlockAssets extends AbstractAssets
 
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::ContentBlock);
+        return AdminSurfaceLookup::resource(ResourceEnum::ContentBlock);
     }
 
     public function getFilteredTableQuery(): Builder

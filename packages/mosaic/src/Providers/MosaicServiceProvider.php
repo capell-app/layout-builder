@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Providers;
 
+use BackedEnum;
 use Capell\Admin\Actions\CreatedModelAction;
 use Capell\Admin\Actions\DeletedModelAction;
 use Capell\Admin\Data\AdminAssetData;
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\ConfiguratorTypeEnum as AdminConfiguratorTypeEnum;
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Enums\SchemaExtenderEnum;
@@ -284,9 +286,18 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
 
     private function registerResources(): self
     {
-        CapellAdmin::registerResource(LayoutResourceEnum::Section->name, class: LayoutResourceEnum::Section->value);
-        CapellAdmin::registerResource(LayoutResourceEnum::Widget->name, class: LayoutResourceEnum::Widget->value);
-        CapellAdmin::registerResource(ResourceEnum::Layout, class: LayoutResource::class);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+            class: LayoutResourceEnum::Section->value,
+            group: LayoutResourceEnum::Section->name,
+        ));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+            class: LayoutResourceEnum::Widget->value,
+            group: LayoutResourceEnum::Widget->name,
+        ));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+            class: LayoutResource::class,
+            group: ResourceEnum::Layout->name,
+        ));
 
         return $this;
     }
@@ -558,11 +569,27 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
     private function registerConfigurators(): self
     {
         foreach (ConfiguratorTypeEnum::getAllConfigurators() as $type => $configurators) {
-            CapellAdmin::registerConfigurators($type, $configurators, defaultConfigurators: true);
+            foreach ($configurators as $configurator) {
+                $configuratorClass = $configurator instanceof BackedEnum ? $configurator->value : $configurator;
+
+                CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
+                    class: $configuratorClass,
+                    group: $type,
+                    name: $configuratorClass::getKey(),
+                ));
+            }
         }
 
-        CapellAdmin::registerConfigurator(AdminConfiguratorTypeEnum::Type, ContentTypeConfigurator::class);
-        CapellAdmin::registerConfigurator(AdminConfiguratorTypeEnum::Type, WidgetTypeConfigurator::class);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
+            class: ContentTypeConfigurator::class,
+            group: AdminConfiguratorTypeEnum::Type->value,
+            name: ContentTypeConfigurator::getKey(),
+        ));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
+            class: WidgetTypeConfigurator::class,
+            group: AdminConfiguratorTypeEnum::Type->value,
+            name: WidgetTypeConfigurator::getKey(),
+        ));
 
         return $this;
     }

@@ -81,7 +81,6 @@ it('groups packages into the current product bundles', function (): void {
             'navigation/capell.json',
             'redirects/capell.json',
             'tags/capell.json',
-            'theme-default/capell.json',
             'toolbar/capell.json',
         ],
         'growth' => [
@@ -91,7 +90,9 @@ it('groups packages into the current product bundles', function (): void {
         'operations' => [
             'authentication-log/capell.json',
             'backup/capell.json',
+            'deployments/capell.json',
             'developer-tools/capell.json',
+            'mcp/capell.json',
         ],
         'publishing-pro' => [
             'filament-peek/capell.json',

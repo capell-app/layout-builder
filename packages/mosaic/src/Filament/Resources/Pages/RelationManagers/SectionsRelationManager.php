@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Capell\Mosaic\Filament\Resources\Pages\RelationManagers;
 
 use BackedEnum;
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\HasConfiguredForm;
 use Capell\Admin\Filament\Concerns\HasConfiguredTable;
 use Capell\Admin\Filament\Concerns\HasRelationManagerBadge;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Mosaic\Enums\ResourceEnum;
 use Capell\Mosaic\Filament\Resources\Sections\Schemas\SectionForm;
 use Capell\Mosaic\Filament\Resources\Sections\Tables\SectionsTable;
@@ -38,7 +38,7 @@ class SectionsRelationManager extends RelationManager
 
     public static function getIcon(Model $ownerRecord, string $pageClass): string|BackedEnum|null
     {
-        return CapellAdmin::getResource(ResourceEnum::Section)::getNavigationIcon();
+        return AdminSurfaceLookup::resource(ResourceEnum::Section)::getNavigationIcon();
     }
 
     public function form(Schema $configurator): Schema

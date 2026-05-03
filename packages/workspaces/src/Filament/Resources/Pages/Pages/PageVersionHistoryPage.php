@@ -6,8 +6,8 @@ namespace Capell\Workspaces\Filament\Resources\Pages\Pages;
 
 use BackedEnum;
 use Capell\Admin\Enums\ResourceEnum;
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Resources\Pages\PageResource;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Models\Page;
 use Capell\Workspaces\Actions\DeletePageDraftAction;
 use Capell\Workspaces\Filament\Resources\Workspaces\WorkspaceResource;
@@ -46,7 +46,7 @@ class PageVersionHistoryPage extends FilamentPage
     /** @return class-string<PageResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Page);
+        return AdminSurfaceLookup::resource(ResourceEnum::Page);
     }
 
     public function mount(string|int $record): void

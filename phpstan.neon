@@ -32,7 +32,6 @@ parameters:
         - packages/forms/database/migrations
         - packages/mosaic/database/migrations
         - packages/navigation/database/migrations
-        - packages/plugins/database/migrations
         - packages/seo-tools/database/migrations
         - packages/tags/database/migrations
         - packages/workspaces/database/migrations
@@ -41,7 +40,6 @@ parameters:
         - packages/default-theme/config
         - packages/deployments/config
         - packages/mosaic/config
-        - packages/plugins/config
         - packages/mcp/config
         - packages/redirects/config
         - packages/seo-tools/config
@@ -52,7 +50,6 @@ parameters:
         - packages/address/resources/lang
         - packages/blog/resources/lang
         - packages/mosaic/resources/lang
-        - packages/plugins/resources/lang
         - packages/seo-tools/resources/lang
         - packages/tags/resources/lang
         - packages/toolbar/resources/lang
@@ -66,7 +63,6 @@ parameters:
         - packages/theme-studio-admin/resources/views
         - packages/theme-agency/resources/views
         - packages/theme-corporate/resources/views
-        - packages/theme-default/resources/views
         - packages/theme-saas/resources/views
         - packages/toolbar/resources/views
         - packages/workspaces/resources/views

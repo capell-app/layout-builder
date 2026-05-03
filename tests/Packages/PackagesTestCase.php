@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Tests\Packages;
 
 use Capell\Address\Providers\AddressServiceProvider;
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\ResourceEnum as AdminResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
@@ -139,8 +140,7 @@ class PackagesTestCase extends AbstractTestCase
             __DIR__ . '/../../packages/blog/resources/views/components',
             __DIR__ . '/../../packages/mosaic/resources/views/components',
             __DIR__ . '/../../packages/seo-tools/resources/views/components/schema',
-            __DIR__ . '/../../packages/default-theme/resources/views/components/button/index.blade.php',
-            __DIR__ . '/../../packages/theme-default/resources/views/components',
+            __DIR__ . '/../../packages/default-theme/resources/views/components',
         ] as $path) {
             RegisterBlazeOptimizedViewsAction::run($path);
         }
@@ -148,10 +148,12 @@ class PackagesTestCase extends AbstractTestCase
 
     private function registerBlogResourcesForBlaze(): void
     {
-        CapellAdmin::registerResource(
-            AdminResourceEnum::Page,
-            class: BlogResourceEnum::Article->value,
-            name: strtolower(BlogResourceEnum::Article->name),
+        CapellAdmin::contributeToAdminSurface(
+            AdminSurfaceContributionData::resource(
+                BlogResourceEnum::Article->value,
+                group: AdminResourceEnum::Page->name,
+                name: strtolower(BlogResourceEnum::Article->name),
+            ),
         );
     }
 

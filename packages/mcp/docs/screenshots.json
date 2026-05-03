@@ -1,6 +1,6 @@
 {
     "package": "mcp",
-    "composerName": null,
+    "composerName": "capell-app/mcp",
     "generatedFor": "deployment-screenshot-runner",
     "requiresInstalledPackage": true,
     "outputDirectory": "public/docs/screenshots/packages/mcp",

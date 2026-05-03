@@ -16,6 +16,7 @@ use Capell\Address\Models\Country;
 use Capell\Address\Support\AddressModelRegistrar;
 use Capell\Address\Support\FlagIconRenderer;
 use Capell\Address\Support\Language\FlagsService;
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\ConfiguratorTypeEnum as AdminConfiguratorTypeEnum;
 use Capell\Admin\Enums\SchemaExtenderEnum;
 use Capell\Admin\Facades\CapellAdmin;
@@ -145,7 +146,13 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
     private function registerConfigurators(): self
     {
         foreach (ConfiguratorTypeEnum::getAllConfigurators() as $type => $configurators) {
-            CapellAdmin::registerConfigurators($type, $configurators, defaultConfigurators: true);
+            foreach ($configurators as $configuratorClass) {
+                CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
+                    class: $configuratorClass,
+                    group: $type,
+                    name: $configuratorClass::getKey(),
+                ));
+            }
         }
 
         return $this;
@@ -153,15 +160,25 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
 
     private function registerLanguageConfigurator(): self
     {
-        CapellAdmin::registerConfigurator(AdminConfiguratorTypeEnum::Language, DefaultLanguageConfigurator::class);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
+            class: DefaultLanguageConfigurator::class,
+            group: AdminConfiguratorTypeEnum::Language->value,
+            name: DefaultLanguageConfigurator::getKey(),
+        ));
 
         return $this;
     }
 
     private function registerResources(): self
     {
-        CapellAdmin::registerResource(ResourceEnum::Address->name, class: ResourceEnum::Address->value);
-        CapellAdmin::registerResource(ResourceEnum::Country->name, class: ResourceEnum::Country->value);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+            class: ResourceEnum::Address->value,
+            group: ResourceEnum::Address->name,
+        ));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+            class: ResourceEnum::Country->value,
+            group: ResourceEnum::Country->name,
+        ));
 
         return $this;
     }

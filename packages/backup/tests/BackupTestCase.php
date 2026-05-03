@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Backup\Tests;
 
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
@@ -52,10 +53,9 @@ abstract class BackupTestCase extends AbstractTestCase
         );
         CapellCore::forcePackageInstalled(BackupServiceProvider::$packageName);
 
-        if (! CapellAdmin::hasResource('ImportSession')) {
-            CapellAdmin::registerResource('ImportSession', ImportSessionResource::class);
-        }
-
-        CapellAdmin::registerPage(ImportSitesPage::class);
+        CapellAdmin::contributeToAdminSurface(
+            AdminSurfaceContributionData::resource(ImportSessionResource::class, group: 'ImportSession'),
+        );
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(ImportSitesPage::class));
     }
 }

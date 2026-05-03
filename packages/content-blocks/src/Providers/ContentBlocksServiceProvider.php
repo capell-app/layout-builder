@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\ContentBlocks\Providers;
 
+use BackedEnum;
 use Capell\Admin\Actions\CreatedModelAction;
 use Capell\Admin\Actions\DeletedModelAction;
 use Capell\Admin\Data\AdminAssetData;
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\ContentBlocks\Enums\AssetEnum;
 use Capell\ContentBlocks\Enums\ConfiguratorTypeEnum;
@@ -139,7 +141,10 @@ class ContentBlocksServiceProvider extends AbstractPackageServiceProvider
 
     private function registerResources(): self
     {
-        CapellAdmin::registerResource(ResourceEnum::ContentBlock->name, class: ContentBlockResource::class);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+            class: ContentBlockResource::class,
+            group: ResourceEnum::ContentBlock->name,
+        ));
 
         return $this;
     }
@@ -147,7 +152,15 @@ class ContentBlocksServiceProvider extends AbstractPackageServiceProvider
     private function registerConfigurators(): self
     {
         foreach (ConfiguratorTypeEnum::getAllConfigurators() as $type => $configurators) {
-            CapellAdmin::registerConfigurators($type, $configurators, defaultConfigurators: true);
+            foreach ($configurators as $configurator) {
+                $configuratorClass = $configurator instanceof BackedEnum ? $configurator->value : $configurator;
+
+                CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
+                    class: $configuratorClass,
+                    group: $type,
+                    name: $configuratorClass::getKey(),
+                ));
+            }
         }
 
         return $this;

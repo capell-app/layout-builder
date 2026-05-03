@@ -15,7 +15,7 @@ arch('seo-tools does not import packages that depend on it')
         'Capell\Media',
         'Capell\Mosaic',
         'Capell\Navigation',
-        'Capell\Plugins',
+        'Capell\Marketplace',
         'Capell\Tags',
         'Capell\Themes',
         'Capell\Workspaces',

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Livewire\Filament\Concerns;
 
-use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Mosaic\Enums\ConfiguratorTypeEnum;
 use Capell\Mosaic\Filament\Configurators\Layouts\DefaultLayoutContainerConfigurator;
 use Closure;
@@ -256,7 +256,7 @@ trait ManagesContainers
     {
         $containerKey = $arguments['containerKey'] ?? null;
 
-        $adminSchema = CapellAdmin::getConfigurator(
+        $adminSchema = AdminSurfaceLookup::configurator(
             ConfiguratorTypeEnum::LayoutContainer->value,
             $this->layout->admin['container_schema'][$containerKey] ?? DefaultLayoutContainerConfigurator::getKey(),
         );

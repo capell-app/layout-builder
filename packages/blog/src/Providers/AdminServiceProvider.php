@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Blog\Providers;
 
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\ConfiguratorTypeEnum;
 use Capell\Admin\Enums\ResourceEnum as AdminResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
@@ -44,13 +45,16 @@ final class AdminServiceProvider extends ServiceProvider
 
     private function registerResources(): void
     {
-        CapellAdmin::registerResource(
-            AdminResourceEnum::Page,
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
             class: ResourceEnum::Article->value,
+            group: AdminResourceEnum::Page->name,
             name: strtolower(ResourceEnum::Article->name),
-        );
+        ));
 
-        CapellAdmin::registerResource(ResourceEnum::Tag->name, class: ResourceEnum::Tag->value);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+            class: ResourceEnum::Tag->value,
+            group: ResourceEnum::Tag->name,
+        ));
     }
 
     private function registerWidgetComponents(): void
@@ -60,10 +64,20 @@ final class AdminServiceProvider extends ServiceProvider
 
     private function registerConfigurators(): void
     {
-        CapellAdmin::registerConfigurator(ConfiguratorTypeEnum::Page, ArticlePageConfigurator::class);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
+            class: ArticlePageConfigurator::class,
+            group: ConfiguratorTypeEnum::Page->value,
+            name: ArticlePageConfigurator::getKey(),
+        ));
 
-        foreach (WidgetConfiguratorEnum::cases() as $configurators) {
-            CapellAdmin::registerConfigurator(LayoutSchemaEnum::Widget, $configurators->value);
+        foreach (WidgetConfiguratorEnum::cases() as $configurator) {
+            $configuratorClass = $configurator->value;
+
+            CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
+                class: $configuratorClass,
+                group: LayoutSchemaEnum::Widget->value,
+                name: $configuratorClass::getKey(),
+            ));
         }
     }
 

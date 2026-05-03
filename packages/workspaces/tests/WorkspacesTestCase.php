@@ -10,6 +10,7 @@ use BezhanSalleh\FilamentShield\FilamentShieldServiceProvider;
 use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use Capell\Admin\Contracts\Extenders\PageEditExtender;
 use Capell\Admin\Contracts\Extenders\PageResourcePageExtender;
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
@@ -170,12 +171,12 @@ class WorkspacesTestCase extends AbstractTestCase
         CapellCore::forcePackageInstalled('capell-app/workspaces');
         $app->tag([WorkspacesPageEditExtender::class], PageEditExtender::TAG);
         $app->tag([WorkspacesPageResourcePageExtender::class], PageResourcePageExtender::TAG);
-        CapellAdmin::registerResource('Workspace', WorkspaceResource::class);
-        CapellAdmin::registerResource('PreviewLink', PreviewLinkResource::class);
-        CapellAdmin::registerPage(ActivityTrailPage::class);
-        CapellAdmin::registerPage(ImportPagesPage::class);
-        CapellAdmin::registerPage(ScheduledPublishingPage::class);
-        CapellAdmin::registerPage(StaleDraftsPage::class);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(WorkspaceResource::class, group: 'Workspace'));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(PreviewLinkResource::class, group: 'PreviewLink'));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(ActivityTrailPage::class));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(ImportPagesPage::class));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(ScheduledPublishingPage::class));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(StaleDraftsPage::class));
 
         // Navigation and Tags have no capell.json so they're not auto-discovered;
         // register them explicitly so BuildsOrderedMigrationWorkspace loads their migrations.

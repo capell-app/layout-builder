@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Tags\Filament\Resources\Tags\Pages;
 
-use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Tags\Enums\ResourceEnum;
 use Capell\Tags\Filament\Resources\Tags\TagResource;
 use Filament\Resources\Pages\CreateRecord;
@@ -20,7 +20,7 @@ class CreateTag extends CreateRecord
     #[Override]
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Tag);
+        return AdminSurfaceLookup::resource(ResourceEnum::Tag);
     }
 
     protected function getActions(): array

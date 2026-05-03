@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Redirects\Providers;
 
 use Capell\Admin\Contracts\Redirects\RedirectUrlRecorder;
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Support\CapellAdminManager;
 use Capell\Core\Events\PageSaved;
 use Capell\Core\Facades\CapellCore;
@@ -80,9 +81,9 @@ class RedirectsServiceProvider extends AbstractPackageServiceProvider
             Gate::policy(PageUrl::class, RedirectPolicy::class);
 
             $registerRedirectResource = static function (CapellAdminManager $capellAdminManager): void {
-                if (! $capellAdminManager->hasResource('Redirect')) {
-                    $capellAdminManager->registerResource('Redirect', RedirectResource::class);
-                }
+                $capellAdminManager->contributeToAdminSurface(
+                    AdminSurfaceContributionData::resource(RedirectResource::class, group: 'Redirect'),
+                );
             };
 
             $this->app->afterResolving(CapellAdminManager::class, $registerRedirectResource);

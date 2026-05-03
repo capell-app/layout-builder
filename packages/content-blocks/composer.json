@@ -23,6 +23,10 @@
         "capell-app/core": "*",
         "capell-app/frontend": "*"
     },
+    "suggest": {
+        "capell-app/mosaic": "Enables Mosaic widget integration for reusable content blocks.",
+        "capell-app/workspaces": "Enables workspace-aware content block publishing integration."
+    },
     "autoload": {
         "psr-4": {
             "Capell\\ContentBlocks\\": "src/",

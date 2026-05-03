@@ -11,6 +11,7 @@ use Capell\Core\Events\PackageInstalled;
 use Capell\Core\Events\PackageUninstalled;
 use Capell\Core\Events\ThemeColorsUpdated;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Theme;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Core\Support\Settings\SettingsSchemaRegistry;
 use Capell\DefaultTheme\Console\Commands\GenerateTailwindAssetsCommand;
@@ -20,6 +21,7 @@ use Capell\DefaultTheme\Listeners\RegenerateTailwindAssetsOnThemeColorsUpdated;
 use Capell\DefaultTheme\Listeners\RunTailwindAssetsOnPackageChange;
 use Capell\DefaultTheme\Settings\DefaultThemeSettings;
 use Capell\DefaultTheme\Support\Blade\BladeDirectives;
+use Capell\DefaultTheme\Support\Interceptors\Themes\DefaultThemeInterceptor;
 use Capell\DefaultTheme\Support\Media\CapellUrlGenerator;
 use Capell\DefaultTheme\Support\Tailwind\TailwindAssetsGenerator;
 use Capell\DefaultTheme\View\Components\Media\Svg;
@@ -62,6 +64,7 @@ final class DefaultThemeServiceProvider extends AbstractPackageServiceProvider
         $this->registerMediaUrlGenerator();
         $this->registerBladeComponents();
         $this->registerMediaBladeComponents();
+        $this->registerModelInterceptors();
         $this->registerSettingsSchemas();
     }
 
@@ -100,7 +103,7 @@ final class DefaultThemeServiceProvider extends AbstractPackageServiceProvider
 
     private function registerBlazeComponents(): void
     {
-        RegisterBlazeOptimizedViewsAction::run(__DIR__ . '/../../resources/views/components/button/index.blade.php');
+        RegisterBlazeOptimizedViewsAction::run(__DIR__ . '/../../resources/views/components');
     }
 
     private function registerTailwindEventListeners(): void
@@ -130,6 +133,11 @@ final class DefaultThemeServiceProvider extends AbstractPackageServiceProvider
         $registry = resolve(SettingsSchemaRegistry::class);
         $registry->registerSettingsClass('default_theme', DefaultThemeSettings::class);
         $registry->register('default_theme', DefaultThemeSettingsSchema::class);
+    }
+
+    private function registerModelInterceptors(): void
+    {
+        CapellCore::registerModelInterceptor(Theme::class, interceptorClass: DefaultThemeInterceptor::class);
     }
 
     private function registerVendorNpmDependencies(): void
@@ -174,7 +182,7 @@ final class DefaultThemeServiceProvider extends AbstractPackageServiceProvider
         );
 
         CapellCore::registerVendorAsset(
-            VendorAssetData::tailwindImport('resources/css/capell-frontend.css', self::$packageName),
+            VendorAssetData::tailwindImport('resources/css/default-theme.css', self::$packageName),
         );
 
         CapellCore::registerVendorAsset(

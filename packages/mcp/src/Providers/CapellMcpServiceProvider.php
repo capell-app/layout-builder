@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Mcp\Providers;
 
 use Capell\Admin\Contracts\AdminTools\AdminToolItem;
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
 use Capell\Mcp\Actions\Cache\ClearCapellCacheCapabilityAction;
@@ -19,8 +20,11 @@ use Capell\Mcp\Enums\CapabilityServerEnum;
 use Capell\Mcp\Filament\Pages\CapellMcpPromptBuilderPage;
 use Capell\Mcp\Support\AdminTools\PromptBuilderAdminTool;
 use Capell\Mcp\Support\CapellMcpCapabilityRegistry;
+use Capell\Mcp\Tools\Boost\ListBoostCapabilitiesTool;
+use Capell\Mcp\Tools\Boost\PreviewBoostCapabilityTool;
 use Filament\Pages\Page;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Boost\Mcp\Boost;
 
 final class CapellMcpServiceProvider extends ServiceProvider
 {
@@ -51,8 +55,26 @@ final class CapellMcpServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__ . '/../../routes/mcp.php');
 
         $this->registerAdminIntegration();
+        $this->registerBoostIntegration();
         $this->registerBuiltInCapabilities();
         $this->registerTaggedCapabilityProviders();
+    }
+
+    private function registerBoostIntegration(): void
+    {
+        if (! class_exists(Boost::class)) {
+            return;
+        }
+
+        $includedTools = config('boost.mcp.tools.include', []);
+
+        config([
+            'boost.mcp.tools.include' => array_values(array_unique([
+                ...$includedTools,
+                ListBoostCapabilitiesTool::class,
+                PreviewBoostCapabilityTool::class,
+            ])),
+        ]);
     }
 
     private function registerPackageMetadata(): void
@@ -93,7 +115,7 @@ final class CapellMcpServiceProvider extends ServiceProvider
             return;
         }
 
-        $adminFacade::registerPage($promptBuilderPage);
+        $adminFacade::contributeToAdminSurface(AdminSurfaceContributionData::page($promptBuilderPage));
 
         $this->app->tag([
             $promptBuilderTool,

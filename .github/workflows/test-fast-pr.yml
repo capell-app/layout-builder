@@ -1,4 +1,4 @@
-name: Tests (minimal)
+name: Tests (fast PR)
 
 on:
   pull_request:
@@ -8,18 +8,18 @@ on:
     paths:
       - 'packages/**/*.php'
       - 'tests/**/*.php'
-      - '.github/workflows/test-minimal.yml'
+      - '.github/workflows/test-fast-pr.yml'
       - '.github/workflows/test-full.yml'
-      - 'phpunit-pipelines.xml'
+      - 'phpunit.xml'
 
 concurrency:
-  group: ${{ github.head_ref || github.ref }}-phpunit-minimal
+  group: ${{ github.head_ref || github.ref }}-phpunit-fast-pr
   cancel-in-progress: true
 
 jobs:
-  test-minimal:
+  test-fast:
     if: github.event.pull_request.draft == false
-    name: Tests (PR - minimal)
+    name: Tests (fast PR suite)
     runs-on: ubuntu-latest
     env:
       COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.ACCESS_TOKEN }}"} }'
@@ -32,20 +32,6 @@ jobs:
             testbench: 9.*
             db: sqlite
 
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: test_cms_multi
-        ports:
-          - '${{ vars.MYSQL_PORT || 3306 }}:3306'
-        options: >-
-          --health-cmd "mysqladmin ping -h 127.0.0.1 -proot || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -55,15 +41,15 @@ jobs:
         uses: actions/cache@v5
         with:
           path: vendor
-          key: dependencies-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-testbench-${{ matrix.testbench }}-${{ matrix.db }}-${{ hashFiles('composer.lock', '.github/workflows/test-minimal.yml') }}
+          key: dependencies-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-testbench-${{ matrix.testbench }}-${{ matrix.db }}-${{ hashFiles('composer.lock', '.github/workflows/test-fast-pr.yml') }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: curl, dom, fileinfo, gd, intl, json, libxml, mbstring, pdo_mysql, pdo_sqlite, simplexml, sqlite3, zip
+          extensions: curl, dom, fileinfo, gd, intl, json, libxml, mbstring, pdo_sqlite, simplexml, sqlite3, zip
           tools: composer:v2
-          coverage: xdebug
+          coverage: none
 
       - name: Setup problem matchers
         run: |
@@ -108,21 +94,5 @@ jobs:
           echo "DB_CONNECTION=sqlite" >> .env
           echo "DB_DATABASE=:memory:" >> .env
 
-      - name: Rector Cache
-        uses: actions/cache@v5
-        with:
-          path: /tmp/rector
-          key: ${{ runner.os }}-rector-${{ hashFiles('composer.lock') }}
-          restore-keys: ${{ runner.os }}-rector-
-      - run: mkdir -p /tmp/rector
-
-      - name: PHPStan Cache
-        uses: actions/cache@v5
-        with:
-          path: /tmp/phpstan
-          key: ${{ runner.os }}-phpstan-${{ hashFiles('composer.lock') }}
-          restore-keys: ${{ runner.os }}-phpstan-
-      - run: mkdir -p /tmp/phpstan
-
-      - name: Execute minimal tests
-        run: php -d memory_limit=-1 vendor/bin/pest --colors=always --parallel --configuration=phpunit-pipelines.xml
+      - name: Execute fast PR tests
+        run: php -d memory_limit=-1 vendor/bin/pest --colors=always --parallel --stop-on-error --stop-on-failure --configuration=phpunit.xml

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\DeveloperTools\Actions\Dashboard;
 
 use Capell\Admin\Contracts\Extenders\PageSchemaExtender;
-use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Data\PageTypeData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\PackageRegistry\CapellPackageRegistry;
@@ -58,7 +58,7 @@ final class BuildRegistryHealthAction
 
     private function buildConfiguratorsSection(): RegistrySectionData
     {
-        $allConfigurators = CapellAdmin::getConfigurators();
+        $allConfigurators = AdminSurfaceLookup::configuratorGroups();
 
         $entries = [];
         foreach ($allConfigurators as $configuratorClasses) {

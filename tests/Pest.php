@@ -54,7 +54,6 @@ pest()->extend(SiteSearchTestCase::class)->group('site-search')->in('../packages
 pest()->extend(TagsTestCase::class)->group('tags')->in('../packages/tags/tests');
 pest()->extend(PackagesTestCase::class)->group('theme-agency')->in('../packages/theme-agency/tests');
 pest()->extend(PackagesTestCase::class)->group('theme-corporate')->in('../packages/theme-corporate/tests');
-pest()->extend(PackagesTestCase::class)->group('theme-default')->in('../packages/theme-default/tests');
 pest()->extend(PackagesTestCase::class)->group('theme-saas')->in('../packages/theme-saas/tests');
 pest()->extend(ThemeStudioAdminTestCase::class)->group('theme-studio-admin')->in('../packages/theme-studio-admin/tests');
 pest()->extend(ThemeStudioCoreTestCase::class)->group('theme-studio-core')->in('../packages/theme-studio-core/tests');

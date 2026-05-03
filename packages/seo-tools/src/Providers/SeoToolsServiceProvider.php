@@ -11,6 +11,7 @@ use Capell\Admin\Contracts\Extenders\ResourceHeaderActionExtender;
 use Capell\Admin\Contracts\Extenders\SiteHeaderActionExtender;
 use Capell\Admin\Contracts\Extenders\SiteRecordActionExtender;
 use Capell\Admin\Contracts\Extenders\SiteSchemaExtender;
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Filament\Resources\Pages\Pages\EditPage;
 use Capell\Admin\Support\AdminEventRegistry;
 use Capell\Admin\Support\CapellAdminManager;
@@ -330,11 +331,11 @@ class SeoToolsServiceProvider extends AbstractPackageServiceProvider
         /** @var CapellAdminManager $adminManager */
         $adminManager = $this->app->make(CapellAdminManager::class);
 
-        $adminManager->registerPage(NotFoundUrlsPage::class);
-        $adminManager->registerPage(BrokenLinksPage::class);
-        $adminManager->registerPage(SEOAuditPage::class);
-        $adminManager->registerPage(TranslationCoveragePage::class);
-        $adminManager->registerPage(SitemapPage::class);
+        $adminManager->contributeToAdminSurface(AdminSurfaceContributionData::page(NotFoundUrlsPage::class));
+        $adminManager->contributeToAdminSurface(AdminSurfaceContributionData::page(BrokenLinksPage::class));
+        $adminManager->contributeToAdminSurface(AdminSurfaceContributionData::page(SEOAuditPage::class));
+        $adminManager->contributeToAdminSurface(AdminSurfaceContributionData::page(TranslationCoveragePage::class));
+        $adminManager->contributeToAdminSurface(AdminSurfaceContributionData::page(SitemapPage::class));
 
         return $this;
     }

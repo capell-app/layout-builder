@@ -1,0 +1,19 @@
+{
+    "package": "deployments",
+    "composerName": "capell-app/deployments",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "outputDirectory": "public/docs/screenshots/packages/deployments",
+    "entries": [
+        {
+            "id": "deployment-connection-page",
+            "title": "Deployment connection page.",
+            "package": "deployments",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "DeploymentConnectionPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        }
+    ]
+}

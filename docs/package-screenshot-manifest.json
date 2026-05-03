@@ -825,50 +825,6 @@
             "composerName": "capell-app/navigation"
         },
         {
-            "id": "package-marketplace-index",
-            "title": "Package marketplace index.",
-            "package": "plugins",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": null,
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": null
-        },
-        {
-            "id": "package-detail-or-install-intent-screen",
-            "title": "Package detail or install intent screen.",
-            "package": "plugins",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": null,
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": null
-        },
-        {
-            "id": "license-verification-state",
-            "title": "License verification state.",
-            "package": "plugins",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": null,
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": null
-        },
-        {
-            "id": "install-progress-or-result-state",
-            "title": "Install progress or result state.",
-            "package": "plugins",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": null,
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": null
-        },
-        {
             "id": "redirects-admin-index",
             "title": "Redirects admin index.",
             "package": "redirects",
@@ -1175,28 +1131,6 @@
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
             "composerName": "capell-app/theme-corporate"
-        },
-        {
-            "id": "frontend-page-rendered-through-the-default-theme",
-            "title": "Frontend page rendered through the default theme.",
-            "package": "theme-default",
-            "surface": "frontend",
-            "targetType": "frontend-url",
-            "target": null,
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/default-theme"
-        },
-        {
-            "id": "theme-selection-showing-the-default-theme",
-            "title": "Theme selection showing the default theme.",
-            "package": "theme-default",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": null,
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/default-theme"
         },
         {
             "id": "theme-studio-preset-selection-showing-saas",

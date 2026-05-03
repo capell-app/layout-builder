@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Capell\Mosaic\Filament\Resources\Widgets\Pages;
 
 use Capell\Admin\Contracts\PageCacheNotifiable;
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Actions\DeleteAction;
 use Capell\Admin\Filament\Actions\ReplicateAction;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Admin\Filament\Concerns\HasTypeRelationManagers;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Mosaic\Enums\ResourceEnum;
 use Capell\Mosaic\Filament\Actions\CreateWidgetAction;
 use Capell\Mosaic\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager;
@@ -37,7 +37,7 @@ class EditWidget extends EditRecord implements PageCacheNotifiable
     /** @return class-string<WidgetResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Widget);
+        return AdminSurfaceLookup::resource(ResourceEnum::Widget);
     }
 
     public function getRelationManagers(): array

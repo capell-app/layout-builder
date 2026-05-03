@@ -6,9 +6,9 @@ namespace Capell\Mosaic\Livewire\Filament;
 
 use Capell\Admin\Actions\NotifyClearCachedPagesAction;
 use Capell\Admin\Enums\ResourceEnum;
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Admin\Filament\Contracts\HasPageResource;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Actions\GetResourceFromTypeAction;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Layout;
@@ -85,7 +85,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Page);
+        return AdminSurfaceLookup::resource(ResourceEnum::Page);
     }
 
     public function mount(): void
@@ -327,7 +327,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             }
         }
 
-        return CapellAdmin::getResource(ResourceEnum::Page);
+        return AdminSurfaceLookup::resource(ResourceEnum::Page);
     }
 
     /**
@@ -339,7 +339,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return $this->getPageResource();
         }
 
-        return CapellAdmin::getResource(ResourceEnum::Layout);
+        return AdminSurfaceLookup::resource(ResourceEnum::Layout);
     }
 
     public function placeholder(array $params = []): View

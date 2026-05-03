@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\ThemeStudio\Admin;
 
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
@@ -111,7 +112,7 @@ final class ThemeStudioAdminServiceProvider extends AbstractPackageServiceProvid
 
     private function registerPages(): self
     {
-        CapellAdmin::registerPage(ThemeStudioPage::class);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(ThemeStudioPage::class));
 
         return $this;
     }

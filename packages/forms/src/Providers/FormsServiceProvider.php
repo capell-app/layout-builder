@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Forms\Providers;
 
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Data\VendorAssetData;
@@ -126,7 +127,10 @@ class FormsServiceProvider extends AbstractPackageServiceProvider
                 continue;
             }
 
-            CapellAdmin::registerResource($resource->name, class: $resource->value);
+            CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+                class: $resource->value,
+                group: $resource->name,
+            ));
         }
 
         return $this;

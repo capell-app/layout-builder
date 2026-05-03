@@ -11,7 +11,7 @@ arch('tags does not import unrelated packages')
         'Capell\Forms',
         'Capell\Media',
         'Capell\Mosaic',
-        'Capell\Plugins',
+        'Capell\Marketplace',
         'Capell\SeoTools',
         'Capell\Themes',
     ]);
