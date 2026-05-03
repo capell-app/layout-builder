@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use Capell\Admin\Enums\DashboardEnum;
+use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Pages\CapellDashboard;
 use Capell\Admin\Filament\Widgets\Dashboard\AbstractCapellInfoWidget;
 use Capell\Admin\Filament\Widgets\Dashboard\ListPagesWidget;
-use Capell\Admin\Filament\Widgets\Dashboard\MyWorkQueueWidgetAbstract;
-use Capell\Admin\Filament\Widgets\Dashboard\RecentlyPublishedWidgetAbstract;
+use Capell\Admin\Filament\Widgets\Dashboard\MyWorkQueueWidget;
+use Capell\Admin\Filament\Widgets\Dashboard\RecentlyPublishedWidget;
 use Capell\Admin\Filament\Widgets\Dashboard\SiteStatsOverviewWidget;
 use Capell\Admin\Filament\Widgets\Dashboard\SiteTrafficWidget;
 use Capell\Admin\Filament\Widgets\Dashboard\TopPagesWidget;
@@ -33,11 +35,17 @@ it('getWidgets contains all expected widget classes', function (): void {
         ->toContain(SiteTrafficWidget::class)
         ->toContain(TopPagesWidget::class)
         ->toContain(WorkspaceActivityWidgetAbstract::class)
-        ->toContain(MyWorkQueueWidgetAbstract::class)
-        ->toContain(RecentlyPublishedWidgetAbstract::class)
+        ->toContain(MyWorkQueueWidget::class)
+        ->toContain(RecentlyPublishedWidget::class)
         ->toContain(AbstractCapellInfoWidget::class)
         ->toContain(SiteHealthWidgetAbstract::class)
         ->toContain(FilamentInfoWidget::class);
+});
+
+it('registers workspace-owned admin widgets when workspaces are installed', function (): void {
+    expect(CapellAdmin::getDashboardWidgets(DashboardEnum::Main))
+        ->toContain(MyWorkQueueWidget::class)
+        ->toContain(RecentlyPublishedWidget::class);
 });
 
 it('getWidgets does not contain dropped widgets', function (): void {

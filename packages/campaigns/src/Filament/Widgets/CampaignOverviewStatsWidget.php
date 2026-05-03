@@ -6,6 +6,7 @@ namespace Capell\Campaigns\Filament\Widgets;
 
 use Capell\Admin\Contracts\CapellWidgetContract;
 use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
+use Capell\Admin\Filament\Concerns\HasDashboardDateRange;
 use Capell\Campaigns\Actions\BuildCampaignOverviewStatsAction;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -13,6 +14,7 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 final class CampaignOverviewStatsWidget extends StatsOverviewWidget implements CapellWidgetContract
 {
     use GatedByRoleAndSettings;
+    use HasDashboardDateRange;
 
     /** @var list<string> */
     protected static array $rolesConfigKeys = ['admin', 'super_admin'];
@@ -26,7 +28,8 @@ final class CampaignOverviewStatsWidget extends StatsOverviewWidget implements C
 
     protected function getStats(): array
     {
-        $stats = BuildCampaignOverviewStatsAction::run();
+        [$rangeStart, $rangeEnd] = $this->getDashboardDateRange();
+        $stats = BuildCampaignOverviewStatsAction::run($rangeStart, $rangeEnd);
 
         return [
             Stat::make(__('capell-campaigns::widgets.active_campaigns'), (string) $stats['active_campaigns']),

@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use Capell\Admin\Contracts\Dashboard\MyWorkQueueDataProvider;
 use Capell\Core\Models\Page;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Capell\Workspaces\Actions\Dashboard\BuildMyWorkQueueAction;
 use Capell\Workspaces\Models\Workspace;
 use Capell\Workspaces\Models\WorkspaceReviewAssignment;
+use Capell\Workspaces\Support\Dashboard\WorkspaceMyWorkQueueDataProvider;
 
 uses(CreatesAdminUser::class);
 
@@ -85,4 +87,21 @@ it('respects the limit parameter', function (): void {
     $result = BuildMyWorkQueueAction::run($owner, 3);
 
     expect($result->items->count())->toBe(3);
+});
+
+it('binds the workspace queue provider to the admin dashboard contract', function (): void {
+    expect(resolve(MyWorkQueueDataProvider::class))
+        ->toBeInstanceOf(WorkspaceMyWorkQueueDataProvider::class);
+});
+
+it('builds my work queue data through the admin dashboard contract', function (): void {
+    $owner = $this->createUser();
+
+    $workspace = Workspace::factory()->open()->create(['created_by' => $owner->id]);
+    $page = Page::factory()->create(['workspace_id' => $workspace->id]);
+
+    $result = resolve(MyWorkQueueDataProvider::class)->build($owner, 5);
+    $ids = $result->items->toCollection()->pluck('pageId');
+
+    expect($ids)->toContain($page->id);
 });

@@ -178,7 +178,7 @@ it('detects drift across multiple packages', function (): void {
     }
 });
 
-it('resolves shipped configs from composer install paths', function (): void {
+it('compares shipped config resolved from composer install paths', function (): void {
     if (! InstalledVersions::isInstalled('capell-app/core')) {
         $this->markTestSkipped('capell-app/core is not installed.');
     }
@@ -190,21 +190,16 @@ it('resolves shipped configs from composer install paths', function (): void {
     }
 
     $shippedPath = $installPath . '/config/capell.php';
-    $hostPath = config_path('capell.php');
-    $originalHostConfig = File::exists($hostPath) ? File::get($hostPath) : null;
-
-    File::ensureDirectoryExists(dirname($hostPath));
+    $hostPath = tempnam(sys_get_temp_dir(), 'capell_host_cfg_');
+    assert($hostPath !== false);
     File::copy($shippedPath, $hostPath);
 
     try {
-        $result = BuildConfigDriftAction::run();
+        $action = makeDriftAction([['core', $shippedPath, $hostPath]]);
+        $result = $action->handle();
 
         expect($result->packagesChecked)->toBeGreaterThanOrEqual(1);
     } finally {
-        if ($originalHostConfig === null) {
-            File::delete($hostPath);
-        } else {
-            File::put($hostPath, $originalHostConfig);
-        }
+        File::delete($hostPath);
     }
 });

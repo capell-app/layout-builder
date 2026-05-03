@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Actions\InstallBackupPermissionsAction;
+use Capell\Backup\Actions\InstallBackupPermissionsAction;
 use Capell\Backup\Enums\ImportSessionStatus;
 use Capell\Backup\Jobs\ExecuteImportPlanJob;
 use Capell\Backup\Models\ImportSession;

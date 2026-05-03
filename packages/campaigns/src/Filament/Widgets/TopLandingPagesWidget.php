@@ -6,6 +6,7 @@ namespace Capell\Campaigns\Filament\Widgets;
 
 use Capell\Admin\Contracts\CapellWidgetContract;
 use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
+use Capell\Admin\Filament\Concerns\HasDashboardDateRange;
 use Capell\Campaigns\Actions\BuildTopLandingPagesQueryAction;
 use Capell\Campaigns\Data\Dashboard\CampaignLandingPageSummaryData;
 use Filament\Tables\Columns\TextColumn;
@@ -16,6 +17,7 @@ use Illuminate\Support\Collection;
 final class TopLandingPagesWidget extends TableWidget implements CapellWidgetContract
 {
     use GatedByRoleAndSettings;
+    use HasDashboardDateRange;
 
     /** @var list<string> */
     protected static array $rolesConfigKeys = ['admin', 'super_admin'];
@@ -49,7 +51,9 @@ final class TopLandingPagesWidget extends TableWidget implements CapellWidgetCon
      */
     private function records(): Collection
     {
-        return BuildTopLandingPagesQueryAction::run()
+        [$rangeStart, $rangeEnd] = $this->getDashboardDateRange();
+
+        return BuildTopLandingPagesQueryAction::run(5, $rangeStart, $rangeEnd)
             ->map(fn (CampaignLandingPageSummaryData $summary): array => [
                 'id' => $summary->landingPageId,
                 'landing_page' => $summary->landingPageName,

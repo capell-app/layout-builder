@@ -71,11 +71,11 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/capell-app/installer"
+            "url": "https://github.com/capell-app/setup"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/capell-app/plugins"
+            "url": "https://github.com/capell-app/marketplace"
         },
         {
             "type": "vcs",
@@ -94,9 +94,11 @@
         "bezhansalleh/filament-shield": "^4.1",
         "bkwld/cloner": "^3.11",
         "blade-ui-kit/blade-heroicons": "^2.5",
-        "capell-app/admin": "^2.0",
-        "capell-app/core": "^2.0",
-        "capell-app/frontend": "^2.0",
+        "capell-app/admin": "4.x-dev",
+        "capell-app/core": "4.x-dev",
+        "capell-app/frontend": "4.x-dev",
+        "capell-app/marketplace": "4.x-dev",
+        "capell-app/setup": "4.x-dev",
         "cms-multi/filament-clear-cache": "^3.0",
         "codewithdennis/filament-select-tree": "^4.0",
         "croustibat/filament-jobs-monitor": "^4.4",
@@ -126,6 +128,7 @@
         "spatie/laravel-package-tools": "^1.14.1",
         "staudenmeir/eloquent-has-many-deep": "^1.1",
         "staudenmeir/eloquent-json-relations": "^1.1",
+        "stijnvanouplines/blade-country-flags": "^1.0",
         "stechstudio/filament-impersonate": "^5.3",
         "symfony/filesystem": "^7.2",
         "symfony/process": "^7.2",
@@ -183,8 +186,6 @@
             "Capell\\Deployments\\": "packages/deployments/src",
             "Capell\\Deployments\\Database\\Factories\\": "packages/deployments/database/factories",
             "Capell\\DeveloperTools\\": "packages/developer-tools/src",
-            "Capell\\ExtensionMarketplace\\": "packages/extension-marketplace/src",
-            "Capell\\ExtensionMarketplace\\Database\\Factories\\": "packages/extension-marketplace/database/factories",
             "Capell\\DefaultTheme\\": "packages/theme-default/src",
             "Capell\\FilamentPeek\\": "packages/filament-peek/src",
             "Capell\\Forms\\": "packages/forms/src",
@@ -226,7 +227,6 @@
             "Capell\\Campaigns\\Tests\\": "packages/campaigns/tests",
             "Capell\\Deployments\\Tests\\": "packages/deployments/tests",
             "Capell\\DeveloperTools\\Tests\\": "packages/developer-tools/tests",
-            "Capell\\ExtensionMarketplace\\Tests\\": "packages/extension-marketplace/tests",
             "Capell\\FilamentPeek\\Tests\\": "packages/filament-peek/tests",
             "Capell\\Forms\\Tests\\": "packages/forms/tests",
             "Capell\\HtmlMinify\\Tests\\": "packages/html-minify/tests",

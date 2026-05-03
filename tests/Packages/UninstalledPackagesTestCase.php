@@ -31,6 +31,7 @@ use Capell\SeoTools\Providers\SeoToolsServiceProvider;
 use Capell\SiteSearch\Providers\SiteSearchServiceProvider;
 use Capell\Tags\Providers\TagsServiceProvider;
 use Capell\Tests\AbstractTestCase;
+use Capell\Tests\Packages\Support\ForcePackagesUninstalledServiceProvider;
 use Capell\ThemeStudio\Admin\ThemeStudioAdminServiceProvider;
 use Capell\ThemeStudio\Agency\AgencyThemeServiceProvider;
 use Capell\ThemeStudio\Core\ThemeStudioCoreServiceProvider;
@@ -56,6 +57,7 @@ class UninstalledPackagesTestCase extends AbstractTestCase
     {
         return [
             ...parent::getPackageProviders($app),
+            ForcePackagesUninstalledServiceProvider::class,
             AddressServiceProvider::class,
             AnalyticsServiceProvider::class,
             AssistantServiceProvider::class,

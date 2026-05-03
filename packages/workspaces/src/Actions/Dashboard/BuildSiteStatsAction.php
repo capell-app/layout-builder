@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Capell\Workspaces\Actions\Dashboard;
 
 use Capell\Admin\Data\Dashboard\SiteStatsData;
-use Capell\Core\Models\AccessLog;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\PageView;
 use Capell\Workspaces\Models\Version;
 use Carbon\CarbonImmutable;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -20,11 +20,11 @@ final class BuildSiteStatsAction
         [$start, $end] = $this->resolveDateRange($period);
         [$prevStart, $prevEnd] = $this->resolvePriorPeriod($period);
 
-        $totalViews = (int) AccessLog::query()
+        $totalViews = (int) PageView::query()
             ->whereBetween('viewed_at', [$start, $end])
             ->sum('visits');
 
-        $totalVisitors = AccessLog::query()
+        $totalVisitors = PageView::query()
             ->whereBetween('viewed_at', [$start, $end])
             ->distinct('session_id')
             ->count('session_id');
@@ -38,11 +38,11 @@ final class BuildSiteStatsAction
             ->where('workspace_id', '>', 0)
             ->count();
 
-        $prevViews = (int) AccessLog::query()
+        $prevViews = (int) PageView::query()
             ->whereBetween('viewed_at', [$prevStart, $prevEnd])
             ->sum('visits');
 
-        $prevVisitors = AccessLog::query()
+        $prevVisitors = PageView::query()
             ->whereBetween('viewed_at', [$prevStart, $prevEnd])
             ->distinct('session_id')
             ->count('session_id');
@@ -102,7 +102,7 @@ final class BuildSiteStatsAction
             $bucketStart = $start->addSeconds($bucket * $bucketSeconds);
             $bucketEnd = $start->addSeconds(($bucket + 1) * $bucketSeconds);
 
-            $query = AccessLog::query()->whereBetween('viewed_at', [$bucketStart, $bucketEnd]);
+            $query = PageView::query()->whereBetween('viewed_at', [$bucketStart, $bucketEnd]);
 
             $points[] = $type === 'visitors'
                 ? $query->distinct('session_id')->count('session_id')

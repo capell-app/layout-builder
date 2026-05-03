@@ -6,9 +6,10 @@ namespace Capell\Blog\Filament\Widgets;
 
 use Capell\Admin\Contracts\CapellWidgetContract;
 use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
+use Capell\Admin\Filament\Concerns\HasDashboardDateRange;
 use Capell\Blog\Data\Dashboard\TopPageData;
 use Capell\Blog\Data\Dashboard\TopPagesData;
-use Capell\Core\Models\AccessLog;
+use Capell\Core\Models\PageView;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 final class TopPagesWidgetAbstract extends Widget implements CapellWidgetContract
 {
     use GatedByRoleAndSettings;
+    use HasDashboardDateRange;
 
     protected static string $settingsKey = 'top_pages';
 
@@ -37,9 +39,12 @@ final class TopPagesWidgetAbstract extends Widget implements CapellWidgetContrac
 
     private function getData(): TopPagesData
     {
-        $rows = AccessLog::query()
+        [$rangeStart, $rangeEnd] = $this->getDashboardDateRange();
+
+        $rows = PageView::query()
             ->select('url', DB::raw('COUNT(*) as views'))
-            ->where('created_at', '>=', now()->subDays(30))
+            ->where('viewed_at', '>=', $rangeStart)
+            ->where('viewed_at', '<=', $rangeEnd)
             ->groupBy('url')
             ->orderByDesc('views')
             ->limit(5)

@@ -7,6 +7,7 @@ namespace Capell\Analytics\Filament\Widgets;
 use Capell\Admin\Contracts\CapellWidgetContract;
 use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
 use Capell\Analytics\Actions\BuildRecentJourneysQueryAction;
+use Capell\Analytics\Filament\Widgets\Concerns\BuildsAnalyticsDashboardWindow;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -14,6 +15,7 @@ use Illuminate\Support\Collection;
 
 final class RecentJourneysWidget extends BaseWidget implements CapellWidgetContract
 {
+    use BuildsAnalyticsDashboardWindow;
     use GatedByRoleAndSettings;
 
     /** @var list<string> */
@@ -50,7 +52,7 @@ final class RecentJourneysWidget extends BaseWidget implements CapellWidgetContr
      */
     private function getRecords(): Collection
     {
-        return BuildRecentJourneysQueryAction::run(5)
+        return BuildRecentJourneysQueryAction::run(5, $this->getAnalyticsWindow())
             ->map(fn (array $journey): array => [
                 ...$journey,
                 'id' => 'journey-' . $journey['id'],

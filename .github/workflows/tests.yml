@@ -2,7 +2,13 @@ name: Tests
 
 on:
   pull_request:
+    branches:
+      - 4.x
     types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'packages/**/*.php'
+      - 'tests/**/*.php'
+      - '.github/workflows/tests.yml'
   push:
     branches:
       - 4.x
@@ -34,7 +40,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: test_cms_multi
         ports:
-          - 3306:3306
+          - '${{ vars.MYSQL_PORT || 3306 }}:3306'
         options: >-
           --health-cmd "mysqladmin ping -h 127.0.0.1 -proot || exit 1"
           --health-interval 10s
@@ -56,7 +62,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: curl, dom, fileinfo, intl, json, libxml, mbstring, simplexml, zip
+          extensions: curl, dom, fileinfo, intl, json, libxml, mbstring, pdo_mysql, pdo_sqlite, simplexml, sqlite3, zip
           tools: composer:v2
           coverage: xdebug
 
@@ -105,7 +111,7 @@ jobs:
           if [ "${{ matrix.db }}" == "mysql" ]; then
             echo "DB_CONNECTION=mysql" >> .env
             echo "DB_HOST=127.0.0.1" >> .env
-            echo "DB_PORT=3306" >> .env
+            echo "DB_PORT=${{ vars.MYSQL_PORT || 3306 }}" >> .env
             echo "DB_DATABASE=test_cms_multi" >> .env
             echo "DB_USERNAME=root" >> .env
             echo "DB_PASSWORD=root" >> .env
@@ -161,7 +167,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: test_cms_multi
         ports:
-          - 3306:3306
+          - '${{ vars.MYSQL_PORT || 3306 }}:3306'
         options: >-
           --health-cmd "mysqladmin ping -h 127.0.0.1 -proot || exit 1"
           --health-interval 10s
@@ -183,7 +189,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: curl, dom, fileinfo, intl, json, libxml, mbstring, simplexml, zip
+          extensions: curl, dom, fileinfo, intl, json, libxml, mbstring, pdo_mysql, pdo_sqlite, simplexml, sqlite3, zip
           tools: composer:v2
           coverage: xdebug
 
@@ -232,7 +238,7 @@ jobs:
           if [ "${{ matrix.db }}" == "mysql" ]; then
             echo "DB_CONNECTION=mysql" >> .env
             echo "DB_HOST=127.0.0.1" >> .env
-            echo "DB_PORT=3306" >> .env
+            echo "DB_PORT=${{ vars.MYSQL_PORT || 3306 }}" >> .env
             echo "DB_DATABASE=test_cms_multi" >> .env
             echo "DB_USERNAME=root" >> .env
             echo "DB_PASSWORD=root" >> .env

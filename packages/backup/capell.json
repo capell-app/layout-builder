@@ -6,7 +6,7 @@
     "tier": "premium",
     "bundle": "operations",
     "contexts": ["admin", "console"],
-    "requires": ["capell-app/core"],
+    "requires": ["capell-app/admin", "capell-app/core"],
     "providers": {
         "shared": ["Capell\\Backup\\Providers\\BackupServiceProvider"]
     }

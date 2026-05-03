@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Actions\InstallBackupPermissionsAction;
+use Capell\Backup\Actions\InstallBackupPermissionsAction;
 use Capell\Backup\Data\PageReviewRow;
 use Capell\Backup\Data\RelationResolveRow;
 use Capell\Backup\Enums\ImportSessionStatus;

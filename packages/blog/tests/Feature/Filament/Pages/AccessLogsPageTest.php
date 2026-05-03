@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Capell\Admin\Filament\Pages\PageViewsPage;
 use Capell\Blog\Models\Article;
-use Capell\Core\Models\AccessLog;
+use Capell\Core\Models\PageView;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Livewire\livewire;
@@ -21,9 +21,9 @@ test('can render articles in access logs', function (): void {
 
     $article = Article::factory()->create();
 
-    AccessLog::factory()->create();
+    PageView::factory()->create();
 
-    AccessLog::factory()->page($article)->create();
+    PageView::factory()->page($article)->create();
 
     livewire(PageViewsPage::class)
         ->assertSuccessful()

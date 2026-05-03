@@ -10,7 +10,7 @@ use Capell\Admin\Filament\Components\Tables\Columns\DateColumn;
 use Capell\Admin\Filament\Concerns\HasNavigationBadge;
 use Capell\Admin\Support\SafeAdminUrl;
 use Capell\Admin\Support\SiteScope;
-use Capell\Core\Models\AccessLog;
+use Capell\Core\Models\PageView;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Actions\DeleteBulkAction;
@@ -43,17 +43,17 @@ class NotFoundUrlsPage extends Page implements HasActions, HasTable
     protected static ?string $slug = 'missing-pages';
 
     /**
-     * @return class-string<AccessLog>
+     * @return class-string<PageView>
      */
     public static function getModel(): string
     {
-        return AccessLog::class;
+        return PageView::class;
     }
 
     public static function getEloquentQuery(): Builder
     {
-        /** @var Builder<AccessLog> $query */
-        $query = SiteScope::applyForCurrentActor(AccessLog::query());
+        /** @var Builder<PageView> $query */
+        $query = SiteScope::applyForCurrentActor(PageView::query());
 
         return $query->notFound();
     }
@@ -91,7 +91,7 @@ class NotFoundUrlsPage extends Page implements HasActions, HasTable
                     ->disabledClick()
                     ->html()
                     ->formatStateUsing(
-                        fn (AccessLog $record): HtmlString => self::formatUrlLink($record),
+                        fn (PageView $record): HtmlString => self::formatUrlLink($record),
                     ),
                 DateColumn::make('last_viewed_at')
                     ->label(__('capell-admin::table.last_viewed_at'))
@@ -123,7 +123,7 @@ class NotFoundUrlsPage extends Page implements HasActions, HasTable
     }
 
     /**
-     * @param  AccessLog  $record
+     * @param  PageView  $record
      */
     public function getTableRecordKey(Model|array $record): string
     {
@@ -136,7 +136,7 @@ class NotFoundUrlsPage extends Page implements HasActions, HasTable
         return __('capell-admin::heading.page_not_found');
     }
 
-    private static function formatUrlLink(AccessLog $record): HtmlString
+    private static function formatUrlLink(PageView $record): HtmlString
     {
         $url = e($record->url);
         $href = SafeAdminUrl::href($record->url);

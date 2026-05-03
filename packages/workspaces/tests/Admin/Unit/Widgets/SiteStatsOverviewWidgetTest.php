@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Capell\Admin\Data\Dashboard\SiteStatsData;
 use Capell\Admin\Filament\Widgets\Dashboard\SiteStatsOverviewWidget;
 use Capell\Admin\Settings\AdminSettings;
-use Capell\Core\Models\AccessLog;
+use Capell\Core\Models\PageView;
 use Capell\Tests\Fixtures\Models\User;
 use Capell\Workspaces\Actions\Dashboard\BuildSiteStatsAction;
 
@@ -30,7 +30,7 @@ it('returns 7-point sparklines', function (): void {
 });
 
 it('counts access log views for the period', function (): void {
-    AccessLog::factory()->create([
+    PageView::factory()->create([
         'visits' => 5,
         'viewed_at' => now()->subDays(10),
     ]);

@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Analytics\Http\Controllers;
 
-use Capell\Analytics\Actions\RecordAnalyticsEventAction;
-use Capell\Analytics\Actions\RecordClickAction;
-use Capell\Analytics\Actions\RecordCustomActionAction;
-use Capell\Analytics\Actions\RecordPageViewAction;
+use Capell\Analytics\Actions\RecordAnalyticsEventsAction;
 use Capell\Analytics\Data\AnalyticsEventData;
 use Capell\Analytics\Enums\AnalyticsEventType;
 use Closure;
@@ -45,19 +42,21 @@ class AnalyticsBeaconController
         /** @var list<array<string, mixed>> $events */
         $events = $validated['events'];
 
+        $eventPayloads = [];
+
         foreach ($events as $event) {
             $eventData = AnalyticsEventData::from($event);
             $occurredAt = isset($event['occurred_at']) && is_string($event['occurred_at'])
                 ? $event['occurred_at']
                 : null;
 
-            match ($eventData->type) {
-                AnalyticsEventType::PageView => RecordPageViewAction::run($visitUuid, $eventData, $occurredAt),
-                AnalyticsEventType::Click => RecordClickAction::run($visitUuid, $eventData, $occurredAt),
-                AnalyticsEventType::Custom => RecordCustomActionAction::run($visitUuid, $eventData, $occurredAt),
-                default => RecordAnalyticsEventAction::run($visitUuid, $eventData, $occurredAt),
-            };
+            $eventPayloads[] = [
+                'data' => $eventData,
+                'occurred_at' => $occurredAt,
+            ];
         }
+
+        RecordAnalyticsEventsAction::run($visitUuid, $eventPayloads);
 
         return response()->noContent();
     }

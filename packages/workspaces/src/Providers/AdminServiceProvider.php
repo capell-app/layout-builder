@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace Capell\Workspaces\Providers;
 
+use Capell\Admin\Contracts\Dashboard\MyWorkQueueDataProvider;
+use Capell\Admin\Contracts\Dashboard\RecentlyPublishedDataProvider;
 use Capell\Admin\Contracts\DashboardSettingsContributor;
 use Capell\Admin\Enums\DashboardEnum;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Filament\Widgets\Dashboard\MyWorkQueueWidget;
+use Capell\Admin\Filament\Widgets\Dashboard\RecentlyPublishedWidget;
 use Capell\Core\Events\PageSaved;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
@@ -29,6 +33,8 @@ use Capell\Workspaces\Livewire\WorkspaceContextBanner;
 use Capell\Workspaces\Livewire\WorkspaceSwitcher;
 use Capell\Workspaces\Models\Workspace;
 use Capell\Workspaces\Policies\WorkspacePolicy;
+use Capell\Workspaces\Support\Dashboard\WorkspaceMyWorkQueueDataProvider;
+use Capell\Workspaces\Support\Dashboard\WorkspaceRecentlyPublishedDataProvider;
 use Capell\Workspaces\WorkspaceContext;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
@@ -56,6 +62,7 @@ class AdminServiceProvider extends ServiceProvider
         }
 
         $this->registerDashboardSettingsContributors()
+            ->registerDashboardDataProviders()
             ->registerFilamentExtensions()
             ->registerLivewireComponents()
             ->registerRenderHooks()
@@ -74,6 +81,14 @@ class AdminServiceProvider extends ServiceProvider
             [DefaultDashboardSettingsContributor::class, SystemHealthSettingsContributor::class],
             DashboardSettingsContributor::TAG,
         );
+
+        return $this;
+    }
+
+    private function registerDashboardDataProviders(): self
+    {
+        $this->app->singleton(MyWorkQueueDataProvider::class, WorkspaceMyWorkQueueDataProvider::class);
+        $this->app->singleton(RecentlyPublishedDataProvider::class, WorkspaceRecentlyPublishedDataProvider::class);
 
         return $this;
     }
@@ -128,6 +143,8 @@ class AdminServiceProvider extends ServiceProvider
 
     private function registerFilamentExtensions(): self
     {
+        CapellAdmin::registerDashboardWidget(MyWorkQueueWidget::class, DashboardEnum::Main);
+        CapellAdmin::registerDashboardWidget(RecentlyPublishedWidget::class, DashboardEnum::Main);
         CapellAdmin::registerDashboardWidget(WorkspaceActivityWidgetAbstract::class, DashboardEnum::Main);
         CapellAdmin::registerDashboardWidget(ContentSchedulerOverviewWidget::class, DashboardEnum::Main);
         CapellAdmin::registerResource('Workspace', WorkspaceResource::class);

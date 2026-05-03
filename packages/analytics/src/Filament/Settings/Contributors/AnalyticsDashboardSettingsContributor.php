@@ -30,6 +30,11 @@ final class AnalyticsDashboardSettingsContributor implements DashboardSettingsCo
                 'group' => __('capell-analytics::settings.fieldset'),
             ],
             [
+                'key' => 'analytics_live_stats',
+                'label' => __('capell-analytics::widgets.live_statistics'),
+                'group' => __('capell-analytics::settings.fieldset'),
+            ],
+            [
                 'key' => 'analytics_recent_journeys',
                 'label' => __('capell-analytics::widgets.recent_journeys'),
                 'group' => __('capell-analytics::settings.fieldset'),

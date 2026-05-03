@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Capell\Analytics\Actions;
 
 use Capell\Analytics\Data\AnalyticsJourneyStepData;
+use Capell\Analytics\Data\AnalyticsWindowData;
 use Capell\Analytics\Models\AnalyticsVisit;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -16,10 +18,11 @@ final class BuildRecentJourneysQueryAction
     /**
      * @return Collection<int, array{id: int, visit: string, steps: int, landing_url: string, last_path: string}>
      */
-    public function handle(?int $limit = 5): Collection
+    public function handle(?int $limit = 5, ?AnalyticsWindowData $window = null): Collection
     {
         $query = AnalyticsVisit::query()
             ->whereHas('events')
+            ->when($window instanceof AnalyticsWindowData, fn (Builder $builder): Builder => $builder->whereBetween('last_seen_at', [$window->startsAt, $window->endsAt]))
             ->latest('last_seen_at');
 
         if ($limit !== null) {

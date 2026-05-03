@@ -5,6 +5,7 @@
     "license": "proprietary",
     "require": {
         "php": "^8.2",
+        "capell-app/admin": "self.version",
         "capell-app/core": "self.version",
         "illuminate/database": "^11.0|^12.0|^13.0",
         "illuminate/support": "^11.0|^12.0|^13.0",

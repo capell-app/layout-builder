@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace Capell\Backup\Providers;
 
 use Capell\Admin\Contracts\Backup\PageExporter;
-use Capell\Admin\Filament\Resources\ImportSessions\ImportSessionResource;
-use Capell\Admin\Listeners\SendImportSessionNotifications;
-use Capell\Admin\Policies\ImportSessionPolicy;
 use Capell\Admin\Support\CapellAdminManager;
 use Capell\Backup\Contracts\BackupContextResolver;
 use Capell\Backup\Contracts\BackupRowContributor;
@@ -17,8 +14,12 @@ use Capell\Backup\Contracts\NullPageCollisionDetector;
 use Capell\Backup\Contracts\PageCollisionDetector;
 use Capell\Backup\Events\ImportCompleted;
 use Capell\Backup\Events\ImportFailed;
+use Capell\Backup\Filament\Pages\ImportSitesPage;
+use Capell\Backup\Filament\Resources\ImportSessions\ImportSessionResource;
+use Capell\Backup\Listeners\SendImportSessionNotifications;
 use Capell\Backup\Models\BackupRestore;
 use Capell\Backup\Models\ImportSession;
+use Capell\Backup\Policies\ImportSessionPolicy;
 use Capell\Backup\Services\Import\Resolvers\FingerprintMatchResolver;
 use Capell\Backup\Services\Import\Resolvers\KeyedMatchResolver;
 use Capell\Backup\Services\Import\Resolvers\MediaMatchResolver;
@@ -60,6 +61,10 @@ class BackupServiceProvider extends AbstractPackageServiceProvider
             version: CapellCore::getInstalledPrettyVersion(static::$packageName),
             description: fn (): string => __('backup::package.description'),
         );
+
+        if ($this->isPackageInstalled()) {
+            $this->registerAdminPanelExtensions();
+        }
 
         $this->app->booted(function (): void {
             if (! $this->isPackageInstalled()) {
@@ -114,14 +119,18 @@ class BackupServiceProvider extends AbstractPackageServiceProvider
             Gate::policy(ImportSession::class, ImportSessionPolicy::class);
         }
 
-        if (
-            class_exists(CapellAdminManager::class)
-            && class_exists(ImportSessionResource::class)
-        ) {
+        $this->registerAdminPanelExtensions();
+    }
+
+    private function registerAdminPanelExtensions(): void
+    {
+        if (class_exists(CapellAdminManager::class) && class_exists(ImportSessionResource::class)) {
             $registerImportSessionResource = static function (CapellAdminManager $capellAdminManager): void {
                 if (! $capellAdminManager->hasResource('ImportSession')) {
                     $capellAdminManager->registerResource('ImportSession', ImportSessionResource::class);
                 }
+
+                $capellAdminManager->registerPage(ImportSitesPage::class);
             };
 
             $this->app->afterResolving(CapellAdminManager::class, $registerImportSessionResource);

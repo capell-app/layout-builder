@@ -10,6 +10,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('capell_mcp_confirmations')) {
+            return;
+        }
+
         Schema::create('capell_mcp_confirmations', function (Blueprint $table): void {
             $table->id();
             $table->string('token', 64)->unique();

@@ -6,9 +6,9 @@ namespace Capell\Workspaces\Filament\Pages;
 
 use BackedEnum;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
-use Capell\Admin\Actions\InstallBackupPermissionsAction;
-use Capell\Admin\Filament\Resources\ImportSessions\ImportSessionResource;
+use Capell\Backup\Actions\InstallBackupPermissionsAction;
 use Capell\Backup\Enums\ImportSessionStatus;
+use Capell\Backup\Filament\Resources\ImportSessions\ImportSessionResource;
 use Capell\Workspaces\Actions\Imports\AdvancePageImportToValidationAction;
 use Capell\Workspaces\Actions\Imports\DispatchPageImportAction;
 use Capell\Workspaces\Actions\Imports\RefreshPageImportStatusAction;

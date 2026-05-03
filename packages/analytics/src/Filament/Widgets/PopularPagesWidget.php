@@ -7,8 +7,7 @@ namespace Capell\Analytics\Filament\Widgets;
 use Capell\Admin\Contracts\CapellWidgetContract;
 use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
 use Capell\Analytics\Actions\BuildPopularPagesQueryAction;
-use Capell\Analytics\Data\AnalyticsWindowData;
-use Carbon\CarbonImmutable;
+use Capell\Analytics\Filament\Widgets\Concerns\BuildsAnalyticsDashboardWindow;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -16,6 +15,7 @@ use Illuminate\Support\Collection;
 
 final class PopularPagesWidget extends BaseWidget implements CapellWidgetContract
 {
+    use BuildsAnalyticsDashboardWindow;
     use GatedByRoleAndSettings;
 
     /** @var list<string> */
@@ -61,15 +61,5 @@ final class PopularPagesWidget extends BaseWidget implements CapellWidgetContrac
                 'id' => 'popular-page-' . $index,
                 ...$summary,
             ]);
-    }
-
-    private function getAnalyticsWindow(): AnalyticsWindowData
-    {
-        $endsAt = CarbonImmutable::now();
-
-        return new AnalyticsWindowData(
-            startsAt: $endsAt->subDays(30),
-            endsAt: $endsAt,
-        );
     }
 }

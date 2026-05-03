@@ -40,7 +40,6 @@ parameters:
         - packages/backup/config
         - packages/default-theme/config
         - packages/deployments/config
-        - packages/extension-marketplace/config
         - packages/mosaic/config
         - packages/plugins/config
         - packages/mcp/config

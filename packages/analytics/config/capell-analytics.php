@@ -19,6 +19,9 @@ return [
         '/admin*',
         '/livewire*',
         '/capell/analytics*',
+        '/_debugbar*',
+        '/_clockwork*',
+        '/storage*',
     ],
     'ignored_selectors' => [
         '[data-capell-analytics-ignore]',

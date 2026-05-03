@@ -10,6 +10,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('capell_mcp_audit_entries')) {
+            return;
+        }
+
         Schema::create('capell_mcp_audit_entries', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('mcp_token_id')->nullable()->constrained('capell_mcp_tokens')->nullOnDelete();

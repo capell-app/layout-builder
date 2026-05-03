@@ -8,8 +8,10 @@ use Capell\Admin\Contracts\DashboardSettingsContributor;
 use Capell\Admin\Enums\DashboardEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Analytics\Console\Commands\PurgeAnalyticsDataCommand;
+use Capell\Analytics\Filament\Pages\AnalyticsPage;
 use Capell\Analytics\Filament\Settings\Contributors\AnalyticsDashboardSettingsContributor;
 use Capell\Analytics\Filament\Widgets\AnalyticsOverviewStatsWidget;
+use Capell\Analytics\Filament\Widgets\LiveAnalyticsStatsWidget;
 use Capell\Analytics\Filament\Widgets\PopularPagesWidget;
 use Capell\Analytics\Filament\Widgets\RecentJourneysWidget;
 use Capell\Analytics\Filament\Widgets\TopActionsWidget;
@@ -34,6 +36,7 @@ class AdminServiceProvider extends ServiceProvider
         $this
             ->registerDashboardSettingsContributor()
             ->registerCommands()
+            ->registerPages()
             ->registerDashboardWidgets()
             ->registerSchedule();
     }
@@ -66,8 +69,16 @@ class AdminServiceProvider extends ServiceProvider
         CapellAdmin::registerDashboardWidget(AnalyticsOverviewStatsWidget::class, DashboardEnum::Main);
         CapellAdmin::registerDashboardWidget(PopularPagesWidget::class, DashboardEnum::Main);
         CapellAdmin::registerDashboardWidget(TrendingPagesWidget::class, DashboardEnum::Main);
+        CapellAdmin::registerDashboardWidget(LiveAnalyticsStatsWidget::class, DashboardEnum::Main);
         CapellAdmin::registerDashboardWidget(RecentJourneysWidget::class, DashboardEnum::Main);
         CapellAdmin::registerDashboardWidget(TopActionsWidget::class, DashboardEnum::Main);
+
+        return $this;
+    }
+
+    private function registerPages(): self
+    {
+        CapellAdmin::registerPage(AnalyticsPage::class);
 
         return $this;
     }

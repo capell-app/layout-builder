@@ -19,6 +19,9 @@
 
     var defaultIgnoredSelectors = ['[data-capell-analytics-ignore]']
     var sequence = 0
+    var eventQueue = []
+    var flushTimer = null
+    var maxBatchSize = 25
     var visitStorageKey = 'capell_analytics_visit_id'
     var visitCookieName = 'capell_analytics_visit'
 
@@ -99,23 +102,57 @@
             .catch(function () {})
     }
 
-    function sendEvent(eventPayload) {
-        sequence += 1
+    function flushEvents() {
+        if (flushTimer) {
+            window.clearTimeout(flushTimer)
+            flushTimer = null
+        }
+
+        if (!eventQueue.length) {
+            return
+        }
+
+        var events = eventQueue.splice(0, maxBatchSize)
 
         sendJson(config.eventsUrl, {
             visit_id: currentVisitId(),
-            events: [
-                Object.assign(
-                    {
-                        url: window.location.href,
-                        title: document.title,
-                        occurred_at: new Date().toISOString(),
-                        sequence: sequence,
-                    },
-                    eventPayload,
-                ),
-            ],
+            events: events,
         })
+
+        if (eventQueue.length) {
+            scheduleFlush(0)
+        }
+    }
+
+    function scheduleFlush(delay) {
+        if (flushTimer) {
+            return
+        }
+
+        flushTimer = window.setTimeout(flushEvents, delay)
+    }
+
+    function queueEvent(eventPayload) {
+        sequence += 1
+
+        eventQueue.push(
+            Object.assign(
+                {
+                    url: window.location.href,
+                    title: document.title,
+                    occurred_at: new Date().toISOString(),
+                    sequence: sequence,
+                },
+                eventPayload,
+            ),
+        )
+
+        if (eventQueue.length >= maxBatchSize) {
+            flushEvents()
+            return
+        }
+
+        scheduleFlush(150)
     }
 
     function trackedElementFromTarget(target) {
@@ -236,7 +273,7 @@
             return
         }
 
-        sendEvent({
+        queueEvent({
             type: 'click',
             event_name: clickName(trackingElement),
             label: clickLabel(trackingElement),
@@ -259,7 +296,7 @@
             return
         }
 
-        sendEvent({ type: 'page_view' })
+        queueEvent({ type: 'page_view' })
     }
 
     window.CapellAnalytics = {
@@ -291,10 +328,17 @@
                 })
                 .catch(function () {})
         },
-        track: sendEvent,
+        track: queueEvent,
+        flush: flushEvents,
     }
 
     document.addEventListener('click', trackClick, true)
+    window.addEventListener('pagehide', flushEvents)
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'hidden') {
+            flushEvents()
+        }
+    })
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', trackPageView, {

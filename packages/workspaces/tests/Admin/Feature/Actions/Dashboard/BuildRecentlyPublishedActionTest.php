@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use Capell\Admin\Contracts\Dashboard\RecentlyPublishedDataProvider;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Workspaces\Actions\Dashboard\BuildRecentlyPublishedAction;
 use Capell\Workspaces\Models\Workspace;
+use Capell\Workspaces\Support\Dashboard\WorkspaceRecentlyPublishedDataProvider;
 
 it('returns the N most recent published pages', function (): void {
     $workspace = Workspace::factory()->published()->create();
@@ -79,4 +81,19 @@ it('includes site name in each item', function (): void {
     $result = BuildRecentlyPublishedAction::run(10);
 
     expect($result->items->toCollection()->first()->siteName)->toBe('Acme Corp');
+});
+
+it('binds the workspace recently published provider to the admin dashboard contract', function (): void {
+    expect(resolve(RecentlyPublishedDataProvider::class))
+        ->toBeInstanceOf(WorkspaceRecentlyPublishedDataProvider::class);
+});
+
+it('builds recently published data through the admin dashboard contract', function (): void {
+    $workspace = Workspace::factory()->published()->create();
+    $page = Page::factory()->create(['workspace_id' => $workspace->id]);
+
+    $result = resolve(RecentlyPublishedDataProvider::class)->build(10);
+    $ids = $result->items->toCollection()->pluck('pageId');
+
+    expect($ids)->toContain($page->id);
 });

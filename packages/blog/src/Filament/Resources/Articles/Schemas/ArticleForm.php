@@ -21,7 +21,7 @@ class ArticleForm implements FormConfigurator
 {
     public static function configure(Schema $configurator, ?ConfiguratorContextData $context = null): Schema
     {
-        $resourceClass = ArticleResource::class;
+        $resourceName = ArticleResource::getResourceName();
         $resolver = resolve(ConfiguratorResolver::class);
         $record = $configurator->getRecord();
 
@@ -41,11 +41,11 @@ class ArticleForm implements FormConfigurator
             return $adminType::configure($configurator, ConfiguratorContextData::forEdit(ConfiguratorTypeEnum::Page));
         }
 
-        $defaultType = Article::getDefaultType($resourceClass);
+        $defaultType = Article::getDefaultType($resourceName);
 
         if (! $defaultType instanceof Type) {
             EnsureArticlePublishingDefaultsAction::run();
-            $defaultType = Article::getDefaultType($resourceClass);
+            $defaultType = Article::getDefaultType($resourceName);
         }
 
         if (! $defaultType instanceof Type) {

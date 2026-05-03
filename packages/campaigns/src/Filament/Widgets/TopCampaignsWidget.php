@@ -6,6 +6,7 @@ namespace Capell\Campaigns\Filament\Widgets;
 
 use Capell\Admin\Contracts\CapellWidgetContract;
 use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
+use Capell\Admin\Filament\Concerns\HasDashboardDateRange;
 use Capell\Campaigns\Actions\BuildTopCampaignsQueryAction;
 use Capell\Campaigns\Data\Dashboard\CampaignConversionSummaryData;
 use Filament\Tables\Columns\TextColumn;
@@ -16,6 +17,7 @@ use Illuminate\Support\Collection;
 final class TopCampaignsWidget extends TableWidget implements CapellWidgetContract
 {
     use GatedByRoleAndSettings;
+    use HasDashboardDateRange;
 
     /** @var list<string> */
     protected static array $rolesConfigKeys = ['admin', 'super_admin'];
@@ -52,7 +54,9 @@ final class TopCampaignsWidget extends TableWidget implements CapellWidgetContra
      */
     private function records(): Collection
     {
-        return BuildTopCampaignsQueryAction::run()
+        [$rangeStart, $rangeEnd] = $this->getDashboardDateRange();
+
+        return BuildTopCampaignsQueryAction::run(5, $rangeStart, $rangeEnd)
             ->map(fn (CampaignConversionSummaryData $summary): array => [
                 'id' => $summary->campaignGroupId,
                 'campaign' => $summary->campaignName,

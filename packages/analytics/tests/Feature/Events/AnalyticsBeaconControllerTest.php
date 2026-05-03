@@ -80,6 +80,30 @@ it('stores a page view after analytics consent is granted', function (): void {
         ->and($event->sequence)->toBe(1);
 });
 
+it('stores a mixed event batch with one visit lookup and sequential events', function (): void {
+    $visit = AnalyticsVisit::factory()->create([
+        'consent_region' => AnalyticsConsentRegion::OutsideUkOrEurope,
+        'consent_status' => AnalyticsConsentStatus::Pending,
+    ]);
+
+    $this->postJson(route('capell-analytics.events'), [
+        'visit_id' => $visit->uuid,
+        'events' => [
+            pageViewEvent(['url' => 'https://example.test/first']),
+            clickEvent(['url' => 'https://example.test/first']),
+            pageViewEvent(['url' => 'https://example.test/admin/pages']),
+            pageViewEvent(['url' => 'https://example.test/asset.css']),
+        ],
+    ])->assertNoContent();
+
+    $events = AnalyticsEvent::query()->orderBy('sequence')->get();
+
+    expect($events)->toHaveCount(2)
+        ->and($events->pluck('sequence')->all())->toBe([1, 2])
+        ->and($events->pluck('path')->all())->toBe(['/first', '/first'])
+        ->and($visit->refresh()->last_seen_at)->not->toBeNull();
+});
+
 it('stores an outside-region page view with default settings', function (): void {
     $visit = AnalyticsVisit::factory()->create([
         'consent_region' => AnalyticsConsentRegion::OutsideUkOrEurope,
@@ -127,6 +151,24 @@ it('skips events on ignored paths', function (): void {
 
     expect(AnalyticsEvent::query()->count())->toBe(0);
 });
+
+it('skips admin livewire beacon and asset paths', function (string $url): void {
+    $visit = AnalyticsVisit::factory()->create([
+        'consent_region' => AnalyticsConsentRegion::OutsideUkOrEurope,
+        'consent_status' => AnalyticsConsentStatus::Pending,
+    ]);
+
+    $this->postJson(route('capell-analytics.events'), pageViewPayload($visit, [
+        'url' => $url,
+    ]))->assertNoContent();
+
+    expect(AnalyticsEvent::query()->count())->toBe(0);
+})->with([
+    'https://example.test/admin/login',
+    'https://example.test/livewire/update',
+    'https://example.test/capell/analytics/events',
+    'https://example.test/app.js',
+]);
 
 it('returns unprocessable for invalid event type', function (): void {
     $visit = AnalyticsVisit::factory()->create([

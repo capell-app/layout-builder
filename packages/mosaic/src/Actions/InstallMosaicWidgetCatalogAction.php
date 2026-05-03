@@ -41,12 +41,27 @@ class InstallMosaicWidgetCatalogAction
         $typeCreator = resolve(TypeCreator::class);
 
         foreach ($definitions as $definition) {
-            $type = $typeCreator->{$definition->typeCreatorMethod}();
+            $type = $this->createType($typeCreator, $definition);
 
             $widget = $this->installWidget($definition, $type);
 
             $this->installTranslations($widget, $definition, $catalogLanguages);
         }
+    }
+
+    private function createType(TypeCreator $typeCreator, WidgetDefinitionData $definition): Type
+    {
+        return match ($definition->typeCreatorMethod) {
+            'assetsWidgetType' => $typeCreator->assetsWidgetType(),
+            'contentsWidgetType' => $typeCreator->contentsWidgetType(),
+            'defaultWidgetType' => $typeCreator->defaultWidgetType(),
+            'mediaWidgetType' => $typeCreator->mediaWidgetType(),
+            'navigationWidgetType' => $typeCreator->navigationWidgetType(),
+            'pageContentWidgetType' => $typeCreator->pageContentWidgetType(),
+            'pagesWidgetType' => $typeCreator->pagesWidgetType(),
+            'resultsWidgetType' => $typeCreator->resultsWidgetType(),
+            'systemWidgetType' => $typeCreator->systemWidgetType(),
+        };
     }
 
     private function installWidget(WidgetDefinitionData $definition, Type $type): Widget

@@ -20,7 +20,7 @@ return new class extends SettingsMigration
             'analytics.retention_days' => 365,
             'analytics.hash_visitor_data' => true,
             'analytics.hash_salt' => 'capell-analytics',
-            'analytics.ignored_paths' => ['/admin*', '/livewire*', '/capell/analytics*'],
+            'analytics.ignored_paths' => ['/admin*', '/livewire*', '/capell/analytics*', '/_debugbar*', '/_clockwork*', '/storage*'],
             'analytics.ignored_selectors' => ['[data-capell-analytics-ignore]', '[wire\\:click]'],
             'analytics.route_prefix' => 'capell/analytics',
         ];

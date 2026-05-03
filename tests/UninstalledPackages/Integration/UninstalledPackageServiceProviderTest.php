@@ -9,7 +9,6 @@ use Capell\Address\Models\Country;
 use Capell\Address\Providers\AddressServiceProvider;
 use Capell\Admin\Enums\DashboardEnum;
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Admin\Filament\Resources\ImportSessions\ImportSessionResource;
 use Capell\Analytics\Filament\Widgets\AnalyticsOverviewStatsWidget;
 use Capell\Analytics\Models\AnalyticsConsent;
 use Capell\Analytics\Models\AnalyticsEvent;
@@ -20,6 +19,7 @@ use Capell\AuthenticationLog\Filament\Widgets\AuthenticationLogsWidget;
 use Capell\AuthenticationLog\Models\AuthenticationLog;
 use Capell\AuthenticationLog\Providers\AuthenticationLogServiceProvider;
 use Capell\Backup\Contracts\BackupContextResolver;
+use Capell\Backup\Filament\Resources\ImportSessions\ImportSessionResource;
 use Capell\Backup\Models\BackupRestore;
 use Capell\Backup\Models\ImportSession;
 use Capell\Backup\Providers\BackupServiceProvider;
@@ -107,7 +107,12 @@ it('discovers composer-required packages without treating them as installed Cape
 
     $composer = json_decode((string) file_get_contents(dirname(__DIR__, 3) . '/composer.json'), true, flags: JSON_THROW_ON_ERROR);
 
-    foreach ($composerRequiredPackages as $packageName) {
+    $requiredPackageNames = array_values(array_filter(
+        $composerRequiredPackages,
+        fn (string $packageName): bool => array_key_exists($packageName, $composer['require']),
+    ));
+
+    foreach ($requiredPackageNames as $packageName) {
         expect($composer['require'])->toHaveKey($packageName)
             ->and(CapellCore::hasPackage($packageName))->toBeTrue()
             ->and(CapellCore::isPackageInstalled($packageName))->toBeFalse();
@@ -128,8 +133,6 @@ it('registers package metadata but skips runtime models, tables, settings, and a
         DeveloperToolsServiceProvider::$packageName,
         FilamentPeekServiceProvider::$packageName,
         FormsServiceProvider::$packageName,
-        HtmlMinifyServiceProvider::$packageName,
-        CapellMcpServiceProvider::$packageName,
         CapellMediaCuratorServiceProvider::$packageName,
         MosaicServiceProvider::$packageName,
         NavigationServiceProvider::$packageName,

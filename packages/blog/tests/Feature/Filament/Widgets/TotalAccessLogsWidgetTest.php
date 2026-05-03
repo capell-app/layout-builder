@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Capell\Admin\Filament\Widgets\Health\TotalPageViewsWidget;
 use Capell\Blog\Models\Article;
-use Capell\Core\Models\AccessLog;
+use Capell\Core\Models\PageView;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Livewire\livewire;
@@ -17,7 +17,7 @@ it('renders the access logs widget', function (): void {
 
     $article = Article::factory()->create();
 
-    $accessLog = AccessLog::factory()->page($article)->create();
+    $accessLog = PageView::factory()->page($article)->create();
 
     livewire(TotalPageViewsWidget::class)
         ->assertOk()

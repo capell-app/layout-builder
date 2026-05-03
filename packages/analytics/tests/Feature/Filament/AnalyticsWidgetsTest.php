@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Capell\Admin\Contracts\DashboardSettingsContributor;
 use Capell\Analytics\Filament\Settings\Contributors\AnalyticsDashboardSettingsContributor;
 use Capell\Analytics\Filament\Widgets\AnalyticsOverviewStatsWidget;
+use Capell\Analytics\Filament\Widgets\LiveAnalyticsStatsWidget;
 use Capell\Analytics\Filament\Widgets\PopularPagesWidget;
 use Capell\Analytics\Filament\Widgets\RecentJourneysWidget;
 use Capell\Analytics\Filament\Widgets\TopActionsWidget;
@@ -18,6 +19,7 @@ it('exposes analytics dashboard settings keys with translated labels', function 
         'analytics_overview',
         'analytics_popular_pages',
         'analytics_trending_pages',
+        'analytics_live_stats',
         'analytics_recent_journeys',
         'analytics_top_actions',
     ]);
@@ -34,6 +36,7 @@ it('has concrete translations for analytics widget labels', function (): void {
         'analytics_overview',
         'popular_pages',
         'trending_pages',
+        'live_statistics',
         'recent_journeys',
         'top_actions',
         'metric',
@@ -51,6 +54,9 @@ it('has concrete translations for analytics widget labels', function (): void {
         'last_path',
         'action',
         'events',
+        'live_page_views',
+        'live_active_visits',
+        'live_top_page',
     ];
 
     foreach ($translationKeys as $translationKey) {
@@ -73,6 +79,7 @@ it('renders analytics dashboard widgets', function (string $widgetClass): void {
     AnalyticsOverviewStatsWidget::class,
     PopularPagesWidget::class,
     TrendingPagesWidget::class,
+    LiveAnalyticsStatsWidget::class,
     RecentJourneysWidget::class,
     TopActionsWidget::class,
 ]);

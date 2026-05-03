@@ -35,6 +35,8 @@ class AnalyticsServiceProvider extends AbstractPackageServiceProvider
                 'create_analytics_visits_table',
                 'create_analytics_consents_table',
                 'create_analytics_events_table',
+                'add_analytics_reporting_indexes',
+                'import_legacy_page_views',
             ]);
     }
 

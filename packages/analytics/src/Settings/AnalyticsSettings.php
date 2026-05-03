@@ -33,7 +33,7 @@ final class AnalyticsSettings extends Settings implements SettingsContract
     public string $hash_salt = 'capell-analytics';
 
     /** @var list<string> */
-    public array $ignored_paths = ['/admin*', '/livewire*', '/capell/analytics*'];
+    public array $ignored_paths = ['/admin*', '/livewire*', '/capell/analytics*', '/_debugbar*', '/_clockwork*', '/storage*'];
 
     /** @var list<string> */
     public array $ignored_selectors = ['[data-capell-analytics-ignore]', '[wire\\:click]'];

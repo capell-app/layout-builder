@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Capell\Core\Models\AccessLog;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\PageView;
 use Capell\Core\Models\Site;
 use Capell\SeoTools\Filament\Pages\NotFoundUrlsPage;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
@@ -72,14 +72,14 @@ test('query limits not found urls to assigned sites for non-global users', funct
     $hiddenSite = Site::factory()->withTranslations()->create();
     $missingPageType = resolve(Page::class)->getMorphClass();
 
-    AccessLog::factory()->create([
+    PageView::factory()->create([
         'site_id' => $assignedSite->id,
         'url' => '/assigned-missing',
         'pageable_type' => $missingPageType,
         'pageable_id' => 1001,
     ]);
 
-    AccessLog::factory()->create([
+    PageView::factory()->create([
         'site_id' => $hiddenSite->id,
         'url' => '/hidden-missing',
         'pageable_type' => $missingPageType,
@@ -93,7 +93,7 @@ test('query limits not found urls to assigned sites for non-global users', funct
 });
 
 test('query denies not found urls for non-global users without assigned sites', function (): void {
-    AccessLog::factory()->create([
+    PageView::factory()->create([
         'url' => '/hidden-missing',
         'pageable_type' => resolve(Page::class)->getMorphClass(),
         'pageable_id' => 1001,
@@ -116,7 +116,7 @@ test('can sort not found urls by total visitors and last viewed at', function ()
 
     $missingPageType = resolve(Page::class)->getMorphClass();
 
-    $sortRecordC1 = AccessLog::factory()->create([
+    $sortRecordC1 = PageView::factory()->create([
         'url' => '/missing/sort-c',
         'session_id' => 'visitor-1',
         'pageable_type' => $missingPageType,
@@ -124,7 +124,7 @@ test('can sort not found urls by total visitors and last viewed at', function ()
         'viewed_at' => now(),
     ]);
 
-    $sortRecordC2 = AccessLog::factory()->create([
+    $sortRecordC2 = PageView::factory()->create([
         'url' => '/missing/sort-c',
         'session_id' => 'visitor-2',
         'pageable_type' => $missingPageType,
@@ -132,7 +132,7 @@ test('can sort not found urls by total visitors and last viewed at', function ()
         'viewed_at' => now(),
     ]);
 
-    $sortRecordC3 = AccessLog::factory()->create([
+    $sortRecordC3 = PageView::factory()->create([
         'url' => '/missing/sort-c',
         'session_id' => 'visitor-3',
         'pageable_type' => $missingPageType,
@@ -140,7 +140,7 @@ test('can sort not found urls by total visitors and last viewed at', function ()
         'viewed_at' => now(),
     ]);
 
-    $sortRecordB1 = AccessLog::factory()->create([
+    $sortRecordB1 = PageView::factory()->create([
         'url' => '/missing/sort-b',
         'session_id' => 'visitor-4',
         'pageable_type' => $missingPageType,
@@ -148,7 +148,7 @@ test('can sort not found urls by total visitors and last viewed at', function ()
         'viewed_at' => now(),
     ]);
 
-    $sortRecordB2 = AccessLog::factory()->create([
+    $sortRecordB2 = PageView::factory()->create([
         'url' => '/missing/sort-b',
         'session_id' => 'visitor-5',
         'pageable_type' => $missingPageType,
@@ -156,7 +156,7 @@ test('can sort not found urls by total visitors and last viewed at', function ()
         'viewed_at' => now(),
     ]);
 
-    $sortRecordA1 = AccessLog::factory()->create([
+    $sortRecordA1 = PageView::factory()->create([
         'url' => '/missing/sort-a',
         'session_id' => 'visitor-6',
         'pageable_type' => $missingPageType,
@@ -171,7 +171,7 @@ test('can sort not found urls by total visitors and last viewed at', function ()
     $sortRecordB2->update(['viewed_at' => now()->subMinutes(10)]);
     $sortRecordA1->update(['viewed_at' => now()->subMinutes(15)]);
 
-    $sortedByTotalVisitors = AccessLog::query()
+    $sortedByTotalVisitors = PageView::query()
         ->notFound()
         ->selectRaw('url, MAX(viewed_at) as last_viewed_at, COUNT(DISTINCT session_id) as total_visitors')
         ->groupBy('url')
@@ -183,7 +183,7 @@ test('can sort not found urls by total visitors and last viewed at', function ()
         ->sortTable('total_visitors')
         ->assertCanSeeTableRecords($sortedByTotalVisitors, inOrder: true);
 
-    $sortedByLastViewedAt = AccessLog::query()
+    $sortedByLastViewedAt = PageView::query()
         ->notFound()
         ->selectRaw('url, MAX(viewed_at) as last_viewed_at, COUNT(DISTINCT session_id) as total_visitors')
         ->groupBy('url')
@@ -201,28 +201,28 @@ test('can search not found urls by url', function (): void {
 
     $missingPageType = resolve(Page::class)->getMorphClass();
 
-    AccessLog::factory()->create([
+    PageView::factory()->create([
         'url' => '/missing/search-target',
         'session_id' => 'session-search-1',
         'pageable_type' => $missingPageType,
         'pageable_id' => 44,
     ]);
 
-    AccessLog::factory()->create([
+    PageView::factory()->create([
         'url' => '/missing/other-url',
         'session_id' => 'session-search-2',
         'pageable_type' => $missingPageType,
         'pageable_id' => 55,
     ]);
 
-    $matchingRecord = AccessLog::query()
+    $matchingRecord = PageView::query()
         ->notFound()
         ->selectRaw('url, MAX(viewed_at) as last_viewed_at, COUNT(DISTINCT session_id) as total_visitors')
         ->where('url', '/missing/search-target')
         ->groupBy('url')
         ->firstOrFail();
 
-    $otherRecord = AccessLog::query()
+    $otherRecord = PageView::query()
         ->notFound()
         ->selectRaw('url, MAX(viewed_at) as last_viewed_at, COUNT(DISTINCT session_id) as total_visitors')
         ->where('url', '/missing/other-url')
@@ -241,7 +241,7 @@ test('can search not found urls by url', function (): void {
 test('escapes logged not found urls before rendering links', function (): void {
     auth()->user()->givePermissionTo('View:NotFoundUrlsPage');
 
-    AccessLog::factory()->create([
+    PageView::factory()->create([
         'url' => "/missing/'><script>alert(1)</script>",
         'session_id' => 'session-xss',
         'pageable_type' => resolve(Page::class)->getMorphClass(),
@@ -257,7 +257,7 @@ test('escapes logged not found urls before rendering links', function (): void {
 test('does not render unsafe logged not found urls as links', function (): void {
     auth()->user()->givePermissionTo('View:NotFoundUrlsPage');
 
-    AccessLog::factory()->create([
+    PageView::factory()->create([
         'url' => 'javascript:alert(1)',
         'session_id' => 'session-unsafe-link',
         'pageable_type' => resolve(Page::class)->getMorphClass(),
@@ -275,35 +275,35 @@ test('can bulk delete selected not found urls', function (): void {
 
     $missingPageType = resolve(Page::class)->getMorphClass();
 
-    AccessLog::factory()->create([
+    PageView::factory()->create([
         'url' => '/missing/delete-first',
         'session_id' => 'session-delete-1-a',
         'pageable_type' => $missingPageType,
         'pageable_id' => 66,
     ]);
 
-    AccessLog::factory()->create([
+    PageView::factory()->create([
         'url' => '/missing/delete-first',
         'session_id' => 'session-delete-1-b',
         'pageable_type' => $missingPageType,
         'pageable_id' => 66,
     ]);
 
-    AccessLog::factory()->create([
+    PageView::factory()->create([
         'url' => '/missing/delete-second',
         'session_id' => 'session-delete-2-a',
         'pageable_type' => $missingPageType,
         'pageable_id' => 77,
     ]);
 
-    AccessLog::factory()->create([
+    PageView::factory()->create([
         'url' => '/missing/delete-second',
         'session_id' => 'session-delete-2-b',
         'pageable_type' => $missingPageType,
         'pageable_id' => 77,
     ]);
 
-    AccessLog::factory()->create([
+    PageView::factory()->create([
         'url' => '/missing/keep-me',
         'session_id' => 'session-delete-3',
         'pageable_type' => $missingPageType,
@@ -318,7 +318,7 @@ test('can bulk delete selected not found urls', function (): void {
         ->assertHasNoFormErrors()
         ->assertCountTableRecords(1);
 
-    expect(AccessLog::query()->where('url', '/missing/delete-first')->exists())->toBeFalse();
-    expect(AccessLog::query()->where('url', '/missing/delete-second')->exists())->toBeFalse();
-    expect(AccessLog::query()->where('url', '/missing/keep-me')->exists())->toBeTrue();
+    expect(PageView::query()->where('url', '/missing/delete-first')->exists())->toBeFalse();
+    expect(PageView::query()->where('url', '/missing/delete-second')->exists())->toBeFalse();
+    expect(PageView::query()->where('url', '/missing/keep-me')->exists())->toBeTrue();
 });

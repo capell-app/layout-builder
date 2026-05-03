@@ -6,6 +6,8 @@ namespace Capell\Campaigns\Actions;
 
 use Capell\Campaigns\Models\CampaignConversion;
 use Capell\Campaigns\Models\CampaignGroup;
+use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Schema;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -16,11 +18,14 @@ final class BuildCampaignOverviewStatsAction
     /**
      * @return array{active_campaigns: int, conversions: int, conversion_rate: float}
      */
-    public function handle(): array
+    public function handle(?CarbonImmutable $startsAt = null, ?CarbonImmutable $endsAt = null): array
     {
         $activeCampaigns = CampaignGroup::query()->active()->count();
-        $conversions = CampaignConversion::query()->count();
-        $visits = $this->campaignVisitCount();
+        $conversions = CampaignConversion::query()
+            ->when($startsAt instanceof CarbonImmutable, fn (Builder $builder): Builder => $builder->where('converted_at', '>=', $startsAt))
+            ->when($endsAt instanceof CarbonImmutable, fn (Builder $builder): Builder => $builder->where('converted_at', '<=', $endsAt))
+            ->count();
+        $visits = $this->campaignVisitCount($startsAt, $endsAt);
 
         return [
             'active_campaigns' => $activeCampaigns,
@@ -29,7 +34,7 @@ final class BuildCampaignOverviewStatsAction
         ];
     }
 
-    private function campaignVisitCount(): int
+    private function campaignVisitCount(?CarbonImmutable $startsAt, ?CarbonImmutable $endsAt): int
     {
         $visitsTableName = config('capell-analytics.tables.visits', 'analytics_visits');
 
@@ -41,6 +46,8 @@ final class BuildCampaignOverviewStatsAction
 
         return CampaignGroup::query()
             ->join($visitsTableName, $groupsTableName . '.utm_campaign', '=', $visitsTableName . '.utm_campaign')
+            ->when($startsAt instanceof CarbonImmutable, fn (Builder $builder): Builder => $builder->where($visitsTableName . '.last_seen_at', '>=', $startsAt))
+            ->when($endsAt instanceof CarbonImmutable, fn (Builder $builder): Builder => $builder->where($visitsTableName . '.last_seen_at', '<=', $endsAt))
             ->count($visitsTableName . '.id');
     }
 }

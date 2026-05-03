@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Filament\Resources\ImportSessions\ImportSessionResource;
+use Capell\Backup\Filament\Resources\ImportSessions\ImportSessionResource;
 use Capell\Blog\Filament\Resources\Articles\ArticleResource;
 use Capell\Campaigns\Filament\Resources\CampaignConversionGoals\CampaignConversionGoalResource;
 use Capell\Campaigns\Filament\Resources\CampaignCtaBlocks\CampaignCtaBlockResource;

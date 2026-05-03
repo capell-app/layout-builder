@@ -140,9 +140,6 @@ A registered provider of assistant capabilities. Assistant modules expose capabi
 **Capability**
 An assistant or MCP action that can be listed, previewed, approved, or executed.
 
-**Marketplace Instance**
-A local installation registered with the extension marketplace for heartbeat, acquisition, update, advisory, and authorization workflows.
-
 **Deployment Connection**
 A configured link to a Git provider used for publishing composer/package changes through pull requests.
 
