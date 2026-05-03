@@ -21,12 +21,11 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [8.2]
-        laravel: [11.*]
-        db: [sqlite]
         include:
-          - laravel: 11.*
+          - php: 8.2
+            laravel: 11.*
             testbench: 9.*
+            db: sqlite
 
     services:
       mysql:
@@ -51,7 +50,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: vendor
-          key: dependencies-php-${{ matrix.php }}-${{ hashFiles('composer.lock') }}
+          key: dependencies-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-testbench-${{ matrix.testbench }}-${{ matrix.db }}-${{ hashFiles('composer.lock', '.github/workflows/tests.yml') }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -69,28 +68,33 @@ jobs:
       - name: Install PHP dependencies
         if: steps.php-cache.outputs.cache-hit != 'true'
         run: |
+          composer remove --no-interaction --no-progress --ansi --dev --no-update laravel/pao
+          composer require --no-interaction --no-progress --ansi --no-update \
+            "laravel/framework:${{ matrix.laravel }}"
+          composer require --no-interaction --no-progress --ansi --dev --no-update \
+            "orchestra/testbench:${{ matrix.testbench }}"
+
           if [ "${{ matrix.php }}" = "8.2" ]; then
-            composer remove --no-interaction --no-progress --ansi --dev --no-update mrpunyapal/peststan
+            composer remove --no-interaction --no-progress --ansi --dev --no-update mrpunyapal/peststan pestphp/pest-plugin-livewire calebdw/larastan-livewire
             composer require --no-interaction --no-progress --ansi --dev --no-update \
               soyhuce/phpstan-extension:^1.1 \
               pestphp/pest:^3.0 \
               pestphp/pest-plugin-arch:^3.0 \
               pestphp/pest-plugin-laravel:^3.0 \
-              pestphp/pest-plugin-livewire:^3.0 \
               pestphp/pest-plugin-type-coverage:^3.0 \
               phpstan/phpstan:^1.10.57 \
               phpstan/phpstan-mockery:^1.0 \
               phpstan/phpstan-strict-rules:^1.0 \
-              calebdw/larastan-livewire:^1.0 \
               canvural/larastan-strict-rules:^2.0 \
               phpstan/phpstan-beberlei-assert:^1.0 \
               rector/rector:^1.0 \
               driftingly/rector-laravel:^1.0 \
               larastan/larastan:^2.0
             composer require --no-interaction --no-progress --ansi --no-update \
-              livewire/livewire:^3.0 \
-              filament/filament:^4.7 \
-              filament/support:^4.7 \
+              livewire/livewire:^4.1 \
+              filament/filament:^5.2 \
+              filament/support:^5.2 \
+              pboivin/filament-peek:^4.0 \
               symfony/html-sanitizer:^7.0 \
               openspout/openspout:^4.22
           fi
@@ -138,22 +142,17 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [8.2, 8.3, 8.4]
-        laravel: [11.*, 12.*]
-        stability: [prefer-stable]
-        db: [sqlite, mysql]
         include:
-          - laravel: 11.*
+          - php: 8.2
+            laravel: 11.*
             testbench: 9.*
-          - laravel: 12.*
+            stability: prefer-stable
+            db: sqlite
+          - php: 8.4
+            laravel: 12.*
             testbench: 10.*
-        exclude:
-          - laravel: 11.*
-            php: 8.4
-          - laravel: 12.*
-            php: 8.3
-          - laravel: 12.*
-            php: 8.2
+            stability: prefer-stable
+            db: mysql
 
     services:
       mysql:
@@ -178,7 +177,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: vendor
-          key: dependencies-php-${{ matrix.php }}-${{ hashFiles('composer.lock') }}
+          key: dependencies-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-testbench-${{ matrix.testbench }}-${{ matrix.db }}-${{ hashFiles('composer.lock', '.github/workflows/tests.yml') }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -196,28 +195,33 @@ jobs:
       - name: Install PHP dependencies
         if: steps.php-cache.outputs.cache-hit != 'true'
         run: |
+          composer remove --no-interaction --no-progress --ansi --dev --no-update laravel/pao
+          composer require --no-interaction --no-progress --ansi --no-update \
+            "laravel/framework:${{ matrix.laravel }}"
+          composer require --no-interaction --no-progress --ansi --dev --no-update \
+            "orchestra/testbench:${{ matrix.testbench }}"
+
           if [ "${{ matrix.php }}" = "8.2" ]; then
-            composer remove --no-interaction --no-progress --ansi --dev --no-update mrpunyapal/peststan
+            composer remove --no-interaction --no-progress --ansi --dev --no-update mrpunyapal/peststan pestphp/pest-plugin-livewire calebdw/larastan-livewire
             composer require --no-interaction --no-progress --ansi --dev --no-update \
               soyhuce/phpstan-extension:^1.1 \
               pestphp/pest:^3.0 \
               pestphp/pest-plugin-arch:^3.0 \
               pestphp/pest-plugin-laravel:^3.0 \
-              pestphp/pest-plugin-livewire:^3.0 \
               pestphp/pest-plugin-type-coverage:^3.0 \
               phpstan/phpstan:^1.10.57 \
               phpstan/phpstan-mockery:^1.0 \
               phpstan/phpstan-strict-rules:^1.0 \
-              calebdw/larastan-livewire:^1.0 \
               canvural/larastan-strict-rules:^2.0 \
               phpstan/phpstan-beberlei-assert:^1.0 \
               rector/rector:^1.0 \
               driftingly/rector-laravel:^1.0 \
               larastan/larastan:^2.0
             composer require --no-interaction --no-progress --ansi --no-update \
-              livewire/livewire:^3.0 \
-              filament/filament:^4.7 \
-              filament/support:^4.7 \
+              livewire/livewire:^4.1 \
+              filament/filament:^5.2 \
+              filament/support:^5.2 \
+              pboivin/filament-peek:^4.0 \
               symfony/html-sanitizer:^7.0 \
               openspout/openspout:^4.22
           fi
