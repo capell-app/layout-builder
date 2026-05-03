@@ -124,7 +124,7 @@ jobs:
 
       - name: Check coverage threshold
         if: matrix.db == 'mysql'
-        run: php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=packages -d pcov.exclude="~vendor|tests|storage|bootstrap|.temp~" vendor/bin/pest --coverage --min=80 --coverage-clover=coverage/clover.xml --colors=always --stop-on-error --stop-on-failure --configuration=phpunit.xml
+        run: php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=packages -d pcov.exclude="~vendor|tests|storage|bootstrap|.temp~" vendor/bin/pest --coverage --min=80 --coverage-clover=coverage/clover.xml --colors=always --configuration=phpunit.xml
 
       - name: Upload Clover XML for codecov
         if: matrix.db == 'mysql'
