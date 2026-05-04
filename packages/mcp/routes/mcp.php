@@ -30,11 +30,13 @@ if (is_string($homeRoute) && $homeRoute !== '') {
     ])->name('capell-mcp.home');
 }
 
-if (is_string($knowledgeRoute) && $knowledgeRoute !== '') {
-    Mcp::web($knowledgeRoute, CapellKnowledgeServer::class);
-}
+if (class_exists(Mcp::class)) {
+    if (is_string($knowledgeRoute) && $knowledgeRoute !== '') {
+        Mcp::web($knowledgeRoute, CapellKnowledgeServer::class);
+    }
 
-if (is_string($siteRoute) && $siteRoute !== '') {
-    Mcp::web($siteRoute, CapellSiteServer::class)
-        ->middleware(AuthenticateCapellMcpToken::class);
+    if (is_string($siteRoute) && $siteRoute !== '') {
+        Mcp::web($siteRoute, CapellSiteServer::class)
+            ->middleware(AuthenticateCapellMcpToken::class);
+    }
 }
