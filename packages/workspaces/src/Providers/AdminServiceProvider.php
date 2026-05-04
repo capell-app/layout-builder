@@ -107,11 +107,14 @@ class AdminServiceProvider extends ServiceProvider
         Livewire::component('capell-workspaces::workspace-approval-history', WorkspaceApprovalHistory::class);
         Livewire::component('capell-workspaces::field-comment-thread', FieldCommentThread::class);
         Livewire::component('capell-workspaces::diff-panel', DiffPanel::class);
-        Livewire::addNamespace(
-            namespace: 'capell-workspaces',
-            classNamespace: 'Capell\\Workspaces\\Livewire',
-            classPath: __DIR__ . '/../Livewire',
-        );
+
+        if (method_exists(Livewire::getFacadeRoot(), 'addNamespace')) {
+            Livewire::addNamespace(
+                namespace: 'capell-workspaces',
+                classNamespace: 'Capell\\Workspaces\\Livewire',
+                classPath: __DIR__ . '/../Livewire',
+            );
+        }
 
         return $this;
     }
