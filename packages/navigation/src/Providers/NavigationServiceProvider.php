@@ -8,12 +8,15 @@ use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\SchemaExtenderEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Data\PageTypeData;
+use Capell\Core\Events\PageUrlChanged;
 use Capell\Core\Events\SiteReplicated;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\DemoCreator;
+use Capell\Frontend\Enums\CacheEnum as FrontendCacheEnum;
+use Capell\Navigation\Actions\BuildNavigationRenderModelAction;
 use Capell\Navigation\Adapters\NavigationNamesResolverAdapter;
 use Capell\Navigation\Adapters\NavigationPageSyncerAdapter;
 use Capell\Navigation\Console\Commands\DemoCommand;
@@ -29,6 +32,7 @@ use Capell\Navigation\Models\Navigation;
 use Capell\Navigation\Policies\NavigationPolicy;
 use Capell\Navigation\Support\Creator\NavigationDemoCreator;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -57,6 +61,7 @@ class NavigationServiceProvider extends ServiceProvider
             ->registerModels()
             ->registerConfigurators()
             ->registerPackageAssets()
+            ->registerBladeComponents()
             ->registerPolicies()
             ->registerRelationships()
             ->registerEventListeners()
@@ -146,6 +151,13 @@ class NavigationServiceProvider extends ServiceProvider
         return $this;
     }
 
+    private function registerBladeComponents(): self
+    {
+        Blade::componentNamespace('Capell\\Navigation\\View\\Components', 'capell-navigation');
+
+        return $this;
+    }
+
     private function registerPolicies(): self
     {
         Gate::policy(Navigation::class, NavigationPolicy::class);
@@ -163,8 +175,42 @@ class NavigationServiceProvider extends ServiceProvider
     private function registerEventListeners(): self
     {
         Event::listen(SiteReplicated::class, ReplicateSiteNavigationsListener::class);
+        Event::listen(PageUrlChanged::class, $this->handlePageUrlChanged(...));
 
         return $this;
+    }
+
+    private function handlePageUrlChanged(PageUrlChanged $event): void
+    {
+        BuildNavigationRenderModelAction::flushPageCache();
+
+        CapellCore::removeCacheKey(FrontendCacheEnum::Navigations->value);
+        CapellCore::removeCacheKey(FrontendCacheEnum::siteNavigations($event->site_id));
+
+        $navigations = Navigation::query()
+            ->where(function ($query) use ($event): void {
+                $query
+                    ->where('site_id', $event->site_id)
+                    ->orWhereNull('site_id');
+            })
+            ->where(function ($query) use ($event): void {
+                $query
+                    ->where('language_id', $event->language_id)
+                    ->orWhereNull('language_id');
+            })
+            ->get(['id', 'key', 'site_id', 'language_id']);
+
+        foreach ($navigations as $navigation) {
+            CapellCore::removeCacheKey(FrontendCacheEnum::navigationById((int) $navigation->getKey()));
+
+            if (is_numeric($navigation->site_id)) {
+                CapellCore::removeCacheKey(FrontendCacheEnum::navigation(
+                    $navigation->key,
+                    (int) $navigation->site_id,
+                    is_numeric($navigation->language_id) ? (int) $navigation->language_id : null,
+                ));
+            }
+        }
     }
 
     private function registerDemoCreatorMacros(): self
