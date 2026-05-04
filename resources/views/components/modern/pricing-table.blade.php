@@ -18,9 +18,7 @@
 >
     <section class="px-6 py-12 md:px-12 md:py-16">
         @if ($widget->translation)
-            <div
-                class="mx-auto mb-12 max-w-2xl text-center"
-            >
+            <div class="mx-auto mb-12 max-w-2xl text-center">
                 @if ($widget->translation->title)
                     <h2
                         class="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl"
@@ -30,9 +28,7 @@
                 @endif
 
                 @if ($widget->translation->content)
-                    <p
-                        class="mt-3 text-lg text-gray-500"
-                    >
+                    <p class="mt-3 text-lg text-gray-500">
                         {{ strip_tags($widget->translation->content) }}
                     </p>
                 @endif

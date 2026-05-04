@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Capell\Mosaic\Filament\Resources\Widgets\Schemas;
 
 use Capell\Admin\Data\Configurators\ConfiguratorContextData;
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Mosaic\Enums\ConfiguratorTypeEnum;
 use Capell\Mosaic\Enums\WidgetAssetConfiguratorEnum;
 use Capell\Mosaic\Models\WidgetAsset;
@@ -37,7 +37,7 @@ class WidgetAssetForm implements FormConfigurator
             $adminSchema = WidgetAssetConfiguratorEnum::fromName(ucfirst((string) $assetType))->value::getKey();
         }
 
-        $adminType = CapellAdmin::getConfigurator(ConfiguratorTypeEnum::WidgetAsset, $adminSchema);
+        $adminType = AdminSurfaceLookup::configurator(ConfiguratorTypeEnum::WidgetAsset, $adminSchema);
 
         return $adminType::configure($configurator)->columns();
     }

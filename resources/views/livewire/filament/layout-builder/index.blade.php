@@ -2,7 +2,7 @@
 @php
     use Capell\Admin\Enums\AlertTypeEnum;
     use Capell\Admin\Enums\ResourceEnum;
-    use Capell\Admin\Facades\CapellAdmin;
+    use Capell\Admin\Support\AdminSurfaceLookup;
     use Filament\Support\Enums\Size;
     use Filament\Support\Facades\FilamentAsset;
 
@@ -43,7 +43,7 @@
                                     $this->layoutPagesCount,
                                     [
                                         'count' => $this->layoutPagesCount,
-                                        'url' => CapellAdmin::getResource(ResourceEnum::Page)::getUrl(
+                                        'url' => AdminSurfaceLookup::resource(ResourceEnum::Page)::getUrl(
                                             'index',
                                             ['filters' => ['layout_id' => ['value' => $this->layout->id]]],
                                         ),
@@ -88,7 +88,7 @@
                                         @endif
 
                                         <x-filament::dropdown.list.item
-                                            href="{{ CapellAdmin::getResource(ResourceEnum::Layout)::getUrl('edit', ['record' => $this->layout->id]) }}"
+                                            href="{{ AdminSurfaceLookup::resource(ResourceEnum::Layout)::getUrl('edit', ['record' => $this->layout->id]) }}"
                                             icon="heroicon-o-arrow-top-right-on-square"
                                             target="_blank"
                                             tag="a"

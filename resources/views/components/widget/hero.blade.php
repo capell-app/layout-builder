@@ -198,25 +198,27 @@ $theme = Frontend::theme();
                                     class="relative z-30 flex w-full items-center lg:col-span-6 xl:col-span-5"
                                 >
                                     @foreach ($images as $media)
-                                        @capellBuffer($mediaContent)
+                                        @if ($loop->first)
                                             <x-capell::media
                                                 format="webp"
                                                 :media="$media"
                                                 :alt="$widgetAsset->asset->translation->title"
                                                 class="hero-slide-img h-full max-h-[40vh] w-full object-cover object-center lg:max-h-[400px]"
-                                                :loading="$loop->first ? 'eager' : 'lazy'"
+                                                loading="eager"
                                             />
-                                        @endcapellBuffer
-
-                                        @if ($loop->first)
-                                            {{ $mediaContent() }}
                                             @continue
                                         @endif
 
                                         <div
                                             class="z-12 absolute -bottom-4 left-4 w-2/3 rounded-lg bg-gray-200 shadow-lg lg:-left-8 dark:bg-gray-800"
                                         >
-                                            {{ $mediaContent() }}
+                                            <x-capell::media
+                                                format="webp"
+                                                :media="$media"
+                                                :alt="$widgetAsset->asset->translation->title"
+                                                class="hero-slide-img h-full max-h-[40vh] w-full object-cover object-center lg:max-h-[400px]"
+                                                loading="lazy"
+                                            />
                                         </div>
                                     @endforeach
                                 </div>

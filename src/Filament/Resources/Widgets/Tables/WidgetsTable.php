@@ -6,7 +6,6 @@ namespace Capell\Mosaic\Filament\Resources\Widgets\Tables;
 
 use Capell\Admin\Enums\FilamentColorEnum;
 use Capell\Admin\Enums\ResourceEnum;
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Tables\Actions\EditAction;
 use Capell\Admin\Filament\Components\Tables\Actions\ReplicateAction;
 use Capell\Admin\Filament\Components\Tables\Columns\DateColumn;
@@ -17,6 +16,7 @@ use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\StatusIconColumn;
 use Capell\Admin\Filament\Components\Tables\Filters\StatusFilter;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Models\Language;
 use Capell\Mosaic\Enums\LayoutTypeEnum;
 use Capell\Mosaic\Filament\Resources\Widgets\Pages\ListWidgets;
@@ -204,7 +204,7 @@ class WidgetsTable implements TableConfigurator
                                 'capell-admin::components.tables.url',
                                 [
                                     'state' => $state,
-                                    'url' => CapellAdmin::getResource(ResourceEnum::Layout)::getUrl('index', ['filters[widget_id][value]' => $record->key]),
+                                    'url' => AdminSurfaceLookup::resource(ResourceEnum::Layout)::getUrl('index', ['filters[widget_id][value]' => $record->key]),
                                 ],
                             ),
                         );

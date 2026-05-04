@@ -9,6 +9,7 @@
     "requires": [
         "capell-app/admin",
         "capell-app/frontend",
+        "capell-app/navigation",
         "capell-app/workspaces"
     ],
     "providers": {

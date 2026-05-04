@@ -1,7 +1,9 @@
 @php
     use Capell\Frontend\Facades\Frontend;
+    use Capell\Navigation\Actions\BuildNavigationRenderModelAction;
+    use Capell\Navigation\Data\NavigationRenderContextData;
+    use Capell\Navigation\Data\NavigationRenderData;
     use Capell\Navigation\Models\Navigation;
-    use Capell\Navigation\Support\Loader\NavigationItemsLoader;
     use Capell\Navigation\Support\Loader\NavigationLoader;
 
     if (! isset($menu)) {
@@ -18,21 +20,21 @@
         }
     }
 
-    if (! isset($items)) {
-        $items = collect();
-
+    if (! isset($navigationRenderData)) {
+        $navigationRenderData = null;
         if ($menu instanceof Navigation) {
-            $navigationLoader = new NavigationItemsLoader(
+            $navigationRenderData = BuildNavigationRenderModelAction::run(new NavigationRenderContextData(
                 navigation: $menu,
                 page: Frontend::page(),
                 site: Frontend::site(),
                 language: Frontend::language(),
                 siteDomain: Frontend::site()->siteDomain,
-            );
-
-            $items = $navigationLoader->fetchMenuItems();
-            $navigationLoader->activeMenuItems($items);
+            ));
         }
+    }
+
+    if (! isset($items)) {
+        $items = $navigationRenderData instanceof NavigationRenderData ? $navigationRenderData->items : collect();
     }
 @endphp
 

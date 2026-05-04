@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Capell\Mosaic\Filament\Resources\Widgets\RelationManagers;
 
 use Capell\Admin\Enums\ResourceEnum;
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Tables\Columns\DateColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\ImageColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
@@ -13,6 +12,7 @@ use Capell\Admin\Filament\Components\Tables\Columns\SiteColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\StatusIconColumn;
 use Capell\Admin\Filament\Concerns\HasRelationManagerBadge;
 use Capell\Admin\Filament\Resources\Pages\PageResource;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Models\Layout;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
@@ -86,7 +86,7 @@ class LayoutsRelationManager extends RelationManager
                     ),
             ])
             ->recordUrl(
-                fn (Layout $record): string => CapellAdmin::getResource(ResourceEnum::Layout)::getUrl('edit', ['record' => $record]),
+                fn (Layout $record): string => AdminSurfaceLookup::resource(ResourceEnum::Layout)::getUrl('edit', ['record' => $record]),
             );
     }
 }

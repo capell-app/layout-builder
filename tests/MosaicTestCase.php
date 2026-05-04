@@ -15,8 +15,10 @@ use Capell\Mosaic\Providers\MosaicServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Blade;
 use Livewire\LivewireServiceProvider;
 use Override;
+use Spatie\ImageOptimizer\Optimizers\Svgo;
 
 class MosaicTestCase extends AbstractTestCase
 {
@@ -24,14 +26,16 @@ class MosaicTestCase extends AbstractTestCase
     {
         parent::setUp();
 
+        Blade::anonymousComponentPath(__DIR__ . '/../../default-theme/resources/views/components', 'capell');
+
         $this->registerAndMigrateSettings(
             CapellCore::getSettingMigrations(),
-            __DIR__ . '/../../../../vendor/capell-app/core/database/settings',
+            __DIR__ . '/../../../vendor/capell-app/core/database/settings',
         );
 
         $this->registerAndMigrateSettings(
             CapellAdmin::getSettingMigrations(),
-            __DIR__ . '/../../../../vendor/capell-app/admin/database/settings',
+            __DIR__ . '/../../../vendor/capell-app/admin/database/settings',
         );
     }
 
@@ -67,11 +71,15 @@ class MosaicTestCase extends AbstractTestCase
 
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled('capell-app/default-theme');
         CapellCore::forcePackageInstalled(MosaicServiceProvider::$packageName);
 
-        CapellCore::registerPackage('capell-app/navigation', path: realpath(__DIR__ . '/../../../../packages/foundation/navigation'));
+        CapellCore::registerPackage('capell-app/navigation', path: realpath(__DIR__ . '/../../navigation'));
         CapellCore::forcePackageInstalled('capell-app/navigation');
 
         $app->make(Repository::class)->set('media-library.media_model', Media::class);
+        $app->make(Repository::class)->set('media-library.image_optimizers', [
+            Svgo::class => [],
+        ]);
     }
 }

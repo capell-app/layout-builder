@@ -112,7 +112,23 @@
                                     @endif
 
                                     @if ($image)
-                                        @capellBuffer($mediaContent)
+                                        @if ($linkedPage)
+                                            <a
+                                                href="{{ $linkedPage->pageUrl->full_url }}"
+                                                wire:navigate
+                                                class="shrink-0"
+                                            >
+                                                <x-capell::media
+                                                    :media="$image"
+                                                    :width="120"
+                                                    :height="120"
+                                                    :alt="$widgetAsset->asset->translation->title"
+                                                    fit="crop"
+                                                    class="h-10 w-10 rounded-full object-cover object-center"
+                                                    loading="lazy"
+                                                />
+                                            </a>
+                                        @else
                                             <x-capell::media
                                                 :media="$image"
                                                 :width="120"
@@ -122,18 +138,6 @@
                                                 class="h-10 w-10 rounded-full object-cover object-center"
                                                 loading="lazy"
                                             />
-                                        @endcapellBuffer
-
-                                        @if ($linkedPage)
-                                            <a
-                                                href="{{ $linkedPage->pageUrl->full_url }}"
-                                                wire:navigate
-                                                class="shrink-0"
-                                            >
-                                                {{ $mediaContent() }}
-                                            </a>
-                                        @else
-                                            {{ $mediaContent() }}
                                         @endif
                                     @endif
                                 </div>

@@ -75,7 +75,7 @@ class WidgetResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_design'));
+        return (string) (__('capell-admin::navigation.group_website'));
     }
 
     public static function getPluralModelLabel(): string

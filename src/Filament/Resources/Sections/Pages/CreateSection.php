@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Filament\Resources\Sections\Pages;
 
-use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Mosaic\Actions\MutateContentDataBeforeFillAction;
 use Capell\Mosaic\Enums\ResourceEnum;
 use Capell\Mosaic\Filament\Resources\Sections\SectionResource;
@@ -15,7 +15,7 @@ class CreateSection extends CreateRecord
     /** @return class-string<SectionResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(ResourceEnum::Section);
+        return AdminSurfaceLookup::resource(ResourceEnum::Section);
     }
 
     protected function fillForm(): void

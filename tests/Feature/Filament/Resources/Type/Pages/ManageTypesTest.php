@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Capell\Admin\Enums\ConfiguratorTypeEnum;
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Resources\Types\Pages\ManageTypes;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Database\Factories\TypeFactory;
 use Capell\Core\Models\Type;
 use Capell\Mosaic\Enums\TypeEnum;
@@ -26,7 +26,7 @@ beforeEach(function (): void {
 test('can create type', function (TypeEnum $type): void {
     $record = Type::factory()->make();
 
-    $hasTypeConfigurator = CapellAdmin::hasConfigurator(ConfiguratorTypeEnum::Type, $type->name);
+    $hasTypeConfigurator = AdminSurfaceLookup::hasConfigurator(ConfiguratorTypeEnum::Type, $type->name);
 
     $admin = $record->admin;
 
@@ -64,7 +64,7 @@ test('can update type', function (TypeEnum $typeEnum): void {
     $type = Type::factory()
         ->type($typeEnum)
         ->when(
-            CapellAdmin::hasConfigurator(ConfiguratorTypeEnum::Type, $typeEnum->name),
+            AdminSurfaceLookup::hasConfigurator(ConfiguratorTypeEnum::Type, $typeEnum->name),
             fn (TypeFactory $factory): TypeFactory => $factory->adminTypeConfigurator($typeEnum->name),
         )
         ->create();

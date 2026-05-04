@@ -28,30 +28,6 @@ $theme = Frontend::theme();
     'columns' => (int) $widget->getMeta('columns'),
 ])
 
-@capellBuffer($extendedBackground, $color, $position)
-    <div
-        @class([
-            '-z-1 absolute top-0 h-full w-1/2',
-            match ($position) {
-                'left' => 'left-0',
-                'right' => 'right-0',
-            },
-            match ($color) {
-                'danger' => 'bg-danger',
-                'dark-gray' => 'bg-dark-gray',
-                'gray' => 'bg-gray',
-                'info' => 'bg-info',
-                'light-gray' => 'bg-light-gray',
-                'primary' => 'bg-primary',
-                'secondary' => 'bg-secondary',
-                'success' => 'bg-success',
-                'warning' => 'bg-warning',
-                'white' => 'bg-white',
-            },
-        ])
-    ></div>
-@endcapellBuffer
-
 @if ($widget->assets->isNotEmpty() || ! config('capell-mosaic.widget.skip_render_empty', true))
     <x-capell-mosaic::widget.wrapper
         class="widget-assets-blocks relative"
@@ -79,7 +55,10 @@ $theme = Frontend::theme();
         @if ($widget->assets->isNotEmpty())
             <div>
                 @if ($color = $widget->assets->first()->asset->getMeta('color'))
-                    {{ $extendedBackground($color, 'left') }}
+                    <x-capell-mosaic::widget.asset.extended-background
+                        :$color
+                        position="left"
+                    />
                 @endif
 
                 <div
@@ -111,7 +90,10 @@ $theme = Frontend::theme();
                     @endforeach
                 </div>
                 @if ($color = $widget->assets->last()->asset->getMeta('color'))
-                    {{ $extendedBackground($color, 'right') }}
+                    <x-capell-mosaic::widget.asset.extended-background
+                        :$color
+                        position="right"
+                    />
                 @endif
             </div>
         @endif

@@ -1,5 +1,5 @@
 @php
-    use Capell\Admin\Facades\CapellAdmin;
+    use Capell\Admin\Support\AdminSurfaceLookup;
     use Capell\Mosaic\Enums\ResourceEnum;
 @endphp
 
@@ -26,7 +26,7 @@
                     </span>
                 </p>
                 <x-filament::link
-                    href="{{ CapellAdmin::getResource(ResourceEnum::Widget)::getUrl('edit', ['record' => $widget]) }}"
+                    href="{{ AdminSurfaceLookup::resource(ResourceEnum::Widget)::getUrl('edit', ['record' => $widget]) }}"
                     color="info"
                 >
                     {{ __('capell-admin::button.edit') }}

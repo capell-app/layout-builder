@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Capell\Mosaic\Filament\Resources\Widgets\Pages;
 
 use Capell\Admin\Enums\ResourceEnum;
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Concerns\ApplySearchRelationsTable;
+use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Models\Language;
 use Capell\Mosaic\Enums\ResourceEnum as LayoutResourceEnum;
 use Capell\Mosaic\Filament\Actions\CreateWidgetAction;
@@ -24,7 +24,7 @@ class ListWidgets extends ListRecords
     /** @return class-string<WidgetResource> */
     public static function getResource(): string
     {
-        return CapellAdmin::getResource(LayoutResourceEnum::Widget);
+        return AdminSurfaceLookup::resource(LayoutResourceEnum::Widget);
     }
 
     public function getSubheading(): string|Htmlable|null
@@ -54,7 +54,7 @@ class ListWidgets extends ListRecords
 
     protected function getActions(): array
     {
-        $layoutResource = CapellAdmin::getResource(ResourceEnum::Layout);
+        $layoutResource = AdminSurfaceLookup::resource(ResourceEnum::Layout);
 
         return [
             CreateWidgetAction::make('create')

@@ -1,8 +1,10 @@
 @php
     use Capell\Frontend\Facades\Frontend;
-    use Capell\Navigation\Data\NavigationItemData;
+    use Capell\Navigation\Actions\BuildNavigationRenderModelAction;
+    use Capell\Navigation\Data\NavigationItemRenderData;
+    use Capell\Navigation\Data\NavigationRenderContextData;
+    use Capell\Navigation\Data\NavigationRenderData;
     use Capell\Navigation\Models\Navigation;
-    use Capell\Navigation\Support\Loader\NavigationItemsLoader;
     use Capell\Navigation\Support\Loader\NavigationLoader;
     use Illuminate\Support\Collection;
 
@@ -22,22 +24,26 @@
         }
     }
 
-    if (! isset($items)) {
-        $items = collect();
-
+    if (! isset($navigationRenderData)) {
+        $navigationRenderData = null;
         if ($menu instanceof Navigation) {
-            $navigationLoader = new NavigationItemsLoader(
+            $navigationRenderData = BuildNavigationRenderModelAction::run(new NavigationRenderContextData(
                 navigation: $menu,
                 page: Frontend::page(),
                 site: Frontend::site(),
                 language: Frontend::language(),
                 siteDomain: Frontend::site()->siteDomain,
-            );
-
-            $items = $navigationLoader->fetchMenuItems();
-            $navigationLoader->activeMenuItems($items);
+            ));
         }
     }
+
+    if (! isset($items)) {
+        $items = $navigationRenderData instanceof NavigationRenderData ? $navigationRenderData->items : collect();
+    }
+
+    $listComponent = $navigationRenderData instanceof NavigationRenderData
+        ? $navigationRenderData->listComponent
+        : ($menu instanceof Navigation ? $menu->getMeta('component', 'capell::list') : 'capell::list');
 @endphp
 
 @props([
@@ -82,24 +88,24 @@
             <div class="grid md:grid-cols-2">
                 @php
                     /**
-                     * @var Collection<NavigationItemData> $items
+                     * @var Collection<NavigationItemRenderData> $items
                      */
                     $half = (int) ceil(count($items) / $columns);
 
                     /**
-                     * @var Collection<Collection<NavigationItemData>> $chunks
+                     * @var Collection<Collection<NavigationItemRenderData>> $chunks
                      */
                     $chunks = $items->chunk($half);
                 @endphp
 
                 @foreach ($chunks as $chunk)
                     <x-dynamic-component
-                        :component="$menu->getMeta('component', 'capell::list')"
+                        :component="$listComponent"
                         class="widget-navigation-list"
                     >
                         @foreach ($chunk as $item)
                             <x-dynamic-component
-                                :component="! empty($item->data['component_item']) ? $item->data['component_item'] : 'capell::list.item'"
+                                :component="$item instanceof NavigationItemRenderData ? ($item->componentItem ?: 'capell::list.item') : (! empty($item->data['component_item']) ? $item->data['component_item'] : 'capell::list.item')"
                                 class="widget-navigation-item"
                                 :$item
                             />
@@ -109,12 +115,12 @@
             </div>
         @else
             <x-dynamic-component
-                :component="$menu->getMeta('component', 'capell::list')"
+                :component="$listComponent"
                 class="widget-navigation-list widget-navigation-lit-children text-sm"
             >
                 @foreach ($items as $item)
                     <x-dynamic-component
-                        :component="! empty($item->data['component_item']) ? $item->data['component_item'] : 'capell::list.item'"
+                        :component="$item instanceof NavigationItemRenderData ? ($item->componentItem ?: 'capell::list.item') : (! empty($item->data['component_item']) ? $item->data['component_item'] : 'capell::list.item')"
                         :$item
                         class="widget-navigation-item widget-navigation-child-item"
                     />

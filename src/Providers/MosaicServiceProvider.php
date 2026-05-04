@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Providers;
 
+use BackedEnum;
 use Capell\Admin\Actions\CreatedModelAction;
 use Capell\Admin\Actions\DeletedModelAction;
 use Capell\Admin\Data\AdminAssetData;
+use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\ConfiguratorTypeEnum as AdminConfiguratorTypeEnum;
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Enums\SchemaExtenderEnum;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Assistant\Support\AssistantModuleRegistry;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Contracts\Makers\MakerRegistryInterface;
 use Capell\Core\Data\AssetData;
@@ -25,6 +28,7 @@ use Capell\Core\Models\Type;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
+use Capell\Mosaic\Assistant\MosaicAssistantModule;
 use Capell\Mosaic\Console\Commands\DemoCommand;
 use Capell\Mosaic\Console\Commands\FakerCommand;
 use Capell\Mosaic\Console\Commands\Hero\DemoCommand as HeroDemoCommand;
@@ -107,21 +111,9 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
 
     public function registeringPackage(): void
     {
-        $this
-            ->registerResources()
-            ->registerModels()
-            ->registerModelFillableAndCasts()
-            ->registerRelationships()
-            ->registerLayoutAssetBridgeRegistry()
-            ->registerLayoutPresetRegistry()
-            ->registerPackageMetadata()
-            ->registerBlazeComponents();
+        $this->registerPackageMetadata();
 
-        $this->callAfterResolving(MakerRegistryInterface::class, function (MakerRegistryInterface $registry): void {
-            $registry->register($this->app->make(MosaicWidgetMaker::class));
-        });
-
-        $this->booted(function (): void {
+        $this->app->booted(function (): void {
             if (! $this->isPackageInstalled()) {
                 return;
             }
@@ -146,7 +138,18 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
 
     private function bootInstalledPackage(): self
     {
+        $this->callAfterResolving(MakerRegistryInterface::class, function (MakerRegistryInterface $registry): void {
+            $registry->register($this->app->make(MosaicWidgetMaker::class));
+        });
+
         return $this
+            ->registerModels()
+            ->registerModelFillableAndCasts()
+            ->registerRelationships()
+            ->registerLayoutAssetBridgeRegistry()
+            ->registerLayoutPresetRegistry()
+            ->registerAssistantModule()
+            ->registerResources()
             ->registerListeners()
             ->registerConfigurators()
             ->registerManager()
@@ -163,6 +166,7 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
             ->registerPublishCommands()
             ->registerLivewireComponents()
             ->registerBladeComponents()
+            ->registerBlazeComponents()
             ->registerVendorAssets()
             ->registerWorkspaces();
     }
@@ -251,6 +255,26 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
         return $this;
     }
 
+    private function registerAssistantModule(): self
+    {
+        if (! class_exists(AssistantModuleRegistry::class)) {
+            return $this;
+        }
+
+        if (! CapellCore::isPackageInstalled('capell-app/assistant')) {
+            return $this;
+        }
+
+        $this->app->afterResolving(
+            AssistantModuleRegistry::class,
+            function (AssistantModuleRegistry $registry): void {
+                $registry->register(new MosaicAssistantModule);
+            },
+        );
+
+        return $this;
+    }
+
     private function registerFilamentServing(): self
     {
         Filament::serving(function (): void {
@@ -262,9 +286,18 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
 
     private function registerResources(): self
     {
-        CapellAdmin::registerResource(LayoutResourceEnum::Section->name, class: LayoutResourceEnum::Section->value);
-        CapellAdmin::registerResource(LayoutResourceEnum::Widget->name, class: LayoutResourceEnum::Widget->value);
-        CapellAdmin::registerResource(ResourceEnum::Layout, class: LayoutResource::class);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+            class: LayoutResourceEnum::Section->value,
+            group: LayoutResourceEnum::Section->name,
+        ));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+            class: LayoutResourceEnum::Widget->value,
+            group: LayoutResourceEnum::Widget->name,
+        ));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+            class: LayoutResource::class,
+            group: ResourceEnum::Layout->name,
+        ));
 
         return $this;
     }
@@ -536,11 +569,27 @@ class MosaicServiceProvider extends AbstractPackageServiceProvider
     private function registerConfigurators(): self
     {
         foreach (ConfiguratorTypeEnum::getAllConfigurators() as $type => $configurators) {
-            CapellAdmin::registerConfigurators($type, $configurators, defaultConfigurators: true);
+            foreach ($configurators as $configurator) {
+                $configuratorClass = $configurator instanceof BackedEnum ? $configurator->value : $configurator;
+
+                CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
+                    class: $configuratorClass,
+                    group: $type,
+                    name: $configuratorClass::getKey(),
+                ));
+            }
         }
 
-        CapellAdmin::registerConfigurator(AdminConfiguratorTypeEnum::Type, ContentTypeConfigurator::class);
-        CapellAdmin::registerConfigurator(AdminConfiguratorTypeEnum::Type, WidgetTypeConfigurator::class);
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
+            class: ContentTypeConfigurator::class,
+            group: AdminConfiguratorTypeEnum::Type->value,
+            name: ContentTypeConfigurator::getKey(),
+        ));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
+            class: WidgetTypeConfigurator::class,
+            group: AdminConfiguratorTypeEnum::Type->value,
+            name: WidgetTypeConfigurator::getKey(),
+        ));
 
         return $this;
     }
