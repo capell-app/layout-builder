@@ -9,6 +9,7 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
 use Capell\Core\Models\Type;
 use Capell\DeveloperTools\Filament\Widgets\Health\AlertsWidgetAbstract as AlertsWidget;
+use Capell\Installer\Providers\InstallerServiceProvider;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
@@ -129,7 +130,7 @@ it('does not show resource alerts when all defaults exist', function (): void {
         ->assertDontSee(__('capell-admin::message.language_missing_warning'));
 });
 
-it('does not show installer alert when installer package is absent', function (): void {
+it('shows installer alert only when installer package is present', function (): void {
     createAllTypes();
     $themeType = Type::query()->where('type', TypeEnum::Theme)->first();
     Theme::factory()->state(['type_id' => $themeType?->id, 'default' => true])->create();
@@ -137,13 +138,21 @@ it('does not show installer alert when installer package is absent', function ()
     Site::factory()->create();
 
     $livewire = livewire(AlertsWidget::class);
-    $livewire->assertDontSee(__('capell-admin::message.installer_present_warning'));
 
     $alerts = $livewire->get('alerts');
+
+    if (class_exists(InstallerServiceProvider::class)) {
+        $livewire->assertSee(__('capell-admin::message.installer_present_warning'));
+        expect($alerts)->toHaveKey('installer');
+
+        return;
+    }
+
+    $livewire->assertDontSee(__('capell-admin::message.installer_present_warning'));
     expect($alerts)->not->toHaveKey('installer');
 });
 
-it('does not add installer actions when installer package is absent', function (): void {
+it('adds installer actions only when installer package is present', function (): void {
     createAllTypes();
     $themeType = Type::query()->where('type', TypeEnum::Theme)->first();
     Theme::factory()->state(['type_id' => $themeType?->id, 'default' => true])->create();
@@ -154,6 +163,13 @@ it('does not add installer actions when installer package is absent', function (
     $actionNames = collect(Arr::wrap($alerts['installer']->action ?? []))
         ->map(fn (mixed $action): ?string => method_exists($action, 'getName') ? $action->getName() : null)
         ->all();
+
+    if (class_exists(InstallerServiceProvider::class)) {
+        expect($actionNames)
+            ->toContain('viewInstaller', 'deleteInstaller');
+
+        return;
+    }
 
     expect($actionNames)
         ->not->toContain('viewInstaller', 'deleteInstaller');
