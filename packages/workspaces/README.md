@@ -4,32 +4,32 @@ Status: **Available, schema-owning** · Kind: **package** · Tier: **premium** �
 
 ## What This Plugin Adds
 
-Workspaces adds draft workspaces, approvals, preview links, scheduled publishing, version history, rollback, field comments, and controlled publishing for Capell content.
+Workspaces is Capell's flagship editorial timeline workflow. It gives content teams a premium, Statamic-style publishing experience for Capell: preview, compare, approve, schedule, publish, and rollback every meaningful content change without editing live records directly.
 
-- Workspace Filament resource.
-- Preview link resource.
-- Workspace actions for approve, reject, request changes, validate, schedule, publish, rollback, and compare.
-- Dashboard widgets for activity, merge history, scheduling, and page alerts.
-- Livewire components for switcher, banner, approval history, comments, diff, and publish status.
-- Publish check pipeline.
+- Draft workspaces with copy-on-write editing for Draftable content.
+- Signed live preview links and a frontend workspace preview banner.
+- Compare and readiness views with diff, comments, review assignments, and publish checks.
+- Approval history for approve, reject, and request-changes decisions.
+- Scheduled publishing, immediate publishing, version history, rollback, and restore.
+- Activity timeline widgets and pages for audit-friendly editorial history.
 
 ## Why It Matters
 
 **For developers:** Adds copy-on-write, draftable model support, workspace events, review policies, preview signing, and page resource extenders without moving domain logic into Filament pages.
 
-**For teams:** Gives editorial teams a reviewable publishing workflow with drafts, approvals, scheduling, and rollback instead of direct edits to live content.
+**For teams:** Gives editors the confidence of a content history product: they can see what changed, preview it safely, gather approval, schedule the release, publish when ready, and restore a previous version if production needs to move back.
 
 ## Screens And Workflow
 
 Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) during package deployment.
 
-- Workspaces admin index.
-- Workspace compare page.
-- Preview links manager.
-- Scheduled publishing page.
-- Stale drafts page.
-- Activity trail page.
-- Frontend workspace preview banner.
+- Editorial timeline dashboard.
+- Live preview and preview banner.
+- Compare and publish readiness panel.
+- Approval history and reviewer decisions.
+- Scheduled publishing queue.
+- Activity history and field comments.
+- Rollback and restore flow.
 
 ## Technical Shape
 
@@ -41,9 +41,9 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 
 ## Data Model
 
-- workspaces stores uuid, slug, status, base version, cloned-from workspace, submitted/approved/publish timestamps, and kind/status metadata.
-- versions stores uuid, number, live flag, manifest, source workspace, and rollback link.
-- preview_links, workspace_approvals, workspace_review_assignments, and workspace_field_comments support review workflow.
+- workspaces stores uuid, slug, status, base version, cloned-from workspace, submitted/approved/publish timestamps, and timeline status metadata.
+- versions stores uuid, number, live flag, manifest, source workspace, and rollback links.
+- preview_links, workspace_approvals, workspace_review_assignments, and workspace_field_comments support the preview, compare, approval, and activity workflow.
 - Core tables receive workspace_id columns.
 
 ## Install Impact

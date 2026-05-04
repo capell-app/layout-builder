@@ -14,12 +14,12 @@ use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
-use Capell\Backup\Providers\BackupServiceProvider;
 use Capell\Blog\Providers\BlogServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Media;
 use Capell\Frontend\Contracts\SettingsMigrationProviderInterface;
 use Capell\Frontend\Providers\FrontendServiceProvider;
+use Capell\Migrator\Providers\MigratorServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Capell\Workspaces\Extenders\WorkspacesPageEditExtender;
@@ -137,7 +137,7 @@ class WorkspacesTestCase extends AbstractTestCase
             WidgetsServiceProvider::class,
             NotificationsServiceProvider::class,
             AdminServiceProvider::class,
-            BackupServiceProvider::class,
+            MigratorServiceProvider::class,
             FrontendServiceProvider::class,
             PaginateRouteServiceProvider::class,
             LivewireServiceProvider::class,
@@ -155,18 +155,18 @@ class WorkspacesTestCase extends AbstractTestCase
         parent::getEnvironmentSetUp($app);
 
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
-        $backupPackagePath = realpath(__DIR__ . '/../../../vendor/capell-app/backup');
+        $migratorPackagePath = realpath(__DIR__ . '/../../../vendor/capell-app/migrator');
 
-        if ($backupPackagePath === false) {
-            $backupPackagePath = realpath(__DIR__ . '/../../backup');
+        if ($migratorPackagePath === false) {
+            $migratorPackagePath = realpath(__DIR__ . '/../../migrator');
         }
 
-        if ($backupPackagePath === false) {
-            $backupPackagePath = null;
+        if ($migratorPackagePath === false) {
+            $migratorPackagePath = null;
         }
 
-        CapellCore::registerPackage(BackupServiceProvider::$packageName, path: $backupPackagePath);
-        CapellCore::forcePackageInstalled(BackupServiceProvider::$packageName);
+        CapellCore::registerPackage(MigratorServiceProvider::$packageName, path: $migratorPackagePath);
+        CapellCore::forcePackageInstalled(MigratorServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled('capell-app/workspaces');
         $app->tag([WorkspacesPageEditExtender::class], PageEditExtender::TAG);

@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Capell\Workspaces\Actions\Imports;
 
-use Capell\Backup\Actions\BuildPageReviewRows;
-use Capell\Backup\Actions\BuildRelationResolveRowsAction;
-use Capell\Backup\Data\PageReviewRow;
-use Capell\Backup\Data\RelationResolveRow;
-use Capell\Backup\Enums\ImportSessionKind;
-use Capell\Backup\Enums\ImportSessionStatus;
-use Capell\Backup\Models\ImportSession;
-use Capell\Backup\Services\Import\ManifestValidator;
-use Capell\Backup\Services\Import\PackageReader;
-use Capell\Backup\Services\Import\ResolutionMapBuilder;
-use Capell\Backup\Services\Import\Resolvers\RelationMatchResolverRegistry;
+use Capell\Migrator\Actions\BuildPageReviewRows;
+use Capell\Migrator\Actions\BuildRelationResolveRowsAction;
+use Capell\Migrator\Data\PageReviewRow;
+use Capell\Migrator\Data\RelationResolveRow;
+use Capell\Migrator\Enums\ImportSessionKind;
+use Capell\Migrator\Enums\ImportSessionStatus;
+use Capell\Migrator\Models\ImportSession;
+use Capell\Migrator\Services\Import\ManifestValidator;
+use Capell\Migrator\Services\Import\PackageReader;
+use Capell\Migrator\Services\Import\ResolutionMapBuilder;
+use Capell\Migrator\Services\Import\Resolvers\RelationMatchResolverRegistry;
 use Capell\Workspaces\Data\Imports\PageImportWizardStateData;
 use Capell\Workspaces\Enums\WorkspaceKindEnum;
 use Capell\Workspaces\Enums\WorkspaceStatusEnum;

@@ -7,6 +7,25 @@
     "bundle": "publishing-pro",
     "contexts": ["admin", "console"],
     "requires": ["capell-app/core", "capell-app/admin"],
+    "marketing": {
+        "headline": "Editorial timeline workflow for Capell",
+        "summary": "Preview, compare, approve, schedule, publish, and rollback Capell content through a premium workflow layer with live preview, review history, readiness checks, and version restore.",
+        "positioning": "Capell's flagship publishing workflow, designed to give editorial teams a Statamic-style content history experience while remaining a separate premium package."
+    },
+    "capabilities": [
+        "editorial-timeline",
+        "live-preview",
+        "content-compare",
+        "approval-history",
+        "review-assignments",
+        "field-comments",
+        "publish-readiness",
+        "scheduled-publishing",
+        "version-history",
+        "rollback-restore",
+        "activity-history"
+    ],
+    "screenshots": "docs/screenshots.json",
     "providers": {
         "shared": ["Capell\\Workspaces\\Providers\\WorkspacesServiceProvider"],
         "admin": ["Capell\\Workspaces\\Providers\\AdminServiceProvider"],

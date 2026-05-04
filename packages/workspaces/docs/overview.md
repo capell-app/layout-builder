@@ -6,14 +6,14 @@ This page is the consolidated implementation overview for the Workspaces package
 
 ## What This Plugin Adds
 
-Workspaces adds draft workspaces, approvals, preview links, scheduled publishing, version history, rollback, field comments, and controlled publishing for Capell content.
+Workspaces is Capell's premium editorial timeline package. It brings the publishing loop into one workflow: preview, compare, approve, schedule, publish, and rollback content changes while preserving a readable history of what happened and why.
 
-- Workspace Filament resource.
-- Preview link resource.
-- Workspace actions for approve, reject, request changes, validate, schedule, publish, rollback, and compare.
-- Dashboard widgets for activity, merge history, scheduling, and page alerts.
-- Livewire components for switcher, banner, approval history, comments, diff, and publish status.
-- Publish check pipeline.
+- Draft workspaces for safe copy-on-write editing.
+- Signed live preview links and a frontend preview banner.
+- Compare, diff, comments, review assignments, and publish readiness checks.
+- Approval history for approve, reject, and request-changes decisions.
+- Scheduled publishing, immediate publishing, version history, rollback, and restore.
+- Activity timeline surfaces for editorial and operational audit trails.
 
 ## Developer Notes
 
@@ -27,7 +27,7 @@ Adds copy-on-write, draftable model support, workspace events, review policies, 
 
 ## Operational Notes
 
-Gives editorial teams a reviewable publishing workflow with drafts, approvals, scheduling, and rollback instead of direct edits to live content.
+Gives editorial teams a Statamic-style content history feel while remaining a separate premium Capell package. Editors can move from draft to preview, review, schedule, publish, and restore without losing the context behind each decision.
 
 - Adds workspace and versioning tables.
 - Adds workspace_id columns to core and external tables.
@@ -44,13 +44,13 @@ Gives editorial teams a reviewable publishing workflow with drafts, approvals, s
 
 ## Screenshot Plan
 
-- Workspaces admin index.
-- Workspace compare page.
-- Preview links manager.
-- Scheduled publishing page.
-- Stale drafts page.
-- Activity trail page.
-- Frontend workspace preview banner.
+- Editorial timeline dashboard.
+- Live preview and preview banner.
+- Compare and publish readiness panel.
+- Approval history and reviewer decisions.
+- Scheduled publishing queue.
+- Activity history and field comments.
+- Rollback and restore flow.
 
 ## Pitfalls
 
@@ -74,6 +74,7 @@ Gives editorial teams a reviewable publishing workflow with drafts, approvals, s
 - Tier: premium
 - Bundle: publishing-pro
 - Contexts: `admin`, `console`
+- Marketplace headline: Editorial timeline workflow for preview, compare, approval, scheduling, publishing, and rollback.
 - Requires: `capell-app/core`, `capell-app/admin`
 - Optional dependencies: None listed.
 
@@ -169,10 +170,10 @@ erDiagram
 
 Deployment should read [screenshots.json](screenshots.json), install the package with demo data, resolve each admin surface or frontend URL, and write images to `public/docs/screenshots/packages/workspaces`.
 
-- Workspaces admin index.
-- Workspace compare page.
-- Preview links manager.
-- Scheduled publishing page.
-- Stale drafts page.
-- Activity trail page.
-- Frontend workspace preview banner.
+- Editorial timeline dashboard.
+- Live preview and preview banner.
+- Compare and publish readiness panel.
+- Approval history and reviewer decisions.
+- Scheduled publishing queue.
+- Activity history and field comments.
+- Rollback and restore flow.

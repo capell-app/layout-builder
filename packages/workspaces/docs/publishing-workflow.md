@@ -4,16 +4,17 @@ This focused guide extends [Overview](overview.md) for the Workspaces package.
 
 ## Purpose
 
-Workspaces controls the draft, approval, schedule, publish, rollback, and preview lifecycle for Draftable Capell records.
+Workspaces controls Capell's editorial timeline for Draftable records: preview, compare, approve, schedule, publish, and rollback. It is the premium workflow layer for teams that want content history, readiness checks, and safe publishing without editing live records directly.
 
 ## Workflow
 
 1. Create a draft workspace or page draft.
-2. Edit draftable records inside workspace context.
-3. Request review and collect approval decisions.
-4. Run publish checks.
-5. Publish immediately, schedule publishing, or request changes.
-6. Use version history and rollback when a published version needs to be restored.
+2. Preview the draft through signed preview links or the frontend preview banner.
+3. Compare the draft against the live version and resolve field comments.
+4. Request review and collect approval decisions.
+5. Run readiness checks for accessibility, links, alt text, and SEO meta.
+6. Publish immediately, schedule the release, or request changes.
+7. Use version history, rollback, and restore when a published version needs to move back.
 
 ## Gates
 
@@ -31,9 +32,10 @@ Workspaces controls the draft, approval, schedule, publish, rollback, and previe
 
 ## Screenshot Requirements
 
-- Workspace index.
-- Compare version page.
-- Preview links manager.
-- Scheduled publishing page.
-- Stale drafts page.
-- Frontend preview banner.
+- Editorial timeline dashboard.
+- Live preview and preview banner.
+- Compare and publish readiness panel.
+- Approval history and reviewer decisions.
+- Scheduled publishing queue.
+- Activity history and field comments.
+- Rollback and restore flow.

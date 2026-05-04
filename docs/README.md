@@ -12,7 +12,7 @@ For the commercial/free grouping, see [Package product groups](product-groups.md
 | Analytics          | [`packages/analytics/README.md`](../packages/analytics/README.md)                   |
 | Assistant          | [`packages/assistant/README.md`](../packages/assistant/README.md)                   |
 | Authentication Log | [`packages/authentication-log/README.md`](../packages/authentication-log/README.md) |
-| Backup             | [`packages/backup/README.md`](../packages/backup/README.md)                         |
+| Migrator           | [`packages/migrator/README.md`](../packages/migrator/README.md)                     |
 | Blog               | [`packages/blog/README.md`](../packages/blog/README.md)                             |
 | Campaigns          | [`packages/campaigns/README.md`](../packages/campaigns/README.md)                   |
 | Content Blocks     | [`packages/content-blocks/README.md`](../packages/content-blocks/README.md)         |
@@ -37,6 +37,7 @@ For the commercial/free grouping, see [Package product groups](product-groups.md
 | Theme Studio Admin | [`packages/theme-studio-admin/README.md`](../packages/theme-studio-admin/README.md) |
 | Theme Studio Core  | [`packages/theme-studio-core/README.md`](../packages/theme-studio-core/README.md)   |
 | Toolbar            | [`packages/toolbar/README.md`](../packages/toolbar/README.md)                       |
+| WordPress Importer | [`packages/wordpress-importer/README.md`](../packages/wordpress-importer/README.md) |
 | Workspaces         | [`packages/workspaces/README.md`](../packages/workspaces/README.md)                 |
 
 For the full documentation site, see [docs.capell.app](https://docs.capell.app). For the package overview and dependency matrix, see the [repository README](../README.md).

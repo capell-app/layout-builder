@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Capell\Backup\Data\PageReviewRow;
-use Capell\Backup\Jobs\ExecuteImportPlanJob;
-use Capell\Backup\Models\ImportSession;
-use Capell\Backup\Support\ChecksumGenerator;
 use Capell\Core\Models\Site;
+use Capell\Migrator\Data\PageReviewRow;
+use Capell\Migrator\Jobs\ExecuteImportPlanJob;
+use Capell\Migrator\Models\ImportSession;
+use Capell\Migrator\Support\ChecksumGenerator;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Capell\Workspaces\Filament\Pages\ImportPagesPage;
 use Illuminate\Support\Facades\DB;

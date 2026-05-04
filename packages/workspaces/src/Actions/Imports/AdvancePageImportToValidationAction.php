@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Capell\Workspaces\Actions\Imports;
 
-use Capell\Backup\Actions\BuildImportValidationSummaryAction;
-use Capell\Backup\Data\PageReviewRow;
-use Capell\Backup\Data\RelationResolveRow;
-use Capell\Backup\Enums\ImportSessionStatus;
-use Capell\Backup\Models\ImportSession;
-use Capell\Backup\Services\Import\PackageReader;
-use Capell\Backup\Services\Import\ResolutionMap;
-use Capell\Backup\Services\Import\Resolvers\MatchResolution;
 use Capell\Core\Models\Site;
+use Capell\Migrator\Actions\BuildImportValidationSummaryAction;
+use Capell\Migrator\Data\PageReviewRow;
+use Capell\Migrator\Data\RelationResolveRow;
+use Capell\Migrator\Enums\ImportSessionStatus;
+use Capell\Migrator\Models\ImportSession;
+use Capell\Migrator\Services\Import\PackageReader;
+use Capell\Migrator\Services\Import\ResolutionMap;
+use Capell\Migrator\Services\Import\Resolvers\MatchResolution;
 use Capell\Workspaces\Data\Imports\PageImportDecisionData;
 use Capell\Workspaces\Data\Imports\PageImportWizardStateData;
 use Capell\Workspaces\Models\Workspace;

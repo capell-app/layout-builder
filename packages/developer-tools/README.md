@@ -86,5 +86,5 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 ## Next Steps
 
 - [docs/overview.md](docs/overview.md)
-- [../backup/README.md](../backup/README.md)
+- [../migrator/README.md](../migrator/README.md)
 - [../authentication-log/README.md](../authentication-log/README.md)

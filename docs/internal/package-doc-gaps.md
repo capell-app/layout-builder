@@ -4,7 +4,7 @@ These notes are intentionally internal. Public READMEs should describe proven be
 
 - analytics: screenshot plan includes admin entries, but no Filament resource/page class was found.
 - assistant: screenshot plan includes admin entries, but no Filament resource/page class was found.
-- backup: screenshot plan includes admin entries, but no Filament resource/page class was found.
+- migrator: screenshot plan includes admin entries, but no Filament resource/page class was found.
 - content-blocks: migrations/settings exist, but no ERD excerpt was found in the shared ERD source.
 - default-theme: screenshot plan includes admin entries, but no Filament resource/page class was found.
 - default-theme: migrations/settings exist, but no ERD excerpt was found in the shared ERD source.

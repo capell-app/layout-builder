@@ -23,7 +23,7 @@
     "require": {
         "php": "^8.2",
         "capell-app/admin": "*",
-        "capell-app/backup": "*",
+        "capell-app/migrator": "*",
         "capell-app/core": "*",
         "capell-app/navigation": "*",
         "jfcherng/php-diff": "^7.0"

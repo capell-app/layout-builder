@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Capell\Backup\Actions\InstallBackupPermissionsAction;
-use Capell\Backup\Data\RelationResolveRow;
-use Capell\Backup\Jobs\ExecuteImportPlanJob;
-use Capell\Backup\Models\ImportSession;
-use Capell\Backup\Support\ChecksumGenerator;
 use Capell\Core\Models\Site;
+use Capell\Migrator\Actions\InstallMigratorPermissionsAction;
+use Capell\Migrator\Data\RelationResolveRow;
+use Capell\Migrator\Jobs\ExecuteImportPlanJob;
+use Capell\Migrator\Models\ImportSession;
+use Capell\Migrator\Support\ChecksumGenerator;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Capell\Workspaces\Filament\Pages\ImportPagesPage;
 use Illuminate\Support\Facades\Queue;
@@ -114,7 +114,7 @@ function stageResolvePackage(string $relativePath, string $pageUuid, int $siteId
 
 beforeEach(function (): void {
     Permission::findOrCreate('View:ImportPagesPage', 'web');
-    InstallBackupPermissionsAction::run();
+    InstallMigratorPermissionsAction::run();
     test()->actingAsAdmin();
     auth()->user()->givePermissionTo('View:ImportPagesPage');
     Storage::fake('local');
@@ -170,7 +170,7 @@ it('hides update_existing when the user lacks the permission', function (): void
 });
 
 it('exposes update_existing once the permission is granted', function (): void {
-    auth()->user()->givePermissionTo(InstallBackupPermissionsAction::PERMISSION_PAGE_IMPORT_UPDATE_SHARED);
+    auth()->user()->givePermissionTo(InstallMigratorPermissionsAction::PERMISSION_PAGE_IMPORT_UPDATE_SHARED);
 
     expect((new ImportPagesPage)->canUpdateSharedRelations())->toBeTrue();
 });
@@ -182,7 +182,7 @@ it('denies publish-live when the user lacks page.import.publish-live', function 
 });
 
 it('allows publish-live once page.import.publish-live is granted', function (): void {
-    auth()->user()->givePermissionTo(InstallBackupPermissionsAction::PERMISSION_PAGE_IMPORT_PUBLISH_LIVE);
+    auth()->user()->givePermissionTo(InstallMigratorPermissionsAction::PERMISSION_PAGE_IMPORT_PUBLISH_LIVE);
 
     expect((new ImportPagesPage)->canPublishLive())->toBeTrue();
 });
