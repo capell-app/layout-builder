@@ -393,7 +393,11 @@
             "target": "ContentBlockResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/content-blocks"
+            "composerName": "capell-app/content-blocks",
+            "runner": "scripts/capture-admin-screenshots.mjs",
+            "capture": {
+                "fullPage": true
+            }
         },
         {
             "id": "create-edit-content-block-form",
@@ -404,7 +408,11 @@
             "target": "ContentBlockResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/content-blocks"
+            "composerName": "capell-app/content-blocks",
+            "runner": "scripts/capture-admin-screenshots.mjs",
+            "capture": {
+                "fullPage": true
+            }
         },
         {
             "id": "content-block-asset-relation-manager",
@@ -415,7 +423,11 @@
             "target": "ContentBlockResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/content-blocks"
+            "composerName": "capell-app/content-blocks",
+            "runner": "scripts/capture-admin-screenshots.mjs",
+            "capture": {
+                "fullPage": true
+            }
         },
         {
             "id": "widget-or-page-selector-using-a-content-block",
@@ -426,7 +438,11 @@
             "target": "ContentBlockResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/content-blocks"
+            "composerName": "capell-app/content-blocks",
+            "runner": "scripts/capture-admin-screenshots.mjs",
+            "capture": {
+                "fullPage": true
+            }
         },
         {
             "id": "default-theme-settings-screen",

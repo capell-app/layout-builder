@@ -9,7 +9,7 @@ Deployment can generate package screenshots from the committed screenshot manife
 3. Authenticate as an admin user with the required role or permission.
 4. Resolve `admin-surface` targets through Filament resources or pages.
 5. Resolve `frontend-url` targets through seeded demo routes or package route names.
-6. Capture desktop and mobile screenshots.
+6. Capture desktop and mobile screenshots. Use `scripts/capture-admin-screenshots.mjs` for admin surfaces when a manifest declares it, and keep `SCREENSHOT_FULL_PAGE=true` so long admin forms are captured in full.
 7. Write files to `public/docs/screenshots/packages/{package}`.
 
 ## Manifest Contract
@@ -20,6 +20,8 @@ Deployment can generate package screenshots from the committed screenshot manife
 - `entries[].surface`: `admin` or `frontend`.
 - `entries[].targetType`: `admin-surface` or `frontend-url`.
 - `entries[].target`: resource/page class name when known, otherwise deployment resolves from seeded content.
+- `runner`: optional screenshot runner path, such as `scripts/capture-admin-screenshots.mjs`.
+- `capture.fullPage`: when true, the runner should capture the full scrollable page instead of only the viewport.
 
 ## Notes
 

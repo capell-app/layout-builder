@@ -32,9 +32,11 @@ final class CsvReader implements ImportSourceReader
             if (! is_array($row)) {
                 continue;
             }
+
             if ($row === [null]) {
                 continue;
             }
+
             $values = array_map(static fn (mixed $value): string => trim((string) $value), $row);
 
             if ($index === 0) {

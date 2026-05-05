@@ -43,4 +43,5 @@ return [
     'select_asset' => 'Select existing',
     'select_records' => 'Select Records',
     'widget' => 'Widget',
+    'add_item' => 'Add Item',
 ];

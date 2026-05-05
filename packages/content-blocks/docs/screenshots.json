@@ -4,6 +4,10 @@
     "generatedFor": "deployment-screenshot-runner",
     "requiresInstalledPackage": true,
     "outputDirectory": "public/docs/screenshots/packages/content-blocks",
+    "runner": "scripts/capture-admin-screenshots.mjs",
+    "capture": {
+        "fullPage": true
+    },
     "entries": [
         {
             "id": "content-blocks-admin-index",

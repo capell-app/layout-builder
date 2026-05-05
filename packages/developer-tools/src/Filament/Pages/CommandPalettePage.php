@@ -56,9 +56,11 @@ final class CommandPalettePage extends Page
         if (Gate::allows('accessDeveloperTools')) {
             return true;
         }
+
         if (Gate::allows('viewDeveloperTools')) {
             return true;
         }
+
         if (auth()->user()?->can('accessDeveloperTools') === true) {
             return true;
         }

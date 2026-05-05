@@ -10,12 +10,14 @@ use Capell\Admin\Actions\DeletedModelAction;
 use Capell\Admin\Data\AdminAssetData;
 use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\ContentBlocks\Actions\RegisterDefaultContentBlocksAction;
 use Capell\ContentBlocks\Enums\AssetEnum;
 use Capell\ContentBlocks\Enums\ConfiguratorTypeEnum;
 use Capell\ContentBlocks\Enums\LayoutTypeEnum;
 use Capell\ContentBlocks\Enums\ResourceEnum;
 use Capell\ContentBlocks\Filament\Resources\ContentBlocks\ContentBlockResource;
 use Capell\ContentBlocks\Models\ContentBlock;
+use Capell\ContentBlocks\Support\ContentBlockRegistry;
 use Capell\ContentBlocks\Support\Mosaic\Livewire\ContentBlockAssets;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Data\PageTypeData;
@@ -86,6 +88,7 @@ class ContentBlocksServiceProvider extends AbstractPackageServiceProvider
     {
         return $this
             ->registerModels()
+            ->registerBlockRegistry()
             ->registerRelationships()
             ->registerResources()
             ->registerConfigurators()
@@ -135,6 +138,17 @@ class ContentBlocksServiceProvider extends AbstractPackageServiceProvider
         CapellCore::registerModels([
             ContentBlock::class,
         ]);
+
+        return $this;
+    }
+
+    private function registerBlockRegistry(): self
+    {
+        $this->app->singleton(ContentBlockRegistry::class);
+
+        $this->callAfterResolving(ContentBlockRegistry::class, function (ContentBlockRegistry $registry): void {
+            RegisterDefaultContentBlocksAction::run($registry);
+        });
 
         return $this;
     }

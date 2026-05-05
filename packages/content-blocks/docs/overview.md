@@ -10,7 +10,8 @@ Content Blocks adds reusable content records that can be managed in Filament and
 
 - Content block Filament resource.
 - Reusable block creation, replication, and form mutation actions.
-- Default, hero, and testimonial block configurators.
+- Default, hero, testimonial, accordion, call to action, comparison, counter, divider, FAQ, features, logos, pricing, stats, table, tabs, team, and timeline block configurators.
+- Registry-backed block definitions for admin discovery and future package registration.
 - Asset relation manager support.
 - Content select and repeater form components.
 
@@ -40,6 +41,21 @@ Lets editors manage reusable pieces of content once and place them across struct
 - Content block factories and type factories support tests and demos.
 - Assets are managed through relation manager behaviour.
 - Deletion behaviour for reused content should be verified before removing shared records.
+
+## Future Optional Blocks
+
+Advanced blocks should live in their own packages and register into the content block registry:
+
+- `capell-block-before-after`
+- `capell-block-code-snippet`
+- `capell-block-map`
+- `capell-block-video`
+- `capell-block-speed-dial`
+- `capell-block-parallax`
+- `capell-block-document-list`
+- `capell-block-media-gallery`
+- `capell-block-posts`
+- `capell-block-contact-form`
 
 ## Screenshot Plan
 

@@ -9,6 +9,7 @@ use Capell\GoogleAnalytics\Filament\Pages\GoogleAnalyticsPage;
 use Capell\GoogleAnalytics\Filament\Settings\Contributors\GoogleAnalyticsDashboardSettingsContributor;
 use Capell\GoogleAnalytics\Filament\Widgets\GoogleAnalyticsOverviewStatsWidget;
 use Capell\GoogleAnalytics\Filament\Widgets\GoogleAnalyticsSetupStatusWidget;
+use Capell\GoogleAnalytics\Filament\Widgets\GoogleAnalyticsTopPagesTableWidget;
 use Capell\GoogleAnalytics\Filament\Widgets\GoogleAnalyticsTopPagesWidget;
 use Capell\GoogleAnalytics\Filament\Widgets\GoogleAnalyticsTrafficTrendWidget;
 use Capell\GoogleAnalytics\Models\GoogleAnalyticsDailyMetric;
@@ -101,5 +102,6 @@ it('renders GA4 dashboard widgets with empty and seeded data', function (string 
     GoogleAnalyticsOverviewStatsWidget::class,
     GoogleAnalyticsTrafficTrendWidget::class,
     GoogleAnalyticsTopPagesWidget::class,
+    GoogleAnalyticsTopPagesTableWidget::class,
     GoogleAnalyticsSetupStatusWidget::class,
 ]);

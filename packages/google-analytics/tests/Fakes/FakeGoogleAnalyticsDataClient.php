@@ -8,6 +8,7 @@ use Capell\GoogleAnalytics\Contracts\GoogleAnalyticsDataClientInterface;
 use Capell\GoogleAnalytics\Data\GoogleAnalyticsDailyMetricData;
 use Capell\GoogleAnalytics\Data\GoogleAnalyticsPageMetricData;
 use Capell\GoogleAnalytics\Data\GoogleAnalyticsWindowData;
+use RuntimeException;
 
 final class FakeGoogleAnalyticsDataClient implements GoogleAnalyticsDataClientInterface
 {
@@ -19,6 +20,7 @@ final class FakeGoogleAnalyticsDataClient implements GoogleAnalyticsDataClientIn
         private readonly bool $configured,
         private readonly array $dailyMetrics = [],
         private readonly array $pageMetrics = [],
+        private readonly bool $shouldFail = false,
     ) {}
 
     public function isConfigured(): bool
@@ -28,6 +30,10 @@ final class FakeGoogleAnalyticsDataClient implements GoogleAnalyticsDataClientIn
 
     public function dailyMetrics(GoogleAnalyticsWindowData $window): array
     {
+        if ($this->shouldFail) {
+            throw new RuntimeException('GA4 client failed.');
+        }
+
         return $this->dailyMetrics;
     }
 

@@ -3,9 +3,12 @@
 declare(strict_types=1);
 
 use Capell\GoogleAnalytics\Data\GoogleAnalyticsWindowData;
+use Capell\GoogleAnalytics\Exceptions\GoogleAnalyticsApiException;
 use Capell\GoogleAnalytics\Support\Analytics\GoogleAnalyticsDataClient;
 use Capell\GoogleAnalytics\Tests\GoogleAnalyticsTestCase;
 use Carbon\CarbonImmutable;
+use GuzzleHttp\Promise\PromiseInterface;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
 
@@ -32,6 +35,27 @@ function createGoogleAnalyticsCredentialsFile(): string
     ], JSON_THROW_ON_ERROR));
 
     return $credentialsPath;
+}
+
+/**
+ * @return array{dimensionValues: list<array{value: string}>, metricValues: list<array{value: string}>}
+ */
+function createGoogleAnalyticsPageReportRow(int $index): array
+{
+    return [
+        'dimensionValues' => [
+            ['value' => '20260504'],
+            ['value' => '/page-' . $index],
+            ['value' => 'Page ' . $index],
+        ],
+        'metricValues' => [
+            ['value' => (string) (100 + $index)],
+            ['value' => (string) (90 + $index)],
+            ['value' => (string) (80 + $index)],
+            ['value' => (string) (70 + $index)],
+            ['value' => (string) (60 + $index)],
+        ],
+    ];
 }
 
 it('is not configured without all required config values', function (): void {
@@ -119,7 +143,7 @@ it('maps GA4 daily and page report rows into data objects', function (): void {
         ->and($pageMetrics[0]->conversions)->toBe(2);
 });
 
-it('returns empty metric rows when the GA4 API fails', function (): void {
+it('throws when the GA4 API fails', function (): void {
     $credentialsPath = createGoogleAnalyticsCredentialsFile();
 
     Http::fake([
@@ -133,7 +157,42 @@ it('returns empty metric rows when the GA4 API fails', function (): void {
         'credentials_path' => $credentialsPath,
     ]);
 
-    $metrics = $client->dailyMetrics(new GoogleAnalyticsWindowData(
+    expect(fn (): array => $client->dailyMetrics(new GoogleAnalyticsWindowData(
+        startsAt: CarbonImmutable::create(2026, 5, 4),
+        endsAt: CarbonImmutable::create(2026, 5, 4),
+        propertyId: '123456789',
+    )))->toThrow(GoogleAnalyticsApiException::class, 'Google Analytics Data API request failed with HTTP status 500.');
+
+    unlink($credentialsPath);
+});
+
+it('orders and paginates GA4 page report rows', function (): void {
+    $credentialsPath = createGoogleAnalyticsCredentialsFile();
+    $analyticsPayloads = [];
+    $firstPageRows = array_map(
+        fn (int $index): array => createGoogleAnalyticsPageReportRow($index),
+        range(1, 250),
+    );
+
+    Http::fake(function (Request $request) use (&$analyticsPayloads, $firstPageRows): PromiseInterface {
+        if ($request->url() === 'https://oauth2.googleapis.com/token') {
+            return Http::response(['access_token' => 'test-token'], 200);
+        }
+
+        $analyticsPayloads[] = $request->data();
+
+        return count($analyticsPayloads) === 1
+            ? Http::response(['rows' => $firstPageRows], 200)
+            : Http::response(['rows' => [createGoogleAnalyticsPageReportRow(251)]], 200);
+    });
+
+    $client = new GoogleAnalyticsDataClient([
+        'enabled' => true,
+        'property_id' => '123456789',
+        'credentials_path' => $credentialsPath,
+    ]);
+
+    $metrics = $client->pageMetrics(new GoogleAnalyticsWindowData(
         startsAt: CarbonImmutable::create(2026, 5, 4),
         endsAt: CarbonImmutable::create(2026, 5, 4),
         propertyId: '123456789',
@@ -141,5 +200,11 @@ it('returns empty metric rows when the GA4 API fails', function (): void {
 
     unlink($credentialsPath);
 
-    expect($metrics)->toBe([]);
+    expect($metrics)->toHaveCount(251)
+        ->and($analyticsPayloads)->toHaveCount(2)
+        ->and($analyticsPayloads[0]['limit'])->toBe(250)
+        ->and($analyticsPayloads[0]['offset'])->toBe(0)
+        ->and($analyticsPayloads[0]['orderBys'][0]['metric']['metricName'])->toBe('screenPageViews')
+        ->and($analyticsPayloads[0]['orderBys'][0]['desc'])->toBeTrue()
+        ->and($analyticsPayloads[1]['offset'])->toBe(250);
 });

@@ -8,15 +8,19 @@ use Capell\GoogleAnalytics\Contracts\GoogleAnalyticsDataClientInterface;
 use Capell\GoogleAnalytics\Data\GoogleAnalyticsDailyMetricData;
 use Capell\GoogleAnalytics\Data\GoogleAnalyticsPageMetricData;
 use Capell\GoogleAnalytics\Data\GoogleAnalyticsWindowData;
+use Capell\GoogleAnalytics\Exceptions\GoogleAnalyticsApiException;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
 use JsonException;
-use Throwable;
 
 final class GoogleAnalyticsDataClient implements GoogleAnalyticsDataClientInterface
 {
     private const SCOPE = 'https://www.googleapis.com/auth/analytics.readonly';
+
+    private const PAGE_METRIC_PAGE_SIZE = 250;
+
+    private const MAX_PAGE_METRIC_ROWS = 5000;
 
     /**
      * @param  array<string, mixed>  $config
@@ -38,20 +42,16 @@ final class GoogleAnalyticsDataClient implements GoogleAnalyticsDataClientInterf
             return [];
         }
 
-        try {
-            $rows = $this->runReport($window, ['date'], [
-                'totalUsers',
-                'sessions',
-                'screenPageViews',
-                'engagedSessions',
-                'engagementRate',
-                'averageSessionDuration',
-                'eventCount',
-                'keyEvents',
-            ]);
-        } catch (Throwable) {
-            return [];
-        }
+        $rows = $this->runReport($window, ['date'], [
+            'totalUsers',
+            'sessions',
+            'screenPageViews',
+            'engagedSessions',
+            'engagementRate',
+            'averageSessionDuration',
+            'eventCount',
+            'keyEvents',
+        ]);
 
         $metrics = [];
 
@@ -89,17 +89,7 @@ final class GoogleAnalyticsDataClient implements GoogleAnalyticsDataClientInterf
             return [];
         }
 
-        try {
-            $rows = $this->runReport($window, ['date', 'pagePathPlusQueryString', 'pageTitle'], [
-                'totalUsers',
-                'sessions',
-                'screenPageViews',
-                'eventCount',
-                'keyEvents',
-            ], 250);
-        } catch (Throwable) {
-            return [];
-        }
+        $rows = $this->paginatedPageReportRows($window);
 
         $metrics = [];
 
@@ -136,34 +126,87 @@ final class GoogleAnalyticsDataClient implements GoogleAnalyticsDataClientInterf
     /**
      * @param  list<string>  $dimensions
      * @param  list<string>  $metrics
+     * @param  list<array<string, mixed>>  $orderBys
      * @return list<array<string, mixed>>
      */
-    private function runReport(GoogleAnalyticsWindowData $window, array $dimensions, array $metrics, int $limit = 1000): array
-    {
-        $response = Http::withToken($this->accessToken())
+    private function runReport(
+        GoogleAnalyticsWindowData $window,
+        array $dimensions,
+        array $metrics,
+        int $limit = 1000,
+        int $offset = 0,
+        array $orderBys = [],
+    ): array {
+        $payload = [
+            'dateRanges' => [[
+                'startDate' => $window->startsAt->toDateString(),
+                'endDate' => $window->endsAt->toDateString(),
+            ]],
+            'dimensions' => array_map(
+                fn (string $dimension): array => ['name' => $dimension],
+                $dimensions,
+            ),
+            'metrics' => array_map(
+                fn (string $metric): array => ['name' => $metric],
+                $metrics,
+            ),
+            'limit' => $limit,
+            'offset' => $offset,
+        ];
+
+        if ($orderBys !== []) {
+            $payload['orderBys'] = $orderBys;
+        }
+
+        $accessToken = $this->accessToken();
+
+        if ($accessToken === '') {
+            throw new GoogleAnalyticsApiException('Unable to obtain a Google Analytics access token.');
+        }
+
+        $response = Http::withToken($accessToken)
             ->acceptJson()
-            ->post('https://analyticsdata.googleapis.com/v1beta/properties/' . $window->propertyId . ':runReport', [
-                'dateRanges' => [[
-                    'startDate' => $window->startsAt->toDateString(),
-                    'endDate' => $window->endsAt->toDateString(),
-                ]],
-                'dimensions' => array_map(
-                    fn (string $dimension): array => ['name' => $dimension],
-                    $dimensions,
-                ),
-                'metrics' => array_map(
-                    fn (string $metric): array => ['name' => $metric],
-                    $metrics,
-                ),
-                'limit' => $limit,
-            ]);
+            ->post('https://analyticsdata.googleapis.com/v1beta/properties/' . $window->propertyId . ':runReport', $payload);
 
         if (! $response->successful()) {
-            return [];
+            throw new GoogleAnalyticsApiException('Google Analytics Data API request failed with HTTP status ' . $response->status() . '.');
         }
 
         /** @var list<array<string, mixed>> $rows */
         $rows = $response->json('rows', []);
+
+        return $rows;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function paginatedPageReportRows(GoogleAnalyticsWindowData $window): array
+    {
+        $rows = [];
+        $offset = 0;
+        $orderBys = [[
+            'metric' => ['metricName' => 'screenPageViews'],
+            'desc' => true,
+        ]];
+
+        while ($offset < self::MAX_PAGE_METRIC_ROWS) {
+            $pageRows = $this->runReport($window, ['date', 'pagePathPlusQueryString', 'pageTitle'], [
+                'totalUsers',
+                'sessions',
+                'screenPageViews',
+                'eventCount',
+                'keyEvents',
+            ], self::PAGE_METRIC_PAGE_SIZE, $offset, $orderBys);
+
+            $rows = array_merge($rows, $pageRows);
+
+            if (count($pageRows) < self::PAGE_METRIC_PAGE_SIZE) {
+                break;
+            }
+
+            $offset += self::PAGE_METRIC_PAGE_SIZE;
+        }
 
         return $rows;
     }
@@ -244,22 +287,33 @@ final class GoogleAnalyticsDataClient implements GoogleAnalyticsDataClientInterf
             return ['client_email' => '', 'private_key' => ''];
         }
 
+        if (! is_readable($credentialsPath)) {
+            throw new GoogleAnalyticsApiException('Google Analytics credentials file is not readable.');
+        }
+
         try {
             $contents = file_get_contents($credentialsPath);
 
             if (! is_string($contents)) {
-                return ['client_email' => '', 'private_key' => ''];
+                throw new GoogleAnalyticsApiException('Google Analytics credentials file could not be read.');
             }
 
             /** @var array{client_email?:string,private_key?:string,token_uri?:string} $credentials */
             $credentials = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException) {
-            return ['client_email' => '', 'private_key' => ''];
+            throw new GoogleAnalyticsApiException('Google Analytics credentials file contains invalid JSON.');
+        }
+
+        $clientEmail = is_string($credentials['client_email'] ?? null) ? $credentials['client_email'] : '';
+        $privateKey = is_string($credentials['private_key'] ?? null) ? $credentials['private_key'] : '';
+
+        if ($clientEmail === '' || $privateKey === '') {
+            throw new GoogleAnalyticsApiException('Google Analytics credentials file is missing service account values.');
         }
 
         return [
-            'client_email' => is_string($credentials['client_email'] ?? null) ? $credentials['client_email'] : '',
-            'private_key' => is_string($credentials['private_key'] ?? null) ? $credentials['private_key'] : '',
+            'client_email' => $clientEmail,
+            'private_key' => $privateKey,
             'token_uri' => is_string($credentials['token_uri'] ?? null) ? $credentials['token_uri'] : 'https://oauth2.googleapis.com/token',
         ];
     }
@@ -283,7 +337,7 @@ final class GoogleAnalyticsDataClient implements GoogleAnalyticsDataClientInterf
         ]);
 
         if (! $response->successful()) {
-            return '';
+            throw new GoogleAnalyticsApiException('Google Analytics token request failed with HTTP status ' . $response->status() . '.');
         }
 
         return is_string($response->json('access_token')) ? $response->json('access_token') : '';

@@ -9,6 +9,7 @@ use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Capell\GoogleAnalytics\Actions\ResolveGoogleAnalyticsConfigAction;
 use Capell\GoogleAnalytics\Filament\Widgets\GoogleAnalyticsOverviewStatsWidget;
 use Capell\GoogleAnalytics\Filament\Widgets\GoogleAnalyticsSetupStatusWidget;
+use Capell\GoogleAnalytics\Filament\Widgets\GoogleAnalyticsTopPagesTableWidget;
 use Capell\GoogleAnalytics\Filament\Widgets\GoogleAnalyticsTopPagesWidget;
 use Capell\GoogleAnalytics\Filament\Widgets\GoogleAnalyticsTrafficTrendWidget;
 use Filament\Pages\Page;
@@ -66,6 +67,14 @@ final class GoogleAnalyticsPage extends Page
             GoogleAnalyticsTrafficTrendWidget::class,
             GoogleAnalyticsTopPagesWidget::class,
             GoogleAnalyticsSetupStatusWidget::class,
+        ];
+    }
+
+    #[Override]
+    protected function getFooterWidgets(): array
+    {
+        return [
+            GoogleAnalyticsTopPagesTableWidget::class,
         ];
     }
 }

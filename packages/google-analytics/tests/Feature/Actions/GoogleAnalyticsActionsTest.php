@@ -152,3 +152,21 @@ it('returns an empty sync result when GA4 is not configured', function (): void 
     expect($result->synced)->toBeFalse()
         ->and(GoogleAnalyticsSyncRun::query()->count())->toBe(0);
 });
+
+it('records a failed sync run when GA4 fetches fail', function (): void {
+    configureGoogleAnalyticsSettings();
+
+    app()->instance(GoogleAnalyticsDataClientInterface::class, new FakeGoogleAnalyticsDataClient(
+        configured: true,
+        shouldFail: true,
+    ));
+
+    $result = SyncGoogleAnalyticsMetricsAction::run();
+    $syncRun = GoogleAnalyticsSyncRun::query()->first();
+
+    expect($result->synced)->toBeFalse()
+        ->and($syncRun)->toBeInstanceOf(GoogleAnalyticsSyncRun::class)
+        ->and($syncRun?->status)->toBe('failed')
+        ->and($syncRun?->error_message)->toBe('GA4 client failed.')
+        ->and($syncRun?->finished_at)->not->toBeNull();
+});
