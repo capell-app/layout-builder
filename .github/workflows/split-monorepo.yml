@@ -39,6 +39,8 @@ jobs:
             repository_name: authentication-log
           - package_directory: packages/mcp
             repository_name: mcp
+          - package_directory: packages/media-assistant
+            repository_name: media-assistant
           - package_directory: packages/media-curator
             repository_name: media-curator
           - package_directory: packages/mosaic
@@ -47,6 +49,8 @@ jobs:
             repository_name: navigation
           - package_directory: packages/redirects
             repository_name: redirects
+          - package_directory: packages/password-security
+            repository_name: password-security
           - package_directory: packages/seo-tools
             repository_name: seo-tools
           - package_directory: packages/site-search

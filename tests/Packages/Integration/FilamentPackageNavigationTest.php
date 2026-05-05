@@ -37,6 +37,7 @@ it('registers every installed package in the Capell package registry', function 
         'capell-app/migrator',
         'capell-app/blog',
         'capell-app/campaigns',
+        'capell-app/content-blocks',
         'capell-app/core',
         'capell-app/developer-tools',
         'capell-app/filament-peek',
@@ -47,7 +48,6 @@ it('registers every installed package in the Capell package registry', function 
         'capell-app/mosaic',
         'capell-app/navigation',
         'capell-app/redirects',
-        'capell-app/reports',
         'capell-app/seo-tools',
         'capell-app/site-search',
         'capell-app/tags',
@@ -56,7 +56,7 @@ it('registers every installed package in the Capell package registry', function 
         'capell-app/workspaces',
     ];
 
-    foreach (['capell-app/installer', 'capell-app/marketplace'] as $optionalPackage) {
+    foreach (['capell-app/installer', 'capell-app/marketplace', 'capell-app/reports'] as $optionalPackage) {
         if (InstalledVersions::isInstalled($optionalPackage)) {
             $expectedPackages[] = $optionalPackage;
         }

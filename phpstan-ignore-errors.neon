@@ -1,17 +1,13 @@
 parameters:
     ignoreErrors:
-        # PageTranslation does not exist in the installed core version (uses Translation model)
         -
             identifier: class.notFound
             message: '#Capell\\Core\\Models\\PageTranslation#'
-        # layoutWidgets is a dynamic relation added by MosaicServiceProvider at runtime
         -
             identifier: larastan.relationExistence
             message: '#layoutWidgets#'
-        # workspace is a dynamic relation added by WorkspacesServiceProvider via resolveRelationUsing
         -
             identifier: larastan.relationExistence
             message: '#workspace#'
-        # PHP 8.2 does not support typed constants; constantTypeCoverage cannot be satisfied
         -
             identifier: typeCoverage.constantTypeCoverage

@@ -42,7 +42,6 @@ it('keeps package settings out of the global settings page', function (): void {
 it('saves password security settings from the package settings page', function (): void {
     Livewire::test(PasswordSecuritySettingsPage::class)
         ->assertSuccessful()
-        /** @phpstan-ignore-next-line Filament's form testing macros are mixed into Livewire's testable class. */
         ->fillForm([
             'password_expiry_enabled' => true,
             'password_expiry_days' => 45,
@@ -77,7 +76,6 @@ it('redirects flagged admin users to the forced password change page', function 
 
 it('uses the package policy when admin users are created with passwords', function (): void {
     Livewire::test(CreateUser::class)
-        /** @phpstan-ignore-next-line Filament's form testing macros are mixed into Livewire's testable class. */
         ->fillForm([
             'name' => 'Secure User',
             'email' => 'secure-user@example.test',
@@ -111,7 +109,6 @@ it('uses the package history policy when admin users are edited with passwords',
     ]);
 
     Livewire::test(EditUser::class, ['record' => $user->getKey()])
-        /** @phpstan-ignore-next-line Filament's form testing macros are mixed into Livewire's testable class. */
         ->fillForm([
             'name' => $user->getAttribute('name'),
             'email' => $user->getAttribute('email'),
@@ -129,7 +126,6 @@ it('uses the package history policy when admin users are edited with passwords',
         ->and((bool) $user->getAttribute('must_change_password'))->toBeFalse();
 
     Livewire::test(EditUser::class, ['record' => $user->getKey()])
-        /** @phpstan-ignore-next-line Filament's form testing macros are mixed into Livewire's testable class. */
         ->fillForm([
             'name' => $user->getAttribute('name'),
             'email' => $user->getAttribute('email'),
