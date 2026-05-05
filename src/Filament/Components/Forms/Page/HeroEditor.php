@@ -56,7 +56,13 @@ class HeroEditor extends Group
 
     protected function hasPageWidgetHeroAssets(Pageable $page): bool
     {
-        return cache()->memo()->rememberForever(
+        $cache = cache();
+
+        if (method_exists($cache, 'memo')) {
+            $cache = $cache->memo();
+        }
+
+        return $cache->rememberForever(
             sprintf('page-%d-has-hero-widget-assets', $page->id),
             function () use ($page): bool {
                 /** @var class-string<WidgetAsset> $model */
