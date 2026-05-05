@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Console\Commands\Hero;
 
-use Capell\Core\Console\Commands\Concerns\HasSitesOption;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\ExampleSites\Console\Commands\Concerns\HasSitesOption;
 use Capell\Mosaic\Actions\AddHeroWidgetToLayoutAction;
 use Capell\Mosaic\Actions\CreateHeroContentTypeAction;
 use Capell\Mosaic\Actions\CreateHeroWidgetAction;
