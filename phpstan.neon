@@ -36,7 +36,7 @@ parameters:
         - packages/tags/database/migrations
         - packages/workspaces/database/migrations
     configDirectories:
-        - packages/backup/config
+        - packages/migrator/config
         - packages/default-theme/config
         - packages/deployments/config
         - packages/mosaic/config

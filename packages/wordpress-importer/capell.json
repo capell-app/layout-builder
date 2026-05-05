@@ -1,0 +1,15 @@
+{
+    "name": "capell-app/wordpress-importer",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Operations",
+    "tier": "premium",
+    "bundle": "operations",
+    "contexts": ["admin", "console"],
+    "requires": ["capell-app/admin", "capell-app/core", "capell-app/migrator"],
+    "providers": {
+        "shared": [
+            "Capell\\WordPressImporter\\Providers\\WordPressImporterServiceProvider"
+        ]
+    }
+}

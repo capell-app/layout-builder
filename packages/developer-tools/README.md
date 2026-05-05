@@ -1,16 +1,18 @@
 # Developer Tools
 
-Status: **Available, no schema impact** · Kind: **package** · Tier: **premium** · Bundle: **operations** · Contexts: **admin, console** · Product group: **Capell Operations**
+Status: **Available, audited schema** · Kind: **package** · Tier: **premium** · Bundle: **operations** · Contexts: **admin, console** · Product group: **Capell Operations**
 
 ## What This Plugin Adds
 
 Developer Tools adds operational diagnostics for cache, configuration drift, migrations, packages, registries, queues, permissions, setup health, and Tailwind build status.
 
+- Command palette admin page.
 - System health admin pages.
 - Developer tools dashboard page.
 - Permission audit report.
 - Queue health report.
 - Health widgets for cache, content, migrations, registry, setup, packages, and Tailwind.
+- Secure command palette discovery, execution, feedback, and audit logging for developer tools, system health, queue health, and trusted `capell:*` Artisan operations.
 
 ## Why It Matters
 
@@ -23,6 +25,7 @@ Developer Tools adds operational diagnostics for cache, configuration drift, mig
 Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) during package deployment.
 
 - Developer tools dashboard.
+- Command palette page.
 - System health page.
 - Permission audit page.
 - Queue health page.
@@ -31,30 +34,49 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 ## Technical Shape
 
 - DeveloperToolsServiceProvider and AdminServiceProvider register admin pages and widgets.
+- AdminServiceProvider registers palette command providers through the `capell.developer-tools.command-palette-provider` container tag.
+- Command palette actions discover providers dynamically, authorize commands, validate parameters, execute navigation or Artisan commands, and record audit runs.
 - Actions build each health report.
 - Data objects describe report rows and dashboard state.
 - FailedJob model supports queue reporting.
-- No package migrations are present.
+- CommandPaletteRun model records command palette execution history.
 
 ## Data Model
 
-- This package does not own schema.
+- This package owns the `command_palette_runs` table for command palette audit history.
 - It reads existing Laravel and Capell state such as config, migrations, failed jobs, permissions, packages, registries, and Tailwind outputs.
 
 ## Install Impact
 
 - Adds admin pages for developer diagnostics.
 - Adds dashboard widgets.
-- No database changes.
+- Adds the `command_palette_runs` audit table.
 - No public routes are registered by this package.
 
 ## Commands
 
-- None proven in this package directory.
+- Adds a Developer Tools command palette page for trusted `capell:*` Artisan commands and operational navigation.
+- Discovers commands dynamically from tagged providers so newly installed Capell commands can appear without hard-coding.
+- Authorizes each command with command-specific abilities when provided.
+- Dangerous commands such as install, setup, upgrade, and demo are marked dangerous.
+- Cache, clear, and publish commands require confirmation.
+- Command parameters are derived from Artisan argument and option definitions.
+
+## Command Palette
+
+Developer Tools provides an operational command palette when the package is installed:
+
+- `developer-tools.open`: open the developer tools workspace.
+- `developer-tools.system-health`: open system health.
+- `developer-tools.queue-health`: open failed job / queue health reporting.
+- `artisan.capell:*`: dynamic entries for trusted Capell Artisan commands.
+
+Palette execution is handled inside Developer Tools so role permissions, confirmation requirements, parameter validation, user feedback, and audit records stay close to the operational commands they protect. Custom packages can add commands by binding a provider and tagging it with `capell.developer-tools.command-palette-provider`.
 
 ## Admin And Access
 
 - DeveloperToolsPage (packages/developer-tools/src/Filament/Pages/DeveloperToolsPage.php, slug `developer-tools`)
+- CommandPalettePage (packages/developer-tools/src/Filament/Pages/CommandPalettePage.php, slug `developer-tools/command-palette`)
 - PermissionAuditPage (packages/developer-tools/src/Filament/Pages/PermissionAuditPage.php, slug `reports/permission-audit`)
 - QueueHealthPage (packages/developer-tools/src/Filament/Pages/QueueHealthPage.php, slug `reports/queue-health`)
 - SystemHealthPage (packages/developer-tools/src/Filament/Pages/SystemHealthPage.php, slug `system-health`)
@@ -86,5 +108,5 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 ## Next Steps
 
 - [docs/overview.md](docs/overview.md)
-- [../backup/README.md](../backup/README.md)
+- [../migrator/README.md](../migrator/README.md)
 - [../authentication-log/README.md](../authentication-log/README.md)

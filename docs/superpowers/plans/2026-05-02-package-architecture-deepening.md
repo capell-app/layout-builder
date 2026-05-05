@@ -256,7 +256,7 @@ The Action owns reading Import Session status and returning terminal wizard stat
 
 - [ ] **Step 6: Thin `ImportPagesPage`**
 
-Keep Filament form schema, public properties needed for Livewire hydration, Notification rendering, and calls into the new Actions. Remove Backup package interior usage from private helper methods where the new Actions now own the workflow.
+Keep Filament form schema, public properties needed for Livewire hydration, Notification rendering, and calls into the new Actions. Remove Migrator package interior usage from private helper methods where the new Actions now own the workflow.
 
 - [ ] **Step 7: Run Workspaces import tests**
 

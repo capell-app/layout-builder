@@ -18,11 +18,6 @@ use Capell\AuthenticationLog\Filament\Resources\AuthenticationLogs\Authenticatio
 use Capell\AuthenticationLog\Filament\Widgets\AuthenticationLogsWidget;
 use Capell\AuthenticationLog\Models\AuthenticationLog;
 use Capell\AuthenticationLog\Providers\AuthenticationLogServiceProvider;
-use Capell\Backup\Contracts\BackupContextResolver;
-use Capell\Backup\Filament\Resources\ImportSessions\ImportSessionResource;
-use Capell\Backup\Models\BackupRestore;
-use Capell\Backup\Models\ImportSession;
-use Capell\Backup\Providers\BackupServiceProvider;
 use Capell\Blog\Filament\Resources\Articles\ArticleResource;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Providers\BlogServiceProvider;
@@ -58,6 +53,11 @@ use Capell\Mcp\Support\CapellMcpCapabilityRegistry;
 use Capell\MediaCurator\CapellMediaCuratorServiceProvider;
 use Capell\MediaCurator\Filament\Pages\MediaHealthPage;
 use Capell\MediaCurator\Models\CuratorMedia;
+use Capell\Migrator\Contracts\MigratorContextResolver;
+use Capell\Migrator\Filament\Resources\ImportSessions\ImportSessionResource;
+use Capell\Migrator\Models\ImportRollbackReport;
+use Capell\Migrator\Models\ImportSession;
+use Capell\Migrator\Providers\MigratorServiceProvider;
 use Capell\Mosaic\Filament\Resources\Layouts\LayoutResource;
 use Capell\Mosaic\Filament\Resources\Sections\SectionResource;
 use Capell\Mosaic\Filament\Resources\Widgets\WidgetResource;
@@ -100,7 +100,7 @@ use Illuminate\Support\Facades\Route;
 
 it('discovers composer-required packages without treating them as installed Capell plugins', function (): void {
     $composerRequiredPackages = [
-        BackupServiceProvider::$packageName,
+        MigratorServiceProvider::$packageName,
         HtmlMinifyServiceProvider::$packageName,
         CapellMcpServiceProvider::$packageName,
     ];
@@ -126,7 +126,7 @@ it('registers package metadata but skips runtime models, tables, settings, and a
         AddressServiceProvider::$packageName,
         AnalyticsServiceProvider::$packageName,
         AuthenticationLogServiceProvider::$packageName,
-        BackupServiceProvider::$packageName,
+        MigratorServiceProvider::$packageName,
         BlogServiceProvider::$packageName,
         CampaignsServiceProvider::$packageName,
         ContentBlocksServiceProvider::$packageName,
@@ -158,7 +158,7 @@ it('registers package metadata but skips runtime models, tables, settings, and a
         AnalyticsEvent::class,
         AnalyticsVisit::class,
         AuthenticationLog::class,
-        BackupRestore::class,
+        ImportRollbackReport::class,
         ImportSession::class,
         Article::class,
         CampaignConversion::class,
@@ -256,7 +256,7 @@ it('does not expose admin resources, pages, widgets, or routes for uninstalled p
 });
 
 it('does not bind package runtime services for uninstalled packages', function (): void {
-    expect(app()->bound(BackupContextResolver::class))->toBeFalse()
+    expect(app()->bound(MigratorContextResolver::class))->toBeFalse()
         ->and(app()->bound(RedirectResolver::class))->toBeFalse()
         ->and(app()->bound(SiteSearch::class))->toBeFalse()
         ->and(app()->bound(CapellMcpCapabilityRegistry::class))->toBeFalse()

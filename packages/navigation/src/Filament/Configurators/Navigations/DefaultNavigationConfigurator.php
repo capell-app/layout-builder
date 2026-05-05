@@ -213,6 +213,9 @@ class DefaultNavigationConfigurator implements ConfiguratorInterface
                                     ->fill(),
                             ),
                         $this->getLabelField(),
+                        Checkbox::make('is_visible')
+                            ->label(__('capell-admin::form.visible'))
+                            ->default(true),
                     ]),
                 Grid::make()
                     ->key($navigationFieldsKey)
@@ -248,6 +251,7 @@ class DefaultNavigationConfigurator implements ConfiguratorInterface
         return match ($type) {
             NavigationItemType::Page => $this->getPageNavigationItemFields(),
             NavigationItemType::Link => $this->getLinkNavigationItemFields(),
+            NavigationItemType::Heading => $this->getHeadingNavigationItemFields(),
         };
     }
 
@@ -329,6 +333,24 @@ class DefaultNavigationConfigurator implements ConfiguratorInterface
         ];
     }
 
+    protected function getHeadingNavigationItemFields(): array
+    {
+        return [
+            Grid::make()
+                ->statePath('data')
+                ->columnSpanFull()
+                ->schema([
+                    Group::make()
+                        ->dense()
+                        ->schema([
+                            IconPicker::make('icon')
+                                ->label(__('capell-admin::form.icon'))
+                                ->nullable(),
+                        ]),
+                ]),
+        ];
+    }
+
     protected function getExtraItemFields(): array
     {
         return [
@@ -401,6 +423,9 @@ class DefaultNavigationConfigurator implements ConfiguratorInterface
                 break;
             case NavigationItemType::Link:
                 $url = $navigationItem->data['url'];
+                break;
+            case NavigationItemType::Heading:
+                $url = null;
                 break;
         }
 
@@ -492,6 +517,7 @@ class DefaultNavigationConfigurator implements ConfiguratorInterface
         return TextInput::make('label')
             ->label(__('capell-admin::form.label'))
             ->requiredIf('type', NavigationItemType::Link->value)
+            ->requiredIf('type', NavigationItemType::Heading->value)
             ->helperText(
                 fn (Get $get): ?string => $get('type') === NavigationItemType::Link->value
                     ? __('capell-admin::generic.navigation_page_label_info')

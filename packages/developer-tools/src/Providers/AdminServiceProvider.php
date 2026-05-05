@@ -8,6 +8,7 @@ use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\DashboardEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
+use Capell\DeveloperTools\Filament\Pages\CommandPalettePage;
 use Capell\DeveloperTools\Filament\Pages\DeveloperToolsPage;
 use Capell\DeveloperTools\Filament\Pages\PermissionAuditPage;
 use Capell\DeveloperTools\Filament\Pages\QueueHealthPage;
@@ -22,13 +23,18 @@ use Capell\DeveloperTools\Filament\Widgets\Health\RegistryHealthWidgetAbstract;
 use Capell\DeveloperTools\Filament\Widgets\Health\SetupHealthWidgetAbstract;
 use Capell\DeveloperTools\Filament\Widgets\Health\SiteHealthWidgetAbstract;
 use Capell\DeveloperTools\Filament\Widgets\Health\TailwindBuildStatusWidgetAbstract;
+use Capell\DeveloperTools\Palette\CapellArtisanPaletteCommandProvider;
+use Capell\DeveloperTools\Palette\DeveloperToolsPaletteCommandProvider;
 use Illuminate\Support\ServiceProvider;
 
 final class AdminServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->tag([
+            CapellArtisanPaletteCommandProvider::class,
+            DeveloperToolsPaletteCommandProvider::class,
+        ], 'capell.developer-tools.command-palette-provider');
     }
 
     public function boot(): void
@@ -50,6 +56,7 @@ final class AdminServiceProvider extends ServiceProvider
     private function registerPages(): self
     {
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(DeveloperToolsPage::class));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(CommandPalettePage::class));
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(SystemHealthPage::class));
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(QueueHealthPage::class));
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(PermissionAuditPage::class));

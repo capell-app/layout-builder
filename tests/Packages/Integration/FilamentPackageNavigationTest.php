@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Capell\Backup\Filament\Resources\ImportSessions\ImportSessionResource;
 use Capell\Blog\Filament\Resources\Articles\ArticleResource;
 use Capell\Campaigns\Filament\Resources\CampaignConversionGoals\CampaignConversionGoalResource;
 use Capell\Campaigns\Filament\Resources\CampaignCtaBlocks\CampaignCtaBlockResource;
@@ -14,6 +13,7 @@ use Capell\DeveloperTools\Filament\Pages\PermissionAuditPage;
 use Capell\DeveloperTools\Filament\Pages\QueueHealthPage;
 use Capell\DeveloperTools\Filament\Pages\SystemHealthPage;
 use Capell\MediaCurator\Filament\Pages\MediaHealthPage;
+use Capell\Migrator\Filament\Resources\ImportSessions\ImportSessionResource;
 use Capell\Redirects\Filament\Resources\Redirects\RedirectResource;
 use Capell\SeoTools\Filament\Pages\BrokenLinksPage;
 use Capell\SeoTools\Filament\Pages\NotFoundUrlsPage;
@@ -34,7 +34,7 @@ it('registers every installed package in the Capell package registry', function 
         'capell-app/admin',
         'capell-app/analytics',
         'capell-app/authentication-log',
-        'capell-app/backup',
+        'capell-app/migrator',
         'capell-app/blog',
         'capell-app/campaigns',
         'capell-app/core',

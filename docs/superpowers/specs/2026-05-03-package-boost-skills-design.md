@@ -37,7 +37,7 @@ Ship package skills for:
 - `analytics`
 - `assistant`
 - `authentication-log`
-- `backup`
+- `migrator`
 - `blog`
 - `campaigns`
 - `content-blocks`

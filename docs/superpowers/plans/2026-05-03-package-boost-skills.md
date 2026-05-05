@@ -33,7 +33,7 @@ $packagesWithSkills = [
     'analytics',
     'assistant',
     'authentication-log',
-    'backup',
+    'migrator',
     'blog',
     'campaigns',
     'content-blocks',
@@ -73,7 +73,7 @@ Expected: FAIL while pointless skills still exist.
 - Modify: `packages/analytics/resources/boost/skills/capell-analytics-development/SKILL.md`
 - Modify: `packages/assistant/resources/boost/skills/capell-assistant-development/SKILL.md`
 - Modify: `packages/authentication-log/resources/boost/skills/capell-authentication-log-development/SKILL.md`
-- Modify: `packages/backup/resources/boost/skills/capell-backup-development/SKILL.md`
+- Modify: `packages/migrator/resources/boost/skills/capell-migrator-development/SKILL.md`
 - Modify: `packages/blog/resources/boost/skills/blog/SKILL.md`
 - Modify: `packages/campaigns/resources/boost/skills/capell-campaigns-development/SKILL.md`
 - Modify: `packages/content-blocks/resources/boost/skills/capell-content-blocks-development/SKILL.md`

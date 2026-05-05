@@ -12,11 +12,14 @@ enum NavigationItemType: string implements HasLabel
 
     case Page = 'page';
 
+    case Heading = 'heading';
+
     public function getLabel(): string
     {
         return match ($this) {
             self::Link => __('capell::generic.link'),
             self::Page => __('capell::generic.page'),
+            self::Heading => __('capell::generic.heading'),
         };
     }
 }

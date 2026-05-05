@@ -10,7 +10,6 @@ use Capell\Admin\Providers\Filament\AdminPanelProvider;
 use Capell\Analytics\Providers\AnalyticsServiceProvider;
 use Capell\Assistant\Providers\AssistantServiceProvider;
 use Capell\AuthenticationLog\Providers\AuthenticationLogServiceProvider;
-use Capell\Backup\Providers\BackupServiceProvider;
 use Capell\Blog\Providers\BlogServiceProvider;
 use Capell\Blog\Providers\FrontendServiceProvider as BlogFrontendServiceProvider;
 use Capell\Campaigns\Providers\CampaignsServiceProvider;
@@ -24,6 +23,7 @@ use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\HtmlMinify\Providers\HtmlMinifyServiceProvider;
 use Capell\Mcp\Providers\CapellMcpServiceProvider;
 use Capell\MediaCurator\CapellMediaCuratorServiceProvider;
+use Capell\Migrator\Providers\MigratorServiceProvider;
 use Capell\Mosaic\Providers\MosaicServiceProvider;
 use Capell\Navigation\Providers\NavigationServiceProvider;
 use Capell\Redirects\Providers\RedirectsServiceProvider;
@@ -62,7 +62,7 @@ class UninstalledPackagesTestCase extends AbstractTestCase
             AnalyticsServiceProvider::class,
             AssistantServiceProvider::class,
             AuthenticationLogServiceProvider::class,
-            BackupServiceProvider::class,
+            MigratorServiceProvider::class,
             MosaicServiceProvider::class,
             NavigationServiceProvider::class,
             BlogServiceProvider::class,

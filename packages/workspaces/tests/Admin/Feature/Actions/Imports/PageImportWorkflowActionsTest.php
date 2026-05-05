@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use Capell\Backup\Actions\InstallBackupPermissionsAction;
-use Capell\Backup\Data\PageReviewRow;
-use Capell\Backup\Data\RelationResolveRow;
-use Capell\Backup\Enums\ImportSessionStatus;
-use Capell\Backup\Jobs\ExecuteImportPlanJob;
-use Capell\Backup\Models\ImportSession;
-use Capell\Backup\Support\ChecksumGenerator;
 use Capell\Core\Models\Site;
+use Capell\Migrator\Actions\InstallMigratorPermissionsAction;
+use Capell\Migrator\Data\PageReviewRow;
+use Capell\Migrator\Data\RelationResolveRow;
+use Capell\Migrator\Enums\ImportSessionStatus;
+use Capell\Migrator\Jobs\ExecuteImportPlanJob;
+use Capell\Migrator\Models\ImportSession;
+use Capell\Migrator\Support\ChecksumGenerator;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Capell\Workspaces\Actions\Imports\AdvancePageImportToValidationAction;
 use Capell\Workspaces\Actions\Imports\DispatchPageImportAction;
@@ -138,7 +138,7 @@ function actionDecisionDataFromState(object $state, bool $canUpdateSharedRelatio
 
 beforeEach(function (): void {
     Permission::findOrCreate('View:ImportPagesPage', 'web');
-    InstallBackupPermissionsAction::run();
+    InstallMigratorPermissionsAction::run();
     test()->actingAsAdmin();
     auth()->user()->givePermissionTo('View:ImportPagesPage');
     Storage::fake('local');

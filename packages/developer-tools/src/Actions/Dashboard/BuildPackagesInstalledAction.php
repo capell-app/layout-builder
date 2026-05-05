@@ -38,10 +38,15 @@ final class BuildPackagesInstalledAction
             'config' => 'capell-frontend',
             'docs' => 'https://github.com/capell-app/capell/blob/4.x/packages/frontend/README.md',
         ],
-        'capell-app/backup' => [
-            'short' => 'backup',
-            'config' => 'backup',
-            'docs' => 'https://github.com/capell-app/capell/blob/4.x/packages/backup/README.md',
+        'capell-app/migrator' => [
+            'short' => 'migrator',
+            'config' => 'migrator',
+            'docs' => 'https://github.com/capell-app/capell/blob/4.x/packages/migrator/README.md',
+        ],
+        'capell-app/wordpress-importer' => [
+            'short' => 'wordpress-importer',
+            'config' => 'wordpress-importer',
+            'docs' => 'https://github.com/capell-app/capell-packages/blob/4.x/packages/wordpress-importer/README.md',
         ],
         'capell-app/capell-mosaic' => [
             'short' => 'mosaic',

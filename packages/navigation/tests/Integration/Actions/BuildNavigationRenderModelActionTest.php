@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Events\PageUrlChanged;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
@@ -178,4 +179,96 @@ it('clears the page lookup cache through the render-model action', function (): 
 
     expect($staleRenderModel->items[0]->url)->toBe($linkedPage->pageUrl->full_url)
         ->and($freshRenderModel->items[0]->url)->toContain('/changed');
+});
+
+it('renders heading items without a url', function (): void {
+    $language = Language::factory()->default()->create();
+    $site = Site::factory()
+        ->language($language)
+        ->withTranslations(siteDomainData: ['scheme' => 'https', 'domain' => 'localhost', 'path' => null])
+        ->create();
+    $currentPage = Page::factory()->site($site)->home()->withTranslations(slug: '/')->create();
+
+    $navigation = Navigation::factory()->make([
+        'key' => 'main',
+        'site_id' => $site->id,
+        'language_id' => $language->id,
+        'items' => [
+            [
+                'label' => 'Company',
+                'type' => NavigationItemType::Heading->value,
+                'data' => ['icon' => 'heroicon-o-building-office'],
+            ],
+            [
+                'label' => 'About',
+                'type' => NavigationItemType::Link->value,
+                'data' => ['url' => '/about'],
+            ],
+        ],
+    ]);
+
+    $renderModel = BuildNavigationRenderModelAction::run(new NavigationRenderContextData(
+        navigation: $navigation,
+        page: $currentPage,
+        site: $site,
+        language: $language,
+        siteDomain: $site->siteDomains->first(),
+    ));
+
+    expect($renderModel->items)->toHaveCount(2)
+        ->and($renderModel->items[0]->type)->toBe(NavigationItemType::Heading)
+        ->and($renderModel->items[0]->label)->toBe('Company')
+        ->and($renderModel->items[0]->url)->toBeNull()
+        ->and($renderModel->items[0]->active)->toBeFalse()
+        ->and($renderModel->items[1]->url)->toBe('/about');
+});
+
+it('flushes stale page lookup cache when a page url changed event is received', function (): void {
+    $language = Language::factory()->default()->create();
+    $site = Site::factory()
+        ->language($language)
+        ->withTranslations(siteDomainData: ['scheme' => 'https', 'domain' => 'localhost', 'path' => null])
+        ->create();
+    $currentPage = Page::factory()->site($site)->home()->withTranslations(slug: '/')->create();
+    $linkedPage = Page::factory()->site($site)->withTranslations()->create();
+
+    $navigation = Navigation::factory()->make([
+        'key' => 'main',
+        'site_id' => $site->id,
+        'language_id' => $language->id,
+        'items' => [
+            [
+                'type' => NavigationItemType::Page->value,
+                'data' => [
+                    'pageable_id' => $linkedPage->id,
+                    'pageable_type' => $linkedPage->getMorphClass(),
+                ],
+            ],
+        ],
+    ]);
+
+    $context = new NavigationRenderContextData(
+        navigation: $navigation,
+        page: $currentPage,
+        site: $site,
+        language: $language,
+        siteDomain: $site->siteDomains->first(),
+    );
+
+    BuildNavigationRenderModelAction::run($context);
+
+    DB::table('page_urls')->where('id', $linkedPage->pageUrl->id)->update(['url' => '/event-changed']);
+
+    event(new PageUrlChanged(
+        page_url_id: (int) $linkedPage->pageUrl->getKey(),
+        page_id: (int) $linkedPage->getKey(),
+        site_id: (int) $site->getKey(),
+        language_id: (int) $language->getKey(),
+        old_url: $linkedPage->pageUrl->url,
+        new_url: '/event-changed',
+    ));
+
+    $renderModel = BuildNavigationRenderModelAction::run($context);
+
+    expect($renderModel->items[0]->url)->toContain('/event-changed');
 });

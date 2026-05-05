@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
+use Laravel\Mcp\Server\McpServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 abstract class TestCase extends OrchestraTestCase
@@ -34,8 +35,8 @@ abstract class TestCase extends OrchestraTestCase
             CapellMcpServiceProvider::class,
         ];
 
-        if (class_exists('Laravel\\Mcp\\Server\\McpServiceProvider')) {
-            array_unshift($providers, 'Laravel\\Mcp\\Server\\McpServiceProvider');
+        if (class_exists(McpServiceProvider::class)) {
+            array_unshift($providers, McpServiceProvider::class);
         }
 
         return $providers;

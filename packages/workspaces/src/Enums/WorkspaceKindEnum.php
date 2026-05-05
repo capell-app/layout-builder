@@ -17,7 +17,7 @@ enum WorkspaceKindEnum: string implements HasColor, HasIcon, HasLabel
     /** Created by the Recovery Center to stage an import package. */
     case Import = 'import';
 
-    /** Created to stage a backup restore prior to publish. */
+    /** Created to stage a migrator restore prior to publish. */
     case Restore = 'restore';
 
     /** Created by the WordPress / spreadsheet importer. */

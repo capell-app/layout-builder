@@ -48,3 +48,34 @@ it('falls back to current site navigation before global navigation', function ()
     expect($navigation?->getKey())->toBe($siteNavigation->getKey())
         ->and($navigation?->getKey())->not()->toBe($globalNavigation->getKey());
 });
+
+it('does not load pending or expired navigations by key or id', function (): void {
+    $site = Site::factory()->withTranslations()->create();
+    Page::factory()->site($site)->home()->withTranslations(slug: '/')->create();
+
+    $pendingNavigation = Navigation::factory()->create([
+        'key' => 'seasonal',
+        'site_id' => $site->getKey(),
+        'language_id' => $site->language->getKey(),
+        'visible_from' => now()->addDay(),
+    ]);
+
+    $expiredNavigation = Navigation::factory()->create([
+        'key' => 'archive',
+        'site_id' => $site->getKey(),
+        'language_id' => $site->language->getKey(),
+        'visible_until' => now()->subDay(),
+    ]);
+
+    $publishedNavigation = Navigation::factory()->create([
+        'key' => 'published',
+        'site_id' => $site->getKey(),
+        'language_id' => $site->language->getKey(),
+    ]);
+
+    expect(NavigationLoader::getNavigation('seasonal', $site, $site->language, true))->toBeNull()
+        ->and(NavigationLoader::getNavigation('archive', $site, $site->language, true))->toBeNull()
+        ->and(NavigationLoader::getNavigationById((int) $pendingNavigation->getKey()))->toBeNull()
+        ->and(NavigationLoader::getNavigationById((int) $expiredNavigation->getKey()))->toBeNull()
+        ->and(NavigationLoader::getNavigationById((int) $publishedNavigation->getKey())?->getKey())->toBe($publishedNavigation->getKey());
+});

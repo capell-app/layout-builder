@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\Workspaces\Actions\Imports;
 
-use Capell\Backup\Enums\ImportSessionStatus;
-use Capell\Backup\Jobs\ExecuteImportPlanJob;
-use Capell\Backup\Models\ImportSession;
+use Capell\Migrator\Enums\ImportSessionStatus;
+use Capell\Migrator\Jobs\ExecuteImportPlanJob;
+use Capell\Migrator\Models\ImportSession;
 use Capell\Workspaces\Data\Imports\PageImportStatusData;
 use Lorisleiva\Actions\Concerns\AsAction;
 

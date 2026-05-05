@@ -123,7 +123,7 @@ class NavigationItemsLoader
      */
     public function fetchMenuItems(): Collection
     {
-        $items = collect($this->navigation->items->all());
+        $items = $this->visibleMenuItems(collect($this->navigation->items->all()));
 
         if ($items->isEmpty()) {
             return collect();
@@ -157,6 +157,7 @@ class NavigationItemsLoader
                 'type' => $item->type,
                 'data' => $item->data,
                 'children' => $item->children,
+                'is_visible' => $item->is_visible,
             ];
 
             $children = collect($item->children->all());
@@ -236,6 +237,24 @@ class NavigationItemsLoader
         $normalizedMenu = trim($menuUrl, '/');
 
         return $normalizedCurrent === $normalizedMenu;
+    }
+
+    /**
+     * @param  Collection<int, NavigationItemData>  $items
+     * @return Collection<int, NavigationItemData>
+     */
+    protected function visibleMenuItems(Collection $items): Collection
+    {
+        return $items
+            ->filter(fn (NavigationItemData $item): bool => $item->is_visible)
+            ->map(function (NavigationItemData $item): NavigationItemData {
+                $children = $this->visibleMenuItems(collect($item->children->all()));
+
+                $item->children = NavigationItemData::collect($children->all(), DataCollection::class);
+
+                return $item;
+            })
+            ->values();
     }
 
     /**

@@ -157,3 +157,68 @@ it('skips page items that belong to a different site', function (): void {
     expect($items)->toHaveCount(1)
         ->and($items[0]->label)->toBe('Safe Link');
 });
+
+it('excludes hidden navigation items and hidden nested children', function (): void {
+    $language = Language::factory()->default()->create();
+    $site = Site::factory()->language($language)->withTranslations(siteDomainData: ['scheme' => 'https', 'domain' => 'localhost', 'path' => null])->create();
+    $currentPage = Page::factory()->site($site)->home()->withTranslations(slug: '/')->create();
+
+    $navigation = Navigation::factory()->make([
+        'key' => 'main',
+        'site_id' => $site->id,
+        'language_id' => $site->language->id,
+        'items' => [
+            [
+                'label' => 'Visible',
+                'type' => NavigationItemType::Link->value,
+                'data' => ['url' => '/visible'],
+            ],
+            [
+                'label' => 'Hidden',
+                'type' => NavigationItemType::Link->value,
+                'is_visible' => false,
+                'data' => ['url' => '/hidden'],
+                'children' => [
+                    [
+                        'label' => 'Hidden Child Subtree',
+                        'type' => NavigationItemType::Link->value,
+                        'data' => ['url' => '/hidden-child-subtree'],
+                    ],
+                ],
+            ],
+            [
+                'label' => 'Visible Parent',
+                'type' => NavigationItemType::Link->value,
+                'data' => ['url' => '/visible-parent'],
+                'children' => [
+                    [
+                        'label' => 'Nested Hidden',
+                        'type' => NavigationItemType::Link->value,
+                        'is_visible' => false,
+                        'data' => ['url' => '/nested-hidden'],
+                    ],
+                    [
+                        'label' => 'Nested Visible',
+                        'type' => NavigationItemType::Link->value,
+                        'data' => ['url' => '/nested-visible'],
+                    ],
+                ],
+            ],
+        ],
+    ]);
+
+    $loader = new NavigationItemsLoader(
+        navigation: $navigation,
+        page: $currentPage,
+        site: $site,
+        language: $site->language,
+        siteDomain: $site->siteDomains->first(),
+    );
+
+    $items = $loader->fetchMenuItems();
+
+    expect($items)->toHaveCount(2)
+        ->and($items->pluck('label')->all())->toBe(['Visible', 'Visible Parent'])
+        ->and($items[1]->children)->toHaveCount(1)
+        ->and($items[1]->children[0]->label)->toBe('Nested Visible');
+});

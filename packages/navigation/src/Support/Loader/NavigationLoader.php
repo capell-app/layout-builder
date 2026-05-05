@@ -20,7 +20,9 @@ class NavigationLoader
     {
         $navigationKey = $key instanceof NavigationHandle ? $key->value : $key;
         $navigations = $site->relationLoaded('navigations')
-            ? $site->navigations
+            ? $site->navigations->filter(
+                fn (Navigation $navigation): bool => ! $navigation->isPending() && ! $navigation->isExpired(),
+            )
             : new Collection;
 
         $navigation = null;
@@ -43,6 +45,7 @@ class NavigationLoader
                             $query->where('site_id', $site->getKey())
                                 ->orWhereNull('site_id');
                         })
+                        ->publishedDate()
                         ->get();
                 },
             );
@@ -84,7 +87,9 @@ class NavigationLoader
             /** @var class-string<Navigation> $model */
             $model = Navigation::class;
 
-            return $model::query()->find($id);
+            return $model::query()
+                ->publishedDate()
+                ->find($id);
         });
 
         if ($fromCache && $navigation !== null) {

@@ -181,7 +181,7 @@
             "Capell\\Assistant\\": "packages/assistant/src",
             "Capell\\AuthenticationLog\\": "packages/authentication-log/src",
             "Capell\\AuthenticationLog\\Database\\Factories\\": "packages/authentication-log/database/factories",
-            "Capell\\Backup\\": "packages/backup/src",
+            "Capell\\Migrator\\": "packages/migrator/src",
             "Capell\\Blog\\": "packages/blog/src",
             "Capell\\Blog\\Database\\Factories\\": "packages/blog/database/factories",
             "Capell\\Campaigns\\": "packages/campaigns/src",
@@ -216,6 +216,7 @@
             "Capell\\ThemeStudio\\Corporate\\": "packages/theme-corporate/src",
             "Capell\\ThemeStudio\\Saas\\": "packages/theme-saas/src",
             "Capell\\Toolbar\\": "packages/toolbar/src",
+            "Capell\\WordPressImporter\\": "packages/wordpress-importer/src",
             "Capell\\Workspaces\\": "packages/workspaces/src",
             "Capell\\Workspaces\\Database\\Factories\\": "packages/workspaces/database/factories"
         }
@@ -226,7 +227,7 @@
             "Capell\\Analytics\\Tests\\": "packages/analytics/tests",
             "Capell\\Assistant\\Tests\\": "packages/assistant/tests",
             "Capell\\AuthenticationLog\\Tests\\": "packages/authentication-log/tests",
-            "Capell\\Backup\\Tests\\": "packages/backup/tests",
+            "Capell\\Migrator\\Tests\\": "packages/migrator/tests",
             "Capell\\Blog\\Tests\\": "packages/blog/tests",
             "Capell\\Campaigns\\Tests\\": "packages/campaigns/tests",
             "Capell\\Deployments\\Tests\\": "packages/deployments/tests",
@@ -253,6 +254,7 @@
             "Capell\\ThemeStudio\\Corporate\\Tests\\": "packages/theme-corporate/tests",
             "Capell\\ThemeStudio\\Saas\\Tests\\": "packages/theme-saas/tests",
             "Capell\\Toolbar\\Tests\\": "packages/toolbar/tests",
+            "Capell\\WordPressImporter\\Tests\\": "packages/wordpress-importer/tests",
             "Capell\\Workspaces\\Tests\\": "packages/workspaces/tests"
         }
     },

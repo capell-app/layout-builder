@@ -1,6 +1,6 @@
 # Developer Tools
 
-Status: **Available, no schema impact** · Kind: **package** · Tier: **premium** · Bundle: **operations** · Contexts: **admin, console** · Product group: **Capell Operations**
+Status: **Available, audited schema** · Kind: **package** · Tier: **premium** · Bundle: **operations** · Contexts: **admin, console** · Product group: **Capell Operations**
 
 This page is the consolidated implementation overview for the Developer Tools package. It is extracted from the package README, service providers, migrations, config files, routes, resources, models, actions, and the shared Capell ERD notes where available.
 
@@ -8,21 +8,25 @@ This page is the consolidated implementation overview for the Developer Tools pa
 
 Developer Tools adds operational diagnostics for cache, configuration drift, migrations, packages, registries, queues, permissions, setup health, and Tailwind build status.
 
+- Command palette admin page.
 - System health admin pages.
 - Developer tools dashboard page.
 - Permission audit report.
 - Queue health report.
 - Health widgets for cache, content, migrations, registry, setup, packages, and Tailwind.
+- Secure command palette discovery, execution, feedback, and audit logging for developer tools, system health, queue health, and trusted `capell:*` Artisan operations.
 
 ## Developer Notes
 
 Keeps diagnostics in actions and data objects so admin pages can show health information without hard-coded checks in the UI.
 
 - DeveloperToolsServiceProvider and AdminServiceProvider register admin pages and widgets.
+- AdminServiceProvider registers `CapellArtisanPaletteCommandProvider` and `DeveloperToolsPaletteCommandProvider` through the `capell.developer-tools.command-palette-provider` tag.
+- Command palette actions discover providers dynamically, authorize commands, validate parameters, execute navigation or Artisan commands, and record audit runs.
 - Actions build each health report.
 - Data objects describe report rows and dashboard state.
 - FailedJob model supports queue reporting.
-- No package migrations are present.
+- CommandPaletteRun model records command palette execution history.
 
 ## Operational Notes
 
@@ -30,17 +34,18 @@ Helps operators and agencies see setup problems before they become publishing or
 
 - Adds admin pages for developer diagnostics.
 - Adds dashboard widgets.
-- No database changes.
+- Adds the `command_palette_runs` audit table.
 - No public routes are registered by this package.
 
 ## Data And Retention
 
-- This package does not own schema.
+- This package owns the `command_palette_runs` table for command palette audit history.
 - It reads existing Laravel and Capell state such as config, migrations, failed jobs, permissions, packages, registries, and Tailwind outputs.
 
 ## Screenshot Plan
 
 - Developer tools dashboard.
+- Command palette page.
 - System health page.
 - Permission audit page.
 - Queue health page.
@@ -72,13 +77,27 @@ Helps operators and agencies see setup problems before they become publishing or
 ## Admin Surfaces
 
 - DeveloperToolsPage (packages/developer-tools/src/Filament/Pages/DeveloperToolsPage.php, slug `developer-tools`)
+- CommandPalettePage (packages/developer-tools/src/Filament/Pages/CommandPalettePage.php, slug `developer-tools/command-palette`)
 - PermissionAuditPage (packages/developer-tools/src/Filament/Pages/PermissionAuditPage.php, slug `reports/permission-audit`)
 - QueueHealthPage (packages/developer-tools/src/Filament/Pages/QueueHealthPage.php, slug `reports/queue-health`)
 - SystemHealthPage (packages/developer-tools/src/Filament/Pages/SystemHealthPage.php, slug `system-health`)
 
 ## Commands
 
-- None proven in this package directory.
+- Dynamic command palette metadata for trusted `capell:*` Artisan commands.
+- Dynamic discovery happens through the `capell.developer-tools.command-palette-provider` provider tag.
+- Commands can be navigation or Artisan commands and can define abilities, confirmation level, and parameters.
+- Confirmation is required for cache, clear, and publish commands.
+- Install, setup, upgrade, and demo commands are marked dangerous.
+
+## Command Palette
+
+- `developer-tools.open`: opens DeveloperToolsPage.
+- `developer-tools.system-health`: opens SystemHealthPage.
+- `developer-tools.queue-health`: opens QueueHealthPage.
+- `artisan.capell:*`: generated from available Capell Artisan commands, including command parameters.
+
+Developer Tools owns the command palette UI, server-side authorization, validation, execution, notifications, and audit log records. Custom packages can add commands by implementing the package command provider contract and tagging the provider with `capell.developer-tools.command-palette-provider`.
 
 ## Routes And Config
 
@@ -100,17 +119,18 @@ Helps operators and agencies see setup problems before they become publishing or
 
 ## Migrations
 
-- None proven in this package directory.
+- `create_command_palette_runs_table`: stores command id, label, type, user, parameters, status, output, exit code, and executed timestamps.
 
 ## ERD Excerpt
 
-This package has no committed ERD excerpt. Use implementation notes and extension points instead of inventing schema.
+`command_palette_runs` belongs to an optional user record and records each command palette execution for audit and debugging.
 
 ## Screenshot Automation
 
 Deployment should read [screenshots.json](screenshots.json), install the package with demo data, resolve each admin surface or frontend URL, and write images to `public/docs/screenshots/packages/developer-tools`.
 
 - Developer tools dashboard.
+- Command palette page.
 - System health page.
 - Permission audit page.
 - Queue health page.

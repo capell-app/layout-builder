@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Capell\Backup\Actions\InstallBackupPermissionsAction;
-use Capell\Backup\Enums\ImportSessionStatus;
-use Capell\Backup\Jobs\ExecuteImportPlanJob;
-use Capell\Backup\Models\ImportSession;
-use Capell\Backup\Support\ChecksumGenerator;
 use Capell\Core\Models\Site;
+use Capell\Migrator\Actions\InstallMigratorPermissionsAction;
+use Capell\Migrator\Enums\ImportSessionStatus;
+use Capell\Migrator\Jobs\ExecuteImportPlanJob;
+use Capell\Migrator\Models\ImportSession;
+use Capell\Migrator\Support\ChecksumGenerator;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Capell\Workspaces\Filament\Pages\ImportPagesPage;
 use Illuminate\Support\Facades\Queue;
@@ -66,7 +66,7 @@ function stageValidatePackage(string $relativePath, string $uuid, int $siteId, s
 
 beforeEach(function (): void {
     Permission::findOrCreate('View:ImportPagesPage', 'web');
-    InstallBackupPermissionsAction::run();
+    InstallMigratorPermissionsAction::run();
     test()->actingAsAdmin();
     auth()->user()->givePermissionTo('View:ImportPagesPage');
     Storage::fake('local');

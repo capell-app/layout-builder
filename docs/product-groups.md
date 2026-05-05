@@ -28,7 +28,7 @@ Tags and Media Curator are Foundation packages because taxonomy and media manage
 | Capell Commercial     | `commercial`     | Assistant                                                                        |
 | Capell Forms          | `forms`          | Forms                                                                            |
 | Capell Publishing Pro | `publishing-pro` | Workspaces, Filament Peek                                                        |
-| Capell Operations     | `operations`     | Backup, Developer Tools, Authentication Log                                      |
+| Capell Operations     | `operations`     | Migrator, Developer Tools, Authentication Log                                    |
 | Capell Growth         | `growth`         | Analytics, Campaigns                                                             |
 | Capell Search & SEO   | `search-seo`     | SEO Tools, Site Search                                                           |
 | Capell Theme Studio   | `theme-studio`   | Theme Studio Core, Theme Studio Admin, Agency Theme, Corporate Theme, SaaS Theme |
@@ -49,4 +49,4 @@ Use stable bundle keys in code and marketplace syncs. Use product group names in
 
 ## Naming Rule
 
-Do not rename Composer packages simply because they sell together. For example, `capell-app/backup`, `capell-app/developer-tools`, and `capell-app/authentication-log` stay separate packages but group together as **Capell Operations**.
+Do not rename Composer packages simply because they sell together. For example, `capell-app/migrator`, `capell-app/developer-tools`, and `capell-app/authentication-log` stay separate packages but group together as **Capell Operations**.

@@ -6,74 +6,124 @@
     "outputDirectory": "public/docs/screenshots/packages/workspaces",
     "entries": [
         {
-            "id": "workspaces-admin-index",
-            "title": "Workspaces admin index.",
+            "id": "editorial-timeline-dashboard",
+            "title": "Editorial timeline dashboard",
             "package": "workspaces",
             "surface": "admin",
             "targetType": "admin-surface",
-            "target": "ActivityTrailPage",
+            "target": "WorkspaceResource",
             "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+            "notes": "Show the flagship timeline entry point with active drafts, review status, publish readiness, and recent workflow activity."
         },
         {
-            "id": "workspace-compare-page",
-            "title": "Workspace compare page.",
-            "package": "workspaces",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "ActivityTrailPage",
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
-        },
-        {
-            "id": "preview-links-manager",
-            "title": "Preview links manager.",
-            "package": "workspaces",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "ActivityTrailPage",
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
-        },
-        {
-            "id": "scheduled-publishing-page",
-            "title": "Scheduled publishing page.",
-            "package": "workspaces",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "ActivityTrailPage",
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
-        },
-        {
-            "id": "stale-drafts-page",
-            "title": "Stale drafts page.",
-            "package": "workspaces",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "ActivityTrailPage",
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
-        },
-        {
-            "id": "activity-trail-page",
-            "title": "Activity trail page.",
-            "package": "workspaces",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "ActivityTrailPage",
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
-        },
-        {
-            "id": "frontend-workspace-preview-banner",
-            "title": "Frontend workspace preview banner.",
+            "id": "live-preview",
+            "title": "Live preview",
             "package": "workspaces",
             "surface": "frontend",
             "targetType": "frontend-url",
             "target": null,
             "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+            "notes": "Show a signed preview URL rendering draft content before it reaches the live version."
+        },
+        {
+            "id": "preview-link-management",
+            "title": "Preview link management",
+            "package": "workspaces",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "PreviewLinkResource",
+            "required": true,
+            "notes": "Show issued preview links with expiry, revocation, last accessed time, and access count."
+        },
+        {
+            "id": "compare-readiness",
+            "title": "Compare and publish readiness",
+            "package": "workspaces",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "CompareVersionPage",
+            "required": true,
+            "notes": "Show side-by-side changes, field comments, and publish checks before approval or release."
+        },
+        {
+            "id": "approval-history",
+            "title": "Approval history",
+            "package": "workspaces",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "WorkspaceResource",
+            "required": true,
+            "notes": "Show reviewer assignments and approve, reject, or request-changes decisions in timeline order."
+        },
+        {
+            "id": "scheduled-publishing",
+            "title": "Scheduled publishing",
+            "package": "workspaces",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "ScheduledPublishingPage",
+            "required": true,
+            "notes": "Show release timing, scheduled workspaces, embargo-aware publishing windows, and queue state."
+        },
+        {
+            "id": "scheduler-metadata",
+            "title": "Scheduler metadata",
+            "package": "workspaces",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "WorkspaceResource",
+            "required": true,
+            "notes": "Show unpublish dates, embargo windows, and review reminders attached to a workspace."
+        },
+        {
+            "id": "stale-drafts",
+            "title": "Stale drafts",
+            "package": "workspaces",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "StaleDraftsPage",
+            "required": true,
+            "notes": "Show stale workspace detection, review nudges, and cleanup actions for unfinished draft work."
+        },
+        {
+            "id": "recovery-imports",
+            "title": "Recovery imports",
+            "package": "workspaces",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "ImportPagesPage",
+            "required": true,
+            "notes": "Show recovery-center page import validation, relation resolution, execution state, and rollback reporting."
+        },
+        {
+            "id": "activity-history",
+            "title": "Activity history",
+            "package": "workspaces",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "ActivityTrailPage",
+            "required": true,
+            "notes": "Show the audit-friendly content history across previews, comments, approvals, publishing, and rollback events."
+        },
+        {
+            "id": "rollback-restore",
+            "title": "Rollback and restore",
+            "package": "workspaces",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "PageVersionHistoryPage",
+            "required": true,
+            "notes": "Show version history with restore context, rollback lineage, and the currently live version."
+        },
+        {
+            "id": "preview-banner",
+            "title": "Preview banner",
+            "package": "workspaces",
+            "surface": "frontend",
+            "targetType": "frontend-url",
+            "target": null,
+            "required": true,
+            "notes": "Show the frontend workspace banner that confirms editors are viewing draft content and can exit preview mode."
         }
     ]
 }
