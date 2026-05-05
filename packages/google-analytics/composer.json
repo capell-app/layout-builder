@@ -1,0 +1,53 @@
+{
+    "name": "capell-app/google-analytics",
+    "description": "Google Analytics 4 dashboard reporting for Capell.",
+    "keywords": [
+        "capell",
+        "google-analytics",
+        "ga4",
+        "laravel",
+        "filamentphp",
+        "cms"
+    ],
+    "homepage": "https://github.com/capell-app/google-analytics",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Capell Team",
+            "email": "team@capell.app",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "capell-app/admin": "^4.0",
+        "capell-app/core": "^4.0",
+        "lorisleiva/laravel-actions": "^2.8",
+        "spatie/laravel-data": "^4.5",
+        "spatie/laravel-package-tools": "^1.14.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\GoogleAnalytics\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Capell\\GoogleAnalytics\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\GoogleAnalytics\\Providers\\GoogleAnalyticsServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "test": "pest"
+    },
+    "prefer-stable": true
+}
