@@ -14,7 +14,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Core\Support\Creator\DemoCreator;
+use Capell\ExampleSites\Support\Creator\DemoCreator;
 use Capell\Frontend\Enums\CacheEnum as FrontendCacheEnum;
 use Capell\Navigation\Actions\BuildNavigationRenderModelAction;
 use Capell\Navigation\Adapters\NavigationNamesResolverAdapter;

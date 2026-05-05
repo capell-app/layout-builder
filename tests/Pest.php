@@ -9,6 +9,7 @@ use Capell\Blog\Tests\BlogTestCase;
 use Capell\Campaigns\Tests\CampaignsTestCase;
 use Capell\Deployments\Tests\TestCase as DeploymentsTestCase;
 use Capell\DeveloperTools\Tests\DeveloperToolsTestCase;
+use Capell\ExampleSites\Tests\ExampleSitesTestCase;
 use Capell\FilamentPeek\Tests\FilamentPeekTestCase;
 use Capell\Forms\Tests\FormsTestCase;
 use Capell\HtmlMinify\Tests\HtmlMinifyTestCase;
@@ -42,6 +43,7 @@ pest()->extend(PackagesTestCase::class)->group('content-blocks')->in('../package
 pest()->extend(PackagesTestCase::class)->group('default-theme')->in('../packages/default-theme/tests');
 pest()->extend(DeploymentsTestCase::class)->group('deployments')->in('../packages/deployments/tests');
 pest()->extend(DeveloperToolsTestCase::class)->group('developer-tools')->in('../packages/developer-tools/tests');
+pest()->extend(ExampleSitesTestCase::class)->group('example-sites')->in('../packages/example-sites/tests');
 pest()->extend(FilamentPeekTestCase::class)->group('filament-peek')->in('../packages/filament-peek/tests');
 pest()->extend(FormsTestCase::class)->group('forms')->in('../packages/forms/tests');
 pest()->extend(HtmlMinifyTestCase::class)->group('html-minify')->in('../packages/html-minify/tests');

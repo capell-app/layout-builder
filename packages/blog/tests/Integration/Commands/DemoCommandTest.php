@@ -20,7 +20,7 @@ it('runs demo command and creates articles and tags for the site', function (): 
 
     File::deleteDirectory($demoDirectory);
 
-    $sourceDemoDirectory = realpath(__DIR__ . '/../../../../../demo');
+    $sourceDemoDirectory = realpath(__DIR__ . '/../../../../../packages/example-sites/demo');
 
     throw_if($sourceDemoDirectory === false, RuntimeException::class, 'Demo fixtures directory not found.');
 

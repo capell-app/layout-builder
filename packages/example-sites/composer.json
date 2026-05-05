@@ -1,0 +1,42 @@
+{
+    "name": "capell-app/example-sites",
+    "description": "Example site content package for Capell",
+    "keywords": [
+        "capell",
+        "demo",
+        "laravel",
+        "filamentphp",
+        "cms"
+    ],
+    "homepage": "https://github.com/capell-app/example-sites",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Howdu",
+            "email": "cms.multi2@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "capell-app/admin": "*",
+        "capell-app/core": "*",
+        "capell-app/frontend": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\ExampleSites\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\ExampleSites\\Providers\\ExampleSitesServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "prefer-stable": true
+}

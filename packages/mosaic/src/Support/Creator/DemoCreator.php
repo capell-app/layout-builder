@@ -16,7 +16,7 @@ use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
-use Capell\Core\Support\Creator\DemoCreator as AdminDemoCreator;
+use Capell\ExampleSites\Support\Creator\DemoCreator as AdminDemoCreator;
 use Capell\Mosaic\Enums\ActionLinkEnum;
 use Capell\Mosaic\Enums\AssetEnum;
 use Capell\Mosaic\Enums\ContentTypeEnum;

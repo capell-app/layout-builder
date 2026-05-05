@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Mosaic\Console\Commands;
 
-use Capell\Core\Console\Commands\Concerns\HasSitesOption;
 use Capell\Core\Models\Site;
+use Capell\ExampleSites\Console\Commands\Concerns\HasSitesOption;
 use Capell\Mosaic\Actions\CreateMosaicDemoSiteAction;
 use Capell\Mosaic\Data\DemoSitePlanData;
 use Illuminate\Console\Command;
@@ -41,7 +41,7 @@ class DemoCommand extends Command
             return Command::FAILURE;
         }
 
-        $contentTree = config('capell-demo.pages')[0] ?? null;
+        $contentTree = config('capell-example-sites.pages')[0] ?? null;
 
         if (! is_array($contentTree)) {
             $this->error('Unable to find demo page content configuration.');

@@ -40,6 +40,7 @@ it('registers every installed package in the Capell package registry', function 
         'capell-app/content-blocks',
         'capell-app/core',
         'capell-app/developer-tools',
+        'capell-app/example-sites',
         'capell-app/filament-peek',
         'capell-app/forms',
         'capell-app/frontend',
