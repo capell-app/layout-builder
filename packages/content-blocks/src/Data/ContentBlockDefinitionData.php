@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Capell\ContentBlocks\Data;
 
 use BackedEnum;
+use Capell\Admin\Contracts\ConfiguratorInterface;
 use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
-use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\ContentBlocks\Enums\ConfiguratorTypeEnum;
 
 class ContentBlockDefinitionData
 {
     /**
-     * @param  class-string<FormConfigurator>  $configurator
+     * @param  class-string<ConfiguratorInterface>  $configurator
      */
     public function __construct(
         public string $key,

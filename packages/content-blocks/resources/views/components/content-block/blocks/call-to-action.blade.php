@@ -1,7 +1,18 @@
 @props(['asset', 'linkText' => null, 'meta' => [], 'summary' => null, 'title' => null, 'url' => null])
 
+@php
+    $actions = is_array($meta['actions'] ?? null) ? $meta['actions'] : [];
+    $alignment = $meta['alignment'] ?? 'center';
+@endphp
+
 <section
-    {{ $attributes->merge(['class' => 'content-block content-block-call-to-action text-center']) }}
+    @class([
+        'content-block content-block-call-to-action',
+        'text-left' => $alignment === 'start',
+        'text-center' => $alignment === 'center',
+        'text-right' => $alignment === 'end',
+        $attributes->get('class'),
+    ])
 >
     @if ($title)
         <h2 class="text-3xl font-bold">{{ $title }}</h2>
@@ -13,12 +24,27 @@
         </div>
     @endif
 
-    @if ($url && $linkText)
-        <a
-            href="{{ $url }}"
-            class="bg-primary mt-6 inline-flex rounded px-5 py-3 font-semibold text-white"
+    @if ($actions !== [] || ($url && $linkText))
+        <div
+            class="@if ($alignment === 'center') justify-center @elseif ($alignment === 'end') justify-end @endif mt-6 flex flex-wrap gap-3"
         >
-            {{ $linkText }}
-        </a>
+            @foreach ($actions as $action)
+                <a
+                    href="{{ $action['url'] ?? '#' }}"
+                    class="inline-flex rounded bg-slate-950 px-5 py-3 font-semibold text-white"
+                >
+                    {{ $action['label'] ?? '' }}
+                </a>
+            @endforeach
+
+            @if ($actions === [] && $url && $linkText)
+                <a
+                    href="{{ $url }}"
+                    class="inline-flex rounded bg-slate-950 px-5 py-3 font-semibold text-white"
+                >
+                    {{ $linkText }}
+                </a>
+            @endif
+        </div>
     @endif
 </section>

@@ -2,15 +2,19 @@
 
 declare(strict_types=1);
 
+use Capell\ContentBlocks\Actions\BuildContentBlockDemoDataAction;
 use Capell\ContentBlocks\Actions\RegisterContentBlockDefinitionProviderAction;
 use Capell\ContentBlocks\Actions\RegisterDefaultContentBlocksAction;
 use Capell\ContentBlocks\Actions\ResolveContentBlockComponentAction;
+use Capell\ContentBlocks\Actions\ResolveRequestedContentBlockTypeAction;
 use Capell\ContentBlocks\Contracts\ContentBlockDefinitionProvider;
 use Capell\ContentBlocks\Data\ContentBlockDefinitionData;
 use Capell\ContentBlocks\Enums\ContentBlockConfiguratorEnum;
 use Capell\ContentBlocks\Filament\Configurators\ContentBlocks\AccordionContentBlockConfigurator;
 use Capell\ContentBlocks\Support\ContentBlockRegistry;
+use Capell\Core\Models\Type;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Blade;
 
 it('registers the main content blocks', function (): void {
     $registry = new ContentBlockRegistry;
@@ -107,4 +111,36 @@ it('resolves the frontend component without string matching configurator names',
         configurator: AccordionContentBlockConfigurator::getKey(),
         fallbackComponent: 'capell-content-blocks::content-block.fallback',
     ))->toBe('vendor-package::content-block.package-accordion');
+});
+
+it('resolves requested screenshot block types from query parameters', function (): void {
+    $registry = new ContentBlockRegistry;
+
+    RegisterDefaultContentBlocksAction::run($registry);
+    app()->instance(ContentBlockRegistry::class, $registry);
+    request()->query->set('block', 'accordion');
+
+    $type = ResolveRequestedContentBlockTypeAction::run();
+
+    expect($type)->toBeInstanceOf(Type::class)
+        ->and($type?->key)->toBe('accordion')
+        ->and($type?->admin['configurator'])->toBe(AccordionContentBlockConfigurator::getKey());
+});
+
+it('renders every registered content block demo component', function (): void {
+    $registry = new ContentBlockRegistry;
+
+    RegisterDefaultContentBlocksAction::run($registry);
+    app()->instance(ContentBlockRegistry::class, $registry);
+    view()->addNamespace('capell-content-blocks', __DIR__ . '/../../resources/views');
+
+    foreach (array_keys($registry->all()) as $key) {
+        $data = BuildContentBlockDemoDataAction::run($key);
+        $html = Blade::render(
+            '<x-dynamic-component :component="$definition->component" :asset="$asset" :meta="$meta" :summary="$summary" :title="$title" :link-text="$linkText" :url="$url" />',
+            $data,
+        );
+
+        expect($html)->toContain('content-block');
+    }
 });

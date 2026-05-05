@@ -55,6 +55,7 @@ class ContentBlocksServiceProvider extends AbstractPackageServiceProvider
             ->name(self::$name)
             ->hasViews(self::$name)
             ->hasTranslations()
+            ->hasRoute('web')
             ->hasMigrations([
                 'create_content_blocks_table',
             ]);

@@ -18,8 +18,17 @@
                 <tr>
                     <th class="border p-3 text-left"></th>
                     @foreach ($columns as $column)
-                        <th class="border p-3 text-left">
+                        <th
+                            @class(['border p-3 text-left', 'bg-slate-950 text-white' => (bool) ($column['highlighted'] ?? false)])
+                        >
                             {{ $column['heading'] ?? '' }}
+                            @if (filled($column['description'] ?? null))
+                                <span
+                                    class="mt-1 block text-xs font-normal opacity-75"
+                                >
+                                    {{ $column['description'] }}
+                                </span>
+                            @endif
                         </th>
                     @endforeach
                 </tr>

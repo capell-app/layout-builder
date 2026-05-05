@@ -7,6 +7,7 @@ namespace Capell\ContentBlocks\Filament\Resources\ContentBlocks\Schemas;
 use Capell\Admin\Data\Configurators\ConfiguratorContextData;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Admin\Support\Configurators\ConfiguratorResolver;
+use Capell\ContentBlocks\Actions\ResolveRequestedContentBlockTypeAction;
 use Capell\ContentBlocks\Enums\ConfiguratorTypeEnum;
 use Capell\ContentBlocks\Filament\Configurators\ContentBlocks\DefaultContentBlockConfigurator;
 use Capell\Core\Models\Type;
@@ -24,13 +25,18 @@ class ContentBlockForm implements FormConfigurator
             $type = $record->type;
         }
 
-        $typeId = $configurator->getRawState()['type_id'] ?? $record?->type_id ?? null;
+        $state = $configurator->getRawState();
+        $typeId = $state['type_id'] ?? $record?->type_id ?? null;
 
         if (! $type instanceof Type && $typeId !== null) {
             /** @var class-string<Type> $model */
             $model = Type::class;
 
             $type = $model::query()->find($typeId);
+        }
+
+        if (! $type instanceof Type) {
+            $type = ResolveRequestedContentBlockTypeAction::run($state);
         }
 
         $adminType = $type instanceof Type
