@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Capell\DeveloperTools\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 final class CommandPaletteRun extends Model
 {
+    use HasFactory;
+
     /**
      * @var array<int, string>
      */

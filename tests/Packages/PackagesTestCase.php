@@ -12,7 +12,6 @@ use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
 use Capell\Analytics\Providers\AnalyticsServiceProvider;
 use Capell\AuthenticationLog\Providers\AuthenticationLogServiceProvider;
-use Capell\Backup\Providers\BackupServiceProvider;
 use Capell\Blog\Enums\ResourceEnum as BlogResourceEnum;
 use Capell\Blog\Providers\BlogServiceProvider;
 use Capell\Blog\Providers\FrontendServiceProvider as BlogFrontendServiceProvider;
@@ -28,6 +27,7 @@ use Capell\Forms\Providers\FormsServiceProvider as CapellFormsServiceProvider;
 use Capell\Frontend\Contracts\SettingsMigrationProviderInterface;
 use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\MediaCurator\CapellMediaCuratorServiceProvider;
+use Capell\Migrator\Providers\MigratorServiceProvider;
 use Capell\Mosaic\Providers\MosaicServiceProvider;
 use Capell\Navigation\Providers\NavigationServiceProvider;
 use Capell\Redirects\Providers\RedirectsServiceProvider;
@@ -87,7 +87,7 @@ class PackagesTestCase extends AbstractTestCase
             AddressServiceProvider::class,
             AnalyticsServiceProvider::class,
             AuthenticationLogServiceProvider::class,
-            BackupServiceProvider::class,
+            MigratorServiceProvider::class,
             MosaicServiceProvider::class,
             NavigationServiceProvider::class,
             BlogServiceProvider::class,
@@ -165,7 +165,7 @@ class PackagesTestCase extends AbstractTestCase
         CapellCore::forcePackageInstalled(TagsServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(AnalyticsServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(BackupServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(MigratorServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(BlogServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(CampaignsServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(CapellFormsServiceProvider::$packageName);

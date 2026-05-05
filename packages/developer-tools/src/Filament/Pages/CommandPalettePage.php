@@ -14,7 +14,6 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
 use Override;
@@ -54,13 +53,20 @@ final class CommandPalettePage extends Page
 
     public static function canAccess(): bool
     {
-        return Gate::allows('accessDeveloperTools')
-            || Gate::allows('viewDeveloperTools')
-            || auth()->user()?->can('accessDeveloperTools') === true
-            || auth()->user()?->can('viewDeveloperTools') === true;
+        if (Gate::allows('accessDeveloperTools')) {
+            return true;
+        }
+        if (Gate::allows('viewDeveloperTools')) {
+            return true;
+        }
+        if (auth()->user()?->can('accessDeveloperTools') === true) {
+            return true;
+        }
+
+        return auth()->user()?->can('viewDeveloperTools') === true;
     }
 
-    public function getTitle(): string|Htmlable
+    public function getTitle(): string
     {
         return 'Command Palette';
     }
@@ -156,7 +162,7 @@ final class CommandPalettePage extends Page
     {
         return array_filter(
             DiscoverCommandPaletteCommandsAction::run(),
-            fn (CommandPaletteCommandData $command): bool => $this->canSeeCommand($command),
+            $this->canSeeCommand(...),
         );
     }
 
@@ -180,9 +186,7 @@ final class CommandPalettePage extends Page
         $command = collect($this->visibleCommands())
             ->first(fn (CommandPaletteCommandData $paletteCommand): bool => $paletteCommand->id === $commandId);
 
-        if (! $command instanceof CommandPaletteCommandData) {
-            throw new AuthorizationException;
-        }
+        throw_unless($command instanceof CommandPaletteCommandData, AuthorizationException::class);
 
         return $command;
     }

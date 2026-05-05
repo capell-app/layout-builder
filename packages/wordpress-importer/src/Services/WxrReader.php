@@ -28,9 +28,7 @@ final class WxrReader implements ImportSourceReader
         }
 
         $channel = $xml->channel;
-        if (! $channel instanceof SimpleXMLElement || ! isset($channel->item)) {
-            throw new RuntimeException('WordPress export must contain a channel with item entries.');
-        }
+        throw_if(! $channel instanceof SimpleXMLElement || (! property_exists($channel, 'item') || $channel->item === null), RuntimeException::class, 'WordPress export must contain a channel with item entries.');
 
         $rows = [];
         foreach ($channel->item as $item) {
@@ -101,7 +99,10 @@ final class WxrReader implements ImportSourceReader
             $terms[] = trim((string) $category);
         }
 
-        return array_values(array_filter($terms));
+        return array_values(array_filter(
+            $terms,
+            static fn (string $term): bool => $term !== '',
+        ));
     }
 
     /**
@@ -126,6 +127,6 @@ final class WxrReader implements ImportSourceReader
      */
     private function columnsFor(array $rows): array
     {
-        return array_values(array_unique(array_merge(...array_map('array_keys', $rows ?: [[]]))));
+        return array_values(array_unique(array_merge(...array_map(array_keys(...), $rows !== [] ? $rows : [[]]))));
     }
 }

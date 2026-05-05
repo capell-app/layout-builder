@@ -67,13 +67,9 @@ final class ExecuteCommandPaletteCommandAction
         $command = collect(DiscoverCommandPaletteCommandsAction::run())
             ->first(fn (CommandPaletteCommandData $paletteCommand): bool => $paletteCommand->id === $commandId);
 
-        if (! $command instanceof CommandPaletteCommandData) {
-            throw new AuthorizationException;
-        }
+        throw_unless($command instanceof CommandPaletteCommandData, AuthorizationException::class);
 
-        if ($command->ability !== null && Gate::forUser($user)->denies($command->ability)) {
-            throw new AuthorizationException;
-        }
+        throw_if($command->ability !== null && Gate::forUser($user)->denies($command->ability), AuthorizationException::class);
 
         return $command;
     }
@@ -87,9 +83,7 @@ final class ExecuteCommandPaletteCommandAction
             return;
         }
 
-        if (($parameters['_confirmed'] ?? false) !== true) {
-            throw new AuthorizationException('This command requires confirmation before it can run.');
-        }
+        throw_if(($parameters['_confirmed'] ?? false) !== true, AuthorizationException::class, 'This command requires confirmation before it can run.');
     }
 
     /**
@@ -122,7 +116,7 @@ final class ExecuteCommandPaletteCommandAction
     private function navigate(CommandPaletteCommandData $command): CommandPaletteResultData
     {
         if ($command->url === null) {
-            throw new RuntimeException("Command [{$command->id}] does not define a URL.");
+            throw new RuntimeException(sprintf('Command [%s] does not define a URL.', $command->id));
         }
 
         return new CommandPaletteResultData(
@@ -138,7 +132,7 @@ final class ExecuteCommandPaletteCommandAction
     private function runArtisanCommand(CommandPaletteCommandData $command, array $parameters): CommandPaletteResultData
     {
         if ($command->command === null) {
-            throw new RuntimeException("Command [{$command->id}] does not define an Artisan command.");
+            throw new RuntimeException(sprintf('Command [%s] does not define an Artisan command.', $command->id));
         }
 
         $this->lastExitCode = Artisan::call($command->command, $parameters);
@@ -146,7 +140,7 @@ final class ExecuteCommandPaletteCommandAction
 
         return new CommandPaletteResultData(
             successful: $this->lastExitCode === 0,
-            title: $this->lastExitCode === 0 ? "{$command->label} completed" : "{$command->label} failed",
+            title: $this->lastExitCode === 0 ? $command->label . ' completed' : $command->label . ' failed',
             body: $output,
         );
     }

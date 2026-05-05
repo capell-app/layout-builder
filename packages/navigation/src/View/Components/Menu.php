@@ -13,6 +13,7 @@ use Capell\Navigation\Actions\BuildNavigationRenderModelAction;
 use Capell\Navigation\Data\NavigationRenderContextData;
 use Capell\Navigation\Data\NavigationRenderData;
 use Capell\Navigation\Enums\NavigationHandle;
+use Capell\Navigation\Models\Navigation;
 use Capell\Navigation\Support\Loader\NavigationLoader;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
@@ -54,7 +55,7 @@ class Menu extends Component
 
         $navigation = NavigationLoader::getNavigation($this->key, $site, $language, $this->siteOnlyFallback);
 
-        if ($navigation === null) {
+        if (! $navigation instanceof Navigation) {
             return null;
         }
 

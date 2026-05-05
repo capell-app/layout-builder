@@ -2,13 +2,15 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Env;
+
 return [
     'queue' => [
-        'connection' => env('MIGRATOR_QUEUE_CONNECTION'),
-        'name' => env('MIGRATOR_QUEUE', 'migrator'),
+        'connection' => Env::get('MIGRATOR_QUEUE_CONNECTION'),
+        'name' => Env::get('MIGRATOR_QUEUE', 'migrator'),
     ],
 
-    'disk' => env('MIGRATOR_DISK', 'local'),
+    'disk' => Env::get('MIGRATOR_DISK', 'local'),
 
     'paths' => [
         'imports' => 'migrator/imports',
@@ -24,7 +26,7 @@ return [
     ],
 
     'notifications' => [
-        'enabled' => env('CAPELL_MIGRATOR_NOTIFICATIONS', true),
+        'enabled' => Env::get('CAPELL_MIGRATOR_NOTIFICATIONS', true),
         'channels' => ['mail', 'database'],
         'recipients' => [
             'completed' => [],

@@ -42,7 +42,7 @@ it('renders a package menu component with explicit frontend context', function (
 
     $view = $this->blade(
         '<x-capell-navigation::menu key="primary" :site="$site" :language="$language" :page="$currentPage" :domain="$siteDomain" />',
-        compact('site', 'language', 'currentPage', 'siteDomain'),
+        ['site' => $site, 'language' => $language, 'currentPage' => $currentPage, 'siteDomain' => $siteDomain],
     );
 
     $view

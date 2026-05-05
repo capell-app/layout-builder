@@ -67,12 +67,12 @@ final class DeveloperToolsPaletteCommandProvider implements CommandPaletteProvid
             return new CommandPaletteCommandData(
                 id: $id,
                 label: $label,
+                type: CommandPaletteType::Navigation,
                 description: $description,
                 url: $page::getUrl(panel: 'admin'),
-                type: CommandPaletteType::Navigation,
+                keywords: [$page, ...$keywords],
                 group: 'Developer tools',
                 sort: $sort,
-                keywords: [$page, ...$keywords],
             );
         } catch (Throwable) {
             return null;

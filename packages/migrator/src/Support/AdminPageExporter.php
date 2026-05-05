@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Migrator\Support;
 
-use Capell\Admin\Contracts\Migrator\PageExporter;
+use Capell\Admin\Contracts\Backup\PageExporter;
 use Capell\Migrator\Data\ExportOptions;
 use Capell\Migrator\Services\Export\PageExportService;
 

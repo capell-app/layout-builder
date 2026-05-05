@@ -25,23 +25,23 @@ final class CapellArtisanPaletteCommandProvider implements CommandPaletteProvide
         $commands = [];
 
         foreach (Artisan::all() as $name => $consoleCommand) {
-            if (! str_starts_with($name, 'capell:')) {
+            if (! str_starts_with((string) $name, 'capell:')) {
                 continue;
             }
 
             $command = new CommandPaletteCommandData(
-                id: "artisan.{$name}",
+                id: 'artisan.' . $name,
                 label: Str::headline(str_replace(['capell:', '-'], ['', ' '], $name)),
-                description: $consoleCommand->getDescription() ?: null,
                 type: CommandPaletteType::Artisan,
-                ability: 'palette.run.' . str_replace([':', '-'], '_', $name),
+                description: $consoleCommand->getDescription() !== '' ? $consoleCommand->getDescription() : null,
                 command: $name,
+                ability: 'palette.run.' . str_replace([':', '-'], '_', $name),
                 danger: $this->dangerForCommand($name),
                 requiresConfirmation: $this->dangerForCommand($name) !== CommandPaletteDanger::Safe,
                 parameters: $this->parametersForCommand($consoleCommand),
+                keywords: [$name],
                 group: 'Developer tools',
                 sort: 80,
-                keywords: [$name],
             );
 
             $commands[$command->id] = $command;
@@ -77,7 +77,7 @@ final class CapellArtisanPaletteCommandProvider implements CommandPaletteProvide
                 label: Str::headline($argument->getName()),
                 type: CommandPaletteParameterType::String,
                 required: $argument->isRequired(),
-                description: $argument->getDescription() ?: null,
+                description: $argument->getDescription() !== '' ? $argument->getDescription() : null,
                 default: $argument->getDefault(),
             );
         }
@@ -92,7 +92,7 @@ final class CapellArtisanPaletteCommandProvider implements CommandPaletteProvide
                 label: Str::headline($option->getName()),
                 type: $option->acceptValue() ? CommandPaletteParameterType::String : CommandPaletteParameterType::Boolean,
                 required: $option->isValueRequired(),
-                description: $option->getDescription() ?: null,
+                description: $option->getDescription() !== '' ? $option->getDescription() : null,
                 default: $this->defaultForOption($option),
             );
         }

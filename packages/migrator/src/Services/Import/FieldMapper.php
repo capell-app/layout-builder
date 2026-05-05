@@ -33,7 +33,7 @@ final class FieldMapper
         return $attributes;
     }
 
-    private function defaultTargetPath(string $source, string $target): ?string
+    private function defaultTargetPath(string $source, string $target): string
     {
         $normalized = Str::of($source)->lower()->replace([' ', '-', ':'], '_')->toString();
 

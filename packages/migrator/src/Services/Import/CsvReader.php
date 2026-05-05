@@ -29,10 +29,12 @@ final class CsvReader implements ImportSourceReader
         $rows = [];
 
         foreach ($file as $index => $row) {
-            if (! is_array($row) || $row === [null]) {
+            if (! is_array($row)) {
                 continue;
             }
-
+            if ($row === [null]) {
+                continue;
+            }
             $values = array_map(static fn (mixed $value): string => trim((string) $value), $row);
 
             if ($index === 0) {
@@ -41,9 +43,7 @@ final class CsvReader implements ImportSourceReader
                 continue;
             }
 
-            if ($columns === []) {
-                throw new RuntimeException('CSV import source must include a header row.');
-            }
+            throw_if($columns === [], RuntimeException::class, 'CSV import source must include a header row.');
 
             $rows[] = array_combine(
                 $columns,

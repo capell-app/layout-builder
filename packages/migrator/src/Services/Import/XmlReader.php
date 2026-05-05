@@ -29,7 +29,7 @@ final class XmlReader implements ImportSourceReader
 
         $items = $this->itemElements($xml);
         $rows = array_map(fn (SimpleXMLElement $item): array => $this->flatten($item), $items);
-        $columns = array_values(array_unique(array_merge(...array_map('array_keys', $rows ?: [[]]))));
+        $columns = array_values(array_unique(array_merge(...array_map(array_keys(...), $rows !== [] ? $rows : [[]]))));
 
         return new ExternalImportReadResult(
             sourceType: 'xml',
@@ -51,6 +51,7 @@ final class XmlReader implements ImportSourceReader
         foreach ($xml->children() as $child) {
             $children[] = $child;
         }
+
         if ($children === []) {
             return [$xml];
         }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Migrator\Providers;
 
-use Capell\Admin\Contracts\Migrator\PageExporter;
+use Capell\Admin\Contracts\Backup\PageExporter;
 use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Support\CapellAdminManager;
 use Capell\Core\Facades\CapellCore;
