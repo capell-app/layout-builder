@@ -2,6 +2,8 @@
 
 Optional add-on packages for the Capell CMS. Companion to `capell-app/capell` (`../capell-4`).
 
+Nearly all new Capell packages should be added to this packages repo under `packages/` unless the user explicitly says otherwise.
+
 ## Non-negotiables
 
 - `declare(strict_types=1);` in every PHP file.

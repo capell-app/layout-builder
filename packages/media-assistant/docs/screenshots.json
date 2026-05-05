@@ -1,0 +1,24 @@
+{
+    "package": "media-assistant",
+    "composerName": "capell-app/media-assistant",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "outputDirectory": "packages/media-assistant/docs/images/screenshots",
+    "entries": [
+        {
+            "id": "media-assistant-doctor-image",
+            "title": "Doctor image action on the Media edit page.",
+            "package": "media-assistant",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "MediaAssistantEditActionExtender",
+            "scenario": "admin-index",
+            "url": "/media",
+            "waitFor": "table",
+            "docsPage": "packages/media-assistant/docs/overview.md",
+            "output": "packages/media-assistant/docs/images/screenshots/media-assistant-doctor-image.png",
+            "required": false,
+            "notes": "Optional until the runner supports opening resource actions; captures the media surface where the action appears."
+        }
+    ]
+}

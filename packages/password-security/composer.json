@@ -1,0 +1,49 @@
+{
+    "name": "capell-app/password-security",
+    "description": "Password expiry, forced password changes, and password safety policy for Capell CMS.",
+    "type": "library",
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "Capell\\PasswordSecurity\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Capell\\PasswordSecurity\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\PasswordSecurity\\Providers\\PasswordSecurityServiceProvider"
+            ]
+        }
+    },
+    "require": {
+        "php": "^8.2",
+        "capell-app/admin": "*",
+        "capell-app/core": "*",
+        "laravel/framework": "^11.45.3|^12.41.1|^13.0",
+        "lorisleiva/laravel-actions": "^2.8",
+        "spatie/laravel-data": "^4.5",
+        "spatie/laravel-package-tools": "^1.14.1"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.15|^10.8|^11.0",
+        "pestphp/pest": "^3.8|^4.3",
+        "pestphp/pest-plugin-laravel": "^3.0|^4.0",
+        "pestphp/pest-plugin-livewire": "^3.0|^4.0"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "test": "bin/pest --colors=always"
+    }
+}
