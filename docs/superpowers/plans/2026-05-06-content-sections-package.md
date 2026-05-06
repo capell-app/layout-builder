@@ -51,7 +51,7 @@ Create:
 
 Modify:
 
-- `composer.local.json` - add ContentSections PSR-4 autoload and test autoload.
+- `composer.local.json` - add ContentSections PSR-4 autoload and test autoload for the local workspace only; this file is ignored and must not be staged.
 - `composer.json` - add ContentSections PSR-4 autoload and test autoload.
 - `phpunit.xml` - include `packages/content-sections/tests`.
 - `packages/layout-builder/src/Providers/LayoutBuilderServiceProvider.php` - remove Section imports/registration and keep only layout/widget ownership.
@@ -103,7 +103,7 @@ Delete or move:
 - Create: `packages/content-sections/config/capell-content-sections.php`
 - Create: `packages/content-sections/tests/ContentSectionsTestCase.php`
 - Create: `packages/content-sections/tests/Pest.php`
-- Modify: `composer.local.json`
+- Modify locally, do not stage: `composer.local.json`
 - Modify: `composer.json`
 - Modify: `phpunit.xml`
 
@@ -379,18 +379,20 @@ class ContentSectionsTestCase extends AbstractTestCase
 
 - [ ] **Step 5: Add autoload and suite entries**
 
-Add to `composer.local.json` and `composer.json` PSR-4 autoload:
+Add to `composer.json` PSR-4 autoload:
 
 ```json
 "Capell\\ContentSections\\": "packages/content-sections/src",
 "Capell\\ContentSections\\Database\\Factories\\": "packages/content-sections/database/factories"
 ```
 
-Add to autoload-dev:
+Add to `composer.json` autoload-dev:
 
 ```json
 "Capell\\ContentSections\\Tests\\": "packages/content-sections/tests"
 ```
+
+Also add the same entries to local `composer.local.json` so this workspace can run focused tests. Because `.gitignore` excludes `composer.local.*`, verify the entries exist locally but do not stage or commit `composer.local.json`.
 
 Add `packages/content-sections/tests` to `phpunit.xml` beside other package test suites.
 
@@ -405,7 +407,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/content-sections composer.local.json composer.json phpunit.xml
+git add packages/content-sections composer.json phpunit.xml
 git commit -m "feat: scaffold content sections package"
 ```
 
