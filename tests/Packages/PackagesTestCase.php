@@ -16,10 +16,12 @@ use Capell\Blog\Enums\ResourceEnum as BlogResourceEnum;
 use Capell\Blog\Providers\BlogServiceProvider;
 use Capell\Blog\Providers\FrontendServiceProvider as BlogFrontendServiceProvider;
 use Capell\CampaignStudio\Providers\CampaignStudioServiceProvider;
+use Capell\ContentSections\Providers\ContentSectionsServiceProvider;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Media;
 use Capell\Core\Providers\CapellServiceProvider;
+use Capell\Diagnostics\Providers\AdminServiceProvider as DiagnosticsAdminServiceProvider;
 use Capell\Diagnostics\Providers\DiagnosticsServiceProvider;
 use Capell\FormBuilder\Providers\FormBuilderServiceProvider as CapellFormBuilderServiceProvider;
 use Capell\FoundationTheme\Providers\FoundationThemeServiceProvider;
@@ -43,6 +45,7 @@ use Capell\ThemeStudio\Admin\ThemeStudioAdminServiceProvider;
 use Capell\ThemeStudio\Core\ThemeStudioCoreServiceProvider;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Gate;
 use Livewire\LivewireServiceProvider;
 use Spatie\ImageOptimizer\Optimizers\Svgo;
 
@@ -89,6 +92,7 @@ class PackagesTestCase extends AbstractTestCase
             InsightsServiceProvider::class,
             LoginAuditServiceProvider::class,
             MigrationAssistantServiceProvider::class,
+            ContentSectionsServiceProvider::class,
             LayoutBuilderServiceProvider::class,
             NavigationServiceProvider::class,
             BlogServiceProvider::class,
@@ -97,6 +101,7 @@ class PackagesTestCase extends AbstractTestCase
             BlockLibraryServiceProvider::class,
             CapellFormBuilderServiceProvider::class,
             DiagnosticsServiceProvider::class,
+            DiagnosticsAdminServiceProvider::class,
             SeoSuiteServiceProvider::class,
             SearchServiceProvider::class,
             TagsServiceProvider::class,
@@ -134,6 +139,10 @@ class PackagesTestCase extends AbstractTestCase
         $app->make(Repository::class)->set('media-library.image_optimizers', [
             Svgo::class => [],
         ]);
+
+        Gate::before(
+            fn (mixed $user, string $ability): ?bool => $user?->hasRole('super_admin') ? true : null,
+        );
     }
 
     private function registerBlazeOptimizedViews(): void
@@ -162,6 +171,7 @@ class PackagesTestCase extends AbstractTestCase
     private function forcePackagesInstalled(): void
     {
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(ContentSectionsServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(LayoutBuilderServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(SeoSuiteServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(TagsServiceProvider::$packageName);

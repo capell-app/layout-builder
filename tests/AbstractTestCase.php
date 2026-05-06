@@ -104,6 +104,9 @@ abstract class AbstractTestCase extends TestCase
         // Temp fix to ensure components are locatable when run in parallel
         Blade::componentNamespace('Capell\\Blog\\View\\Components', 'capell-blog');
         Blade::componentNamespace('Capell\\LayoutBuilder\\View\\Components', 'capell-layout-builder');
+        Blade::component('capell-layout-builder::components.widget.page.breadcrumbs', 'capell-layout-builder-widget-page-breadcrumbs');
+        Blade::component(Content::class, 'capell-layout-builder-widget-page-content');
+        Blade::component('capell-layout-builder::components.widget.slot', 'capell-layout-builder-widget-slot');
         Blade::component(Children::class, 'capell-layout-builder::widget.page.children');
         Blade::component(Content::class, 'capell-layout-builder::widget.page.content');
         Blade::component(Latest::class, 'capell-layout-builder::widget.page.latest');

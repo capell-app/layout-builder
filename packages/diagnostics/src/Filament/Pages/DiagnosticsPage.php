@@ -36,7 +36,7 @@ class DiagnosticsPage extends Page implements HasActions
     #[Override]
     public static function getNavigationLabel(): string
     {
-        return __('capell-admin::navigation.diagnostics');
+        return __('capell-diagnostics::package.diagnostics');
     }
 
     #[Override]
@@ -53,7 +53,7 @@ class DiagnosticsPage extends Page implements HasActions
 
     public function getTitle(): string|Htmlable
     {
-        return __('capell-admin::generic.diagnostics');
+        return __('capell-diagnostics::package.diagnostics');
     }
 
     public function makers(): Collection

@@ -148,7 +148,6 @@
                                         }
 
                                         $type = $widget->getMetaComponentType();
-
                                         $currentColspan = $previousColspan + $colspan;
                                         if ($columnStart) {
                                             $currentColspan += $columnStart - 1;

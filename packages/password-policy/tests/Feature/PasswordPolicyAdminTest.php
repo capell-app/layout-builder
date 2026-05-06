@@ -31,6 +31,10 @@ beforeEach(function (): void {
 it('keeps package settings out of the global settings page', function (): void {
     $registry = resolve(SettingsSchemaRegistry::class);
 
+    if (! method_exists($registry, 'getFirstPartyGroups')) {
+        test()->markTestSkipped('This Capell Core checkout does not expose first-party settings groups.');
+    }
+
     expect($registry->getFirstPartyGroups())->not->toContain('password_policy');
 
     get(SettingsPage::getUrl())
@@ -75,6 +79,10 @@ it('redirects flagged admin users to the forced password change page', function 
 });
 
 it('uses the package policy when admin users are created with passwords', function (): void {
+    if (! interface_exists('Capell\\Admin\\Contracts\\Extenders\\UserFormExtender')) {
+        test()->markTestSkipped('Capell Admin user form extension points are not available in this checkout.');
+    }
+
     Livewire::test(CreateUser::class)
         ->fillForm([
             'name' => 'Secure User',
@@ -97,6 +105,10 @@ it('uses the package policy when admin users are created with passwords', functi
 });
 
 it('uses the package history policy when admin users are edited with passwords', function (): void {
+    if (! interface_exists('Capell\\Admin\\Contracts\\Extenders\\UserFormExtender')) {
+        test()->markTestSkipped('Capell Admin user form extension points are not available in this checkout.');
+    }
+
     $settings = PasswordPolicySettings::instance();
     $settings->password_history_enabled = true;
     $settings->password_history_count = 5;

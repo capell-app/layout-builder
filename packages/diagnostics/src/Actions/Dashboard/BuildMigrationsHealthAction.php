@@ -7,7 +7,7 @@ namespace Capell\Diagnostics\Actions\Dashboard;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
 use Capell\Diagnostics\Data\Dashboard\MigrationsHealthData;
-use Illuminate\Database\Migrations\MigrationAssistant;
+use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -49,12 +49,12 @@ final class BuildMigrationsHealthAction
      */
     private function detectPendingMigrations(): array
     {
-        /** @var MigrationAssistant $migrationAssistant */
-        $migrationAssistant = resolve('migration-assistant');
+        /** @var Migrator $migrator */
+        $migrator = resolve('migrator');
 
-        $paths = array_merge([database_path('migrations')], $migrationAssistant->paths());
-        $files = $migrationAssistant->getMigrationFiles($paths);
-        $ran = $migrationAssistant->getRepository()->getRan();
+        $paths = array_merge([database_path('migrations')], $migrator->paths());
+        $files = $migrator->getMigrationFiles($paths);
+        $ran = $migrator->getRepository()->getRan();
 
         $pending = array_values(array_diff(array_keys($files), $ran));
         sort($pending);

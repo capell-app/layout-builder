@@ -10,9 +10,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\LayoutBuilder\Actions\AddHeroWidgetToLayoutAction;
-use Capell\LayoutBuilder\Actions\CreateHeroContentTypeAction;
 use Capell\LayoutBuilder\Actions\CreateHeroWidgetAction;
-use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Creator\DemoCreator;
 use Illuminate\Console\Command;
@@ -22,7 +20,7 @@ use function Pest\Laravel\artisan;
 
 it('adds hero meta to blog and article pages when blog package is installed', function (): void {
     AddHeroWidgetToLayoutAction::shouldRun()->once();
-    CreateHeroContentTypeAction::shouldRun()->once()->andReturn(Type::factory()->type(LayoutTypeEnum::Section)->create());
+    Type::factory()->type('section')->create(['key' => 'hero']);
 
     $heroWidget = Widget::factory()->make();
     CreateHeroWidgetAction::shouldRun()->twice()->andReturn($heroWidget);

@@ -224,6 +224,10 @@ it('renders heading items without a url', function (): void {
 });
 
 it('flushes stale page lookup cache when a page url changed event is received', function (): void {
+    if (! class_exists(PageUrlChanged::class)) {
+        test()->markTestSkipped('Capell Core does not provide the PageUrlChanged event in this checkout.');
+    }
+
     $language = Language::factory()->default()->create();
     $site = Site::factory()
         ->language($language)

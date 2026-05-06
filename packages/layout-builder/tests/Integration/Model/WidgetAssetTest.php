@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Language;
+use Capell\Core\Models\Page;
 use Capell\Core\Models\Translation;
 use Capell\LayoutBuilder\Actions\InstallPackageAction;
-use Capell\LayoutBuilder\Models\Section;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 
@@ -22,10 +22,10 @@ it('belongs to a widget', function (): void {
 });
 
 it('computes the asset_key as asset_type dot asset_id', function (): void {
-    $section = Section::factory()->create();
-    $widgetAsset = WidgetAsset::factory()->asset($section)->create();
+    $page = Page::factory()->create();
+    $widgetAsset = WidgetAsset::factory()->asset($page)->create();
 
-    expect($widgetAsset->asset_key)->toBe($section->getMorphClass() . '.' . $section->id);
+    expect($widgetAsset->asset_key)->toBe($page->getMorphClass() . '.' . $page->id);
 });
 
 it('scopes ordered by the order column ascending by default', function (): void {
@@ -61,19 +61,19 @@ it('scopes alphabetical by asset translation title for a given language', functi
     $language = Language::factory()->create();
     $widget = Widget::factory()->create();
 
-    $sectionA = Section::factory()->create();
-    $sectionB = Section::factory()->create();
-    $sectionC = Section::factory()->create();
+    $pageA = Page::factory()->create();
+    $pageB = Page::factory()->create();
+    $pageC = Page::factory()->create();
 
-    foreach ([[$sectionA, 'Zebra'], [$sectionB, 'Apple'], [$sectionC, 'Mango']] as [$section, $title]) {
+    foreach ([[$pageA, 'Zebra'], [$pageB, 'Apple'], [$pageC, 'Mango']] as [$page, $title]) {
         Translation::factory()->create([
-            'translatable_type' => $section->getMorphClass(),
-            'translatable_id' => $section->id,
+            'translatable_type' => $page->getMorphClass(),
+            'translatable_id' => $page->id,
             'language_id' => $language->id,
             'title' => $title,
         ]);
 
-        WidgetAsset::factory()->widget($widget)->asset($section)->create();
+        WidgetAsset::factory()->widget($widget)->asset($page)->create();
     }
 
     $titles = WidgetAsset::query()

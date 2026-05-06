@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Tests\Support\Concerns;
 
 use Capell\Tests\AbstractTestCase;
+use Capell\ThemeStudio\Core\Theme\ThemeRegistry;
 use Illuminate\Support\Facades\App;
 
 /**
@@ -35,5 +36,9 @@ trait TestingFrontend
         // \Capell\Frontend\Helpers\Routes::routes();
 
         $this->withoutVite();
+
+        if (class_exists(ThemeRegistry::class) && $this->app->bound(ThemeRegistry::class)) {
+            resolve(ThemeRegistry::class)->reset();
+        }
     }
 }

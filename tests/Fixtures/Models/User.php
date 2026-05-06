@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Capell\Tests\Fixtures\Models;
 
+use BezhanSalleh\FilamentShield\Support\Utils;
 use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Capell\Core\Database\Factories\UserFactory;
 use Capell\Core\Models\Concerns\HasSitePermissions;
 use Filament\Models\Contracts\FilamentUser;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -22,6 +24,7 @@ class User extends Authenticatable implements FilamentUser
 
     /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use HasPanelShield;
     use HasRoles;
     use HasSitePermissions;
@@ -54,6 +57,21 @@ class User extends Authenticatable implements FilamentUser
     ];
 
     protected static string $factory = UserFactory::class;
+
+    public static function bootHasPanelShield(): void
+    {
+        if (! app() instanceof Application || app()->runningInConsole()) {
+            return;
+        }
+
+        if (! Utils::isPanelUserRoleEnabled()) {
+            return;
+        }
+
+        Utils::createPanelUserRole();
+        static::created(fn (self $user): mixed => $user->assignRole(Utils::getPanelUserRoleName()));
+        static::deleting(fn (self $user): mixed => $user->removeRole(Utils::getPanelUserRoleName()));
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

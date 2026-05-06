@@ -7,6 +7,7 @@ namespace Capell\Tests\Support\Concerns;
 use Capell\Tests\AbstractTestCase;
 use Capell\Tests\Fixtures\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable as UserContract;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Collection;
 use Spatie\Permission\Contracts\Permission;
@@ -44,6 +45,8 @@ trait CreatesAdminUser
 
     public function createUser(array $attributes = []): User
     {
+        Model::setConnectionResolver($this->app->make('db'));
+
         return User::factory()->create($attributes);
     }
 

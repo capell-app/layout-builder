@@ -8,6 +8,7 @@ return [
     'extension_authoring_eyebrow' => 'Package authors',
     'extension_authoring_heading' => 'Need to add a capability? Create a Capell extension.',
     'description' => 'Developer and operational diagnostics for Capell CMS.',
+    'diagnostics' => 'Diagnostics',
     'unknown_exception' => 'Unknown exception',
     'widget_config_drift_description' => 'Compare published application config with shipped Capell config keys.',
 ];

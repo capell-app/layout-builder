@@ -12,11 +12,11 @@ use Capell\Core\Models\Type;
 use Capell\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
 use Capell\LayoutBuilder\Actions\InstallPackageAction;
 use Capell\LayoutBuilder\Data\DemoSitePlanData;
-use Capell\LayoutBuilder\Models\Section;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\Navigation\Enums\NavigationHandle;
 use Capell\Navigation\Models\Navigation;
 use Capell\Navigation\Support\Creator\NavigationDemoCreator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
 beforeEach(function (): void {
@@ -55,8 +55,8 @@ it('creates demo content, homepage sections, media-backed widgets, and navigatio
     expect($created)->toBeTrue()
         ->and($homePage->layout_id)->toBe($homeLayout?->id)
         ->and($homeLayout?->containers)->toHaveKeys(['main', 'faq-main', 'faq-col', 'secondary', 'ap-widgets', 'split-two'])
-        ->and(Section::query()->where('site_id', $site->id)->count())->toBeGreaterThan(0)
-        ->and(Section::query()->where('name', 'FAQs')->exists())->toBeTrue()
+        ->and(DB::table('sections')->where('site_id', $site->id)->count())->toBeGreaterThan(0)
+        ->and(DB::table('sections')->where('name', 'FAQs')->exists())->toBeTrue()
         ->and($galleryWidget->assets()->count())->toBeGreaterThan(0)
         ->and($exampleNavigationWidget->translations()->count())->toBe(1)
         ->and(Navigation::query()->where('site_id', $site->id)->whereIn('key', [

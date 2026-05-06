@@ -15,12 +15,16 @@ use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Contracts\Makers\MakerRegistryInterface;
 use Capell\Core\Data\PageTypeData;
 use Capell\Core\Data\VendorAssetData;
+use Capell\Core\Enums\AssetComponentEnum;
+use Capell\Core\Enums\AssetEnum as CoreAssetEnum;
 use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Type;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\Frontend\Contracts\AssetsRegistryInterface;
+use Capell\Frontend\Data\FrontendAssetData;
 use Capell\LayoutBuilder\AIOrchestrator\LayoutBuilderAIOrchestratorModule;
 use Capell\LayoutBuilder\Console\Commands\DemoCommand;
 use Capell\LayoutBuilder\Console\Commands\FakerCommand;
@@ -55,6 +59,10 @@ use Capell\LayoutBuilder\Support\LayoutAssetBridgeRegistry;
 use Capell\LayoutBuilder\Support\LayoutModelRegistrar;
 use Capell\LayoutBuilder\Support\LayoutPresets\LayoutPresetRegistry;
 use Capell\LayoutBuilder\Support\Makers\LayoutBuilderWidgetMaker;
+use Capell\LayoutBuilder\View\Components\Widget\Page\Children as PageChildrenComponent;
+use Capell\LayoutBuilder\View\Components\Widget\Page\Content as PageContentComponent;
+use Capell\LayoutBuilder\View\Components\Widget\Page\Latest as PageLatestComponent;
+use Capell\LayoutBuilder\View\Components\Widget\Page\Siblings as PageSiblingsComponent;
 use Capell\PublishingStudio\WorkspaceRegistry;
 use Composer\InstalledVersions;
 use Exception;
@@ -150,6 +158,7 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             ->registerCloneableRelations()
             ->registerThemeViewPath()
             ->registerFilamentAssets()
+            ->registerFrontendAssets()
             ->registerPublishCommands()
             ->registerLivewireComponents()
             ->registerBladeComponents()
@@ -161,6 +170,20 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     private function registerModelEvents(): self
     {
         Layout::saving(resolve(LayoutSavingListener::class));
+
+        return $this;
+    }
+
+    private function registerFrontendAssets(): self
+    {
+        $this->callAfterResolving(AssetsRegistryInterface::class, function (AssetsRegistryInterface $assets): void {
+            $assets->registerAsset(
+                CoreAssetEnum::Page,
+                new FrontendAssetData(
+                    component: AssetComponentEnum::Page->value,
+                ),
+            );
+        });
 
         return $this;
     }
@@ -362,6 +385,13 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     {
         Blade::componentNamespace('Capell\\LayoutBuilder\\View\\Components', 'capell-layout-builder');
         Blade::anonymousComponentNamespace('Capell\\LayoutBuilder\\View\\Components');
+        Blade::component('capell-layout-builder::components.widget.page.breadcrumbs', 'capell-layout-builder-widget-page-breadcrumbs');
+        Blade::component(PageContentComponent::class, 'capell-layout-builder-widget-page-content');
+        Blade::component('capell-layout-builder::components.widget.slot', 'capell-layout-builder-widget-slot');
+        Blade::component(PageChildrenComponent::class, 'capell-layout-builder::widget.page.children');
+        Blade::component(PageContentComponent::class, 'capell-layout-builder::widget.page.content');
+        Blade::component(PageLatestComponent::class, 'capell-layout-builder::widget.page.latest');
+        Blade::component(PageSiblingsComponent::class, 'capell-layout-builder::widget.page.siblings');
 
         Blade::componentNamespace('Capell\\LayoutBuilder\\View\\Components', 'capell-hero');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'capell-hero');

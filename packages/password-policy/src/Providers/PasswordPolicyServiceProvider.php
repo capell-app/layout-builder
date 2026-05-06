@@ -9,7 +9,6 @@ use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
-use Capell\Core\Support\Settings\SettingsGroupMetadata;
 use Capell\Core\Support\Settings\SettingsSchemaRegistry;
 use Capell\PasswordPolicy\Filament\Extenders\PasswordPolicyPanelExtender;
 use Capell\PasswordPolicy\Filament\Extenders\PasswordPolicyUserFormExtender;
@@ -76,14 +75,20 @@ class PasswordPolicyServiceProvider extends AbstractPackageServiceProvider
     private function registerSettings(SettingsSchemaRegistry $registry): SettingsSchemaRegistry
     {
         $registry->registerSettingsClass('password_policy', PasswordPolicySettings::class);
-        $registry->registerMetadata(new SettingsGroupMetadata(
-            group: 'password_policy',
-            label: 'capell-password-policy::settings.title',
-            icon: Heroicon::OutlinedKey,
-            navigationGroup: 'capell-admin::navigation.group_administration',
-            navigationSort: 93,
-            packageName: static::$packageName,
-        ));
+        if (method_exists($registry, 'registerMetadata')) {
+            $metadataClass = 'Capell\\Core\\Support\\Settings\\SettingsGroupMetadata';
+
+            if (class_exists($metadataClass)) {
+                $registry->registerMetadata(new $metadataClass(
+                    group: 'password_policy',
+                    label: 'capell-password-policy::settings.title',
+                    icon: Heroicon::OutlinedKey,
+                    navigationGroup: 'capell-admin::navigation.group_administration',
+                    navigationSort: 93,
+                    packageName: static::$packageName,
+                ));
+            }
+        }
         $registry->register('password_policy', PasswordPolicySettingsSchema::class);
 
         return $registry;
@@ -91,9 +96,7 @@ class PasswordPolicyServiceProvider extends AbstractPackageServiceProvider
 
     private function registerAdminSurface(): self
     {
-        if (class_exists('Capell\\Admin\\Filament\\Pages\\AbstractPackageSettingsPage')) {
-            CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(PasswordPolicySettingsPage::class));
-        }
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(PasswordPolicySettingsPage::class));
 
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(ForcedPasswordChangePage::class));
 

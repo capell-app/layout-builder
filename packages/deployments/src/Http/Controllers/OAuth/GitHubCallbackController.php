@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Capell\Deployments\Http\Controllers\OAuth;
 
 use Capell\Deployments\Actions\ConnectDeploymentAction;
+use Capell\Deployments\Actions\OAuth\ValidateOAuthStateAction;
 use Capell\Deployments\Enums\GitProviderType;
+use Capell\Deployments\Filament\Pages\DeploymentConnectionPage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -15,9 +17,15 @@ final class GitHubCallbackController
 {
     public function __invoke(Request $request): RedirectResponse
     {
+        abort_unless(DeploymentConnectionPage::canAccess(), 403);
+
+        if (! ValidateOAuthStateAction::run(GitProviderType::GitHub, $request->query('state'))) {
+            return back()->withErrors([__('capell-deployments::plugins.deployment_connection.oauth_invalid_state')]);
+        }
+
         $code = $request->query('code');
         if (! is_string($code) || $code === '') {
-            return back()->withErrors(['OAuth error: missing code parameter.']);
+            return back()->withErrors([__('capell-deployments::plugins.deployment_connection.oauth_missing_code')]);
         }
 
         $tokenResponse = Http::withHeaders(['Accept' => 'application/json'])
@@ -32,7 +40,7 @@ final class GitHubCallbackController
         if (! is_string($accessToken) || $accessToken === '') {
             Log::warning('capell-deployments: GitHub OAuth token exchange failed', $tokenResponse);
 
-            return back()->withErrors(['GitHub OAuth failed. Check client credentials.']);
+            return back()->withErrors([__('capell-deployments::plugins.deployment_connection.oauth_failed', ['provider' => 'GitHub'])]);
         }
 
         $userResponse = Http::withToken($accessToken)
@@ -42,7 +50,7 @@ final class GitHubCallbackController
 
         $login = $userResponse['login'] ?? null;
         if (! is_string($login) || $login === '') {
-            return back()->withErrors(['Could not fetch GitHub user info.']);
+            return back()->withErrors([__('capell-deployments::plugins.deployment_connection.oauth_user_failed', ['provider' => 'GitHub'])]);
         }
 
         // Store without repo coordinates — user selects repo on the connection page
@@ -54,6 +62,6 @@ final class GitHubCallbackController
         );
 
         return to_route('filament.admin.pages.deployment-connection')
-            ->with('status', 'GitHub connected successfully. Please select your repository.');
+            ->with('status', __('capell-deployments::plugins.deployment_connection.oauth_connected', ['provider' => 'GitHub']));
     }
 }

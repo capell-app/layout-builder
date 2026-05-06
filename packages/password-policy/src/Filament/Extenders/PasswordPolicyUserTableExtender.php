@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\PasswordPolicy\Filament\Extenders;
 
-use Capell\Admin\Contracts\Extenders\UserTableExtender;
 use Capell\PasswordPolicy\Actions\MarkUserForPasswordChangeAction;
 use Capell\PasswordPolicy\Support\PasswordPolicySettingsResolver;
 use Filament\Actions\Action;
@@ -19,7 +18,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 
-class PasswordPolicyUserTableExtender implements UserTableExtender
+class PasswordPolicyUserTableExtender
 {
     public function columns(): array
     {

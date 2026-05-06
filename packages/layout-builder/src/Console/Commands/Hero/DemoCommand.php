@@ -8,8 +8,8 @@ use Capell\Core\Contracts\Pageable;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Type;
 use Capell\LayoutBuilder\Actions\AddHeroWidgetToLayoutAction;
-use Capell\LayoutBuilder\Actions\CreateHeroContentTypeAction;
 use Capell\LayoutBuilder\Actions\CreateHeroWidgetAction;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Creator\DemoCreator;
@@ -107,7 +107,7 @@ class DemoCommand extends Command
 
             AddHeroWidgetToLayoutAction::run($heroWidget, $homepage->layout);
 
-            $type = CreateHeroContentTypeAction::run();
+            $type = $this->resolveHeroContentType();
 
             $this->demoCreator->createContentsWidget($heroWidget, $homepage, container: 'hero', type: $type);
         }
@@ -115,6 +115,22 @@ class DemoCommand extends Command
         $this->line('Demo hero content has been successfully created for site: ' . $site->name);
 
         return true;
+    }
+
+    private function resolveHeroContentType(): Type
+    {
+        /** @var class-string<Type> $model */
+        $model = Type::class;
+
+        return $model::query()->firstOrCreate([
+            'key' => 'hero',
+            'type' => 'section',
+        ], [
+            'name' => __('capell-content-sections::generic.hero'),
+            'admin' => [
+                'configurator' => 'hero-section',
+            ],
+        ]);
     }
 
     private function updateBlogHeroContent(Site $site): void

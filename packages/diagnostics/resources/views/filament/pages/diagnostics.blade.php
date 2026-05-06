@@ -37,7 +37,7 @@
 
         <section>
             <h2 class="text-lg font-semibold">
-                {{ __('capell-admin::generic.diagnostics') }}
+                {{ __('capell-diagnostics::package.diagnostics') }}
             </h2>
             <dl class="mt-3 grid gap-3 md:grid-cols-2">
                 @foreach ($this->safety() as $key => $value)

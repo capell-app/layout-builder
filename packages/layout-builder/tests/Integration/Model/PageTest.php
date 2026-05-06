@@ -3,11 +3,9 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Page;
-use Capell\LayoutBuilder\Models\Section;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
@@ -30,20 +28,11 @@ it('has many widgets', function (): void {
         ->and($page->widgets->pluck('id'))->toContain($widget->id);
 });
 
-it('has many sections through widget assets', function (): void {
-    $page = Page::factory()->create();
-    $section = Section::factory()->create();
-    WidgetAsset::factory()->asset($section)->page($page)->create();
-
-    expect($page->sections->pluck('id')->toArray())->toContain($section->id);
-});
-
 it('returns empty collections when no relations exist', function (): void {
     $page = Page::factory()->create();
 
     expect($page->widgetAssets)->toBeEmpty();
     expect($page->widgets)->toBeEmpty();
-    expect($page->sections)->toBeEmpty();
 });
 
 it('has correct relation types', function (): void {
@@ -51,5 +40,4 @@ it('has correct relation types', function (): void {
 
     expect($page->widgetAssets())->toBeInstanceOf(MorphMany::class);
     expect($page->widgets())->toBeInstanceOf(MorphToMany::class);
-    expect($page->sections())->toBeInstanceOf(HasManyThrough::class);
 });

@@ -12,7 +12,6 @@ use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Actions\CreateHeroWidgetAction;
 use Capell\LayoutBuilder\Database\Factories\LayoutFactory;
 use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
-use Capell\LayoutBuilder\Models\Section;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\Tests\Support\Concerns\TestingFrontend;
@@ -91,7 +90,6 @@ it('renders hero widget with assets', function (callable $factory, string $media
                 'related.type',
             ])
                 ->morphWith([
-                    Section::class => ['linkedPage.pageUrl.siteDomain'],
                     Page::class => ['pageUrl.siteDomain'],
                 ]),
             $mediaRelation,
@@ -119,10 +117,7 @@ it('renders hero widget with assets', function (callable $factory, string $media
                 ->each(
                     '.hero-item',
                     function (AssertElement $content, int $index) use ($widgetAssets, $srcResolver): BaseAssert {
-                        $url = match ($widgetAssets[$index]->asset::class) {
-                            Section::class => $widgetAssets[$index]->asset->linkedPage->pageUrl->full_url,
-                            Page::class => $widgetAssets[$index]->asset->pageUrl->full_url,
-                        };
+                        $url = $widgetAssets[$index]->asset->pageUrl->full_url;
 
                         return $content->find(
                             '.hero-content',

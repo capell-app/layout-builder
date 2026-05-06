@@ -50,8 +50,11 @@ class LayoutBuilderTestCase extends AbstractTestCase
      */
     protected function getPackageProviders(mixed $app): array
     {
+        $contentSectionsProvider = implode('\\', ['Capell', 'ContentSections', 'Providers', 'ContentSectionsServiceProvider']);
+
         return [
             ...parent::getPackageProviders($app),
+            $contentSectionsProvider,
             LayoutBuilderServiceProvider::class,
             AdminPanelProvider::class,
             AdminServiceProvider::class,
@@ -72,6 +75,7 @@ class LayoutBuilderTestCase extends AbstractTestCase
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled('capell-app/foundation-theme');
+        CapellCore::forcePackageInstalled('capell-app/content-sections');
         CapellCore::forcePackageInstalled(LayoutBuilderServiceProvider::$packageName);
 
         CapellCore::registerPackage('capell-app/navigation', path: realpath(__DIR__ . '/../../navigation'));

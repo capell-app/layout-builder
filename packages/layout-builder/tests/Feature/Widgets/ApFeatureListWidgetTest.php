@@ -7,7 +7,6 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\LayoutBuilder\Database\Factories\LayoutFactory;
 use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
-use Capell\LayoutBuilder\Models\Section;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Creator\WidgetCreator;
 use Capell\Tests\Support\Concerns\TestingFrontend;
@@ -51,13 +50,13 @@ it('renders ap feature list widget features from assets', function (): void {
     $widget = resolve(WidgetCreator::class)->apFeatureListWidget();
     Translation::factory()->translatable($widget)->language($site->language)->create();
 
-    $speed = Section::factory()->create(['name' => 'Speed', 'meta' => ['icon' => '⚡']]);
+    $speed = Page::factory()->create(['name' => 'Speed', 'meta' => ['icon' => '⚡']]);
     $speed->translations()->create(['language_id' => $site->language->id, 'title' => 'Speed', 'content' => '<p>Blazing fast performance</p>']);
-    $widget->assets()->create(['asset_id' => $speed->id, 'asset_type' => (new Section)->getMorphClass()]);
+    $widget->assets()->create(['asset_id' => $speed->id, 'asset_type' => $speed->getMorphClass()]);
 
-    $security = Section::factory()->create(['name' => 'Security', 'meta' => ['icon' => '🔒']]);
+    $security = Page::factory()->create(['name' => 'Security', 'meta' => ['icon' => '🔒']]);
     $security->translations()->create(['language_id' => $site->language->id, 'title' => 'Security', 'content' => '<p>Enterprise-grade protection</p>']);
-    $widget->assets()->create(['asset_id' => $security->id, 'asset_type' => (new Section)->getMorphClass()]);
+    $widget->assets()->create(['asset_id' => $security->id, 'asset_type' => $security->getMorphClass()]);
 
     $layout = (new LayoutFactory)->widgets([$widget])->create();
     $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();

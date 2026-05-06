@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
@@ -10,7 +11,6 @@ use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\LayoutCreator;
 use Capell\LayoutBuilder\Database\Factories\LayoutFactory;
 use Capell\LayoutBuilder\Database\Factories\WidgetTypeFactory;
-use Capell\LayoutBuilder\Enums\AssetEnum;
 use Capell\LayoutBuilder\Enums\ContainerAlignmentEnum;
 use Capell\LayoutBuilder\Enums\ResponsiveVisibilityEnum;
 use Capell\LayoutBuilder\Filament\Configurators\Layouts\Widgets\DefaultLayoutWidgetConfigurator;
@@ -84,7 +84,7 @@ test('it renders for each layout enum type', function (LayoutEnum $layoutEnum): 
         ->assertSeeText(__('capell-layout-builder::heading.layout_record', ['name' => $layout->name]));
 })->with(LayoutEnum::cases());
 
-test('it renders widgets with asset types', function (AssetEnum|Capell\Core\Enums\AssetEnum $assetType): void {
+test('it renders widgets with asset types', function (AssetEnum $assetType): void {
     $widget = Widget::factory()
         ->for((new WidgetTypeFactory)->state([
             'admin' => [
@@ -100,7 +100,7 @@ test('it renders widgets with asset types', function (AssetEnum|Capell\Core\Enum
 
     livewire(LayoutBuilder::class, ['layout' => $layout])
         ->assertSuccessful();
-})->with([AssetEnum::Section, ...Capell\Core\Enums\AssetEnum::cases()]);
+})->with(AssetEnum::cases());
 
 // ──────────────────────────────────────────────
 // Container operations

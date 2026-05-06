@@ -6,10 +6,8 @@ use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Type;
 use Capell\LayoutBuilder\Actions\InstallPackageAction;
-use Capell\LayoutBuilder\Enums\ContentTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
-use Capell\LayoutBuilder\Models\Section;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -47,25 +45,6 @@ it('installs layout package: creates types, widgets, layouts, and registers morp
         expect($widgetTypeKeys)->toContain($key);
     }
 
-    // Content types created (default + builder)
-    $contentTypeKeys = Type::query()
-        ->where('type', LayoutTypeEnum::Section->value)
-        ->pluck('key')
-        ->all();
-
-    expect($contentTypeKeys)
-        ->toContain(ContentTypeEnum::Default->value)
-        ->and($contentTypeKeys)->toContain(ContentTypeEnum::Builder->value);
-
-    $defaultContentType = Type::query()
-        ->where('type', LayoutTypeEnum::Section->value)
-        ->where('key', ContentTypeEnum::Default->value)
-        ->first();
-
-    expect($defaultContentType)
-        ->not()->toBeNull()
-        ->and($defaultContentType->default)->toBeTrue();
-
     // Widgets created
     $expectedWidgetKeys = [
         'breadcrumbs',
@@ -89,8 +68,6 @@ it('installs layout package: creates types, widgets, layouts, and registers morp
     // Morph maps registered
     expect(Relation::getMorphedModel('widget'))
         ->toBe(Widget::class)
-        ->and(Relation::getMorphedModel('section'))
-        ->toBe(Section::class)
         ->and(Relation::getMorphedModel('widget_asset'))
         ->toBe(WidgetAsset::class);
 });

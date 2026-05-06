@@ -45,7 +45,11 @@ it('renders page content widget on page', function (): void {
         static fn (string $paragraph): bool => trim($paragraph) !== '',
     );
 
-    get($page->pageUrl->full_url)
+    $response = get($page->pageUrl->full_url);
+
+    fwrite(STDERR, $response->content());
+
+    $response
         ->assertOk()
         ->assertElementExists(
             '.widget-page-content',

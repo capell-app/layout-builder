@@ -6,46 +6,14 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Database\Factories\LayoutFactory;
 use Capell\LayoutBuilder\Livewire\Assets\Table\PageAssets;
-use Capell\LayoutBuilder\Livewire\Assets\Table\SectionAssets;
-use Capell\LayoutBuilder\Models\Section;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Livewire\livewire;
 
 uses(CreatesAdminUser::class)->group('pages');
 
-$types = ['section', 'page'];
-
 beforeEach(function (): void {
     test()->actingAsAdmin();
-});
-
-it('filters by site for sections assets', function (): void {
-    $layout = (new LayoutFactory)->containers()->create();
-    $containerKey = array_key_first($layout->containers);
-    $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
-
-    $otherSiteContent = Section::factory()->create();
-    $site = Site::factory()->create();
-    $siteContents = Section::factory()->site($site)->count(4)->create();
-
-    $arguments = [
-        'containerKey' => $containerKey,
-        'hasPageAssets' => false,
-        'widgetIndex' => $widgetIndex,
-    ];
-
-    livewire(SectionAssets::class, [
-        'actionModalId' => 'select-assets',
-        'tableArguments' => $arguments,
-    ])
-        ->assertSuccessful()
-        ->assertSet('tableArguments', $arguments)
-        ->assertCountTableRecords(5)
-        ->assertCanSeeTableRecords($siteContents)
-        ->filterTable('site_id', $site->id)
-        ->assertCountTableRecords(4)
-        ->assertCanNotSeeTableRecords([$otherSiteContent]);
 });
 
 it('filters by site for page assets', function (): void {
@@ -75,21 +43,13 @@ it('filters by site for page assets', function (): void {
         ->assertCanNotSeeTableRecords([$otherSitePage]);
 });
 
-it('dispatches sync-selected-assets event with selected records for each asset type', function (string $assetType): void {
+it('dispatches sync-selected-assets event with selected page records', function (): void {
     $layout = (new LayoutFactory)->containers()->create();
     $containerKey = array_key_first($layout->containers);
     $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
 
     $site = Site::factory()->create();
-    $records = match ($assetType) {
-        'section' => Section::factory()->recycle($site)->count(3)->create(),
-        'page' => Page::factory()->recycle($site)->count(3)->create(),
-    };
-
-    $component = match ($assetType) {
-        'section' => SectionAssets::class,
-        'page' => PageAssets::class,
-    };
+    $records = Page::factory()->recycle($site)->count(3)->create();
 
     $arguments = [
         'containerKey' => $containerKey,
@@ -97,7 +57,7 @@ it('dispatches sync-selected-assets event with selected records for each asset t
         'widgetIndex' => $widgetIndex,
     ];
 
-    livewire($component, [
+    livewire(PageAssets::class, [
         'actionModalId' => 'select-assets',
         'tableArguments' => $arguments,
     ])
@@ -109,35 +69,10 @@ it('dispatches sync-selected-assets event with selected records for each asset t
         ->assertDispatched(
             'sync-selected-assets',
             arguments: $arguments,
-            type: $assetType,
+            type: 'page',
             assets: $records->pluck('id')->toArray(),
         )
         ->assertDispatched('close-modal', id: 'select-assets');
-})->with($types);
-
-it('searches within sections assets table', function (): void {
-    $layout = (new LayoutFactory)->containers()->create();
-    $containerKey = array_key_first($layout->containers);
-    $widgetIndex = array_key_first($layout->containers[$containerKey]['widgets']);
-
-    $sections = Section::factory()->count(3)->create();
-
-    $arguments = [
-        'containerKey' => $containerKey,
-        'hasPageAssets' => false,
-        'widgetIndex' => $widgetIndex,
-    ];
-
-    $first = $sections->first();
-
-    livewire(SectionAssets::class, [
-        'actionModalId' => 'select-assets',
-        'tableArguments' => $arguments,
-    ])
-        ->assertSuccessful()
-        ->assertSet('tableArguments', $arguments)
-        ->searchTable((string) $first->id)
-        ->assertCanSeeTableRecords([$first]);
 });
 
 it('searches within page assets table', function (): void {

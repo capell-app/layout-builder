@@ -11,6 +11,7 @@ use Capell\Blog\Providers\AdminServiceProvider as BlogAdminServiceProvider;
 use Capell\Blog\Providers\BlogServiceProvider;
 use Capell\Blog\Providers\ConsoleServiceProvider as BlogConsoleServiceProvider;
 use Capell\Blog\Providers\FrontendServiceProvider as BlogFrontendServiceProvider;
+use Capell\ContentSections\Providers\ContentSectionsServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Media;
 use Capell\FoundationTheme\Providers\FoundationThemeServiceProvider;
@@ -65,6 +66,7 @@ class BlogTestCase extends AbstractTestCase
     {
         return [
             ...parent::getPackageProviders($app),
+            ContentSectionsServiceProvider::class,
             LayoutBuilderServiceProvider::class,
             AdminServiceProvider::class,
             InsightsServiceProvider::class,
@@ -97,6 +99,7 @@ class BlogTestCase extends AbstractTestCase
         CapellCore::forcePackageInstalled(BlogServiceProvider::$packageName);
         CapellCore::forcePackageInstalled('capell-app/foundation-theme');
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(ContentSectionsServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(LayoutBuilderServiceProvider::$packageName);
 
         CapellCore::registerPackage(

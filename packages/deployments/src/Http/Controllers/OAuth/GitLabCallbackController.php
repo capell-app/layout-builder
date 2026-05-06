@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Capell\Deployments\Http\Controllers\OAuth;
 
 use Capell\Deployments\Actions\ConnectDeploymentAction;
+use Capell\Deployments\Actions\OAuth\ValidateOAuthStateAction;
 use Capell\Deployments\Enums\GitProviderType;
+use Capell\Deployments\Filament\Pages\DeploymentConnectionPage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -15,9 +17,15 @@ final class GitLabCallbackController
 {
     public function __invoke(Request $request): RedirectResponse
     {
+        abort_unless(DeploymentConnectionPage::canAccess(), 403);
+
+        if (! ValidateOAuthStateAction::run(GitProviderType::GitLab, $request->query('state'))) {
+            return back()->withErrors([__('capell-deployments::plugins.deployment_connection.oauth_invalid_state')]);
+        }
+
         $code = $request->query('code');
         if (! is_string($code) || $code === '') {
-            return back()->withErrors(['OAuth error: missing code parameter.']);
+            return back()->withErrors([__('capell-deployments::plugins.deployment_connection.oauth_missing_code')]);
         }
 
         $tokenResponse = Http::post('https://gitlab.com/oauth/token', [
@@ -33,7 +41,7 @@ final class GitLabCallbackController
         if (! is_string($accessToken) || $accessToken === '') {
             Log::warning('capell-deployments: GitLab OAuth token exchange failed', $tokenResponse);
 
-            return back()->withErrors(['GitLab OAuth failed.']);
+            return back()->withErrors([__('capell-deployments::plugins.deployment_connection.oauth_failed', ['provider' => 'GitLab'])]);
         }
 
         $userResponse = Http::withHeader('PRIVATE-TOKEN', $accessToken)
@@ -42,7 +50,7 @@ final class GitLabCallbackController
 
         $username = $userResponse['username'] ?? null;
         if (! is_string($username) || $username === '') {
-            return back()->withErrors(['Could not fetch GitLab user info.']);
+            return back()->withErrors([__('capell-deployments::plugins.deployment_connection.oauth_user_failed', ['provider' => 'GitLab'])]);
         }
 
         ConnectDeploymentAction::run(
@@ -54,6 +62,6 @@ final class GitLabCallbackController
         );
 
         return to_route('filament.admin.pages.deployment-connection')
-            ->with('status', 'GitLab connected successfully. Please select your repository.');
+            ->with('status', __('capell-deployments::plugins.deployment_connection.oauth_connected', ['provider' => 'GitLab']));
     }
 }

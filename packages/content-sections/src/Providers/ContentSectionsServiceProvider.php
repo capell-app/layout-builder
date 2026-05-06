@@ -62,6 +62,8 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
         );
 
         $this->app->booted(function (): void {
+            $this->registerLivewireComponents();
+
             if (! $this->isPackageInstalled()) {
                 return;
             }
@@ -85,7 +87,6 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
             ->registerTypes()
             ->registerAssets()
             ->registerEvents()
-            ->registerLivewireComponents()
             ->registerBladeComponents()
             ->registerBlazeComponents()
             ->registerPublishingStudio();
@@ -210,6 +211,17 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
 
     private function registerLivewireComponents(): self
     {
+        if (! $this->isLivewireV3()) {
+            Livewire::addNamespace(
+                namespace: 'capell-content-sections',
+                classNamespace: 'Capell\\ContentSections\\Livewire',
+                classPath: __DIR__ . '/../Livewire',
+                classViewPath: __DIR__ . '/../../resources/views/livewire',
+            );
+
+            return $this;
+        }
+
         foreach (LivewireComponentsEnum::getComponents() as $name => $component) {
             if (! $component) {
                 continue;
@@ -219,6 +231,13 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
         }
 
         return $this;
+    }
+
+    private function isLivewireV3(): bool
+    {
+        $version = InstalledVersions::getVersion('livewire/livewire');
+
+        return version_compare($version, '4.0.0', '<');
     }
 
     private function registerBladeComponents(): self

@@ -10,11 +10,11 @@ return [
         'site' => 'agent-bridge/capell',
     ],
 
-    'site_auth_guard' => env('CAPELL_Agent Bridge_AUTH_GUARD', 'web'),
+    'site_auth_guard' => env('CAPELL_AGENT_BRIDGE_AUTH_GUARD', 'web'),
 
-    'token_prefix' => env('CAPELL_Agent Bridge_TOKEN_PREFIX', 'cagent-bridge_'),
+    'token_prefix' => env('CAPELL_AGENT_BRIDGE_TOKEN_PREFIX', 'cagent-bridge_'),
 
-    'confirmation_ttl_minutes' => env('CAPELL_Agent Bridge_CONFIRMATION_TTL_MINUTES', 10),
+    'confirmation_ttl_minutes' => env('CAPELL_AGENT_BRIDGE_CONFIRMATION_TTL_MINUTES', 10),
 
     'public_docs_paths' => [
         base_path('README.md'),

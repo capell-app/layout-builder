@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Capell\Deployments\Filament\Pages;
 
 use BackedEnum;
+use Capell\Deployments\Actions\OAuth\CreateOAuthStateAction;
+use Capell\Deployments\Enums\GitProviderType;
 use Capell\Deployments\Models\DeploymentConnection;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 final class DeploymentConnectionPage extends Page
 {
@@ -37,6 +41,11 @@ final class DeploymentConnectionPage extends Page
         return Heroicon::OutlinedServerStack;
     }
 
+    public static function canAccess(): bool
+    {
+        return Gate::allows(self::viewPermission()) || auth()->user()?->can(self::viewPermission()) === true;
+    }
+
     public function getTitle(): string
     {
         return __('capell-deployments::plugins.deployment_connection.title');
@@ -57,8 +66,12 @@ final class DeploymentConnectionPage extends Page
         $raw = config('capell-deployments.oauth.github.client_id');
         $clientId = is_string($raw) ? $raw : '';
 
-        return 'https://github.com/login/oauth/authorize?client_id=' . urlencode($clientId)
-            . '&scope=repo&redirect_uri=' . urlencode(route('capell-deployments.oauth.github'));
+        return 'https://github.com/login/oauth/authorize?' . http_build_query([
+            'client_id' => $clientId,
+            'redirect_uri' => route('capell-deployments.oauth.github'),
+            'scope' => 'repo',
+            'state' => CreateOAuthStateAction::run(GitProviderType::GitHub),
+        ]);
     }
 
     public function getGitLabOAuthUrl(): string
@@ -66,8 +79,13 @@ final class DeploymentConnectionPage extends Page
         $raw = config('capell-deployments.oauth.gitlab.client_id');
         $clientId = is_string($raw) ? $raw : '';
 
-        return 'https://gitlab.com/oauth/authorize?client_id=' . urlencode($clientId)
-            . '&response_type=code&scope=api&redirect_uri=' . urlencode(route('capell-deployments.oauth.gitlab'));
+        return 'https://gitlab.com/oauth/authorize?' . http_build_query([
+            'client_id' => $clientId,
+            'redirect_uri' => route('capell-deployments.oauth.gitlab'),
+            'response_type' => 'code',
+            'scope' => 'api',
+            'state' => CreateOAuthStateAction::run(GitProviderType::GitLab),
+        ]);
     }
 
     public function getBitbucketOAuthUrl(): string
@@ -75,21 +93,35 @@ final class DeploymentConnectionPage extends Page
         $raw = config('capell-deployments.oauth.bitbucket.client_id');
         $clientId = is_string($raw) ? $raw : '';
 
-        return 'https://bitbucket.org/site/oauth2/authorize?client_id=' . urlencode($clientId)
-            . '&response_type=code';
+        return 'https://bitbucket.org/site/oauth2/authorize?' . http_build_query([
+            'client_id' => $clientId,
+            'redirect_uri' => route('capell-deployments.oauth.bitbucket'),
+            'response_type' => 'code',
+            'state' => CreateOAuthStateAction::run(GitProviderType::Bitbucket),
+        ]);
     }
 
     public function disconnect(int $connectionId): void
     {
+        throw_unless(self::canAccess(), HttpException::class, 403);
+
         if (! Schema::hasTable('deployment_connections')) {
             return;
         }
 
-        DeploymentConnection::query()->where('id', $connectionId)->delete();
+        DeploymentConnection::query()
+            ->whereKey($connectionId)
+            ->where('is_active', true)
+            ->delete();
 
         Notification::make()
             ->title(__('capell-deployments::plugins.deployment_connection.disconnected'))
             ->success()
             ->send();
+    }
+
+    private static function viewPermission(): string
+    {
+        return 'View:' . class_basename(self::class);
     }
 }

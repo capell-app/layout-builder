@@ -224,5 +224,10 @@ return [
         'none_connected' => 'No deployment repository is connected. Choose a Git provider above to connect the repository used for plugin deployments.',
         'connected_to' => 'Connected to :provider — :repo',
         'not_connected' => 'No deployment repository configured.',
+        'oauth_connected' => ':provider connected successfully. Please select your repository.',
+        'oauth_failed' => ':provider OAuth failed. Check client credentials.',
+        'oauth_invalid_state' => 'OAuth session validation failed. Please start the connection again.',
+        'oauth_missing_code' => 'OAuth error: missing code parameter.',
+        'oauth_user_failed' => 'Could not fetch :provider user info.',
     ],
 ];

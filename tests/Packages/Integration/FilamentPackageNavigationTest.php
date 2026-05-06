@@ -17,7 +17,7 @@ use Capell\MigrationAssistant\Filament\Resources\ImportSessions\ImportSessionRes
 use Capell\Redirects\Filament\Resources\Redirects\RedirectResource;
 use Capell\SeoSuite\Filament\Pages\BrokenLinksPage;
 use Capell\SeoSuite\Filament\Pages\NotFoundUrlsPage;
-use Capell\SeoSuite\Filament\Pages\SEOAuditPage;
+use Capell\SeoSuite\Filament\Pages\SeoAuditPage;
 use Capell\SeoSuite\Filament\Pages\TranslationCoveragePage;
 use Capell\Tags\Filament\Resources\Tags\TagResource;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
@@ -38,6 +38,7 @@ it('registers every installed package in the Capell package registry', function 
         'capell-app/blog',
         'capell-app/campaign-studio',
         'capell-app/block-library',
+        'capell-app/content-sections',
         'capell-app/core',
         'capell-app/diagnostics',
         'capell-app/starter-sites',
@@ -88,7 +89,7 @@ it('registers installed package admin surfaces before the Filament navigation is
         NotFoundUrlsPage::class,
         PermissionAuditPage::class,
         QueueHealthPage::class,
-        SEOAuditPage::class,
+        SeoAuditPage::class,
         SystemHealthPage::class,
         ThemeStudioPage::class,
         TranslationCoveragePage::class,

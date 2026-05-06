@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Page;
-use Capell\LayoutBuilder\Models\Section;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 
@@ -21,15 +20,6 @@ it('has many pages through widget assets', function (): void {
     WidgetAsset::factory()->widget($widget)->asset($page)->create();
 
     expect($widget->pages->pluck('id'))->toContain($page->id);
-});
-
-it('has many sections through widget assets', function (): void {
-    $widget = Widget::factory()->create();
-    $section = Section::factory()->create();
-
-    WidgetAsset::factory()->widget($widget)->asset($section)->create();
-
-    expect($widget->sections->pluck('id'))->toContain($section->id);
 });
 
 it('can scope sorted', function (): void {

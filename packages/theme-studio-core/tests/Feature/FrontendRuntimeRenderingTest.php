@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\ContentSections\Models\Section;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
@@ -14,7 +15,6 @@ use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Enums\RenderHookLocation;
 use Capell\Frontend\Support\CapellFrontendContext;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
-use Capell\LayoutBuilder\Models\Section;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;

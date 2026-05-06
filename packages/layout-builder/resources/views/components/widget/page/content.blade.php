@@ -44,11 +44,17 @@
         :$containerWidth
         :index="$loop->index"
         :$widget
-        class="widget-page-contents"
+        class="widget-page-content"
         tag="article"
     >
         @if (in_array('content', $pageContents, true))
             @if ($page->type->content_structure === ContentStructure::Blocks)
+                @if ($hasTitle)
+                    <{{ $headingTag }} class="text-{{ $headingSize }} mb-6">
+                        {{ $page->translation->title }}
+                    </{{ $headingTag }}>
+                @endif
+
                 <x-capell::blocks
                     :blocks="$page->translation->content"
                     :$layout

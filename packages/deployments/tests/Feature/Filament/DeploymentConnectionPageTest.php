@@ -3,7 +3,11 @@
 declare(strict_types=1);
 
 use Capell\Deployments\Filament\Pages\DeploymentConnectionPage;
+use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Support\Facades\Schema;
+use Spatie\Permission\Models\Permission;
+
+uses(CreatesAdminUser::class);
 
 it('moves deployment repository connections into the deployments package', function (): void {
     expect(class_exists(DeploymentConnectionPage::class))->toBeTrue();
@@ -36,11 +40,28 @@ it('builds provider oauth urls from named callback routes', function (): void {
 
     expect($page->getGitHubOAuthUrl())->toContain(urlencode(route('capell-deployments.oauth.github')))
         ->and($page->getGitLabOAuthUrl())->toContain(urlencode(route('capell-deployments.oauth.gitlab')))
-        ->and($page->getBitbucketOAuthUrl())->toContain('client_id=bitbucket-client-id');
+        ->and($page->getBitbucketOAuthUrl())->toContain('client_id=bitbucket-client-id')
+        ->and($page->getGitHubOAuthUrl())->toContain('state=')
+        ->and($page->getGitLabOAuthUrl())->toContain('state=')
+        ->and($page->getBitbucketOAuthUrl())->toContain('state=');
 });
 
 it('does not fail when the deployment connections table has not been migrated yet', function (): void {
     Schema::dropIfExists('deployment_connections');
 
     expect((new DeploymentConnectionPage)->getConnections())->toBe([]);
+});
+
+it('limits access to users with the deployment connection page permission', function (): void {
+    Permission::findOrCreate('View:DeploymentConnectionPage', 'web');
+
+    expect(DeploymentConnectionPage::canAccess())->toBeFalse();
+
+    $this->actingAsUser();
+
+    expect(DeploymentConnectionPage::canAccess())->toBeFalse();
+
+    $this->actingAs($this->createUserWithPermission('View:DeploymentConnectionPage'));
+
+    expect(DeploymentConnectionPage::canAccess())->toBeTrue();
 });

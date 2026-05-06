@@ -215,8 +215,8 @@ function ensureThemeStudioPublishingStudioTablesExist(): void
         });
     }
 
-    if (! DatabaseSchema::hasTable('publishing-studio')) {
-        DatabaseSchema::create('publishing-studio', function (Blueprint $table): void {
+    if (! DatabaseSchema::hasTable('workspaces')) {
+        DatabaseSchema::create('workspaces', function (Blueprint $table): void {
             $table->id();
             $table->uuid('uuid')->unique();
             $table->string('name');

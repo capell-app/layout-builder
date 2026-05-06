@@ -9,6 +9,7 @@ use Capell\AIOrchestrator\Tests\AIOrchestratorTestCase;
 use Capell\BlockLibrary\Tests\ContentBlockRenderingTestCase;
 use Capell\Blog\Tests\BlogTestCase;
 use Capell\CampaignStudio\Tests\CampaignStudioTestCase;
+use Capell\ContentSections\Tests\ContentSectionsTestCase;
 use Capell\Deployments\Tests\TestCase as DeploymentsTestCase;
 use Capell\Diagnostics\Tests\DiagnosticsTestCase;
 use Capell\FormBuilder\Tests\FormBuilderTestCase;
@@ -40,6 +41,7 @@ pest()->extend(MigrationAssistantTestCase::class)->group('migration-assistant')-
 pest()->extend(PackagesTestCase::class)->group('login-audit')->in('../packages/login-audit/tests');
 pest()->extend(BlogTestCase::class)->group('blog')->in('../packages/blog/tests');
 pest()->extend(CampaignStudioTestCase::class)->group('campaign-studio')->in('../packages/campaign-studio/tests');
+pest()->extend(ContentSectionsTestCase::class)->group('content-sections')->in('../packages/content-sections/tests');
 pest()->extend(ContentBlockRenderingTestCase::class)->group('block-library')->in('../packages/block-library/tests/Unit');
 pest()->extend(ContentBlockRenderingTestCase::class)->group('block-library')->in('../packages/block-library/tests/Feature');
 pest()->extend(PackagesTestCase::class)->group('foundation-theme')->in('../packages/foundation-theme/tests');
