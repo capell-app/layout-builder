@@ -2,17 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Capell\LayoutBuilder\Database\Factories;
+namespace Capell\ContentSections\Database\Factories;
 
+use Capell\ContentSections\Models\Section;
 use Capell\Core\Database\Factories\Concerns\HasFactoryPublishDates;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
-use Capell\LayoutBuilder\Models\Section;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Section>
@@ -31,18 +32,18 @@ class SectionFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->sentence(),
+            'name' => 'Section ' . Str::uuid()->toString(),
             'parent_id' => null,
             'type_id' => (new ContentTypeFactory),
             'site_id' => null,
             'meta' => [
-                'label' => fake()->optional()->sentence(),
+                'label' => null,
             ],
-            'order' => fake()->numberBetween(1, 100),
-            'visible_from' => fake()->dateTimeBetween('-1 year', '-6 month'),
-            'visible_until' => fake()->dateTimeBetween('-5 month'),
-            'created_at' => fake()->dateTimeBetween('-1 year', '-6 month'),
-            'updated_at' => fake()->dateTimeBetween('-5 month'),
+            'order' => 0,
+            'visible_from' => now()->subYear(),
+            'visible_until' => now()->subMonths(5),
+            'created_at' => now()->subYear(),
+            'updated_at' => now()->subMonths(5),
         ];
     }
 

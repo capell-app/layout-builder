@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Providers;
 
+use Capell\ContentSections\Support\ContentSectionsModelRegistrar;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Composer\InstalledVersions;
@@ -33,6 +34,32 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
             version: $this->getVersion(),
             description: fn (): string => __('capell-content-sections::package.description'),
         );
+
+        $this->app->booted(function (): void {
+            if (! $this->isPackageInstalled()) {
+                return;
+            }
+
+            $this->bootInstalledPackage();
+        });
+    }
+
+    private function isPackageInstalled(): bool
+    {
+        return CapellCore::getPackage(static::$packageName)->isInstalled();
+    }
+
+    private function bootInstalledPackage(): self
+    {
+        return $this
+            ->registerModels();
+    }
+
+    private function registerModels(): self
+    {
+        ContentSectionsModelRegistrar::register();
+
+        return $this;
     }
 
     private function getVersion(): string

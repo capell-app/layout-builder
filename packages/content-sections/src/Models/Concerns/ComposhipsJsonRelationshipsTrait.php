@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\LayoutBuilder\Models\Concerns;
+namespace Capell\ContentSections\Models\Concerns;
 
 use Awobaz\Compoships\Compoships;
 use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;

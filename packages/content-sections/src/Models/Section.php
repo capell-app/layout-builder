@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Capell\LayoutBuilder\Models;
+namespace Capell\ContentSections\Models;
 
 use Aimeos\Nestedset\Collection;
 use Aimeos\Nestedset\NodeTrait;
 use Aimeos\Nestedset\QueryBuilder;
 use Bkwld\Cloner\Cloneable;
+use Capell\ContentSections\Database\Factories\SectionFactory;
+use Capell\ContentSections\Models\Concerns\ComposhipsJsonRelationshipsTrait;
+use Capell\ContentSections\Observers\SectionObserver;
 use Capell\Core\Concerns\HasCapellMedia;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Contracts\PageCacheable;
@@ -30,9 +33,6 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
-use Capell\LayoutBuilder\Database\Factories\SectionFactory;
-use Capell\LayoutBuilder\Models\Concerns\ComposhipsJsonRelationshipsTrait;
-use Capell\LayoutBuilder\Observers\SectionObserver;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -41,7 +41,6 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -69,8 +68,6 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read EloquentCollection<int, Language> $languages
  * @property-read int|null $languages_count
  * @property-read Pageable|null $page
- * @property-read Collection<int, Pageable> $pages
- * @property-read int|null $pages_count
  * @property-read Section|null $parent
  * @property-write mixed $parent_id
  * @property-read Site|null $site
@@ -78,8 +75,6 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read EloquentCollection<int, Translation> $translations
  * @property-read int|null $translations_count
  * @property-read Type|null $type
- * @property-read EloquentCollection<int, Widget> $widgets
- * @property-read int|null $widgets_count
  * @property-read EloquentCollection|Media[] $media
  * @property-read int|null $media_count
  * @property-read EloquentCollection|Section[] $related
@@ -90,8 +85,6 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read EloquentCollection<int, Activity> $activities
  * @property-read int|null $activities_count
  * @property-read string|null $title
- * @property-read EloquentCollection<int, WidgetAsset> $widgetAssets
- * @property-read int|null $widget_assets_count
  * @property int $id
  * @property int $workspace_id
  * @property int $shadowed_by_workspace_id
@@ -263,28 +256,6 @@ class Section extends Model implements HasMedia, PageCacheable, Publishable, Typ
     public function related(): BelongsToJson
     {
         return $this->belongsToJson(self::class, 'meta->related');
-    }
-
-    public function widgetAssets(): HasMany
-    {
-        return $this->hasMany(WidgetAsset::class, 'asset_id')
-            ->where('asset_type', $this->getMorphClass());
-    }
-
-    public function pages(): HasMany
-    {
-        return $this->widgetAssets()
-            ->select('widget_assets.pageable_type', 'widget_assets.pageable_id')
-            ->whereNotNull('widget_assets.pageable_type')
-            ->whereNotNull('widget_assets.pageable_id')
-            ->groupBy('widget_assets.pageable_type', 'widget_assets.pageable_id');
-    }
-
-    public function widgets(): HasMany
-    {
-        return $this->widgetAssets()
-            ->select('widget_assets.widget_id')
-            ->groupBy('widget_assets.widget_id');
     }
 
     protected function scopeOrdered(Builder $query, string $dir = 'asc'): void

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Capell\LayoutBuilder\Observers;
+namespace Capell\ContentSections\Observers;
 
+use Capell\ContentSections\Enums\LayoutTypeEnum;
+use Capell\ContentSections\Models\Section;
 use Capell\Core\Enums\CacheEnum;
 use Capell\Core\Models\Type;
 use Capell\Core\Support\CapellCoreHelper;
-use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
-use Capell\LayoutBuilder\Models\Section;
 use InvalidArgumentException;
 
 class SectionObserver

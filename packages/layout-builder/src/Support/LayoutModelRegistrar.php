@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Support;
 
 use Capell\Core\Facades\CapellCore;
-use Capell\LayoutBuilder\Models\Section;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -15,7 +14,6 @@ class LayoutModelRegistrar
 {
     /** @var list<class-string> */
     private const MODELS = [
-        Section::class,
         Widget::class,
         WidgetAsset::class,
     ];
