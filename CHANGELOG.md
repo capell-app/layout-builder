@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.0.12 - 2026-05-05
+
+**Full Changelog**: https://github.com/capell-app/packages/compare/v2.0.11...v2.0.12
+
 ## v2.0.11 - 2026-05-05
 
 **Full Changelog**: https://github.com/capell-app/packages/compare/v2.0.10...v2.0.11
