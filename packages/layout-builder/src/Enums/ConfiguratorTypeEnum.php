@@ -11,8 +11,6 @@ enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
 {
     use HasConfiguratorTypes;
 
-    case Section = 'Sections';
-
     case LayoutContainer = 'LayoutContainers';
 
     case LayoutWidget = 'LayoutWidgets';
@@ -24,7 +22,6 @@ enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
     public function getConfigurators(): array
     {
         return match ($this) {
-            self::Section => SectionConfiguratorEnum::cases(),
             self::LayoutContainer => LayoutContainerConfiguratorEnum::cases(),
             self::LayoutWidget => LayoutWidgetConfiguratorEnum::cases(),
             self::Widget => WidgetConfiguratorEnum::cases(),

@@ -2,27 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Capell\LayoutBuilder\Enums;
+namespace Capell\ContentSections\Enums;
 
+use Capell\ContentSections\Livewire\Assets\Table\SectionAssets;
 use Capell\Core\Enums\Attribute\Component;
 use Capell\Core\Enums\Attribute\EnumAttributeHelper;
 use Capell\Core\Enums\Attribute\EnumAttributeInterface;
-use Capell\LayoutBuilder\Livewire\Assets\Table\PageAssets;
-use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
-use Capell\LayoutBuilder\Livewire\Widget\Pages;
 
 enum LivewireComponentsEnum: string implements EnumAttributeInterface
 {
     use EnumAttributeHelper;
 
-    #[Component(LayoutBuilder::class)]
-    case LayoutBuilder = 'capell-layout-builder::filament.layout-builder';
-
-    #[Component(PageAssets::class)]
-    case PageAssetsTable = 'capell-layout-builder::assets.table.page-assets';
-
-    #[Component(Pages::class)]
-    case PagesWidget = 'capell-layout-builder::widget.pages';
+    #[Component(SectionAssets::class)]
+    case ContentAssetsTable = 'capell-content-sections::assets.table.section-assets';
 
     public static function getComponents(): array
     {

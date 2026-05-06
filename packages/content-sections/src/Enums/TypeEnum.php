@@ -2,25 +2,25 @@
 
 declare(strict_types=1);
 
-namespace Capell\LayoutBuilder\Enums;
+namespace Capell\ContentSections\Enums;
 
-use Capell\LayoutBuilder\Models\Widget;
+use Capell\ContentSections\Models\Section;
 
 enum TypeEnum: string
 {
-    case Widget = 'widget';
+    case Section = 'section';
 
     public function getModel(): string
     {
         return match ($this) {
-            self::Widget => Widget::class,
+            self::Section => Section::class,
         };
     }
 
     public function getLabel(): string
     {
         return match ($this) {
-            self::Widget => __('capell-layout-builder::generic.widget')
+            self::Section => __('capell-content-sections::generic.content'),
         };
     }
 }

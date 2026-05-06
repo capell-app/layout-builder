@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Providers;
 
 use BackedEnum;
-use Capell\Admin\Actions\CreatedModelAction;
-use Capell\Admin\Actions\DeletedModelAction;
-use Capell\Admin\Data\AdminAssetData;
 use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\ConfiguratorTypeEnum as AdminConfiguratorTypeEnum;
 use Capell\Admin\Enums\ResourceEnum;
@@ -16,18 +13,14 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\AIOrchestrator\Support\AIOrchestratorModuleRegistry;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Contracts\Makers\MakerRegistryInterface;
-use Capell\Core\Data\AssetData;
 use Capell\Core\Data\PageTypeData;
 use Capell\Core\Data\VendorAssetData;
 use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
-use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
-use Capell\Frontend\Contracts\AssetsRegistryInterface;
-use Capell\Frontend\Data\FrontendAssetData;
 use Capell\LayoutBuilder\AIOrchestrator\LayoutBuilderAIOrchestratorModule;
 use Capell\LayoutBuilder\Console\Commands\DemoCommand;
 use Capell\LayoutBuilder\Console\Commands\FakerCommand;
@@ -37,13 +30,11 @@ use Capell\LayoutBuilder\Console\Commands\InstallCommand;
 use Capell\LayoutBuilder\Console\Commands\MakeWidgetCommand;
 use Capell\LayoutBuilder\Console\Commands\SetupCommand;
 use Capell\LayoutBuilder\Console\Commands\UpgradeCommand;
-use Capell\LayoutBuilder\Enums\AssetEnum;
 use Capell\LayoutBuilder\Enums\ComponentTypeEnum;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\LivewireComponentsEnum;
 use Capell\LayoutBuilder\Enums\ResourceEnum as LayoutResourceEnum;
-use Capell\LayoutBuilder\Filament\Configurators\Types\ContentTypeConfigurator;
 use Capell\LayoutBuilder\Filament\Configurators\Types\WidgetTypeConfigurator;
 use Capell\LayoutBuilder\Filament\Extenders\Page\HeroPageSchemaExtender;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
@@ -54,7 +45,6 @@ use Capell\LayoutBuilder\Listeners\LayoutLoaded;
 use Capell\LayoutBuilder\Listeners\LayoutSavingListener;
 use Capell\LayoutBuilder\Listeners\SiteTreeRebuilt;
 use Capell\LayoutBuilder\Listeners\TypeValidated;
-use Capell\LayoutBuilder\Models\Section;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
@@ -73,9 +63,7 @@ use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Facades\App;
@@ -158,7 +146,6 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             ->registerComponents()
             ->registerModelEvents()
             ->registerModelInterceptors()
-            ->registerAssets()
             ->registerSchemaExtenders()
             ->registerCloneableRelations()
             ->registerThemeViewPath()
@@ -287,10 +274,6 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     private function registerResources(): self
     {
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
-            class: LayoutResourceEnum::Section->value,
-            group: LayoutResourceEnum::Section->name,
-        ));
-        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
             class: LayoutResourceEnum::Widget->value,
             group: LayoutResourceEnum::Widget->name,
         ));
@@ -325,41 +308,6 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             $enumClass = $componentType->value;
             CapellCore::registerComponents($componentType->name, $enumClass::cases());
         }
-
-        return $this;
-    }
-
-    private function registerAssets(): self
-    {
-        $sectionAsset = AssetEnum::Section;
-
-        CapellCore::registerAsset(
-            new AssetData(
-                name: $sectionAsset->name,
-                model: $sectionAsset->getModel(),
-                icon: $sectionAsset->getIcon(),
-                hasTranslations: $sectionAsset->hasTranslations(),
-            ),
-        );
-
-        CapellAdmin::registerAsset(
-            $sectionAsset,
-            new AdminAssetData(
-                formClass: $sectionAsset->getFormClass(),
-                createAction: $sectionAsset->getCreateActionClass(),
-                defaultDataAction: $sectionAsset->getDefaultDataActionClass(),
-            ),
-        );
-
-        // Defer frontend asset registration until the registry is resolved by FrontendServiceProvider
-        $this->callAfterResolving(AssetsRegistryInterface::class, function (AssetsRegistryInterface $assets) use ($sectionAsset): void {
-            $assets->registerAsset(
-                $sectionAsset,
-                new FrontendAssetData(
-                    component: $sectionAsset->getComponent(),
-                ),
-            );
-        });
 
         return $this;
     }
@@ -521,7 +469,6 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             return $this;
         }
 
-        WorkspaceRegistry::register(Section::class);
         WorkspaceRegistry::register(Widget::class);
         WorkspaceRegistry::register(WidgetAsset::class);
 
@@ -540,20 +487,6 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
 
     private function registerEvents(): self
     {
-        $createDeleteModels = [
-            Section::class,
-        ];
-
-        foreach ($createDeleteModels as $modelClass) {
-            $modelClass::registerModelEvent('created', function (Model $model): void {
-                CreatedModelAction::run($model);
-            });
-
-            $modelClass::registerModelEvent('deleted', function (Model $model): void {
-                DeletedModelAction::run($model);
-            });
-        }
-
         return $this;
     }
 
@@ -581,11 +514,6 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         }
 
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
-            class: ContentTypeConfigurator::class,
-            group: AdminConfiguratorTypeEnum::Type->value,
-            name: ContentTypeConfigurator::getKey(),
-        ));
-        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
             class: WidgetTypeConfigurator::class,
             group: AdminConfiguratorTypeEnum::Type->value,
             name: WidgetTypeConfigurator::getKey(),
@@ -604,20 +532,6 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     private function registerRelationships(): self
     {
         Page::resolveRelationUsing(
-            'sections',
-            fn (Page $model): HasManyThrough => $model->hasManyThrough(
-                Section::class,
-                WidgetAsset::class,
-                'pageable_id',
-                'id',
-                'id',
-                'asset_id',
-            )
-                ->where('widget_assets.pageable_type', $model->getMorphClass())
-                ->where('widget_assets.asset_type', (new Section)->getMorphClass()),
-        );
-
-        Page::resolveRelationUsing(
             'widgetAssets',
             fn (Page $model): MorphMany => $model->morphMany(WidgetAsset::class, 'pageable'),
         );
@@ -634,19 +548,9 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
                 ->wherePivot('asset_type', $model->getMorphClass()),
         );
 
-        Site::resolveRelationUsing(
-            'sections',
-            fn (Site $model): HasMany => $model->hasMany(Section::class, 'site_id'),
-        );
-
-        Type::resolveRelationUsing(
-            'sections',
-            fn (Type $model): HasMany => $model->hasMany(Section::class, 'type_id'),
-        );
-
         Type::resolveRelationUsing(
             'widgets',
-            fn (Type $model) => $model->hasMany(Widget::class, 'type_id'),
+            fn (Type $model): HasMany => $model->hasMany(Widget::class, 'type_id'),
         );
 
         Layout::resolveRelationUsing(
