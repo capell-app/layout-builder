@@ -1,6 +1,8 @@
 # Capell Packages Context
 
-Capell Packages is the add-on package workspace for Capell CMS. It supplies optional modules for publishing, frontend rendering, editorial workflow, search, SEO, growth, operations, themes, assistant capabilities, and commercial integrations.
+Capell Packages is the add-on package workspace for Capell CMS. It supplies optional modules for publishing, frontend rendering, editorial workflow, search, SEO, growth, operations, themes, ai-orchestrator capabilities, and commercial integrations.
+
+Frontend authoring must be invisible to non-admin users: no editor markup, metadata, scripts, selectors, or signed URLs before an authenticated admin beacon response.
 
 ## Core Domain
 
@@ -25,7 +27,7 @@ The surface where package code runs: Admin, Frontend, Console, or Shared.
 ## Publishing Domain
 
 **Site**
-A Capell site. Many packages scope records, pages, analytics, navigation, and rendering behaviour to a site.
+A Capell site. Many packages scope records, pages, insights, navigation, and rendering behaviour to a site.
 
 **Language**
 A content language. Packages that create pages, widgets, articles, countries, or navigation often create translations for each language.
@@ -40,13 +42,13 @@ A typed definition of page behaviour. Packages register page types to control fr
 A structural rendering definition used by page and widget systems. Layouts belong to the publishing surface and should be registered through Capell extension points.
 
 **Widget**
-A reusable Mosaic rendering unit with type, translations, metadata, and optional assets. Widgets are content building blocks, not general-purpose service objects.
+A reusable LayoutBuilder rendering unit with type, translations, metadata, and optional assets. Widgets are content building blocks, not general-purpose service objects.
 
 **Section**
-A Mosaic content region or reusable content block that can be related to pages, widgets, assets, and translations.
+A LayoutBuilder content region or reusable content block that can be related to pages, widgets, assets, and translations.
 
 **Article**
-A Blog publishing record. Articles reuse Capell site, layout, type, translation, URL, tag, media, and Mosaic widget behaviour while keeping article-specific workflow in the Blog package.
+A Blog publishing record. Articles reuse Capell site, layout, type, translation, URL, tag, media, and LayoutBuilder widget behaviour while keeping article-specific workflow in the Blog package.
 
 **Tag**
 A taxonomy record used to classify articles and other taggable content.
@@ -79,14 +81,14 @@ A validation step that can block or warn before content is published.
 
 ## Growth And Insight Domain
 
-**Analytics Visit**
-A first-party visit tracked by the Analytics package, scoped to consent, site, language, visitor identity, and landing context.
+**Insights Visit**
+A first-party visit tracked by the Insights package, scoped to consent, site, language, visitor identity, and landing context.
 
-**Analytics Event**
+**Insights Event**
 A tracked event such as page view, click, or custom action.
 
 **Consent**
-A visitor decision that governs which analytics categories may be recorded.
+A visitor decision that governs which insights categories may be recorded.
 
 **Campaign**
 A marketing initiative with landing pages, CTA blocks, UTM attribution, conversion goals, and reporting.
@@ -109,7 +111,7 @@ A stored or computed view of page SEO state, including metadata, structured data
 A discoverable index of frontend URLs. Sitemap generation may be extended by packages that own frontend content types.
 
 **Search Query**
-A visitor search phrase and its result/click analytics.
+A visitor search phrase and its result/click insights.
 
 **Theme Runtime**
 The resolved data needed to render a page through Theme Studio: selected theme, brand profile, tokens, page adapter data, preview context, and renderer output.
@@ -122,7 +124,7 @@ A theme package implementation that turns Theme Runtime data into frontend outpu
 
 ## Operations And Integration Domain
 
-**Authentication Log**
+**Login Audit**
 An audit record for login, logout, failed login, and activity metadata.
 
 **Import Session**
@@ -134,11 +136,11 @@ A structured description of exported package data, dependencies, ownership, and 
 **Health Check**
 An operational report item for setup, cache, migrations, queue, registry, package installation, config drift, or build status.
 
-**Assistant Module**
-A registered provider of assistant capabilities. Assistant modules expose capabilities through data objects and actions, not through inline UI logic.
+**AIOrchestrator Module**
+A registered provider of ai-orchestrator capabilities. AIOrchestrator modules expose capabilities through data objects and actions, not through inline UI logic.
 
 **Capability**
-An assistant or MCP action that can be listed, previewed, approved, or executed.
+An ai-orchestrator or Agent Bridge action that can be listed, previewed, approved, or executed.
 
 **Deployment Connection**
 A configured link to a Git provider used for publishing composer/package changes through pull requests.
@@ -155,7 +157,7 @@ The implementation details inside a package: private helpers, support classes, i
 A declared way for packages to collaborate without reaching into another package's interior. Examples include Capell registries, schema extenders, render hooks, settings registries, contracts, events, and action calls.
 
 **Registry**
-A module that collects package-provided definitions such as assistant modules, layout presets, schema templates, sitemap page types, theme renderers, or workspace draftables.
+A module that collects package-provided definitions such as ai-orchestrator modules, layout presets, schema templates, sitemap page types, theme renderers, or workspace draftables.
 
 **Creator**
 A module that creates demo, setup, seed, layout, widget, navigation, page, or package data.

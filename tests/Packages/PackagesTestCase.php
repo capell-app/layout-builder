@@ -10,37 +10,37 @@ use Capell\Admin\Enums\ResourceEnum as AdminResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
-use Capell\Analytics\Providers\AnalyticsServiceProvider;
-use Capell\AuthenticationLog\Providers\AuthenticationLogServiceProvider;
+use Capell\AdminPreview\Providers\AdminPreviewServiceProvider;
+use Capell\BlockLibrary\Providers\BlockLibraryServiceProvider;
 use Capell\Blog\Enums\ResourceEnum as BlogResourceEnum;
 use Capell\Blog\Providers\BlogServiceProvider;
 use Capell\Blog\Providers\FrontendServiceProvider as BlogFrontendServiceProvider;
-use Capell\Campaigns\Providers\CampaignsServiceProvider;
-use Capell\ContentBlocks\Providers\ContentBlocksServiceProvider;
+use Capell\CampaignStudio\Providers\CampaignStudioServiceProvider;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Media;
 use Capell\Core\Providers\CapellServiceProvider;
-use Capell\DefaultTheme\Providers\DefaultThemeServiceProvider;
-use Capell\DeveloperTools\Providers\DeveloperToolsServiceProvider;
-use Capell\FilamentPeek\Providers\FilamentPeekServiceProvider;
-use Capell\Forms\Providers\FormsServiceProvider as CapellFormsServiceProvider;
+use Capell\Diagnostics\Providers\DiagnosticsServiceProvider;
+use Capell\FormBuilder\Providers\FormBuilderServiceProvider as CapellFormBuilderServiceProvider;
+use Capell\FoundationTheme\Providers\FoundationThemeServiceProvider;
 use Capell\Frontend\Contracts\SettingsMigrationProviderInterface;
 use Capell\Frontend\Providers\FrontendServiceProvider;
-use Capell\MediaCurator\CapellMediaCuratorServiceProvider;
-use Capell\Migrator\Providers\MigratorServiceProvider;
-use Capell\Mosaic\Providers\MosaicServiceProvider;
+use Capell\FrontendAuthoring\Providers\FrontendAuthoringServiceProvider;
+use Capell\Insights\Providers\InsightsServiceProvider;
+use Capell\LayoutBuilder\Providers\LayoutBuilderServiceProvider;
+use Capell\LoginAudit\Providers\LoginAuditServiceProvider;
+use Capell\MediaLibrary\MediaLibraryServiceProvider;
+use Capell\MigrationAssistant\Providers\MigrationAssistantServiceProvider;
 use Capell\Navigation\Providers\NavigationServiceProvider;
+use Capell\PublishingStudio\Providers\PublishingStudioServiceProvider;
 use Capell\Redirects\Providers\RedirectsServiceProvider;
-use Capell\SeoTools\Providers\SeoToolsServiceProvider;
-use Capell\SiteSearch\Providers\SiteSearchServiceProvider;
+use Capell\Search\Providers\SearchServiceProvider;
+use Capell\SeoSuite\Providers\SeoSuiteServiceProvider;
 use Capell\Tags\Models\Tag;
 use Capell\Tags\Providers\TagsServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Capell\ThemeStudio\Admin\ThemeStudioAdminServiceProvider;
 use Capell\ThemeStudio\Core\ThemeStudioCoreServiceProvider;
-use Capell\Toolbar\Providers\ToolbarServiceProvider;
-use Capell\Workspaces\Providers\WorkspacesServiceProvider;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Application;
 use Livewire\LivewireServiceProvider;
@@ -86,32 +86,32 @@ class PackagesTestCase extends AbstractTestCase
         return [
             ...parent::getPackageProviders($app),
             AddressServiceProvider::class,
-            AnalyticsServiceProvider::class,
-            AuthenticationLogServiceProvider::class,
-            MigratorServiceProvider::class,
-            MosaicServiceProvider::class,
+            InsightsServiceProvider::class,
+            LoginAuditServiceProvider::class,
+            MigrationAssistantServiceProvider::class,
+            LayoutBuilderServiceProvider::class,
             NavigationServiceProvider::class,
             BlogServiceProvider::class,
             BlogFrontendServiceProvider::class,
-            CampaignsServiceProvider::class,
-            ContentBlocksServiceProvider::class,
-            CapellFormsServiceProvider::class,
-            DeveloperToolsServiceProvider::class,
-            SeoToolsServiceProvider::class,
-            SiteSearchServiceProvider::class,
+            CampaignStudioServiceProvider::class,
+            BlockLibraryServiceProvider::class,
+            CapellFormBuilderServiceProvider::class,
+            DiagnosticsServiceProvider::class,
+            SeoSuiteServiceProvider::class,
+            SearchServiceProvider::class,
             TagsServiceProvider::class,
-            ToolbarServiceProvider::class,
-            FilamentPeekServiceProvider::class,
-            WorkspacesServiceProvider::class,
+            FrontendAuthoringServiceProvider::class,
+            AdminPreviewServiceProvider::class,
+            PublishingStudioServiceProvider::class,
             RedirectsServiceProvider::class,
-            CapellMediaCuratorServiceProvider::class,
+            MediaLibraryServiceProvider::class,
             ThemeStudioAdminServiceProvider::class,
             ThemeStudioCoreServiceProvider::class,
             FrontendServiceProvider::class,
             CapellServiceProvider::class,
             AdminPanelProvider::class,
             AdminServiceProvider::class,
-            DefaultThemeServiceProvider::class,
+            FoundationThemeServiceProvider::class,
             LivewireServiceProvider::class,
         ];
     }
@@ -140,9 +140,9 @@ class PackagesTestCase extends AbstractTestCase
     {
         foreach ([
             __DIR__ . '/../../packages/blog/resources/views/components',
-            __DIR__ . '/../../packages/mosaic/resources/views/components',
-            __DIR__ . '/../../packages/seo-tools/resources/views/components/schema',
-            __DIR__ . '/../../packages/default-theme/resources/views/components',
+            __DIR__ . '/../../packages/layout-builder/resources/views/components',
+            __DIR__ . '/../../packages/seo-suite/resources/views/components/schema',
+            __DIR__ . '/../../packages/foundation-theme/resources/views/components',
         ] as $path) {
             RegisterBlazeOptimizedViewsAction::run($path);
         }
@@ -162,26 +162,26 @@ class PackagesTestCase extends AbstractTestCase
     private function forcePackagesInstalled(): void
     {
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(MosaicServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(SeoToolsServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(LayoutBuilderServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(SeoSuiteServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(TagsServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(AnalyticsServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(MigratorServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(InsightsServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(MigrationAssistantServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(BlogServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(CampaignsServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(ContentBlocksServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(CapellFormsServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(DeveloperToolsServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(CampaignStudioServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(BlockLibraryServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(CapellFormBuilderServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(DiagnosticsServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(AddressServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(AuthenticationLogServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(FilamentPeekServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled('capell-app/media-curator');
+        CapellCore::forcePackageInstalled(LoginAuditServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(AdminPreviewServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled('capell-app/media-library');
         CapellCore::forcePackageInstalled(RedirectsServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(SiteSearchServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(SearchServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(ThemeStudioAdminServiceProvider::$packageName);
         CapellCore::forcePackageInstalled('capell-app/theme-studio-core');
-        CapellCore::forcePackageInstalled(ToolbarServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled('capell-app/workspaces');
+        CapellCore::forcePackageInstalled(FrontendAuthoringServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled('capell-app/publishing-studio');
     }
 }

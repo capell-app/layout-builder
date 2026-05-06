@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\WordPressImporter\Services;
 
-use Capell\Migrator\Contracts\ImportSourceReader;
-use Capell\Migrator\Data\ExternalImportReadResult;
+use Capell\MigrationAssistant\Contracts\ImportSourceReader;
+use Capell\MigrationAssistant\Data\ExternalImportReadResult;
 use RuntimeException;
 use SimpleXMLElement;
 

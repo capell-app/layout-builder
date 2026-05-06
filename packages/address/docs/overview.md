@@ -51,7 +51,7 @@ Keeps location data consistent across structured websites instead of duplicating
 ## Pitfalls
 
 - Run migrations before opening the resources.
-- Seed or import countries before expecting useful address forms.
+- Seed or import countries before expecting useful address form-builder.
 - Check language records before relying on localized country names.
 
 ## Verification

@@ -29,13 +29,13 @@ describe('blog capell.json manifest', function (): void {
         expect($manifest['requires'])->toContain('capell-app/core');
     });
 
-    it('requires mosaic in both package manifests', function () use ($blogManifest, $blogComposerManifest): void {
+    it('requires layout-builder in both package manifests', function () use ($blogManifest, $blogComposerManifest): void {
         $manifest = $blogManifest();
         $composerManifest = $blogComposerManifest();
 
         expect($manifest['requires'])
-            ->toContain('capell-app/mosaic')
+            ->toContain('capell-app/layout-builder')
             ->and($composerManifest['require'])
-            ->toHaveKey('capell-app/mosaic');
+            ->toHaveKey('capell-app/layout-builder');
     });
 });

@@ -10,9 +10,9 @@ use Capell\Blog\Enums\BlogTypeGroupEnum;
 use Capell\Blog\Support\Loader\BlogLoader;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Page;
-use Capell\SeoTools\Data\SitemapPageData;
-use Capell\SeoTools\Support\Sitemap\AbstractSitemapPages;
-use Capell\SeoTools\Support\Sitemap\SitemapChainBuilder;
+use Capell\SeoSuite\Data\SitemapPageData;
+use Capell\SeoSuite\Support\Sitemap\AbstractSitemapPages;
+use Capell\SeoSuite\Support\Sitemap\SitemapChainBuilder;
 use Illuminate\Support\Collection;
 
 class ArchivesSitemap extends AbstractSitemapPages

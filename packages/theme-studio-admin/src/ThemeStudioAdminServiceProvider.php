@@ -9,6 +9,7 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Core\Support\Settings\SettingsSchemaRegistry;
+use Capell\PublishingStudio\Events\WorkspaceStateChanged;
 use Capell\ThemeStudio\Admin\Contracts\ThemeDraftPublisher;
 use Capell\ThemeStudio\Admin\Filament\Pages\ThemeStudioPage;
 use Capell\ThemeStudio\Admin\Listeners\ActivateApprovedThemeDraft;
@@ -16,7 +17,6 @@ use Capell\ThemeStudio\Admin\Publishing\StandaloneThemeDraftPublisher;
 use Capell\ThemeStudio\Admin\Publishing\WorkspaceThemeDraftPublisher;
 use Capell\ThemeStudio\Admin\Schemas\ThemeStudioSettingsSchema;
 use Capell\ThemeStudio\Core\Settings\ThemeStudioSettings;
-use Capell\Workspaces\Events\WorkspaceStateChanged;
 use Illuminate\Support\Facades\Event;
 use Spatie\LaravelPackageTools\Package;
 
@@ -90,7 +90,7 @@ final class ThemeStudioAdminServiceProvider extends AbstractPackageServiceProvid
     {
         $this->app->bindIf(
             ThemeDraftPublisher::class,
-            fn (): ThemeDraftPublisher => CapellCore::isPackageInstalled('capell-app/workspaces')
+            fn (): ThemeDraftPublisher => CapellCore::isPackageInstalled('capell-app/publishing-studio')
                 ? resolve(WorkspaceThemeDraftPublisher::class)
                 : resolve(StandaloneThemeDraftPublisher::class),
         );

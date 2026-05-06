@@ -5,30 +5,30 @@ declare(strict_types=1);
 namespace Capell\Tests\Packages\Support;
 
 use Capell\Address\Providers\AddressServiceProvider;
-use Capell\Analytics\Providers\AnalyticsServiceProvider;
-use Capell\Assistant\Providers\AssistantServiceProvider;
-use Capell\AuthenticationLog\Providers\AuthenticationLogServiceProvider;
+use Capell\AdminPreview\Providers\AdminPreviewServiceProvider;
+use Capell\AgentBridge\Providers\AgentBridgeServiceProvider;
+use Capell\AIOrchestrator\Providers\AIOrchestratorServiceProvider;
+use Capell\BlockLibrary\Providers\BlockLibraryServiceProvider;
 use Capell\Blog\Providers\BlogServiceProvider;
-use Capell\Campaigns\Providers\CampaignsServiceProvider;
-use Capell\ContentBlocks\Providers\ContentBlocksServiceProvider;
+use Capell\CampaignStudio\Providers\CampaignStudioServiceProvider;
 use Capell\Core\Facades\CapellCore;
-use Capell\DeveloperTools\Providers\DeveloperToolsServiceProvider;
-use Capell\FilamentPeek\Providers\FilamentPeekServiceProvider;
-use Capell\Forms\Providers\FormsServiceProvider;
-use Capell\HtmlMinify\Providers\HtmlMinifyServiceProvider;
-use Capell\Mcp\Providers\CapellMcpServiceProvider;
-use Capell\MediaCurator\CapellMediaCuratorServiceProvider;
-use Capell\Migrator\Providers\MigratorServiceProvider;
-use Capell\Mosaic\Providers\MosaicServiceProvider;
+use Capell\Diagnostics\Providers\DiagnosticsServiceProvider;
+use Capell\FormBuilder\Providers\FormBuilderServiceProvider;
+use Capell\FrontendAuthoring\Providers\FrontendAuthoringServiceProvider;
+use Capell\HtmlOptimizer\Providers\HtmlOptimizerServiceProvider;
+use Capell\Insights\Providers\InsightsServiceProvider;
+use Capell\LayoutBuilder\Providers\LayoutBuilderServiceProvider;
+use Capell\LoginAudit\Providers\LoginAuditServiceProvider;
+use Capell\MediaLibrary\MediaLibraryServiceProvider;
+use Capell\MigrationAssistant\Providers\MigrationAssistantServiceProvider;
 use Capell\Navigation\Providers\NavigationServiceProvider;
+use Capell\PublishingStudio\Providers\PublishingStudioServiceProvider;
 use Capell\Redirects\Providers\RedirectsServiceProvider;
-use Capell\SeoTools\Providers\SeoToolsServiceProvider;
-use Capell\SiteSearch\Providers\SiteSearchServiceProvider;
+use Capell\Search\Providers\SearchServiceProvider;
+use Capell\SeoSuite\Providers\SeoSuiteServiceProvider;
 use Capell\Tags\Providers\TagsServiceProvider;
 use Capell\ThemeStudio\Admin\ThemeStudioAdminServiceProvider;
 use Capell\ThemeStudio\Core\ThemeStudioCoreServiceProvider;
-use Capell\Toolbar\Providers\ToolbarServiceProvider;
-use Capell\Workspaces\Providers\WorkspacesServiceProvider;
 use Illuminate\Support\ServiceProvider;
 
 class ForcePackagesUninstalledServiceProvider extends ServiceProvider
@@ -45,29 +45,29 @@ class ForcePackagesUninstalledServiceProvider extends ServiceProvider
     {
         return [
             AddressServiceProvider::$packageName,
-            AnalyticsServiceProvider::$packageName,
-            AssistantServiceProvider::$packageName,
-            AuthenticationLogServiceProvider::$packageName,
-            MigratorServiceProvider::$packageName,
+            InsightsServiceProvider::$packageName,
+            AIOrchestratorServiceProvider::$packageName,
+            LoginAuditServiceProvider::$packageName,
+            MigrationAssistantServiceProvider::$packageName,
             BlogServiceProvider::$packageName,
-            CampaignsServiceProvider::$packageName,
-            ContentBlocksServiceProvider::$packageName,
-            DeveloperToolsServiceProvider::$packageName,
-            FilamentPeekServiceProvider::$packageName,
-            FormsServiceProvider::$packageName,
-            HtmlMinifyServiceProvider::$packageName,
-            CapellMcpServiceProvider::$packageName,
-            CapellMediaCuratorServiceProvider::$packageName,
-            MosaicServiceProvider::$packageName,
+            CampaignStudioServiceProvider::$packageName,
+            BlockLibraryServiceProvider::$packageName,
+            DiagnosticsServiceProvider::$packageName,
+            AdminPreviewServiceProvider::$packageName,
+            FormBuilderServiceProvider::$packageName,
+            HtmlOptimizerServiceProvider::$packageName,
+            AgentBridgeServiceProvider::$packageName,
+            MediaLibraryServiceProvider::$packageName,
+            LayoutBuilderServiceProvider::$packageName,
             NavigationServiceProvider::$packageName,
             RedirectsServiceProvider::$packageName,
-            SeoToolsServiceProvider::$packageName,
-            SiteSearchServiceProvider::$packageName,
+            SeoSuiteServiceProvider::$packageName,
+            SearchServiceProvider::$packageName,
             TagsServiceProvider::$packageName,
             ThemeStudioAdminServiceProvider::$packageName,
             ThemeStudioCoreServiceProvider::$packageName,
-            ToolbarServiceProvider::$packageName,
-            WorkspacesServiceProvider::$packageName,
+            FrontendAuthoringServiceProvider::$packageName,
+            PublishingStudioServiceProvider::$packageName,
             'capell-app/theme-agency',
             'capell-app/theme-corporate',
             'capell-app/theme-saas',

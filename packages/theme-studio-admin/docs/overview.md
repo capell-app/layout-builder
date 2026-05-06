@@ -16,7 +16,7 @@ Theme Studio Admin adds the Filament admin experience for staging, reviewing, pr
 
 ## Developer Notes
 
-Keeps theme publishing behind explicit actions and publisher contracts, with optional Workspaces integration for review flow.
+Keeps theme publishing behind explicit actions and publisher contracts, with optional PublishingStudio integration for review flow.
 
 - ThemeStudioAdminServiceProvider registers admin services.
 - Filament page: ThemeStudioPage.
@@ -38,7 +38,7 @@ Lets teams adjust theme presentation through an admin surface while keeping draf
 ## Data And Retention
 
 - No migrations are present in this package.
-- It works with Theme Studio settings from Theme Studio Core and optional Workspaces state.
+- It works with Theme Studio settings from Theme Studio Core and optional PublishingStudio state.
 - Deletion and retention for staged drafts should be verified against publishing policy.
 
 ## Screenshot Plan
@@ -52,7 +52,7 @@ Lets teams adjust theme presentation through an admin surface while keeping draf
 ## Pitfalls
 
 - Install Theme Studio Core before the admin package.
-- Use Workspaces integration only where Workspaces is installed and configured.
+- Use PublishingStudio integration only where PublishingStudio is installed and configured.
 - Validate custom colours before publishing.
 
 ## Verification

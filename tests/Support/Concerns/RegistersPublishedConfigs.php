@@ -14,10 +14,10 @@ trait RegistersPublishedConfigs
                 'name' => 'filament-shield',
                 'file' => 'filament-shield',
             ],
-            'authentication-log' => [
+            'login-audit' => [
                 'user' => 'rappasoft',
-                'name' => 'laravel-authentication-log',
-                'file' => 'authentication-log',
+                'name' => 'laravel-login-audit',
+                'file' => 'login-audit',
             ],
             'permission' => [
                 'user' => 'spatie',

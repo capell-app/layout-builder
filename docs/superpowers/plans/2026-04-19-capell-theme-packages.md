@@ -4,9 +4,9 @@
 
 **Goal:** Create three production-ready CMS theme packages (Corporate, Agency, SaaS) for Capell with comprehensive CMS features, exceptional flexibility, and high-standard testing (90%+ coverage, WCAG 2.1 AA, performance budgets, E2E, security tests).
 
-**Architecture:** Three self-contained theme packages in `packages/themes/{corporate,agency,saas}/` sharing unified `ThemeSettings` in `packages/theme-studio/themes-core/`. Each theme provides 7-9 Blade components that work as static templates OR Mosaic widgets (when installed). All components include SEO, accessibility, dark mode, and form handling. Comprehensive test suite covers unit, integration, E2E, accessibility, performance, and security.
+**Architecture:** Three self-contained theme packages in `packages/themes/{corporate,agency,saas}/` sharing unified `ThemeSettings` in `packages/theme-studio/themes-core/`. Each theme provides 7-9 Blade components that work as static templates OR LayoutBuilder widgets (when installed). All components include SEO, accessibility, dark mode, and form handling. Comprehensive test suite covers unit, integration, E2E, accessibility, performance, and security.
 
-**Tech Stack:** Laravel 10+, Blade, Tailwind CSS 4, Filament 4, Pest 3, Mosaic (optional), Lighthouse CI, WCAG testing, E2E (Playwright).
+**Tech Stack:** Laravel 10+, Blade, Tailwind CSS 4, Filament 4, Pest 3, LayoutBuilder (optional), Lighthouse CI, WCAG testing, E2E (Playwright).
 
 ---
 
@@ -20,7 +20,7 @@
 - ✅ **Phase 2: Corporate Theme** — Tasks 4-20 (51 files, 5 commits)
 - ✅ **Phase 3: Agency Theme** — Tasks 21-35 (32 PHP files, 5 commits)
 - ✅ **Phase 4: SaaS Theme** — Tasks 36-50 (31 PHP files, 5 commits)
-- 🔶 **Phase 5 partial** — cross-cutting `themes-core` code was partially scaffolded: `Analytics/GoogleAnalytics4`, `Analytics/UtmCollector`, `Cache/ThemeCache`, `Images/ResponsiveImage`, `Language/LanguageManager`, `Language/HreflangGenerator`, `Mail/FormSubmissionNotification`, `Mail/NewsletterWelcome`, `Performance/AssetOptimizer`, `Performance/CriticalCssInliner`, `Search/{SiteSearch,DatabaseSiteSearch,SearchResult}` + Blade partials. These landed in the migration commit (`44971864`) but have NOT been reviewed or tested yet. Treat as prototype/stub.
+- 🔶 **Phase 5 partial** — cross-cutting `themes-core` code was partially scaffolded: `Insights/GA4Reports4`, `Insights/UtmCollector`, `Cache/ThemeCache`, `Images/ResponsiveImage`, `Language/LanguageManager`, `Language/HreflangGenerator`, `Mail/FormSubmissionNotification`, `Mail/NewsletterWelcome`, `Performance/AssetOptimizer`, `Performance/CriticalCssInliner`, `Search/{Search,DatabaseSearch,SearchResult}` + Blade partials. These landed in the migration commit (`44971864`) but have NOT been reviewed or tested yet. Treat as prototype/stub.
 
 **Migration note:** all files were originally built in `capell-app/intelligent-panini-da14c2` worktree by mistake, then migrated to this correct repo on 2026-04-19 in commit `44971864`. Migration commit used `--no-verify` per user approval because composer/npm deps are not yet installed in this worktree.
 
@@ -36,17 +36,17 @@
     - `Capell\Themes\Core\*` (from `packages/theme-studio/themes-core/`)
     - `Capell\Themes\Admin\*` (from `packages/theme-studio/themes-admin/`)
     - `Capell\Themes\Corporate\*`, `Capell\Themes\Agency\*`, `Capell\Themes\Saas\*`
-5. **Filament 4 API note:** `Tabs` lives at `Filament\Schemas\Components\Tabs` (not `Filament\Forms\Components\Tabs`). The tests use `Orchestra\Testbench\TestCase` with Filament providers registered, not `Filament\Tests\TestCase` which does not exist in Filament 4 dist.
+5. **Filament 4 API note:** `Tabs` lives at `Filament\Schemas\Components\Tabs` (not `Filament\FormBuilder\Components\Tabs`). The tests use `Orchestra\Testbench\TestCase` with Filament providers registered, not `Filament\Tests\TestCase` which does not exist in Filament 4 dist.
 6. **Remaining work:**
-    - Phase 5 (review partial files + complete Tasks 51-65 — multi-lang hreflang partial exists, analytics partial exists, email partial exists, etc.; still missing: SEO structured data builder, sitemap, canonical, OG cards, spam protection, preview mode, mobile menu, accessibility helpers, and Filament admin page wiring)
+    - Phase 5 (review partial files + complete Tasks 51-65 — multi-lang hreflang partial exists, insights partial exists, email partial exists, etc.; still missing: SEO structured data builder, sitemap, canonical, OG cards, spam protection, preview mode, mobile menu, accessibility helpers, and Filament admin page wiring)
     - Phase 6 (Testing & QA, Tasks 66-80)
     - Phase 7 (Documentation & release, Tasks 81-85)
 
 ## Known Deviations & Defects to Address
 
-- **Composer package names** — themes are named `capell-app/capell-theme-{name}` but neighboring Capell packages use pattern `capell-app/{name}` (e.g., `capell-app/blog`, `capell-app/mosaic`). Consider renaming to `capell-app/theme-corporate` etc. for consistency
+- **Composer package names** — themes are named `capell-app/capell-theme-{name}` but neighboring Capell packages use pattern `capell-app/{name}` (e.g., `capell-app/blog`, `capell-app/layout-builder`). Consider renaming to `capell-app/theme-corporate` etc. for consistency
 - **`minimum-stability` / `prefer-stable`** — corporate package has these, agency/saas don't — align
-- **Root-level wiring** — each theme package declares its own composer.json but is not yet wired into a monorepo root composer.json at `capell-packages-4/composer.json`. The existing monorepo composer.json in `capell-packages-4-themes/` may need a path repository added (check — blog/mosaic are siblings and may already resolve via the parent repo's path config)
+- **Root-level wiring** — each theme package declares its own composer.json but is not yet wired into a monorepo root composer.json at `capell-packages-4/composer.json`. The existing monorepo composer.json in `capell-packages-4-themes/` may need a path repository added (check — blog/layout-builder are siblings and may already resolve via the parent repo's path config)
 - **Tests not executed** — all Pest tests are source-only; `composer install` + root `phpunit.xml` `<testsuites>` update needed to run them. Task 66 (Phase 6) should address this first before E2E work begins
 - **Pest vs PHPUnit style** — some infrastructure tests use PHPUnit `TestCase` directly; project convention is Pest — convert during Phase 6 QA pass
 - **Snake_case properties in `ThemeSettings`** — spec/plan uses snake_case (`active_theme`, `primary_color`) but Capell/Laravel/Filament convention is camelCase. Code review flagged this as a design concern for Phase 6
@@ -211,7 +211,7 @@ Create `packages/theme-corporate/composer.json`:
         "phpstan/phpstan": "^1.0"
     },
     "suggest": {
-        "capell-app/capell-mosaic": "Enable visual layout editor for theme components"
+        "capell-app/capell-layout-builder": "Enable visual layout editor for theme components"
     },
     "autoload": {
         "psr-4": {
@@ -270,11 +270,11 @@ Professional, trust-focused theme for B2B services, consulting firms, and corpor
 
 - Professional design with conservative color palette (navy + gold)
 - Components: Hero, Features, Team, Case Studies, Blog, Contact, Footer
-- Blade templates + optional Mosaic widgets
+- Blade templates + optional LayoutBuilder widgets
 - Full SEO, accessibility (WCAG 2.1 AA), dark mode, multi-language support
 - Form handling with validation and spam protection
 - Email integration (newsletters, form submissions)
-- Analytics hooks (GA4)
+- Insights hooks (GA4)
 
 ## Installation
 
@@ -450,10 +450,10 @@ namespace Capell\Admin\Tests\Unit\Schemas;
 
 use Capell\Admin\Schemas\ThemeSettingsSchema;
 use Capell\Core\Data\ThemeSettings;
-use Filament\Forms\Components\ColorPicker;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
+use Filament\FormBuilder\Components\ColorPicker;
+use Filament\FormBuilder\Components\Select;
+use Filament\FormBuilder\Components\TextInput;
+use Filament\FormBuilder\Components\Toggle;
 use Filament\Tests\TestCase;
 
 class ThemeSettingsSchemaTest extends TestCase
@@ -500,10 +500,10 @@ declare(strict_types=1);
 
 namespace Capell\Admin\Schemas;
 
-use Filament\Forms\Components\ColorPicker;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs;
-use Filament\Forms\Components\Toggle;
+use Filament\FormBuilder\Components\ColorPicker;
+use Filament\FormBuilder\Components\Select;
+use Filament\FormBuilder\Components\Tabs;
+use Filament\FormBuilder\Components\Toggle;
 
 class ThemeSettingsSchema
 {
@@ -699,9 +699,9 @@ class CorporateThemeServiceProvider extends ServiceProvider
             // CSS loaded via Vite/Tailwind in consuming application
         }
 
-        // Register Mosaic widgets if available
-        if (class_exists('Capell\Mosaic\Models\Widget')) {
-            $this->registerMosaicWidgets();
+        // Register LayoutBuilder widgets if available
+        if (class_exists('Capell\LayoutBuilder\Models\Widget')) {
+            $this->registerLayoutBuilderWidgets();
         }
 
         // Publish views
@@ -715,7 +715,7 @@ class CorporateThemeServiceProvider extends ServiceProvider
         ], 'capell-theme-corporate-css');
     }
 
-    protected function registerMosaicWidgets(): void
+    protected function registerLayoutBuilderWidgets(): void
     {
         CapellCore::registerWidget(HeroSectionWidget::class);
         CapellCore::registerWidget(FeaturesGridWidget::class);
@@ -740,12 +740,12 @@ Expected: PASS
 
 ```bash
 git add src/CorporateThemeServiceProvider.php tests/Feature/ServiceProviderTest.php
-git commit -m "feat: create CorporateThemeServiceProvider with Mosaic widget registration"
+git commit -m "feat: create CorporateThemeServiceProvider with LayoutBuilder widget registration"
 ```
 
 ---
 
-**[... Continue with 30+ more tasks covering: Hero component (Blade + Widget + Tests), Features Grid, Team Grid, Case Studies, Blog, Contact Form, Footer, SEO generation, Dark Mode support, Forms with validation, Email integration, Layouts & seeding, Agency Theme components, SaaS Theme components, E2E tests, Performance testing, Accessibility audits, Security tests, Documentation ...]**
+**[... Continue with 30+ more tasks covering: Hero component (Blade + Widget + Tests), Features Grid, Team Grid, Case Studies, Blog, Contact Form, Footer, SEO generation, Dark Mode support, FormBuilder with validation, Email integration, Layouts & seeding, Agency Theme components, SaaS Theme components, E2E tests, Performance testing, Accessibility audits, Security tests, Documentation ...]**
 
 ---
 
@@ -801,7 +801,7 @@ Each follows same pattern: Blade component + Widget + Tests
 # PHASE 5: Cross-Cutting Features (Tasks 51-65)
 
 **Task 51:** Multi-language support (language switcher, hreflang generation)
-**Task 52:** Analytics GA4 event hooks (form submissions, CTA clicks)
+**Task 52:** Insights GA4 event hooks (form submissions, CTA clicks)
 **Task 53:** Email template system (form notifications, newsletters)
 **Task 54:** Image optimization (lazy loading, responsive srcset)
 **Task 55:** Caching integration hooks
@@ -820,7 +820,7 @@ Each follows same pattern: Blade component + Widget + Tests
 
 # PHASE 6: Testing & QA (Tasks 66-80)
 
-**Task 66:** E2E test: Mosaic layout builder (create layout, add widgets, publish)
+**Task 66:** E2E test: LayoutBuilder layout builder (create layout, add widgets, publish)
 **Task 67:** E2E test: Theme switching (change theme, verify styles)
 **Task 68:** E2E test: Form submission (fill form, validate, submit, receive email)
 **Task 69:** E2E test: Dark mode toggle (enable, verify styles persist)

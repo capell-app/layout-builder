@@ -1,0 +1,42 @@
+{
+    "name": "capell-app/ai-orchestrator",
+    "description": "Capell AIOrchestrator orchestration package",
+    "keywords": [
+        "capell",
+        "ai-orchestrator",
+        "ai"
+    ],
+    "homepage": "https://capell.app",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Howdu",
+            "email": "cms.multi2@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "capell-app/admin": "*",
+        "capell-app/core": "*",
+        "lorisleiva/laravel-actions": "^2.8",
+        "spatie/laravel-data": "^4.5",
+        "spatie/laravel-package-tools": "^1.14.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\AIOrchestrator\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\AIOrchestrator\\Providers\\AIOrchestratorServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "prefer-stable": true
+}

@@ -9,7 +9,7 @@ use Capell\Blog\Support\Loader\BlogLoader;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Page;
 use Capell\Frontend\Facades\Frontend;
-use Capell\Mosaic\View\Components\Widget\AbstractWidget;
+use Capell\LayoutBuilder\View\Components\Widget\AbstractWidget;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
@@ -64,7 +64,7 @@ class Archives extends AbstractWidget
             $this->skipRender = true;
         }
 
-        if (config('capell-mosaic.widget.skip_render_empty') === true) {
+        if (config('capell-layout-builder.widget.skip_render_empty') === true) {
             $this->skipRender = true;
         }
     }

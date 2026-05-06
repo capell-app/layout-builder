@@ -1,0 +1,59 @@
+{
+    "package": "diagnostics",
+    "composerName": "capell-app/diagnostics",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "outputDirectory": "public/docs/screenshots/packages/diagnostics",
+    "entries": [
+        {
+            "id": "diagnostics-dashboard",
+            "title": "Developer tools dashboard.",
+            "package": "diagnostics",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "DiagnosticsPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "system-health-page",
+            "title": "System health page.",
+            "package": "diagnostics",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "DiagnosticsPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "permission-audit-page",
+            "title": "Permission audit page.",
+            "package": "diagnostics",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "DiagnosticsPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "queue-health-page",
+            "title": "Queue health page.",
+            "package": "diagnostics",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "DiagnosticsPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "health-widgets-on-the-admin-dashboard",
+            "title": "Health widgets on the admin dashboard.",
+            "package": "diagnostics",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "DiagnosticsPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        }
+    ]
+}

@@ -6,7 +6,7 @@ namespace Capell\WordPressImporter\Providers;
 
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
-use Capell\Migrator\Support\ImportSourceRegistry;
+use Capell\MigrationAssistant\Support\ImportSourceRegistry;
 use Capell\WordPressImporter\Services\WxrReader;
 use Spatie\LaravelPackageTools\Package;
 
@@ -28,7 +28,7 @@ class WordPressImporterServiceProvider extends AbstractPackageServiceProvider
             serviceProviderClass: static::class,
             path: realpath(__DIR__ . '/../..'),
             version: CapellCore::getInstalledPrettyVersion(static::$packageName),
-            description: fn (): string => 'WordPress WXR import source for the Capell Migration Assistant.',
+            description: fn (): string => 'WordPress WXR import source for the Capell Migration AIOrchestrator.',
         );
 
         $this->app->afterResolving(

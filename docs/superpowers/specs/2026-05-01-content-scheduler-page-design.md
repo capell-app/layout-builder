@@ -2,7 +2,7 @@
 
 ## Context
 
-The `workspaces` package already owns workspace approval, publishing, scheduled workspace publish dates, and a `ScheduledPublishingPage` that lists pages with future `visible_from` or `visible_until` values. The requested change is to make this surface a prominent editorial content scheduler, not a hidden workspace utility.
+The `publishing-studio` package already owns workspace approval, publishing, scheduled workspace publish dates, and a `ScheduledPublishingPage` that lists pages with future `visible_from` or `visible_until` values. The requested change is to make this surface a prominent editorial content scheduler, not a hidden workspace utility.
 
 The implementation should expand the existing page instead of creating a new package. Scheduling logic remains in Actions, while Filament pages, tables, and widgets expose the admin experience.
 
@@ -24,13 +24,13 @@ The implementation should expand the existing page instead of creating a new pac
 
 ## Architecture
 
-The feature stays in `packages/workspaces`.
+The feature stays in `packages/publishing-studio`.
 
 `ScheduledPublishingPage` will become the prominent Content Scheduler admin page. It may keep its class name and slug for compatibility, but its labels, title, badge, grouping, and subheading should describe the richer content scheduler.
 
 Scheduling state is split by existing ownership:
 
-- Workspace campaign publishing uses `workspaces.publish_at`.
+- Workspace campaign publishing uses `publishing-studio.publish_at`.
 - Workspace-level unpublish, embargo, and review reminders use new nullable workspace columns.
 - Page-level publish and unpublish schedules continue to use `pages.visible_from` and `pages.visible_until`.
 
@@ -46,7 +46,7 @@ Read models and reporting queries also live in Actions so widgets and tables do 
 
 ## Data Model
 
-Add nullable timestamp columns to `workspaces`:
+Add nullable timestamp columns to `publishing-studio`:
 
 - `embargo_until`: content should not be published before this time.
 - `review_reminder_at`: editorial review reminder date.
@@ -99,7 +99,7 @@ Create a small Data object for scheduler rows with fields like:
 - `description`
 - `record_url`
 
-Build Actions should produce these events from workspaces and pages. This avoids mixing unrelated Eloquent models in a single table and keeps calendar rendering stable.
+Build Actions should produce these events from publishing-studio and pages. This avoids mixing unrelated Eloquent models in a single table and keeps calendar rendering stable.
 
 ## Embargo Behavior
 

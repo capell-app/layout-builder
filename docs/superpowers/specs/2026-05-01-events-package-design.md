@@ -21,9 +21,9 @@ The package follows the Blog package structure and Capell package boundaries.
     - core
     - admin
     - frontend
-    - mosaic
+    - layout-builder
     - navigation
-    - workspaces
+    - publishing-studio
 
 Tags are not included in the first implementation. The package can add tags later using the same bridge pattern Blog uses, but events do not need tags to satisfy listings, calendar, feeds, or schema.
 
@@ -332,7 +332,7 @@ The setup command creates:
 - default Events page
 - optional Calendar page under Events
 
-Blog requires Mosaic first. Events also requires Mosaic first because it uses layouts/widgets and follows the same page model.
+Blog requires LayoutBuilder first. Events also requires LayoutBuilder first because it uses layouts/widgets and follows the same page model.
 
 ## Testing
 

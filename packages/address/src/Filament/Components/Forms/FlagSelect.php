@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\Address\Filament\Components\Forms;
 
 use Capell\Address\Support\Language\FlagsService;
-use Filament\Forms\Components\Select;
+use Filament\FormBuilder\Components\Select;
 
 class FlagSelect extends Select
 {

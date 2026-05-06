@@ -13,6 +13,13 @@ Nearly all new Capell packages should be added to this packages repo under `pack
 - No `php artisan` in this repo — use `vendor/bin/pest` directly.
 - User-facing strings via `__('capell-...')`. Filament labels via method overrides, never static string properties.
 
+## Frontend Authoring Safety
+
+- Non-admin frontend users must never be able to tell an in-page editor exists. Public Blade, cached HTML, theme output, and frontend assets must not contain authoring HTML, authoring JavaScript, editable markers, model IDs, field paths, labels, permissions, package names, selectors, or signed editor URLs.
+- Frontend authoring is a post-load admin feature. The page loads as ordinary public HTML, the browser calls the beacon, and only an authenticated admin beacon response may add edit controls or signed Filament editor URLs.
+- Unique/static HTML caching depends on this rule. Cached HTML must stay safe to serve to anonymous visitors, normal signed-in users, admins, crawlers, and static exports.
+- When touching frontend packages, theme packages, page cache, or beacon code, add or preserve tests proving anonymous and non-admin responses expose no authoring surface.
+
 ## Architecture: Actions + Data
 
 **All domain logic in Actions** (`packages/{pkg}/src/Actions/`, suffix `VerbNounAction`):
@@ -32,14 +39,14 @@ Nearly all new Capell packages should be added to this packages repo under `pack
 
 ## Packages
 
-| Package     | Namespace          | Depends on                        |
-| ----------- | ------------------ | --------------------------------- |
-| `mosaic`    | `Capell\Mosaic`    | core, admin, frontend             |
-| `blog`      | `Capell\Blog`      | core, admin, frontend, **mosaic** |
-| `address`   | `Capell\Address`   | core, admin                       |
-| `assistant` | `Capell\Assistant` | core, admin                       |
+| Package           | Namespace               | Depends on                                |
+| ----------------- | ----------------------- | ----------------------------------------- |
+| `layout-builder`  | `Capell\LayoutBuilder`  | core, admin, frontend                     |
+| `blog`            | `Capell\Blog`           | core, admin, frontend, **layout-builder** |
+| `address`         | `Capell\Address`        | core, admin                               |
+| `ai-orchestrator` | `Capell\AIOrchestrator` | core, admin                               |
 
-**Blog requires Mosaic — install Mosaic first.**
+**Blog requires LayoutBuilder — install LayoutBuilder first.**
 
 ## Package boundaries
 
@@ -59,7 +66,7 @@ Nearly all new Capell packages should be added to this packages repo under `pack
 
 Auto-discovered: types in `src/Types/`, schemas in `src/Schemas/`, widgets in `src/Widgets/`.
 
-## Workspaces / Draftable
+## PublishingStudio / Draftable
 
 Any model in draft/publish must implement `Capell\Core\Contracts\Draftable` and register in the morph map. Reuse `ReplicateModelAction`, `ReplicatePageAction` — don't reinvent replication.
 
@@ -72,7 +79,7 @@ Any model in draft/publish must implement `Capell\Core\Contracts\Draftable` and 
 ## Testing
 
 - Test actions directly: `MyAction::run($input)` — not through HTTP.
-- Run single package: `vendor/bin/pest packages/mosaic/tests`
+- Run single package: `vendor/bin/pest packages/layout-builder/tests`
 - Minimum 80% coverage. Full suite: `composer test`.
 
 ## Composer local overlay

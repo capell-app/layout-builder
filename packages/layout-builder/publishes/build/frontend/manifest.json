@@ -1,0 +1,8 @@
+{
+    "resources/js/capell-layout-builder.js": {
+        "file": "assets/capell-layout-builder-CMZmeCPZ.js",
+        "name": "capell-layout-builder",
+        "src": "resources/js/capell-layout-builder.js",
+        "isEntry": true
+    }
+}

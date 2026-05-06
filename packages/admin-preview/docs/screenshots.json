@@ -1,0 +1,39 @@
+{
+    "package": "admin-preview",
+    "composerName": "capell-app/admin-preview",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "outputDirectory": "public/docs/screenshots/packages/admin-preview",
+    "entries": [
+        {
+            "id": "page-or-workspace-edit-screen-with-preview-action",
+            "title": "Page or workspace edit screen with preview action.",
+            "package": "admin-preview",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "peek-iframe-preview-panel",
+            "title": "Peek iframe preview panel.",
+            "package": "admin-preview",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "workspace-draft-review-screen-with-preview-action",
+            "title": "Workspace draft review screen with preview action.",
+            "package": "admin-preview",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        }
+    ]
+}

@@ -17,6 +17,22 @@ Theme Studio is the commercial theme system bundle that installs Theme Studio Co
 
 **For teams:** Installs the full theme workflow in one package instead of selecting each renderer and admin package manually.
 
+## Built With
+
+This package makes its Composer dependencies visible because they are part of the value proposition, not just plumbing. When an upstream package has a public repository, its linked preview card points readers back to the maintainers so their work gets proper credit.
+
+**Capell packages used here**
+
+- [Capell Theme Agency](../theme-agency/README.md)
+- [Capell Theme Corporate](../theme-corporate/README.md)
+- [Capell Theme Saas](../theme-saas/README.md)
+- [Capell Theme Studio Admin](../theme-studio-admin/README.md)
+- [Capell Theme Studio Core](../theme-studio-core/README.md)
+
+**Open-source packages used here**
+
+- No extra third-party Composer package beyond the Capell package stack is required here.
+
 ## Screens And Workflow
 
 Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) during package deployment.
@@ -73,3 +89,4 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - [../theme-agency/README.md](../theme-agency/README.md)
 - [../theme-corporate/README.md](../theme-corporate/README.md)
 - [../theme-saas/README.md](../theme-saas/README.md)
+- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)

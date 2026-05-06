@@ -10,8 +10,8 @@ use Capell\Admin\Filament\Components\Forms\SiteSelect;
 use Capell\Admin\Filament\Components\Forms\StatusToggle;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Core\Support\Slug\SlugGenerator;
-use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\TextInput;
+use Filament\FormBuilder\Components\Checkbox;
+use Filament\FormBuilder\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -40,7 +40,7 @@ class TagForm implements FormConfigurator
                         }),
 
                     TextInput::make('slug')
-                        ->label(__('capell-mosaic::form.slug'))
+                        ->label(__('capell-layout-builder::form.slug'))
                         ->alphaDash()
                         ->required()
                         ->maxLength(128)
@@ -56,7 +56,7 @@ class TagForm implements FormConfigurator
                         ->columnSpanFull()
                         ->schema([
                             Checkbox::make('featured')
-                                ->label(__('capell-mosaic::form.featured'))
+                                ->label(__('capell-layout-builder::form.featured'))
                                 ->helperText(__('capell-admin::generic.featured_hint')),
 
                             StatusToggle::make('status'),

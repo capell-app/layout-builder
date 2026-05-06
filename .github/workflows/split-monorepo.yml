@@ -11,50 +11,50 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - package_directory: packages/assistant
-            repository_name: assistant
+          - package_directory: packages/ai-orchestrator
+            repository_name: ai-orchestrator
           - package_directory: packages/address
             repository_name: address
-          - package_directory: packages/analytics
-            repository_name: analytics
+          - package_directory: packages/insights
+            repository_name: insights
           - package_directory: packages/backup
             repository_name: backup
           - package_directory: packages/blog
             repository_name: blog
-          - package_directory: packages/campaigns
-            repository_name: campaigns
-          - package_directory: packages/content-blocks
-            repository_name: content-blocks
-          - package_directory: packages/default-theme
-            repository_name: default-theme
-          - package_directory: packages/developer-tools
-            repository_name: developer-tools
-          - package_directory: packages/filament-peek
-            repository_name: filament-peek
-          - package_directory: packages/forms
-            repository_name: forms
-          - package_directory: packages/html-minify
-            repository_name: html-minify
-          - package_directory: packages/authentication-log
-            repository_name: authentication-log
-          - package_directory: packages/mcp
-            repository_name: mcp
-          - package_directory: packages/media-assistant
-            repository_name: media-assistant
-          - package_directory: packages/media-curator
-            repository_name: media-curator
-          - package_directory: packages/mosaic
-            repository_name: mosaic
+          - package_directory: packages/campaign-studio
+            repository_name: campaign-studio
+          - package_directory: packages/block-library
+            repository_name: block-library
+          - package_directory: packages/foundation-theme
+            repository_name: foundation-theme
+          - package_directory: packages/diagnostics
+            repository_name: diagnostics
+          - package_directory: packages/admin-preview
+            repository_name: admin-preview
+          - package_directory: packages/form-builder
+            repository_name: form-builder
+          - package_directory: packages/html-optimizer
+            repository_name: html-optimizer
+          - package_directory: packages/login-audit
+            repository_name: login-audit
+          - package_directory: packages/agent-bridge
+            repository_name: agent-bridge
+          - package_directory: packages/media-ai
+            repository_name: media-ai
+          - package_directory: packages/media-library
+            repository_name: media-library
+          - package_directory: packages/layout-builder
+            repository_name: layout-builder
           - package_directory: packages/navigation
             repository_name: navigation
           - package_directory: packages/redirects
             repository_name: redirects
-          - package_directory: packages/password-security
-            repository_name: password-security
-          - package_directory: packages/seo-tools
-            repository_name: seo-tools
-          - package_directory: packages/site-search
-            repository_name: site-search
+          - package_directory: packages/password-policy
+            repository_name: password-policy
+          - package_directory: packages/seo-suite
+            repository_name: seo-suite
+          - package_directory: packages/search
+            repository_name: search
           - package_directory: packages/tags
             repository_name: tags
           - package_directory: packages/theme-studio
@@ -71,8 +71,8 @@ jobs:
             repository_name: theme-saas
           - package_directory: packages/toolbar
             repository_name: frontend-toolbar
-          - package_directory: packages/workspaces
-            repository_name: workspaces
+          - package_directory: packages/publishing-studio
+            repository_name: publishing-studio
     steps:
       - uses: actions/checkout@v6
       - id: previous-tag

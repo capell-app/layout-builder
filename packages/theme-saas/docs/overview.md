@@ -10,14 +10,14 @@ Theme SaaS registers a conversion-led SaaS renderer for Capell Theme Studio.
 
 - SaaS theme service provider.
 - Theme renderer/views for SaaS Theme Studio output.
-- Dependency on Default Theme and Theme Studio Core.
+- Dependency on Foundation Theme and Theme Studio Core.
 
 ## Developer Notes
 
 Adds a renderer package that uses Theme Studio Core runtime contracts while leaving content models unchanged.
 
 - SaasThemeServiceProvider registers the renderer.
-- Requires capell-app/default-theme and capell-app/theme-studio-core.
+- Requires capell-app/foundation-theme and capell-app/theme-studio-core.
 - No migrations, config, routes, resources, or models are present.
 
 ## Operational Notes
@@ -43,7 +43,7 @@ Provides a SaaS-oriented visual option for product sites managed through Theme S
 ## Pitfalls
 
 - Install Theme Studio Core before using this renderer.
-- Verify Default Theme assets are generated.
+- Verify Foundation Theme assets are generated.
 
 ## Verification
 
@@ -59,7 +59,7 @@ Provides a SaaS-oriented visual option for product sites managed through Theme S
 - Tier: premium
 - Bundle: theme-studio
 - Contexts: `frontend`
-- Requires: `capell-app/default-theme`, `capell-app/theme-studio-core`
+- Requires: `capell-app/foundation-theme`, `capell-app/theme-studio-core`
 - Optional dependencies: None listed.
 
 ## Admin Surfaces

@@ -1,0 +1,15 @@
+{
+    "name": "capell-app/foundation-theme",
+    "kind": "theme",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Foundation",
+    "tier": "free",
+    "bundle": "foundation",
+    "contexts": ["frontend", "admin"],
+    "extends": null,
+    "providers": {
+        "shared": [
+            "Capell\\FoundationTheme\\Providers\\FoundationThemeServiceProvider"
+        ]
+    }
+}

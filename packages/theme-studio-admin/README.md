@@ -14,9 +14,30 @@ Theme Studio Admin adds the Filament admin experience for staging, reviewing, pr
 
 ## Why It Matters
 
-**For developers:** Keeps theme publishing behind explicit actions and publisher contracts, with optional Workspaces integration for review flow.
+**For developers:** Keeps theme publishing behind explicit actions and publisher contracts, with optional PublishingStudio integration for review flow.
 
 **For teams:** Lets teams adjust theme presentation through an admin surface while keeping draft, approval, and publish status visible.
+
+## Built With
+
+This package makes its Composer dependencies visible because they are part of the value proposition, not just plumbing. When an upstream package has a public repository, its linked preview card points readers back to the maintainers so their work gets proper credit.
+
+**Capell packages used here**
+
+- [Capell Admin](https://github.com/capell-app/admin)
+- [Capell Core](https://github.com/capell-app/core)
+- [Capell Theme Studio Core](../theme-studio-core/README.md)
+
+**Open-source packages used here**
+
+- [Laravel Actions](https://github.com/lorisleiva/laravel-actions) - single-purpose action classes that keep package workflows out of controllers and Filament resources.
+- [Spatie Laravel Package Tools](https://github.com/spatie/laravel-package-tools) - Laravel package bootstrapping for config, migrations, commands, translations, and service provider setup.
+
+**Linked package previews**
+
+[![Laravel Actions GitHub preview](https://opengraph.githubassets.com/capell-readme/lorisleiva/laravel-actions)](https://github.com/lorisleiva/laravel-actions)
+
+[![Spatie Laravel Package Tools GitHub preview](https://opengraph.githubassets.com/capell-readme/spatie/laravel-package-tools)](https://github.com/spatie/laravel-package-tools)
 
 ## Screens And Workflow
 
@@ -40,7 +61,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 ## Data Model
 
 - No migrations are present in this package.
-- It works with Theme Studio settings from Theme Studio Core and optional Workspaces state.
+- It works with Theme Studio settings from Theme Studio Core and optional PublishingStudio state.
 - Deletion and retention for staged drafts should be verified against publishing policy.
 
 ## Install Impact
@@ -64,7 +85,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 ## Common Pitfalls
 
 - Install Theme Studio Core before the admin package.
-- Use Workspaces integration only where Workspaces is installed and configured.
+- Use PublishingStudio integration only where PublishingStudio is installed and configured.
 - Validate custom colours before publishing.
 
 ## Quick Start
@@ -77,4 +98,5 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 
 - [docs/overview.md](docs/overview.md)
 - [../theme-studio-core/README.md](../theme-studio-core/README.md)
-- [../workspaces/README.md](../workspaces/README.md)
+- [../publishing-studio/README.md](../publishing-studio/README.md)
+- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)

@@ -19,6 +19,19 @@ Navigation adds site and language scoped navigation trees, page navigation field
 
 **For teams:** Lets editors manage menus for each site and language while keeping page selection tied to Capell records.
 
+## Built With
+
+This package makes its Composer dependencies visible because they are part of the value proposition, not just plumbing. When an upstream package has a public repository, its linked preview card points readers back to the maintainers so their work gets proper credit.
+
+**Capell packages used here**
+
+- [Capell Admin](https://github.com/capell-app/admin)
+- [Capell Frontend](https://github.com/capell-app/frontend)
+
+**Open-source packages used here**
+
+- No extra third-party Composer package beyond the Capell package stack is required here.
+
 ## Screens And Workflow
 
 Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) during package deployment.
@@ -83,4 +96,5 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 
 - [docs/overview.md](docs/overview.md)
 - [../blog/README.md](../blog/README.md)
-- [../workspaces/README.md](../workspaces/README.md)
+- [../publishing-studio/README.md](../publishing-studio/README.md)
+- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)

@@ -1,0 +1,69 @@
+{
+    "package": "campaign-studio",
+    "composerName": "capell-app/campaign-studio",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "outputDirectory": "public/docs/screenshots/packages/campaign-studio",
+    "entries": [
+        {
+            "id": "campaign-groups-index",
+            "title": "Campaign groups index.",
+            "package": "campaign-studio",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "CampaignConversionGoalResource",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "campaign-landing-pages-index",
+            "title": "Campaign landing pages index.",
+            "package": "campaign-studio",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "CampaignConversionGoalResource",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "campaign-conversion-goals-form",
+            "title": "Campaign conversion goals form.",
+            "package": "campaign-studio",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "CampaignConversionGoalResource",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "cta-block-form",
+            "title": "CTA block form.",
+            "package": "campaign-studio",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "CampaignConversionGoalResource",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "campaign-dashboard-widgets",
+            "title": "Campaign dashboard widgets.",
+            "package": "campaign-studio",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "CampaignConversionGoalResource",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "frontend-landing-page-with-campaign-widgets",
+            "title": "Frontend landing page with campaign widgets.",
+            "package": "campaign-studio",
+            "surface": "frontend",
+            "targetType": "frontend-url",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        }
+    ]
+}

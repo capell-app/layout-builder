@@ -1,0 +1,38 @@
+{
+    "name": "capell-app/dashboard-reports",
+    "description": "Generic CMS reporting widgets for Capell dashboards.",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "capell-app/admin": "^4.0",
+        "capell-app/core": "^4.0",
+        "lorisleiva/laravel-actions": "^2.8",
+        "spatie/laravel-data": "^4.5",
+        "spatie/laravel-package-tools": "^1.14.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\DashboardReports\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Capell\\DashboardReports\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\DashboardReports\\Providers\\DashboardReportsServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "test": "pest"
+    },
+    "prefer-stable": true
+}

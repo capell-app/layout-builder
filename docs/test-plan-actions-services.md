@@ -1,8 +1,8 @@
 # Test Plan: Actions & Services Coverage
 
-> **Historical note.** This document predates the move of AI functionality into `capell-app/seo-tools`. Entries in the _Admin Package → AI/\*_ section are legacy planning notes. New AI-assisted SEO tests belong under `packages/seo-tools/tests/`.
+> **Historical note.** This document predates the move of AI functionality into `capell-app/seo-suite`. Entries in the _Admin Package → AI/\*_ section are legacy planning notes. New AI-assisted SEO tests belong under `packages/seo-suite/tests/`.
 
-This document inventories Actions and Services across the Core, Admin, and SEO Tools-era packages and defines the test scope (Unit vs Integration) and representative scenarios per class. Tests live under each package's `tests/` directory.
+This document inventories Actions and Services across the Core, Admin, and SEO Suite-era packages and defines the test scope (Unit vs Integration) and representative scenarios per class. Tests live under each package's `tests/` directory.
 
 Conventions:
 
@@ -115,7 +115,7 @@ Conventions:
 
 ### Services
 
-- HtmlMinifier (`capell-app/html-minify`) — Unit; minify while preserving pre/code; edge cases.
+- HtmlMinifier (`capell-app/html-optimizer`) — Unit; minify while preserving pre/code; edge cases.
 - DatasetPublisher — Integration; writes files; File::spy; permission error.
 - LanguageFlagsService — Unit; ISO code → asset path; edge: unsupported code.
 - PageCacheService — Integration; exists, lastModified, path, delete, root, directories, allDirectories, files, allFiles, deleteDirectory; failure paths wrap exceptions with actionable messages.
@@ -156,7 +156,7 @@ Conventions:
 
 ## Phased Implementation (before running tests)
 
-Phase 1: Core (PageCacheService, SignedUrlService, SitemapGenerator); HTML Minify (HtmlMinifier); Admin (SlugGenerator, DeletePageCacheAction, AI/AiRateLimiter, AI/SuggestPageTitlesAction).
+Phase 1: Core (PageCacheService, SignedUrlService, SitemapGenerator); HTML Optimizer (HtmlMinifier); Admin (SlugGenerator, DeletePageCacheAction, AI/AiRateLimiter, AI/SuggestPageTitlesAction).
 
 Phase 2: Navigation/Pages/Types/Themes/Languages clusters in both packages.
 

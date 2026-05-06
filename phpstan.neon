@@ -29,41 +29,41 @@ parameters:
     databaseMigrationsPath:
         - packages/address/database/migrations
         - packages/blog/database/migrations
-        - packages/forms/database/migrations
-        - packages/mosaic/database/migrations
+        - packages/form-builder/database/migrations
+        - packages/layout-builder/database/migrations
         - packages/navigation/database/migrations
-        - packages/seo-tools/database/migrations
+        - packages/seo-suite/database/migrations
         - packages/tags/database/migrations
-        - packages/workspaces/database/migrations
+        - packages/publishing-studio/database/migrations
     configDirectories:
-        - packages/migrator/config
-        - packages/default-theme/config
+        - packages/migration-assistant/config
+        - packages/foundation-theme/config
         - packages/deployments/config
-        - packages/mosaic/config
-        - packages/mcp/config
+        - packages/layout-builder/config
+        - packages/agent-bridge/config
         - packages/redirects/config
-        - packages/seo-tools/config
-        - packages/site-search/config
+        - packages/seo-suite/config
+        - packages/search/config
         - packages/tags/publishes/config
         - packages/toolbar/config
     translationDirectories:
         - packages/address/resources/lang
         - packages/blog/resources/lang
-        - packages/mosaic/resources/lang
-        - packages/seo-tools/resources/lang
+        - packages/layout-builder/resources/lang
+        - packages/seo-suite/resources/lang
         - packages/tags/resources/lang
         - packages/toolbar/resources/lang
         - packages/theme-studio-admin/resources/lang
     viewDirectories:
         - packages/blog/resources/views
-        - packages/default-theme/resources/views
-        - packages/mosaic/resources/views
+        - packages/foundation-theme/resources/views
+        - packages/layout-builder/resources/views
         - packages/navigation/resources/views
-        - packages/seo-tools/resources/views
+        - packages/seo-suite/resources/views
         - packages/theme-studio-admin/resources/views
         - packages/theme-agency/resources/views
         - packages/theme-corporate/resources/views
         - packages/theme-saas/resources/views
         - packages/toolbar/resources/views
-        - packages/workspaces/resources/views
+        - packages/publishing-studio/resources/views
     tmpDir: /tmp/phpstan

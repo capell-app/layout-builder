@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\ThemeStudio\Admin\Publishing;
 
+use Capell\PublishingStudio\Enums\WorkspaceKindEnum;
+use Capell\PublishingStudio\Enums\WorkspaceStatusEnum;
+use Capell\PublishingStudio\Models\Workspace;
 use Capell\ThemeStudio\Admin\Contracts\ThemeDraftPublisher;
 use Capell\ThemeStudio\Core\Settings\ThemeStudioSettings;
-use Capell\Workspaces\Enums\WorkspaceKindEnum;
-use Capell\Workspaces\Enums\WorkspaceStatusEnum;
-use Capell\Workspaces\Models\Workspace;
 use Illuminate\Foundation\Auth\User as AuthenticatedUser;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -20,7 +20,7 @@ class WorkspaceThemeDraftPublisher implements ThemeDraftPublisher
     {
         $user = Auth::user();
 
-        throw_unless($user instanceof AuthenticatedUser, RuntimeException::class, 'A signed-in user is required to submit Theme Studio drafts for Workspaces approval.');
+        throw_unless($user instanceof AuthenticatedUser, RuntimeException::class, 'A signed-in user is required to submit Theme Studio drafts for PublishingStudio approval.');
 
         $workspace = $this->workspaceFor($settings);
 

@@ -8,14 +8,14 @@ use Capell\Blog\Data\BlogPublishingSurfaceData;
 use Capell\Blog\Enums\BlogPageTypeEnum;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Mosaic\Actions\InstallPackageAction as MosaicInstallPackageAction;
+use Capell\LayoutBuilder\Actions\InstallPackageAction as LayoutBuilderInstallPackageAction;
 use Capell\Navigation\Enums\NavigationHandle;
 use Capell\Navigation\Enums\NavigationItemType;
 use Capell\Navigation\Models\Navigation;
 use Illuminate\Database\Eloquent\Builder;
 
 beforeEach(function (): void {
-    MosaicInstallPackageAction::run();
+    LayoutBuilderInstallPackageAction::run();
     EnsureArticlePublishingDefaultsAction::run();
 });
 

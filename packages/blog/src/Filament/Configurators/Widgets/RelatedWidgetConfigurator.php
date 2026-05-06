@@ -7,18 +7,18 @@ namespace Capell\Blog\Filament\Configurators\Widgets;
 use Capell\Admin\Filament\Components\Forms\CacheFrequencySelect;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Core\Models\Type;
-use Capell\Mosaic\Filament\Components\Forms\Widget\ComponentSection;
-use Capell\Mosaic\Filament\Components\Forms\Widget\CreateDetailsSchema;
-use Capell\Mosaic\Filament\Components\Forms\Widget\DisplaySection;
-use Capell\Mosaic\Filament\Components\Forms\Widget\ResultsSchema;
-use Capell\Mosaic\Filament\Components\Forms\Widget\SettingsSchema;
-use Capell\Mosaic\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
-use Capell\Mosaic\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
-use Capell\Mosaic\Filament\Components\Forms\Widget\TranslationsRepeater;
-use Capell\Mosaic\Filament\Configurators\Widgets\DefaultWidgetConfigurator;
-use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\CreateDetailsSchema;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\DisplaySection;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\ResultsSchema;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\SettingsSchema;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\TranslationsRepeater;
+use Capell\LayoutBuilder\Filament\Configurators\Widgets\DefaultWidgetConfigurator;
+use Filament\FormBuilder\Components\Checkbox;
+use Filament\FormBuilder\Components\Select;
+use Filament\FormBuilder\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
@@ -75,10 +75,10 @@ class RelatedWidgetConfigurator extends DefaultWidgetConfigurator
                         DisplaySection::make([
                             Group::make([
                                 Checkbox::make('exclude_parent')
-                                    ->label(__('capell-mosaic::form.exclude_parent')),
+                                    ->label(__('capell-layout-builder::form.exclude_parent')),
                                 Select::make('exclude_types')
-                                    ->label(__('capell-mosaic::form.exclude_types'))
-                                    ->helperText(__('capell-mosaic::generic.exclude_types_info'))
+                                    ->label(__('capell-layout-builder::form.exclude_types'))
+                                    ->helperText(__('capell-layout-builder::generic.exclude_types_info'))
                                     ->multiple()
                                     ->options(
                                         function (): array {
@@ -95,9 +95,9 @@ class RelatedWidgetConfigurator extends DefaultWidgetConfigurator
                             Grid::make(3)
                                 ->schema([
                                     TextInput::make('limit')
-                                        ->label(__('capell-mosaic::form.limit')),
+                                        ->label(__('capell-layout-builder::form.limit')),
                                     Checkbox::make('pagination')
-                                        ->label(__('capell-mosaic::form.pagination'))
+                                        ->label(__('capell-layout-builder::form.pagination'))
                                         ->default(true),
                                     CacheFrequencySelect::make('cache_frequency'),
                                 ]),

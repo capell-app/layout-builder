@@ -1,0 +1,13 @@
+{
+    "name": "capell-app/media-library",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Foundation",
+    "tier": "free",
+    "bundle": "foundation",
+    "contexts": ["admin"],
+    "requires": ["capell-app/core", "capell-app/admin"],
+    "providers": {
+        "shared": ["Capell\\MediaLibrary\\MediaLibraryServiceProvider"]
+    }
+}

@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        package: [mosaic]
+        package: [layout-builder]
     defaults:
       run:
         working-directory: packages/${{ matrix.package }}

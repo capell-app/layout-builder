@@ -2,7 +2,7 @@
 
 # Dual-Graph Context Policy
 
-This project uses a local dual-graph MCP server for efficient context retrieval.
+This project uses a local dual-graph Agent Bridge server for efficient context retrieval.
 
 ## Context Layering (Codex Only)
 
@@ -13,6 +13,12 @@ This project uses a local dual-graph MCP server for efficient context retrieval.
 - Never ask for "full context" or entire chat history.
 - Ask only for missing sections, one short question at a time.
 - If a domain is missing context, request only that pack (for example: "please share billing context pack").
+
+## Frontend Authoring Safety
+
+- Non-admin frontend users must never receive page-editor HTML, JavaScript, editable markers, model IDs, field paths, labels, permissions, package names, selectors, or signed editor URLs.
+- In-page authoring starts after page load from the beacon. Only an authenticated admin beacon response may return editable regions, edit controls, or signed Filament editor URLs.
+- Do not add authoring metadata to Blade, theme output, cached HTML, or public frontend assets. Unique/static HTML caching must stay safe for every visitor type.
 
 ## MANDATORY: Always follow this order
 

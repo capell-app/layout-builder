@@ -7,10 +7,10 @@ namespace Capell\Blog\Filament\Widgets;
 use Capell\Admin\Contracts\CapellWidgetContract;
 use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
 use Capell\Admin\Filament\Concerns\HasDashboardDateRange;
-use Capell\Analytics\Enums\AnalyticsEventType;
-use Capell\Analytics\Models\AnalyticsEvent;
 use Capell\Blog\Data\Dashboard\TopPageData;
 use Capell\Blog\Data\Dashboard\TopPagesData;
+use Capell\Insights\Enums\InsightsEventType;
+use Capell\Insights\Models\InsightsEvent;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -42,9 +42,9 @@ final class TopPagesWidgetAbstract extends Widget implements CapellWidgetContrac
     {
         [$rangeStart, $rangeEnd] = $this->getDashboardDateRange();
 
-        $rows = AnalyticsEvent::query()
+        $rows = InsightsEvent::query()
             ->select('path', DB::raw('COUNT(*) as views'))
-            ->where('type', AnalyticsEventType::PageView)
+            ->where('type', InsightsEventType::PageView)
             ->where('occurred_at', '>=', $rangeStart)
             ->where('occurred_at', '<=', $rangeEnd)
             ->groupBy('path')

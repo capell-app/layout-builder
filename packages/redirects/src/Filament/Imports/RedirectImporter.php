@@ -15,7 +15,7 @@ use Capell\Redirects\Actions\ValidateRedirectAction;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
-use Filament\Forms\Components\Radio;
+use Filament\FormBuilder\Components\Radio;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Utilities\Get;
 use Illuminate\Contracts\Auth\Authenticatable;

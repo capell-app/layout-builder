@@ -30,10 +30,10 @@ use Capell\Navigation\Enums\NavigationItemType;
 use Capell\Navigation\Filament\Components\Forms\Navigation\TypeSelect;
 use Closure;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ToggleButtons;
+use Filament\FormBuilder\Components\Checkbox;
+use Filament\FormBuilder\Components\Select;
+use Filament\FormBuilder\Components\TextInput;
+use Filament\FormBuilder\Components\ToggleButtons;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Tabs;
@@ -48,7 +48,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema as DatabaseSchema;
 use Illuminate\Validation\Rules\Unique;
-use Saade\FilamentAdjacencyList\Forms\Components\AdjacencyList;
+use Saade\FilamentAdjacencyList\FormBuilder\Components\AdjacencyList;
 
 class DefaultNavigationConfigurator implements ConfiguratorInterface
 {

@@ -6,31 +6,31 @@ Capell groups first-party packages by customer-facing value. Composer names rema
 
 Free baseline packages:
 
-| Package          | Composer name                 |
-| ---------------- | ----------------------------- |
-| Mosaic           | `capell-app/mosaic`           |
-| Blog             | `capell-app/blog`             |
-| Navigation       | `capell-app/navigation`       |
-| Tags             | `capell-app/tags`             |
-| Redirects        | `capell-app/redirects`        |
-| Address          | `capell-app/address`          |
-| Media Curator    | `capell-app/media-curator`    |
-| Frontend Toolbar | `capell-app/frontend-toolbar` |
-| HTML Minify      | `capell-app/html-minify`      |
-| Default Theme    | `capell-app/default-theme`    |
+| Package            | Composer name                   |
+| ------------------ | ------------------------------- |
+| LayoutBuilder      | `capell-app/layout-builder`     |
+| Blog               | `capell-app/blog`               |
+| Navigation         | `capell-app/navigation`         |
+| Tags               | `capell-app/tags`               |
+| Redirects          | `capell-app/redirects`          |
+| Address            | `capell-app/address`            |
+| Media Library      | `capell-app/media-library`      |
+| Frontend Authoring | `capell-app/frontend-authoring` |
+| HTML Optimizer     | `capell-app/html-optimizer`     |
+| Foundation Theme   | `capell-app/foundation-theme`   |
 
-Tags and Media Curator are Foundation packages because taxonomy and media management are normal CMS expectations.
+Tags and Media Library are Foundation packages because taxonomy and media management are normal CMS expectations.
 
 ## Premium Groups
 
 | Product group         | Bundle key       | Packages                                                                         |
 | --------------------- | ---------------- | -------------------------------------------------------------------------------- |
-| Capell Commercial     | `commercial`     | Assistant                                                                        |
-| Capell Forms          | `forms`          | Forms                                                                            |
-| Capell Publishing Pro | `publishing-pro` | Workspaces, Filament Peek                                                        |
-| Capell Operations     | `operations`     | Migrator, Developer Tools, Authentication Log                                    |
-| Capell Growth         | `growth`         | Analytics, Campaigns                                                             |
-| Capell Search & SEO   | `search-seo`     | SEO Tools, Site Search                                                           |
+| Capell Commercial     | `commercial`     | AIOrchestrator                                                                   |
+| Capell FormBuilder    | `form-builder`   | FormBuilder                                                                      |
+| Capell Publishing Pro | `publishing-pro` | PublishingStudio, Admin Preview                                                  |
+| Capell Operations     | `operations`     | MigrationAssistant, Diagnostics, Login Audit                                     |
+| Capell Growth         | `growth`         | Insights, CampaignStudio                                                         |
+| Capell Search & SEO   | `search-seo`     | SEO Suite, Search                                                                |
 | Capell Theme Studio   | `theme-studio`   | Theme Studio Core, Theme Studio Admin, Agency Theme, Corporate Theme, SaaS Theme |
 
 ## Manifest Fields
@@ -49,4 +49,4 @@ Use stable bundle keys in code and marketplace syncs. Use product group names in
 
 ## Naming Rule
 
-Do not rename Composer packages simply because they sell together. For example, `capell-app/migrator`, `capell-app/developer-tools`, and `capell-app/authentication-log` stay separate packages but group together as **Capell Operations**.
+Do not rename Composer packages simply because they sell together. For example, `capell-app/migration-assistant`, `capell-app/diagnostics`, and `capell-app/login-audit` stay separate packages but group together as **Capell Operations**.

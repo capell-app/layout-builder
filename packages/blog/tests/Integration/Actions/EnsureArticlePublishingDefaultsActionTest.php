@@ -8,11 +8,11 @@ use Capell\Blog\Enums\BlogPageTypeEnum;
 use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Type;
-use Capell\Mosaic\Actions\InstallPackageAction as MosaicInstallPackageAction;
-use Capell\Mosaic\Models\Widget;
+use Capell\LayoutBuilder\Actions\InstallPackageAction as LayoutBuilderInstallPackageAction;
+use Capell\LayoutBuilder\Models\Widget;
 
 beforeEach(function (): void {
-    MosaicInstallPackageAction::run();
+    LayoutBuilderInstallPackageAction::run();
 });
 
 it('installs article publishing page types layouts and widgets', function (): void {

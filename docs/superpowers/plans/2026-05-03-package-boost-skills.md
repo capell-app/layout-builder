@@ -30,28 +30,28 @@ Use this policy:
 ```php
 $packagesWithSkills = [
     'address',
-    'analytics',
-    'assistant',
-    'authentication-log',
-    'migrator',
+    'insights',
+    'ai-orchestrator',
+    'login-audit',
+    'migration-assistant',
     'blog',
-    'campaigns',
-    'content-blocks',
-    'default-theme',
+    'campaign-studio',
+    'block-library',
+    'foundation-theme',
     'deployments',
-    'developer-tools',
-    'forms',
-    'mcp',
-    'media-curator',
-    'mosaic',
+    'diagnostics',
+    'form-builder',
+    'agent-bridge',
+    'media-library',
+    'layout-builder',
     'navigation',
     'redirects',
-    'seo-tools',
-    'site-search',
+    'seo-suite',
+    'search',
     'tags',
     'theme-studio-admin',
     'theme-studio-core',
-    'workspaces',
+    'publishing-studio',
 ];
 ```
 
@@ -70,28 +70,28 @@ Expected: FAIL while pointless skills still exist.
 **Files:**
 
 - Modify: `packages/address/resources/boost/skills/capell-address-development/SKILL.md`
-- Modify: `packages/analytics/resources/boost/skills/capell-analytics-development/SKILL.md`
-- Modify: `packages/assistant/resources/boost/skills/capell-assistant-development/SKILL.md`
-- Modify: `packages/authentication-log/resources/boost/skills/capell-authentication-log-development/SKILL.md`
-- Modify: `packages/migrator/resources/boost/skills/capell-migrator-development/SKILL.md`
+- Modify: `packages/insights/resources/boost/skills/capell-insights-development/SKILL.md`
+- Modify: `packages/ai-orchestrator/resources/boost/skills/capell-ai-orchestrator-development/SKILL.md`
+- Modify: `packages/login-audit/resources/boost/skills/capell-login-audit-development/SKILL.md`
+- Modify: `packages/migration-assistant/resources/boost/skills/capell-migration-assistant-development/SKILL.md`
 - Modify: `packages/blog/resources/boost/skills/blog/SKILL.md`
-- Modify: `packages/campaigns/resources/boost/skills/capell-campaigns-development/SKILL.md`
-- Modify: `packages/content-blocks/resources/boost/skills/capell-content-blocks-development/SKILL.md`
-- Modify: `packages/default-theme/resources/boost/skills/capell-default-theme-development/SKILL.md`
+- Modify: `packages/campaign-studio/resources/boost/skills/capell-campaign-studio-development/SKILL.md`
+- Modify: `packages/block-library/resources/boost/skills/capell-block-library-development/SKILL.md`
+- Modify: `packages/foundation-theme/resources/boost/skills/capell-foundation-theme-development/SKILL.md`
 - Modify: `packages/deployments/resources/boost/skills/capell-deployments-development/SKILL.md`
-- Modify: `packages/developer-tools/resources/boost/skills/capell-developer-tools-development/SKILL.md`
-- Modify: `packages/forms/resources/boost/skills/capell-forms-development/SKILL.md`
-- Modify: `packages/mcp/resources/boost/skills/capell-mcp-development/SKILL.md`
-- Modify: `packages/media-curator/resources/boost/skills/capell-media-curator-development/SKILL.md`
-- Modify: `packages/mosaic/resources/boost/skills/mosaic/SKILL.md`
+- Modify: `packages/diagnostics/resources/boost/skills/capell-diagnostics-development/SKILL.md`
+- Modify: `packages/form-builder/resources/boost/skills/capell-form-builder-development/SKILL.md`
+- Modify: `packages/agent-bridge/resources/boost/skills/capell-agent-bridge-development/SKILL.md`
+- Modify: `packages/media-library/resources/boost/skills/capell-media-library-development/SKILL.md`
+- Modify: `packages/layout-builder/resources/boost/skills/layout-builder/SKILL.md`
 - Modify: `packages/navigation/resources/boost/skills/capell-navigation-development/SKILL.md`
 - Modify: `packages/redirects/resources/boost/skills/capell-redirects-development/SKILL.md`
-- Modify: `packages/seo-tools/resources/boost/skills/capell-seo-tools-development/SKILL.md`
-- Modify: `packages/site-search/resources/boost/skills/capell-site-search-development/SKILL.md`
+- Modify: `packages/seo-suite/resources/boost/skills/capell-seo-suite-development/SKILL.md`
+- Modify: `packages/search/resources/boost/skills/capell-search-development/SKILL.md`
 - Modify: `packages/tags/resources/boost/skills/capell-tags-development/SKILL.md`
 - Modify: `packages/theme-studio-admin/resources/boost/skills/capell-theme-studio-admin-development/SKILL.md`
 - Modify: `packages/theme-studio-core/resources/boost/skills/capell-theme-studio-core-development/SKILL.md`
-- Modify: `packages/workspaces/resources/boost/skills/workspaces/SKILL.md`
+- Modify: `packages/publishing-studio/resources/boost/skills/publishing-studio/SKILL.md`
 
 - [ ] **Step 1: Rewrite the skills**
 
@@ -111,8 +111,8 @@ Expected: each shipped skill is short enough to scan quickly.
 
 **Files:**
 
-- Delete: `packages/filament-peek/resources/boost/skills/capell-filament-peek-development/SKILL.md`
-- Delete: `packages/html-minify/resources/boost/skills/capell-html-minify-development/SKILL.md`
+- Delete: `packages/admin-preview/resources/boost/skills/capell-admin-preview-development/SKILL.md`
+- Delete: `packages/html-optimizer/resources/boost/skills/capell-html-optimizer-development/SKILL.md`
 - Delete: `packages/theme-agency/resources/boost/skills/capell-theme-agency-development/SKILL.md`
 - Delete: `packages/theme-corporate/resources/boost/skills/capell-theme-corporate-development/SKILL.md`
 - Delete: `packages/theme-saas/resources/boost/skills/capell-theme-saas-development/SKILL.md`
@@ -128,7 +128,7 @@ Remove the listed files so Boost has no pointless trigger for thin packages.
 Run:
 
 ```bash
-test -f packages/html-minify/resources/boost/guidelines/core.blade.php
+test -f packages/html-optimizer/resources/boost/guidelines/core.blade.php
 ```
 
 Expected: exit code 0.

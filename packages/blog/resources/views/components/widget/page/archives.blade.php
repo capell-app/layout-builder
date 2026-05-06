@@ -48,7 +48,7 @@
     }
 @endphp
 
-<x-capell-mosaic::widget.wrapper
+<x-capell-layout-builder::widget.wrapper
     :$container
     :$containerKey
     :$containerWidth
@@ -103,4 +103,4 @@
             @endforeach
         </ul>
     @endif
-</x-capell-mosaic::widget.wrapper>
+</x-capell-layout-builder::widget.wrapper>

@@ -1,0 +1,16 @@
+{
+    "name": "capell-app/html-optimizer",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Foundation",
+    "tier": "free",
+    "bundle": "foundation",
+    "contexts": ["frontend"],
+    "requires": ["capell-app/frontend"],
+    "providers": {
+        "shared": [
+            "Capell\\HtmlOptimizer\\Providers\\HtmlOptimizerServiceProvider"
+        ]
+    },
+    "scopes": ["frontend"]
+}

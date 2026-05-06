@@ -9,79 +9,86 @@ use Capell\Address\Models\Country;
 use Capell\Address\Providers\AddressServiceProvider;
 use Capell\Admin\Enums\DashboardEnum;
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Analytics\Filament\Widgets\AnalyticsOverviewStatsWidget;
-use Capell\Analytics\Models\AnalyticsConsent;
-use Capell\Analytics\Models\AnalyticsEvent;
-use Capell\Analytics\Models\AnalyticsVisit;
-use Capell\Analytics\Providers\AnalyticsServiceProvider;
-use Capell\AuthenticationLog\Filament\Resources\AuthenticationLogs\AuthenticationLogResource;
-use Capell\AuthenticationLog\Filament\Widgets\AuthenticationLogsWidget;
-use Capell\AuthenticationLog\Models\AuthenticationLog;
-use Capell\AuthenticationLog\Providers\AuthenticationLogServiceProvider;
+use Capell\AdminPreview\Providers\AdminPreviewServiceProvider;
+use Capell\AgentBridge\Filament\Pages\CapellAgentBridgePromptBuilderPage;
+use Capell\AgentBridge\Providers\AgentBridgeServiceProvider;
+use Capell\AgentBridge\Support\CapellAgentBridgeCapabilityRegistry;
+use Capell\BlockLibrary\Filament\Resources\BlockLibrary\ContentBlockResource;
+use Capell\BlockLibrary\Models\ContentBlock;
+use Capell\BlockLibrary\Providers\BlockLibraryServiceProvider;
 use Capell\Blog\Filament\Resources\Articles\ArticleResource;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Providers\BlogServiceProvider;
-use Capell\Campaigns\Filament\Resources\CampaignConversionGoals\CampaignConversionGoalResource;
-use Capell\Campaigns\Filament\Resources\CampaignCtaBlocks\CampaignCtaBlockResource;
-use Capell\Campaigns\Filament\Resources\CampaignGroups\CampaignGroupResource;
-use Capell\Campaigns\Filament\Resources\CampaignLandingPages\CampaignLandingPageResource;
-use Capell\Campaigns\Filament\Widgets\CampaignOverviewStatsWidget;
-use Capell\Campaigns\Models\CampaignConversion;
-use Capell\Campaigns\Models\CampaignConversionGoal;
-use Capell\Campaigns\Models\CampaignCtaBlock;
-use Capell\Campaigns\Models\CampaignGroup;
-use Capell\Campaigns\Models\CampaignLandingPage;
-use Capell\Campaigns\Providers\CampaignsServiceProvider;
-use Capell\ContentBlocks\Filament\Resources\ContentBlocks\ContentBlockResource;
-use Capell\ContentBlocks\Models\ContentBlock;
-use Capell\ContentBlocks\Providers\ContentBlocksServiceProvider;
+use Capell\CampaignStudio\Filament\Resources\CampaignConversionGoals\CampaignConversionGoalResource;
+use Capell\CampaignStudio\Filament\Resources\CampaignCtaBlocks\CampaignCtaBlockResource;
+use Capell\CampaignStudio\Filament\Resources\CampaignGroups\CampaignGroupResource;
+use Capell\CampaignStudio\Filament\Resources\CampaignLandingPages\CampaignLandingPageResource;
+use Capell\CampaignStudio\Filament\Widgets\CampaignOverviewStatsWidget;
+use Capell\CampaignStudio\Models\CampaignConversion;
+use Capell\CampaignStudio\Models\CampaignConversionGoal;
+use Capell\CampaignStudio\Models\CampaignCtaBlock;
+use Capell\CampaignStudio\Models\CampaignGroup;
+use Capell\CampaignStudio\Models\CampaignLandingPage;
+use Capell\CampaignStudio\Providers\CampaignStudioServiceProvider;
 use Capell\Core\Enums\VendorAssetEnum;
 use Capell\Core\Facades\CapellCore;
-use Capell\DeveloperTools\Filament\Pages\DeveloperToolsPage;
-use Capell\DeveloperTools\Filament\Widgets\Health\SiteHealthWidgetAbstract;
-use Capell\DeveloperTools\Providers\DeveloperToolsServiceProvider;
-use Capell\FilamentPeek\Providers\FilamentPeekServiceProvider;
-use Capell\Forms\Models\Form;
-use Capell\Forms\Models\Submission;
-use Capell\Forms\Providers\FormsServiceProvider;
+use Capell\Diagnostics\Filament\Pages\DiagnosticsPage;
+use Capell\Diagnostics\Filament\Widgets\Health\SiteHealthWidgetAbstract;
+use Capell\Diagnostics\Providers\DiagnosticsServiceProvider;
+use Capell\FormBuilder\Models\Form;
+use Capell\FormBuilder\Models\Submission;
+use Capell\FormBuilder\Providers\FormBuilderServiceProvider;
 use Capell\Frontend\Contracts\HtmlMinifier;
-use Capell\HtmlMinify\Providers\HtmlMinifyServiceProvider;
-use Capell\HtmlMinify\Support\Html\HtmlMinifier as VokuHtmlMinifier;
-use Capell\Mcp\Filament\Pages\CapellMcpPromptBuilderPage;
-use Capell\Mcp\Providers\CapellMcpServiceProvider;
-use Capell\Mcp\Support\CapellMcpCapabilityRegistry;
-use Capell\MediaCurator\CapellMediaCuratorServiceProvider;
-use Capell\MediaCurator\Filament\Pages\MediaHealthPage;
-use Capell\MediaCurator\Models\CuratorMedia;
-use Capell\Migrator\Contracts\MigratorContextResolver;
-use Capell\Migrator\Filament\Resources\ImportSessions\ImportSessionResource;
-use Capell\Migrator\Models\ImportRollbackReport;
-use Capell\Migrator\Models\ImportSession;
-use Capell\Migrator\Providers\MigratorServiceProvider;
-use Capell\Mosaic\Filament\Resources\Layouts\LayoutResource;
-use Capell\Mosaic\Filament\Resources\Sections\SectionResource;
-use Capell\Mosaic\Filament\Resources\Widgets\WidgetResource;
-use Capell\Mosaic\Models\Section;
-use Capell\Mosaic\Models\Widget;
-use Capell\Mosaic\Models\WidgetAsset;
-use Capell\Mosaic\Providers\MosaicServiceProvider;
+use Capell\FrontendAuthoring\Providers\FrontendAuthoringServiceProvider;
+use Capell\HtmlOptimizer\Providers\HtmlOptimizerServiceProvider;
+use Capell\HtmlOptimizer\Support\Html\HtmlMinifier as VokuHtmlMinifier;
+use Capell\Insights\Filament\Widgets\InsightsOverviewStatsWidget;
+use Capell\Insights\Models\InsightsConsent;
+use Capell\Insights\Models\InsightsEvent;
+use Capell\Insights\Models\InsightsVisit;
+use Capell\Insights\Providers\InsightsServiceProvider;
+use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
+use Capell\LayoutBuilder\Filament\Resources\Sections\SectionResource;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
+use Capell\LayoutBuilder\Models\Section;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
+use Capell\LayoutBuilder\Providers\LayoutBuilderServiceProvider;
+use Capell\LoginAudit\Filament\Resources\LoginAudits\LoginAuditResource;
+use Capell\LoginAudit\Filament\Widgets\LoginAuditsWidget;
+use Capell\LoginAudit\Models\LoginAudit;
+use Capell\LoginAudit\Providers\LoginAuditServiceProvider;
+use Capell\MediaLibrary\Filament\Pages\MediaHealthPage;
+use Capell\MediaLibrary\MediaLibraryServiceProvider;
+use Capell\MediaLibrary\Models\CuratorMedia;
+use Capell\MigrationAssistant\Contracts\MigrationAssistantContextResolver;
+use Capell\MigrationAssistant\Filament\Resources\ImportSessions\ImportSessionResource;
+use Capell\MigrationAssistant\Models\ImportRollbackReport;
+use Capell\MigrationAssistant\Models\ImportSession;
+use Capell\MigrationAssistant\Providers\MigrationAssistantServiceProvider;
 use Capell\Navigation\Filament\Resources\Navigations\NavigationResource;
 use Capell\Navigation\Models\Navigation;
 use Capell\Navigation\Providers\NavigationServiceProvider;
+use Capell\PublishingStudio\Filament\Resources\PreviewLinks\PreviewLinkResource;
+use Capell\PublishingStudio\Filament\Resources\PublishingStudio\WorkspaceResource;
+use Capell\PublishingStudio\Models\PreviewLink;
+use Capell\PublishingStudio\Models\Version;
+use Capell\PublishingStudio\Models\Workspace;
+use Capell\PublishingStudio\Providers\PublishingStudioServiceProvider;
 use Capell\Redirects\Contracts\RedirectResolver;
 use Capell\Redirects\Filament\Resources\Redirects\RedirectResource;
 use Capell\Redirects\Providers\RedirectsServiceProvider;
-use Capell\SeoTools\Filament\Pages\BrokenLinksPage;
-use Capell\SeoTools\Filament\Pages\NotFoundUrlsPage;
-use Capell\SeoTools\Filament\Pages\SEOAuditPage;
-use Capell\SeoTools\Models\AIGenerationHistory;
-use Capell\SeoTools\Models\BrokenLink;
-use Capell\SeoTools\Models\PageSeoSnapshot;
-use Capell\SeoTools\Providers\SeoToolsServiceProvider;
-use Capell\SiteSearch\Contracts\SiteSearch;
-use Capell\SiteSearch\Filament\Widgets\SearchOverviewStatsWidget;
-use Capell\SiteSearch\Models\SiteSearchLog;
-use Capell\SiteSearch\Providers\SiteSearchServiceProvider;
+use Capell\Search\Contracts\Search;
+use Capell\Search\Filament\Widgets\SearchOverviewStatsWidget;
+use Capell\Search\Models\SearchLog;
+use Capell\Search\Providers\SearchServiceProvider;
+use Capell\SeoSuite\Filament\Pages\BrokenLinksPage;
+use Capell\SeoSuite\Filament\Pages\NotFoundUrlsPage;
+use Capell\SeoSuite\Filament\Pages\SEOAuditPage;
+use Capell\SeoSuite\Models\AIGenerationHistory;
+use Capell\SeoSuite\Models\BrokenLink;
+use Capell\SeoSuite\Models\PageSeoSnapshot;
+use Capell\SeoSuite\Providers\SeoSuiteServiceProvider;
 use Capell\Tags\Filament\Resources\Tags\TagResource;
 use Capell\Tags\Models\Tag;
 use Capell\Tags\Providers\TagsServiceProvider;
@@ -89,20 +96,13 @@ use Capell\ThemeStudio\Admin\Filament\Pages\ThemeStudioPage;
 use Capell\ThemeStudio\Admin\ThemeStudioAdminServiceProvider;
 use Capell\ThemeStudio\Core\Theme\ThemeRegistry;
 use Capell\ThemeStudio\Core\ThemeStudioCoreServiceProvider;
-use Capell\Toolbar\Providers\ToolbarServiceProvider;
-use Capell\Workspaces\Filament\Resources\PreviewLinks\PreviewLinkResource;
-use Capell\Workspaces\Filament\Resources\Workspaces\WorkspaceResource;
-use Capell\Workspaces\Models\PreviewLink;
-use Capell\Workspaces\Models\Version;
-use Capell\Workspaces\Models\Workspace;
-use Capell\Workspaces\Providers\WorkspacesServiceProvider;
 use Illuminate\Support\Facades\Route;
 
 it('discovers composer-required packages without treating them as installed Capell plugins', function (): void {
     $composerRequiredPackages = [
-        MigratorServiceProvider::$packageName,
-        HtmlMinifyServiceProvider::$packageName,
-        CapellMcpServiceProvider::$packageName,
+        MigrationAssistantServiceProvider::$packageName,
+        HtmlOptimizerServiceProvider::$packageName,
+        AgentBridgeServiceProvider::$packageName,
     ];
 
     $composer = json_decode((string) file_get_contents(dirname(__DIR__, 3) . '/composer.json'), true, flags: JSON_THROW_ON_ERROR);
@@ -124,26 +124,26 @@ it('discovers composer-required packages without treating them as installed Cape
 it('registers package metadata but skips runtime models, tables, settings, and assets for uninstalled packages', function (): void {
     $packageNames = [
         AddressServiceProvider::$packageName,
-        AnalyticsServiceProvider::$packageName,
-        AuthenticationLogServiceProvider::$packageName,
-        MigratorServiceProvider::$packageName,
+        InsightsServiceProvider::$packageName,
+        LoginAuditServiceProvider::$packageName,
+        MigrationAssistantServiceProvider::$packageName,
         BlogServiceProvider::$packageName,
-        CampaignsServiceProvider::$packageName,
-        ContentBlocksServiceProvider::$packageName,
-        DeveloperToolsServiceProvider::$packageName,
-        FilamentPeekServiceProvider::$packageName,
-        FormsServiceProvider::$packageName,
-        CapellMediaCuratorServiceProvider::$packageName,
-        MosaicServiceProvider::$packageName,
+        CampaignStudioServiceProvider::$packageName,
+        BlockLibraryServiceProvider::$packageName,
+        DiagnosticsServiceProvider::$packageName,
+        AdminPreviewServiceProvider::$packageName,
+        FormBuilderServiceProvider::$packageName,
+        MediaLibraryServiceProvider::$packageName,
+        LayoutBuilderServiceProvider::$packageName,
         NavigationServiceProvider::$packageName,
         RedirectsServiceProvider::$packageName,
-        SeoToolsServiceProvider::$packageName,
-        SiteSearchServiceProvider::$packageName,
+        SeoSuiteServiceProvider::$packageName,
+        SearchServiceProvider::$packageName,
         TagsServiceProvider::$packageName,
         ThemeStudioAdminServiceProvider::$packageName,
         ThemeStudioCoreServiceProvider::$packageName,
-        ToolbarServiceProvider::$packageName,
-        WorkspacesServiceProvider::$packageName,
+        FrontendAuthoringServiceProvider::$packageName,
+        PublishingStudioServiceProvider::$packageName,
     ];
 
     foreach ($packageNames as $packageName) {
@@ -154,10 +154,10 @@ it('registers package metadata but skips runtime models, tables, settings, and a
     expect(CapellCore::getModels())->not->toContain(
         Address::class,
         Country::class,
-        AnalyticsConsent::class,
-        AnalyticsEvent::class,
-        AnalyticsVisit::class,
-        AuthenticationLog::class,
+        InsightsConsent::class,
+        InsightsEvent::class,
+        InsightsVisit::class,
+        LoginAudit::class,
         ImportRollbackReport::class,
         ImportSession::class,
         Article::class,
@@ -177,7 +177,7 @@ it('registers package metadata but skips runtime models, tables, settings, and a
         AIGenerationHistory::class,
         BrokenLink::class,
         PageSeoSnapshot::class,
-        SiteSearchLog::class,
+        SearchLog::class,
         Tag::class,
         PreviewLink::class,
         Version::class,
@@ -185,11 +185,11 @@ it('registers package metadata but skips runtime models, tables, settings, and a
     );
 
     expect(CapellCore::getProtectedTables())->not->toContain(
-        'analytics_visits',
-        'analytics_consents',
-        'analytics_events',
-        'authentication_log',
-        'site_search_logs',
+        'insights_visits',
+        'insights_consents',
+        'insights_events',
+        'login_audit',
+        'search_logs',
     );
 
     $tailwindSources = CapellCore::getVendorAssetsForType(VendorAssetEnum::TailwindSource)
@@ -199,8 +199,8 @@ it('registers package metadata but skips runtime models, tables, settings, and a
     expect($tailwindSources)->not->toContain(
         AddressServiceProvider::$packageName,
         BlogServiceProvider::$packageName,
-        FormsServiceProvider::$packageName,
-        MosaicServiceProvider::$packageName,
+        FormBuilderServiceProvider::$packageName,
+        LayoutBuilderServiceProvider::$packageName,
     );
 });
 
@@ -216,8 +216,8 @@ it('does not expose admin resources, pages, widgets, or routes for uninstalled p
         CampaignGroupResource::class,
         CampaignLandingPageResource::class,
         ContentBlockResource::class,
-        'Capell\\Forms\\Filament\\Resources\\Forms\\FormResource',
-        'Capell\\Forms\\Filament\\Resources\\Submissions\\SubmissionResource',
+        'Capell\\FormBuilder\\Filament\\Resources\\FormBuilder\\FormResource',
+        'Capell\\FormBuilder\\Filament\\Resources\\Submissions\\SubmissionResource',
         ImportSessionResource::class,
         LayoutResource::class,
         SectionResource::class,
@@ -229,12 +229,12 @@ it('does not expose admin resources, pages, widgets, or routes for uninstalled p
         PreviewLinkResource::class,
     );
 
-    expect($adminSurfaceRegistry->resources())->not->toContain(AuthenticationLogResource::class);
+    expect($adminSurfaceRegistry->resources())->not->toContain(LoginAuditResource::class);
 
     expect($adminSurfaceRegistry->pages())->not->toContain(
         BrokenLinksPage::class,
-        CapellMcpPromptBuilderPage::class,
-        DeveloperToolsPage::class,
+        CapellAgentBridgePromptBuilderPage::class,
+        DiagnosticsPage::class,
         MediaHealthPage::class,
         NotFoundUrlsPage::class,
         SEOAuditPage::class,
@@ -242,24 +242,24 @@ it('does not expose admin resources, pages, widgets, or routes for uninstalled p
     );
 
     expect(CapellAdmin::getDashboardWidgets(DashboardEnum::Main))->not->toContain(
-        AnalyticsOverviewStatsWidget::class,
+        InsightsOverviewStatsWidget::class,
         CampaignOverviewStatsWidget::class,
         SiteHealthWidgetAbstract::class,
         SearchOverviewStatsWidget::class,
     );
 
-    expect(CapellAdmin::getDashboardWidgets(DashboardEnum::SystemHealth))->not->toContain(AuthenticationLogsWidget::class);
+    expect(CapellAdmin::getDashboardWidgets(DashboardEnum::SystemHealth))->not->toContain(LoginAuditsWidget::class);
 
     expect(Route::getMiddleware())->not->toHaveKey('frontend.minify')
         ->and(Route::getMiddleware())->not->toHaveKey('frontend.activity')
-        ->and(Route::has('capell-mcp.server'))->toBeFalse();
+        ->and(Route::has('capell-agent-bridge.server'))->toBeFalse();
 });
 
 it('does not bind package runtime services for uninstalled packages', function (): void {
-    expect(app()->bound(MigratorContextResolver::class))->toBeFalse()
+    expect(app()->bound(MigrationAssistantContextResolver::class))->toBeFalse()
         ->and(app()->bound(RedirectResolver::class))->toBeFalse()
-        ->and(app()->bound(SiteSearch::class))->toBeFalse()
-        ->and(app()->bound(CapellMcpCapabilityRegistry::class))->toBeFalse()
+        ->and(app()->bound(Search::class))->toBeFalse()
+        ->and(app()->bound(CapellAgentBridgeCapabilityRegistry::class))->toBeFalse()
         ->and(app()->bound(ThemeRegistry::class))->toBeFalse();
 
     expect(resolve(HtmlMinifier::class))->not->toBeInstanceOf(VokuHtmlMinifier::class);

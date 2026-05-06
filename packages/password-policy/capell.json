@@ -1,0 +1,23 @@
+{
+    "name": "capell-app/password-policy",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Foundation",
+    "tier": "free",
+    "bundle": "foundation",
+    "core": false,
+    "namespace": "Capell\\PasswordPolicy",
+    "contexts": ["admin", "console"],
+    "requires": ["capell-app/admin", "capell-app/core"],
+    "settings": [
+        "Capell\\PasswordPolicy\\Settings\\PasswordPolicySettings"
+    ],
+    "providers": {
+        "admin": [
+            "Capell\\PasswordPolicy\\Providers\\PasswordPolicyServiceProvider"
+        ],
+        "console": [
+            "Capell\\PasswordPolicy\\Providers\\PasswordPolicyServiceProvider"
+        ]
+    }
+}

@@ -11,21 +11,20 @@ use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Rappasoft\LaravelAuthenticationLog\Traits\AuthenticationLoggable;
+use Rappasoft\LaravelLoginAudit\Traits\LoginAuditgable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
-    use AuthenticationLoggable;
-
     /** @use HasFactory<UserFactory> */
     use HasFactory;
 
     use HasPanelShield;
     use HasRoles;
     use HasSitePermissions;
+    use LoginAuditgable;
     use LogsActivity;
     use Notifiable;
 

@@ -1,0 +1,39 @@
+{
+    "package": "foundation-theme",
+    "composerName": "capell-app/foundation-theme",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "outputDirectory": "public/docs/screenshots/packages/foundation-theme",
+    "entries": [
+        {
+            "id": "foundation-theme-settings-screen",
+            "title": "Default theme settings screen.",
+            "package": "foundation-theme",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "frontend-page-using-the-foundation-theme",
+            "title": "Frontend page using the default theme.",
+            "package": "foundation-theme",
+            "surface": "frontend",
+            "targetType": "frontend-url",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "generated-tailwind-asset-output-review",
+            "title": "Generated Tailwind asset output review.",
+            "package": "foundation-theme",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        }
+    ]
+}

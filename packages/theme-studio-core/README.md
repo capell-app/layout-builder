@@ -18,6 +18,26 @@ Theme Studio Core provides the contracts, registry, runtime data, preview contex
 
 **For teams:** Makes theme previews and renderer selection consistent across the package-based CMS foundation.
 
+## Built With
+
+This package makes its Composer dependencies visible because they are part of the value proposition, not just plumbing. When an upstream package has a public repository, its linked preview card points readers back to the maintainers so their work gets proper credit.
+
+**Capell packages used here**
+
+- [Capell Core](https://github.com/capell-app/core)
+- [Capell Frontend](https://github.com/capell-app/frontend)
+
+**Open-source packages used here**
+
+- [Laravel Actions](https://github.com/lorisleiva/laravel-actions) - single-purpose action classes that keep package workflows out of controllers and Filament resources.
+- [Spatie Laravel Data](https://github.com/spatie/laravel-data) - typed data objects for package boundaries, form state, settings, and structured results.
+
+**Linked package previews**
+
+[![Laravel Actions GitHub preview](https://opengraph.githubassets.com/capell-readme/lorisleiva/laravel-actions)](https://github.com/lorisleiva/laravel-actions)
+
+[![Spatie Laravel Data GitHub preview](https://opengraph.githubassets.com/capell-readme/spatie/laravel-data)](https://github.com/spatie/laravel-data)
+
 ## Screens And Workflow
 
 Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) during package deployment.
@@ -78,3 +98,4 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - [../theme-agency/README.md](../theme-agency/README.md)
 - [../theme-corporate/README.md](../theme-corporate/README.md)
 - [../theme-saas/README.md](../theme-saas/README.md)
+- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)

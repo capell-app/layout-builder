@@ -2,16 +2,16 @@
 
 ## Goal
 
-Make Capell SEO Tools feel powerful enough for serious editorial and technical SEO work while keeping the implementation small, predictable, and Capell-native.
+Make Capell SEO Suite feel powerful enough for serious editorial and technical SEO work while keeping the implementation small, predictable, and Capell-native.
 
-This is a follow-up to `docs/superpowers/specs/2026-05-01-seo-tools-expansion-design.md`. The first expansion introduced the editor report, audit surface, schema templates, redirect opportunities, Search Console boundaries, publish checks, and AI briefs. This pass hardens the unfinished edges so the package works well at site scale instead of doing expensive report work inside Filament tables.
+This is a follow-up to `docs/superpowers/specs/2026-05-01-seo-suite-expansion-design.md`. The first expansion introduced the editor report, audit surface, schema templates, redirect opportunities, Search Console boundaries, publish checks, and AI briefs. This pass hardens the unfinished edges so the package works well at site scale instead of doing expensive report work inside Filament tables.
 
 ## Product Principles
 
 - Editors should see clear SEO guidance without understanding technical SEO internals.
-- Admin reports should be site-wide and filterable, including healthy pages and passed checks.
+- Admin dashboard-dashboard_reports should be site-wide and filterable, including healthy pages and passed checks.
 - Tables should read queryable stored state where site-wide filtering or trend comparison is required.
-- Redirects remain owned by `packages/redirects`; SEO Tools integrates through public Actions or class-checked optional boundaries.
+- Redirects remain owned by `packages/redirects`; SEO Suite integrates through public Actions or class-checked optional boundaries.
 - Search Console remains optional, but any sync action that exists should produce useful stored/reportable data.
 - The package should avoid unnecessary architecture. Use one SEO snapshot table, one Search Console metrics table, and one redirect health cache only if existing redirect storage cannot hold the needed state cleanly.
 
@@ -25,7 +25,7 @@ The gaps to address are:
 - `CreateRedirectFromBrokenLinkAction` opens the Redirects resource, but does not prefill source, site, language, or target defaults from the `BrokenLink` record.
 - `BuildSEOAuditQueryAction` still filters to pages with missing metadata, so the audit is not truly site-wide.
 - SEO issue categories are partly computed inside table state callbacks, which makes filtering and reporting weak.
-- `SeoCheckModeEnum` exists but is not wired into `capell-seo-tools.publish_gates`.
+- `SeoCheckModeEnum` exists but is not wired into `capell-seo-suite.publish_gates`.
 - `SyncSearchConsoleInsightsAction` calls `decliningPages()`, but `GoogleSearchConsoleClient::decliningPages()` currently returns an empty array.
 - `RedirectsTable` computes chain warnings per row through `ValidateRedirectAction`, which is not suitable for larger redirect sets.
 
@@ -35,7 +35,7 @@ Add a lean SEO intelligence layer centered on one queryable page snapshot.
 
 ### Page SEO Snapshots
 
-Create a `PageSeoSnapshot` model and migration in SEO Tools.
+Create a `PageSeoSnapshot` model and migration in SEO Suite.
 
 The snapshot stores:
 
@@ -175,7 +175,7 @@ Implement `decliningPages()` by querying stored metric rows. `SyncSearchConsoleI
 
 ### Publish Gates
 
-Wire `SeoCheckModeEnum` into `config/capell-seo-tools.php`:
+Wire `SeoCheckModeEnum` into `config/capell-seo-suite.php`:
 
 ```php
 'publish_gates' => [
@@ -207,7 +207,7 @@ Do not run live HTTP checks or redirect validation during table render.
 
 Do not add external dependencies.
 
-Do not duplicate Redirects package validation in SEO Tools.
+Do not duplicate Redirects package validation in SEO Suite.
 
 Do not store generated AI content or full SEO report prose in snapshots.
 
@@ -225,15 +225,15 @@ Add focused Pest coverage:
 - broken-link redirect action builds a prefilled Redirects URL only when Redirects is installed.
 - redirect table no longer invokes `ValidateRedirectAction` from row state callbacks.
 - redirect health refresh detects chain and loop state.
-- Search Console sync persists metric windows and reports declining pages.
+- Search Console sync persists metric windows and dashboard-dashboard_reports declining pages.
 - publish gate adapter respects blocker, warning, and ignored config.
 
 Run package tests with:
 
 ```bash
-vendor/bin/pest packages/seo-tools/tests
+vendor/bin/pest packages/seo-suite/tests
 vendor/bin/pest packages/redirects/tests
-vendor/bin/pest packages/workspaces/tests/Unit/Checks/SeoMetaCheckTest.php
+vendor/bin/pest packages/publishing-studio/tests/Unit/Checks/SeoMetaCheckTest.php
 ```
 
 Use `composer preflight` before committing the implementation branch.
@@ -242,7 +242,7 @@ Use `composer preflight` before committing the implementation branch.
 
 - Full SEO crawler.
 - Live external URL health checks during admin rendering.
-- Ranking guarantees or broad analytics dashboards.
-- A second redirect system inside SEO Tools.
+- Ranking guarantees or broad insights dashboards.
+- A second redirect system inside SEO Suite.
 - AI-generated content publishing.
 - Complex scheduling UI. Host apps can schedule refresh Actions later.

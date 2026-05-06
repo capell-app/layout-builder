@@ -7,7 +7,7 @@ namespace Capell\Address\Filament\Components\Forms;
 use Capell\Address\Filament\Resources\Countries\Schemas\CountryForm;
 use Capell\Address\Models\Country;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Select;
+use Filament\FormBuilder\Components\Select;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Override;

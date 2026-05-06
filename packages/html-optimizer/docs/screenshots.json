@@ -1,0 +1,29 @@
+{
+    "package": "html-optimizer",
+    "composerName": "capell-app/html-optimizer",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "outputDirectory": "public/docs/screenshots/packages/html-optimizer",
+    "entries": [
+        {
+            "id": "frontend-page-before-after-html-output-inspection",
+            "title": "Frontend page before/after HTML output inspection.",
+            "package": "html-optimizer",
+            "surface": "frontend",
+            "targetType": "frontend-url",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "middleware-configuration-or-service-provider-registration-proof",
+            "title": "Middleware configuration or service provider registration proof.",
+            "package": "html-optimizer",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        }
+    ]
+}

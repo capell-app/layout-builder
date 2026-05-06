@@ -32,8 +32,8 @@ return new class extends SettingsMigration
         ];
 
         foreach ($defaults as $key => $value) {
-            if (! $this->migrator->exists($key)) {
-                $this->migrator->add($key, $value);
+            if (! $this->migration->exists($key)) {
+                $this->migration->add($key, $value);
             }
         }
     }

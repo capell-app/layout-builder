@@ -1,8 +1,8 @@
 # WordPress Importer
 
-WordPress Importer registers a WXR XML reader with the Capell Migration Assistant.
+WordPress Importer registers a WXR XML reader with the Capell Migration AIOrchestrator.
 
-The reader extracts WordPress posts and pages into a neutral import row shape that Migrator can map, preview, validate, and execute.
+The reader extracts WordPress posts and pages into a neutral import row shape that MigrationAssistant can map, preview, validate, and execute.
 
 ## Extracted Fields
 
@@ -13,4 +13,4 @@ The reader extracts WordPress posts and pages into a neutral import row shape th
 
 ## Boundary
 
-This package only owns WordPress WXR parsing and source registration. Migrator owns field mapping, previews, validation, execution, import sessions, notifications, and rollback reports.
+This package only owns WordPress WXR parsing and source registration. MigrationAssistant owns field mapping, previews, validation, execution, import sessions, notifications, and rollback dashboard-dashboard_reports.

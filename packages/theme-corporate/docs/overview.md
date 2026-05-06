@@ -10,14 +10,14 @@ Theme Corporate registers a trust-led corporate renderer for Capell Theme Studio
 
 - Corporate theme service provider.
 - Theme renderer/views for corporate Theme Studio output.
-- Dependency on Default Theme and Theme Studio Core.
+- Dependency on Foundation Theme and Theme Studio Core.
 
 ## Developer Notes
 
 Adds a renderer package that plugs into Theme Studio Core contracts and runtime settings.
 
 - CorporateThemeServiceProvider registers the renderer.
-- Requires capell-app/default-theme and capell-app/theme-studio-core.
+- Requires capell-app/foundation-theme and capell-app/theme-studio-core.
 - No migrations, config, routes, resources, or models are present.
 
 ## Operational Notes
@@ -43,7 +43,7 @@ Provides a corporate visual option for sites that need restrained, trust-focused
 ## Pitfalls
 
 - Install Theme Studio Core before using this renderer.
-- Verify Default Theme assets are generated.
+- Verify Foundation Theme assets are generated.
 
 ## Verification
 
@@ -59,7 +59,7 @@ Provides a corporate visual option for sites that need restrained, trust-focused
 - Tier: premium
 - Bundle: theme-studio
 - Contexts: `frontend`
-- Requires: `capell-app/default-theme`, `capell-app/theme-studio-core`
+- Requires: `capell-app/foundation-theme`, `capell-app/theme-studio-core`
 - Optional dependencies: None listed.
 
 ## Admin Surfaces

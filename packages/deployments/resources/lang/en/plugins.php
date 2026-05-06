@@ -55,7 +55,7 @@ return [
     ],
     'categories' => [
         'seo' => 'SEO',
-        'analytics' => 'Analytics',
+        'insights' => 'Insights',
         'backup' => 'Backup',
         'commerce' => 'Commerce',
         'content' => 'Content',
@@ -71,10 +71,10 @@ return [
         'settings' => 'Settings',
         'dashboard_widgets' => 'Dashboard widgets',
         'static_export' => 'Static export',
-        'forms' => 'Forms',
+        'form-builder' => 'FormBuilder',
         'search' => 'Search',
     ],
-    'platforms' => [
+    'platform-builder' => [
         'capell' => 'Capell',
         'laravel' => 'Laravel',
         'filament' => 'Filament',

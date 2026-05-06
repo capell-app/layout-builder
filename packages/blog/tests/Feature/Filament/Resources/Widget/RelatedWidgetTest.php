@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Capell\Blog\Support\Creator\BlogCreator;
 use Capell\Core\Models\Type;
-use Capell\Mosaic\Filament\Resources\Widgets\Pages\EditWidget;
-use Capell\Mosaic\Models\Widget;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\EditWidget;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Livewire\livewire;

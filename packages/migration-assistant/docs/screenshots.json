@@ -1,0 +1,59 @@
+{
+    "package": "migration-assistant",
+    "composerName": "capell-app/migration-assistant",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "outputDirectory": "public/docs/screenshots/packages/migration-assistant",
+    "entries": [
+        {
+            "id": "import-session-index-or-host-admin-surface",
+            "title": "Import session index or host admin surface.",
+            "package": "migration-assistant",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "import-validation-summary",
+            "title": "Import validation summary.",
+            "package": "migration-assistant",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "relation-resolution-review",
+            "title": "Relation resolution review.",
+            "package": "migration-assistant",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "import-rollback-report-view",
+            "title": "Rollback report view.",
+            "package": "migration-assistant",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "package-export-intent-screen",
+            "title": "Package export intent screen.",
+            "package": "migration-assistant",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        }
+    ]
+}

@@ -22,14 +22,14 @@
         <testsuite name="Feature">
             <directory suffix="Test.php">./packages/*/tests/Feature</directory>
             <directory suffix="Test.php">./tests/Packages/Feature</directory>
-            <!-- media-curator requires awcodes/filament-curator which is not in the root vendor -->
-            <exclude>./packages/media-curator/tests</exclude>
+            <!-- media-library requires awcodes/filament-curator which is not in the root vendor -->
+            <exclude>./packages/media-library/tests</exclude>
         </testsuite>
         <testsuite name="Integration">
             <directory suffix="Test.php">./packages/*/tests/Integration</directory>
             <directory suffix="Test.php">./tests/Packages/Integration</directory>
-            <!-- media-curator requires awcodes/filament-curator which is not in the root vendor -->
-            <exclude>./packages/media-curator/tests</exclude>
+            <!-- media-library requires awcodes/filament-curator which is not in the root vendor -->
+            <exclude>./packages/media-library/tests</exclude>
         </testsuite>
         <testsuite name="Unit">
             <directory suffix="Test.php">./packages/*/tests/Unit</directory>

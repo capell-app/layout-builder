@@ -1,0 +1,15 @@
+{
+    "name": "capell-app/ga4-reports",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Growth",
+    "tier": "premium",
+    "bundle": "growth",
+    "description": "GA4 Reports 4 dashboard reporting for Capell.",
+    "contexts": ["admin", "console"],
+    "requires": ["capell-app/core", "capell-app/admin"],
+    "providers": {
+        "shared": ["Capell\\GA4Reports\\Providers\\GA4ReportsServiceProvider"],
+        "admin": ["Capell\\GA4Reports\\Providers\\AdminServiceProvider"]
+    }
+}

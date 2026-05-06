@@ -56,9 +56,9 @@ arch()
     ->classes()
     ->toUseStrictEquality();
 
-arch('blog package does not depend on seo-tools outside of sitemap bridges')
+arch('blog package does not depend on seo-suite outside of sitemap bridges')
     ->expect('Capell\Blog')
-    ->not->toUse('Capell\SeoTools')
+    ->not->toUse('Capell\SeoSuite')
     ->ignoring([
         ArchivesSitemap::class,
         ArticlesSitemap::class,

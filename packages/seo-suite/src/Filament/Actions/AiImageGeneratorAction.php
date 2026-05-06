@@ -1,0 +1,97 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\SeoSuite\Filament\Actions;
+
+use Capell\SeoSuite\Actions\GenerateAiImageAction;
+use Capell\SeoSuite\DataObjects\AiImageData;
+use Filament\Actions\Action;
+use Filament\FormBuilder\Components\Textarea;
+use Filament\FormBuilder\Components\ViewField;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Throwable;
+
+class AiImageGeneratorAction extends Action
+{
+    /**
+     * @param  array<string, string>  $contextFieldKeys  Keys of sibling Filament fields to read as context
+     */
+    public static function make(?string $name = null, array $contextFieldKeys = []): static
+    {
+        return parent::make($name ?? 'generate-ai-image')
+            ->label('Generate with AI')
+            ->icon('heroicon-o-sparkles')
+            ->modalHeading('AI Image Generator')
+            ->modalSubmitActionLabel('Accept')
+            ->form(function (Get $get) use ($contextFieldKeys): array {
+                $contextParts = [];
+                foreach ($contextFieldKeys as $key => $label) {
+                    $value = $get($key);
+                    if (filled($value)) {
+                        $contextParts[] = sprintf('%s: %s', $label, $value);
+                    }
+                }
+
+                $autoPrompt = implode('. ', $contextParts);
+
+                return [
+                    Textarea::make('prompt')
+                        ->label('Describe the image')
+                        ->default($autoPrompt)
+                        ->required()
+                        ->rows(3)
+                        ->helperText('Edit to refine, then click Generate.'),
+
+                    Actions::make([
+                        Action::make('generate_preview')
+                            ->label('Generate')
+                            ->color('gray')
+                            ->action(function (array $state, Set $set): void {
+                                try {
+                                    $data = new AiImageData(
+                                        prompt: $state['prompt'],
+                                        size: config('capell-seo-suite.prism.image_size', '1024x1024'),
+                                    );
+
+                                    $url = resolve(GenerateAiImageAction::class)->handle($data);
+                                    $set('preview_url', $url);
+                                } catch (Throwable $throwable) {
+                                    Notification::make()
+                                        ->title('Image generation failed')
+                                        ->body($throwable->getMessage())
+                                        ->danger()
+                                        ->send();
+                                }
+                            }),
+                    ]),
+
+                    ViewField::make('preview_url')
+                        ->view('capell-seo-suite::filament.fields.image-preview')
+                        ->visible(fn (Get $get): bool => filled($get('preview_url'))),
+                ];
+            })
+            ->action(function (array $data, Set $set) use ($name): void {
+                $url = $data['preview_url'] ?? null;
+
+                if (! $url) {
+                    Notification::make()
+                        ->title('No image generated yet')
+                        ->warning()
+                        ->send();
+
+                    return;
+                }
+
+                $set('../../' . $name, $url);
+
+                Notification::make()
+                    ->title('Image applied')
+                    ->success()
+                    ->send();
+            });
+    }
+}

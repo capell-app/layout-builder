@@ -1,0 +1,28 @@
+{
+    "name": "capell-app/campaign-studio",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Growth",
+    "tier": "premium",
+    "bundle": "growth",
+    "contexts": ["admin", "frontend"],
+    "description": "Campaign landing pages, CTA blocks, UTM attribution, conversion goals, and campaign insights.",
+    "providers": {
+        "shared": [
+            "Capell\\CampaignStudio\\Providers\\CampaignStudioServiceProvider"
+        ],
+        "admin": ["Capell\\CampaignStudio\\Providers\\AdminServiceProvider"],
+        "frontend": [
+            "Capell\\CampaignStudio\\Providers\\FrontendServiceProvider"
+        ]
+    },
+    "requires": [
+        "capell-app/core",
+        "capell-app/admin",
+        "capell-app/frontend",
+        "capell-app/layout-builder",
+        "capell-app/insights",
+        "capell-app/form-builder"
+    ],
+    "optional": ["capell-app/seo-suite"]
+}

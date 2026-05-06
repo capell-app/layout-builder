@@ -1,0 +1,21 @@
+{
+    "name": "capell-app/admin-preview",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Publishing Pro",
+    "tier": "premium",
+    "bundle": "publishing-pro",
+    "contexts": ["admin", "frontend"],
+    "requires": [
+        "capell-app/core",
+        "capell-app/admin",
+        "capell-app/frontend",
+        "capell-app/publishing-studio"
+    ],
+    "providers": {
+        "shared": [
+            "Capell\\AdminPreview\\Providers\\AdminPreviewServiceProvider"
+        ],
+        "admin": ["Capell\\AdminPreview\\Providers\\AdminServiceProvider"]
+    }
+}

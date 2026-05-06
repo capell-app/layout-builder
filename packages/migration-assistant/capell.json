@@ -1,0 +1,13 @@
+{
+    "name": "capell-app/migration-assistant",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Operations",
+    "tier": "premium",
+    "bundle": "operations",
+    "contexts": ["admin", "console"],
+    "requires": ["capell-app/admin", "capell-app/core"],
+    "providers": {
+        "shared": ["Capell\\MigrationAssistant\\Providers\\MigrationAssistantServiceProvider"]
+    }
+}

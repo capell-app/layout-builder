@@ -4,10 +4,12 @@
     "outputRoot": "public/docs/screenshots/packages",
     "requirements": [
         "Install the package under test.",
+        "Composer require any package-level composerRequires before seeding demo data.",
         "Run package setup or demo commands listed in the package overview.",
         "Authenticate as an admin user with the required role or permission.",
         "Resolve admin-surface targets through Filament resource/page URLs when possible.",
-        "Resolve frontend-url targets through seeded demo routes or package route names."
+        "Resolve frontend-url targets through seeded demo routes or package route names.",
+        "Execute package-level browserTests when declared by the source screenshots manifest."
     ],
     "entries": [
         {
@@ -66,191 +68,218 @@
             "composerName": "capell-app/address"
         },
         {
-            "id": "analytics-overview-dashboard-widgets",
-            "title": "Analytics overview dashboard widgets.",
-            "package": "analytics",
+            "id": "insights-overview-dashboard-widgets",
+            "title": "Insights overview dashboard widgets.",
+            "package": "insights",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/analytics"
+            "composerName": "capell-app/insights"
         },
         {
             "id": "popular-pages-widget",
             "title": "Popular pages widget.",
-            "package": "analytics",
+            "package": "insights",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/analytics"
+            "composerName": "capell-app/insights"
         },
         {
             "id": "recent-journeys-widget",
             "title": "Recent journeys widget.",
-            "package": "analytics",
+            "package": "insights",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/analytics"
+            "composerName": "capell-app/insights"
         },
         {
-            "id": "analytics-settings-screen",
-            "title": "Analytics settings screen.",
-            "package": "analytics",
+            "id": "insights-settings-screen",
+            "title": "Insights settings screen.",
+            "package": "insights",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/analytics"
+            "composerName": "capell-app/insights"
         },
         {
             "id": "frontend-page-with-tracker-active",
             "title": "Frontend page with tracker active.",
-            "package": "analytics",
+            "package": "insights",
             "surface": "frontend",
             "targetType": "frontend-url",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/analytics"
+            "composerName": "capell-app/insights"
         },
         {
             "id": "capability-list-or-prompt-surface-where-provided-by-a-consuming-package",
             "title": "Capability list or prompt surface where provided by a consuming package.",
-            "package": "assistant",
+            "package": "ai-orchestrator",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/assistant"
+            "composerName": "capell-app/ai-orchestrator"
         },
         {
-            "id": "mosaic-layout-preview-workflow-if-mosaic-integration-is-enabled",
-            "title": "Mosaic layout preview workflow if Mosaic integration is enabled.",
-            "package": "assistant",
+            "id": "layout-builder-layout-preview-workflow-if-layout-builder-integration-is-enabled",
+            "title": "LayoutBuilder layout preview workflow if LayoutBuilder integration is enabled.",
+            "package": "ai-orchestrator",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/assistant"
+            "composerName": "capell-app/ai-orchestrator"
         },
         {
             "id": "approval-state-where-a-capability-requires-review",
             "title": "Approval state where a capability requires review.",
-            "package": "assistant",
+            "package": "ai-orchestrator",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/assistant"
+            "composerName": "capell-app/ai-orchestrator"
         },
         {
-            "id": "authentication-logs-admin-index",
+            "id": "deployment-connection-page",
+            "title": "Deployment connection page.",
+            "package": "deployments",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "DeploymentConnectionPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
+            "composerName": "capell-app/deployments"
+        },
+        {
+            "id": "media-ai-doctor-image",
+            "title": "Doctor image action on the Media edit page.",
+            "package": "media-ai",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "MediaAIEditActionExtender",
+            "scenario": "admin-index",
+            "url": "/media",
+            "waitFor": "table",
+            "docsPage": "packages/media-ai/docs/overview.md",
+            "output": "packages/media-ai/docs/images/screenshots/media-ai-doctor-image.png",
+            "required": false,
+            "notes": "Optional until the runner supports opening resource actions; captures the media surface where the action appears.",
+            "composerName": "capell-app/media-ai"
+        },
+        {
+            "id": "login-audits-admin-index",
             "title": "Authentication logs admin index.",
-            "package": "authentication-log",
+            "package": "login-audit",
             "surface": "admin",
             "targetType": "admin-surface",
-            "target": "AuthenticationLogResource",
+            "target": "LoginAuditResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/authentication-log"
+            "composerName": "capell-app/login-audit"
         },
         {
-            "id": "authentication-log-table-filters",
+            "id": "login-audit-table-filters",
             "title": "Authentication log table filters.",
-            "package": "authentication-log",
+            "package": "login-audit",
             "surface": "admin",
             "targetType": "admin-surface",
-            "target": "AuthenticationLogResource",
+            "target": "LoginAuditResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/authentication-log"
+            "composerName": "capell-app/login-audit"
         },
         {
             "id": "dashboard-widget",
             "title": "Dashboard widget.",
-            "package": "authentication-log",
+            "package": "login-audit",
             "surface": "admin",
             "targetType": "admin-surface",
-            "target": "AuthenticationLogResource",
+            "target": "LoginAuditResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/authentication-log"
+            "composerName": "capell-app/login-audit"
         },
         {
-            "id": "authentication-log-settings-screen",
+            "id": "login-audit-settings-screen",
             "title": "Authentication log settings screen.",
-            "package": "authentication-log",
+            "package": "login-audit",
             "surface": "admin",
             "targetType": "admin-surface",
-            "target": "AuthenticationLogResource",
+            "target": "LoginAuditResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/authentication-log"
+            "composerName": "capell-app/login-audit"
         },
         {
             "id": "import-session-index-or-host-admin-surface",
             "title": "Import session index or host admin surface.",
-            "package": "migrator",
+            "package": "migration-assistant",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/migrator"
+            "composerName": "capell-app/migration-assistant"
         },
         {
             "id": "import-validation-summary",
             "title": "Import validation summary.",
-            "package": "migrator",
+            "package": "migration-assistant",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/migrator"
+            "composerName": "capell-app/migration-assistant"
         },
         {
             "id": "relation-resolution-review",
             "title": "Relation resolution review.",
-            "package": "migrator",
+            "package": "migration-assistant",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/migrator"
+            "composerName": "capell-app/migration-assistant"
         },
         {
             "id": "import-rollback-report-view",
             "title": "Rollback report view.",
-            "package": "migrator",
+            "package": "migration-assistant",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/migrator"
+            "composerName": "capell-app/migration-assistant"
         },
         {
             "id": "package-export-intent-screen",
             "title": "Package export intent screen.",
-            "package": "migrator",
+            "package": "migration-assistant",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/migrator"
+            "composerName": "capell-app/migration-assistant"
         },
         {
             "id": "wordpress-import-source-screen",
@@ -260,7 +289,7 @@
             "targetType": "admin-surface",
             "target": null,
             "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the WordPress importer package is installed and registered with Migrator.",
+            "notes": "Resolved by the deployment screenshot runner after the WordPress importer package is installed and registered with MigrationAssistant.",
             "composerName": "capell-app/wordpress-importer"
         },
         {
@@ -321,79 +350,79 @@
         {
             "id": "campaign-groups-index",
             "title": "Campaign groups index.",
-            "package": "campaigns",
+            "package": "campaign-studio",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "CampaignConversionGoalResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/campaigns"
+            "composerName": "capell-app/campaign-studio"
         },
         {
             "id": "campaign-landing-pages-index",
             "title": "Campaign landing pages index.",
-            "package": "campaigns",
+            "package": "campaign-studio",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "CampaignConversionGoalResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/campaigns"
+            "composerName": "capell-app/campaign-studio"
         },
         {
             "id": "campaign-conversion-goals-form",
             "title": "Campaign conversion goals form.",
-            "package": "campaigns",
+            "package": "campaign-studio",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "CampaignConversionGoalResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/campaigns"
+            "composerName": "capell-app/campaign-studio"
         },
         {
             "id": "cta-block-form",
             "title": "CTA block form.",
-            "package": "campaigns",
+            "package": "campaign-studio",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "CampaignConversionGoalResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/campaigns"
+            "composerName": "capell-app/campaign-studio"
         },
         {
             "id": "campaign-dashboard-widgets",
             "title": "Campaign dashboard widgets.",
-            "package": "campaigns",
+            "package": "campaign-studio",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "CampaignConversionGoalResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/campaigns"
+            "composerName": "capell-app/campaign-studio"
         },
         {
             "id": "frontend-landing-page-with-campaign-widgets",
             "title": "Frontend landing page with campaign widgets.",
-            "package": "campaigns",
+            "package": "campaign-studio",
             "surface": "frontend",
             "targetType": "frontend-url",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/campaigns"
+            "composerName": "capell-app/campaign-studio"
         },
         {
-            "id": "content-blocks-admin-index",
+            "id": "block-library-admin-index",
             "title": "Content blocks admin index.",
-            "package": "content-blocks",
+            "package": "block-library",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "ContentBlockResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/content-blocks",
+            "composerName": "capell-app/block-library",
             "runner": "scripts/capture-admin-screenshots.mjs",
             "capture": {
                 "fullPage": true
@@ -402,13 +431,13 @@
         {
             "id": "create-edit-content-block-form",
             "title": "Create/edit content block form.",
-            "package": "content-blocks",
+            "package": "block-library",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "ContentBlockResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/content-blocks",
+            "composerName": "capell-app/block-library",
             "runner": "scripts/capture-admin-screenshots.mjs",
             "capture": {
                 "fullPage": true
@@ -417,13 +446,13 @@
         {
             "id": "content-block-asset-relation-manager",
             "title": "Content block asset relation manager.",
-            "package": "content-blocks",
+            "package": "block-library",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "ContentBlockResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/content-blocks",
+            "composerName": "capell-app/block-library",
             "runner": "scripts/capture-admin-screenshots.mjs",
             "capture": {
                 "fullPage": true
@@ -432,223 +461,223 @@
         {
             "id": "widget-or-page-selector-using-a-content-block",
             "title": "Widget or page selector using a content block.",
-            "package": "content-blocks",
+            "package": "block-library",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "ContentBlockResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/content-blocks",
+            "composerName": "capell-app/block-library",
             "runner": "scripts/capture-admin-screenshots.mjs",
             "capture": {
                 "fullPage": true
             }
         },
         {
-            "id": "default-theme-settings-screen",
+            "id": "foundation-theme-settings-screen",
             "title": "Default theme settings screen.",
-            "package": "default-theme",
+            "package": "foundation-theme",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/default-theme"
+            "composerName": "capell-app/foundation-theme"
         },
         {
-            "id": "frontend-page-using-the-default-theme",
+            "id": "frontend-page-using-the-foundation-theme",
             "title": "Frontend page using the default theme.",
-            "package": "default-theme",
+            "package": "foundation-theme",
             "surface": "frontend",
             "targetType": "frontend-url",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/default-theme"
+            "composerName": "capell-app/foundation-theme"
         },
         {
             "id": "generated-tailwind-asset-output-review",
             "title": "Generated Tailwind asset output review.",
-            "package": "default-theme",
+            "package": "foundation-theme",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/default-theme"
+            "composerName": "capell-app/foundation-theme"
         },
         {
-            "id": "developer-tools-dashboard",
+            "id": "diagnostics-dashboard",
             "title": "Developer tools dashboard.",
-            "package": "developer-tools",
+            "package": "diagnostics",
             "surface": "admin",
             "targetType": "admin-surface",
-            "target": "DeveloperToolsPage",
+            "target": "DiagnosticsPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/developer-tools"
+            "composerName": "capell-app/diagnostics"
         },
         {
             "id": "system-health-page",
             "title": "System health page.",
-            "package": "developer-tools",
+            "package": "diagnostics",
             "surface": "admin",
             "targetType": "admin-surface",
-            "target": "DeveloperToolsPage",
+            "target": "DiagnosticsPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/developer-tools"
+            "composerName": "capell-app/diagnostics"
         },
         {
             "id": "permission-audit-page",
             "title": "Permission audit page.",
-            "package": "developer-tools",
+            "package": "diagnostics",
             "surface": "admin",
             "targetType": "admin-surface",
-            "target": "DeveloperToolsPage",
+            "target": "DiagnosticsPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/developer-tools"
+            "composerName": "capell-app/diagnostics"
         },
         {
             "id": "queue-health-page",
             "title": "Queue health page.",
-            "package": "developer-tools",
+            "package": "diagnostics",
             "surface": "admin",
             "targetType": "admin-surface",
-            "target": "DeveloperToolsPage",
+            "target": "DiagnosticsPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/developer-tools"
+            "composerName": "capell-app/diagnostics"
         },
         {
             "id": "health-widgets-on-the-admin-dashboard",
             "title": "Health widgets on the admin dashboard.",
-            "package": "developer-tools",
+            "package": "diagnostics",
             "surface": "admin",
             "targetType": "admin-surface",
-            "target": "DeveloperToolsPage",
+            "target": "DiagnosticsPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/developer-tools"
+            "composerName": "capell-app/diagnostics"
         },
         {
             "id": "page-or-workspace-edit-screen-with-preview-action",
             "title": "Page or workspace edit screen with preview action.",
-            "package": "filament-peek",
+            "package": "admin-preview",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/filament-peek"
+            "composerName": "capell-app/admin-preview"
         },
         {
             "id": "peek-iframe-preview-panel",
             "title": "Peek iframe preview panel.",
-            "package": "filament-peek",
+            "package": "admin-preview",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/filament-peek"
+            "composerName": "capell-app/admin-preview"
         },
         {
             "id": "workspace-draft-review-screen-with-preview-action",
             "title": "Workspace draft review screen with preview action.",
-            "package": "filament-peek",
+            "package": "admin-preview",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/filament-peek"
+            "composerName": "capell-app/admin-preview"
         },
         {
-            "id": "forms-admin-index",
-            "title": "Forms admin index.",
-            "package": "forms",
+            "id": "form-builder-admin-index",
+            "title": "FormBuilder admin index.",
+            "package": "form-builder",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/forms"
+            "composerName": "capell-app/form-builder"
         },
         {
             "id": "create-edit-form-schema-screen",
             "title": "Create/edit form schema screen.",
-            "package": "forms",
+            "package": "form-builder",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/forms"
+            "composerName": "capell-app/form-builder"
         },
         {
             "id": "submissions-index",
             "title": "Submissions index.",
-            "package": "forms",
+            "package": "form-builder",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/forms"
+            "composerName": "capell-app/form-builder"
         },
         {
             "id": "frontend-form-output",
             "title": "Frontend form output.",
-            "package": "forms",
+            "package": "form-builder",
             "surface": "frontend",
             "targetType": "frontend-url",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/forms"
+            "composerName": "capell-app/form-builder"
         },
         {
             "id": "submission-detail-view",
             "title": "Submission detail view.",
-            "package": "forms",
+            "package": "form-builder",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/forms"
+            "composerName": "capell-app/form-builder"
         },
         {
             "id": "frontend-page-before-after-html-output-inspection",
             "title": "Frontend page before/after HTML output inspection.",
-            "package": "html-minify",
+            "package": "html-optimizer",
             "surface": "frontend",
             "targetType": "frontend-url",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/html-minify"
+            "composerName": "capell-app/html-optimizer"
         },
         {
             "id": "middleware-configuration-or-service-provider-registration-proof",
             "title": "Middleware configuration or service provider registration proof.",
-            "package": "html-minify",
+            "package": "html-optimizer",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/html-minify"
+            "composerName": "capell-app/html-optimizer"
         },
         {
-            "id": "mcp-prompt-builder-page",
-            "title": "MCP prompt builder page.",
-            "package": "mcp",
+            "id": "agent-bridge-prompt-builder-page",
+            "title": "Agent Bridge prompt builder page.",
+            "package": "agent-bridge",
             "surface": "admin",
             "targetType": "admin-surface",
-            "target": "CapellMcpPromptBuilderPage",
+            "target": "CapellAgentBridgePromptBuilderPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
             "composerName": null
@@ -656,10 +685,10 @@
         {
             "id": "token-management-or-setup-surface",
             "title": "Token management or setup surface.",
-            "package": "mcp",
+            "package": "agent-bridge",
             "surface": "admin",
             "targetType": "admin-surface",
-            "target": "CapellMcpPromptBuilderPage",
+            "target": "CapellAgentBridgePromptBuilderPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
             "composerName": null
@@ -667,10 +696,10 @@
         {
             "id": "capability-preview-and-confirmation-flow",
             "title": "Capability preview and confirmation flow.",
-            "package": "mcp",
+            "package": "agent-bridge",
             "surface": "admin",
             "targetType": "admin-surface",
-            "target": "CapellMcpPromptBuilderPage",
+            "target": "CapellAgentBridgePromptBuilderPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
             "composerName": null
@@ -678,21 +707,21 @@
         {
             "id": "audit-entry-review",
             "title": "Audit entry review.",
-            "package": "mcp",
+            "package": "agent-bridge",
             "surface": "admin",
             "targetType": "admin-surface",
-            "target": "CapellMcpPromptBuilderPage",
+            "target": "CapellAgentBridgePromptBuilderPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
             "composerName": null
         },
         {
-            "id": "mcp-server-health-output",
-            "title": "MCP server health output.",
-            "package": "mcp",
+            "id": "agent-bridge-server-health-output",
+            "title": "Agent Bridge server health output.",
+            "package": "agent-bridge",
             "surface": "admin",
             "targetType": "admin-surface",
-            "target": "CapellMcpPromptBuilderPage",
+            "target": "CapellAgentBridgePromptBuilderPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
             "composerName": null
@@ -700,101 +729,101 @@
         {
             "id": "media-health-page",
             "title": "Media health page.",
-            "package": "media-curator",
+            "package": "media-library",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "MediaHealthPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/media-curator"
+            "composerName": "capell-app/media-library"
         },
         {
             "id": "media-health-table",
             "title": "Media health table.",
-            "package": "media-curator",
+            "package": "media-library",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "MediaHealthPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/media-curator"
+            "composerName": "capell-app/media-library"
         },
         {
             "id": "curator-media-field-inside-a-form",
             "title": "Curator media field inside a form.",
-            "package": "media-curator",
+            "package": "media-library",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "MediaHealthPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/media-curator"
+            "composerName": "capell-app/media-library"
         },
         {
             "id": "migration-command-output-or-report",
             "title": "Migration command output or report.",
-            "package": "media-curator",
+            "package": "media-library",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "MediaHealthPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/media-curator"
+            "composerName": "capell-app/media-library"
         },
         {
             "id": "widgets-admin-index",
             "title": "Widgets admin index.",
-            "package": "mosaic",
+            "package": "layout-builder",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "LayoutResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/mosaic"
+            "composerName": "capell-app/layout-builder"
         },
         {
             "id": "create-edit-widget-form",
             "title": "Create/edit widget form.",
-            "package": "mosaic",
+            "package": "layout-builder",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "LayoutResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/mosaic"
+            "composerName": "capell-app/layout-builder"
         },
         {
             "id": "sections-admin-index",
             "title": "Sections admin index.",
-            "package": "mosaic",
+            "package": "layout-builder",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "LayoutResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/mosaic"
+            "composerName": "capell-app/layout-builder"
         },
         {
             "id": "layout-builder-screen",
             "title": "Layout builder screen.",
-            "package": "mosaic",
+            "package": "layout-builder",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "LayoutResource",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/mosaic"
+            "composerName": "capell-app/layout-builder"
         },
         {
-            "id": "frontend-page-rendering-mosaic-widgets",
-            "title": "Frontend page rendering Mosaic widgets.",
-            "package": "mosaic",
+            "id": "frontend-page-rendering-layout-builder-widgets",
+            "title": "Frontend page rendering LayoutBuilder widgets.",
+            "package": "layout-builder",
             "surface": "frontend",
             "targetType": "frontend-url",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/mosaic"
+            "composerName": "capell-app/layout-builder"
         },
         {
             "id": "navigation-admin-index",
@@ -909,145 +938,145 @@
         {
             "id": "page-seo-panel",
             "title": "Page SEO panel.",
-            "package": "seo-tools",
+            "package": "seo-suite",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "BrokenLinksPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/seo-tools"
+            "composerName": "capell-app/seo-suite"
         },
         {
             "id": "seo-audit-page",
             "title": "SEO audit page.",
-            "package": "seo-tools",
+            "package": "seo-suite",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "BrokenLinksPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/seo-tools"
+            "composerName": "capell-app/seo-suite"
         },
         {
             "id": "broken-links-page",
             "title": "Broken links page.",
-            "package": "seo-tools",
+            "package": "seo-suite",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "BrokenLinksPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/seo-tools"
+            "composerName": "capell-app/seo-suite"
         },
         {
             "id": "sitemap-page",
             "title": "Sitemap page.",
-            "package": "seo-tools",
+            "package": "seo-suite",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "BrokenLinksPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/seo-tools"
+            "composerName": "capell-app/seo-suite"
         },
         {
             "id": "translation-coverage-page",
             "title": "Translation coverage page.",
-            "package": "seo-tools",
+            "package": "seo-suite",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "BrokenLinksPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/seo-tools"
+            "composerName": "capell-app/seo-suite"
         },
         {
             "id": "ai-creator-action-modal",
             "title": "AI creator action modal.",
-            "package": "seo-tools",
+            "package": "seo-suite",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "BrokenLinksPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/seo-tools"
+            "composerName": "capell-app/seo-suite"
         },
         {
             "id": "search-console-insights-panel",
             "title": "Search Console insights panel.",
-            "package": "seo-tools",
+            "package": "seo-suite",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "BrokenLinksPage",
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/seo-tools"
+            "composerName": "capell-app/seo-suite"
         },
         {
             "id": "frontend-search-results-page",
             "title": "Frontend search results page.",
-            "package": "site-search",
+            "package": "search",
             "surface": "frontend",
             "targetType": "frontend-url",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/site-search"
+            "composerName": "capell-app/search"
         },
         {
             "id": "header-search-field",
             "title": "Header search field.",
-            "package": "site-search",
+            "package": "search",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/site-search"
+            "composerName": "capell-app/search"
         },
         {
             "id": "top-searches-widget",
             "title": "Top searches widget.",
-            "package": "site-search",
+            "package": "search",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/site-search"
+            "composerName": "capell-app/search"
         },
         {
             "id": "trending-searches-widget",
             "title": "Trending searches widget.",
-            "package": "site-search",
+            "package": "search",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/site-search"
+            "composerName": "capell-app/search"
         },
         {
             "id": "zero-result-searches-widget",
             "title": "Zero-result searches widget.",
-            "package": "site-search",
+            "package": "search",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/site-search"
+            "composerName": "capell-app/search"
         },
         {
-            "id": "site-search-settings-screen",
+            "id": "search-settings-screen",
             "title": "Site search settings screen.",
-            "package": "site-search",
+            "package": "search",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/site-search"
+            "composerName": "capell-app/search"
         },
         {
             "id": "tags-admin-index",
@@ -1336,169 +1365,198 @@
             "composerName": "capell-app/theme-studio-core"
         },
         {
-            "id": "frontend-page-with-toolbar-visible",
-            "title": "Frontend page with toolbar visible.",
-            "package": "toolbar",
+            "id": "frontend-page-with-authoring-enabled",
+            "title": "Frontend page with authoring enabled for admins.",
+            "package": "frontend-authoring",
             "surface": "frontend",
             "targetType": "frontend-url",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/frontend-toolbar"
+            "composerName": "capell-app/frontend-authoring",
+            "composerRequires": [
+                "capell-app/core",
+                "capell-app/admin",
+                "capell-app/frontend",
+                "capell-app/foundation-theme",
+                "capell-app/frontend-authoring"
+            ],
+            "docsPage": "packages/frontend-authoring/docs/in-page-editing.md",
+            "output": "packages/frontend-authoring/docs/images/screenshots/frontend-page-with-authoring-enabled.png",
+            "browserTests": [
+                "anonymous-users-receive-no-authoring-surface",
+                "admin-can-open-single-field-editor"
+            ]
         },
         {
             "id": "beacon-network-request",
             "title": "Beacon network request.",
-            "package": "toolbar",
+            "package": "frontend-authoring",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/frontend-toolbar"
+            "composerName": "capell-app/frontend-authoring",
+            "composerRequires": [
+                "capell-app/core",
+                "capell-app/admin",
+                "capell-app/frontend",
+                "capell-app/foundation-theme",
+                "capell-app/frontend-authoring"
+            ],
+            "docsPage": "packages/frontend-authoring/docs/in-page-editing.md"
         },
         {
-            "id": "toolbar-enabled-disabled-configuration-proof",
-            "title": "Toolbar enabled/disabled configuration proof.",
-            "package": "toolbar",
+            "id": "frontend-authoring-enabled-disabled-configuration-proof",
+            "title": "Frontend authoring enabled/disabled configuration proof.",
+            "package": "frontend-authoring",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": null,
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/frontend-toolbar"
+            "composerName": "capell-app/frontend-authoring",
+            "composerRequires": [
+                "capell-app/core",
+                "capell-app/admin",
+                "capell-app/frontend",
+                "capell-app/foundation-theme",
+                "capell-app/frontend-authoring"
+            ],
+            "docsPage": "packages/frontend-authoring/docs/in-page-editing.md"
         },
         {
             "id": "editorial-timeline-dashboard",
             "title": "Editorial timeline dashboard",
-            "package": "workspaces",
+            "package": "publishing-studio",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "WorkspaceResource",
             "required": true,
             "notes": "Show the flagship timeline entry point with active drafts, review status, publish readiness, and recent workflow activity.",
-            "composerName": "capell-app/workspaces"
+            "composerName": "capell-app/publishing-studio"
         },
         {
             "id": "live-preview",
             "title": "Live preview",
-            "package": "workspaces",
+            "package": "publishing-studio",
             "surface": "frontend",
             "targetType": "frontend-url",
             "target": null,
             "required": true,
             "notes": "Show a signed preview URL rendering draft content before it reaches the live version.",
-            "composerName": "capell-app/workspaces"
+            "composerName": "capell-app/publishing-studio"
         },
         {
             "id": "preview-link-management",
             "title": "Preview link management",
-            "package": "workspaces",
+            "package": "publishing-studio",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "PreviewLinkResource",
             "required": true,
             "notes": "Show issued preview links with expiry, revocation, last accessed time, and access count.",
-            "composerName": "capell-app/workspaces"
+            "composerName": "capell-app/publishing-studio"
         },
         {
             "id": "compare-readiness",
             "title": "Compare and publish readiness",
-            "package": "workspaces",
+            "package": "publishing-studio",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "CompareVersionPage",
             "required": true,
             "notes": "Show side-by-side changes, field comments, and publish checks before approval or release.",
-            "composerName": "capell-app/workspaces"
+            "composerName": "capell-app/publishing-studio"
         },
         {
             "id": "approval-history",
             "title": "Approval history",
-            "package": "workspaces",
+            "package": "publishing-studio",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "WorkspaceResource",
             "required": true,
             "notes": "Show reviewer assignments and approve, reject, or request-changes decisions in timeline order.",
-            "composerName": "capell-app/workspaces"
+            "composerName": "capell-app/publishing-studio"
         },
         {
             "id": "scheduled-publishing",
             "title": "Scheduled publishing",
-            "package": "workspaces",
+            "package": "publishing-studio",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "ScheduledPublishingPage",
             "required": true,
-            "notes": "Show release timing, scheduled workspaces, embargo-aware publishing windows, and queue state.",
-            "composerName": "capell-app/workspaces"
+            "notes": "Show release timing, scheduled publishing-studio, embargo-aware publishing windows, and queue state.",
+            "composerName": "capell-app/publishing-studio"
         },
         {
             "id": "scheduler-metadata",
             "title": "Scheduler metadata",
-            "package": "workspaces",
+            "package": "publishing-studio",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "WorkspaceResource",
             "required": true,
             "notes": "Show unpublish dates, embargo windows, and review reminders attached to a workspace.",
-            "composerName": "capell-app/workspaces"
+            "composerName": "capell-app/publishing-studio"
         },
         {
             "id": "stale-drafts",
             "title": "Stale drafts",
-            "package": "workspaces",
+            "package": "publishing-studio",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "StaleDraftsPage",
             "required": true,
             "notes": "Show stale workspace detection, review nudges, and cleanup actions for unfinished draft work.",
-            "composerName": "capell-app/workspaces"
+            "composerName": "capell-app/publishing-studio"
         },
         {
             "id": "recovery-imports",
             "title": "Recovery imports",
-            "package": "workspaces",
+            "package": "publishing-studio",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "ImportPagesPage",
             "required": true,
             "notes": "Show recovery-center page import validation, relation resolution, execution state, and rollback reporting.",
-            "composerName": "capell-app/workspaces"
+            "composerName": "capell-app/publishing-studio"
         },
         {
             "id": "activity-history",
             "title": "Activity history",
-            "package": "workspaces",
+            "package": "publishing-studio",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "ActivityTrailPage",
             "required": true,
             "notes": "Show the audit-friendly content history across previews, comments, approvals, publishing, and rollback events.",
-            "composerName": "capell-app/workspaces"
+            "composerName": "capell-app/publishing-studio"
         },
         {
             "id": "rollback-restore",
             "title": "Rollback and restore",
-            "package": "workspaces",
+            "package": "publishing-studio",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "PageVersionHistoryPage",
             "required": true,
             "notes": "Show version history with restore context, rollback lineage, and the currently live version.",
-            "composerName": "capell-app/workspaces"
+            "composerName": "capell-app/publishing-studio"
         },
         {
             "id": "preview-banner",
             "title": "Preview banner",
-            "package": "workspaces",
+            "package": "publishing-studio",
             "surface": "frontend",
             "targetType": "frontend-url",
             "target": null,
             "required": true,
             "notes": "Show the frontend workspace banner that confirms editors are viewing draft content and can exit preview mode.",
-            "composerName": "capell-app/workspaces"
+            "composerName": "capell-app/publishing-studio"
         }
     ]
 }

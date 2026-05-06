@@ -9,9 +9,9 @@
     "requires": [
         "capell-app/core",
         "capell-app/admin",
-        "capell-app/analytics",
+        "capell-app/insights",
         "capell-app/frontend",
-        "capell-app/mosaic",
+        "capell-app/layout-builder",
         "capell-app/navigation",
         "capell-app/tags"
     ],

@@ -1,6 +1,6 @@
 # Package Testing Audit
 
-## mosaic
+## layout-builder
 
 - [ ] Installs cleanly in a fresh Capell demo workbench
 - [ ] Declared package dependencies are correct
@@ -14,7 +14,7 @@
 - [ ] Package Pest suite is meaningful, not just smoke coverage
 - [ ] Coverage gap list exists for untested Actions, Data objects, Enums, services, policies, resources, and frontend render paths
 - [ ] `README.md` and package docs match the real install and usage flow
-- [ ] `packages/mosaic/docs/screenshots.json` covers the important admin and frontend surfaces
+- [ ] `packages/layout-builder/docs/screenshots.json` covers the important admin and frontend surfaces
 - [ ] Generated screenshots are clear, seeded with useful data, and not hiding broken UI states
 - [ ] Known risks and follow-up issues are recorded
 
@@ -36,7 +36,7 @@
 - [x] Generated screenshots are clear, seeded with useful data, and not hiding broken UI states
 - [x] Known risks and follow-up issues are recorded
 - Blog test suite passed cleanly: Arch, Filament resources, widgets, static-site behavior, and integration command coverage all green.
-- Blog dependencies are explicit in `capell.json` and include `mosaic`, `navigation`, `tags`, `analytics`, `frontend`, `admin`, and `core`.
+- Blog dependencies are explicit in `capell.json` and include `layout-builder`, `navigation`, `tags`, `insights`, `frontend`, `admin`, and `core`.
 
 ## address
 
@@ -58,7 +58,7 @@
 - Address test suite passed cleanly with 81 passing tests and 277 assertions, including resource, model, observer, command, and flag-render coverage.
 - `packages/address/docs/screenshots.json` is present and should be kept in sync with the country/address admin surfaces.
 
-## assistant
+## ai-orchestrator
 
 - [x] Installs cleanly in a fresh Capell demo workbench
 - [x] Declared package dependencies are correct
@@ -72,13 +72,13 @@
 - [x] Package Pest suite is meaningful, not just smoke coverage
 - [x] Coverage gap list exists for untested Actions, Data objects, Enums, services, policies, resources, and frontend render paths
 - [x] `README.md` and package docs match the real install and usage flow
-- [x] `packages/assistant/docs/screenshots.json` covers the important admin and frontend surfaces
+- [x] `packages/ai-orchestrator/docs/screenshots.json` covers the important admin and frontend surfaces
 - [x] Generated screenshots are clear, seeded with useful data, and not hiding broken UI states
 - [x] Known risks and follow-up issues are recorded
-- Assistant test suite passed cleanly with boundary, capability, and registry coverage in place.
-- The package surface stays isolated from Mosaic, which matches the package boundary rule.
+- AIOrchestrator test suite passed cleanly with boundary, capability, and registry coverage in place.
+- The package surface stays isolated from LayoutBuilder, which matches the package boundary rule.
 
-## analytics
+## insights
 
 - [x] Installs cleanly in a fresh Capell demo workbench
 - [x] Declared package dependencies are correct
@@ -92,15 +92,15 @@
 - [x] Package Pest suite is meaningful, not just smoke coverage
 - [x] Coverage gap list exists for untested Actions, Data objects, Enums, services, policies, resources, and frontend render paths
 - [x] `README.md` and package docs match the real install and usage flow
-- [x] `packages/analytics/docs/screenshots.json` covers the important admin and frontend surfaces
+- [x] `packages/insights/docs/screenshots.json` covers the important admin and frontend surfaces
 - [x] Generated screenshots are clear, seeded with useful data, and not hiding broken UI states
 - [x] Known risks and follow-up issues are recorded
-- Analytics test suite passed cleanly with 77 tests and 382 assertions, including consent, beacon, frontend script, settings, provider, retention, and widget coverage.
+- Insights test suite passed cleanly with 77 tests and 382 assertions, including consent, beacon, frontend script, settings, provider, retention, and widget coverage.
 - Screenshot manifest is present for the core admin and frontend surfaces called out in the README.
 
 ## current audit notes
 
 - `deployments` now has a Capell manifest and screenshot manifest, so it should be included in the normal manifest-backed package audit flow.
-- `mcp` has `docs/screenshots.json`, but its manifest entries still need composer name cleanup where `composerName` is null.
-- `packages/default-theme/` is the single canonical `capell-app/default-theme` package after consolidating the old compatibility resources.
-- `toolbar` is already using `capell-app/frontend-toolbar` in screenshot metadata, which is worth keeping consistent while the manifest is audited.
+- `agent-bridge` has `docs/screenshots.json`, but its manifest entries still need composer name cleanup where `composerName` is null.
+- `packages/foundation-theme/` is the single canonical `capell-app/foundation-theme` package after consolidating the old compatibility resources.
+- `frontend-authoring` is using `capell-app/frontend-authoring` in screenshot metadata, which is worth keeping consistent while the manifest is audited.

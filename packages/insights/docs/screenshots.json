@@ -1,0 +1,59 @@
+{
+    "package": "insights",
+    "composerName": "capell-app/insights",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "outputDirectory": "public/docs/screenshots/packages/insights",
+    "entries": [
+        {
+            "id": "insights-overview-dashboard-widgets",
+            "title": "Insights overview dashboard widgets.",
+            "package": "insights",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "popular-pages-widget",
+            "title": "Popular pages widget.",
+            "package": "insights",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "recent-journeys-widget",
+            "title": "Recent journeys widget.",
+            "package": "insights",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "insights-settings-screen",
+            "title": "Insights settings screen.",
+            "package": "insights",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "frontend-page-with-tracker-active",
+            "title": "Frontend page with tracker active.",
+            "package": "insights",
+            "surface": "frontend",
+            "targetType": "frontend-url",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        }
+    ]
+}

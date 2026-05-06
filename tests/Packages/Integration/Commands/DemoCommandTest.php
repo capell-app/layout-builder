@@ -9,12 +9,12 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
-use Capell\Mosaic\Actions\AddHeroWidgetToLayoutAction;
-use Capell\Mosaic\Actions\CreateHeroContentTypeAction;
-use Capell\Mosaic\Actions\CreateHeroWidgetAction;
-use Capell\Mosaic\Enums\LayoutTypeEnum;
-use Capell\Mosaic\Models\Widget;
-use Capell\Mosaic\Support\Creator\DemoCreator;
+use Capell\LayoutBuilder\Actions\AddHeroWidgetToLayoutAction;
+use Capell\LayoutBuilder\Actions\CreateHeroContentTypeAction;
+use Capell\LayoutBuilder\Actions\CreateHeroWidgetAction;
+use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Support\Creator\DemoCreator;
 use Illuminate\Console\Command;
 use Mockery\MockInterface;
 

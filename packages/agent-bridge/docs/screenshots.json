@@ -1,0 +1,59 @@
+{
+    "package": "agent-bridge",
+    "composerName": "capell-app/agent-bridge",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "outputDirectory": "public/docs/screenshots/packages/agent-bridge",
+    "entries": [
+        {
+            "id": "agent-bridge-prompt-builder-page",
+            "title": "Agent Bridge prompt builder page.",
+            "package": "agent-bridge",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "CapellAgentBridgePromptBuilderPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "token-management-or-setup-surface",
+            "title": "Token management or setup surface.",
+            "package": "agent-bridge",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "CapellAgentBridgePromptBuilderPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "capability-preview-and-confirmation-flow",
+            "title": "Capability preview and confirmation flow.",
+            "package": "agent-bridge",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "CapellAgentBridgePromptBuilderPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "audit-entry-review",
+            "title": "Audit entry review.",
+            "package": "agent-bridge",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "CapellAgentBridgePromptBuilderPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "agent-bridge-server-health-output",
+            "title": "Agent Bridge server health output.",
+            "package": "agent-bridge",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "CapellAgentBridgePromptBuilderPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        }
+    ]
+}

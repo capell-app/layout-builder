@@ -1,0 +1,79 @@
+{
+    "package": "seo-suite",
+    "composerName": "capell-app/seo-suite",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "outputDirectory": "public/docs/screenshots/packages/seo-suite",
+    "entries": [
+        {
+            "id": "page-seo-panel",
+            "title": "Page SEO panel.",
+            "package": "seo-suite",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "BrokenLinksPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "seo-audit-page",
+            "title": "SEO audit page.",
+            "package": "seo-suite",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "BrokenLinksPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "broken-links-page",
+            "title": "Broken links page.",
+            "package": "seo-suite",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "BrokenLinksPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "sitemap-page",
+            "title": "Sitemap page.",
+            "package": "seo-suite",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "BrokenLinksPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "translation-coverage-page",
+            "title": "Translation coverage page.",
+            "package": "seo-suite",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "BrokenLinksPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "ai-creator-action-modal",
+            "title": "AI creator action modal.",
+            "package": "seo-suite",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "BrokenLinksPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "search-console-insights-panel",
+            "title": "Search Console insights panel.",
+            "package": "seo-suite",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "BrokenLinksPage",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        }
+    ]
+}

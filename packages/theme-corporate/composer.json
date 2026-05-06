@@ -6,7 +6,7 @@
     "require": {
         "php": "^8.2",
         "capell-app/core": "*",
-        "capell-app/default-theme": "*",
+        "capell-app/foundation-theme": "*",
         "capell-app/theme-studio-core": "*"
     },
     "require-dev": {

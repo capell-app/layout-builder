@@ -1,0 +1,39 @@
+{
+    "package": "ai-orchestrator",
+    "composerName": "capell-app/ai-orchestrator",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "outputDirectory": "public/docs/screenshots/packages/ai-orchestrator",
+    "entries": [
+        {
+            "id": "capability-list-or-prompt-surface-where-provided-by-a-consuming-package",
+            "title": "Capability list or prompt surface where provided by a consuming package.",
+            "package": "ai-orchestrator",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "layout-builder-layout-preview-workflow-if-layout-builder-integration-is-enabled",
+            "title": "LayoutBuilder layout preview workflow if LayoutBuilder integration is enabled.",
+            "package": "ai-orchestrator",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "approval-state-where-a-capability-requires-review",
+            "title": "Approval state where a capability requires review.",
+            "package": "ai-orchestrator",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        }
+    ]
+}

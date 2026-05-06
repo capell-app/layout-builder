@@ -8,7 +8,7 @@ use Capell\Address\Models\Address;
 use Capell\Address\Models\Country;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
-use Capell\ExampleSites\Console\Commands\Concerns\HasSitesOption;
+use Capell\StarterSites\Console\Commands\Concerns\HasSitesOption;
 use Illuminate\Console\Command;
 
 class DemoCommand extends Command

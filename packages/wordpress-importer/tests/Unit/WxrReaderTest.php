@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-use Capell\Migrator\Support\ImportSourceRegistry;
+use Capell\MigrationAssistant\Support\ImportSourceRegistry;
 use Capell\WordPressImporter\Services\WxrReader;
 
-it('registers the WordPress WXR reader with migrator', function (): void {
+it('registers the WordPress WXR reader with migration-assistant', function (): void {
     expect(resolve(ImportSourceRegistry::class)->readerFor('export.xml'))
         ->toBeInstanceOf(WxrReader::class);
 });
 
-it('reads WordPress WXR posts and pages into migrator rows', function (): void {
+it('reads WordPress WXR posts and pages into migration-assistant rows', function (): void {
     $path = tempnam(sys_get_temp_dir(), 'capell-wxr-');
     file_put_contents($path, <<<'XML'
 <?xml version="1.0" encoding="UTF-8" ?>

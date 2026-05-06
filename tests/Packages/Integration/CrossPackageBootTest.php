@@ -7,15 +7,15 @@ use Capell\Admin\Contracts\ConfiguratorInterface;
 use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
 use Capell\Admin\Enums\ConfiguratorTypeEnum;
 use Capell\Admin\Support\AdminSurfaceLookup;
+use Capell\BlockLibrary\Providers\BlockLibraryServiceProvider;
 use Capell\Blog\Providers\BlogServiceProvider;
-use Capell\ContentBlocks\Providers\ContentBlocksServiceProvider;
 use Capell\Core\Facades\CapellCore;
-use Capell\Mosaic\Providers\MosaicServiceProvider;
-use Capell\SeoTools\Providers\SeoToolsServiceProvider;
+use Capell\LayoutBuilder\Providers\LayoutBuilderServiceProvider;
+use Capell\SeoSuite\Providers\SeoSuiteServiceProvider;
 
 /**
  * These tests boot the same set of packages PackagesTestCase already boots
- * (Address + Mosaic + Blog + SeoTools + Frontend + Admin) and assert the
+ * (Address + LayoutBuilder + Blog + SeoSuite + Frontend + Admin) and assert the
  * registries are healthy. They guard the seam between packages — a problem
  * here is one no per-package suite can see.
  */
@@ -28,10 +28,10 @@ it('boots all packages without throwing', function (): void {
     $providers = array_keys($this->app->getLoadedProviders());
 
     expect($providers)->toContain(AddressServiceProvider::class);
-    expect($providers)->toContain(MosaicServiceProvider::class);
+    expect($providers)->toContain(LayoutBuilderServiceProvider::class);
     expect($providers)->toContain(BlogServiceProvider::class);
-    expect($providers)->toContain(ContentBlocksServiceProvider::class);
-    expect($providers)->toContain(SeoToolsServiceProvider::class);
+    expect($providers)->toContain(BlockLibraryServiceProvider::class);
+    expect($providers)->toContain(SeoSuiteServiceProvider::class);
 });
 
 it('every registered page type is a usable PageTypeData', function (): void {

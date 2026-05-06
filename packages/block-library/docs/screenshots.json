@@ -1,0 +1,394 @@
+{
+    "package": "block-library",
+    "composerName": "capell-app/block-library",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "outputDirectory": "public/docs/screenshots/packages/block-library",
+    "runner": "scripts/capture-admin-screenshots.mjs",
+    "capture": {
+        "fullPage": true
+    },
+    "entries": [
+        {
+            "id": "block-library-admin-index",
+            "title": "Content blocks admin index",
+            "surface": "admin",
+            "scenario": "admin-index",
+            "url": "/block-library",
+            "waitFor": "table",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-create",
+            "title": "Content block create form",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-create-mobile",
+            "title": "Content block create form on mobile",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create",
+            "waitFor": "form",
+            "viewport": "mobile",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-assets",
+            "title": "Content block asset relation manager",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true,
+            "notes": "Deployment demo data should open an existing content block record so the relation manager is visible."
+        },
+        {
+            "id": "block-library-admin-accordion",
+            "title": "Accordion block admin fields",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create?block=accordion",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-frontend-accordion",
+            "title": "Accordion block frontend render",
+            "surface": "frontend",
+            "scenario": "frontend-page",
+            "url": "/block-library/accordion",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-comparison",
+            "title": "Comparison block admin fields",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create?block=comparison",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-frontend-comparison",
+            "title": "Comparison block frontend render",
+            "surface": "frontend",
+            "scenario": "frontend-page",
+            "url": "/block-library/comparison",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-counter",
+            "title": "Counter block admin fields",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create?block=counter",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-frontend-counter",
+            "title": "Counter block frontend render",
+            "surface": "frontend",
+            "scenario": "frontend-page",
+            "url": "/block-library/counter",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-table",
+            "title": "Table block admin fields",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create?block=table",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-frontend-table",
+            "title": "Table block frontend render",
+            "surface": "frontend",
+            "scenario": "frontend-page",
+            "url": "/block-library/table",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-tabs",
+            "title": "Tabs block admin fields",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create?block=tabs",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-frontend-tabs",
+            "title": "Tabs block frontend render",
+            "surface": "frontend",
+            "scenario": "frontend-page",
+            "url": "/block-library/tabs",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-content",
+            "title": "Content block admin fields",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create?block=content",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-frontend-content",
+            "title": "Content block frontend render",
+            "surface": "frontend",
+            "scenario": "frontend-page",
+            "url": "/block-library/content",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-hero",
+            "title": "Hero block admin fields",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create?block=hero",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-frontend-hero",
+            "title": "Hero block frontend render",
+            "surface": "frontend",
+            "scenario": "frontend-page",
+            "url": "/block-library/hero",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-testimonial",
+            "title": "Testimonial block admin fields",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create?block=testimonial",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-frontend-testimonial",
+            "title": "Testimonial block frontend render",
+            "surface": "frontend",
+            "scenario": "frontend-page",
+            "url": "/block-library/testimonial",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-call-to-action",
+            "title": "Call to action block admin fields",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create?block=call_to_action",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-frontend-call-to-action",
+            "title": "Call to action block frontend render",
+            "surface": "frontend",
+            "scenario": "frontend-page",
+            "url": "/block-library/call-to-action",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-divider",
+            "title": "Divider block admin fields",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create?block=divider",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-frontend-divider",
+            "title": "Divider block frontend render",
+            "surface": "frontend",
+            "scenario": "frontend-page",
+            "url": "/block-library/divider",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-faq",
+            "title": "FAQ block admin fields",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create?block=faq",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-frontend-faq",
+            "title": "FAQ block frontend render",
+            "surface": "frontend",
+            "scenario": "frontend-page",
+            "url": "/block-library/faq",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-features",
+            "title": "Features block admin fields",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create?block=features",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-frontend-features",
+            "title": "Features block frontend render",
+            "surface": "frontend",
+            "scenario": "frontend-page",
+            "url": "/block-library/features",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-logos",
+            "title": "Logos block admin fields",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create?block=logos",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-frontend-logos",
+            "title": "Logos block frontend render",
+            "surface": "frontend",
+            "scenario": "frontend-page",
+            "url": "/block-library/logos",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-pricing",
+            "title": "Pricing block admin fields",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create?block=pricing",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-frontend-pricing",
+            "title": "Pricing block frontend render",
+            "surface": "frontend",
+            "scenario": "frontend-page",
+            "url": "/block-library/pricing",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-stats",
+            "title": "Stats block admin fields",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create?block=stats",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-frontend-stats",
+            "title": "Stats block frontend render",
+            "surface": "frontend",
+            "scenario": "frontend-page",
+            "url": "/block-library/stats",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-team",
+            "title": "Team block admin fields",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create?block=team",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-frontend-team",
+            "title": "Team block frontend render",
+            "surface": "frontend",
+            "scenario": "frontend-page",
+            "url": "/block-library/team",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-admin-timeline",
+            "title": "Timeline block admin fields",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/block-library/create?block=timeline",
+            "waitFor": "form",
+            "viewport": "desktop",
+            "required": true
+        },
+        {
+            "id": "block-library-frontend-timeline",
+            "title": "Timeline block frontend render",
+            "surface": "frontend",
+            "scenario": "frontend-page",
+            "url": "/block-library/timeline",
+            "waitFor": "body",
+            "viewport": "desktop",
+            "required": true
+        }
+    ]
+}

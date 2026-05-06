@@ -1,0 +1,19 @@
+{
+    "name": "capell-app/media-ai",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Media",
+    "tier": "pro",
+    "bundle": "media",
+    "namespace": "Capell\\MediaAI",
+    "contexts": ["admin", "console"],
+    "requires": ["capell-app/admin", "capell-app/core"],
+    "providers": {
+        "admin": [
+            "Capell\\MediaAI\\Providers\\MediaAIServiceProvider"
+        ],
+        "console": [
+            "Capell\\MediaAI\\Providers\\MediaAIServiceProvider"
+        ]
+    }
+}

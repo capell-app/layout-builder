@@ -8,7 +8,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
-use Capell\SeoTools\Data\SitemapPageData;
+use Capell\SeoSuite\Data\SitemapPageData;
 use Capell\Tests\Support\Concerns\TestingFrontend;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;

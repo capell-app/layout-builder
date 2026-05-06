@@ -18,6 +18,24 @@ Tags adds tag management, taggable relationships, a reusable tags input, and mod
 
 **For teams:** Lets editors classify content consistently across articles and pages.
 
+## Built With
+
+This package makes its Composer dependencies visible because they are part of the value proposition, not just plumbing. When an upstream package has a public repository, its linked preview card points readers back to the maintainers so their work gets proper credit.
+
+**Capell packages used here**
+
+- [Capell Admin](https://github.com/capell-app/admin)
+- [Capell Navigation](../navigation/README.md)
+- [Capell Publishing Studio](../publishing-studio/README.md)
+
+**Open-source packages used here**
+
+- [Filament Spatie Laravel Tags Plugin](https://github.com/filamentphp/spatie-laravel-tags-plugin) - Filament form integration for Spatie tags inside Capell tagging workflows.
+
+**Linked package previews**
+
+[![Filament Spatie Laravel Tags Plugin GitHub preview](https://opengraph.githubassets.com/capell-readme/filamentphp/spatie-laravel-tags-plugin)](https://github.com/filamentphp/spatie-laravel-tags-plugin)
+
 ## Screens And Workflow
 
 Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) during package deployment.
@@ -78,4 +96,5 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 
 - [docs/overview.md](docs/overview.md)
 - [../blog/README.md](../blog/README.md)
-- [../mosaic/README.md](../mosaic/README.md)
+- [../layout-builder/README.md](../layout-builder/README.md)
+- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)

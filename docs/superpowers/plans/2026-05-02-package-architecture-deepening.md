@@ -13,8 +13,8 @@
 ## Scope Decisions
 
 - `blog -> navigation` is a real dependency because Blog setup is expected to add Blog pages to Navigation.
-- `assistant -> mosaic` stays optional, but Mosaic should own the Mosaic Assistant adapter/module registration.
-- `campaigns -> analytics` is a real dependency because Campaign Conversion attribution and reporting depend on Analytics visits/events.
+- `ai-orchestrator -> layout-builder` stays optional, but LayoutBuilder should own the LayoutBuilder AIOrchestrator adapter/module registration.
+- `campaign-studio -> insights` is a real dependency because Campaign Conversion attribution and reporting depend on Insights visits/events.
 - Support modules may remain, but package callers should cross Actions/Data or declared extension points instead of calling broad Support creators/loaders directly.
 - This programme should be implemented as small commits. Run the targeted package Pest command after each task and the relevant arch tests after every seam change.
 
@@ -30,49 +30,49 @@
 - Modify: `packages/blog/capell.json`
 - Modify: `packages/blog/composer.json`
 - Modify: `packages/blog/tests/Arch/BlogPackageTest.php`
-- Modify: `packages/assistant/src/Providers/AssistantServiceProvider.php`
-- Modify: `packages/assistant/src/Integrations/Mosaic/MosaicAssistantModule.php`
-- Modify: `packages/assistant/src/Integrations/Mosaic/PreviewMosaicLayoutPlanAction.php`
-- Modify: `packages/assistant/tests/Feature/MosaicAssistantModuleTest.php`
-- Modify: `packages/mosaic/src/Providers/MosaicServiceProvider.php`
-- Create: `packages/mosaic/src/Assistant/MosaicAssistantModule.php`
-- Create: `packages/mosaic/src/Assistant/PreviewMosaicLayoutPlanAction.php`
-- Create: `packages/assistant/tests/Arch/AssistantBoundaryTest.php`
-- Modify: `packages/campaigns/capell.json`
-- Modify: `packages/campaigns/composer.json`
-- Modify: `packages/campaigns/tests/CampaignsTestCase.php`
-- Create: `packages/campaigns/tests/Arch/CampaignsBoundaryTest.php`
+- Modify: `packages/ai-orchestrator/src/Providers/AIOrchestratorServiceProvider.php`
+- Modify: `packages/ai-orchestrator/src/Integrations/LayoutBuilder/LayoutBuilderAIOrchestratorModule.php`
+- Modify: `packages/ai-orchestrator/src/Integrations/LayoutBuilder/PreviewLayoutBuilderLayoutPlanAction.php`
+- Modify: `packages/ai-orchestrator/tests/Feature/LayoutBuilderAIOrchestratorModuleTest.php`
+- Modify: `packages/layout-builder/src/Providers/LayoutBuilderServiceProvider.php`
+- Create: `packages/layout-builder/src/AIOrchestrator/LayoutBuilderAIOrchestratorModule.php`
+- Create: `packages/layout-builder/src/AIOrchestrator/PreviewLayoutBuilderLayoutPlanAction.php`
+- Create: `packages/ai-orchestrator/tests/Arch/AIOrchestratorBoundaryTest.php`
+- Modify: `packages/campaign-studio/capell.json`
+- Modify: `packages/campaign-studio/composer.json`
+- Modify: `packages/campaign-studio/tests/CampaignStudioTestCase.php`
+- Create: `packages/campaign-studio/tests/Arch/CampaignStudioBoundaryTest.php`
 
-### Slice 2: Workspaces Page Import Workflow
+### Slice 2: PublishingStudio Page Import Workflow
 
-- Modify: `packages/workspaces/src/Filament/Pages/ImportPagesPage.php`
-- Create: `packages/workspaces/src/Actions/Imports/StartPageImportAction.php`
-- Create: `packages/workspaces/src/Actions/Imports/AdvancePageImportToValidationAction.php`
-- Create: `packages/workspaces/src/Actions/Imports/DispatchPageImportAction.php`
-- Create: `packages/workspaces/src/Actions/Imports/RefreshPageImportStatusAction.php`
-- Create: `packages/workspaces/src/Data/Imports/PageImportWizardStateData.php`
-- Create: `packages/workspaces/src/Data/Imports/PageImportDecisionData.php`
-- Create: `packages/workspaces/src/Data/Imports/PageImportStatusData.php`
-- Test: `packages/workspaces/tests/Admin/Feature/Filament/Pages/ImportPagesPageTest.php`
-- Test: `packages/workspaces/tests/Admin/Feature/Actions/Imports/StartPageImportActionTest.php`
-- Test: `packages/workspaces/tests/Admin/Feature/Actions/Imports/PageImportWorkflowActionTest.php`
+- Modify: `packages/publishing-studio/src/Filament/Pages/ImportPagesPage.php`
+- Create: `packages/publishing-studio/src/Actions/Imports/StartPageImportAction.php`
+- Create: `packages/publishing-studio/src/Actions/Imports/AdvancePageImportToValidationAction.php`
+- Create: `packages/publishing-studio/src/Actions/Imports/DispatchPageImportAction.php`
+- Create: `packages/publishing-studio/src/Actions/Imports/RefreshPageImportStatusAction.php`
+- Create: `packages/publishing-studio/src/Data/Imports/PageImportWizardStateData.php`
+- Create: `packages/publishing-studio/src/Data/Imports/PageImportDecisionData.php`
+- Create: `packages/publishing-studio/src/Data/Imports/PageImportStatusData.php`
+- Test: `packages/publishing-studio/tests/Admin/Feature/Filament/Pages/ImportPagesPageTest.php`
+- Test: `packages/publishing-studio/tests/Admin/Feature/Actions/Imports/StartPageImportActionTest.php`
+- Test: `packages/publishing-studio/tests/Admin/Feature/Actions/Imports/PageImportWorkflowActionTest.php`
 
 ### Slice 3: SEO AI Generation Workflows
 
-- Modify: `packages/seo-tools/src/Actions/GenerateAiLayoutAction.php`
-- Modify: `packages/seo-tools/src/Actions/GeneratorPageContentAction.php`
-- Modify: `packages/seo-tools/src/Actions/SuggestPageTitlesAction.php`
-- Modify: `packages/seo-tools/src/Actions/SuggestMetaDescriptionsAction.php`
-- Modify: `packages/seo-tools/src/Support/Pipelines/AiCreatorPipeline.php`
-- Modify: `packages/seo-tools/src/Support/Pipelines/GenerateContentPipeline.php`
-- Modify: `packages/seo-tools/src/Support/Pipelines/SuggestTitlesPipeline.php`
-- Modify: `packages/seo-tools/src/Support/Pipelines/SuggestMetaDescriptionsPipeline.php`
-- Create: `packages/seo-tools/src/Data/Ai/AiGenerationInputData.php`
-- Create: `packages/seo-tools/src/Data/Ai/AiGenerationResultData.php`
-- Create: `packages/seo-tools/src/Actions/Ai/RecordAiGenerationAction.php`
-- Test: `packages/seo-tools/tests/Feature/Actions/AiGenerationWorkflowTest.php`
-- Test: `packages/seo-tools/tests/Unit/Pipelines/GenerateContentPipelineTest.php`
-- Test: `packages/seo-tools/tests/Unit/Pipelines/AiCreatorPipelineTest.php`
+- Modify: `packages/seo-suite/src/Actions/GenerateAiLayoutAction.php`
+- Modify: `packages/seo-suite/src/Actions/GeneratorPageContentAction.php`
+- Modify: `packages/seo-suite/src/Actions/SuggestPageTitlesAction.php`
+- Modify: `packages/seo-suite/src/Actions/SuggestMetaDescriptionsAction.php`
+- Modify: `packages/seo-suite/src/Support/Pipelines/AiCreatorPipeline.php`
+- Modify: `packages/seo-suite/src/Support/Pipelines/GenerateContentPipeline.php`
+- Modify: `packages/seo-suite/src/Support/Pipelines/SuggestTitlesPipeline.php`
+- Modify: `packages/seo-suite/src/Support/Pipelines/SuggestMetaDescriptionsPipeline.php`
+- Create: `packages/seo-suite/src/Data/Ai/AiGenerationInputData.php`
+- Create: `packages/seo-suite/src/Data/Ai/AiGenerationResultData.php`
+- Create: `packages/seo-suite/src/Actions/Ai/RecordAiGenerationAction.php`
+- Test: `packages/seo-suite/tests/Feature/Actions/AiGenerationWorkflowTest.php`
+- Test: `packages/seo-suite/tests/Unit/Pipelines/GenerateContentPipelineTest.php`
+- Test: `packages/seo-suite/tests/Unit/Pipelines/AiCreatorPipelineTest.php`
 
 ### Slice 4: Blog Publishing Surface
 
@@ -88,26 +88,26 @@
 - Test: `packages/blog/tests/Integration/Actions/EnsureArticlePublishingDefaultsActionTest.php`
 - Test: `packages/blog/tests/Arch/BlogPackageTest.php`
 
-### Slice 5: Mosaic Demo And Widget Catalog
+### Slice 5: LayoutBuilder Demo And Widget Catalog
 
-- Modify: `packages/mosaic/src/Support/Creator/DemoCreator.php`
-- Modify: `packages/mosaic/src/Support/Creator/WidgetCreator.php`
-- Modify: `packages/mosaic/src/Actions/InstallPackageAction.php`
-- Modify: `packages/mosaic/src/Console/Commands/DemoCommand.php`
-- Create: `packages/mosaic/src/Actions/InstallMosaicWidgetCatalogAction.php`
-- Create: `packages/mosaic/src/Actions/CreateMosaicDemoSiteAction.php`
-- Create: `packages/mosaic/src/Data/WidgetDefinitionData.php`
-- Create: `packages/mosaic/src/Data/DemoSitePlanData.php`
-- Test: `packages/mosaic/tests/Integration/Actions/InstallMosaicWidgetCatalogActionTest.php`
-- Test: `packages/mosaic/tests/Integration/Actions/CreateMosaicDemoSiteActionTest.php`
-- Test: `packages/mosaic/tests/Arch/LayoutPackageTest.php`
+- Modify: `packages/layout-builder/src/Support/Creator/DemoCreator.php`
+- Modify: `packages/layout-builder/src/Support/Creator/WidgetCreator.php`
+- Modify: `packages/layout-builder/src/Actions/InstallPackageAction.php`
+- Modify: `packages/layout-builder/src/Console/Commands/DemoCommand.php`
+- Create: `packages/layout-builder/src/Actions/InstallLayoutBuilderWidgetCatalogAction.php`
+- Create: `packages/layout-builder/src/Actions/CreateLayoutBuilderDemoSiteAction.php`
+- Create: `packages/layout-builder/src/Data/WidgetDefinitionData.php`
+- Create: `packages/layout-builder/src/Data/DemoSitePlanData.php`
+- Test: `packages/layout-builder/tests/Integration/Actions/InstallLayoutBuilderWidgetCatalogActionTest.php`
+- Test: `packages/layout-builder/tests/Integration/Actions/CreateLayoutBuilderDemoSiteActionTest.php`
+- Test: `packages/layout-builder/tests/Arch/LayoutPackageTest.php`
 
 ### Slice 6: Navigation Render Model
 
 - Modify: `packages/navigation/src/Support/Loader/NavigationItemsLoader.php`
-- Modify: `packages/mosaic/src/View/Components/Widget/Navigation.php`
+- Modify: `packages/layout-builder/src/View/Components/Widget/Navigation.php`
 - Modify: `packages/theme-default/resources/views/components/header/index.blade.php`
-- Modify: `packages/mosaic/resources/views/components/widget/navigation/index.blade.php`
+- Modify: `packages/layout-builder/resources/views/components/widget/navigation/index.blade.php`
 - Create: `packages/navigation/src/Actions/BuildNavigationRenderModelAction.php`
 - Create: `packages/navigation/src/Data/NavigationRenderContextData.php`
 - Create: `packages/navigation/src/Data/NavigationItemRenderData.php`
@@ -131,7 +131,7 @@ git status --short --untracked-files=all
 git diff --name-only --diff-filter=U
 ```
 
-Expected: existing unrelated changes may be present, but there must be no unresolved files. At the time this plan was written, unrelated modified files existed in Mosaic, Navigation, Tags, and Workspaces; do not revert them.
+Expected: existing unrelated changes may be present, but there must be no unresolved files. At the time this plan was written, unrelated modified files existed in LayoutBuilder, Navigation, Tags, and PublishingStudio; do not revert them.
 
 - [ ] **Step 2: Commit or intentionally preserve the context files**
 
@@ -150,27 +150,27 @@ Expected: only the root context vocabulary and context map are shown. If impleme
 - Modify: `packages/blog/capell.json`
 - Modify: `packages/blog/composer.json`
 - Modify: `packages/blog/tests/Arch/BlogPackageTest.php`
-- Modify: `packages/campaigns/capell.json`
-- Modify: `packages/campaigns/composer.json`
-- Modify: `packages/campaigns/tests/CampaignsTestCase.php`
-- Create: `packages/assistant/tests/Arch/AssistantBoundaryTest.php`
-- Create: `packages/campaigns/tests/Arch/CampaignsBoundaryTest.php`
+- Modify: `packages/campaign-studio/capell.json`
+- Modify: `packages/campaign-studio/composer.json`
+- Modify: `packages/campaign-studio/tests/CampaignStudioTestCase.php`
+- Create: `packages/ai-orchestrator/tests/Arch/AIOrchestratorBoundaryTest.php`
+- Create: `packages/campaign-studio/tests/Arch/CampaignStudioBoundaryTest.php`
 
 - [ ] **Step 1: Write failing arch coverage for the package seam decisions**
 
 Add assertions that:
 
 - Blog may use Navigation because Navigation is declared in both package manifests.
-- Assistant may not import `Capell\Mosaic` from its shared package surface.
-- Campaigns may use Analytics because Analytics is declared as required, not optional.
+- AIOrchestrator may not import `Capell\LayoutBuilder` from its shared package surface.
+- CampaignStudio may use Insights because Insights is declared as required, not optional.
 
 Run:
 
 ```bash
-vendor/bin/pest packages/blog/tests/Arch packages/assistant/tests packages/campaigns/tests --filter='Boundary|Package|Isolation'
+vendor/bin/pest packages/blog/tests/Arch packages/ai-orchestrator/tests packages/campaign-studio/tests --filter='Boundary|Package|Isolation'
 ```
 
-Expected before implementation: at least Assistant and Campaigns seam assertions fail.
+Expected before implementation: at least AIOrchestrator and CampaignStudio seam assertions fail.
 
 - [ ] **Step 2: Make Blog's Navigation dependency explicit**
 
@@ -178,28 +178,28 @@ Update `packages/blog/capell.json` so `requires` includes `capell-app/navigation
 
 Update `packages/blog/composer.json` so Composer also requires the local Navigation package in the same style as existing package dependencies.
 
-- [ ] **Step 3: Make Campaigns require Analytics**
+- [ ] **Step 3: Make CampaignStudio require Insights**
 
-Move `capell-app/analytics` from `optional` to `requires` in `packages/campaigns/capell.json`.
+Move `capell-app/insights` from `optional` to `requires` in `packages/campaign-studio/capell.json`.
 
-Update `packages/campaigns/composer.json` to require the Analytics package.
+Update `packages/campaign-studio/composer.json` to require the Insights package.
 
-Update `packages/campaigns/tests/CampaignsTestCase.php` so Analytics is loaded as part of the expected package stack rather than only when a class happens to exist.
+Update `packages/campaign-studio/tests/CampaignStudioTestCase.php` so Insights is loaded as part of the expected package stack rather than only when a class happens to exist.
 
-- [ ] **Step 4: Move Mosaic Assistant registration out of Assistant**
+- [ ] **Step 4: Move LayoutBuilder AIOrchestrator registration out of AIOrchestrator**
 
-Remove Mosaic-specific registration from `packages/assistant/src/Providers/AssistantServiceProvider.php`.
+Remove LayoutBuilder-specific registration from `packages/ai-orchestrator/src/Providers/AIOrchestratorServiceProvider.php`.
 
-Create Mosaic-owned Assistant integration classes under `packages/mosaic/src/Assistant/`.
+Create LayoutBuilder-owned AIOrchestrator integration classes under `packages/layout-builder/src/AIOrchestrator/`.
 
-Register the Mosaic Assistant module from `packages/mosaic/src/Providers/MosaicServiceProvider.php` only when Assistant classes are available and the Assistant package is installed.
+Register the LayoutBuilder AIOrchestrator module from `packages/layout-builder/src/Providers/LayoutBuilderServiceProvider.php` only when AIOrchestrator classes are available and the AIOrchestrator package is installed.
 
 - [ ] **Step 5: Run seam tests**
 
 Run:
 
 ```bash
-vendor/bin/pest packages/blog/tests/Arch packages/assistant/tests packages/campaigns/tests
+vendor/bin/pest packages/blog/tests/Arch packages/ai-orchestrator/tests packages/campaign-studio/tests
 ```
 
 Expected: PASS.
@@ -209,22 +209,22 @@ Expected: PASS.
 Run:
 
 ```bash
-git add CONTEXT.md CONTEXT-MAP.md packages/blog packages/assistant packages/mosaic packages/campaigns
+git add CONTEXT.md CONTEXT-MAP.md packages/blog packages/ai-orchestrator packages/layout-builder packages/campaign-studio
 git commit -m "refactor: lock package architecture seams"
 ```
 
-## Task 2: Deepen Workspaces Page Import
+## Task 2: Deepen PublishingStudio Page Import
 
 **Files:**
 
-- Modify: `packages/workspaces/src/Filament/Pages/ImportPagesPage.php`
-- Create: `packages/workspaces/src/Actions/Imports/StartPageImportAction.php`
-- Create: `packages/workspaces/src/Actions/Imports/AdvancePageImportToValidationAction.php`
-- Create: `packages/workspaces/src/Actions/Imports/DispatchPageImportAction.php`
-- Create: `packages/workspaces/src/Actions/Imports/RefreshPageImportStatusAction.php`
-- Create: `packages/workspaces/src/Data/Imports/PageImportWizardStateData.php`
-- Create: `packages/workspaces/src/Data/Imports/PageImportDecisionData.php`
-- Create: `packages/workspaces/src/Data/Imports/PageImportStatusData.php`
+- Modify: `packages/publishing-studio/src/Filament/Pages/ImportPagesPage.php`
+- Create: `packages/publishing-studio/src/Actions/Imports/StartPageImportAction.php`
+- Create: `packages/publishing-studio/src/Actions/Imports/AdvancePageImportToValidationAction.php`
+- Create: `packages/publishing-studio/src/Actions/Imports/DispatchPageImportAction.php`
+- Create: `packages/publishing-studio/src/Actions/Imports/RefreshPageImportStatusAction.php`
+- Create: `packages/publishing-studio/src/Data/Imports/PageImportWizardStateData.php`
+- Create: `packages/publishing-studio/src/Data/Imports/PageImportDecisionData.php`
+- Create: `packages/publishing-studio/src/Data/Imports/PageImportStatusData.php`
 
 - [ ] **Step 1: Write Action tests for each wizard transition**
 
@@ -233,7 +233,7 @@ Cover upload-to-review, review-to-resolve, resolve-to-validate, validate-to-exec
 Run:
 
 ```bash
-vendor/bin/pest packages/workspaces/tests/Admin/Feature/Actions/Imports
+vendor/bin/pest packages/publishing-studio/tests/Admin/Feature/Actions/Imports
 ```
 
 Expected before implementation: FAIL because the Actions/Data do not exist.
@@ -256,37 +256,37 @@ The Action owns reading Import Session status and returning terminal wizard stat
 
 - [ ] **Step 6: Thin `ImportPagesPage`**
 
-Keep Filament form schema, public properties needed for Livewire hydration, Notification rendering, and calls into the new Actions. Remove Migrator package interior usage from private helper methods where the new Actions now own the workflow.
+Keep Filament form schema, public properties needed for Livewire hydration, Notification rendering, and calls into the new Actions. Remove MigrationAssistant package interior usage from private helper methods where the new Actions now own the workflow.
 
-- [ ] **Step 7: Run Workspaces import tests**
+- [ ] **Step 7: Run PublishingStudio import tests**
 
 Run:
 
 ```bash
-vendor/bin/pest packages/workspaces/tests/Admin/Feature/Filament/Pages/ImportPagesPageTest.php packages/workspaces/tests/Admin/Feature/Actions/Imports
+vendor/bin/pest packages/publishing-studio/tests/Admin/Feature/Filament/Pages/ImportPagesPageTest.php packages/publishing-studio/tests/Admin/Feature/Actions/Imports
 ```
 
 Expected: PASS.
 
-- [ ] **Step 8: Commit Workspaces import deepening**
+- [ ] **Step 8: Commit PublishingStudio import deepening**
 
 Run:
 
 ```bash
-git add packages/workspaces
-git commit -m "refactor(workspaces): deepen page import workflow"
+git add packages/publishing-studio
+git commit -m "refactor(publishing-studio): deepen page import workflow"
 ```
 
 ## Task 3: Deepen SEO AI Generation
 
 **Files:**
 
-- Modify: `packages/seo-tools/src/Actions/GenerateAiLayoutAction.php`
-- Modify: `packages/seo-tools/src/Actions/GeneratorPageContentAction.php`
-- Modify: `packages/seo-tools/src/Support/Pipelines/*.php`
-- Create: `packages/seo-tools/src/Data/Ai/AiGenerationInputData.php`
-- Create: `packages/seo-tools/src/Data/Ai/AiGenerationResultData.php`
-- Create: `packages/seo-tools/src/Actions/Ai/RecordAiGenerationAction.php`
+- Modify: `packages/seo-suite/src/Actions/GenerateAiLayoutAction.php`
+- Modify: `packages/seo-suite/src/Actions/GeneratorPageContentAction.php`
+- Modify: `packages/seo-suite/src/Support/Pipelines/*.php`
+- Create: `packages/seo-suite/src/Data/Ai/AiGenerationInputData.php`
+- Create: `packages/seo-suite/src/Data/Ai/AiGenerationResultData.php`
+- Create: `packages/seo-suite/src/Actions/Ai/RecordAiGenerationAction.php`
 
 - [ ] **Step 1: Write workflow tests around Action outcomes**
 
@@ -295,7 +295,7 @@ Tests must assert rate-limit checks, prompt rendering, provider call parameters,
 Run:
 
 ```bash
-vendor/bin/pest packages/seo-tools/tests/Feature/Actions/AiGenerationWorkflowTest.php
+vendor/bin/pest packages/seo-suite/tests/Feature/Actions/AiGenerationWorkflowTest.php
 ```
 
 Expected before implementation: FAIL because the workflow Data/Action seam does not exist.
@@ -317,7 +317,7 @@ Actions become the public module interface. Pipelines may remain as internal imp
 Run:
 
 ```bash
-vendor/bin/pest packages/seo-tools/tests/Feature/Actions/AiGenerationWorkflowTest.php packages/seo-tools/tests/Unit/Pipelines
+vendor/bin/pest packages/seo-suite/tests/Feature/Actions/AiGenerationWorkflowTest.php packages/seo-suite/tests/Unit/Pipelines
 ```
 
 Expected: PASS.
@@ -327,8 +327,8 @@ Expected: PASS.
 Run:
 
 ```bash
-git add packages/seo-tools
-git commit -m "refactor(seo-tools): deepen ai generation workflows"
+git add packages/seo-suite
+git commit -m "refactor(seo-suite): deepen ai generation workflows"
 ```
 
 ## Task 4: Deepen Blog Publishing Setup
@@ -386,56 +386,56 @@ git add packages/blog
 git commit -m "refactor(blog): deepen publishing setup actions"
 ```
 
-## Task 5: Deepen Mosaic Widget Catalog And Demo Creation
+## Task 5: Deepen LayoutBuilder Widget Catalog And Demo Creation
 
 **Files:**
 
-- Modify: `packages/mosaic/src/Support/Creator/DemoCreator.php`
-- Modify: `packages/mosaic/src/Support/Creator/WidgetCreator.php`
-- Modify: `packages/mosaic/src/Actions/InstallPackageAction.php`
-- Modify: `packages/mosaic/src/Console/Commands/DemoCommand.php`
-- Create: `packages/mosaic/src/Actions/InstallMosaicWidgetCatalogAction.php`
-- Create: `packages/mosaic/src/Actions/CreateMosaicDemoSiteAction.php`
-- Create: `packages/mosaic/src/Data/WidgetDefinitionData.php`
-- Create: `packages/mosaic/src/Data/DemoSitePlanData.php`
+- Modify: `packages/layout-builder/src/Support/Creator/DemoCreator.php`
+- Modify: `packages/layout-builder/src/Support/Creator/WidgetCreator.php`
+- Modify: `packages/layout-builder/src/Actions/InstallPackageAction.php`
+- Modify: `packages/layout-builder/src/Console/Commands/DemoCommand.php`
+- Create: `packages/layout-builder/src/Actions/InstallLayoutBuilderWidgetCatalogAction.php`
+- Create: `packages/layout-builder/src/Actions/CreateLayoutBuilderDemoSiteAction.php`
+- Create: `packages/layout-builder/src/Data/WidgetDefinitionData.php`
+- Create: `packages/layout-builder/src/Data/DemoSitePlanData.php`
 
-- [ ] **Step 1: Write tests for the new Mosaic Actions**
+- [ ] **Step 1: Write tests for the new LayoutBuilder Actions**
 
 Cover widget catalog installation, idempotency, translations, key meta fields, demo media attachment, demo section creation, and Navigation adapter calls.
 
 Run:
 
 ```bash
-vendor/bin/pest packages/mosaic/tests/Integration/Actions/InstallMosaicWidgetCatalogActionTest.php packages/mosaic/tests/Integration/Actions/CreateMosaicDemoSiteActionTest.php
+vendor/bin/pest packages/layout-builder/tests/Integration/Actions/InstallLayoutBuilderWidgetCatalogActionTest.php packages/layout-builder/tests/Integration/Actions/CreateLayoutBuilderDemoSiteActionTest.php
 ```
 
 Expected before implementation: FAIL because the Actions/Data do not exist.
 
 - [ ] **Step 2: Move catalog definitions into `WidgetDefinitionData`**
 
-Represent each widget definition as structured Data. Keep translation writes and Eloquent persistence inside `InstallMosaicWidgetCatalogAction`.
+Represent each widget definition as structured Data. Keep translation writes and Eloquent persistence inside `InstallLayoutBuilderWidgetCatalogAction`.
 
-- [ ] **Step 3: Move demo composition into `CreateMosaicDemoSiteAction`**
+- [ ] **Step 3: Move demo composition into `CreateLayoutBuilderDemoSiteAction`**
 
 The Action owns demo plan execution. `DemoCreator` can provide internal helper methods, but `DemoCommand` should call the Action seam.
 
-- [ ] **Step 4: Run Mosaic tests**
+- [ ] **Step 4: Run LayoutBuilder tests**
 
 Run:
 
 ```bash
-vendor/bin/pest packages/mosaic/tests/Integration/Actions packages/mosaic/tests/Feature/Widgets packages/mosaic/tests/Arch
+vendor/bin/pest packages/layout-builder/tests/Integration/Actions packages/layout-builder/tests/Feature/Widgets packages/layout-builder/tests/Arch
 ```
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit Mosaic deepening**
+- [ ] **Step 5: Commit LayoutBuilder deepening**
 
 Run:
 
 ```bash
-git add packages/mosaic
-git commit -m "refactor(mosaic): deepen widget catalog and demo creation"
+git add packages/layout-builder
+git commit -m "refactor(layout-builder): deepen widget catalog and demo creation"
 ```
 
 ## Task 6: Deepen Navigation Rendering
@@ -443,9 +443,9 @@ git commit -m "refactor(mosaic): deepen widget catalog and demo creation"
 **Files:**
 
 - Modify: `packages/navigation/src/Support/Loader/NavigationItemsLoader.php`
-- Modify: `packages/mosaic/src/View/Components/Widget/Navigation.php`
+- Modify: `packages/layout-builder/src/View/Components/Widget/Navigation.php`
 - Modify: `packages/theme-default/resources/views/components/header/index.blade.php`
-- Modify: `packages/mosaic/resources/views/components/widget/navigation/index.blade.php`
+- Modify: `packages/layout-builder/resources/views/components/widget/navigation/index.blade.php`
 - Create: `packages/navigation/src/Actions/BuildNavigationRenderModelAction.php`
 - Create: `packages/navigation/src/Data/NavigationRenderContextData.php`
 - Create: `packages/navigation/src/Data/NavigationItemRenderData.php`
@@ -480,7 +480,7 @@ Blade and widget callers should receive or request render Data. They should not 
 Run:
 
 ```bash
-vendor/bin/pest packages/navigation/tests packages/mosaic/tests/Feature/Widgets/Navigation packages/theme-default/tests
+vendor/bin/pest packages/navigation/tests packages/layout-builder/tests/Feature/Widgets/Navigation packages/theme-default/tests
 ```
 
 Expected: PASS.
@@ -490,7 +490,7 @@ Expected: PASS.
 Run:
 
 ```bash
-git add packages/navigation packages/mosaic packages/theme-default
+git add packages/navigation packages/layout-builder packages/theme-default
 git commit -m "refactor(navigation): deepen frontend render model"
 ```
 
@@ -501,7 +501,7 @@ git commit -m "refactor(navigation): deepen frontend render model"
 Run:
 
 ```bash
-vendor/bin/pest packages/blog/tests packages/mosaic/tests packages/navigation/tests packages/workspaces/tests/Admin packages/seo-tools/tests packages/assistant/tests packages/campaigns/tests
+vendor/bin/pest packages/blog/tests packages/layout-builder/tests packages/navigation/tests packages/publishing-studio/tests/Admin packages/seo-suite/tests packages/ai-orchestrator/tests packages/campaign-studio/tests
 ```
 
 Expected: PASS.
@@ -530,7 +530,7 @@ Expected: PASS.
 
 - This plan covers every architecture candidate accepted in the review.
 - The package seam decisions happen first so later slices do not build on ambiguous dependencies.
-- Campaigns requires Analytics in this plan.
-- Assistant/Mosaic optional collaboration is moved to Mosaic ownership.
+- CampaignStudio requires Insights in this plan.
+- AIOrchestrator/LayoutBuilder optional collaboration is moved to LayoutBuilder ownership.
 - Blog/Navigation collaboration is made explicit.
 - Each workflow slice has its own tests and commit.

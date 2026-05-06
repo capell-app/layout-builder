@@ -32,7 +32,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Forms\Components\Select;
+use Filament\FormBuilder\Components\Select;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Pages\Page as ResourcePage;
 use Filament\Tables\Columns\TextColumn;
@@ -413,7 +413,7 @@ class ArticlePagesTable implements TableConfigurator
                 $value = $state['value'] ?? null;
                 if ($value) {
                     $indicators['tags'] = __(
-                        'capell-mosaic::filter.tag',
+                        'capell-layout-builder::filter.tag',
                         ['search' => Tag::query()->find($value)?->name],
                     );
                 }

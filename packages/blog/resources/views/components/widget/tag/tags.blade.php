@@ -33,7 +33,7 @@
     $tagPage ??= TagLoader::getTagResultsPage($site, $language);
 @endphp
 
-<x-capell-mosaic::widget.wrapper
+<x-capell-layout-builder::widget.wrapper
     class="widget-tags"
     :$container
     :$containerKey
@@ -89,4 +89,4 @@
             :scrollToElement="$containerKey . '-' . $widget->key . '-' . $loop->index"
         />
     @endif
-</x-capell-mosaic::widget.wrapper>
+</x-capell-layout-builder::widget.wrapper>

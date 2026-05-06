@@ -6,7 +6,7 @@ namespace Capell\Address\Filament\Configurators\Languages;
 
 use Capell\Address\Filament\Components\Forms\FlagSelect;
 use Capell\Admin\Filament\Configurators\Languages\DefaultLanguageConfigurator as AdminDefaultLanguageConfigurator;
-use Filament\Forms\Components\Field;
+use Filament\FormBuilder\Components\Field;
 
 class DefaultLanguageConfigurator extends AdminDefaultLanguageConfigurator
 {

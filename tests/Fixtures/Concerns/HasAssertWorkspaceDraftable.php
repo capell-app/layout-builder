@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\Tests\Fixtures\Concerns;
 
-use Capell\Workspaces\Enums\WorkspaceStatusEnum;
-use Capell\Workspaces\Models\Workspace;
-use Capell\Workspaces\Publisher;
-use Capell\Workspaces\WorkspaceContext;
-use Capell\Workspaces\WorkspaceRegistry;
+use Capell\PublishingStudio\Enums\WorkspaceStatusEnum;
+use Capell\PublishingStudio\Models\Workspace;
+use Capell\PublishingStudio\Publisher;
+use Capell\PublishingStudio\WorkspaceContext;
+use Capell\PublishingStudio\WorkspaceRegistry;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;

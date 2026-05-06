@@ -85,7 +85,7 @@ jobs:
             livewire/livewire:^3.7 \
             filament/filament:^4.7 \
             filament/support:^4.7 \
-            pboivin/filament-peek:^3.0 \
+            pboivin/admin-preview:^3.0 \
             symfony/html-sanitizer:^7.0 \
             openspout/openspout:^4.22
           composer update --no-interaction --no-progress --ansi --optimize-autoloader --with-all-dependencies -W

@@ -32,12 +32,12 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Core\Support\Creator\LayoutCreator;
 use Capell\Core\Support\Creator\TypeCreator;
-use Capell\Mosaic\Enums\LayoutTypeEnum;
-use Capell\Mosaic\Enums\LivewireComponentsEnum;
-use Capell\Mosaic\Filament\Configurators\Types\WidgetTypeConfigurator;
-use Capell\Mosaic\Models\Widget;
-use Capell\Mosaic\Support\Creator\TypeCreator as LayoutTypeCreator;
-use Capell\Mosaic\Support\Creator\WidgetCreator;
+use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
+use Capell\LayoutBuilder\Enums\LivewireComponentsEnum;
+use Capell\LayoutBuilder\Filament\Configurators\Types\WidgetTypeConfigurator;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Support\Creator\TypeCreator as LayoutTypeCreator;
+use Capell\LayoutBuilder\Support\Creator\WidgetCreator;
 use Capell\Navigation\Actions\AddPageToNavigationAction;
 use Capell\Navigation\Models\Navigation;
 use Filament\Support\Icons\Heroicon;
@@ -616,7 +616,7 @@ class BlogCreator
             $widget->translations()->firstOrCreate([
                 'language_id' => $language->id,
             ], [
-                'title' => __('capell-mosaic::heading.related_pages'),
+                'title' => __('capell-layout-builder::heading.related_pages'),
             ]);
         });
 

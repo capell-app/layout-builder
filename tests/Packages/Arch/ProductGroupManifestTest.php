@@ -8,7 +8,7 @@ it('keeps every package manifest in an approved product group', function (): voi
     $allowedProductGroups = [
         'foundation' => ['productGroup' => 'Capell Foundation', 'tier' => 'free'],
         'commercial' => ['productGroup' => 'Capell Commercial', 'tier' => 'premium'],
-        'forms' => ['productGroup' => 'Capell Forms', 'tier' => 'premium'],
+        'form-builder' => ['productGroup' => 'Capell FormBuilder', 'tier' => 'premium'],
         'publishing-pro' => ['productGroup' => 'Capell Publishing Pro', 'tier' => 'premium'],
         'operations' => ['productGroup' => 'Capell Operations', 'tier' => 'premium'],
         'growth' => ['productGroup' => 'Capell Growth', 'tier' => 'premium'],
@@ -65,42 +65,42 @@ it('groups packages into the current product bundles', function (): void {
 
     expect($packagesByBundle)->toBe([
         'commercial' => [
-            'assistant/capell.json',
+            'ai-orchestrator/capell.json',
         ],
-        'forms' => [
-            'forms/capell.json',
+        'form-builder' => [
+            'form-builder/capell.json',
         ],
         'foundation' => [
             'address/capell.json',
             'blog/capell.json',
-            'content-blocks/capell.json',
-            'default-theme/capell.json',
-            'html-minify/capell.json',
-            'media-curator/capell.json',
-            'mosaic/capell.json',
+            'block-library/capell.json',
+            'foundation-theme/capell.json',
+            'html-optimizer/capell.json',
+            'media-library/capell.json',
+            'layout-builder/capell.json',
             'navigation/capell.json',
             'redirects/capell.json',
             'tags/capell.json',
-            'toolbar/capell.json',
+            'frontend-authoring/capell.json',
         ],
         'growth' => [
-            'analytics/capell.json',
-            'campaigns/capell.json',
+            'insights/capell.json',
+            'campaign-studio/capell.json',
         ],
         'operations' => [
-            'authentication-log/capell.json',
+            'login-audit/capell.json',
             'backup/capell.json',
             'deployments/capell.json',
-            'developer-tools/capell.json',
-            'mcp/capell.json',
+            'diagnostics/capell.json',
+            'agent-bridge/capell.json',
         ],
         'publishing-pro' => [
-            'filament-peek/capell.json',
-            'workspaces/capell.json',
+            'admin-preview/capell.json',
+            'publishing-studio/capell.json',
         ],
         'search-seo' => [
-            'seo-tools/capell.json',
-            'site-search/capell.json',
+            'seo-suite/capell.json',
+            'search/capell.json',
         ],
         'theme-studio' => [
             'theme-agency/capell.json',

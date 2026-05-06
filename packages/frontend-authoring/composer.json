@@ -1,0 +1,29 @@
+{
+    "name": "capell-app/frontend-authoring",
+    "description": "Frontend authoring bridge and in-page editing for Capell frontend",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "capell-app/admin": "*",
+        "capell-app/frontend": "*",
+        "spatie/laravel-package-tools": "^1.14"
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\FrontendAuthoring\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Capell\\FrontendAuthoring\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\FrontendAuthoring\\Providers\\FrontendAuthoringServiceProvider"
+            ]
+        }
+    }
+}

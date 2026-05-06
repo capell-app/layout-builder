@@ -7,14 +7,14 @@ arch('navigation does not import packages that depend on it')
     ->not->toUse([
         'Capell\Address',
         'Capell\Blog',
-        'Capell\Forms',
+        'Capell\FormBuilder',
         'Capell\Media',
-        'Capell\Mosaic',
+        'Capell\LayoutBuilder',
         'Capell\Marketplace',
-        'Capell\SeoTools',
+        'Capell\SeoSuite',
         'Capell\Tags',
         'Capell\Themes',
-        'Capell\Workspaces',
+        'Capell\PublishingStudio',
     ]);
 
 arch()

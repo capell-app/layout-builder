@@ -1,0 +1,44 @@
+{
+    "name": "capell-app/layout-builder",
+    "description": "LayoutBuilder for Capell",
+    "keywords": [
+        "capell",
+        "layout-builder",
+        "laravel",
+        "filamentphp",
+        "cms"
+    ],
+    "homepage": "https://github.com/capell-app/layout-builder",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Howdu",
+            "email": "cms.multi2@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "capell-app/admin": "*",
+        "capell-app/frontend": "*",
+        "capell-app/navigation": "*",
+        "capell-app/publishing-studio": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\LayoutBuilder\\": "src/",
+            "Capell\\LayoutBuilder\\Database\\Factories\\": "database/factories"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\LayoutBuilder\\Providers\\LayoutBuilderServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "prefer-stable": true
+}

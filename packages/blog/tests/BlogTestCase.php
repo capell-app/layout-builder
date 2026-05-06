@@ -7,17 +7,17 @@ namespace Capell\Blog\Tests;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
-use Capell\Analytics\Providers\AnalyticsServiceProvider;
 use Capell\Blog\Providers\AdminServiceProvider as BlogAdminServiceProvider;
 use Capell\Blog\Providers\BlogServiceProvider;
 use Capell\Blog\Providers\ConsoleServiceProvider as BlogConsoleServiceProvider;
 use Capell\Blog\Providers\FrontendServiceProvider as BlogFrontendServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Media;
-use Capell\DefaultTheme\Providers\DefaultThemeServiceProvider;
+use Capell\FoundationTheme\Providers\FoundationThemeServiceProvider;
 use Capell\Frontend\Contracts\SettingsMigrationProviderInterface;
 use Capell\Frontend\Providers\FrontendServiceProvider;
-use Capell\Mosaic\Providers\MosaicServiceProvider;
+use Capell\Insights\Providers\InsightsServiceProvider;
+use Capell\LayoutBuilder\Providers\LayoutBuilderServiceProvider;
 use Capell\Tags\Models\Tag;
 use Capell\Tags\Providers\TagsServiceProvider;
 use Capell\Tests\AbstractTestCase;
@@ -34,7 +34,7 @@ class BlogTestCase extends AbstractTestCase
     {
         parent::setUp();
 
-        Blade::anonymousComponentPath(__DIR__ . '/../../default-theme/resources/views/components', 'capell');
+        Blade::anonymousComponentPath(__DIR__ . '/../../foundation-theme/resources/views/components', 'capell');
 
         $this->registerAndMigrateSettings(
             CapellCore::getSettingMigrations(),
@@ -65,15 +65,15 @@ class BlogTestCase extends AbstractTestCase
     {
         return [
             ...parent::getPackageProviders($app),
-            MosaicServiceProvider::class,
+            LayoutBuilderServiceProvider::class,
             AdminServiceProvider::class,
-            AnalyticsServiceProvider::class,
+            InsightsServiceProvider::class,
             FrontendServiceProvider::class,
             BlogServiceProvider::class,
             BlogAdminServiceProvider::class,
             BlogConsoleServiceProvider::class,
             BlogFrontendServiceProvider::class,
-            DefaultThemeServiceProvider::class,
+            FoundationThemeServiceProvider::class,
             TagsServiceProvider::class,
             AdminPanelProvider::class,
             LivewireServiceProvider::class,
@@ -90,14 +90,14 @@ class BlogTestCase extends AbstractTestCase
 
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
         CapellCore::registerPackage(
-            AnalyticsServiceProvider::$packageName,
-            path: realpath(__DIR__ . '/../../analytics'),
+            InsightsServiceProvider::$packageName,
+            path: realpath(__DIR__ . '/../../insights'),
         );
-        CapellCore::forcePackageInstalled(AnalyticsServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(InsightsServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(BlogServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled('capell-app/default-theme');
+        CapellCore::forcePackageInstalled('capell-app/foundation-theme');
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(MosaicServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(LayoutBuilderServiceProvider::$packageName);
 
         CapellCore::registerPackage(
             TagsServiceProvider::$packageName,

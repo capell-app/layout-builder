@@ -7,7 +7,7 @@ use Capell\Blog\Support\Sitemap\TagsSitemap;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
-use Capell\SeoTools\Data\SitemapPageData;
+use Capell\SeoSuite\Data\SitemapPageData;
 use Capell\Tags\Enums\TagTypeEnum;
 use Capell\Tags\Models\Tag;
 use Capell\Tests\Support\Concerns\TestingFrontend;

@@ -8,13 +8,27 @@ Theme SaaS registers a conversion-led SaaS renderer for Capell Theme Studio.
 
 - SaaS theme service provider.
 - Theme renderer/views for SaaS Theme Studio output.
-- Dependency on Default Theme and Theme Studio Core.
+- Dependency on Foundation Theme and Theme Studio Core.
 
 ## Why It Matters
 
 **For developers:** Adds a renderer package that uses Theme Studio Core runtime contracts while leaving content models unchanged.
 
 **For teams:** Provides a SaaS-oriented visual option for product sites managed through Theme Studio.
+
+## Built With
+
+This package makes its Composer dependencies visible because they are part of the value proposition, not just plumbing. When an upstream package has a public repository, its linked preview card points readers back to the maintainers so their work gets proper credit.
+
+**Capell packages used here**
+
+- [Capell Core](https://github.com/capell-app/core)
+- [Capell Foundation Theme](../foundation-theme/README.md)
+- [Capell Theme Studio Core](../theme-studio-core/README.md)
+
+**Open-source packages used here**
+
+- No extra third-party Composer package beyond the Capell package stack is required here.
 
 ## Screens And Workflow
 
@@ -27,7 +41,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 ## Technical Shape
 
 - SaasThemeServiceProvider registers the renderer.
-- Requires capell-app/default-theme and capell-app/theme-studio-core.
+- Requires capell-app/foundation-theme and capell-app/theme-studio-core.
 - No migrations, config, routes, resources, or models are present.
 
 ## Data Model
@@ -55,7 +69,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 ## Common Pitfalls
 
 - Install Theme Studio Core before using this renderer.
-- Verify Default Theme assets are generated.
+- Verify Foundation Theme assets are generated.
 
 ## Quick Start
 
@@ -68,3 +82,4 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - [docs/overview.md](docs/overview.md)
 - [../theme-studio-core/README.md](../theme-studio-core/README.md)
 - [../theme-studio-admin/README.md](../theme-studio-admin/README.md)
+- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)

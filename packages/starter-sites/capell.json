@@ -1,0 +1,17 @@
+{
+    "name": "capell-app/starter-sites",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Foundation",
+    "tier": "free",
+    "bundle": "foundation",
+    "contexts": ["admin", "frontend"],
+    "requires": [
+        "capell-app/admin",
+        "capell-app/core",
+        "capell-app/frontend"
+    ],
+    "providers": {
+        "shared": ["Capell\\StarterSites\\Providers\\StarterSitesServiceProvider"]
+    }
+}

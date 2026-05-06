@@ -139,7 +139,7 @@ class Tag extends \Spatie\Tags\Tag implements PageCacheable, Statusable
      * This returns the pivot rows from the `taggables` table so callers can
      * inspect which models (type + id) are associated with this tag. For
      * convenience use the morph-specific relations like `pages()` when you
-     * need the hydrated models. Consumer packages (blog, mosaic) register
+     * need the hydrated models. Consumer packages (blog, layout-builder) register
      * their own morph relations via Tag::resolveRelationUsing().
      */
     public function taggables(): HasMany

@@ -6,7 +6,7 @@
 
 **Architecture:** Follow Blog’s package pattern: Event is the pageable content model, EventOccurrence is the query-optimized schedule model, Actions own all writes and derived output, Data classes own structured boundaries, and Livewire page components own frontend calendar/listing interactions. Recurrence rules are authored on Event and expanded into persisted occurrence rows for fast listings, feeds, and schema output.
 
-**Tech Stack:** PHP 8.2, Laravel, Capell Core/Admin/Frontend, Filament, Livewire, Spatie Laravel Data, Lorisleiva Actions, Mosaic layouts, Pest.
+**Tech Stack:** PHP 8.2, Laravel, Capell Core/Admin/Frontend, Filament, Livewire, Spatie Laravel Data, Lorisleiva Actions, LayoutBuilder layouts, Pest.
 
 ---
 
@@ -117,7 +117,7 @@ git status --short --untracked-files=all
 git diff --name-only --diff-filter=U
 ```
 
-Expected: no unresolved files. If `packages/workspaces/tests/Integration/WorkspaceSchedulerMetadataActionTest.php` is still unresolved, stop before implementation and ask Ben whether to resolve, stash, or move the Events work to a clean worktree.
+Expected: no unresolved files. If `packages/publishing-studio/tests/Integration/WorkspaceSchedulerMetadataActionTest.php` is still unresolved, stop before implementation and ask Ben whether to resolve, stash, or move the Events work to a clean worktree.
 
 - [ ] **Step 2: Confirm docs-only plan files are present**
 
@@ -174,7 +174,7 @@ it('declares the events package metadata', function (): void {
         ->and($manifest['providers']['frontend'])->toContain('Capell\\Events\\Providers\\FrontendServiceProvider')
         ->and($manifest['providers']['console'])->toContain('Capell\\Events\\Providers\\ConsoleServiceProvider')
         ->and(Arr::get($manifest, 'commands.install'))->toBe('capell:events-install')
-        ->and($manifest['requires'])->toContain('capell-app/mosaic');
+        ->and($manifest['requires'])->toContain('capell-app/layout-builder');
 });
 ```
 
@@ -210,9 +210,9 @@ Create `packages/events/composer.json`:
         "php": "^8.2",
         "capell-app/admin": "*",
         "capell-app/frontend": "*",
-        "capell-app/mosaic": "*",
+        "capell-app/layout-builder": "*",
         "capell-app/navigation": "*",
-        "capell-app/workspaces": "*"
+        "capell-app/publishing-studio": "*"
     },
     "autoload": {
         "psr-4": {
@@ -244,9 +244,9 @@ Create `packages/events/capell.json`:
         "capell-app/core",
         "capell-app/admin",
         "capell-app/frontend",
-        "capell-app/mosaic",
+        "capell-app/layout-builder",
         "capell-app/navigation",
-        "capell-app/workspaces"
+        "capell-app/publishing-studio"
     ],
     "providers": {
         "shared": ["Capell\\Events\\Providers\\EventsServiceProvider"],
@@ -283,7 +283,7 @@ Create `packages/events/README.md`:
 
 Events package for Capell CMS. Provides pageable event detail pages, upcoming event listings, recurring occurrence generation, an interactive Livewire calendar, booking links, iCalendar feeds, and event schema output.
 
-Install Mosaic before installing Events.
+Install LayoutBuilder before installing Events.
 ```
 
 - [ ] **Step 4: Add language package description**
@@ -1287,7 +1287,7 @@ The calendar view renders a `.events-calendar` wrapper, month navigation buttons
 
 - [ ] **Step 5: Add feed route**
 
-Create `routes/web.php` with a named route returning `response(BuildIcsFeedAction::run($site, $language), 200, ['Content-Type' => 'text/calendar; charset=UTF-8'])`. Resolve site/language using existing frontend state or route parameters matching package conventions discovered in `packages/blog` and `packages/seo-tools`.
+Create `routes/web.php` with a named route returning `response(BuildIcsFeedAction::run($site, $language), 200, ['Content-Type' => 'text/calendar; charset=UTF-8'])`. Resolve site/language using existing frontend state or route parameters matching package conventions discovered in `packages/blog` and `packages/seo-suite`.
 
 - [ ] **Step 6: Run frontend tests and commit**
 
@@ -1359,7 +1359,7 @@ arch()
 
 - [ ] **Step 2: Implement install/setup commands**
 
-`InstallCommand` registers package migrations/settings through the existing Capell install command pattern used by Blog and Mosaic.
+`InstallCommand` registers package migrations/settings through the existing Capell install command pattern used by Blog and LayoutBuilder.
 
 `SetupCommand` resolves selected sites and runs `EventsCreator::setup($site)` to create types, layouts, default Events page, and Calendar child page.
 
@@ -1421,7 +1421,7 @@ git diff --stat HEAD
 git diff --check
 ```
 
-Expected: diff contains Events package files plus root registration changes only; `git diff --check` reports no whitespace errors.
+Expected: diff contains Events package files plus root registration changes only; `git diff --check` dashboard-dashboard_reports no whitespace errors.
 
 - [ ] **Step 4: Final commit if needed**
 

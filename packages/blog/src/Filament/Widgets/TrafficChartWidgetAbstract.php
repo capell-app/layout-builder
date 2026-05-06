@@ -7,10 +7,10 @@ namespace Capell\Blog\Filament\Widgets;
 use Capell\Admin\Contracts\CapellWidgetContract;
 use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
 use Capell\Admin\Filament\Concerns\HasDashboardDateRange;
-use Capell\Analytics\Enums\AnalyticsEventType;
-use Capell\Analytics\Models\AnalyticsEvent;
 use Capell\Blog\Data\Dashboard\TrafficChartData;
 use Capell\Blog\Data\Dashboard\TrafficPointData;
+use Capell\Insights\Enums\InsightsEventType;
+use Capell\Insights\Models\InsightsEvent;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -42,13 +42,13 @@ final class TrafficChartWidgetAbstract extends Widget implements CapellWidgetCon
     {
         [$rangeStart, $rangeEnd] = $this->getDashboardDateRange();
 
-        $rows = AnalyticsEvent::query()
+        $rows = InsightsEvent::query()
             ->select(
                 DB::raw('DATE(occurred_at) as date'),
                 DB::raw('COUNT(*) as views'),
                 DB::raw('COUNT(DISTINCT visit_id) as visitors'),
             )
-            ->where('type', AnalyticsEventType::PageView)
+            ->where('type', InsightsEventType::PageView)
             ->where('occurred_at', '>=', $rangeStart)
             ->where('occurred_at', '<=', $rangeEnd)
             ->groupBy(DB::raw('DATE(occurred_at)'))

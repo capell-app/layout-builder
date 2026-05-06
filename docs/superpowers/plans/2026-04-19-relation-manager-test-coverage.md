@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Improve test coverage for the four Mosaic relation managers that are missing tests or have thin coverage: PagesRelationManager, WidgetsRelationManager, LayoutsRelationManager, and WidgetAssetsRelationManager (no tests at all).
+**Goal:** Improve test coverage for the four LayoutBuilder relation managers that are missing tests or have thin coverage: PagesRelationManager, WidgetsRelationManager, LayoutsRelationManager, and WidgetAssetsRelationManager (no tests at all).
 
 **Architecture:** Each task follows the same pattern established in `SectionAssetsRelationManagerTest.php`: list, search, empty-search, filter, bulk-delete, and create scenarios. Read-only relation managers (no create/delete actions) skip the destructive tests. All tests use model factories, never manual model creation.
 
@@ -71,7 +71,7 @@ livewire(TheRelationManager::class, ['ownerRecord' => $owner, 'pageClass' => Edi
 
 **Files:**
 
-- Modify: `tests/Mosaic/Feature/Filament/Resources/Section/RelationManagers/PagesRelationManagerTest.php`
+- Modify: `tests/LayoutBuilder/Feature/Filament/Resources/Section/RelationManagers/PagesRelationManagerTest.php`
 
 **Context:**
 `PagesRelationManager` is read-only (no create/delete). It shows pages a section appears on via `WidgetAsset` records. The table searches by `pageable_id` (the integer ID). Its columns include `pageable.id`, `pageable.name`, `pageable.site.name`.
@@ -146,7 +146,7 @@ it('can list pages for a content model', function (): void {
 - [ ] **Step 3: Run tests**
 
 ```bash
-php vendor/bin/pest tests/Mosaic/Feature/Filament/Resources/Section/RelationManagers/PagesRelationManagerTest.php
+php vendor/bin/pest tests/LayoutBuilder/Feature/Filament/Resources/Section/RelationManagers/PagesRelationManagerTest.php
 ```
 
 Expected: all 3 tests pass.
@@ -154,8 +154,8 @@ Expected: all 3 tests pass.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add tests/Mosaic/Feature/Filament/Resources/Section/RelationManagers/PagesRelationManagerTest.php
-git commit -m "test(mosaic): improve PagesRelationManager test coverage"
+git add tests/LayoutBuilder/Feature/Filament/Resources/Section/RelationManagers/PagesRelationManagerTest.php
+git commit -m "test(layout-builder): improve PagesRelationManager test coverage"
 ```
 
 ---
@@ -164,7 +164,7 @@ git commit -m "test(mosaic): improve PagesRelationManager test coverage"
 
 **Files:**
 
-- Modify: `tests/Mosaic/Feature/Filament/Resources/Section/RelationManagers/WidgetsRelationManagerTest.php`
+- Modify: `tests/LayoutBuilder/Feature/Filament/Resources/Section/RelationManagers/WidgetsRelationManagerTest.php`
 
 **Context:**
 `WidgetsRelationManager` is read-only (no create/delete). Searches by `widget.key` (already tested). Has a sortable `widget.key` column.
@@ -221,7 +221,7 @@ it('can sort widgets by key', function (): void {
 - [ ] **Step 3: Run tests**
 
 ```bash
-php vendor/bin/pest tests/Mosaic/Feature/Filament/Resources/Section/RelationManagers/WidgetsRelationManagerTest.php
+php vendor/bin/pest tests/LayoutBuilder/Feature/Filament/Resources/Section/RelationManagers/WidgetsRelationManagerTest.php
 ```
 
 Expected: all 4 tests pass.
@@ -229,8 +229,8 @@ Expected: all 4 tests pass.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add tests/Mosaic/Feature/Filament/Resources/Section/RelationManagers/WidgetsRelationManagerTest.php
-git commit -m "test(mosaic): improve WidgetsRelationManager test coverage"
+git add tests/LayoutBuilder/Feature/Filament/Resources/Section/RelationManagers/WidgetsRelationManagerTest.php
+git commit -m "test(layout-builder): improve WidgetsRelationManager test coverage"
 ```
 
 ---
@@ -239,7 +239,7 @@ git commit -m "test(mosaic): improve WidgetsRelationManager test coverage"
 
 **Files:**
 
-- Modify: `tests/Mosaic/Feature/Filament/Resources/Widget/RelationManagers/LayoutsRelationManagerTest.php`
+- Modify: `tests/LayoutBuilder/Feature/Filament/Resources/Widget/RelationManagers/LayoutsRelationManagerTest.php`
 
 **Context:**
 `LayoutsRelationManager` is read-only. Has a `site_id` SelectFilter (already tested). No searchable columns, so no search test. Add: empty filter result and column state assertion for `site.name`.
@@ -315,7 +315,7 @@ it('returns no results when site filter matches no layouts', function (): void {
 - [ ] **Step 3: Run tests**
 
 ```bash
-php vendor/bin/pest tests/Mosaic/Feature/Filament/Resources/Widget/RelationManagers/LayoutsRelationManagerTest.php
+php vendor/bin/pest tests/LayoutBuilder/Feature/Filament/Resources/Widget/RelationManagers/LayoutsRelationManagerTest.php
 ```
 
 Expected: all 3 tests pass.
@@ -323,8 +323,8 @@ Expected: all 3 tests pass.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add tests/Mosaic/Feature/Filament/Resources/Widget/RelationManagers/LayoutsRelationManagerTest.php
-git commit -m "test(mosaic): improve LayoutsRelationManager test coverage"
+git add tests/LayoutBuilder/Feature/Filament/Resources/Widget/RelationManagers/LayoutsRelationManagerTest.php
+git commit -m "test(layout-builder): improve LayoutsRelationManager test coverage"
 ```
 
 ---
@@ -333,7 +333,7 @@ git commit -m "test(mosaic): improve LayoutsRelationManager test coverage"
 
 **Files:**
 
-- Create: `tests/Mosaic/Feature/Filament/Resources/Widget/RelationManagers/WidgetAssetsRelationManagerTest.php`
+- Create: `tests/LayoutBuilder/Feature/Filament/Resources/Widget/RelationManagers/WidgetAssetsRelationManagerTest.php`
 
 **Context:**
 `WidgetAssetsRelationManager` (relationship: `widgetAssets` on Widget) shows `WidgetAsset` records. Full CRUD: create via `HasAssetsRelationManager::createResourcesAction()`, delete per-row, bulk delete. Columns: `id`, `asset.name`, `asset_type` (sortable badge), `pageable.name`. Filters: page, asset type, type_id.
@@ -351,11 +351,11 @@ declare(strict_types=1);
 
 use Capell\Core\Models\AssetRelation;
 use Capell\Core\Models\Page;
-use Capell\Mosaic\Filament\Resources\Widgets\Pages\EditWidget;
-use Capell\Mosaic\Filament\Resources\Widgets\RelationManagers\WidgetAssetsRelationManager;
-use Capell\Mosaic\Models\Section;
-use Capell\Mosaic\Models\Widget;
-use Capell\Mosaic\Models\WidgetAsset;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\EditWidget;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\RelationManagers\WidgetAssetsRelationManager;
+use Capell\LayoutBuilder\Models\Section;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\Testing\TestAction;
 
@@ -501,7 +501,7 @@ it('can bulk delete widget assets', function (): void {
 - [ ] **Step 2: Run the tests (expect failures to diagnose)**
 
 ```bash
-php vendor/bin/pest tests/Mosaic/Feature/Filament/Resources/Widget/RelationManagers/WidgetAssetsRelationManagerTest.php
+php vendor/bin/pest tests/LayoutBuilder/Feature/Filament/Resources/Widget/RelationManagers/WidgetAssetsRelationManagerTest.php
 ```
 
 Fix any failures before continuing. Common issues:
@@ -539,7 +539,7 @@ it('returns no results when search matches nothing', function (): void {
 - [ ] **Step 4: Run all tests again**
 
 ```bash
-php vendor/bin/pest tests/Mosaic/Feature/Filament/Resources/Widget/RelationManagers/WidgetAssetsRelationManagerTest.php
+php vendor/bin/pest tests/LayoutBuilder/Feature/Filament/Resources/Widget/RelationManagers/WidgetAssetsRelationManagerTest.php
 ```
 
 Expected: all 4 tests pass.
@@ -547,18 +547,18 @@ Expected: all 4 tests pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add tests/Mosaic/Feature/Filament/Resources/Widget/RelationManagers/WidgetAssetsRelationManagerTest.php
-git commit -m "test(mosaic): add WidgetAssetsRelationManager test coverage"
+git add tests/LayoutBuilder/Feature/Filament/Resources/Widget/RelationManagers/WidgetAssetsRelationManagerTest.php
+git commit -m "test(layout-builder): add WidgetAssetsRelationManager test coverage"
 ```
 
 ---
 
 ## Task 5: Run full test suite
 
-- [ ] **Step 1: Run all Mosaic relation manager tests together**
+- [ ] **Step 1: Run all LayoutBuilder relation manager tests together**
 
 ```bash
-php vendor/bin/pest tests/Mosaic/Feature/Filament/Resources/Section/RelationManagers/ tests/Mosaic/Feature/Filament/Resources/Widget/RelationManagers/
+php vendor/bin/pest tests/LayoutBuilder/Feature/Filament/Resources/Section/RelationManagers/ tests/LayoutBuilder/Feature/Filament/Resources/Widget/RelationManagers/
 ```
 
 Expected: all tests green.
@@ -575,6 +575,6 @@ Expected: all tests pass, no regressions.
 
 ## Out of scope (left for follow-up)
 
-- **ContentsRelationManager** — shows sections on a Page from the admin `EditPage` class. Needs research into how to instantiate `Capell\Admin\Filament\Resources\Pages\Pages\EditPage` in tests and how `Page::contents()` is registered in `MosaicServiceProvider`. Worth a dedicated plan once unblocked.
+- **ContentsRelationManager** — shows sections on a Page from the admin `EditPage` class. Needs research into how to instantiate `Capell\Admin\Filament\Resources\Pages\Pages\EditPage` in tests and how `Page::contents()` is registered in `LayoutBuilderServiceProvider`. Worth a dedicated plan once unblocked.
 - **Create test for WidgetAssetsRelationManager** — `WidgetAssetForm` may require `pageable_type`/`pageable_id` in addition to `asset_type`/`asset_id`. Deferred because the form schema differs from `HasAssetsRelationManager::getAssetForm()` and needs form-field inspection to write correctly.
 - **Filter by asset type in WidgetAssetsRelationManager** — the filter is a nested `Filter::make('filter')` with a sub-`Select`, not a simple `SelectFilter`. Testing nested filter schemas requires passing an array to `filterTable('filter', ['type' => 'section'])`. Deferred pending confirmation of the correct key names.

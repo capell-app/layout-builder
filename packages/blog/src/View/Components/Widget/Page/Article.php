@@ -7,7 +7,7 @@ namespace Capell\Blog\View\Components\Widget\Page;
 use Capell\Core\Contracts\Pageable;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Frontend\Support\Loader\PageLoader;
-use Capell\Mosaic\View\Components\Widget\AbstractWidget;
+use Capell\LayoutBuilder\View\Components\Widget\AbstractWidget;
 use Closure;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\View\View;

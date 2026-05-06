@@ -1,0 +1,53 @@
+{
+    "name": "capell-app/agent-bridge",
+    "description": "Agent Bridge servers and capability adapters for Capell CMS.",
+    "type": "library",
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "Capell\\AgentBridge\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Capell\\AgentBridge\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\AgentBridge\\Providers\\AgentBridgeServiceProvider"
+            ]
+        }
+    },
+    "require": {
+        "php": "^8.2",
+        "capell-app/admin": "*",
+        "capell-app/core": "*",
+        "laravel/framework": "^11.45.3|^12.41.1|^13.0",
+        "laravel/mcp": "^0.6|^0.7",
+        "lorisleiva/laravel-actions": "^2.8",
+        "spatie/laravel-data": "^4.5",
+        "spatie/laravel-package-tools": "^1.14.1"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.15|^10.8|^11.0",
+        "pestphp/pest": "^3.8|^4.3",
+        "pestphp/pest-plugin-laravel": "^3.0|^4.0",
+        "phpstan/phpstan": "^2.1",
+        "laravel/pint": "^1.25"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "lint": "pint",
+        "test": "pest --colors=always",
+        "analyze": "phpstan analyse --memory-limit=-1"
+    }
+}

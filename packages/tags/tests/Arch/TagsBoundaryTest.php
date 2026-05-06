@@ -6,13 +6,13 @@ arch('tags does not import unrelated packages')
     ->expect('Capell\Tags')
     ->not->toUse([
         'Capell\Address',
-        'Capell\Assistant',
+        'Capell\AIOrchestrator',
         'Capell\Blog',
-        'Capell\Forms',
+        'Capell\FormBuilder',
         'Capell\Media',
-        'Capell\Mosaic',
+        'Capell\LayoutBuilder',
         'Capell\Marketplace',
-        'Capell\SeoTools',
+        'Capell\SeoSuite',
         'Capell\Themes',
     ]);
 

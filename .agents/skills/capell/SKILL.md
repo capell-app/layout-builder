@@ -36,20 +36,27 @@ description: Capell Packages coding standards, architecture rules, and package c
 - Implement `HasLabel` for Filament Select/Radio options — never inline option arrays.
 - Type-hint enums in all signatures; never pass raw scalars where an enum exists.
 
+## Frontend authoring safety
+
+- Non-admin frontend users must never receive editor HTML, JavaScript, metadata, selectors, model IDs, field paths, package hints, or signed editor URLs.
+- In-page authoring is added only after page load, from an authenticated admin beacon response.
+- Do not render authoring markers into public Blade, theme output, cached HTML, or package assets.
+- When a package touches frontend output, beacon behaviour, page cache, or theme code, keep tests that prove anonymous and non-admin users see no authoring surface.
+
 ## Packages in this repo
 
-| Package     | Namespace          | Depends on                        |
-| ----------- | ------------------ | --------------------------------- |
-| `mosaic`    | `Capell\Mosaic`    | core, admin, frontend             |
-| `blog`      | `Capell\Blog`      | core, admin, frontend, **mosaic** |
-| `address`   | `Capell\Address`   | core, admin                       |
-| `assistant` | `Capell\Assistant` | core, admin                       |
+| Package           | Namespace               | Depends on                                |
+| ----------------- | ----------------------- | ----------------------------------------- |
+| `layout-builder`  | `Capell\LayoutBuilder`  | core, admin, frontend                     |
+| `blog`            | `Capell\Blog`           | core, admin, frontend, **layout-builder** |
+| `address`         | `Capell\Address`        | core, admin                               |
+| `ai-orchestrator` | `Capell\AIOrchestrator` | core, admin                               |
 
-**Blog requires Mosaic — install Mosaic first.**
+**Blog requires LayoutBuilder — install LayoutBuilder first.**
 
 ## Package boundaries (strict)
 
-- **Core must never import plugin classes** — no `use Capell\Blog\...`, `use Capell\Mosaic\...` from Core.
+- **Core must never import plugin classes** — no `use Capell\Blog\...`, `use Capell\LayoutBuilder\...` from Core.
 - Cross-plugin coordination uses events, Artisan command name strings, or shared filesystem paths.
 - Packages should not reach into each other's internals (Arch tests enforce this).
 
@@ -65,14 +72,14 @@ description: Capell Packages coding standards, architecture rules, and package c
 
 Auto-discovered: types in `src/Types/`, schemas in `src/Schemas/`, widgets in `src/Widgets/`.
 
-## Workspaces / Draftable
+## PublishingStudio / Draftable
 
 Any package model in draft/publish must implement `Capell\Core\Contracts\Draftable` and be registered in the morph map in the package's service provider. Reuse `ReplicateModelAction`, `ReplicatePageAction` — don't reinvent replication.
 
 ## Testing
 
 - Test actions directly: `MyAction::run($input)` — not through HTTP.
-- Run a single package: `vendor/bin/pest packages/mosaic/tests`
+- Run a single package: `vendor/bin/pest packages/layout-builder/tests`
 - Minimum 80% coverage. Full suite: `composer test`.
 - Arch tests enforce package boundaries — don't suppress them.
 

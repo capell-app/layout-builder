@@ -93,7 +93,7 @@ return [
         'preview' => 'Whole-site preview',
         'preview_description' => 'Workspace preview is available or a Theme Studio draft is staged.',
         'preview_description_standalone' => 'Stage a Theme Studio draft before publishing it.',
-        'preview_description_workspace' => 'Workspaces approval is available for staged theme changes.',
+        'preview_description_workspace' => 'PublishingStudio approval is available for staged theme changes.',
     ],
     'validation' => [
         'safe_css_color' => 'Enter a safe 6-digit hex colour.',

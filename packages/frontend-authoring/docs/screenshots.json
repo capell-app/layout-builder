@@ -1,0 +1,73 @@
+{
+    "package": "frontend-authoring",
+    "composerName": "capell-app/frontend-authoring",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "composerRequires": [
+        "capell-app/core",
+        "capell-app/admin",
+        "capell-app/frontend",
+        "capell-app/foundation-theme",
+        "capell-app/frontend-authoring"
+    ],
+    "outputDirectory": "public/docs/screenshots/packages/frontend-authoring",
+    "browserTests": [
+        {
+            "id": "anonymous-users-receive-no-authoring-surface",
+            "entry": "frontend-page-with-authoring-enabled",
+            "actor": "anonymous",
+            "assertions": [
+                "no CapellFrontendAuthoring global",
+                "no capell-authoring DOM",
+                "no edit_url, recordKey, model, field path, selector, label, or signed URL in the response or DOM"
+            ]
+        },
+        {
+            "id": "admin-can-open-single-field-editor",
+            "entry": "frontend-page-with-authoring-enabled",
+            "actor": "admin",
+            "assertions": [
+                "beacon returns an authoring bootstrap script",
+                "page title edit control appears after the beacon runs",
+                "clicking the control opens a same-origin signed iframe",
+                "iframe renders exactly one Filament field"
+            ]
+        }
+    ],
+    "entries": [
+        {
+            "id": "frontend-page-with-authoring-enabled",
+            "title": "Frontend page with authoring enabled for admins.",
+            "package": "frontend-authoring",
+            "surface": "frontend",
+            "targetType": "frontend-url",
+            "target": null,
+            "required": true,
+            "docsPage": "packages/frontend-authoring/docs/in-page-editing.md",
+            "output": "packages/frontend-authoring/docs/images/screenshots/frontend-page-with-authoring-enabled.png",
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "beacon-network-request",
+            "title": "Beacon network request.",
+            "package": "frontend-authoring",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "docsPage": "packages/frontend-authoring/docs/in-page-editing.md",
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "frontend-authoring-enabled-disabled-configuration-proof",
+            "title": "Frontend authoring enabled/disabled configuration proof.",
+            "package": "frontend-authoring",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": null,
+            "required": true,
+            "docsPage": "packages/frontend-authoring/docs/in-page-editing.md",
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        }
+    ]
+}

@@ -9,10 +9,10 @@ use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Mosaic\Actions\InstallPackageAction as MosaicInstallPackageAction;
+use Capell\LayoutBuilder\Actions\InstallPackageAction as LayoutBuilderInstallPackageAction;
 
 beforeEach(function (): void {
-    MosaicInstallPackageAction::run();
+    LayoutBuilderInstallPackageAction::run();
     InstallPackageAction::run();
 });
 

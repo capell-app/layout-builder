@@ -5,7 +5,7 @@ description: Use when editing Capell Blog articles, archives, tag pages, widgets
 
 # Capell Blog
 
-Article publishing, archive/tag pages, Mosaic article widgets, and blog sitemaps.
+Article publishing, archive/tag pages, LayoutBuilder article widgets, and blog sitemaps.
 
 ## Look
 
@@ -15,7 +15,7 @@ Article publishing, archive/tag pages, Mosaic article widgets, and blog sitemaps
 
 ## Rules
 
-- Blog depends on Mosaic; do not move widget logic into Core.
+- Blog depends on LayoutBuilder; do not move widget logic into Core.
 - Keep article publishing actions separate from Filament pages.
 - Preserve sitemap and frontend Livewire behaviour when changing slugs.
 - Run `vendor/bin/pest packages/blog/tests`.

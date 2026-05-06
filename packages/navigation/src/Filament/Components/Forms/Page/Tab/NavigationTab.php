@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\Navigation\Filament\Components\Forms\Page\Tab;
 
 use Capell\Navigation\Filament\Components\Forms\NavigationSelect;
-use Filament\Forms\Components\ViewField;
+use Filament\FormBuilder\Components\ViewField;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs\Tab;
 

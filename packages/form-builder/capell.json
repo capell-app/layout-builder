@@ -1,0 +1,13 @@
+{
+    "name": "capell-app/form-builder",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell FormBuilder",
+    "tier": "premium",
+    "bundle": "form-builder",
+    "contexts": ["admin", "frontend"],
+    "requires": ["capell-app/core", "capell-app/admin", "capell-app/frontend"],
+    "providers": {
+        "shared": ["Capell\\FormBuilder\\Providers\\FormBuilderServiceProvider"]
+    }
+}

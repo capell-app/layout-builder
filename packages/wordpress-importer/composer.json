@@ -1,6 +1,6 @@
 {
     "name": "capell-app/wordpress-importer",
-    "description": "WordPress WXR import source for the Capell Migration Assistant.",
+    "description": "WordPress WXR import source for the Capell Migration AIOrchestrator.",
     "type": "library",
     "license": "proprietary",
     "require": {
@@ -8,7 +8,7 @@
         "ext-simplexml": "*",
         "capell-app/admin": "self.version",
         "capell-app/core": "self.version",
-        "capell-app/migrator": "self.version",
+        "capell-app/migration-assistant": "self.version",
         "illuminate/support": "^11.0|^12.0|^13.0",
         "spatie/laravel-package-tools": "^1.15"
     },

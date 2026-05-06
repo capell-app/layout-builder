@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Mosaic\Models\Section;
+use Capell\LayoutBuilder\Models\Section;
 use Capell\Tags\Models\Tag;
 
 it('can be attached to sections', function (): void {

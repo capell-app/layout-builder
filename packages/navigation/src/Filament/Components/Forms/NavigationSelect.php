@@ -9,7 +9,7 @@ use Capell\Admin\Filament\Concerns\HasCustomSelectOption;
 use Capell\Core\Contracts\Pageable;
 use Capell\Navigation\Filament\Resources\Navigations\NavigationResource;
 use Capell\Navigation\Models\Navigation;
-use Filament\Forms\Components\Select;
+use Filament\FormBuilder\Components\Select;
 use Filament\Schemas\Components\Utilities\Get;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;

@@ -5,6 +5,9 @@ declare(strict_types=1);
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Settings\SettingsSchemaRegistry;
+use Capell\PublishingStudio\Data\WorkspaceSettingsData;
+use Capell\PublishingStudio\Enums\WorkspaceStatusEnum;
+use Capell\PublishingStudio\Models\Workspace;
 use Capell\Tests\Fixtures\Models\User;
 use Capell\ThemeStudio\Admin\Actions\GenerateThemePreviewUrlAction;
 use Capell\ThemeStudio\Admin\Actions\PublishThemeDraftAction;
@@ -19,9 +22,6 @@ use Capell\ThemeStudio\Core\Exceptions\ThemePresetNotFoundException;
 use Capell\ThemeStudio\Core\Rendering\BladeThemeRenderer;
 use Capell\ThemeStudio\Core\Settings\ThemeStudioSettings;
 use Capell\ThemeStudio\Core\Theme\ThemeRegistry;
-use Capell\Workspaces\Data\WorkspaceSettingsData;
-use Capell\Workspaces\Enums\WorkspaceStatusEnum;
-use Capell\Workspaces\Models\Workspace;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Schema\Blueprint;
@@ -118,12 +118,12 @@ it('delegates publishing to a workspace-aware publisher when one is bound', func
         ->and($published->activeTheme)->toBe('corporate');
 });
 
-it('submits staged theme drafts to Workspaces when Workspaces is installed', function (): void {
+it('submits staged theme drafts to PublishingStudio when PublishingStudio is installed', function (): void {
     registerThemeStudioAdminTestTheme();
-    ensureThemeStudioWorkspacesTablesExist();
+    ensureThemeStudioPublishingStudioTablesExist();
 
-    CapellCore::registerPackage('capell-app/workspaces');
-    CapellCore::forcePackageInstalled('capell-app/workspaces');
+    CapellCore::registerPackage('capell-app/publishing-studio');
+    CapellCore::forcePackageInstalled('capell-app/publishing-studio');
     $this->actingAs(User::factory()->create(), 'web');
 
     StageThemeDraftAction::run('corporate', 'boardroom');
@@ -142,10 +142,10 @@ it('submits staged theme drafts to Workspaces when Workspaces is installed', fun
 
 it('activates the staged theme draft when its workspace approval completes', function (): void {
     registerThemeStudioAdminTestTheme();
-    ensureThemeStudioWorkspacesTablesExist();
+    ensureThemeStudioPublishingStudioTablesExist();
 
-    CapellCore::registerPackage('capell-app/workspaces');
-    CapellCore::forcePackageInstalled('capell-app/workspaces');
+    CapellCore::registerPackage('capell-app/publishing-studio');
+    CapellCore::forcePackageInstalled('capell-app/publishing-studio');
     $user = User::factory()->create();
     $this->actingAs($user, 'web');
 
@@ -167,12 +167,12 @@ it('activates the staged theme draft when its workspace approval completes', fun
         ->and($settings->draftWorkspaceId)->toBeNull();
 });
 
-it('ignores approved workspaces that are not linked to the staged theme draft', function (): void {
+it('ignores approved publishing-studio that are not linked to the staged theme draft', function (): void {
     registerThemeStudioAdminTestTheme();
-    ensureThemeStudioWorkspacesTablesExist();
+    ensureThemeStudioPublishingStudioTablesExist();
 
-    CapellCore::registerPackage('capell-app/workspaces');
-    CapellCore::forcePackageInstalled('capell-app/workspaces');
+    CapellCore::registerPackage('capell-app/publishing-studio');
+    CapellCore::forcePackageInstalled('capell-app/publishing-studio');
     $user = User::factory()->create();
     $this->actingAs($user, 'web');
 
@@ -197,7 +197,7 @@ it('ignores approved workspaces that are not linked to the staged theme draft', 
         ->and($settings->draftWorkspaceId)->toBe($submitted->draftWorkspaceId);
 });
 
-function ensureThemeStudioWorkspacesTablesExist(): void
+function ensureThemeStudioPublishingStudioTablesExist(): void
 {
     Relation::morphMap([
         'workspace' => Workspace::class,
@@ -215,8 +215,8 @@ function ensureThemeStudioWorkspacesTablesExist(): void
         });
     }
 
-    if (! DatabaseSchema::hasTable('workspaces')) {
-        DatabaseSchema::create('workspaces', function (Blueprint $table): void {
+    if (! DatabaseSchema::hasTable('publishing-studio')) {
+        DatabaseSchema::create('publishing-studio', function (Blueprint $table): void {
             $table->id();
             $table->uuid('uuid')->unique();
             $table->string('name');
@@ -289,7 +289,7 @@ it('uses approval labels and readiness when the publisher requires approval', fu
     expect(ResolveThemePublishLabelAction::run())->toBe('Submit for approval')
         ->and($page->publishLabel())->toBe('Submit for approval')
         ->and($readiness['complete'])->toBeTrue()
-        ->and($readiness['description'])->toBe('Workspaces approval is available for staged theme changes.');
+        ->and($readiness['description'])->toBe('PublishingStudio approval is available for staged theme changes.');
 });
 
 it('generates signed whole-site preview URLs for a theme preset', function (): void {

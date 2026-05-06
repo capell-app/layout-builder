@@ -2,7 +2,7 @@
 
 ## Goal
 
-Create very short Laravel Boost skills only where a Capell package has domain decisions, extension points, workflows, or AI/MCP relevance. Every package should still ship tiny shared Boost guidelines.
+Create very short Laravel Boost skills only where a Capell package has domain decisions, extension points, workflows, or AI/Agent Bridge relevance. Every package should still ship tiny shared Boost guidelines.
 
 ## Approach
 
@@ -34,33 +34,33 @@ Existing package Boost directories should be updated in place. Existing user wor
 Ship package skills for:
 
 - `address`
-- `analytics`
-- `assistant`
-- `authentication-log`
-- `migrator`
+- `insights`
+- `ai-orchestrator`
+- `login-audit`
+- `migration-assistant`
 - `blog`
-- `campaigns`
-- `content-blocks`
-- `default-theme`
+- `campaign-studio`
+- `block-library`
+- `foundation-theme`
 - `deployments`
-- `developer-tools`
-- `forms`
-- `mcp`
-- `media-curator`
-- `mosaic`
+- `diagnostics`
+- `form-builder`
+- `agent-bridge`
+- `media-library`
+- `layout-builder`
 - `navigation`
 - `redirects`
-- `seo-tools`
-- `site-search`
+- `seo-suite`
+- `search`
 - `tags`
 - `theme-studio-admin`
 - `theme-studio-core`
-- `workspaces`
+- `publishing-studio`
 
 Do not ship skills for packages where the skill would only restate a wrapper, middleware, renderer, metapackage, or beacon surface:
 
-- `filament-peek`
-- `html-minify`
+- `admin-preview`
+- `html-optimizer`
 - `theme-agency`
 - `theme-corporate`
 - `theme-saas`

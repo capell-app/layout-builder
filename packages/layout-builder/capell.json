@@ -1,0 +1,20 @@
+{
+    "name": "capell-app/layout-builder",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Foundation",
+    "tier": "free",
+    "bundle": "foundation",
+    "contexts": ["admin", "frontend"],
+    "requires": [
+        "capell-app/admin",
+        "capell-app/frontend",
+        "capell-app/navigation",
+        "capell-app/publishing-studio"
+    ],
+    "providers": {
+        "shared": [
+            "Capell\\LayoutBuilder\\Providers\\LayoutBuilderServiceProvider"
+        ]
+    }
+}

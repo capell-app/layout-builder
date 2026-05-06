@@ -1,0 +1,17 @@
+{
+    "name": "capell-app/seo-suite",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Search & SEO",
+    "tier": "premium",
+    "bundle": "search-seo",
+    "contexts": ["admin", "frontend", "console"],
+    "requires": [
+        "capell-app/admin",
+        "capell-app/insights",
+        "capell-app/frontend"
+    ],
+    "providers": {
+        "shared": ["Capell\\SeoSuite\\Providers\\SeoSuiteServiceProvider"]
+    }
+}

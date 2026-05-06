@@ -10,7 +10,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create(config('authentication-log.table_name'), function (Blueprint $table): void {
+        Schema::create(config('login-audit.table_name'), function (Blueprint $table): void {
             $table->id();
             $table->morphs('authenticatable');
             $table->string('ip_address', 45)->nullable();
@@ -38,6 +38,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists(config('authentication-log.table_name'));
+        Schema::dropIfExists(config('login-audit.table_name'));
     }
 };

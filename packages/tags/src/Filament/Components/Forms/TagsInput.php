@@ -7,7 +7,7 @@ namespace Capell\Tags\Filament\Components\Forms;
 use Capell\Admin\Support\SiteScope;
 use Capell\Core\Models\Language;
 use Capell\Tags\Models\Tag;
-use Filament\Forms\Components\SpatieTagsInput;
+use Filament\FormBuilder\Components\SpatieTagsInput;
 use Filament\Schemas\Components\Utilities\Get;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;

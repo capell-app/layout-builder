@@ -1,0 +1,39 @@
+{
+    "name": "capell-app/admin-preview",
+    "description": "Optional Admin Preview iframe previews for Capell admin and PublishingStudio drafts",
+    "keywords": [
+        "capell",
+        "filament",
+        "preview",
+        "publishing-studio"
+    ],
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "capell-app/admin": "*",
+        "capell-app/frontend": "*",
+        "capell-app/publishing-studio": "*",
+        "pboivin/filament-peek": "^4.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\AdminPreview\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Capell\\AdminPreview\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\AdminPreview\\Providers\\AdminPreviewServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "prefer-stable": true
+}

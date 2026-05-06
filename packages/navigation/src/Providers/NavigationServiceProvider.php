@@ -14,7 +14,6 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\ExampleSites\Support\Creator\DemoCreator;
 use Capell\Frontend\Enums\CacheEnum as FrontendCacheEnum;
 use Capell\Navigation\Actions\BuildNavigationRenderModelAction;
 use Capell\Navigation\Adapters\NavigationNamesResolverAdapter;
@@ -31,6 +30,7 @@ use Capell\Navigation\Listeners\ReplicateSiteNavigationsListener;
 use Capell\Navigation\Models\Navigation;
 use Capell\Navigation\Policies\NavigationPolicy;
 use Capell\Navigation\Support\Creator\NavigationDemoCreator;
+use Capell\StarterSites\Support\Creator\DemoCreator;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
@@ -215,6 +215,10 @@ class NavigationServiceProvider extends ServiceProvider
 
     private function registerDemoCreatorMacros(): self
     {
+        if (! class_exists(DemoCreator::class)) {
+            return $this;
+        }
+
         DemoCreator::macro('setupMainNavigation', function (Site $site, Language $language, Page $home): void {
             resolve(NavigationDemoCreator::class)->setupMainNavigation($site, $language, $home);
         });

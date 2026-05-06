@@ -3,22 +3,22 @@
 declare(strict_types=1);
 
 use Capell\Blog\Filament\Resources\Articles\ArticleResource;
-use Capell\Campaigns\Filament\Resources\CampaignConversionGoals\CampaignConversionGoalResource;
-use Capell\Campaigns\Filament\Resources\CampaignCtaBlocks\CampaignCtaBlockResource;
-use Capell\Campaigns\Filament\Resources\CampaignGroups\CampaignGroupResource;
-use Capell\Campaigns\Filament\Resources\CampaignLandingPages\CampaignLandingPageResource;
+use Capell\CampaignStudio\Filament\Resources\CampaignConversionGoals\CampaignConversionGoalResource;
+use Capell\CampaignStudio\Filament\Resources\CampaignCtaBlocks\CampaignCtaBlockResource;
+use Capell\CampaignStudio\Filament\Resources\CampaignGroups\CampaignGroupResource;
+use Capell\CampaignStudio\Filament\Resources\CampaignLandingPages\CampaignLandingPageResource;
 use Capell\Core\Facades\CapellCore;
-use Capell\DeveloperTools\Filament\Pages\DeveloperToolsPage;
-use Capell\DeveloperTools\Filament\Pages\PermissionAuditPage;
-use Capell\DeveloperTools\Filament\Pages\QueueHealthPage;
-use Capell\DeveloperTools\Filament\Pages\SystemHealthPage;
-use Capell\MediaCurator\Filament\Pages\MediaHealthPage;
-use Capell\Migrator\Filament\Resources\ImportSessions\ImportSessionResource;
+use Capell\Diagnostics\Filament\Pages\DiagnosticsPage;
+use Capell\Diagnostics\Filament\Pages\PermissionAuditPage;
+use Capell\Diagnostics\Filament\Pages\QueueHealthPage;
+use Capell\Diagnostics\Filament\Pages\SystemHealthPage;
+use Capell\MediaLibrary\Filament\Pages\MediaHealthPage;
+use Capell\MigrationAssistant\Filament\Resources\ImportSessions\ImportSessionResource;
 use Capell\Redirects\Filament\Resources\Redirects\RedirectResource;
-use Capell\SeoTools\Filament\Pages\BrokenLinksPage;
-use Capell\SeoTools\Filament\Pages\NotFoundUrlsPage;
-use Capell\SeoTools\Filament\Pages\SEOAuditPage;
-use Capell\SeoTools\Filament\Pages\TranslationCoveragePage;
+use Capell\SeoSuite\Filament\Pages\BrokenLinksPage;
+use Capell\SeoSuite\Filament\Pages\NotFoundUrlsPage;
+use Capell\SeoSuite\Filament\Pages\SEOAuditPage;
+use Capell\SeoSuite\Filament\Pages\TranslationCoveragePage;
 use Capell\Tags\Filament\Resources\Tags\TagResource;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Capell\ThemeStudio\Admin\Filament\Pages\ThemeStudioPage;
@@ -32,32 +32,32 @@ it('registers every installed package in the Capell package registry', function 
     $expectedPackages = [
         'capell-app/address',
         'capell-app/admin',
-        'capell-app/analytics',
-        'capell-app/authentication-log',
-        'capell-app/migrator',
+        'capell-app/insights',
+        'capell-app/login-audit',
+        'capell-app/migration-assistant',
         'capell-app/blog',
-        'capell-app/campaigns',
-        'capell-app/content-blocks',
+        'capell-app/campaign-studio',
+        'capell-app/block-library',
         'capell-app/core',
-        'capell-app/developer-tools',
-        'capell-app/example-sites',
-        'capell-app/filament-peek',
-        'capell-app/forms',
+        'capell-app/diagnostics',
+        'capell-app/starter-sites',
+        'capell-app/admin-preview',
+        'capell-app/form-builder',
         'capell-app/frontend',
-        'capell-app/frontend-toolbar',
-        'capell-app/media-curator',
-        'capell-app/mosaic',
+        'capell-app/frontend-authoring',
+        'capell-app/media-library',
+        'capell-app/layout-builder',
         'capell-app/navigation',
         'capell-app/redirects',
-        'capell-app/seo-tools',
-        'capell-app/site-search',
+        'capell-app/seo-suite',
+        'capell-app/search',
         'capell-app/tags',
         'capell-app/theme-studio-admin',
         'capell-app/theme-studio-core',
-        'capell-app/workspaces',
+        'capell-app/publishing-studio',
     ];
 
-    foreach (['capell-app/installer', 'capell-app/marketplace', 'capell-app/reports'] as $optionalPackage) {
+    foreach (['capell-app/installer', 'capell-app/marketplace', 'capell-app/dashboard-reports'] as $optionalPackage) {
         if (InstalledVersions::isInstalled($optionalPackage)) {
             $expectedPackages[] = $optionalPackage;
         }
@@ -83,7 +83,7 @@ it('registers installed package admin surfaces before the Filament navigation is
 
     $expectedPages = [
         BrokenLinksPage::class,
-        DeveloperToolsPage::class,
+        DiagnosticsPage::class,
         MediaHealthPage::class,
         NotFoundUrlsPage::class,
         PermissionAuditPage::class,
@@ -121,7 +121,7 @@ it('shows installed package admin surfaces in Filament navigation', function ():
         'Campaign groups',
         'CTA blocks',
         'Conversion goals',
-        'Developer Tools',
+        'Diagnostics',
         'Import Sessions',
         'Landing pages',
         'Media Health',

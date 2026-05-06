@@ -1,0 +1,15 @@
+{
+    "name": "capell-app/ai-orchestrator",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Commercial",
+    "tier": "premium",
+    "bundle": "commercial",
+    "contexts": ["admin"],
+    "requires": ["capell-app/admin"],
+    "providers": {
+        "shared": [
+            "Capell\\AIOrchestrator\\Providers\\AIOrchestratorServiceProvider"
+        ]
+    }
+}

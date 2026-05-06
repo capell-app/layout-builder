@@ -33,7 +33,7 @@ This is the correct approach for the vast majority of widgets. **Blade is the de
 Only use Livewire when the widget needs:
 
 - Reactive state (user input that changes the rendered output without a full page reload)
-- Server-side form submissions within the widget (e.g. contact forms that validate and send emails)
+- Server-side form submissions within the widget (e.g. contact form-builder that validate and send emails)
 - Real-time data polling
 
 ## How to create a Blade widget
@@ -56,7 +56,7 @@ Place the view in `resources/views/components/widget/` or `resources/views/compo
     'widget',
 ])
 
-<x-capell-mosaic::widget.wrapper
+<x-capell-layout-builder::widget.wrapper
     class="widget-my-widget"
     :$container
     :$containerKey
@@ -71,7 +71,7 @@ Place the view in `resources/views/components/widget/` or `resources/views/compo
 
         {{-- ... --}}
     </section>
-</x-capell-mosaic::widget.wrapper>
+</x-capell-layout-builder::widget.wrapper>
 ```
 
 The `class` attribute on `widget.wrapper` is the CSS selector used in tests (`widget-my-widget`).
@@ -81,8 +81,8 @@ The `class` attribute on `widget.wrapper` is the CSS selector used in tests (`wi
 Add a case to `WidgetComponentEnum`:
 
 ```php
-case MyWidget = 'capell-mosaic::modern.my-widget'; // for components/modern/my-widget.blade.php
-case MyWidget = 'capell-mosaic::widget.my-widget'; // for components/widget/my-widget.blade.php
+case MyWidget = 'capell-layout-builder::modern.my-widget'; // for components/modern/my-widget.blade.php
+case MyWidget = 'capell-layout-builder::widget.my-widget'; // for components/widget/my-widget.blade.php
 ```
 
 The string value is the Blade component name — it maps directly to the file path under `resources/views/components/`.
@@ -149,4 +149,4 @@ it('renders my widget on page', function (): void {
 });
 ```
 
-Place tests in `tests/Mosaic/Feature/Widgets/`.
+Place tests in `tests/LayoutBuilder/Feature/Widgets/`.

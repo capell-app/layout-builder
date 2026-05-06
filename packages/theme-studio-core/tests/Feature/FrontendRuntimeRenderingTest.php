@@ -14,10 +14,10 @@ use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Enums\RenderHookLocation;
 use Capell\Frontend\Support\CapellFrontendContext;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
-use Capell\Mosaic\Models\Section;
-use Capell\Mosaic\Models\Widget;
-use Capell\Mosaic\Models\WidgetAsset;
-use Capell\Mosaic\Support\CapellLayoutManager;
+use Capell\LayoutBuilder\Models\Section;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
+use Capell\LayoutBuilder\Support\CapellLayoutManager;
 use Capell\ThemeStudio\Core\Actions\RenderCurrentThemePageAction;
 use Capell\ThemeStudio\Core\Adapters\CapellFrontendThemePageAdapter;
 use Capell\ThemeStudio\Core\Contracts\ThemePageAdapter;
@@ -173,7 +173,7 @@ it('uses preview theme and preset without mutating published runtime settings', 
         ->and($settings->activePreset())->toBe('boardroom');
 });
 
-it('maps loaded Mosaic widgets and page-level assets into portable theme sections', function (): void {
+it('maps loaded LayoutBuilder widgets and page-level assets into portable theme sections', function (): void {
     bindThemeStudioRuntimeTestPage();
     CapellLayoutManager::clearContainerWidgets();
 

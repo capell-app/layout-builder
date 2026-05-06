@@ -1,0 +1,37 @@
+{
+    "name": "capell-app/html-optimizer",
+    "description": "HTML minification for Capell frontend rendering and page cache writes.",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "capell-app/frontend": "self.version",
+        "illuminate/http": "^11.0|^12.0|^13.0",
+        "illuminate/routing": "^11.0|^12.0|^13.0",
+        "illuminate/support": "^11.0|^12.0|^13.0",
+        "spatie/laravel-package-tools": "^1.15",
+        "voku/html-min": "^4.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\HtmlOptimizer\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Capell\\HtmlOptimizer\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\HtmlOptimizer\\Providers\\HtmlOptimizerServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

@@ -1,0 +1,59 @@
+{
+    "package": "layout-builder",
+    "composerName": "capell-app/layout-builder",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "outputDirectory": "public/docs/screenshots/packages/layout-builder",
+    "entries": [
+        {
+            "id": "widgets-admin-index",
+            "title": "Widgets admin index.",
+            "package": "layout-builder",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "LayoutResource",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "create-edit-widget-form",
+            "title": "Create/edit widget form.",
+            "package": "layout-builder",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "LayoutResource",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "sections-admin-index",
+            "title": "Sections admin index.",
+            "package": "layout-builder",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "LayoutResource",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "layout-builder-screen",
+            "title": "Layout builder screen.",
+            "package": "layout-builder",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "LayoutResource",
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        },
+        {
+            "id": "frontend-page-rendering-layout-builder-widgets",
+            "title": "Frontend page rendering LayoutBuilder widgets.",
+            "package": "layout-builder",
+            "surface": "frontend",
+            "targetType": "frontend-url",
+            "target": null,
+            "required": true,
+            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+        }
+    ]
+}

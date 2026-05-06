@@ -1,0 +1,47 @@
+{
+    "name": "capell-app/block-library",
+    "description": "Reusable content blocks for Capell",
+    "keywords": [
+        "capell",
+        "block-library",
+        "laravel",
+        "filamentphp",
+        "cms"
+    ],
+    "homepage": "https://github.com/capell-app/block-library",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Howdu",
+            "email": "cms.multi2@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "capell-app/admin": "*",
+        "capell-app/core": "*",
+        "capell-app/frontend": "*"
+    },
+    "suggest": {
+        "capell-app/layout-builder": "Enables LayoutBuilder widget integration for reusable content blocks.",
+        "capell-app/publishing-studio": "Enables workspace-aware content block publishing integration."
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\BlockLibrary\\": "src/",
+            "Capell\\BlockLibrary\\Database\\Factories\\": "database/factories"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\BlockLibrary\\Providers\\BlockLibraryServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "prefer-stable": true
+}

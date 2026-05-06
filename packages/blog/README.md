@@ -8,15 +8,33 @@ Blog adds article publishing, archive pages, tag pages, article widgets, sitemap
 
 - Article Filament resource.
 - Blog, archive, and tag frontend Livewire components.
-- Article widgets and configurators for Mosaic.
+- Article widgets and configurators for LayoutBuilder.
 - Sitemap extensions for articles, archives, and tags.
 - Commands to install and create blog pages.
 
 ## Why It Matters
 
-**For developers:** Builds on core pages, layouts, translations, page URLs, Mosaic widgets, and tags while keeping article-specific logic in actions and loaders.
+**For developers:** Builds on core pages, layouts, translations, page URLs, LayoutBuilder widgets, and tags while keeping article-specific logic in actions and loaders.
 
 **For teams:** Gives editors a dedicated article workflow that still fits the same structured publishing foundation as pages.
+
+## Built With
+
+This package makes its Composer dependencies visible because they are part of the value proposition, not just plumbing. When an upstream package has a public repository, its linked preview card points readers back to the maintainers so their work gets proper credit.
+
+**Capell packages used here**
+
+- [Capell Admin](https://github.com/capell-app/admin)
+- [Capell Insights](../insights/README.md)
+- [Capell Frontend](https://github.com/capell-app/frontend)
+- [Capell Layout Builder](../layout-builder/README.md)
+- [Capell Navigation](../navigation/README.md)
+- [Capell Tags](../tags/README.md)
+- [Capell Publishing Studio](../publishing-studio/README.md)
+
+**Open-source packages used here**
+
+- No extra third-party Composer package beyond the Capell package stack is required here.
 
 ## Screens And Workflow
 
@@ -40,8 +58,8 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 ## Data Model
 
 - articles stores uuid, workspace, type, layout, site, meta, visible_from, and visible_until.
-- Articles connect to sites, types, layouts, page URLs, translations, Mosaic widget assets, and tags.
-- Blog requires Mosaic before install.
+- Articles connect to sites, types, layouts, page URLs, translations, LayoutBuilder widget assets, and tags.
+- Blog requires LayoutBuilder before install.
 - Deletion and retention behaviour should be verified against the host application policy.
 
 ## Install Impact
@@ -49,7 +67,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Adds articles table and article admin resource.
 - Adds blog frontend components and sitemap extensions.
 - Adds console commands for setup, install, demo, faker, and page creation.
-- Requires Mosaic package first.
+- Requires LayoutBuilder package first.
 - May add blog pages to navigation through listener behaviour.
 
 ## Commands
@@ -73,7 +91,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 
 ## Common Pitfalls
 
-- Install Mosaic first.
+- Install LayoutBuilder first.
 - Run the package setup before expecting archive/tag pages.
 - Check layouts before creating article records.
 - Cache and sitemap output may need regeneration after setup.
@@ -87,6 +105,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 ## Next Steps
 
 - [docs/overview.md](docs/overview.md)
-- [../mosaic/README.md](../mosaic/README.md)
+- [../layout-builder/README.md](../layout-builder/README.md)
 - [../tags/README.md](../tags/README.md)
-- [../seo-tools/README.md](../seo-tools/README.md)
+- [../seo-suite/README.md](../seo-suite/README.md)
+- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)

@@ -10,13 +10,13 @@ Blog adds article publishing, archive pages, tag pages, article widgets, sitemap
 
 - Article Filament resource.
 - Blog, archive, and tag frontend Livewire components.
-- Article widgets and configurators for Mosaic.
+- Article widgets and configurators for LayoutBuilder.
 - Sitemap extensions for articles, archives, and tags.
 - Commands to install and create blog pages.
 
 ## Developer Notes
 
-Builds on core pages, layouts, translations, page URLs, Mosaic widgets, and tags while keeping article-specific logic in actions and loaders.
+Builds on core pages, layouts, translations, page URLs, LayoutBuilder widgets, and tags while keeping article-specific logic in actions and loaders.
 
 - BlogServiceProvider, AdminServiceProvider, ConsoleServiceProvider, and FrontendServiceProvider register package surfaces.
 - Migration creates articles.
@@ -32,14 +32,14 @@ Gives editors a dedicated article workflow that still fits the same structured p
 - Adds articles table and article admin resource.
 - Adds blog frontend components and sitemap extensions.
 - Adds console commands for setup, install, demo, faker, and page creation.
-- Requires Mosaic package first.
+- Requires LayoutBuilder package first.
 - May add blog pages to navigation through listener behaviour.
 
 ## Data And Retention
 
 - articles stores uuid, workspace, type, layout, site, meta, visible_from, and visible_until.
-- Articles connect to sites, types, layouts, page URLs, translations, Mosaic widget assets, and tags.
-- Blog requires Mosaic before install.
+- Articles connect to sites, types, layouts, page URLs, translations, LayoutBuilder widget assets, and tags.
+- Blog requires LayoutBuilder before install.
 - Deletion and retention behaviour should be verified against the host application policy.
 
 ## Screenshot Plan
@@ -52,7 +52,7 @@ Gives editors a dedicated article workflow that still fits the same structured p
 
 ## Pitfalls
 
-- Install Mosaic first.
+- Install LayoutBuilder first.
 - Run the package setup before expecting archive/tag pages.
 - Check layouts before creating article records.
 - Cache and sitemap output may need regeneration after setup.
@@ -71,7 +71,7 @@ Gives editors a dedicated article workflow that still fits the same structured p
 - Tier: free
 - Bundle: foundation
 - Contexts: `admin`, `frontend`, `console`
-- Requires: `capell-app/core`, `capell-app/admin`, `capell-app/frontend`, `capell-app/mosaic`, `capell-app/tags`
+- Requires: `capell-app/core`, `capell-app/admin`, `capell-app/frontend`, `capell-app/layout-builder`, `capell-app/tags`
 - Optional dependencies: None listed.
 
 ## Admin Surfaces

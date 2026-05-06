@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Capell\Blog\Models\Article;
 use Capell\Blog\Support\Creator\BlogCreator;
 use Capell\Core\Models\Site;
-use Capell\SeoTools\Filament\Pages\SitemapPage;
-use Capell\SeoTools\Support\Creator\SitemapPageCreator;
+use Capell\SeoSuite\Filament\Pages\SitemapPage;
+use Capell\SeoSuite\Support\Creator\SitemapPageCreator;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Livewire\livewire;

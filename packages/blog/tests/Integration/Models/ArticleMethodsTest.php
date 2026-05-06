@@ -7,10 +7,10 @@ use Capell\Blog\Enums\BlogPageTypeEnum;
 use Capell\Blog\Models\Article;
 use Capell\Core\Enums\PageOrderEnum;
 use Capell\Core\Models\Type;
-use Capell\Mosaic\Actions\InstallPackageAction as MosaicInstallPackageAction;
+use Capell\LayoutBuilder\Actions\InstallPackageAction as LayoutBuilderInstallPackageAction;
 
 beforeEach(function (): void {
-    MosaicInstallPackageAction::run();
+    LayoutBuilderInstallPackageAction::run();
     InstallPackageAction::run();
 });
 

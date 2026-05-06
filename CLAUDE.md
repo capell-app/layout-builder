@@ -2,6 +2,8 @@
 
 Optional add-on packages for the Capell CMS. Companion to `capell-app/capell` (`../capell-4`).
 
+Frontend authoring safety is mandatory: non-admin frontend users must never receive editor HTML, JavaScript, metadata, markers, model IDs, field paths, selectors, or signed URLs. The page must load as ordinary public HTML; in-page authoring is discovered and rendered only after an authenticated admin beacon response.
+
 ## Non-negotiables
 
 - `declare(strict_types=1);` in every PHP file.
@@ -30,14 +32,14 @@ Optional add-on packages for the Capell CMS. Companion to `capell-app/capell` (`
 
 ## Packages
 
-| Package     | Namespace          | Depends on                        |
-| ----------- | ------------------ | --------------------------------- |
-| `mosaic`    | `Capell\Mosaic`    | core, admin, frontend             |
-| `blog`      | `Capell\Blog`      | core, admin, frontend, **mosaic** |
-| `address`   | `Capell\Address`   | core, admin                       |
-| `assistant` | `Capell\Assistant` | core, admin                       |
+| Package           | Namespace               | Depends on                                |
+| ----------------- | ----------------------- | ----------------------------------------- |
+| `layout-builder`  | `Capell\LayoutBuilder`  | core, admin, frontend                     |
+| `blog`            | `Capell\Blog`           | core, admin, frontend, **layout-builder** |
+| `address`         | `Capell\Address`        | core, admin                               |
+| `ai-orchestrator` | `Capell\AIOrchestrator` | core, admin                               |
 
-**Blog requires Mosaic — install Mosaic first.**
+**Blog requires LayoutBuilder — install LayoutBuilder first.**
 
 ## Package boundaries
 
@@ -57,7 +59,7 @@ Optional add-on packages for the Capell CMS. Companion to `capell-app/capell` (`
 
 Auto-discovered: types in `src/Types/`, schemas in `src/Schemas/`, widgets in `src/Widgets/`.
 
-## Workspaces / Draftable
+## PublishingStudio / Draftable
 
 Any model in draft/publish must implement `Capell\Core\Contracts\Draftable` and register in the morph map. Reuse `ReplicateModelAction`, `ReplicatePageAction` — don't reinvent replication.
 
@@ -70,7 +72,7 @@ Any model in draft/publish must implement `Capell\Core\Contracts\Draftable` and 
 ## Testing
 
 - Test actions directly: `MyAction::run($input)` — not through HTTP.
-- Run single package: `vendor/bin/pest packages/mosaic/tests`
+- Run single package: `vendor/bin/pest packages/layout-builder/tests`
 - Minimum 80% coverage. Full suite: `composer test`.
 
 ## Composer local overlay

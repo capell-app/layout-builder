@@ -1,0 +1,14 @@
+{
+    "name": "capell-app/search",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Search & SEO",
+    "tier": "premium",
+    "bundle": "search-seo",
+    "contexts": ["admin", "frontend", "console"],
+    "requires": ["capell-app/core", "capell-app/admin", "capell-app/frontend"],
+    "providers": {
+        "shared": ["Capell\\Search\\Providers\\SearchServiceProvider"],
+        "admin": ["Capell\\Search\\Providers\\AdminServiceProvider"]
+    }
+}

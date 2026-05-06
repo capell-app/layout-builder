@@ -8,16 +8,16 @@ This repository contains optional add-on packages for Capell CMS. The package se
 
 ## Product Contexts
 
-| Context                 | Packages                                                                                                                                     | Purpose                                                                                                             |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Foundation              | `address`, `blog`, `content-blocks`, `default-theme`, `html-minify`, `media-curator`, `mosaic`, `navigation`, `redirects`, `tags`, `toolbar` | Core publishing add-ons, frontend rendering, navigation, taxonomy, redirects, media, and reusable site structure.   |
-| Publishing Pro          | `workspaces`, `filament-peek`                                                                                                                | Draft workspaces, approvals, preview links, scheduled publishing, rollback, and preview workflow.                   |
-| Search & SEO            | `seo-tools`, `site-search`                                                                                                                   | Metadata, structured data, sitemaps, search analytics, internal search, and search insight workflows.               |
-| Growth                  | `analytics`, `campaigns`, `forms`                                                                                                            | First-party analytics, consent, campaigns, attribution, conversion goals, and form submissions.                     |
-| Operations              | `authentication-log`, `backup`, `developer-tools`                                                                                            | Authentication audit, export/import, restore, health checks, config drift, queue health, and operational reporting. |
-| Theme Studio            | `theme-studio`, `theme-studio-core`, `theme-studio-admin`, `theme-agency`, `theme-corporate`, `theme-saas`                                   | Theme runtime, draft theme publishing, preview context, renderer packages, and commercial theme bundle.             |
-| Commercial Integrations | `assistant`, `mcp`, `deployments`                                                                                                            | Assistant capabilities, MCP tools, and deployment publishing workflows.                                             |
-| Internal Packaging      | `plugins`                                                                                                                                    | Package metadata and plugin packaging support.                                                                      |
+| Context                 | Packages                                                                                                                                                  | Purpose                                                                                                             |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Foundation              | `address`, `blog`, `block-library`, `foundation-theme`, `html-optimizer`, `media-library`, `layout-builder`, `navigation`, `redirects`, `tags`, `toolbar` | Core publishing add-ons, frontend rendering, navigation, taxonomy, redirects, media, and reusable site structure.   |
+| Publishing Pro          | `publishing-studio`, `admin-preview`                                                                                                                      | Draft publishing-studio, approvals, preview links, scheduled publishing, rollback, and preview workflow.            |
+| Search & SEO            | `seo-suite`, `search`                                                                                                                                     | Metadata, structured data, sitemaps, search insights, internal search, and search insight workflows.                |
+| Growth                  | `insights`, `campaign-studio`, `form-builder`                                                                                                             | First-party insights, consent, campaign-studio, attribution, conversion goals, and form submissions.                |
+| Operations              | `login-audit`, `backup`, `diagnostics`                                                                                                                    | Authentication audit, export/import, restore, health checks, config drift, queue health, and operational reporting. |
+| Theme Studio            | `theme-studio`, `theme-studio-core`, `theme-studio-admin`, `theme-agency`, `theme-corporate`, `theme-saas`                                                | Theme runtime, draft theme publishing, preview context, renderer packages, and commercial theme bundle.             |
+| Commercial Integrations | `ai-orchestrator`, `agent-bridge`, `deployments`                                                                                                          | AIOrchestrator capabilities, Agent Bridge tools, and deployment publishing workflows.                               |
+| Internal Packaging      | `plugins`                                                                                                                                                 | Package metadata and plugin packaging support.                                                                      |
 
 ## Runtime Contexts
 
@@ -31,11 +31,11 @@ This repository contains optional add-on packages for Capell CMS. The package se
 ## Package Dependency Direction
 
 - Foundation packages may depend on Capell core/admin/frontend and on other explicit Foundation packages where declared in `capell.json`.
-- `blog` depends on `mosaic` and `tags`.
-- `campaigns` depends on `mosaic` and `forms`, with optional collaboration with `analytics` and `seo-tools`.
-- `workspaces` is a publishing layer used by `mosaic` and preview-related packages.
-- Theme renderer packages depend on `default-theme` and `theme-studio-core`.
-- `theme-studio-admin` depends on `theme-studio-core` and may collaborate with `workspaces`.
+- `blog` depends on `layout-builder` and `tags`.
+- `campaign-studio` depends on `layout-builder` and `form-builder`, with optional collaboration with `insights` and `seo-suite`.
+- `publishing-studio` is a publishing layer used by `layout-builder` and preview-related packages.
+- Theme renderer packages depend on `foundation-theme` and `theme-studio-core`.
+- `theme-studio-admin` depends on `theme-studio-core` and may collaborate with `publishing-studio`.
 - Packages should collaborate through declared extension points, contracts, events, render hooks, settings registries, and action calls rather than reaching into another package's internals.
 
 ## Context Maintenance

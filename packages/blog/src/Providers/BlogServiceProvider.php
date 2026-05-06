@@ -20,9 +20,9 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
-use Capell\Mosaic\Models\Section;
+use Capell\LayoutBuilder\Models\Section;
+use Capell\PublishingStudio\WorkspaceRegistry;
 use Capell\Tags\Models\Tag;
-use Capell\Workspaces\WorkspaceRegistry;
 use Composer\InstalledVersions;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -81,7 +81,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             ->registerLivewireComponents()
             ->registerTypes()
             ->registerTranslationEvents()
-            ->registerWorkspaces();
+            ->registerPublishingStudio();
     }
 
     private function registerPackageMetadata(): self
@@ -277,7 +277,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
         return $this;
     }
 
-    private function registerWorkspaces(): self
+    private function registerPublishingStudio(): self
     {
         WorkspaceRegistry::register(Article::class);
 

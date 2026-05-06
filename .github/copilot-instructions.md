@@ -1,6 +1,6 @@
 # 🤖 Copilot & AI Assistance Guidelines
 
-These guidelines define how AI tools (like GitHub Copilot or other code assistants) should be used within this repository to keep the codebase consistent, secure, and maintainable.
+These guidelines define how AI tools (like GitHub Copilot or other code ai-orchestrators) should be used within this repository to keep the codebase consistent, secure, and maintainable.
 
 ---
 
@@ -136,16 +136,16 @@ Don't:
 - Avoid excessive or inconsistent blank lines; use spacing to group related logic and visually separate distinct steps.
 - This applies to all PHP, test, and config files.
 
-## 1K. Package Plugin Independence (`address` / `blog` / `mosaic`)
+## 1K. Package Plugin Independence (`address` / `blog` / `layout-builder`)
 
-- `address`, `blog`, and `mosaic` plugins MAY depend on each other, but MUST remain decoupled from Core internals except via documented public interfaces.
-- Core MUST NOT depend directly on any plugin (`address`, `blog`, `mosaic`). Avoid imports, facades, or direct calls from Core into these plugins.
+- `address`, `blog`, and `layout-builder` plugins MAY depend on each other, but MUST remain decoupled from Core internals except via documented public interfaces.
+- Core MUST NOT depend directly on any plugin (`address`, `blog`, `layout-builder`). Avoid imports, facades, or direct calls from Core into these plugins.
 - Cross-plugin coordination should use neutral boundaries (configuration, cache/filesystem paths, events/commands) without introducing compile-time dependencies.
 - When Core needs to trigger a behavior in a plugin (e.g., clear caches), prefer:
     - Removing/invalidating the shared cache file/path via Filesystem, or
     - Emitting a framework event or calling an Artisan command name (string), not importing plugin classes.
 - If shared behavior grows complex, extract a minimal interface in a shared module and implement adapters per plugin; do not point Core to concrete plugin classes.
-- Enforce with static analysis: any `use Capell\Address\...`, `use Capell\Blog\...`, or `use Capell\Mosaic\...` from Core is a blocker.
+- Enforce with static analysis: any `use Capell\Address\...`, `use Capell\Blog\...`, or `use Capell\LayoutBuilder\...` from Core is a blocker.
 
 ---
 
@@ -407,7 +407,7 @@ If Copilot suggests a big block:
 ## 19. Observability & Diagnostics
 
 - Log only actionable events (auth anomalies, failures, major state transitions); avoid noisy debug logs in production.
-- Attach correlation IDs / request IDs to logs and error reports when available.
+- Attach correlation IDs / request IDs to logs and error dashboard-dashboard_reports when available.
 - Instrument critical paths (timings, counts) before refactoring for performance.
 - Include structured context (user ID, feature flag states) in error logging—avoid dumping entire objects.
 
@@ -439,7 +439,7 @@ To prevent regressions like missing class/enum case references (e.g. wrong helpe
 3. Never guess Enum case names—open the Enum file and reference existing cases (PascalCase vs LEGACY UPPER_SNAKE_CASE).
 4. When renaming Enum cases, update ALL usages in one commit and run static analysis immediately.
 5. For helpers moved across namespaces, update imports everywhere using grep + replace, then run analysis.
-6. Add a minimal test when adding cache-flush logic to guarantee an existing Enum case remains valid (e.g. assert `CacheEnum::HasDefaultTheme` resolves and is a `CacheEnum`).
+6. Add a minimal test when adding cache-flush logic to guarantee an existing Enum case remains valid (e.g. assert `CacheEnum::HasFoundationTheme` resolves and is a `CacheEnum`).
 
 Quick Command Set:
 
@@ -450,7 +450,7 @@ grep -R "CacheEnum::" packages/core/src/Observers
 
 Failure Handling:
 
-- If PHPStan reports `class.notFound` or `classConstant.notFound`, fix imports/case names instead of suppressing.
+- If PHPStan dashboard-dashboard_reports `class.notFound` or `classConstant.notFound`, fix imports/case names instead of suppressing.
 - Do NOT commit while analysis fails; treat as a hard blocker.
 
 Pre-Commit Hook (Recommended):

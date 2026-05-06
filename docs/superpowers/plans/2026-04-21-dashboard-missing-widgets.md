@@ -4,7 +4,7 @@
 
 **Goal:** Add the widgets visible in the target mockup that are currently missing from the live dashboard.
 
-**Architecture:** New widgets follow the established `CapellWidget` → `Data` class → Blade view pattern. The combined chart widget merges two existing admin chart widgets into a single view. Most new widgets belong in the blog package since they concern content and traffic analytics. A cross-package "recent activity" widget belongs in mosaic as it can surface content from any package.
+**Architecture:** New widgets follow the established `CapellWidget` → `Data` class → Blade view pattern. The combined chart widget merges two existing admin chart widgets into a single view. Most new widgets belong in the blog package since they concern content and traffic insights. A cross-package "recent activity" widget belongs in layout-builder as it can surface content from any package.
 
 **Tech Stack:** PHP 8.2, Laravel 10, Filament 5, Pest 4, Spatie Laravel Data, Tailwind CSS 4
 
@@ -18,7 +18,7 @@
 | Stats sparklines + "vs last week" | `STATSOVERVIEWWIDGET WITH TRENDS`                                   | core admin — out of scope here |
 | Combined traffic chart            | `TOTALACCESSLOGSCHARTWIDGET + TOTALVISITORSCHARTWIDGET → COMBINED`  | blog package                   |
 | Top pages                         | _(trophy icon, page paths + counts)_                                | blog package                   |
-| Recent activity feed              | _(Published / Draft / Review badges)_                               | mosaic package                 |
+| Recent activity feed              | _(Published / Draft / Review badges)_                               | layout-builder package         |
 | Combined health widget            | `ALERTSWIDGET + SETUPHEALTHWIDGET + CONTENTHEALTHWIDGET → COMBINED` | core admin — out of scope here |
 | Developer dashboard header button | `CACHEHEALTHWIDGET → DEVELOPER DASHBOARD`                           | core admin — out of scope here |
 
@@ -38,18 +38,18 @@
 - `packages/blog/src/Data/Dashboard/TopPagesData.php` — list of top pages
 - `packages/blog/src/Data/Dashboard/TopPageData.php` — single page entry (path, views)
 - `packages/blog/resources/views/filament/widgets/top-pages.blade.php` — top pages Blade view
-- `packages/mosaic/src/Filament/Widgets/RecentActivityWidget.php` — cross-content recent activity feed
-- `packages/mosaic/src/Data/Dashboard/RecentActivityData.php` — list of activity items
-- `packages/mosaic/src/Data/Dashboard/ActivityItemData.php` — single item (title, type, status, updated_at)
-- `packages/mosaic/resources/views/filament/widgets/recent-activity.blade.php` — activity feed Blade view
+- `packages/layout-builder/src/Filament/Widgets/RecentActivityWidget.php` — cross-content recent activity feed
+- `packages/layout-builder/src/Data/Dashboard/RecentActivityData.php` — list of activity items
+- `packages/layout-builder/src/Data/Dashboard/ActivityItemData.php` — single item (title, type, status, updated_at)
+- `packages/layout-builder/resources/views/filament/widgets/recent-activity.blade.php` — activity feed Blade view
 
 ### Modified files
 
 - `packages/blog/src/Providers/BlogServiceProvider.php` — register new widgets
-- `packages/mosaic/src/Providers/MosaicServiceProvider.php` — register RecentActivityWidget
+- `packages/layout-builder/src/Providers/LayoutBuilderServiceProvider.php` — register RecentActivityWidget
 - `tests/Blog/Feature/Filament/Widgets/TrafficChartWidgetTest.php` — new test
 - `tests/Blog/Feature/Filament/Widgets/TopPagesWidgetTest.php` — new test
-- `tests/Mosaic/Feature/Filament/Widgets/RecentActivityWidgetTest.php` — new test
+- `tests/LayoutBuilder/Feature/Filament/Widgets/RecentActivityWidgetTest.php` — new test
 
 ---
 
@@ -545,8 +545,8 @@ git commit -m "feat(blog): add TopPagesWidget"
 
 **Files:**
 
-- Create: `packages/mosaic/src/Data/Dashboard/ActivityItemData.php`
-- Create: `packages/mosaic/src/Data/Dashboard/RecentActivityData.php`
+- Create: `packages/layout-builder/src/Data/Dashboard/ActivityItemData.php`
+- Create: `packages/layout-builder/src/Data/Dashboard/RecentActivityData.php`
 
 - [ ] **Step 1: Create data classes**
 
@@ -557,7 +557,7 @@ git commit -m "feat(blog): add TopPagesWidget"
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Data\Dashboard;
+namespace Capell\LayoutBuilder\Data\Dashboard;
 
 use Carbon\CarbonInterface;
 use Spatie\LaravelData\Data;
@@ -580,7 +580,7 @@ final class ActivityItemData extends Data
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Data\Dashboard;
+namespace Capell\LayoutBuilder\Data\Dashboard;
 
 use Illuminate\Support\Collection;
 use Spatie\LaravelData\Data;
@@ -599,8 +599,8 @@ final class RecentActivityData extends Data
 - [ ] **Step 2: Commit**
 
 ```bash
-git add packages/mosaic/src/Data/Dashboard/ActivityItemData.php packages/mosaic/src/Data/Dashboard/RecentActivityData.php
-git commit -m "feat(mosaic): add ActivityItemData and RecentActivityData"
+git add packages/layout-builder/src/Data/Dashboard/ActivityItemData.php packages/layout-builder/src/Data/Dashboard/RecentActivityData.php
+git commit -m "feat(layout-builder): add ActivityItemData and RecentActivityData"
 ```
 
 ---
@@ -611,9 +611,9 @@ The widget queries the core `Page` model (and optionally `Article` from blog if 
 
 **Files:**
 
-- Create: `packages/mosaic/src/Filament/Widgets/RecentActivityWidget.php`
-- Create: `packages/mosaic/resources/views/filament/widgets/recent-activity.blade.php`
-- Create: `tests/Mosaic/Feature/Filament/Widgets/RecentActivityWidgetTest.php`
+- Create: `packages/layout-builder/src/Filament/Widgets/RecentActivityWidget.php`
+- Create: `packages/layout-builder/resources/views/filament/widgets/recent-activity.blade.php`
+- Create: `tests/LayoutBuilder/Feature/Filament/Widgets/RecentActivityWidgetTest.php`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -622,7 +622,7 @@ The widget queries the core `Page` model (and optionally `Article` from blog if 
 
 declare(strict_types=1);
 
-use Capell\Mosaic\Filament\Widgets\RecentActivityWidgetAbstract;
+use Capell\LayoutBuilder\Filament\Widgets\RecentActivityWidgetAbstract;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 use function Pest\Livewire\livewire;
@@ -645,7 +645,7 @@ it('shows recent activity heading', function (): void {
 - [ ] **Step 2: Run test to verify it fails**
 
 ```bash
-php vendor/bin/pest tests/Mosaic/Feature/Filament/Widgets/RecentActivityWidgetTest.php -v
+php vendor/bin/pest tests/LayoutBuilder/Feature/Filament/Widgets/RecentActivityWidgetTest.php -v
 ```
 
 Expected: FAIL.
@@ -657,13 +657,13 @@ Expected: FAIL.
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Widgets;
+namespace Capell\LayoutBuilder\Filament\Widgets;
 
 use Capell\Admin\Filament\Widgets\CapellWidget;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
-use Capell\Mosaic\Data\Dashboard\ActivityItemData;
-use Capell\Mosaic\Data\Dashboard\RecentActivityData;
+use Capell\LayoutBuilder\Data\Dashboard\ActivityItemData;
+use Capell\LayoutBuilder\Data\Dashboard\RecentActivityData;
 use Illuminate\Support\Collection;
 
 final class RecentActivityWidget extends CapellWidget
@@ -673,7 +673,7 @@ final class RecentActivityWidget extends CapellWidget
     /** @var list<string> */
     protected static array $rolesConfigKeys = ['admin', 'super_admin'];
 
-    protected string $view = 'capell-mosaic::filament.widgets.recent-activity';
+    protected string $view = 'capell-layout-builder::filament.widgets.recent-activity';
 
     /**
      * @return array<string, mixed>
@@ -730,7 +730,7 @@ final class RecentActivityWidget extends CapellWidget
 
 - [ ] **Step 4: Create the Blade view**
 
-`packages/mosaic/resources/views/filament/widgets/recent-activity.blade.php`:
+`packages/layout-builder/resources/views/filament/widgets/recent-activity.blade.php`:
 
 ```blade
 <x-filament-widgets::widget>
@@ -773,24 +773,24 @@ final class RecentActivityWidget extends CapellWidget
 - [ ] **Step 5: Run tests**
 
 ```bash
-php vendor/bin/pest tests/Mosaic/Feature/Filament/Widgets/RecentActivityWidgetTest.php -v
+php vendor/bin/pest tests/LayoutBuilder/Feature/Filament/Widgets/RecentActivityWidgetTest.php -v
 ```
 
 Expected: PASS.
 
-- [ ] **Step 6: Register widget in MosaicServiceProvider**
+- [ ] **Step 6: Register widget in LayoutBuilderServiceProvider**
 
-Add `RecentActivityWidget::class` to the widget registration in `packages/mosaic/src/Providers/MosaicServiceProvider.php`.
+Add `RecentActivityWidget::class` to the widget registration in `packages/layout-builder/src/Providers/LayoutBuilderServiceProvider.php`.
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/mosaic/src/Filament/Widgets/RecentActivityWidget.php \
-        packages/mosaic/src/Data/Dashboard/ \
-        packages/mosaic/resources/views/filament/widgets/recent-activity.blade.php \
-        tests/Mosaic/Feature/Filament/Widgets/RecentActivityWidgetTest.php \
-        packages/mosaic/src/Providers/MosaicServiceProvider.php
-git commit -m "feat(mosaic): add RecentActivityWidget"
+git add packages/layout-builder/src/Filament/Widgets/RecentActivityWidget.php \
+        packages/layout-builder/src/Data/Dashboard/ \
+        packages/layout-builder/resources/views/filament/widgets/recent-activity.blade.php \
+        tests/LayoutBuilder/Feature/Filament/Widgets/RecentActivityWidgetTest.php \
+        packages/layout-builder/src/Providers/LayoutBuilderServiceProvider.php
+git commit -m "feat(layout-builder): add RecentActivityWidget"
 ```
 
 ---

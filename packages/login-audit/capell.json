@@ -1,0 +1,16 @@
+{
+    "name": "capell-app/login-audit",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Operations",
+    "tier": "premium",
+    "bundle": "operations",
+    "contexts": ["admin"],
+    "requires": ["capell-app/admin"],
+    "providers": {
+        "shared": [
+            "Capell\\LoginAudit\\Providers\\LoginAuditServiceProvider"
+        ],
+        "admin": ["Capell\\LoginAudit\\Providers\\AdminServiceProvider"]
+    }
+}

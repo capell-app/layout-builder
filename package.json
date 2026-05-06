@@ -1,6 +1,8 @@
 {
     "name": "capell-packages-app",
     "scripts": {
+        "docs:publish": "cd ../../../capell-docs && CAPELL_PACKAGES_PATH=../packages/capell/capell-packages-4 npm run sync:local:packages && npm run build",
+        "screenshots:check": "node scripts/validate-screenshot-manifests.js",
         "prettier": "npx prettier --write 'packages/**/*.{css,js,yml,json,md,blade.php}'",
         "eslint": "npx eslint 'packages/**/resources/js/**/*.js' --max-warnings=0"
     },

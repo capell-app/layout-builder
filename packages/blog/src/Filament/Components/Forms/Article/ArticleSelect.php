@@ -6,8 +6,8 @@ namespace Capell\Blog\Filament\Components\Forms\Article;
 
 use Capell\Blog\Models\Article;
 use Closure;
-use Filament\Forms\Components\MorphToSelect;
-use Filament\Forms\Components\MorphToSelect\Type;
+use Filament\FormBuilder\Components\MorphToSelect;
+use Filament\FormBuilder\Components\MorphToSelect\Type;
 
 class ArticleSelect extends MorphToSelect
 {

@@ -1,0 +1,15 @@
+{
+    "name": "capell-app/insights",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Growth",
+    "tier": "premium",
+    "bundle": "growth",
+    "description": "First-party insights, visitor journeys, click tracking, and consent management.",
+    "contexts": ["admin", "frontend"],
+    "requires": ["capell-app/core", "capell-app/admin", "capell-app/frontend"],
+    "providers": {
+        "shared": ["Capell\\Insights\\Providers\\InsightsServiceProvider"],
+        "admin": ["Capell\\Insights\\Providers\\AdminServiceProvider"]
+    }
+}

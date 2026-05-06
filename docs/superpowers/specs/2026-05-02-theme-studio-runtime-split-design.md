@@ -70,7 +70,7 @@ Core will continue to own:
 - `ThemeStudioPage`
 - the editable Filament schema used to manage Theme Studio settings
 - draft/publish workflows
-- Workspaces approval handoff
+- PublishingStudio approval handoff
 - admin-focused tests covering page and publishing behavior
 
 Admin will stop owning:
@@ -193,7 +193,7 @@ This is the primary risk. If `ThemeRuntimeSettings` is still only bound by admin
 
 ### Settings UI breaks with admin installed
 
-If the schema registration no longer points at the moved settings class correctly, the Theme Studio page may render incomplete forms or fail to resolve settings values.
+If the schema registration no longer points at the moved settings class correctly, the Theme Studio page may render incomplete form-builder or fail to resolve settings values.
 
 ### Package boot order assumptions leak in
 
@@ -221,7 +221,7 @@ Update tests in `packages/theme-studio-admin/tests` to prove:
 - the Theme Studio page still resolves and renders
 - the settings schema still targets the `theme_studio` settings group
 - draft staging and publishing behavior is unchanged
-- Workspaces handoff still activates approved drafts correctly
+- PublishingStudio handoff still activates approved drafts correctly
 
 ### Regression expectation
 

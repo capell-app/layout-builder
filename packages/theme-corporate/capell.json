@@ -7,8 +7,8 @@
     "bundle": "theme-studio",
     "themeKey": "corporate",
     "contexts": ["frontend"],
-    "extends": "capell-app/default-theme",
-    "requires": ["capell-app/default-theme", "capell-app/theme-studio-core"],
+    "extends": "capell-app/foundation-theme",
+    "requires": ["capell-app/foundation-theme", "capell-app/theme-studio-core"],
     "providers": {
         "shared": [
             "Capell\\ThemeStudio\\Corporate\\CorporateThemeServiceProvider"

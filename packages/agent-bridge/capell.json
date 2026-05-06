@@ -1,0 +1,14 @@
+{
+    "name": "capell-app/agent-bridge",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Operations",
+    "tier": "premium",
+    "bundle": "operations",
+    "description": "Agent Bridge servers and capability adapters for Capell CMS.",
+    "contexts": ["admin"],
+    "requires": ["capell-app/core", "capell-app/admin"],
+    "providers": {
+        "shared": ["Capell\\AgentBridge\\Providers\\AgentBridgeServiceProvider"]
+    }
+}

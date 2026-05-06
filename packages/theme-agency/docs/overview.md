@@ -10,14 +10,14 @@ Theme Agency registers an expressive agency renderer for Capell Theme Studio.
 
 - Agency theme service provider.
 - Theme renderer/views for agency-style Theme Studio output.
-- Dependency on Default Theme and Theme Studio Core.
+- Dependency on Foundation Theme and Theme Studio Core.
 
 ## Developer Notes
 
 Adds a renderer package that plugs into Theme Studio Core rather than changing Capell core rendering contracts.
 
 - AgencyThemeServiceProvider registers the renderer.
-- Requires capell-app/default-theme and capell-app/theme-studio-core.
+- Requires capell-app/foundation-theme and capell-app/theme-studio-core.
 - No migrations, config, routes, resources, or models are present.
 
 ## Operational Notes
@@ -43,7 +43,7 @@ Provides an agency-focused visual option for sites managed through Theme Studio.
 ## Pitfalls
 
 - Install Theme Studio Core before using this renderer.
-- Verify frontend assets from Default Theme are available.
+- Verify frontend assets from Foundation Theme are available.
 
 ## Verification
 
@@ -59,7 +59,7 @@ Provides an agency-focused visual option for sites managed through Theme Studio.
 - Tier: premium
 - Bundle: theme-studio
 - Contexts: `frontend`
-- Requires: `capell-app/default-theme`, `capell-app/theme-studio-core`
+- Requires: `capell-app/foundation-theme`, `capell-app/theme-studio-core`
 - Optional dependencies: None listed.
 
 ## Admin Surfaces

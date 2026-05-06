@@ -9,7 +9,7 @@ use Capell\Tests\Fixtures\FakeMigrationFileManager;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Console\Migrations\MigrateCommand;
-use Illuminate\Database\Migrations\Migrator;
+use Illuminate\Database\Migrations\MigrationAssistant;
 
 use function Pest\Laravel\artisan;
 
@@ -34,11 +34,11 @@ it('runs blog install command successfully without publishing files', function (
     );
 
     // Ensure migrate command is a no-op
-    $fakeMigrator = Mockery::mock(Migrator::class);
+    $fakeMigrationAssistant = Mockery::mock(MigrationAssistant::class);
     $fakeDispatcher = Mockery::mock(Dispatcher::class);
     test()->instance(
         MigrateCommand::class,
-        Mockery::mock(new MigrateCommand($fakeMigrator, $fakeDispatcher))
+        Mockery::mock(new MigrateCommand($fakeMigrationAssistant, $fakeDispatcher))
             ->makePartial()
             ->shouldReceive('run')->once()->andReturn(0)->getMock(),
     );

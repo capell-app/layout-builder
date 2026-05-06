@@ -17,6 +17,22 @@ Address adds reusable countries, address records, address selectors, country sel
 
 **For teams:** Keeps location data consistent across structured websites instead of duplicating country and address fields in separate features.
 
+## Built With
+
+This package makes its Composer dependencies visible because they are part of the value proposition, not just plumbing. When an upstream package has a public repository, its linked preview card points readers back to the maintainers so their work gets proper credit.
+
+**Capell packages used here**
+
+- [Capell Admin](https://github.com/capell-app/admin)
+
+**Open-source packages used here**
+
+- [Blade Country Flags](https://github.com/stijnvanouplines/blade-country-flags) - country flag Blade components used by address and locale-oriented admin fields.
+
+**Linked package previews**
+
+[![Blade Country Flags GitHub preview](https://opengraph.githubassets.com/capell-readme/stijnvanouplines/blade-country-flags)](https://github.com/stijnvanouplines/blade-country-flags)
+
 ## Screens And Workflow
 
 Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) during package deployment.
@@ -68,7 +84,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 ## Common Pitfalls
 
 - Run migrations before opening the resources.
-- Seed or import countries before expecting useful address forms.
+- Seed or import countries before expecting useful address form-builder.
 - Check language records before relying on localized country names.
 
 ## Quick Start
@@ -80,5 +96,6 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 ## Next Steps
 
 - [docs/overview.md](docs/overview.md)
-- [../mosaic/README.md](../mosaic/README.md)
+- [../layout-builder/README.md](../layout-builder/README.md)
 - [../navigation/README.md](../navigation/README.md)
+- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)

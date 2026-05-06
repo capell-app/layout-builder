@@ -10,8 +10,8 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Translation;
 use Capell\Frontend\Facades\Frontend;
-use Capell\Mosaic\Support\CapellLayoutManager;
-use Capell\Mosaic\Support\Loader\LayoutLoader;
+use Capell\LayoutBuilder\Support\CapellLayoutManager;
+use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Capell\ThemeStudio\Core\Contracts\ThemePageAdapter;
 use Capell\ThemeStudio\Core\Contracts\ThemeRuntimeSettings;
 use Capell\ThemeStudio\Core\Contracts\ThemeSection;
@@ -34,18 +34,18 @@ class CapellFrontendThemePageAdapter implements ThemePageAdapter
         $translation = $page?->translation;
         $brand = resolve(ThemeRuntimeSettings::class)->brandProfile();
         $title = $this->titleFrom($translation, $page?->name ?? 'Untitled page');
-        $mosaicContent = $page instanceof Pageable
-            ? $this->mosaicContent($page, $translation)
+        $layoutBuilderContent = $page instanceof Pageable
+            ? $this->layoutBuilderContent($page, $translation)
             : ['sections' => [], 'navigation' => null, 'footer' => null];
 
         return new ThemePageData(
             title: $title,
             brand: $brand,
-            sections: $mosaicContent['sections'] !== []
-                ? $mosaicContent['sections']
+            sections: $layoutBuilderContent['sections'] !== []
+                ? $layoutBuilderContent['sections']
                 : [$this->fallbackHero($title, $translation)],
-            navigation: $mosaicContent['navigation'],
-            footer: $mosaicContent['footer'],
+            navigation: $layoutBuilderContent['navigation'],
+            footer: $layoutBuilderContent['footer'],
         );
     }
 
@@ -60,7 +60,7 @@ class CapellFrontendThemePageAdapter implements ThemePageAdapter
     /**
      * @return array{sections: array<int, ThemeSection>, navigation: NavigationData|null, footer: FooterData|null}
      */
-    private function mosaicContent(Pageable $page, ?Translation $translation): array
+    private function layoutBuilderContent(Pageable $page, ?Translation $translation): array
     {
         $layout = Frontend::layout();
         $language = Frontend::language();
@@ -92,7 +92,7 @@ class CapellFrontendThemePageAdapter implements ThemePageAdapter
                     continue;
                 }
 
-                $widget = $this->resolveMosaicWidget(
+                $widget = $this->resolveLayoutBuilderWidget(
                     $layout,
                     (string) $widgetData['widget_key'],
                     $language,
@@ -126,7 +126,7 @@ class CapellFrontendThemePageAdapter implements ThemePageAdapter
         return ['sections' => $sections, 'navigation' => $navigation, 'footer' => $footer];
     }
 
-    private function resolveMosaicWidget(
+    private function resolveLayoutBuilderWidget(
         Layout $layout,
         string $widgetKey,
         Language $language,

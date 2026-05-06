@@ -1,8 +1,8 @@
 # AI-assisted SEO integration
 
-AI-assisted content tools now live in **SEO Tools** (`capell-app/seo-tools`). Older internal notes may refer to an Assistant package; treat those as historical unless you are reading migration plans.
+AI-assisted content tools now live in **SEO Suite** (`capell-app/seo-suite`). Older internal notes may refer to an AIOrchestrator package; treat those as historical unless you are reading migration plans.
 
-This page is for developers wiring or extending the current SEO Tools implementation.
+This page is for developers wiring or extending the current SEO Suite implementation.
 
 ## What you get
 
@@ -17,7 +17,7 @@ This page is for developers wiring or extending the current SEO Tools implementa
 ## Typical flow
 
 1. Build a context object that implements `AiActionContextInterface`.
-2. Call a SEO Tools action such as `SuggestPageTitlesAction` or `SuggestMetaDescriptionsAction`.
+2. Call a SEO Suite action such as `SuggestPageTitlesAction` or `SuggestMetaDescriptionsAction`.
 3. Show the suggestions in the admin.
 4. Apply the selected draft with `ApplyAiDraftAction::run(...)`.
 5. Record the generation in `ai_generation_histories`.
@@ -26,11 +26,11 @@ This page is for developers wiring or extending the current SEO Tools implementa
 
 | Layer              | Classes                                                                                                                                                                                            |
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Actions            | `Capell\SeoTools\Actions\SuggestPageTitlesAction`, `SuggestMetaDescriptionsAction`, `GenerateAiContentBriefAction`, `GeneratorPageContentAction`, `ApplyAiDraftAction`, `RecordAiGenerationAction` |
-| Provider           | `Capell\SeoTools\Support\PrismProvider`                                                                                                                                                            |
-| Settings           | `Capell\SeoTools\Settings\AssistantSettings`                                                                                                                                                       |
+| Actions            | `Capell\SeoSuite\Actions\SuggestPageTitlesAction`, `SuggestMetaDescriptionsAction`, `GenerateAiContentBriefAction`, `GeneratorPageContentAction`, `ApplyAiDraftAction`, `RecordAiGenerationAction` |
+| Provider           | `Capell\SeoSuite\Support\PrismProvider`                                                                                                                                                            |
+| Settings           | `Capell\SeoSuite\Settings\AIOrchestratorSettings`                                                                                                                                                  |
 | Parsing and limits | `AiResponseParser`, `AiRateLimiter`, `AiTokenCounter`, `AiFeatureRegistry`                                                                                                                         |
-| Persistence        | `Capell\SeoTools\Models\AIGenerationHistory`, `AiCreatorContext`, `AiCreatorSession`                                                                                                               |
+| Persistence        | `Capell\SeoSuite\Models\AIGenerationHistory`, `AiCreatorContext`, `AiCreatorSession`                                                                                                               |
 | Events             | `AiGenerationStarted`, `AiGenerationCompleted`, `AiGenerationFailed`                                                                                                                               |
 
 ## Context contract
@@ -55,7 +55,7 @@ Use this to adapt pages, articles, or another content source without coupling th
 ## Example
 
 ```php
-use Capell\SeoTools\Actions\SuggestPageTitlesAction;
+use Capell\SeoSuite\Actions\SuggestPageTitlesAction;
 
 $titles = SuggestPageTitlesAction::run($context, [
     'user_id' => auth()->id(),
@@ -65,7 +65,7 @@ $titles = SuggestPageTitlesAction::run($context, [
 Apply a selected draft:
 
 ```php
-use Capell\SeoTools\Actions\ApplyAiDraftAction;
+use Capell\SeoSuite\Actions\ApplyAiDraftAction;
 
 ApplyAiDraftAction::run($page, $chosenText);
 ```
@@ -73,7 +73,7 @@ ApplyAiDraftAction::run($page, $chosenText);
 Generate a read-only content brief from the current SEO report:
 
 ```php
-use Capell\SeoTools\Actions\GenerateAiContentBriefAction;
+use Capell\SeoSuite\Actions\GenerateAiContentBriefAction;
 
 $brief = GenerateAiContentBriefAction::run($page, $site, $language);
 ```
@@ -82,7 +82,7 @@ The brief returns structured fields for content angle, missing topics, headings,
 
 ## Configuration
 
-Configuration lives in `config/capell-seo-tools.php`. Keep provider keys in environment variables, not in committed config.
+Configuration lives in `config/capell-seo-suite.php`. Keep provider keys in environment variables, not in committed config.
 
 Important areas:
 
@@ -97,15 +97,15 @@ Important areas:
 
 ## Filament integration
 
-SEO Tools registers settings and admin extenders that add AI-assist controls where editors already write titles, descriptions, and page content.
+SEO Suite registers settings and admin extenders that add AI-assist controls where editors already write titles, descriptions, and page content.
 
-The settings schema is `Capell\SeoTools\Filament\Settings\AssistantSettingsSchema`.
+The settings schema is `Capell\SeoSuite\Filament\Settings\AIOrchestratorSettingsSchema`.
 
 `PageSeoPanel` also exposes an AI content brief action when AI is configured. The action is deliberately advisory: it records generation history and shows suggestions, but it does not automatically alter page content, metadata, schema, or links.
 
 ## Safety model
 
-AI actions should receive bounded context and return structured data. `GenerateAiContentBriefAction` sends the page, site, language, SEO issues, passed checks, canonical URL, robots directives, schema reports, internal-link suggestions, redirect opportunities, and Search Console insights to the provider, then validates that the response is a JSON object before returning `AiContentBriefData`.
+AI actions should receive bounded context and return structured data. `GenerateAiContentBriefAction` sends the page, site, language, SEO issues, passed checks, canonical URL, robots directives, schema dashboard-dashboard_reports, internal-link suggestions, redirect opportunities, and Search Console insights to the provider, then validates that the response is a JSON object before returning `AiContentBriefData`.
 
 Keep generated output behind editor review. Use `ApplyAiDraftAction` only after a user has selected a draft, and keep any automatic publish decisions in deterministic checks such as SEO score, missing metadata, or schema coverage.
 
@@ -115,14 +115,14 @@ Keep generated output behind editor review. Use `ApplyAiDraftAction` only after 
 | ---------------------- | ------------------------------------------------------------------------------------ |
 | Suggestions are empty  | The context content is empty or the parser could not find the requested output shape |
 | Brief generation fails | The provider returned non-JSON content or a required brief field was not parseable   |
-| Rate limit exceeded    | Lower request frequency or adjust SEO Tools rate limits                              |
+| Rate limit exceeded    | Lower request frequency or adjust SEO Suite rate limits                              |
 | Provider failures      | Check provider credentials, network access, and Capell logs                          |
 | Repeated suggestions   | Clear the AI result cache or change content/keywords                                 |
 
 ## See also
 
-- [SEO Tools README](../packages/seo-tools/README.md)
-- [SEO metadata and discoverability](../packages/seo-tools/docs/seo-meta-and-discoverability.md)
-- [SEO intelligence](../packages/seo-tools/docs/seo-intelligence.md)
-- [Sitemaps](../packages/seo-tools/docs/sitemaps.md)
+- [SEO Suite README](../packages/seo-suite/README.md)
+- [SEO metadata and discoverability](../packages/seo-suite/docs/seo-meta-and-discoverability.md)
+- [SEO intelligence](../packages/seo-suite/docs/seo-intelligence.md)
+- [Sitemaps](../packages/seo-suite/docs/sitemaps.md)
 - [Test plan for actions and services](test-plan-actions-services.md)
