@@ -419,6 +419,7 @@ git commit -m "feat: scaffold content sections package"
 - Move: `packages/layout-builder/src/Observers/SectionObserver.php` to `packages/content-sections/src/Observers/SectionObserver.php`
 - Move: `packages/layout-builder/database/factories/SectionFactory.php` to `packages/content-sections/database/factories/SectionFactory.php`
 - Move: `packages/layout-builder/database/migrations/create_sections_table.php` to `packages/content-sections/database/migrations/create_sections_table.php`
+- Create: `packages/content-sections/database/factories/ContentTypeFactory.php`
 - Create: `packages/content-sections/src/Enums/LayoutTypeEnum.php`
 - Create: `packages/content-sections/src/Support/ContentSectionsModelRegistrar.php`
 - Modify: `packages/content-sections/src/Providers/ContentSectionsServiceProvider.php`
@@ -468,6 +469,40 @@ use Capell\ContentSections\Observers\SectionObserver;
 Move `packages/layout-builder/src/Models/Concerns/ComposhipsJsonRelationshipsTrait.php` to `packages/content-sections/src/Models/Concerns/ComposhipsJsonRelationshipsTrait.php` when the Section model still uses it.
 
 Remove `use Capell\LayoutBuilder\Models\Widget;` and `use Capell\LayoutBuilder\Models\WidgetAsset;` from the moved `Section` model. Remove the `widgetAssets()`, `pages()`, and `widgets()` methods from `Section`; those relations are LayoutBuilder placement concerns, not Content Sections ownership.
+
+Create `packages/content-sections/database/factories/ContentTypeFactory.php` so the moved `SectionFactory` does not import LayoutBuilder:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\ContentSections\Database\Factories;
+
+use Capell\ContentSections\Enums\LayoutTypeEnum;
+use Capell\Core\Database\Factories\TypeFactory;
+
+class ContentTypeFactory extends TypeFactory
+{
+    public function definition(): array
+    {
+        return [
+            ...parent::definition(),
+            'type' => LayoutTypeEnum::Section->value,
+        ];
+    }
+}
+```
+
+Update the moved `SectionFactory` namespace/imports:
+
+```php
+namespace Capell\ContentSections\Database\Factories;
+
+use Capell\ContentSections\Models\Section;
+```
+
+Keep `'type_id' => (new ContentTypeFactory),`.
 
 - [ ] **Step 4: Move observer default type lookup into Content Sections**
 
