@@ -6,7 +6,6 @@ namespace Capell\LayoutBuilder\Actions;
 
 use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Models\Type;
-use Capell\LayoutBuilder\Enums\AssetEnum as LayoutAssetEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
@@ -55,7 +54,7 @@ class CreateHeroWidgetAction
             'admin' => [
                 'icon' => 'heroicon-o-gift',
                 'configurator' => HeroWidgetConfigurator::getKey(),
-                'asset_types' => [LayoutAssetEnum::Section->value],
+                'asset_types' => ['section'],
             ],
         ]);
     }
@@ -77,7 +76,7 @@ class CreateHeroWidgetAction
                 'icon' => 'heroicon-o-gift',
                 'asset_types' => [
                     AssetEnum::Page,
-                    LayoutAssetEnum::Section,
+                    'section',
                 ],
             ],
             'meta' => [

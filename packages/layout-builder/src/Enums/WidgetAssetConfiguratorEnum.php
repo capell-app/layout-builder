@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Enums;
 
 use Capell\LayoutBuilder\Filament\Configurators\Widgets\PageWidgetAssetForm;
-use Capell\LayoutBuilder\Filament\Configurators\Widgets\SectionWidgetAssetForm;
 use InvalidArgumentException;
 
 enum WidgetAssetConfiguratorEnum: string
 {
-    case Section = SectionWidgetAssetForm::class;
-
     case Page = PageWidgetAssetForm::class;
 
     public static function fromName(string $name): self

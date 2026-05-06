@@ -15,7 +15,6 @@ use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Exceptions\MissingWidgetAssetException;
 use Capell\LayoutBuilder\Filament\Resources\Pages\Tables\PageSelectionTable;
-use Capell\LayoutBuilder\Filament\Resources\Sections\Tables\SectionSelectionTable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Schemas\WidgetAssetForm;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Schemas\WidgetForm;
 use Capell\LayoutBuilder\Models\Widget;
@@ -368,10 +367,7 @@ trait HasLayoutActions
             })
             ->closeModalByClickingAway(false)
             ->schema(function (Schema $configurator, array $arguments, self $livewire): Schema {
-                $tableConfiguration = match ($arguments['type']) {
-                    'page' => PageSelectionTable::class,
-                    default => SectionSelectionTable::class,
-                };
+                $tableConfiguration = PageSelectionTable::class;
 
                 $excludeIds = $livewire->getWidgetAssetsByType(
                     $arguments['containerKey'],

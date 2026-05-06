@@ -8,8 +8,8 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Frontend\Facades\Frontend;
 use Capell\LayoutBuilder\Actions\HeroWidgetHasPrimaryHeadingAction;
-use Capell\LayoutBuilder\Models\Section;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
+use Illuminate\Database\Eloquent\Model;
 
 class Hero extends AbstractWidget
 {
@@ -17,11 +17,22 @@ class Hero extends AbstractWidget
 
     public static function loadWidgetAssets(array &$morphRelations, ?Language $language = null): void
     {
-        $morphRelations[Section::class]['related'] = fn (BuilderContract $query): BuilderContract => $query->with(Section::getMorphRelations($language))
-            ->withWhereHas('translation', fn (BuilderContract $query): BuilderContract => $query->with('language'));
-
         $morphRelations[Page::class]['related'] = fn (BuilderContract $query): BuilderContract => $query->with(Page::getMorphRelations($language))
             ->withWhereHas('translation', fn (BuilderContract $query): BuilderContract => $query->with('language'));
+
+        foreach (array_keys($morphRelations) as $assetModel) {
+            if ($assetModel === Page::class || ! is_a($assetModel, Model::class, true)) {
+                continue;
+            }
+
+            if (! method_exists($assetModel, 'getMorphRelations')) {
+                continue;
+            }
+
+            $morphRelations[$assetModel]['related'] = fn (BuilderContract $query): BuilderContract => $query
+                ->with($assetModel::getMorphRelations($language))
+                ->withWhereHas('translation', fn (BuilderContract $query): BuilderContract => $query->with('language'));
+        }
     }
 
     protected function mountWidget(): void

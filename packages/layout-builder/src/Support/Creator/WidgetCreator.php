@@ -10,7 +10,6 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\LayoutBuilder\Actions\InstallLayoutBuilderWidgetCatalogAction;
-use Capell\LayoutBuilder\Enums\AssetEnum;
 use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Filament\Configurators\Widgets\CarouselWidgetConfigurator;
 use Capell\LayoutBuilder\Models\Widget;
@@ -358,7 +357,7 @@ class WidgetCreator
             ],
             'admin' => [
                 'asset_types' => [
-                    AssetEnum::Section->value,
+                    'section',
                 ],
             ],
         ]);

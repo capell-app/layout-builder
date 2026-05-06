@@ -8,7 +8,6 @@ use Capell\Core\Enums\AssetComponentEnum as CapellAssetComponentEnum;
 use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Enums\ContentStructure;
 use Capell\Core\Models\Type;
-use Capell\LayoutBuilder\Enums\AssetEnum as LayoutAssetEnum;
 use Capell\LayoutBuilder\Enums\ContentTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
@@ -17,7 +16,6 @@ use Capell\LayoutBuilder\Enums\WidgetTypeGroupEnum;
 use Capell\LayoutBuilder\Filament\Configurators\Layouts\Widgets\DefaultLayoutWidgetConfigurator;
 use Capell\LayoutBuilder\Filament\Configurators\Layouts\Widgets\PageLayoutWidgetConfigurator;
 use Capell\LayoutBuilder\Filament\Configurators\Layouts\Widgets\ResultsLayoutWidgetConfigurator;
-use Capell\LayoutBuilder\Filament\Configurators\Types\ContentTypeConfigurator;
 use Capell\LayoutBuilder\Filament\Configurators\Types\WidgetTypeConfigurator;
 use Capell\LayoutBuilder\Filament\Configurators\Widgets\AssetsWidgetConfigurator;
 use Capell\LayoutBuilder\Filament\Configurators\Widgets\NavigationWidgetConfigurator;
@@ -36,7 +34,7 @@ class TypeCreator
     public function create(string $key): void
     {
         switch ($key) {
-            case LayoutTypeEnum::Section->value:
+            case 'section':
                 $this->createDefaultContentType();
                 $this->createBuilderContentType();
                 break;
@@ -52,12 +50,12 @@ class TypeCreator
     {
         $this->typeModel::query()->firstOrCreate([
             'default' => true,
-            'type' => LayoutTypeEnum::Section,
+            'type' => 'section',
         ], [
             'name' => __('capell-admin::generic.default'),
             'key' => ContentTypeEnum::Default,
             'admin' => [
-                'type_configurator' => ContentTypeConfigurator::getKey(),
+                'type_configurator' => 'content-type',
             ],
         ]);
     }
@@ -66,11 +64,11 @@ class TypeCreator
     {
         $this->typeModel::query()->firstOrCreate([
             'key' => ContentTypeEnum::Builder,
-            'type' => LayoutTypeEnum::Section,
+            'type' => 'section',
         ], [
             'name' => __('capell-admin::generic.contents_builder'),
             'admin' => [
-                'type_configurator' => ContentTypeConfigurator::getKey(),
+                'type_configurator' => 'content-type',
             ],
             'meta' => [
 
@@ -148,7 +146,7 @@ class TypeCreator
             'admin' => [
                 'configurator' => AssetsWidgetConfigurator::getKey(),
                 'icon' => config('capell-admin.assets.media.icon'),
-                'asset_types' => [LayoutAssetEnum::Section],
+                'asset_types' => ['section'],
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::AssetMedia,
@@ -251,7 +249,7 @@ class TypeCreator
                 'icon' => 'heroicon-o-rectangle-stack',
                 'asset_types' => [
                     AssetEnum::Page,
-                    LayoutAssetEnum::Section,
+                    'section',
                 ],
             ],
             'meta' => [
@@ -292,7 +290,7 @@ class TypeCreator
                 'type_configurator' => WidgetTypeConfigurator::getKey(),
                 'configurator' => AssetsWidgetConfigurator::getKey(),
                 'icon' => 'heroicon-o-rectangle-stack',
-                'asset_types' => [LayoutAssetEnum::Section],
+                'asset_types' => ['section'],
             ],
             'meta' => [
                 'component' => WidgetComponentEnum::Assets,

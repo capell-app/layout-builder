@@ -6,12 +6,11 @@ namespace Capell\LayoutBuilder\Database\Factories;
 
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\AssetEnum;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Enums\ActionLinkEnum;
-use Capell\LayoutBuilder\Enums\AssetEnum as LayoutAssetEnum;
-use Capell\LayoutBuilder\Models\Section;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -33,8 +32,8 @@ class WidgetAssetFactory extends Factory
     {
         return [
             'widget_id' => Widget::factory(),
-            'asset_type' => LayoutAssetEnum::Section->value,
-            'asset_id' => fn (): string => (string) Section::factory()->withTranslations()->linkedPage()->create()->id,
+            'asset_type' => AssetEnum::Page->value,
+            'asset_id' => fn (): string => (string) Page::factory()->withTranslations()->create()->getKey(),
             'pageable_id' => null,
             'pageable_type' => null,
             'occurrence' => 1,
@@ -68,16 +67,13 @@ class WidgetAssetFactory extends Factory
         ]);
     }
 
-    public function asset(AssetEnum|LayoutAssetEnum|Model $asset): self
+    public function asset(AssetEnum|string|Model $asset): self
     {
         return $this->state(fn (array $attributes): array => [
-            'asset_type' => $asset instanceof Model ? $asset->getMorphClass() : $asset->value,
+            'asset_type' => $asset instanceof Model ? $asset->getMorphClass() : $this->resolveAssetType($asset),
             'asset_id' => fn (): mixed => $asset instanceof Model
                 ? $asset->getKey()
-                : match ($asset) {
-                    LayoutAssetEnum::Section => (string) Section::factory()->withTranslations()->linkedPage()->create()->getKey(),
-                    AssetEnum::Page => (string) Page::factory()->withTranslations()->create()->getKey(),
-                },
+                : $this->createAssetRecord($asset)->getKey(),
         ]);
     }
 
@@ -105,17 +101,10 @@ class WidgetAssetFactory extends Factory
     public function assetHavingRelated(int $count = 1): self
     {
         return $this->afterCreating(function (WidgetAsset $widgetAsset) use ($count): void {
-            $related = match ($widgetAsset->asset_type) {
-                LayoutAssetEnum::Section->value => Section::factory()
-                    ->count($count)
-                    ->withTranslations()
-                    ->linkedPage()
-                    ->create(),
-                AssetEnum::Page->value => Page::factory()
-                    ->count($count)
-                    ->withTranslations()
-                    ->create(),
-            };
+            $related = Page::factory()
+                ->count($count)
+                ->withTranslations()
+                ->create();
 
             $meta = $widgetAsset->asset->meta;
             $meta['related'] = collect($meta['related'] ?? [])
@@ -147,5 +136,33 @@ class WidgetAssetFactory extends Factory
             $widgetAsset->asset->meta = $meta;
             $widgetAsset->asset->save();
         });
+    }
+
+    private function resolveAssetType(AssetEnum|string $asset): string
+    {
+        return $asset instanceof AssetEnum ? $asset->value : mb_strtolower($asset);
+    }
+
+    private function createAssetRecord(AssetEnum|string $asset): Model
+    {
+        $assetType = $this->resolveAssetType($asset);
+
+        if ($assetType === AssetEnum::Page->value) {
+            return Page::factory()->withTranslations()->create();
+        }
+
+        $registeredType = ucfirst($assetType);
+
+        if (! CapellCore::hasAsset($registeredType)) {
+            return Page::factory()->withTranslations()->create();
+        }
+
+        $model = CapellCore::getAsset($registeredType)->model;
+
+        if (! method_exists($model, 'factory')) {
+            return Page::factory()->withTranslations()->create();
+        }
+
+        return $model::factory()->create();
     }
 }

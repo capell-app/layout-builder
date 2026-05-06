@@ -7,7 +7,6 @@ namespace Capell\LayoutBuilder\Filament\Resources\Pages\Schemas\Extenders;
 use Capell\Admin\Contracts\Extenders;
 use Capell\Admin\Enums\PageTranslationSchemaHookEnum;
 use Capell\LayoutBuilder\Filament\Components\Forms\Page\Tab\LayoutTab;
-use Capell\LayoutBuilder\Filament\Resources\Pages\RelationManagers\SectionsRelationManager;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
@@ -17,12 +16,6 @@ class PageSchemaExtender implements Extenders\PageSchemaExtender
 {
     public function extendRelationManagers(Model $record, array $relationManagers): array
     {
-        $alreadyHasContents = in_array(SectionsRelationManager::class, $relationManagers, true);
-
-        if (! $alreadyHasContents) {
-            $relationManagers[] = SectionsRelationManager::class;
-        }
-
         return $relationManagers;
     }
 

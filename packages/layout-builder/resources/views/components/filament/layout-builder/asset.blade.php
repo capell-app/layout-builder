@@ -17,7 +17,7 @@
     use Capell\Core\Actions\GetResourceFromTypeAction;
     use Capell\Core\Enums\MediaConversionEnum;
     use Capell\Core\Models\Page;
-    use Capell\Core\Models\Site;use Capell\LayoutBuilder\Models\Section;
+    use Capell\Core\Models\Site;
     use Filament\Actions\Action;
     use Filament\Support\Contracts\ScalableIcon;
     use Filament\Support\Enums\IconSize;
@@ -42,26 +42,17 @@
 
     if (! $image) {
         $image = match (get_class($widgetAsset->asset)) {
-            Page::class, Section::class => $widgetAsset->asset->image,
+            Page::class => $widgetAsset->asset->image,
             Media::class => $widgetAsset->asset,
-            default => null,
+            default => $widgetAsset->asset->image ?? null,
         };
     }
 
-    $mediaCount = match (get_class($widgetAsset->asset)) {
-        Section::class => $widgetAsset->asset->media->count(),
-        default => null,
-    };
+    $mediaCount = $widgetAsset->asset->media?->count();
 
-    $relatedCount = match (get_class($widgetAsset->asset)) {
-        Section::class => $widgetAsset->asset->related->count(),
-        default => null,
-    };
+    $relatedCount = $widgetAsset->asset->related?->count();
 
-    $actionsCount = match (get_class($widgetAsset->asset)) {
-        Section::class => count($widgetAsset->asset->actions),
-        default => null,
-    };
+    $actionsCount = isset($widgetAsset->asset->actions) ? count($widgetAsset->asset->actions) : null;
 
     $label = '';
 

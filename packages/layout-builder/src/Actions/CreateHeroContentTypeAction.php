@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions;
 
 use Capell\Core\Models\Type;
-use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
-use Capell\LayoutBuilder\Filament\Configurators\Sections\HeroSectionConfigurator;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -25,11 +23,11 @@ class CreateHeroContentTypeAction
 
         return $type::query()->firstOrCreate([
             'key' => 'hero',
-            'type' => LayoutTypeEnum::Section,
+            'type' => 'section',
         ], [
             'name' => __('capell-layout-builder::generic.hero'),
             'admin' => [
-                'configurator' => HeroSectionConfigurator::getKey(),
+                'configurator' => 'hero-section',
             ],
         ]);
     }

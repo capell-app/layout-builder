@@ -7,12 +7,12 @@ namespace Capell\LayoutBuilder\Filament\Widgets;
 use Capell\Admin\Contracts\CapellWidgetContract;
 use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
 use Capell\Core\Enums\PublishStatusEnum;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Data\Dashboard\LayoutHealthData;
 use Capell\LayoutBuilder\Data\Dashboard\LeastUsedWidgetData;
 use Capell\LayoutBuilder\Data\Dashboard\UnusedWidgetData;
 use Capell\LayoutBuilder\Data\Dashboard\WidgetGroupData;
-use Capell\LayoutBuilder\Models\Section;
 use Capell\LayoutBuilder\Models\Widget;
 use Filament\Widgets\Widget as FilamentWidget;
 use Illuminate\Database\Eloquent\Builder;
@@ -49,10 +49,12 @@ final class LayoutHealthWidgetAbstract extends FilamentWidget implements CapellW
         $widgetsByGroup = $this->getWidgetsByGroup($widgetModel);
 
         // Get section counts
-        $sectionModel = Section::class;
-        $totalSections = $sectionModel::query()->count();
-        $publishedSections = $sectionModel::query()->publishedDate()->count();
-        $draftSections = $sectionModel::query()->pending()->count();
+        $sectionModel = CapellCore::hasAsset('Section')
+            ? CapellCore::getAsset('Section')->model
+            : null;
+        $totalSections = $sectionModel !== null ? $sectionModel::query()->count() : 0;
+        $publishedSections = $sectionModel !== null ? $sectionModel::query()->publishedDate()->count() : 0;
+        $draftSections = $sectionModel !== null ? $sectionModel::query()->pending()->count() : 0;
 
         // Layouts with workspace_id > 0 are draft copies with pending modifications
         $layoutModel = Layout::class;

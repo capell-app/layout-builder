@@ -306,17 +306,6 @@ class Widget extends Model implements HasMedia, PageCacheable, Publishable, Stat
         );
     }
 
-    public function sections(): MorphToMany
-    {
-        return $this->morphedByMany(
-            Section::class,
-            'asset',
-            'widget_assets',
-            'widget_id',
-            'asset_id',
-        );
-    }
-
     public function layouts(): HasManyJson
     {
         return $this->hasManyJson(Layout::class, 'widgets', 'key');

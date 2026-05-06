@@ -12,7 +12,6 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Frontend\Support\ModelServing\RetrievedModelStore;
-use Capell\LayoutBuilder\Models\Section;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
@@ -97,9 +96,18 @@ class LayoutLoader
 
         // Compute morph eager loads, including component-specific additions across all widgets
         $with = [
-            Section::class => Section::getMorphRelations($language),
             Page::class => Page::getMorphRelations($language),
         ];
+
+        CapellCore::getAssets()->each(function (mixed $asset) use (&$with, $language): void {
+            $model = $asset->model;
+
+            if ($model === Page::class || ! method_exists($model, 'getMorphRelations')) {
+                return;
+            }
+
+            $with[$model] = $model::getMorphRelations($language);
+        });
 
         foreach ($layoutWidgets as $widget) {
             $component = $widget->getComponent();

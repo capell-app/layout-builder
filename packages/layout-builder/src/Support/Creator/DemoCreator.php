@@ -16,14 +16,12 @@ use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
+use Capell\Core\Facades\CapellCore;
 use Capell\LayoutBuilder\Enums\ActionLinkEnum;
-use Capell\LayoutBuilder\Enums\AssetEnum;
 use Capell\LayoutBuilder\Enums\ContentTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
-use Capell\LayoutBuilder\Filament\Configurators\Sections\TestimonialSectionConfigurator;
-use Capell\LayoutBuilder\Models\Section;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\Navigation\Enums\NavigationItemType;
@@ -33,6 +31,7 @@ use Capell\StarterSites\Support\Creator\DemoCreator as AdminDemoCreator;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Model;
+use RuntimeException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Spatie\Image\Image;
@@ -41,7 +40,7 @@ use Spatie\MediaLibrary\HasMedia;
 class DemoCreator
 {
     /**
-     * @var class-string<Section>
+     * @var class-string<Model>
      */
     private readonly string $contentModel;
 
@@ -63,7 +62,8 @@ class DemoCreator
     public function __construct(
         protected readonly ?Model $user = null,
     ) {
-        $this->contentModel = Section::class;
+        throw_unless(CapellCore::hasAsset('Section'), RuntimeException::class, 'Content Sections must be installed to create section demo content.');
+        $this->contentModel = CapellCore::getAsset('Section')->model;
         $this->widgetModel = Widget::class;
         $this->typeModel = Type::class;
         $this->pageModel = Page::class;
@@ -281,7 +281,7 @@ class DemoCreator
             ],
             'admin' => [
                 'asset_types' => [
-                    AssetEnum::Section->value,
+                    'section',
                 ],
             ],
         ]);
@@ -297,7 +297,7 @@ class DemoCreator
         }
 
         $contentType = $this->typeModel::query()
-            ->where('type', LayoutTypeEnum::Section)
+            ->where('type', "section")
             ->where('key', ContentTypeEnum::Builder)
             ->first();
 
@@ -484,7 +484,7 @@ class DemoCreator
 
         if (! $type instanceof Type) {
             $type = $this->typeModel::query()
-                ->where('type', LayoutTypeEnum::Section)
+                ->where('type', "section")
                 ->default()
                 ->first();
         }
@@ -509,7 +509,7 @@ class DemoCreator
         ];
 
         foreach ($features as $feature) {
-            $content = Section::query()->firstOrCreate([
+            $content = $this->contentModel::query()->firstOrCreate([
                 'name' => $feature['title'],
                 'type_id' => $type->getKey(),
             ], [
@@ -646,7 +646,7 @@ class DemoCreator
 
         $features = $this->createFeatures($site);
 
-        $features->each(function (Section $content) use ($widget): void {
+        $features->each(function (Model $content) use ($widget): void {
             if ($widget->assets()->where('asset_id', $content->id)->exists()) {
                 return;
             }
@@ -669,7 +669,7 @@ class DemoCreator
 
         $features = $this->createFeatures($site);
 
-        $features->each(function (Section $content) use ($widget): void {
+        $features->each(function (Model $content) use ($widget): void {
             if ($widget->assets()->where('asset_id', $content->id)->exists()) {
                 return;
             }
@@ -698,7 +698,7 @@ class DemoCreator
 
         $testimonials = $this->createTestimonials($languages);
 
-        $testimonials->each(function (Section $content) use ($widget): void {
+        $testimonials->each(function (Model $content) use ($widget): void {
             if ($widget->assets()->where('asset_id', $content->id)->exists()) {
                 return;
             }
@@ -764,7 +764,7 @@ class DemoCreator
         $site = Site::getDefault();
 
         foreach ($statistics as $statistic) {
-            $content = Section::query()->firstOrCreate([
+            $content = $this->contentModel::query()->firstOrCreate([
                 'name' => $statistic['title'],
             ], [
                 'meta' => [
@@ -832,7 +832,7 @@ class DemoCreator
 
         $teamMembers = $this->createTeamMembers($languages);
 
-        $teamMembers->each(function (Section $content) use ($widget): void {
+        $teamMembers->each(function (Model $content) use ($widget): void {
             if ($widget->assets()->where('asset_id', $content->id)->exists()) {
                 return;
             }
@@ -885,7 +885,7 @@ class DemoCreator
         ];
 
         foreach ($features as $feature) {
-            $section = Section::query()->firstOrCreate(['name' => $feature['title']], [
+            $section = $this->contentModel::query()->firstOrCreate(['name' => $feature['title']], [
                 'meta' => ['icon' => $feature['icon']],
             ]);
 
@@ -963,7 +963,7 @@ class DemoCreator
         ];
 
         foreach ($members as $member) {
-            $section = Section::query()->firstOrCreate(['name' => $member['name']], [
+            $section = $this->contentModel::query()->firstOrCreate(['name' => $member['name']], [
                 'meta' => [
                     'icon' => $member['icon'],
                     'position' => $member['position'],
@@ -1053,7 +1053,7 @@ class DemoCreator
         ];
 
         foreach ($plans as $plan) {
-            $section = Section::query()->firstOrCreate(['name' => $plan['name']], [
+            $section = $this->contentModel::query()->firstOrCreate(['name' => $plan['name']], [
                 'meta' => [
                     'price' => $plan['price'],
                     'price_annual' => $plan['price_annual'],
@@ -1117,7 +1117,7 @@ class DemoCreator
         ];
 
         foreach ($testimonials as $testimonial) {
-            $section = Section::query()->firstOrCreate(['name' => $testimonial['author']], [
+            $section = $this->contentModel::query()->firstOrCreate(['name' => $testimonial['author']], [
                 'meta' => [
                     'icon' => $testimonial['icon'],
                     'position' => $testimonial['position'],
@@ -1178,7 +1178,7 @@ class DemoCreator
         ];
 
         foreach ($faqs as $faq) {
-            $section = Section::query()->firstOrCreate(['name' => $faq['question']], [
+            $section = $this->contentModel::query()->firstOrCreate(['name' => $faq['question']], [
                 'meta' => ['category' => $faq['category']],
             ]);
 
@@ -1235,7 +1235,7 @@ class DemoCreator
         ];
 
         foreach ($stats as $stat) {
-            $section = Section::query()->firstOrCreate(['name' => $stat['label']], [
+            $section = $this->contentModel::query()->firstOrCreate(['name' => $stat['label']], [
                 'meta' => ['icon' => $stat['icon']],
             ]);
 
@@ -1291,7 +1291,7 @@ class DemoCreator
         ];
 
         foreach ($steps as $step) {
-            $section = Section::query()->firstOrCreate(['name' => $step['title']], [
+            $section = $this->contentModel::query()->firstOrCreate(['name' => $step['title']], [
                 'meta' => ['icon' => $step['icon'], 'position' => $step['position']],
             ]);
 
@@ -1348,7 +1348,7 @@ class DemoCreator
         ];
 
         foreach ($steps as $step) {
-            $section = Section::query()->firstOrCreate(['name' => $step['title']], [
+            $section = $this->contentModel::query()->firstOrCreate(['name' => $step['title']], [
                 'meta' => ['icon' => $step['icon']],
             ]);
 
@@ -1471,7 +1471,7 @@ class DemoCreator
         ];
 
         foreach ($cards as $card) {
-            $section = Section::query()->firstOrCreate(['name' => $card['title']], [
+            $section = $this->contentModel::query()->firstOrCreate(['name' => $card['title']], [
                 'meta' => [
                     'icon' => $card['icon'],
                     'link_text' => $card['link_text'],
@@ -1530,7 +1530,7 @@ class DemoCreator
         ];
 
         foreach ($features as $feature) {
-            $section = Section::query()->firstOrCreate(['name' => $feature['title']], [
+            $section = $this->contentModel::query()->firstOrCreate(['name' => $feature['title']], [
                 'meta' => ['icon' => $feature['icon']],
             ]);
 
@@ -1575,7 +1575,7 @@ class DemoCreator
         ];
 
         foreach ($features as $feature) {
-            $section = Section::query()->firstOrCreate(['name' => $feature['title']], [
+            $section = $this->contentModel::query()->firstOrCreate(['name' => $feature['title']], [
                 'meta' => ['icon' => $feature['icon']],
             ]);
 
@@ -1765,7 +1765,7 @@ class DemoCreator
 
             $this->createMedia($page);
 
-            $content = Section::query()->updateOrCreate([
+            $content = $this->contentModel::query()->updateOrCreate([
                 'name' => $feature['title'],
             ], [
                 'meta' => [
@@ -1801,7 +1801,7 @@ class DemoCreator
 
     private function createTestimonials(Collection $languages): Collection
     {
-        $testimonialContent = Section::query()->firstOrCreate([
+        $testimonialContent = $this->contentModel::query()->firstOrCreate([
             'name' => 'Testimonials',
         ], [
             'meta' => [
@@ -1833,17 +1833,17 @@ class DemoCreator
 
         $testimonialType = Type::query()->updateOrCreate([
             'key' => 'testimonial',
-            'type' => LayoutTypeEnum::Section,
+            'type' => "section",
         ], [
             'name' => 'Testimonial',
             'admin' => [
                 'icon' => 'heroicon-o-chat-bubble-left-right',
-                'configurator' => TestimonialSectionConfigurator::getKey(),
+                'configurator' => "testimonial-section",
             ],
         ]);
 
         foreach ($testimonials as $testimonial) {
-            $content = Section::query()->firstOrCreate([
+            $content = $this->contentModel::query()->firstOrCreate([
                 'name' => $testimonial['name'],
                 'parent_id' => $testimonialContent->id,
                 'type_id' => $testimonialType->id,
@@ -1957,7 +1957,7 @@ class DemoCreator
             ],
         ];
 
-        $teamContent = Section::query()->firstOrNew([
+        $teamContent = $this->contentModel::query()->firstOrNew([
             'name' => 'Team Members',
         ]);
 
@@ -1970,7 +1970,7 @@ class DemoCreator
         $teamMembersCollection = new Collection;
 
         foreach ($teamMembers as $member) {
-            $content = Section::query()->firstOrCreate([
+            $content = $this->contentModel::query()->firstOrCreate([
                 'name' => $member['name'],
                 'parent_id' => $teamContent->id,
             ], [
@@ -2063,13 +2063,13 @@ class DemoCreator
         }
 
         // Create content and link via WidgetAsset
-        $content = Section::create([
+        $content = $this->contentModel::create([
             'name' => str($filenameBase)->title(),
         ]);
 
         $model->assets()->create([
             'asset_id' => $content->getKey(),
-            'asset_type' => resolve(Section::class)->getMorphClass(),
+            'asset_type' => resolve($this->contentModel)->getMorphClass(),
         ]);
 
         // Attach primary media

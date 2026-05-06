@@ -12,7 +12,6 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Data\DemoSitePlanData;
-use Capell\LayoutBuilder\Models\Section;
 use Capell\LayoutBuilder\Support\Creator\ContentCreator;
 use Capell\LayoutBuilder\Support\Creator\DemoCreator;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
@@ -20,6 +19,7 @@ use Capell\LayoutBuilder\Support\Creator\WidgetCreator;
 use Capell\Navigation\Support\Creator\NavigationDemoCreator;
 use Exception;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -247,7 +247,7 @@ class CreateLayoutBuilderDemoSiteAction
         array $contentNode,
         Site $site,
         ?EloquentCollection $languages = null,
-        ?Section $parent = null,
+        ?Model $parent = null,
     ): void {
         if ($site->sections()->count() > 28) {
             return;
@@ -259,7 +259,7 @@ class CreateLayoutBuilderDemoSiteAction
             'name' => $contentNode['name']['en'],
         ];
 
-        if ($parent instanceof Section) {
+        if ($parent instanceof Model) {
             $contentData['parent_id'] = $parent->id;
         }
 

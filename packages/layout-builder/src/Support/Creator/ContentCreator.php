@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Support\Creator;
 
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
-use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
-use Capell\LayoutBuilder\Models\Section;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use RuntimeException;
 
 class ContentCreator
 {
     /**
-     * @var class-string<Section>
+     * @var class-string<Model>
      */
     private readonly string $contentModel;
 
@@ -24,14 +25,16 @@ class ContentCreator
 
     public function __construct()
     {
-        $this->contentModel = Section::class;
+        throw_unless(CapellCore::hasAsset('Section'), RuntimeException::class, 'Content Sections must be installed to create section demo content.');
+
+        $this->contentModel = CapellCore::getAsset('Section')->model;
 
         $this->typeModel = Type::class;
     }
 
-    public function createContent(array $data, ?Site $site, Collection $languages): Section
+    public function createContent(array $data, ?Site $site, Collection $languages): Model
     {
-        $type = $this->typeModel::query()->where('type', LayoutTypeEnum::Section)->default()->first();
+        $type = $this->typeModel::query()->where('type', 'section')->default()->first();
 
         if (isset($data['type']) && $data['type'] !== '') {
             $type->where('key', $data['type'])->first();

@@ -15,12 +15,11 @@ use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Actions\GetEditPageResourceUrlAction;
 use Capell\Core\Actions\ResolvePageableMorphModelAction;
 use Capell\Core\Enums\TypeEnum;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Type;
-use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Filament\Components\Forms\AssetTypeSelect;
 use Capell\LayoutBuilder\Filament\Concerns\HasAssetsRelationManager;
-use Capell\LayoutBuilder\Models\Section;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
@@ -117,9 +116,8 @@ class WidgetAssetsTable implements TableConfigurator
                              $get('type')
                         JS)
                         ->options(fn (Get $get): array => match ($get('type')) {
-                            LayoutTypeEnum::Section->value => Section::getTypes(),
                             TypeEnum::Page->value => Page::getTypes(),
-                            default => []
+                            default => self::getAssetTypes((string) $get('type')),
                         }),
                 ])
                 ->query(
@@ -193,5 +191,26 @@ class WidgetAssetsTable implements TableConfigurator
     private static function buildLookupKey(string $pageableType, int $pageableId): string
     {
         return $pageableType . ':' . $pageableId;
+    }
+
+    private static function getAssetTypes(string $assetType): array
+    {
+        if (blank($assetType)) {
+            return [];
+        }
+
+        $registeredType = ucfirst($assetType);
+
+        if (! CapellCore::hasAsset($registeredType)) {
+            return [];
+        }
+
+        $model = CapellCore::getAsset($registeredType)->model;
+
+        if (! method_exists($model, 'getTypes')) {
+            return [];
+        }
+
+        return $model::getTypes();
     }
 }

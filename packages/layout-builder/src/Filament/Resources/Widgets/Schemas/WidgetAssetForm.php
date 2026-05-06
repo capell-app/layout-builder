@@ -9,6 +9,7 @@ use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\WidgetAssetConfiguratorEnum;
+use Capell\LayoutBuilder\Filament\Configurators\Widgets\PageWidgetAssetForm;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Filament\Schemas\Schema;
 use RuntimeException;
@@ -33,8 +34,14 @@ class WidgetAssetForm implements FormConfigurator
                 ?? null;
         }
 
-        if ($adminSchema === null) {
+        $enumCase = WidgetAssetConfiguratorEnum::class . '::' . ucfirst((string) $assetType);
+
+        if ($adminSchema === null && defined($enumCase)) {
             $adminSchema = WidgetAssetConfiguratorEnum::fromName(ucfirst((string) $assetType))->value::getKey();
+        }
+
+        if ($adminSchema === null) {
+            $adminSchema = PageWidgetAssetForm::getKey();
         }
 
         $adminType = AdminSurfaceLookup::configurator(ConfiguratorTypeEnum::WidgetAsset, $adminSchema);
