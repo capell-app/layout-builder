@@ -13,12 +13,13 @@ return [
         '@tailwindcss/vite' => '^4.0.13',
         'autoprefixer' => '^10.4.13',
         'swiper' => '^11.1.14',
-        'laravel-vite-plugin' => '^1.2.0',
+        'fontaine' => '^0.5.0',
+        'laravel-vite-plugin' => '^3.1.0',
         'npm-run-all' => '^4.1.5',
         'tailwindcss' => '^4.0.14',
         'tippy.js' => '^6.3.7',
         'vanilla-lazyload' => '^19.1.3',
-        'vite' => '^6.2.1',
+        'vite' => '^8.0',
     ],
 
     // Tailwind CSS generation settings

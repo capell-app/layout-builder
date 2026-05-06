@@ -234,7 +234,7 @@
 
 @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('alpine:init', () => {
             Alpine.data('siteHeader', ({ scrollUp = false } = {}) => ({
                 isDarkMode: document.documentElement.classList.contains('dark'),
                 isMenuOpen: false,
