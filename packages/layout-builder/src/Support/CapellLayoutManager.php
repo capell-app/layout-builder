@@ -14,7 +14,6 @@ class CapellLayoutManager
     public static function getMigrations(): array
     {
         return [
-            'create_sections_table',
             'create_widgets_table',
             'create_widget_assets_table',
             'add_container_widgets_to_layouts_table',
