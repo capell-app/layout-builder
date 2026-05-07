@@ -39,7 +39,7 @@ it('registers every installed package in the Capell package registry', function 
         'capell-app/content-sections',
         'capell-app/core',
         'capell-app/diagnostics',
-        'capell-app/starter-sites',
+        'capell-app/demo-kit',
         'capell-app/admin-preview',
         'capell-app/form-builder',
         'capell-app/frontend',
@@ -130,4 +130,36 @@ it('shows installed package admin surfaces in Filament navigation', function ():
         'Tags',
         'Translation Coverage',
     );
+});
+
+it('places extension-owned package pages under extensions navigation', function (): void {
+    test()->actingAsAdmin();
+
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
+    Filament::bootCurrentPanel();
+    Filament::setServingStatus();
+
+    $navigationGroups = collect(Filament::getNavigation());
+    $extensionItems = $navigationGroups
+        ->filter(fn (NavigationGroup $group): bool => $group->getLabel() === __('capell-admin::navigation.group_extensions'))
+        ->flatMap(fn (NavigationGroup $group): array => collect($group->getItems())->all())
+        ->all();
+    $systemItems = $navigationGroups
+        ->filter(fn (NavigationGroup $group): bool => $group->getLabel() === __('capell-admin::navigation.group_administration'))
+        ->flatMap(fn (NavigationGroup $group): array => collect($group->getItems())->all())
+        ->all();
+
+    $extensionLabels = collect($extensionItems)->map(fn ($item): string => $item->getLabel())->all();
+    $systemLabels = collect($systemItems)->map(fn ($item): string => $item->getLabel())->all();
+
+    $movedLabels = [
+        'capell-admin::navigation.media_health',
+        'capell-admin::navigation.permission_audit',
+        'capell-admin::navigation.queue_health',
+        'capell-admin::navigation.system_health',
+        'Diagnostics',
+    ];
+
+    expect($extensionLabels)->toContain(...$movedLabels)
+        ->and($systemLabels)->not->toContain(...$movedLabels);
 });

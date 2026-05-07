@@ -1,0 +1,14 @@
+{
+    "name": "capell-app/demo-kit",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Foundation",
+    "tier": "free",
+    "bundle": "foundation",
+    "description": "Demo Kit provides example content and media for local Capell demos.",
+    "contexts": ["admin", "frontend"],
+    "requires": ["capell-app/admin", "capell-app/core", "capell-app/frontend"],
+    "providers": {
+        "shared": ["Capell\\DemoKit\\Providers\\DemoKitServiceProvider"]
+    }
+}

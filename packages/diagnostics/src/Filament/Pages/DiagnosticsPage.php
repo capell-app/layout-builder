@@ -42,7 +42,7 @@ class DiagnosticsPage extends Page implements HasActions
     #[Override]
     public static function getNavigationGroup(): ?string
     {
-        return __('capell-admin::navigation.group_administration');
+        return __('capell-admin::navigation.group_extensions');
     }
 
     public static function canAccess(): bool

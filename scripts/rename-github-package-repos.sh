@@ -20,7 +20,7 @@ authentication-log login-audit
 password-security password-policy
 html-minify html-optimizer
 default-theme foundation-theme
-example-sites starter-sites
+example-sites demo-kit
 mcp agent-bridge
 assistant ai-orchestrator
 media-curator media-library

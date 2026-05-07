@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\Diagnostics\Providers;
 
-use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\DashboardEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
@@ -55,11 +54,11 @@ final class AdminServiceProvider extends ServiceProvider
 
     private function registerPages(): self
     {
-        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(DiagnosticsPage::class));
-        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(CommandPalettePage::class));
-        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(SystemHealthPage::class));
-        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(QueueHealthPage::class));
-        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(PermissionAuditPage::class));
+        CapellAdmin::registerExtensionPage(DiagnosticsServiceProvider::$packageName, DiagnosticsPage::class);
+        CapellAdmin::registerExtensionPage(DiagnosticsServiceProvider::$packageName, CommandPalettePage::class);
+        CapellAdmin::registerExtensionPage(DiagnosticsServiceProvider::$packageName, SystemHealthPage::class);
+        CapellAdmin::registerExtensionPage(DiagnosticsServiceProvider::$packageName, QueueHealthPage::class);
+        CapellAdmin::registerExtensionPage(DiagnosticsServiceProvider::$packageName, PermissionAuditPage::class);
 
         return $this;
     }

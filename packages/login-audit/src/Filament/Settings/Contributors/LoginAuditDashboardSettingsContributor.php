@@ -14,7 +14,7 @@ final class LoginAuditDashboardSettingsContributor implements DashboardSettingsC
     public function settingsKeys(): array
     {
         return [
-            ['key' => 'login_audits', 'label' => 'Authentication logs', 'group' => 'System health'],
+            ['key' => 'login_audits', 'label' => 'Access Logs', 'group' => 'System health'],
         ];
     }
 }

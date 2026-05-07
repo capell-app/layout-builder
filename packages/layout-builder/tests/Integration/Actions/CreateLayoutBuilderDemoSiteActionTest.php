@@ -25,7 +25,7 @@ beforeEach(function (): void {
 
     File::deleteDirectory($demoDirectory);
 
-    $sourceDemoDirectory = realpath(__DIR__ . '/../../../../../packages/starter-sites/demo');
+    $sourceDemoDirectory = realpath(__DIR__ . '/../../../../../packages/demo-kit/demo');
 
     throw_if($sourceDemoDirectory === false, RuntimeException::class, 'Demo fixtures directory not found.');
 
@@ -44,7 +44,7 @@ it('creates demo content, homepage sections, media-backed widgets, and navigatio
 
     $created = CreateLayoutBuilderDemoSiteAction::run(new DemoSitePlanData(
         site: $site,
-        contentTree: config('capell-starter-sites.pages')[0],
+        contentTree: config('capell-demo-kit.pages')[0],
     ));
 
     $homePage = $site->refresh()->getHomePage();
@@ -86,6 +86,6 @@ it('delegates site navigation composition to the navigation demo adapter', funct
 
     CreateLayoutBuilderDemoSiteAction::run(new DemoSitePlanData(
         site: $site,
-        contentTree: config('capell-starter-sites.pages')[0],
+        contentTree: config('capell-demo-kit.pages')[0],
     ));
 });

@@ -132,6 +132,38 @@ it('skips generation when no pages and still signals end', function (): void {
         ->and($calls)->toContain('end');
 });
 
+it('generates sitemap for path only domains and passes a string domain key to prepare callback', function (): void {
+    config(['app.url' => 'https://capell.test']);
+
+    $language = Language::factory()->create();
+    $site = Site::factory()
+        ->language($language)
+        ->withTranslations($language, siteDomainData: [
+            'domain' => null,
+            'path' => '/uk',
+            'scheme' => 'https',
+        ])
+        ->create();
+    Page::factory()->site($site)->withTranslations($language)->create();
+
+    $domainKeys = [];
+    $generator = new XmlSitemapGenerator;
+    $generator->process(
+        site: $site,
+        prepare: function (int $total, string $domainKey) use (&$domainKeys): void {
+            expect($total)->toBe(1);
+
+            $domainKeys[] = $domainKey;
+        },
+    );
+
+    $domain = $site->siteDomains->first();
+    $filePath = 'sitemaps_test/' . $domain->getDomainKey() . '.xml';
+
+    expect($domainKeys)->toBe(['https-capell-test-uk'])
+        ->and(Storage::disk('local')->exists($filePath))->toBeTrue();
+});
+
 it('sitemap omits unpublished pages', function (): void {
     $lang = Language::factory()->create();
     $siteDomain = SiteDomain::factory()->state([

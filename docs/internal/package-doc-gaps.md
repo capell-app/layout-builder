@@ -18,7 +18,7 @@ The package README still counts as package documentation, but it is not enough f
 | `dashboard-reports` | Capell Operations | admin           | Credits only         | `overview.md`                                                               |
 | `ga4-reports`       | Capell Growth     | admin, console  | Credits only         | `overview.md`, `ga4-reports-database.md`, `sync-workflow.md`                |
 | `password-policy`   | Capell Foundation | admin, console  | Credits only         | `overview.md`, `password-policy-database.md`, `settings-and-enforcement.md` |
-| `starter-sites`     | Capell Foundation | admin, frontend | Credits only         | `overview.md`, `demo-content.md`                                            |
+| `demo-kit`          | Capell Foundation | admin, frontend | Credits only         | `overview.md`, `demo-content.md`                                            |
 
 ## Implementation Plan
 

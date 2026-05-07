@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\LoginAudit\Filament\Resources\LoginAudits\LoginAuditResource;
 use Capell\LoginAudit\Filament\Resources\LoginAudits\Tables\LoginAuditsTable;
 use Capell\LoginAudit\Models\LoginAudit;
 use Capell\Tests\Fixtures\Models\User;
@@ -62,6 +63,11 @@ it('renders authenticatable names as safe text instead of raw html', function ()
 
 it('configures the vendor authentication log table to display user names', function (): void {
     expect(config('filament-authentication-log.authenticatable.field-to-display'))->toBe('name');
+});
+
+it('uses operator friendly access log navigation under users', function (): void {
+    expect(LoginAuditResource::getNavigationLabel())->toBe('Access Logs')
+        ->and(LoginAuditResource::getNavigationGroup())->toBe(__('capell-admin::navigation.group_users'));
 });
 
 it('renders a placeholder for orphaned authentication logs', function (): void {

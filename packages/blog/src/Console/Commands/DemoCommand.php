@@ -17,8 +17,8 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
-use Capell\StarterSites\Console\Commands\Concerns\HasSitesOption;
-use Capell\StarterSites\Support\Creator\DemoCreator;
+use Capell\DemoKit\Console\Commands\Concerns\HasSitesOption;
+use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\Tags\Enums\TagTypeEnum;
 use Capell\Tags\Models\Tag;
 use Illuminate\Console\Command;
@@ -172,7 +172,7 @@ class DemoCommand extends Command
         $this->demoCreator = resolve(DemoCreator::class, ['author' => $user]);
 
         // Calculate all steps upfront for an accurate progress bar
-        $pagesTree = config('capell-starter-sites.pages', []);
+        $pagesTree = config('capell-demo-kit.pages', []);
         $totalPagesAvailable = 0;
         foreach ($pagesTree as $node) {
             $totalPagesAvailable += $this->countContentNodes($node);
@@ -255,7 +255,7 @@ class DemoCommand extends Command
 
     private function getDemoData(?string $name, array $languages): array
     {
-        $data = collect(config('capell-starter-sites.pages'));
+        $data = collect(config('capell-demo-kit.pages'));
 
         if ($name !== null && $data->where('name.en', $name)->isNotEmpty()) {
             $data = $data->firstWhere(fn (array $item): bool => $item['name']['en'] === $name);

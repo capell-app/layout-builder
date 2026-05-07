@@ -6,11 +6,11 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\TypeCreator;
+use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\Navigation\Enums\NavigationHandle;
 use Capell\Navigation\Enums\NavigationItemType;
 use Capell\Navigation\Models\Navigation;
 use Capell\Navigation\Support\Creator\NavigationDemoCreator;
-use Capell\StarterSites\Support\Creator\DemoCreator;
 
 use function Pest\Laravel\assertDatabaseHas;
 

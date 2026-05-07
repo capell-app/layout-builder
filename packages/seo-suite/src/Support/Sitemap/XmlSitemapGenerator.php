@@ -171,7 +171,7 @@ class XmlSitemapGenerator
         $total = count($items);
 
         if ($prepare instanceof Closure) {
-            $prepare($total, $domain->domain);
+            $prepare($total, $domain->getDomainKey());
         }
 
         if ($total > 0) {
@@ -228,7 +228,7 @@ class XmlSitemapGenerator
         $total = count($items);
 
         if ($prepare instanceof Closure) {
-            $prepare($total, $domain->domain);
+            $prepare($total, $domain->getDomainKey());
         }
 
         $state = new SitemapStateStore($disk, $directory);

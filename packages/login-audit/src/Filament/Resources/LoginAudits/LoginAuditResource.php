@@ -31,6 +31,6 @@ class LoginAuditResource extends AuthenticationLogResource
     #[Override]
     public static function getNavigationGroup(): ?string
     {
-        return (string) __('capell-admin::navigation.group_administration');
+        return (string) __('capell-admin::navigation.group_users');
     }
 }

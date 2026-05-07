@@ -48,7 +48,7 @@ interface MediaContract
     public function getKey(): mixed;
 }
 
-namespace Capell\StarterSites\Support\Creator;
+namespace Capell\DemoKit\Support\Creator;
 
 class DemoCreator
 {

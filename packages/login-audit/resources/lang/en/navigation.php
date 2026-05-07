@@ -3,5 +3,5 @@
 declare(strict_types=1);
 
 return [
-    'login_audits' => 'Login Audits',
+    'login_audits' => 'Access Logs',
 ];

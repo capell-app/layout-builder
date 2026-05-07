@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Console\Commands;
 
 use Capell\Core\Models\Site;
+use Capell\DemoKit\Console\Commands\Concerns\HasSitesOption;
 use Capell\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
 use Capell\LayoutBuilder\Data\DemoSitePlanData;
-use Capell\StarterSites\Console\Commands\Concerns\HasSitesOption;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 
@@ -41,7 +41,7 @@ class DemoCommand extends Command
             return Command::FAILURE;
         }
 
-        $contentTree = config('capell-starter-sites.pages')[0] ?? null;
+        $contentTree = config('capell-demo-kit.pages')[0] ?? null;
 
         if (! is_array($contentTree)) {
             $this->error('Unable to find demo page content configuration.');

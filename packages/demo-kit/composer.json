@@ -1,0 +1,42 @@
+{
+    "name": "capell-app/demo-kit",
+    "description": "Demo content and media kit for Capell",
+    "keywords": [
+        "capell",
+        "demo",
+        "laravel",
+        "filamentphp",
+        "cms"
+    ],
+    "homepage": "https://github.com/capell-app/demo-kit",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Howdu",
+            "email": "cms.multi2@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "capell-app/admin": "*",
+        "capell-app/core": "*",
+        "capell-app/frontend": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\DemoKit\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\DemoKit\\Providers\\DemoKitServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "prefer-stable": true
+}

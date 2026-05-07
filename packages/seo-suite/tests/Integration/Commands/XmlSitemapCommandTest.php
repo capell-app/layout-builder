@@ -15,7 +15,7 @@ use function Pest\Laravel\artisan;
  *     deletedSiteIds: list<int>,
  *     processedSiteIds: list<int>,
  *     incrementalSiteIds: list<int>,
- *     incrementalDomains: list<array{site_id: int, domain: string, regenerated: bool}>
+ *     incrementalDomains: list<array{site_id: int, domain: ?string, regenerated: bool}>
  * }
  */
 function seoSuiteCommandFakeXmlSitemapGenerator(): XmlSitemapGenerator
@@ -31,7 +31,7 @@ function seoSuiteCommandFakeXmlSitemapGenerator(): XmlSitemapGenerator
         /** @var list<int> */
         public array $incrementalSiteIds = [];
 
-        /** @var list<array{site_id: int, domain: string, regenerated: bool}> */
+        /** @var list<array{site_id: int, domain: ?string, regenerated: bool}> */
         public array $incrementalDomains = [];
 
         public function delete(Site $site): void

@@ -37,7 +37,7 @@ it('runs the demo command and creates demo layouts for a site', function (): voi
 
     File::deleteDirectory($demoDirectory);
 
-    $sourceDemoDirectory = realpath(__DIR__ . '/../../../../../packages/starter-sites/demo');
+    $sourceDemoDirectory = realpath(__DIR__ . '/../../../../../packages/demo-kit/demo');
 
     throw_if($sourceDemoDirectory === false, RuntimeException::class, 'Demo fixtures directory not found.');
 
@@ -72,7 +72,7 @@ it('runs layout-builder demo with --skip-hero without delegating to hero demo', 
 
     File::deleteDirectory($demoDirectory);
 
-    $sourceDemoDirectory = realpath(__DIR__ . '/../../../../../packages/starter-sites/demo');
+    $sourceDemoDirectory = realpath(__DIR__ . '/../../../../../packages/demo-kit/demo');
 
     throw_if($sourceDemoDirectory === false, RuntimeException::class, 'Demo fixtures directory not found.');
 
@@ -108,7 +108,7 @@ it('runs layout-builder demo when no pages with images exist yet', function (): 
 
     File::deleteDirectory($demoDirectory);
 
-    $sourceDemoDirectory = realpath(__DIR__ . '/../../../../../packages/starter-sites/demo');
+    $sourceDemoDirectory = realpath(__DIR__ . '/../../../../../packages/demo-kit/demo');
 
     throw_if($sourceDemoDirectory === false, RuntimeException::class, 'Demo fixtures directory not found.');
 
