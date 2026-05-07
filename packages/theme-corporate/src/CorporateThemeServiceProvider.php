@@ -26,7 +26,7 @@ class CorporateThemeServiceProvider extends ServiceProvider
             name: 'Corporate',
             description: 'Trust-led layouts with restrained hierarchy, formal navigation, and structured proof.',
             package: 'capell-app/theme-corporate',
-            previewImage: '/vendor/capell/theme-studio/corporate-boardroom.jpg',
+            previewImage: '/vendor/capell/themes/corporate-boardroom.jpg',
             tags: ['Trust', 'Clarity', 'B2B'],
             bestFit: ['Professional services', 'Public sector', 'Established businesses'],
             includedSections: ['navigation', 'hero', 'features', 'proof', 'content-listing', 'cta', 'footer'],
@@ -35,7 +35,7 @@ class CorporateThemeServiceProvider extends ServiceProvider
                     key: 'boardroom',
                     name: 'Boardroom',
                     description: 'Deep navy, measured spacing, and formal card structure.',
-                    previewImage: '/vendor/capell/theme-studio/corporate-boardroom.jpg',
+                    previewImage: '/vendor/capell/themes/corporate-boardroom.jpg',
                     values: [
                         'primaryColor' => '#1a2d6d',
                         'accentColor' => '#f59e0b',
@@ -49,7 +49,7 @@ class CorporateThemeServiceProvider extends ServiceProvider
                     key: 'civic',
                     name: 'Civic',
                     description: 'Accessible contrast, calm typography, and clear information hierarchy.',
-                    previewImage: '/vendor/capell/theme-studio/corporate-civic.jpg',
+                    previewImage: '/vendor/capell/themes/corporate-civic.jpg',
                     values: [
                         'primaryColor' => '#0f766e',
                         'accentColor' => '#facc15',
@@ -63,7 +63,7 @@ class CorporateThemeServiceProvider extends ServiceProvider
                     key: 'advisory',
                     name: 'Advisory',
                     description: 'Editorial trust signals with generous whitespace and refined proof blocks.',
-                    previewImage: '/vendor/capell/theme-studio/corporate-advisory.jpg',
+                    previewImage: '/vendor/capell/themes/corporate-advisory.jpg',
                     values: [
                         'primaryColor' => '#312e81',
                         'accentColor' => '#c084fc',
@@ -74,7 +74,7 @@ class CorporateThemeServiceProvider extends ServiceProvider
                     ],
                 ),
             ],
-            assets: ['css' => 'vendor/capell/theme-studio/corporate.css'],
+            assets: ['css' => 'vendor/capell/themes/corporate.css'],
         );
     }
 
@@ -102,7 +102,7 @@ class CorporateThemeServiceProvider extends ServiceProvider
             definition: self::definition(),
             themeRenderer: new BladeThemeRenderer(
                 themeKey: self::THEME_KEY,
-                layoutView: 'capell-theme-corporate::page',
+                layoutView: 'capell::page',
                 sectionRenderers: $sectionRenderers,
             ),
             sectionRenderers: array_values($sectionRenderers),

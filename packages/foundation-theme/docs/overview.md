@@ -4,11 +4,13 @@ Status: **Available, no schema impact except settings** · Kind: **theme** · Ti
 
 This page is the consolidated implementation overview for the Foundation Theme package. It is extracted from the package README, service providers, migrations, config files, routes, resources, models, actions, and the shared Capell ERD notes where available.
 
-## What This Plugin Adds
+## What This Package Adds
 
-Foundation Theme ships Capell frontend theme infrastructure, Tailwind asset generation, Blade directives, media URL handling, and theme settings.
+Foundation Theme is the default Capell theme package. It ships the shared runtime that child themes use: theme registration, renderer contracts, preview context, token CSS generation, Tailwind assets, Blade directives, media URL handling, and theme settings.
 
 - Default theme service provider.
+- `themeKey: "default"` for new installs.
+- Theme registry, renderer contracts, preview signing, and token CSS support.
 - Tailwind asset generation command.
 - Theme settings schema and settings migration.
 - SVG media component and Capell URL generator.
@@ -17,18 +19,19 @@ Foundation Theme ships Capell frontend theme infrastructure, Tailwind asset gene
 
 ## Developer Notes
 
-Provides the baseline Laravel view and asset pipeline that other themes and frontend packages can target.
+Provides the baseline Laravel view and asset pipeline that child themes and frontend packages can target.
 
-- FoundationThemeServiceProvider and AdminServiceProvider register theme services and settings.
+- FoundationThemeServiceProvider registers theme services and settings.
 - Config file: capell-foundation-theme.php.
 - Settings migration creates default theme settings.
+- Runtime theme data layers parent defaults, child defaults, and database edits in that order.
 - GenerateTailwindAssetsCommand writes frontend CSS assets.
 - BladeDirectives and CapellUrlGenerator support rendering.
 - The beacon client is generic. It must not ship authoring controls or authoring metadata in theme HTML; `capell-app/frontend-authoring` owns the admin-only response that decorates the page.
 
 ## Operational Notes
 
-Gives each Capell installation a standard frontend foundation before a custom or Theme Studio renderer is added.
+Gives each Capell installation a standard frontend foundation before a custom or theme renderer is added.
 
 - Adds default theme settings.
 - Adds Tailwind asset generation command.
@@ -54,6 +57,7 @@ Gives each Capell installation a standard frontend foundation before a custom or
 - Match asset_build_tool to the host app.
 - Set media URL config before production media rendering.
 - Keep authoring behaviour in `capell-app/frontend-authoring`; themes should expose stable presentation selectors, not hidden editor metadata.
+- Keep child themes on shared `capell::...` views unless they need their own section markup.
 
 ## Verification
 
@@ -64,6 +68,7 @@ Gives each Capell installation a standard frontend foundation before a custom or
 ## Package Manifest
 
 - Composer name: `capell-app/foundation-theme`
+- Theme key: `default`
 - Product group: Capell Foundation
 - Kind: theme
 - Tier: free

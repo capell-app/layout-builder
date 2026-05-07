@@ -36,7 +36,6 @@ $packagesWithSkills = [
     'migration-assistant',
     'blog',
     'campaign-studio',
-    'block-library',
     'foundation-theme',
     'deployments',
     'diagnostics',
@@ -76,7 +75,6 @@ Expected: FAIL while pointless skills still exist.
 - Modify: `packages/migration-assistant/resources/boost/skills/capell-migration-assistant-development/SKILL.md`
 - Modify: `packages/blog/resources/boost/skills/blog/SKILL.md`
 - Modify: `packages/campaign-studio/resources/boost/skills/capell-campaign-studio-development/SKILL.md`
-- Modify: `packages/block-library/resources/boost/skills/capell-block-library-development/SKILL.md`
 - Modify: `packages/foundation-theme/resources/boost/skills/capell-foundation-theme-development/SKILL.md`
 - Modify: `packages/deployments/resources/boost/skills/capell-deployments-development/SKILL.md`
 - Modify: `packages/diagnostics/resources/boost/skills/capell-diagnostics-development/SKILL.md`

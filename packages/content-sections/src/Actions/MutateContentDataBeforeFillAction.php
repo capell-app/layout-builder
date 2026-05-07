@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\ContentSections\Actions;
 
-use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
-use Capell\Core\Models\Type;
-use Exception;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -23,7 +20,8 @@ class MutateContentDataBeforeFillAction
     {
         $site = Site::getDefault();
 
-        $data['type_id'] = $this->getDefaultType()->getKey();
+        $data['type_id'] = ResolveRequestedSectionTypeAction::run($data)?->getKey()
+            ?? ResolveRequestedSectionTypeAction::make()->defaultType()->getKey();
 
         $data['translations'] = $site?->translations->mapWithKeys(fn (Translation $translation): array => [
             (string) Str::uuid() => [
@@ -33,21 +31,5 @@ class MutateContentDataBeforeFillAction
             ->all();
 
         return $data;
-    }
-
-    private function getDefaultType(): Type
-    {
-        /** @var class-string<Type> $model */
-        $model = Type::class;
-
-        $contentType = $model::query()
-            ->where('type', LayoutTypeEnum::Section)
-            ->orderBy('default', 'desc')
-            ->orderBy('id')
-            ->first();
-
-        throw_unless($contentType, Exception::class, 'No default content type found');
-
-        return $contentType;
     }
 }

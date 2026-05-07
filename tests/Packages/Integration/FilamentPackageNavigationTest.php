@@ -21,7 +21,6 @@ use Capell\SeoSuite\Filament\Pages\SeoAuditPage;
 use Capell\SeoSuite\Filament\Pages\TranslationCoveragePage;
 use Capell\Tags\Filament\Resources\Tags\TagResource;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
-use Capell\ThemeStudio\Admin\Filament\Pages\ThemeStudioPage;
 use Composer\InstalledVersions;
 use Filament\Facades\Filament;
 use Filament\Navigation\NavigationGroup;
@@ -37,7 +36,6 @@ it('registers every installed package in the Capell package registry', function 
         'capell-app/migration-assistant',
         'capell-app/blog',
         'capell-app/campaign-studio',
-        'capell-app/block-library',
         'capell-app/content-sections',
         'capell-app/core',
         'capell-app/diagnostics',
@@ -53,8 +51,6 @@ it('registers every installed package in the Capell package registry', function 
         'capell-app/seo-suite',
         'capell-app/search',
         'capell-app/tags',
-        'capell-app/theme-studio-admin',
-        'capell-app/theme-studio-core',
         'capell-app/publishing-studio',
     ];
 
@@ -91,7 +87,6 @@ it('registers installed package admin surfaces before the Filament navigation is
         QueueHealthPage::class,
         SeoAuditPage::class,
         SystemHealthPage::class,
-        ThemeStudioPage::class,
         TranslationCoveragePage::class,
     ];
 
@@ -133,7 +128,6 @@ it('shows installed package admin surfaces in Filament navigation', function ():
         'SEO Audit',
         'System Health',
         'Tags',
-        'Theme Studio',
         'Translation Coverage',
     );
 });

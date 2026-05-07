@@ -114,7 +114,7 @@ class EventsServiceProvider extends AbstractPackageServiceProvider
             label: 'capell-events::generic.events',
             icon: Heroicon::OutlinedCalendarDays,
             position: NavigationGroupPositionEnum::After,
-            relativeTo: 'capell-admin::navigation.group_dashboard',
+            relativeTo: 'capell-admin::navigation.group_content',
         );
 
         return $this;

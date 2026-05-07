@@ -25,7 +25,7 @@
                     style="background-color: {{ $triggerColor }}"
                 ></span>
             @else
-                @svg(Heroicon::OutlinedGlobeAlt->getIconForSize(IconSize::Small), 'h-4 w-4 text-gray-400 dark:text-gray-500')
+                @svg(Heroicon::OutlinedCheckCircle->getIconForSize(IconSize::Small), 'h-4 w-4 text-gray-400 dark:text-gray-500')
             @endif
 
             <span class="max-w-[10rem] truncate font-medium">
@@ -45,7 +45,7 @@
             wire:click="returnToLive"
             @disabled($current === null)
         >
-            @svg(Heroicon::OutlinedGlobeAlt->getIconForSize(IconSize::Small), 'fi-dropdown-list-item-icon h-5 w-5 text-gray-400 dark:text-gray-500')
+            @svg(Heroicon::OutlinedCheckCircle->getIconForSize(IconSize::Small), 'fi-dropdown-list-item-icon h-5 w-5 text-gray-400 dark:text-gray-500')
             {{ __('capell-admin::workspace.switcher.live') }}
             @if ($current === null)
                 @svg(Heroicon::Check->getIconForSize(IconSize::Small), 'text-primary-500 ml-auto h-4 w-4')

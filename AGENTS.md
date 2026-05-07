@@ -41,7 +41,7 @@ Nearly all new Capell packages should be added to this packages repo under `pack
 
 This repo now contains many Capell add-on packages, not just the original short list. Treat `composer.json` and `composer.local.json` PSR-4 autoload entries as the current source of truth for package namespaces and test namespaces.
 
-Common active packages include `layout-builder`, `blog`, `address`, `ai-orchestrator`, `block-library`, `campaign-studio`, `content-sections`, `frontend-authoring`, `login-audit`, `media-ai`, `publishing-studio`, `seo-suite`, `theme-studio-*`, `toolbar`, and others under `packages/`.
+Common active packages include `layout-builder`, `blog`, `address`, `ai-orchestrator`, `campaign-studio`, `content-sections`, `frontend-authoring`, `login-audit`, `media-ai`, `publishing-studio`, `seo-suite`, `theme-studio-*`, `toolbar`, and others under `packages/`.
 
 **Blog requires LayoutBuilder — install LayoutBuilder first.**
 

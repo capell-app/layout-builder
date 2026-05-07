@@ -2,13 +2,13 @@
     "name": "capell-app/theme-corporate",
     "kind": "theme",
     "capell-version": "^4.0",
-    "productGroup": "Capell Theme Studio",
+    "productGroup": "Capell Themes",
     "tier": "premium",
-    "bundle": "theme-studio",
+    "bundle": "themes",
     "themeKey": "corporate",
     "contexts": ["frontend"],
     "extends": "capell-app/foundation-theme",
-    "requires": ["capell-app/foundation-theme", "capell-app/theme-studio-core"],
+    "requires": ["capell-app/foundation-theme"],
     "providers": {
         "shared": [
             "Capell\\ThemeStudio\\Corporate\\CorporateThemeServiceProvider"

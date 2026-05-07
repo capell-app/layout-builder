@@ -13,9 +13,6 @@ use Capell\AdminPreview\Providers\AdminPreviewServiceProvider;
 use Capell\AgentBridge\Filament\Pages\CapellAgentBridgePromptBuilderPage;
 use Capell\AgentBridge\Providers\AgentBridgeServiceProvider;
 use Capell\AgentBridge\Support\CapellAgentBridgeCapabilityRegistry;
-use Capell\BlockLibrary\Filament\Resources\BlockLibrary\ContentBlockResource;
-use Capell\BlockLibrary\Models\ContentBlock;
-use Capell\BlockLibrary\Providers\BlockLibraryServiceProvider;
 use Capell\Blog\Filament\Resources\Articles\ArticleResource;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Providers\BlogServiceProvider;
@@ -92,10 +89,6 @@ use Capell\SeoSuite\Providers\SeoSuiteServiceProvider;
 use Capell\Tags\Filament\Resources\Tags\TagResource;
 use Capell\Tags\Models\Tag;
 use Capell\Tags\Providers\TagsServiceProvider;
-use Capell\ThemeStudio\Admin\Filament\Pages\ThemeStudioPage;
-use Capell\ThemeStudio\Admin\ThemeStudioAdminServiceProvider;
-use Capell\ThemeStudio\Core\Theme\ThemeRegistry;
-use Capell\ThemeStudio\Core\ThemeStudioCoreServiceProvider;
 use Illuminate\Support\Facades\Route;
 
 it('discovers composer-required packages without treating them as installed Capell plugins', function (): void {
@@ -129,7 +122,6 @@ it('registers package metadata but skips runtime models, tables, settings, and a
         MigrationAssistantServiceProvider::$packageName,
         BlogServiceProvider::$packageName,
         CampaignStudioServiceProvider::$packageName,
-        BlockLibraryServiceProvider::$packageName,
         DiagnosticsServiceProvider::$packageName,
         AdminPreviewServiceProvider::$packageName,
         FormBuilderServiceProvider::$packageName,
@@ -140,8 +132,6 @@ it('registers package metadata but skips runtime models, tables, settings, and a
         SeoSuiteServiceProvider::$packageName,
         SearchServiceProvider::$packageName,
         TagsServiceProvider::$packageName,
-        ThemeStudioAdminServiceProvider::$packageName,
-        ThemeStudioCoreServiceProvider::$packageName,
         FrontendAuthoringServiceProvider::$packageName,
         PublishingStudioServiceProvider::$packageName,
     ];
@@ -166,7 +156,6 @@ it('registers package metadata but skips runtime models, tables, settings, and a
         CampaignCtaBlock::class,
         CampaignGroup::class,
         CampaignLandingPage::class,
-        ContentBlock::class,
         Form::class,
         Submission::class,
         CuratorMedia::class,
@@ -215,7 +204,6 @@ it('does not expose admin resources, pages, widgets, or routes for uninstalled p
         CampaignCtaBlockResource::class,
         CampaignGroupResource::class,
         CampaignLandingPageResource::class,
-        ContentBlockResource::class,
         'Capell\\FormBuilder\\Filament\\Resources\\FormBuilder\\FormResource',
         'Capell\\FormBuilder\\Filament\\Resources\\Submissions\\SubmissionResource',
         ImportSessionResource::class,
@@ -238,7 +226,6 @@ it('does not expose admin resources, pages, widgets, or routes for uninstalled p
         MediaHealthPage::class,
         NotFoundUrlsPage::class,
         SeoAuditPage::class,
-        ThemeStudioPage::class,
     );
 
     expect(CapellAdmin::getDashboardWidgets(DashboardEnum::Main))->not->toContain(
@@ -259,8 +246,7 @@ it('does not bind package runtime services for uninstalled packages', function (
     expect(app()->bound(MigrationAssistantContextResolver::class))->toBeFalse()
         ->and(app()->bound(RedirectResolver::class))->toBeFalse()
         ->and(app()->bound(Search::class))->toBeFalse()
-        ->and(app()->bound(CapellAgentBridgeCapabilityRegistry::class))->toBeFalse()
-        ->and(app()->bound(ThemeRegistry::class))->toBeFalse();
+        ->and(app()->bound(CapellAgentBridgeCapabilityRegistry::class))->toBeFalse();
 
     expect(resolve(HtmlMinifier::class))->not->toBeInstanceOf(VokuHtmlMinifier::class);
 

@@ -26,7 +26,7 @@ class SaasThemeServiceProvider extends ServiceProvider
             name: 'SaaS',
             description: 'Conversion-led layouts with product framing, compact proof, and clear feature hierarchy.',
             package: 'capell-app/theme-saas',
-            previewImage: '/vendor/capell/theme-studio/saas-launch.jpg',
+            previewImage: '/vendor/capell/themes/saas-launch.jpg',
             tags: ['Product', 'Conversion', 'Growth'],
             bestFit: ['Software products', 'Startups', 'Subscription services'],
             includedSections: ['navigation', 'hero', 'features', 'proof', 'content-listing', 'cta', 'footer'],
@@ -35,7 +35,7 @@ class SaasThemeServiceProvider extends ServiceProvider
                     key: 'launch',
                     name: 'Launch',
                     description: 'High-conversion product framing with crisp cards and proof near the fold.',
-                    previewImage: '/vendor/capell/theme-studio/saas-launch.jpg',
+                    previewImage: '/vendor/capell/themes/saas-launch.jpg',
                     values: [
                         'primaryColor' => '#6366f1',
                         'accentColor' => '#10b981',
@@ -49,7 +49,7 @@ class SaasThemeServiceProvider extends ServiceProvider
                     key: 'platform',
                     name: 'Platform',
                     description: 'Enterprise SaaS positioning with denser proof and measured motion.',
-                    previewImage: '/vendor/capell/theme-studio/saas-platform.jpg',
+                    previewImage: '/vendor/capell/themes/saas-platform.jpg',
                     values: [
                         'primaryColor' => '#2563eb',
                         'accentColor' => '#14b8a6',
@@ -63,7 +63,7 @@ class SaasThemeServiceProvider extends ServiceProvider
                     key: 'labs',
                     name: 'Labs',
                     description: 'More expressive product storytelling for AI, developer, and beta products.',
-                    previewImage: '/vendor/capell/theme-studio/saas-labs.jpg',
+                    previewImage: '/vendor/capell/themes/saas-labs.jpg',
                     values: [
                         'primaryColor' => '#7c3aed',
                         'accentColor' => '#22d3ee',
@@ -75,7 +75,7 @@ class SaasThemeServiceProvider extends ServiceProvider
                     ],
                 ),
             ],
-            assets: ['css' => 'vendor/capell/theme-studio/saas.css'],
+            assets: ['css' => 'vendor/capell/themes/saas.css'],
         );
     }
 
@@ -103,7 +103,7 @@ class SaasThemeServiceProvider extends ServiceProvider
             definition: self::definition(),
             themeRenderer: new BladeThemeRenderer(
                 themeKey: self::THEME_KEY,
-                layoutView: 'capell-theme-saas::page',
+                layoutView: 'capell::page',
                 sectionRenderers: $sectionRenderers,
             ),
             sectionRenderers: array_values($sectionRenderers),

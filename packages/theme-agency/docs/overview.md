@@ -1,30 +1,31 @@
 # Theme Agency
 
-Status: **Available, no schema impact** · Kind: **theme** · Tier: **premium** · Bundle: **theme-studio** · Contexts: **frontend** · Product group: **Capell Theme Studio**
+Status: **Available, no schema impact** · Kind: **theme** · Tier: **premium** · Bundle: **themes** · Contexts: **frontend** · Product group: **Capell Themes**
 
 This page is the consolidated implementation overview for the Theme Agency package. It is extracted from the package README, service providers, migrations, config files, routes, resources, models, actions, and the shared Capell ERD notes where available.
 
-## What This Plugin Adds
+## What This Package Adds
 
-Theme Agency registers an expressive agency renderer for Capell Theme Studio.
+Theme Agency is a standalone Capell theme package. It registers the `agency` theme key, extends Foundation Theme, and adds expressive renderer views for studio, portfolio, and brand-led sites.
 
 - Agency theme service provider.
-- Theme renderer/views for agency-style Theme Studio output.
-- Dependency on Foundation Theme and Theme Studio Core.
+- Theme renderer/views for agency-style theme output.
+- Dependency on Foundation Theme.
 
 ## Developer Notes
 
-Adds a renderer package that plugs into Theme Studio Core rather than changing Capell core rendering contracts.
+Adds a renderer package that plugs into Foundation Theme rather than changing Capell core rendering contracts.
 
 - AgencyThemeServiceProvider registers the renderer.
-- Requires capell-app/foundation-theme and capell-app/theme-studio-core.
+- `capell.json` declares `themeKey: "agency"` and `extends: "capell-app/foundation-theme"`.
+- Uses shared `capell::...` views for layered fallback.
 - No migrations, config, routes, resources, or models are present.
 
 ## Operational Notes
 
-Provides an agency-focused visual option for sites managed through Theme Studio.
+Provides an agency-focused visual option for sites managed through the normal Theme admin page and install flow.
 
-- Adds an Agency renderer to Theme Studio.
+- Adds an Agency renderer to theme system.
 - No database changes.
 - No admin navigation by itself.
 - No public routes by itself.
@@ -32,18 +33,19 @@ Provides an agency-focused visual option for sites managed through Theme Studio.
 ## Data And Retention
 
 - This package does not own data.
-- It reads Theme Studio runtime data and core page content through Theme Studio Core.
+- It reads theme runtime data and core page content through Foundation Theme.
 
 ## Screenshot Plan
 
-- Theme Studio preset selection showing Agency.
+- Theme preset selection showing Agency.
 - Frontend page rendered with Agency theme.
 - Theme preview URL output.
 
 ## Pitfalls
 
-- Install Theme Studio Core before using this renderer.
+- Install Foundation Theme before using this renderer.
 - Verify frontend assets from Foundation Theme are available.
+- Do not install a Studio metapackage; this package installs independently.
 
 ## Verification
 
@@ -54,12 +56,13 @@ Provides an agency-focused visual option for sites managed through Theme Studio.
 ## Package Manifest
 
 - Composer name: `capell-app/theme-agency`
-- Product group: Capell Theme Studio
+- Theme key: `agency`
+- Product group: Capell Themes
 - Kind: theme
 - Tier: premium
-- Bundle: theme-studio
+- Bundle: themes
 - Contexts: `frontend`
-- Requires: `capell-app/foundation-theme`, `capell-app/theme-studio-core`
+- Requires: `capell-app/foundation-theme`
 - Optional dependencies: None listed.
 
 ## Admin Surfaces
@@ -90,6 +93,6 @@ This package has no committed ERD excerpt. Use implementation notes and extensio
 
 Deployment should read [screenshots.json](screenshots.json), install the package with demo data, resolve each admin surface or frontend URL, and write images to `public/docs/screenshots/packages/theme-agency`.
 
-- Theme Studio preset selection showing Agency.
+- Theme preset selection showing Agency.
 - Frontend page rendered with Agency theme.
 - Theme preview URL output.

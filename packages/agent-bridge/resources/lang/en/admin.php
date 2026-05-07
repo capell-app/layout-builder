@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'prompt_builder_tool' => 'Ask Capell Agent Bridge',
+    'prompt_builder_tool' => 'Ask Capell AI',
     'prompt_builder_navigation' => 'Capell Agent Bridge',
     'prompt_builder_title' => 'Capell Agent Bridge Prompt Builder',
     'intent_section' => 'Prepare the request',

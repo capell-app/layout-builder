@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Capell\StarterSites\Providers;
 
-use Capell\Admin\Support\Extensions\ExtensionsPageActionRegistry;
+use Capell\Admin\Support\CapellAdminManager;
+use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\StarterSites\Console\Commands\AdminDemoCommand;
 use Capell\StarterSites\Console\Commands\DemoCommand;
 use Capell\StarterSites\Console\Commands\FullDemoCommand;
-use Capell\StarterSites\Support\Extensions\StarterSitesActionSchemaRegistry;
-use Capell\StarterSites\Support\Extensions\StarterSitesDemoActionSchema;
-use Capell\StarterSites\Support\Extensions\StarterSitesExtensionsPageActions;
+use Capell\StarterSites\Filament\Pages\StarterSitesPage;
 use Composer\InstalledVersions;
 use Spatie\LaravelPackageTools\Package;
 
@@ -26,6 +25,7 @@ final class StarterSitesServiceProvider extends AbstractPackageServiceProvider
     {
         $package->name(self::$name)
             ->hasConfigFile('capell-starter-sites')
+            ->hasViews(self::$name)
             ->hasTranslations()
             ->hasCommands([
                 DemoCommand::class,
@@ -36,12 +36,6 @@ final class StarterSitesServiceProvider extends AbstractPackageServiceProvider
 
     public function registeringPackage(): void
     {
-        $this->app->singleton(StarterSitesActionSchemaRegistry::class);
-
-        if (class_exists(ExtensionsPageActionRegistry::class)) {
-            resolve(StarterSitesExtensionsPageActions::class)->register(resolve(ExtensionsPageActionRegistry::class));
-        }
-
         CapellCore::registerPackage(
             self::$packageName,
             type: self::getType(),
@@ -57,8 +51,51 @@ final class StarterSitesServiceProvider extends AbstractPackageServiceProvider
         $package->demoCommand = 'capell:starter-sites-full-demo';
         $package->demoParams = ['url', 'user', 'languages', 'sites', 'force'];
 
-        resolve(StarterSitesActionSchemaRegistry::class)
-            ->register('demo', fn (): array => resolve(StarterSitesDemoActionSchema::class)->schema());
+        $this->registerAdminPanelExtensions();
+    }
+
+    private function registerAdminPanelExtensions(): void
+    {
+        $this->registerExtensionPageRegistry();
+        $this->registerAdminSurfacePage();
+    }
+
+    private function registerExtensionPageRegistry(): void
+    {
+        if (! class_exists(ExtensionPageRegistry::class)) {
+            return;
+        }
+
+        $registerExtensionPage = static function (ExtensionPageRegistry $extensionPageRegistry): void {
+            $extensionPageRegistry->register(self::$packageName, StarterSitesPage::class);
+        };
+
+        $this->app->afterResolving(ExtensionPageRegistry::class, $registerExtensionPage);
+
+        if ($this->app->resolved(ExtensionPageRegistry::class)) {
+            $registerExtensionPage($this->app->make(ExtensionPageRegistry::class));
+        }
+    }
+
+    private function registerAdminSurfacePage(): void
+    {
+        if (! class_exists(CapellAdminManager::class)) {
+            return;
+        }
+
+        $registerExtensionPage = static function (CapellAdminManager $capellAdminManager): void {
+            if (! method_exists($capellAdminManager, 'registerExtensionPage')) {
+                return;
+            }
+
+            $capellAdminManager->registerExtensionPage(self::$packageName, StarterSitesPage::class);
+        };
+
+        $this->app->afterResolving(CapellAdminManager::class, $registerExtensionPage);
+
+        if ($this->app->resolved(CapellAdminManager::class)) {
+            $registerExtensionPage($this->app->make(CapellAdminManager::class));
+        }
     }
 
     private function getVersion(): string

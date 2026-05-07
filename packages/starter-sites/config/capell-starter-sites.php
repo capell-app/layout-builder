@@ -3,8 +3,6 @@
 declare(strict_types=1);
 
 return [
-    'extensions_page_action_enabled' => null,
-
     'archive' => [
         'url' => 'https://capell.app/demo.zip',
         'checksum' => 'cf39f86a46f45bc9246352472dbbc39f70d79ee52de06e3c04f51b58fb436957',

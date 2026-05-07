@@ -28,6 +28,22 @@ use Illuminate\Database\Eloquent\Scope;
  */
 final class WorkspaceContextScope implements Scope
 {
+    /**
+     * @var array<string, bool>
+     */
+    private static array $workspaceColumnCache = [];
+
+    /**
+     * @var array<string, bool>
+     */
+    private static array $workspaceColumnCachePrimed = [];
+
+    public static function flushWorkspaceColumnCache(): void
+    {
+        self::$workspaceColumnCache = [];
+        self::$workspaceColumnCachePrimed = [];
+    }
+
     public function apply(Builder $builder, Model $model): void
     {
         if (! $this->modelHasWorkspaceColumns($model)) {
@@ -61,10 +77,87 @@ final class WorkspaceContextScope implements Scope
 
     private function modelHasWorkspaceColumns(Model $model): bool
     {
-        $schema = $model->getConnection()->getSchemaBuilder();
+        $connection = $model->getConnection();
         $table = $model->getTable();
+        $cacheKey = implode(':', [
+            $connection->getName(),
+            $connection->getDatabaseName(),
+            $table,
+        ]);
 
-        return $schema->hasColumn($table, 'workspace_id')
-            && $schema->hasColumn($table, 'shadowed_by_workspace_id');
+        if (array_key_exists($cacheKey, self::$workspaceColumnCache)) {
+            return self::$workspaceColumnCache[$cacheKey];
+        }
+
+        $this->primeWorkspaceColumnCache($model);
+
+        if (array_key_exists($cacheKey, self::$workspaceColumnCache)) {
+            return self::$workspaceColumnCache[$cacheKey];
+        }
+
+        $schema = $connection->getSchemaBuilder();
+
+        return self::$workspaceColumnCache[$cacheKey] = $schema->hasColumns($table, [
+            'workspace_id',
+            'shadowed_by_workspace_id',
+        ]);
+    }
+
+    private function primeWorkspaceColumnCache(Model $model): void
+    {
+        $connection = $model->getConnection();
+
+        if ($connection->getDriverName() !== 'mysql') {
+            return;
+        }
+
+        $databaseName = $connection->getDatabaseName();
+        $connectionName = $connection->getName();
+        $primeKey = $connectionName . ':' . $databaseName;
+
+        if (isset(self::$workspaceColumnCachePrimed[$primeKey])) {
+            return;
+        }
+
+        self::$workspaceColumnCachePrimed[$primeKey] = true;
+
+        $modelConnectionName = $model->getConnectionName();
+        $tablesByCacheKey = [];
+
+        foreach (WorkspaceRegistry::modelClasses() as $modelClass) {
+            $candidate = new $modelClass;
+
+            if ($candidate->getConnectionName() !== $modelConnectionName) {
+                continue;
+            }
+
+            $candidateTable = $candidate->getTable();
+
+            $tablesByCacheKey[$connectionName . ':' . $databaseName . ':' . $candidateTable] = $candidateTable;
+        }
+
+        if ($tablesByCacheKey === []) {
+            return;
+        }
+
+        $columns = $connection->table('information_schema.columns')
+            ->select(['table_name', 'column_name'])
+            ->where('table_schema', $databaseName)
+            ->whereIn('table_name', array_values($tablesByCacheKey))
+            ->whereIn('column_name', ['workspace_id', 'shadowed_by_workspace_id'])
+            ->get();
+
+        $columnsByTable = [];
+
+        foreach ($columns as $column) {
+            $columnsByTable[(string) $column->table_name][(string) $column->column_name] = true;
+        }
+
+        foreach ($tablesByCacheKey as $cacheKey => $table) {
+            self::$workspaceColumnCache[$cacheKey] = isset(
+                $columnsByTable[$table]['workspace_id'],
+                $columnsByTable[$table]['shadowed_by_workspace_id'],
+            );
+        }
     }
 }

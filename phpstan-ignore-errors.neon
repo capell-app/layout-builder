@@ -63,7 +63,6 @@ parameters:
         # Filament table arguments are available on concrete table Livewire components, not on the HasTable contract.
         - message: '#Call to an undefined method Filament\\Tables\\Contracts\\HasTable::getTableArguments\(\)#'
           paths:
-              - packages/block-library/src/Filament/Resources/BlockLibrary/Tables/ContentBlockSelectionTable.php
               - packages/content-sections/src/Filament/Resources/Sections/Tables/SectionSelectionTable.php
               - packages/layout-builder/src/Filament/Resources/Pages/Tables/PageSelectionTable.php
 

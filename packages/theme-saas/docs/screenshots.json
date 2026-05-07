@@ -6,8 +6,8 @@
     "outputDirectory": "public/docs/screenshots/packages/theme-saas",
     "entries": [
         {
-            "id": "theme-studio-preset-selection-showing-saas",
-            "title": "Theme Studio preset selection showing SaaS.",
+            "id": "theme-preset-selection-showing-saas",
+            "title": "Theme preset selection showing SaaS.",
             "package": "theme-saas",
             "surface": "admin",
             "targetType": "admin-surface",

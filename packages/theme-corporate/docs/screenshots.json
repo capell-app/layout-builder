@@ -6,8 +6,8 @@
     "outputDirectory": "public/docs/screenshots/packages/theme-corporate",
     "entries": [
         {
-            "id": "theme-studio-preset-selection-showing-corporate",
-            "title": "Theme Studio preset selection showing Corporate.",
+            "id": "theme-preset-selection-showing-corporate",
+            "title": "Theme preset selection showing Corporate.",
             "package": "theme-corporate",
             "surface": "admin",
             "targetType": "admin-surface",

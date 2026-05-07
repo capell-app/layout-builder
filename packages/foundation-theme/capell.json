@@ -1,6 +1,7 @@
 {
     "name": "capell-app/foundation-theme",
     "kind": "theme",
+    "themeKey": "default",
     "capell-version": "^4.0",
     "productGroup": "Capell Foundation",
     "tier": "free",

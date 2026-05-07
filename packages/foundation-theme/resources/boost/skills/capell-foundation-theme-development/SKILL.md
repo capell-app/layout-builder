@@ -15,7 +15,7 @@ Default frontend theme infrastructure: Blade components, Tailwind assets, URL he
 
 ## Rules
 
-- Keep components generic; branded renderers belong in Theme Studio packages.
+- Keep components generic; branded renderers belong in theme packages.
 - Preserve safe output rules for Blade and SVG media.
 - Theme settings must remain optional and migration-safe.
 - Run `vendor/bin/pest packages/foundation-theme/tests`.

@@ -25,6 +25,8 @@ class AdminServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadTranslationsFrom(__DIR__ . '/../../resources/lang', 'capell-newsletter');
+
         if (! $this->isPackageInstalled()) {
             return;
         }

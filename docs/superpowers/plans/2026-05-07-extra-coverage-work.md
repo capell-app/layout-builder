@@ -47,8 +47,8 @@ php -r '$xml=simplexml_load_file("coverage/{package}-clover.xml"); $rows=[]; for
 ## Global Rules For All Sub-Agents
 
 - Before editing, run `git status --short`. Preserve unrelated work, especially the current unrelated navigation changes:
-  - `packages/navigation/resources/views/components/page/navigations.blade.php`
-  - `packages/navigation/tests/Feature/Filament/Resources/Page/`
+    - `packages/navigation/resources/views/components/page/navigations.blade.php`
+    - `packages/navigation/tests/Feature/Filament/Resources/Page/`
 - Each sub-agent owns only the package paths assigned in its task.
 - Do not modify source code unless a test exposes a real defect and the fix is package-local.
 - Do not add tests that only assert enum cases, DTO constructor storage, translation strings, or Filament component arrays.
@@ -62,18 +62,17 @@ php -r '$xml=simplexml_load_file("coverage/{package}-clover.xml"); $rows=[]; for
 
 These workstreams can run in parallel because their write sets are disjoint:
 
-| Workstream | Package | Write Scope | Expected Covered Statement Gain |
-| --- | --- | --- | ---: |
-| A | `media-library` | `packages/media-library/tests/**` | 250-350 |
-| B | `publishing-studio` | `packages/publishing-studio/tests/**` | 350-550 |
-| C | `frontend-authoring` | `packages/frontend-authoring/tests/**` | 100-160 |
-| D | `login-audit` | `packages/login-audit/tests/**` | 80-140 |
-| E | `migration-assistant` | `packages/migration-assistant/tests/**` | 80-130 |
-| F | `redirects` | `packages/redirects/tests/**` | 70-120 |
-| G | `newsletter` | `packages/newsletter/tests/**` | 150-250 |
-| H | `layout-builder` | `packages/layout-builder/tests/**` | 300-500 |
-| I | `block-library` | `packages/block-library/tests/**` | 300-500 |
-| J | `seo-suite` | `packages/seo-suite/tests/**` | 300-500 |
+| Workstream | Package               | Write Scope                             | Expected Covered Statement Gain |
+| ---------- | --------------------- | --------------------------------------- | ------------------------------: |
+| A          | `media-library`       | `packages/media-library/tests/**`       |                         250-350 |
+| B          | `publishing-studio`   | `packages/publishing-studio/tests/**`   |                         350-550 |
+| C          | `frontend-authoring`  | `packages/frontend-authoring/tests/**`  |                         100-160 |
+| D          | `login-audit`         | `packages/login-audit/tests/**`         |                          80-140 |
+| E          | `migration-assistant` | `packages/migration-assistant/tests/**` |                          80-130 |
+| F          | `redirects`           | `packages/redirects/tests/**`           |                          70-120 |
+| G          | `newsletter`          | `packages/newsletter/tests/**`          |                         150-250 |
+| H          | `layout-builder`      | `packages/layout-builder/tests/**`      |                         300-500 |
+| J          | `seo-suite`           | `packages/seo-suite/tests/**`           |                         300-500 |
 
 Do A-G first. If the full report is still below 70%, continue with H-J. H-J contain many large Filament/configurator files, so tests must be through existing higher-level UI/resource behavior or rendered widget behavior, not component tree snapshots.
 
@@ -82,11 +81,13 @@ Do A-G first. If the full report is still below 70%, continue with H-J. H-J cont
 ## Task A: Media Library Migration And Health Coverage
 
 **Files:**
+
 - Modify: `packages/media-library/tests/Integration/MigrateSpatieToCuratorCommandTest.php`
 - Create or modify: `packages/media-library/tests/Integration/MediaHealthTest.php`
 - Do not modify: `packages/media-library/src/**` unless a real bug is proven.
 
 **Targets from Clover:**
+
 - `packages/media-library/src/Actions/MigrateSpatieMediaToCuratorAction.php` (`199` zero statements)
 - `packages/media-library/src/Actions/DashboardReports/BuildMediaHealthQueryAction.php` (`87` zero statements)
 - `packages/media-library/src/Concerns/InteractsWithCuratorMedia.php` (`43` zero statements)
@@ -161,10 +162,12 @@ git commit -m "test: cover media library migration health"
 ## Task B: Publishing Studio Dashboard And Import Coverage
 
 **Files:**
+
 - Create or modify tests under `packages/publishing-studio/tests/**`.
 - Do not modify other packages.
 
 **Targets from Clover:**
+
 - `packages/publishing-studio/src/Actions/Imports/AdvancePageImportToValidationAction.php` (`169`)
 - `packages/publishing-studio/src/Actions/Dashboard/BuildContentHealthAction.php` (`91`)
 - `packages/publishing-studio/src/Actions/Dashboard/BuildMyWorkQueueAction.php` (`85`)
@@ -232,10 +235,12 @@ git commit -m "test: cover publishing studio dashboard imports"
 ## Task C: Frontend Authoring Safety Coverage
 
 **Files:**
+
 - Create or modify tests under `packages/frontend-authoring/tests/**`.
 - Do not modify public frontend Blade unless a security leak is found and proven.
 
 **Targets from Clover:**
+
 - `packages/frontend-authoring/src/Livewire/EditRegionField.php` (`44`)
 - `packages/frontend-authoring/src/Actions/ClearAffectedCachedUrlsAction.php` (`28`)
 - `packages/frontend-authoring/src/Actions/UpdateEditableRegionAction.php` (`20`)
@@ -291,9 +296,11 @@ git commit -m "test: cover frontend authoring region safety"
 ## Task D: Login Audit Middleware And Dashboard Query Coverage
 
 **Files:**
+
 - Create or modify tests under `packages/login-audit/tests/**`.
 
 **Targets from Clover:**
+
 - `packages/login-audit/src/Http/Middleware/AdminActivityMiddleware.php` (`24`)
 - `packages/login-audit/src/Http/Middleware/UserActivityMiddleware.php` (`19`)
 - `packages/login-audit/src/Actions/BuildLoginAuditsQueryAction.php` (`5`)
@@ -337,9 +344,11 @@ git commit -m "test: cover login audit activity tracking"
 ## Task E: Migration Assistant Relation Resolution Coverage
 
 **Files:**
+
 - Create or modify tests under `packages/migration-assistant/tests/**`.
 
 **Targets from Clover:**
+
 - `packages/migration-assistant/src/Actions/BuildRelationResolveRowsAction.php` (`42`)
 - `packages/migration-assistant/src/Services/Import/Resolvers/MediaMatchResolver.php` (`17`)
 - `packages/migration-assistant/src/Support/AdminPageExporter.php` (`10`)
@@ -377,9 +386,11 @@ git commit -m "test: cover migration assistant relation resolution"
 ## Task F: Redirects Action And Policy Coverage
 
 **Files:**
+
 - Create or modify tests under `packages/redirects/tests/**`.
 
 **Targets from Clover:**
+
 - `packages/redirects/src/Actions/RefreshRedirectHealthSnapshotsAction.php` (`12`)
 - `packages/redirects/src/Support/FrontendRedirectResolver.php` (`5`)
 - `packages/redirects/src/Policies/RedirectPolicy.php` (`25`)
@@ -417,9 +428,11 @@ git commit -m "test: cover redirects resolution health"
 ## Task G: Newsletter Segment And Resource Behavior Coverage
 
 **Files:**
+
 - Create or modify tests under `packages/newsletter/tests/**`.
 
 **Targets from Clover:**
+
 - `packages/newsletter/src/Actions/EvaluateNewsletterSegmentAction.php` (`24`)
 - `packages/newsletter/src/Filament/Resources/*` large resource classes, only through resource/page behavior.
 
@@ -462,9 +475,11 @@ git commit -m "test: cover newsletter segment behavior"
 ## Task H: Layout Builder Upstream UI Coverage
 
 **Files:**
+
 - Create or modify tests under `packages/layout-builder/tests/**`.
 
 **Targets from Clover:**
+
 - `packages/layout-builder/src/Filament/Resources/Widgets/Tables/WidgetAssetsTable.php` (`156`)
 - `packages/layout-builder/src/Filament/Components/Forms/WidgetSelect.php` (`78`)
 - `packages/layout-builder/src/Filament/Components/Forms/CarouselSettingsSchema.php` (`48`)
@@ -518,23 +533,16 @@ git commit -m "test: cover layout builder widget workflows"
 ## Task I: Block Library Upstream UI Coverage
 
 **Files:**
-- Create or modify tests under `packages/block-library/tests/**`.
 
 **Targets from Clover:**
-- `packages/block-library/src/Filament/Configurators/BlockLibrary/PopularContentBlockConfigurator.php` (`321`)
-- `packages/block-library/src/Filament/Resources/BlockLibrary/Tables/BlockLibraryTable.php` (`263`)
-- `packages/block-library/src/Filament/Components/Forms/AssetsRepeater.php` (`160`)
-- `packages/block-library/src/Filament/Components/Forms/ContentSelect.php` (`142`)
+
 - Other block configurators.
 
 - [ ] **Step 1: Find existing rendering and resource tests**
 
 ```bash
-rg "ContentBlock|BlockLibraryTable|AssetsRepeater|ContentSelect|PopularContentBlockConfigurator" packages/block-library/tests packages/block-library/src -n
-rg --files packages/block-library/tests | sort
-```
 
-- [ ] **Step 2: Cover BlockLibraryTable through resource page behavior**
+```
 
 Add or extend a resource test that:
 
@@ -564,9 +572,6 @@ Do not assert raw configurator schema arrays.
 - [ ] **Step 5: Verify and commit**
 
 ```bash
-vendor/bin/pest packages/block-library/tests --configuration=phpunit.xml
-php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=. -d pcov.exclude='~vendor|tests|storage|bootstrap|.temp~' vendor/bin/pest packages/block-library/tests --coverage --coverage-clover=coverage/block-library-clover.xml --colors=always --configuration=phpunit.xml
-git add packages/block-library/tests
 git commit -m "test: cover block library workflows"
 ```
 
@@ -575,9 +580,11 @@ git commit -m "test: cover block library workflows"
 ## Task J: SEO Suite Admin And Report Coverage
 
 **Files:**
+
 - Create or modify tests under `packages/seo-suite/tests/**`.
 
 **Targets from Clover:**
+
 - `packages/seo-suite/src/Support/Admin/PageTitleWithSlugInputExtender.php` (`130`)
 - `packages/seo-suite/src/Support/Admin/SearchMetaDataSectionExtender.php` (`125`)
 - `packages/seo-suite/src/Support/Admin/PageContentEditorConfigurator.php` (`101`)
@@ -691,7 +698,7 @@ Do not mark a file skipped just because setup is hard. Skip only when the result
 - Each package batch has its own commit.
 - No unrelated navigation changes were staged or reverted.
 - Final handoff lists:
-  - coverage before/after,
-  - package commits,
-  - remaining high-statement zero files,
-  - skipped rationale.
+    - coverage before/after,
+    - package commits,
+    - remaining high-statement zero files,
+    - skipped rationale.

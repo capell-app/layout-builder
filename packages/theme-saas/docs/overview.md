@@ -1,30 +1,31 @@
 # Theme SaaS
 
-Status: **Available, no schema impact** · Kind: **theme** · Tier: **premium** · Bundle: **theme-studio** · Contexts: **frontend** · Product group: **Capell Theme Studio**
+Status: **Available, no schema impact** · Kind: **theme** · Tier: **premium** · Bundle: **themes** · Contexts: **frontend** · Product group: **Capell Themes**
 
 This page is the consolidated implementation overview for the Theme SaaS package. It is extracted from the package README, service providers, migrations, config files, routes, resources, models, actions, and the shared Capell ERD notes where available.
 
-## What This Plugin Adds
+## What This Package Adds
 
-Theme SaaS registers a conversion-led SaaS renderer for Capell Theme Studio.
+Theme SaaS is a standalone Capell theme package. It registers the `saas` theme key, extends Foundation Theme, and adds product-focused renderer views for software and subscription sites.
 
 - SaaS theme service provider.
-- Theme renderer/views for SaaS Theme Studio output.
-- Dependency on Foundation Theme and Theme Studio Core.
+- Theme renderer/views for SaaS theme output.
+- Dependency on Foundation Theme.
 
 ## Developer Notes
 
-Adds a renderer package that uses Theme Studio Core runtime contracts while leaving content models unchanged.
+Adds a renderer package that uses Foundation Theme runtime contracts while leaving content models unchanged.
 
 - SaasThemeServiceProvider registers the renderer.
-- Requires capell-app/foundation-theme and capell-app/theme-studio-core.
+- `capell.json` declares `themeKey: "saas"` and `extends: "capell-app/foundation-theme"`.
+- Uses shared `capell::...` views for layered fallback.
 - No migrations, config, routes, resources, or models are present.
 
 ## Operational Notes
 
-Provides a SaaS-oriented visual option for product sites managed through Theme Studio.
+Provides a SaaS-oriented visual option for product sites managed through the normal Theme admin page and install flow.
 
-- Adds a SaaS renderer to Theme Studio.
+- Adds a SaaS renderer to theme system.
 - No database changes.
 - No admin navigation by itself.
 - No public routes by itself.
@@ -32,18 +33,19 @@ Provides a SaaS-oriented visual option for product sites managed through Theme S
 ## Data And Retention
 
 - This package does not own data.
-- It consumes Theme Studio runtime settings and core page content.
+- It consumes theme runtime settings and core page content.
 
 ## Screenshot Plan
 
-- Theme Studio preset selection showing SaaS.
+- Theme preset selection showing SaaS.
 - Frontend page rendered with SaaS theme.
 - Theme preview URL output.
 
 ## Pitfalls
 
-- Install Theme Studio Core before using this renderer.
+- Install Foundation Theme before using this renderer.
 - Verify Foundation Theme assets are generated.
+- Do not install a Studio metapackage; this package installs independently.
 
 ## Verification
 
@@ -54,12 +56,13 @@ Provides a SaaS-oriented visual option for product sites managed through Theme S
 ## Package Manifest
 
 - Composer name: `capell-app/theme-saas`
-- Product group: Capell Theme Studio
+- Theme key: `saas`
+- Product group: Capell Themes
 - Kind: theme
 - Tier: premium
-- Bundle: theme-studio
+- Bundle: themes
 - Contexts: `frontend`
-- Requires: `capell-app/foundation-theme`, `capell-app/theme-studio-core`
+- Requires: `capell-app/foundation-theme`
 - Optional dependencies: None listed.
 
 ## Admin Surfaces
@@ -90,6 +93,6 @@ This package has no committed ERD excerpt. Use implementation notes and extensio
 
 Deployment should read [screenshots.json](screenshots.json), install the package with demo data, resolve each admin surface or frontend URL, and write images to `public/docs/screenshots/packages/theme-saas`.
 
-- Theme Studio preset selection showing SaaS.
+- Theme preset selection showing SaaS.
 - Frontend page rendered with SaaS theme.
 - Theme preview URL output.

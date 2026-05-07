@@ -11,8 +11,10 @@ use Capell\Admin\Data\AdminAssetData;
 use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\ConfiguratorTypeEnum as AdminConfiguratorTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\ContentSections\Actions\RegisterDefaultSectionsAction;
+use Capell\ContentSections\Actions\RegisterSectionDefinitionProviderAction;
+use Capell\ContentSections\Contracts\SectionDefinitionProvider;
 use Capell\ContentSections\Enums\AssetEnum;
-use Capell\ContentSections\Enums\ConfiguratorTypeEnum;
 use Capell\ContentSections\Enums\FrontendComponentKeyEnum;
 use Capell\ContentSections\Enums\LayoutTypeEnum;
 use Capell\ContentSections\Enums\LivewireComponentsEnum;
@@ -20,6 +22,7 @@ use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Configurators\Types\ContentTypeConfigurator;
 use Capell\ContentSections\Models\Section;
 use Capell\ContentSections\Support\ContentSectionsModelRegistrar;
+use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Data\PageTypeData;
@@ -82,6 +85,7 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
     {
         return $this
             ->registerModels()
+            ->registerSectionRegistry()
             ->registerRelationships()
             ->registerResources()
             ->registerConfigurators()
@@ -97,6 +101,25 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
     private function registerModels(): self
     {
         ContentSectionsModelRegistrar::register();
+
+        return $this;
+    }
+
+    private function registerSectionRegistry(): self
+    {
+        $this->app->singleton(SectionRegistry::class);
+
+        $this->callAfterResolving(SectionRegistry::class, function (SectionRegistry $registry): void {
+            RegisterDefaultSectionsAction::run($registry);
+
+            foreach ($this->app->tagged(SectionDefinitionProvider::TAG) as $provider) {
+                if (! $provider instanceof SectionDefinitionProvider) {
+                    continue;
+                }
+
+                RegisterSectionDefinitionProviderAction::run($registry, $provider);
+            }
+        });
 
         return $this;
     }
@@ -128,16 +151,14 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
 
     private function registerConfigurators(): self
     {
-        foreach (ConfiguratorTypeEnum::getAllConfigurators() as $type => $configurators) {
-            foreach ($configurators as $configurator) {
-                $configuratorClass = $configurator instanceof BackedEnum ? $configurator->value : $configurator;
-
-                CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
-                    class: $configuratorClass,
-                    group: $type,
-                    name: $configuratorClass::getKey(),
-                ));
-            }
+        foreach (resolve(SectionRegistry::class)->all() as $definition) {
+            CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
+                class: $definition->configurator,
+                group: $definition->configuratorType instanceof BackedEnum
+                    ? (string) $definition->configuratorType->value
+                    : $definition->configuratorType->getName(),
+                name: $definition->configurator::getKey(),
+            ));
         }
 
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(

@@ -13,7 +13,6 @@ it('ships Laravel Boost guidelines for every package and skills only where usefu
         'backup',
         'blog',
         'campaign-studio',
-        'block-library',
         'foundation-theme',
         'deployments',
         'diagnostics',
@@ -26,8 +25,6 @@ it('ships Laravel Boost guidelines for every package and skills only where usefu
         'seo-suite',
         'search',
         'tags',
-        'theme-studio-admin',
-        'theme-studio-core',
         'publishing-studio',
     ];
 

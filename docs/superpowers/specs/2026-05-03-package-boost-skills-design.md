@@ -40,7 +40,6 @@ Ship package skills for:
 - `migration-assistant`
 - `blog`
 - `campaign-studio`
-- `block-library`
 - `foundation-theme`
 - `deployments`
 - `diagnostics`

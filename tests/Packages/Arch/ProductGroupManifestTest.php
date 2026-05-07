@@ -13,7 +13,7 @@ it('keeps every package manifest in an approved product group', function (): voi
         'operations' => ['productGroup' => 'Capell Operations', 'tier' => 'premium'],
         'growth' => ['productGroup' => 'Capell Growth', 'tier' => 'premium'],
         'search-seo' => ['productGroup' => 'Capell Search & SEO', 'tier' => 'premium'],
-        'theme-studio' => ['productGroup' => 'Capell Theme Studio', 'tier' => 'premium'],
+        'themes' => ['productGroup' => 'Capell Themes', 'tier' => 'premium'],
     ];
 
     $manifests = packageManifestPayloads();
@@ -73,15 +73,15 @@ it('groups packages into the current product bundles', function (): void {
         'foundation' => [
             'address/capell.json',
             'blog/capell.json',
-            'block-library/capell.json',
+            'content-sections/capell.json',
             'foundation-theme/capell.json',
+            'frontend-authoring/capell.json',
             'html-optimizer/capell.json',
-            'media-library/capell.json',
             'layout-builder/capell.json',
+            'media-library/capell.json',
             'navigation/capell.json',
             'redirects/capell.json',
             'tags/capell.json',
-            'frontend-authoring/capell.json',
         ],
         'growth' => [
             'insights/capell.json',
@@ -102,13 +102,10 @@ it('groups packages into the current product bundles', function (): void {
             'seo-suite/capell.json',
             'search/capell.json',
         ],
-        'theme-studio' => [
+        'themes' => [
             'theme-agency/capell.json',
             'theme-corporate/capell.json',
             'theme-saas/capell.json',
-            'theme-studio-admin/capell.json',
-            'theme-studio-core/capell.json',
-            'theme-studio/capell.json',
         ],
     ]);
 });

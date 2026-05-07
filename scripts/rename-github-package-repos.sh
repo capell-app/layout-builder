@@ -12,7 +12,6 @@ migrator migration-assistant
 analytics insights
 google-analytics ga4-reports
 developer-tools diagnostics
-content-blocks block-library
 campaigns campaign-studio
 forms form-builder
 site-search search

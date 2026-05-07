@@ -1,20 +1,20 @@
 # Theme Agency
 
-Status: **Available, no schema impact** · Kind: **theme** · Tier: **premium** · Bundle: **theme-studio** · Contexts: **frontend** · Product group: **Capell Theme Studio**
+Status: **Available, no schema impact** · Kind: **theme** · Tier: **premium** · Bundle: **themes** · Contexts: **frontend** · Product group: **Capell Themes**
 
-## What This Plugin Adds
+## What This Package Adds
 
-Theme Agency registers an expressive agency renderer for Capell Theme Studio.
+Theme Agency is a standalone Capell theme package. It registers the `agency` theme key, extends Foundation Theme, and adds expressive renderer views for studio, portfolio, and brand-led sites.
 
 - Agency theme service provider.
-- Theme renderer/views for agency-style Theme Studio output.
-- Dependency on Foundation Theme and Theme Studio Core.
+- Theme renderer/views for agency-style theme output.
+- Dependency on Foundation Theme.
 
 ## Why It Matters
 
-**For developers:** Adds a renderer package that plugs into Theme Studio Core rather than changing Capell core rendering contracts.
+**For developers:** Adds a renderer package that plugs into Foundation Theme rather than changing Capell core rendering contracts.
 
-**For teams:** Provides an agency-focused visual option for sites managed through Theme Studio.
+**For teams:** Provides an agency-focused visual option for sites managed through the normal Theme admin page and install flow.
 
 ## Built With
 
@@ -24,7 +24,6 @@ This package makes its Composer dependencies visible because they are part of th
 
 - [Capell Core](https://github.com/capell-app/core)
 - [Capell Foundation Theme](../foundation-theme/README.md)
-- [Capell Theme Studio Core](../theme-studio-core/README.md)
 
 **Open-source packages used here**
 
@@ -34,24 +33,25 @@ This package makes its Composer dependencies visible because they are part of th
 
 Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) during package deployment.
 
-- Theme Studio preset selection showing Agency.
+- Theme preset selection showing Agency.
 - Frontend page rendered with Agency theme.
 - Theme preview URL output.
 
 ## Technical Shape
 
 - AgencyThemeServiceProvider registers the renderer.
-- Requires capell-app/foundation-theme and capell-app/theme-studio-core.
+- `capell.json` declares `themeKey: "agency"` and `extends: "capell-app/foundation-theme"`.
+- Uses shared `capell::...` views for layered fallback.
 - No migrations, config, routes, resources, or models are present.
 
 ## Data Model
 
 - This package does not own data.
-- It reads Theme Studio runtime data and core page content through Theme Studio Core.
+- It reads theme runtime data and core page content through Foundation Theme.
 
 ## Install Impact
 
-- Adds an Agency renderer to Theme Studio.
+- Adds an Agency renderer to theme system.
 - No database changes.
 - No admin navigation by itself.
 - No public routes by itself.
@@ -64,22 +64,21 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 
 - None proven in this package directory.
 
-- None proven in this package directory.
-
 ## Common Pitfalls
 
-- Install Theme Studio Core before using this renderer.
+- Install Foundation Theme before using this renderer.
 - Verify frontend assets from Foundation Theme are available.
+- Do not install a Studio metapackage; this package installs independently.
 
 ## Quick Start
 
 1. Install the package with `composer require capell-app/theme-agency`.
-2. Register the package provider through Composer discovery and clear cached config if the host app uses config caching.
-3. Open the new admin surface or integration point and verify the result.
+2. Choose `agency` during `capell:install`, the web installer, or from the Theme admin page after install.
+3. Generate or publish frontend assets through the host app flow.
 
 ## Next Steps
 
 - [docs/overview.md](docs/overview.md)
-- [../theme-studio-core/README.md](../theme-studio-core/README.md)
-- [../theme-studio-admin/README.md](../theme-studio-admin/README.md)
+- [../../docs/creating-a-theme.md](../../docs/creating-a-theme.md)
+- [../foundation-theme/README.md](../foundation-theme/README.md)
 - [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)

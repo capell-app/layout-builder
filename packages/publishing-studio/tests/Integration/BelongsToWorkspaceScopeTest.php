@@ -5,12 +5,17 @@ declare(strict_types=1);
 use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\Tests\Integration\Fixtures\WorkspaceDraftableFixture;
 use Capell\PublishingStudio\WorkspaceContext;
+use Capell\PublishingStudio\WorkspaceContextScope;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 beforeEach(function (): void {
+    WorkspaceContextScope::flushWorkspaceColumnCache();
+
     Schema::create('workspace_draftable_fixtures', function (Blueprint $table): void {
         $table->id();
         $table->unsignedBigInteger('workspace_id')->default(0)->index();
@@ -26,6 +31,7 @@ beforeEach(function (): void {
 afterEach(function (): void {
     Schema::dropIfExists('workspace_draftable_fixtures');
     WorkspaceContext::clear();
+    WorkspaceContextScope::flushWorkspaceColumnCache();
 });
 
 function makeDraftableRow(int $workspaceId, string $name): WorkspaceDraftableFixture
@@ -50,6 +56,7 @@ it('filters to live rows by default when no workspace is active', function (): v
 
 it('skips workspace filtering before workspace columns are migrated', function (): void {
     Schema::dropIfExists('workspace_draftable_fixtures');
+    WorkspaceContextScope::flushWorkspaceColumnCache();
 
     Schema::create('workspace_draftable_fixtures', function (Blueprint $table): void {
         $table->id();
@@ -72,6 +79,27 @@ it('skips workspace filtering before workspace columns are migrated', function (
     $rows = WorkspaceDraftableFixture::query()->pluck('name')->all();
 
     expect($rows)->toBe(['pending-migration']);
+});
+
+it('memoizes workspace column detection per table', function (): void {
+    $schemaInspectionQueries = 0;
+
+    DB::listen(function (QueryExecuted $query) use (&$schemaInspectionQueries): void {
+        $sql = strtolower($query->sql);
+
+        if (
+            str_contains($sql, 'workspace_draftable_fixtures')
+            && (str_contains($sql, 'information_schema.columns') || str_contains($sql, 'pragma'))
+        ) {
+            $schemaInspectionQueries++;
+        }
+    });
+
+    WorkspaceDraftableFixture::query()->count();
+    WorkspaceDraftableFixture::query()->count();
+    WorkspaceDraftableFixture::query()->count();
+
+    expect($schemaInspectionQueries)->toBe(1);
 });
 
 it('unions live and active workspace rows when a workspace is active', function (): void {

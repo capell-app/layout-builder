@@ -23,15 +23,15 @@ Tags and Media Library are Foundation packages because taxonomy and media manage
 
 ## Premium Groups
 
-| Product group         | Bundle key       | Packages                                                                         |
-| --------------------- | ---------------- | -------------------------------------------------------------------------------- |
-| Capell Commercial     | `commercial`     | AIOrchestrator                                                                   |
-| Capell FormBuilder    | `form-builder`   | FormBuilder                                                                      |
-| Capell Publishing Pro | `publishing-pro` | PublishingStudio, Admin Preview                                                  |
-| Capell Operations     | `operations`     | MigrationAssistant, Diagnostics, Login Audit                                     |
-| Capell Growth         | `growth`         | Insights, CampaignStudio                                                         |
-| Capell Search & SEO   | `search-seo`     | SEO Suite, Search                                                                |
-| Capell Theme Studio   | `theme-studio`   | Theme Studio Core, Theme Studio Admin, Agency Theme, Corporate Theme, SaaS Theme |
+| Product group         | Bundle key       | Packages                                     |
+| --------------------- | ---------------- | -------------------------------------------- |
+| Capell Commercial     | `commercial`     | AIOrchestrator                               |
+| Capell FormBuilder    | `form-builder`   | FormBuilder                                  |
+| Capell Publishing Pro | `publishing-pro` | PublishingStudio, Admin Preview              |
+| Capell Operations     | `operations`     | MigrationAssistant, Diagnostics, Login Audit |
+| Capell Growth         | `growth`         | Insights, CampaignStudio                     |
+| Capell Search & SEO   | `search-seo`     | SEO Suite, Search                            |
+| Capell Themes         | `themes`         | Agency Theme, Corporate Theme, SaaS Theme    |
 
 ## Manifest Fields
 
@@ -39,9 +39,9 @@ Every first-party package should expose:
 
 ```json
 {
-    "productGroup": "Capell Theme Studio",
+    "productGroup": "Capell Themes",
     "tier": "premium",
-    "bundle": "theme-studio"
+    "bundle": "themes"
 }
 ```
 

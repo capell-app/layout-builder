@@ -1,6 +1,6 @@
 @once
     <style>
-        [data-theme-studio-theme='saas'] {
+        [data-capell-theme='saas'] {
             background:
                 radial-gradient(
                     circle at 20% 0%,
@@ -16,17 +16,17 @@
             font-family: var(--theme-body-font, Inter, system-ui, sans-serif);
         }
 
-        [data-theme-studio-theme='saas'] section {
+        [data-capell-theme='saas'] section {
             padding: clamp(4rem, 7vw, 7rem) 1.5rem;
         }
 
-        [data-theme-studio-theme='saas'] section > div {
+        [data-capell-theme='saas'] section > div {
             max-width: 74rem;
             margin-inline: auto;
         }
 
-        [data-theme-studio-theme='saas'] h1,
-        [data-theme-studio-theme='saas'] h2 {
+        [data-capell-theme='saas'] h1,
+        [data-capell-theme='saas'] h2 {
             max-width: 14ch;
             color: #0f172a;
             font-family: var(--theme-heading-font, inherit);
@@ -36,26 +36,26 @@
             letter-spacing: 0;
         }
 
-        [data-theme-studio-theme='saas'] p {
+        [data-capell-theme='saas'] p {
             max-width: 42rem;
             color: #475569;
             font-size: 1.125rem;
             line-height: 1.8;
         }
 
-        [data-theme-studio-theme='saas'] a {
+        [data-capell-theme='saas'] a {
             color: var(--theme-primary, #6366f1);
         }
 
-        [data-theme-studio-theme='saas'] img,
-        [data-theme-studio-theme='saas'] section div:empty {
+        [data-capell-theme='saas'] img,
+        [data-capell-theme='saas'] section div:empty {
             border-radius: 1rem;
         }
     </style>
 @endonce
 
 <div
-    data-theme-studio-theme="{{ $themeKey }}"
+    data-capell-theme="{{ $themeKey }}"
     style="{{ collect($brand->tokens())->map(fn ($value, $token) => $token . ':' . $value)->implode(';') }}"
     class="min-h-screen bg-white text-slate-950 antialiased"
 >

@@ -7,6 +7,7 @@ namespace Capell\ContentSections\Filament\Resources\Sections\Schemas;
 use Capell\Admin\Data\Configurators\ConfiguratorContextData;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Admin\Support\Configurators\ConfiguratorResolver;
+use Capell\ContentSections\Actions\ResolveRequestedSectionTypeAction;
 use Capell\ContentSections\Enums\ConfiguratorTypeEnum;
 use Capell\ContentSections\Filament\Configurators\Sections\DefaultSectionConfigurator;
 use Capell\Core\Models\Type;
@@ -34,6 +35,8 @@ class SectionForm implements FormConfigurator
 
             $type = $model::query()->find($typeId);
         }
+
+        $type ??= ResolveRequestedSectionTypeAction::run($configurator->getRawState());
 
         $adminType = $type instanceof Type
             ? $resolver->resolveForType($type, ConfiguratorTypeEnum::Section, DefaultSectionConfigurator::getKey())

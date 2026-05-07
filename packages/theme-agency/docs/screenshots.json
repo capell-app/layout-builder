@@ -6,8 +6,8 @@
     "outputDirectory": "public/docs/screenshots/packages/theme-agency",
     "entries": [
         {
-            "id": "theme-studio-preset-selection-showing-agency",
-            "title": "Theme Studio preset selection showing Agency.",
+            "id": "theme-preset-selection-showing-agency",
+            "title": "Theme preset selection showing Agency.",
             "package": "theme-agency",
             "surface": "admin",
             "targetType": "admin-surface",

@@ -20,8 +20,6 @@ class EventCalendarPage extends Page
 
     protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::CalendarDays;
 
-    protected string $view = 'capell-events::filament.pages.event-calendar';
-
     protected static ?string $slug = 'events-calendar';
 
     #[Override]

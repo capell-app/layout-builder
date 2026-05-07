@@ -8,7 +8,6 @@ use Capell\Address\Providers\AddressServiceProvider;
 use Capell\AdminPreview\Providers\AdminPreviewServiceProvider;
 use Capell\AgentBridge\Providers\AgentBridgeServiceProvider;
 use Capell\AIOrchestrator\Providers\AIOrchestratorServiceProvider;
-use Capell\BlockLibrary\Providers\BlockLibraryServiceProvider;
 use Capell\Blog\Providers\BlogServiceProvider;
 use Capell\CampaignStudio\Providers\CampaignStudioServiceProvider;
 use Capell\Core\Facades\CapellCore;
@@ -27,8 +26,6 @@ use Capell\Redirects\Providers\RedirectsServiceProvider;
 use Capell\Search\Providers\SearchServiceProvider;
 use Capell\SeoSuite\Providers\SeoSuiteServiceProvider;
 use Capell\Tags\Providers\TagsServiceProvider;
-use Capell\ThemeStudio\Admin\ThemeStudioAdminServiceProvider;
-use Capell\ThemeStudio\Core\ThemeStudioCoreServiceProvider;
 use Illuminate\Support\ServiceProvider;
 
 class ForcePackagesUninstalledServiceProvider extends ServiceProvider
@@ -51,7 +48,6 @@ class ForcePackagesUninstalledServiceProvider extends ServiceProvider
             MigrationAssistantServiceProvider::$packageName,
             BlogServiceProvider::$packageName,
             CampaignStudioServiceProvider::$packageName,
-            BlockLibraryServiceProvider::$packageName,
             DiagnosticsServiceProvider::$packageName,
             AdminPreviewServiceProvider::$packageName,
             FormBuilderServiceProvider::$packageName,
@@ -64,8 +60,6 @@ class ForcePackagesUninstalledServiceProvider extends ServiceProvider
             SeoSuiteServiceProvider::$packageName,
             SearchServiceProvider::$packageName,
             TagsServiceProvider::$packageName,
-            ThemeStudioAdminServiceProvider::$packageName,
-            ThemeStudioCoreServiceProvider::$packageName,
             FrontendAuthoringServiceProvider::$packageName,
             PublishingStudioServiceProvider::$packageName,
             'capell-app/theme-agency',

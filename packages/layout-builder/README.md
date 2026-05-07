@@ -111,5 +111,4 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - [docs/overview.md](docs/overview.md)
 - [../blog/README.md](../blog/README.md)
 - [../campaign-studio/README.md](../campaign-studio/README.md)
-- [../block-library/README.md](../block-library/README.md)
 - [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)

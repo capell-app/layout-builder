@@ -2,13 +2,18 @@
 
 declare(strict_types=1);
 
+use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Forms\LanguageSelect;
 use Capell\Admin\Filament\Components\Forms\SiteSelect;
+use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Creator\PageCreator;
+use Capell\StarterSites\Actions\InsertExampleSiteDataAction;
+use Capell\StarterSites\Filament\Pages\StarterSitesPage;
+use Capell\StarterSites\Providers\StarterSitesServiceProvider;
 use Capell\StarterSites\Support\Creator\DemoCreator;
-use Capell\StarterSites\Support\Extensions\StarterSitesActionSchemaRegistry;
+use Capell\StarterSites\Support\Extensions\StarterSitesDemoActionSchema;
 use Capell\StarterSites\Tests\Fixtures\Commands\TrackingDemoCommand;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Contracts\Foundation\Application;
@@ -58,12 +63,35 @@ it('requires force when running non interactively', function (): void {
     ])->assertExitCode(1);
 });
 
-it('registers a cms extension action schema for full demo data', function (): void {
-    $schema = resolve(StarterSitesActionSchemaRegistry::class)->get('demo');
+it('registers its package owned extension page', function (): void {
+    expect(CapellAdmin::getAdminSurfaceRegistry()->pages())->toContain(StarterSitesPage::class)
+        ->and(resolve(ExtensionPageRegistry::class)->get(StarterSitesServiceProvider::$packageName))->toBe(StarterSitesPage::class);
+});
+
+it('builds the insert example site data schema', function (): void {
+    $schema = resolve(StarterSitesDemoActionSchema::class)->schema();
 
     expect($schema)
         ->toHaveCount(3)
         ->and($schema[0])->toBeInstanceOf(TextInput::class)
         ->and($schema[1])->toBeInstanceOf(LanguageSelect::class)
         ->and($schema[2])->toBeInstanceOf(SiteSelect::class);
+});
+
+it('inserts example site data through the registered demo command', function (): void {
+    TrackingDemoCommand::reset();
+
+    CapellCore::getPackage(StarterSitesServiceProvider::$packageName)->demoCommand = 'test:insert-example-site-data';
+
+    Artisan::registerCommand(new TrackingDemoCommand(
+        'test:insert-example-site-data {--url=} {--user=} {--languages=*} {--sites=*} {--force}',
+    ));
+
+    InsertExampleSiteDataAction::run([
+        'url' => 'https://example.test',
+        'languages' => ['en', 'fr'],
+        'sites' => ['Main Site'],
+    ]);
+
+    expect(TrackingDemoCommand::$executionOrder)->toBe(['test:insert-example-site-data']);
 });

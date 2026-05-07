@@ -12,8 +12,6 @@ Extract the existing LayoutBuilder Sections domain into a completely independent
 - Service provider: `Capell\ContentSections\Providers\ContentSectionsServiceProvider`.
 - Public domain name: Content Sections.
 
-`ContentSections` is more precise than `Sections` and better aligned with the package purpose than `BlockLibrary`. It keeps the existing Section language while making it clear this package owns content organisation, not LayoutBuilder layout mechanics.
-
 ## Package Boundary
 
 Content Sections must be completely independent from LayoutBuilder:
@@ -71,15 +69,10 @@ This is an extraction, not a data rename:
 - Keep the `section` morph alias.
 - Keep the model name `Section`.
 - Move the migration into `packages/content-sections/database/migrations/`.
-- Avoid a `content_blocks`, `block_library`, or renamed table migration.
 
 Existing sites should not need a data migration just because the domain moved packages. Any install/upgrade logic should focus on package registration and migration ownership.
 
 ## Existing Block Library Work
-
-The current `packages/block-library` direction does not match this design because it renames the domain to `ContentBlock` and uses a `block_library` table. Implementation should either leave that package untouched as unrelated work or replace that extraction path with `content-sections` if it was intended to solve this request.
-
-Do not build the new extraction on top of `ContentBlock`.
 
 ## Package Consumers
 

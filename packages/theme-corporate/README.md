@@ -1,20 +1,20 @@
 # Theme Corporate
 
-Status: **Available, no schema impact** · Kind: **theme** · Tier: **premium** · Bundle: **theme-studio** · Contexts: **frontend** · Product group: **Capell Theme Studio**
+Status: **Available, no schema impact** · Kind: **theme** · Tier: **premium** · Bundle: **themes** · Contexts: **frontend** · Product group: **Capell Themes**
 
-## What This Plugin Adds
+## What This Package Adds
 
-Theme Corporate registers a trust-led corporate renderer for Capell Theme Studio.
+Theme Corporate is a standalone Capell theme package. It registers the `corporate` theme key, extends Foundation Theme, and adds restrained renderer views for B2B, public sector, and professional-service sites.
 
 - Corporate theme service provider.
-- Theme renderer/views for corporate Theme Studio output.
-- Dependency on Foundation Theme and Theme Studio Core.
+- Theme renderer/views for corporate theme output.
+- Dependency on Foundation Theme.
 
 ## Why It Matters
 
-**For developers:** Adds a renderer package that plugs into Theme Studio Core contracts and runtime settings.
+**For developers:** Adds a renderer package that plugs into Foundation Theme contracts and runtime settings.
 
-**For teams:** Provides a corporate visual option for sites that need restrained, trust-focused presentation.
+**For teams:** Provides a corporate visual option for sites that need restrained, trust-focused presentation through the normal Theme admin page and install flow.
 
 ## Built With
 
@@ -24,7 +24,6 @@ This package makes its Composer dependencies visible because they are part of th
 
 - [Capell Core](https://github.com/capell-app/core)
 - [Capell Foundation Theme](../foundation-theme/README.md)
-- [Capell Theme Studio Core](../theme-studio-core/README.md)
 
 **Open-source packages used here**
 
@@ -34,24 +33,25 @@ This package makes its Composer dependencies visible because they are part of th
 
 Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) during package deployment.
 
-- Theme Studio preset selection showing Corporate.
+- Theme preset selection showing Corporate.
 - Frontend page rendered with Corporate theme.
 - Theme preview URL output.
 
 ## Technical Shape
 
 - CorporateThemeServiceProvider registers the renderer.
-- Requires capell-app/foundation-theme and capell-app/theme-studio-core.
+- `capell.json` declares `themeKey: "corporate"` and `extends: "capell-app/foundation-theme"`.
+- Uses shared `capell::...` views for layered fallback.
 - No migrations, config, routes, resources, or models are present.
 
 ## Data Model
 
 - This package does not own data.
-- It consumes Theme Studio runtime settings and core page content.
+- It consumes theme runtime settings and core page content.
 
 ## Install Impact
 
-- Adds a Corporate renderer to Theme Studio.
+- Adds a Corporate renderer to theme system.
 - No database changes.
 - No admin navigation by itself.
 - No public routes by itself.
@@ -64,22 +64,21 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 
 - None proven in this package directory.
 
-- None proven in this package directory.
-
 ## Common Pitfalls
 
-- Install Theme Studio Core before using this renderer.
+- Install Foundation Theme before using this renderer.
 - Verify Foundation Theme assets are generated.
+- Do not install a Studio metapackage; this package installs independently.
 
 ## Quick Start
 
 1. Install the package with `composer require capell-app/theme-corporate`.
-2. Register the package provider through Composer discovery and clear cached config if the host app uses config caching.
-3. Open the new admin surface or integration point and verify the result.
+2. Choose `corporate` during `capell:install`, the web installer, or from the Theme admin page after install.
+3. Generate or publish frontend assets through the host app flow.
 
 ## Next Steps
 
 - [docs/overview.md](docs/overview.md)
-- [../theme-studio-core/README.md](../theme-studio-core/README.md)
-- [../theme-studio-admin/README.md](../theme-studio-admin/README.md)
+- [../../docs/creating-a-theme.md](../../docs/creating-a-theme.md)
+- [../foundation-theme/README.md](../foundation-theme/README.md)
 - [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)

@@ -26,7 +26,7 @@ class AgencyThemeServiceProvider extends ServiceProvider
             name: 'Agency',
             description: 'Expressive layouts with bold rhythm, immersive media, and confident calls to action.',
             package: 'capell-app/theme-agency',
-            previewImage: '/vendor/capell/theme-studio/agency-signal.jpg',
+            previewImage: '/vendor/capell/themes/agency-signal.jpg',
             tags: ['Expressive', 'Portfolio', 'Creative'],
             bestFit: ['Studios', 'Agencies', 'Brand-led teams'],
             includedSections: ['navigation', 'hero', 'features', 'proof', 'content-listing', 'cta', 'footer'],
@@ -35,7 +35,7 @@ class AgencyThemeServiceProvider extends ServiceProvider
                     key: 'signal',
                     name: 'Signal',
                     description: 'Sharp contrast, strong statements, and energetic section pacing.',
-                    previewImage: '/vendor/capell/theme-studio/agency-signal.jpg',
+                    previewImage: '/vendor/capell/themes/agency-signal.jpg',
                     values: [
                         'primaryColor' => '#ff5a7e',
                         'accentColor' => '#3b82f6',
@@ -50,7 +50,7 @@ class AgencyThemeServiceProvider extends ServiceProvider
                     key: 'gallery',
                     name: 'Gallery',
                     description: 'Media-forward presentation with calmer motion and framed project surfaces.',
-                    previewImage: '/vendor/capell/theme-studio/agency-gallery.jpg',
+                    previewImage: '/vendor/capell/themes/agency-gallery.jpg',
                     values: [
                         'primaryColor' => '#7c3aed',
                         'accentColor' => '#fb7185',
@@ -65,7 +65,7 @@ class AgencyThemeServiceProvider extends ServiceProvider
                     key: 'atelier',
                     name: 'Atelier',
                     description: 'Editorial studio feel with soft neutrals and refined proof.',
-                    previewImage: '/vendor/capell/theme-studio/agency-atelier.jpg',
+                    previewImage: '/vendor/capell/themes/agency-atelier.jpg',
                     values: [
                         'primaryColor' => '#be123c',
                         'accentColor' => '#f97316',
@@ -77,7 +77,7 @@ class AgencyThemeServiceProvider extends ServiceProvider
                     ],
                 ),
             ],
-            assets: ['css' => 'vendor/capell/theme-studio/agency.css'],
+            assets: ['css' => 'vendor/capell/themes/agency.css'],
         );
     }
 
@@ -105,7 +105,7 @@ class AgencyThemeServiceProvider extends ServiceProvider
             definition: self::definition(),
             themeRenderer: new BladeThemeRenderer(
                 themeKey: self::THEME_KEY,
-                layoutView: 'capell-theme-agency::page',
+                layoutView: 'capell::page',
                 sectionRenderers: $sectionRenderers,
             ),
             sectionRenderers: array_values($sectionRenderers),

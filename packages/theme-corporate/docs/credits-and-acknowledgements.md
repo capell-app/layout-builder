@@ -2,7 +2,7 @@
 
 Theme Corporate is part of the Capell package set. This page names the main frameworks, packages, authors, and services this package leans on, with a short note about what they make possible here. It is intentionally shorter than the repository-wide credits page and closer to the package itself.
 
-Package role: Trust-led corporate renderer for Capell Theme Studio
+Package role: Trust-led corporate renderer for Capell theme system
 
 ## Shared Foundations
 
@@ -17,7 +17,7 @@ Package role: Trust-led corporate renderer for Capell Theme Studio
 
 - [Capell Core](https://docs.capell.app) supplies the Capell-side contracts, surfaces, or runtime that Theme Corporate builds on.
 - [Foundation Theme](../../foundation-theme/README.md) supplies the Capell-side contracts, surfaces, or runtime that Theme Corporate builds on.
-- [Theme Studio Core](../../theme-studio-core/README.md) supplies the Capell-side contracts, surfaces, or runtime that Theme Corporate builds on.
+- [Foundation Theme](../../foundation-theme/README.md) supplies the Capell-side contracts, surfaces, or runtime that Theme Corporate builds on.
 
 ## What We Especially Appreciate
 

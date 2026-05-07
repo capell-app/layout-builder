@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\AgentBridge\Providers;
 
-use Capell\Admin\Contracts\AdminTools\AdminToolItem;
 use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\AgentBridge\Actions\Cache\ClearCapellCacheCapabilityAction;
@@ -17,12 +16,16 @@ use Capell\AgentBridge\Data\CapabilityData;
 use Capell\AgentBridge\Enums\CapabilityRiskEnum;
 use Capell\AgentBridge\Enums\CapabilityServerEnum;
 use Capell\AgentBridge\Filament\Pages\CapellAgentBridgePromptBuilderPage;
-use Capell\AgentBridge\Support\AdminTools\PromptBuilderAdminTool;
 use Capell\AgentBridge\Support\CapellAgentBridgeCapabilityRegistry;
 use Capell\AgentBridge\Tools\Boost\ListBoostCapabilitiesTool;
 use Capell\AgentBridge\Tools\Boost\PreviewBoostCapabilityTool;
 use Capell\Core\Facades\CapellCore;
 use Filament\Pages\Page;
+use Filament\Support\Enums\IconSize;
+use Filament\Support\Facades\FilamentView;
+use Filament\Support\Icons\Heroicon;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Boost\AgentBridge\Boost;
 
@@ -102,24 +105,43 @@ final class AgentBridgeServiceProvider extends ServiceProvider
     private function registerAdminIntegration(): void
     {
         $adminFacade = CapellAdmin::class;
-        $adminToolItem = AdminToolItem::class;
         $filamentPage = Page::class;
         $promptBuilderPage = CapellAgentBridgePromptBuilderPage::class;
-        $promptBuilderTool = PromptBuilderAdminTool::class;
 
-        if (! class_exists($adminFacade) || ! interface_exists($adminToolItem) || ! class_exists($filamentPage)) {
+        if (! class_exists($adminFacade) || ! class_exists($filamentPage)) {
             return;
         }
 
-        if (! class_exists($promptBuilderPage) || ! class_exists($promptBuilderTool)) {
+        if (! class_exists($promptBuilderPage)) {
             return;
         }
 
         $adminFacade::contributeToAdminSurface(AdminSurfaceContributionData::page($promptBuilderPage));
 
-        $this->app->tag([
-            $promptBuilderTool,
-        ], constant($adminToolItem . '::TAG'));
+        if (! class_exists(FilamentView::class) || ! class_exists(PanelsRenderHook::class)) {
+            return;
+        }
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+            fn (): string => Blade::render(
+                <<<'BLADE'
+                    <a
+                        class="text-gray-600 hover:text-primary-600 focus:text-primary-600 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md transition-colors focus:outline-none dark:text-gray-300 dark:hover:text-primary-400 dark:focus:text-primary-400"
+                        href="{{ $url }}"
+                        title="{{ $label }}"
+                        aria-label="{{ $label }}"
+                    >
+                        @svg($icon, 'h-5 w-5')
+                    </a>
+                BLADE,
+                [
+                    'icon' => Heroicon::OutlinedSparkles->getIconForSize(IconSize::Small),
+                    'label' => __('capell-agent-bridge::admin.prompt_builder_tool'),
+                    'url' => $promptBuilderPage::getUrl(),
+                ],
+            ),
+        );
     }
 
     private function registerBuiltInCapabilities(): void

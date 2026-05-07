@@ -54,6 +54,13 @@
     "repositories": [
         {
             "type": "path",
+            "url": "../capell-4/packages/*",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "./packages/*",
             "options": {
                 "symlink": true
@@ -191,9 +198,8 @@
             "Capell\\CampaignStudio\\Database\\Factories\\": "packages/campaign-studio/database/factories",
             "Capell\\ContentSections\\": "packages/content-sections/src",
             "Capell\\ContentSections\\Database\\Factories\\": "packages/content-sections/database/factories",
-            "Capell\\BlockLibrary\\": "packages/block-library/src",
-            "Capell\\BlockLibrary\\Database\\Factories\\": "packages/block-library/database/factories",
             "Capell\\FoundationTheme\\": "packages/foundation-theme/src",
+            "Capell\\ThemeStudio\\Core\\": "packages/foundation-theme/src/ThemeStudioCore",
             "Capell\\StarterSites\\": "packages/starter-sites/src",
             "Capell\\Deployments\\": "packages/deployments/src",
             "Capell\\Deployments\\Database\\Factories\\": "packages/deployments/database/factories",
@@ -224,9 +230,7 @@
             "Capell\\Search\\Database\\Factories\\": "packages/search/database/factories",
             "Capell\\Tags\\": "packages/tags/src",
             "Capell\\Tags\\Database\\Factories\\": "packages/tags/database/factories",
-            "Capell\\ThemeStudio\\Admin\\": "packages/theme-studio-admin/src",
             "Capell\\ThemeStudio\\Agency\\": "packages/theme-agency/src",
-            "Capell\\ThemeStudio\\Core\\": "packages/theme-studio-core/src",
             "Capell\\ThemeStudio\\Corporate\\": "packages/theme-corporate/src",
             "Capell\\ThemeStudio\\Saas\\": "packages/theme-saas/src",
             "Capell\\FrontendAuthoring\\": "packages/frontend-authoring/src",
@@ -245,6 +249,7 @@
             "Capell\\Blog\\Tests\\": "packages/blog/tests",
             "Capell\\CampaignStudio\\Tests\\": "packages/campaign-studio/tests",
             "Capell\\ContentSections\\Tests\\": "packages/content-sections/tests",
+            "Capell\\FoundationTheme\\Tests\\": "packages/foundation-theme/tests",
             "Capell\\Deployments\\Tests\\": "packages/deployments/tests",
             "Capell\\Diagnostics\\Tests\\": "packages/diagnostics/tests",
             "Capell\\StarterSites\\Tests\\": "packages/starter-sites/tests",
@@ -257,7 +262,6 @@
             "Capell\\MediaLibrary\\Tests\\": "packages/media-library/tests",
             "Capell\\Newsletter\\Tests\\": "packages/newsletter/tests",
             "Capell\\AgentBridge\\Tests\\": "packages/agent-bridge/tests",
-            "Capell\\BlockLibrary\\Tests\\": "packages/block-library/tests",
             "Capell\\LayoutBuilder\\Tests\\": "packages/layout-builder/tests",
             "Capell\\Navigation\\Tests\\": "packages/navigation/tests",
             "Capell\\PasswordPolicy\\Tests\\": "packages/password-policy/tests",
@@ -269,9 +273,7 @@
             "Capell\\Tests\\": "tests",
             "Capell\\Tests\\Fixtures\\": "tests/Fixtures",
             "Capell\\Tests\\Packages\\": "tests/Packages",
-            "Capell\\ThemeStudio\\Admin\\Tests\\": "packages/theme-studio-admin/tests",
             "Capell\\ThemeStudio\\Agency\\Tests\\": "packages/theme-agency/tests",
-            "Capell\\ThemeStudio\\Core\\Tests\\": "packages/theme-studio-core/tests",
             "Capell\\ThemeStudio\\Corporate\\Tests\\": "packages/theme-corporate/tests",
             "Capell\\ThemeStudio\\Saas\\Tests\\": "packages/theme-saas/tests",
             "Capell\\FrontendAuthoring\\Tests\\": "packages/frontend-authoring/tests",

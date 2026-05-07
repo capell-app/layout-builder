@@ -10,7 +10,6 @@ use Capell\Admin\Providers\Filament\AdminPanelProvider;
 use Capell\AdminPreview\Providers\AdminPreviewServiceProvider;
 use Capell\AgentBridge\Providers\AgentBridgeServiceProvider;
 use Capell\AIOrchestrator\Providers\AIOrchestratorServiceProvider;
-use Capell\BlockLibrary\Providers\BlockLibraryServiceProvider;
 use Capell\Blog\Providers\BlogServiceProvider;
 use Capell\Blog\Providers\FrontendServiceProvider as BlogFrontendServiceProvider;
 use Capell\CampaignStudio\Providers\CampaignStudioServiceProvider;
@@ -34,9 +33,7 @@ use Capell\SeoSuite\Providers\SeoSuiteServiceProvider;
 use Capell\Tags\Providers\TagsServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Capell\Tests\Packages\Support\ForcePackagesUninstalledServiceProvider;
-use Capell\ThemeStudio\Admin\ThemeStudioAdminServiceProvider;
 use Capell\ThemeStudio\Agency\AgencyThemeServiceProvider;
-use Capell\ThemeStudio\Core\ThemeStudioCoreServiceProvider;
 use Capell\ThemeStudio\Corporate\CorporateThemeServiceProvider;
 use Capell\ThemeStudio\Saas\SaasThemeServiceProvider;
 use Illuminate\Foundation\Application;
@@ -69,7 +66,6 @@ class UninstalledPackagesTestCase extends AbstractTestCase
             BlogFrontendServiceProvider::class,
             CampaignStudioServiceProvider::class,
             CapellFormBuilderServiceProvider::class,
-            BlockLibraryServiceProvider::class,
             DiagnosticsServiceProvider::class,
             SeoSuiteServiceProvider::class,
             SearchServiceProvider::class,
@@ -81,8 +77,6 @@ class UninstalledPackagesTestCase extends AbstractTestCase
             MediaLibraryServiceProvider::class,
             HtmlOptimizerServiceProvider::class,
             AgentBridgeServiceProvider::class,
-            ThemeStudioAdminServiceProvider::class,
-            ThemeStudioCoreServiceProvider::class,
             AgencyThemeServiceProvider::class,
             CorporateThemeServiceProvider::class,
             SaasThemeServiceProvider::class,

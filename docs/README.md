@@ -6,6 +6,7 @@ This directory holds **cross-cutting** documentation for the add-on packages. Pe
 
 For the commercial/free grouping, see [Package product groups](product-groups.md).
 For package-level upstream credits, services, and acknowledgements, see [Credits and acknowledgements](credits-and-acknowledgements.md).
+For theme package authoring, see [Creating a Capell theme](creating-a-theme.md).
 
 | Package            | Local reference                                                                                                                                                  |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -16,7 +17,6 @@ For package-level upstream credits, services, and acknowledgements, see [Credits
 | MigrationAssistant | [`packages/migration-assistant/README.md`](../packages/migration-assistant/README.md)                                                                            |
 | Blog               | [`packages/blog/README.md`](../packages/blog/README.md)                                                                                                          |
 | CampaignStudio     | [`packages/campaign-studio/README.md`](../packages/campaign-studio/README.md)                                                                                    |
-| Block Library      | [`packages/block-library/README.md`](../packages/block-library/README.md)                                                                                        |
 | Foundation Theme   | [`packages/foundation-theme/README.md`](../packages/foundation-theme/README.md)                                                                                  |
 | Deployments        | [`packages/deployments/README.md`](../packages/deployments/README.md)                                                                                            |
 | Diagnostics        | [`packages/diagnostics/README.md`](../packages/diagnostics/README.md)                                                                                            |
@@ -34,9 +34,6 @@ For package-level upstream credits, services, and acknowledgements, see [Credits
 | Theme Agency       | [`packages/theme-agency/README.md`](../packages/theme-agency/README.md)                                                                                          |
 | Theme Corporate    | [`packages/theme-corporate/README.md`](../packages/theme-corporate/README.md)                                                                                    |
 | Theme SaaS         | [`packages/theme-saas/README.md`](../packages/theme-saas/README.md)                                                                                              |
-| Theme Studio       | [`packages/theme-studio/README.md`](../packages/theme-studio/README.md)                                                                                          |
-| Theme Studio Admin | [`packages/theme-studio-admin/README.md`](../packages/theme-studio-admin/README.md)                                                                              |
-| Theme Studio Core  | [`packages/theme-studio-core/README.md`](../packages/theme-studio-core/README.md)                                                                                |
 | Frontend Authoring | [`packages/frontend-authoring/README.md`](../packages/frontend-authoring/README.md), [`in-page editing`](../packages/frontend-authoring/docs/in-page-editing.md) |
 | WordPress Importer | [`packages/wordpress-importer/README.md`](../packages/wordpress-importer/README.md)                                                                              |
 | PublishingStudio   | [`packages/publishing-studio/README.md`](../packages/publishing-studio/README.md)                                                                                |

@@ -414,66 +414,6 @@
             "composerName": "capell-app/campaign-studio"
         },
         {
-            "id": "block-library-admin-index",
-            "title": "Content blocks admin index.",
-            "package": "block-library",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "ContentBlockResource",
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/block-library",
-            "runner": "scripts/capture-admin-screenshots.mjs",
-            "capture": {
-                "fullPage": true
-            }
-        },
-        {
-            "id": "create-edit-content-block-form",
-            "title": "Create/edit content block form.",
-            "package": "block-library",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "ContentBlockResource",
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/block-library",
-            "runner": "scripts/capture-admin-screenshots.mjs",
-            "capture": {
-                "fullPage": true
-            }
-        },
-        {
-            "id": "content-block-asset-relation-manager",
-            "title": "Content block asset relation manager.",
-            "package": "block-library",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "ContentBlockResource",
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/block-library",
-            "runner": "scripts/capture-admin-screenshots.mjs",
-            "capture": {
-                "fullPage": true
-            }
-        },
-        {
-            "id": "widget-or-page-selector-using-a-content-block",
-            "title": "Widget or page selector using a content block.",
-            "package": "block-library",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "ContentBlockResource",
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/block-library",
-            "runner": "scripts/capture-admin-screenshots.mjs",
-            "capture": {
-                "fullPage": true
-            }
-        },
-        {
             "id": "foundation-theme-settings-screen",
             "title": "Default theme settings screen.",
             "package": "foundation-theme",
@@ -1123,8 +1063,8 @@
             "composerName": "capell-app/tags"
         },
         {
-            "id": "theme-studio-preset-selection-showing-agency",
-            "title": "Theme Studio preset selection showing Agency.",
+            "id": "theme-preset-selection-showing-agency",
+            "title": "Theme preset selection showing Agency.",
             "package": "theme-agency",
             "surface": "admin",
             "targetType": "admin-surface",
@@ -1156,8 +1096,8 @@
             "composerName": "capell-app/theme-agency"
         },
         {
-            "id": "theme-studio-preset-selection-showing-corporate",
-            "title": "Theme Studio preset selection showing Corporate.",
+            "id": "theme-preset-selection-showing-corporate",
+            "title": "Theme preset selection showing Corporate.",
             "package": "theme-corporate",
             "surface": "admin",
             "targetType": "admin-surface",
@@ -1189,8 +1129,8 @@
             "composerName": "capell-app/theme-corporate"
         },
         {
-            "id": "theme-studio-preset-selection-showing-saas",
-            "title": "Theme Studio preset selection showing SaaS.",
+            "id": "theme-preset-selection-showing-saas",
+            "title": "Theme preset selection showing SaaS.",
             "package": "theme-saas",
             "surface": "admin",
             "targetType": "admin-surface",
@@ -1220,149 +1160,6 @@
             "required": true,
             "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
             "composerName": "capell-app/theme-saas"
-        },
-        {
-            "id": "theme-studio-admin-page",
-            "title": "Theme Studio admin page.",
-            "package": "theme-studio",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": null,
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/theme-studio"
-        },
-        {
-            "id": "theme-preset-selection",
-            "title": "Theme preset selection.",
-            "package": "theme-studio",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": null,
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/theme-studio"
-        },
-        {
-            "id": "theme-preview-url-workflow",
-            "title": "Theme preview URL workflow.",
-            "package": "theme-studio",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": null,
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/theme-studio"
-        },
-        {
-            "id": "frontend-output-from-each-bundled-renderer",
-            "title": "Frontend output from each bundled renderer.",
-            "package": "theme-studio",
-            "surface": "frontend",
-            "targetType": "frontend-url",
-            "target": null,
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/theme-studio"
-        },
-        {
-            "id": "theme-studio-admin-page",
-            "title": "Theme Studio admin page.",
-            "package": "theme-studio-admin",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "ThemeStudioPage",
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/theme-studio-admin"
-        },
-        {
-            "id": "theme-draft-form",
-            "title": "Theme draft form.",
-            "package": "theme-studio-admin",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "ThemeStudioPage",
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/theme-studio-admin"
-        },
-        {
-            "id": "theme-preview-url",
-            "title": "Theme preview URL.",
-            "package": "theme-studio-admin",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "ThemeStudioPage",
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/theme-studio-admin"
-        },
-        {
-            "id": "publishing-readiness-state",
-            "title": "Publishing readiness state.",
-            "package": "theme-studio-admin",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "ThemeStudioPage",
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/theme-studio-admin"
-        },
-        {
-            "id": "approval-or-publish-action-state",
-            "title": "Approval or publish action state.",
-            "package": "theme-studio-admin",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "ThemeStudioPage",
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/theme-studio-admin"
-        },
-        {
-            "id": "theme-preview-url-output",
-            "title": "Theme preview URL output.",
-            "package": "theme-studio-core",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": null,
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/theme-studio-core"
-        },
-        {
-            "id": "frontend-page-rendered-through-theme-studio-core",
-            "title": "Frontend page rendered through Theme Studio Core.",
-            "package": "theme-studio-core",
-            "surface": "frontend",
-            "targetType": "frontend-url",
-            "target": null,
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/theme-studio-core"
-        },
-        {
-            "id": "brand-profile-settings",
-            "title": "Brand profile settings.",
-            "package": "theme-studio-core",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": null,
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/theme-studio-core"
-        },
-        {
-            "id": "renderer-selection-proof",
-            "title": "Renderer selection proof.",
-            "package": "theme-studio-core",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": null,
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared.",
-            "composerName": "capell-app/theme-studio-core"
         },
         {
             "id": "frontend-page-with-authoring-enabled",

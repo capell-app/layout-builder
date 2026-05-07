@@ -6,7 +6,6 @@ use Capell\Address\Tests\AddressTestCase;
 use Capell\AdminPreview\Tests\AdminPreviewTestCase;
 use Capell\AgentBridge\Tests\TestCase as AgentBridgeTestCase;
 use Capell\AIOrchestrator\Tests\AIOrchestratorTestCase;
-use Capell\BlockLibrary\Tests\ContentBlockRenderingTestCase;
 use Capell\Blog\Tests\BlogTestCase;
 use Capell\CampaignStudio\Tests\CampaignStudioTestCase;
 use Capell\ContentSections\Tests\ContentSectionsTestCase;
@@ -32,8 +31,6 @@ use Capell\StarterSites\Tests\StarterSitesTestCase;
 use Capell\Tags\Tests\TagsTestCase;
 use Capell\Tests\Packages\PackagesTestCase;
 use Capell\Tests\Packages\UninstalledPackagesTestCase;
-use Capell\ThemeStudio\Admin\Tests\ThemeStudioAdminTestCase;
-use Capell\ThemeStudio\Core\Tests\ThemeStudioCoreTestCase;
 use Capell\WordPressImporter\Tests\WordPressImporterTestCase;
 
 pest()->extend(AddressTestCase::class)->group('address')->in('../packages/address/tests');
@@ -44,8 +41,6 @@ pest()->extend(PackagesTestCase::class)->group('login-audit')->in('../packages/l
 pest()->extend(BlogTestCase::class)->group('blog')->in('../packages/blog/tests');
 pest()->extend(CampaignStudioTestCase::class)->group('campaign-studio')->in('../packages/campaign-studio/tests');
 pest()->extend(ContentSectionsTestCase::class)->group('content-sections')->in('../packages/content-sections/tests');
-pest()->extend(ContentBlockRenderingTestCase::class)->group('block-library')->in('../packages/block-library/tests/Unit');
-pest()->extend(ContentBlockRenderingTestCase::class)->group('block-library')->in('../packages/block-library/tests/Feature');
 pest()->extend(PackagesTestCase::class)->group('foundation-theme')->in('../packages/foundation-theme/tests');
 pest()->extend(DeploymentsTestCase::class)->group('deployments')->in('../packages/deployments/tests');
 pest()->extend(DiagnosticsTestCase::class)->group('diagnostics')->in('../packages/diagnostics/tests');
@@ -70,8 +65,6 @@ pest()->extend(TagsTestCase::class)->group('tags')->in('../packages/tags/tests')
 pest()->extend(PackagesTestCase::class)->group('theme-agency')->in('../packages/theme-agency/tests');
 pest()->extend(PackagesTestCase::class)->group('theme-corporate')->in('../packages/theme-corporate/tests');
 pest()->extend(PackagesTestCase::class)->group('theme-saas')->in('../packages/theme-saas/tests');
-pest()->extend(ThemeStudioAdminTestCase::class)->group('theme-studio-admin')->in('../packages/theme-studio-admin/tests');
-pest()->extend(ThemeStudioCoreTestCase::class)->group('theme-studio-core')->in('../packages/theme-studio-core/tests');
 pest()->extend(FrontendAuthoringTestCase::class)->group('frontend-authoring')->in('../packages/frontend-authoring/tests');
 pest()->extend(PublishingStudioTestCase::class)->group('publishing-studio')->in('../packages/publishing-studio/tests');
 pest()->extend(WordPressImporterTestCase::class)->group('wordpress-importer')->in('../packages/wordpress-importer/tests');

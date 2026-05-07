@@ -1,39 +1,18 @@
-# Capell Theme Studio And AIOrchestrator Boundaries
+# Capell Theme And AIOrchestrator Boundaries
 
 ## Package Responsibilities
 
 ### `capell-app/frontend`
 
-Owns Capell's public rendering context: site, language, page, layout, theme key, route params, render hooks, frontend assets, and page cache integration. Theme Studio consumes this context through adapters; Frontend does not import Theme Studio.
+Owns Capell's public rendering context: site, language, page, layout, theme key, route params, render hooks, frontend assets, and page cache integration. Frontend resolves the active theme view chain, but does not import concrete premium themes.
 
 ### `capell-app/foundation-theme`
 
-Stays the free infrastructure theme layer. It provides the baseline Blade/Tailwind rendering surface that every install can use. Premium themes must not replace this package as the platform fallback.
-
-### `capell-app/theme-studio-core`
-
-Owns the premium theme runtime:
-
-| Area              | Responsibility                                                                                                                                |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Definitions       | Theme metadata, presets, included sections, renderer maps, and gallery data.                                                                  |
-| Portable sections | Shared hero, features, proof, content listing, CTA, navigation, and footer data.                                                              |
-| Runtime adapter   | Converts the current Capell frontend page into portable section data, including loaded LayoutBuilder widgets when LayoutBuilder is installed. |
-| Preview           | Signed theme/preset preview context without mutating active settings.                                                                         |
-| Assets            | Token CSS rendering and isolated cache keys per theme, preset, and brand profile.                                                             |
-| Rendering         | Theme and section renderer contracts. First-party renderers should fail loudly in tests/local development.                                    |
-
-Theme Studio Core owns the shared content model. Individual themes translate that model into visual language; they do not define separate content schemas.
-
-### `capell-app/theme-studio-admin`
-
-Owns the Filament Studio experience: gallery, staging, preview URLs, compact brand controls, per-theme overrides, readiness checks, and publish actions.
-
-When `capell-app/publishing-studio` is installed, publishing a staged theme draft submits a PublishingStudio approval item. Approval of that linked workspace promotes the staged theme and preset to the active state. Without PublishingStudio, the same action publishes directly and clears the draft.
+Owns the free theme foundation and shared theme runtime. It provides the baseline Blade/Tailwind rendering surface, theme registry, renderer contracts, preview context, and token CSS support. Premium themes may extend it, but Foundation remains the platform fallback and carries the `default` theme key.
 
 ### `capell-app/theme-corporate`, `capell-app/theme-agency`, `capell-app/theme-saas`
 
-Own polished premium renderers for the shared Theme Studio section model. They register definitions, curated presets, page renderers, and section renderers. They may own views and visual assets, but not a private content model.
+Own polished premium renderers. They register definitions, curated presets, page renderers, section renderers, views, and visual assets. Each theme installs independently and declares `extends: "capell-app/foundation-theme"` in `capell.json`. There is no Studio metapackage bundling them together.
 
 ### `capell-app/layout-builder`
 
@@ -48,18 +27,20 @@ Owns the commercial AI orchestration layer: provider connectors, prompt runs, ca
 ```text
 HTTP request
   -> frontend resolves site, language, page, layout, and active theme key
-  -> Theme Studio preview middleware optionally supplies preview theme/preset
-  -> Theme Studio runtime resolves active or preview theme/preset and brand profile
+  -> foundation theme runtime optionally supplies preview theme/preset
+  -> theme runtime resolves active or preview theme/preset and brand profile
   -> CapellFrontendThemePageAdapter maps the page and LayoutBuilder layout widgets into portable sections
-  -> theme renderer renders shared section data through the selected premium theme
+  -> selected theme renderer renders shared section data
   -> token CSS asset is loaded using the isolated theme/preset/brand cache key
 ```
 
 ## Rules
 
-1. Theme Studio themes render shared section data; they do not own content schemas.
-2. LayoutBuilder owns layout/widget storage and page-level widget asset overrides.
-3. AIOrchestrator owns AI integration and optional package wrappers; Foundation packages do not import AIOrchestrator classes.
-4. Frontend stays the public context provider and does not import Theme Studio.
-5. PublishingStudio approval is optional and detected at runtime through the Theme Studio publisher adapter; approval completion is handled by Theme Studio Admin, not by PublishingStudio knowing Theme Studio internals.
-6. New reusable theme runtime behavior belongs in `theme-studio-core`; admin workflow belongs in `theme-studio-admin`; visual treatment belongs in the theme package.
+1. One theme is active per site.
+2. Theme inheritance is single-parent through `capell.json` `extends`.
+3. Parent preset defaults load first, child preset defaults load second, and Theme admin database edits win last.
+4. Foundation Theme owns shared runtime behavior; visual treatment belongs in concrete theme packages.
+5. LayoutBuilder owns layout/widget storage and page-level widget asset overrides.
+6. AIOrchestrator owns AI integration and optional package wrappers; Foundation packages do not import AIOrchestrator classes.
+
+See [Creating a Capell theme](creating-a-theme.md) for the package contract and install flow.

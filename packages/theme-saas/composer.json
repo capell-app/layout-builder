@@ -1,13 +1,12 @@
 {
     "name": "capell-app/theme-saas",
-    "description": "Conversion-led SaaS renderer for Capell Theme Studio",
+    "description": "Conversion-led SaaS theme for Capell",
     "type": "library",
     "license": "MIT",
     "require": {
         "php": "^8.2",
         "capell-app/core": "*",
-        "capell-app/foundation-theme": "*",
-        "capell-app/theme-studio-core": "*"
+        "capell-app/foundation-theme": "*"
     },
     "require-dev": {
         "pestphp/pest": "^3.0|^4.0",

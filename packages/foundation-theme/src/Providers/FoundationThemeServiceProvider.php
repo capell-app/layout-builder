@@ -27,7 +27,19 @@ use Capell\FoundationTheme\Support\Tailwind\TailwindAssetsGenerator;
 use Capell\FoundationTheme\View\Components\Media\Svg;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
+use Capell\Frontend\Enums\RenderHookLocation;
+use Capell\Frontend\Support\Render\RenderHookRegistry;
+use Capell\ThemeStudio\Core\Actions\ResolveThemeRuntimeAction;
+use Capell\ThemeStudio\Core\Adapters\CapellFrontendThemePageAdapter;
+use Capell\ThemeStudio\Core\Contracts\ThemePageAdapter;
+use Capell\ThemeStudio\Core\Contracts\ThemeRuntimeSettings;
+use Capell\ThemeStudio\Core\Http\Middleware\ResolveThemePreviewContext;
+use Capell\ThemeStudio\Core\Preview\ThemePreviewContext;
+use Capell\ThemeStudio\Core\Preview\ThemePreviewSigner;
+use Capell\ThemeStudio\Core\Settings\ThemeStudioSettings;
+use Capell\ThemeStudio\Core\Theme\ThemeRegistry;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Spatie\LaravelPackageTools\Package;
@@ -39,6 +51,8 @@ final class FoundationThemeServiceProvider extends AbstractPackageServiceProvide
     public static string $packageName = 'capell-app/foundation-theme';
 
     public static PackageTypeEnum $type = PackageTypeEnum::Theme;
+
+    private bool $previewMiddlewareRegistered = false;
 
     public function configurePackage(Package $package): void
     {
@@ -66,6 +80,15 @@ final class FoundationThemeServiceProvider extends AbstractPackageServiceProvide
         $this->registerMediaBladeComponents();
         $this->registerModelInterceptors();
         $this->registerSettingsSchemas();
+        $this->registerThemeRuntime();
+        $this->registerThemePreviewMiddleware();
+        $this->registerTokenRenderHook();
+
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__ . '/../../database/settings/create_theme_studio_settings.php' => database_path('settings/create_theme_studio_settings.php'),
+            ], 'capell-foundation-theme-settings');
+        }
     }
 
     public function packageRegistered(): void
@@ -133,6 +156,93 @@ final class FoundationThemeServiceProvider extends AbstractPackageServiceProvide
         $registry = resolve(SettingsSchemaRegistry::class);
         $registry->registerSettingsClass('foundation_theme', FoundationThemeSettings::class);
         $registry->register('foundation_theme', FoundationThemeSettingsSchema::class);
+    }
+
+    private function registerThemeRuntime(): void
+    {
+        $this->app->singleton(ThemeRegistry::class);
+        $this->app->bind(ThemePageAdapter::class, CapellFrontendThemePageAdapter::class);
+        $this->app->singleton(ThemeRuntimeSettings::class, ThemeStudioSettings::class);
+
+        $this->app->singleton(
+            ThemePreviewSigner::class,
+            fn (): ThemePreviewSigner => new ThemePreviewSigner(config('app.key', 'capell-theme')),
+        );
+
+        $this->app->singleton(ThemePreviewContext::class, fn (): ThemePreviewContext => ThemePreviewContext::none());
+
+        $registerSettingsClass = function (SettingsSchemaRegistry $registry): void {
+            $registry->registerSettingsClass(ThemeStudioSettings::group(), ThemeStudioSettings::class);
+        };
+
+        $this->app->afterResolving(SettingsSchemaRegistry::class, $registerSettingsClass);
+
+        if ($this->app->resolved(SettingsSchemaRegistry::class)) {
+            $registerSettingsClass($this->app->make(SettingsSchemaRegistry::class));
+        }
+    }
+
+    private function registerThemePreviewMiddleware(): void
+    {
+        $this->app->afterResolving(Router::class, function (Router $router): void {
+            $this->registerPreviewMiddleware($router);
+        });
+
+        if ($this->app->resolved(Router::class)) {
+            $this->registerPreviewMiddleware($this->app->make(Router::class));
+        }
+    }
+
+    private function registerPreviewMiddleware(Router $router): void
+    {
+        if ($this->previewMiddlewareRegistered) {
+            return;
+        }
+
+        $router->pushMiddlewareToGroup('web', ResolveThemePreviewContext::class);
+        $this->previewMiddlewareRegistered = true;
+    }
+
+    private function registerTokenRenderHook(): void
+    {
+        if (! class_exists(RenderHookRegistry::class)
+            || ! class_exists(RenderHookLocation::class)) {
+            return;
+        }
+
+        $this->app->afterResolving(
+            RenderHookRegistry::class,
+            function (RenderHookRegistry $registry): void {
+                $registry->register(
+                    RenderHookLocation::HeadClose,
+                    function (): string {
+                        if (! $this->app->bound(ThemeRuntimeSettings::class)) {
+                            return '';
+                        }
+
+                        $settings = $this->app->make(ThemeRuntimeSettings::class);
+                        $activeTheme = $settings->activeTheme();
+
+                        if (! $this->app->make(ThemeRegistry::class)->has($activeTheme)) {
+                            return '';
+                        }
+
+                        $runtime = ResolveThemeRuntimeAction::run(
+                            activeTheme: $activeTheme,
+                            activePreset: $settings->activePreset(),
+                            brand: $settings->brandProfile(),
+                            themeOverrides: $settings->themeOverrides(),
+                        );
+
+                        if ($runtime->tokenCssPath === null) {
+                            return '';
+                        }
+
+                        return '<link rel="stylesheet" href="' . e(asset('vendor/capell-theme/tokens/' . basename((string) $runtime->tokenCssPath))) . '">';
+                    },
+                );
+            },
+        );
     }
 
     private function registerModelInterceptors(): void
