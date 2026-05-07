@@ -42,7 +42,7 @@ class StaleDraftsPage extends Page implements HasActions, HasTable
     #[Override]
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_monitoring'));
+        return (string) (__('capell-admin::navigation.group_content'));
     }
 
     public static function table(Table $table): Table

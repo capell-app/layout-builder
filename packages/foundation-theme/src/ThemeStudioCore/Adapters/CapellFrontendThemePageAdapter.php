@@ -23,8 +23,13 @@ use Capell\ThemeStudio\Core\Data\HeroSectionData;
 use Capell\ThemeStudio\Core\Data\NavigationData;
 use Capell\ThemeStudio\Core\Data\ProofSectionData;
 use Capell\ThemeStudio\Core\Data\ThemePageData;
+use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class CapellFrontendThemePageAdapter implements ThemePageAdapter
 {
@@ -241,6 +246,7 @@ class CapellFrontendThemePageAdapter implements ThemePageAdapter
             'heading' => $this->titleFrom($this->translationFor($widget), (string) $widget->getAttribute('name')),
             'summary' => $this->summaryFrom($this->translationFor($widget)?->content),
             'items' => $this->assetItems($widget, 'summary'),
+            'variant' => $this->listingVariantFor($widget),
         ]);
     }
 
@@ -287,6 +293,8 @@ class CapellFrontendThemePageAdapter implements ThemePageAdapter
 
                 $translation = $this->translationFor($asset);
                 $title = $this->titleFrom($translation, (string) ($asset->getAttribute('name') ?? ''));
+                $summary = $this->summaryFrom($translation?->content);
+                $publishDate = $this->publishDate($asset);
 
                 if ($title === '') {
                     return null;
@@ -294,15 +302,41 @@ class CapellFrontendThemePageAdapter implements ThemePageAdapter
 
                 return array_filter([
                     'title' => $title,
-                    $summaryKey => $this->summaryFrom($translation?->content),
-                    'summary' => $this->summaryFrom($translation?->content),
+                    $summaryKey => $summary,
+                    'summary' => $summary,
                     'url' => $this->pageUrl($asset),
                     'image' => $this->mediaUrl($asset) ?? $this->mediaUrl($widgetAsset),
-                ], fn (mixed $value): bool => $value !== null && $value !== '');
+                    'publishedAt' => $publishDate?->toW3cString(),
+                    'publishedDate' => $publishDate?->format((string) config('capell-frontend.date_format', 'j M Y')),
+                    'author' => $this->authorName($asset),
+                    'type' => $this->typeName($asset),
+                    'meta' => $this->publicMetaLabels($asset, $widgetAsset),
+                ], fn (mixed $value): bool => $value !== null && $value !== '' && $value !== []);
             })
             ->filter()
             ->values()
             ->all();
+    }
+
+    private function listingVariantFor(Model $widget): string
+    {
+        $signature = Str::of(implode(' ', [
+            $widget->getAttribute('key'),
+            $widget->getAttribute('name'),
+            data_get($widget->getAttribute('meta'), 'component'),
+            data_get($widget->getAttribute('meta'), 'component_item'),
+            data_get($widget->getAttribute('meta'), 'view_file'),
+        ]))->lower();
+
+        return match (true) {
+            $signature->contains(['gallery', 'image']) => 'gallery',
+            $signature->contains(['carousel', 'media']) => 'media',
+            $signature->contains(['faq', 'accordion']) => 'faq',
+            $signature->contains(['pricing', 'price']) => 'pricing',
+            $signature->contains(['team', 'member', 'portfolio']) => 'people',
+            $signature->contains(['statistic', 'stats']) => 'metrics',
+            default => 'editorial',
+        };
     }
 
     /**
@@ -383,6 +417,88 @@ class CapellFrontendThemePageAdapter implements ThemePageAdapter
             : data_get($model->getAttribute('meta'), $key);
 
         return is_string($value) && $value !== '' ? $value : null;
+    }
+
+    private function publishDate(Model $model): ?CarbonInterface
+    {
+        $value = method_exists($model, 'getPublishDate')
+            ? $model->getPublishDate()
+            : ($model->getAttribute('visible_from') ?? $model->getAttribute('created_at'));
+
+        if ($value instanceof CarbonInterface) {
+            return $value;
+        }
+
+        return $value instanceof DateTimeInterface ? CarbonImmutable::instance($value) : null;
+    }
+
+    private function authorName(Model $model): ?string
+    {
+        $creator = $model->relationLoaded('creator') ? $model->getRelationValue('creator') : null;
+        $name = $creator instanceof Model ? $creator->getAttribute('name') : null;
+
+        return is_string($name) && $name !== '' ? $name : null;
+    }
+
+    private function typeName(Model $model): ?string
+    {
+        $type = $model->relationLoaded('type') ? $model->getRelationValue('type') : null;
+
+        if (! $type instanceof Model) {
+            return null;
+        }
+
+        foreach (['name', 'title', 'key'] as $attribute) {
+            $value = $type->getAttribute($attribute);
+
+            if (is_string($value) && $value !== '') {
+                $label = Str::of($value)->replace(['-', '_'], ' ')->headline()->toString();
+
+                return in_array(Str::lower($label), ['default', 'page'], true) ? null : $label;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function publicMetaLabels(Model $asset, Model $widgetAsset): array
+    {
+        $meta = array_merge(
+            $this->publicMetaFrom($asset->getAttribute('meta')),
+            $this->publicMetaFrom($widgetAsset->getAttribute('meta')),
+        );
+
+        return collect($meta)->unique()->take(3)->values()->all();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function publicMetaFrom(mixed $meta): array
+    {
+        if (! is_array($meta)) {
+            return [];
+        }
+
+        return collect(Arr::only($meta, [
+            'badge',
+            'category',
+            'eyebrow',
+            'format',
+            'label',
+            'location',
+            'plan',
+            'price',
+            'role',
+            'tag',
+        ]))
+            ->filter(fn (mixed $value): bool => is_scalar($value) && trim((string) $value) !== '')
+            ->map(fn (mixed $value): string => trim((string) $value))
+            ->values()
+            ->all();
     }
 
     private function mediaUrl(Model $model): ?string

@@ -102,7 +102,7 @@ class CorporateThemeServiceProvider extends ServiceProvider
             definition: self::definition(),
             themeRenderer: new BladeThemeRenderer(
                 themeKey: self::THEME_KEY,
-                layoutView: 'capell::page',
+                layoutView: 'capell-theme-corporate::page',
                 sectionRenderers: $sectionRenderers,
             ),
             sectionRenderers: array_values($sectionRenderers),

@@ -41,7 +41,7 @@ class PreviewLinkResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('capell-admin::navigation.group_administration');
+        return __('capell-admin::navigation.group_content');
     }
 
     public static function getNavigationLabel(): string

@@ -10,7 +10,7 @@ use Spatie\LaravelData\Data;
 class FeatureSectionData extends Data implements ThemeSection
 {
     /**
-     * @param  array<int, array{title: string, description: string, icon?: string}>  $features
+     * @param  array<int, array{title: string, description: string, icon?: string, image?: string, publishedAt?: string, publishedDate?: string, author?: string, type?: string, meta?: array<int, string>}>  $features
      */
     public function __construct(
         public string $heading,

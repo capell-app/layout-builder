@@ -36,5 +36,5 @@ test('lists stale publishing-studio and hides fresh ones', function (): void {
 test('exposes the correct slug and navigation group', function (): void {
     expect(StaleDraftsPage::getSlug())->toBe('stale-drafts');
     expect(StaleDraftsPage::getNavigationGroup())
-        ->toBe((string) __('capell-admin::navigation.group_monitoring'));
+        ->toBe((string) __('capell-admin::navigation.group_content'));
 });

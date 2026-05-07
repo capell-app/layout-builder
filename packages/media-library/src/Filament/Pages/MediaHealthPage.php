@@ -42,7 +42,7 @@ class MediaHealthPage extends Page implements HasActions, HasTable
     #[Override]
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_monitoring'));
+        return (string) (__('capell-admin::navigation.group_administration'));
     }
 
     public static function table(Table $table): Table

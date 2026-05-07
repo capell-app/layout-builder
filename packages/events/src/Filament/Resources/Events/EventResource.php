@@ -51,7 +51,7 @@ class EventResource extends PageResource
     #[Override]
     public static function getNavigationGroup(): ?string
     {
-        return (string) __('capell-events::generic.events');
+        return (string) __('capell-admin::navigation.group_content');
     }
 
     public static function getResourceType(): ConfiguratorTypeEnum

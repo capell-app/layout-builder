@@ -181,6 +181,46 @@ it('clears the page lookup cache through the render-model action', function (): 
         ->and($freshRenderModel->items[0]->url)->toContain('/changed');
 });
 
+it('memoizes navigation render models for the current request', function (): void {
+    $language = Language::factory()->default()->create();
+    $site = Site::factory()
+        ->language($language)
+        ->withTranslations(siteDomainData: ['scheme' => 'https', 'domain' => 'localhost', 'path' => null])
+        ->create();
+    $currentPage = Page::factory()->site($site)->home()->withTranslations(slug: '/')->create();
+    $linkedPage = Page::factory()->site($site)->withTranslations()->create();
+
+    $navigation = Navigation::factory()->make([
+        'key' => 'main',
+        'site_id' => $site->id,
+        'language_id' => $language->id,
+        'items' => [
+            [
+                'type' => NavigationItemType::Page->value,
+                'data' => [
+                    'pageable_id' => $linkedPage->id,
+                    'pageable_type' => $linkedPage->getMorphClass(),
+                ],
+            ],
+        ],
+    ]);
+
+    $context = new NavigationRenderContextData(
+        navigation: $navigation,
+        page: $currentPage,
+        site: $site,
+        language: $language,
+        siteDomain: $site->siteDomains->first(),
+    );
+
+    $firstRenderModel = BuildNavigationRenderModelAction::run($context);
+    DB::table('page_urls')->where('id', $linkedPage->pageUrl->id)->update(['url' => '/memoized-change']);
+    $secondRenderModel = BuildNavigationRenderModelAction::run($context);
+
+    expect($secondRenderModel)->toBe($firstRenderModel)
+        ->and($secondRenderModel->items[0]->url)->toBe($linkedPage->pageUrl->full_url);
+});
+
 it('renders heading items without a url', function (): void {
     $language = Language::factory()->default()->create();
     $site = Site::factory()

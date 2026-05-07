@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use Capell\Core\Facades\CapellCore;
+use Capell\ThemeStudio\Core\Data\BrandProfileData;
 use Capell\ThemeStudio\Core\Data\NavigationData;
+use Capell\ThemeStudio\Core\Data\ThemePageData;
 use Capell\ThemeStudio\Core\Theme\ThemeRegistry;
 use Capell\ThemeStudio\Corporate\CorporateThemeServiceProvider;
 use Illuminate\Support\Facades\View;
@@ -55,4 +57,22 @@ it('registers corporate only when the theme package is installed', function (): 
 
     expect($registry->has('corporate'))->toBeTrue()
         ->and($registry->definition('corporate')->package)->toBe(CorporateThemeServiceProvider::$packageName);
+});
+
+it('renders the corporate theme page wrapper', function (): void {
+    CapellCore::clearPackages();
+    CapellCore::forcePackageInstalled(CorporateThemeServiceProvider::$packageName);
+
+    $registry = new ThemeRegistry;
+    $provider = new CorporateThemeServiceProvider($this->app);
+    $provider->register();
+    $provider->boot($registry);
+
+    $html = $registry->renderer('corporate')->render(new ThemePageData(
+        title: 'Birds',
+        brand: new BrandProfileData,
+        sections: [],
+    ));
+
+    expect($html)->toContain('data-capell-theme="corporate"');
 });

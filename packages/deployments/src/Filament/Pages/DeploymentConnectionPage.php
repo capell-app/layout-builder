@@ -28,7 +28,7 @@ final class DeploymentConnectionPage extends Page
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_administration'));
+        return 'System';
     }
 
     public static function getNavigationSort(): int

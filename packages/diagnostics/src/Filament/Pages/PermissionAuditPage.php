@@ -41,7 +41,7 @@ class PermissionAuditPage extends Page implements HasActions, HasTable
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_monitoring'));
+        return (string) (__('capell-admin::navigation.group_administration'));
     }
 
     public function table(Table $table): Table

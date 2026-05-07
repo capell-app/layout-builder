@@ -10,12 +10,13 @@ use Spatie\LaravelData\Data;
 class ContentListingSectionData extends Data implements ThemeSection
 {
     /**
-     * @param  array<int, array{title: string, summary?: string, url?: string, image?: string}>  $items
+     * @param  array<int, array{title: string, summary?: string, url?: string, image?: string, publishedAt?: string, publishedDate?: string, author?: string, type?: string, meta?: array<int, string>}>  $items
      */
     public function __construct(
         public string $heading,
         public ?string $summary = null,
         public array $items = [],
+        public ?string $variant = null,
     ) {}
 
     public function key(): string

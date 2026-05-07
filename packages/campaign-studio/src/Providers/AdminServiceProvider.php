@@ -46,10 +46,10 @@ final class AdminServiceProvider extends ServiceProvider
     private function registerNavigationGroups(): self
     {
         CapellAdmin::registerNavigationGroup(
-            label: 'capell-campaign-studio::navigation.campaign-studio',
+            label: 'Marketing',
             icon: Heroicon::OutlinedMegaphone,
             position: NavigationGroupPositionEnum::After,
-            relativeTo: 'capell-events::generic.events',
+            relativeTo: 'capell-admin::navigation.group_content',
         );
 
         return $this;

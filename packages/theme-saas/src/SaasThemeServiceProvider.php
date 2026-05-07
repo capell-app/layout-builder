@@ -103,7 +103,7 @@ class SaasThemeServiceProvider extends ServiceProvider
             definition: self::definition(),
             themeRenderer: new BladeThemeRenderer(
                 themeKey: self::THEME_KEY,
-                layoutView: 'capell::page',
+                layoutView: 'capell-theme-saas::page',
                 sectionRenderers: $sectionRenderers,
             ),
             sectionRenderers: array_values($sectionRenderers),

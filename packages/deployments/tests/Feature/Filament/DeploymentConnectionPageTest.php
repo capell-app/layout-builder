@@ -27,7 +27,7 @@ it('returns a Filament compatible navigation icon', function (): void {
 
 it('uses clear deployment repository navigation labels', function (): void {
     expect(DeploymentConnectionPage::getNavigationLabel())->toBe('Deployment Repository')
-        ->and(DeploymentConnectionPage::getNavigationGroup())->toBe('Administration')
+        ->and(DeploymentConnectionPage::getNavigationGroup())->toBe('System')
         ->and((new DeploymentConnectionPage)->getTitle())->toBe('Deployment Repository');
 });
 

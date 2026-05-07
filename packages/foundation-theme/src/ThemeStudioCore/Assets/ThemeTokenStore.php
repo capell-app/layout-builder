@@ -20,7 +20,13 @@ class ThemeTokenStore
         $filename = str_replace(':', '-', ThemeAssetKey::make($themeKey, $presetKey, $brand)) . '.css';
         $path = $directory . DIRECTORY_SEPARATOR . $filename;
 
-        File::put($path, (new ThemeTokenRenderer)->css($brand));
+        $css = (new ThemeTokenRenderer)->css($brand);
+
+        if (File::exists($path) && File::get($path) === $css) {
+            return $path;
+        }
+
+        File::put($path, $css);
 
         return $path;
     }

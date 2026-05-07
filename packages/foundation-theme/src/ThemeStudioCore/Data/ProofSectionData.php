@@ -10,7 +10,7 @@ use Spatie\LaravelData\Data;
 class ProofSectionData extends Data implements ThemeSection
 {
     /**
-     * @param  array<int, array{quote?: string, name?: string, role?: string, logo?: string, metric?: string}>  $items
+     * @param  array<int, array{quote?: string, name?: string, role?: string, logo?: string, metric?: string, image?: string, publishedAt?: string, publishedDate?: string, author?: string, type?: string, meta?: array<int, string>}>  $items
      */
     public function __construct(
         public string $heading,

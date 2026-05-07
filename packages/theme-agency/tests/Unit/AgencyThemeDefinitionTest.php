@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use Capell\Core\Facades\CapellCore;
 use Capell\ThemeStudio\Agency\AgencyThemeServiceProvider;
+use Capell\ThemeStudio\Core\Data\BrandProfileData;
 use Capell\ThemeStudio\Core\Data\NavigationData;
+use Capell\ThemeStudio\Core\Data\ThemePageData;
 use Capell\ThemeStudio\Core\Theme\ThemeRegistry;
 use Illuminate\Support\Facades\View;
 
@@ -55,4 +57,22 @@ it('registers agency only when the theme package is installed', function (): voi
 
     expect($registry->has('agency'))->toBeTrue()
         ->and($registry->definition('agency')->package)->toBe(AgencyThemeServiceProvider::$packageName);
+});
+
+it('renders the agency theme page wrapper', function (): void {
+    CapellCore::clearPackages();
+    CapellCore::forcePackageInstalled(AgencyThemeServiceProvider::$packageName);
+
+    $registry = new ThemeRegistry;
+    $provider = new AgencyThemeServiceProvider($this->app);
+    $provider->register();
+    $provider->boot($registry);
+
+    $html = $registry->renderer('agency')->render(new ThemePageData(
+        title: 'Birds',
+        brand: new BrandProfileData,
+        sections: [],
+    ));
+
+    expect($html)->toContain('data-capell-theme="agency"');
 });

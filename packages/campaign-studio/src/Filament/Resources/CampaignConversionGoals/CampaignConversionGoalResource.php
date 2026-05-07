@@ -57,7 +57,7 @@ final class CampaignConversionGoalResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('capell-campaign-studio::navigation.campaign-studio');
+        return 'Marketing';
     }
 
     public static function getNavigationLabel(): string

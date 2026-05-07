@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use Capell\Core\Facades\CapellCore;
+use Capell\ThemeStudio\Core\Data\BrandProfileData;
 use Capell\ThemeStudio\Core\Data\NavigationData;
+use Capell\ThemeStudio\Core\Data\ThemePageData;
 use Capell\ThemeStudio\Core\Theme\ThemeRegistry;
 use Capell\ThemeStudio\Saas\SaasThemeServiceProvider;
 use Illuminate\Support\Facades\View;
@@ -55,4 +57,22 @@ it('registers saas only when the theme package is installed', function (): void 
 
     expect($registry->has('saas'))->toBeTrue()
         ->and($registry->definition('saas')->package)->toBe(SaasThemeServiceProvider::$packageName);
+});
+
+it('renders the saas theme page wrapper', function (): void {
+    CapellCore::clearPackages();
+    CapellCore::forcePackageInstalled(SaasThemeServiceProvider::$packageName);
+
+    $registry = new ThemeRegistry;
+    $provider = new SaasThemeServiceProvider($this->app);
+    $provider->register();
+    $provider->boot($registry);
+
+    $html = $registry->renderer('saas')->render(new ThemePageData(
+        title: 'Birds',
+        brand: new BrandProfileData,
+        sections: [],
+    ));
+
+    expect($html)->toContain('data-capell-theme="saas"');
 });

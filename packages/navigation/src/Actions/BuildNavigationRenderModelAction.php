@@ -10,6 +10,7 @@ use Capell\Navigation\Data\NavigationRenderContextData;
 use Capell\Navigation\Data\NavigationRenderData;
 use Capell\Navigation\Models\Navigation;
 use Capell\Navigation\Support\Loader\NavigationItemsLoader;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -20,13 +21,27 @@ class BuildNavigationRenderModelAction
 {
     use AsObject;
 
+    private const REQUEST_CACHE_KEY = 'capell.navigation.render_models';
+
     public static function flushPageCache(): void
     {
         NavigationItemsLoader::flushPageCache();
+
+        if (app()->bound('request')) {
+            request()->attributes->remove(self::REQUEST_CACHE_KEY);
+        }
     }
 
     public function handle(NavigationRenderContextData $context): NavigationRenderData
     {
+        $cacheKey = $this->cacheKey($context);
+        $request = app()->bound('request') ? request() : null;
+        $cache = $this->requestCache($request);
+
+        if (isset($cache[$cacheKey])) {
+            return $cache[$cacheKey];
+        }
+
         $loader = new NavigationItemsLoader(
             navigation: $context->navigation,
             page: $context->page,
@@ -37,13 +52,18 @@ class BuildNavigationRenderModelAction
 
         $items = $loader->load();
 
-        return new NavigationRenderData(
+        $renderModel = new NavigationRenderData(
             navigationId: $context->navigation->exists ? (int) $context->navigation->getKey() : null,
             navigationKey: $context->navigation->key,
             navigationName: $context->navigation->name,
             listComponent: $this->listComponent($context->navigation),
             items: $this->mapItems($items),
         );
+
+        $cache[$cacheKey] = $renderModel;
+        $request?->attributes->set(self::REQUEST_CACHE_KEY, $cache);
+
+        return $renderModel;
     }
 
     /**
@@ -100,5 +120,33 @@ class BuildNavigationRenderModelAction
         $component = $navigation->getMeta('component', 'capell::list');
 
         return is_string($component) && $component !== '' ? $component : 'capell::list';
+    }
+
+    /**
+     * @return array<string, NavigationRenderData>
+     */
+    private function requestCache(?Request $request): array
+    {
+        if (! $request instanceof Request) {
+            return [];
+        }
+
+        $cache = $request->attributes->get(self::REQUEST_CACHE_KEY, []);
+
+        return is_array($cache) ? $cache : [];
+    }
+
+    private function cacheKey(NavigationRenderContextData $context): string
+    {
+        return implode('|', [
+            $context->navigation->exists ? (string) $context->navigation->getKey() : 'new:' . spl_object_id($context->navigation),
+            $context->navigation->key,
+            (string) $context->navigation->updated_at?->getTimestamp(),
+            (string) $context->page->getMorphClass(),
+            (string) $context->page->getKey(),
+            (string) $context->site->getKey(),
+            (string) $context->language->getKey(),
+            (string) $context->siteDomain->getKey(),
+        ]);
     }
 }

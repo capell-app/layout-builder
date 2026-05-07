@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Capell\Events\Providers;
 
 use Capell\Admin\Data\AdminSurfaceContributionData;
-use Capell\Admin\Enums\NavigationGroupPositionEnum;
 use Capell\Admin\Enums\ResourceEnum as AdminResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
@@ -26,7 +25,6 @@ use Capell\PublishingStudio\WorkspaceRegistry;
 use Capell\SeoSuite\Enums\SchemaTemplateTypeEnum;
 use Capell\SeoSuite\Support\SchemaTemplates\SchemaTemplateRegistry;
 use Composer\InstalledVersions;
-use Filament\Support\Icons\Heroicon;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
@@ -74,7 +72,6 @@ class EventsServiceProvider extends AbstractPackageServiceProvider
     {
         return $this
             ->registerModels()
-            ->registerNavigationGroups()
             ->registerAdminResources()
             ->registerPageTypes()
             ->registerPackageAssets()
@@ -106,18 +103,6 @@ class EventsServiceProvider extends AbstractPackageServiceProvider
     private function isPackageInstalled(): bool
     {
         return CapellCore::getPackage(static::$packageName)->isInstalled();
-    }
-
-    private function registerNavigationGroups(): self
-    {
-        CapellAdmin::registerNavigationGroup(
-            label: 'capell-events::generic.events',
-            icon: Heroicon::OutlinedCalendarDays,
-            position: NavigationGroupPositionEnum::After,
-            relativeTo: 'capell-admin::navigation.group_content',
-        );
-
-        return $this;
     }
 
     private function getVersion(): string
