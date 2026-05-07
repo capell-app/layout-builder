@@ -115,6 +115,23 @@ class ContentBlockRenderingTestCase extends TestCase
             });
         }
 
+        if (! Schema::hasTable('sites')) {
+            Schema::create('sites', static function (Blueprint $table): void {
+                $table->id();
+                $table->string('name');
+                $table->unsignedBigInteger('type_id');
+                $table->unsignedBigInteger('theme_id');
+                $table->unsignedBigInteger('language_id');
+                $table->json('meta')->nullable();
+                $table->json('admin')->nullable();
+                $table->unsignedInteger('order')->default(0)->index();
+                $table->boolean('default')->index()->default(false);
+                $table->boolean('status')->index()->default(true);
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
+
         if (! Schema::hasTable('translations')) {
             Schema::create('translations', static function (Blueprint $table): void {
                 $table->id();
