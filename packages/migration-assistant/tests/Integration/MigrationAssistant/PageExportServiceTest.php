@@ -9,6 +9,7 @@ use Capell\Core\Models\SiteDomain;
 use Capell\MigrationAssistant\Data\ExportOptions;
 use Capell\MigrationAssistant\Services\Export\PageExportService;
 use Capell\MigrationAssistant\Services\Import\PackageReader;
+use Capell\MigrationAssistant\Support\AdminPageExporter;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
@@ -254,4 +255,39 @@ it('exports media stored by the configured media path generator', function (): v
         ->toContain('media/' . hash('sha256', 'stored-by-media-library') . '.png');
 
     @unlink($sourcePath);
+});
+
+it('adapts admin backup options when exporting pages and sites', function (): void {
+    $site = Site::factory()->hasSiteDomains()->create();
+    $page = Page::factory()->recycle($site)->create();
+    $exporter = new AdminPageExporter(new PageExportService);
+
+    $pageExportPath = $exporter->exportPages([$page->getKey()], [
+        'include_translations' => false,
+        'include_media' => false,
+        'include_shared_relations' => false,
+        'include_all_contexts' => true,
+        'note' => 'admin page export',
+    ]);
+
+    $pageEntries = readArchiveEntries($pageExportPath);
+    $pageManifest = json_decode($pageEntries['manifest.json'], associative: true, flags: JSON_THROW_ON_ERROR);
+
+    expect($pageManifest)
+        ->toHaveKey('package_type', 'page-export')
+        ->toHaveKey('note', 'admin page export')
+        ->and($pageManifest['relation_counts'])->toBe([]);
+
+    $siteExportPath = $exporter->exportSites([$site->getKey()], [
+        'include_media' => false,
+        'note' => 'admin site export',
+    ]);
+
+    $siteEntries = readArchiveEntries($siteExportPath);
+    $siteManifest = json_decode($siteEntries['manifest.json'], associative: true, flags: JSON_THROW_ON_ERROR);
+
+    expect($siteManifest)
+        ->toHaveKey('package_type', 'site-export')
+        ->toHaveKey('site_count', 1)
+        ->toHaveKey('note', 'admin site export');
 });
