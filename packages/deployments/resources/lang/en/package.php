@@ -3,5 +3,5 @@
 declare(strict_types=1);
 
 return [
-    'description' => 'Connect Capell to GitHub, GitLab, or Bitbucket and publish Composer changes safely.',
+    'description' => 'The Deployments package stores Git provider connections and publishes Composer requirement changes for package installation flows.',
 ];

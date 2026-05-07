@@ -33,6 +33,8 @@ class StaleDraftsPage extends Page implements HasActions, HasTable
 
     protected static ?string $slug = 'stale-drafts';
 
+    protected static ?int $navigationSort = 2;
+
     #[Override]
     public static function getNavigationLabel(): string
     {
@@ -42,7 +44,7 @@ class StaleDraftsPage extends Page implements HasActions, HasTable
     #[Override]
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_content'));
+        return (string) (__('capell-admin::navigation.group_workflow'));
     }
 
     public static function table(Table $table): Table

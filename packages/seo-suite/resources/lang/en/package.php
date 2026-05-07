@@ -3,5 +3,5 @@
 declare(strict_types=1);
 
 return [
-    'description' => 'SEO metadata, Open Graph, JSON-LD, and schema tags. Auto-managed across your entire site.',
+    'description' => 'SEO Suite adds metadata panels, sitemap generation, structured data, broken link tracking, Search Console insights, AI-assisted content briefs, and publish checks.',
 ];

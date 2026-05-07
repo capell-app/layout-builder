@@ -42,7 +42,7 @@ final class StarterSitesServiceProvider extends AbstractPackageServiceProvider
             serviceProviderClass: self::class,
             path: realpath(__DIR__ . '/../..'),
             version: $this->getVersion(),
-            description: fn (): string => 'Example site content and assets for Capell installs.',
+            description: fn (): string => 'Example site content package for Capell',
             setupCommand: 'capell:starter-sites-full-demo',
         );
 

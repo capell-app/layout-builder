@@ -5,6 +5,7 @@
     "productGroup": "Capell Foundation",
     "tier": "free",
     "bundle": "foundation",
+    "description": "Frontend Authoring owns the admin beacon, in-page edit manifest, signed edit routes, and cache-aware field saves.",
     "contexts": ["frontend", "console"],
     "requires": ["capell-app/core", "capell-app/admin", "capell-app/frontend"],
     "providers": {

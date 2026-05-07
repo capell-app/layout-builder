@@ -22,6 +22,8 @@ class EventCalendarPage extends Page
 
     protected static ?string $slug = 'events-calendar';
 
+    protected static ?int $navigationSort = 4;
+
     #[Override]
     public static function getNavigationLabel(): string
     {
@@ -32,6 +34,12 @@ class EventCalendarPage extends Page
     public static function getNavigationGroup(): ?string
     {
         return (string) __('capell-admin::navigation.group_content');
+    }
+
+    #[Override]
+    public static function getNavigationParentItem(): ?string
+    {
+        return (string) __('capell-events::generic.events');
     }
 
     #[Override]

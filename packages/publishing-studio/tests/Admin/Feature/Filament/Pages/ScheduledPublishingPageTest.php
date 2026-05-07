@@ -47,7 +47,8 @@ test('lists page and workspace scheduler events', function (): void {
 test('uses content scheduler labels and prominent navigation', function (): void {
     expect(ScheduledPublishingPage::getSlug())->toBe('scheduled-publishing');
     expect(ScheduledPublishingPage::getNavigationLabel())->toBe('Content Scheduler')
-        ->and(ScheduledPublishingPage::getNavigationGroup())->toBe('Content');
+        ->and(ScheduledPublishingPage::getNavigationGroup())->toBe((string) __('capell-admin::navigation.group_workflow'))
+        ->and(ScheduledPublishingPage::getNavigationItems()[0]->getSort())->toBe(1);
 });
 
 test('shows a navigation badge for upcoming scheduler events', function (): void {

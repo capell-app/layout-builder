@@ -5,6 +5,7 @@
     "productGroup": "Capell Operations",
     "tier": "premium",
     "bundle": "operations",
+    "description": "Deployments owns repository deployment connections and Composer requirement publishing for Capell CMS.",
     "namespace": "Capell\\Deployments",
     "contexts": ["admin", "console"],
     "requires": ["capell-app/admin", "capell-app/core"],

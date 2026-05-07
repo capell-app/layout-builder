@@ -5,6 +5,7 @@
     "productGroup": "Capell Foundation",
     "tier": "free",
     "bundle": "foundation",
+    "description": "Media Library connects Capell to Awcodes Curator media, media health reporting, and Spatie Media migration support.",
     "contexts": ["admin"],
     "requires": ["capell-app/core", "capell-app/admin"],
     "providers": {

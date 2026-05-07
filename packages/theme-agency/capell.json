@@ -5,6 +5,7 @@
     "productGroup": "Capell Themes",
     "tier": "premium",
     "bundle": "themes",
+    "description": "Theme Agency registers the agency theme key and expressive renderer views for studio, portfolio, and brand-led sites.",
     "themeKey": "agency",
     "contexts": ["frontend"],
     "extends": "capell-app/foundation-theme",

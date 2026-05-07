@@ -5,6 +5,7 @@
     "productGroup": "Capell Search & SEO",
     "tier": "premium",
     "bundle": "search-seo",
+    "description": "Search adds a frontend search route, configurable search drivers, result click tracking, query logging, and admin search insights.",
     "contexts": ["admin", "frontend", "console"],
     "requires": ["capell-app/core", "capell-app/admin", "capell-app/frontend"],
     "providers": {

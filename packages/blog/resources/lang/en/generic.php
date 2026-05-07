@@ -9,7 +9,7 @@ return [
     'article' => 'Article',
     'articles' => 'Articles',
     'article_archives' => 'Article Archives',
-    'articles_info' => 'Blog articles',
+    'articles_info' => 'Blog adds article publishing, archives, tags, widgets, and sitemaps.',
     'blog' => 'Blog',
     'blog_archive_page' => 'Archive Page',
     'blog_archive_title' => 'Articles from :archive_month :archive_year.',

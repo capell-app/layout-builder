@@ -3,5 +3,5 @@
 declare(strict_types=1);
 
 return [
-    'description' => 'Adds public site search, optional query logging, and search insights widgets.',
+    'description' => 'Search adds a frontend search route, configurable search drivers, result click tracking, query logging, and admin search insights.',
 ];

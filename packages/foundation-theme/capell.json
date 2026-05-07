@@ -6,6 +6,7 @@
     "productGroup": "Capell Foundation",
     "tier": "free",
     "bundle": "foundation",
+    "description": "Foundation Theme provides the default Capell theme runtime, renderer contracts, token CSS, Tailwind assets, Blade directives, and media handling.",
     "contexts": ["frontend", "admin"],
     "extends": null,
     "providers": {

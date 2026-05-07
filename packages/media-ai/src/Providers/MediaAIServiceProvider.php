@@ -40,7 +40,7 @@ final class MediaAIServiceProvider extends AbstractPackageServiceProvider
             serviceProviderClass: self::class,
             path: realpath(__DIR__ . '/../..'),
             version: $this->version(),
-            description: fn (): string => 'Optional AI-assisted media actions for Capell.',
+            description: fn (): string => 'The Media AIOrchestrator package adds optional AI-backed image actions to Capell\'s existing media resource. It does not replace the media backend, crop system, or localized metadata model.',
         );
 
         if (

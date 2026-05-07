@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 return [
     'title' => 'Content Scheduler',
-    'subheading' => 'Plan workspace releases, page publish windows, embargoes, unpublishing, and editorial review reminders from one calendar-ready queue.',
+    'subheading' => 'Scheduled publishing manages release windows and review reminders.',
     'navigation' => [
         'label' => 'Content Scheduler',
-        'group' => 'Content',
+        'group' => 'Workflow',
     ],
     'event_types' => [
         'publish' => 'Publish',

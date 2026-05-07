@@ -9,9 +9,11 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\LayoutCreator;
+use Capell\LayoutBuilder\Actions\GenerateLayoutPreviewImageAction;
 use Capell\LayoutBuilder\Database\Factories\LayoutFactory;
 use Capell\LayoutBuilder\Database\Factories\WidgetTypeFactory;
 use Capell\LayoutBuilder\Enums\ContainerAlignmentEnum;
+use Capell\LayoutBuilder\Enums\LayoutPreviewStatusEnum;
 use Capell\LayoutBuilder\Enums\ResponsiveVisibilityEnum;
 use Capell\LayoutBuilder\Filament\Configurators\Layouts\Widgets\DefaultLayoutWidgetConfigurator;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
@@ -19,8 +21,10 @@ use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Capell\LayoutBuilder\Support\Creator\WidgetCreator;
+use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Queue;
 use Pest\Expectation;
 
 use function Pest\Livewire\livewire;
@@ -300,6 +304,30 @@ test('it reorders containers', function (): void {
     $layout->refresh();
 
     expect(array_keys($layout->containers))->toBe(['second', 'first']);
+});
+
+test('it dispatches layout preview generation when containers are saved', function (): void {
+    Queue::fake();
+
+    $widget = Widget::factory()->create(['key' => 'test']);
+    $layout = (new LayoutFactory)->state([
+        'containers' => [
+            'first' => ['widgets' => [['widget_key' => $widget->key]]],
+            'second' => ['widgets' => [['widget_key' => $widget->key]]],
+        ],
+    ])->create();
+
+    livewire(LayoutBuilder::class, ['layout' => $layout])
+        ->assertSuccessful()
+        ->call('reorderContainers', containerKey: 'second', position: 0)
+        ->call('saveLayout');
+
+    $layout->refresh();
+
+    expect($layout->admin[LayoutPreviewMetaKey::STATUS])->toBe(LayoutPreviewStatusEnum::Pending->value)
+        ->and($layout->admin[LayoutPreviewMetaKey::IMAGE])->toBeNull();
+
+    GenerateLayoutPreviewImageAction::assertPushed(1);
 });
 
 // ──────────────────────────────────────────────

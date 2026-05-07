@@ -26,6 +26,7 @@ use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
+use Capell\LayoutBuilder\Actions\InvalidateTypeLayoutPreviewImagesAction;
 use Capell\LayoutBuilder\AIOrchestrator\LayoutBuilderAIOrchestratorModule;
 use Capell\LayoutBuilder\Console\Commands\DemoCommand;
 use Capell\LayoutBuilder\Console\Commands\FakerCommand;
@@ -173,8 +174,26 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     private function registerModelEvents(): self
     {
         Layout::saving(resolve(LayoutSavingListener::class));
+        Type::updated(function (Type $type): void {
+            if (! $this->isWidgetType($type)) {
+                return;
+            }
+
+            if (! $type->wasChanged(['name', 'admin'])) {
+                return;
+            }
+
+            InvalidateTypeLayoutPreviewImagesAction::run($type);
+        });
 
         return $this;
+    }
+
+    private function isWidgetType(Type $type): bool
+    {
+        $rawType = $type->getRawOriginal('type');
+
+        return $rawType === LayoutTypeEnum::Widget->value;
     }
 
     private function registerFrontendAssets(): self

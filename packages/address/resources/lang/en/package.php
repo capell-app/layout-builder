@@ -3,5 +3,5 @@
 declare(strict_types=1);
 
 return [
-    'description' => 'Manage countries and addresses. Built-in Filament resources and lets sites store a primary location.',
+    'description' => 'Address adds reusable countries, address records, address selectors, country selectors, and flag rendering to the Capell admin surface.',
 ];

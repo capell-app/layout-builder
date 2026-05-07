@@ -55,7 +55,7 @@ class AIOrchestratorServiceProvider extends AbstractPackageServiceProvider
             serviceProviderClass: static::class,
             path: realpath(__DIR__ . '/../..'),
             version: $this->getVersion(),
-            description: fn (): string => 'Capell AIOrchestrator orchestration package.',
+            description: fn (): string => 'AIOrchestrator provides the orchestration layer for Capell ai-orchestrator modules and capability execution.',
         );
 
         return $this;

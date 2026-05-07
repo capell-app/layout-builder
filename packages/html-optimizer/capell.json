@@ -5,6 +5,7 @@
     "productGroup": "Capell Foundation",
     "tier": "free",
     "bundle": "foundation",
+    "description": "HTML Optimizer adds middleware and support code for reducing frontend HTML output and page-cache writes.",
     "contexts": ["frontend"],
     "requires": ["capell-app/frontend"],
     "providers": {

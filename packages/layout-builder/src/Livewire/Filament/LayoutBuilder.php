@@ -13,6 +13,7 @@ use Capell\Core\Actions\GetResourceFromTypeAction;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
+use Capell\LayoutBuilder\Actions\InvalidateLayoutPreviewImageAction;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\HasLayoutActions;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesAssets;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesContainers;
@@ -185,6 +186,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->layout->update([
             'containers' => $this->containers,
         ]);
+
+        InvalidateLayoutPreviewImageAction::run($this->layout);
 
         if ($this->page !== null && $this->page->layout_id !== $this->layout->getKey()) {
             $this->page->update([

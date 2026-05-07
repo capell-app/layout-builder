@@ -93,7 +93,7 @@ class WorkspaceResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('capell-admin::navigation.group_administration');
+        return __('capell-admin::navigation.group_workflow');
     }
 
     public static function getNavigationIcon(): string|BackedEnum|Htmlable|null

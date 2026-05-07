@@ -40,6 +40,8 @@ class EventResource extends PageResource
 
     protected static string $tableConfigurator = EventsTable::class;
 
+    protected static ?int $navigationSort = 3;
+
     /**
      * @return class-string<Event>
      */
@@ -77,6 +79,11 @@ class EventResource extends PageResource
     public static function getNavigationLabel(): string
     {
         return __('capell-events::generic.events');
+    }
+
+    public static function getNavigationParentItem(): ?string
+    {
+        return null;
     }
 
     public static function shouldRegisterNavigation(): bool

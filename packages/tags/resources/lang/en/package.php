@@ -3,5 +3,5 @@
 declare(strict_types=1);
 
 return [
-    'description' => 'Tag content for organization. Enable archive pages and front-end filtering by tag.',
+    'description' => 'Tags adds tag management, taggable relationships, a reusable tags input, and model traits for Capell content.',
 ];

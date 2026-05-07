@@ -1,0 +1,36 @@
+{
+    "name": "capell-app/frontend-optimizer",
+    "description": "Profile-based CSS and JavaScript delivery for public Capell pages.",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "capell-app/core": "^4.0",
+        "capell-app/frontend": "^4.0",
+        "lorisleiva/laravel-actions": "^2.8",
+        "spatie/laravel-data": "^4.5",
+        "spatie/laravel-package-tools": "^1.14.1",
+        "symfony/process": "^7.2|^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\FrontendOptimizer\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Capell\\FrontendOptimizer\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\FrontendOptimizer\\Providers\\FrontendOptimizerServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "prefer-stable": true
+}

@@ -1,0 +1,17 @@
+{
+    "name": "capell-app/frontend-optimizer",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Foundation",
+    "tier": "premium",
+    "bundle": "foundation",
+    "contexts": ["frontend"],
+    "description": "Frontend Optimizer provides profile-based CSS and JavaScript delivery for public Capell pages.",
+    "providers": {
+        "shared": [
+            "Capell\\FrontendOptimizer\\Providers\\FrontendOptimizerServiceProvider"
+        ]
+    },
+    "requires": ["capell-app/core", "capell-app/frontend"],
+    "scopes": ["frontend"]
+}

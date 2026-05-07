@@ -3,5 +3,5 @@
 declare(strict_types=1);
 
 return [
-    'description' => 'Adds first-party insights, visitor journeys, click tracking, and consent management.',
+    'description' => 'Insights records first-party visits, events, consent decisions, page views, clicks, and journey data for Capell sites.',
 ];

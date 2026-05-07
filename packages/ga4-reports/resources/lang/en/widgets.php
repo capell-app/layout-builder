@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
     'ga4_reports' => 'GA4 Reports',
-    'ga4_reports_hint' => 'GA4 traffic snapshots synced into Capell.',
+    'ga4_reports_hint' => 'GA4 Reports provides dashboard reporting for Capell.',
     'overview' => 'GA4 Reports overview',
     'traffic_trend' => 'GA4 Reports traffic trend',
     'top_pages' => 'Top GA4 pages',

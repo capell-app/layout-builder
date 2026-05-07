@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Filament\Resources\Layouts\Tables;
 
 use Capell\Admin\Enums\FilamentColorEnum;
+use Capell\Admin\Filament\Components\Tables\Columns\ImageColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Core\Models\Layout;
+use Capell\LayoutBuilder\Actions\GetLayoutPreviewImageUrlAction;
 use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\ViewEntry;
 use Filament\Tables\Columns\Column;
+use Filament\Tables\Columns\Layout\Component;
+use Filament\Tables\Columns\Layout\View;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -54,11 +59,13 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
 
         $nameColumnIndex = array_search(
             NameColumn::class,
-            array_map(fn (Column $column): string|false => $column::class, $columns),
+            array_map(fn (Column|Component $column): string|false => $column::class, $columns),
             true,
         );
 
-        if ($nameColumnIndex !== false) {
+        $usesCardLayout = collect($columns)->contains(fn (Column|Component $column): bool => $column instanceof View);
+
+        if ($nameColumnIndex !== false && ! $usesCardLayout) {
             array_splice($columns, $nameColumnIndex + 1, 0, [
                 TextColumn::make('layoutWidgets.name')
                     ->label(__('capell-layout-builder::table.container_widgets'))
@@ -67,6 +74,29 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                     ->bulleted()
                     ->limitList()
                     ->expandableLimitedList()
+                    ->toggleable(),
+            ]);
+        }
+
+        foreach ($columns as $column) {
+            if (! $column instanceof ImageColumn || $column->getName() !== 'admin.image') {
+                continue;
+            }
+
+            $column->getStateUsing(fn (Layout $record): ?string => GetLayoutPreviewImageUrlAction::run($record));
+        }
+
+        $imageColumnIndex = array_search(
+            ImageColumn::class,
+            array_map(fn (Column|Component $column): string|false => $column::class, $columns),
+            true,
+        );
+
+        if ($imageColumnIndex !== false && ! $usesCardLayout) {
+            array_splice($columns, $imageColumnIndex + 1, 0, [
+                TextColumn::make('admin.' . LayoutPreviewMetaKey::STATUS)
+                    ->label(__('capell-layout-builder::table.generated_preview'))
+                    ->badge()
                     ->toggleable(),
             ]);
         }

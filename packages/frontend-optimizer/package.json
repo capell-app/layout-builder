@@ -1,0 +1,12 @@
+{
+    "private": true,
+    "description": "Capell frontend optimizer",
+    "author": "capell",
+    "type": "module",
+    "scripts": {
+        "playwright:install": "playwright install chromium"
+    },
+    "dependencies": {
+        "playwright": "^1.59.1"
+    }
+}

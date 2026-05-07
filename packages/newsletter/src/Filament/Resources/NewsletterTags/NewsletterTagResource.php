@@ -60,7 +60,7 @@ class NewsletterTagResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Marketing';
+        return __('capell-admin::navigation.group_marketing');
     }
 
     public static function getNavigationLabel(): string

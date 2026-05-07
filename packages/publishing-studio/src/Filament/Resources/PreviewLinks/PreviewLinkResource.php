@@ -27,6 +27,8 @@ class PreviewLinkResource extends Resource
 
     protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::Link;
 
+    protected static ?int $navigationSort = 3;
+
     #[Override]
     public static function canCreate(): bool
     {
@@ -41,7 +43,7 @@ class PreviewLinkResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('capell-admin::navigation.group_content');
+        return __('capell-admin::navigation.group_workflow');
     }
 
     public static function getNavigationLabel(): string

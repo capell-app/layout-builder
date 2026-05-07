@@ -5,6 +5,7 @@
     "productGroup": "Capell Themes",
     "tier": "premium",
     "bundle": "themes",
+    "description": "Theme SaaS registers the saas theme key and product-focused renderer views for software and subscription sites.",
     "themeKey": "saas",
     "contexts": ["frontend"],
     "extends": "capell-app/foundation-theme",

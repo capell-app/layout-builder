@@ -5,6 +5,7 @@
     "productGroup": "Capell Publishing Pro",
     "tier": "premium",
     "bundle": "publishing-pro",
+    "description": "Admin Preview adds optional iframe preview actions for Capell admin and PublishingStudio draft review.",
     "contexts": ["admin", "frontend"],
     "requires": [
         "capell-app/core",

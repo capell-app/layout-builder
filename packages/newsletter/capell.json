@@ -5,6 +5,7 @@
     "productGroup": "Capell Marketing",
     "tier": "premium",
     "bundle": "newsletter",
+    "description": "Newsletter adds subscriber capture and audience workflows for Capell sites.",
     "contexts": ["admin", "frontend"],
     "requires": [
         "capell-app/core",

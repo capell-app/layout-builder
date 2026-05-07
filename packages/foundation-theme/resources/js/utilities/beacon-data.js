@@ -2,6 +2,7 @@
     window.timers = window.timers || {}
     let fetchDataCallCount = 0
     const fetchDataCallLimit = 10
+    let lastLoadedBeaconPage = null
 
     function startInterval(key, delay, callback) {
         clearInterval(window.timers[key])
@@ -87,6 +88,13 @@
             return
         }
 
+        const currentBeaconPage = `${window.beaconData.url}:${window.location.href}`
+
+        if (lastLoadedBeaconPage === currentBeaconPage) {
+            return
+        }
+
+        lastLoadedBeaconPage = currentBeaconPage
         clearAllIntervals()
         fetchData()
 
@@ -97,6 +105,14 @@
                 fetchData,
             )
         }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', onPageLoad, {
+            once: true,
+        })
+    } else {
+        queueMicrotask(onPageLoad)
     }
 
     document.addEventListener('livewire:navigated', onPageLoad)

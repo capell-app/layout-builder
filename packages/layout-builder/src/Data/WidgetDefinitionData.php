@@ -82,6 +82,23 @@ class WidgetDefinitionData extends Data
                 ],
             ),
             new self(
+                key: 'assets-block',
+                name: 'Blocks',
+                typeCreatorMethod: 'assetsWidgetType',
+                meta: [
+                    'component' => WidgetComponentEnum::AssetBlock,
+                    'component_item' => FrontendComponentKeyEnum::SectionBlock->value,
+                    'spacing' => 'none',
+                    'columns' => 0,
+                    'margin' => 'none',
+                    'with_summary' => true,
+                    'container' => ContainerWidthEnum::Small,
+                ],
+                admin: [
+                    'icon' => 'heroicon-o-chart-bar',
+                ],
+            ),
+            new self(
                 key: 'gallery',
                 name: __('capell-admin::generic.gallery'),
                 typeCreatorMethod: 'mediaWidgetType',
@@ -238,23 +255,6 @@ class WidgetDefinitionData extends Data
                     'align' => 'center',
                     'background_overlay' => true,
                     'component' => WidgetComponentEnum::AssetBanner,
-                ],
-            ),
-            new self(
-                key: 'assets-block',
-                name: 'Blocks',
-                typeCreatorMethod: 'assetsWidgetType',
-                meta: [
-                    'component' => WidgetComponentEnum::AssetBlock,
-                    'component_item' => FrontendComponentKeyEnum::SectionBlock->value,
-                    'spacing' => 'none',
-                    'columns' => 0,
-                    'margin' => 'none',
-                    'with_summary' => true,
-                    'container' => ContainerWidthEnum::Small,
-                ],
-                admin: [
-                    'icon' => 'heroicon-o-chart-bar',
                 ],
             ),
             new self(

@@ -2,7 +2,7 @@
     "name": "capell-app/events",
     "capell-version": "^4.0",
     "title": "Events",
-    "description": "Event listings, recurring events, venues, RSVPs, calendar feeds, and Event schema.",
+    "description": "Events adds listings, recurring events, venues, RSVPs, calendar feeds, and Event schema.",
     "kind": "plugin",
     "contexts": ["admin", "frontend", "console"],
     "requires": [

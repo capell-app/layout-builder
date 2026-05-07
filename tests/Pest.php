@@ -14,6 +14,7 @@ use Capell\Diagnostics\Tests\DiagnosticsTestCase;
 use Capell\Events\Tests\EventsTestCase;
 use Capell\FormBuilder\Tests\FormBuilderTestCase;
 use Capell\FrontendAuthoring\Tests\FrontendAuthoringTestCase;
+use Capell\FrontendOptimizer\Tests\FrontendOptimizerTestCase;
 use Capell\HtmlOptimizer\Tests\HtmlOptimizerTestCase;
 use Capell\Insights\Tests\InsightsTestCase;
 use Capell\LayoutBuilder\Tests\LayoutBuilderTestCase;
@@ -48,6 +49,7 @@ pest()->extend(EventsTestCase::class)->group('events')->in('../packages/events/t
 pest()->extend(StarterSitesTestCase::class)->group('starter-sites')->in('../packages/starter-sites/tests');
 pest()->extend(AdminPreviewTestCase::class)->group('admin-preview')->in('../packages/admin-preview/tests');
 pest()->extend(FormBuilderTestCase::class)->group('form-builder')->in('../packages/form-builder/tests');
+pest()->extend(FrontendOptimizerTestCase::class)->group('frontend-optimizer')->in('../packages/frontend-optimizer/tests');
 pest()->extend(HtmlOptimizerTestCase::class)->group('html-optimizer')->in('../packages/html-optimizer/tests');
 pest()->extend(MediaAITestCase::class)->group('media-ai')->in('../packages/media-ai/tests');
 pest()->extend(MediaLibraryTestCase::class)->group('media-library')->in('../packages/media-library/tests');

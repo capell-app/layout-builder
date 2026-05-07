@@ -28,7 +28,7 @@ class WordPressImporterServiceProvider extends AbstractPackageServiceProvider
             serviceProviderClass: static::class,
             path: realpath(__DIR__ . '/../..'),
             version: CapellCore::getInstalledPrettyVersion(static::$packageName),
-            description: fn (): string => 'WordPress WXR import source for the Capell Migration AIOrchestrator.',
+            description: fn (): string => 'WordPress Importer registers a WXR XML reader with the Capell Migration AIOrchestrator.',
         );
 
         $this->app->afterResolving(

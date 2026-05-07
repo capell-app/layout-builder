@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
     'insights' => 'Insights',
-    'insights_hint' => 'First-party page views, visits, journeys, and interactions for frontend traffic.',
+    'insights_hint' => 'Insights records first-party visits, events, consent, clicks, and journeys.',
     'insights_overview' => 'Insights overview',
     'popular_pages' => 'Popular pages',
     'trending_pages' => 'Trending pages',

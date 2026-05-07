@@ -5,7 +5,7 @@
     "productGroup": "Capell Operations",
     "tier": "core-addon",
     "bundle": "operations",
-    "description": "Generic CMS reporting widgets for Capell dashboards.",
+    "description": "Dashboard Reports provides generic CMS reporting widgets for Capell dashboards.",
     "contexts": ["admin"],
     "requires": ["capell-app/core", "capell-app/admin"],
     "providers": {

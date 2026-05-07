@@ -5,6 +5,7 @@
     "productGroup": "Capell Foundation",
     "tier": "free",
     "bundle": "foundation",
+    "description": "Navigation adds site and language scoped navigation trees, page navigation fields, sync actions, and frontend loading support.",
     "contexts": ["admin", "frontend", "console"],
     "requires": ["capell-app/core", "capell-app/admin", "capell-app/frontend"],
     "providers": {

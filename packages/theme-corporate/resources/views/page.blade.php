@@ -28,13 +28,24 @@
         [data-capell-theme='corporate'] img {
             background: #e5e7eb;
         }
+
+        @media (prefers-color-scheme: dark) {
+            [data-capell-theme='corporate'] {
+                background: #020617;
+                color: #f8fafc;
+            }
+
+            [data-capell-theme='corporate'] img {
+                background: #111827;
+            }
+        }
     </style>
 @endonce
 
 <div
     data-capell-theme="{{ $themeKey }}"
     style="{{ collect($brand->tokens())->map(fn ($value, $token) => $token . ':' . $value)->implode(';') }}"
-    class="min-h-screen bg-[#f7f8f6] text-slate-950 antialiased"
+    class="min-h-screen bg-[#f7f8f6] text-slate-950 antialiased dark:bg-slate-950 dark:text-slate-50"
 >
     {!! $content !!}
 </div>

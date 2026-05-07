@@ -5,6 +5,7 @@
     "productGroup": "Capell Operations",
     "tier": "premium",
     "bundle": "operations",
+    "description": "Diagnostics adds operational diagnostics for cache, configuration drift, migrations, packages, registries, queues, permissions, setup health, and Tailwind build status.",
     "contexts": ["admin", "console"],
     "requires": ["capell-app/core", "capell-app/admin"],
     "providers": {

@@ -45,6 +45,11 @@ class EventVenueResource extends Resource
         return (string) __('capell-admin::navigation.group_content');
     }
 
+    public static function getNavigationParentItem(): ?string
+    {
+        return (string) __('capell-events::generic.events');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

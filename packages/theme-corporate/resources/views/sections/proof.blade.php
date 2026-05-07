@@ -1,34 +1,38 @@
-<section class="border-b border-slate-800 bg-slate-950 text-white">
-    <div class="mx-auto max-w-7xl px-5 py-16 sm:px-6 lg:py-20">
-        <div class="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
+<section
+    class="border-b border-slate-800 bg-slate-950 text-white dark:border-white/10 dark:bg-black"
+>
+    <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:py-16">
+        <div class="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:gap-8">
             <div>
                 <p
-                    class="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--theme-accent)]"
+                    class="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--theme-accent)]"
                 >
                     Proof
                 </p>
                 <h2
-                    class="max-w-xl text-3xl font-semibold leading-tight sm:text-4xl"
+                    class="max-w-xl text-2xl font-semibold leading-tight sm:text-3xl lg:text-4xl"
                 >
                     {{ $section->heading }}
                 </h2>
                 @if ($section->summary)
-                    <p class="mt-4 max-w-md text-sm leading-7 text-slate-300">
+                    <p
+                        class="mt-3 max-w-md text-sm leading-6 text-slate-300 sm:leading-7"
+                    >
                         {{ $section->summary }}
                     </p>
                 @endif
             </div>
 
-            <div class="grid gap-4 sm:grid-cols-2">
+            <div class="grid gap-3 sm:grid-cols-2 lg:gap-4">
                 @foreach ($section->items as $item)
                     <figure
-                        class="rounded-[0.35rem] border border-white/10 bg-white/[0.03] p-6"
+                        class="rounded-[0.35rem] border border-white/10 bg-white/[0.03] p-5 sm:p-6"
                     >
                         @if (! empty($item['image']))
                             <img
                                 src="{{ $item['image'] }}"
                                 alt=""
-                                class="mb-5 aspect-[16/9] w-full rounded-[0.25rem] object-cover opacity-90"
+                                class="mb-4 aspect-[5/3] w-full rounded-[0.25rem] object-cover opacity-90 sm:mb-5 sm:aspect-[16/9]"
                             />
                         @endif
 

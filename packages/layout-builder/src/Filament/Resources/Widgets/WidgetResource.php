@@ -43,7 +43,7 @@ class WidgetResource extends Resource
 
     protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::Cube;
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 5;
 
     public static function form(Schema $configurator): Schema
     {
@@ -75,7 +75,12 @@ class WidgetResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_website'));
+        return (string) (__('capell-admin::navigation.group_content'));
+    }
+
+    public static function getNavigationParentItem(): ?string
+    {
+        return null;
     }
 
     public static function getPluralModelLabel(): string

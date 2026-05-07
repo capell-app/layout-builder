@@ -9,6 +9,7 @@ return [
     'visible_until' => 'Publish To',
     'publish_status' => 'Publish Status',
     'container_widgets' => 'Container Widgets',
+    'generated_preview' => 'Generated preview',
     'total_assets' => 'Total Assets',
     'total_layouts' => 'Total Layouts',
     'slug' => 'Slug',

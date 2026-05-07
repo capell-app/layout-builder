@@ -36,7 +36,7 @@ class ScheduledPublishingPage extends Page implements HasActions, HasTable
 
     protected static ?string $slug = 'scheduled-publishing';
 
-    protected static ?int $navigationSort = -5;
+    protected static ?int $navigationSort = 1;
 
     #[Override]
     public static function getNavigationLabel(): string
@@ -47,7 +47,7 @@ class ScheduledPublishingPage extends Page implements HasActions, HasTable
     #[Override]
     public static function getNavigationGroup(): ?string
     {
-        return (string) __('capell-publishing-studio::scheduler.navigation.group');
+        return (string) __('capell-admin::navigation.group_workflow');
     }
 
     #[Override]

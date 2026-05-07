@@ -12,6 +12,7 @@ LayoutBuilder adds reusable widgets, sections, layout containers, widget assets,
 - Layout and page schema extenders.
 - Modern widget configurators for hero, card grids, FAQs, galleries, pricing, process steps, stats, teams, and testimonials.
 - Actions for layout plans, widget creation, reusable widget lookup, and layout placement.
+- Generated admin layout preview images for saved container/widget structures.
 - Commands for install, setup, widget scaffolding, demo, faker, and upgrades.
 
 ## Developer Notes
@@ -24,6 +25,7 @@ Provides the package-based layout and widget foundation used by Blog, CampaignSt
 - Models include Widget, WidgetAsset, and Section.
 - Filament resources cover widgets and sections.
 - CapellLayout facade supports layout rendering concerns.
+- Layout preview generation stores admin-only PNG state on layout `admin` metadata.
 
 ## Operational Notes
 
@@ -33,6 +35,7 @@ Lets editors build structured pages from reusable sections and widgets instead o
 - Extends page and layout admin form-builder.
 - Adds widget and section admin navigation.
 - Adds layout builder lazy-loading config.
+- Queues generated preview image refreshes after layout/widget display changes.
 - May affect page cache and layout rendering.
 
 ## Data And Retention
@@ -41,6 +44,7 @@ Lets editors build structured pages from reusable sections and widgets instead o
 - widget_assets connects widgets to media and pageable context.
 - sections stores site, type, parent, meta, and visibility windows.
 - layouts can store container widget references after migration.
+- layouts can store generated preview image path, signature, status, and error metadata in `admin`.
 - LayoutBuilder connects to core types, sites, layouts, pages, and media.
 
 ## Screenshot Plan
@@ -49,6 +53,7 @@ Lets editors build structured pages from reusable sections and widgets instead o
 - Create/edit widget form.
 - Sections admin index.
 - Layout builder screen.
+- Layout table and page layout select preview images.
 - Frontend page rendering LayoutBuilder widgets.
 
 ## Pitfalls
@@ -56,6 +61,7 @@ Lets editors build structured pages from reusable sections and widgets instead o
 - Run LayoutBuilder install before Blog or other widget-dependent packages.
 - Keep widget types and configurators registered together.
 - Check layout cache after changing widgets.
+- Generated layout previews are admin-only fallbacks; manually uploaded preview images take precedence. See [Generated Layout Previews](generated-layout-previews.md).
 
 ## Verification
 

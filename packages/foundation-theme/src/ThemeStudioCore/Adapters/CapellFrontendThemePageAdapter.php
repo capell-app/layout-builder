@@ -43,14 +43,21 @@ class CapellFrontendThemePageAdapter implements ThemePageAdapter
             ? $this->layoutBuilderContent($page, $translation)
             : ['sections' => [], 'navigation' => null, 'footer' => null];
 
+        $sections = $layoutBuilderContent['sections'] !== []
+            ? $layoutBuilderContent['sections']
+            : [$this->fallbackHero($title, $translation)];
+        $navigation = $layoutBuilderContent['navigation'];
+
+        if (! $navigation instanceof NavigationData || $navigation->items === []) {
+            $navigation = $this->defaultNavigation();
+        }
+
         return new ThemePageData(
             title: $title,
             brand: $brand,
-            sections: $layoutBuilderContent['sections'] !== []
-                ? $layoutBuilderContent['sections']
-                : [$this->fallbackHero($title, $translation)],
-            navigation: $layoutBuilderContent['navigation'],
-            footer: $layoutBuilderContent['footer'],
+            sections: $sections,
+            navigation: $navigation,
+            footer: $layoutBuilderContent['footer'] ?? $this->defaultFooter($navigation),
         );
     }
 
@@ -273,6 +280,41 @@ class CapellFrontendThemePageAdapter implements ThemePageAdapter
                 [
                     'heading' => $this->titleFrom($this->translationFor($widget), 'Links'),
                     'links' => $this->linkItemsFromWidget($widget),
+                ],
+            ],
+        ]);
+    }
+
+    private function defaultNavigation(): NavigationData
+    {
+        $site = Frontend::site();
+
+        return NavigationData::from([
+            'brandName' => $site?->title ?? $site?->name ?? 'Capell',
+            'items' => [
+                ['label' => 'Content', 'url' => '#content'],
+                ['label' => 'Gallery', 'url' => '#gallery'],
+                ['label' => 'Contact', 'url' => '#footer'],
+            ],
+        ]);
+    }
+
+    private function defaultFooter(NavigationData $navigation): FooterData
+    {
+        return FooterData::from([
+            'brandName' => $navigation->brandName,
+            'summary' => 'A compact Capell site assembled from reusable content, media, and layout widgets.',
+            'columns' => [
+                [
+                    'heading' => 'Explore',
+                    'links' => $navigation->items !== [] ? $navigation->items : [['label' => 'Home', 'url' => '/']],
+                ],
+                [
+                    'heading' => 'Capell',
+                    'links' => [
+                        ['label' => 'Content model', 'url' => '#content'],
+                        ['label' => 'Media library', 'url' => '#gallery'],
+                    ],
                 ],
             ],
         ]);

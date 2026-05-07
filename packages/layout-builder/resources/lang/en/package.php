@@ -3,5 +3,5 @@
 declare(strict_types=1);
 
 return [
-    'description' => 'Visual layout builder—drag widgets onto pages and create reusable content blocks shared across your site.',
+    'description' => 'LayoutBuilder adds reusable widgets, sections, layout containers, widget assets, layout planning, and frontend widget rendering to Capell.',
 ];

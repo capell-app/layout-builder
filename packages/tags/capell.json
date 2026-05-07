@@ -5,6 +5,7 @@
     "productGroup": "Capell Foundation",
     "tier": "free",
     "bundle": "foundation",
+    "description": "Tags adds tag management, taggable relationships, a reusable tags input, and model traits for Capell content.",
     "contexts": ["admin", "console"],
     "requires": ["capell-app/admin"],
     "providers": {

@@ -5,7 +5,7 @@
     "productGroup": "Capell Operations",
     "tier": "premium",
     "bundle": "operations",
-    "description": "Agent Bridge servers and capability adapters for Capell CMS.",
+    "description": "Agent Bridge exposes Capell knowledge and site capabilities through Laravel Agent Bridge servers.",
     "contexts": ["admin"],
     "requires": ["capell-app/core", "capell-app/admin"],
     "providers": {

@@ -5,6 +5,7 @@
     "productGroup": "Capell Foundation",
     "tier": "free",
     "bundle": "foundation",
+    "description": "LayoutBuilder adds reusable widgets, sections, layout containers, widget assets, layout planning, and frontend widget rendering to Capell.",
     "contexts": ["admin", "frontend"],
     "requires": [
         "capell-app/admin",

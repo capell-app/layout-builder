@@ -3,5 +3,5 @@
 declare(strict_types=1);
 
 return [
-    'description' => 'Login auditing and authentication activity for Capell.',
+    'description' => 'Login Audit records login, failed login, logout, and admin/user activity metadata for Capell users.',
 ];

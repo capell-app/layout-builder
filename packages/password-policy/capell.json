@@ -5,6 +5,7 @@
     "productGroup": "Capell Foundation",
     "tier": "free",
     "bundle": "foundation",
+    "description": "Password Policy provides opt-in password rules and enforcement for Capell CMS.",
     "core": false,
     "namespace": "Capell\\PasswordPolicy",
     "contexts": ["admin", "console"],

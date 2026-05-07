@@ -5,7 +5,7 @@
     "productGroup": "Capell Growth",
     "tier": "premium",
     "bundle": "growth",
-    "description": "First-party insights, visitor journeys, click tracking, and consent management.",
+    "description": "Insights records first-party visits, events, consent decisions, page views, clicks, and journey data for Capell sites.",
     "contexts": ["admin", "frontend"],
     "requires": ["capell-app/core", "capell-app/admin", "capell-app/frontend"],
     "providers": {

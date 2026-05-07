@@ -9,7 +9,7 @@ return [
     'auto' => 'Auto',
     'breadcrumbs' => 'Breadcrumbs',
     'content' => 'Content',
-    'contents_subheading' => 'Contents',
+    'contents_subheading' => 'Content sections provide reusable frontend sections.',
     'copy_page_layout' => 'Copy this layout? :link',
     'dark' => 'Dark',
     'default_value' => 'Default: :value',
@@ -67,7 +67,7 @@ return [
     'two_columns' => '2 columns',
     'content_section' => 'Content Section',
     'content_sections' => 'Content Sections',
-    'content_sections_info' => 'Reusable content section that can shared across multiple pages.',
+    'content_sections_info' => 'Content sections provide reusable frontend sections.',
     'section' => 'Section',
     'sections' => 'Sections',
 ];

@@ -5,6 +5,7 @@
     "productGroup": "Capell Operations",
     "tier": "premium",
     "bundle": "operations",
+    "description": "Login Audit records login, failed login, logout, and admin/user activity metadata for Capell users.",
     "contexts": ["admin"],
     "requires": ["capell-app/admin"],
     "providers": {

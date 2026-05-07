@@ -59,7 +59,7 @@ class FrontendAuthoringServiceProvider extends ServiceProvider
             serviceProviderClass: static::class,
             path: realpath(__DIR__ . '/../..'),
             version: CapellCore::getInstalledPrettyVersion(static::$packageName),
-            description: 'Frontend authoring bridge and in-page editing for Capell frontend',
+            description: 'Frontend Authoring replaces the old frontend toolbar package. It keeps the beacon route and adds cache-safe in-page editing for rendered frontend pages.',
         );
     }
 }

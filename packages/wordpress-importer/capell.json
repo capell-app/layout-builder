@@ -5,6 +5,7 @@
     "productGroup": "Capell Operations",
     "tier": "premium",
     "bundle": "operations",
+    "description": "WordPress Importer adds WordPress WXR XML parsing to the Capell MigrationAssistant workflow.",
     "contexts": ["admin", "console"],
     "requires": [
         "capell-app/admin",

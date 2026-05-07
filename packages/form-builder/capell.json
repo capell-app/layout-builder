@@ -5,6 +5,7 @@
     "productGroup": "Capell FormBuilder",
     "tier": "premium",
     "bundle": "form-builder",
+    "description": "FormBuilder adds form definitions, encrypted submissions, frontend Livewire rendering, validation, and submission status handling to Capell.",
     "contexts": ["admin", "frontend"],
     "requires": ["capell-app/core", "capell-app/admin", "capell-app/frontend"],
     "providers": {

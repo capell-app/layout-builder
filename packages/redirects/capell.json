@@ -5,6 +5,7 @@
     "productGroup": "Capell Foundation",
     "tier": "free",
     "bundle": "foundation",
+    "description": "Redirects adds admin redirect management, automatic redirect creation from changed page URLs, import/export support, and redirect health snapshots.",
     "contexts": ["admin", "frontend"],
     "requires": ["capell-app/core", "capell-app/admin"],
     "providers": {

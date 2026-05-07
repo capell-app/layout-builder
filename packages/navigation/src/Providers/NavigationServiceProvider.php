@@ -247,7 +247,7 @@ class NavigationServiceProvider extends ServiceProvider
             serviceProviderClass: static::class,
             path: realpath(__DIR__ . '/../..'),
             version: CapellCore::getInstalledPrettyVersion(static::$packageName),
-            description: 'Navigation for Capell',
+            description: 'Navigation adds site and language scoped navigation trees, page navigation fields, sync actions, and frontend loading support.',
         );
     }
 }
