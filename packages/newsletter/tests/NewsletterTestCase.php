@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\Newsletter\Tests;
 
+use Capell\Admin\Providers\AdminServiceProvider as CapellAdminServiceProvider;
+use Capell\Admin\Providers\Filament\AdminPanelProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
@@ -49,6 +51,8 @@ class NewsletterTestCase extends AbstractTestCase
     {
         return [
             ...parent::getPackageProviders($app),
+            CapellAdminServiceProvider::class,
+            AdminPanelProvider::class,
             TagsServiceProvider::class,
             FormBuilderServiceProvider::class,
             NewsletterServiceProvider::class,
@@ -63,6 +67,7 @@ class NewsletterTestCase extends AbstractTestCase
 
         Config::set('app.key', 'base64:' . base64_encode(str_repeat('n', 32)));
 
+        CapellCore::forcePackageInstalled(CapellAdminServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(TagsServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FormBuilderServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(NewsletterServiceProvider::$packageName);
