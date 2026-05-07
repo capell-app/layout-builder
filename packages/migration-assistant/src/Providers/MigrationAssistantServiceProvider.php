@@ -51,8 +51,8 @@ class MigrationAssistantServiceProvider extends AbstractPackageServiceProvider
             ->name(self::$name)
             ->hasConfigFile('migration-assistant')
             ->hasMigrations([
-                'create_import_sessions_table',
-                'create_import_rollback_dashboard-dashboard_reports_table',
+                '01_create_import_sessions_table',
+                '02_create_import_rollback_dashboard-dashboard_reports_table',
             ]);
     }
 

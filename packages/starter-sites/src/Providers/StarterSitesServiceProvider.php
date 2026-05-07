@@ -9,6 +9,9 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\StarterSites\Console\Commands\AdminDemoCommand;
 use Capell\StarterSites\Console\Commands\DemoCommand;
+use Capell\StarterSites\Console\Commands\FullDemoCommand;
+use Capell\StarterSites\Support\Extensions\StarterSitesActionSchemaRegistry;
+use Capell\StarterSites\Support\Extensions\StarterSitesDemoActionSchema;
 use Capell\StarterSites\Support\Extensions\StarterSitesExtensionsPageActions;
 use Composer\InstalledVersions;
 use Spatie\LaravelPackageTools\Package;
@@ -27,11 +30,14 @@ final class StarterSitesServiceProvider extends AbstractPackageServiceProvider
             ->hasCommands([
                 DemoCommand::class,
                 AdminDemoCommand::class,
+                FullDemoCommand::class,
             ]);
     }
 
     public function registeringPackage(): void
     {
+        $this->app->singleton(StarterSitesActionSchemaRegistry::class);
+
         if (class_exists(ExtensionsPageActionRegistry::class)) {
             resolve(StarterSitesExtensionsPageActions::class)->register(resolve(ExtensionsPageActionRegistry::class));
         }
@@ -43,13 +49,16 @@ final class StarterSitesServiceProvider extends AbstractPackageServiceProvider
             path: realpath(__DIR__ . '/../..'),
             version: $this->getVersion(),
             description: fn (): string => 'Example site content and assets for Capell installs.',
-            setupCommand: 'capell:demo',
+            setupCommand: 'capell:starter-sites-full-demo',
         );
 
         $package = CapellCore::getPackage(self::$packageName);
         $package->setupParams = ['url', 'user', 'languages', 'sites', 'force'];
-        $package->demoCommand = 'capell:demo';
+        $package->demoCommand = 'capell:starter-sites-full-demo';
         $package->demoParams = ['url', 'user', 'languages', 'sites', 'force'];
+
+        resolve(StarterSitesActionSchemaRegistry::class)
+            ->register('demo', fn (): array => resolve(StarterSitesDemoActionSchema::class)->schema());
     }
 
     private function getVersion(): string

@@ -43,3 +43,25 @@ it('rejects AI creator draft submission outside review status', function (): voi
     expect(fn (): null => $action->handle($session, userId: 10, siteId: 1))
         ->toThrow(AuthorizationException::class);
 });
+
+it('submits review sessions through the preferred content target', function (): void {
+    $sections = [
+        ['section_type' => 'hero', 'fields' => ['headline' => 'Launch faster']],
+    ];
+    $session = createReviewAiCreatorSession([
+        'layout_proposal' => $sections,
+        'generated_output' => ['existing' => true],
+    ]);
+
+    $action = new SubmitAiCreatorDraftAction(resolve(ContentTargetResolver::class));
+
+    $action->handle($session, userId: 10, siteId: 1);
+
+    $session->refresh();
+
+    expect($session->status)->toBe('submitted')
+        ->and($session->generated_output)->toBe([
+            'existing' => true,
+            'flat_json' => $sections,
+        ]);
+});

@@ -11,7 +11,7 @@ use Capell\MigrationAssistant\Services\Import\ImportExecutionReport;
 use Illuminate\Support\Str;
 
 it('uses mysql-safe foreign key names for import rollback reports', function (): void {
-    $migration = file_get_contents(dirname(__DIR__, 3) . '/database/migrations/create_import_rollback_dashboard-dashboard_reports_table.php');
+    $migration = file_get_contents(dirname(__DIR__, 3) . '/database/migrations/02_create_import_rollback_dashboard-dashboard_reports_table.php');
 
     expect($migration)
         ->toContain("indexName: 'import_rollback_reports_session_fk'")
