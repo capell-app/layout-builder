@@ -6,7 +6,6 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\TypeCreator;
-use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\Navigation\Enums\NavigationHandle;
 use Capell\Navigation\Enums\NavigationItemType;
 use Capell\Navigation\Models\Navigation;
@@ -15,19 +14,36 @@ use Capell\Navigation\Support\Creator\NavigationDemoCreator;
 use function Pest\Laravel\assertDatabaseHas;
 
 it('sets up main, footer, and sub-footer navigation', function (): void {
-    $demoCreator = new DemoCreator;
     $navigationDemoCreator = resolve(NavigationDemoCreator::class);
 
     $language = Language::factory()->default()->create();
 
     $site = Site::factory()->language($language)->default()->withTranslations($language)->create();
-    $demoCreator->setupSite($site);
 
-    $homePage = $demoCreator->createPage([
-        'name' => ['en' => 'Home'],
-        'title' => ['en' => 'Home'],
-    ], $site, createMedia: false);
-    assert($homePage instanceof Page);
+    $typeCreator = resolve(TypeCreator::class);
+    $navigationType = $typeCreator->createNavigationType();
+    $homePageType = $typeCreator->homePageType();
+
+    $navigationType->update([
+        'default' => true,
+        'status' => true,
+    ]);
+
+    $homePageType->update([
+        'status' => true,
+    ]);
+
+    $homePage = Page::factory()
+        ->site($site)
+        ->type($homePageType)
+        ->withTranslations(collect([$language]), [
+            'title' => 'Home',
+            'label' => 'Home',
+        ])
+        ->create([
+            'name' => 'Home',
+            'visible_from' => now()->subDay(),
+        ]);
 
     $navigationDemoCreator->setupMainNavigation($site, $language, $homePage);
     $navigationDemoCreator->setupFooterNavigation($site, $language);
@@ -37,7 +53,6 @@ it('sets up main, footer, and sub-footer navigation', function (): void {
 });
 
 it('merges generated footer items into an existing navigation with persisted items', function (): void {
-    $demoCreator = new DemoCreator;
     $navigationDemoCreator = resolve(NavigationDemoCreator::class);
 
     $language = Language::factory()->english()->create();
@@ -274,22 +289,4 @@ it('creates main navigation with the home page and eligible nested pages only', 
         ->and($servicesNavigationItem)->not()->toBeNull()
         ->and(collect($servicesNavigationItem['children'])->values()->pluck('label')->all())
         ->toContain('Consulting');
-});
-
-it('sets up related sites and updates sub-footer navigation', function (): void {
-    $demoCreator = new DemoCreator;
-    $demoCreator->createDefaultLanguages();
-
-    $languages = Language::all();
-
-    $siteA = Site::factory()->default()->withTranslations($languages)->create();
-    $siteB = Site::factory()->withTranslations($languages)->create(['name' => 'Other']);
-
-    $demoCreator->setupSite($siteA, $languages);
-    $demoCreator->setupSite($siteB, $languages);
-
-    $demoCreator->setupRelatedSites();
-
-    $freshDefault = Site::getDefault()->fresh('related');
-    expect($freshDefault->related()->count())->toBeGreaterThanOrEqual(1);
 });

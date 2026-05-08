@@ -7,6 +7,7 @@ namespace Capell\PublishingStudio\Http\Livewire;
 use Capell\Admin\Filament\Resources\Pages\Pages\EditPage;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Page;
+use Capell\PublishingStudio\Actions\CopyOnWriteAction;
 use Capell\PublishingStudio\Actions\CreatePageDraftWorkspaceAction;
 use Capell\PublishingStudio\Actions\DeletePageDraftAction;
 use Capell\PublishingStudio\Models\Workspace;
@@ -40,6 +41,8 @@ class WorkspacePageDraftHandler
         WorkspaceContext::runWith($target, function () use ($editPage): void {
             $editPage->save(shouldRedirect: false);
         });
+
+        $this->ensureDraftExists($editPage->record, $target);
 
         Notification::make('saved-as-draft')
             ->title(__('capell-admin::message.saved_as_draft_in', ['workspace' => $target->name]))
@@ -82,5 +85,34 @@ class WorkspacePageDraftHandler
             $editPage::getResource()::getUrl('edit', ['record' => $editPage->record->getKey()]),
             navigate: false,
         );
+    }
+
+    private function ensureDraftExists(Pageable $record, Workspace $workspace): void
+    {
+        if (! $record instanceof Page || blank($record->uuid)) {
+            return;
+        }
+
+        $draftExists = Page::query()
+            ->withoutGlobalScopes()
+            ->where('uuid', $record->uuid)
+            ->where('workspace_id', $workspace->id)
+            ->exists();
+
+        if ($draftExists) {
+            return;
+        }
+
+        $live = Page::query()
+            ->withoutGlobalScopes()
+            ->whereKey($record->getKey())
+            ->where('workspace_id', 0)
+            ->first();
+
+        if (! $live instanceof Page) {
+            return;
+        }
+
+        (new CopyOnWriteAction)->cloneForEdit($live, $workspace);
     }
 }

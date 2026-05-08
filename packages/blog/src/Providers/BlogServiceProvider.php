@@ -49,6 +49,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
     public function registeringPackage(): void
     {
         $this->app->register(AdminServiceProvider::class);
+        $this->app->register(ConsoleServiceProvider::class);
 
         $this
             ->registerPackageMetadata();

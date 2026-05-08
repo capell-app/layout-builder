@@ -16,14 +16,22 @@ use Capell\CampaignStudio\Filament\Widgets\TopLandingPagesWidget;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\LayoutBuilder\Enums\ConfiguratorTypeEnum as LayoutBuilderConfiguratorTypeEnum;
 use Carbon\CarbonImmutable;
-use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\ServiceProvider;
 
 final class AdminServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->booting(function (): void {
+            if (! $this->isPackageInstalled()) {
+                return;
+            }
+
+            $this
+                ->registerNavigationGroups()
+                ->registerResources()
+                ->registerConfigurators();
+        });
     }
 
     public function boot(): void
@@ -33,9 +41,6 @@ final class AdminServiceProvider extends ServiceProvider
         }
 
         $this
-            ->registerNavigationGroups()
-            ->registerResources()
-            ->registerConfigurators()
             ->registerOverviewStats()
             ->registerDashboardWidgets();
     }
@@ -49,7 +54,6 @@ final class AdminServiceProvider extends ServiceProvider
     {
         CapellAdmin::registerNavigationGroup(
             label: 'capell-admin::navigation.group_marketing',
-            icon: Heroicon::OutlinedMegaphone,
             position: NavigationGroupPositionEnum::After,
             relativeTo: 'capell-admin::navigation.group_content',
         );

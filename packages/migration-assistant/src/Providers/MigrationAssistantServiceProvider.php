@@ -66,6 +66,8 @@ class MigrationAssistantServiceProvider extends AbstractPackageServiceProvider
             description: fn (): string => __('migration-assistant::package.description'),
         );
 
+        $this->registerAdminPanelExtensions();
+
         $this->app->booted(function (): void {
             if (! $this->isPackageInstalled()) {
                 return;
@@ -135,6 +137,15 @@ class MigrationAssistantServiceProvider extends AbstractPackageServiceProvider
     {
         if (class_exists(CapellAdminManager::class) && class_exists(ImportSessionResource::class)) {
             $registerImportSessionResource = static function (CapellAdminManager $capellAdminManager): void {
+                $package = CapellCore::getPackage(self::$packageName);
+
+                if (
+                    $package->installed !== true
+                    && (! app()->bound('cache') || ! CapellCore::isPackageInstalled(self::$packageName))
+                ) {
+                    return;
+                }
+
                 $capellAdminManager->contributeToAdminSurface(
                     AdminSurfaceContributionData::resource(ImportSessionResource::class, group: 'ImportSession'),
                 );
@@ -143,9 +154,9 @@ class MigrationAssistantServiceProvider extends AbstractPackageServiceProvider
 
             $this->app->afterResolving(CapellAdminManager::class, $registerImportSessionResource);
 
-            if ($this->app->resolved(CapellAdminManager::class)) {
+            $this->app->booted(function () use ($registerImportSessionResource): void {
                 $registerImportSessionResource($this->app->make(CapellAdminManager::class));
-            }
+            });
         }
     }
 }

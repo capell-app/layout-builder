@@ -59,6 +59,12 @@ class EventsServiceProvider extends AbstractPackageServiceProvider
     {
         $this->registerPackageMetadata();
 
+        $this->app->booting(function (): void {
+            if ($this->isPackageInstalled()) {
+                $this->registerAdminResources();
+            }
+        });
+
         $this->app->booted(function (): void {
             if (! $this->isPackageInstalled()) {
                 return;
@@ -165,7 +171,7 @@ class EventsServiceProvider extends AbstractPackageServiceProvider
             CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
                 class: $resourceEnum->value,
                 group: $resourceEnum === ResourceEnum::Event ? AdminResourceEnum::Page->name : $resourceEnum->name,
-                name: strtolower($resourceEnum->name),
+                name: $resourceEnum === ResourceEnum::Event ? strtolower($resourceEnum->name) : 'default',
             ));
         }
 

@@ -54,6 +54,12 @@ class AddressServiceProvider extends AbstractPackageServiceProvider
     {
         $this->registerPackageMetadata();
 
+        $this->app->booting(function (): void {
+            if ($this->isPackageInstalled()) {
+                $this->registerResources();
+            }
+        });
+
         $this->app->booted(function (): void {
             if (! $this->isPackageInstalled()) {
                 return;

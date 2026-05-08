@@ -65,6 +65,12 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
             description: fn (): string => __('capell-content-sections::package.description'),
         );
 
+        $this->app->booting(function (): void {
+            if ($this->isPackageInstalled()) {
+                $this->registerResources();
+            }
+        });
+
         $this->app->booted(function (): void {
             $this->registerLivewireComponents();
 

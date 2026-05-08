@@ -128,7 +128,6 @@ it('shows installed package admin surfaces in Filament navigation', function ():
         'Conversion goals',
         'Import Sessions',
         'Landing pages',
-        'Content & Site',
         (string) __('capell-admin::navigation.redirects'),
         'Tags',
     );
@@ -154,10 +153,6 @@ it('places extension-owned package pages under extensions navigation', function 
     $extensionLabels = collect($extensionItems)->map(fn ($item): string => $item->getLabel())->all();
     $systemLabels = collect($systemItems)->map(fn ($item): string => $item->getLabel())->all();
 
-    $extensionGroupLabels = [
-        'Content & Site',
-    ];
-
     $extensionPageLabels = [
         'capell-admin::navigation.media_health',
         'capell-admin::navigation.permission_audit',
@@ -166,7 +161,6 @@ it('places extension-owned package pages under extensions navigation', function 
         'Diagnostics',
     ];
 
-    expect($extensionLabels)->toContain(...$extensionGroupLabels)
-        ->and($extensionLabels)->not->toContain(...$extensionPageLabels)
+    expect($extensionLabels)->not->toContain(...$extensionPageLabels)
         ->and($systemLabels)->not->toContain(...$extensionPageLabels);
 });

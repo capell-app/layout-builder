@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Core\Models\Translation;
 use Capell\SeoSuite\Filament\Widgets\EditPageSeoAuditWidget;
 use Capell\SeoSuite\Support\Admin\PageSeoAuditPageEditExtender;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
@@ -32,17 +31,14 @@ it('renders no checks when report context is unavailable', function (): void {
 
 it('passes the meta description check when description is present', function (): void {
     $language = Language::factory()->create();
-    $site = Site::factory()->recycle($language)->create();
+    $site = Site::factory()
+        ->language($language)
+        ->withTranslations($language, siteDomainData: ['scheme' => 'https', 'domain' => 'example.com', 'path' => null])
+        ->create();
 
     $page = Page::factory()
-        ->state(['site_id' => $site->id])
-        ->has(
-            Translation::factory()->state([
-                'language_id' => $language->id,
-                'meta' => ['description' => 'A useful description for this page.', 'slug' => 'home'],
-            ]),
-            'translations',
-        )
+        ->site($site)
+        ->withTranslations($language, ['description' => 'A useful description for this page that gives search engines enough context.'], slug: 'home')
         ->create();
 
     Livewire::test(EditPageSeoAuditWidget::class, ['record' => $page])

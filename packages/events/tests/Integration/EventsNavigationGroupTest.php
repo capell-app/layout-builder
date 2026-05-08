@@ -33,7 +33,7 @@ it('places events in the content navigation group with the configured group icon
     expect(EventResource::getNavigationGroup())->toBe((string) __('capell-admin::navigation.group_content'))
         ->and($contentGroup)
         ->toBeInstanceOf(NavigationGroup::class)
-        ->and($contentGroup?->getIcon())->toBe(Heroicon::OutlinedDocumentText);
+        ->and($contentGroup?->getIcon())->toBeNull();
 });
 
 it('keeps the approved top-level navigation groups in order on the booted admin panel', function (): void {

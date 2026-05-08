@@ -15,7 +15,6 @@ use Capell\Newsletter\Enums\SubscriberStatus;
 use Capell\Newsletter\Enums\SyncStatus;
 use Capell\Newsletter\Models\Subscriber;
 use Capell\Newsletter\Models\SyncAttempt;
-use Filament\Support\Icons\Heroicon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\ServiceProvider;
@@ -24,7 +23,15 @@ class AdminServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->booting(function (): void {
+            if (! $this->isPackageInstalled()) {
+                return;
+            }
+
+            $this
+                ->registerNavigationGroups()
+                ->registerResources();
+        });
     }
 
     public function boot(): void
@@ -37,15 +44,6 @@ class AdminServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([RequeueDueProviderSyncAttemptsCommand::class]);
-        }
-
-        $this->registerNavigationGroups();
-
-        foreach (ResourceEnum::cases() as $resource) {
-            CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
-                class: $resource->value,
-                group: $resource->name,
-            ));
         }
 
         $this->registerOverviewStats();
@@ -111,10 +109,21 @@ class AdminServiceProvider extends ServiceProvider
     {
         CapellAdmin::registerNavigationGroup(
             label: 'capell-admin::navigation.group_marketing',
-            icon: Heroicon::OutlinedMegaphone,
             position: NavigationGroupPositionEnum::After,
             relativeTo: 'capell-admin::navigation.group_content',
         );
+
+        return $this;
+    }
+
+    private function registerResources(): self
+    {
+        foreach (ResourceEnum::cases() as $resource) {
+            CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+                class: $resource->value,
+                group: $resource->name,
+            ));
+        }
 
         return $this;
     }

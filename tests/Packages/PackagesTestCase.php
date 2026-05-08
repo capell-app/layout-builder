@@ -20,6 +20,10 @@ use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Media;
 use Capell\Core\Providers\CapellServiceProvider;
+use Capell\Diagnostics\Filament\Pages\DiagnosticsPage;
+use Capell\Diagnostics\Filament\Pages\PermissionAuditPage;
+use Capell\Diagnostics\Filament\Pages\QueueHealthPage;
+use Capell\Diagnostics\Filament\Pages\SystemHealthPage;
 use Capell\Diagnostics\Providers\AdminServiceProvider as DiagnosticsAdminServiceProvider;
 use Capell\Diagnostics\Providers\DiagnosticsServiceProvider;
 use Capell\FormBuilder\Providers\FormBuilderServiceProvider as CapellFormBuilderServiceProvider;
@@ -29,11 +33,17 @@ use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\FrontendAuthoring\Providers\FrontendAuthoringServiceProvider;
 use Capell\Insights\Providers\InsightsServiceProvider;
 use Capell\LoginAudit\Providers\LoginAuditServiceProvider;
+use Capell\MediaLibrary\Filament\Pages\MediaHealthPage;
 use Capell\MediaLibrary\MediaLibraryServiceProvider;
+use Capell\MigrationAssistant\Filament\Resources\ImportSessions\ImportSessionResource;
 use Capell\MigrationAssistant\Providers\MigrationAssistantServiceProvider;
 use Capell\Navigation\Providers\NavigationServiceProvider;
 use Capell\PublishingStudio\Providers\PublishingStudioServiceProvider;
 use Capell\Search\Providers\SearchServiceProvider;
+use Capell\SeoSuite\Filament\Pages\BrokenLinksPage;
+use Capell\SeoSuite\Filament\Pages\NotFoundUrlsPage;
+use Capell\SeoSuite\Filament\Pages\SeoAuditPage;
+use Capell\SeoSuite\Filament\Pages\TranslationCoveragePage;
 use Capell\SeoSuite\Providers\SeoSuiteServiceProvider;
 use Capell\Tags\Models\Tag;
 use Capell\Tags\Providers\TagsServiceProvider;
@@ -52,6 +62,9 @@ class PackagesTestCase extends AbstractTestCase
 
         $this->forcePackagesInstalled();
         $this->registerBlogResourcesForBlaze();
+        $this->registerMigrationAssistantResourcesForFilament();
+        $this->registerSeoSuitePagesForFilament();
+        $this->registerDiagnosticsPagesForFilament();
         $this->registerBlazeOptimizedViews();
 
         $this->registerAndMigrateSettings(
@@ -120,6 +133,9 @@ class PackagesTestCase extends AbstractTestCase
 
         $this->forcePackagesInstalled();
         $this->registerBlogResourcesForBlaze();
+        $this->registerMigrationAssistantResourcesForFilament();
+        $this->registerSeoSuitePagesForFilament();
+        $this->registerDiagnosticsPagesForFilament();
 
         CapellCore::registerPackage('capell-app/navigation', path: realpath(__DIR__ . '/../../packages/navigation'));
         CapellCore::forcePackageInstalled('capell-app/navigation');
@@ -139,7 +155,7 @@ class PackagesTestCase extends AbstractTestCase
     {
         foreach ([
             __DIR__ . '/../../packages/blog/resources/views/components',
-            __DIR__ . '/../../packages/layout-builder/resources/views/components',
+            __DIR__ . '/../../packages/foundation-theme/resources/views/layout-builder/components',
             __DIR__ . '/../../packages/seo-suite/resources/views/components/schema',
             __DIR__ . '/../../packages/foundation-theme/resources/views/components',
         ] as $path) {
@@ -156,6 +172,27 @@ class PackagesTestCase extends AbstractTestCase
                 name: strtolower(BlogResourceEnum::Article->name),
             ),
         );
+    }
+
+    private function registerMigrationAssistantResourcesForFilament(): void
+    {
+        CapellAdmin::contributeToAdminSurface(
+            AdminSurfaceContributionData::resource(ImportSessionResource::class, group: 'ImportSession'),
+        );
+    }
+
+    private function registerSeoSuitePagesForFilament(): void
+    {
+        foreach ([BrokenLinksPage::class, NotFoundUrlsPage::class, SeoAuditPage::class, TranslationCoveragePage::class] as $page) {
+            CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page($page));
+        }
+    }
+
+    private function registerDiagnosticsPagesForFilament(): void
+    {
+        foreach ([DiagnosticsPage::class, MediaHealthPage::class, PermissionAuditPage::class, QueueHealthPage::class, SystemHealthPage::class] as $page) {
+            CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page($page));
+        }
     }
 
     private function forcePackagesInstalled(): void

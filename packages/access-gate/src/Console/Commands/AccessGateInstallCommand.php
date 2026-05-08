@@ -17,7 +17,9 @@ final class AccessGateInstallCommand extends Command
 
     public function handle(SetupDefaultAccessAreaAction $setupDefaultArea): int
     {
-        foreach ($this->publishTags() as $tag) {
+        $schemaIsReady = $this->accessGateSchemaIsReady();
+
+        foreach ($this->publishTags($schemaIsReady) as $tag) {
             $this->callSilent('vendor:publish', [
                 '--tag' => $tag,
                 '--force' => false,
@@ -26,7 +28,7 @@ final class AccessGateInstallCommand extends Command
 
         $this->info(__('capell-access-gate::install.published'));
 
-        $exitCode = $this->accessGateSchemaIsReady()
+        $exitCode = $schemaIsReady
             ? self::SUCCESS
             : $this->call('migrate', [
                 '--force' => true,
@@ -46,14 +48,19 @@ final class AccessGateInstallCommand extends Command
     /**
      * @return list<string>
      */
-    private function publishTags(): array
+    private function publishTags(bool $schemaIsReady): array
     {
-        return [
+        $tags = [
             'capell-access-gate-config',
-            'capell-access-gate-migrations',
             'capell-access-gate-views',
             'capell-access-gate-translations',
         ];
+
+        if (! $schemaIsReady) {
+            $tags[] = 'capell-access-gate-migrations';
+        }
+
+        return $tags;
     }
 
     private function accessGateSchemaIsReady(): bool

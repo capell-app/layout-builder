@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Capell\Core\Support\InstallGuide\Patches\UserModelPatch;
-use Capell\Core\Support\InstallGuide\PatchStatus;
+use Capell\Installer\Support\InstallGuide\Patches\UserModelPatch;
+use Capell\Installer\Support\InstallGuide\PatchStatus;
 
 function writeUserModelForProbeTest(string $content): string
 {
@@ -32,7 +32,7 @@ function cleanupUserModelForProbeTest(): void
     }
 }
 
-test('probe_returns_customised_for_partially_patched_user_model', function (): void {
+test('probe_returns_applicable_for_partially_patched_user_model', function (): void {
     writeUserModelForProbeTest(<<<'PHP'
 <?php
 
@@ -59,7 +59,7 @@ PHP);
     try {
         $patch = new UserModelPatch;
 
-        expect($patch->probe())->toBe(PatchStatus::Customised);
+        expect($patch->probe())->toBe(PatchStatus::Applicable);
     } finally {
         cleanupUserModelForProbeTest();
     }

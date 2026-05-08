@@ -28,10 +28,12 @@ use Capell\FoundationTheme\Support\Interceptors\Themes\FoundationThemeIntercepto
 use Capell\FoundationTheme\Support\Media\CapellUrlGenerator;
 use Capell\FoundationTheme\Support\Tailwind\TailwindAssetsGenerator;
 use Capell\FoundationTheme\View\Components\Media\Svg;
+use Capell\FoundationTheme\View\Components\Widget\Page\Breadcrumbs as PageBreadcrumbsComponent;
 use Capell\FoundationTheme\View\Components\Widget\Page\Children as PageChildrenComponent;
 use Capell\FoundationTheme\View\Components\Widget\Page\Content as PageContentComponent;
 use Capell\FoundationTheme\View\Components\Widget\Page\Latest as PageLatestComponent;
 use Capell\FoundationTheme\View\Components\Widget\Page\Siblings as PageSiblingsComponent;
+use Capell\FoundationTheme\View\Components\Widget\Slot as SlotComponent;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
 use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
@@ -244,9 +246,9 @@ final class FoundationThemeServiceProvider extends AbstractPackageServiceProvide
         );
 
         Blade::componentNamespace('Capell\\FoundationTheme\\View\\Components', 'capell-layout-builder');
-        Blade::component('capell-layout-builder::components.widget.page.breadcrumbs', 'capell-layout-builder-widget-page-breadcrumbs');
+        Blade::component(PageBreadcrumbsComponent::class, 'capell-layout-builder::widget.page.breadcrumbs');
         Blade::component(PageContentComponent::class, 'capell-layout-builder-widget-page-content');
-        Blade::component('capell-layout-builder::components.widget.slot', 'capell-layout-builder-widget-slot');
+        Blade::component(SlotComponent::class, 'capell-layout-builder::widget.slot');
         Blade::component(PageChildrenComponent::class, 'capell-layout-builder::widget.page.children');
         Blade::component(PageContentComponent::class, 'capell-layout-builder::widget.page.content');
         Blade::component(PageLatestComponent::class, 'capell-layout-builder::widget.page.latest');

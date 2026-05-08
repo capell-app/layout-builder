@@ -55,7 +55,7 @@ final class ResolveAccessGateAccessAction
             ->get();
 
         if ($areas->isEmpty()) {
-            return new AccessGateAccessResultData(! $areaExists);
+            return new AccessGateAccessResultData($areaExists && $siteScopeEnabled && $siteId !== null);
         }
 
         if ($areas->where('status', AccessAreaStatus::Active)->isEmpty()) {

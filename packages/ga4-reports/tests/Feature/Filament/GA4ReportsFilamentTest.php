@@ -69,7 +69,7 @@ it('uses translated page labels and configured slug', function (): void {
 
     expect(GA4ReportsPage::getSlug())->toBe('ga4-reports')
         ->and(GA4ReportsPage::getNavigationLabel())->toBe('GA4 Reports')
-        ->and(GA4ReportsPage::getNavigationGroup())->toBe('Insights')
+        ->and(GA4ReportsPage::getNavigationGroup())->toBe((string) __('capell-admin::navigation.group_monitoring'))
         ->and((new GA4ReportsPage)->getTitle())->toBe('GA4 Reports');
 });
 

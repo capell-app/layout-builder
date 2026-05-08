@@ -9,7 +9,7 @@ it('registers installed package component directories with Blaze', function (str
     expect(Blaze::optimize()->shouldCompile($file))->toBeTrue();
 })->with([
     'blog' => fn (): string => dirname(__DIR__, 3) . '/packages/blog/resources/views/components/tag.blade.php',
-    'layout-builder' => fn (): string => dirname(__DIR__, 3) . '/packages/layout-builder/resources/views/components/widget/default.blade.php',
+    'foundation-theme-layout-builder-widgets' => fn (): string => dirname(__DIR__, 3) . '/packages/foundation-theme/resources/views/layout-builder/components/widget/default.blade.php',
     'seo-suite' => fn (): string => dirname(__DIR__, 3) . '/packages/seo-suite/resources/views/components/schema/graph.blade.php',
     'foundation-theme-package' => fn (): string => dirname(__DIR__, 3) . '/packages/foundation-theme/resources/views/components/button/index.blade.php',
 ]);

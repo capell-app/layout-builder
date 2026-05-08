@@ -39,6 +39,10 @@ final class FrontendServiceProvider extends ServiceProvider
 
     private function registerSitemapPages(): void
     {
+        if (! class_exists(SitemapPageRegistry::class)) {
+            return;
+        }
+
         $registry = resolve(SitemapPageRegistry::class);
         $registry->register('archives', ArchivesSitemap::class);
         $registry->register('articles', ArticlesSitemap::class);

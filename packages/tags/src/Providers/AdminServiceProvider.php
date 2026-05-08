@@ -14,7 +14,11 @@ class AdminServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->booting(function (): void {
+            if ($this->isPackageInstalled()) {
+                $this->registerResources();
+            }
+        });
     }
 
     public function boot(): void
@@ -23,6 +27,11 @@ class AdminServiceProvider extends ServiceProvider
             return;
         }
 
+        $this->registerResources();
+    }
+
+    private function registerResources(): void
+    {
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
             class: ResourceEnum::Tag->value,
             group: ResourceEnum::Tag->name,

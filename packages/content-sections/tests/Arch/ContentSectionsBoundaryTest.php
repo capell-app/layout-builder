@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 use Symfony\Component\Finder\Finder;
 
-it('is not referenced by the layout-builder package', function (): void {
+it('does not depend on removed layout-builder package internals', function (): void {
     $rootPath = dirname(__DIR__, 4);
-    $layoutBuilderPath = $rootPath . '/packages/layout-builder';
+    $contentSectionsPath = $rootPath . '/packages/content-sections';
     $violations = [];
 
     $files = (new Finder)
         ->files()
-        ->in($layoutBuilderPath)
+        ->in($contentSectionsPath)
         ->exclude(['docs'])
         ->name(['*.php', '*.blade.php', '*.md', '*.json'])
-        ->contains('Capell\\ContentSections');
+        ->contains('Capell\\LayoutBuilder');
 
     foreach ($files as $file) {
         $violations[] = str_replace($rootPath . '/', '', $file->getPathname());

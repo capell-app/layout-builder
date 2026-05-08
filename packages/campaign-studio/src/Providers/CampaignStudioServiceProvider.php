@@ -48,6 +48,8 @@ final class CampaignStudioServiceProvider extends AbstractPackageServiceProvider
 
     public function registeringPackage(): void
     {
+        $this->app->register(AdminServiceProvider::class);
+
         $this
             ->registerPackageMetadata();
 

@@ -8,13 +8,12 @@ use Capell\Address\Models\Address;
 use Capell\Address\Models\Country;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
-use Capell\DemoKit\Console\Commands\Concerns\HasSitesOption;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class DemoCommand extends Command
 {
-    use HasSitesOption;
-
     protected $description = 'Inserts demo address content into the selected site(s).';
 
     protected $signature = 'capell:address-demo {--sites=}';
@@ -102,5 +101,30 @@ class DemoCommand extends Command
         ]);
 
         return $address;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function getDemoSites(): array
+    {
+        $sitesOption = $this->option('sites');
+
+        if (is_string($sitesOption) && $sitesOption !== '') {
+            return array_values(array_filter(
+                array_map(trim(...), explode(',', $sitesOption)),
+                static fn (string $site): bool => $site !== '',
+            ));
+        }
+
+        if (! Schema::hasTable('sites')) {
+            return [config('app.name')];
+        }
+
+        return DB::table('sites')
+            ->pluck('name')
+            ->filter(static fn (mixed $site): bool => is_string($site) && $site !== '')
+            ->values()
+            ->all();
     }
 }

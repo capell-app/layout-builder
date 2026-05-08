@@ -11,10 +11,7 @@ use Capell\Core\Data\PageTypeData;
 use Capell\Core\Events\PageUrlChanged;
 use Capell\Core\Events\SiteReplicated;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models\Language;
-use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\Frontend\Enums\CacheEnum as FrontendCacheEnum;
 use Capell\Navigation\Actions\BuildNavigationRenderModelAction;
 use Capell\Navigation\Adapters\NavigationNamesResolverAdapter;
@@ -30,7 +27,6 @@ use Capell\Navigation\Filament\Resources\Navigations\NavigationResource;
 use Capell\Navigation\Listeners\ReplicateSiteNavigationsListener;
 use Capell\Navigation\Models\Navigation;
 use Capell\Navigation\Policies\NavigationPolicy;
-use Capell\Navigation\Support\Creator\NavigationDemoCreator;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
@@ -45,6 +41,12 @@ class NavigationServiceProvider extends ServiceProvider
     {
         $this->registerPackageMetadata();
         $this->commands([DemoCommand::class, SetupCommand::class]);
+
+        $this->app->booting(function (): void {
+            if ($this->isPackageInstalled()) {
+                $this->registerResources();
+            }
+        });
     }
 
     public function boot(): void
@@ -64,8 +66,7 @@ class NavigationServiceProvider extends ServiceProvider
             ->registerBladeComponents()
             ->registerPolicies()
             ->registerRelationships()
-            ->registerEventListeners()
-            ->registerDemoCreatorMacros();
+            ->registerEventListeners();
     }
 
     private function isPackageInstalled(): bool
@@ -211,27 +212,6 @@ class NavigationServiceProvider extends ServiceProvider
                 ));
             }
         }
-    }
-
-    private function registerDemoCreatorMacros(): self
-    {
-        if (! class_exists(DemoCreator::class)) {
-            return $this;
-        }
-
-        DemoCreator::macro('setupMainNavigation', function (Site $site, Language $language, Page $home): void {
-            resolve(NavigationDemoCreator::class)->setupMainNavigation($site, $language, $home);
-        });
-
-        DemoCreator::macro('setupFooterNavigation', function (Site $site, Language $language): void {
-            resolve(NavigationDemoCreator::class)->setupFooterNavigation($site, $language);
-        });
-
-        DemoCreator::macro('subFooterNavigation', function (Site $site, ?Language $language): void {
-            resolve(NavigationDemoCreator::class)->setupSubFooterNavigation($site, $language);
-        });
-
-        return $this;
     }
 
     private function registerSchemaExtender(string $tag, string $class): void
