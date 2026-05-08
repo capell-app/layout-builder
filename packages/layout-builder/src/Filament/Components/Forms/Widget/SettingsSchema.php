@@ -8,6 +8,7 @@ use Capell\Admin\Filament\Components\Forms\NameInput;
 use Capell\Admin\Filament\Components\Forms\StatusToggle;
 use Capell\Core\Support\Slug\SlugGenerator;
 use Capell\LayoutBuilder\Models\Widget;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
@@ -57,6 +58,10 @@ class SettingsSchema
                         ->columnSpan(1)
                         ->schema([
                             StatusToggle::make('status'),
+                            DateTimePicker::make('visible_from')
+                                ->label(__('capell-layout-builder::table.visible_from')),
+                            DateTimePicker::make('visible_until')
+                                ->label(__('capell-layout-builder::table.visible_until')),
                         ]),
                 ]),
         ];

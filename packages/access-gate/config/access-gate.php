@@ -7,6 +7,8 @@ return [
 
     'route_prefix' => env('ACCESS_GATE_ROUTE_PREFIX', 'access'),
 
+    'status_endpoint_enabled' => (bool) env('ACCESS_GATE_STATUS_ENDPOINT_ENABLED', false),
+
     'claim_token_ttl_minutes' => (int) env('ACCESS_GATE_CLAIM_TOKEN_TTL', 60 * 24 * 7),
 
     'cookies' => [
@@ -38,6 +40,14 @@ return [
     ],
 
     'registration' => [
+        'methods' => [
+            'email' => [
+                'enabled' => env('ACCESS_GATE_EMAIL_REQUEST_ENABLED', true),
+            ],
+        ],
+        'identity_methods' => [
+            //
+        ],
         'fields' => [
             //
         ],
@@ -47,7 +57,7 @@ return [
         'default_area' => [
             'key' => env('ACCESS_GATE_DEFAULT_AREA_KEY', 'capell-preview'),
             'name' => env('ACCESS_GATE_DEFAULT_AREA_NAME', 'Capell Preview'),
-            'status' => env('ACCESS_GATE_DEFAULT_AREA_STATUS', 'active'),
+            'status' => env('ACCESS_GATE_DEFAULT_AREA_STATUS', 'paused'),
             'identity_mode' => env('ACCESS_GATE_DEFAULT_IDENTITY_MODE', 'hybrid'),
             'approval_strategy' => env('ACCESS_GATE_DEFAULT_APPROVAL_STRATEGY', 'first_n_auto_approve'),
             'approval_limit' => env('ACCESS_GATE_DEFAULT_APPROVAL_LIMIT'),

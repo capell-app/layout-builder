@@ -10,6 +10,8 @@ use Capell\AccessGate\Enums\AccessAreaStatus;
 use Capell\AccessGate\Enums\ApprovalStrategy;
 use Capell\AccessGate\Enums\EventType;
 use Capell\AccessGate\Enums\GrantStatus;
+use Capell\AccessGate\Enums\IdentityMode;
+use Capell\AccessGate\Enums\RegistrationPolicy;
 use Capell\AccessGate\Enums\RegistrationStatus;
 use Capell\AccessGate\Events\RegistrationApproved;
 use Capell\AccessGate\Models\Area;
@@ -33,15 +35,15 @@ it('stores host application registration field values', function (): void {
 
     $area = Area::factory()->create();
 
-    app(RegistrationFieldRegistry::class)->register(new TestGithubUsernameRegistrationField);
+    app(RegistrationFieldRegistry::class)->register(new TestProviderUsernameRegistrationField);
 
     $registration = app(CreateRegistrationAction::class)->handle($area, [
         'email' => 'mona@example.test',
-        'github_username' => 'octocat',
+        'provider_username' => 'octocat',
     ]);
 
     expect($registration->field_values)->toBe([
-        'github_username' => [
+        'provider_username' => [
             'value' => 'octocat',
             'metadata' => [
                 'avatar_url' => 'https://avatars.example.test/octocat.png',
@@ -78,6 +80,29 @@ it('approves a registration, creates a grant, records the event, and dispatches 
     Notification::assertSentOnDemand(AccessApprovedNotification::class);
 });
 
+it('uses the trusted requested host when sending claim links', function (): void {
+    Notification::fake();
+
+    $area = Area::factory()->create([
+        'claim_url_hosts' => ['demo.example.test'],
+    ]);
+    $registration = app(CreateRegistrationAction::class)->handle($area, [
+        'email' => 'mona@example.test',
+        'requested_url' => 'https://demo.example.test/preview',
+    ]);
+
+    app(ApproveRegistrationAction::class)->handle($registration);
+
+    Notification::assertSentOnDemand(
+        AccessApprovedNotification::class,
+        function (AccessApprovedNotification $notification): bool {
+            $mail = $notification->toMail(new class {});
+
+            return str_starts_with((string) $mail->actionUrl, 'https://demo.example.test/access/claim/');
+        },
+    );
+});
+
 it('auto approves registrations when the area strategy allows it', function (): void {
     Notification::fake();
 
@@ -96,6 +121,67 @@ it('auto approves registrations when the area strategy allows it', function (): 
 
     expect($first->status)->toBe(RegistrationStatus::Approved)
         ->and($second->status)->toBe(RegistrationStatus::Pending);
+});
+
+it('allows duplicate registration requests when the area registration policy allows duplicates', function (): void {
+    Notification::fake();
+
+    $area = Area::factory()->create([
+        'registration_policy' => RegistrationPolicy::DuplicateAllowed,
+    ]);
+
+    app(CreateRegistrationAction::class)->handle($area, [
+        'email' => 'mona@example.test',
+    ]);
+
+    app(CreateRegistrationAction::class)->handle($area, [
+        'email' => 'mona@example.test',
+    ]);
+
+    expect(Registration::query()->where('email_normalized', 'mona@example.test')->count())->toBe(2);
+});
+
+it('sets grant expiry and discount metadata from the access area when approving registrations', function (): void {
+    Notification::fake();
+
+    $discountExpiresAt = now()->addDays(14)->startOfSecond();
+    $area = Area::factory()->create([
+        'grant_duration_days' => 30,
+        'discount_label' => 'Preview discount',
+        'discount_code' => 'PREVIEW30',
+        'discount_expires_at' => $discountExpiresAt,
+        'discount_metadata' => ['source' => 'access-gate-test'],
+    ]);
+    $registration = app(CreateRegistrationAction::class)->handle($area, [
+        'email' => 'mona@example.test',
+    ]);
+
+    app(ApproveRegistrationAction::class)->handle($registration);
+
+    $grant = Grant::query()->where('registration_id', $registration->getKey())->firstOrFail();
+
+    expect($grant->expires_at)->not->toBeNull()
+        ->and($grant->expires_at?->isSameDay(now()->addDays(30)))->toBeTrue()
+        ->and($grant->discount_label)->toBe('Preview discount')
+        ->and($grant->discount_code)->toBe('PREVIEW30')
+        ->and($grant->discount_expires_at?->toDateTimeString())->toBe($discountExpiresAt->toDateTimeString())
+        ->and($grant->discount_metadata)->toBe(['source' => 'access-gate-test']);
+});
+
+it('does not create guest claim tokens for authenticated-only access areas', function (): void {
+    Notification::fake();
+
+    $area = Area::factory()->create([
+        'identity_mode' => IdentityMode::Authenticated,
+    ]);
+    $registration = app(CreateRegistrationAction::class)->handle($area, [
+        'email' => 'mona@example.test',
+    ]);
+
+    app(ApproveRegistrationAction::class)->handle($registration);
+
+    expect(ClaimToken::query()->count())->toBe(0)
+        ->and(Grant::query()->where('registration_id', $registration->getKey())->exists())->toBeTrue();
 });
 
 it('refuses to approve rejected registrations', function (): void {
@@ -155,16 +241,16 @@ it('does not accept public registrations for inactive or invite-only areas', fun
     ]],
 ]);
 
-final class TestGithubUsernameRegistrationField implements RegistrationField
+final class TestProviderUsernameRegistrationField implements RegistrationField
 {
     public function key(): string
     {
-        return 'github_username';
+        return 'provider_username';
     }
 
     public function label(): string
     {
-        return 'GitHub username';
+        return 'Provider username';
     }
 
     /**
@@ -173,10 +259,10 @@ final class TestGithubUsernameRegistrationField implements RegistrationField
     public function validate(array $input): RegistrationFieldValue
     {
         $validated = Validator::make($input, [
-            'github_username' => ['required', 'string', 'alpha_dash:ascii'],
+            'provider_username' => ['required', 'string', 'alpha_dash:ascii'],
         ])->validate();
 
-        $username = strtolower((string) $validated['github_username']);
+        $username = strtolower((string) $validated['provider_username']);
 
         return new RegistrationFieldValue(
             key: $this->key(),

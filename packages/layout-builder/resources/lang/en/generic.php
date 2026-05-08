@@ -5,6 +5,8 @@ declare(strict_types=1);
 return [
     'accordion' => 'Accordion',
     'action_type_label' => ':Type: :label',
+    'announcement_bar' => 'Announcement Bar',
+    'announcement_bar_description' => 'Share a short scheduled message across layout chrome or content containers.',
     'assets' => 'Assets',
     'auto' => 'Auto',
     'breadcrumbs' => 'Breadcrumbs',
@@ -39,6 +41,8 @@ return [
     'pages_tile' => 'Pages',
     'section' => 'Section',
     'sections' => 'Sections',
+    'snippet' => 'Snippet',
+    'snippet_description' => 'Add reusable sanitized content for small layout messages.',
     'widget' => 'Widget',
     'page_model_helper' => 'The model to use for results',
     'widget_asset_page' => 'Page Asset',

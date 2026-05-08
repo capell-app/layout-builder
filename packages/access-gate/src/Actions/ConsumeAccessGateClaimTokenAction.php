@@ -9,7 +9,7 @@ use Capell\AccessGate\Enums\ClaimTokenStatus;
 use Capell\AccessGate\Enums\EventType;
 use Capell\AccessGate\Enums\RegistrationStatus;
 use Capell\AccessGate\Models\ClaimToken;
-use Illuminate\Support\Facades\DB;
+use Capell\AccessGate\Support\AccessGateDatabase;
 use LogicException;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -23,9 +23,12 @@ final class ConsumeAccessGateClaimTokenAction
         private readonly RecordEventAction $recordEvent,
     ) {}
 
-    public function handle(string $plainTextToken): ?IssuedAccessGateTokenData
+    /**
+     * @param  array<string, mixed>  $metadata
+     */
+    public function handle(string $plainTextToken, array $metadata = []): ?IssuedAccessGateTokenData
     {
-        return DB::transaction(function () use ($plainTextToken): ?IssuedAccessGateTokenData {
+        return AccessGateDatabase::transaction(function () use ($plainTextToken, $metadata): ?IssuedAccessGateTokenData {
             $claimToken = ClaimToken::query()
                 ->where('token_hash', hash('sha256', $plainTextToken))
                 ->where('status', ClaimTokenStatus::Active->value)
@@ -33,7 +36,19 @@ final class ConsumeAccessGateClaimTokenAction
                 ->lockForUpdate()
                 ->first();
 
-            if ($claimToken === null || $this->isExpired($claimToken) || $claimToken->grant === null) {
+            if ($claimToken === null) {
+                return null;
+            }
+
+            if ($this->isExpired($claimToken)) {
+                $claimToken->forceFill([
+                    'status' => ClaimTokenStatus::Expired,
+                ])->save();
+
+                return null;
+            }
+
+            if ($claimToken->grant === null) {
                 return null;
             }
 
@@ -55,7 +70,7 @@ final class ConsumeAccessGateClaimTokenAction
                 ])->save();
             }
 
-            $issuedBrowserToken = $this->createBrowserToken->handle($grant);
+            $issuedBrowserToken = $this->createBrowserToken->handle($grant, $metadata);
 
             $this->recordEvent->handle(
                 type: EventType::ClaimTokenClaimed,

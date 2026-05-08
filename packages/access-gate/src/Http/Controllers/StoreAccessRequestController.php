@@ -10,6 +10,7 @@ use Capell\AccessGate\Models\Area;
 use Capell\AccessGate\Support\RegistrationFieldRegistry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 final class StoreAccessRequestController
 {
@@ -21,6 +22,12 @@ final class StoreAccessRequestController
     public function __invoke(Request $request, string $area): RedirectResponse
     {
         $accessArea = Area::query()->where('key', $area)->firstOrFail();
+
+        if (! (bool) config('access-gate.registration.methods.email.enabled', true)) {
+            throw ValidationException::withMessages([
+                'email' => __('capell-access-gate::public.request_unavailable'),
+            ]);
+        }
 
         $this->createRegistration->handle($accessArea, [
             ...$this->safePublicInput($request, $accessArea),

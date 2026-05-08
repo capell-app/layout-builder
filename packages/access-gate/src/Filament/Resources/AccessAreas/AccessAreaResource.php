@@ -17,6 +17,7 @@ use Capell\AccessGate\Filament\Resources\Concerns\AccessGateFilamentOptions;
 use Capell\AccessGate\Models\Area;
 use Capell\AccessGate\Providers\AccessGateServiceProvider;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Site;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\KeyValue;
@@ -29,6 +30,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Schema as DatabaseSchema;
 use Override;
 
 final class AccessAreaResource extends Resource
@@ -54,6 +56,12 @@ final class AccessAreaResource extends Resource
                 TextInput::make('name')
                     ->label(__('capell-access-gate::filament.fields.name'))
                     ->required(),
+                Select::make('site_id')
+                    ->label(__('capell-access-gate::filament.fields.site'))
+                    ->helperText(__('capell-access-gate::filament.fields.site_help'))
+                    ->options(fn (): array => DatabaseSchema::hasTable('sites') ? Site::getOptions()->all() : [])
+                    ->searchable()
+                    ->preload(),
                 Select::make('status')
                     ->label(__('capell-access-gate::filament.fields.status'))
                     ->options(self::enumOptions(AccessAreaStatus::class, 'capell-access-gate::filament.area_status'))
@@ -111,6 +119,10 @@ final class AccessAreaResource extends Resource
                 TextColumn::make('name')
                     ->label(__('capell-access-gate::filament.fields.name'))
                     ->searchable()
+                    ->sortable(),
+                TextColumn::make('site.name')
+                    ->label(__('capell-access-gate::filament.fields.site'))
+                    ->placeholder(__('capell-access-gate::filament.fields.all_sites'))
                     ->sortable(),
                 TextColumn::make('status')
                     ->label(__('capell-access-gate::filament.fields.status'))

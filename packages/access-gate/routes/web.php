@@ -19,7 +19,7 @@ Route::middleware(is_array($middleware) ? $middleware : ['web'])
             ->name('request');
 
         Route::post('/request/{area}', StoreAccessRequestController::class)
-            ->middleware('throttle:6,1')
+            ->middleware('throttle:access-gate-request')
             ->name('request.store');
 
         Route::get('/claim/{token}', ClaimAccessGateTokenController::class)
@@ -29,7 +29,9 @@ Route::middleware(is_array($middleware) ? $middleware : ['web'])
         Route::post('/logout/{area}', LogoutAccessGateController::class)
             ->name('logout');
 
-        Route::get('/status/{area}', AccessGateStatusController::class)
-            ->middleware('throttle:60,1')
-            ->name('status');
+        if ((bool) config('access-gate.status_endpoint_enabled', false)) {
+            Route::get('/status/{area}', AccessGateStatusController::class)
+                ->middleware('throttle:60,1')
+                ->name('status');
+        }
     });

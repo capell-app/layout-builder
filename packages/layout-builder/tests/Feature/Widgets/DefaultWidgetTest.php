@@ -9,6 +9,7 @@ use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\LayoutBuilder\Database\Factories\LayoutFactory;
 use Capell\LayoutBuilder\Enums\ActionLinkEnum;
+use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Creator\WidgetCreator;
 use Capell\Tests\Support\Concerns\TestingFrontend;
@@ -51,6 +52,117 @@ it('renders default widget on page', function (): void {
                         ->has('src', $image->getFullUrl()),
                 ),
         );
+});
+
+it('does not render widgets before their visible from date', function (): void {
+    $site = Site::factory()->withTranslations()->create();
+    $widget = Widget::factory()->create([
+        'visible_from' => now()->addDay(),
+    ]);
+    Translation::factory()->translatable($widget)->language($site->language)->create([
+        'title' => 'Future announcement',
+    ]);
+    $layout = (new LayoutFactory)->widgets([$widget])->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
+
+    get($page->pageUrl->full_url)
+        ->assertOk()
+        ->assertDontSee('Future announcement');
+});
+
+it('does not render widgets after their visible until date', function (): void {
+    $site = Site::factory()->withTranslations()->create();
+    $widget = Widget::factory()->create([
+        'visible_until' => now()->subDay(),
+    ]);
+    Translation::factory()->translatable($widget)->language($site->language)->create([
+        'title' => 'Expired announcement',
+    ]);
+    $layout = (new LayoutFactory)->widgets([$widget])->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
+
+    get($page->pageUrl->full_url)
+        ->assertOk()
+        ->assertDontSee('Expired announcement');
+});
+
+it('renders widgets inside their schedule window', function (): void {
+    $site = Site::factory()->withTranslations()->create();
+    $widget = Widget::factory()->create([
+        'visible_from' => now()->subDay(),
+        'visible_until' => now()->addDay(),
+    ]);
+    Translation::factory()->translatable($widget)->language($site->language)->create([
+        'title' => 'Current announcement',
+    ]);
+    $layout = (new LayoutFactory)->widgets([$widget])->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
+
+    get($page->pageUrl->full_url)
+        ->assertOk()
+        ->assertSee('Current announcement');
+});
+
+it('renders announcement and snippet widgets', function (): void {
+    $site = Site::factory()->withTranslations()->create();
+    $announcement = Widget::factory()->create([
+        'key' => 'announcement-render-test',
+        'meta' => ['component' => WidgetComponentEnum::AnnouncementBar->value],
+    ]);
+    $snippet = Widget::factory()->create([
+        'key' => 'snippet-render-test',
+        'meta' => ['component' => WidgetComponentEnum::Snippet->value],
+    ]);
+
+    Translation::factory()->translatable($announcement)->language($site->language)->create([
+        'title' => 'Launch window',
+        'content' => '<p>Early access opens today.</p>',
+    ]);
+    Translation::factory()->translatable($snippet)->language($site->language)->create([
+        'title' => 'Small note',
+        'content' => '<p>Useful supporting copy.</p>',
+    ]);
+
+    $layout = (new LayoutFactory)->widgets([$announcement, $snippet])->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
+
+    get($page->pageUrl->full_url)
+        ->assertOk()
+        ->assertElementExists('.widget-announcement-bar')
+        ->assertElementExists('.widget-snippet')
+        ->assertSee('Launch window')
+        ->assertSee('Small note');
+});
+
+it('renders chrome container keys through the normal layout container path', function (): void {
+    $site = Site::factory()->withTranslations()->create();
+    $widget = Widget::factory()->create([
+        'key' => 'chrome-banner-render-test',
+        'meta' => ['component' => WidgetComponentEnum::AnnouncementBar->value],
+    ]);
+    Translation::factory()->translatable($widget)->language($site->language)->create([
+        'title' => 'Chrome announcement',
+    ]);
+    $layout = (new LayoutFactory)->create([
+        'containers' => [
+            'chrome-top' => [
+                'widgets' => [
+                    [
+                        'widget_key' => $widget->key,
+                        'occurrence' => 1,
+                    ],
+                ],
+                'meta' => [],
+            ],
+        ],
+        'widgets' => [$widget->key],
+    ]);
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations()->create();
+
+    get($page->pageUrl->full_url)
+        ->assertOk()
+        ->assertElementExists('#layout-container-chrome-top')
+        ->assertSee('Chrome announcement');
 });
 
 it('renders default actions widget on page', function (): void {

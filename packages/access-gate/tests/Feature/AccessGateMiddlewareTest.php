@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Capell\AccessGate\Actions\CreateAccessGateBrowserTokenAction;
 use Capell\AccessGate\Actions\CreateAccessGateClaimTokenAction;
 use Capell\AccessGate\Actions\CreateAccessGateGrantAction;
+use Capell\AccessGate\Contracts\AccessRequestMethod;
 use Capell\AccessGate\Contracts\RegistrationField;
 use Capell\AccessGate\Data\RegistrationFieldValue;
 use Capell\AccessGate\Enums\AccessAreaStatus;
@@ -18,6 +19,7 @@ use Capell\AccessGate\Models\BrowserToken;
 use Capell\AccessGate\Models\Grant;
 use Capell\AccessGate\Models\Registration;
 use Capell\AccessGate\Notifications\AccessRequestReceivedNotification;
+use Capell\AccessGate\Support\AccessRequestMethodRegistry;
 use Capell\AccessGate\Support\RegistrationFieldRegistry;
 use Capell\AccessGate\Tests\Support\FakePageCacheMiddleware;
 use Capell\AccessGate\Tests\TestCase;
@@ -54,6 +56,24 @@ it('blocks protected content before the route renders', function (): void {
     expect($rendered)->toBeFalse();
 });
 
+it('fails closed when a protected route references an unknown access area', function (): void {
+    $rendered = false;
+
+    Route::middleware('access-gate:missing-preview')->get('/access-gate-test/missing-area', function () use (&$rendered): string {
+        $rendered = true;
+
+        return 'secret';
+    });
+
+    $this->get('/access-gate-test/missing-area')
+        ->assertRedirect(route('capell-access-gate.request', [
+            'area' => 'missing-preview',
+            'redirect' => 'http://localhost/access-gate-test/missing-area',
+        ]));
+
+    expect($rendered)->toBeFalse();
+});
+
 it('allows protected content when a matching area is paused', function (): void {
     Area::factory()->create([
         'key' => 'preview',
@@ -67,6 +87,24 @@ it('allows protected content when a matching area is paused', function (): void 
         ->get('/access-gate-test/paused')
         ->assertOk()
         ->assertSee('secret');
+});
+
+it('reports the resolved access area when status checks are denied', function (): void {
+    Area::factory()->create([
+        'key' => 'preview',
+        'status' => AccessAreaStatus::Active,
+        'identity_mode' => IdentityMode::Hybrid,
+    ]);
+
+    $this
+        ->getJson(route('capell-access-gate.status', ['area' => 'preview']))
+        ->assertOk()
+        ->assertJson([
+            'allowed' => false,
+        ])
+        ->assertJsonMissing([
+            'area' => 'preview',
+        ]);
 });
 
 it('allows guest browser tokens and marks protected responses private', function (): void {
@@ -188,23 +226,80 @@ it('renders and stores configured public request fields', function (): void {
         'name' => 'Preview',
     ]);
 
-    app(RegistrationFieldRegistry::class)->register(new PublicRequestGithubField);
+    app(RegistrationFieldRegistry::class)->register(new PublicRequestProviderField);
 
     $this->get(route('capell-access-gate.request', ['area' => $area->key]))
         ->assertOk()
         ->assertHeader('Cache-Control', 'no-store, private')
-        ->assertSee('GitHub username');
+        ->assertSee('Provider username');
 
     $this->post(route('capell-access-gate.request.store', ['area' => $area->key]), [
         'email' => 'mona@example.test',
-        'github_username' => 'octocat',
+        'provider_username' => 'octocat',
         'requested_url' => 'https://example.test/preview',
     ])->assertRedirect(route('capell-access-gate.request', ['area' => $area->key]));
 
     $registration = Registration::query()->where('email_normalized', 'mona@example.test')->firstOrFail();
 
-    expect($registration->field_values['github_username']['value'])->toBe('octocat');
+    expect($registration->field_values['provider_username']['value'])->toBe('octocat');
     Notification::assertSentOnDemand(AccessRequestReceivedNotification::class);
+});
+
+it('renders host application access request methods after the email request form', function (): void {
+    $area = Area::factory()->create([
+        'key' => 'preview',
+        'name' => 'Preview',
+    ]);
+
+    app(AccessRequestMethodRegistry::class)->register(new PublicRequestProviderMethod);
+
+    $this->get(route('capell-access-gate.request', [
+        'area' => $area->key,
+        'redirect' => 'https://example.test/preview',
+    ]))
+        ->assertOk()
+        ->assertSee('Continue with Provider')
+        ->assertSee('Request Access')
+        ->assertSee('or')
+        ->assertSee('Email address');
+});
+
+it('can disable the package email form while leaving host application methods available', function (): void {
+    config()->set('access-gate.registration.methods.email.enabled', false);
+
+    $area = Area::factory()->create([
+        'key' => 'preview',
+        'name' => 'Preview',
+    ]);
+
+    app(AccessRequestMethodRegistry::class)->register(new PublicRequestProviderMethod);
+
+    $this->get(route('capell-access-gate.request', ['area' => $area->key]))
+        ->assertOk()
+        ->assertSee('Continue with Provider')
+        ->assertDontSee('Email address');
+
+    $this->post(route('capell-access-gate.request.store', ['area' => $area->key]), [
+        'email' => 'mona@example.test',
+    ])->assertSessionHasErrors('email');
+});
+
+it('throttles public email requests by area, email, and ip address', function (): void {
+    Notification::fake();
+
+    $area = Area::factory()->create([
+        'key' => 'preview',
+    ]);
+
+    for ($requestAttempt = 1; $requestAttempt <= 6; $requestAttempt++) {
+        $this->post(route('capell-access-gate.request.store', ['area' => $area->key]), [
+            'email' => 'mona@example.test',
+        ])->assertRedirect(route('capell-access-gate.request', ['area' => $area->key]));
+    }
+
+    $this->post(route('capell-access-gate.request.store', ['area' => $area->key]), [
+        'email' => 'mona@example.test',
+    ])->assertTooManyRequests();
 });
 
 it('does not trust posted user ids on public access requests', function (): void {
@@ -259,6 +354,7 @@ it('runs access gate before route-level page cache middleware', function (): voi
     $rendered = false;
 
     FakePageCacheMiddleware::$ran = false;
+    FakePageCacheMiddleware::$sawProtectedRequest = false;
 
     $router = app('router');
     $router->aliasMiddleware('page-cache', FakePageCacheMiddleware::class);
@@ -294,6 +390,42 @@ it('runs access gate before route-level page cache middleware', function (): voi
         ->and(FakePageCacheMiddleware::$ran)->toBeFalse();
 });
 
+it('marks allowed protected requests so compatible page cache middleware can skip reads and writes', function (): void {
+    FakePageCacheMiddleware::$ran = false;
+    FakePageCacheMiddleware::$sawProtectedRequest = false;
+
+    $router = app('router');
+    $router->aliasMiddleware('page-cache', FakePageCacheMiddleware::class);
+    $middlewarePriority = collect([AccessGateMiddleware::class, 'access-gate', FakePageCacheMiddleware::class])
+        ->merge($router->middlewarePriority)
+        ->unique()
+        ->values()
+        ->all();
+    $router->middlewarePriority = $middlewarePriority;
+    app(HttpKernel::class)->setMiddlewarePriority($middlewarePriority);
+
+    $area = Area::factory()->create([
+        'key' => 'preview',
+        'identity_mode' => IdentityMode::Hybrid,
+    ]);
+    $grant = Grant::factory()->for($area, 'area')->create();
+    $issuedToken = app(CreateAccessGateBrowserTokenAction::class)->handle($grant);
+
+    Route::middleware(['web', 'page-cache', 'access-gate:preview'])
+        ->get('/access-gate-test/page-cache-allowed', fn (): string => 'secret');
+
+    $this
+        ->withUnencryptedCookie(config('access-gate.cookies.browser_token.name'), $issuedToken->plainTextToken)
+        ->get('/access-gate-test/page-cache-allowed')
+        ->assertOk()
+        ->assertSee('secret')
+        ->assertDontSee('cached secret')
+        ->assertHeader('Cache-Control', 'no-store, private');
+
+    expect(FakePageCacheMiddleware::$ran)->toBeTrue()
+        ->and(FakePageCacheMiddleware::$sawProtectedRequest)->toBeTrue();
+});
+
 it('claims access with a one-time token and stores the browser token cookie', function (): void {
     $area = Area::factory()->create([
         'claim_url_hosts' => ['example.test'],
@@ -307,9 +439,16 @@ it('claims access with a one-time token and stores the browser token cookie', fu
         ->create();
     $issuedClaimToken = app(CreateAccessGateClaimTokenAction::class)->handle($grant);
 
-    $this->get(route('capell-access-gate.claim', ['token' => $issuedClaimToken->plainTextToken]))
+    $this
+        ->withHeader('User-Agent', 'AccessGateTest/1.0')
+        ->get(route('capell-access-gate.claim', ['token' => $issuedClaimToken->plainTextToken]))
         ->assertRedirect('https://example.test/preview')
         ->assertCookie(config('access-gate.cookies.browser_token.name'));
+
+    $browserToken = BrowserToken::query()->firstOrFail();
+
+    expect($browserToken->ip_hash)->toBe(hash('sha256', '127.0.0.1'))
+        ->and($browserToken->user_agent)->toBe('AccessGateTest/1.0');
 });
 
 it('does not redirect claimed users to untrusted requested urls', function (): void {
@@ -350,16 +489,16 @@ final class AccessGateTestUser extends AuthenticatableUser
     protected $guarded = [];
 }
 
-final class PublicRequestGithubField implements RegistrationField
+final class PublicRequestProviderField implements RegistrationField
 {
     public function key(): string
     {
-        return 'github_username';
+        return 'provider_username';
     }
 
     public function label(): string
     {
-        return 'GitHub username';
+        return 'Provider username';
     }
 
     /**
@@ -368,12 +507,48 @@ final class PublicRequestGithubField implements RegistrationField
     public function validate(array $input): RegistrationFieldValue
     {
         $validated = Validator::make($input, [
-            'github_username' => ['required', 'string'],
+            'provider_username' => ['required', 'string'],
         ])->validate();
 
         return new RegistrationFieldValue(
             key: $this->key(),
-            value: strtolower((string) $validated['github_username']),
+            value: strtolower((string) $validated['provider_username']),
         );
+    }
+}
+
+final class PublicRequestProviderMethod implements AccessRequestMethod
+{
+    public function key(): string
+    {
+        return 'provider';
+    }
+
+    public function label(): string
+    {
+        return 'Continue with Provider';
+    }
+
+    public function description(): ?string
+    {
+        return 'Request access using the host application provider.';
+    }
+
+    public function isEnabled(Area $area): bool
+    {
+        return $area->key === 'preview';
+    }
+
+    public function isPrimary(Area $area): bool
+    {
+        return $area->key === 'preview';
+    }
+
+    public function url(Area $area, ?string $requestedUrl = null): string
+    {
+        return url('/host-provider/start?' . http_build_query([
+            'area' => $area->key,
+            'redirect' => $requestedUrl,
+        ]));
     }
 }

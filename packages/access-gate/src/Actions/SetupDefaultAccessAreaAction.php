@@ -26,7 +26,7 @@ final class SetupDefaultAccessAreaAction
             'key' => $key,
         ], [
             'name' => (string) Arr::get($areaConfig, 'name', 'Capell Preview'),
-            'status' => (string) Arr::get($areaConfig, 'status', 'active'),
+            'status' => (string) Arr::get($areaConfig, 'status', 'paused'),
             'identity_mode' => (string) Arr::get($areaConfig, 'identity_mode', 'hybrid'),
             'approval_strategy' => (string) Arr::get($areaConfig, 'approval_strategy', 'first_n_auto_approve'),
             'approval_limit' => $this->nullableInteger(Arr::get($areaConfig, 'approval_limit')),

@@ -10,7 +10,7 @@ use Capell\AccessGate\Enums\EventType;
 use Capell\AccessGate\Enums\TokenPolicy;
 use Capell\AccessGate\Models\BrowserToken;
 use Capell\AccessGate\Models\Grant;
-use Illuminate\Support\Facades\DB;
+use Capell\AccessGate\Support\AccessGateDatabase;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -28,7 +28,7 @@ final class CreateAccessGateBrowserTokenAction
      */
     public function handle(Grant $grant, array $metadata = []): IssuedAccessGateTokenData
     {
-        return DB::transaction(function () use ($grant, $metadata): IssuedAccessGateTokenData {
+        return AccessGateDatabase::transaction(function () use ($grant, $metadata): IssuedAccessGateTokenData {
             $lockedGrant = Grant::query()
                 ->whereKey($grant->getKey())
                 ->lockForUpdate()

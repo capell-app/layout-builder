@@ -19,6 +19,8 @@ it('installs the layout-builder widget catalog with translations and expected me
     expect($widgetKeys)
         ->toContain(
             'breadcrumbs',
+            'announcement-bar',
+            'snippet',
             'children',
             'assets',
             'gallery',
@@ -62,7 +64,7 @@ it('can be run repeatedly without duplicating widgets, translations, or catalog 
     InstallLayoutBuilderWidgetCatalogAction::run($languages, extraWidgets: true);
     InstallLayoutBuilderWidgetCatalogAction::run($languages, extraWidgets: true);
 
-    expect(Widget::query()->count())->toBe(19)
+    expect(Widget::query()->count())->toBe(21)
         ->and(Widget::query()->where('key', 'children')->firstOrFail()->translations()->count())->toBe(1)
         ->and(Navigation::query()->whereIn('key', ['navigation', 'navigation-tabs'])->count())->toBe(2);
 });

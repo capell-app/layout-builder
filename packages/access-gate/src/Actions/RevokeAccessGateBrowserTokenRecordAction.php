@@ -7,7 +7,7 @@ namespace Capell\AccessGate\Actions;
 use Capell\AccessGate\Enums\BrowserTokenStatus;
 use Capell\AccessGate\Enums\EventType;
 use Capell\AccessGate\Models\BrowserToken;
-use Illuminate\Support\Facades\DB;
+use Capell\AccessGate\Support\AccessGateDatabase;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 final class RevokeAccessGateBrowserTokenRecordAction
@@ -20,7 +20,7 @@ final class RevokeAccessGateBrowserTokenRecordAction
 
     public function handle(BrowserToken $browserToken): BrowserToken
     {
-        return DB::transaction(function () use ($browserToken): BrowserToken {
+        return AccessGateDatabase::transaction(function () use ($browserToken): BrowserToken {
             $lockedBrowserToken = BrowserToken::query()
                 ->whereKey($browserToken->getKey())
                 ->lockForUpdate()

@@ -7,8 +7,10 @@ use Capell\AccessGate\Models\Area;
 use Capell\AccessGate\Models\BrowserToken;
 use Capell\AccessGate\Models\ClaimToken;
 use Capell\AccessGate\Models\Grant;
+use Capell\AccessGate\Support\AccessGateDatabase;
 use Capell\AccessGate\Tests\TestCase;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 uses(TestCase::class);
@@ -19,6 +21,26 @@ it('respects the configured access gate database connection on models', function
     expect((new Area)->getConnectionName())->toBe('access_gate_testing')
         ->and((new ClaimToken)->getConnectionName())->toBe('access_gate_testing')
         ->and((new BrowserToken)->getConnectionName())->toBe('access_gate_testing');
+});
+
+it('runs access gate transactions on the configured database connection', function (): void {
+    Config::set('database.connections.access_gate_testing', [
+        'driver' => 'sqlite',
+        'database' => ':memory:',
+        'prefix' => '',
+        'foreign_key_constraints' => true,
+    ]);
+    Config::set('access-gate.connection', 'access_gate_testing');
+
+    $transactionLevels = AccessGateDatabase::transaction(fn (): array => [
+        'default' => DB::connection()->transactionLevel(),
+        'access_gate' => DB::connection('access_gate_testing')->transactionLevel(),
+    ]);
+
+    expect($transactionLevels)->toBe([
+        'default' => 1,
+        'access_gate' => 1,
+    ]);
 });
 
 it('keeps token persistence limited to hashed token columns', function (): void {

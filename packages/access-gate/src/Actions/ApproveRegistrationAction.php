@@ -10,8 +10,8 @@ use Capell\AccessGate\Enums\RegistrationStatus;
 use Capell\AccessGate\Events\RegistrationApproved;
 use Capell\AccessGate\Models\Grant;
 use Capell\AccessGate\Models\Registration;
+use Capell\AccessGate\Support\AccessGateDatabase;
 use Carbon\CarbonInterface;
-use Illuminate\Support\Facades\DB;
 use LogicException;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -27,7 +27,7 @@ final class ApproveRegistrationAction
 
     public function handle(Registration $registration, ?int $approvedByUserId = null): Registration
     {
-        return DB::transaction(function () use ($registration, $approvedByUserId): Registration {
+        return AccessGateDatabase::transaction(function () use ($registration, $approvedByUserId): Registration {
             $lockedRegistration = Registration::query()
                 ->whereKey($registration->getKey())
                 ->lockForUpdate()

@@ -29,6 +29,7 @@ abstract class TestCase extends OrchestraTestCase
             'page-cache',
             FakePageCacheMiddleware::class,
         ]);
+        $app['config']->set('access-gate.status_endpoint_enabled', true);
     }
 
     protected function defineDatabaseMigrations(): void

@@ -64,7 +64,9 @@ class LayoutLoader
                 'type',
                 'media' => fn (BuilderContract $query): BuilderContract => $query->ordered(),
                 'translation' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', $language->id),
-            ]),
+            ])
+                ->enabled()
+                ->publishedDate(),
         ]);
 
         $layout->layoutWidgets->each(function (Widget $widget): void {

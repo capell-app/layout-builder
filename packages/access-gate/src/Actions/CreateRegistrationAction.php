@@ -13,10 +13,10 @@ use Capell\AccessGate\Enums\RegistrationStatus;
 use Capell\AccessGate\Models\Area;
 use Capell\AccessGate\Models\Registration;
 use Capell\AccessGate\Notifications\AccessRequestReceivedNotification;
+use Capell\AccessGate\Support\AccessGateDatabase;
 use Capell\AccessGate\Support\RegistrationFieldRegistry;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -54,7 +54,7 @@ final class CreateRegistrationAction
         $emailNormalized = Str::lower($email);
         $fieldValues = $this->validatedFieldValues($input);
 
-        return DB::transaction(function () use ($area, $email, $emailNormalized, $fieldValues, $validated): Registration {
+        return AccessGateDatabase::transaction(function () use ($area, $email, $emailNormalized, $fieldValues, $validated): Registration {
             $lockedArea = Area::query()
                 ->whereKey($area->getKey())
                 ->lockForUpdate()

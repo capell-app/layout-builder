@@ -20,7 +20,10 @@ final class ClaimAccessGateTokenController
 
     public function __invoke(Request $request, string $token): RedirectResponse|Response
     {
-        $issuedBrowserToken = $this->consumeClaimToken->handle($token);
+        $issuedBrowserToken = $this->consumeClaimToken->handle($token, [
+            'ip_hash' => hash('sha256', (string) $request->ip()),
+            'user_agent' => $request->userAgent(),
+        ]);
 
         if ($issuedBrowserToken === null || ! $issuedBrowserToken->token instanceof BrowserToken) {
             return $this->noStore(response()->view('capell-access-gate::message', [

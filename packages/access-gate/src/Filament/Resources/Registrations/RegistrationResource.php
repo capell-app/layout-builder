@@ -102,12 +102,12 @@ final class RegistrationResource extends Resource
                     Action::make('approve')
                         ->label(__('capell-access-gate::filament.actions.approve'))
                         ->visible(fn (Registration $record): bool => $record->status === RegistrationStatus::Pending)
-                        ->action(fn (Registration $record): mixed => ApproveRegistrationAction::run($record)),
+                        ->action(fn (Registration $record): mixed => ApproveRegistrationAction::run($record, approvedByUserId: auth()->id())),
                     Action::make('reject')
                         ->label(__('capell-access-gate::filament.actions.reject'))
                         ->color('danger')
                         ->visible(fn (Registration $record): bool => $record->status === RegistrationStatus::Pending)
-                        ->action(fn (Registration $record): mixed => RejectRegistrationAction::run($record)),
+                        ->action(fn (Registration $record): mixed => RejectRegistrationAction::run($record, rejectedByUserId: auth()->id())),
                     Action::make('resendClaim')
                         ->label(__('capell-access-gate::filament.actions.resend_claim'))
                         ->visible(fn (Registration $record): bool => in_array($record->status, [RegistrationStatus::Approved, RegistrationStatus::Claimed], true))
@@ -116,7 +116,7 @@ final class RegistrationResource extends Resource
                         ->label(__('capell-access-gate::filament.actions.expire'))
                         ->color('danger')
                         ->visible(fn (Registration $record): bool => ! in_array($record->status, [RegistrationStatus::Claimed, RegistrationStatus::Expired], true))
-                        ->action(fn (Registration $record): mixed => ExpireRegistrationAction::run($record)),
+                        ->action(fn (Registration $record): mixed => ExpireRegistrationAction::run($record, expiredByUserId: auth()->id())),
                 ]),
             ]);
     }

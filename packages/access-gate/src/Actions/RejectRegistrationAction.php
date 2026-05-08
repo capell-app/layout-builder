@@ -7,7 +7,7 @@ namespace Capell\AccessGate\Actions;
 use Capell\AccessGate\Enums\EventType;
 use Capell\AccessGate\Enums\RegistrationStatus;
 use Capell\AccessGate\Models\Registration;
-use Illuminate\Support\Facades\DB;
+use Capell\AccessGate\Support\AccessGateDatabase;
 use LogicException;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -21,7 +21,7 @@ final class RejectRegistrationAction
 
     public function handle(Registration $registration, ?int $rejectedByUserId = null): Registration
     {
-        return DB::transaction(function () use ($registration, $rejectedByUserId): Registration {
+        return AccessGateDatabase::transaction(function () use ($registration, $rejectedByUserId): Registration {
             $lockedRegistration = Registration::query()
                 ->whereKey($registration->getKey())
                 ->lockForUpdate()

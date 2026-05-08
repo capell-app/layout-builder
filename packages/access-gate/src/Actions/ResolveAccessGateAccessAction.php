@@ -13,8 +13,11 @@ use Capell\AccessGate\Enums\IdentityMode;
 use Capell\AccessGate\Models\Area;
 use Capell\AccessGate\Models\BrowserToken;
 use Capell\AccessGate\Models\Grant;
+use Capell\Core\Actions\LoadSiteDomainFromUrlAction;
+use Capell\Core\Models\SiteDomain;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -27,13 +30,32 @@ final class ResolveAccessGateAccessAction
      */
     public function handle(Request $request, array $areaKeys): AccessGateAccessResultData
     {
-        $areas = Area::query()
-            ->whereIn('key', $areaKeys)
+        $siteId = $this->siteId($request);
+
+        $baseAreasQuery = Area::query()
+            ->whereIn('key', $areaKeys);
+
+        $areaExists = (clone $baseAreasQuery)->exists();
+
+        $areas = $baseAreasQuery
+            ->where(function (Builder $query) use ($siteId): void {
+                $query->whereNull('site_id');
+
+                if ($siteId !== null) {
+                    $query->orWhere('site_id', $siteId);
+                }
+            })
             ->get();
+
+        if ($areas->isEmpty()) {
+            return new AccessGateAccessResultData($areaExists);
+        }
 
         if ($areas->where('status', AccessAreaStatus::Active)->isEmpty()) {
             return new AccessGateAccessResultData(true);
         }
+
+        $deniedResult = null;
 
         foreach ($areas as $area) {
             if ($area->status !== AccessAreaStatus::Active) {
@@ -45,9 +67,23 @@ final class ResolveAccessGateAccessAction
             if ($result->allowed) {
                 return $result;
             }
+
+            $deniedResult ??= $result;
         }
 
-        return new AccessGateAccessResultData(false);
+        return $deniedResult ?? new AccessGateAccessResultData(false);
+    }
+
+    private function siteId(Request $request): ?int
+    {
+        if (! Schema::hasTable('sites') || ! Schema::hasTable('site_domains')) {
+            return null;
+        }
+
+        $resolved = LoadSiteDomainFromUrlAction::run($request->fullUrl());
+        $siteDomain = is_array($resolved) ? ($resolved[0] ?? null) : null;
+
+        return $siteDomain instanceof SiteDomain ? $siteDomain->site_id : null;
     }
 
     private function resolveArea(Request $request, Area $area): AccessGateAccessResultData

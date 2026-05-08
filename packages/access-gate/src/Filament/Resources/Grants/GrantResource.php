@@ -95,7 +95,7 @@ final class GrantResource extends Resource
                     ->color('danger')
                     ->visible(fn (Grant $record): bool => $record->status === GrantStatus::Active)
                     ->requiresConfirmation()
-                    ->action(fn (Grant $record): mixed => RevokeAccessGateGrantAction::run($record)),
+                    ->action(fn (Grant $record): mixed => RevokeAccessGateGrantAction::run($record, revokedByUserId: auth()->id())),
             ]);
     }
 

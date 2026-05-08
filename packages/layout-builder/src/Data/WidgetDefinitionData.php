@@ -46,6 +46,40 @@ class WidgetDefinitionData extends Data
                 ],
             ),
             new self(
+                key: 'announcement-bar',
+                name: __('capell-layout-builder::generic.announcement_bar'),
+                typeCreatorMethod: 'defaultWidgetType',
+                meta: [
+                    'component' => WidgetComponentEnum::AnnouncementBar,
+                    'container' => ContainerWidthEnum::Full,
+                    'padding' => ['sm'],
+                ],
+                admin: [
+                    'icon' => 'heroicon-o-megaphone',
+                ],
+                translations: [
+                    'title' => __('capell-layout-builder::generic.announcement_bar'),
+                    'content' => '<p>' . __('capell-layout-builder::generic.announcement_bar_description') . '</p>',
+                ],
+            ),
+            new self(
+                key: 'snippet',
+                name: __('capell-layout-builder::generic.snippet'),
+                typeCreatorMethod: 'defaultWidgetType',
+                meta: [
+                    'component' => WidgetComponentEnum::Snippet,
+                    'container' => ContainerWidthEnum::Default,
+                    'padding' => ['sm'],
+                ],
+                admin: [
+                    'icon' => 'heroicon-o-code-bracket-square',
+                ],
+                translations: [
+                    'title' => __('capell-layout-builder::generic.snippet'),
+                    'content' => '<p>' . __('capell-layout-builder::generic.snippet_description') . '</p>',
+                ],
+            ),
+            new self(
                 key: 'children',
                 name: __('capell-admin::generic.page_children'),
                 typeCreatorMethod: 'resultsWidgetType',

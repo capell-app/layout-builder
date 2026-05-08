@@ -49,6 +49,10 @@ it('includes registration columns needed for policy-safe email deduplication', f
         ->and(Schema::hasColumn('access_gate_registrations', 'field_values'))->toBeTrue();
 });
 
+it('includes site scoping on access areas', function (): void {
+    expect(Schema::hasColumn('access_gate_areas', 'site_id'))->toBeTrue();
+});
+
 /**
  * @return list<string>
  */
@@ -61,5 +65,6 @@ function accessGateMigrationFiles(): array
         __DIR__ . '/../../database/migrations/2026_05_08_000004_create_access_gate_claim_tokens_table.php',
         __DIR__ . '/../../database/migrations/2026_05_08_000005_create_access_gate_browser_tokens_table.php',
         __DIR__ . '/../../database/migrations/2026_05_08_000006_create_access_gate_events_table.php',
+        __DIR__ . '/../../database/migrations/2026_05_08_000007_add_site_id_to_access_gate_areas_table.php',
     ];
 }

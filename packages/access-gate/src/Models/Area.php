@@ -10,7 +10,9 @@ use Capell\AccessGate\Enums\ApprovalStrategy;
 use Capell\AccessGate\Enums\IdentityMode;
 use Capell\AccessGate\Enums\RegistrationPolicy;
 use Capell\AccessGate\Enums\TokenPolicy;
+use Capell\Core\Models\Site;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Area extends AccessGateModel
@@ -21,6 +23,7 @@ class Area extends AccessGateModel
     /** @var array<string> */
     protected $fillable = [
         'key',
+        'site_id',
         'name',
         'status',
         'identity_mode',
@@ -42,6 +45,11 @@ class Area extends AccessGateModel
     protected $table = 'access_gate_areas';
 
     protected static string $factory = AreaFactory::class;
+
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
+    }
 
     public function registrations(): HasMany
     {

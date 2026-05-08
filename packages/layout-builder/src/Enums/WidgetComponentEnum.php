@@ -13,6 +13,7 @@ enum WidgetComponentEnum: string
     case AssetFeatures = 'capell-layout-builder::widget.asset.features';
     case AssetMedia = 'capell-layout-builder::widget.asset.media';
     case AssetTestimonials = 'capell-layout-builder::widget.asset.testimonials';
+    case AnnouncementBar = 'capell-layout-builder::widget.announcement-bar';
     case Assets = 'capell-layout-builder::widget.asset';
     case BannerImage = 'capell-layout-builder::widget.banner-image';
     case Default = 'capell-layout-builder::widget.default';
@@ -26,6 +27,7 @@ enum WidgetComponentEnum: string
     case PageSiblings = 'capell-layout-builder::widget.page.siblings';
     case PageSlot = 'capell-layout-builder::widget.slot';
     case Pages = 'capell-layout-builder::widget.asset.pages';
+    case Snippet = 'capell-layout-builder::widget.snippet';
 
     case ApHeroBanner = 'capell-layout-builder::modern.hero-banner';
     case ApCardGrid = 'capell-layout-builder::modern.card-grid';

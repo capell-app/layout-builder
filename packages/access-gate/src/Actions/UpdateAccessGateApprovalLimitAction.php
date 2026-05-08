@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Capell\AccessGate\Actions;
 
-use Capell\AccessGate\Enums\AccessAreaStatus;
 use Capell\AccessGate\Enums\EventType;
 use Capell\AccessGate\Models\Area;
+use InvalidArgumentException;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-final class UpdateAccessGateAreaStatusAction
+final class UpdateAccessGateApprovalLimitAction
 {
     use AsAction;
 
@@ -17,21 +17,25 @@ final class UpdateAccessGateAreaStatusAction
         private readonly RecordEventAction $recordEvent,
     ) {}
 
-    public function handle(Area $area, AccessAreaStatus $status, ?int $updatedByUserId = null): Area
+    public function handle(Area $area, ?int $approvalLimit, ?int $updatedByUserId = null): Area
     {
-        $previousStatus = $area->status;
+        if ($approvalLimit !== null && $approvalLimit < 0) {
+            throw new InvalidArgumentException('Approval limit cannot be negative.');
+        }
+
+        $previousApprovalLimit = $area->approval_limit;
 
         $area->forceFill([
-            'status' => $status,
+            'approval_limit' => $approvalLimit,
         ])->save();
 
         $this->recordEvent->handle(
-            type: EventType::AreaStatusUpdated,
+            type: EventType::AreaApprovalLimitUpdated,
             area: $area,
             userId: $updatedByUserId,
             payload: [
-                'previous_status' => $previousStatus->value,
-                'status' => $status->value,
+                'previous_approval_limit' => $previousApprovalLimit,
+                'approval_limit' => $approvalLimit,
                 'updated_by_user_id' => $updatedByUserId,
             ],
         );

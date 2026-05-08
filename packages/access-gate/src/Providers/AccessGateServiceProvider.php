@@ -8,6 +8,10 @@ use Capell\AccessGate\Console\Commands\AccessGateDoctorCommand;
 use Capell\AccessGate\Console\Commands\AccessGateInstallCommand;
 use Capell\AccessGate\Console\Commands\AccessGateSetupCommand;
 use Capell\AccessGate\Enums\ResourceEnum;
+use Capell\AccessGate\Frontend\Rules\AccessGateAreaStatusCondition;
+use Capell\AccessGate\Frontend\Rules\AccessGateRegistrationStatusCondition;
+use Capell\AccessGate\Frontend\Rules\HasActiveAccessGateGrantCondition;
+use Capell\AccessGate\Frontend\Rules\MissingActiveAccessGateGrantCondition;
 use Capell\AccessGate\Http\Middleware\AccessGateMiddleware;
 use Capell\AccessGate\Models\Area;
 use Capell\AccessGate\Models\BrowserToken;
@@ -15,15 +19,21 @@ use Capell\AccessGate\Models\ClaimToken;
 use Capell\AccessGate\Models\Event;
 use Capell\AccessGate\Models\Grant;
 use Capell\AccessGate\Models\Registration;
+use Capell\AccessGate\Support\AccessRequestMethodRegistry;
 use Capell\AccessGate\Support\RegistrationFieldRegistry;
 use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\CapellCoreManager;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\Frontend\Support\Rules\FrontendRuleConditionRegistry;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use Spatie\LaravelPackageTools\Package;
 
 class AccessGateServiceProvider extends AbstractPackageServiceProvider
@@ -52,19 +62,23 @@ class AccessGateServiceProvider extends AbstractPackageServiceProvider
                 '2026_05_08_000004_create_access_gate_claim_tokens_table',
                 '2026_05_08_000005_create_access_gate_browser_tokens_table',
                 '2026_05_08_000006_create_access_gate_events_table',
+                '2026_05_08_000007_add_site_id_to_access_gate_areas_table',
             ]);
     }
 
     public function packageRegistered(): void
     {
         $this->app->singleton(RegistrationFieldRegistry::class);
+        $this->app->singleton(AccessRequestMethodRegistry::class);
         $this->registerMiddlewareAliases();
         $this->registerMiddlewarePriority();
 
         $this->registerPackageMetadata();
 
         $this->app->booted(function (): void {
+            $this->registerRateLimiters();
             $this->registerConfiguredRegistrationFields();
+            $this->registerConfiguredAccessRequestMethods();
 
             if (! $this->hasCapellCore()) {
                 return;
@@ -77,8 +91,46 @@ class AccessGateServiceProvider extends AbstractPackageServiceProvider
             $this
                 ->registerModels()
                 ->registerAdminResources()
+                ->registerFrontendRuleConditions()
                 ->registerProtectedTables();
         });
+    }
+
+    private function registerFrontendRuleConditions(): self
+    {
+        if (! class_exists(FrontendRuleConditionRegistry::class)) {
+            return $this;
+        }
+
+        $this->app->afterResolving(FrontendRuleConditionRegistry::class, function (FrontendRuleConditionRegistry $registry): void {
+            $registry->register(AccessGateAreaStatusCondition::class);
+            $registry->register(AccessGateRegistrationStatusCondition::class);
+            $registry->register(HasActiveAccessGateGrantCondition::class);
+            $registry->register(MissingActiveAccessGateGrantCondition::class);
+        });
+
+        return $this;
+    }
+
+    private function registerConfiguredAccessRequestMethods(): self
+    {
+        $methods = config('access-gate.registration.identity_methods', []);
+
+        if (! is_array($methods)) {
+            return $this;
+        }
+
+        $registry = $this->app->make(AccessRequestMethodRegistry::class);
+
+        foreach ($methods as $method) {
+            if (! is_string($method)) {
+                continue;
+            }
+
+            $registry->register($method);
+        }
+
+        return $this;
     }
 
     private function registerConfiguredRegistrationFields(): self
@@ -105,6 +157,19 @@ class AccessGateServiceProvider extends AbstractPackageServiceProvider
     private function registerMiddlewareAliases(): self
     {
         Route::aliasMiddleware('access-gate', AccessGateMiddleware::class);
+
+        return $this;
+    }
+
+    private function registerRateLimiters(): self
+    {
+        RateLimiter::for('access-gate-request', function (Request $request): Limit {
+            $email = Str::lower((string) $request->input('email', ''));
+            $area = (string) $request->route('area', '');
+            $key = hash('sha256', $area . '|' . $email . '|' . (string) $request->ip());
+
+            return Limit::perMinute(6)->by($key);
+        });
 
         return $this;
     }
@@ -170,6 +235,7 @@ class AccessGateServiceProvider extends AbstractPackageServiceProvider
             path: realpath(__DIR__ . '/../..'),
             version: CapellCore::getInstalledPrettyVersion(static::$packageName),
             description: fn (): string => __('capell-access-gate::package.description'),
+            installCommand: 'capell:access-gate-setup',
         );
 
         return $this;

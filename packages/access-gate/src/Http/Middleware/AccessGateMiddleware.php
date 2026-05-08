@@ -29,6 +29,8 @@ final class AccessGateMiddleware
             return $this->deny($request, $areaKeys[0]);
         }
 
+        $this->markProtectedRequest($request);
+
         $response = $next($request);
 
         $response->headers->set('Cache-Control', 'no-store, private');
@@ -36,6 +38,13 @@ final class AccessGateMiddleware
         $response->headers->set('Expires', '0');
 
         return $response;
+    }
+
+    private function markProtectedRequest(Request $request): void
+    {
+        $request->attributes->set('access_gate.protected', true);
+        $request->headers->set('Cache-Control', 'no-store, no-cache, private');
+        $request->headers->set('Pragma', 'no-cache');
     }
 
     private function deny(Request $request, string $areaKey): Response

@@ -20,7 +20,6 @@ final class AccessGateStatusController
 
         $response = response()->json([
             'allowed' => $result->allowed,
-            'area' => $result->area?->key,
         ]);
 
         $response->headers->set('Cache-Control', 'no-store, private');

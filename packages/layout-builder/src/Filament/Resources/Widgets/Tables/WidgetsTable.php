@@ -211,6 +211,12 @@ class WidgetsTable implements TableConfigurator
                     },
                 ),
             StatusIconColumn::make('status'),
+            DateColumn::make('visible_from')
+                ->label(__('capell-layout-builder::table.visible_from'))
+                ->toggleable(isToggledHiddenByDefault: true),
+            DateColumn::make('visible_until')
+                ->label(__('capell-layout-builder::table.visible_until'))
+                ->toggleable(isToggledHiddenByDefault: true),
             DateColumn::make('created_at'),
             DateColumn::make('updated_at'),
             DateColumn::make('deleted_at'),

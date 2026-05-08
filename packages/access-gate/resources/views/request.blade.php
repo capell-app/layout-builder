@@ -6,6 +6,7 @@
         <meta name="robots" content="noindex, nofollow" />
         <title>
             {{ __('capell-access-gate::public.request.title', ['area' => $area->name]) }}
+            
         </title>
         <style>
             :root {
@@ -14,8 +15,9 @@
                 --access-gate-panel: #ffffff;
                 --access-gate-text: #1f2933;
                 --access-gate-muted: #5f6b78;
-                --access-gate-border: #ded7ca;
+                --access-gate-border: #d8dfdc;
                 --access-gate-accent: #165a4a;
+                --access-gate-accent-hover: #12483c;
                 --access-gate-accent-text: #ffffff;
                 --access-gate-error: #a53f3f;
             }
@@ -28,6 +30,7 @@
                     --access-gate-muted: #aeb8b1;
                     --access-gate-border: #3a443f;
                     --access-gate-accent: #9fd6c2;
+                    --access-gate-accent-hover: #b9e7d6;
                     --access-gate-accent-text: #10201a;
                     --access-gate-error: #f0a0a0;
                 }
@@ -92,17 +95,66 @@
                 font: inherit;
             }
 
-            button {
+            button,
+            .method {
                 width: 100%;
                 min-height: 46px;
-                margin-top: 16px;
-                border: 0;
                 border-radius: 6px;
-                background: var(--access-gate-accent);
-                color: var(--access-gate-accent-text);
                 font: inherit;
                 font-weight: 700;
+            }
+
+            button {
+                margin-top: 16px;
+                border: 0;
+                background: var(--access-gate-accent);
+                color: var(--access-gate-accent-text);
                 cursor: pointer;
+            }
+
+            button:hover,
+            .method-primary:hover {
+                background: var(--access-gate-accent-hover);
+            }
+
+            .method {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-top: 16px;
+                padding: 12px;
+                border: 1px solid var(--access-gate-border);
+                color: var(--access-gate-text);
+                text-align: center;
+                text-decoration: none;
+            }
+
+            .method-primary {
+                border-color: transparent;
+                background: var(--access-gate-accent);
+                color: var(--access-gate-accent-text);
+            }
+
+            .method-description {
+                margin: 8px 0 0;
+                font-size: 14px;
+            }
+
+            .separator {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin: 24px 0;
+                color: var(--access-gate-muted);
+                font-size: 14px;
+            }
+
+            .separator::before,
+            .separator::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: var(--access-gate-border);
             }
 
             .notice {
@@ -131,51 +183,73 @@
                 <div class="notice">{{ session('access_gate_status') }}</div>
             @endif
 
-            <form
-                method="post"
-                action="{{ route('capell-access-gate.request.store', ['area' => $area->key]) }}"
-            >
-                @csrf
-                <input
-                    type="hidden"
-                    name="requested_url"
-                    value="{{ old('requested_url', $requestedUrl) }}"
-                />
+            @foreach ($requestMethods as $requestMethod)
+                <a
+                    class="method {{ $requestMethod->primary ? 'method-primary' : '' }}"
+                    href="{{ $requestMethod->url }}"
+                >
+                    {{ $requestMethod->label }}
+                </a>
+                @if ($requestMethod->description !== null)
+                    <p class="method-description">
+                        {{ $requestMethod->description }}
+                    </p>
+                @endif
+            @endforeach
 
-                <label for="access-gate-email">
-                    {{ __('capell-access-gate::public.request.email') }}
-                </label>
-                <input
-                    id="access-gate-email"
-                    name="email"
-                    type="email"
-                    value="{{ old('email') }}"
-                    autocomplete="email"
-                    required
-                />
-                @error('email')
-                    <div class="error">{{ $message }}</div>
-                @enderror
+            @if ($emailRequestEnabled && $requestMethods->isNotEmpty())
+                <div class="separator">
+                    {{ __('capell-access-gate::public.request.or_email') }}
+                </div>
+            @endif
 
-                @foreach ($fields as $field)
-                    <label for="access-gate-field-{{ $field->key() }}">
-                        {{ $field->label() }}
+            @if ($emailRequestEnabled)
+                <form
+                    method="post"
+                    action="{{ route('capell-access-gate.request.store', ['area' => $area->key]) }}"
+                >
+                    @csrf
+                    <input
+                        type="hidden"
+                        name="requested_url"
+                        value="{{ old('requested_url', $requestedUrl) }}"
+                    />
+
+                    <label for="access-gate-email">
+                        {{ __('capell-access-gate::public.request.email') }}
                     </label>
                     <input
-                        id="access-gate-field-{{ $field->key() }}"
-                        name="{{ $field->key() }}"
-                        type="text"
-                        value="{{ old($field->key()) }}"
+                        id="access-gate-email"
+                        name="email"
+                        type="email"
+                        value="{{ old('email') }}"
+                        autocomplete="email"
+                        required
                     />
-                    @error($field->key())
+                    @error('email')
                         <div class="error">{{ $message }}</div>
                     @enderror
-                @endforeach
 
-                <button type="submit">
-                    {{ __('capell-access-gate::public.request.submit') }}
-                </button>
-            </form>
+                    @foreach ($fields as $field)
+                        <label for="access-gate-field-{{ $field->key() }}">
+                            {{ $field->label() }}
+                        </label>
+                        <input
+                            id="access-gate-field-{{ $field->key() }}"
+                            name="{{ $field->key() }}"
+                            type="text"
+                            value="{{ old($field->key()) }}"
+                        />
+                        @error($field->key())
+                            <div class="error">{{ $message }}</div>
+                        @enderror
+                    @endforeach
+
+                    <button type="submit">
+                        {{ __('capell-access-gate::public.request.submit') }}
+                    </button>
+                </form>
+            @endif
         </main>
     </body>
 </html>

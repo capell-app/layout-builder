@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\AccessGate\Enums\AccessAreaStatus;
 use Capell\AccessGate\Models\Area;
 use Capell\AccessGate\Tests\TestCase;
 
@@ -26,5 +27,8 @@ it('sets up the configured default access area', function (): void {
     $this->artisan('capell:access-gate-setup')
         ->assertSuccessful();
 
-    expect(Area::query()->where('key', 'capell-preview')->where('name', 'Capell Preview')->exists())->toBeTrue();
+    $area = Area::query()->where('key', 'capell-preview')->firstOrFail();
+
+    expect($area->name)->toBe('Capell Preview')
+        ->and($area->status)->toBe(AccessAreaStatus::Paused);
 });
