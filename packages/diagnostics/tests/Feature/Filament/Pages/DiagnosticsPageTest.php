@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Capell\Admin\Enums\ExtensionGroupEnum;
 use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
 use Capell\Diagnostics\Filament\Pages\DiagnosticsPage;
+use Capell\Diagnostics\Filament\Pages\PermissionAuditPage;
 use Capell\Diagnostics\Filament\Pages\QueueHealthPage;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
@@ -39,5 +40,6 @@ it('registers developer tools and health pages into mandatory extension groups',
         ->mapWithKeys(fn (array $extensionPage): array => [$extensionPage['page'] => $extensionPage['extensionGroup']]);
 
     expect($extensionGroups->get(DiagnosticsPage::class))->toBe(ExtensionGroupEnum::DeveloperTools)
-        ->and($extensionGroups->get(QueueHealthPage::class))->toBe(ExtensionGroupEnum::Health);
+        ->and($extensionGroups->get(QueueHealthPage::class))->toBe(ExtensionGroupEnum::Health)
+        ->and($extensionGroups->get(PermissionAuditPage::class))->toBe(ExtensionGroupEnum::Security);
 });

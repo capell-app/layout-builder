@@ -78,7 +78,7 @@ final class AdminServiceProvider extends ServiceProvider
         CapellAdmin::registerExtensionPage(
             DiagnosticsServiceProvider::$packageName,
             PermissionAuditPage::class,
-            ExtensionGroupEnum::Health,
+            ExtensionGroupEnum::Security,
         );
 
         return $this;
