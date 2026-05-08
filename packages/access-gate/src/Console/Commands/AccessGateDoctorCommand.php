@@ -91,10 +91,12 @@ final class AccessGateDoctorCommand extends Command
         }
 
         if ($pageCachePosition !== null && $accessGatePosition === null) {
-            $this->warn(__('capell-access-gate::doctor.middleware.route_level_required'));
-        } else {
-            $this->info(__('capell-access-gate::doctor.middleware.ok'));
+            $this->error(__('capell-access-gate::doctor.middleware.route_level_required'));
+
+            return 1;
         }
+
+        $this->info(__('capell-access-gate::doctor.middleware.ok'));
 
         return 0;
     }

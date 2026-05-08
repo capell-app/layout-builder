@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\AccessGate\Actions;
 
 use Capell\AccessGate\Contracts\RegistrationField;
+use Capell\AccessGate\Enums\AccessAreaStatus;
 use Capell\AccessGate\Enums\ApprovalStrategy;
 use Capell\AccessGate\Enums\EventType;
 use Capell\AccessGate\Enums\RegistrationPolicy;
@@ -59,6 +60,8 @@ final class CreateRegistrationAction
                 ->lockForUpdate()
                 ->firstOrFail();
 
+            $this->assertAreaAcceptsPublicRegistrations($lockedArea);
+
             $singleRegistrationKey = $this->singleRegistrationKey($lockedArea, $emailNormalized);
 
             $attributes = [
@@ -109,6 +112,20 @@ final class CreateRegistrationAction
         }
 
         return Area::query()->where('key', $area)->firstOrFail();
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    private function assertAreaAcceptsPublicRegistrations(Area $area): void
+    {
+        if ($area->status === AccessAreaStatus::Active && $area->approval_strategy !== ApprovalStrategy::InviteOnly) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'email' => __('capell-access-gate::public.request_unavailable'),
+        ]);
     }
 
     /**

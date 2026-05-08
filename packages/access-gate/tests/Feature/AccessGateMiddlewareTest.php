@@ -7,6 +7,7 @@ use Capell\AccessGate\Actions\CreateAccessGateClaimTokenAction;
 use Capell\AccessGate\Actions\CreateAccessGateGrantAction;
 use Capell\AccessGate\Contracts\RegistrationField;
 use Capell\AccessGate\Data\RegistrationFieldValue;
+use Capell\AccessGate\Enums\ApprovalStrategy;
 use Capell\AccessGate\Enums\BrowserTokenStatus;
 use Capell\AccessGate\Enums\GrantSubjectType;
 use Capell\AccessGate\Enums\IdentityMode;
@@ -116,6 +117,48 @@ it('allows authenticated user grants', function (): void {
         ->assertSee('secret');
 });
 
+it('allows authenticated users with approved email grants', function (): void {
+    $area = Area::factory()->create([
+        'key' => 'preview',
+        'identity_mode' => IdentityMode::Authenticated,
+    ]);
+
+    $user = new AccessGateTestUser;
+    $user->forceFill([
+        'id' => 123,
+        'email' => 'mona@example.test',
+    ]);
+
+    app(CreateAccessGateGrantAction::class)->handle(
+        area: $area,
+        subjectType: GrantSubjectType::Email,
+        email: 'mona@example.test',
+    );
+
+    Route::middleware('access-gate:preview')->get('/access-gate-test/email-grant', fn (): string => 'secret');
+
+    $this
+        ->actingAs($user)
+        ->get('/access-gate-test/email-grant')
+        ->assertOk()
+        ->assertSee('secret');
+});
+
+it('allows configured public allowlist paths without a grant', function (): void {
+    Area::factory()->create([
+        'key' => 'preview',
+        'identity_mode' => IdentityMode::Hybrid,
+        'public_allowlist' => ['access-gate-test/public/*'],
+    ]);
+
+    Route::middleware('access-gate:preview')->get('/access-gate-test/public/info', fn (): string => 'public');
+
+    $this
+        ->get('/access-gate-test/public/info')
+        ->assertOk()
+        ->assertSee('public');
+});
+
 it('renders and stores configured public request fields', function (): void {
     Notification::fake();
 
@@ -141,6 +184,25 @@ it('renders and stores configured public request fields', function (): void {
 
     expect($registration->field_values['github_username']['value'])->toBe('octocat');
     Notification::assertSentOnDemand(AccessRequestReceivedNotification::class);
+});
+
+it('does not trust posted user ids on public access requests', function (): void {
+    Notification::fake();
+
+    $area = Area::factory()->create([
+        'key' => 'preview',
+        'identity_mode' => IdentityMode::Authenticated,
+        'approval_strategy' => ApprovalStrategy::AutoApprove,
+    ]);
+
+    $this->post(route('capell-access-gate.request.store', ['area' => $area->key]), [
+        'email' => 'mona@example.test',
+        'user_id' => 123,
+    ])->assertRedirect(route('capell-access-gate.request', ['area' => $area->key]));
+
+    expect(Registration::query()->firstOrFail()->user_id)->toBeNull()
+        ->and(Grant::query()->where('subject_type', GrantSubjectType::User->value)->exists())->toBeFalse()
+        ->and(Grant::query()->where('subject_type', GrantSubjectType::Email->value)->exists())->toBeTrue();
 });
 
 it('claims access with a one-time token and stores the browser token cookie', function (): void {

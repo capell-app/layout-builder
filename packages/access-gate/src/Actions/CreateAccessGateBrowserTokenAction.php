@@ -10,6 +10,7 @@ use Capell\AccessGate\Enums\EventType;
 use Capell\AccessGate\Enums\TokenPolicy;
 use Capell\AccessGate\Models\BrowserToken;
 use Capell\AccessGate\Models\Grant;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -27,32 +28,39 @@ final class CreateAccessGateBrowserTokenAction
      */
     public function handle(Grant $grant, array $metadata = []): IssuedAccessGateTokenData
     {
-        $grant = $this->ensureTokenIssuableGrant->handle($grant);
+        return DB::transaction(function () use ($grant, $metadata): IssuedAccessGateTokenData {
+            $lockedGrant = Grant::query()
+                ->whereKey($grant->getKey())
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        $this->revokeExistingTokensWhenNeeded($grant);
+            $lockedGrant = $this->ensureTokenIssuableGrant->handle($lockedGrant);
 
-        $plainTextToken = Str::random(64);
+            $this->revokeExistingTokensWhenNeeded($lockedGrant);
 
-        $browserToken = BrowserToken::query()->create([
-            'access_area_id' => $grant->access_area_id,
-            'grant_id' => $grant->getKey(),
-            'token_hash' => hash('sha256', $plainTextToken),
-            'status' => BrowserTokenStatus::Active,
-            'ip_hash' => $metadata['ip_hash'] ?? null,
-            'user_agent' => $metadata['user_agent'] ?? null,
-            'expires_at' => $grant->expires_at ?? now()->addMinutes((int) config('access-gate.cookies.browser_token.ttl_minutes', 259200)),
-            'last_used_at' => now(),
-            'revoked_at' => null,
-            'metadata' => $metadata,
-        ]);
+            $plainTextToken = Str::random(64);
 
-        $this->recordEvent->handle(
-            type: EventType::BrowserTokenCreated,
-            browserToken: $browserToken,
-            grant: $grant,
-        );
+            $browserToken = BrowserToken::query()->create([
+                'access_area_id' => $lockedGrant->access_area_id,
+                'grant_id' => $lockedGrant->getKey(),
+                'token_hash' => hash('sha256', $plainTextToken),
+                'status' => BrowserTokenStatus::Active,
+                'ip_hash' => $metadata['ip_hash'] ?? null,
+                'user_agent' => $metadata['user_agent'] ?? null,
+                'expires_at' => $lockedGrant->expires_at ?? now()->addMinutes((int) config('access-gate.cookies.browser_token.ttl_minutes', 259200)),
+                'last_used_at' => now(),
+                'revoked_at' => null,
+                'metadata' => $metadata,
+            ]);
 
-        return new IssuedAccessGateTokenData($plainTextToken, $browserToken);
+            $this->recordEvent->handle(
+                type: EventType::BrowserTokenCreated,
+                browserToken: $browserToken,
+                grant: $lockedGrant,
+            );
+
+            return new IssuedAccessGateTokenData($plainTextToken, $browserToken);
+        });
     }
 
     private function revokeExistingTokensWhenNeeded(Grant $grant): void

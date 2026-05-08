@@ -6,6 +6,7 @@ use Capell\AccessGate\Actions\ApproveRegistrationAction;
 use Capell\AccessGate\Actions\CreateRegistrationAction;
 use Capell\AccessGate\Contracts\RegistrationField;
 use Capell\AccessGate\Data\RegistrationFieldValue;
+use Capell\AccessGate\Enums\AccessAreaStatus;
 use Capell\AccessGate\Enums\ApprovalStrategy;
 use Capell\AccessGate\Enums\EventType;
 use Capell\AccessGate\Enums\GrantStatus;
@@ -23,6 +24,7 @@ use Capell\AccessGate\Tests\TestCase;
 use Illuminate\Support\Facades\Event as EventFacade;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 uses(TestCase::class);
 
@@ -130,6 +132,28 @@ it('resends a claim link for duplicate requests from approved registrations', fu
     expect(ClaimToken::query()->count())->toBe($claimTokenCount + 1);
     Notification::assertSentOnDemand(AccessApprovedNotification::class);
 });
+
+it('does not accept public registrations for inactive or invite-only areas', function (array $areaAttributes): void {
+    Notification::fake();
+
+    $area = Area::factory()->create($areaAttributes);
+
+    expect(fn (): mixed => app(CreateRegistrationAction::class)->handle($area, [
+        'email' => 'mona@example.test',
+    ]))->toThrow(ValidationException::class);
+
+    expect(Registration::query()->count())->toBe(0);
+})->with([
+    'paused area' => [[
+        'status' => AccessAreaStatus::Paused,
+    ]],
+    'closed area' => [[
+        'status' => AccessAreaStatus::Closed,
+    ]],
+    'invite-only area' => [[
+        'approval_strategy' => ApprovalStrategy::InviteOnly,
+    ]],
+]);
 
 final class TestGithubUsernameRegistrationField implements RegistrationField
 {
