@@ -19,7 +19,7 @@ The current audit found 36 package directories with `composer.json`. Four packag
 | `dashboard-reports` | Only has credits docs.                                                                            | `packages/dashboard-reports/docs/overview.md`                                                                                                                         |
 | `ga4-reports`       | Only has credits docs and owns metrics/sync tables.                                               | `packages/ga4-reports/docs/overview.md`, `packages/ga4-reports/docs/ga4-reports-database.md`, `packages/ga4-reports/docs/sync-workflow.md`                            |
 | `password-policy`   | Only has credits docs and owns settings, user columns, password history, and enforcement actions. | `packages/password-policy/docs/overview.md`, `packages/password-policy/docs/password-policy-database.md`, `packages/password-policy/docs/settings-and-enforcement.md` |
-| `starter-sites`     | Only has credits docs and owns demo assets/content provider behaviour.                            | `packages/starter-sites/docs/overview.md`, `packages/starter-sites/docs/demo-content.md`                                                                              |
+| `demo-kit`          | Only has credits docs and owns demo assets/content provider behaviour.                            | `packages/demo-kit/docs/overview.md`, `packages/demo-kit/docs/demo-content.md`                                                                                        |
 
 ## File Structure
 
@@ -39,9 +39,9 @@ The current audit found 36 package directories with `composer.json`. Four packag
     - Document user columns, password history table, settings migration, and privacy/security notes.
 - Create: `packages/password-policy/docs/settings-and-enforcement.md`
     - Document settings resolver, evaluation action, update action, and enforcement behaviour.
-- Create: `packages/starter-sites/docs/overview.md`
+- Create: `packages/demo-kit/docs/overview.md`
     - Explain the package role, provider, demo use case, and install impact.
-- Create: `packages/starter-sites/docs/demo-content.md`
+- Create: `packages/demo-kit/docs/demo-content.md`
     - Document demo media folders, sample video, content intent, and asset maintenance rules.
 - Modify: `packages/dashboard-reports/README.md`
     - Add `docs/overview.md` under Package Docs.
@@ -49,7 +49,7 @@ The current audit found 36 package directories with `composer.json`. Four packag
     - Add the three new docs under Package Docs.
 - Modify: `packages/password-policy/README.md`
     - Add the three new docs under Package Docs.
-- Modify: `packages/starter-sites/README.md`
+- Modify: `packages/demo-kit/README.md`
     - Add the two new docs under Package Docs.
 
 ### Task 1: Dashboard Reports Overview
@@ -348,22 +348,22 @@ rg -n "docs/(overview|password-policy-database|settings-and-enforcement)\\.md" p
 
 Expected: all commands exit with code 0.
 
-### Task 4: Starter Sites Docs
+### Task 4: Demo Kit Docs
 
 **Files:**
 
-- Create: `packages/starter-sites/docs/overview.md`
-- Create: `packages/starter-sites/docs/demo-content.md`
-- Modify: `packages/starter-sites/README.md`
+- Create: `packages/demo-kit/docs/overview.md`
+- Create: `packages/demo-kit/docs/demo-content.md`
+- Modify: `packages/demo-kit/README.md`
 
 - [ ] **Step 1: Create the overview doc**
 
-Write `packages/starter-sites/docs/overview.md` with this structure:
+Write `packages/demo-kit/docs/overview.md` with this structure:
 
 ```markdown
-# Starter Sites Overview
+# Demo Kit Overview
 
-Starter Sites provides example content and media for validating a Capell install.
+Demo Kit provides example content and media for validating a Capell install.
 
 ## What It Adds
 
@@ -373,7 +373,7 @@ Starter Sites provides example content and media for validating a Capell install
 
 ## Architecture
 
-- `StarterSitesServiceProvider` registers the package.
+- `DemoKitServiceProvider` registers the package.
 - Demo assets live in `demo/img` and `demo/video`.
 - The package depends on Capell Core, Admin, and Frontend because demo content needs to exercise both admin setup and public rendering.
 
@@ -386,12 +386,12 @@ Starter Sites provides example content and media for validating a Capell install
 
 - [ ] **Step 2: Create the demo content doc**
 
-Write `packages/starter-sites/docs/demo-content.md` with this structure:
+Write `packages/demo-kit/docs/demo-content.md` with this structure:
 
 ```markdown
-# Starter Sites Demo Content
+# Demo Kit Demo Content
 
-Starter Sites demo assets help teams see a working Capell site without starting from an empty admin panel.
+Demo Kit demo assets help teams see a working Capell site without starting from an empty admin panel.
 
 ## Asset Groups
 
@@ -410,23 +410,23 @@ Starter Sites demo assets help teams see a working Capell site without starting 
 Use the package to confirm that media paths, frontend rendering, and admin package registration work after install.
 ```
 
-- [ ] **Step 3: Link the Starter Sites docs from the README**
+- [ ] **Step 3: Link the Demo Kit docs from the README**
 
-Add these lines under `## Package Docs` in `packages/starter-sites/README.md`:
+Add these lines under `## Package Docs` in `packages/demo-kit/README.md`:
 
 ```markdown
 - [docs/overview.md](docs/overview.md)
 - [docs/demo-content.md](docs/demo-content.md)
 ```
 
-- [ ] **Step 4: Verify Starter Sites docs**
+- [ ] **Step 4: Verify Demo Kit docs**
 
 Run:
 
 ```bash
-test -f packages/starter-sites/docs/overview.md
-test -f packages/starter-sites/docs/demo-content.md
-rg -n "docs/(overview|demo-content)\\.md" packages/starter-sites/README.md
+test -f packages/demo-kit/docs/overview.md
+test -f packages/demo-kit/docs/demo-content.md
+rg -n "docs/(overview|demo-content)\\.md" packages/demo-kit/README.md
 ```
 
 Expected: all commands exit with code 0.
@@ -552,6 +552,6 @@ Expected output:
 Commit the docs changes:
 
 ```bash
-git add docs/internal/package-doc-gaps.md docs/superpowers/plans/2026-05-06-package-doc-coverage.md packages/dashboard-reports/docs packages/ga4-reports/docs packages/password-policy/docs packages/starter-sites/docs packages/dashboard-reports/README.md packages/ga4-reports/README.md packages/password-policy/README.md packages/starter-sites/README.md
+git add docs/internal/package-doc-gaps.md docs/superpowers/plans/2026-05-06-package-doc-coverage.md packages/dashboard-reports/docs packages/ga4-reports/docs packages/password-policy/docs packages/demo-kit/docs packages/dashboard-reports/README.md packages/ga4-reports/README.md packages/password-policy/README.md packages/demo-kit/README.md
 git commit -m "docs: plan package documentation coverage"
 ```

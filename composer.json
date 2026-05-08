@@ -187,6 +187,8 @@
         "psr-4": {
             "Capell\\Address\\": "packages/address/src",
             "Capell\\Address\\Database\\Factories\\": "packages/address/database/factories",
+            "Capell\\AccessGate\\": "packages/access-gate/src",
+            "Capell\\AccessGate\\Database\\Factories\\": "packages/access-gate/database/factories",
             "Capell\\Insights\\": "packages/insights/src",
             "Capell\\Insights\\Database\\Factories\\": "packages/insights/database/factories",
             "Capell\\AIOrchestrator\\": "packages/ai-orchestrator/src",
@@ -243,6 +245,7 @@
     "autoload-dev": {
         "psr-4": {
             "Capell\\Address\\Tests\\": "packages/address/tests",
+            "Capell\\AccessGate\\Tests\\": "packages/access-gate/tests",
             "Capell\\Insights\\Tests\\": "packages/insights/tests",
             "Capell\\AIOrchestrator\\Tests\\": "packages/ai-orchestrator/tests",
             "Capell\\LoginAudit\\Tests\\": "packages/login-audit/tests",
