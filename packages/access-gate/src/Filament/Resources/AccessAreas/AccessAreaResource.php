@@ -59,9 +59,10 @@ final class AccessAreaResource extends Resource
                 Select::make('site_id')
                     ->label(__('capell-access-gate::filament.fields.site'))
                     ->helperText(__('capell-access-gate::filament.fields.site_help'))
-                    ->options(fn (): array => DatabaseSchema::hasTable('sites') ? Site::getOptions()->all() : [])
+                    ->options(fn (): array => self::canScopeToSites() ? Site::getOptions()->all() : [])
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->visible(fn (): bool => self::canScopeToSites()),
                 Select::make('status')
                     ->label(__('capell-access-gate::filament.fields.status'))
                     ->options(self::enumOptions(AccessAreaStatus::class, 'capell-access-gate::filament.area_status'))
@@ -123,7 +124,8 @@ final class AccessAreaResource extends Resource
                 TextColumn::make('site.name')
                     ->label(__('capell-access-gate::filament.fields.site'))
                     ->placeholder(__('capell-access-gate::filament.fields.all_sites'))
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(fn (): bool => self::canScopeToSites()),
                 TextColumn::make('status')
                     ->label(__('capell-access-gate::filament.fields.status'))
                     ->badge()
@@ -185,5 +187,11 @@ final class AccessAreaResource extends Resource
             'create' => CreateAccessArea::route('/create'),
             'edit' => EditAccessArea::route('/{record}/edit'),
         ];
+    }
+
+    private static function canScopeToSites(): bool
+    {
+        return DatabaseSchema::hasTable('sites')
+            && DatabaseSchema::hasColumn((new Area)->getTable(), 'site_id');
     }
 }

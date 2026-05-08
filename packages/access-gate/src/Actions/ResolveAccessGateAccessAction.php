@@ -30,7 +30,8 @@ final class ResolveAccessGateAccessAction
      */
     public function handle(Request $request, array $areaKeys): AccessGateAccessResultData
     {
-        $siteId = $this->siteId($request);
+        $siteScopeEnabled = $this->siteScopeEnabled();
+        $siteId = $siteScopeEnabled ? $this->siteId($request) : null;
 
         $baseAreasQuery = Area::query()
             ->whereIn('key', $areaKeys);
@@ -38,7 +39,7 @@ final class ResolveAccessGateAccessAction
         $areaExists = (clone $baseAreasQuery)->exists();
 
         $areas = $baseAreasQuery
-            ->where(function (Builder $query) use ($siteId): void {
+            ->when($siteScopeEnabled, function (Builder $query) use ($siteId): void {
                 $query->whereNull('site_id');
 
                 if ($siteId !== null) {
@@ -72,6 +73,11 @@ final class ResolveAccessGateAccessAction
         }
 
         return $deniedResult ?? new AccessGateAccessResultData(false);
+    }
+
+    private function siteScopeEnabled(): bool
+    {
+        return Schema::hasColumn((new Area)->getTable(), 'site_id');
     }
 
     private function siteId(Request $request): ?int

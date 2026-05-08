@@ -24,9 +24,12 @@ use Capell\AccessGate\Support\RegistrationFieldRegistry;
 use Capell\AccessGate\Tests\Support\FakePageCacheMiddleware;
 use Capell\AccessGate\Tests\TestCase;
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Auth\User as AuthenticatableUser;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 
 uses(TestCase::class);
@@ -85,6 +88,52 @@ it('allows protected content when a matching area is paused', function (): void 
 
     $this
         ->get('/access-gate-test/paused')
+        ->assertOk()
+        ->assertSee('secret');
+});
+
+it('blocks protected content when the active access area is assigned to the current site', function (): void {
+    defineAccessGateSiteTables();
+    defineAccessGateSiteDomain(siteId: 1, domain: 'example.test');
+
+    $rendered = false;
+
+    Area::factory()->create([
+        'site_id' => 1,
+        'key' => 'preview',
+        'status' => AccessAreaStatus::Active,
+        'identity_mode' => IdentityMode::Hybrid,
+    ]);
+
+    Route::middleware('access-gate:preview')->get('/access-gate-test/site-assigned', function () use (&$rendered): string {
+        $rendered = true;
+
+        return 'secret';
+    });
+
+    $this->get('http://example.test/access-gate-test/site-assigned')
+        ->assertRedirect(route('capell-access-gate.request', [
+            'area' => 'preview',
+            'redirect' => 'http://example.test/access-gate-test/site-assigned',
+        ]));
+
+    expect($rendered)->toBeFalse();
+});
+
+it('allows protected content when the active access area is assigned to a different site', function (): void {
+    defineAccessGateSiteTables();
+    defineAccessGateSiteDomain(siteId: 1, domain: 'example.test');
+
+    Area::factory()->create([
+        'site_id' => 2,
+        'key' => 'preview',
+        'status' => AccessAreaStatus::Active,
+        'identity_mode' => IdentityMode::Hybrid,
+    ]);
+
+    Route::middleware('access-gate:preview')->get('/access-gate-test/site-mismatch', fn (): string => 'secret');
+
+    $this->get('http://example.test/access-gate-test/site-mismatch')
         ->assertOk()
         ->assertSee('secret');
 });
@@ -487,6 +536,53 @@ it('revokes the local browser token on access gate logout', function (): void {
 final class AccessGateTestUser extends AuthenticatableUser
 {
     protected $guarded = [];
+}
+
+function defineAccessGateSiteTables(): void
+{
+    if (! Schema::hasTable('sites')) {
+        Schema::create('sites', function (Blueprint $table): void {
+            $table->id();
+            $table->string('name');
+            $table->softDeletes();
+            $table->timestamps();
+        });
+    }
+
+    if (! Schema::hasTable('site_domains')) {
+        Schema::create('site_domains', function (Blueprint $table): void {
+            $table->id();
+            $table->unsignedBigInteger('site_id');
+            $table->string('domain')->nullable();
+            $table->string('scheme', 12)->nullable();
+            $table->string('path', 125)->nullable();
+            $table->boolean('status')->index()->default(true);
+            $table->boolean('default')->default(false);
+            $table->softDeletes();
+            $table->timestamps();
+        });
+    }
+}
+
+function defineAccessGateSiteDomain(int $siteId, string $domain): void
+{
+    DB::table('sites')->insertOrIgnore([
+        'id' => $siteId,
+        'name' => 'Site ' . $siteId,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    DB::table('site_domains')->insert([
+        'site_id' => $siteId,
+        'domain' => $domain,
+        'scheme' => 'http',
+        'path' => '/',
+        'status' => true,
+        'default' => true,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
 }
 
 final class PublicRequestProviderField implements RegistrationField

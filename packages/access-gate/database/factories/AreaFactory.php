@@ -29,7 +29,6 @@ class AreaFactory extends Factory
 
         return [
             'key' => str($areaName)->slug()->toString(),
-            'site_id' => null,
             'name' => str($areaName)->title()->toString(),
             'status' => AccessAreaStatus::Active,
             'identity_mode' => IdentityMode::Hybrid,

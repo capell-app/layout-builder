@@ -24,11 +24,11 @@ use Capell\AccessGate\Support\RegistrationFieldRegistry;
 use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Support\CapellCoreManager;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Support\Rules\FrontendRuleConditionRegistry;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\RateLimiter;
@@ -94,6 +94,26 @@ class AccessGateServiceProvider extends AbstractPackageServiceProvider
                 ->registerFrontendRuleConditions()
                 ->registerProtectedTables();
         });
+    }
+
+    public function packageBooted(): void
+    {
+        if (! $this->hasCapellCore()) {
+            return;
+        }
+
+        if (! $this->isPackageInstalled()) {
+            return;
+        }
+
+        Relation::morphMap([
+            'area' => Area::class,
+            'registration' => Registration::class,
+            'grant' => Grant::class,
+            'claim_token' => ClaimToken::class,
+            'browser_token' => BrowserToken::class,
+            'event' => Event::class,
+        ], merge: true);
     }
 
     private function registerFrontendRuleConditions(): self
@@ -219,7 +239,7 @@ class AccessGateServiceProvider extends AbstractPackageServiceProvider
 
     private function hasCapellCore(): bool
     {
-        return class_exists(CapellCore::class) && $this->app->bound(CapellCoreManager::class);
+        return class_exists(CapellCore::class);
     }
 
     private function registerPackageMetadata(): self
@@ -235,7 +255,7 @@ class AccessGateServiceProvider extends AbstractPackageServiceProvider
             path: realpath(__DIR__ . '/../..'),
             version: CapellCore::getInstalledPrettyVersion(static::$packageName),
             description: fn (): string => __('capell-access-gate::package.description'),
-            installCommand: 'capell:access-gate-setup',
+            installCommand: 'capell:access-gate-install',
         );
 
         return $this;
