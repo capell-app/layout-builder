@@ -9,9 +9,9 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
-use Capell\DemoKit\Console\Commands\Concerns\HasSitesOption;
 use Capell\LayoutBuilder\Actions\AddHeroWidgetToLayoutAction;
 use Capell\LayoutBuilder\Actions\CreateHeroWidgetAction;
+use Capell\LayoutBuilder\Console\Commands\Concerns\ResolvesDemoSites;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Creator\DemoCreator;
 use Illuminate\Console\Command;
@@ -20,7 +20,7 @@ use Illuminate\Support\Collection;
 
 class DemoCommand extends Command
 {
-    use HasSitesOption;
+    use ResolvesDemoSites;
 
     protected $description = 'Inserts demo hero content into the selected site(s).';
 

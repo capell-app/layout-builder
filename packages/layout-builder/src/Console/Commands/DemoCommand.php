@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Console\Commands;
 
 use Capell\Core\Models\Site;
-use Capell\DemoKit\Console\Commands\Concerns\HasSitesOption;
 use Capell\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
+use Capell\LayoutBuilder\Console\Commands\Concerns\ResolvesDemoSites;
 use Capell\LayoutBuilder\Data\DemoSitePlanData;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 
 class DemoCommand extends Command
 {
-    use HasSitesOption;
+    use ResolvesDemoSites;
 
     protected $description = 'Inserts demo layout-builder layout widgets';
 
