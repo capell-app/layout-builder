@@ -18,8 +18,6 @@ return [
     'seo_check_meta_description' => 'Check meta descriptions',
     'seo_check_meta_title' => 'Check meta titles',
     'seo_check_duplicate_title' => 'Check for duplicate titles',
-    'seo_check_alt_text' => 'Check image alt text',
-    'seo_check_internal_links' => 'Check for internal links',
     'system' => 'System settings',
     'user_template' => 'User template',
     'enabled' => 'Enabled',

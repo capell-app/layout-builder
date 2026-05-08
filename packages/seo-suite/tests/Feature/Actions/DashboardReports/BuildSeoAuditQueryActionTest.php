@@ -45,7 +45,6 @@ it('exposes snapshot backed seo audit filters', function (): void {
         'schema_status',
         'robots_status',
         'canonical_status',
-        'has_redirect_opportunities',
         'search_console_status',
         'snapshot_state',
     );
@@ -96,7 +95,6 @@ it('uses the site language for snapshot backed audit columns', function (): void
         'schema_status' => 'passed',
         'robots_status' => 'passed',
         'canonical_status' => 'passed',
-        'redirect_opportunities_count' => 0,
         'search_console_status' => 'unknown',
         'computed_at' => now(),
     ]);
@@ -113,7 +111,6 @@ it('uses the site language for snapshot backed audit columns', function (): void
         'schema_status' => 'missing',
         'robots_status' => 'passed',
         'canonical_status' => 'passed',
-        'redirect_opportunities_count' => 0,
         'search_console_status' => 'unknown',
         'computed_at' => now(),
     ]);
@@ -153,7 +150,6 @@ it('constrains severity filters to the displayed snapshot language', function ()
         'schema_status' => 'passed',
         'robots_status' => 'passed',
         'canonical_status' => 'passed',
-        'redirect_opportunities_count' => 0,
         'search_console_status' => 'unknown',
         'computed_at' => now(),
     ]);
@@ -171,7 +167,6 @@ it('constrains severity filters to the displayed snapshot language', function ()
         'schema_status' => 'missing',
         'robots_status' => 'passed',
         'canonical_status' => 'passed',
-        'redirect_opportunities_count' => 0,
         'search_console_status' => 'unknown',
         'computed_at' => now(),
     ]);
@@ -213,7 +208,6 @@ it('constrains issue key filters to the displayed snapshot language', function (
         'schema_status' => 'passed',
         'robots_status' => 'passed',
         'canonical_status' => 'passed',
-        'redirect_opportunities_count' => 0,
         'search_console_status' => 'unknown',
         'computed_at' => now(),
     ]);
@@ -231,7 +225,6 @@ it('constrains issue key filters to the displayed snapshot language', function (
         'schema_status' => 'missing',
         'robots_status' => 'passed',
         'canonical_status' => 'passed',
-        'redirect_opportunities_count' => 0,
         'search_console_status' => 'unknown',
         'computed_at' => now(),
     ]);

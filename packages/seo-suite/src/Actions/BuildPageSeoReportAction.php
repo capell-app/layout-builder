@@ -14,6 +14,7 @@ use Capell\SeoSuite\Data\SeoPreviewData;
 use Capell\SeoSuite\Enums\RobotsDirectiveEnum;
 use Capell\SeoSuite\Enums\SeoCheckKeyEnum;
 use Capell\SeoSuite\Enums\SeoIssueSeverityEnum;
+use Capell\SeoSuite\Settings\SeoSuiteSettings;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Throwable;
@@ -40,32 +41,37 @@ final class BuildPageSeoReportAction
         ]);
 
         $issues = [];
+        $settings = resolve(SeoSuiteSettings::class);
         $metaTitle = $this->metaValue($page, 'title');
         $metaDescription = $this->metaValue($page, 'description');
 
-        $this->addLengthIssue(
-            issues: $issues,
-            key: SeoCheckKeyEnum::MetaTitle,
-            value: $metaTitle,
-            minimum: 30,
-            maximum: 70,
-            missingMessage: __('capell-seo-suite::generic.seo_issue_meta_title_missing'),
-            shortMessage: __('capell-seo-suite::generic.seo_issue_meta_title_short'),
-            longMessage: __('capell-seo-suite::generic.seo_issue_meta_title_long'),
-        );
+        if ($settings->seo_audit_enabled && $settings->seo_check_meta_title) {
+            $this->addLengthIssue(
+                issues: $issues,
+                key: SeoCheckKeyEnum::MetaTitle,
+                value: $metaTitle,
+                minimum: 30,
+                maximum: 70,
+                missingMessage: __('capell-seo-suite::generic.seo_issue_meta_title_missing'),
+                shortMessage: __('capell-seo-suite::generic.seo_issue_meta_title_short'),
+                longMessage: __('capell-seo-suite::generic.seo_issue_meta_title_long'),
+            );
+        }
 
-        $this->addLengthIssue(
-            issues: $issues,
-            key: SeoCheckKeyEnum::MetaDescription,
-            value: $metaDescription,
-            minimum: 50,
-            maximum: 160,
-            missingMessage: __('capell-seo-suite::generic.seo_issue_meta_description_missing'),
-            shortMessage: __('capell-seo-suite::generic.seo_issue_meta_description_short'),
-            longMessage: __('capell-seo-suite::generic.seo_issue_meta_description_long'),
-        );
+        if ($settings->seo_audit_enabled && $settings->seo_check_meta_description) {
+            $this->addLengthIssue(
+                issues: $issues,
+                key: SeoCheckKeyEnum::MetaDescription,
+                value: $metaDescription,
+                minimum: 50,
+                maximum: 160,
+                missingMessage: __('capell-seo-suite::generic.seo_issue_meta_description_missing'),
+                shortMessage: __('capell-seo-suite::generic.seo_issue_meta_description_short'),
+                longMessage: __('capell-seo-suite::generic.seo_issue_meta_description_long'),
+            );
+        }
 
-        if ($metaTitle !== null && $this->duplicateTitleExists($page, $site, $language, $metaTitle)) {
+        if ($settings->seo_audit_enabled && $settings->seo_check_duplicate_title && $metaTitle !== null && $this->duplicateTitleExists($page, $site, $language, $metaTitle)) {
             $issues[] = new SeoIssueData(
                 key: SeoCheckKeyEnum::DuplicateTitle,
                 severity: SeoIssueSeverityEnum::Warning,
@@ -73,7 +79,7 @@ final class BuildPageSeoReportAction
             );
         }
 
-        if ($this->hasNoIndexDirective($page)) {
+        if ($settings->seo_audit_enabled && $this->hasNoIndexDirective($page)) {
             $issues[] = new SeoIssueData(
                 key: SeoCheckKeyEnum::Robots,
                 severity: SeoIssueSeverityEnum::Warning,
@@ -110,7 +116,7 @@ final class BuildPageSeoReportAction
             searchPreview: $searchPreview,
             socialPreview: $socialPreview,
             issues: $issues,
-            passedChecks: $this->passedChecks($issues),
+            passedChecks: $this->passedChecks($issues, $settings),
             internalLinkSuggestions: SuggestInternalLinksAction::run($page, $site, $language),
             schemaDashboardReports: BuildSchemaTemplateReportAction::run($page, $site, $language),
             redirectOpportunities: BuildRedirectOpportunityReportAction::run($site->id, $language->id, (int) $page->getKey()),
@@ -224,12 +230,16 @@ final class BuildPageSeoReportAction
      * @param  list<SeoIssueData>  $issues
      * @return list<SeoIssueData>
      */
-    private function passedChecks(array $issues): array
+    private function passedChecks(array $issues, SeoSuiteSettings $settings): array
     {
+        if (! $settings->seo_audit_enabled) {
+            return [];
+        }
+
         $issueKeys = collect($issues)->map(fn (SeoIssueData $issue): SeoCheckKeyEnum => $issue->key);
         $passedChecks = [];
 
-        foreach ([SeoCheckKeyEnum::MetaTitle, SeoCheckKeyEnum::MetaDescription, SeoCheckKeyEnum::DuplicateTitle, SeoCheckKeyEnum::Robots] as $checkKey) {
+        foreach ($this->enabledChecks($settings) as $checkKey) {
             if ($issueKeys->contains($checkKey)) {
                 continue;
             }
@@ -242,6 +252,30 @@ final class BuildPageSeoReportAction
         }
 
         return $passedChecks;
+    }
+
+    /**
+     * @return list<SeoCheckKeyEnum>
+     */
+    private function enabledChecks(SeoSuiteSettings $settings): array
+    {
+        $checks = [];
+
+        if ($settings->seo_check_meta_title) {
+            $checks[] = SeoCheckKeyEnum::MetaTitle;
+        }
+
+        if ($settings->seo_check_meta_description) {
+            $checks[] = SeoCheckKeyEnum::MetaDescription;
+        }
+
+        if ($settings->seo_check_duplicate_title) {
+            $checks[] = SeoCheckKeyEnum::DuplicateTitle;
+        }
+
+        $checks[] = SeoCheckKeyEnum::Robots;
+
+        return $checks;
     }
 
     private function previewUrl(Page $page): string

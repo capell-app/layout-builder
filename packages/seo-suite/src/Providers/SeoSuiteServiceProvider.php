@@ -28,6 +28,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\Core\Support\Settings\SettingsGroupMetadata;
 use Capell\Core\Support\Settings\SettingsSchemaRegistry;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
 use Capell\SeoSuite\Actions\Ai\RecordAiGenerationAction;
@@ -54,6 +55,7 @@ use Capell\SeoSuite\Filament\Extenders\Site\SiteTranslationMetaExtender;
 use Capell\SeoSuite\Filament\Pages\BrokenLinksPage;
 use Capell\SeoSuite\Filament\Pages\NotFoundUrlsPage;
 use Capell\SeoSuite\Filament\Pages\SeoAuditPage;
+use Capell\SeoSuite\Filament\Pages\SeoSuiteSettingsPage;
 use Capell\SeoSuite\Filament\Pages\SitemapPage;
 use Capell\SeoSuite\Filament\Pages\TranslationCoveragePage;
 use Capell\SeoSuite\Filament\Settings\AIOrchestratorSettingsSchema;
@@ -75,6 +77,7 @@ use Capell\SeoSuite\Models\AIGenerationHistory;
 use Capell\SeoSuite\Models\BrokenLink;
 use Capell\SeoSuite\Policies\AiCreatorPolicy;
 use Capell\SeoSuite\Settings\AIOrchestratorSettings;
+use Capell\SeoSuite\Settings\SeoSuiteSettings;
 use Capell\SeoSuite\Support\Admin\AiCreatorPageExtender;
 use Capell\SeoSuite\Support\Admin\AiCreatorSiteExtender;
 use Capell\SeoSuite\Support\Admin\PageContentEditorConfigurator;
@@ -108,6 +111,7 @@ use Capell\SeoSuite\Support\Sitemap\SitemapPageRegistry;
 use Capell\SeoSuite\Support\Sitemap\SitemapPageType;
 use Capell\SeoSuite\Targets\FlatJsonTarget;
 use Composer\InstalledVersions;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
@@ -331,7 +335,16 @@ class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
         $registry = $this->app->make(SettingsSchemaRegistry::class);
         $registry->register('ai-orchestrator', AIOrchestratorSettingsSchema::class);
         $registry->registerSettingsClass('ai-orchestrator', AIOrchestratorSettings::class);
-        $registry->register('core', SeoSettingsSchema::class);
+        $registry->registerSettingsClass('seo_suite', SeoSuiteSettings::class);
+        $registry->registerMetadata(new SettingsGroupMetadata(
+            group: 'seo_suite',
+            label: 'capell-seo-suite::generic.seo_settings',
+            icon: Heroicon::OutlinedMagnifyingGlass,
+            navigationGroup: 'capell-admin::navigation.group_extensions',
+            navigationSort: 94,
+            packageName: static::$packageName,
+        ));
+        $registry->register('seo_suite', SeoSettingsSchema::class);
         $registry->register('frontend', StructuredDataSettingsSchema::class);
 
         return $this;
@@ -345,6 +358,7 @@ class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
         $adminManager->registerExtensionPage(static::$packageName, NotFoundUrlsPage::class);
         $adminManager->registerExtensionPage(static::$packageName, BrokenLinksPage::class);
         $adminManager->registerExtensionPage(static::$packageName, SeoAuditPage::class);
+        $adminManager->registerExtensionPage(static::$packageName, SeoSuiteSettingsPage::class);
         $adminManager->registerExtensionPage(static::$packageName, TranslationCoveragePage::class);
         $adminManager->registerExtensionPage(static::$packageName, SitemapPage::class);
 

@@ -271,97 +271,106 @@ class BlogCreator
 
     public function createArchivesLayout(): Layout
     {
+        $containers = [
+            'main' => [
+                'meta' => [
+                    'colspan' => 9,
+                ],
+                'widgets' => [
+                    ['widget_key' => 'breadcrumbs'],
+                    ['widget_key' => 'archives', 'meta' => ['show_page_content' => true, 'show_page_title' => true]],
+                ],
+            ],
+            'sidebar' => [
+                'meta' => [
+                    'colspan' => 3,
+                    'override_columns' => 1,
+                    'container' => 'full',
+                    'padding' => ['md'],
+                    'html_class' => 'sidebar-sticky space-y-8',
+                ],
+                'widgets' => [
+                    ['widget_key' => 'latest-articles', 'meta' => ['hide_no_results' => true]],
+                    ['widget_key' => 'tags', 'meta' => ['hide_no_results' => true]],
+                ],
+            ],
+        ];
+
         return Layout::query()->firstOrCreate(['key' => BlogLayoutEnum::Archives->value], [
             'name' => __('capell-blog::generic.archives'),
             'group' => LayoutGroupEnum::System->value,
-            'containers' => [
-                'main' => [
-                    'meta' => [
-                        'colspan' => 9,
-                    ],
-                    'widgets' => [
-                        ['widget_key' => 'breadcrumbs'],
-                        ['widget_key' => 'archives', 'meta' => ['show_page_content' => true, 'show_page_title' => true]],
-                    ],
-                ],
-                'sidebar' => [
-                    'meta' => [
-                        'colspan' => 3,
-                        'override_columns' => 1,
-                        'container' => 'full',
-                        'padding' => ['md'],
-                        'html_class' => 'sidebar-sticky space-y-8',
-                    ],
-                    'widgets' => [
-                        ['widget_key' => 'latest-articles', 'meta' => ['hide_no_results' => true]],
-                        ['widget_key' => 'tags', 'meta' => ['hide_no_results' => true]],
-                    ],
-                ],
-            ],
+            'containers' => $containers,
+            'widgets' => $this->widgetKeys($containers),
         ]);
     }
 
     public function createBlogPageLayout(): Layout
     {
+        $containers = [
+            'main' => [
+                'meta' => [
+                    'colspan' => 9,
+                ],
+                'widgets' => [
+                    ['widget_key' => 'breadcrumbs'],
+                    ['widget_key' => 'page-content'],
+                    ['widget_key' => 'page-slot'],
+                ],
+            ],
+            'sidebar' => [
+                'meta' => [
+                    'colspan' => 3,
+                    'override_columns' => 1,
+                    'container' => 'full',
+                    'padding' => ['md'],
+                    'html_class' => 'sidebar-sticky space-y-8',
+                ],
+                'widgets' => [
+                    ['widget_key' => 'tags', 'meta' => ['hide_no_results' => true]],
+                    ['widget_key' => 'archives', 'meta' => ['hide_no_results' => true]],
+                ],
+            ],
+        ];
+
         return Layout::query()->firstOrCreate(['key' => BlogLayoutEnum::BlogPage->value], [
             'name' => __('capell-blog::generic.blog_page'),
             'group' => LayoutGroupEnum::System->value,
-            'containers' => [
-                'main' => [
-                    'meta' => [
-                        'colspan' => 9,
-                    ],
-                    'widgets' => [
-                        ['widget_key' => 'breadcrumbs'],
-                        ['widget_key' => 'page-content'],
-                        ['widget_key' => 'page-slot'],
-                    ],
-                ],
-                'sidebar' => [
-                    'meta' => [
-                        'colspan' => 3,
-                        'override_columns' => 1,
-                        'container' => 'full',
-                        'padding' => ['md'],
-                        'html_class' => 'sidebar-sticky space-y-8',
-                    ],
-                    'widgets' => [
-                        ['widget_key' => 'tags', 'meta' => ['hide_no_results' => true]],
-                        ['widget_key' => 'archives', 'meta' => ['hide_no_results' => true]],
-                    ],
-                ],
-            ],
+            'containers' => $containers,
+            'widgets' => $this->widgetKeys($containers),
         ]);
     }
 
     public function createTagsLayout(): Layout
     {
+        $containers = [
+            'main' => [
+                'meta' => [
+                    'colspan' => 9,
+                ],
+                'widgets' => [
+                    ['widget_key' => 'breadcrumbs'],
+                    ['widget_key' => 'tags', 'meta' => ['show_page_title' => true, 'show_page_content' => true]],
+                ],
+            ],
+            'sidebar' => [
+                'meta' => [
+                    'colspan' => 3,
+                    'override_columns' => 1,
+                    'container' => 'full',
+                    'padding' => ['md'],
+                    'html_class' => 'sidebar-sticky space-y-8',
+                ],
+                'widgets' => [
+                    ['widget_key' => 'latest-pages', 'meta' => ['hide_no_results' => true]],
+                ],
+            ],
+        ];
+
         return Layout::query()->firstOrCreate(['key' => BlogLayoutEnum::Tags->value], [
             'name' => __('capell-blog::generic.tags'),
             'group' => LayoutGroupEnum::System->value,
-            'containers' => [
-                'main' => [
-                    'meta' => [
-                        'colspan' => 9,
-                    ],
-                    'widgets' => [
-                        ['widget_key' => 'breadcrumbs'],
-                        ['widget_key' => 'tags', 'meta' => ['show_page_title' => true, 'show_page_content' => true]],
-                    ],
-                ],
-                'sidebar' => [
-                    'meta' => [
-                        'colspan' => 3,
-                        'override_columns' => 1,
-                        'container' => 'full',
-                        'padding' => ['md'],
-                        'html_class' => 'sidebar-sticky space-y-8',
-                    ],
-                    'widgets' => [
-                        ['widget_key' => 'latest-pages', 'meta' => ['hide_no_results' => true]],
-                    ],
-                ],
-            ],
+            'containers' => $containers,
+            'widgets' => $this->widgetKeys($containers),
         ]);
     }
 
@@ -513,34 +522,37 @@ class BlogCreator
             $this->createArchivesWidget($languages);
         }
 
+        $containers = [
+            'main' => [
+                'meta' => [
+                    'colspan' => 9,
+                ],
+                'widgets' => [
+                    ['widget_key' => 'breadcrumbs'],
+                    ['widget_key' => 'article'],
+                ],
+            ],
+            'sidebar' => [
+                'meta' => [
+                    'colspan' => 3,
+                    'override_columns' => 1,
+                    'container' => 'full',
+                    'padding' => ['md'],
+                    'html_class' => 'sidebar-sticky space-y-8',
+                ],
+                'widgets' => [
+                    ['widget_key' => 'latest-articles', 'meta' => ['hide_no_results' => true]],
+                    ['widget_key' => 'tags', 'meta' => ['hide_no_results' => true]],
+                    ['widget_key' => 'archives', 'meta' => ['hide_no_results' => true]],
+                ],
+            ],
+        ];
+
         return Layout::query()->firstOrCreate(['key' => BlogLayoutEnum::Article->value], [
             'name' => __('capell-blog::generic.article'),
             'group' => LayoutGroupEnum::Default->value,
-            'containers' => [
-                'main' => [
-                    'meta' => [
-                        'colspan' => 9,
-                    ],
-                    'widgets' => [
-                        ['widget_key' => 'breadcrumbs'],
-                        ['widget_key' => 'article'],
-                    ],
-                ],
-                'sidebar' => [
-                    'meta' => [
-                        'colspan' => 3,
-                        'override_columns' => 1,
-                        'container' => 'full',
-                        'padding' => ['md'],
-                        'html_class' => 'sidebar-sticky space-y-8',
-                    ],
-                    'widgets' => [
-                        ['widget_key' => 'latest-articles', 'meta' => ['hide_no_results' => true]],
-                        ['widget_key' => 'tags', 'meta' => ['hide_no_results' => true]],
-                        ['widget_key' => 'archives', 'meta' => ['hide_no_results' => true]],
-                    ],
-                ],
-            ],
+            'containers' => $containers,
+            'widgets' => $this->widgetKeys($containers),
         ]);
     }
 
@@ -804,5 +816,15 @@ class BlogCreator
         }
 
         return resolve(LayoutCreator::class)->create($key);
+    }
+
+    private function widgetKeys(array $containers): array
+    {
+        return collect($containers)
+            ->flatMap(fn (array $container): array => $container['widgets'] ?? [])
+            ->unique('widget_key')
+            ->pluck('widget_key')
+            ->values()
+            ->all();
     }
 }

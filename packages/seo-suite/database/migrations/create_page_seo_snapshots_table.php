@@ -30,7 +30,6 @@ return new class extends Migration
             $table->string('robots_status')->default('unknown');
             $table->string('canonical_status')->default('unknown');
             $table->unsignedSmallInteger('internal_link_suggestions_count')->default(0);
-            $table->unsignedSmallInteger('redirect_opportunities_count')->default(0);
             $table->string('search_console_status')->default('unknown');
             $table->timestamp('computed_at')->nullable();
             $table->timestamps();

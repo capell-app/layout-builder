@@ -39,6 +39,7 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
+use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 
 final class FoundationThemeServiceProvider extends AbstractPackageServiceProvider
@@ -60,20 +61,21 @@ final class FoundationThemeServiceProvider extends AbstractPackageServiceProvide
 
     public function packageBooted(): void
     {
+        $this->registerBladeDirectives();
+        $this->registerBladeComponents();
+        $this->registerLayoutBuilderRendering();
+        $this->registerMediaBladeComponents();
+
         if (! $this->isPackageInstalled()) {
             return;
         }
 
         $this->registerAssets();
-        $this->registerBladeDirectives();
         $this->registerBlazeComponents();
         $this->registerTailwindEventListeners();
         $this->registerVendorNpmDependencies();
         $this->registerVendorCssJsAssets();
         $this->registerMediaUrlGenerator();
-        $this->registerBladeComponents();
-        $this->registerLayoutBuilderRendering();
-        $this->registerMediaBladeComponents();
         $this->registerModelInterceptors();
         $this->registerSettingsSchemas();
     }
@@ -135,6 +137,8 @@ final class FoundationThemeServiceProvider extends AbstractPackageServiceProvide
 
     private function registerBladeComponents(): void
     {
+        resolve(ViewFactory::class)->prependNamespace('capell', __DIR__ . '/../../resources/views');
+
         Blade::anonymousComponentPath(__DIR__ . '/../../resources/views/components', 'capell');
     }
 
@@ -249,6 +253,14 @@ final class FoundationThemeServiceProvider extends AbstractPackageServiceProvide
         Blade::component(PageSiblingsComponent::class, 'capell-layout-builder::widget.page.siblings');
 
         $registerLivewireComponents = function (): void {
+            Livewire::addNamespace(
+                namespace: 'capell-layout-builder',
+                classNamespace: 'Capell\\FoundationTheme\\Livewire',
+                viewPath: __DIR__ . '/../../resources/views/layout-builder/livewire',
+                classPath: __DIR__ . '/../Livewire',
+                classViewPath: __DIR__ . '/../../resources/views/layout-builder/livewire',
+            );
+
             app('livewire.factory')->resolveMissingComponent(
                 static fn (string $name): ?string => match ($name) {
                     'capell-layout-builder::assets.table.page-assets' => PageAssets::class,

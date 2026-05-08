@@ -18,7 +18,6 @@ use Capell\SeoSuite\Models\PageSeoSnapshot;
 use Closure;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -147,19 +146,6 @@ class SeoAuditTable implements TableConfigurator
                 ->label(__('capell-seo-suite::generic.seo_check_canonical'))
                 ->options(self::snapshotStatusOptions())
                 ->query(fn (Builder $query, array $data): Builder => self::whereSnapshotStatus($query, 'canonical_status', $data['value'] ?? null)),
-            TernaryFilter::make('has_redirect_opportunities')
-                ->label(__('capell-seo-suite::generic.seo_audit_redirect_opportunities'))
-                ->trueLabel(__('capell-seo-suite::generic.seo_audit_has_redirect_opportunities'))
-                ->falseLabel(__('capell-seo-suite::generic.seo_audit_no_redirect_opportunities'))
-                ->queries(
-                    true: fn (Builder $query): Builder => self::whereSnapshot($query, function (QueryBuilder $snapshotQuery): void {
-                        $snapshotQuery->where('redirect_opportunities_count', '>', 0);
-                    }),
-                    false: fn (Builder $query): Builder => self::whereSnapshot($query, function (QueryBuilder $snapshotQuery): void {
-                        $snapshotQuery->where('redirect_opportunities_count', 0);
-                    }),
-                    blank: fn (Builder $query): Builder => $query,
-                ),
             SelectFilter::make('search_console_status')
                 ->label(__('capell-seo-suite::generic.seo_check_search_console'))
                 ->options(self::snapshotStatusOptions())

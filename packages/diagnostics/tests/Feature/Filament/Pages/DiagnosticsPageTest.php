@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Enums\ExtensionGroupEnum;
 use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
 use Capell\Diagnostics\Filament\Pages\DiagnosticsPage;
 use Capell\Diagnostics\Filament\Pages\PermissionAuditPage;
@@ -35,11 +34,11 @@ it('allows super admins to access developer tools', function (): void {
     expect(DiagnosticsPage::canAccess())->toBeTrue();
 });
 
-it('registers developer tools and health pages into mandatory extension groups', function (): void {
-    $extensionGroups = collect(resolve(ExtensionPageRegistry::class)->entries())
-        ->mapWithKeys(fn (array $extensionPage): array => [$extensionPage['page'] => $extensionPage['extensionGroup']]);
+it('registers developer tools and health pages as extension pages', function (): void {
+    $extensionPages = collect(resolve(ExtensionPageRegistry::class)->entries())
+        ->pluck('page');
 
-    expect($extensionGroups->get(DiagnosticsPage::class))->toBe(ExtensionGroupEnum::DeveloperTools)
-        ->and($extensionGroups->get(QueueHealthPage::class))->toBe(ExtensionGroupEnum::Health)
-        ->and($extensionGroups->get(PermissionAuditPage::class))->toBe(ExtensionGroupEnum::Security);
+    expect($extensionPages)->toContain(DiagnosticsPage::class)
+        ->and($extensionPages)->toContain(QueueHealthPage::class)
+        ->and($extensionPages)->toContain(PermissionAuditPage::class);
 });

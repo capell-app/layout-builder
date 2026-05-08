@@ -5,12 +5,12 @@ declare(strict_types=1);
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\SeoSuite\Actions\BuildPageSeoReportAction;
 use Capell\SeoSuite\Actions\PersistPageSeoSnapshotAction;
 use Capell\SeoSuite\Actions\RefreshPageSeoSnapshotAction;
 use Capell\SeoSuite\Actions\RefreshSiteSeoSnapshotsAction;
 use Capell\SeoSuite\Data\InternalLinkSuggestionData;
 use Capell\SeoSuite\Data\PageSeoReportData;
-use Capell\SeoSuite\Data\RedirectOpportunityData;
 use Capell\SeoSuite\Data\SchemaTemplateReportData;
 use Capell\SeoSuite\Data\SeoIssueData;
 use Capell\SeoSuite\Data\SeoPreviewData;
@@ -18,6 +18,7 @@ use Capell\SeoSuite\Enums\SchemaTemplateTypeEnum;
 use Capell\SeoSuite\Enums\SeoCheckKeyEnum;
 use Capell\SeoSuite\Enums\SeoIssueSeverityEnum;
 use Capell\SeoSuite\Models\PageSeoSnapshot;
+use Capell\SeoSuite\Settings\SeoSuiteSettings;
 
 it('upserts a compact page seo snapshot from a report', function (): void {
     $language = Language::factory()->create();
@@ -60,24 +61,6 @@ it('upserts a compact page seo snapshot from a report', function (): void {
                 reason: 'Relevant topic overlap.',
             ),
         ],
-        redirectOpportunities: [
-            new RedirectOpportunityData(
-                sourceUrl: 'https://example.com/old-one',
-                hits: 12,
-                siteId: (int) $site->getKey(),
-                languageId: (int) $language->getKey(),
-                suggestedTargetUrl: 'https://example.com/about',
-                pageName: 'About Capell',
-            ),
-            new RedirectOpportunityData(
-                sourceUrl: 'https://example.com/old-two',
-                hits: 8,
-                siteId: (int) $site->getKey(),
-                languageId: (int) $language->getKey(),
-                suggestedTargetUrl: 'https://example.com/about',
-                pageName: 'About Capell',
-            ),
-        ],
     );
 
     $firstSnapshot = PersistPageSeoSnapshotAction::run($page, $site, $language, $report);
@@ -90,7 +73,6 @@ it('upserts a compact page seo snapshot from a report', function (): void {
         ->and($secondSnapshot->warning_count)->toBe(1)
         ->and($secondSnapshot->issue_keys)->toBe(['meta_title', 'schema'])
         ->and($secondSnapshot->passed_check_keys)->toBe(['meta_description'])
-        ->and($secondSnapshot->redirect_opportunities_count)->toBe(2)
         ->and($secondSnapshot->computed_at)->not()->toBeNull();
 });
 
@@ -176,6 +158,33 @@ it('refreshes a single page seo snapshot from the canonical report action', func
         ->and($snapshot->site_id)->toBe($site->getKey())
         ->and($snapshot->language_id)->toBe($language->getKey())
         ->and($snapshot->critical_count)->toBeGreaterThan(0);
+});
+
+it('honours disabled seo audit settings when building page reports', function (): void {
+    $this->registerAndMigrateSettings(
+        ['create_seo_suite_settings'],
+        dirname(__DIR__, 3) . '/database/settings',
+    );
+
+    $settings = resolve(SeoSuiteSettings::class);
+    $settings->seo_audit_enabled = false;
+    $settings->save();
+
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
+    $page = Page::factory()
+        ->site($site)
+        ->withTranslations($language, [
+            'content' => '',
+            'meta' => [],
+            'title' => 'A',
+        ])
+        ->create();
+
+    $report = BuildPageSeoReportAction::run($page, $site, $language);
+
+    expect($report->issues)->toBe([])
+        ->and($report->passedChecks)->toBe([]);
 });
 
 it('refreshes seo snapshots for every page in a site', function (): void {

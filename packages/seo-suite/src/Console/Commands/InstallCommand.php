@@ -44,6 +44,7 @@ class InstallCommand extends Command
             '--items' => [
                 'create_ai-orchestrator_settings',
                 '2026_04_18_000001_update_ai-orchestrator_settings_add_ai_creator',
+                'create_seo_suite_settings',
             ],
             '--path' => $settings,
         ]);

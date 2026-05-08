@@ -24,16 +24,6 @@
         $attributes->get('class'),
     ])
 >
-    @capellBuffer($countContent)
-        @if ($count)
-            <span
-                class="list-item-badge group-hover:text-primary group-focus:text-primary dark:group-hover:text-primary dark:group-focus:text-primary flex items-center whitespace-nowrap rounded-full bg-gray-100 px-2 py-0.5 font-light tracking-tight text-gray-500 dark:bg-gray-800 dark:text-gray-500"
-            >
-                {{ $count }}
-            </span>
-        @endif
-    @endcapellBuffer
-
     @if ($url && ! $active)
         <a
             href="{{ $url }}"
@@ -43,14 +33,26 @@
             <span class="grow">
                 {{ $slot }}
             </span>
-            {{ $countContent() }}
+            @if ($count)
+                <span
+                    class="list-item-badge group-hover:text-primary group-focus:text-primary dark:group-hover:text-primary dark:group-focus:text-primary flex items-center whitespace-nowrap rounded-full bg-gray-100 px-2 py-0.5 font-light tracking-tight text-gray-500 dark:bg-gray-800 dark:text-gray-500"
+                >
+                    {{ $count }}
+                </span>
+            @endif
         </a>
     @else
         <div @class($classes)>
             <span class="flex grow">
                 {{ $slot }}
             </span>
-            {{ $countContent() }}
+            @if ($count)
+                <span
+                    class="list-item-badge group-hover:text-primary group-focus:text-primary dark:group-hover:text-primary dark:group-focus:text-primary flex items-center whitespace-nowrap rounded-full bg-gray-100 px-2 py-0.5 font-light tracking-tight text-gray-500 dark:bg-gray-800 dark:text-gray-500"
+                >
+                    {{ $count }}
+                </span>
+            @endif
         </div>
     @endif
 </li>

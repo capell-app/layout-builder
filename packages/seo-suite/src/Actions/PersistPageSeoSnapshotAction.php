@@ -44,7 +44,6 @@ final class PersistPageSeoSnapshotAction
                 'robots_status' => $this->issueStatus($issues, SeoCheckKeyEnum::Robots)->value,
                 'canonical_status' => $this->issueStatus($issues, SeoCheckKeyEnum::Canonical)->value,
                 'internal_link_suggestions_count' => count($report->internalLinkSuggestions),
-                'redirect_opportunities_count' => count($report->redirectOpportunities),
                 'search_console_status' => $this->searchConsoleStatus($issues)->value,
                 'computed_at' => now(),
             ],

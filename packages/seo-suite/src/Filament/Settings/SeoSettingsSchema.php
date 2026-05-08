@@ -36,12 +36,6 @@ class SeoSettingsSchema implements HasSchema
                             Checkbox::make('seo_check_duplicate_title')
                                 ->label(__('capell-seo-suite::form.seo_check_duplicate_title'))
                                 ->default(true),
-                            Checkbox::make('seo_check_alt_text')
-                                ->label(__('capell-seo-suite::form.seo_check_alt_text'))
-                                ->default(true),
-                            Checkbox::make('seo_check_internal_links')
-                                ->label(__('capell-seo-suite::form.seo_check_internal_links'))
-                                ->default(true),
                         ]),
                 ]),
         ];
