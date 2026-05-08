@@ -107,7 +107,7 @@ final class ResolveAccessGateAccessAction
         if ($area->identity_mode === IdentityMode::Authenticated || $area->identity_mode === IdentityMode::Hybrid) {
             $grant = $this->activeAuthenticatedGrant($area, $request);
 
-            if ($grant !== null) {
+            if ($grant instanceof Grant) {
                 return new AccessGateAccessResultData(true, $area, $grant);
             }
         }
@@ -115,7 +115,7 @@ final class ResolveAccessGateAccessAction
         if ($area->identity_mode === IdentityMode::GuestLink || $area->identity_mode === IdentityMode::Hybrid) {
             $browserToken = $this->activeBrowserToken($area, $this->plainBrowserToken($request));
 
-            if ($browserToken !== null) {
+            if ($browserToken instanceof BrowserToken) {
                 $browserToken->forceFill(['last_used_at' => now()])->save();
 
                 return new AccessGateAccessResultData(true, $area, $browserToken->grant, $browserToken);
@@ -224,9 +224,15 @@ final class ResolveAccessGateAccessAction
     private function allowlistEntryMatches(Request $request, mixed $entry): bool
     {
         if (is_string($entry)) {
-            return $entry === $request->getHost()
-                || $entry === $request->fullUrl()
-                || $request->is(ltrim($entry, '/'));
+            if ($entry === $request->getHost()) {
+                return true;
+            }
+
+            if ($entry === $request->fullUrl()) {
+                return true;
+            }
+
+            return $request->is(ltrim($entry, '/'));
         }
 
         if (! is_array($entry)) {

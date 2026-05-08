@@ -36,7 +36,7 @@ class SyncSubscriberToProviderAction
         }
 
         try {
-            $adapter = app(ProviderAdapterRegistry::class)->resolve($connection->provider);
+            $adapter = resolve(ProviderAdapterRegistry::class)->resolve($connection->provider);
             $result = $adapter->syncSubscriber(
                 $connection,
                 $audience,
@@ -49,8 +49,8 @@ class SyncSubscriberToProviderAction
                     interests: $this->interests($subscriber, $audience->getKey()),
                 ),
             );
-        } catch (Throwable $exception) {
-            return $this->fail($syncAttempt, $exception->getMessage());
+        } catch (Throwable $throwable) {
+            return $this->fail($syncAttempt, $throwable->getMessage());
         }
 
         if (! $result->successful) {

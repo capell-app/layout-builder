@@ -26,7 +26,7 @@ it('prepares composer requirement commits with package requirements and missing 
         ),
     );
 
-    $composer = json_decode($patched->content, associative: true, flags: JSON_THROW_ON_ERROR);
+    $composer = json_decode((string) $patched->content, associative: true, flags: JSON_THROW_ON_ERROR);
 
     expect($patched->path)->toBe('composer.json')
         ->and($patched->sha)->toBe('base-sha')
@@ -49,7 +49,6 @@ it('publishes composer requirements directly when the connection uses direct com
         new ComposerRequirementData(
             composerName: 'capell/direct-extension',
             versionConstraint: '^2.0',
-            repositoryUrl: null,
         ),
         $connection,
     );

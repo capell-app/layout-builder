@@ -29,7 +29,7 @@ abstract class AbstractWidget extends Component
 
     public function render(array $data = []): View|string|Closure
     {
-        if ($this->skipRender && config('capell-layout-builder.widget.skip_render_empty', true)) {
+        if ($this->skipRender && config('capell-layout-builder.widget.skip_render_empty', true) === true) {
             return '';
         }
 

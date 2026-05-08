@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\AccessGate\Http\Controllers;
 
 use Capell\AccessGate\Actions\ConsumeAccessGateClaimTokenAction;
+use Capell\AccessGate\Data\IssuedAccessGateTokenData;
 use Capell\AccessGate\Models\Area;
 use Capell\AccessGate\Models\BrowserToken;
 use Illuminate\Http\RedirectResponse;
@@ -25,7 +26,7 @@ final class ClaimAccessGateTokenController
             'user_agent' => $request->userAgent(),
         ]);
 
-        if ($issuedBrowserToken === null || ! $issuedBrowserToken->token instanceof BrowserToken) {
+        if (! $issuedBrowserToken instanceof IssuedAccessGateTokenData || ! $issuedBrowserToken->token instanceof BrowserToken) {
             return $this->noStore(response()->view('capell-access-gate::message', [
                 'title' => __('capell-access-gate::public.claim_failed.title'),
                 'message' => __('capell-access-gate::public.claim_failed.message'),
@@ -57,7 +58,7 @@ final class ClaimAccessGateTokenController
             ->unique()
             ->values();
 
-        if (! is_string($requestedHost) || ! $allowedHosts->contains($requestedHost)) {
+        if (! is_string($requestedHost) || $allowedHosts->doesntContain($requestedHost)) {
             return url('/');
         }
 

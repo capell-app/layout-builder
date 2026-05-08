@@ -47,7 +47,7 @@ class DiagnosticsPage extends Page implements HasActions
 
     public static function canAccess(): bool
     {
-        return config('capell.dashboard.developer_page_enabled', true)
+        return config('capell.dashboard.developer_page_enabled', true) === true
             && (self::userHasSuperAdminRole() || Gate::allows('accessDiagnostics') || Gate::allows('viewDiagnostics') || auth()->user()?->can('accessDiagnostics') === true);
     }
 

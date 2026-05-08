@@ -48,7 +48,7 @@ class RenderProfileAssetRenderer
             return [];
         }
 
-        return array_values(array_filter($assets, static fn (mixed $asset): bool => is_array($asset)));
+        return array_values(array_filter($assets, is_array(...)));
     }
 
     /** @param array<string, mixed> $asset */

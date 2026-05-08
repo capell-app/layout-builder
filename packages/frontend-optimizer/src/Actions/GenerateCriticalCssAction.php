@@ -36,14 +36,14 @@ class GenerateCriticalCssAction
             $this->finishRun($run, OptimizationStatus::Generated);
 
             return $criticalCssPath;
-        } catch (Throwable $exception) {
+        } catch (Throwable $throwable) {
             $profile->forceFill([
                 'status' => OptimizationStatus::Failed->value,
             ])->save();
 
-            $this->finishRun($run, OptimizationStatus::Failed, $exception->getMessage());
+            $this->finishRun($run, OptimizationStatus::Failed, $throwable->getMessage());
 
-            throw $exception;
+            throw $throwable;
         }
     }
 

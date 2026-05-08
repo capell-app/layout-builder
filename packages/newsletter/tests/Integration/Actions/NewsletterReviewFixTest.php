@@ -210,21 +210,16 @@ it('resolves resubscribe policy per site', function (): void {
     $firstSite = $this->createNewsletterSite('First');
     $secondSite = $this->createNewsletterSite('Second');
 
-    app()->instance(NewsletterSettingsResolver::class, new class($firstSite->getKey(), $secondSite->getKey()) extends NewsletterSettingsResolver
+    app()->instance(NewsletterSettingsResolver::class, new class($firstSite->getKey()) extends NewsletterSettingsResolver
     {
         public function __construct(
             private readonly int|string $firstSiteId,
-            private readonly int|string $secondSiteId,
         ) {}
 
         public function resubscribePolicyForSite(int $siteId): ResubscribePolicy
         {
             if ($siteId === (int) $this->firstSiteId) {
                 return ResubscribePolicy::AllowWithConsent;
-            }
-
-            if ($siteId === (int) $this->secondSiteId) {
-                return ResubscribePolicy::RequireDoubleOptIn;
             }
 
             return ResubscribePolicy::RequireDoubleOptIn;

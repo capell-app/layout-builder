@@ -78,6 +78,25 @@ parameters:
         - message: '#Call to an undefined method Illuminate\\Testing\\TestResponse::.*#'
           reportUnmatched: false
 
+        # Laravel HTTP helpers are mixed into the package test case at runtime.
+        - identifier: method.notFound
+          message: '#Call to an undefined method PHPUnit\\Framework\\TestCase::postJson\(\)#'
+          paths:
+              - packages/newsletter/tests/Integration/Actions/NewsletterReviewFixTest.php
+        - identifier: method.notFound
+          message: '#Call to an undefined method PHPUnit\\Framework\\TestCase::travelTo\(\)#'
+          paths:
+              - packages/login-audit/tests/Unit/Actions/LoginAuditQueryAndIpResolverTest.php
+              - packages/login-audit/tests/Feature/Http/LoginAuditActivityMiddlewareTest.php
+        - identifier: method.notFound
+          message: '#Call to an undefined method PHPUnit\\Framework\\TestCase::artisan\(\)#'
+          paths:
+              - packages/access-gate/tests/Feature/AccessGateDoctorCommandTest.php
+        - identifier: method.notFound
+          message: '#Call to an undefined method PHPUnit\\Framework\\TestCase::(get|getJson|post|withCookie|withHeader|withUnencryptedCookie)\(\)#'
+          paths:
+              - packages/access-gate/tests/Feature/AccessGateMiddlewareTest.php
+
         # Pest global functions and closures use dynamic helpers and property injection.
         - message: '#Call to an undefined method Pest\\.*#'
 

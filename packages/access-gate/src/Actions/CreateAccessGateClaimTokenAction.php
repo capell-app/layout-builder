@@ -40,8 +40,8 @@ final class CreateAccessGateClaimTokenAction
 
         $this->recordEvent->handle(
             type: EventType::ClaimTokenCreated,
-            claimToken: $claimToken,
             grant: $grant,
+            claimToken: $claimToken,
         );
 
         return new IssuedAccessGateTokenData($plainTextToken, $claimToken);

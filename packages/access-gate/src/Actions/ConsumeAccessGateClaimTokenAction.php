@@ -74,8 +74,8 @@ final class ConsumeAccessGateClaimTokenAction
 
             $this->recordEvent->handle(
                 type: EventType::ClaimTokenClaimed,
-                claimToken: $claimToken,
                 grant: $grant,
+                claimToken: $claimToken,
                 browserToken: $issuedBrowserToken->token,
             );
 

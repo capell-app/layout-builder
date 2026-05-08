@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\AccessGate\Http\Middleware;
 
 use Capell\AccessGate\Actions\ResolveAccessGateAccessAction;
+use Capell\AccessGate\Models\Area;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,9 +20,7 @@ final class AccessGateMiddleware
     {
         $areaKeys = $this->areaKeys($parameters);
 
-        if ($areaKeys === []) {
-            abort(403);
-        }
+        abort_if($areaKeys === [], 403);
 
         $result = $this->resolveAccess->handle($request, $areaKeys);
 
@@ -29,13 +28,13 @@ final class AccessGateMiddleware
             return $this->deny($request, $areaKeys[0]);
         }
 
-        if ($result->area !== null) {
+        if ($result->area instanceof Area) {
             $this->markProtectedRequest($request);
         }
 
         $response = $next($request);
 
-        if ($result->area !== null) {
+        if ($result->area instanceof Area) {
             $response->headers->set('Cache-Control', 'no-store, private');
             $response->headers->set('Pragma', 'no-cache');
             $response->headers->set('Expires', '0');
@@ -59,7 +58,7 @@ final class AccessGateMiddleware
             ], 403));
         }
 
-        return $this->noStore(redirect()->route('capell-access-gate.request', [
+        return $this->noStore(to_route('capell-access-gate.request', [
             'area' => $areaKey,
             'redirect' => $request->fullUrl(),
         ]));

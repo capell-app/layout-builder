@@ -24,7 +24,6 @@ it('renders navigation from the saas package views', function (): void {
 
     $provider = new SaasThemeServiceProvider($this->app);
     $method = new ReflectionMethod($provider, 'sectionRenderers');
-    $method->setAccessible(true);
 
     $renderer = $method->invoke($provider)['navigation'] ?? null;
 

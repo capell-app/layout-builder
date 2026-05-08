@@ -201,7 +201,8 @@ it('protects the edit region route with authentication admin access and signed u
 
     $request = Request::create('/authoring/regions/' . $signer->encode(editableRegionPayload($translation)));
     $request->setUserResolver(fn (): User => $user);
-    $view = app(EditRegionController::class)->__invoke($request, 'encoded-payload');
+
+    $view = resolve(EditRegionController::class)->__invoke($request, 'encoded-payload');
 
     expect($view->name())->toBe('capell::editor.region')
         ->and($view->getData())->toHaveKey('payload', 'encoded-payload');

@@ -48,18 +48,21 @@ class PlaywrightCriticalCssGenerator implements CriticalCssGenerator
             throw new RuntimeException($message !== '' ? $message : 'Playwright critical CSS generation failed.');
         }
 
-        if (! $localDisk->exists($criticalCssPath)) {
-            throw new RuntimeException('Playwright critical CSS generation did not create an output file.');
-        }
+        throw_unless($localDisk->exists($criticalCssPath), RuntimeException::class, 'Playwright critical CSS generation did not create an output file.');
 
         return $criticalCssPath;
     }
 
     private function criticalCssPath(FrontendRenderProfile $profile): string
     {
-        $directory = trim(config('capell-frontend-optimizer.paths.critical_css', 'capell/frontend-optimizer/critical-css'), '/');
+        $directory = trim($this->configString('capell-frontend-optimizer.paths.critical_css', 'capell/frontend-optimizer/critical-css'), '/');
 
         return sprintf('%s/%s.css', $directory, $profile->hash);
+    }
+
+    private function configString(string $key, string $default): string
+    {
+        return config($key, $default);
     }
 
     private function payloadPath(FrontendRenderProfile $profile): string

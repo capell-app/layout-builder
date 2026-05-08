@@ -14,7 +14,7 @@ function loginAuditActivityRequest(string $path, User $user, string $ipAddress, 
 {
     $request = Request::create(
         uri: $path,
-        method: 'GET',
+        method: Symfony\Component\HttpFoundation\Request::METHOD_GET,
         server: [
             'REMOTE_ADDR' => $ipAddress,
             'HTTP_USER_AGENT' => $userAgent,
@@ -113,7 +113,7 @@ it('skips admin activity for unauthenticated requests', function (): void {
 
     $request = Request::create(
         uri: '/admin/login-audits',
-        method: 'GET',
+        method: Symfony\Component\HttpFoundation\Request::METHOD_GET,
         server: [
             'REMOTE_ADDR' => '198.51.100.23',
             'HTTP_USER_AGENT' => 'Capell Admin Browser/1.0',
@@ -201,7 +201,7 @@ it('skips user activity for guest requests', function (): void {
 
     $request = Request::create(
         uri: '/account/profile',
-        method: 'GET',
+        method: Symfony\Component\HttpFoundation\Request::METHOD_GET,
         server: [
             'REMOTE_ADDR' => '203.0.113.45',
             'HTTP_USER_AGENT' => 'Capell Frontend Browser/1.0',

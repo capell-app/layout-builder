@@ -15,6 +15,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\LaravelData\DataCollection;
 
+/**
+ * @property DataCollection<int, FormFieldData>|null $schema
+ */
 class Form extends Model
 {
     /** @use HasFactory<FormFactory> */

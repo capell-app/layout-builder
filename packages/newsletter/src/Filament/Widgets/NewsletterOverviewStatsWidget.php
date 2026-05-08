@@ -13,6 +13,7 @@ use Capell\Newsletter\Models\Subscriber;
 use Capell\Newsletter\Models\SyncAttempt;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Database\Eloquent\Builder;
 
 class NewsletterOverviewStatsWidget extends StatsOverviewWidget implements CapellWidgetContract
 {
@@ -46,7 +47,7 @@ class NewsletterOverviewStatsWidget extends StatsOverviewWidget implements Capel
                         SyncStatus::Failed,
                         SyncStatus::RetryScheduled,
                     ])
-                    ->whereHas('subscriber', function ($query): void {
+                    ->whereHas('subscriber', function (Builder $query): void {
                         SiteScope::applyForCurrentActor($query);
                     })
                     ->count(),

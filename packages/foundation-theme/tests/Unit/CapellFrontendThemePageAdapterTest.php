@@ -5,12 +5,15 @@ declare(strict_types=1);
 use Capell\Core\Models\Translation;
 use Capell\Frontend\ThemeStudio\Adapters\CapellFrontendThemePageAdapter;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 it('uses already loaded media without lazy loading named media relations', function (): void {
     $model = new class extends Model
     {
+        use HasFactory;
+
         public function image(): mixed
         {
             throw new RuntimeException('Lazy image relation was loaded.');
@@ -36,7 +39,10 @@ it('uses already loaded media without lazy loading named media relations', funct
 it('maps public asset presentation data for theme listings', function (): void {
     config()->set('capell-frontend.date_format', 'F j, Y');
 
-    $asset = new class extends Model {};
+    $asset = new class extends Model
+    {
+        use HasFactory;
+    };
     $asset->setRawAttributes([
         'name' => 'snowy-owl',
         'created_at' => CarbonImmutable::parse('2026-05-01 10:00:00'),
@@ -49,13 +55,22 @@ it('maps public asset presentation data for theme listings', function (): void {
         'content' => '<p>A quiet Arctic hunter with bright white plumage.</p>',
     ]);
 
-    $creator = new class extends Model {};
+    $creator = new class extends Model
+    {
+        use HasFactory;
+    };
     $creator->setRawAttributes(['name' => 'Ben Johnson']);
 
-    $type = new class extends Model {};
+    $type = new class extends Model
+    {
+        use HasFactory;
+    };
     $type->setRawAttributes(['name' => 'animal profile']);
 
-    $pageUrl = new class extends Model {};
+    $pageUrl = new class extends Model
+    {
+        use HasFactory;
+    };
     $pageUrl->setRawAttributes(['url' => '/owls/snowy-owl']);
 
     $asset->setRelation('translation', $translation);
@@ -63,11 +78,17 @@ it('maps public asset presentation data for theme listings', function (): void {
     $asset->setRelation('type', $type);
     $asset->setRelation('pageUrl', $pageUrl);
 
-    $widgetAsset = new class extends Model {};
+    $widgetAsset = new class extends Model
+    {
+        use HasFactory;
+    };
     $widgetAsset->setRawAttributes(['meta' => ['badge' => 'Featured']]);
     $widgetAsset->setRelation('asset', $asset);
 
-    $widget = new class extends Model {};
+    $widget = new class extends Model
+    {
+        use HasFactory;
+    };
     $widget->setRelation('assets', new Collection([$widgetAsset]));
 
     $method = new ReflectionMethod(CapellFrontendThemePageAdapter::class, 'assetItems');

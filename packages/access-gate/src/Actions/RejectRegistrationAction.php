@@ -27,9 +27,7 @@ final class RejectRegistrationAction
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            if ($lockedRegistration->status !== RegistrationStatus::Pending) {
-                throw new LogicException('Only pending access gate registrations can be rejected.');
-            }
+            throw_if($lockedRegistration->status !== RegistrationStatus::Pending, LogicException::class, 'Only pending access gate registrations can be rejected.');
 
             $lockedRegistration->forceFill([
                 'status' => RegistrationStatus::Rejected,

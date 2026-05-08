@@ -17,11 +17,9 @@ final class RegistrationFieldRegistry
      */
     public function register(RegistrationField|string $field): void
     {
-        $resolvedField = is_string($field) ? app($field) : $field;
+        $resolvedField = is_string($field) ? resolve($field) : $field;
 
-        if (! $resolvedField instanceof RegistrationField) {
-            throw new InvalidArgumentException('Access gate registration fields must implement RegistrationField.');
-        }
+        throw_unless($resolvedField instanceof RegistrationField, InvalidArgumentException::class, 'Access gate registration fields must implement RegistrationField.');
 
         $this->fields[$resolvedField->key()] = $field;
     }
@@ -33,7 +31,7 @@ final class RegistrationFieldRegistry
     {
         return collect($this->fields)
             ->mapWithKeys(function (RegistrationField|string $field): array {
-                $resolvedField = is_string($field) ? app($field) : $field;
+                $resolvedField = is_string($field) ? resolve($field) : $field;
 
                 return [$resolvedField->key() => $resolvedField];
             })

@@ -23,7 +23,7 @@ final class StoreAccessRequestController
     {
         $accessArea = Area::query()->where('key', $area)->firstOrFail();
 
-        if (! config('access-gate.registration.methods.email.enabled', true)) {
+        if (config('access-gate.registration.methods.email.enabled', true) !== true) {
             throw ValidationException::withMessages([
                 'email' => __('capell-access-gate::public.request_unavailable'),
             ]);
@@ -38,8 +38,7 @@ final class StoreAccessRequestController
         ]);
 
         return $this->noStore(
-            redirect()
-                ->route('capell-access-gate.request', ['area' => $accessArea->key])
+            to_route('capell-access-gate.request', ['area' => $accessArea->key])
                 ->with('access_gate_request_submitted', $accessArea->key)
                 ->with('access_gate_status', __('capell-access-gate::public.request_submitted')),
         );

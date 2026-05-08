@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\FrontendOptimizer\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,6 +16,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class FrontendOptimizationRun extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'finished_at',
         'message',

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\FrontendOptimizer\Actions;
 
+use Capell\FrontendOptimizer\Data\FrontendAssetDefinitionData;
 use Capell\FrontendOptimizer\Data\RenderProfileData;
 use Capell\FrontendOptimizer\Enums\OptimizationScope;
 use Capell\FrontendOptimizer\Support\FrontendAssetSet;
@@ -32,7 +33,7 @@ class ResolveRenderProfileAction
             ->all();
 
         $signature = [
-            'assets' => array_map(static fn ($asset): array => $asset->signature(), $assets),
+            'assets' => array_map(static fn (FrontendAssetDefinitionData $asset): array => $asset->signature(), $assets),
             'context' => $this->normalize($context),
             'scope' => $scope->value,
         ];

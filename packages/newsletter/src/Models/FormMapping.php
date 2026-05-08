@@ -7,11 +7,18 @@ namespace Capell\Newsletter\Models;
 use Capell\Core\Models\Site;
 use Capell\Newsletter\Enums\ConfirmationMode;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property array<int, int|string>|null $fixed_tag_ids
+ * @property array<string, array<string, int|string>>|null $field_tag_mappings
+ */
 class FormMapping extends Model
 {
+    use HasFactory;
+
     /** @var array<string> */
     protected $fillable = [
         'site_id',

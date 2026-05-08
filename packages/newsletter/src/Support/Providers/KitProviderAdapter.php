@@ -124,6 +124,6 @@ class KitProviderAdapter implements NewsletterProviderAdapter
             return ['Authorization' => 'Bearer ' . $accessToken];
         }
 
-        return ['X-Kit-Api-Key' => (string) ($credentials['api_key'] ?? '')];
+        return ['X-Kit-Api-Key' => $credentials['api_key'] ?? ''];
     }
 }

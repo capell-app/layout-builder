@@ -18,21 +18,13 @@ final class EnsureAccessGateGrantCanIssueTokenAction
     {
         $grant->loadMissing('area');
 
-        if ($grant->area === null || $grant->area->status !== AccessAreaStatus::Active) {
-            throw new LogicException('Access gate tokens can only be issued for active access areas.');
-        }
+        throw_if($grant->area === null || $grant->area->status !== AccessAreaStatus::Active, LogicException::class, 'Access gate tokens can only be issued for active access areas.');
 
-        if ($grant->status !== GrantStatus::Active || $grant->revoked_at !== null) {
-            throw new LogicException('Access gate tokens can only be issued for active grants.');
-        }
+        throw_if($grant->status !== GrantStatus::Active || $grant->revoked_at !== null, LogicException::class, 'Access gate tokens can only be issued for active grants.');
 
-        if ($grant->starts_at !== null && $grant->starts_at->isFuture()) {
-            throw new LogicException('Access gate tokens cannot be issued before the grant starts.');
-        }
+        throw_if($grant->starts_at !== null && $grant->starts_at->isFuture(), LogicException::class, 'Access gate tokens cannot be issued before the grant starts.');
 
-        if ($grant->expires_at !== null && $grant->expires_at->isPast()) {
-            throw new LogicException('Access gate tokens cannot be issued for expired grants.');
-        }
+        throw_if($grant->expires_at !== null && $grant->expires_at->isPast(), LogicException::class, 'Access gate tokens cannot be issued for expired grants.');
 
         return $grant;
     }

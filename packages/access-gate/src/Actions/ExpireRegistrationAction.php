@@ -37,9 +37,7 @@ final class ExpireRegistrationAction
                 return $lockedRegistration;
             }
 
-            if ($lockedRegistration->status === RegistrationStatus::Claimed) {
-                throw new LogicException('Claimed access gate registrations cannot be expired.');
-            }
+            throw_if($lockedRegistration->status === RegistrationStatus::Claimed, LogicException::class, 'Claimed access gate registrations cannot be expired.');
 
             $lockedRegistration->forceFill([
                 'status' => RegistrationStatus::Expired,

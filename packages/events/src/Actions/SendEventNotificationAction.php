@@ -45,10 +45,10 @@ class SendEventNotificationAction
                 'sent_at' => now(),
                 'error' => null,
             ])->save();
-        } catch (Throwable $exception) {
+        } catch (Throwable $throwable) {
             $log->forceFill([
                 'status' => 'failed',
-                'error' => $exception->getMessage(),
+                'error' => $throwable->getMessage(),
             ])->save();
         }
 

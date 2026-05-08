@@ -41,7 +41,7 @@ class SendImportSessionNotifications
 
     private function dispatch(ImportSession $session, NotificationBase $notification, string $outcome): void
     {
-        if (! config('migration-assistant.notifications.enabled', true)) {
+        if (config('migration-assistant.notifications.enabled', true) !== true) {
             return;
         }
 

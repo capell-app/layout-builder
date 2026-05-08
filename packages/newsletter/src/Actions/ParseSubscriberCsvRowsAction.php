@@ -23,11 +23,16 @@ class ParseSubscriberCsvRowsAction
 
         $headerLine = array_shift($lines);
         $headers = str_getcsv($headerLine);
-        $headers = array_map(static fn (string $header): string => trim($header), $headers);
+        $headers = array_map(trim(...), $headers);
+
         $rows = [];
 
         foreach ($lines as $line) {
-            if (! is_string($line) || trim($line) === '') {
+            if (! is_string($line)) {
+                continue;
+            }
+
+            if (trim($line) === '') {
                 continue;
             }
 

@@ -44,7 +44,15 @@ final class InsertExampleSiteDataAction
                 continue;
             }
 
-            if ($data[$param] === null || $data[$param] === '' || $data[$param] === []) {
+            if ($data[$param] === null) {
+                continue;
+            }
+
+            if ($data[$param] === '') {
+                continue;
+            }
+
+            if ($data[$param] === []) {
                 continue;
             }
 

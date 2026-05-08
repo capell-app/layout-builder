@@ -186,7 +186,7 @@ class AccessGateServiceProvider extends AbstractPackageServiceProvider
         RateLimiter::for('access-gate-request', function (Request $request): Limit {
             $email = Str::lower((string) $request->input('email', ''));
             $area = (string) $request->route('area', '');
-            $key = hash('sha256', $area . '|' . $email . '|' . (string) $request->ip());
+            $key = hash('sha256', $area . '|' . $email . '|' . $request->ip());
 
             return Limit::perMinute(6)->by($key);
         });

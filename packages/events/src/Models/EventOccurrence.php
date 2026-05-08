@@ -11,6 +11,7 @@ use Capell\Events\Enums\EventLocationModeEnum;
 use Capell\Events\Enums\EventOccurrenceStatusEnum;
 use Capell\Events\Enums\EventRegistrationStatusEnum;
 use Capell\Events\Enums\EventVisibilityEnum;
+use Capell\Events\Models\Event as EventModel;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,14 +21,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property bool $all_day
+ * @property EventBookingModeEnum $booking_mode
  * @property int|null $capacity
  * @property CarbonImmutable|null $ends_at
  * @property string $occurrence_key
  * @property int $registration_count
  * @property CarbonImmutable $starts_at
+ * @property EventOccurrenceStatusEnum $status
  * @property string $timezone
  * @property bool $waitlist_enabled
- * @property-read Event $event
+ * @property-read EventModel $event
  * @property-read EventVenue|null $venue
  */
 class EventOccurrence extends Model
@@ -43,7 +46,7 @@ class EventOccurrence extends Model
 
     public function event(): BelongsTo
     {
-        return $this->belongsTo(Event::class);
+        return $this->belongsTo(EventModel::class);
     }
 
     public function venue(): BelongsTo
@@ -109,7 +112,7 @@ class EventOccurrence extends Model
 
         return $this->visibility === EventVisibilityEnum::Public
             && $this->status !== EventOccurrenceStatusEnum::Cancelled
-            && $event instanceof Event
+            && $event instanceof EventModel
             && $event->visibility === EventVisibilityEnum::Public
             && ! $event->isPending()
             && ! $event->isExpired();
@@ -117,7 +120,7 @@ class EventOccurrence extends Model
 
     protected function scopeOrdered(Builder $query): Builder
     {
-        return $query->orderBy('starts_at')->orderBy('id');
+        return $query->oldest('starts_at')->orderBy('id');
     }
 
     protected function scopeInRange(Builder $query, CarbonImmutable $startsAt, CarbonImmutable $endsAt): Builder

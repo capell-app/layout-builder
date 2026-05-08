@@ -29,7 +29,7 @@ Route::middleware(is_array($middleware) ? $middleware : ['web'])
         Route::post('/logout/{area}', LogoutAccessGateController::class)
             ->name('logout');
 
-        if (config('access-gate.status_endpoint_enabled', false)) {
+        if (config('access-gate.status_endpoint_enabled', false) === true) {
             Route::get('/status/{area}', AccessGateStatusController::class)
                 ->middleware('throttle:60,1')
                 ->name('status');

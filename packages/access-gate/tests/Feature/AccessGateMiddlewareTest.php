@@ -23,8 +23,10 @@ use Capell\AccessGate\Support\AccessRequestMethodRegistry;
 use Capell\AccessGate\Support\RegistrationFieldRegistry;
 use Capell\AccessGate\Tests\Support\FakePageCacheMiddleware;
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Auth\User as AuthenticatableUser;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Route;
@@ -160,7 +162,7 @@ it('allows guest browser tokens and marks protected responses private', function
     ]);
 
     $grant = Grant::factory()->for($area, 'area')->create();
-    $issuedToken = app(CreateAccessGateBrowserTokenAction::class)->handle($grant);
+    $issuedToken = resolve(CreateAccessGateBrowserTokenAction::class)->handle($grant);
 
     Route::middleware('access-gate:preview')->get('/access-gate-test/guest', fn (): string => 'secret');
 
@@ -181,7 +183,7 @@ it('rejects revoked browser tokens', function (): void {
     ]);
 
     $grant = Grant::factory()->for($area, 'area')->create();
-    $issuedToken = app(CreateAccessGateBrowserTokenAction::class)->handle($grant);
+    $issuedToken = resolve(CreateAccessGateBrowserTokenAction::class)->handle($grant);
     $issuedToken->token->forceFill([
         'status' => BrowserTokenStatus::Revoked,
         'revoked_at' => now(),
@@ -207,7 +209,7 @@ it('allows authenticated user grants', function (): void {
     $user = new AccessGateTestUser;
     $user->forceFill(['id' => 123]);
 
-    app(CreateAccessGateGrantAction::class)->handle(
+    resolve(CreateAccessGateGrantAction::class)->handle(
         area: $area,
         subjectType: GrantSubjectType::User,
         userId: 123,
@@ -234,7 +236,7 @@ it('allows authenticated users with approved email grants', function (): void {
         'email' => 'mona@example.test',
     ]);
 
-    app(CreateAccessGateGrantAction::class)->handle(
+    resolve(CreateAccessGateGrantAction::class)->handle(
         area: $area,
         subjectType: GrantSubjectType::Email,
         email: 'mona@example.test',
@@ -272,7 +274,7 @@ it('renders and stores configured public request fields', function (): void {
         'name' => 'Preview',
     ]);
 
-    app(RegistrationFieldRegistry::class)->register(new PublicRequestProviderField);
+    resolve(RegistrationFieldRegistry::class)->register(new PublicRequestProviderField);
 
     $this->get(route('capell-access-gate.request', ['area' => $area->key]))
         ->assertOk()
@@ -297,7 +299,7 @@ it('renders host application access request methods after the email request form
         'name' => 'Preview',
     ]);
 
-    app(AccessRequestMethodRegistry::class)->register(new PublicRequestProviderMethod);
+    resolve(AccessRequestMethodRegistry::class)->register(new PublicRequestProviderMethod);
 
     $this->get(route('capell-access-gate.request', [
         'area' => $area->key,
@@ -318,7 +320,7 @@ it('can disable the package email form while leaving host application methods av
         'name' => 'Preview',
     ]);
 
-    app(AccessRequestMethodRegistry::class)->register(new PublicRequestProviderMethod);
+    resolve(AccessRequestMethodRegistry::class)->register(new PublicRequestProviderMethod);
 
     $this->get(route('capell-access-gate.request', ['area' => $area->key]))
         ->assertOk()
@@ -402,15 +404,16 @@ it('runs access gate before route-level page cache middleware', function (): voi
     FakePageCacheMiddleware::$ran = false;
     FakePageCacheMiddleware::$sawProtectedRequest = false;
 
-    $router = app('router');
+    $router = resolve(Router::class);
     $router->aliasMiddleware('page-cache', FakePageCacheMiddleware::class);
+
     $middlewarePriority = collect([AccessGateMiddleware::class, 'access-gate', FakePageCacheMiddleware::class])
         ->merge($router->middlewarePriority)
         ->unique()
         ->values()
         ->all();
     $router->middlewarePriority = $middlewarePriority;
-    app(HttpKernel::class)->setMiddlewarePriority($middlewarePriority);
+    resolve(HttpKernel::class)->setMiddlewarePriority($middlewarePriority);
 
     Area::factory()->create([
         'key' => 'preview',
@@ -440,22 +443,23 @@ it('marks allowed protected requests so compatible page cache middleware can ski
     FakePageCacheMiddleware::$ran = false;
     FakePageCacheMiddleware::$sawProtectedRequest = false;
 
-    $router = app('router');
+    $router = resolve(Router::class);
     $router->aliasMiddleware('page-cache', FakePageCacheMiddleware::class);
+
     $middlewarePriority = collect([AccessGateMiddleware::class, 'access-gate', FakePageCacheMiddleware::class])
         ->merge($router->middlewarePriority)
         ->unique()
         ->values()
         ->all();
     $router->middlewarePriority = $middlewarePriority;
-    app(HttpKernel::class)->setMiddlewarePriority($middlewarePriority);
+    resolve(HttpKernel::class)->setMiddlewarePriority($middlewarePriority);
 
     $area = Area::factory()->create([
         'key' => 'preview',
         'identity_mode' => IdentityMode::Hybrid,
     ]);
     $grant = Grant::factory()->for($area, 'area')->create();
-    $issuedToken = app(CreateAccessGateBrowserTokenAction::class)->handle($grant);
+    $issuedToken = resolve(CreateAccessGateBrowserTokenAction::class)->handle($grant);
 
     Route::middleware(['web', 'page-cache', 'access-gate:preview'])
         ->get('/access-gate-test/page-cache-allowed', fn (): string => 'secret');
@@ -483,7 +487,7 @@ it('claims access with a one-time token and stores the browser token cookie', fu
         ->for($area, 'area')
         ->for($registration, 'registration')
         ->create();
-    $issuedClaimToken = app(CreateAccessGateClaimTokenAction::class)->handle($grant);
+    $issuedClaimToken = resolve(CreateAccessGateClaimTokenAction::class)->handle($grant);
 
     $this
         ->withHeader('User-Agent', 'AccessGateTest/1.0')
@@ -508,7 +512,7 @@ it('does not redirect claimed users to untrusted requested urls', function (): v
         ->for($area, 'area')
         ->for($registration, 'registration')
         ->create();
-    $issuedClaimToken = app(CreateAccessGateClaimTokenAction::class)->handle($grant);
+    $issuedClaimToken = resolve(CreateAccessGateClaimTokenAction::class)->handle($grant);
 
     $this->get(route('capell-access-gate.claim', ['token' => $issuedClaimToken->plainTextToken]))
         ->assertRedirect(url('/'));
@@ -519,7 +523,7 @@ it('revokes the local browser token on access gate logout', function (): void {
         'key' => 'preview',
     ]);
     $grant = Grant::factory()->for($area, 'area')->create();
-    $issuedToken = app(CreateAccessGateBrowserTokenAction::class)->handle($grant);
+    $issuedToken = resolve(CreateAccessGateBrowserTokenAction::class)->handle($grant);
 
     $this
         ->withCookie(config('access-gate.cookies.browser_token.name'), $issuedToken->plainTextToken)
@@ -532,6 +536,8 @@ it('revokes the local browser token on access gate logout', function (): void {
 
 final class AccessGateTestUser extends AuthenticatableUser
 {
+    use HasFactory;
+
     protected $guarded = [];
 }
 
@@ -622,7 +628,7 @@ final class PublicRequestProviderMethod implements AccessRequestMethod
         return 'Continue with Provider';
     }
 
-    public function description(): ?string
+    public function description(): string
     {
         return 'Request access using the host application provider.';
     }

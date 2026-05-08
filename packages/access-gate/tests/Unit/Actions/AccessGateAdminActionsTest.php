@@ -98,7 +98,7 @@ it('revokes grants and active browser sessions', function (): void {
 
     $grant = Grant::factory()->create();
     $browserToken = BrowserToken::factory()->for($grant, 'grant')->create();
-    $claimToken = app(CreateAccessGateClaimTokenAction::class)->handle($grant)->token;
+    $claimToken = resolve(CreateAccessGateClaimTokenAction::class)->handle($grant)->token;
 
     $revoked = RevokeAccessGateGrantAction::run($grant, revokedByUserId: 42);
 

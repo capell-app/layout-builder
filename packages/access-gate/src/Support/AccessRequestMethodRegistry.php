@@ -17,11 +17,9 @@ final class AccessRequestMethodRegistry
      */
     public function register(AccessRequestMethod|string $method): void
     {
-        $resolvedMethod = is_string($method) ? app($method) : $method;
+        $resolvedMethod = is_string($method) ? resolve($method) : $method;
 
-        if (! $resolvedMethod instanceof AccessRequestMethod) {
-            throw new InvalidArgumentException('Access gate request methods must implement AccessRequestMethod.');
-        }
+        throw_unless($resolvedMethod instanceof AccessRequestMethod, InvalidArgumentException::class, 'Access gate request methods must implement AccessRequestMethod.');
 
         $this->methods[$resolvedMethod->key()] = $method;
     }
@@ -33,7 +31,7 @@ final class AccessRequestMethodRegistry
     {
         return collect($this->methods)
             ->mapWithKeys(function (AccessRequestMethod|string $method): array {
-                $resolvedMethod = is_string($method) ? app($method) : $method;
+                $resolvedMethod = is_string($method) ? resolve($method) : $method;
 
                 return [$resolvedMethod->key() => $resolvedMethod];
             })

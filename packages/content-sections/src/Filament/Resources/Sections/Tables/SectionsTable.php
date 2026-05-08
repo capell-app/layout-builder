@@ -31,6 +31,7 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\Select;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Contracts\HasTable;
@@ -148,7 +149,7 @@ class SectionsTable implements TableConfigurator
                         return null;
                     }
 
-                    /** @var class-string<\Filament\Resources\Resource> $resource */
+                    /** @var class-string<resource> $resource */
                     $resource = AdminSurfaceLookup::resource(ResourceEnum::Page);
 
                     return $resource::getUrl(

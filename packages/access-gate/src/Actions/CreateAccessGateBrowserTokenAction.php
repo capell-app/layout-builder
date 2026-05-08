@@ -55,8 +55,8 @@ final class CreateAccessGateBrowserTokenAction
 
             $this->recordEvent->handle(
                 type: EventType::BrowserTokenCreated,
-                browserToken: $browserToken,
                 grant: $lockedGrant,
+                browserToken: $browserToken,
             );
 
             return new IssuedAccessGateTokenData($plainTextToken, $browserToken);

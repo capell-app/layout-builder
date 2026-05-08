@@ -65,7 +65,7 @@ final class HeroDemoCommand extends Command
 
         if (is_string($siteOption) && $siteOption !== '') {
             return array_values(array_filter(array_map(
-                fn (string $siteName): string => trim($siteName),
+                trim(...),
                 explode(',', $siteOption),
             ), static fn (string $siteName): bool => $siteName !== ''));
         }

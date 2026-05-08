@@ -296,7 +296,7 @@ class EventsServiceProvider extends AbstractPackageServiceProvider
     {
         if ($this->app->runningInConsole() && class_exists(AboutCommand::class)) {
             AboutCommand::add('Capell', [
-                self::$name => fn (): string => $this->getVersion(),
+                self::$name => $this->getVersion(...),
             ]);
         }
 

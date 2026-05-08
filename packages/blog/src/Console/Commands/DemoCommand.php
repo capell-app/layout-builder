@@ -115,7 +115,7 @@ class DemoCommand extends Command
     {
         $userOption = $this->option('user');
 
-        if ($userOption !== null && $userOption !== false && $userOption !== '') {
+        if (! in_array($userOption, [null, false, ''], true)) {
             /** @var class-string<User> $userModel */
             $userModel = config('auth.providers.users.model');
 
@@ -134,7 +134,7 @@ class DemoCommand extends Command
     private function parseLimitOption(): ?int
     {
         $limitOption = $this->option('limit');
-        $limit = $limitOption !== null && $limitOption !== false && $limitOption !== '' ? (int) $limitOption : null;
+        $limit = in_array($limitOption, [null, false, ''], true) ? null : (int) $limitOption;
 
         if ($limit !== null && $limit < 1) {
             $this->warn('The --limit option must be a positive integer. No demo pages will be created.');

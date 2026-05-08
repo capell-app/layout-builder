@@ -19,9 +19,7 @@ final class UpdateAccessGateApprovalLimitAction
 
     public function handle(Area $area, ?int $approvalLimit, ?int $updatedByUserId = null): Area
     {
-        if ($approvalLimit !== null && $approvalLimit < 0) {
-            throw new InvalidArgumentException('Approval limit cannot be negative.');
-        }
+        throw_if($approvalLimit !== null && $approvalLimit < 0, InvalidArgumentException::class, 'Approval limit cannot be negative.');
 
         $previousApprovalLimit = $area->approval_limit;
 

@@ -27,8 +27,13 @@ class StoreRenderProfileManifestAction
 
     private function manifestPath(RenderProfileData $profile): string
     {
-        $directory = trim(config('capell-frontend-optimizer.paths.manifests', 'capell/frontend-optimizer/manifests'), '/');
+        $directory = trim($this->configString('capell-frontend-optimizer.paths.manifests', 'capell/frontend-optimizer/manifests'), '/');
 
         return sprintf('%s/%s.json', $directory, $profile->hash);
+    }
+
+    private function configString(string $key, string $default): string
+    {
+        return config($key, $default);
     }
 }

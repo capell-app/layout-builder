@@ -50,6 +50,7 @@ it('validates command palette parameters using command parameter metadata', func
 it('executes navigation commands and records successful command palette runs', function (): void {
     app()->instance(TestCommandPaletteProvider::class, new TestCommandPaletteProvider);
     app()->tag([TestCommandPaletteProvider::class], 'capell.diagnostics.command-palette-provider');
+
     $user = $this->createUser();
 
     $result = ExecuteCommandPaletteCommandAction::run('test.navigate', [], $user);
@@ -78,6 +79,7 @@ it('executes artisan commands with validated parameters and stores command outpu
     });
     app()->instance(TestCommandPaletteProvider::class, new TestCommandPaletteProvider);
     app()->tag([TestCommandPaletteProvider::class], 'capell.diagnostics.command-palette-provider');
+
     $user = $this->createUser();
 
     $result = ExecuteCommandPaletteCommandAction::run('test.artisan', [

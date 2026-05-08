@@ -147,7 +147,7 @@ final class FullDemoCommand extends Command
 
         return $packages
             ->reject(fn (PackageData $package): bool => $package->name === DemoKitServiceProvider::$packageName)
-            ->filter(fn (PackageData $package): bool => ! in_array($package->getDemoCommand(), [null, '', '0'], true))
+            ->reject(fn (PackageData $package): bool => in_array($package->getDemoCommand(), [null, '', '0'], true))
             ->keys()
             ->values()
             ->all();

@@ -6,6 +6,7 @@ namespace Capell\FrontendOptimizer\Providers;
 
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\FrontendOptimizer\Actions\RenderProfileAssetsAction;
 use Capell\FrontendOptimizer\Contracts\CriticalCssGenerator;
 use Capell\FrontendOptimizer\Support\LayoutAssetRegistry;
 use Capell\FrontendOptimizer\Support\PlaywrightCriticalCssGenerator;
@@ -36,7 +37,7 @@ final class FrontendOptimizerServiceProvider extends AbstractPackageServiceProvi
         $this->app->singleton(WidgetAssetRegistry::class);
         $this->app->singleton(CriticalCssGenerator::class, PlaywrightCriticalCssGenerator::class);
 
-        Blade::directive('frontendOptimizerAssets', fn (string $expression): string => "<?php echo \\Capell\\FrontendOptimizer\\Actions\\RenderProfileAssetsAction::run({$expression}); ?>");
+        Blade::directive('frontendOptimizerAssets', fn (string $expression): string => sprintf('<?php echo ' . RenderProfileAssetsAction::class . '::run(%s); ?>', $expression));
 
         CapellCore::registerPackage(
             self::$packageName,

@@ -27,6 +27,7 @@ namespace PHPUnit\Framework {
      * @method array<string,mixed> invokeWidgetData(object $widget)
      * @method \Capell\Tests\Fixtures\Models\User createUser(array<string,mixed> $attributes = [])
      * @method \Capell\Tests\Fixtures\Models\User createUserWithRole(array<string>|string $roles, array<string,mixed> $attributes = [])
+     * @method \Capell\Core\Models\Site createNewsletterSite(string $name = 'Newsletter Site')
      * @method $this actingAsAdmin(array<string,mixed> $attributes = [])
      * @method $this actingAsUser(array<string,mixed> $attributes = [])
      * @method $this actingAs(object $user, string|null $guard = null)

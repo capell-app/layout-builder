@@ -28,6 +28,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\PageUrl;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
 use Capell\Events\Database\Factories\EventFactory;
 use Capell\Events\Enums\EventBookingModeEnum;
@@ -56,7 +57,9 @@ use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
  * @property int|null $site_id
  * @property string $name
  * @property string $timezone
+ * @property-read PageUrl|null $pageUrl
  * @property-read Site $site
+ * @property-read Translation|null $translation
  * @property-read Type $type
  */
 class Event extends Model implements HasMedia, Pageable, PageCacheable, Publishable, Translatable, Typeable, Userstampable
@@ -194,7 +197,7 @@ class Event extends Model implements HasMedia, Pageable, PageCacheable, Publisha
         return $relation;
     }
 
-    /** @return MorphMany<Event, self> */
+    /** @return MorphMany<self, self> */
     public function canonicalPages(): MorphMany
     {
         return $this->morphMany(

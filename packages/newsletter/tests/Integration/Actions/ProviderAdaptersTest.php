@@ -40,7 +40,7 @@ it('maps Mailchimp audiences, subscriber sync payloads, and webhook state', func
         status: SubscriberStatus::Subscribed,
         interests: [new ProviderInterestData(tagId: 10, remoteId: 'interest-a')],
     ));
-    $webhook = $adapter->normalizeWebhook($connection, Request::create('/webhook?secret=mailchimp-secret', 'POST', [
+    $webhook = $adapter->normalizeWebhook($connection, Request::create('/webhook?secret=mailchimp-secret', Symfony\Component\HttpFoundation\Request::METHOD_POST, [
         'type' => 'abuse',
         'data' => [
             'id' => 'remote-subscriber',
@@ -94,7 +94,7 @@ it('maps Kit audiences, subscriber sync payloads, tag syncs, and webhook state',
         status: SubscriberStatus::Pending,
         interests: [new ProviderInterestData(tagId: 10, remoteId: 'tag-a')],
     ));
-    $webhookRequest = Request::create('/webhook', 'POST', [
+    $webhookRequest = Request::create('/webhook', Symfony\Component\HttpFoundation\Request::METHOD_POST, [
         'event' => 'subscriber.unsubscribe',
         'subscriber' => [
             'id' => 'kit-subscriber',
@@ -102,6 +102,7 @@ it('maps Kit audiences, subscriber sync payloads, tag syncs, and webhook state',
         ],
     ]);
     $webhookRequest->headers->set('X-Kit-Webhook-Secret', 'kit-secret');
+
     $webhook = $adapter->normalizeWebhook($connection, $webhookRequest);
 
     expect($audiences)->toHaveCount(1)
@@ -140,7 +141,7 @@ it('maps Campaign Monitor audiences, subscriber sync payloads, and webhook state
 
     $audiences = $adapter->listAudiences($connection);
     $result = $adapter->syncSubscriber($connection, $audience, providerSubscriber());
-    $webhook = $adapter->normalizeWebhook($connection, Request::create('/webhook?secret=campaign-secret', 'POST', [
+    $webhook = $adapter->normalizeWebhook($connection, Request::create('/webhook?secret=campaign-secret', Symfony\Component\HttpFoundation\Request::METHOD_POST, [
         'Events' => [[
             'EmailAddress' => 'reader@example.com',
             'Type' => 'Bounce',

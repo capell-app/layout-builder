@@ -31,9 +31,17 @@
             "@lint:changed"
         ],
         "preflight:all": [
+            "@php -r \"echo PHP_EOL . 'Running Rector...' . PHP_EOL;\"",
             "@rector",
+            "@php -r \"echo PHP_EOL . 'Running Pint...' . PHP_EOL;\"",
             "@lint",
+            "@php -r \"echo PHP_EOL . 'Running Prettier...' . PHP_EOL;\"",
+            "@prettier",
+            "@php -r \"echo PHP_EOL . 'Running ESLint...' . PHP_EOL;\"",
+            "@eslint",
+            "@php -r \"echo PHP_EOL . 'Running PHPStan...' . PHP_EOL;\"",
             "@analyze:full",
+            "@php -r \"echo PHP_EOL . 'Running Pest...' . PHP_EOL;\"",
             "@test"
         ],
         "coverage": "php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=. -d pcov.exclude='~vendor|tests|storage|bootstrap|.temp~' vendor/bin/pest --coverage --min=80 --colors=always --configuration=phpunit.xml",

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Capell\AccessGate\Enums\AccessAreaStatus;
 use Capell\AccessGate\Models\Area;
+use Illuminate\Routing\Router;
 
 afterEach(function (): void {
     $publishedMigrations = glob(base_path('database/migrations/*access_gate*.php'));
@@ -19,7 +20,7 @@ it('passes doctor checks for the default test installation', function (): void {
 });
 
 it('passes doctor checks when middleware priority forces the gate before page cache', function (): void {
-    app('router')->pushMiddlewareToGroup('web', 'page-cache');
+    resolve(Router::class)->pushMiddlewareToGroup('web', 'page-cache');
 
     $this->artisan('capell:access-gate-doctor')
         ->assertSuccessful();

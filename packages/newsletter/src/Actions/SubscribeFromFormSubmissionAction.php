@@ -45,6 +45,7 @@ class SubscribeFromFormSubmissionAction
         if (! is_array($payload)) {
             return null;
         }
+
         $email = $this->payloadString($payload, $mapping->email_field);
 
         if ($email === null) {
@@ -171,7 +172,11 @@ class SubscribeFromFormSubmissionAction
         $fieldMappings = is_array($mapping->field_tag_mappings) ? $mapping->field_tag_mappings : [];
 
         foreach ($fieldMappings as $field => $valueMappings) {
-            if (! is_string($field) || ! is_array($valueMappings)) {
+            if (! is_string($field)) {
+                continue;
+            }
+
+            if (! is_array($valueMappings)) {
                 continue;
             }
 

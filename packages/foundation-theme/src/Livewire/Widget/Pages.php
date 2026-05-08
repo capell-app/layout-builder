@@ -72,7 +72,7 @@ class Pages extends AbstractWidget
             modifyQuery: fn (Builder $query) => $query->whereIn('id', $selection),
         );
 
-        if ($this->pages->isEmpty() && config('capell-layout-builder.widget.skip_render_empty', true)) {
+        if ($this->pages->isEmpty() && config('capell-layout-builder.widget.skip_render_empty', true) === true) {
             $this->skipRender = true;
         }
     }

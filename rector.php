@@ -5,11 +5,13 @@ declare(strict_types=1);
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodingStyle\Rector\PostInc\PostIncDecToPreIncDecRector;
 use Rector\Config\RectorConfig;
+use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
+use Rector\Php81\Rector\Array_\ArrayToFirstClassCallableRector;
 use Rector\Php81\Rector\FuncCall\NullToStrictStringFuncCallArgRector;
 use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
 use Rector\Php82\Rector\Class_\ReadOnlyClassRector;
 use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
-use RectorLaravel\Rector\MethodCall\ContainerBindConcreteWithClosureOnlyRector;
+use Rector\PHPUnit\CodeQuality\Rector\CallLike\DirectInstanceOverMockArgRector;
 use RectorLaravel\Set\LaravelSetList;
 use RectorLaravel\Set\LaravelSetProvider;
 use Sinnbeck\DomAssertions\Rector\Rules\AssertElementToAssertContainsElementRule;
@@ -65,10 +67,11 @@ return RectorConfig::configure()
     ])
     ->withSkip([
         PostIncDecToPreIncDecRector::class,
+        ClosureToArrowFunctionRector::class,
+        ArrayToFirstClassCallableRector::class,
         ReadOnlyClassRector::class,
         ReadOnlyPropertyRector::class,
-        // Fix issue in php8.2
-        ContainerBindConcreteWithClosureOnlyRector::class,
+        DirectInstanceOverMockArgRector::class,
         NullToStrictStringFuncCallArgRector::class => [
             __DIR__ . '/packages/insights/routes/web.php',
             __DIR__ . '/packages/layout-builder/src/Livewire/Filament/Concerns/ManagesAssets.php',

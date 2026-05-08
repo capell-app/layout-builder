@@ -5,11 +5,19 @@ declare(strict_types=1);
 namespace Capell\Newsletter\Models;
 
 use Capell\Newsletter\Enums\PublicTokenType;
+use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property CarbonInterface|null $expires_at
+ * @property CarbonInterface|null $used_at
+ */
 class PublicToken extends Model
 {
+    use HasFactory;
+
     /** @var array<string> */
     protected $fillable = [
         'subscriber_id',

@@ -7,6 +7,7 @@ namespace Capell\Newsletter\Models;
 use Capell\Core\Models\Site;
 use Capell\Newsletter\Database\Factories\SubscriberFactory;
 use Capell\Newsletter\Enums\SubscriberStatus;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +16,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Tags\HasTags;
 
+/**
+ * @property SubscriberStatus $status
+ * @property CarbonInterface|null $subscribed_at
+ * @property CarbonInterface|null $unsubscribed_at
+ * @property CarbonInterface|null $updated_at
+ */
 class Subscriber extends Model
 {
     /** @use HasFactory<SubscriberFactory> */

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\FrontendOptimizer\Enums\OptimizationScope;
+use Illuminate\Support\Env;
 
 return [
     'enabled' => true,
@@ -15,7 +16,7 @@ return [
     ],
 
     'playwright' => [
-        'node_binary' => $_ENV['CAPELL_FRONTEND_OPTIMIZER_NODE'] ?? 'node',
+        'node_binary' => Env::get('CAPELL_FRONTEND_OPTIMIZER_NODE', 'node'),
         'script' => __DIR__ . '/../resources/js/generate-critical-css.mjs',
         'timeout' => 120,
         'viewports' => [

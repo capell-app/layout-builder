@@ -24,7 +24,6 @@ it('renders navigation from the corporate package views', function (): void {
 
     $provider = new CorporateThemeServiceProvider($this->app);
     $method = new ReflectionMethod($provider, 'sectionRenderers');
-    $method->setAccessible(true);
 
     $renderer = $method->invoke($provider)['navigation'] ?? null;
 

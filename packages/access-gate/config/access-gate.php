@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Silber\PageCache\Middleware\CacheResponse;
+
 return [
     'connection' => env('ACCESS_GATE_DB_CONNECTION'),
 
@@ -35,7 +37,7 @@ return [
             'page-cache',
             'page_cache',
             'cache.response',
-            'Silber\\PageCache\\Middleware\\CacheResponse',
+            CacheResponse::class,
         ],
     ],
 

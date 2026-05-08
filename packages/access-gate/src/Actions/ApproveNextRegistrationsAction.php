@@ -25,9 +25,7 @@ final class ApproveNextRegistrationsAction
      */
     public function handle(Area $area, int $count, ?int $approvedByUserId = null): Collection
     {
-        if ($count < 1) {
-            throw new InvalidArgumentException('Approval count must be at least one.');
-        }
+        throw_if($count < 1, InvalidArgumentException::class, 'Approval count must be at least one.');
 
         return AccessGateDatabase::transaction(function () use ($area, $count, $approvedByUserId): Collection {
             $lockedArea = Area::query()
@@ -47,7 +45,7 @@ final class ApproveNextRegistrationsAction
                 ->where('access_area_id', $lockedArea->getKey())
                 ->where('status', RegistrationStatus::Pending)
                 ->orderBy('position')
-                ->orderBy('requested_at')
+                ->oldest('requested_at')
                 ->orderBy('id')
                 ->limit($approvalCount)
                 ->lockForUpdate()

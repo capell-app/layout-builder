@@ -51,7 +51,7 @@ class PasswordPolicyServiceProvider extends AbstractPackageServiceProvider
             description: fn (): string => __('capell-password-policy::package.description'),
         );
 
-        if (! config('capell-password-policy.enabled', true)) {
+        if (config('capell-password-policy.enabled', true) !== true) {
             return;
         }
 

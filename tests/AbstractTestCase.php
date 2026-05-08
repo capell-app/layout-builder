@@ -115,7 +115,7 @@ abstract class AbstractTestCase extends TestCase
         Blade::component(Content::class, 'capell-layout-builder::widget.page.content');
         Blade::component(Latest::class, 'capell-layout-builder::widget.page.latest');
         Blade::component(Siblings::class, 'capell-layout-builder::widget.page.siblings');
-        app('livewire.factory')->resolveMissingComponent(
+        resolve('livewire.factory')->resolveMissingComponent(
             static fn (string $name): ?string => $name === 'capell-layout-builder::filament.layout-builder'
                 ? LayoutBuilder::class
                 : null,

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\FormBuilder\Actions;
 
-use Capell\FormBuilder\Data\FormFieldData;
 use Capell\FormBuilder\Data\SubmissionMetaData;
 use Capell\FormBuilder\Data\SubmissionPayloadData;
 use Capell\FormBuilder\Enums\SubmissionStatus;
@@ -49,7 +48,6 @@ class CreateSubmissionAction
         $values = [];
 
         foreach ($form->schema ?? [] as $field) {
-            /** @var FormFieldData $field */
             if (! $field->type->isStoredInPayload()) {
                 continue;
             }

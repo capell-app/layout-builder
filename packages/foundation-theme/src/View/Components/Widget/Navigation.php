@@ -27,7 +27,7 @@ class Navigation extends AbstractWidget
         $menu = $this->getWidgetMenu();
 
         if (! $menu instanceof Models\Navigation) {
-            if (config('capell-layout-builder.widget.skip_render_empty', true)) {
+            if (config('capell-layout-builder.widget.skip_render_empty', true) === true) {
                 $this->skipRender = true;
             }
 
@@ -47,7 +47,7 @@ class Navigation extends AbstractWidget
         $this->items = $this->navigationRenderData->items;
 
         if ($this->items->isEmpty()) {
-            if (config('capell-layout-builder.widget.skip_render_empty', true)) {
+            if (config('capell-layout-builder.widget.skip_render_empty', true) === true) {
                 $this->skipRender = true;
             }
 

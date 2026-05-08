@@ -18,20 +18,20 @@ use Capell\AccessGate\Models\ClaimToken;
 use Capell\AccessGate\Models\Grant;
 
 it('issues hashed claim tokens and consumes them once into browser tokens', function (): void {
-    $registration = app(CreateRegistrationAction::class)->handle(Area::factory()->create(), [
+    $registration = resolve(CreateRegistrationAction::class)->handle(Area::factory()->create(), [
         'email' => 'mona@example.test',
     ]);
 
-    $approved = app(ApproveRegistrationAction::class)->handle($registration);
+    $approved = resolve(ApproveRegistrationAction::class)->handle($registration);
     $grant = Grant::query()->where('registration_id', $approved->getKey())->firstOrFail();
 
-    $issuedClaimToken = app(CreateAccessGateClaimTokenAction::class)->handle($grant);
+    $issuedClaimToken = resolve(CreateAccessGateClaimTokenAction::class)->handle($grant);
 
     expect($issuedClaimToken->plainTextToken)->not->toBe('')
         ->and(ClaimToken::query()->where('token_hash', hash('sha256', $issuedClaimToken->plainTextToken))->exists())->toBeTrue()
         ->and(ClaimToken::query()->where('token_hash', $issuedClaimToken->plainTextToken)->exists())->toBeFalse();
 
-    $issuedBrowserToken = app(ConsumeAccessGateClaimTokenAction::class)->handle(
+    $issuedBrowserToken = resolve(ConsumeAccessGateClaimTokenAction::class)->handle(
         plainTextToken: $issuedClaimToken->plainTextToken,
         metadata: ['ip_hash' => 'hash', 'user_agent' => 'Browser'],
     );
@@ -41,14 +41,14 @@ it('issues hashed claim tokens and consumes them once into browser tokens', func
         ->and($issuedBrowserToken->token->metadata)->toBe(['ip_hash' => 'hash', 'user_agent' => 'Browser'])
         ->and($issuedClaimToken->token->refresh()->status)->toBe(ClaimTokenStatus::Claimed)
         ->and($approved->refresh()->status)->toBe(RegistrationStatus::Claimed)
-        ->and(app(ConsumeAccessGateClaimTokenAction::class)->handle($issuedClaimToken->plainTextToken))->toBeNull();
+        ->and(resolve(ConsumeAccessGateClaimTokenAction::class)->handle($issuedClaimToken->plainTextToken))->toBeNull();
 });
 
 it('revokes previous browser tokens when the area allows one active browser token', function (): void {
     $grant = Grant::factory()->create();
 
-    $firstToken = app(CreateAccessGateBrowserTokenAction::class)->handle($grant);
-    $secondToken = app(CreateAccessGateBrowserTokenAction::class)->handle($grant);
+    $firstToken = resolve(CreateAccessGateBrowserTokenAction::class)->handle($grant);
+    $secondToken = resolve(CreateAccessGateBrowserTokenAction::class)->handle($grant);
 
     expect($firstToken->token->refresh()->status)->toBe(BrowserTokenStatus::Revoked)
         ->and($secondToken->token->refresh()->status)->toBe(BrowserTokenStatus::Active);
@@ -60,8 +60,8 @@ it('keeps previous browser tokens active when the area allows multiple browser t
     ]);
     $grant = Grant::factory()->for($area, 'area')->create();
 
-    $firstToken = app(CreateAccessGateBrowserTokenAction::class)->handle($grant);
-    $secondToken = app(CreateAccessGateBrowserTokenAction::class)->handle($grant);
+    $firstToken = resolve(CreateAccessGateBrowserTokenAction::class)->handle($grant);
+    $secondToken = resolve(CreateAccessGateBrowserTokenAction::class)->handle($grant);
 
     expect($firstToken->token->refresh()->status)->toBe(BrowserTokenStatus::Active)
         ->and($secondToken->token->refresh()->status)->toBe(BrowserTokenStatus::Active);
@@ -73,18 +73,18 @@ it('refuses to issue browser tokens for inactive grants', function (): void {
         'revoked_at' => now(),
     ]);
 
-    expect(fn (): mixed => app(CreateAccessGateBrowserTokenAction::class)->handle($grant))
+    expect(fn (): mixed => resolve(CreateAccessGateBrowserTokenAction::class)->handle($grant))
         ->toThrow(LogicException::class);
 });
 
 it('does not consume expired claim tokens', function (): void {
     $grant = Grant::factory()->create();
-    $issuedClaimToken = app(CreateAccessGateClaimTokenAction::class)->handle(
+    $issuedClaimToken = resolve(CreateAccessGateClaimTokenAction::class)->handle(
         grant: $grant,
         expiresAt: now()->subMinute(),
     );
 
-    $issuedBrowserToken = app(ConsumeAccessGateClaimTokenAction::class)->handle($issuedClaimToken->plainTextToken);
+    $issuedBrowserToken = resolve(ConsumeAccessGateClaimTokenAction::class)->handle($issuedClaimToken->plainTextToken);
 
     expect($issuedBrowserToken)->toBeNull()
         ->and($issuedClaimToken->token->refresh()->status)->toBe(ClaimTokenStatus::Expired)
@@ -93,14 +93,14 @@ it('does not consume expired claim tokens', function (): void {
 
 it('does not consume claim tokens once the grant is revoked', function (): void {
     $grant = Grant::factory()->create();
-    $issuedClaimToken = app(CreateAccessGateClaimTokenAction::class)->handle($grant);
+    $issuedClaimToken = resolve(CreateAccessGateClaimTokenAction::class)->handle($grant);
 
     $grant->forceFill([
         'status' => GrantStatus::Revoked,
         'revoked_at' => now(),
     ])->save();
 
-    $issuedBrowserToken = app(ConsumeAccessGateClaimTokenAction::class)->handle($issuedClaimToken->plainTextToken);
+    $issuedBrowserToken = resolve(ConsumeAccessGateClaimTokenAction::class)->handle($issuedClaimToken->plainTextToken);
 
     expect($issuedBrowserToken)->toBeNull()
         ->and($issuedClaimToken->token->refresh()->status)->toBe(ClaimTokenStatus::Active)

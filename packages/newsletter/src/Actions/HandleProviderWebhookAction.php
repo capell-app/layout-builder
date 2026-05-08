@@ -20,11 +20,9 @@ class HandleProviderWebhookAction
 
     public function handle(ProviderConnection $connection, Request $request): ?Subscriber
     {
-        $adapter = app(ProviderAdapterRegistry::class)->resolve($connection->provider);
+        $adapter = resolve(ProviderAdapterRegistry::class)->resolve($connection->provider);
 
-        if (! $adapter->verifyWebhook($connection, $request)) {
-            throw new AuthorizationException('Invalid newsletter provider webhook signature.');
-        }
+        throw_unless($adapter->verifyWebhook($connection, $request), AuthorizationException::class, 'Invalid newsletter provider webhook signature.');
 
         $event = $adapter->normalizeWebhook($connection, $request);
 

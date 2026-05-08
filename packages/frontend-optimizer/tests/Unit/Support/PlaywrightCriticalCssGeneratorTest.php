@@ -18,15 +18,15 @@ it('writes a playwright payload with only critical-eligible stylesheet paths', f
 
     $scriptPath = storage_path('app/frontend-optimizer-test/capture-payload.mjs');
     File::ensureDirectoryExists(dirname($scriptPath));
-    File::put($scriptPath, <<<'JS'
-import fs from 'node:fs/promises';
+    File::put($scriptPath, <<<'JS_WRAP'
+    import fs from 'node:fs/promises';
 
-const [payloadPath, outputPath] = process.argv.slice(2);
-const payload = JSON.parse(await fs.readFile(payloadPath, 'utf8'));
-await fs.mkdir(new URL('.', `file://${outputPath}`).pathname, { recursive: true });
-await fs.writeFile(outputPath, '.hero { display: grid; }\n');
-await fs.writeFile(`${outputPath}.payload.json`, JSON.stringify(payload));
-JS);
+    const [payloadPath, outputPath] = process.argv.slice(2);
+    const payload = JSON.parse(await fs.readFile(payloadPath, 'utf8'));
+    await fs.mkdir(new URL('.', `file://${outputPath}`).pathname, { recursive: true });
+    await fs.writeFile(outputPath, '.hero { display: grid; }\n');
+    await fs.writeFile(`${outputPath}.payload.json`, JSON.stringify(payload));
+    JS_WRAP);
 
     config()->set('capell-frontend-optimizer.playwright.script', $scriptPath);
 
@@ -55,7 +55,7 @@ JS);
 
     $criticalCssPath = resolve(PlaywrightCriticalCssGenerator::class)->generate($profile, 'https://example.test');
     $payload = json_decode(
-        Storage::disk('local')->get($criticalCssPath . '.payload.json'),
+        (string) Storage::disk('local')->get($criticalCssPath . '.payload.json'),
         true,
         flags: JSON_THROW_ON_ERROR,
     );

@@ -26,7 +26,7 @@ final class DeploymentConnectionPage extends Page
         return __('capell-deployments::plugins.deployment_connection.nav_label');
     }
 
-    public static function getNavigationGroup(): ?string
+    public static function getNavigationGroup(): string
     {
         return 'System';
     }

@@ -44,8 +44,8 @@ final class RevokeAccessGateBrowserTokenAction
         $this->recordEvent->handle(
             type: EventType::BrowserTokenRevoked,
             area: $area,
-            browserToken: $browserToken,
             grant: $browserToken->grant,
+            browserToken: $browserToken,
         );
 
         return $browserToken;

@@ -7,6 +7,7 @@ namespace Capell\Newsletter\Models;
 use Capell\Core\Models\Site;
 use Capell\Newsletter\Enums\AuthType;
 use Capell\Newsletter\Enums\ProviderType;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,6 +17,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class ProviderConnection extends Model
 {
+    use HasFactory;
+
     /** @var array<string> */
     protected $fillable = [
         'site_id',

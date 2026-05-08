@@ -28,7 +28,7 @@ class EventCalendarWidget extends Widget
         return EventOccurrence::query()
             ->with(['event.translation', 'venue'])
             ->whereBetween('starts_at', [$start, $end])
-            ->orderBy('starts_at')
+            ->oldest('starts_at')
             ->limit(250)
             ->get()
             ->groupBy(fn (EventOccurrence $occurrence): string => $occurrence->starts_at->toDateString());

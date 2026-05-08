@@ -35,7 +35,7 @@ class ConsoleServiceProvider extends ServiceProvider
             return;
         }
 
-        if (! config('capell.publishing-studio.scheduled_publish_enabled', true)) {
+        if (config('capell.publishing-studio.scheduled_publish_enabled', true) !== true) {
             return;
         }
 
@@ -45,7 +45,7 @@ class ConsoleServiceProvider extends ServiceProvider
             ->name('capell-publishing-studio-scheduled-publish')
             ->onOneServer();
 
-        if (! config('capell.publishing-studio.prune_schedule_enabled', false)) {
+        if (config('capell.publishing-studio.prune_schedule_enabled', false) !== true) {
             return;
         }
 

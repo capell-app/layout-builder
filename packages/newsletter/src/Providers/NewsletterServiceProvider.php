@@ -170,7 +170,11 @@ class NewsletterServiceProvider extends AbstractPackageServiceProvider
         }
 
         foreach ($tables as $tableName) {
-            if (! is_string($tableName) || $tableName === '') {
+            if (! is_string($tableName)) {
+                continue;
+            }
+
+            if ($tableName === '') {
                 continue;
             }
 

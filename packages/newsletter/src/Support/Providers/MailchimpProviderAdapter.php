@@ -118,7 +118,7 @@ class MailchimpProviderAdapter implements NewsletterProviderAdapter
     {
         $credentials = is_array($connection->credentials) ? $connection->credentials : [];
 
-        return (string) ($credentials['api_key'] ?? '');
+        return $credentials['api_key'] ?? '';
     }
 
     private function baseUrl(ProviderConnection $connection): string

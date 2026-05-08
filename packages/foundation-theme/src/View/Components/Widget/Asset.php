@@ -10,7 +10,7 @@ class Asset extends AbstractWidget
 
     protected function mountWidget(): void
     {
-        if ($this->widget->assets->isEmpty() && config('capell-layout-builder.widget.skip_render_empty', true)) {
+        if ($this->widget->assets->isEmpty() && config('capell-layout-builder.widget.skip_render_empty', true) === true) {
             $this->skipRender = true;
         }
     }

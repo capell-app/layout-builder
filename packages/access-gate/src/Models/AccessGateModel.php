@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Capell\AccessGate\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 abstract class AccessGateModel extends Model
 {
+    use HasFactory;
+
     public function getConnectionName(): ?string
     {
         $connection = config('access-gate.connection');

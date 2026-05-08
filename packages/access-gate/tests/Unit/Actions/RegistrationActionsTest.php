@@ -32,9 +32,9 @@ it('stores host application registration field values', function (): void {
 
     $area = Area::factory()->create();
 
-    app(RegistrationFieldRegistry::class)->register(new TestProviderUsernameRegistrationField);
+    resolve(RegistrationFieldRegistry::class)->register(new TestProviderUsernameRegistrationField);
 
-    $registration = app(CreateRegistrationAction::class)->handle($area, [
+    $registration = resolve(CreateRegistrationAction::class)->handle($area, [
         'email' => 'mona@example.test',
         'provider_username' => 'octocat',
     ]);
@@ -60,11 +60,11 @@ it('approves a registration, creates a grant, records the event, and dispatches 
         $eventDispatched = true;
     });
 
-    $registration = app(CreateRegistrationAction::class)->handle(Area::factory()->create(), [
+    $registration = resolve(CreateRegistrationAction::class)->handle(Area::factory()->create(), [
         'email' => 'mona@example.test',
     ]);
 
-    $approved = app(ApproveRegistrationAction::class)->handle($registration, approvedByUserId: 42);
+    $approved = resolve(ApproveRegistrationAction::class)->handle($registration, approvedByUserId: 42);
     $grant = Grant::query()->where('registration_id', $approved->getKey())->firstOrFail();
 
     expect($approved->status)->toBe(RegistrationStatus::Approved)
@@ -83,12 +83,12 @@ it('uses the trusted requested host when sending claim links', function (): void
     $area = Area::factory()->create([
         'claim_url_hosts' => ['demo.example.test'],
     ]);
-    $registration = app(CreateRegistrationAction::class)->handle($area, [
+    $registration = resolve(CreateRegistrationAction::class)->handle($area, [
         'email' => 'mona@example.test',
         'requested_url' => 'https://demo.example.test/preview',
     ]);
 
-    app(ApproveRegistrationAction::class)->handle($registration);
+    resolve(ApproveRegistrationAction::class)->handle($registration);
 
     Notification::assertSentOnDemand(
         AccessApprovedNotification::class,
@@ -108,11 +108,11 @@ it('auto approves registrations when the area strategy allows it', function (): 
         'approval_limit' => 1,
     ]);
 
-    $first = app(CreateRegistrationAction::class)->handle($area, [
+    $first = resolve(CreateRegistrationAction::class)->handle($area, [
         'email' => 'mona@example.test',
     ]);
 
-    $second = app(CreateRegistrationAction::class)->handle($area, [
+    $second = resolve(CreateRegistrationAction::class)->handle($area, [
         'email' => 'lisa@example.test',
     ]);
 
@@ -127,11 +127,11 @@ it('allows duplicate registration requests when the area registration policy all
         'registration_policy' => RegistrationPolicy::DuplicateAllowed,
     ]);
 
-    app(CreateRegistrationAction::class)->handle($area, [
+    resolve(CreateRegistrationAction::class)->handle($area, [
         'email' => 'mona@example.test',
     ]);
 
-    app(CreateRegistrationAction::class)->handle($area, [
+    resolve(CreateRegistrationAction::class)->handle($area, [
         'email' => 'mona@example.test',
     ]);
 
@@ -149,11 +149,11 @@ it('sets grant expiry and discount metadata from the access area when approving 
         'discount_expires_at' => $discountExpiresAt,
         'discount_metadata' => ['source' => 'access-gate-test'],
     ]);
-    $registration = app(CreateRegistrationAction::class)->handle($area, [
+    $registration = resolve(CreateRegistrationAction::class)->handle($area, [
         'email' => 'mona@example.test',
     ]);
 
-    app(ApproveRegistrationAction::class)->handle($registration);
+    resolve(ApproveRegistrationAction::class)->handle($registration);
 
     $grant = Grant::query()->where('registration_id', $registration->getKey())->firstOrFail();
 
@@ -171,11 +171,11 @@ it('does not create guest claim tokens for authenticated-only access areas', fun
     $area = Area::factory()->create([
         'identity_mode' => IdentityMode::Authenticated,
     ]);
-    $registration = app(CreateRegistrationAction::class)->handle($area, [
+    $registration = resolve(CreateRegistrationAction::class)->handle($area, [
         'email' => 'mona@example.test',
     ]);
 
-    app(ApproveRegistrationAction::class)->handle($registration);
+    resolve(ApproveRegistrationAction::class)->handle($registration);
 
     expect(ClaimToken::query()->count())->toBe(0)
         ->and(Grant::query()->where('registration_id', $registration->getKey())->exists())->toBeTrue();
@@ -189,7 +189,7 @@ it('refuses to approve rejected registrations', function (): void {
         'rejected_at' => now(),
     ]);
 
-    expect(fn (): mixed => app(ApproveRegistrationAction::class)->handle($registration))
+    expect(fn (): mixed => resolve(ApproveRegistrationAction::class)->handle($registration))
         ->toThrow(LogicException::class);
 
     expect(Grant::query()->where('registration_id', $registration->getKey())->exists())->toBeFalse();
@@ -199,16 +199,16 @@ it('resends a claim link for duplicate requests from approved registrations', fu
     Notification::fake();
 
     $area = Area::factory()->create();
-    $registration = app(CreateRegistrationAction::class)->handle($area, [
+    $registration = resolve(CreateRegistrationAction::class)->handle($area, [
         'email' => 'mona@example.test',
     ]);
 
-    app(ApproveRegistrationAction::class)->handle($registration);
+    resolve(ApproveRegistrationAction::class)->handle($registration);
     $claimTokenCount = ClaimToken::query()->count();
 
     Notification::fake();
 
-    app(CreateRegistrationAction::class)->handle($area, [
+    resolve(CreateRegistrationAction::class)->handle($area, [
         'email' => 'mona@example.test',
     ]);
 
@@ -221,7 +221,7 @@ it('does not accept public registrations for inactive or invite-only areas', fun
 
     $area = Area::factory()->create($areaAttributes);
 
-    expect(fn (): mixed => app(CreateRegistrationAction::class)->handle($area, [
+    expect(fn (): mixed => resolve(CreateRegistrationAction::class)->handle($area, [
         'email' => 'mona@example.test',
     ]))->toThrow(ValidationException::class);
 
@@ -265,7 +265,7 @@ final class TestProviderUsernameRegistrationField implements RegistrationField
             key: $this->key(),
             value: $username,
             metadata: [
-                'avatar_url' => "https://avatars.example.test/{$username}.png",
+                'avatar_url' => sprintf('https://avatars.example.test/%s.png', $username),
             ],
         );
     }

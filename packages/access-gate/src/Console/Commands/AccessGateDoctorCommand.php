@@ -45,7 +45,7 @@ final class AccessGateDoctorCommand extends Command
 
         try {
             DB::connection($connectionName)->getPdo();
-        } catch (Throwable $exception) {
+        } catch (Throwable) {
             $this->error(__('capell-access-gate::doctor.database.unreachable', ['connection' => $connectionName]));
 
             return 1;
@@ -110,7 +110,7 @@ final class AccessGateDoctorCommand extends Command
 
     private function checkCookies(): int
     {
-        $sameSite = strtolower(config('access-gate.cookies.browser_token.same_site', 'lax'));
+        $sameSite = strtolower($this->configString('access-gate.cookies.browser_token.same_site', 'lax'));
         $secure = config('access-gate.cookies.browser_token.secure');
 
         if (! in_array($sameSite, ['lax', 'strict', 'none'], true)) {
@@ -132,6 +132,11 @@ final class AccessGateDoctorCommand extends Command
         $this->info(__('capell-access-gate::doctor.cookies.ok'));
 
         return 0;
+    }
+
+    private function configString(string $key, string $default): string
+    {
+        return config($key, $default);
     }
 
     private function checkClaimHosts(): void

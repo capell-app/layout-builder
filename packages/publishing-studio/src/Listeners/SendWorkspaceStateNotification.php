@@ -26,7 +26,7 @@ class SendWorkspaceStateNotification
 {
     public function handle(WorkspaceStateChanged $event): void
     {
-        if (! config('capell.publishing-studio.notifications.enabled', true)) {
+        if (config('capell.publishing-studio.notifications.enabled', true) !== true) {
             return;
         }
 

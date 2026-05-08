@@ -37,9 +37,7 @@ final class ApproveRegistrationAction
                 return $lockedRegistration;
             }
 
-            if ($lockedRegistration->status !== RegistrationStatus::Pending) {
-                throw new LogicException('Only pending access gate registrations can be approved.');
-            }
+            throw_if($lockedRegistration->status !== RegistrationStatus::Pending, LogicException::class, 'Only pending access gate registrations can be approved.');
 
             $lockedRegistration->forceFill([
                 'status' => RegistrationStatus::Approved,
@@ -60,7 +58,7 @@ final class ApproveRegistrationAction
                 ],
             );
 
-            RegistrationApproved::dispatch($lockedRegistration->refresh());
+            event(new RegistrationApproved($lockedRegistration->refresh()));
 
             return $lockedRegistration;
         });

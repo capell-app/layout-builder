@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Capell\Newsletter\Models;
 
 use Capell\Tags\Models\Tag;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProviderInterestMapping extends Model
 {
+    use HasFactory;
+
     /** @var array<string> */
     protected $fillable = [
         'provider_audience_id',

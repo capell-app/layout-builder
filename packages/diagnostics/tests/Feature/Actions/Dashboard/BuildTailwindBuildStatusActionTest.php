@@ -9,6 +9,7 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Sleep;
 
 // ---------------------------------------------------------------------------
@@ -42,6 +43,12 @@ function writeFile(string $path, string $content = 'x'): void
     }
 
     file_put_contents($path, $content);
+}
+
+function writeFileModifiedAt(string $path, int $modifiedAt): void
+{
+    writeFile($path);
+    touch($path, $modifiedAt);
 }
 
 function cleanupPath(string $path): void
@@ -194,9 +201,9 @@ it('denies rows for non-global users without assigned sites', function (): void 
 
 it('aggregates summary counts correctly', function (): void {
     // Create 3 sites: 1 fresh, 1 stale, 1 never_built
-    $freshSite = Site::factory()->withTranslations()->create();
-    $staleSite = Site::factory()->withTranslations()->create();
-    $neverSite = Site::factory()->withTranslations()->create();
+    $freshSite = Site::factory()->withTranslations()->create(['name' => 'Fresh Tailwind Site']);
+    $staleSite = Site::factory()->withTranslations()->create(['name' => 'Stale Tailwind Site']);
+    $neverSite = Site::factory()->withTranslations()->create(['name' => 'Never Built Tailwind Site']);
 
     $freshOutput = public_path('capell/tailwind/' . $freshSite->id . '/output.css');
     $freshSource = storage_path('capell/tailwind/' . $freshSite->id . '/classes.txt');
@@ -206,22 +213,23 @@ it('aggregates summary counts correctly', function (): void {
 
     cleanupPath($neverOutput);
 
-    // Fresh: output newer than source
-    writeFile($freshSource);
-    Sleep::sleep(1);
-    writeFile($freshOutput);
+    $baseModifiedAt = Date::now()->getTimestamp();
 
-    // Stale: source newer than output
-    writeFile($staleOutput);
-    Sleep::sleep(1);
-    writeFile($staleSource);
+    writeFileModifiedAt($freshSource, $baseModifiedAt - 30);
+    writeFileModifiedAt($freshOutput, $baseModifiedAt - 20);
+    writeFileModifiedAt($staleOutput, $baseModifiedAt - 10);
+    writeFileModifiedAt($staleSource, $baseModifiedAt);
 
     try {
         $result = BuildTailwindBuildStatusAction::run();
+        $statusesBySiteName = $result->sites->toCollection()->pluck('status', 'siteName');
 
-        expect($result->freshCount)->toBeGreaterThanOrEqual(1)
-            ->and($result->staleCount)->toBeGreaterThanOrEqual(1)
-            ->and($result->neverBuiltCount)->toBeGreaterThanOrEqual(1);
+        expect($statusesBySiteName->get('Fresh Tailwind Site'))->toBe('fresh')
+            ->and($statusesBySiteName->get('Stale Tailwind Site'))->toBe('stale')
+            ->and($statusesBySiteName->get('Never Built Tailwind Site'))->toBe('never_built')
+            ->and($result->freshCount)->toBe($result->sites->toCollection()->where('status', 'fresh')->count())
+            ->and($result->staleCount)->toBe($result->sites->toCollection()->where('status', 'stale')->count())
+            ->and($result->neverBuiltCount)->toBe($result->sites->toCollection()->where('status', 'never_built')->count());
 
         // Totals must add up to site count
         expect($result->freshCount + $result->staleCount + $result->neverBuiltCount)

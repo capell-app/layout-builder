@@ -24,8 +24,7 @@ final class LogoutAccessGateController
         $this->revokeBrowserToken->handle($accessArea, $request->cookies->get($cookieName));
 
         return $this->noStore(
-            redirect()
-                ->route('capell-access-gate.request', ['area' => $accessArea->key])
+            to_route('capell-access-gate.request', ['area' => $accessArea->key])
                 ->withCookie(Cookie::forget(
                     $cookieName,
                     config('access-gate.cookies.browser_token.path', '/'),

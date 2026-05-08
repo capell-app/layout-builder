@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace Capell\SeoSuite\Models;
 
 use Capell\Core\Models\Site;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property CarbonInterface $window_start
+ * @property CarbonInterface $window_end
+ */
 class SearchConsoleUrlMetric extends Model
 {
     use HasFactory;

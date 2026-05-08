@@ -6,6 +6,7 @@ namespace Capell\AccessGate\Tests;
 
 use Capell\AccessGate\Providers\AccessGateServiceProvider;
 use Capell\AccessGate\Tests\Support\FakePageCacheMiddleware;
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
@@ -25,11 +26,11 @@ abstract class TestCase extends OrchestraTestCase
 
     protected function defineEnvironment($app): void
     {
-        $app['config']->set('access-gate.middleware.page_cache_aliases', [
+        $app->make(Repository::class)->set('access-gate.middleware.page_cache_aliases', [
             'page-cache',
             FakePageCacheMiddleware::class,
         ]);
-        $app['config']->set('access-gate.status_endpoint_enabled', true);
+        $app->make(Repository::class)->set('access-gate.status_endpoint_enabled', true);
     }
 
     protected function defineDatabaseMigrations(): void

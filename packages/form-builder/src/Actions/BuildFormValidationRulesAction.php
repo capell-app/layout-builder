@@ -21,7 +21,6 @@ class BuildFormValidationRulesAction
         $rules = [];
 
         foreach ($form->schema ?? [] as $field) {
-            /** @var FormFieldData $field */
             $rules[$field->key] = $this->rulesForField($field);
         }
 

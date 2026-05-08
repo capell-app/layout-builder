@@ -66,7 +66,7 @@ it('uses the direct request ip address when proxy headers are not configured', f
 
     $request = Request::create(
         uri: '/admin/login-audits',
-        method: 'GET',
+        method: Symfony\Component\HttpFoundation\Request::METHOD_GET,
         server: [
             'REMOTE_ADDR' => '198.51.100.10',
             'HTTP_CF_CONNECTING_IP' => '203.0.113.10',
@@ -85,7 +85,7 @@ it('uses the configured proxy header when cdn mode is configured', function (): 
 
     $request = Request::create(
         uri: '/admin/login-audits',
-        method: 'GET',
+        method: Symfony\Component\HttpFoundation\Request::METHOD_GET,
         server: [
             'REMOTE_ADDR' => '198.51.100.10',
             'HTTP_CF_CONNECTING_IP' => '203.0.113.10',
@@ -104,7 +104,7 @@ it('returns null ip addresses when tracking is disabled', function (): void {
 
     $request = Request::create(
         uri: '/admin/login-audits',
-        method: 'GET',
+        method: Symfony\Component\HttpFoundation\Request::METHOD_GET,
         server: [
             'REMOTE_ADDR' => '198.51.100.10',
             'HTTP_CF_CONNECTING_IP' => '203.0.113.10',

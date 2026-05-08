@@ -113,6 +113,6 @@ class UpsertSubscriberAction
 
     private function resubscribePolicy(int $siteId): ResubscribePolicy
     {
-        return app(NewsletterSettingsResolver::class)->resubscribePolicyForSite($siteId);
+        return resolve(NewsletterSettingsResolver::class)->resubscribePolicyForSite($siteId);
     }
 }

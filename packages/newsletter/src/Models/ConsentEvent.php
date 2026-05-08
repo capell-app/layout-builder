@@ -7,11 +7,14 @@ namespace Capell\Newsletter\Models;
 use Capell\Core\Models\Site;
 use Capell\Newsletter\Enums\ConsentEventType;
 use Capell\Newsletter\Enums\SubscriberStatus;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ConsentEvent extends Model
 {
+    use HasFactory;
+
     /** @var array<string> */
     protected $fillable = [
         'subscriber_id',

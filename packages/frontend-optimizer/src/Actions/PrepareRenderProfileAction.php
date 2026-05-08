@@ -40,7 +40,7 @@ class PrepareRenderProfileAction
         $profile = PersistRenderProfileAction::run($profileData, $manifestPath);
 
         if ($this->shouldDispatchGeneration($profile)) {
-            GenerateCriticalCssJob::dispatch($profile->id, $url);
+            dispatch(new GenerateCriticalCssJob($profile->id, $url));
         }
 
         return $profile;

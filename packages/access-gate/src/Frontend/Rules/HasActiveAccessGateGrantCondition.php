@@ -6,6 +6,7 @@ namespace Capell\AccessGate\Frontend\Rules;
 
 use Capell\AccessGate\Actions\ResolveAccessGateAccessAction;
 use Capell\AccessGate\Enums\AccessAreaStatus;
+use Capell\AccessGate\Models\Grant;
 use Capell\Frontend\Contracts\FrontendRuleCondition;
 use Capell\Frontend\Data\FrontendRuleContextData;
 
@@ -31,7 +32,7 @@ final class HasActiveAccessGateGrantCondition implements FrontendRuleCondition
         $result = $this->resolveAccess->handle($context->request, $areaKeys);
 
         return $result->allowed
-            && $result->grant !== null
+            && $result->grant instanceof Grant
             && $result->area?->status === AccessAreaStatus::Active;
     }
 

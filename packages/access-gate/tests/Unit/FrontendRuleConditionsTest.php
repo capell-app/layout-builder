@@ -22,16 +22,16 @@ it('evaluates access gate active grant conditions from browser tokens', function
         'key' => 'preview',
         'identity_mode' => IdentityMode::Hybrid,
     ]);
-    $grant = app(CreateAccessGateGrantAction::class)->handle(
+    $grant = resolve(CreateAccessGateGrantAction::class)->handle(
         area: $area,
         subjectType: GrantSubjectType::Email,
         email: 'mona@example.test',
     );
-    $issuedToken = app(CreateAccessGateBrowserTokenAction::class)->handle($grant);
+    $issuedToken = resolve(CreateAccessGateBrowserTokenAction::class)->handle($grant);
     $request = Request::create('/preview');
     $request->cookies->set(config('access-gate.cookies.browser_token.name'), $issuedToken->plainTextToken);
 
-    expect(app(HasActiveAccessGateGrantCondition::class)->evaluate(
+    expect(resolve(HasActiveAccessGateGrantCondition::class)->evaluate(
         ['area' => 'preview'],
         new FrontendRuleContextData($request),
     ))->toBeTrue();
@@ -44,7 +44,7 @@ it('does not treat inactive gate bypasses as active grants', function (): void {
         'identity_mode' => IdentityMode::Hybrid,
     ]);
 
-    expect(app(HasActiveAccessGateGrantCondition::class)->evaluate(
+    expect(resolve(HasActiveAccessGateGrantCondition::class)->evaluate(
         ['area' => 'preview'],
         new FrontendRuleContextData(Request::create('/preview')),
     ))->toBeFalse();
@@ -57,7 +57,7 @@ it('fails closed for missing active grant conditions with invalid areas', functi
         'identity_mode' => IdentityMode::Hybrid,
     ]);
 
-    $condition = app(MissingActiveAccessGateGrantCondition::class);
+    $condition = resolve(MissingActiveAccessGateGrantCondition::class);
     $context = new FrontendRuleContextData(Request::create('/preview'));
 
     expect($condition->evaluate(['area' => 'preview'], $context))->toBeTrue()
@@ -78,11 +78,11 @@ it('evaluates access gate area and registration status conditions', function ():
     ]);
     $context = new FrontendRuleContextData(Request::create('/preview'));
 
-    expect(app(AccessGateAreaStatusCondition::class)->evaluate([
+    expect(resolve(AccessGateAreaStatusCondition::class)->evaluate([
         'area' => 'preview',
         'status' => 'paused',
     ], $context))->toBeTrue()
-        ->and(app(AccessGateRegistrationStatusCondition::class)->evaluate([
+        ->and(resolve(AccessGateRegistrationStatusCondition::class)->evaluate([
             'area' => 'preview',
             'email' => 'mona@example.test',
             'status' => 'pending',

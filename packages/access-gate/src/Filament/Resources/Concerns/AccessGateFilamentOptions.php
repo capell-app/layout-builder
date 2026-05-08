@@ -16,7 +16,7 @@ trait AccessGateFilamentOptions
     {
         return collect($enum::cases())
             ->mapWithKeys(fn (BackedEnum $case): array => [
-                (string) $case->value => __("{$translationPrefix}.{$case->value}"),
+                (string) $case->value => __(sprintf('%s.%s', $translationPrefix, $case->value)),
             ])
             ->all();
     }

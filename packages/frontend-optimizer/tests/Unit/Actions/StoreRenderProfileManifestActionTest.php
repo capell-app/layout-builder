@@ -21,7 +21,7 @@ it('stores render profile manifests on the local disk', function (): void {
 
     Storage::disk('local')->assertExists($path);
 
-    expect(json_decode(Storage::disk('local')->get($path), true, flags: JSON_THROW_ON_ERROR))
+    expect(json_decode((string) Storage::disk('local')->get($path), true, flags: JSON_THROW_ON_ERROR))
         ->toMatchArray([
             'hash' => $profile->hash,
             'scope' => 'layout',

@@ -55,7 +55,7 @@ class DeploymentsServiceProvider extends AbstractPackageServiceProvider
             }
         });
 
-        if (config('capell-deployments.enabled', true)) {
+        if (config('capell-deployments.enabled', true) === true) {
             CapellAdmin::registerExtensionPage(static::$packageName, DeploymentConnectionPage::class);
         }
     }

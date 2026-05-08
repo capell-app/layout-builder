@@ -47,7 +47,7 @@ class QueueProviderSyncAction
                     'attempts' => 0,
                 ]);
 
-                SyncSubscriberToProviderJob::dispatch($syncAttempt);
+                dispatch(new SyncSubscriberToProviderJob($syncAttempt));
             });
     }
 }

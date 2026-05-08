@@ -7,12 +7,15 @@ namespace Capell\Newsletter\Models;
 use Capell\Core\Models\Site;
 use Capell\Newsletter\Enums\ImportBatchStatus;
 use Capell\Newsletter\Enums\ImportBatchType;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class ImportBatch extends Model
 {
+    use HasFactory;
+
     /** @var array<string> */
     protected $fillable = [
         'site_id',

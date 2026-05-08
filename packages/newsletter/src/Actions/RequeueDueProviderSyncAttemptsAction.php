@@ -19,7 +19,7 @@ class RequeueDueProviderSyncAttemptsAction
             ->where('sync_status', SyncStatus::RetryScheduled)
             ->whereNotNull('next_retry_at')
             ->where('next_retry_at', '<=', now())
-            ->orderBy('next_retry_at');
+            ->oldest('next_retry_at');
 
         if (is_int($limit) && $limit > 0) {
             $query->limit($limit);
@@ -34,7 +34,7 @@ class RequeueDueProviderSyncAttemptsAction
             ])->save();
 
             if ($dispatchJobs) {
-                SyncSubscriberToProviderJob::dispatch($syncAttempt);
+                dispatch(new SyncSubscriberToProviderJob($syncAttempt));
             }
 
             $count++;

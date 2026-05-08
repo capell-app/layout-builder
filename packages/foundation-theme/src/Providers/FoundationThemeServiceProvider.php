@@ -263,7 +263,7 @@ final class FoundationThemeServiceProvider extends AbstractPackageServiceProvide
                 classViewPath: __DIR__ . '/../../resources/views/layout-builder/livewire',
             );
 
-            app('livewire.factory')->resolveMissingComponent(
+            resolve('livewire.factory')->resolveMissingComponent(
                 static fn (string $name): ?string => match ($name) {
                     'capell-layout-builder::assets.table.page-assets' => PageAssets::class,
                     'capell-layout-builder::widget.pages' => Pages::class,
