@@ -68,6 +68,11 @@ final class BuildPackagesInstalledAction
             'config' => 'capell-seo-suite',
             'docs' => 'https://github.com/capell-app/capell-packages/blob/4.x/packages/seo-suite/README.md',
         ],
+        'capell-app/site-discovery' => [
+            'short' => 'site-discovery',
+            'config' => null,
+            'docs' => 'https://github.com/capell-app/capell-packages/blob/4.x/packages/site-discovery/README.md',
+        ],
     ];
 
     public function handle(): PackagesInstalledData

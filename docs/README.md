@@ -25,6 +25,7 @@ For theme package authoring, see [Creating a Capell theme](creating-a-theme.md).
 | Media Library      | [`packages/media-library/README.md`](../packages/media-library/README.md)                                                                                        |
 | LayoutBuilder      | [`packages/layout-builder/README.md`](../packages/layout-builder/README.md)                                                                                      |
 | Navigation         | [`packages/navigation/README.md`](../packages/navigation/README.md)                                                                                              |
+| Site Discovery     | [`packages/site-discovery/README.md`](../packages/site-discovery/README.md)                                                                                      |
 | SEO Suite          | [`packages/seo-suite/README.md`](../packages/seo-suite/README.md)                                                                                                |
 | Search             | [`packages/search/README.md`](../packages/search/README.md)                                                                                                      |
 | Tags               | [`packages/tags/README.md`](../packages/tags/README.md)                                                                                                          |

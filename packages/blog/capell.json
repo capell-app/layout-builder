@@ -6,7 +6,7 @@
     "productGroup": "Capell Foundation",
     "tier": "free",
     "bundle": "foundation",
-    "description": "Blog adds article publishing, archive pages, tag pages, article widgets, sitemaps, and frontend Livewire page components to Capell.",
+    "description": "Blog adds article publishing, archive pages, tag pages, article widgets, Site Discovery sitemap contributions, and frontend Livewire page components to Capell.",
     "surfaces": ["admin", "frontend", "console"],
     "dependencies": {
         "requires": [
@@ -15,6 +15,7 @@
             "capell-app/insights",
             "capell-app/frontend",
             "capell-app/navigation",
+            "capell-app/site-discovery",
             "capell-app/tags"
         ],
         "optional": [],

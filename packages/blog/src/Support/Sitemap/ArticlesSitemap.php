@@ -10,8 +10,8 @@ use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\PageOrderEnum;
 use Capell\Core\Models\Page;
 use Capell\Frontend\Support\Loader\PageLoader;
-use Capell\SeoSuite\Data\SitemapPageData;
-use Capell\SeoSuite\Support\Sitemap\AbstractSitemapPages;
+use Capell\SiteDiscovery\Data\SitemapPageData;
+use Capell\SiteDiscovery\Support\Sitemap\AbstractSitemapPages;
 use Illuminate\Support\Collection;
 
 class ArticlesSitemap extends AbstractSitemapPages

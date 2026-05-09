@@ -8,7 +8,7 @@ return [
     'article' => 'Article',
     'article_archives' => 'Article Archives',
     'articles' => 'Articles',
-    'articles_info' => 'Blog adds article publishing, archives, tags, widgets, and sitemaps.',
+    'articles_info' => 'Blog adds article publishing, archives, tags, widgets, and Site Discovery sitemap contributions.',
     'blog' => 'Blog',
     'blog_archive_page' => 'Archive Page',
     'blog_archive_title' => 'Articles from :archive_month :archive_year.',

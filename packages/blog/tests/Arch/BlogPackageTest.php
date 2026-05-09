@@ -1,10 +1,6 @@
 <?php
 
 declare(strict_types=1);
-use Capell\Blog\Providers\FrontendServiceProvider;
-use Capell\Blog\Support\Sitemap\ArchivesSitemap;
-use Capell\Blog\Support\Sitemap\ArticlesSitemap;
-use Capell\Blog\Support\Sitemap\TagsSitemap;
 use Symfony\Component\Finder\Finder;
 
 it('declares navigation as an explicit package dependency', function (): void {
@@ -25,6 +21,26 @@ it('declares navigation as an explicit package dependency', function (): void {
 
     expect($capellManifest['dependencies']['requires'])->toContain('capell-app/navigation')
         ->and($composerManifest['require'])->toHaveKey('capell-app/navigation');
+});
+
+it('declares site discovery as an explicit package dependency', function (): void {
+    $packagePath = dirname(__DIR__, 2);
+    $capellManifestContents = file_get_contents($packagePath . '/capell.json');
+    $composerManifestContents = file_get_contents($packagePath . '/composer.json');
+
+    $capellManifest = json_decode(
+        $capellManifestContents === false ? '[]' : $capellManifestContents,
+        associative: true,
+        flags: JSON_THROW_ON_ERROR,
+    );
+    $composerManifest = json_decode(
+        $composerManifestContents === false ? '[]' : $composerManifestContents,
+        associative: true,
+        flags: JSON_THROW_ON_ERROR,
+    );
+
+    expect($capellManifest['dependencies']['requires'])->toContain('capell-app/site-discovery')
+        ->and($composerManifest['require'])->toHaveKey('capell-app/site-discovery');
 });
 
 it('keeps blog package references inside the blog source package except intentional bridges', function (): void {
@@ -56,12 +72,6 @@ arch()
     ->classes()
     ->toUseStrictEquality();
 
-arch('blog package does not depend on seo-suite outside of sitemap bridges')
+arch('blog package does not depend on seo-suite')
     ->expect('Capell\Blog')
-    ->not->toUse('Capell\SeoSuite')
-    ->ignoring([
-        ArchivesSitemap::class,
-        ArticlesSitemap::class,
-        TagsSitemap::class,
-        FrontendServiceProvider::class,
-    ]);
+    ->not->toUse('Capell\SeoSuite');

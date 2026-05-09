@@ -4,12 +4,12 @@ Status: **Available, schema-owning** · Kind: **package** · Tier: **free** · B
 
 ## What This Plugin Adds
 
-Blog adds article publishing, archive pages, tag pages, article widgets, sitemaps, and frontend Livewire page components to Capell.
+Blog adds article publishing, archive pages, tag pages, article widgets, Site Discovery sitemap contributions, and frontend Livewire page components to Capell.
 
 - Article Filament resource.
 - Blog, archive, and tag frontend Livewire components.
 - Article widgets and configurators for LayoutBuilder.
-- Sitemap extensions for articles, archives, and tags.
+- Site Discovery sitemap contributions for articles, archives, and tags.
 - Commands to install and create blog pages.
 
 ## Why It Matters
@@ -29,6 +29,7 @@ This package makes its Composer dependencies visible because they are part of th
 - [Capell Frontend](https://github.com/capell-app/frontend)
 - [Capell Layout Builder](../layout-builder/README.md)
 - [Capell Navigation](../navigation/README.md)
+- [Capell Site Discovery](../site-discovery/README.md)
 - [Capell Tags](../tags/README.md)
 - [Capell Publishing Studio](../publishing-studio/README.md)
 
@@ -65,7 +66,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 ## Install Impact
 
 - Adds articles table and article admin resource.
-- Adds blog frontend components and sitemap extensions.
+- Adds blog frontend components and Site Discovery sitemap contributions.
 - Adds console commands for setup, install, demo, faker, and page creation.
 - Requires LayoutBuilder package first.
 - May add blog pages to navigation through listener behaviour.
@@ -94,7 +95,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Install LayoutBuilder first.
 - Run the package setup before expecting archive/tag pages.
 - Check layouts before creating article records.
-- Cache and sitemap output may need regeneration after setup.
+- Cache and Site Discovery sitemap output may need regeneration after setup.
 
 ## Quick Start
 

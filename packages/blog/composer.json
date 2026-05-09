@@ -24,7 +24,9 @@
         "capell-app/demo-kit": "*",
         "capell-app/insights": "*",
         "capell-app/frontend": "*",
+        "capell-app/html-cache": "*",
         "capell-app/navigation": "*",
+        "capell-app/site-discovery": "*",
         "capell-app/tags": "*",
         "capell-app/publishing-studio": "*"
     },

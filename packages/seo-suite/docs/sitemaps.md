@@ -1,7 +1,7 @@
-# SEO Suite
+# Sitemaps
 
-This page has been consolidated into [Overview](overview.md).
+Sitemap output now belongs to Site Discovery (`capell-app/site-discovery`).
 
-The package README and overview now carry the current source-of-truth summary for what SEO Suite adds, why it matters, technical shape, data model, install impact, pitfalls, and screenshot plan.
+SEO Suite depends on Site Discovery for the public discoverable-page API used by AI Discovery, but it no longer owns XML sitemap generation, the HTML sitemap page, or sitemap admin tooling.
 
-Restore this topic as a focused deep dive only when it has code references, screenshots, or workflow detail that does not belong in the overview.
+See [../../site-discovery/README.md](../../site-discovery/README.md).

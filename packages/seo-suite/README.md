@@ -71,6 +71,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Extends page and site admin form-builder.
 - Adds SEO admin pages and widgets.
 - Adds llms.txt, llms-full.txt, robots.txt, and page Markdown frontend output.
+- Requires Site Discovery for public page discovery and sitemap outputs.
 - Adds config for AI provider/model, image model, Search Console, publish gates, and prompts.
 
 ## Commands

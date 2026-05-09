@@ -6,11 +6,10 @@ This page is the consolidated implementation overview for the SEO Suite package.
 
 ## What This Plugin Adds
 
-SEO Suite adds metadata panels, sitemap generation, AI Discovery outputs, structured data, broken link tracking, Search Console insights, AI-assisted content briefs, and publish checks.
+SEO Suite adds metadata panels, AI Discovery outputs, structured data, broken link tracking, Search Console insights, AI-assisted content briefs, and publish checks.
 
 - Page and site SEO schema extenders, including the page editor SEO settings tab, report-backed edit audit widget, and Pages-list audit overview widget.
-- SEO audit, AI Discovery, broken links, not-found URLs, sitemap, and translation coverage pages.
-- Sitemap Livewire page and tool component.
+- SEO audit, AI Discovery, broken links, not-found URLs, and translation coverage pages.
 - AI creator actions for briefs, images, layouts, metadata suggestions, and draft application.
 - AI Discovery generation for `llms.txt`, optional `llms-full.txt`, per-page Markdown views, `robots.txt` AI crawler rules, and page-readiness audit signals.
 - AI Discovery admin management for browsing pages, filling summaries, toggling page inclusion, previewing Markdown, and reviewing readiness issue counts.
@@ -23,14 +22,14 @@ Exposes SEO work as actions, contracts, data objects, settings schemas, and exte
 - SeoSuiteServiceProvider registers settings, pages, extenders, commands, routes, and views.
 - Config files: capell-seo-suite.php and exchanger.php.
 - Migrations create broken links, page SEO snapshots, Search Console metrics, AI creator contexts, AI histories, AI sessions, AI Discovery site profiles, page profiles, crawler rules, and snapshots.
-- Commands cover install, setup, sitemap, AI cache, AI usage, and OpenAI connection testing.
+- Commands cover install, setup, AI cache, AI usage, and OpenAI connection testing.
 - Controllers: LlmsTxtController, LlmsFullTxtController, PageMarkdownController.
 
 ## AI Discovery
 
-AI Discovery is an optional SEO Suite surface for AI-readable public content. It uses Capell's page, translation, URL, sitemap, robots, and SEO metadata rather than reverse-converting anonymous frontend HTML.
+AI Discovery is an optional SEO Suite surface for AI-readable public content. It uses Capell's page, translation, URL, Site Discovery, robots, and SEO metadata rather than reverse-converting anonymous frontend HTML.
 
-- `llms.txt` is generated per active site and language from public sitemap-eligible pages.
+- `llms.txt` is generated per active site and language from public discoverable pages.
 - `llms-full.txt` is opt-in per site/language and is bounded by page count and byte limits.
 - Page Markdown output is available at `index.md` and `{url}.md`; the controller can use the active frontend context or resolve the site/language from the request URL.
 - `Accept: text/markdown` rendering is separate from `.md` routes and must be enabled with the site/language `accept_markdown_enabled` control.
@@ -51,7 +50,8 @@ Gives editors and site operators practical checks before publishing and operatio
 - Adds SEO and AI-related tables/settings.
 - Extends page and site admin form-builder; page-level SEO fields live in this package rather than the core admin sidebar settings.
 - Adds SEO admin pages and widgets, including the Pages-list overview widget through `PageResourceWidgetExtender`.
-- Adds sitemap, `llms.txt`, `llms-full.txt`, `robots.txt`, and page Markdown frontend output.
+- Adds `llms.txt`, `llms-full.txt`, `robots.txt`, and page Markdown frontend output.
+- Requires Site Discovery for public page discovery and sitemap outputs.
 - Adds config for AI provider/model, image model, Search Console, publish gates, and prompts.
 
 ## Data And Retention
@@ -72,7 +72,6 @@ SEO Suite contributes content graph edges from page SEO snapshots and broken-lin
 - Page SEO settings tab, Page SEO panel, edit audit widget, and Pages-list overview widget.
 - SEO audit page.
 - Broken links page.
-- Sitemap page.
 - Translation coverage page.
 - AI creator action modal.
 - Search Console insights panel.
@@ -82,7 +81,7 @@ SEO Suite contributes content graph edges from page SEO snapshots and broken-lin
 - Do not enable AI creator without checking provider credentials and review workflow.
 - Search Console requires credentials and property URL.
 - Publish gates can block publishing when required metadata is missing.
-- Regenerate sitemap output after route or content changes.
+- Site Discovery owns sitemap output; regenerate it after route or content changes.
 - Keep AI Discovery page summaries specific. Thin summaries, duplicate entity names, no canonical URL, no schema, no server-rendered text, disabled Markdown views, and noindex pages are reported by the AI-readiness audit action.
 - Review crawler defaults before publishing robots output; search crawlers and training crawlers are deliberately configurable separately.
 - Use the SEO Suite settings crawler policy as the default posture, then use crawler rule rows when a site needs a provider-specific override.
@@ -103,6 +102,8 @@ SEO Suite contributes content graph edges from page SEO snapshots and broken-lin
 - Contexts: `admin`, `frontend`, `console`
 - Requires: `capell-app/admin`, `capell-app/frontend`, `capell-app/site-discovery`
 - Optional dependencies: None listed.
+
+SEO Suite relies on Site Discovery for public page discovery and sitemap outputs.
 
 ## Admin Surfaces
 

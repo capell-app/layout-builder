@@ -18,7 +18,7 @@ use Capell\Frontend\Data\RenderHookContext;
 use Capell\Frontend\Enums\RenderHookLocation;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
 use Capell\HtmlCache\Support\StaticSite\StaticSiteExtensionRegistry;
-use Capell\SeoSuite\Support\Sitemap\SitemapPageRegistry;
+use Capell\SiteDiscovery\Support\Sitemap\SitemapPageRegistry;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\View;
 

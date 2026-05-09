@@ -90,6 +90,42 @@ it('keeps seo report builders independent of plugin internals', function (): voi
     expect($violations)->toBeEmpty();
 });
 
+it('uses only site discovery public discovery APIs', function (): void {
+    $packagePath = dirname(__DIR__, 2);
+    $allowedPrefixes = [
+        'Capell\\SiteDiscovery\\Actions\\DiscoverPublicPagesAction',
+        'Capell\\SiteDiscovery\\Actions\\DiscoverPublicUrlsAction',
+        'Capell\\SiteDiscovery\\Contracts\\DiscoverableUrlSource',
+        'Capell\\SiteDiscovery\\Data\\DiscoverablePageData',
+        'Capell\\SiteDiscovery\\Data\\DiscoverableUrlData',
+        'Capell\\SiteDiscovery\\Providers\\SiteDiscoveryServiceProvider',
+    ];
+    $violations = [];
+
+    $files = (new Finder)
+        ->files()
+        ->in($packagePath . '/src')
+        ->name('*.php');
+
+    foreach ($files as $file) {
+        $contents = $file->getContents();
+
+        if (! str_contains($contents, 'Capell\\SiteDiscovery\\')) {
+            continue;
+        }
+
+        foreach ($allowedPrefixes as $allowedPrefix) {
+            if (str_contains($contents, $allowedPrefix)) {
+                continue 2;
+            }
+        }
+
+        $violations[] = str_replace($packagePath . '/', '', $file->getPathname());
+    }
+
+    expect($violations)->toBeEmpty();
+});
+
 arch()
     ->expect('Capell\SeoSuite')
     ->classes()
