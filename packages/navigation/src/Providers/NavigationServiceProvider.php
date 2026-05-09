@@ -12,6 +12,7 @@ use Capell\Core\Events\PageUrlChanged;
 use Capell\Core\Events\SiteReplicated;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;
+use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Frontend\Enums\CacheEnum as FrontendCacheEnum;
 use Capell\Navigation\Actions\BuildNavigationRenderModelAction;
 use Capell\Navigation\Adapters\NavigationNamesResolverAdapter;
@@ -27,6 +28,7 @@ use Capell\Navigation\Filament\Resources\Navigations\NavigationResource;
 use Capell\Navigation\Listeners\ReplicateSiteNavigationsListener;
 use Capell\Navigation\Models\Navigation;
 use Capell\Navigation\Policies\NavigationPolicy;
+use Capell\Navigation\Support\ContentGraph\NavigationContentGraphExtractor;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
@@ -40,6 +42,7 @@ class NavigationServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->registerPackageMetadata();
+        $this->registerContentGraphExtractors();
         $this->commands([DemoCommand::class, SetupCommand::class]);
 
         $this->app->booting(function (): void {
@@ -177,6 +180,16 @@ class NavigationServiceProvider extends ServiceProvider
     {
         Event::listen(SiteReplicated::class, ReplicateSiteNavigationsListener::class);
         Event::listen(PageUrlChanged::class, $this->handlePageUrlChanged(...));
+
+        return $this;
+    }
+
+    private function registerContentGraphExtractors(): self
+    {
+        if (class_exists(ContentGraphRegistry::class)) {
+            $this->app->singleton(NavigationContentGraphExtractor::class);
+            $this->app->tag(NavigationContentGraphExtractor::class, ContentGraphRegistry::TAG);
+        }
 
         return $this;
     }
