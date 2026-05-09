@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\AgentBridge\Providers;
 
-use Capell\Admin\Actions\Users\ShouldLoadUserResourceBridgeAction;
 use Capell\Admin\Contracts\Extenders\UserSchemaExtender;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\AgentBridge\Actions\Cache\ClearCapellCacheCapabilityAction;
@@ -12,6 +11,7 @@ use Capell\AgentBridge\Actions\Pages\CreateDraftPageCapabilityAction;
 use Capell\AgentBridge\Actions\Pages\DisablePageCapabilityAction;
 use Capell\AgentBridge\Actions\Pages\InspectPagePublishingReadinessCapabilityAction;
 use Capell\AgentBridge\Actions\Pages\UpdateDraftPageCapabilityAction;
+use Capell\AgentBridge\Bridges\AgentBridgeAdminBridge;
 use Capell\AgentBridge\Contracts\CapellAgentBridgeCapabilityProvider;
 use Capell\AgentBridge\Data\CapabilityData;
 use Capell\AgentBridge\Enums\CapabilityRiskEnum;
@@ -34,6 +34,7 @@ use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Boost\AgentBridge\Boost;
+use Throwable;
 
 final class AgentBridgeServiceProvider extends ServiceProvider
 {
@@ -205,15 +206,33 @@ final class AgentBridgeServiceProvider extends ServiceProvider
 
     private function registerUserResourceBridge(): void
     {
-        if (
-            ! interface_exists(UserSchemaExtender::class)
-            || ! class_exists(ShouldLoadUserResourceBridgeAction::class)
-        ) {
+        if (! interface_exists(UserSchemaExtender::class)) {
+            return;
+        }
+
+        if ($this->supportsAdminBridges()) {
+            CapellAdmin::registerAdminBridge(self::$packageName, AgentBridgeAdminBridge::class);
+            CapellAdmin::bootAdminBridges(self::$packageName);
+
             return;
         }
 
         $this->app->bind(AgentBridgeUserSchemaExtender::class);
         $this->app->tag([AgentBridgeUserSchemaExtender::class], UserSchemaExtender::TAG);
+    }
+
+    private function supportsAdminBridges(): bool
+    {
+        try {
+            $admin = CapellAdmin::getFacadeRoot();
+        } catch (Throwable) {
+            return false;
+        }
+
+        return is_object($admin)
+            && method_exists($admin, 'registerAdminBridge')
+            && method_exists($admin, 'bootAdminBridges')
+            && class_exists(AgentBridgeAdminBridge::class);
     }
 
     private function registerBuiltInCapabilities(): void

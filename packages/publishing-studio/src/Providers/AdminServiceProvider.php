@@ -25,6 +25,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Support\Settings\SettingsGroupMetadata;
 use Capell\Core\Support\Settings\SettingsSchemaRegistry;
 use Capell\PublishingStudio\Actions\DashboardReports\BuildContentSchedulerEventsAction;
+use Capell\PublishingStudio\Bridges\PublishingStudioAdminBridge;
 use Capell\PublishingStudio\Contracts\WorkspaceTableActionContributor;
 use Capell\PublishingStudio\Data\SchedulerEventData;
 use Capell\PublishingStudio\Enums\SchedulerEventTypeEnum;
@@ -65,6 +66,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
+use Throwable;
 
 class AdminServiceProvider extends ServiceProvider
 {
@@ -73,11 +75,6 @@ class AdminServiceProvider extends ServiceProvider
         $this->app->tag(
             [WorkspacePeekPreviewActionContributor::class],
             WorkspaceTableActionContributor::TAG,
-        );
-
-        $this->app->tag(
-            [PublishingStudioUserSchemaExtender::class],
-            UserSchemaExtender::TAG,
         );
     }
 
@@ -221,6 +218,18 @@ class AdminServiceProvider extends ServiceProvider
 
     private function registerFilamentExtensions(): self
     {
+        if ($this->supportsAdminBridges()) {
+            CapellAdmin::registerAdminBridge(PublishingStudioServiceProvider::$packageName, PublishingStudioAdminBridge::class);
+            CapellAdmin::bootAdminBridges(PublishingStudioServiceProvider::$packageName);
+
+            return $this;
+        }
+
+        $this->app->tag(
+            [PublishingStudioUserSchemaExtender::class],
+            UserSchemaExtender::TAG,
+        );
+
         CapellAdmin::registerDashboardWidget(MyWorkQueueWidget::class, DashboardEnum::Main);
         CapellAdmin::registerDashboardWidget(RecentlyPublishedWidget::class, DashboardEnum::Main);
         CapellAdmin::registerDashboardWidget(WorkspaceActivityWidgetAbstract::class, DashboardEnum::Main);
@@ -232,6 +241,20 @@ class AdminServiceProvider extends ServiceProvider
         CapellAdmin::registerExtensionPage(PublishingStudioServiceProvider::$packageName, StaleDraftsPage::class);
 
         return $this;
+    }
+
+    private function supportsAdminBridges(): bool
+    {
+        try {
+            $admin = CapellAdmin::getFacadeRoot();
+        } catch (Throwable) {
+            return false;
+        }
+
+        return is_object($admin)
+            && method_exists($admin, 'registerAdminBridge')
+            && method_exists($admin, 'bootAdminBridges')
+            && class_exists(PublishingStudioAdminBridge::class);
     }
 
     private function registerOverviewStats(): self

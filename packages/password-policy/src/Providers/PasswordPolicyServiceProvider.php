@@ -13,6 +13,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Core\Support\Settings\SettingsGroupMetadata;
 use Capell\Core\Support\Settings\SettingsSchemaRegistry;
+use Capell\PasswordPolicy\Bridges\PasswordPolicyAdminBridge;
 use Capell\PasswordPolicy\Filament\Extenders\PasswordPolicyPanelExtender;
 use Capell\PasswordPolicy\Filament\Extenders\PasswordPolicyUserFormExtender;
 use Capell\PasswordPolicy\Filament\Extenders\PasswordPolicyUserTableExtender;
@@ -23,6 +24,7 @@ use Capell\PasswordPolicy\Settings\PasswordPolicySettings;
 use Composer\InstalledVersions;
 use Filament\Support\Icons\Heroicon;
 use Spatie\LaravelPackageTools\Package;
+use Throwable;
 
 class PasswordPolicyServiceProvider extends AbstractPackageServiceProvider
 {
@@ -100,6 +102,13 @@ class PasswordPolicyServiceProvider extends AbstractPackageServiceProvider
 
     private function registerAdminSurface(): self
     {
+        if ($this->supportsAdminBridges()) {
+            CapellAdmin::registerAdminBridge(static::$packageName, PasswordPolicyAdminBridge::class);
+            CapellAdmin::bootAdminBridges(static::$packageName);
+
+            return $this;
+        }
+
         CapellAdmin::registerExtensionPage(
             static::$packageName,
             PasswordPolicySettingsPage::class,
@@ -114,10 +123,24 @@ class PasswordPolicyServiceProvider extends AbstractPackageServiceProvider
         }
 
         if (interface_exists(UserTableExtender::class)) {
-            $this->app->tag(PasswordPolicyUserTableExtender::class, 'capell-admin:user-table-extender');
+            $this->app->tag(PasswordPolicyUserTableExtender::class, UserTableExtender::TAG);
         }
 
         return $this;
+    }
+
+    private function supportsAdminBridges(): bool
+    {
+        try {
+            $admin = CapellAdmin::getFacadeRoot();
+        } catch (Throwable) {
+            return false;
+        }
+
+        return is_object($admin)
+            && method_exists($admin, 'registerAdminBridge')
+            && method_exists($admin, 'bootAdminBridges')
+            && class_exists(PasswordPolicyAdminBridge::class);
     }
 
     private function registerConfigSettings(): self
