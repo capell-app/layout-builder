@@ -28,10 +28,14 @@
         "analyze:all": "@analyze:full",
         "prettier": "npx prettier --write \"packages/**/*.{css,js,yml,json,md,blade.php}\"",
         "eslint": "npx eslint 'packages/**/resources/js/**/*.js' --max-warnings=0",
+        "check:composer-paths": "@php scripts/check-composer-local-paths.php",
         "preflight": [
+            "@check:composer-paths",
             "@lint:changed"
         ],
         "preflight:all": [
+            "@php -r \"echo PHP_EOL . 'Checking Composer path repositories...' . PHP_EOL;\"",
+            "@check:composer-paths",
             "@php -r \"echo PHP_EOL . 'Running Rector...' . PHP_EOL;\"",
             "@rector",
             "@php -r \"echo PHP_EOL . 'Running Pint...' . PHP_EOL;\"",
@@ -68,20 +72,6 @@
         ]
     },
     "repositories": [
-        {
-            "type": "path",
-            "url": "../capell-4/packages/*",
-            "options": {
-                "symlink": true
-            }
-        },
-        {
-            "type": "path",
-            "url": "./packages/*",
-            "options": {
-                "symlink": true
-            }
-        },
         {
             "type": "vcs",
             "url": "https://github.com/capell-app/admin"
@@ -124,7 +114,6 @@
         "capell-app/frontend": "4.x-dev",
         "capell-app/installer": "4.x-dev",
         "capell-app/marketplace": "4.x-dev",
-        "capell-app/demo-kit": "*",
         "cms-multi/filament-clear-cache": "^3.0",
         "codewithdennis/filament-select-tree": "^4.0",
         "croustibat/filament-jobs-monitor": "^4.4",

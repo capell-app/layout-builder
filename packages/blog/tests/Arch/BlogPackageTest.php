@@ -23,7 +23,7 @@ it('declares navigation as an explicit package dependency', function (): void {
         flags: JSON_THROW_ON_ERROR,
     );
 
-    expect($capellManifest['requires'])->toContain('capell-app/navigation')
+    expect($capellManifest['dependencies']['requires'])->toContain('capell-app/navigation')
         ->and($composerManifest['require'])->toHaveKey('capell-app/navigation');
 });
 

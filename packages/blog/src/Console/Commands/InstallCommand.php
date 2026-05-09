@@ -32,7 +32,9 @@ class InstallCommand extends Command
 
         $this->call('migrate');
 
-        $this->callSilent('filament:assets');
+        if (! app()->runningUnitTests()) {
+            $this->callSilent('filament:assets');
+        }
 
         $this->newLine();
         $this->info('Capell Blog installed successfully.');

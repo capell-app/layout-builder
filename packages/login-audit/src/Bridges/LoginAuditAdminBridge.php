@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LoginAudit\Bridges;
 
 use Capell\Admin\Contracts\Bridges\AdminBridge;
+use Capell\Admin\Contracts\DashboardSettingsContributor;
 use Capell\Admin\Contracts\Extenders\UserSchemaExtender;
 use Capell\Admin\Data\Bridges\AdminBridgeContextData;
 use Capell\Admin\Enums\DashboardEnum;
@@ -29,6 +30,10 @@ final class LoginAuditAdminBridge implements AdminBridge
         $registrar->resource(LoginAuditResource::class, group: 'LoginAudit');
         $registrar->dashboardWidget(LoginAuditsWidget::class, DashboardEnum::SystemHealth);
 
-        $registrar->dashboardSettingsContributor(LoginAuditDashboardSettingsContributor::class);
+        if (method_exists($registrar, 'dashboardSettingsContributor')) {
+            $registrar->dashboardSettingsContributor(LoginAuditDashboardSettingsContributor::class);
+        } else {
+            app()->tag([LoginAuditDashboardSettingsContributor::class], DashboardSettingsContributor::TAG);
+        }
     }
 }

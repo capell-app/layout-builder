@@ -26,7 +26,7 @@ class FrontendAuthoringTestCase extends AbstractTestCase
 
     protected function getPackageServiceName(): string
     {
-        return 'capell-frontend-authoring';
+        return FrontendAuthoringServiceProvider::$packageName;
     }
 
     protected function getEnvironmentSetUp(mixed $app): void
@@ -34,6 +34,7 @@ class FrontendAuthoringTestCase extends AbstractTestCase
         parent::getEnvironmentSetUp($app);
 
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(FrontendAuthoringServiceProvider::$packageName);
     }
 
     /**

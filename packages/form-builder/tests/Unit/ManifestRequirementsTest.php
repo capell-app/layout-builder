@@ -9,7 +9,7 @@ describe('form-builder capell.json manifest', function (): void {
             associative: true,
         );
 
-        $requires = $manifest['requires'] ?? [];
+        $requires = $manifest['dependencies']['requires'] ?? [];
 
         foreach ($requires as $requirement) {
             expect($requirement)->toContain('/');
@@ -22,8 +22,8 @@ describe('form-builder capell.json manifest', function (): void {
             associative: true,
         );
 
-        expect($manifest['requires'])->toContain('capell-app/core')
-            ->and($manifest['requires'])->toContain('capell-app/admin')
-            ->and($manifest['requires'])->toContain('capell-app/frontend');
+        expect($manifest['dependencies']['requires'])->toContain('capell-app/core')
+            ->and($manifest['dependencies']['requires'])->toContain('capell-app/admin')
+            ->and($manifest['dependencies']['requires'])->toContain('capell-app/frontend');
     });
 });

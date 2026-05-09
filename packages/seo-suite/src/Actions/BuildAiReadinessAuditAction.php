@@ -13,10 +13,12 @@ use Capell\SeoSuite\Data\AiReadinessIssueData;
 use Capell\SeoSuite\Enums\RobotsDirectiveEnum;
 use Capell\SeoSuite\Models\AiDiscoveryPageProfile;
 use Capell\SeoSuite\Models\AiDiscoverySiteProfile;
+use Capell\SeoSuite\Settings\SeoSuiteSettings;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Support\Collection;
 use LogicException;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Throwable;
 
 /**
  * @method static Collection<int, AiReadinessIssueData> run(Page $page, Site $site, Language $language)
@@ -30,6 +32,10 @@ final class BuildAiReadinessAuditAction
      */
     public function handle(Page $page, Site $site, Language $language): Collection
     {
+        if (! $this->auditEnabled()) {
+            return collect();
+        }
+
         $page->loadMissing([
             'translation' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', $language->getKey()),
             'pageUrl' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', $language->getKey()),
@@ -166,5 +172,14 @@ final class BuildAiReadinessAuditAction
             ),
             fn (?string $directive): bool => $directive !== null && $directive !== '',
         ));
+    }
+
+    private function auditEnabled(): bool
+    {
+        try {
+            return resolve(SeoSuiteSettings::class)->ai_discovery_audit_enabled;
+        } catch (Throwable) {
+            return true;
+        }
     }
 }

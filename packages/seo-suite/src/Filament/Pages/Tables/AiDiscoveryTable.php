@@ -16,11 +16,15 @@ use Capell\SeoSuite\Actions\DashboardReports\BuildAiDiscoveryPageQueryAction;
 use Capell\SeoSuite\Actions\FillAiDiscoveryPageSummaryAction;
 use Capell\SeoSuite\Actions\ResolveAiDiscoveryProfileAction;
 use Capell\SeoSuite\Actions\UpdateAiDiscoveryPageInclusionAction;
+use Capell\SeoSuite\Actions\UpdateAiDiscoveryPageProfileAction;
 use Capell\SeoSuite\Models\AiDiscoveryPageProfile;
 use Capell\SeoSuite\Models\AiDiscoverySiteProfile;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -141,6 +145,16 @@ class AiDiscoveryTable implements TableConfigurator
     protected static function getTableActions(): array
     {
         return [
+            Action::make('edit_ai_discovery')
+                ->label(__('capell-seo-suite::generic.ai_discovery_edit_settings'))
+                ->icon('heroicon-o-adjustments-horizontal')
+                ->fillForm(fn (Page $record): array => self::profileFormState($record))
+                ->schema(self::profileFormSchema())
+                ->action(function (Page $record, Action $action, array $data): void {
+                    self::updateProfile($record, $data);
+                    $action->success();
+                })
+                ->successNotificationTitle(__('capell-seo-suite::generic.ai_discovery_updated')),
             Action::make('fill_ai_summary')
                 ->label(__('capell-seo-suite::generic.ai_discovery_fill_summary'))
                 ->icon('heroicon-o-sparkles')
@@ -227,6 +241,69 @@ class AiDiscoveryTable implements TableConfigurator
         throw_unless($site instanceof Site && $language instanceof Language, LogicException::class, 'AI Discovery requires a page site and site language.');
 
         $profile = UpdateAiDiscoveryPageInclusionAction::run($record, $site, $language, $includeInAiIndex);
+        self::forgetRecordCache($record);
+
+        return $profile;
+    }
+
+    /**
+     * @return array<int, Checkbox|TextInput|Textarea>
+     */
+    private static function profileFormSchema(): array
+    {
+        return [
+            Checkbox::make('include_in_ai_index')
+                ->label(__('capell-seo-suite::form.ai_discovery_include_in_ai_index')),
+            TextInput::make('section')
+                ->label(__('capell-seo-suite::form.ai_discovery_section'))
+                ->placeholder('Pages'),
+            TextInput::make('priority')
+                ->label(__('capell-seo-suite::form.ai_discovery_priority'))
+                ->numeric()
+                ->minValue(0)
+                ->maxValue(1000),
+            Textarea::make('summary')
+                ->label(__('capell-seo-suite::form.ai_discovery_summary'))
+                ->rows(3)
+                ->columnSpanFull(),
+            Textarea::make('markdown_override')
+                ->label(__('capell-seo-suite::form.ai_discovery_markdown_override'))
+                ->rows(6)
+                ->columnSpanFull(),
+            TextInput::make('exclude_reason')
+                ->label(__('capell-seo-suite::form.ai_discovery_exclude_reason'))
+                ->columnSpanFull(),
+        ];
+    }
+
+    /**
+     * @return array{include_in_ai_index: bool, section: string, priority: int, summary: ?string, markdown_override: ?string, exclude_reason: ?string}
+     */
+    private static function profileFormState(Page $record): array
+    {
+        $profile = self::profileFor($record);
+
+        return [
+            'include_in_ai_index' => $profile?->include_in_ai_index ?? true,
+            'section' => $profile?->section ?? 'Pages',
+            'priority' => $profile?->priority ?? 500,
+            'summary' => $profile?->summary,
+            'markdown_override' => $profile?->markdown_override,
+            'exclude_reason' => $profile?->exclude_reason,
+        ];
+    }
+
+    /**
+     * @param  array{include_in_ai_index?: mixed, section?: mixed, priority?: mixed, summary?: mixed, markdown_override?: mixed, exclude_reason?: mixed}  $data
+     */
+    private static function updateProfile(Page $record, array $data): AiDiscoveryPageProfile
+    {
+        $site = self::siteFor($record);
+        $language = self::languageFor($record);
+
+        throw_unless($site instanceof Site && $language instanceof Language, LogicException::class, 'AI Discovery requires a page site and site language.');
+
+        $profile = UpdateAiDiscoveryPageProfileAction::run($record, $site, $language, $data);
         self::forgetRecordCache($record);
 
         return $profile;

@@ -14,6 +14,7 @@ use Capell\Blog\Providers\FrontendServiceProvider as BlogFrontendServiceProvider
 use Capell\ContentSections\Providers\ContentSectionsServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Media;
+use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\FoundationTheme\Providers\FoundationThemeServiceProvider;
 use Capell\Frontend\Contracts\SettingsMigrationProviderInterface;
 use Capell\Frontend\Providers\FrontendServiceProvider;
@@ -73,6 +74,7 @@ class BlogTestCase extends AbstractTestCase
             BlogAdminServiceProvider::class,
             BlogConsoleServiceProvider::class,
             BlogFrontendServiceProvider::class,
+            DemoKitServiceProvider::class,
             FoundationThemeServiceProvider::class,
             TagsServiceProvider::class,
             AdminPanelProvider::class,
@@ -95,6 +97,7 @@ class BlogTestCase extends AbstractTestCase
         );
         CapellCore::forcePackageInstalled(InsightsServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(BlogServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(DemoKitServiceProvider::$packageName);
         CapellCore::forcePackageInstalled('capell-app/foundation-theme');
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(ContentSectionsServiceProvider::$packageName);

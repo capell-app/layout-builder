@@ -44,6 +44,9 @@ jobs:
           extensions: curl, dom, fileinfo, intl, json, libxml, mbstring, simplexml, zip
           tools: composer:v2, pint
 
+      - name: Check Composer public files
+        run: php scripts/check-composer-local-paths.php
+
       - name: Cache Composer dependencies
         id: composer-cache
         uses: actions/cache@v5

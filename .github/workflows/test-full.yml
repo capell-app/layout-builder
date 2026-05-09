@@ -70,6 +70,9 @@ jobs:
           echo "::add-matcher::${{ runner.tool_cache }}/php.json"
           echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
+      - name: Check Composer public files
+        run: php scripts/check-composer-local-paths.php
+
       - name: Install PHP dependencies
         if: steps.php-cache.outputs.cache-hit != 'true'
         run: |

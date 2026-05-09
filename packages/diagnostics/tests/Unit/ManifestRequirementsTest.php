@@ -18,8 +18,8 @@ describe('diagnostics capell.json manifest', function (): void {
                 'kind' => 'package',
                 'capell-version' => '^4.0',
             ])
-            ->and($manifest['contexts'])->toContain('admin')
-            ->and($manifest['providers']['shared'])->toContain(DiagnosticsServiceProvider::class)
+            ->and($manifest['surfaces'])->toContain('admin')
+            ->and($manifest['providers']['runtime'])->toContain(DiagnosticsServiceProvider::class)
             ->and($manifest['providers']['admin'])->toContain(AdminServiceProvider::class);
     });
 });

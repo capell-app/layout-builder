@@ -20,6 +20,7 @@ use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Media;
 use Capell\Core\Providers\CapellServiceProvider;
+use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Capell\Diagnostics\Filament\Pages\DiagnosticsPage;
 use Capell\Diagnostics\Filament\Pages\PermissionAuditPage;
 use Capell\Diagnostics\Filament\Pages\QueueHealthPage;
@@ -107,6 +108,7 @@ class PackagesTestCase extends AbstractTestCase
             BlogFrontendServiceProvider::class,
             CampaignStudioServiceProvider::class,
             CapellFormBuilderServiceProvider::class,
+            DemoKitServiceProvider::class,
             DiagnosticsServiceProvider::class,
             DiagnosticsAdminServiceProvider::class,
             SeoSuiteServiceProvider::class,
@@ -208,6 +210,7 @@ class PackagesTestCase extends AbstractTestCase
         CapellCore::forcePackageInstalled(ContentBlocksServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(CampaignStudioServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(CapellFormBuilderServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(DemoKitServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(DiagnosticsServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(AddressServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(LoginAuditServiceProvider::$packageName);

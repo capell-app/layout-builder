@@ -66,7 +66,9 @@ class InstallCommand extends Command
 
         $this->callSilent('vendor:publish', ['--tag' => 'blade-country-flags']);
 
-        $this->callSilent('filament:assets');
+        if (! app()->runningUnitTests()) {
+            $this->callSilent('filament:assets');
+        }
 
         $this->newLine();
         $this->info('Capell Address installed successfully.');

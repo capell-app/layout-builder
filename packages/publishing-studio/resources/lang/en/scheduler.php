@@ -14,6 +14,12 @@ return [
         'page_publish' => 'Page becomes visible.',
         'page_unpublish' => 'Page stops being visible.',
     ],
+    'event_types' => [
+        'embargo' => 'Embargo',
+        'publish' => 'Publish',
+        'review_reminder' => 'Review Reminder',
+        'unpublish' => 'Unpublish',
+    ],
     'fields' => [
         'embargo_until' => 'Embargo Until',
         'review_reminder_at' => 'Review Reminder At',

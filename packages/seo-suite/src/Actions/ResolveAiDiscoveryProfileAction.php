@@ -11,7 +11,9 @@ use Capell\Core\Models\Translation;
 use Capell\SeoSuite\Enums\AiDiscoveryStatusEnum;
 use Capell\SeoSuite\Models\AiDiscoveryPageProfile;
 use Capell\SeoSuite\Models\AiDiscoverySiteProfile;
+use Capell\SeoSuite\Settings\SeoSuiteSettings;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Throwable;
 
 /**
  * @method static AiDiscoverySiteProfile|AiDiscoveryPageProfile run(Site $site, Language $language, ?Page $page = null)
@@ -55,10 +57,12 @@ final class ResolveAiDiscoveryProfileAction
      */
     private function siteProfileDefaults(): array
     {
+        $enabledByDefault = $this->settings()->ai_discovery_default_enabled ?? true;
+
         return [
-            'llms_txt_enabled' => true,
+            'llms_txt_enabled' => $enabledByDefault,
             'llms_full_txt_enabled' => false,
-            'markdown_pages_enabled' => true,
+            'markdown_pages_enabled' => $enabledByDefault,
             'accept_markdown_enabled' => false,
             'default_include_pages' => true,
             'max_full_txt_pages' => 50,
@@ -67,6 +71,15 @@ final class ResolveAiDiscoveryProfileAction
             'default_section' => 'Pages',
             'status' => AiDiscoveryStatusEnum::Enabled->value,
         ];
+    }
+
+    private function settings(): ?SeoSuiteSettings
+    {
+        try {
+            return resolve(SeoSuiteSettings::class);
+        } catch (Throwable) {
+            return null;
+        }
     }
 
     /**

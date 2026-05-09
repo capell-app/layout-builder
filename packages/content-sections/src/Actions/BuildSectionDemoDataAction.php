@@ -32,17 +32,48 @@ class BuildSectionDemoDataAction
         }
 
         $asset = new stdClass;
-        $asset->name = $definition->label;
+        $label = $this->fallbackLabel($definition->label, $definition->key);
+        $description = $this->fallbackDescription($definition->description, $definition->key);
+
+        $asset->name = $label;
 
         return [
             'definition' => $definition,
             'asset' => $asset,
-            'title' => $definition->label,
-            'summary' => $definition->description,
+            'title' => $label,
+            'summary' => $description,
             'meta' => $this->meta($definition->key),
             'linkText' => $definition->key === 'call_to_action' ? 'Start a project' : null,
             'url' => $definition->key === 'call_to_action' ? '#' : null,
         ];
+    }
+
+    private function fallbackLabel(string $value, string $key): string
+    {
+        if (! str_starts_with($value, 'capell-content-sections::section.')) {
+            return $value;
+        }
+
+        return match ($key) {
+            'call_to_action' => 'Call to Action',
+            default => str($key)
+                ->replace('_', ' ')
+                ->title()
+                ->toString(),
+        };
+    }
+
+    private function fallbackDescription(string $value, string $key): string
+    {
+        if (! str_starts_with($value, 'capell-content-sections::section.')) {
+            return $value;
+        }
+
+        return match ($key) {
+            'content' => 'Reusable rich text content.',
+            'hero' => 'Introductory content for a page or section.',
+            default => '',
+        };
     }
 
     /**

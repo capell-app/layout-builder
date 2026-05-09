@@ -44,10 +44,10 @@ class WorkspaceStateNotification extends Notification implements ShouldQueue
         $editUrl = $this->resolveEditUrl();
 
         $message = (new MailMessage)
-            ->subject(__('capell-admin::workspace.mail.' . $this->transition . '_subject', [
+            ->subject($this->translateMailLine($this->transition . '_subject', [
                 'workspace' => $workspaceName,
             ]))
-            ->line(__('capell-admin::workspace.mail.' . $this->transition . '_intro', [
+            ->line($this->translateMailLine($this->transition . '_intro', [
                 'workspace' => $workspaceName,
                 'actor' => $actorName,
             ]));
@@ -57,7 +57,7 @@ class WorkspaceStateNotification extends Notification implements ShouldQueue
         }
 
         if ($this->notes !== null && $this->notes !== '') {
-            $message->line(__('capell-admin::workspace.mail.notes_prefix') . ' ' . $this->notes);
+            $message->line($this->translateMailLine('notes_prefix') . ' ' . $this->notes);
         }
 
         return $message->action($this->resolveCtaLabel(), $editUrl);
@@ -77,14 +77,42 @@ class WorkspaceStateNotification extends Notification implements ShouldQueue
 
     private function resolveCtaLabel(): string
     {
-        $key = 'capell-admin::workspace.mail.' . $this->transition . '_cta';
-        $translated = __($key);
+        return $this->translateMailLine($this->transition . '_cta');
+    }
 
-        if (is_string($translated) && $translated !== $key) {
+    /**
+     * @param  array<string, mixed>  $replace
+     */
+    private function translateMailLine(string $line, array $replace = []): string
+    {
+        $key = 'capell-admin::workspace.mail.' . $line;
+        $translated = __($key, $replace);
+
+        if (is_string($translated) && $translated !== $key && ! str_contains($translated, '.mail.')) {
             return $translated;
         }
 
-        return (string) __('capell-admin::workspace.mail.cta');
+        $fallbackReplacements = [];
+
+        foreach ($replace as $replacementKey => $value) {
+            $fallbackReplacements[':' . $replacementKey] = is_scalar($value) ? (string) $value : '';
+        }
+
+        return strtr($this->fallbackMailLine($line), $fallbackReplacements);
+    }
+
+    private function fallbackMailLine(string $line): string
+    {
+        return match ($line) {
+            'approved_cta' => 'Publish workspace',
+            'published_cta' => 'View on live',
+            'rejected_cta' => 'Edit workspace',
+            'submitted_cta' => 'Review & Approve',
+            'submitted_intro' => ':actor submitted workspace ":workspace" for review.',
+            'submitted_subject' => 'Action required: :workspace needs your approval',
+            'notes_prefix' => 'Notes:',
+            default => 'Open workspace',
+        };
     }
 
     private function resolveActorName(): string

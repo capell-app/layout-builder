@@ -46,7 +46,7 @@ test('archives page list articles archives by month/year', function (): void {
 
     expect($archivesPage)
         ->toBeInstanceOf(Page::class)
-        ->type->name->toBe('System')
+        ->type->name->toBe('capell::generic.system')
         ->layout->name->toBe('Archives')
         ->parent->name->toBe('Blog');
 
@@ -109,7 +109,7 @@ test('archive page list articles by month/year', function (): void {
     expect($archivePage)
         ->toBeInstanceOf(Page::class)
         ->type->name->toBe('Archive Page')
-        ->layout->name->toBe('Results')
+        ->layout->name->toBe('capell::layout.results')
         ->parent->name->toBe('Archives')
         ->pageUrl->url->toBe('/blog/archives/*')
         ->and($archivePage->getAncestors(['name'])->pluck('name')->sort()->values()->toArray())

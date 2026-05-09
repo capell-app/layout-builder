@@ -29,7 +29,7 @@
             class="@if ($alignment === 'center') justify-center @elseif ($alignment === 'end') justify-end @endif mt-6 flex flex-wrap gap-3"
         >
             @foreach ($actions as $action)
-                @if (($action['type'] ?? '') === 'public_action' && Route::has('capell-public-actions.submit'))
+                @if (($action['type'] ?? '') === 'public_action' && Route::has('capell-public-actions.submit') && filled($action['public_action_key'] ?? null))
                     @php
                         $payload = array_filter([
                             'area' => $action['access_gate_area'] ?? null,
@@ -39,12 +39,30 @@
                         ], static fn (mixed $payloadValue): bool => $payloadValue !== null && $payloadValue !== '');
                     @endphp
 
-                    <x-capell-public-actions::action-button
-                        :action-key="$action['public_action_key'] ?? null"
-                        :label="$action['label'] ?? ''"
-                        :payload="$payload"
-                        class="inline-flex rounded bg-slate-950 px-5 py-3 font-semibold text-white"
-                    />
+                    <form
+                        method="post"
+                        action="{{ route('capell-public-actions.submit', ['action' => $action['public_action_key']]) }}"
+                        class="inline-flex"
+                    >
+                        @csrf
+
+                        @foreach ($payload as $payloadKey => $payloadValue)
+                            @if (is_string($payloadKey) && is_scalar($payloadValue) && filled((string) $payloadValue))
+                                <input
+                                    type="hidden"
+                                    name="{{ $payloadKey }}"
+                                    value="{{ (string) $payloadValue }}"
+                                />
+                            @endif
+                        @endforeach
+
+                        <button
+                            type="submit"
+                            class="inline-flex rounded bg-slate-950 px-5 py-3 font-semibold text-white"
+                        >
+                            {{ $action['label'] ?? '' }}
+                        </button>
+                    </form>
                     @continue
                 @endif
 

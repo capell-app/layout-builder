@@ -16,7 +16,7 @@ describe('frontend authoring capell.json manifest', function (): void {
     it('declares requires using full composer package names', function () use ($authoringManifest): void {
         $manifest = $authoringManifest();
 
-        foreach ($manifest['requires'] ?? [] as $requirement) {
+        foreach ($manifest['dependencies']['requires'] ?? [] as $requirement) {
             expect($requirement)->toContain('/');
         }
     });
@@ -24,9 +24,9 @@ describe('frontend authoring capell.json manifest', function (): void {
     it('requires the Capell packages it depends on directly', function () use ($authoringManifest): void {
         $manifest = $authoringManifest();
 
-        expect($manifest['requires'])->toContain('capell-app/core')
-            ->and($manifest['requires'])->toContain('capell-app/admin')
-            ->and($manifest['requires'])->toContain('capell-app/frontend');
+        expect($manifest['dependencies']['requires'])->toContain('capell-app/core')
+            ->and($manifest['dependencies']['requires'])->toContain('capell-app/admin')
+            ->and($manifest['dependencies']['requires'])->toContain('capell-app/frontend');
     });
 
     it('requires the full frontend stack for screenshot browser runs', function () use ($screenshotManifest): void {

@@ -27,8 +27,8 @@ final class KnowledgeRepository
                 'productGroup' => $decoded['productGroup'] ?? null,
                 'tier' => $decoded['tier'] ?? null,
                 'bundle' => $decoded['bundle'] ?? null,
-                'contexts' => $decoded['contexts'] ?? [],
-                'requires' => $decoded['requires'] ?? [],
+                'contexts' => $decoded['surfaces'] ?? $decoded['contexts'] ?? [],
+                'requires' => $decoded['dependencies']['requires'] ?? $decoded['requires'] ?? [],
                 'path' => dirname((string) $packageFile),
             ];
         }

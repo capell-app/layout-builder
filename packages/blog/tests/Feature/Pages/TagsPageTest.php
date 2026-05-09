@@ -41,7 +41,7 @@ test('tags page list tags', function (): void {
     expect($tagsPage)
         ->toBeInstanceOf(Page::class)
         ->name->toBe('Tags Page')
-        ->type->name->toBe('System')
+        ->type->name->toBe('capell::generic.system')
         ->layout->name->toBe('Tags')
         ->translation->language->id->toBe($language->id)
         ->pageUrl->language->id->toBe($language->id)
@@ -49,7 +49,7 @@ test('tags page list tags', function (): void {
         ->toBeInstanceOf(Page::class)
         ->name->toBe('Tag Page')
         ->type->name->toBe('Tag Page')
-        ->layout->name->toBe('Results')
+        ->layout->name->toBe('capell::layout.results')
         ->translation->language->id->toBe($language->id)
         ->pageUrl->language->id->toBe($language->id);
 

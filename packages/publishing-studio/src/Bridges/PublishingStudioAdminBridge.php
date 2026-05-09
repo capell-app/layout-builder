@@ -11,6 +11,7 @@ use Capell\Admin\Enums\DashboardEnum;
 use Capell\Admin\Filament\Widgets\Dashboard\MyWorkQueueWidget;
 use Capell\Admin\Filament\Widgets\Dashboard\RecentlyPublishedWidget;
 use Capell\Admin\Support\Bridges\AdminBridgeRegistrar;
+use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
 use Capell\PublishingStudio\Extenders\PublishingStudioUserSchemaExtender;
 use Capell\PublishingStudio\Filament\Pages\ActivityTrailPage;
 use Capell\PublishingStudio\Filament\Pages\ImportPagesPage;
@@ -36,9 +37,20 @@ final class PublishingStudioAdminBridge implements AdminBridge
         $registrar->resource(WorkspaceResource::class, group: 'Workspace');
         $registrar->resource(PreviewLinkResource::class, group: 'PreviewLink');
 
-        $registrar->extensionPage($context->packageName, ActivityTrailPage::class);
-        $registrar->extensionPage($context->packageName, ImportPagesPage::class);
-        $registrar->extensionPage($context->packageName, ScheduledPublishingPage::class);
-        $registrar->extensionPage($context->packageName, StaleDraftsPage::class);
+        $this->extensionPage($registrar, $context->packageName, ActivityTrailPage::class);
+        $this->extensionPage($registrar, $context->packageName, ImportPagesPage::class);
+        $this->extensionPage($registrar, $context->packageName, ScheduledPublishingPage::class);
+        $this->extensionPage($registrar, $context->packageName, StaleDraftsPage::class);
+    }
+
+    private function extensionPage(AdminBridgeRegistrar $registrar, string $packageName, string $page): void
+    {
+        if (method_exists($registrar, 'extensionPage')) {
+            $registrar->extensionPage($packageName, $page);
+
+            return;
+        }
+
+        resolve(ExtensionPageRegistry::class)->register($packageName, $page);
     }
 }

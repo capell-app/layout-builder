@@ -9,7 +9,7 @@ describe('address capell.json manifest', function (): void {
             associative: true,
         );
 
-        $requires = $manifest['requires'] ?? [];
+        $requires = $manifest['dependencies']['requires'] ?? [];
 
         foreach ($requires as $requirement) {
             expect($requirement)->toContain('/');
@@ -22,7 +22,7 @@ describe('address capell.json manifest', function (): void {
             associative: true,
         );
 
-        expect($manifest['requires'])->toContain('capell-app/admin');
+        expect($manifest['dependencies']['requires'])->toContain('capell-app/admin');
     });
 
     it('keeps composer package requirements aligned with the manifest', function (): void {
@@ -42,7 +42,7 @@ describe('address capell.json manifest', function (): void {
 
         sort($composerPackageRequirements);
 
-        $manifestRequirements = $manifest['requires'] ?? [];
+        $manifestRequirements = $manifest['dependencies']['requires'] ?? [];
         sort($manifestRequirements);
 
         expect($composerPackageRequirements)->toBe($manifestRequirements);

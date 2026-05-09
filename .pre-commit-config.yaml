@@ -43,3 +43,10 @@ repos:
         language: script
         files: \.blade\.php$|\.css$|\.js$|\.yml$
         stages: [pre-commit]
+      - id: composer-public-files-no-local-paths
+        name: Composer public files do not use local paths
+        entry: php scripts/check-composer-local-paths.php
+        language: system
+        pass_filenames: false
+        files: ^composer\.(json|lock)$
+        stages: [pre-commit]

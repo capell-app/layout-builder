@@ -31,6 +31,7 @@ use Composer\Autoload\ClassLoader;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Date;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 $composerAutoloader = require getcwd() . '/vendor/autoload.php';
 
@@ -282,6 +283,31 @@ it('serves llms full txt and page markdown through cache aware controllers', fun
         ->and($pageResponse->getContent())->toContain('# About')
         ->and(AiDiscoverySnapshot::query()->where('kind', AiDiscoverySnapshotKindEnum::LlmsFullTxt->value)->exists())->toBeTrue()
         ->and(AiDiscoverySnapshot::query()->where('kind', AiDiscoverySnapshotKindEnum::PageMarkdown->value)->exists())->toBeTrue();
+});
+
+it('does not serve direct page markdown for noindex pages', function (): void {
+    $language = createAiDiscoveryLanguage();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
+    $siteDomain = $site->siteDomains()->first();
+    $page = Page::factory()
+        ->site($site)
+        ->withTranslations($language, [
+            'title' => 'Private Page',
+            'content' => '<p>Private markdown body.</p>',
+        ])
+        ->meta('robots', ['noindex'])
+        ->create();
+
+    ResolveAiDiscoveryProfileAction::run($site, $language);
+
+    resolve(FrontendState::class)
+        ->withSite($site)
+        ->withLanguage($language)
+        ->withDomain($siteDomain)
+        ->withPage($page);
+
+    expect(fn () => resolve(PageMarkdownController::class)(Request::create('/private-page.md'), 'private-page'))
+        ->toThrow(NotFoundHttpException::class);
 });
 
 it('does not serve accept markdown unless the site language profile allows it', function (): void {

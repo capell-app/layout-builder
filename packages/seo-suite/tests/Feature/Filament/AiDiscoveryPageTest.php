@@ -5,14 +5,19 @@ declare(strict_types=1);
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\SeoSuite\Actions\BuildAiReadinessAuditAction;
 use Capell\SeoSuite\Actions\BuildAiRobotsTxtRulesAction;
 use Capell\SeoSuite\Actions\DashboardReports\BuildAiDiscoveryPageQueryAction;
 use Capell\SeoSuite\Actions\FillAiDiscoveryPageSummaryAction;
+use Capell\SeoSuite\Actions\ResolveAiDiscoveryProfileAction;
 use Capell\SeoSuite\Actions\SeedDefaultAiCrawlerRulesAction;
 use Capell\SeoSuite\Actions\UpdateAiDiscoveryPageInclusionAction;
+use Capell\SeoSuite\Actions\UpdateAiDiscoveryPageProfileAction;
 use Capell\SeoSuite\Filament\Pages\AiDiscoveryPage;
 use Capell\SeoSuite\Models\AiDiscoveryCrawlerRule;
 use Capell\SeoSuite\Models\AiDiscoveryPageProfile;
+use Capell\SeoSuite\Models\AiDiscoverySiteProfile;
+use Capell\SeoSuite\Settings\SeoSuiteSettings;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 uses(CreatesAdminUser::class);
@@ -72,6 +77,64 @@ it('updates ai discovery page inclusion without editing public page content', fu
         ->and($includedProfile->include_in_ai_index)->toBeTrue()
         ->and($includedProfile->exclude_reason)->toBeNull()
         ->and($page->translations()->first()?->content)->toBe('<p>Published content stays intact.</p>');
+});
+
+it('updates ai discovery page profile fields from the discovery management surface', function (): void {
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
+    $page = Page::factory()
+        ->site($site)
+        ->withTranslations($language, ['title' => 'AI Discovery Page'])
+        ->create();
+
+    $profile = UpdateAiDiscoveryPageProfileAction::run($page, $site, $language, [
+        'include_in_ai_index' => false,
+        'section' => 'Docs',
+        'priority' => 25,
+        'summary' => 'A managed AI summary.',
+        'markdown_override' => "# Custom\n\nMarkdown body.",
+        'exclude_reason' => 'Internal documentation.',
+    ]);
+
+    expect($profile->include_in_ai_index)->toBeFalse()
+        ->and($profile->section)->toBe('Docs')
+        ->and($profile->priority)->toBe(25)
+        ->and($profile->summary)->toBe('A managed AI summary.')
+        ->and($profile->markdown_override)->toBe("# Custom\n\nMarkdown body.")
+        ->and($profile->exclude_reason)->toBe('Internal documentation.');
+});
+
+it('honors seo suite ai discovery default and audit settings', function (): void {
+    $this->registerAndMigrateSettings(
+        [
+            'create_seo_suite_settings',
+            '2026_05_09_000001_update_seo_suite_settings_add_ai_discovery',
+        ],
+        dirname(__DIR__, 3) . '/database/settings',
+    );
+
+    $settings = resolve(SeoSuiteSettings::class);
+    $settings->ai_discovery_default_enabled = false;
+    $settings->ai_discovery_audit_enabled = false;
+    $settings->save();
+
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
+    $page = Page::factory()
+        ->site($site)
+        ->withTranslations($language, [
+            'title' => 'Weak',
+            'content' => '',
+        ])
+        ->create();
+
+    $siteProfile = ResolveAiDiscoveryProfileAction::run($site, $language);
+    $issues = BuildAiReadinessAuditAction::run($page, $site, $language);
+
+    expect($siteProfile)->toBeInstanceOf(AiDiscoverySiteProfile::class)
+        ->and($siteProfile->llms_txt_enabled)->toBeFalse()
+        ->and($siteProfile->markdown_pages_enabled)->toBeFalse()
+        ->and($issues)->toHaveCount(0);
 });
 
 it('applies configurable ai crawler policy presets when seeding robots rules', function (): void {

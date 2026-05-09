@@ -35,6 +35,7 @@ return [
     'ai_discovery_crawler_purpose_user_triggered' => 'User-triggered fetch',
     'ai_discovery' => 'AI Discovery',
     'ai_discovery_edit_page' => 'Edit page',
+    'ai_discovery_edit_settings' => 'Edit AI settings',
     'ai_discovery_exclude' => 'Exclude',
     'ai_discovery_excluded' => 'Excluded',
     'ai_discovery_fill_summary' => 'Fill summary',

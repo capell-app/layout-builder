@@ -14,6 +14,7 @@ use Capell\Frontend\Support\Loader\PageLoader;
 use Capell\Frontend\Support\Loader\SiteLoader;
 use Capell\Frontend\Support\Loader\SiteResolver;
 use Capell\SeoSuite\Actions\GeneratePageMarkdownAction;
+use Capell\SeoSuite\Actions\PageIsDiscoverableForAiDiscoveryAction;
 use Capell\SeoSuite\Actions\PersistAiDiscoverySnapshotAction;
 use Capell\SeoSuite\Actions\ResolveAiDiscoveryProfileAction;
 use Capell\SeoSuite\Data\AiDiscoveryRenderContextData;
@@ -66,6 +67,10 @@ class PageMarkdownController extends BaseController
         $page = $this->resolvePage($site, $language, $canonicalPath);
 
         if (! $page instanceof Page) {
+            return $this->unavailable($abortWhenUnavailable);
+        }
+
+        if (! $this->isDiscoverablePage($page, $site, $language)) {
             return $this->unavailable($abortWhenUnavailable);
         }
 
@@ -178,6 +183,11 @@ class PageMarkdownController extends BaseController
         );
 
         return $page instanceof Page ? $page : null;
+    }
+
+    private function isDiscoverablePage(Page $page, Site $site, Language $language): bool
+    {
+        return PageIsDiscoverableForAiDiscoveryAction::run($page, $site, $language);
     }
 
     private function canonicalRequestUrl(Request $request, ?string $url): string

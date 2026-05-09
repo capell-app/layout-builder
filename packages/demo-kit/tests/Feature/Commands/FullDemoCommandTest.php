@@ -77,13 +77,18 @@ it('requires force when running non interactively', function (): void {
 it('registers its package owned extension page', function (): void {
     fakeDemoKitCurrentRouteName(DemoKitPage::getRouteName());
 
-    expect(CapellAdmin::getAdminSurfaceRegistry()->pages())->toContain(DemoKitPage::class)
+    $expectation = expect(CapellAdmin::getAdminSurfaceRegistry()->pages())->toContain(DemoKitPage::class)
         ->and(resolve(ExtensionPageRegistry::class)->get(DemoKitServiceProvider::$packageName))->toBe(DemoKitPage::class)
-        ->and(DemoKitPage::getNavigationGroup())->toBe(__('capell-admin::navigation.group_extensions'))
-        ->and(resolve(ExtensionBreadcrumbDecorator::class)->decorate([]))->toBe([
-            ExtensionsPage::getUrl() => __('capell-admin::navigation.extensions'),
-            resolve(DemoKitPage::class)->getTitle(),
-        ]);
+        ->and(DemoKitPage::getNavigationGroup())->toBe(__('capell-admin::navigation.group_extensions'));
+
+    if (! class_exists(ExtensionBreadcrumbDecorator::class)) {
+        return;
+    }
+
+    $expectation->and(resolve(ExtensionBreadcrumbDecorator::class)->decorate([]))->toBe([
+        ExtensionsPage::getUrl() => __('capell-admin::navigation.extensions'),
+        resolve(DemoKitPage::class)->getTitle(),
+    ]);
 });
 
 it('builds the insert example site data schema', function (): void {

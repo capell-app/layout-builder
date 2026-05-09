@@ -12,19 +12,23 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Spatie\LaravelData\DataCollection;
 
 /**
- * @method static Collection<int, Model> run(array|DataCollection $items)
+ * @method static Collection<int, Model> run(array|Collection|DataCollection $items)
  */
 class ResolveNavigationItemModelsAction
 {
     use AsAction;
 
     /**
-     * @param  array<int|string, array<string, mixed>>|DataCollection  $items
+     * @param  array<int|string, array<string, mixed>>|Collection<int|string, array<string, mixed>>|DataCollection  $items
      * @return Collection<int, Model>
      */
-    public function handle(array|DataCollection $items): Collection
+    public function handle(array|Collection|DataCollection $items): Collection
     {
         if ($items instanceof DataCollection) {
+            $items = $items->all();
+        }
+
+        if ($items instanceof Collection) {
             $items = $items->all();
         }
 
