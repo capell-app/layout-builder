@@ -553,7 +553,7 @@ git commit -m "feat: add email studio package skeleton"
 - Create: `packages/email-studio/tests/Integration/Database/EmailStudioMigrationsTest.php`
 - Create: `packages/email-studio/tests/Integration/Models/EmailStudioRelationshipsTest.php`
 
-- [ ] **Step 1: Write migration and relationship tests**
+- [x] **Step 1: Write migration and relationship tests**
 
 Create `packages/email-studio/tests/Integration/Database/EmailStudioMigrationsTest.php`:
 
@@ -608,7 +608,7 @@ it('links templates, variants, messages, recipients, and replies', function (): 
 });
 ```
 
-- [ ] **Step 2: Run tests and verify they fail**
+- [x] **Step 2: Run tests and verify they fail**
 
 Run:
 
@@ -618,7 +618,7 @@ vendor/bin/pest packages/email-studio/tests/Integration/Database/EmailStudioMigr
 
 Expected: FAIL because migrations, models, and factories do not exist.
 
-- [ ] **Step 3: Add enums**
+- [x] **Step 3: Add enums**
 
 Create:
 
@@ -653,7 +653,7 @@ Repeat the same enum pattern for:
 - `EmailEventType`: `sent`, `delivered`, `bounced`, `complained`, `opened`, `clicked`, `replied`, `failed`.
 - `SuppressionReason`: `bounce`, `complaint`, `unsubscribe`, `manual`, `provider`.
 
-- [ ] **Step 4: Add migrations**
+- [x] **Step 4: Add migrations**
 
 Create migrations with these required columns:
 
@@ -771,7 +771,7 @@ Also create:
 - `email_template_registrations` with `site_id`, required `site_scope_key`, template key, package name, variables, and uniqueness on package/template/scope.
 - `email_tracking_tokens` with `site_id`, required `site_scope_key`, `email_recipient_id`, opaque token hash, token type, destination URL, expiry, consumed timestamps where applicable, and no public route model binding.
 
-- [ ] **Step 5: Add models and factories**
+- [x] **Step 5: Add models and factories**
 
 Each model uses `HasFactory`, typed relationship methods, guarded `[]`, casts for enums/json/datetimes, and no side-effect methods. Example:
 
@@ -831,7 +831,7 @@ class EmailMessage extends Model
 }
 ```
 
-- [ ] **Step 6: Register models and protected tables**
+- [x] **Step 6: Register models and protected tables**
 
 In `EmailStudioServiceProvider`, after package metadata, register package models and protected tables when the package is installed:
 
@@ -845,7 +845,7 @@ $this->app->booted(function (): void {
 });
 ```
 
-- [ ] **Step 7: Verify migrations and relationships**
+- [x] **Step 7: Verify migrations and relationships**
 
 Run:
 
@@ -855,7 +855,7 @@ vendor/bin/pest packages/email-studio/tests/Integration/Database/EmailStudioMigr
 
 Expected: PASS.
 
-- [ ] **Step 8: Commit the data model**
+- [x] **Step 8: Commit the data model**
 
 Run:
 

@@ -6,6 +6,16 @@ namespace Capell\EmailStudio\Providers;
 
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\EmailStudio\Models\EmailEvent;
+use Capell\EmailStudio\Models\EmailMessage;
+use Capell\EmailStudio\Models\EmailProfile;
+use Capell\EmailStudio\Models\EmailRecipient;
+use Capell\EmailStudio\Models\EmailReply;
+use Capell\EmailStudio\Models\EmailSuppression;
+use Capell\EmailStudio\Models\EmailTemplate;
+use Capell\EmailStudio\Models\EmailTemplateRegistration;
+use Capell\EmailStudio\Models\EmailTemplateVariant;
+use Capell\EmailStudio\Models\EmailTrackingToken;
 use Spatie\LaravelPackageTools\Package;
 
 class EmailStudioServiceProvider extends AbstractPackageServiceProvider
@@ -44,6 +54,21 @@ class EmailStudioServiceProvider extends AbstractPackageServiceProvider
     public function packageRegistered(): void
     {
         $this->registerPackageMetadata();
+
+        $this->app->booted(function (): void {
+            if (! $this->isPackageInstalled()) {
+                return;
+            }
+
+            $this
+                ->registerModels()
+                ->registerProtectedTables();
+        });
+    }
+
+    private function isPackageInstalled(): bool
+    {
+        return CapellCore::isPackageInstalled(self::$packageName);
     }
 
     private function registerPackageMetadata(): self
@@ -56,6 +81,43 @@ class EmailStudioServiceProvider extends AbstractPackageServiceProvider
             version: CapellCore::getInstalledPrettyVersion(self::$packageName),
             description: fn (): string => __('capell-email-studio::package.description'),
         );
+
+        return $this;
+    }
+
+    private function registerModels(): self
+    {
+        CapellCore::registerModels([
+            EmailProfile::class,
+            EmailTemplate::class,
+            EmailTemplateVariant::class,
+            EmailMessage::class,
+            EmailRecipient::class,
+            EmailEvent::class,
+            EmailReply::class,
+            EmailSuppression::class,
+            EmailTemplateRegistration::class,
+            EmailTrackingToken::class,
+        ]);
+
+        return $this;
+    }
+
+    private function registerProtectedTables(): self
+    {
+        $tables = config('capell-email-studio.tables', []);
+
+        if (! is_array($tables)) {
+            return $this;
+        }
+
+        foreach ($tables as $tableName) {
+            if (! is_string($tableName) || $tableName === '') {
+                continue;
+            }
+
+            CapellCore::registerProtectedTable(static fn (): string => $tableName);
+        }
 
         return $this;
     }
