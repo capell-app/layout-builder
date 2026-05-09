@@ -43,6 +43,10 @@ Lets editors manage menus for each site and language while keeping page selectio
 - Navigations connect to sites, languages, and types.
 - Cache key enum indicates navigation cache behaviour.
 
+## Content Graph
+
+Navigation contributes content graph edges from each navigation record to the pages referenced by its nested page items. These edges use `LinksToPage` with strong strength, so impact previews, safer deletes, diagnostics, and graph-aware invalidation can see which menus depend on a page.
+
 ## Screenshot Plan
 
 - Navigation admin index.

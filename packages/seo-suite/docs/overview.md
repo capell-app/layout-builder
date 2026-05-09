@@ -42,6 +42,10 @@ Gives editors and site operators practical checks before publishing and operatio
 - ai_creator_contexts, ai_generation_histories, and ai_creator_sessions store AI workflow state.
 - SEO data connects to sites, pages, languages, users, and publishing-studio.
 
+## Content Graph
+
+SEO Suite contributes content graph edges from page SEO snapshots and broken-link records back to their pages. SEO snapshots use weak `DescribesPage` edges, and broken links use weak `FoundOnPage` edges. These records show up in impact previews and diagnostics without blocking ordinary page deletes as strong dependencies.
+
 ## Screenshot Plan
 
 - Page SEO settings tab, Page SEO panel, edit audit widget, and Pages-list overview widget.
