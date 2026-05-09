@@ -6,6 +6,8 @@ namespace Capell\PasswordPolicy\Bridges;
 
 use Capell\Admin\Contracts\Bridges\AdminBridge;
 use Capell\Admin\Contracts\Bridges\UserResourceBridge;
+use Capell\Admin\Contracts\Extenders\UserFormExtender;
+use Capell\Admin\Contracts\Extenders\UserTableExtender;
 use Capell\Admin\Data\Bridges\AdminBridgeContextData;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Support\Bridges\AbstractUserResourceBridge;
@@ -32,6 +34,8 @@ final class PasswordPolicyAdminBridge extends AbstractUserResourceBridge impleme
         $registrar->panelExtender(PasswordPolicyPanelExtender::class);
 
         app()->tag([self::class], UserResourceBridge::TAG);
+        app()->tag([PasswordPolicyUserFormExtender::class], UserFormExtender::TAG);
+        app()->tag([PasswordPolicyUserTableExtender::class], UserTableExtender::TAG);
     }
 
     public function mutateDataBeforeCreate(array $data): array
