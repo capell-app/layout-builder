@@ -16,6 +16,7 @@ use Capell\EmailStudio\Models\EmailTemplate;
 use Capell\EmailStudio\Models\EmailTemplateRegistration;
 use Capell\EmailStudio\Models\EmailTemplateVariant;
 use Capell\EmailStudio\Models\EmailTrackingToken;
+use Capell\EmailStudio\Support\EmailTemplateRegistry;
 use Spatie\LaravelPackageTools\Package;
 
 class EmailStudioServiceProvider extends AbstractPackageServiceProvider
@@ -54,6 +55,7 @@ class EmailStudioServiceProvider extends AbstractPackageServiceProvider
     public function packageRegistered(): void
     {
         $this->registerPackageMetadata();
+        $this->app->singleton(EmailTemplateRegistry::class);
 
         $this->app->booted(function (): void {
             if (! $this->isPackageInstalled()) {

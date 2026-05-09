@@ -880,8 +880,9 @@ git commit -m "feat: add email studio data model"
 - Create: `packages/email-studio/src/Support/EmailVariableRenderer.php`
 - Create: `packages/email-studio/tests/Unit/Actions/RegisterEmailTemplateActionTest.php`
 - Create: `packages/email-studio/tests/Unit/Actions/RenderEmailTemplateActionTest.php`
+- Create: `packages/email-studio/tests/Unit/Actions/ResolveEmailTemplateVariantActionTest.php`
 
-- [ ] **Step 1: Write failing registration and rendering tests**
+- [x] **Step 1: Write failing registration and rendering tests**
 
 Create tests proving:
 
@@ -892,6 +893,7 @@ Create tests proving:
 - Missing variables are preserved as visible `{{ variable }}` markers in preview mode.
 - Missing variables fail production rendering with an exception.
 - HTML and text bodies render from the same context.
+- Variant resolution prefers the requested site and locale, ignores retired variants, and never crosses site scope.
 
 Core expectation:
 
@@ -909,7 +911,7 @@ expect($rendered->subject)->toBe('Hello Ben')
     ->and($rendered->text)->toContain('Hello Ben');
 ```
 
-- [ ] **Step 2: Implement Data objects**
+- [x] **Step 2: Implement Data objects**
 
 Use Spatie Data constructor-promoted public properties:
 
@@ -938,7 +940,7 @@ class EmailAddressData extends Data
 - `?int $triggeredById`
 - `bool $queue`
 
-- [ ] **Step 3: Implement template registry**
+- [x] **Step 3: Implement template registry**
 
 `EmailTemplateRegistry` stores package registrations in memory during boot and persists them through `RegisterEmailTemplateAction`. Use typed registration methods:
 
@@ -946,21 +948,21 @@ class EmailAddressData extends Data
 public function register(string $key, string $name, array $variables, ?string $description = null): self
 ```
 
-- [ ] **Step 4: Implement safe variable rendering**
+- [x] **Step 4: Implement safe variable rendering**
 
 `EmailVariableRenderer` should support simple `{{ variable }}` replacement only. It should not evaluate PHP, Blade directives, arbitrary expressions, or nested object traversal in v1. For HTML bodies and subjects it must escape variable values with Laravel's `e()` helper before insertion. For plain text bodies it must cast scalar values to strings without HTML escaping. Do not add a raw-HTML syntax in v1; if a later package needs trusted HTML variables, add a typed `TrustedEmailHtmlData` boundary and tests first.
 
-- [ ] **Step 5: Verify**
+- [x] **Step 5: Verify**
 
 Run:
 
 ```bash
-vendor/bin/pest packages/email-studio/tests/Unit/Actions/RegisterEmailTemplateActionTest.php packages/email-studio/tests/Unit/Actions/RenderEmailTemplateActionTest.php --configuration=phpunit.xml
+vendor/bin/pest packages/email-studio/tests/Unit/Actions/RegisterEmailTemplateActionTest.php packages/email-studio/tests/Unit/Actions/RenderEmailTemplateActionTest.php packages/email-studio/tests/Unit/Actions/ResolveEmailTemplateVariantActionTest.php --configuration=phpunit.xml
 ```
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 Run:
 
