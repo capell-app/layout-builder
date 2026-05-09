@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Enums\FrontendRuntime;
 use Capell\Core\ThemeStudio\Contracts\ThemeSection;
 use Capell\Core\ThemeStudio\Data\BrandProfileData;
 use Capell\Core\ThemeStudio\Data\HeroSectionData;
@@ -91,4 +92,23 @@ it('keeps shared section data portable across theme packages', function (): void
 
     expect($section->key())->toBe('hero')
         ->and($section->toViewData()['section'])->toBe($section);
+});
+
+it('stores runtime metadata with theme definitions', function (): void {
+    $definition = new ThemeDefinitionData(
+        key: 'inertia-test',
+        name: 'Inertia Test',
+        description: 'Runtime-aware test theme.',
+        package: 'capell-app/theme-inertia-test',
+        previewImage: '/preview.jpg',
+        tags: [],
+        bestFit: [],
+        includedSections: [],
+        presets: [],
+        runtime: FrontendRuntime::Inertia,
+        frontend: ['entry' => 'resources/js/app.ts'],
+    );
+
+    expect($definition->runtime->value)->toBe('inertia')
+        ->and($definition->frontend)->toBe(['entry' => 'resources/js/app.ts']);
 });

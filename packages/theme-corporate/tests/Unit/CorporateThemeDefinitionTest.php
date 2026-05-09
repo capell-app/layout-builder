@@ -16,6 +16,7 @@ it('defines the corporate premium renderer contract', function (): void {
     expect($definition->package)->toBe('capell-app/theme-corporate')
         ->and($definition->includedSections)->toContain('hero', 'features', 'proof', 'cta')
         ->and($definition->presets)->toHaveCount(3)
+        ->and($definition->runtime->value)->toBe('blade')
         ->and($definition->tags)->toContain('Trust');
 });
 
