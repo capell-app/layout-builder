@@ -1,0 +1,50 @@
+{
+    "manifest-version": 2,
+    "name": "capell-app/site-discovery",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Search & SEO",
+    "tier": "premium",
+    "bundle": "search-seo",
+    "description": "Site Discovery resolves public discoverable pages and URLs, then exposes HTML and XML sitemap outputs.",
+    "surfaces": ["admin", "frontend", "console"],
+    "dependencies": {
+        "requires": [
+            "capell-app/core",
+            "capell-app/admin",
+            "capell-app/frontend"
+        ],
+        "optional": [],
+        "conflicts": []
+    },
+    "lifecycle": {
+        "activation": "manual",
+        "defaultStatus": "available",
+        "requiresInstallCommand": false
+    },
+    "providers": {
+        "metadata": [],
+        "install": [],
+        "runtime": ["Capell\\SiteDiscovery\\Providers\\SiteDiscoveryServiceProvider"],
+        "admin": [],
+        "frontend": []
+    },
+    "database": {
+        "migrations": false,
+        "settings": false,
+        "requiredTables": []
+    },
+    "commands": {
+        "install": null,
+        "setup": null,
+        "setupParams": [],
+        "demo": null,
+        "demoParams": [],
+        "health": null
+    },
+    "settings": [],
+    "permissions": [],
+    "capabilities": [],
+    "assets": [],
+    "healthChecks": []
+}
