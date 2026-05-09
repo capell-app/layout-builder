@@ -27,6 +27,7 @@ use Capell\Core\Events\UrlVisitFailed;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
+use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Core\Support\Settings\SettingsGroupMetadata;
 use Capell\Core\Support\Settings\SettingsSchemaRegistry;
@@ -91,6 +92,8 @@ use Capell\SeoSuite\Support\AiResponseParser;
 use Capell\SeoSuite\Support\AiTokenCounter;
 use Capell\SeoSuite\Support\Cache\AIGenerationCache;
 use Capell\SeoSuite\Support\Cache\RateLimitCache;
+use Capell\SeoSuite\Support\ContentGraph\BrokenLinkContentGraphExtractor;
+use Capell\SeoSuite\Support\ContentGraph\PageSeoSnapshotContentGraphExtractor;
 use Capell\SeoSuite\Support\ContentTargetResolver;
 use Capell\SeoSuite\Support\Creator\SitemapPageCreator;
 use Capell\SeoSuite\Support\Interceptors\SitemapPageTypeInterceptor;
@@ -147,6 +150,7 @@ class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
     public function registeringPackage(): void
     {
         $this->registerPackageMetadata();
+        $this->registerContentGraphExtractors();
 
         $this->app->booted(function (): void {
             if (! $this->isPackageInstalled()) {
@@ -453,6 +457,20 @@ class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
     {
         if (class_exists(RenderHookRegistry::class)) {
             $this->app->make(RegisterSeoHeadHooks::class)->register();
+        }
+
+        return $this;
+    }
+
+    protected function registerContentGraphExtractors(): self
+    {
+        if (class_exists(ContentGraphRegistry::class)) {
+            $this->app->singleton(PageSeoSnapshotContentGraphExtractor::class);
+            $this->app->singleton(BrokenLinkContentGraphExtractor::class);
+            $this->app->tag([
+                PageSeoSnapshotContentGraphExtractor::class,
+                BrokenLinkContentGraphExtractor::class,
+            ], ContentGraphRegistry::TAG);
         }
 
         return $this;
