@@ -30,6 +30,7 @@ use Capell\Frontend\Support\Rules\FrontendRuleConditionRegistry;
 use Capell\PublicActions\Support\PublicActionHandlerRegistry;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
@@ -230,6 +231,7 @@ class AccessGateServiceProvider extends AbstractPackageServiceProvider
     private function applyMiddlewarePriority(Router $router): void
     {
         $priority = [
+            EncryptCookies::class,
             AccessGateMiddleware::class,
             'access-gate',
             ...$this->pageCacheMiddlewarePriorityNames($router),

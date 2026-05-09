@@ -14,11 +14,13 @@ use Capell\Core\Models\Site;
 use Capell\SeoSuite\Actions\BuildAiReadinessAuditAction;
 use Capell\SeoSuite\Actions\DashboardReports\BuildAiDiscoveryPageQueryAction;
 use Capell\SeoSuite\Actions\FillAiDiscoveryPageSummaryAction;
+use Capell\SeoSuite\Actions\PageIsDiscoverableForAiDiscoveryAction;
 use Capell\SeoSuite\Actions\ResolveAiDiscoveryProfileAction;
 use Capell\SeoSuite\Actions\UpdateAiDiscoveryPageInclusionAction;
 use Capell\SeoSuite\Actions\UpdateAiDiscoveryPageProfileAction;
 use Capell\SeoSuite\Models\AiDiscoveryPageProfile;
 use Capell\SeoSuite\Models\AiDiscoverySiteProfile;
+use Capell\SeoSuite\Settings\SeoSuiteSettings;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
@@ -26,6 +28,7 @@ use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
@@ -34,6 +37,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use LogicException;
+use Throwable;
 
 class AiDiscoveryTable implements TableConfigurator
 {
@@ -46,6 +50,11 @@ class AiDiscoveryTable implements TableConfigurator
      * @var array<string, int>
      */
     private static array $readinessIssueCounts = [];
+
+    /**
+     * @var array<string, bool>
+     */
+    private static array $markdownDiscoverability = [];
 
     public static function configure(Table $table): Table
     {
@@ -95,9 +104,16 @@ class AiDiscoveryTable implements TableConfigurator
                 ->sortable(false),
             TextColumn::make('ai_discovery_readiness_issues')
                 ->label(__('capell-seo-suite::generic.ai_discovery_readiness_issues'))
-                ->state(fn (Page $record): int => self::readinessIssueCountFor($record))
+                ->state(fn (Page $record): string => self::readinessIssueStateFor($record))
+                ->formatStateUsing(fn (string $state): string => $state === 'disabled'
+                    ? __('capell-seo-suite::generic.ai_discovery_audit_disabled')
+                    : $state)
                 ->badge()
-                ->color(fn (int $state): string => $state === 0 ? 'success' : 'warning')
+                ->color(fn (string $state): string => match ($state) {
+                    'disabled' => 'gray',
+                    '0' => 'success',
+                    default => 'warning',
+                })
                 ->sortable(false),
             TextColumn::make('ai_discovery_markdown')
                 ->label(__('capell-seo-suite::generic.ai_discovery_snapshot_kind_page_markdown'))
@@ -148,6 +164,12 @@ class AiDiscoveryTable implements TableConfigurator
             Action::make('edit_ai_discovery')
                 ->label(__('capell-seo-suite::generic.ai_discovery_edit_settings'))
                 ->icon('heroicon-o-adjustments-horizontal')
+                ->modalHeading(fn (Page $record): string => __('capell-seo-suite::generic.ai_discovery_edit_settings_for_page', [
+                    'page' => $record->name,
+                ]))
+                ->tooltip(fn (Page $record): string => __('capell-seo-suite::generic.ai_discovery_edit_settings_for_page', [
+                    'page' => $record->name,
+                ]))
                 ->fillForm(fn (Page $record): array => self::profileFormState($record))
                 ->schema(self::profileFormSchema())
                 ->action(function (Page $record, Action $action, array $data): void {
@@ -158,6 +180,9 @@ class AiDiscoveryTable implements TableConfigurator
             Action::make('fill_ai_summary')
                 ->label(__('capell-seo-suite::generic.ai_discovery_fill_summary'))
                 ->icon('heroicon-o-sparkles')
+                ->requiresConfirmation(fn (Page $record): bool => trim((string) self::profileFor($record)?->summary) !== '')
+                ->modalHeading(__('capell-seo-suite::generic.ai_discovery_replace_summary_heading'))
+                ->modalDescription(__('capell-seo-suite::generic.ai_discovery_replace_summary_description'))
                 ->action(function (Page $record, Action $action): void {
                     self::fillSummary($record);
                     $action->success();
@@ -253,10 +278,12 @@ class AiDiscoveryTable implements TableConfigurator
     {
         return [
             Checkbox::make('include_in_ai_index')
-                ->label(__('capell-seo-suite::form.ai_discovery_include_in_ai_index')),
+                ->label(__('capell-seo-suite::form.ai_discovery_include_in_ai_index'))
+                ->live(),
             TextInput::make('section')
                 ->label(__('capell-seo-suite::form.ai_discovery_section'))
-                ->placeholder('Pages'),
+                ->placeholder(__('capell-seo-suite::generic.ai_discovery_default_section_placeholder'))
+                ->maxLength(255),
             TextInput::make('priority')
                 ->label(__('capell-seo-suite::form.ai_discovery_priority'))
                 ->numeric()
@@ -272,6 +299,8 @@ class AiDiscoveryTable implements TableConfigurator
                 ->columnSpanFull(),
             TextInput::make('exclude_reason')
                 ->label(__('capell-seo-suite::form.ai_discovery_exclude_reason'))
+                ->maxLength(255)
+                ->visible(fn (Get $get): bool => $get('include_in_ai_index') !== true)
                 ->columnSpanFull(),
         ];
     }
@@ -351,6 +380,15 @@ class AiDiscoveryTable implements TableConfigurator
         return self::$readinessIssueCounts[$cacheKey] = BuildAiReadinessAuditAction::run($record, $site, $language)->count();
     }
 
+    private static function readinessIssueStateFor(Page $record): string
+    {
+        if (! self::auditEnabled()) {
+            return 'disabled';
+        }
+
+        return (string) self::readinessIssueCountFor($record);
+    }
+
     private static function markdownStateFor(Page $record): string
     {
         $profile = self::siteProfileFor($record);
@@ -367,6 +405,14 @@ class AiDiscoveryTable implements TableConfigurator
         $profile = self::siteProfileFor($record);
 
         if (! $profile instanceof AiDiscoverySiteProfile || ! $profile->markdown_pages_enabled) {
+            return null;
+        }
+
+        if (self::profileFor($record)?->include_in_ai_index !== true) {
+            return null;
+        }
+
+        if (! self::isDiscoverableForMarkdown($record)) {
             return null;
         }
 
@@ -402,6 +448,23 @@ class AiDiscoveryTable implements TableConfigurator
         return $profile instanceof AiDiscoverySiteProfile ? $profile : null;
     }
 
+    private static function isDiscoverableForMarkdown(Page $record): bool
+    {
+        $site = self::siteFor($record);
+        $language = self::languageFor($record);
+        $cacheKey = self::recordCacheKey($record);
+
+        if (array_key_exists($cacheKey, self::$markdownDiscoverability)) {
+            return self::$markdownDiscoverability[$cacheKey];
+        }
+
+        if (! $site instanceof Site || ! $language instanceof Language) {
+            return self::$markdownDiscoverability[$cacheKey] = false;
+        }
+
+        return self::$markdownDiscoverability[$cacheKey] = PageIsDiscoverableForAiDiscoveryAction::run($record, $site, $language);
+    }
+
     private static function siteFor(Page $record): ?Site
     {
         $record->loadMissing('site.language');
@@ -418,8 +481,22 @@ class AiDiscoveryTable implements TableConfigurator
 
     private static function whereIncluded(Builder $query, bool $included): Builder
     {
-        return self::whereAiProfile($query, function (QueryBuilder $profileQuery) use ($included): void {
-            $profileQuery->where('include_in_ai_index', $included);
+        return $query->where(function (Builder $nestedQuery) use ($included): void {
+            self::whereAiProfile($nestedQuery, function (QueryBuilder $profileQuery) use ($included): void {
+                $profileQuery->where('include_in_ai_index', $included);
+            })->orWhere(function (Builder $missingProfileQuery) use ($included): void {
+                $missingProfileQuery
+                    ->whereNotExists(self::profileExistsQuery())
+                    ->whereExists(self::siteProfileDefaultQuery($included));
+
+                if ($included) {
+                    $missingProfileQuery->orWhere(function (Builder $missingSiteProfileQuery): void {
+                        $missingSiteProfileQuery
+                            ->whereNotExists(self::profileExistsQuery())
+                            ->whereNotExists(self::siteProfileExistsQuery());
+                    });
+                }
+            });
         });
     }
 
@@ -460,6 +537,21 @@ class AiDiscoveryTable implements TableConfigurator
         };
     }
 
+    private static function siteProfileDefaultQuery(bool $included): Closure
+    {
+        return function (QueryBuilder $siteProfileQuery) use ($included): void {
+            self::constrainSiteProfileQuery($siteProfileQuery);
+            $siteProfileQuery->where('ai_discovery_site_profiles.default_include_pages', $included);
+        };
+    }
+
+    private static function siteProfileExistsQuery(): Closure
+    {
+        return function (QueryBuilder $siteProfileQuery): void {
+            self::constrainSiteProfileQuery($siteProfileQuery);
+        };
+    }
+
     private static function constrainProfileQuery(QueryBuilder $profileQuery): void
     {
         $profileQuery
@@ -476,11 +568,27 @@ class AiDiscoveryTable implements TableConfigurator
             });
     }
 
+    private static function constrainSiteProfileQuery(QueryBuilder $siteProfileQuery): void
+    {
+        $siteProfileQuery
+            ->selectRaw('1')
+            ->from('ai_discovery_site_profiles')
+            ->whereColumn('ai_discovery_site_profiles.site_id', 'pages.site_id')
+            ->whereExists(function (QueryBuilder $siteQuery): void {
+                $siteQuery
+                    ->selectRaw('1')
+                    ->from('sites')
+                    ->whereColumn('sites.id', 'pages.site_id')
+                    ->whereColumn('sites.language_id', 'ai_discovery_site_profiles.language_id');
+            });
+    }
+
     private static function forgetRecordCache(Page $record): void
     {
         unset(
             self::$profiles[self::recordCacheKey($record)],
             self::$readinessIssueCounts[self::recordCacheKey($record)],
+            self::$markdownDiscoverability[self::recordCacheKey($record)],
         );
     }
 
@@ -498,5 +606,14 @@ class AiDiscoveryTable implements TableConfigurator
             ->title(__('capell-seo-suite::generic.ai_discovery_updated'))
             ->success()
             ->send();
+    }
+
+    private static function auditEnabled(): bool
+    {
+        try {
+            return resolve(SeoSuiteSettings::class)->ai_discovery_audit_enabled;
+        } catch (Throwable) {
+            return true;
+        }
     }
 }

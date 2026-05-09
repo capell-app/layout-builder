@@ -15,11 +15,15 @@ use Capell\AccessGate\Models\BrowserToken;
 use Capell\AccessGate\Models\Grant;
 use Capell\Core\Actions\LoadSiteDomainFromUrlAction;
 use Capell\Core\Models\SiteDomain;
+use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Contracts\Encryption\Encrypter;
+use Illuminate\Cookie\CookieValuePrefix;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Throwable;
 
 final class ResolveAccessGateAccessAction
 {
@@ -257,6 +261,32 @@ final class ResolveAccessGateAccessAction
     {
         $cookieName = config('access-gate.cookies.browser_token.name', 'capell_access_gate_browser_token');
 
-        return is_string($cookieName) ? $request->cookies->get($cookieName) : null;
+        if (! is_string($cookieName)) {
+            return null;
+        }
+
+        $value = $request->cookies->get($cookieName);
+
+        if (! is_string($value) || $value === '') {
+            return null;
+        }
+
+        return $this->decryptBrowserTokenCookie($cookieName, $value) ?? $value;
+    }
+
+    private function decryptBrowserTokenCookie(string $cookieName, string $value): ?string
+    {
+        try {
+            $encrypter = resolve(Encrypter::class);
+            $decrypted = $encrypter->decrypt($value, false);
+        } catch (DecryptException|Throwable) {
+            return null;
+        }
+
+        if (! is_string($decrypted)) {
+            return null;
+        }
+
+        return CookieValuePrefix::validate($cookieName, $decrypted, $encrypter->getAllKeys()) ?? $decrypted;
     }
 }

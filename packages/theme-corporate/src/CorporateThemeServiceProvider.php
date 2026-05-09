@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\ThemeStudio\Corporate;
 
+use Capell\Core\Enums\FrontendRuntime;
 use Capell\Core\Enums\PackageTypeEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\ThemeStudio\Data\ThemeDefinitionData;
@@ -75,6 +76,7 @@ class CorporateThemeServiceProvider extends ServiceProvider
                 ),
             ],
             assets: ['css' => 'vendor/capell/themes/corporate.css'],
+            runtime: FrontendRuntime::Blade,
         );
     }
 

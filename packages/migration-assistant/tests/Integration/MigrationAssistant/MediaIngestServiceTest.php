@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\MigrationAssistant\Services\Import\MediaIngestService;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 
 function makeMediaArchive(string $hex, string $fileName, string $bytes): string
@@ -19,6 +20,10 @@ function makeMediaArchive(string $hex, string $fileName, string $bytes): string
 
     return $path;
 }
+
+beforeEach(function (): void {
+    Queue::fake();
+});
 
 it('ingests a new media binary and creates a Media row', function (): void {
     Storage::fake('public');

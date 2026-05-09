@@ -17,6 +17,7 @@ use Capell\SeoSuite\Actions\PersistAiDiscoverySnapshotAction;
 use Capell\SeoSuite\Actions\ResolveAiDiscoveryProfileAction;
 use Capell\SeoSuite\Actions\SeedDefaultAiCrawlerRulesAction;
 use Capell\SeoSuite\Actions\SyncAiDiscoveryPageProfilesAction;
+use Capell\SeoSuite\Actions\UpdateAiDiscoveryPageInclusionAction;
 use Capell\SeoSuite\Data\AiDiscoveryRenderContextData;
 use Capell\SeoSuite\Enums\AiDiscoverySnapshotKindEnum;
 use Capell\SeoSuite\Enums\AiDiscoveryStatusEnum;
@@ -307,6 +308,36 @@ it('does not serve direct page markdown for noindex pages', function (): void {
         ->withPage($page);
 
     expect(fn () => resolve(PageMarkdownController::class)(Request::create('/private-page.md'), 'private-page'))
+        ->toThrow(NotFoundHttpException::class);
+});
+
+it('expires cached direct page markdown when a page is excluded from ai discovery', function (): void {
+    $language = createAiDiscoveryLanguage();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
+    $siteDomain = $site->siteDomains()->first();
+    $page = Page::factory()
+        ->site($site)
+        ->withTranslations($language, [
+            'title' => 'Cached Page',
+            'content' => '<p>Cached markdown body.</p>',
+        ])
+        ->create();
+
+    ResolveAiDiscoveryProfileAction::run($site, $language);
+
+    resolve(FrontendState::class)
+        ->withSite($site)
+        ->withLanguage($language)
+        ->withDomain($siteDomain)
+        ->withPage($page);
+
+    $response = resolve(PageMarkdownController::class)(Request::create('/cached-page.md'), 'cached-page');
+
+    expect($response->getContent())->toContain('Cached markdown body.');
+
+    UpdateAiDiscoveryPageInclusionAction::run($page, $site, $language, false);
+
+    expect(fn () => resolve(PageMarkdownController::class)(Request::create('/cached-page.md'), 'cached-page'))
         ->toThrow(NotFoundHttpException::class);
 });
 
@@ -619,7 +650,7 @@ it('serves llms txt with markdown headers and only persists snapshots on cache m
 
     $firstResponse = resolve(LlmsTxtController::class)();
     $snapshot = AiDiscoverySnapshot::query()->sole();
-    $generatedAt = $snapshot->generated_at?->toImmutable();
+    $generatedAt = Date::parse($snapshot->generated_at)->toImmutable();
     $cacheKey = sprintf(
         'capell-seo-suite:ai-discovery:%d:%s:%d:llms_txt',
         $site->getKey(),
@@ -641,5 +672,5 @@ it('serves llms txt with markdown headers and only persists snapshots on cache m
         ->and($secondResponse->getContent())->toBe($firstResponse->getContent())
         ->and(AiDiscoverySnapshot::query()->count())->toBe(1)
         ->and($snapshot->cache_key)->toBe($cacheKey)
-        ->and($snapshot->generated_at?->equalTo($generatedAt))->toBeTrue();
+        ->and(Date::parse($snapshot->generated_at)->equalTo($generatedAt))->toBeTrue();
 });

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\PageUrl;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\SiteDomain;
 use Capell\SeoSuite\Actions\BuildAiReadinessAuditAction;
 use Capell\SeoSuite\Actions\BuildAiRobotsTxtRulesAction;
 use Capell\SeoSuite\Actions\DashboardReports\BuildAiDiscoveryPageQueryAction;
@@ -14,10 +16,12 @@ use Capell\SeoSuite\Actions\SeedDefaultAiCrawlerRulesAction;
 use Capell\SeoSuite\Actions\UpdateAiDiscoveryPageInclusionAction;
 use Capell\SeoSuite\Actions\UpdateAiDiscoveryPageProfileAction;
 use Capell\SeoSuite\Filament\Pages\AiDiscoveryPage;
+use Capell\SeoSuite\Filament\Pages\Tables\AiDiscoveryTable;
 use Capell\SeoSuite\Models\AiDiscoveryCrawlerRule;
 use Capell\SeoSuite\Models\AiDiscoveryPageProfile;
 use Capell\SeoSuite\Models\AiDiscoverySiteProfile;
 use Capell\SeoSuite\Settings\SeoSuiteSettings;
+use Capell\Tests\AbstractTestCase;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 
 uses(CreatesAdminUser::class);
@@ -104,7 +108,91 @@ it('updates ai discovery page profile fields from the discovery management surfa
         ->and($profile->exclude_reason)->toBe('Internal documentation.');
 });
 
+it('preserves omitted ai discovery page profile fields on partial updates', function (): void {
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
+    $page = Page::factory()
+        ->site($site)
+        ->withTranslations($language, ['title' => 'AI Discovery Page'])
+        ->create();
+
+    UpdateAiDiscoveryPageProfileAction::run($page, $site, $language, [
+        'section' => 'Docs',
+        'summary' => 'A managed AI summary.',
+        'markdown_override' => "# Custom\n\nMarkdown body.",
+    ]);
+
+    $profile = UpdateAiDiscoveryPageProfileAction::run($page, $site, $language, [
+        'priority' => 25,
+    ]);
+
+    expect($profile->priority)->toBe(25)
+        ->and($profile->section)->toBe('Docs')
+        ->and($profile->summary)->toBe('A managed AI summary.')
+        ->and($profile->markdown_override)->toBe("# Custom\n\nMarkdown body.");
+});
+
+it('filters missing page profiles through the site ai discovery default', function (): void {
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
+    $page = Page::factory()
+        ->site($site)
+        ->withTranslations($language, ['title' => 'AI Discovery Page'])
+        ->create();
+
+    AiDiscoverySiteProfile::query()->create([
+        'site_id' => $site->getKey(),
+        'language_id' => $language->getKey(),
+        'llms_txt_enabled' => true,
+        'llms_full_txt_enabled' => false,
+        'markdown_pages_enabled' => true,
+        'accept_markdown_enabled' => false,
+        'default_include_pages' => false,
+        'max_full_txt_pages' => 50,
+        'max_full_txt_bytes' => 250000,
+        'cache_ttl_seconds' => 3600,
+        'default_section' => 'Pages',
+        'status' => 'enabled',
+    ]);
+
+    $whereIncluded = new ReflectionMethod(AiDiscoveryTable::class, 'whereIncluded');
+
+    $includedQuery = $whereIncluded->invoke(null, Page::query()->whereKey($page), true);
+    $excludedQuery = $whereIncluded->invoke(null, Page::query()->whereKey($page), false);
+
+    expect($includedQuery->exists())->toBeFalse()
+        ->and($excludedQuery->exists())->toBeTrue();
+});
+
+it('hides markdown previews for pages excluded from ai discovery', function (): void {
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
+    $page = Page::factory()
+        ->site($site)
+        ->withTranslations($language, ['title' => 'Private AI Discovery Page'])
+        ->create();
+
+    SiteDomain::factory()
+        ->site($site)
+        ->language($language)
+        ->default()
+        ->create(['domain' => 'example.test', 'scheme' => 'https']);
+    PageUrl::factory()
+        ->site($site)
+        ->language($language)
+        ->page($page)
+        ->state(['url' => '/private-ai-page'])
+        ->create();
+    ResolveAiDiscoveryProfileAction::run($site, $language)->update(['markdown_pages_enabled' => true]);
+    UpdateAiDiscoveryPageInclusionAction::run($page, $site, $language, false, 'Private content');
+
+    $markdownUrlFor = new ReflectionMethod(AiDiscoveryTable::class, 'markdownUrlFor');
+
+    expect($markdownUrlFor->invoke(null, $page->fresh()))->toBeNull();
+});
+
 it('honors seo suite ai discovery default and audit settings', function (): void {
+    /** @var AbstractTestCase $this */
     $this->registerAndMigrateSettings(
         [
             'create_seo_suite_settings',
