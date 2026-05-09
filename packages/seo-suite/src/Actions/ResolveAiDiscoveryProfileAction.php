@@ -7,6 +7,7 @@ namespace Capell\SeoSuite\Actions;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Capell\SeoSuite\Enums\AiDiscoveryStatusEnum;
 use Capell\SeoSuite\Models\AiDiscoveryPageProfile;
 use Capell\SeoSuite\Models\AiDiscoverySiteProfile;
@@ -28,6 +29,12 @@ final class ResolveAiDiscoveryProfileAction
             ],
             $this->siteProfileDefaults(),
         );
+
+        $siteProfile->fill($this->siteMetaOverrides($site, $language));
+
+        if ($siteProfile->isDirty()) {
+            $siteProfile->save();
+        }
 
         if (! $page instanceof Page) {
             return $siteProfile;
@@ -60,6 +67,65 @@ final class ResolveAiDiscoveryProfileAction
             'default_section' => 'Pages',
             'status' => AiDiscoveryStatusEnum::Enabled->value,
         ];
+    }
+
+    /**
+     * @return array<string, bool|int|string|null>
+     */
+    private function siteMetaOverrides(Site $site, Language $language): array
+    {
+        $settings = (array) ($this->siteTranslation($site, $language)?->meta['ai_discovery'] ?? []);
+        $overrides = [];
+
+        foreach ([
+            'llms_txt_enabled',
+            'llms_full_txt_enabled',
+            'markdown_pages_enabled',
+            'accept_markdown_enabled',
+            'default_include_pages',
+        ] as $key) {
+            if (array_key_exists($key, $settings)) {
+                $overrides[$key] = (bool) $settings[$key];
+            }
+        }
+
+        foreach (['max_full_txt_pages', 'max_full_txt_bytes', 'cache_ttl_seconds'] as $key) {
+            if (array_key_exists($key, $settings) && is_numeric($settings[$key])) {
+                $overrides[$key] = max(0, (int) $settings[$key]);
+            }
+        }
+
+        foreach (['default_section', 'intro_markdown'] as $key) {
+            if (array_key_exists($key, $settings)) {
+                $value = is_scalar($settings[$key]) ? trim((string) $settings[$key]) : null;
+                $overrides[$key] = $value !== '' ? $value : null;
+            }
+        }
+
+        if (array_key_exists('status', $settings)) {
+            $status = AiDiscoveryStatusEnum::tryFrom((string) $settings['status']);
+
+            if ($status instanceof AiDiscoveryStatusEnum) {
+                $overrides['status'] = $status->value;
+            }
+        }
+
+        return $overrides;
+    }
+
+    private function siteTranslation(Site $site, Language $language): ?Translation
+    {
+        if ($site->relationLoaded('translations')) {
+            $translation = $site->translations->firstWhere('language_id', $language->getKey());
+
+            return $translation instanceof Translation ? $translation : null;
+        }
+
+        $translation = $site->translations()
+            ->where('language_id', $language->getKey())
+            ->first();
+
+        return $translation instanceof Translation ? $translation : null;
     }
 
     /**

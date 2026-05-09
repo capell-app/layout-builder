@@ -29,7 +29,7 @@ final class StoreAccessRequestController
             ]);
         }
 
-        $this->createRegistration->handle($accessArea, [
+        $registration = $this->createRegistration->handle($accessArea, [
             ...$this->safePublicInput($request, $accessArea),
             'metadata' => [
                 'ip_hash' => hash('sha256', (string) $request->ip()),
@@ -40,6 +40,7 @@ final class StoreAccessRequestController
         return $this->noStore(
             to_route('capell-access-gate.request', ['area' => $accessArea->key])
                 ->with('access_gate_request_submitted', $accessArea->key)
+                ->with('access_gate_registration_id', $registration->getKey())
                 ->with('access_gate_status', __('capell-access-gate::public.request_submitted')),
         );
     }

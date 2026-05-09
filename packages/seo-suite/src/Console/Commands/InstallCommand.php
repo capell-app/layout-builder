@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\SeoSuite\Console\Commands;
 
 use Capell\Core\Support\Migration\MigrationFilesystemInterface;
+use Capell\SeoSuite\Actions\SeedDefaultAiCrawlerRulesAction;
 use Illuminate\Console\Command;
 
 class InstallCommand extends Command
@@ -57,6 +58,7 @@ class InstallCommand extends Command
         $this->info('Migrations published successfully.');
 
         $this->call('migrate');
+        SeedDefaultAiCrawlerRulesAction::run();
 
         $this->newLine();
         $this->info('Capell SEO Suite installed successfully.');

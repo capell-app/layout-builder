@@ -5,6 +5,8 @@ declare(strict_types=1);
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Forms\LanguageSelect;
 use Capell\Admin\Filament\Components\Forms\SiteSelect;
+use Capell\Admin\Filament\Pages\ExtensionsPage;
+use Capell\Admin\Support\Breadcrumbs\ExtensionBreadcrumbDecorator;
 use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
@@ -17,7 +19,16 @@ use Capell\DemoKit\Support\Extensions\ExampleSiteDataActionSchema;
 use Capell\DemoKit\Tests\Fixtures\Commands\TrackingDemoCommand;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Artisan;
+
+function fakeDemoKitCurrentRouteName(string $routeName): void
+{
+    $route = new Route(['GET'], '/testing-route', []);
+    $route->name($routeName);
+
+    request()->setRouteResolver(fn (): Route => $route);
+}
 
 it('creates full multi site and language demo data and runs package demos', function (): void {
     TrackingDemoCommand::reset();
@@ -64,9 +75,15 @@ it('requires force when running non interactively', function (): void {
 });
 
 it('registers its package owned extension page', function (): void {
+    fakeDemoKitCurrentRouteName(DemoKitPage::getRouteName());
+
     expect(CapellAdmin::getAdminSurfaceRegistry()->pages())->toContain(DemoKitPage::class)
         ->and(resolve(ExtensionPageRegistry::class)->get(DemoKitServiceProvider::$packageName))->toBe(DemoKitPage::class)
-        ->and(DemoKitPage::getNavigationGroup())->toBe(__('capell-admin::navigation.group_extensions'));
+        ->and(DemoKitPage::getNavigationGroup())->toBe(__('capell-admin::navigation.group_extensions'))
+        ->and(resolve(ExtensionBreadcrumbDecorator::class)->decorate([]))->toBe([
+            ExtensionsPage::getUrl() => __('capell-admin::navigation.extensions'),
+            resolve(DemoKitPage::class)->getTitle(),
+        ]);
 });
 
 it('builds the insert example site data schema', function (): void {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\PublicActions\Http\Controllers\Zapier;
 
+use Capell\PublicActions\Actions\BuildPublicActionIntegrationQueryAction;
 use Capell\PublicActions\Actions\BuildZapierSubmissionPayloadAction;
 use Capell\PublicActions\Enums\PublicActionIntegrationTokenAbility;
 use Capell\PublicActions\Models\PublicActionIntegrationToken;
@@ -14,6 +15,10 @@ use Illuminate\Http\Request;
 
 final class ListZapierPublicActionSubmissionsController
 {
+    public function __construct(
+        private readonly BuildPublicActionIntegrationQueryAction $buildActionQuery,
+    ) {}
+
     public function __invoke(Request $request): JsonResponse
     {
         $token = $this->token($request);
@@ -27,7 +32,8 @@ final class ListZapierPublicActionSubmissionsController
             ->when($token->site_id !== null, fn (Builder $query): Builder => $query->where(
                 fn (Builder $builder): Builder => $builder->where('site_id', $token->site_id)->orWhereNull('site_id'),
             ))
-            ->when($afterId > 0, fn (Builder $query): Builder => $query->whereKey('>'))
+            ->whereHas('action', fn (Builder $query): Builder => $this->buildActionQuery->apply($query, $token))
+            ->when($afterId > 0, fn (Builder $query): Builder => $query->where('id', '>', $afterId))
             ->latest('submitted_at')
             ->limit(50)
             ->get()

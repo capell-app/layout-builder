@@ -126,9 +126,11 @@ class EmailStudioServiceProvider extends AbstractPackageServiceProvider
             if (! is_string($tableName)) {
                 continue;
             }
+
             if ($tableName === '') {
                 continue;
             }
+
             CapellCore::registerProtectedTable(static fn (): string => $tableName);
         }
 

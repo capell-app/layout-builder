@@ -2,17 +2,16 @@
 
 declare(strict_types=1);
 
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\SeoSuite\Console\Commands\InstallCommand;
 use Capell\SeoSuite\Settings\SeoSuiteSettings;
-use Capell\Tests\AbstractTestCase;
 use Composer\Autoload\ClassLoader;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Livewire\LivewireServiceProvider;
+use Spatie\LaravelSettings\Migrations\SettingsMigration;
+use Spatie\LaravelSettings\Migrations\SettingsMigrator;
 
 $composerAutoloader = require getcwd() . '/vendor/autoload.php';
 
@@ -21,39 +20,38 @@ if ($composerAutoloader instanceof ClassLoader) {
 
     $composerAutoloader->addPsr4('Capell\\SeoSuite\\', $packageRoot . '/src');
     $composerAutoloader->addPsr4('Capell\\SeoSuite\\Database\\Factories\\', $packageRoot . '/database/factories');
+    $composerAutoloader->addPsr4('Capell\\SeoSuite\\Tests\\', $packageRoot . '/tests');
 }
 
-class AiDiscoveryMigrationTestCase extends AbstractTestCase
+function createAiDiscoveryMigrationLanguage(): Language
 {
-    protected function getPackageServiceName(): string
-    {
-        return 'capell-seo-suite';
-    }
-
-    /**
-     * @return class-string[]
-     */
-    protected function getPackageProviders(mixed $app): array
-    {
-        return [
-            ...parent::getDefaultPackageProviders(),
-            LivewireServiceProvider::class,
-        ];
-    }
-
-    protected function getEnvironmentSetUp(mixed $app): void
-    {
-        parent::getEnvironmentSetUp($app);
-
-        CapellCore::registerPackage(
-            'capell-app/seo-suite',
-            path: dirname(__DIR__, 3),
-        );
-        CapellCore::forcePackageInstalled('capell-app/seo-suite');
-    }
+    return Language::query()->create([
+        'name' => 'English',
+        'locale' => 'en',
+        'code' => 'en',
+        'flag' => 'gb-eng',
+        'status' => true,
+        'default' => true,
+        'order' => 1,
+    ]);
 }
 
-uses(AiDiscoveryMigrationTestCase::class);
+function runAiDiscoverySettingsMigrations(array $migrations, string $basePath): void
+{
+    $settingsMigrator = resolve(SettingsMigrator::class);
+
+    foreach ($migrations as $migrationFile) {
+        $path = sprintf('%s/%s.php', $basePath, $migrationFile);
+        /** @var SettingsMigration $migration */
+        $migration = require $path;
+
+        if (method_exists($migration, 'setMigrationAssistant')) {
+            $migration->setMigrationAssistant($settingsMigrator);
+        }
+
+        $migration->up();
+    }
+}
 
 it('creates ai discovery tables with expected columns and indexes', function (): void {
     expect(Schema::hasTable('ai_discovery_site_profiles'))->toBeTrue()
@@ -128,7 +126,7 @@ it('creates ai discovery tables with expected columns and indexes', function ():
 });
 
 it('creates ai discovery records with expected database defaults', function (): void {
-    $language = Language::factory()->create();
+    $language = createAiDiscoveryMigrationLanguage();
     $site = Site::factory()->language($language)->withTranslations($language)->create();
     $page = Page::factory()->site($site)->withTranslations($language)->create();
 
@@ -211,7 +209,7 @@ it('creates expected ai discovery indexes on sqlite', function (): void {
 });
 
 it('adds ai discovery seo suite settings defaults', function (): void {
-    $this->registerAndMigrateSettings(
+    runAiDiscoverySettingsMigrations(
         [
             'create_seo_suite_settings',
             '2026_05_09_000001_update_seo_suite_settings_add_ai_discovery',

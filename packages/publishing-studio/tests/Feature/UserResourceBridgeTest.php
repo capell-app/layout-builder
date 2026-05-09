@@ -110,21 +110,17 @@ function resetPublishingStudioAdminBridgeState(): void
 
 function runPublishingStudioSettingsMigration(): void
 {
-    /** @var SettingsMigration $migration */
-    $migration = require dirname(__DIR__, 2) . '/database/settings/add_publishing_studio_settings.php';
+    /** @var SettingsMigration $settingsMigration */
+    $settingsMigration = require dirname(__DIR__, 2) . '/database/settings/add_publishing_studio_settings.php';
 
     /** @var SettingsMigrator $settingsMigrator */
     $settingsMigrator = resolve(SettingsMigrator::class);
 
-    if (method_exists($migration, 'setMigrationAssistant')) {
-        $migration->setMigrationAssistant($settingsMigrator);
+    if (method_exists($settingsMigration, 'setMigrationAssistant')) {
+        $settingsMigration->setMigrationAssistant($settingsMigrator);
     }
 
-    if (! property_exists($migration, 'migration')) {
-        $migration->migration = $settingsMigrator;
-    }
-
-    $migration->up();
+    $settingsMigration->up();
 }
 
 function createPublishingStudioBridgeWorkspaceFor(User $user, string $slug): Workspace

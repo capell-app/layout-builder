@@ -44,7 +44,7 @@ class SitemapPageCreator
             'layout_id' => $layout->id,
             'site_id' => $site->id,
             'type_id' => $type->id,
-            'name' => __('capell::generic.sitemap'),
+            'name' => __('capell-seo-suite::generic.sitemap'),
         ];
 
         /** @var Page $page */
@@ -66,7 +66,7 @@ class SitemapPageCreator
                 'meta' => [
                     'slug' => 'sitemap',
                 ],
-                'title' => __('capell::generic.sitemap'),
+                'title' => __('capell-seo-suite::generic.sitemap'),
             ]);
 
             $page->pageUrl()->create([

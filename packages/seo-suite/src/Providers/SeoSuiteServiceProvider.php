@@ -33,6 +33,7 @@ use Capell\Core\Support\Settings\SettingsGroupMetadata;
 use Capell\Core\Support\Settings\SettingsSchemaRegistry;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
 use Capell\SeoSuite\Actions\Ai\RecordAiGenerationAction;
+use Capell\SeoSuite\Actions\ClearAiDiscoveryCacheAction;
 use Capell\SeoSuite\Console\Commands\ClearAiCacheCommand;
 use Capell\SeoSuite\Console\Commands\InstallCommand;
 use Capell\SeoSuite\Console\Commands\MonitorAiUsageCommand;
@@ -53,6 +54,7 @@ use Capell\SeoSuite\Filament\Extenders\Site\SiteDetailsMetaExtender;
 use Capell\SeoSuite\Filament\Extenders\Site\SitemapSiteHeaderActionExtender;
 use Capell\SeoSuite\Filament\Extenders\Site\SitemapSiteRecordActionExtender;
 use Capell\SeoSuite\Filament\Extenders\Site\SiteTranslationMetaExtender;
+use Capell\SeoSuite\Filament\Pages\AiDiscoveryPage;
 use Capell\SeoSuite\Filament\Pages\BrokenLinksPage;
 use Capell\SeoSuite\Filament\Pages\NotFoundUrlsPage;
 use Capell\SeoSuite\Filament\Pages\SeoAuditPage;
@@ -63,7 +65,13 @@ use Capell\SeoSuite\Filament\Settings\AIOrchestratorSettingsSchema;
 use Capell\SeoSuite\Filament\Settings\SeoSettingsSchema;
 use Capell\SeoSuite\Filament\Settings\StructuredDataSettingsSchema;
 use Capell\SeoSuite\Handlers\ClearCircuitBreakerHandler;
+use Capell\SeoSuite\Http\Controllers\LlmsFullTxtController;
 use Capell\SeoSuite\Http\Controllers\LlmsTxtController;
+use Capell\SeoSuite\Http\Controllers\PageMarkdownController;
+use Capell\SeoSuite\Http\Controllers\RobotsTxtController;
+use Capell\SeoSuite\Listeners\AiDiscovery\ClearAiDiscoveryCacheOnPageDeleted;
+use Capell\SeoSuite\Listeners\AiDiscovery\ClearAiDiscoveryCacheOnPageSaved;
+use Capell\SeoSuite\Listeners\AiDiscovery\SeedAiCrawlerRulesOnSiteCreated;
 use Capell\SeoSuite\Listeners\LogAiGeneration;
 use Capell\SeoSuite\Listeners\NotifyAiFailure;
 use Capell\SeoSuite\Listeners\RecordBrokenLink;
@@ -117,10 +125,13 @@ use Capell\SeoSuite\Support\Sitemap\Pages\PagesSitemap;
 use Capell\SeoSuite\Support\Sitemap\SitemapPageRegistry;
 use Capell\SeoSuite\Support\Sitemap\SitemapPageType;
 use Capell\SeoSuite\Targets\FlatJsonTarget;
+use Closure;
 use Composer\InstalledVersions;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
@@ -366,6 +377,7 @@ class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
         $adminManager->registerExtensionPage(static::$packageName, NotFoundUrlsPage::class);
         $adminManager->registerExtensionPage(static::$packageName, BrokenLinksPage::class);
         $adminManager->registerExtensionPage(static::$packageName, SeoAuditPage::class);
+        $adminManager->registerExtensionPage(static::$packageName, AiDiscoveryPage::class);
         $adminManager->registerExtensionPage(static::$packageName, SeoSuiteSettingsPage::class);
         $adminManager->registerExtensionPage(static::$packageName, TranslationCoveragePage::class);
         $adminManager->registerExtensionPage(static::$packageName, SitemapPage::class);
@@ -416,7 +428,7 @@ class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
     {
         CapellCore::addDefaultPage(
             'sitemap',
-            __('capell::generic.sitemap'),
+            __('capell-seo-suite::generic.sitemap'),
             function (Site $site, ?Collection $languages = null): void {
                 resolve(SitemapPageCreator::class)->createSitemapPage($site, $languages);
             },
@@ -457,6 +469,28 @@ class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
         return $this;
     }
 
+    protected function registerAiDiscoveryEventListeners(): self
+    {
+        $events = $this->app->make(Dispatcher::class);
+        $events->listen(PageSaved::class, ClearAiDiscoveryCacheOnPageSaved::class);
+        $events->listen(PageDeleted::class, ClearAiDiscoveryCacheOnPageDeleted::class);
+        $events->listen(SiteCreated::class, SeedAiCrawlerRulesOnSiteCreated::class);
+
+        return $this;
+    }
+
+    protected function bindPageMarkdownResponder(): self
+    {
+        $this->app->bind(
+            'capell.frontend.page-markdown-response',
+            fn (Application $application): Closure => fn (): ?Response => $application
+                ->make(PageMarkdownController::class)
+                ->forAcceptHeader($application->make(Request::class)),
+        );
+
+        return $this;
+    }
+
     protected function registerRenderHooks(): self
     {
         if (class_exists(RenderHookRegistry::class)) {
@@ -483,9 +517,21 @@ class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
     protected function registerLlmsTxtRoute(): self
     {
         Route::name('capell-frontend.')
-            ->middleware(['web', 'frontend.resolve'])
             ->group(function (): void {
-                Route::get('llms.txt', LlmsTxtController::class)->name('llms-txt');
+                Route::middleware(['web', 'frontend.resolve'])
+                    ->group(function (): void {
+                        Route::get('llms.txt', LlmsTxtController::class)->name('llms-txt');
+                        Route::get('llms-full.txt', LlmsFullTxtController::class)->name('llms-full-txt');
+                        Route::get('robots.txt', RobotsTxtController::class)->name('robots-txt');
+                    });
+
+                Route::middleware(['web'])
+                    ->group(function (): void {
+                        Route::get('index.md', PageMarkdownController::class)->name('page-markdown-home');
+                        Route::get('{url}.md', PageMarkdownController::class)
+                            ->where('url', config('capell-frontend.route.url_regex', '.*'))
+                            ->name('page-markdown');
+                    });
             });
 
         return $this;
@@ -506,6 +552,8 @@ class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
             ->registerSiteSchemaExtenders()
             ->registerAiServices()
             ->registerAiEventListeners()
+            ->registerAiDiscoveryEventListeners()
+            ->registerAiDiscoveryModelCacheInvalidation()
             ->registerBrokenLinkEventListeners()
             ->registerSettingsSchema()
             ->registerSitemapPageType()
@@ -513,11 +561,23 @@ class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
             ->registerSitemapRegistry()
             ->registerSchemaTemplateRegistry()
             ->registerSitemapEventListeners()
+            ->bindPageMarkdownResponder()
             ->registerFilamentPages()
             ->registerLivewireComponents()
             ->registerFrontendViews()
             ->registerRenderHooks()
             ->registerLlmsTxtRoute();
+    }
+
+    private function registerAiDiscoveryModelCacheInvalidation(): self
+    {
+        AiDiscoverySiteProfile::saved(fn (AiDiscoverySiteProfile $profile): int => ClearAiDiscoveryCacheAction::run($profile->site, $profile->language));
+        AiDiscoverySiteProfile::deleted(fn (AiDiscoverySiteProfile $profile): int => ClearAiDiscoveryCacheAction::run($profile->site, $profile->language));
+
+        AiDiscoveryPageProfile::saved(fn (AiDiscoveryPageProfile $profile): int => ClearAiDiscoveryCacheAction::run($profile->site, $profile->language, $profile->page));
+        AiDiscoveryPageProfile::deleted(fn (AiDiscoveryPageProfile $profile): int => ClearAiDiscoveryCacheAction::run($profile->site, $profile->language, $profile->page));
+
+        return $this;
     }
 
     private function isPackageInstalled(): bool

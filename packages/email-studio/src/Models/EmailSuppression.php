@@ -6,9 +6,19 @@ namespace Capell\EmailStudio\Models;
 
 use Capell\EmailStudio\Database\Factories\EmailSuppressionFactory;
 use Capell\EmailStudio\Enums\SuppressionReason;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int|null $site_id
+ * @property string $site_scope_key
+ * @property string $normalized_email
+ * @property string $email_hash
+ * @property SuppressionReason $reason
+ * @property CarbonImmutable|null $suppressed_at
+ * @property CarbonImmutable|null $released_at
+ */
 class EmailSuppression extends Model
 {
     /** @use HasFactory<EmailSuppressionFactory> */

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\AccessGate\Filament\Resources\Registrations;
 
+use App\Actions\AccessGate\InviteApprovedRegistrationToCoreRepositoriesAction;
+use App\Enums\GitHubRepositoryAccessStatus;
 use BackedEnum;
 use Capell\AccessGate\Actions\ApproveRegistrationAction;
 use Capell\AccessGate\Actions\ExpireRegistrationAction;
@@ -17,6 +19,7 @@ use Capell\AccessGate\Providers\AccessGateServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -60,6 +63,12 @@ final class RegistrationResource extends Resource
                     ->label(__('capell-access-gate::filament.fields.status'))
                     ->badge()
                     ->sortable(),
+                TextColumn::make('github_repository_access_status')
+                    ->label(__('capell-access-gate::filament.fields.github_repository_access_status'))
+                    ->state(fn (Registration $record): string => self::githubRepositoryAccessStatusLabel($record))
+                    ->badge()
+                    ->color(fn (Registration $record): string => self::githubRepositoryAccessStatusColor($record))
+                    ->toggleable(),
                 TextColumn::make('requested_host')
                     ->label(__('capell-access-gate::filament.fields.requested_host'))
                     ->searchable()
@@ -112,6 +121,12 @@ final class RegistrationResource extends Resource
                         ->label(__('capell-access-gate::filament.actions.resend_claim'))
                         ->visible(fn (Registration $record): bool => in_array($record->status, [RegistrationStatus::Approved, RegistrationStatus::Claimed], true))
                         ->action(fn (Registration $record): mixed => ResendAccessGateClaimTokenAction::run($record)),
+                    Action::make('retryGithubInvites')
+                        ->label(__('capell-access-gate::filament.actions.retry_github_invites'))
+                        ->icon(Heroicon::ArrowPath)
+                        ->visible(fn (Registration $record): bool => self::canRetryGithubInvites($record))
+                        ->requiresConfirmation()
+                        ->action(fn (Registration $record): mixed => self::retryGithubInvites($record)),
                     Action::make('expire')
                         ->label(__('capell-access-gate::filament.actions.expire'))
                         ->color('danger')
@@ -148,5 +163,72 @@ final class RegistrationResource extends Resource
         return [
             'index' => ListRegistrations::route('/'),
         ];
+    }
+
+    private static function githubRepositoryAccessStatusLabel(Registration $registration): string
+    {
+        $status = self::githubRepositoryAccessStatus($registration);
+
+        if (is_object($status) && method_exists($status, 'label')) {
+            return (string) $status->label();
+        }
+
+        return __('capell-access-gate::filament.fields.status');
+    }
+
+    private static function githubRepositoryAccessStatusColor(Registration $registration): string
+    {
+        $status = self::githubRepositoryAccessStatus($registration);
+
+        if (is_object($status) && method_exists($status, 'color')) {
+            return (string) $status->color();
+        }
+
+        return 'gray';
+    }
+
+    private static function canRetryGithubInvites(Registration $registration): bool
+    {
+        if (! class_exists(InviteApprovedRegistrationToCoreRepositoriesAction::class)) {
+            return false;
+        }
+
+        $status = self::githubRepositoryAccessStatus($registration);
+        $hasGithubUsername = is_string($registration->field_values['github_username']['value'] ?? null)
+            && $registration->field_values['github_username']['value'] !== '';
+
+        return $hasGithubUsername
+            && is_object($status)
+            && method_exists($status, 'isRetryable')
+            && $status->isRetryable()
+            && in_array($registration->status, [RegistrationStatus::Approved, RegistrationStatus::Claimed], true);
+    }
+
+    private static function retryGithubInvites(Registration $registration): void
+    {
+        if (! class_exists(InviteApprovedRegistrationToCoreRepositoriesAction::class)) {
+            Notification::make()
+                ->title(__('capell-access-gate::filament.messages.github_invites_unavailable'))
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        resolve(InviteApprovedRegistrationToCoreRepositoriesAction::class)->handle($registration);
+
+        Notification::make()
+            ->title(__('capell-access-gate::filament.messages.github_invites_retried'))
+            ->success()
+            ->send();
+    }
+
+    private static function githubRepositoryAccessStatus(Registration $registration): ?object
+    {
+        if (! class_exists(GitHubRepositoryAccessStatus::class)) {
+            return null;
+        }
+
+        return GitHubRepositoryAccessStatus::forRegistration($registration);
     }
 }

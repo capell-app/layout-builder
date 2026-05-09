@@ -13,9 +13,13 @@ class FormSubmitted
 {
     use Dispatchable;
 
+    /**
+     * @param  array<string, mixed>|null  $payload
+     */
     public function __construct(
         public Form $form,
         public ?Submission $submission = null,
         public ?SubmissionMetaData $metadata = null,
+        public ?array $payload = null,
     ) {}
 }

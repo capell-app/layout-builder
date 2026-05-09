@@ -12,6 +12,7 @@ use Capell\SeoSuite\Actions\PersistAiDiscoverySnapshotAction;
 use Capell\SeoSuite\Actions\ResolveAiDiscoveryProfileAction;
 use Capell\SeoSuite\Data\AiDiscoveryRenderContextData;
 use Capell\SeoSuite\Enums\AiDiscoverySnapshotKindEnum;
+use Capell\SeoSuite\Enums\AiDiscoveryStatusEnum;
 use Capell\SeoSuite\Models\AiDiscoverySiteProfile;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller as BaseController;
@@ -33,7 +34,7 @@ class LlmsTxtController extends BaseController
 
         throw_unless($siteProfile instanceof AiDiscoverySiteProfile, LogicException::class, 'Resolving an AI Discovery site profile returned an unexpected page profile.');
 
-        abort_if(! $siteProfile->llms_txt_enabled, 404);
+        abort_if(! $siteProfile->llms_txt_enabled || $siteProfile->status === AiDiscoveryStatusEnum::Disabled, 404);
 
         $context = new AiDiscoveryRenderContextData($site, $language, $siteDomain);
         $cacheKey = sprintf(
@@ -60,7 +61,12 @@ class LlmsTxtController extends BaseController
         return response($content, 200, [
             'Content-Type' => 'text/markdown; charset=utf-8',
             'Cache-Control' => sprintf('public, max-age=%d', $ttlSeconds),
-            'ETag' => '"' . hash('sha256', $content) . '"',
+            'ETag' => $this->etag($content),
         ]);
+    }
+
+    private function etag(string $content): string
+    {
+        return '"' . hash('sha256', $content) . '"';
     }
 }

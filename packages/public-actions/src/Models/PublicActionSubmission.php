@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property array<string, mixed>|null $payload
  * @property array<string, mixed>|null $metadata
  * @property CarbonInterface|null $submitted_at
+ * @property CarbonInterface|null $created_at
  */
 class PublicActionSubmission extends Model
 {

@@ -7,11 +7,14 @@ namespace Capell\SeoSuite\Models;
 use Capell\Core\Models\Site;
 use Capell\SeoSuite\Enums\AiDiscoveryCrawlerDirectiveEnum;
 use Capell\SeoSuite\Enums\AiDiscoveryCrawlerPurposeEnum;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AiDiscoveryCrawlerRule extends Model
 {
+    use HasFactory;
+
     protected $guarded = [];
 
     public function site(): BelongsTo

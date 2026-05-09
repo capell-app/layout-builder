@@ -23,6 +23,8 @@ class SeoSuiteSettings extends Settings implements SettingsContract, SettingsSch
 
     public bool $ai_discovery_default_enabled = true;
 
+    public string $ai_discovery_crawler_policy = 'search_visible_training_restricted';
+
     public static function group(): string
     {
         return 'seo_suite';

@@ -24,6 +24,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Illuminate\View\Compilers\BladeCompiler;
 use Spatie\LaravelPackageTools\Package;
 
 class PublicActionsServiceProvider extends AbstractPackageServiceProvider
@@ -60,6 +61,7 @@ class PublicActionsServiceProvider extends AbstractPackageServiceProvider
 
             return $registry;
         });
+        $this->registerBladeComponents();
 
         $this->app->booted(function (): void {
             $this->registerRateLimiters();
@@ -91,6 +93,15 @@ class PublicActionsServiceProvider extends AbstractPackageServiceProvider
             version: CapellCore::getInstalledPrettyVersion(self::$packageName),
             description: fn (): string => __('capell-public-actions::package.description'),
         );
+
+        return $this;
+    }
+
+    private function registerBladeComponents(): self
+    {
+        $this->callAfterResolving(BladeCompiler::class, static function (BladeCompiler $blade): void {
+            $blade->anonymousComponentNamespace('capell-public-actions::components', 'capell-public-actions');
+        });
 
         return $this;
     }
@@ -151,9 +162,11 @@ class PublicActionsServiceProvider extends AbstractPackageServiceProvider
             if (! is_string($tableName)) {
                 continue;
             }
+
             if ($tableName === '') {
                 continue;
             }
+
             CapellCore::registerProtectedTable(static fn (): string => $tableName);
         }
 

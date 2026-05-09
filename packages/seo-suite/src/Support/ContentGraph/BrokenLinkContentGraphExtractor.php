@@ -33,7 +33,7 @@ final class BrokenLinkContentGraphExtractor implements ContentGraphExtractor
         return ContentGraphEdgeCollectionData::make([
             new ContentGraphEdgeData(
                 source: ContentGraphNodeData::fromModel($brokenLink),
-                target: ContentGraphNodeData::fromModelIdentity(Page::class, (int) $brokenLink->page_id),
+                target: ContentGraphNodeData::fromModelIdentity(Page::class, $brokenLink->page_id),
                 kind: ContentGraphEdgeKind::FoundOnPage,
                 strength: ContentGraphEdgeStrength::Weak,
                 sourcePackage: 'capell-app/seo-suite',

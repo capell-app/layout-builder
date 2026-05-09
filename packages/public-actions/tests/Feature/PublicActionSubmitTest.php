@@ -63,6 +63,36 @@ it('returns json for json submissions', function (): void {
         ]);
 });
 
+it('ignores public payload redirects to other hosts', function (): void {
+    PublicAction::factory()->create([
+        'key' => 'redirect-action',
+        'handler_key' => 'test.handler',
+    ]);
+
+    $this
+        ->from('/source-page')
+        ->post('/actions/redirect-action', [
+            'email' => 'person@example.test',
+            'redirect' => 'https://evil.example/phish',
+        ])
+        ->assertRedirect('/source-page');
+});
+
+it('allows public payload redirects on the current host', function (): void {
+    PublicAction::factory()->create([
+        'key' => 'same-host-redirect-action',
+        'handler_key' => 'test.handler',
+    ]);
+
+    $this
+        ->from('/source-page')
+        ->post('/actions/same-host-redirect-action', [
+            'email' => 'person@example.test',
+            'redirect' => 'http://localhost/thanks',
+        ])
+        ->assertRedirect('http://localhost/thanks');
+});
+
 it('dispatches active destinations after a successful submission', function (): void {
     Http::fake([
         'https://hooks.example.test/access' => Http::response('', 204),

@@ -76,6 +76,7 @@ return RectorConfig::configure()
             __DIR__ . '/packages/insights/routes/web.php',
             __DIR__ . '/packages/layout-builder/src/Livewire/Filament/Concerns/ManagesAssets.php',
             __DIR__ . '/packages/layout-builder/src/Livewire/Widget/Pages.php',
+            __DIR__ . '/packages/seo-suite/src/Http/Controllers/LlmsTxtController.php',
         ],
         __DIR__ . '/tests/.pest',
     ])

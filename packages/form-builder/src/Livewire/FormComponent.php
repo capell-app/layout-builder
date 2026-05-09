@@ -54,16 +54,15 @@ final class FormComponent extends Component
 
         $metadata = $this->metadata();
         $settings = $this->settings();
-        $submission = null;
 
         if ($settings->storeSubmissions) {
-            $submission = CreateSubmissionAction::run(
+            CreateSubmissionAction::run(
                 form: $this->form,
                 input: $this->data,
                 meta: $metadata,
             );
         } else {
-            event(new FormSubmitted($this->form, metadata: $metadata));
+            event(new FormSubmitted($this->form, metadata: $metadata, payload: $this->storedPayload()));
         }
 
         $this->submitted = true;
@@ -159,6 +158,26 @@ final class FormComponent extends Component
         }
 
         return false;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function storedPayload(): array
+    {
+        $payload = [];
+
+        foreach ($this->fields() as $field) {
+            if (! $field->type->isStoredInPayload()) {
+                continue;
+            }
+
+            if (array_key_exists($field->key, $this->data)) {
+                $payload[$field->key] = $this->data[$field->key];
+            }
+        }
+
+        return $payload;
     }
 
     private function metadata(): SubmissionMetaData

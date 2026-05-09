@@ -8,7 +8,6 @@ use Capell\Core\Models\Site;
 use Capell\SeoSuite\Actions\GenerateLlmsTxtAction;
 use Capell\SeoSuite\Data\AiDiscoveryRenderContextData;
 use Capell\SeoSuite\Support\Sitemap\Queries\PagesForSitemap;
-use Capell\SeoSuite\Tests\Support\AiDiscoveryIntegrationTestCase;
 use Composer\Autoload\ClassLoader;
 use Illuminate\Support\Facades\Cache;
 
@@ -21,10 +20,6 @@ if ($composerAutoloader instanceof ClassLoader) {
     $composerAutoloader->addPsr4('Capell\\SeoSuite\\Database\\Factories\\', $packageRoot . '/database/factories');
     $composerAutoloader->addPsr4('Capell\\SeoSuite\\Tests\\', $packageRoot . '/tests');
 }
-
-require_once dirname(__DIR__, 2) . '/Support/AiDiscoveryIntegrationTestCase.php';
-
-uses(AiDiscoveryIntegrationTestCase::class);
 
 beforeEach(function (): void {
     Cache::flush();

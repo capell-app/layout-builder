@@ -75,7 +75,6 @@ final class FoundationThemeServiceProvider extends AbstractPackageServiceProvide
         $this->registerAssets();
         $this->registerBlazeComponents();
         $this->registerTailwindEventListeners();
-        $this->registerVendorNpmDependencies();
         $this->registerVendorCssJsAssets();
         $this->registerMediaUrlGenerator();
         $this->registerModelInterceptors();
@@ -87,6 +86,8 @@ final class FoundationThemeServiceProvider extends AbstractPackageServiceProvide
         $this->app->singleton('capell.tailwind.generator', fn (): TailwindAssetsGenerator => new TailwindAssetsGenerator(
             $this->app->make(Filesystem::class),
         ));
+
+        $this->registerVendorNpmDependencies();
     }
 
     private function isPackageInstalled(): bool

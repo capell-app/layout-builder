@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
@@ -11,9 +10,7 @@ use Capell\SeoSuite\Actions\SyncAiDiscoveryPageProfilesAction;
 use Capell\SeoSuite\Enums\AiDiscoveryStatusEnum;
 use Capell\SeoSuite\Models\AiDiscoveryPageProfile;
 use Capell\SeoSuite\Models\AiDiscoverySiteProfile;
-use Capell\Tests\AbstractTestCase;
 use Composer\Autoload\ClassLoader;
-use Livewire\LivewireServiceProvider;
 
 $composerAutoloader = require getcwd() . '/vendor/autoload.php';
 
@@ -22,39 +19,8 @@ if ($composerAutoloader instanceof ClassLoader) {
 
     $composerAutoloader->addPsr4('Capell\\SeoSuite\\', $packageRoot . '/src');
     $composerAutoloader->addPsr4('Capell\\SeoSuite\\Database\\Factories\\', $packageRoot . '/database/factories');
+    $composerAutoloader->addPsr4('Capell\\SeoSuite\\Tests\\', $packageRoot . '/tests');
 }
-
-class ResolveAndSyncAiDiscoveryProfilesTestCase extends AbstractTestCase
-{
-    protected function getPackageServiceName(): string
-    {
-        return 'capell-seo-suite';
-    }
-
-    /**
-     * @return class-string[]
-     */
-    protected function getPackageProviders(mixed $app): array
-    {
-        return [
-            ...parent::getDefaultPackageProviders(),
-            LivewireServiceProvider::class,
-        ];
-    }
-
-    protected function getEnvironmentSetUp(mixed $app): void
-    {
-        parent::getEnvironmentSetUp($app);
-
-        CapellCore::registerPackage(
-            'capell-app/seo-suite',
-            path: dirname(__DIR__, 3),
-        );
-        CapellCore::forcePackageInstalled('capell-app/seo-suite');
-    }
-}
-
-uses(ResolveAndSyncAiDiscoveryProfilesTestCase::class);
 
 it('resolves site profile defaults for a site and language', function (): void {
     $language = Language::query()->create([

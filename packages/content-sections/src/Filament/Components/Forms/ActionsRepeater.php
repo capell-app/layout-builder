@@ -8,7 +8,8 @@ use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\PageSelect;
 use Capell\Admin\Filament\Components\Forms\SiteSelect;
 use Capell\ContentSections\Enums\ActionLinkEnum;
-use Capell\PublicActions\Models\PublicAction;
+use Capell\Core\Facades\CapellCore;
+use Capell\PublicActions\Actions\ListPublicActionOptionsAction;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -186,17 +187,14 @@ class ActionsRepeater extends Repeater
      */
     private function publicActionOptions(): array
     {
-        $modelClass = PublicAction::class;
+        $actionClass = ListPublicActionOptionsAction::class;
 
-        if (! class_exists($modelClass)) {
+        if (! class_exists($actionClass) || ! CapellCore::isPackageInstalled('capell-app/public-actions')) {
             return [];
         }
 
-        return $modelClass::query()
-            ->where('status', 'active')
-            ->orderBy('name')
-            ->get(['key', 'name'])
-            ->mapWithKeys(fn (object $action): array => [(string) $action->key => (string) $action->name])
-            ->all();
+        $options = resolve($actionClass)->handle();
+
+        return is_array($options) ? $options : [];
     }
 }

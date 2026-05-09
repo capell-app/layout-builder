@@ -162,7 +162,10 @@ it('refreshes a single page seo snapshot from the canonical report action', func
 
 it('honours disabled seo audit settings when building page reports', function (): void {
     $this->registerAndMigrateSettings(
-        ['create_seo_suite_settings'],
+        [
+            'create_seo_suite_settings',
+            '2026_05_09_000001_update_seo_suite_settings_add_ai_discovery',
+        ],
         dirname(__DIR__, 3) . '/database/settings',
     );
 

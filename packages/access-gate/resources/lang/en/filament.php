@@ -10,6 +10,7 @@ return [
         'pause' => 'Pause',
         'reject' => 'Reject',
         'resend_claim' => 'Resend claim link',
+        'retry_github_invites' => 'Retry GitHub invites',
         'resume' => 'Resume',
         'revoke' => 'Revoke',
         'update_approval_limit' => 'Update approval limit',
@@ -31,6 +32,7 @@ return [
         'email' => 'Email',
         'expires_at' => 'Expires',
         'gate_view' => 'Gate view',
+        'github_repository_access_status' => 'Repo access',
         'grant' => 'Grant',
         'grant_duration_days' => 'Grant duration days',
         'grants' => 'Grants',
@@ -57,6 +59,10 @@ return [
         'type' => 'Type',
         'user_agent' => 'User agent',
         'user_id' => 'User ID',
+    ],
+    'messages' => [
+        'github_invites_retried' => 'GitHub repository invites retried.',
+        'github_invites_unavailable' => 'GitHub repository invites are not configured for this application.',
     ],
     'navigation_group' => 'Access Gate',
     'resources' => [

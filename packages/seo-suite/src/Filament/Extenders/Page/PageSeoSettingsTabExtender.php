@@ -10,6 +10,7 @@ use Capell\Admin\Filament\Components\Forms\CacheTimeSelect;
 use Capell\Admin\Filament\Components\Forms\PageRelationSelect;
 use Capell\Admin\Filament\Support\HelperText;
 use Capell\SeoSuite\Enums\RobotsDirectiveEnum;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -123,6 +124,36 @@ class PageSeoSettingsTabExtender implements PageSchemaExtender
                     ->rows(4)
                     ->label(__('capell-seo-suite::form.meta_tags'))
                     ->hint(__('capell-seo-suite::generic.meta_tags_extra')),
+                Section::make(__('capell-seo-suite::generic.ai_discovery'))
+                    ->compact()
+                    ->collapsible()
+                    ->columnSpanFull()
+                    ->columns(3)
+                    ->schema([
+                        Checkbox::make('ai_discovery.include_in_ai_index')
+                            ->label(__('capell-seo-suite::form.ai_discovery_include_in_ai_index'))
+                            ->default(true),
+                        TextInput::make('ai_discovery.section')
+                            ->label(__('capell-seo-suite::form.ai_discovery_section'))
+                            ->placeholder('Pages'),
+                        TextInput::make('ai_discovery.priority')
+                            ->label(__('capell-seo-suite::form.ai_discovery_priority'))
+                            ->numeric()
+                            ->minValue(0)
+                            ->maxValue(1000)
+                            ->default(500),
+                        Textarea::make('ai_discovery.summary')
+                            ->label(__('capell-seo-suite::form.ai_discovery_summary'))
+                            ->rows(3)
+                            ->columnSpanFull(),
+                        Textarea::make('ai_discovery.markdown_override')
+                            ->label(__('capell-seo-suite::form.ai_discovery_markdown_override'))
+                            ->rows(6)
+                            ->columnSpanFull(),
+                        TextInput::make('ai_discovery.exclude_reason')
+                            ->label(__('capell-seo-suite::form.ai_discovery_exclude_reason'))
+                            ->columnSpanFull(),
+                    ]),
             ]);
     }
 }

@@ -174,15 +174,47 @@ final class HttpWebhookPublicActionAdapter implements PublicActionDestinationAda
             return true;
         }
 
-        if (filter_var($host, FILTER_VALIDATE_IP) === false) {
-            return false;
+        if (filter_var($host, FILTER_VALIDATE_IP) !== false) {
+            return $this->isPrivateAddress($host);
         }
 
+        foreach ($this->resolvedHostAddresses($host) as $address) {
+            if ($this->isPrivateAddress($address)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function isPrivateAddress(string $address): bool
+    {
         return filter_var(
-            $host,
+            $address,
             FILTER_VALIDATE_IP,
             FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE,
         ) === false;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function resolvedHostAddresses(string $host): array
+    {
+        $records = dns_get_record($host, DNS_A | DNS_AAAA);
+
+        if ($records === false) {
+            return [];
+        }
+
+        return collect($records)
+            ->flatMap(static fn (array $record): array => array_values(array_filter([
+                is_string($record['ip'] ?? null) ? $record['ip'] : null,
+                is_string($record['ipv6'] ?? null) ? $record['ipv6'] : null,
+            ], static fn (?string $address): bool => $address !== null && $address !== '')))
+            ->unique()
+            ->values()
+            ->all();
     }
 
     private function nextAttemptNumber(PublicActionDestination $destination, PublicActionSubmission $submission): int

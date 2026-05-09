@@ -24,6 +24,7 @@
         "capell-app/frontend": "*"
     },
     "suggest": {
+        "capell-app/public-actions": "Enables CMS action buttons that submit reusable public actions.",
         "capell-app/publishing-studio": "Enables workspace-aware section publishing integration."
     },
     "autoload": {

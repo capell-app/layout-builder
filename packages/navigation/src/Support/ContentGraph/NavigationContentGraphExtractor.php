@@ -38,8 +38,8 @@ final class NavigationContentGraphExtractor implements ContentGraphExtractor
                 kind: ContentGraphEdgeKind::LinksToPage,
                 strength: ContentGraphEdgeStrength::Strong,
                 sourcePackage: 'capell-app/navigation',
-                siteId: is_numeric($navigation->site_id) ? (int) $navigation->site_id : null,
-                languageId: is_numeric($navigation->language_id) ? (int) $navigation->language_id : null,
+                siteId: $navigation->site_id,
+                languageId: $navigation->language_id,
             ))
             ->all();
 

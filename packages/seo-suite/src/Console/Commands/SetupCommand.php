@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\SeoSuite\Console\Commands;
 
+use Capell\SeoSuite\Actions\SeedDefaultAiCrawlerRulesAction;
 use Illuminate\Console\Command;
 
 class SetupCommand extends Command
@@ -14,6 +15,7 @@ class SetupCommand extends Command
 
     public function handle(): int
     {
+        SeedDefaultAiCrawlerRulesAction::run();
         $this->call('capell:xml-sitemap');
 
         $this->newLine();

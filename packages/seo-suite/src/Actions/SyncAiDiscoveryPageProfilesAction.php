@@ -43,17 +43,6 @@ final class SyncAiDiscoveryPageProfilesAction
         Language $language,
         AiDiscoverySiteProfile $siteProfile,
     ): AiDiscoveryPageProfile {
-        return AiDiscoveryPageProfile::query()->firstOrCreate(
-            [
-                'page_id' => $page->getKey(),
-                'site_id' => $site->getKey(),
-                'language_id' => $language->getKey(),
-            ],
-            [
-                'include_in_ai_index' => $siteProfile->default_include_pages,
-                'section' => $siteProfile->default_section,
-                'priority' => 500,
-            ],
-        );
+        return ResolveAiDiscoveryPageProfileAction::run($page, $site, $language, $siteProfile);
     }
 }

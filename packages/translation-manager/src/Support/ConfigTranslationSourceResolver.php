@@ -72,9 +72,11 @@ final class ConfigTranslationSourceResolver implements TranslationSourceResolver
             if (! is_string($packagePath)) {
                 continue;
             }
+
             if ($packagePath === '') {
                 continue;
             }
+
             $languagePaths = glob($packagePath, GLOB_ONLYDIR);
 
             foreach (is_array($languagePaths) ? $languagePaths : [] as $languagePath) {
@@ -166,13 +168,16 @@ final class ConfigTranslationSourceResolver implements TranslationSourceResolver
             if (! is_string($namespace)) {
                 continue;
             }
+
             if (! is_array($config)) {
                 continue;
             }
+
             $path = $config['path'] ?? null;
             if (! is_string($path)) {
                 continue;
             }
+
             if ($path === '') {
                 continue;
             }

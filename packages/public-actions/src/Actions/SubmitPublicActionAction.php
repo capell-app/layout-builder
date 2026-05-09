@@ -94,7 +94,7 @@ final class SubmitPublicActionAction
             $this->dispatchDestinations($publicAction, $submission);
         }
 
-        return $this->resultWithActionDefaults($publicAction, $submission, $result);
+        return $this->resultWithActionDefaults($publicAction, $submission, $result, $request);
     }
 
     public function resolve(PublicAction|string $action, ?Request $request = null): PublicAction
@@ -187,13 +187,14 @@ final class SubmitPublicActionAction
         PublicAction $action,
         PublicActionSubmission $submission,
         PublicActionResultData $result,
+        ?Request $request,
     ): PublicActionResultData {
         return new PublicActionResultData(
             success: $result->success,
             message: $result->message ?? ($result->success ? $action->success_message : $action->failure_message),
             redirectUrl: $result->redirectUrl
                 ?? ($result->success ? $action->success_redirect_url : $action->failure_redirect_url)
-                ?? ($result->success ? $this->payloadRedirectUrl($submission) : null),
+                ?? ($result->success ? $this->payloadRedirectUrl($submission, $request) : null),
             createdModelType: $result->createdModelType,
             createdModelId: $result->createdModelId,
         );
@@ -216,11 +217,25 @@ final class SubmitPublicActionAction
         }
     }
 
-    private function payloadRedirectUrl(PublicActionSubmission $submission): ?string
+    private function payloadRedirectUrl(PublicActionSubmission $submission, ?Request $request): ?string
     {
         $redirectUrl = data_get($submission->payload, 'redirect');
 
-        return is_string($redirectUrl) && filter_var($redirectUrl, FILTER_VALIDATE_URL) !== false
+        if (! is_string($redirectUrl) || $redirectUrl === '') {
+            return null;
+        }
+
+        if (str_starts_with($redirectUrl, '/') && ! str_starts_with($redirectUrl, '//')) {
+            return $redirectUrl;
+        }
+
+        if (! $request instanceof Request || filter_var($redirectUrl, FILTER_VALIDATE_URL) === false) {
+            return null;
+        }
+
+        $redirectHost = parse_url($redirectUrl, PHP_URL_HOST);
+
+        return is_string($redirectHost) && strcasecmp($redirectHost, $request->getHost()) === 0
             ? $redirectUrl
             : null;
     }

@@ -19,10 +19,7 @@ use Capell\SeoSuite\Models\AiDiscoveryCrawlerRule;
 use Capell\SeoSuite\Models\AiDiscoveryPageProfile;
 use Capell\SeoSuite\Models\AiDiscoverySiteProfile;
 use Capell\SeoSuite\Models\AiDiscoverySnapshot;
-use Capell\SeoSuite\Providers\SeoSuiteServiceProvider;
-use Capell\Tests\AbstractTestCase;
 use Composer\Autoload\ClassLoader;
-use Livewire\LivewireServiceProvider;
 
 $composerAutoloader = require getcwd() . '/vendor/autoload.php';
 
@@ -34,41 +31,21 @@ if ($composerAutoloader instanceof ClassLoader) {
     $composerAutoloader->addPsr4('Capell\\SeoSuite\\Tests\\', $packageRoot . '/tests');
 }
 
-class AiDiscoveryModelDataTestCase extends AbstractTestCase
+function createAiDiscoveryModelLanguage(): Language
 {
-    protected function getPackageServiceName(): string
-    {
-        return 'capell-seo-suite';
-    }
-
-    /**
-     * @return class-string[]
-     */
-    protected function getPackageProviders(mixed $app): array
-    {
-        return [
-            ...parent::getDefaultPackageProviders(),
-            SeoSuiteServiceProvider::class,
-            LivewireServiceProvider::class,
-        ];
-    }
-
-    protected function getEnvironmentSetUp(mixed $app): void
-    {
-        parent::getEnvironmentSetUp($app);
-
-        CapellCore::registerPackage(
-            'capell-app/seo-suite',
-            path: dirname(__DIR__, 3),
-        );
-        CapellCore::forcePackageInstalled('capell-app/seo-suite');
-    }
+    return Language::query()->create([
+        'name' => 'English',
+        'locale' => 'en',
+        'code' => 'en',
+        'flag' => 'gb-eng',
+        'status' => true,
+        'default' => true,
+        'order' => 1,
+    ]);
 }
 
-uses(AiDiscoveryModelDataTestCase::class);
-
 it('casts ai discovery page profile fields and exposes relationships', function (): void {
-    $language = Language::factory()->create();
+    $language = createAiDiscoveryModelLanguage();
     $site = Site::factory()->language($language)->withTranslations($language)->create();
     $page = Page::factory()->site($site)->withTranslations($language)->create();
 
@@ -90,7 +67,7 @@ it('casts ai discovery page profile fields and exposes relationships', function 
 });
 
 it('carries active site language and domain through render context data', function (): void {
-    $language = Language::factory()->create();
+    $language = createAiDiscoveryModelLanguage();
     $site = Site::factory()->language($language)->withTranslations($language)->create();
     $siteDomain = $site->siteDomains()->first();
 
@@ -121,7 +98,7 @@ it('formats page entries as markdown links with stripped descriptions', function
 });
 
 it('casts snapshot kind and dates', function (): void {
-    $language = Language::factory()->create();
+    $language = createAiDiscoveryModelLanguage();
     $site = Site::factory()->language($language)->withTranslations($language)->create();
 
     $snapshot = AiDiscoverySnapshot::query()->create([
@@ -141,7 +118,7 @@ it('casts snapshot kind and dates', function (): void {
 });
 
 it('casts site profile and crawler rule enum fields', function (): void {
-    $language = Language::factory()->create();
+    $language = createAiDiscoveryModelLanguage();
     $site = Site::factory()->language($language)->withTranslations($language)->create();
 
     $siteProfile = AiDiscoverySiteProfile::query()->create([

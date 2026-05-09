@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\PublicActions\Http\Controllers\Zapier;
 
+use Capell\PublicActions\Actions\ResolvePublicActionForIntegrationTokenAction;
 use Capell\PublicActions\Actions\SubmitPublicActionAction;
 use Capell\PublicActions\Enums\PublicActionIntegrationTokenAbility;
+use Capell\PublicActions\Models\PublicAction;
 use Capell\PublicActions\Models\PublicActionIntegrationToken;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,6 +15,7 @@ use Illuminate\Http\Request;
 final class SubmitZapierPublicActionController
 {
     public function __construct(
+        private readonly ResolvePublicActionForIntegrationTokenAction $resolveAction,
         private readonly SubmitPublicActionAction $submitPublicAction,
     ) {}
 
@@ -22,7 +25,11 @@ final class SubmitZapierPublicActionController
 
         abort_unless($token->hasAbility(PublicActionIntegrationTokenAbility::SubmitActions), 403);
 
-        $result = $this->submitPublicAction->handle($action, [
+        $publicAction = $this->resolveAction->handle($token, $action);
+
+        abort_unless($publicAction instanceof PublicAction, 404);
+
+        $result = $this->submitPublicAction->handle($publicAction, [
             ...$request->all(),
             'source_type' => 'zapier',
         ], $request);

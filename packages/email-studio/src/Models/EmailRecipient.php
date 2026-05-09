@@ -6,11 +6,19 @@ namespace Capell\EmailStudio\Models;
 
 use Capell\EmailStudio\Database\Factories\EmailRecipientFactory;
 use Capell\EmailStudio\Enums\EmailRecipientStatus;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property EmailRecipientStatus $status
+ * @property string|null $provider_message_id
+ * @property CarbonImmutable|null $sent_at
+ * @property CarbonImmutable|null $suppressed_at
+ * @property string|null $failure_reason
+ */
 class EmailRecipient extends Model
 {
     /** @use HasFactory<EmailRecipientFactory> */

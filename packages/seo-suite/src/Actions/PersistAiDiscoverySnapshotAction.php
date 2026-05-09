@@ -9,11 +9,11 @@ use Capell\SeoSuite\Data\AiDiscoveryRenderContextData;
 use Capell\SeoSuite\Enums\AiDiscoverySnapshotKindEnum;
 use Capell\SeoSuite\Enums\AiDiscoveryStatusEnum;
 use Capell\SeoSuite\Models\AiDiscoverySnapshot;
-use Illuminate\Support\Carbon;
+use Carbon\CarbonImmutable;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
- * @method static AiDiscoverySnapshot run(AiDiscoveryRenderContextData $context, AiDiscoverySnapshotKindEnum $kind, string $content, string $cacheKey, ?int $ttlSeconds = null, ?Page $page = null, string $status = AiDiscoveryStatusEnum::Fresh->value, ?string $errorMessage = null)
+ * @method static AiDiscoverySnapshot run(AiDiscoveryRenderContextData $context, AiDiscoverySnapshotKindEnum $kind, string $content, string $cacheKey, ?int $ttlSeconds = null, ?Page $page = null, string $status = 'fresh', ?string $errorMessage = null)
  */
 final class PersistAiDiscoverySnapshotAction
 {
@@ -29,7 +29,7 @@ final class PersistAiDiscoverySnapshotAction
         string $status = AiDiscoveryStatusEnum::Fresh->value,
         ?string $errorMessage = null,
     ): AiDiscoverySnapshot {
-        $generatedAt = now();
+        $generatedAt = CarbonImmutable::instance(now());
 
         return AiDiscoverySnapshot::query()->updateOrCreate(
             [
@@ -57,12 +57,12 @@ final class PersistAiDiscoverySnapshotAction
         return $context->domainKey() . ':' . ($page?->getKey() ?? 'site');
     }
 
-    private function expiresAt(Carbon $generatedAt, ?int $ttlSeconds): ?Carbon
+    private function expiresAt(CarbonImmutable $generatedAt, ?int $ttlSeconds): ?CarbonImmutable
     {
         if ($ttlSeconds === null) {
             return null;
         }
 
-        return $generatedAt->copy()->addSeconds($ttlSeconds);
+        return $generatedAt->addSeconds($ttlSeconds);
     }
 }

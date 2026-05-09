@@ -8,7 +8,6 @@ return [
 
     // NPM dependencies required by the default theme
     'npm_dependencies' => [
-        '@tailwindcss/form-builder' => '^0.5.3',
         '@tailwindcss/typography' => '^0.5.9',
         '@tailwindcss/vite' => '^4.0.13',
         'autoprefixer' => '^10.4.13',

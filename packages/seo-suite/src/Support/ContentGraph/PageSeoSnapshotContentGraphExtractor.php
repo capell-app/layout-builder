@@ -33,12 +33,12 @@ final class PageSeoSnapshotContentGraphExtractor implements ContentGraphExtracto
         return ContentGraphEdgeCollectionData::make([
             new ContentGraphEdgeData(
                 source: ContentGraphNodeData::fromModel($snapshot),
-                target: ContentGraphNodeData::fromModelIdentity(Page::class, (int) $snapshot->page_id),
+                target: ContentGraphNodeData::fromModelIdentity(Page::class, $snapshot->page_id),
                 kind: ContentGraphEdgeKind::DescribesPage,
                 strength: ContentGraphEdgeStrength::Weak,
                 sourcePackage: 'capell-app/seo-suite',
-                siteId: is_numeric($snapshot->site_id) ? (int) $snapshot->site_id : null,
-                languageId: is_numeric($snapshot->language_id) ? (int) $snapshot->language_id : null,
+                siteId: is_numeric($snapshot->site_id) ? $snapshot->site_id : null,
+                languageId: is_numeric($snapshot->language_id) ? $snapshot->language_id : null,
             ),
         ]);
     }

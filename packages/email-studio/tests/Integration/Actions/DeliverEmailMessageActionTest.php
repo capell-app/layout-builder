@@ -119,7 +119,7 @@ it('delivers queued recipients and rechecks suppressions before provider handoff
 
         public function normalizeInboundReply(array $payload, array $headers = []): InboundEmailReplyData
         {
-            return new InboundEmailReplyData(provider: 'fake', fromEmail: 'sender@example.com', payload: $payload);
+            return new InboundEmailReplyData(provider: 'fake', providerMessageId: null, fromEmail: 'sender@example.com', payload: $payload);
         }
     });
 
@@ -163,7 +163,7 @@ it('delivers queued recipients and rechecks suppressions before provider handoff
 
         public function normalizeInboundReply(array $payload, array $headers = []): InboundEmailReplyData
         {
-            return new InboundEmailReplyData(provider: 'fake', fromEmail: 'sender@example.com', payload: $payload);
+            return new InboundEmailReplyData(provider: 'fake', providerMessageId: null, fromEmail: 'sender@example.com', payload: $payload);
         }
     });
 

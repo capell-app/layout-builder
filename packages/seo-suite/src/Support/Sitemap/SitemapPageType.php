@@ -26,7 +26,7 @@ final class SitemapPageType
         $defaults = [
             'key' => self::Key,
             'type' => TypeEnum::Page,
-            'name' => __('capell::generic.sitemap'),
+            'name' => __('capell-seo-suite::generic.sitemap'),
             'meta' => [
                 'listable' => false,
                 'component' => self::ComponentView,

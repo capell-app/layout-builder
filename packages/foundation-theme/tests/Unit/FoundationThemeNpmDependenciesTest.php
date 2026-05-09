@@ -8,5 +8,6 @@ it('requires the vite plugin version that supports plugin fonts', function (): v
     expect($dependencies['npm_dependencies'])
         ->toHaveKey('fontaine', '^0.5.0')
         ->toHaveKey('laravel-vite-plugin', '^3.1.0')
-        ->toHaveKey('vite', '^8.0');
+        ->toHaveKey('vite', '^8.0')
+        ->not->toHaveKey('@tailwindcss/form-builder');
 });

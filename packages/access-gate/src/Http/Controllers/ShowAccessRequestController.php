@@ -6,6 +6,7 @@ namespace Capell\AccessGate\Http\Controllers;
 
 use Capell\AccessGate\Actions\ListAccessRequestMethodsAction;
 use Capell\AccessGate\Models\Area;
+use Capell\AccessGate\Models\Registration;
 use Capell\AccessGate\Support\RegistrationFieldRegistry;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -29,7 +30,22 @@ final class ShowAccessRequestController
             'requestMethods' => $this->listAccessRequestMethods->handle($accessArea, $requestedUrl),
             'emailRequestEnabled' => config('access-gate.registration.methods.email.enabled', true),
             'requestedUrl' => $requestedUrl,
+            'submittedRegistration' => $this->submittedRegistration($request, $accessArea),
         ]));
+    }
+
+    private function submittedRegistration(Request $request, Area $area): ?Registration
+    {
+        $registrationId = $request->session()->get('access_gate_registration_id');
+
+        if (! is_numeric($registrationId)) {
+            return null;
+        }
+
+        return Registration::query()
+            ->whereKey((int) $registrationId)
+            ->where('access_area_id', $area->getKey())
+            ->first();
     }
 
     private function requestedUrl(Request $request, Area $area): ?string

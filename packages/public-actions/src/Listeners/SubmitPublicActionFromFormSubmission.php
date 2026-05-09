@@ -63,6 +63,10 @@ final class SubmitPublicActionFromFormSubmission
         $submission = $event->submission ?? null;
         $payload = data_get($submission, 'payload.values', []);
 
+        if (! is_array($payload) || $payload === []) {
+            $payload = data_get($event, 'payload', []);
+        }
+
         if (! is_array($payload)) {
             $payload = [];
         }

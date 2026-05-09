@@ -14,26 +14,44 @@ use Capell\Core\ThemeStudio\Theme\ThemeRegistry;
 
 it('layers parent defaults before child defaults and applies database overrides last', function (): void {
     CapellCore::registerManifestPackage(new CapellManifestData(
+        manifestVersion: 1,
         name: 'vendor/base-theme',
         kind: 'theme',
         capellVersion: '^4.0',
+        surfaces: ['frontend'],
         requires: [],
+        optional: [],
+        conflicts: [],
         providers: [],
+        lifecycle: [],
+        database: [],
         settings: [],
+        permissions: [],
+        capabilities: [],
+        assets: [],
+        healthChecks: [],
         extends: null,
         themeKey: 'base',
-        contexts: ['frontend'],
     ));
     CapellCore::registerManifestPackage(new CapellManifestData(
+        manifestVersion: 1,
         name: 'vendor/child-theme',
         kind: 'theme',
         capellVersion: '^4.0',
+        surfaces: ['frontend'],
         requires: ['vendor/base-theme'],
+        optional: [],
+        conflicts: [],
         providers: [],
+        lifecycle: [],
+        database: [],
         settings: [],
+        permissions: [],
+        capabilities: [],
+        assets: [],
+        healthChecks: [],
         extends: 'vendor/base-theme',
         themeKey: 'child',
-        contexts: ['frontend'],
     ));
 
     $registry = new ThemeRegistry;

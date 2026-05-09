@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\PublicActions\Filament\Resources\IntegrationTokens\Pages;
 
+use Capell\Admin\Filament\Components\Forms\SiteSelect;
 use Capell\PublicActions\Actions\CreatePublicActionIntegrationTokenAction;
 use Capell\PublicActions\Enums\PublicActionIntegrationProvider;
 use Capell\PublicActions\Enums\PublicActionIntegrationTokenAbility;
@@ -36,6 +37,9 @@ final class ListPublicActionIntegrationTokens extends ListRecords
                         ])
                         ->default(PublicActionIntegrationProvider::Zapier->value)
                         ->required(),
+                    SiteSelect::make('site_id')
+                        ->label(__('capell-public-actions::filament.fields.site'))
+                        ->preload(),
                     CheckboxList::make('abilities')
                         ->label(__('capell-public-actions::filament.fields.abilities'))
                         ->options([
@@ -52,6 +56,7 @@ final class ListPublicActionIntegrationTokens extends ListRecords
                     $created = CreatePublicActionIntegrationTokenAction::run(
                         name: (string) $data['name'],
                         provider: PublicActionIntegrationProvider::from((string) $data['provider']),
+                        siteId: filled($data['site_id'] ?? null) ? (int) $data['site_id'] : null,
                         abilities: collect($data['abilities'] ?? [])
                             ->filter(fn (mixed $ability): bool => is_string($ability))
                             ->map(fn (string $ability): PublicActionIntegrationTokenAbility => PublicActionIntegrationTokenAbility::from($ability))

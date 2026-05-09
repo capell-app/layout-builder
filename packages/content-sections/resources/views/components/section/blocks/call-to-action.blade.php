@@ -39,29 +39,12 @@
                         ], static fn (mixed $payloadValue): bool => $payloadValue !== null && $payloadValue !== '');
                     @endphp
 
-                    <form
-                        method="post"
-                        action="{{ route('capell-public-actions.submit', ['action' => $action['public_action_key'] ?? '']) }}"
-                        class="inline-flex"
-                    >
-                        @csrf
-                        @foreach ($payload as $payloadKey => $payloadValue)
-                            @if (is_string($payloadKey) && is_scalar($payloadValue))
-                                <input
-                                    type="hidden"
-                                    name="{{ $payloadKey }}"
-                                    value="{{ (string) $payloadValue }}"
-                                />
-                            @endif
-                        @endforeach
-
-                        <button
-                            type="submit"
-                            class="inline-flex rounded bg-slate-950 px-5 py-3 font-semibold text-white"
-                        >
-                            {{ $action['label'] ?? '' }}
-                        </button>
-                    </form>
+                    <x-capell-public-actions::action-button
+                        :action-key="$action['public_action_key'] ?? null"
+                        :label="$action['label'] ?? ''"
+                        :payload="$payload"
+                        class="inline-flex rounded bg-slate-950 px-5 py-3 font-semibold text-white"
+                    />
                     @continue
                 @endif
 

@@ -8,6 +8,7 @@ use Capell\ContentSections\Support\SectionRegistry;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Testing\TestResponse;
 use Sinnbeck\DomAssertions\Asserts\AssertElement;
 
@@ -82,6 +83,33 @@ it('renders call to action headings copy and actions', function (): void {
         ->assertContainsElement('section.section-call-to-action.text-center', ['text' => 'Call to Action'])
         ->assertContainsElement('section.section-call-to-action a', ['href' => '#', 'text' => 'Start a project'])
         ->assertContainsElement('section.section-call-to-action a', ['href' => '#', 'text' => 'View examples'], 1);
+});
+
+it('renders public action buttons through the public actions component when available', function (): void {
+    Route::post('/actions/{action}', static fn (): string => 'submitted')->name('capell-public-actions.submit');
+    Route::getRoutes()->refreshNameLookups();
+    view()->addNamespace('capell-public-actions', __DIR__ . '/../../../public-actions/resources/views');
+
+    $data = BuildSectionDemoDataAction::run('call_to_action');
+    $data['meta']['actions'] = [
+        [
+            'type' => 'public_action',
+            'public_action_key' => 'request-preview',
+            'label' => 'Request preview',
+            'access_gate_area' => 'preview',
+            'redirect' => '/thanks',
+        ],
+    ];
+
+    $html = Blade::render(
+        '<x-dynamic-component :component="$definition->component" :asset="$asset" :meta="$meta" :summary="$summary" :title="$title" :link-text="$linkText" :url="$url" />',
+        $data,
+    );
+
+    TestResponse::fromBaseResponse(new Response('<!DOCTYPE html><html><body>' . $html . '</body></html>'))
+        ->assertContainsElement('section.section-call-to-action form', ['action' => 'http://localhost/actions/request-preview'])
+        ->assertContainsElement('section.section-call-to-action input', ['name' => 'area', 'value' => 'preview'])
+        ->assertContainsElement('section.section-call-to-action button', ['text' => 'Request preview']);
 });
 
 it('renders comparison columns rows and highlighted column state', function (): void {

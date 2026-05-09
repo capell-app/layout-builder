@@ -11,6 +11,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
+ * @property int $attempt
+ * @property string|null $error_message
+ * @property string $request_hash
+ * @property string|null $response_summary
+ * @property int|null $response_status
  * @property PublicActionDispatchStatus $status
  */
 class PublicActionDispatchAttempt extends Model

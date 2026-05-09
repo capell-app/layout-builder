@@ -146,3 +146,20 @@ it('can dispatch with the adapter directly for registered adapter use cases', fu
 
     Http::assertSent(fn (Request $request): bool => $request->method() === 'PUT');
 });
+
+it('blocks private webhook endpoint hosts', function (): void {
+    Http::fake();
+
+    $destination = PublicActionDestination::factory()->create([
+        'adapter' => 'http_webhook',
+        'endpoint_url' => 'https://127.0.0.1/metadata',
+    ]);
+    $submission = PublicActionSubmission::factory()->create();
+
+    $result = resolve(HttpWebhookPublicActionAdapter::class)->dispatch($destination, $submission);
+
+    expect($result->success)->toBeFalse()
+        ->and(PublicActionDispatchAttempt::query()->firstOrFail()->status)->toBe(PublicActionDispatchStatus::Failed);
+
+    Http::assertNothingSent();
+});
