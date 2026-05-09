@@ -3,20 +3,15 @@
 declare(strict_types=1);
 
 return [
-    'name' => 'Name',
-    'handle' => 'Handle',
-    'description' => 'Description',
-    'is_active' => 'Active',
-    'success_message' => 'Success message',
-    'store_submissions' => 'Store submissions',
-    'notification_email' => 'Notification email',
     'field_type' => [
-        'text' => 'Text',
-        'email' => 'Email',
-        'textarea' => 'Textarea',
-        'select' => 'Select',
         'checkbox' => 'Checkbox',
+        'email' => 'Email',
         'hidden' => 'Hidden',
         'honeypot' => 'Honeypot',
+        'select' => 'Select',
+        'text' => 'Text',
+        'textarea' => 'Textarea',
     ],
+    'select_placeholder' => 'Select an option',
+    'submit' => 'Submit',
 ];

@@ -94,6 +94,11 @@ class PublishingStudioTestCase extends AbstractTestCase
             resolve(SettingsMigrationProviderInterface::class)->getSettingMigrations(),
             __DIR__ . '/../../../vendor/capell-app/frontend/database/settings',
         );
+
+        $this->registerAndMigrateSettings(
+            ['add_publishing_studio_settings'],
+            __DIR__ . '/../database/settings',
+        );
     }
 
     protected function tearDown(): void

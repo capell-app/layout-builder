@@ -83,7 +83,7 @@ class TagResource extends Resource
             return null;
         }
 
-        return __('capell-blog::generic.articles');
+        return __('capell-tags::generic.articles');
     }
 
     public static function shouldRegisterNavigation(): bool

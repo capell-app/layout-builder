@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\AgentBridge\Providers;
 
+use Capell\Admin\Actions\Users\ShouldLoadUserResourceBridgeAction;
+use Capell\Admin\Contracts\Extenders\UserSchemaExtender;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\AgentBridge\Actions\Cache\ClearCapellCacheCapabilityAction;
 use Capell\AgentBridge\Actions\Pages\CreateDraftPageCapabilityAction;
@@ -14,11 +16,16 @@ use Capell\AgentBridge\Contracts\CapellAgentBridgeCapabilityProvider;
 use Capell\AgentBridge\Data\CapabilityData;
 use Capell\AgentBridge\Enums\CapabilityRiskEnum;
 use Capell\AgentBridge\Enums\CapabilityServerEnum;
+use Capell\AgentBridge\Extenders\AgentBridgeUserSchemaExtender;
 use Capell\AgentBridge\Filament\Pages\CapellAgentBridgePromptBuilderPage;
+use Capell\AgentBridge\Filament\Settings\AgentBridgeSettingsSchema;
+use Capell\AgentBridge\Settings\AgentBridgeSettings;
 use Capell\AgentBridge\Support\CapellAgentBridgeCapabilityRegistry;
 use Capell\AgentBridge\Tools\Boost\ListBoostCapabilitiesTool;
 use Capell\AgentBridge\Tools\Boost\PreviewBoostCapabilityTool;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Support\Settings\SettingsGroupMetadata;
+use Capell\Core\Support\Settings\SettingsSchemaRegistry;
 use Filament\Pages\Page;
 use Filament\Support\Enums\IconSize;
 use Filament\Support\Facades\FilamentView;
@@ -37,6 +44,7 @@ final class AgentBridgeServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../../config/capell-agent-bridge.php', 'capell-agent-bridge');
 
         $this->registerPackageMetadata();
+        $this->registerSettingsIntegration();
     }
 
     public function boot(): void
@@ -56,6 +64,7 @@ final class AgentBridgeServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
         $this->loadRoutesFrom(__DIR__ . '/../../routes/agent-bridge.php');
 
+        $this->registerSettingsIntegration();
         $this->registerAdminIntegration();
         $this->registerBoostIntegration();
         $this->registerBuiltInCapabilities();
@@ -85,9 +94,11 @@ final class AgentBridgeServiceProvider extends ServiceProvider
             return;
         }
 
+        $packagePath = realpath(__DIR__ . '/../..');
+
         CapellCore::registerPackage(
             name: self::$packageName,
-            path: realpath(__DIR__ . '/../..'),
+            path: is_string($packagePath) ? $packagePath : null,
             version: CapellCore::getInstalledPrettyVersion(self::$packageName),
         );
     }
@@ -116,6 +127,7 @@ final class AgentBridgeServiceProvider extends ServiceProvider
         }
 
         $adminFacade::registerExtensionPage(self::$packageName, $promptBuilderPage);
+        $this->registerUserResourceBridge();
 
         if (! class_exists(FilamentView::class) || ! class_exists(PanelsRenderHook::class)) {
             return;
@@ -141,6 +153,67 @@ final class AgentBridgeServiceProvider extends ServiceProvider
                 ],
             ),
         );
+    }
+
+    private function registerSettingsIntegration(): void
+    {
+        $settings = config('settings.settings', []);
+
+        if (! in_array(AgentBridgeSettings::class, $settings, true)) {
+            $settings[] = AgentBridgeSettings::class;
+        }
+
+        config(['settings.settings' => $settings]);
+
+        if (! class_exists(SettingsSchemaRegistry::class)) {
+            return;
+        }
+
+        if (! $this->app->bound(SettingsSchemaRegistry::class)) {
+            $this->app->afterResolving(
+                SettingsSchemaRegistry::class,
+                fn (SettingsSchemaRegistry $registry): SettingsSchemaRegistry => $this->registerSettingsSchemas($registry),
+            );
+
+            return;
+        }
+
+        /** @var SettingsSchemaRegistry $registry */
+        $registry = $this->app->make(SettingsSchemaRegistry::class);
+
+        $this->registerSettingsSchemas($registry);
+    }
+
+    private function registerSettingsSchemas(SettingsSchemaRegistry $registry): SettingsSchemaRegistry
+    {
+        $registry->registerSettingsClass(AgentBridgeSettings::group(), AgentBridgeSettings::class);
+        $registry->register(AgentBridgeSettings::group(), AgentBridgeSettingsSchema::class);
+
+        if (class_exists(SettingsGroupMetadata::class)) {
+            $registry->registerMetadata(new SettingsGroupMetadata(
+                group: AgentBridgeSettings::group(),
+                label: 'capell-agent-bridge::admin.settings_title',
+                icon: Heroicon::OutlinedSparkles,
+                navigationGroup: 'capell-admin::navigation.group_administration',
+                navigationSort: 94,
+                packageName: self::$packageName,
+            ));
+        }
+
+        return $registry;
+    }
+
+    private function registerUserResourceBridge(): void
+    {
+        if (
+            ! interface_exists(UserSchemaExtender::class)
+            || ! class_exists(ShouldLoadUserResourceBridgeAction::class)
+        ) {
+            return;
+        }
+
+        $this->app->bind(AgentBridgeUserSchemaExtender::class);
+        $this->app->tag([AgentBridgeUserSchemaExtender::class], UserSchemaExtender::TAG);
     }
 
     private function registerBuiltInCapabilities(): void

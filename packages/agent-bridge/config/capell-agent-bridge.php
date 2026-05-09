@@ -16,6 +16,8 @@ return [
 
     'confirmation_ttl_minutes' => env('CAPELL_AGENT_BRIDGE_CONFIRMATION_TTL_MINUTES', 10),
 
+    'enable_user_resource_bridge' => true,
+
     'public_docs_paths' => [
         base_path('README.md'),
         base_path('docs'),

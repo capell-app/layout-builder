@@ -36,6 +36,11 @@ final class LoginAuditSettingsSchema implements HasSchema
                             ->label(__('capell-login-audit::settings.track_user_ip_addresses')),
                         'capell-login-audit::settings.track_user_ip_addresses_helper',
                     ),
+                    HelperText::apply(
+                        Toggle::make('enable_user_resource_bridge')
+                            ->label(__('capell-login-audit::settings.enable_user_resource_bridge')),
+                        'capell-login-audit::settings.enable_user_resource_bridge_helper',
+                    ),
                 ]),
         ];
     }

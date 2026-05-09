@@ -6,11 +6,13 @@ namespace Capell\LoginAudit\Providers;
 
 use Capell\Admin\Contracts\DashboardSettingsContributor;
 use Capell\Admin\Contracts\Extenders\AdminPanelExtender;
+use Capell\Admin\Contracts\Extenders\UserSchemaExtender;
 use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\DashboardEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
 use Capell\LoginAudit\Actions\ApplyLoginAuditSettingsAction;
+use Capell\LoginAudit\Extenders\LoginAuditUserSchemaExtender;
 use Capell\LoginAudit\Filament\Extenders\LoginAuditAdminPanelExtender;
 use Capell\LoginAudit\Filament\Resources\LoginAudits\LoginAuditResource;
 use Capell\LoginAudit\Filament\Settings\Contributors\LoginAuditDashboardSettingsContributor;
@@ -40,6 +42,8 @@ class AdminServiceProvider extends ServiceProvider
             return;
         }
 
+        $this->app->bind(LoginAuditUserSchemaExtender::class);
+        $this->app->tag([LoginAuditUserSchemaExtender::class], UserSchemaExtender::TAG);
         $this->app->tag([LoginAuditAdminPanelExtender::class], AdminPanelExtender::TAG);
         $this->app->tag([LoginAuditDashboardSettingsContributor::class], DashboardSettingsContributor::TAG);
 

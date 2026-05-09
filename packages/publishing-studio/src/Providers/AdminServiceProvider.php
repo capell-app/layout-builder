@@ -9,6 +9,7 @@ use Capell\Admin\Contracts\Dashboard\MyWorkQueueDataProvider;
 use Capell\Admin\Contracts\Dashboard\RecentlyPublishedDataProvider;
 use Capell\Admin\Contracts\Dashboard\SiteStatsDataProvider;
 use Capell\Admin\Contracts\DashboardSettingsContributor;
+use Capell\Admin\Contracts\Extenders\UserSchemaExtender;
 use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\DashboardEnum;
 use Capell\Admin\Facades\CapellAdmin;
@@ -21,11 +22,14 @@ use Capell\Admin\Support\Dashboard\NullRecentlyPublishedDataProvider;
 use Capell\Core\Events\PageSaved;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
+use Capell\Core\Support\Settings\SettingsGroupMetadata;
+use Capell\Core\Support\Settings\SettingsSchemaRegistry;
 use Capell\PublishingStudio\Actions\DashboardReports\BuildContentSchedulerEventsAction;
 use Capell\PublishingStudio\Contracts\WorkspaceTableActionContributor;
 use Capell\PublishingStudio\Data\SchedulerEventData;
 use Capell\PublishingStudio\Enums\SchedulerEventTypeEnum;
 use Capell\PublishingStudio\Events\WorkspaceStateChanged;
+use Capell\PublishingStudio\Extenders\PublishingStudioUserSchemaExtender;
 use Capell\PublishingStudio\Filament\Pages\ActivityTrailPage;
 use Capell\PublishingStudio\Filament\Pages\ImportPagesPage;
 use Capell\PublishingStudio\Filament\Pages\ScheduledPublishingPage;
@@ -34,6 +38,7 @@ use Capell\PublishingStudio\Filament\Resources\PreviewLinks\PreviewLinkResource;
 use Capell\PublishingStudio\Filament\Resources\PublishingStudio\WorkspaceResource;
 use Capell\PublishingStudio\Filament\Settings\Contributors\DefaultDashboardSettingsContributor;
 use Capell\PublishingStudio\Filament\Settings\Contributors\SystemHealthSettingsContributor;
+use Capell\PublishingStudio\Filament\Settings\PublishingStudioSettingsSchema;
 use Capell\PublishingStudio\Filament\Widgets\WorkspaceActivityWidgetAbstract;
 use Capell\PublishingStudio\Listeners\SendWorkspaceStateNotification;
 use Capell\PublishingStudio\Livewire\DiffPanel;
@@ -43,6 +48,7 @@ use Capell\PublishingStudio\Livewire\WorkspaceContextBanner;
 use Capell\PublishingStudio\Livewire\WorkspaceSwitcher;
 use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\Policies\WorkspacePolicy;
+use Capell\PublishingStudio\Settings\PublishingStudioSettings;
 use Capell\PublishingStudio\Support\Dashboard\WorkspaceContentHealthDataProvider;
 use Capell\PublishingStudio\Support\Dashboard\WorkspaceMyWorkQueueDataProvider;
 use Capell\PublishingStudio\Support\Dashboard\WorkspaceRecentlyPublishedDataProvider;
@@ -51,6 +57,7 @@ use Capell\PublishingStudio\Support\WorkspaceSchema;
 use Capell\PublishingStudio\WorkspaceContext;
 use Capell\PublishingStudio\WorkspacePeekPreviewActionContributor;
 use Filament\Support\Facades\FilamentView;
+use Filament\Support\Icons\Heroicon;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
@@ -67,6 +74,11 @@ class AdminServiceProvider extends ServiceProvider
             [WorkspacePeekPreviewActionContributor::class],
             WorkspaceTableActionContributor::TAG,
         );
+
+        $this->app->tag(
+            [PublishingStudioUserSchemaExtender::class],
+            UserSchemaExtender::TAG,
+        );
     }
 
     public function boot(): void
@@ -79,6 +91,7 @@ class AdminServiceProvider extends ServiceProvider
         }
 
         $this->registerDashboardSettingsContributors()
+            ->registerSettingsSchemas()
             ->registerDashboardDataProviders()
             ->registerFilamentExtensions()
             ->registerOverviewStats()
@@ -86,6 +99,25 @@ class AdminServiceProvider extends ServiceProvider
             ->registerRenderHooks()
             ->registerEventListeners()
             ->registerPolicies();
+    }
+
+    private function registerSettingsSchemas(): self
+    {
+        /** @var SettingsSchemaRegistry $registry */
+        $registry = $this->app->make(SettingsSchemaRegistry::class);
+
+        $registry->registerSettingsClass('publishing_studio', PublishingStudioSettings::class);
+        $registry->registerMetadata(new SettingsGroupMetadata(
+            group: 'publishing_studio',
+            label: 'capell-publishing-studio::workspace.settings.group',
+            icon: Heroicon::OutlinedDocumentCheck,
+            navigationGroup: 'capell-admin::navigation.group_extensions',
+            navigationSort: 110,
+            packageName: PublishingStudioServiceProvider::$packageName,
+        ));
+        $registry->register('publishing_studio', PublishingStudioSettingsSchema::class);
+
+        return $this;
     }
 
     private function isPackageInstalled(): bool

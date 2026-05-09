@@ -3,11 +3,16 @@
 declare(strict_types=1);
 
 return [
-    'fieldset' => 'Access logging',
-    'show_login_audits' => 'Show Access Logs',
-    'show_login_audits_helper' => 'Display sign-in activity and access logs in the admin panel.',
+    'access_failed' => 'Failed',
+    'access_status' => 'Access status',
+    'access_successful' => 'Successful',
+    'device' => 'Device',
+    'enable_user_resource_bridge' => 'Show Access Logs on Users',
+    'login_audits' => 'Access log history',
+    'login_audits_description' => 'Authentication attempts recorded for this user.',
     'retention_days' => 'Access Log Retention',
     'retention_days_helper' => 'Number of days to keep access logs before auto-deleting old entries.',
+    'security_access' => 'Security & Access',
+    'show_login_audits' => 'Show Access Logs',
     'track_user_ip_addresses' => 'Track User IP Addresses',
-    'track_user_ip_addresses_helper' => 'Record IP addresses in access logs for security monitoring.',
 ];

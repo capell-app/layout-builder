@@ -19,5 +19,9 @@ return new class extends SettingsMigration
         if (! $this->migrator->exists('login_audit.track_user_ip_addresses')) {
             $this->migrator->add('login_audit.track_user_ip_addresses', true);
         }
+
+        if (! $this->migrator->exists('login_audit.enable_user_resource_bridge')) {
+            $this->migrator->add('login_audit.enable_user_resource_bridge', true);
+        }
     }
 };
