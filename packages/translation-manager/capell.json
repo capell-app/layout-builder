@@ -1,0 +1,62 @@
+{
+    "manifest-version": 2,
+    "name": "capell-app/translation-manager",
+    "kind": "package",
+    "capell-version": "^4.0",
+    "productGroup": "Capell Admin",
+    "tier": "premium",
+    "bundle": "admin",
+    "description": "Translation Manager provides a file-based Filament editor for Laravel language files with safe package override writes.",
+    "surfaces": [
+        "admin"
+    ],
+    "dependencies": {
+        "requires": [
+            "capell-app/core",
+            "capell-app/admin"
+        ],
+        "optional": [
+            "capell-app/ai-orchestrator"
+        ],
+        "conflicts": []
+    },
+    "lifecycle": {
+        "activation": "manual",
+        "defaultStatus": "available",
+        "requiresInstallCommand": false
+    },
+    "providers": {
+        "metadata": [],
+        "install": [],
+        "runtime": [
+            "Capell\\TranslationManager\\Providers\\TranslationManagerServiceProvider"
+        ],
+        "admin": [
+            "Capell\\TranslationManager\\Providers\\AdminServiceProvider"
+        ],
+        "frontend": []
+    },
+    "database": {
+        "migrations": false,
+        "settings": false,
+        "requiredTables": []
+    },
+    "commands": {
+        "install": null,
+        "setup": null,
+        "setupParams": [],
+        "demo": null,
+        "demoParams": [],
+        "health": null
+    },
+    "settings": [],
+    "permissions": [],
+    "capabilities": [
+        "translation.files.browse",
+        "translation.files.write",
+        "translation.files.duplicate",
+        "translation.ai.translate-selected"
+    ],
+    "assets": [],
+    "healthChecks": []
+}
