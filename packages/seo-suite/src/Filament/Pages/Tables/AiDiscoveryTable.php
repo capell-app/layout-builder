@@ -295,7 +295,7 @@ class AiDiscoveryTable implements TableConfigurator
 
         $record->loadMissing('pageUrl.siteDomain');
 
-        $url = trim((string) $record->pageUrl?->full_url);
+        $url = trim($record->pageUrl?->full_url ?? '');
 
         if ($url === '') {
             return null;

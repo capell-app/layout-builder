@@ -41,8 +41,9 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 
 - SaasThemeServiceProvider registers the renderer.
 - `capell.json` declares `themeKey: "saas"` and `extends: "capell-app/foundation-theme"`.
-- Uses shared `capell::...` views for layered fallback.
-- No migrations, config, routes, resources, or models are present.
+- Uses Foundation Theme runtime data and standard section keys, while rendering its own page and section Blade views.
+- Ships Blade resources for the page wrapper and standard theme sections.
+- No migrations, config, routes, models, admin navigation, or package-owned settings are present.
 
 ## Data Model
 

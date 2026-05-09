@@ -406,13 +406,15 @@ it('seeds and renders default ai crawler robots rules', function (): void {
 
     expect($created)->toBeGreaterThan(0)
         ->and(AiDiscoveryCrawlerRule::query()->count())->toBe($created)
+        ->and($rules)->toContain('# Capell AI Discovery managed rules')
         ->and($rules)->toContain("User-agent: OAI-SearchBot\nAllow: /")
         ->and($rules)->toContain("User-agent: GPTBot\nDisallow: /")
         ->and($rules)->toContain("User-agent: ClaudeBot\nDisallow: /")
         ->and($rules)->toContain("User-agent: ChatGPT-User\nAllow: /")
         ->and($rules)->toContain("User-agent: Claude-User\nAllow: /")
         ->and($rules)->toContain("User-agent: Google-Extended\nDisallow: /")
-        ->and($rules)->toContain("User-agent: CCBot\nDisallow: /");
+        ->and($rules)->toContain("User-agent: CCBot\nDisallow: /")
+        ->and(AiDiscoveryCrawlerRule::query()->where('user_agent', 'OAI-SearchBot')->value('source_url'))->toBe('https://platform.openai.com/docs/bots');
 });
 
 it('seeds ai crawler rules from package configuration', function (): void {

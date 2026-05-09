@@ -29,7 +29,7 @@ Tags and Media Library are Foundation packages because taxonomy and media manage
 | Capell Operations     | `operations`     | MigrationAssistant, Diagnostics, Login Audit |
 | Capell Growth         | `growth`         | Insights, CampaignStudio                     |
 | Capell Communications | `communications` | Email Studio                                 |
-| Capell Search & SEO   | `search-seo`     | SEO Suite, Search                            |
+| Capell Search & SEO   | `search-seo`     | SEO Suite, Search; AI Discovery, llms.txt, page Markdown, crawler policy, readiness audits |
 | Capell Themes         | `themes`         | Agency Theme, Corporate Theme, SaaS Theme    |
 
 ## Manifest Fields

@@ -8,6 +8,7 @@ it('declares foundation as the default theme package', function (): void {
 
     expect($manifest['name'])->toBe('capell-app/foundation-theme')
         ->and($composer['name'])->toBe('capell-app/foundation-theme')
+        ->and($manifest['manifest-version'])->toBe(2)
         ->and($manifest['kind'])->toBe('theme')
         ->and($manifest['themeKey'])->toBe('default')
         ->and($manifest['extends'])->toBeNull();
@@ -22,7 +23,7 @@ it('declares premium themes as standalone packages extending foundation', functi
         ->and($manifest['kind'])->toBe('theme')
         ->and($manifest['themeKey'])->toBe($themeKey)
         ->and($manifest['extends'])->toBe('capell-app/foundation-theme')
-        ->and($manifest['requires'])->toContain('capell-app/foundation-theme')
+        ->and($manifest['dependencies']['requires'])->toContain('capell-app/foundation-theme')
         ->and($manifest['productGroup'])->toBe('Capell Themes');
 })->with([
     'agency' => ['theme-agency', 'capell-app/theme-agency', 'agency'],

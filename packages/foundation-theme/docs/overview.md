@@ -24,8 +24,10 @@ Provides the baseline Laravel view and asset pipeline that child themes and fron
 - FoundationThemeServiceProvider registers theme services and settings.
 - Config file: capell-foundation-theme.php.
 - Settings migration creates default theme settings.
+- Registers the `capell` Blade namespace and anonymous `capell::...` components.
+- Registers Layout Builder frontend rendering views and widget components.
 - Runtime theme data layers parent defaults, child defaults, and database edits in that order.
-- GenerateTailwindAssetsCommand writes frontend CSS assets.
+- GenerateTailwindAssetsCommand writes the active/default frontend Tailwind directive file and optional per-theme files.
 - BladeDirectives and CapellUrlGenerator support rendering.
 - The beacon client is generic. It must not ship authoring controls or authoring metadata in theme HTML; `capell-app/frontend-authoring` owns the admin-only response that decorates the page.
 
@@ -56,6 +58,8 @@ Gives each Capell installation a standard frontend foundation before a custom or
 - Regenerate assets after changing theme colours or source paths.
 - Match asset_build_tool to the host app.
 - Set media URL config before production media rendering.
+- Treat Foundation Theme as the shared runtime, not the place for client-specific branding.
+- Add branded page wrappers and section views in child theme packages such as `theme-agency`, `theme-corporate`, or `theme-saas`.
 - Keep authoring behaviour in `capell-app/frontend-authoring`; themes should expose stable presentation selectors, not hidden editor metadata.
 - Keep child themes on shared `capell::...` views unless they need their own section markup.
 

@@ -220,7 +220,8 @@ it('adds ai discovery seo suite settings defaults', function (): void {
     $settings = resolve(SeoSuiteSettings::class);
 
     expect($settings->ai_discovery_audit_enabled)->toBeTrue()
-        ->and($settings->ai_discovery_default_enabled)->toBeTrue();
+        ->and($settings->ai_discovery_default_enabled)->toBeTrue()
+        ->and($settings->ai_discovery_crawler_policy)->toBe('search_visible_training_restricted');
 });
 
 it('publishes the ai discovery settings migration during seo suite install', function (): void {

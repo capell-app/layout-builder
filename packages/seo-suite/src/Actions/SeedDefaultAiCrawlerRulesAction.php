@@ -10,6 +10,7 @@ use Capell\SeoSuite\Enums\AiDiscoveryCrawlerPurposeEnum;
 use Capell\SeoSuite\Models\AiDiscoveryCrawlerRule;
 use Capell\SeoSuite\Settings\SeoSuiteSettings;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Spatie\LaravelSettings\SettingsRepositories\SettingsRepository;
 use Throwable;
 
 /**
@@ -129,11 +130,11 @@ final class SeedDefaultAiCrawlerRulesAction
         return array_map(function (array $rule) use ($presetRules): array {
             $directive = $presetRules[$rule['user_agent']] ?? null;
 
-            if (! is_scalar($directive)) {
+            if (! is_string($directive)) {
                 return $rule;
             }
 
-            $policyDirective = AiDiscoveryCrawlerDirectiveEnum::tryFrom(trim((string) $directive));
+            $policyDirective = AiDiscoveryCrawlerDirectiveEnum::tryFrom(trim($directive));
 
             if (! $policyDirective instanceof AiDiscoveryCrawlerDirectiveEnum) {
                 return $rule;
@@ -148,17 +149,24 @@ final class SeedDefaultAiCrawlerRulesAction
     private function selectedCrawlerPolicy(): string
     {
         try {
-            $settings = app(SeoSuiteSettings::class);
+            $repository = resolve(SettingsRepository::class);
 
-            if (trim($settings->ai_discovery_crawler_policy) !== '') {
-                return trim($settings->ai_discovery_crawler_policy);
+            if ($repository->checkIfPropertyExists(SeoSuiteSettings::group(), 'ai_discovery_crawler_policy')) {
+                $settings = resolve(SeoSuiteSettings::class);
+
+                if (trim($settings->ai_discovery_crawler_policy) !== '') {
+                    return trim($settings->ai_discovery_crawler_policy);
+                }
             }
         } catch (Throwable) {
             //
         }
 
-        return $this->stringValue(config('capell-seo-suite.ai_discovery.crawler_policy'))
-            ?: 'search_visible_training_restricted';
+        $configuredPolicy = $this->stringValue(config('capell-seo-suite.ai_discovery.crawler_policy'));
+
+        return $configuredPolicy !== ''
+            ? $configuredPolicy
+            : 'search_visible_training_restricted';
     }
 
     /**

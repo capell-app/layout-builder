@@ -181,7 +181,7 @@ it('carries audit and crawler rule boundary data', function (): void {
         directive: AiDiscoveryCrawlerDirectiveEnum::Disallow,
         path: '/',
         enabled: true,
-        sourceUrl: 'https://developers.openai.com/api/docs/bots',
+        sourceUrl: 'https://platform.openai.com/docs/bots',
         notes: 'Seeded default.',
     );
 

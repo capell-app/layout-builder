@@ -4,12 +4,13 @@ Status: **Available, schema-owning** · Kind: **package** · Tier: **premium** �
 
 ## What This Plugin Adds
 
-SEO Suite adds metadata panels, sitemap generation, structured data, broken link tracking, Search Console insights, AI-assisted content briefs, and publish checks.
+SEO Suite adds metadata panels, sitemap generation, structured data, broken link tracking, Search Console insights, AI-assisted content briefs, AI Discovery output, crawler policy controls, and publish checks.
 
 - Page and site SEO schema extenders.
-- SEO audit, broken links, not-found URLs, sitemap, and translation coverage pages.
+- SEO audit, AI Discovery, broken links, not-found URLs, sitemap, and translation coverage pages.
 - Sitemap Livewire page and tool component.
 - AI creator actions for briefs, images, layouts, metadata suggestions, and draft application.
+- AI Discovery for `llms.txt`, optional `llms-full.txt`, page Markdown URLs, `Accept: text/markdown`, configurable AI crawler rules, and page-readiness audits.
 - Search Console sync and dashboard-dashboard_reports.
 
 ## Why It Matters
@@ -55,9 +56,9 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 
 - SeoSuiteServiceProvider registers settings, pages, extenders, commands, routes, and views.
 - Config files: capell-seo-suite.php and exchanger.php.
-- Migrations create broken links, page SEO snapshots, Search Console metrics, AI creator contexts, AI histories, and AI sessions.
+- Migrations create broken links, page SEO snapshots, Search Console metrics, AI creator contexts, AI histories, AI sessions, AI Discovery profiles, crawler rules, and generated-output snapshots.
 - Commands cover install, setup, sitemap, AI cache, AI usage, and OpenAI connection testing.
-- Controller: LlmsTxtController.
+- Controllers: LlmsTxtController, LlmsFullTxtController, PageMarkdownController, RobotsTxtController.
 
 ## Data Model
 
@@ -65,6 +66,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - page_seo_snapshots store page SEO report state.
 - search_console_url_metrics store imported Search Console values.
 - ai_creator_contexts, ai_generation_histories, and ai_creator_sessions store AI workflow state.
+- ai_discovery_site_profiles, ai_discovery_page_profiles, ai_discovery_crawler_rules, and ai_discovery_snapshots store AI Discovery configuration, robots controls, and generated document state.
 - SEO data connects to sites, pages, languages, users, and publishing-studio.
 
 ## Install Impact
@@ -72,7 +74,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Adds SEO and AI-related tables/settings.
 - Extends page and site admin form-builder.
 - Adds SEO admin pages and widgets.
-- Adds sitemap and llms.txt frontend output.
+- Adds sitemap, llms.txt, llms-full.txt, robots.txt, and page Markdown frontend output.
 - Adds config for AI provider/model, image model, Search Console, publish gates, and prompts.
 
 ## Commands
@@ -90,6 +92,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - NotFoundUrlsPage (packages/seo-suite/src/Filament/Pages/NotFoundUrlsPage.php, slug `missing-pages`)
 - SeoAuditPage (packages/seo-suite/src/Filament/Pages/SeoAuditPage.php, slug `seo-audit`)
 - SitemapPage (packages/seo-suite/src/Filament/Pages/SitemapPage.php, slug `sitemap`)
+- AiDiscoveryPage (packages/seo-suite/src/Filament/Pages/AiDiscoveryPage.php, slug `ai-discovery`)
 - TranslationCoveragePage (packages/seo-suite/src/Filament/Pages/TranslationCoveragePage.php, slug `translation-coverage`)
 
 - Policy: AiCreatorPolicy (packages/seo-suite/src/Policies/AiCreatorPolicy.php)
@@ -98,6 +101,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Gate: NotFoundUrlsPage: Filament Shield page permissions
 - Gate: SeoAuditPage: Filament Shield page permissions
 - Gate: SitemapPage: Filament Shield page permissions
+- Gate: AiDiscoveryPage: Filament Shield page permissions
 - Gate: TranslationCoveragePage: Filament Shield page permissions
 
 ## Common Pitfalls
@@ -106,6 +110,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Search Console requires credentials and property URL.
 - Publish gates can block publishing when required metadata is missing.
 - Regenerate sitemap output after route or content changes.
+- Review AI Discovery summaries, Markdown previews, and crawler policy before launching a site that should be visible to AI search and answer engines.
 
 ## Quick Start
 
@@ -116,6 +121,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 ## Next Steps
 
 - [docs/overview.md](docs/overview.md)
+- [docs/ai-discovery.md](docs/ai-discovery.md)
 - [../redirects/README.md](../redirects/README.md)
 - [../blog/README.md](../blog/README.md)
 - [../publishing-studio/README.md](../publishing-studio/README.md)

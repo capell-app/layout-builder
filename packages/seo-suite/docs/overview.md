@@ -9,10 +9,11 @@ This page is the consolidated implementation overview for the SEO Suite package.
 SEO Suite adds metadata panels, sitemap generation, AI Discovery outputs, structured data, broken link tracking, Search Console insights, AI-assisted content briefs, and publish checks.
 
 - Page and site SEO schema extenders, including the page editor SEO settings tab, report-backed edit audit widget, and Pages-list audit overview widget.
-- SEO audit, broken links, not-found URLs, sitemap, and translation coverage pages.
+- SEO audit, AI Discovery, broken links, not-found URLs, sitemap, and translation coverage pages.
 - Sitemap Livewire page and tool component.
 - AI creator actions for briefs, images, layouts, metadata suggestions, and draft application.
 - AI Discovery generation for `llms.txt`, optional `llms-full.txt`, per-page Markdown views, `robots.txt` AI crawler rules, and page-readiness audit signals.
+- AI Discovery admin management for browsing pages, filling summaries, toggling page inclusion, previewing Markdown, and reviewing readiness issue counts.
 - Search Console sync and dashboard-dashboard_reports.
 
 ## Developer Notes
@@ -40,7 +41,8 @@ AI Discovery is an optional SEO Suite surface for AI-readable public content. It
 - Site/language quick-fill fields live in site translation SEO metadata under AI Discovery and sync into site profiles.
 - Snapshot records track generated output hashes, byte sizes, cache keys, expiry, status, and page/site context.
 - Cache invalidation marks snapshots stale and forgets cached documents on page save/delete events and AI Discovery profile changes.
-- Crawler rules seed from `capell-seo-suite.ai_discovery.default_crawler_rules` and can render robots snippets for OAI-SearchBot, GPTBot, ChatGPT-User, ClaudeBot, Claude-SearchBot, Claude-User, PerplexityBot, Google-Extended, and CCBot.
+- Crawler rules seed from `capell-seo-suite.ai_discovery.default_crawler_rules`, can be shaped by the `ai_discovery_crawler_policy` setting, and render robots snippets for OAI-SearchBot, GPTBot, ChatGPT-User, ClaudeBot, Claude-SearchBot, Claude-User, PerplexityBot, Google-Extended, and CCBot.
+- Full implementation notes live in [AI Discovery](ai-discovery.md).
 
 ## Operational Notes
 
@@ -83,6 +85,7 @@ SEO Suite contributes content graph edges from page SEO snapshots and broken-lin
 - Regenerate sitemap output after route or content changes.
 - Keep AI Discovery page summaries specific. Thin summaries, duplicate entity names, no canonical URL, no schema, no server-rendered text, disabled Markdown views, and noindex pages are reported by the AI-readiness audit action.
 - Review crawler defaults before publishing robots output; search crawlers and training crawlers are deliberately configurable separately.
+- Use the SEO Suite settings crawler policy as the default posture, then use crawler rule rows when a site needs a provider-specific override.
 
 ## Verification
 
@@ -104,6 +107,7 @@ SEO Suite contributes content graph edges from page SEO snapshots and broken-lin
 ## Admin Surfaces
 
 - BrokenLinksPage (packages/seo-suite/src/Filament/Pages/BrokenLinksPage.php, slug `broken-links`)
+- AiDiscoveryPage (packages/seo-suite/src/Filament/Pages/AiDiscoveryPage.php, slug `ai-discovery`)
 - NotFoundUrlsPage (packages/seo-suite/src/Filament/Pages/NotFoundUrlsPage.php, slug `missing-pages`)
 - SeoAuditPage (packages/seo-suite/src/Filament/Pages/SeoAuditPage.php, slug `seo-audit`)
 - SitemapPage (packages/seo-suite/src/Filament/Pages/SitemapPage.php, slug `sitemap`)
@@ -128,6 +132,7 @@ SEO Suite contributes content graph edges from page SEO snapshots and broken-lin
 - Policy: AiCreatorPolicy (packages/seo-suite/src/Policies/AiCreatorPolicy.php)
 - Gate: AiMetricsWidgetAbstract: `developer`, `admin`, `super_admin`
 - Gate: BrokenLinksPage: Filament Shield page permissions
+- Gate: AiDiscoveryPage: Filament Shield page permissions
 - Gate: NotFoundUrlsPage: Filament Shield page permissions
 - Gate: SeoAuditPage: Filament Shield page permissions
 - Gate: SitemapPage: Filament Shield page permissions
