@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\PasswordPolicy\Filament\Extenders;
 
+use Capell\Admin\Contracts\Extenders\UserFormExtender;
 use Capell\PasswordPolicy\Actions\RecordPasswordHistoryAction;
 use Capell\PasswordPolicy\Actions\ValidatePasswordChangeAction;
 use Capell\PasswordPolicy\Data\PasswordChangeData;
@@ -11,7 +12,7 @@ use Capell\PasswordPolicy\Support\PasswordPolicySettingsResolver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 
-class PasswordPolicyUserFormExtender
+class PasswordPolicyUserFormExtender implements UserFormExtender
 {
     public function mutateDataBeforeCreate(array $data): array
     {
