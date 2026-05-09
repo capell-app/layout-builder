@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Capell\HtmlCache\Tests;
 
 use Aimeos\Nestedset\NestedSetServiceProvider;
+use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
+use BladeUI\Icons\BladeIconsServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Macros\BlueprintMacros;
 use Capell\Core\Models\Media;
@@ -37,7 +39,9 @@ abstract class HtmlCacheTestCase extends AbstractTestCase
     protected function getPackageProviders(mixed $app): array
     {
         return [
-            ...parent::getDefaultPackageProviders(),
+            ...parent::getPackageProviders($app),
+            BladeIconsServiceProvider::class,
+            BladeHeroiconsServiceProvider::class,
             ActionsServiceProvider::class,
             FilamentServiceProvider::class,
             FormsServiceProvider::class,

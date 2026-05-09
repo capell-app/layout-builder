@@ -20,7 +20,7 @@ final class BuildPackagesInstalledAction
     /**
      * Maps a composer package name to its short handle, config-file name, and docs URL.
      *
-     * @var array<string, array{short: string, config: string, docs: ?string}>
+     * @var array<string, array{short: string, config: ?string, docs: ?string}>
      */
     private const KNOWN_PACKAGES = [
         'capell-app/core' => [
@@ -101,7 +101,7 @@ final class BuildPackagesInstalledAction
             }
 
             $meta = self::KNOWN_PACKAGES[$composerName];
-            $configPath = config_path($meta['config'] . '.php');
+            $configPath = $meta['config'] !== null ? config_path($meta['config'] . '.php') : '';
 
             $rows[] = new PackageInfoData(
                 name: $meta['short'],

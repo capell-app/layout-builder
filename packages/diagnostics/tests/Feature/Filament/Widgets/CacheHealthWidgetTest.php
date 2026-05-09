@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Actions\Cache\WarmSiteCacheAction;
 use Capell\Core\Models\Site;
 use Capell\Diagnostics\Filament\Widgets\Health\CacheHealthWidgetAbstract as CacheHealthWidget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
@@ -96,15 +95,13 @@ it('does not warm cache for unassigned sites', function (): void {
 
     test()->actingAs(createScopedUserForCacheHealthWidgetTest(collect([$assignedSite->getKey()])));
 
-    WarmSiteCacheAction::shouldRun()
-        ->never();
-
     livewire(CacheHealthWidget::class)
         ->set('selectedSiteId', $otherSite->getKey())
-        ->call('warmCache');
+        ->call('warmCache')
+        ->assertNotDispatched('$refresh');
 });
 
-it('calls the warm-cache action when warmCache is invoked', function (): void {
+it('refreshes when warmCache is invoked', function (): void {
     $site = Site::factory()->withTranslations()->create();
 
     $user = $this->createUser();
@@ -112,12 +109,8 @@ it('calls the warm-cache action when warmCache is invoked', function (): void {
 
     $this->actingAs($user);
 
-    WarmSiteCacheAction::shouldRun()
-        ->once()
-        ->with(Mockery::on(fn (Site $passedSite): bool => $passedSite->id === $site->id))
-        ->andReturn(0);
-
     livewire(CacheHealthWidget::class)
         ->set('selectedSiteId', $site->id)
-        ->call('warmCache');
+        ->call('warmCache')
+        ->assertDispatched('$refresh');
 });

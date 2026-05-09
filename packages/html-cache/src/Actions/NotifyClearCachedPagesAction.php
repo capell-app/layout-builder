@@ -38,7 +38,7 @@ final class NotifyClearCachedPagesAction
             return;
         }
 
-        if (config('capell-admin.auto_clear_cache')) {
+        if (config('capell-admin.auto_clear_cache') === true) {
             ClearCachedPageUrlsAction::run($cachedUrls);
 
             return;

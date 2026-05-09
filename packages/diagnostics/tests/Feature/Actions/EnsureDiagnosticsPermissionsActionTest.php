@@ -29,8 +29,10 @@ it('is idempotent when invoked repeatedly', function (): void {
 });
 
 it('keeps manifest permissions traceable to the enum', function (): void {
+    $manifestJson = file_get_contents(dirname(__DIR__, 3) . '/capell.json');
+
     $manifest = json_decode(
-        file_get_contents(dirname(__DIR__, 3) . '/capell.json') ?: '{}',
+        $manifestJson !== false ? $manifestJson : '{}',
         true,
     );
 

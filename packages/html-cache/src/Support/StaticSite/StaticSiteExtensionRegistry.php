@@ -28,6 +28,11 @@ final class StaticSiteExtensionRegistry
         $this->handlers[$key] = $handler;
     }
 
+    public function has(string $key): bool
+    {
+        return array_key_exists($key, $this->handlers);
+    }
+
     /**
      * @return array<string, callable(Site, SiteDomain, Closure(string): void): void>
      */

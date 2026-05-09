@@ -70,8 +70,8 @@ final class DiscoverPublicPagesAction
 
                 return new DiscoverablePageData(
                     pageId: (int) $page->getKey(),
-                    title: trim(strip_tags((string) ($page->translation?->title ?? $page->translation?->label ?? $page->name ?? ''))),
-                    url: (string) ($page->pageUrl?->full_url ?? ''),
+                    title: trim(strip_tags($page->translation?->title ?? $page->translation?->label ?? $page->name ?? '')),
+                    url: $page->pageUrl?->full_url ?? '',
                     lastModified: $page->updated_at,
                     priority: is_numeric($page->meta['priority'] ?? null) ? (float) $page->meta['priority'] : null,
                     changeFrequency: is_string($page->meta['changefreq'] ?? null) ? $page->meta['changefreq'] : null,

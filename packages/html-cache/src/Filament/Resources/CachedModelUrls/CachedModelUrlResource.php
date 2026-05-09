@@ -91,6 +91,10 @@ final class CachedModelUrlResource extends Resource
             return true;
         }
 
+        if (method_exists($actor, 'hasPermissionTo')) {
+            return $actor->hasPermissionTo(HtmlCachePermission::ViewCachedModelUrls->value) === true;
+        }
+
         return method_exists($actor, 'can')
             && $actor->can(HtmlCachePermission::ViewCachedModelUrls->value) === true;
     }

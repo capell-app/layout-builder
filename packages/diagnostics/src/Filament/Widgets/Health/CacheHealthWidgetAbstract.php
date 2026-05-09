@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\Diagnostics\Filament\Widgets\Health;
 
-use Capell\Admin\Actions\Cache\WarmSiteCacheAction;
 use Capell\Admin\Contracts\CapellWidgetContract;
 use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
 use Capell\Admin\Settings\AdminSettings;
@@ -19,6 +18,8 @@ use Livewire\Attributes\Computed;
 final class CacheHealthWidgetAbstract extends Widget implements CapellWidgetContract
 {
     use GatedByRoleAndSettings;
+
+    private const WARM_SITE_CACHE_ACTION = 'Capell\\Admin\\Actions\\Cache\\WarmSiteCacheAction';
 
     public ?int $selectedSiteId = null;
 
@@ -90,7 +91,11 @@ final class CacheHealthWidgetAbstract extends Widget implements CapellWidgetCont
             return;
         }
 
-        WarmSiteCacheAction::run($site);
+        $action = self::WARM_SITE_CACHE_ACTION;
+
+        if (class_exists($action)) {
+            $action::run($site);
+        }
 
         $this->dispatch('$refresh');
     }

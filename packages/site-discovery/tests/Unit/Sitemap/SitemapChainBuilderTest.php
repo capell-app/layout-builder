@@ -193,7 +193,7 @@ it('uses updated_at for lastModified when available', function (): void {
     expect($result->lastModified->toAtomString())->toBe($publishDate->toAtomString());
 });
 
-it('falls back to created_at for lastModified when publish dates are null', function (): void {
+it('falls back to timestamps for lastModified when publish dates are null', function (): void {
     $createdAt = now()->subDays(10);
 
     $page = Page::factory()
@@ -210,7 +210,7 @@ it('falls back to created_at for lastModified when publish dates are null', func
 
     $result = SitemapChainBuilder::build($page);
 
-    expect($result->lastModified->toAtomString())->toBe($createdAt->toAtomString());
+    expect($result->lastModified->toAtomString())->toBe($page->updated_at->toAtomString());
 });
 
 it('preserves meta values through ancestor chain', function (): void {

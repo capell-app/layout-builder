@@ -248,16 +248,16 @@ class SectionsTable implements TableConfigurator
                         ->searchable()
                         ->options(fn (HasTable $livewire, Get $get): array => static::parentSectionOptions(
                             siteId: static::getSiteId($livewire),
-                            languageId: $get('language_id') ? (int) $get('language_id') : null,
+                            languageId: filled($get('language_id')) ? (int) $get('language_id') : null,
                         ))
                         ->getSearchResultsUsing(fn (string $search, HasTable $livewire, Get $get): array => static::parentSectionOptions(
                             siteId: static::getSiteId($livewire),
-                            languageId: $get('language_id') ? (int) $get('language_id') : null,
+                            languageId: filled($get('language_id')) ? (int) $get('language_id') : null,
                             search: $search,
                         ))
                         ->getOptionLabelUsing(fn (mixed $value, HasTable $livewire, Get $get): ?string => static::parentSectionOptions(
                             siteId: static::getSiteId($livewire),
-                            languageId: $get('language_id') ? (int) $get('language_id') : null,
+                            languageId: filled($get('language_id')) ? (int) $get('language_id') : null,
                             selectedId: filled($value) ? (int) $value : null,
                         )[(int) $value] ?? null),
                 ])

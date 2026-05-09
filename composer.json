@@ -244,6 +244,7 @@
             "Capell\\ThemeStudio\\Saas\\": "packages/theme-saas/src",
             "Capell\\TranslationManager\\": "packages/translation-manager/src",
             "Capell\\FrontendAuthoring\\": "packages/frontend-authoring/src",
+            "Capell\\HtmlCache\\": "packages/html-cache/src",
             "Capell\\WordPressImporter\\": "packages/wordpress-importer/src",
             "Capell\\PublishingStudio\\": "packages/publishing-studio/src",
             "Capell\\PublishingStudio\\Database\\Factories\\": "packages/publishing-studio/database/factories"
@@ -290,6 +291,7 @@
             "Capell\\ThemeStudio\\Saas\\Tests\\": "packages/theme-saas/tests",
             "Capell\\TranslationManager\\Tests\\": "packages/translation-manager/tests",
             "Capell\\FrontendAuthoring\\Tests\\": "packages/frontend-authoring/tests",
+            "Capell\\HtmlCache\\Tests\\": "packages/html-cache/tests",
             "Capell\\WordPressImporter\\Tests\\": "packages/wordpress-importer/tests",
             "Capell\\PublishingStudio\\Tests\\": "packages/publishing-studio/tests"
         }

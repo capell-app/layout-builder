@@ -8,6 +8,7 @@ use Capell\Core\Models\Site;
 use Capell\SiteDiscovery\Filament\Pages\SitemapPage;
 use Capell\SiteDiscovery\Support\Creator\SitemapPageCreator;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
+use Illuminate\View\FileViewFinder;
 use Spatie\Permission\Models\Permission;
 
 uses(CreatesAdminUser::class)
@@ -18,7 +19,12 @@ beforeEach(function (): void {
         base_path('packages/site-discovery/resources/views'),
         ...config('view.paths', []),
     ])));
-    view()->getFinder()->prependLocation(base_path('packages/site-discovery/resources/views'));
+    $viewFinder = view()->getFinder();
+
+    if ($viewFinder instanceof FileViewFinder) {
+        $viewFinder->prependLocation(base_path('packages/site-discovery/resources/views'));
+    }
+
     view()->addNamespace('capell', base_path('packages/site-discovery/resources/views'));
     view()->addNamespace('capell-site-discovery', base_path('packages/site-discovery/resources/views'));
     view()->getFinder()->flush();

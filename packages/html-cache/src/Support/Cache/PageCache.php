@@ -183,12 +183,15 @@ final class PageCache extends Cache
         if ($request->headers->has('X-Inertia')) {
             return true;
         }
+
         if ($request->headers->has('X-Inertia-Version')) {
             return true;
         }
+
         if ($request->headers->has('X-Inertia-Partial-Component')) {
             return true;
         }
+
         if ($request->headers->has('X-Inertia-Partial-Data')) {
             return true;
         }
@@ -206,18 +209,23 @@ final class PageCache extends Cache
         if (filled($session->get('_flash.old', []))) {
             return true;
         }
+
         if (filled($session->get('_flash.new', []))) {
             return true;
         }
+
         if ($session->has('errors')) {
             return true;
         }
+
         if ($session->has('_old_input')) {
             return true;
         }
+
         if ($session->has('status')) {
             return true;
         }
+
         if ($session->has('enquiry_status')) {
             return true;
         }

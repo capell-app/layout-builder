@@ -20,6 +20,6 @@ it('does not register direct-rendered package views with Blaze', function (strin
 })->with([
     'navigation-form-partial' => fn (): string => dirname(__DIR__, 3) . '/packages/navigation/resources/views/components/page/navigations.blade.php',
     'frontend-authoring-beacon-script' => fn (): string => dirname(__DIR__, 3) . '/packages/frontend-authoring/resources/views/authoring/bootstrap-script.blade.php',
-    'seo-suite-sitemap-page' => fn (): string => dirname(__DIR__, 3) . '/packages/seo-suite/resources/views/components/pages/sitemap.blade.php',
+    'seo-suite-canonical-partial' => fn (): string => dirname(__DIR__, 3) . '/packages/seo-suite/resources/views/partials/canonical.blade.php',
     'publishing-studio-livewire-view' => fn (): string => dirname(__DIR__, 3) . '/packages/publishing-studio/resources/views/components/publishing-studio/diff-panel.blade.php',
 ]);

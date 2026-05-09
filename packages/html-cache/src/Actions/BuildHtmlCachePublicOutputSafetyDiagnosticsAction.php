@@ -126,9 +126,11 @@ final class BuildHtmlCachePublicOutputSafetyDiagnosticsAction
             if (! $cachedModelUrl instanceof CachedModelUrl) {
                 continue;
             }
+
             if (! $cachedModelUrl->siteDomain instanceof SiteDomain) {
                 continue;
             }
+
             $files = [
                 $pathResolver->pathForUrl($cachedModelUrl->path, $cachedModelUrl->siteDomain),
                 $pathResolver->pathForUrl($cachedModelUrl->path, $cachedModelUrl->siteDomain, error: true),
@@ -140,6 +142,7 @@ final class BuildHtmlCachePublicOutputSafetyDiagnosticsAction
                 if (! is_string($path)) {
                     continue;
                 }
+
                 if (! is_file($path)) {
                     continue;
                 }
@@ -194,6 +197,7 @@ final class BuildHtmlCachePublicOutputSafetyDiagnosticsAction
             if (! is_string($path)) {
                 continue;
             }
+
             if (! is_file($path)) {
                 continue;
             }
@@ -234,12 +238,15 @@ final class BuildHtmlCachePublicOutputSafetyDiagnosticsAction
             if (! $siteDomain instanceof SiteDomain) {
                 continue;
             }
+
             if ($siteDomain->scheme === null) {
                 continue;
             }
+
             if ($siteDomain->domain === null) {
                 continue;
             }
+
             $files = $this->appendUnindexedCandidatesForSiteDomain(
                 files: $files,
                 store: $store,

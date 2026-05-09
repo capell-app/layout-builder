@@ -157,7 +157,7 @@ it('clears affected cached urls and removes the edited model from the cache inde
     expect($cleared)->toBe(1)
         ->and(Storage::disk('page_cache')->exists($cachePath))->toBeFalse()
         ->and(CachedModelUrl::query()->where('url', $url)->exists())->toBeFalse()
-        ->and(CachedModelUrl::query()->where('url', 'https://missing.test/edited')->exists())->toBeTrue();
+        ->and(CachedModelUrl::query()->where('url', 'https://missing.test/edited')->exists())->toBeFalse();
 });
 
 it('updates allowed editable region fields and rejects unknown fields', function (): void {

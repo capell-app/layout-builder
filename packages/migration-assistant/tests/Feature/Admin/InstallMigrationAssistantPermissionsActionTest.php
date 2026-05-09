@@ -41,8 +41,10 @@ it('uses the migration-assistant permission enum as the source of truth', functi
 });
 
 it('keeps manifest permissions traceable to the enum', function (): void {
+    $manifestJson = file_get_contents(dirname(__DIR__, 3) . '/capell.json');
+
     $manifest = json_decode(
-        file_get_contents(dirname(__DIR__, 3) . '/capell.json') ?: '{}',
+        $manifestJson !== false ? $manifestJson : '{}',
         true,
     );
 

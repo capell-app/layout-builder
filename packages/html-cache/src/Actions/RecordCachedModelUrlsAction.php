@@ -44,9 +44,11 @@ final class RecordCachedModelUrlsAction
                 if ($cacheableType === '') {
                     continue;
                 }
+
                 if ($ids === []) {
                     continue;
                 }
+
                 foreach (array_unique(array_map(intval(...), $ids)) as $cacheableId) {
                     if ($cacheableId <= 0) {
                         continue;

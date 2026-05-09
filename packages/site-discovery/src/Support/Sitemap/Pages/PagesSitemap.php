@@ -29,7 +29,7 @@ class PagesSitemap extends AbstractSitemapPages
             ->map(fn (DiscoverablePageData $data): ?Page => $data->page)
             ->filter(fn (?Page $page): bool => $page instanceof Page)
             ->pipe(fn (Collection $pages): NestedsetCollection => new NestedsetCollection($pages->all()))
-            ->toTree()
+            ->pipe(fn (NestedsetCollection $pages): Collection => collect($pages->toTree()))
             ->map(fn (Page $page): SitemapPageData => $this->format($page)));
     }
 

@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Capell\ContentSections\Providers;
 
 use BackedEnum;
-use Capell\Admin\Actions\CreatedModelAction;
-use Capell\Admin\Actions\DeletedModelAction;
 use Capell\Admin\Data\AdminAssetData;
 use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\ConfiguratorTypeEnum as AdminConfiguratorTypeEnum;
@@ -42,6 +40,10 @@ use Spatie\LaravelPackageTools\Package;
 
 class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
 {
+    private const ADMIN_CREATED_MODEL_ACTION = 'Capell\\Admin\\Actions\\CreatedModelAction';
+
+    private const ADMIN_DELETED_MODEL_ACTION = 'Capell\\Admin\\Actions\\DeletedModelAction';
+
     public static string $name = 'capell-content-sections';
 
     public static string $packageName = 'capell-app/content-sections';
@@ -276,11 +278,19 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
     private function registerEvents(): self
     {
         Section::created(function (Section $section): void {
-            CreatedModelAction::run($section);
+            $action = self::ADMIN_CREATED_MODEL_ACTION;
+
+            if (class_exists($action)) {
+                $action::run($section);
+            }
         });
 
         Section::deleted(function (Section $section): void {
-            DeletedModelAction::run($section);
+            $action = self::ADMIN_DELETED_MODEL_ACTION;
+
+            if (class_exists($action)) {
+                $action::run($section);
+            }
         });
 
         return $this;

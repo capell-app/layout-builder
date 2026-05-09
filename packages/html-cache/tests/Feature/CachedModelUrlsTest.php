@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 uses(HtmlCacheTestCase::class);
 
@@ -754,6 +755,7 @@ it('denies cached model url resource rows when no actor is available', function 
 });
 
 it('requires cache map view permission for the cached model url resource', function (): void {
+    resolve(PermissionRegistrar::class)->setPermissionsTeamId(null);
     Permission::findOrCreate(HtmlCachePermission::ViewCachedModelUrls->value, 'web');
 
     $viewer = User::factory()->create();
@@ -763,6 +765,7 @@ it('requires cache map view permission for the cached model url resource', funct
         ->and(CachedModelUrlResource::canViewAny())->toBeFalse();
 
     $viewer->givePermissionTo(HtmlCachePermission::ViewCachedModelUrls->value);
+    resolve(PermissionRegistrar::class)->forgetCachedPermissions();
 
     expect(CachedModelUrlResource::canAccess())->toBeTrue()
         ->and(CachedModelUrlResource::canViewAny())->toBeTrue();
