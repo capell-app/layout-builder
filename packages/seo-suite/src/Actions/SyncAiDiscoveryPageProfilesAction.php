@@ -9,7 +9,8 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\SeoSuite\Models\AiDiscoveryPageProfile;
 use Capell\SeoSuite\Models\AiDiscoverySiteProfile;
-use Capell\SeoSuite\Support\Sitemap\Queries\PagesForSitemap;
+use Capell\SiteDiscovery\Actions\DiscoverPublicPagesAction;
+use Capell\SiteDiscovery\Data\DiscoverablePageData;
 use Illuminate\Support\Collection;
 use LogicException;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -30,9 +31,11 @@ final class SyncAiDiscoveryPageProfilesAction
 
         throw_unless($siteProfile instanceof AiDiscoverySiteProfile, LogicException::class, 'Resolving an AI Discovery site profile returned an unexpected page profile.');
 
-        $pages = resolve(PagesForSitemap::class)->get($site, $language);
+        $pages = DiscoverPublicPagesAction::run($site, $language);
 
         return $pages
+            ->map(fn (DiscoverablePageData $data): ?Page => $data->page)
+            ->filter(fn (?Page $page): bool => $page instanceof Page)
             ->map(fn (Page $page): AiDiscoveryPageProfile => $this->resolvePageProfile($page, $site, $language, $siteProfile))
             ->values();
     }

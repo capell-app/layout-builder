@@ -11,7 +11,8 @@ use Capell\SeoSuite\Data\AiDiscoveryPageEntryData;
 use Capell\SeoSuite\Data\AiDiscoveryRenderContextData;
 use Capell\SeoSuite\Models\AiDiscoveryPageProfile;
 use Capell\SeoSuite\Models\AiDiscoverySiteProfile;
-use Capell\SeoSuite\Support\Sitemap\Queries\PagesForSitemap;
+use Capell\SiteDiscovery\Actions\DiscoverPublicPagesAction;
+use Capell\SiteDiscovery\Data\DiscoverablePageData;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -28,7 +29,7 @@ final class BuildAiDiscoveryPageEntriesAction
      */
     public function handle(AiDiscoveryRenderContextData $context, AiDiscoverySiteProfile $siteProfile): Collection
     {
-        $pages = resolve(PagesForSitemap::class)->get($context->site, $context->language);
+        $pages = $this->pagesForDiscovery($context);
         $profiles = $this->profilesForPages($context, $pages);
 
         return $pages
@@ -39,6 +40,20 @@ final class BuildAiDiscoveryPageEntriesAction
                 ['priority', 'asc'],
             ])
             ->values();
+    }
+
+    /**
+     * @return EloquentCollection<int, Page>
+     */
+    private function pagesForDiscovery(AiDiscoveryRenderContextData $context): EloquentCollection
+    {
+        return new EloquentCollection(
+            DiscoverPublicPagesAction::run($context->site, $context->language)
+                ->map(fn (DiscoverablePageData $data): ?Page => $data->page)
+                ->filter(fn (?Page $page): bool => $page instanceof Page)
+                ->values()
+                ->all(),
+        );
     }
 
     /**

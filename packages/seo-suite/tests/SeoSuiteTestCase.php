@@ -19,9 +19,9 @@ use Capell\SeoSuite\Filament\Pages\AiDiscoveryPage;
 use Capell\SeoSuite\Filament\Pages\BrokenLinksPage;
 use Capell\SeoSuite\Filament\Pages\NotFoundUrlsPage;
 use Capell\SeoSuite\Filament\Pages\SeoAuditPage;
-use Capell\SeoSuite\Filament\Pages\SitemapPage;
 use Capell\SeoSuite\Filament\Pages\TranslationCoveragePage;
 use Capell\SeoSuite\Providers\SeoSuiteServiceProvider;
+use Capell\SiteDiscovery\Providers\SiteDiscoveryServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Illuminate\Contracts\Foundation\Application;
 use Livewire\LivewireServiceProvider;
@@ -45,6 +45,7 @@ class SeoSuiteTestCase extends AbstractTestCase
             ...parent::getPackageProviders($app),
             AdminServiceProvider::class,
             InsightsServiceProvider::class,
+            SiteDiscoveryServiceProvider::class,
             SeoSuiteServiceProvider::class,
             AdminPanelProvider::class,
             FrontendServiceProvider::class,
@@ -75,6 +76,7 @@ class SeoSuiteTestCase extends AbstractTestCase
         );
         CapellCore::forcePackageInstalled(InsightsServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(SiteDiscoveryServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(SeoSuiteServiceProvider::$packageName);
 
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(NotFoundUrlsPage::class));
@@ -82,7 +84,6 @@ class SeoSuiteTestCase extends AbstractTestCase
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(SeoAuditPage::class));
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(AiDiscoveryPage::class));
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(TranslationCoveragePage::class));
-        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(SitemapPage::class));
 
         // Register navigation with its path so BuildsOrderedMigrationWorkspace can
         // discover and include navigation's migrations in the ordered workspace.

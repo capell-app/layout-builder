@@ -75,7 +75,7 @@ it('resolves a page profile using site profile defaults', function (): void {
         ->and($profile->priority)->toBe(500);
 });
 
-it('syncs sitemap eligible pages into ai discovery page profiles', function (): void {
+it('syncs public discoverable pages into ai discovery page profiles', function (): void {
     $language = Language::query()->create([
         'name' => 'English',
         'locale' => 'en',

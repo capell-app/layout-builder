@@ -16,7 +16,6 @@ class SetupCommand extends Command
     public function handle(): int
     {
         SeedDefaultAiCrawlerRulesAction::run();
-        $this->call('capell:xml-sitemap');
 
         $this->newLine();
         $this->info('Capell SEO Suite setup complete.');

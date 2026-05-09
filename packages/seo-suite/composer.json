@@ -1,10 +1,10 @@
 {
     "name": "capell-app/seo-suite",
-    "description": "SEO tools for Capell (sitemaps, structured data, social meta, AI ai-orchestrator)",
+    "description": "SEO tools for Capell (metadata panels, structured data, social meta, AI ai-orchestrator)",
     "keywords": [
         "capell",
         "seo",
-        "sitemap",
+        "discoverability",
         "structured-data",
         "ai-orchestrator",
         "laravel",
@@ -17,7 +17,7 @@
         "capell-app/admin": "*",
         "capell-app/insights": "*",
         "capell-app/frontend": "*",
-        "icamys/php-sitemap-generator": "^4.4",
+        "capell-app/site-discovery": "*",
         "prism-php/prism": "^0.100"
     },
     "suggest": {

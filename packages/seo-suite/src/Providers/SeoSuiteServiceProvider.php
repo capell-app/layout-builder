@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\SeoSuite\Providers;
 
-use Capell\Admin\Contracts\AdminTools\AdminToolItem;
 use Capell\Admin\Contracts\Extenders\PageEditExtender;
 use Capell\Admin\Contracts\Extenders\PageHeaderActionExtender;
 use Capell\Admin\Contracts\Extenders\PageResourceWidgetExtender;
 use Capell\Admin\Contracts\Extenders\PageSchemaExtender;
-use Capell\Admin\Contracts\Extenders\ResourceHeaderActionExtender;
 use Capell\Admin\Contracts\Extenders\SiteHeaderActionExtender;
-use Capell\Admin\Contracts\Extenders\SiteRecordActionExtender;
 use Capell\Admin\Contracts\Extenders\SiteSchemaExtender;
 use Capell\Admin\Filament\Resources\Pages\Pages\EditPage;
 use Capell\Admin\Support\AdminEventRegistry;
@@ -19,14 +16,11 @@ use Capell\Admin\Support\CapellAdminManager;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
 use Capell\Core\Data\PackageData;
 use Capell\Core\Enums\PackageTypeEnum;
-use Capell\Core\Enums\TypeEnum;
 use Capell\Core\Events\PageDeleted;
 use Capell\Core\Events\PageSaved;
 use Capell\Core\Events\SiteCreated;
 use Capell\Core\Events\UrlVisitFailed;
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models\Site;
-use Capell\Core\Models\Type;
 use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Core\Support\Settings\SettingsGroupMetadata;
@@ -39,7 +33,6 @@ use Capell\SeoSuite\Console\Commands\InstallCommand;
 use Capell\SeoSuite\Console\Commands\MonitorAiUsageCommand;
 use Capell\SeoSuite\Console\Commands\SetupCommand;
 use Capell\SeoSuite\Console\Commands\TestOpenAiConnectionCommand;
-use Capell\SeoSuite\Console\Commands\XmlSitemapCommand;
 use Capell\SeoSuite\Contracts\Schemas\SearchMetaDataSectionExtenderResolverInterface;
 use Capell\SeoSuite\Contracts\SearchConsoleClientInterface;
 use Capell\SeoSuite\Contracts\SeoPublishReportProvider;
@@ -49,17 +42,13 @@ use Capell\SeoSuite\Events\AiGenerationFailed;
 use Capell\SeoSuite\Filament\Extenders\Page\PageSeoPanelSchemaExtender;
 use Capell\SeoSuite\Filament\Extenders\Page\PageSeoSettingsTabExtender;
 use Capell\SeoSuite\Filament\Extenders\Page\SearchMetaSchemaExtender;
-use Capell\SeoSuite\Filament\Extenders\Page\SitemapResourceHeaderActionExtender;
 use Capell\SeoSuite\Filament\Extenders\Site\SiteDetailsMetaExtender;
-use Capell\SeoSuite\Filament\Extenders\Site\SitemapSiteHeaderActionExtender;
-use Capell\SeoSuite\Filament\Extenders\Site\SitemapSiteRecordActionExtender;
 use Capell\SeoSuite\Filament\Extenders\Site\SiteTranslationMetaExtender;
 use Capell\SeoSuite\Filament\Pages\AiDiscoveryPage;
 use Capell\SeoSuite\Filament\Pages\BrokenLinksPage;
 use Capell\SeoSuite\Filament\Pages\NotFoundUrlsPage;
 use Capell\SeoSuite\Filament\Pages\SeoAuditPage;
 use Capell\SeoSuite\Filament\Pages\SeoSuiteSettingsPage;
-use Capell\SeoSuite\Filament\Pages\SitemapPage;
 use Capell\SeoSuite\Filament\Pages\TranslationCoveragePage;
 use Capell\SeoSuite\Filament\Settings\AIOrchestratorSettingsSchema;
 use Capell\SeoSuite\Filament\Settings\SeoSettingsSchema;
@@ -75,11 +64,6 @@ use Capell\SeoSuite\Listeners\AiDiscovery\SeedAiCrawlerRulesOnSiteCreated;
 use Capell\SeoSuite\Listeners\LogAiGeneration;
 use Capell\SeoSuite\Listeners\NotifyAiFailure;
 use Capell\SeoSuite\Listeners\RecordBrokenLink;
-use Capell\SeoSuite\Listeners\Sitemap\RegenerateSitemapsOnPageDeleted;
-use Capell\SeoSuite\Listeners\Sitemap\RegenerateSitemapsOnPageSaved;
-use Capell\SeoSuite\Listeners\Sitemap\RegenerateSitemapsOnSiteCreated;
-use Capell\SeoSuite\Livewire\Page\Sitemap as SitemapLivewireComponent;
-use Capell\SeoSuite\Livewire\Tools\SitemapTool;
 use Capell\SeoSuite\Models\AiCreatorContext;
 use Capell\SeoSuite\Models\AiCreatorSession;
 use Capell\SeoSuite\Models\AiDiscoveryCrawlerRule;
@@ -97,7 +81,6 @@ use Capell\SeoSuite\Support\Admin\PageContentEditorConfigurator;
 use Capell\SeoSuite\Support\Admin\PageSeoAuditPageEditExtender;
 use Capell\SeoSuite\Support\Admin\PageSeoAuditPageResourceWidgetExtender;
 use Capell\SeoSuite\Support\Admin\PageTitleWithSlugInputExtender;
-use Capell\SeoSuite\Support\AdminTools\SitemapAdminTool;
 use Capell\SeoSuite\Support\AiFeatureRegistry;
 use Capell\SeoSuite\Support\AiRateLimiter;
 use Capell\SeoSuite\Support\AiResponseParser;
@@ -107,8 +90,6 @@ use Capell\SeoSuite\Support\Cache\RateLimitCache;
 use Capell\SeoSuite\Support\ContentGraph\BrokenLinkContentGraphExtractor;
 use Capell\SeoSuite\Support\ContentGraph\PageSeoSnapshotContentGraphExtractor;
 use Capell\SeoSuite\Support\ContentTargetResolver;
-use Capell\SeoSuite\Support\Creator\SitemapPageCreator;
-use Capell\SeoSuite\Support\Interceptors\SitemapPageTypeInterceptor;
 use Capell\SeoSuite\Support\Pipelines\AiCreatorPipeline;
 use Capell\SeoSuite\Support\PrismProvider;
 use Capell\SeoSuite\Support\PromptRepository;
@@ -121,9 +102,6 @@ use Capell\SeoSuite\Support\SchemaTemplates\WebPageSchemaTemplate;
 use Capell\SeoSuite\Support\SearchConsole\GoogleSearchConsoleClient;
 use Capell\SeoSuite\Support\SearchConsole\NullSearchConsoleClient;
 use Capell\SeoSuite\Support\SectionRegistry;
-use Capell\SeoSuite\Support\Sitemap\Pages\PagesSitemap;
-use Capell\SeoSuite\Support\Sitemap\SitemapPageRegistry;
-use Capell\SeoSuite\Support\Sitemap\SitemapPageType;
 use Capell\SeoSuite\Targets\FlatJsonTarget;
 use Closure;
 use Composer\InstalledVersions;
@@ -132,9 +110,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
-use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 
 class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
@@ -158,7 +134,6 @@ class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
                 MonitorAiUsageCommand::class,
                 SetupCommand::class,
                 TestOpenAiConnectionCommand::class,
-                XmlSitemapCommand::class,
             ]);
     }
 
@@ -295,20 +270,7 @@ class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
 
         $this->app->tag([
             AiCreatorSiteExtender::class,
-            SitemapSiteHeaderActionExtender::class,
         ], SiteHeaderActionExtender::TAG);
-
-        $this->app->tag([
-            SitemapResourceHeaderActionExtender::class,
-        ], ResourceHeaderActionExtender::TAG);
-
-        $this->app->tag([
-            SitemapSiteRecordActionExtender::class,
-        ], SiteRecordActionExtender::TAG);
-
-        $this->app->tag([
-            SitemapAdminTool::class,
-        ], AdminToolItem::TAG);
 
         $this->app->tag([
             PageSeoAuditPageEditExtender::class,
@@ -380,7 +342,6 @@ class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
         $adminManager->registerExtensionPage(static::$packageName, AiDiscoveryPage::class);
         $adminManager->registerExtensionPage(static::$packageName, SeoSuiteSettingsPage::class);
         $adminManager->registerExtensionPage(static::$packageName, TranslationCoveragePage::class);
-        $adminManager->registerExtensionPage(static::$packageName, SitemapPage::class);
 
         return $this;
     }
@@ -399,55 +360,6 @@ class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
         return $this;
     }
 
-    protected function registerLivewireComponents(): self
-    {
-        Livewire::component(SitemapPageType::ComponentView, SitemapLivewireComponent::class);
-        Livewire::component('capell-seo-suite.tools.sitemap-tool', SitemapTool::class);
-
-        return $this;
-    }
-
-    protected function registerSitemapPageType(): self
-    {
-        /** @var class-string<Type> $typeModel */
-        $typeModel = Type::class;
-
-        CapellCore::registerModelInterceptor(
-            $typeModel,
-            interceptorClass: SitemapPageTypeInterceptor::class,
-            key: [
-                'key' => SitemapPageType::Key,
-                'type' => TypeEnum::Page,
-            ],
-        );
-
-        return $this;
-    }
-
-    protected function registerSitemapDefaultPage(): self
-    {
-        CapellCore::addDefaultPage(
-            'sitemap',
-            __('capell-seo-suite::generic.sitemap'),
-            function (Site $site, ?Collection $languages = null): void {
-                resolve(SitemapPageCreator::class)->createSitemapPage($site, $languages);
-            },
-        );
-
-        return $this;
-    }
-
-    protected function registerSitemapRegistry(): self
-    {
-        $this->app->singleton(SitemapPageRegistry::class);
-
-        /** @var SitemapPageRegistry $registry */
-        $registry = $this->app->make(SitemapPageRegistry::class);
-        $registry->register('default', PagesSitemap::class);
-
-        return $this;
-    }
-
     protected function registerSchemaTemplateRegistry(): self
     {
         /** @var SchemaTemplateRegistry $registry */
@@ -455,16 +367,6 @@ class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
 
         $registry->registerIfMissing(SchemaTemplateTypeEnum::WebPage, new WebPageSchemaTemplate);
         $registry->registerIfMissing(SchemaTemplateTypeEnum::Article, new ArticleSchemaTemplate);
-
-        return $this;
-    }
-
-    protected function registerSitemapEventListeners(): self
-    {
-        $events = $this->app->make(Dispatcher::class);
-        $events->listen(PageSaved::class, RegenerateSitemapsOnPageSaved::class);
-        $events->listen(PageDeleted::class, RegenerateSitemapsOnPageDeleted::class);
-        $events->listen(SiteCreated::class, RegenerateSitemapsOnSiteCreated::class);
 
         return $this;
     }
@@ -556,14 +458,9 @@ class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
             ->registerAiDiscoveryModelCacheInvalidation()
             ->registerBrokenLinkEventListeners()
             ->registerSettingsSchema()
-            ->registerSitemapPageType()
-            ->registerSitemapDefaultPage()
-            ->registerSitemapRegistry()
             ->registerSchemaTemplateRegistry()
-            ->registerSitemapEventListeners()
             ->bindPageMarkdownResponder()
             ->registerFilamentPages()
-            ->registerLivewireComponents()
             ->registerFrontendViews()
             ->registerRenderHooks()
             ->registerLlmsTxtRoute();

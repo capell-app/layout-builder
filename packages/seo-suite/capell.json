@@ -6,13 +6,14 @@
     "productGroup": "Capell Search & SEO",
     "tier": "premium",
     "bundle": "search-seo",
-    "description": "SEO Suite adds metadata panels, sitemap generation, structured data, broken link tracking, Search Console insights, AI-assisted content briefs, and publish checks.",
+    "description": "SEO Suite adds metadata panels, structured data, broken link tracking, Search Console insights, AI-assisted content briefs, and publish checks.",
     "surfaces": ["admin", "frontend", "console"],
     "dependencies": {
         "requires": [
             "capell-app/admin",
             "capell-app/insights",
-            "capell-app/frontend"
+            "capell-app/frontend",
+            "capell-app/site-discovery"
         ],
         "optional": [],
         "conflicts": []

@@ -101,7 +101,7 @@ SEO Suite contributes content graph edges from page SEO snapshots and broken-lin
 - Tier: premium
 - Bundle: search-seo
 - Contexts: `admin`, `frontend`, `console`
-- Requires: `capell-app/admin`, `capell-app/frontend`
+- Requires: `capell-app/admin`, `capell-app/frontend`, `capell-app/site-discovery`
 - Optional dependencies: None listed.
 
 ## Admin Surfaces
@@ -110,7 +110,6 @@ SEO Suite contributes content graph edges from page SEO snapshots and broken-lin
 - AiDiscoveryPage (packages/seo-suite/src/Filament/Pages/AiDiscoveryPage.php, slug `ai-discovery`)
 - NotFoundUrlsPage (packages/seo-suite/src/Filament/Pages/NotFoundUrlsPage.php, slug `missing-pages`)
 - SeoAuditPage (packages/seo-suite/src/Filament/Pages/SeoAuditPage.php, slug `seo-audit`)
-- SitemapPage (packages/seo-suite/src/Filament/Pages/SitemapPage.php, slug `sitemap`)
 - TranslationCoveragePage (packages/seo-suite/src/Filament/Pages/TranslationCoveragePage.php, slug `translation-coverage`)
 
 ## Commands
@@ -120,7 +119,6 @@ SEO Suite contributes content graph edges from page SEO snapshots and broken-lin
 - `capell:admin-monitor-ai-usage` (packages/seo-suite/src/Console/Commands/MonitorAiUsageCommand.php)
 - `capell:seo-suite-setup` (packages/seo-suite/src/Console/Commands/SetupCommand.php)
 - `capell:admin-test-openai` (packages/seo-suite/src/Console/Commands/TestOpenAiConnectionCommand.php)
-- `capell:xml-sitemap {--site= : Only regenerate sitemaps for this site ID} {--incremental : Skip domains whose pages have not changed since the last run}` (packages/seo-suite/src/Console/Commands/XmlSitemapCommand.php)
 
 ## Routes And Config
 
@@ -135,7 +133,6 @@ SEO Suite contributes content graph edges from page SEO snapshots and broken-lin
 - Gate: AiDiscoveryPage: Filament Shield page permissions
 - Gate: NotFoundUrlsPage: Filament Shield page permissions
 - Gate: SeoAuditPage: Filament Shield page permissions
-- Gate: SitemapPage: Filament Shield page permissions
 - Gate: TranslationCoveragePage: Filament Shield page permissions
 
 ## Migrations
