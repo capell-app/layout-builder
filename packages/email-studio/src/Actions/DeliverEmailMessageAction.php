@@ -9,6 +9,7 @@ use Capell\EmailStudio\Enums\EmailRecipientStatus;
 use Capell\EmailStudio\Models\EmailMessage;
 use Capell\EmailStudio\Support\EmailProviderRegistry;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Throwable;
 
 class DeliverEmailMessageAction
 {
@@ -31,9 +32,21 @@ class DeliverEmailMessageAction
             return $emailMessage->fresh(['profile', 'recipients']) ?? $emailMessage;
         }
 
-        $providerResult = resolve(EmailProviderRegistry::class)
-            ->adapter($emailMessage->profile->provider)
-            ->send($emailMessage->fresh(['profile', 'recipients']) ?? $emailMessage);
+        try {
+            $providerResult = resolve(EmailProviderRegistry::class)
+                ->adapter($emailMessage->profile->provider)
+                ->send($emailMessage->fresh(['profile', 'recipients']) ?? $emailMessage);
+        } catch (Throwable $exception) {
+            $this->markProviderFailure($emailMessage, $exception->getMessage());
+
+            return $emailMessage->fresh(['profile', 'recipients']) ?? $emailMessage;
+        }
+
+        if (! $providerResult->successful) {
+            $this->markProviderFailure($emailMessage, $providerResult->failureReason);
+
+            return $emailMessage->fresh(['profile', 'recipients']) ?? $emailMessage;
+        }
 
         foreach ($emailMessage->recipients()->where('status', EmailRecipientStatus::Queued->value)->get() as $recipient) {
             $recipientKey = (int) $recipient->getKey();
@@ -58,6 +71,24 @@ class DeliverEmailMessageAction
         $emailMessage->update($this->messageStatusAttributes($emailMessage, $providerResult->failureReason));
 
         return $emailMessage->fresh(['profile', 'recipients']) ?? $emailMessage;
+    }
+
+    private function markProviderFailure(EmailMessage $message, ?string $failureReason): void
+    {
+        $resolvedFailureReason = $failureReason ?? 'Provider failed to send the message.';
+
+        foreach ($message->recipients()->where('status', EmailRecipientStatus::Queued->value)->get() as $recipient) {
+            $recipient->update([
+                'status' => EmailRecipientStatus::Failed,
+                'failure_reason' => $resolvedFailureReason,
+            ]);
+        }
+
+        $message->update([
+            'status' => EmailMessageStatus::Failed,
+            'failed_at' => now()->toImmutable(),
+            'failure_reason' => $resolvedFailureReason,
+        ]);
     }
 
     private function markNewSuppressions(EmailMessage $message): void

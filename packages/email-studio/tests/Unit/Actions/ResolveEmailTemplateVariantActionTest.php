@@ -46,4 +46,26 @@ it('resolves an active variant from the requested site and locale before fallbac
     $resolvedVariant = ResolveEmailTemplateVariantAction::run($template, 'site:12', 'en');
 
     expect($resolvedVariant?->is($expectedVariant))->toBeTrue();
+
+    $templateWithoutRequestedLocale = EmailTemplate::factory()->create();
+
+    $neutralVariant = EmailTemplateVariant::factory()->for($templateWithoutRequestedLocale, 'template')->create([
+        'site_id' => 12,
+        'site_scope_key' => 'site:12',
+        'locale' => null,
+        'version' => 1,
+        'subject' => 'Neutral fallback',
+    ]);
+
+    EmailTemplateVariant::factory()->for($templateWithoutRequestedLocale, 'template')->create([
+        'site_id' => 12,
+        'site_scope_key' => 'site:12',
+        'locale' => 'en',
+        'version' => 50,
+        'subject' => 'Locale-specific variant',
+    ]);
+
+    $resolvedNeutralVariant = ResolveEmailTemplateVariantAction::run($templateWithoutRequestedLocale, 'site:12');
+
+    expect($resolvedNeutralVariant?->is($neutralVariant))->toBeTrue();
 });

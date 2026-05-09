@@ -23,6 +23,11 @@ class EmailStudioSendingException extends RuntimeException
         return new self("No active email template variant [{$templateKey}] is available for site scope [{$siteScopeKey}].");
     }
 
+    public static function noRecipients(string $templateKey): self
+    {
+        return new self("No recipients were provided for email template [{$templateKey}].");
+    }
+
     public static function providerNotRegistered(string $provider): self
     {
         return new self("No email provider adapter is registered for [{$provider}].");

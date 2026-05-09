@@ -23,6 +23,7 @@ class ResolveEmailTemplateVariantAction
             ->when($locale !== null, fn (Builder $query): Builder => $query
                 ->whereIn('locale', [$locale, null])
                 ->orderByRaw('case when locale = ? then 0 when locale is null then 1 else 2 end', [$locale]))
+            ->when($locale === null, fn (Builder $query): Builder => $query->whereNull('locale'))
             ->latest('version')
             ->first();
     }

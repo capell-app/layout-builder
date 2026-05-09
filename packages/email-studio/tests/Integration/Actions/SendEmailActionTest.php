@@ -45,6 +45,16 @@ it('creates queued sends and rejects records scoped only to another site', funct
         'text_body' => 'Hello {{ name }}',
     ]);
 
+    EmailTemplateVariant::factory()->for($template, 'template')->create([
+        'site_id' => 12,
+        'site_scope_key' => 'site:12',
+        'locale' => 'fr',
+        'version' => 2,
+        'subject' => 'Bonjour {{ name }}',
+        'html_body' => '<p>Bonjour {{ name }}</p>',
+        'text_body' => 'Bonjour {{ name }}',
+    ]);
+
     $message = SendEmailAction::run(new SendEmailData(
         templateKey: 'forms.confirmation',
         to: new DataCollection(EmailAddressData::class, [
@@ -75,6 +85,44 @@ it('creates queued sends and rejects records scoped only to another site', funct
         ->toBe([EmailRecipientStatus::Queued, EmailRecipientStatus::Queued]);
 
     Queue::assertPushed(SendEmailJob::class, fn (SendEmailJob $job): bool => $job->emailMessageId === $message->getKey());
+
+    $localizedMessage = SendEmailAction::run(new SendEmailData(
+        templateKey: 'forms.confirmation',
+        to: new DataCollection(EmailAddressData::class, [new EmailAddressData('third@example.com')]),
+        cc: new DataCollection(EmailAddressData::class, []),
+        bcc: new DataCollection(EmailAddressData::class, []),
+        siteId: 12,
+        siteScopeKey: 'site:12',
+        emailProfileId: null,
+        variables: ['name' => 'Ben'],
+        headers: new DataCollection(EmailHeaderData::class, []),
+        triggeredByType: null,
+        triggeredById: null,
+        queue: true,
+        locale: 'fr',
+    ));
+
+    expect($localizedMessage->subject)->toBe('Bonjour Ben')
+        ->and($localizedMessage->rendered_text)->toBe('Bonjour Ben');
+
+    $messageCountBeforeEmptyRecipientSend = EmailMessage::query()->count();
+
+    expect(fn (): EmailMessage => SendEmailAction::run(new SendEmailData(
+        templateKey: 'forms.confirmation',
+        to: new DataCollection(EmailAddressData::class, []),
+        cc: new DataCollection(EmailAddressData::class, []),
+        bcc: new DataCollection(EmailAddressData::class, []),
+        siteId: 12,
+        siteScopeKey: 'site:12',
+        emailProfileId: null,
+        variables: ['name' => 'Ben'],
+        headers: new DataCollection(EmailHeaderData::class, []),
+        triggeredByType: null,
+        triggeredById: null,
+        queue: true,
+    )))->toThrow(EmailStudioSendingException::class);
+
+    expect(EmailMessage::query()->count())->toBe($messageCountBeforeEmptyRecipientSend);
 
     $messageCountBeforeRejectedSend = EmailMessage::query()->count();
     EmailProfile::factory()->create([

@@ -26,11 +26,15 @@ class SendEmailAction
 
     public function handle(SendEmailData $data): EmailMessage
     {
+        if ($this->recipientRows($data)->isEmpty()) {
+            throw EmailStudioSendingException::noRecipients($data->templateKey);
+        }
+
         $profile = resolve(EmailProfileResolver::class)->resolve($data->siteScopeKey, $data->emailProfileId)
             ?? throw EmailStudioSendingException::profileNotFound($data->siteScopeKey);
 
         $template = $this->resolveTemplate($data);
-        $variant = ResolveEmailTemplateVariantAction::run($template, $data->siteScopeKey)
+        $variant = ResolveEmailTemplateVariantAction::run($template, $data->siteScopeKey, $data->locale ?? app()->getLocale())
             ?? throw EmailStudioSendingException::variantNotFound($data->templateKey, $data->siteScopeKey);
 
         $renderedEmail = RenderEmailTemplateAction::run(

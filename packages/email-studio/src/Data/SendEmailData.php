@@ -29,5 +29,6 @@ class SendEmailData extends Data
         public ?string $triggeredByType,
         public ?int $triggeredById,
         public bool $queue = true,
+        public ?string $locale = null,
     ) {}
 }
