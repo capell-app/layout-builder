@@ -69,6 +69,8 @@ return new class extends Migration
                 $table->timestamp('completed_at')->nullable();
                 $table->timestamp('cancelled_at')->nullable();
                 $table->timestamps();
+
+                $table->unique('note_id', 'note_reminder_note_unique');
             });
         }
     }
