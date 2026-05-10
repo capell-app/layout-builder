@@ -11,6 +11,7 @@ PublishingStudio is Capell's premium editorial timeline package. It brings the p
 - Draft publishing-studio for safe copy-on-write editing.
 - Signed live preview links with expiry, revocation, access counts, and a frontend preview banner.
 - Compare, diff, dry-run validation, field comments, review assignments, publish readiness checks, URL-collision checks, and stale workspace warnings.
+- Release Workspaces for grouped editorial releases that move coordinated content and package-owned draftable changes live atomically.
 - Approval history for submit, approve, reject, and request-changes decisions.
 - Scheduled publishing with release windows, unpublish dates, embargo windows, review reminders, immediate publishing, version history, rollback, and entity restore.
 - Activity timeline, stale drafts, recovery import screens, load-test fixtures, and prune commands for editorial and operational audit trails.
@@ -67,6 +68,10 @@ Gives editorial teams a Statamic-style content history feel while remaining a se
 - Run `vendor/bin/pest packages/publishing-studio/tests` when package tests exist.
 - Run the relevant host-app migration or package install flow in a disposable database.
 - Open the listed admin or frontend surface and compare it with the screenshot plan.
+
+## Related Docs
+
+- [Release Workspaces](release-workspaces.md)
 
 ## Package Manifest
 

@@ -6,6 +6,8 @@ This focused guide extends [Overview](overview.md) for the PublishingStudio pack
 
 PublishingStudio controls Capell's editorial timeline for Draftable records: preview, compare, comment, assign reviewers, approve, validate, schedule, publish, restore, and rollback. It is the premium workflow layer for teams that want content history, readiness checks, and safe publishing without editing live records directly.
 
+Release Workspaces are the campaign-shaped form of the same workflow: editors group coordinated changes, preview the workspace, compare it with live, collect approvals, schedule the release, and publish the workspace atomically.
+
 ## Workflow
 
 1. Create a draft workspace or page draft.

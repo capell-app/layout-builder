@@ -9,6 +9,7 @@ PublishingStudio is Capell's flagship editorial timeline workflow. It gives cont
 - Draft publishing-studio with copy-on-write editing for Draftable content.
 - Signed live preview links, expiry/revocation management, access tracking, and a frontend workspace preview banner.
 - Compare and readiness views with diff, dry-run validation, field comments, review assignments, URL-collision checks, stale workspace warnings, and publish checks.
+- Release Workspaces for grouping coordinated content, navigation, SEO, media, layout, and package-owned draftable changes into one previewable, approvable, schedulable, atomic publish.
 - Approval history for submit, approve, reject, and request-changes decisions, including reviewer notes and required approval levels.
 - Scheduled publishing with release-window guards, unpublish dates, embargo windows, review reminders, immediate publishing, version history, rollback, and entity-level restore.
 - Activity timeline widgets, stale draft management, import recovery screens, load-test fixtures, and prune commands for audit-friendly editorial operations.
@@ -119,6 +120,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 ## Next Steps
 
 - [docs/overview.md](docs/overview.md)
+- [docs/release-workspaces.md](docs/release-workspaces.md)
 - [../seo-suite/README.md](../seo-suite/README.md)
 - [../navigation/README.md](../navigation/README.md)
 - [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
