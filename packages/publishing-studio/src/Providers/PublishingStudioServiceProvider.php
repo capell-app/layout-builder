@@ -25,6 +25,7 @@ use Capell\Frontend\Support\Render\RenderHookRegistry;
 use Capell\PublishingStudio\Actions\CopyOnWriteAction;
 use Capell\PublishingStudio\Actions\EnsurePublishingStudioPermissionsAction;
 use Capell\PublishingStudio\BelongsToWorkspace;
+use Capell\PublishingStudio\Contributors\DraftableReleaseWorkspaceItemContributor;
 use Capell\PublishingStudio\Events\WorkspaceEventDispatcher;
 use Capell\PublishingStudio\Extenders\PublishingStudioPageEditExtender;
 use Capell\PublishingStudio\Extenders\PublishingStudioPageExportExtender;
@@ -84,6 +85,7 @@ class PublishingStudioServiceProvider extends ServiceProvider
             ->registerPackageAssets()
             ->registerMorphMap()
             ->registerWorkspaceDraftables()
+            ->registerReleaseWorkspaceItemContributors()
             ->applyBehaviorToDraftableModels()
             ->registerBuilderMacros()
             ->registerMiddleware()
@@ -263,6 +265,13 @@ class PublishingStudioServiceProvider extends ServiceProvider
         // during publish. Page's finalizeOnPublish retargets and deletes conflicting
         // live translations before Translation rows are flipped to workspace_id = 0.
         $this->registerDraftableModel(Translation::class);
+
+        return $this;
+    }
+
+    private function registerReleaseWorkspaceItemContributors(): self
+    {
+        $this->app->make(ReleaseWorkspaceItemRegistry::class)->register(DraftableReleaseWorkspaceItemContributor::class);
 
         return $this;
     }
