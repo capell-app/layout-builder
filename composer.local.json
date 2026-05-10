@@ -28,14 +28,10 @@
         "analyze:all": "@analyze:full",
         "prettier": "npx prettier --write \"packages/**/*.{css,js,yml,json,md,blade.php}\"",
         "eslint": "npx eslint 'packages/**/resources/js/**/*.js' --max-warnings=0",
-        "check:composer-paths": "@php scripts/check-composer-local-paths.php",
         "preflight": [
-            "@check:composer-paths",
             "@lint:changed"
         ],
         "preflight:all": [
-            "@php -r \"echo PHP_EOL . 'Checking Composer path repositories...' . PHP_EOL;\"",
-            "@check:composer-paths",
             "@php -r \"echo PHP_EOL . 'Running Rector...' . PHP_EOL;\"",
             "@rector",
             "@php -r \"echo PHP_EOL . 'Running Pint...' . PHP_EOL;\"",
@@ -49,8 +45,6 @@
             "@php -r \"echo PHP_EOL . 'Running Pest...' . PHP_EOL;\"",
             "@test"
         ],
-        "coverage": "@php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=. -d pcov.exclude='~vendor|tests|storage|bootstrap|.temp~' vendor/bin/pest --coverage --min=80 --colors=always --configuration=phpunit.xml",
-        "coverage-report": "@php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=. -d pcov.exclude='~vendor|tests|storage|bootstrap|.temp~' vendor/bin/pest --coverage --coverage-html=coverage --colors=always --configuration=phpunit.xml",
         "test:unit": "@php -d memory_limit=-1 vendor/bin/pest --colors=always --parallel --configuration=phpunit.xml --do-not-fail-on-phpunit-warning",
         "test:fast": "@php -d memory_limit=-1 vendor/bin/pest --colors=always --shard=${PEST_SHARD:-1/1} --stop-on-error --stop-on-failure --configuration=phpunit.xml --do-not-fail-on-phpunit-warning",
         "test:all": "@php -d memory_limit=-1 vendor/bin/pest --colors=always --parallel --stop-on-error --stop-on-failure --configuration=phpunit.xml --do-not-fail-on-phpunit-warning",
@@ -58,6 +52,8 @@
             "@clear",
             "@test:unit"
         ],
+        "coverage": "@php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=. -d pcov.exclude='~vendor|tests|storage|bootstrap|.temp~' vendor/bin/pest --coverage --min=80 --colors=always --configuration=phpunit.xml",
+        "coverage-report": "@php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=. -d pcov.exclude='~vendor|tests|storage|bootstrap|.temp~' vendor/bin/pest --coverage --coverage-html=coverage --colors=always --configuration=phpunit.xml",
         "clear": [
             "CACHE_STORE=array \"$PHP_BINARY\" vendor/bin/testbench package:purge-skeleton --ansi",
             "@clear:views"
@@ -73,24 +69,18 @@
     },
     "repositories": [
         {
-            "type": "vcs",
-            "url": "https://github.com/capell-app/admin"
+            "type": "path",
+            "url": "./packages/*",
+            "options": {
+                "symlink": true
+            }
         },
         {
-            "type": "vcs",
-            "url": "https://github.com/capell-app/core"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/capell-app/frontend"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/capell-app/installer"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/capell-app/marketplace"
+            "type": "path",
+            "url": "../capell-4/packages/*",
+            "options": {
+                "symlink": true
+            }
         },
         {
             "type": "vcs",
@@ -112,8 +102,8 @@
         "capell-app/admin": "4.x-dev",
         "capell-app/core": "4.x-dev",
         "capell-app/frontend": "4.x-dev",
-        "capell-app/installer": "4.x-dev",
         "capell-app/marketplace": "4.x-dev",
+        "capell-app/installer": "4.x-dev",
         "cms-multi/filament-clear-cache": "^3.0",
         "codewithdennis/filament-select-tree": "^4.0",
         "croustibat/filament-jobs-monitor": "^4.4",
@@ -125,7 +115,6 @@
         "guzzlehttp/guzzle": "^7.5",
         "howdu/filament-record-switcher": "^2.0",
         "icamys/php-sitemap-generator": "^4.4.1",
-        "jfcherng/php-diff": "^7.0",
         "lara-zeus/spatie-translatable": "^1.0|^2.0",
         "laravel/framework": "^11.44.2|^12.0|^13.0",
         "laravel/mcp": "^0.7",
@@ -136,7 +125,7 @@
         "openai-php/laravel": "^0.10|^0.18",
         "opis/json-schema": "^2.3",
         "pboivin/filament-peek": "^4.0",
-        "prism-php/prism": "^0.100",
+        "prism-php/prism": "^0.100.1",
         "rlanvin/php-rrule": "^2.6",
         "saade/filament-adjacency-list": "dev-feat/laravel-13-support",
         "silber/page-cache": "^1.0.9",
@@ -156,9 +145,6 @@
         "torann/geoip": "^3.0",
         "voku/html-min": "^4.5"
     },
-    "conflict": {
-        "firebase/php-jwt": "<7.0.0"
-    },
     "require-dev": {
         "awcodes/filament-curator": "^4.0|^5.0",
         "barryvdh/laravel-ide-helper": "*",
@@ -168,7 +154,6 @@
         "fakerphp/faker": "^1.24.1",
         "larastan/larastan": "^3.0",
         "laravel/pail": "^1.2.3",
-        "laravel/pao": "^1.0",
         "laravel/pint": "^1.25.0",
         "mockery/mockery": "^1.6.12",
         "mrpunyapal/peststan": "^0.1.0",
@@ -201,6 +186,7 @@
             "Capell\\AIOrchestrator\\": "packages/ai-orchestrator/src",
             "Capell\\LoginAudit\\": "packages/login-audit/src",
             "Capell\\LoginAudit\\Database\\Factories\\": "packages/login-audit/database/factories",
+            "Capell\\MigrationAssistant\\": "packages/migration-assistant/src",
             "Capell\\Blog\\": "packages/blog/src",
             "Capell\\Blog\\Database\\Factories\\": "packages/blog/database/factories",
             "Capell\\CampaignStudio\\": "packages/campaign-studio/src",
@@ -209,29 +195,27 @@
             "Capell\\ContentSections\\Database\\Factories\\": "packages/content-sections/database/factories",
             "Capell\\ContentBlocks\\": "packages/block-library/src",
             "Capell\\ContentBlocks\\Database\\Factories\\": "packages/block-library/database/factories",
-            "Capell\\FoundationTheme\\": "packages/foundation-theme/src",
-            "Capell\\DemoKit\\": "packages/demo-kit/src",
             "Capell\\Deployments\\": "packages/deployments/src",
             "Capell\\Deployments\\Database\\Factories\\": "packages/deployments/database/factories",
             "Capell\\Diagnostics\\": "packages/diagnostics/src",
             "Capell\\EmailStudio\\": "packages/email-studio/src",
             "Capell\\EmailStudio\\Database\\Factories\\": "packages/email-studio/database/factories",
+            "Capell\\FoundationTheme\\": "packages/foundation-theme/src",
+            "Capell\\FoundationTheme\\Database\\Factories\\": "packages/foundation-theme/database/factories",
+            "Capell\\DemoKit\\": "packages/demo-kit/src",
             "Capell\\Events\\": "packages/events/src",
             "Capell\\Events\\Database\\Factories\\": "packages/events/database/factories",
             "Capell\\FormBuilder\\": "packages/form-builder/src",
             "Capell\\FormBuilder\\Database\\Factories\\": "packages/form-builder/database/factories",
-            "Capell\\FrontendOptimizer\\": "packages/frontend-optimizer/src",
             "Capell\\GA4Reports\\": "packages/ga4-reports/src",
-            "Capell\\AgentBridge\\": "packages/agent-bridge/src",
             "Capell\\MediaAI\\": "packages/media-ai/src",
             "Capell\\MediaLibrary\\": "packages/media-library/src",
             "Capell\\Newsletter\\": "packages/newsletter/src",
             "Capell\\Newsletter\\Database\\Factories\\": "packages/newsletter/database/factories",
-            "Capell\\MigrationAssistant\\": "packages/migration-assistant/src",
+            "Capell\\AgentBridge\\": "packages/agent-bridge/src",
             "Capell\\Navigation\\": "packages/navigation/src",
             "Capell\\Navigation\\Database\\Factories\\": "packages/navigation/database/factories",
             "Capell\\PasswordPolicy\\": "packages/password-policy/src",
-            "Capell\\DashboardReports\\": "packages/dashboard-reports/src",
             "Capell\\SeoSuite\\": "packages/seo-suite/src",
             "Capell\\SeoSuite\\Database\\Factories\\": "packages/seo-suite/database/factories",
             "Capell\\SiteDiscovery\\": "packages/site-discovery/src",
@@ -239,13 +223,16 @@
             "Capell\\Search\\Database\\Factories\\": "packages/search/database/factories",
             "Capell\\Tags\\": "packages/tags/src",
             "Capell\\Tags\\Database\\Factories\\": "packages/tags/database/factories",
+            "Capell\\DashboardReports\\": "packages/dashboard-reports/src",
+            "Capell\\WordPressImporter\\": "packages/wordpress-importer/src",
             "Capell\\ThemeStudio\\Agency\\": "packages/theme-agency/src",
             "Capell\\ThemeStudio\\Corporate\\": "packages/theme-corporate/src",
             "Capell\\ThemeStudio\\Saas\\": "packages/theme-saas/src",
             "Capell\\TranslationManager\\": "packages/translation-manager/src",
             "Capell\\FrontendAuthoring\\": "packages/frontend-authoring/src",
             "Capell\\HtmlCache\\": "packages/html-cache/src",
-            "Capell\\WordPressImporter\\": "packages/wordpress-importer/src",
+            "Capell\\FrontendOptimizer\\": "packages/frontend-optimizer/src",
+            "Capell\\Toolbar\\": "packages/toolbar/src",
             "Capell\\PublishingStudio\\": "packages/publishing-studio/src",
             "Capell\\PublishingStudio\\Database\\Factories\\": "packages/publishing-studio/database/factories"
         }
@@ -263,26 +250,27 @@
             "Capell\\CampaignStudio\\Tests\\": "packages/campaign-studio/tests",
             "Capell\\ContentSections\\Tests\\": "packages/content-sections/tests",
             "Capell\\ContentBlocks\\Tests\\": "packages/block-library/tests",
-            "Capell\\FoundationTheme\\Tests\\": "packages/foundation-theme/tests",
             "Capell\\Deployments\\Tests\\": "packages/deployments/tests",
             "Capell\\Diagnostics\\Tests\\": "packages/diagnostics/tests",
             "Capell\\EmailStudio\\Tests\\": "packages/email-studio/tests",
             "Capell\\DemoKit\\Tests\\": "packages/demo-kit/tests",
             "Capell\\Events\\Tests\\": "packages/events/tests",
             "Capell\\FormBuilder\\Tests\\": "packages/form-builder/tests",
-            "Capell\\FrontendOptimizer\\Tests\\": "packages/frontend-optimizer/tests",
             "Capell\\GA4Reports\\Tests\\": "packages/ga4-reports/tests",
             "Capell\\MediaAI\\Tests\\": "packages/media-ai/tests",
             "Capell\\MediaLibrary\\Tests\\": "packages/media-library/tests",
             "Capell\\Newsletter\\Tests\\": "packages/newsletter/tests",
+            "Capell\\FoundationTheme\\Tests\\": "packages/foundation-theme/tests",
             "Capell\\AgentBridge\\Tests\\": "packages/agent-bridge/tests",
             "Capell\\Navigation\\Tests\\": "packages/navigation/tests",
+            "Capell\\Plugins\\Tests\\": "packages/plugins/tests",
             "Capell\\PasswordPolicy\\Tests\\": "packages/password-policy/tests",
-            "Capell\\DashboardReports\\Tests\\": "packages/dashboard-reports/tests",
             "Capell\\SeoSuite\\Tests\\": "packages/seo-suite/tests",
             "Capell\\SiteDiscovery\\Tests\\": "packages/site-discovery/tests",
             "Capell\\Search\\Tests\\": "packages/search/tests",
             "Capell\\Tags\\Tests\\": "packages/tags/tests",
+            "Capell\\DashboardReports\\Tests\\": "packages/dashboard-reports/tests",
+            "Capell\\WordPressImporter\\Tests\\": "packages/wordpress-importer/tests",
             "Capell\\Tests\\": "tests",
             "Capell\\Tests\\Fixtures\\": "tests/Fixtures",
             "Capell\\Tests\\Packages\\": "tests/Packages",
@@ -292,12 +280,13 @@
             "Capell\\TranslationManager\\Tests\\": "packages/translation-manager/tests",
             "Capell\\FrontendAuthoring\\Tests\\": "packages/frontend-authoring/tests",
             "Capell\\HtmlCache\\Tests\\": "packages/html-cache/tests",
-            "Capell\\WordPressImporter\\Tests\\": "packages/wordpress-importer/tests",
-            "Capell\\PublishingStudio\\Tests\\": "packages/publishing-studio/tests"
+            "Capell\\Toolbar\\Tests\\": "packages/toolbar/tests",
+            "Capell\\PublishingStudio\\Tests\\": "packages/publishing-studio/tests",
+            "Capell\\FrontendOptimizer\\Tests\\": "packages/frontend-optimizer/tests"
         }
     },
     "config": {
-        "optimize-autoloader": true,
+        "optimize-autoloader": false,
         "sort-packages": true,
         "process-timeout": 0,
         "allow-plugins": {
