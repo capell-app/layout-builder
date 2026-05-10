@@ -18,7 +18,7 @@ final class BuildUserAttentionCountsAction
 
     public function handle(Model $user): UserAttentionCountData
     {
-        $startOfDay = now()->startOfDay();
+        $startOfDay = today();
         $endOfDay = now()->endOfDay();
 
         return new UserAttentionCountData(

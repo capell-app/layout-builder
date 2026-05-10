@@ -35,6 +35,8 @@ class AdminDemoCommand extends Command
     use HasSitesOption;
     use PromptsWithOptionFallback;
 
+    private const PROGRESS_MESSAGE_WIDTH = 32;
+
     /**
      * The console command description.
      *
@@ -279,7 +281,6 @@ class AdminDemoCommand extends Command
         $bar = $this->output->createProgressBar($totalPages);
 
         /** @var ProgressBar $bar */
-        // Configure progress bar to display current page message
         $bar->setFormat(' %current%/%max% [%bar%] %percent:3s%% — %message%');
         $bar->setMessage('Starting...');
         $bar->start();
@@ -302,13 +303,12 @@ class AdminDemoCommand extends Command
         ?ProgressBar $bar = null,
     ): void {
         /** @var array $pageData */
-        // Compute a user-friendly page label for the progress message
         $pageNameSource = $pageData['name'][$defaultLanguage->code] ?? $pageData['name']['en'] ?? '';
         $pageName = Str::title((string) $pageNameSource);
         $fullName = in_array($parentName, [null, '', '0'], true) ? $pageName : sprintf('%s » %s', $parentName, $pageName);
 
         if ($bar instanceof ProgressBar) {
-            $bar->setMessage($fullName);
+            $bar->setMessage($this->formatProgressMessage($fullName));
         }
 
         $parent = $this->demoCreator->createPage($pageData, $site, $languages, $parent);
@@ -322,6 +322,15 @@ class AdminDemoCommand extends Command
                 $this->createPagesWithProgress($childData, $site, $languages, $defaultLanguage, $parent, $fullName, $bar);
             }
         }
+    }
+
+    private function formatProgressMessage(string $message): string
+    {
+        if (Str::length($message) <= self::PROGRESS_MESSAGE_WIDTH) {
+            return $message;
+        }
+
+        return Str::substr($message, 0, self::PROGRESS_MESSAGE_WIDTH - 3) . '...';
     }
 
     private function createUser(string $name, string $email, string $password, string $roleName): void

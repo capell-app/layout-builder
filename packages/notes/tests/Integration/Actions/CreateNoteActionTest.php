@@ -45,7 +45,7 @@ it('rejects blank note bodies', function (): void {
     $subject = User::factory()->create();
     $author = User::factory()->create();
 
-    expect(fn () => CreateNoteAction::run(new CreateNoteData(
+    expect(fn (): mixed => CreateNoteAction::run(new CreateNoteData(
         subject: $subject,
         author: $author,
         body: '  ',
@@ -63,7 +63,7 @@ it('rolls back the note when assignment creation fails', function (): void {
         }
     };
 
-    expect(fn () => CreateNoteAction::run(new CreateNoteData(
+    expect(fn (): mixed => CreateNoteAction::run(new CreateNoteData(
         subject: $subject,
         author: $author,
         body: 'Assign this note.',
@@ -84,7 +84,7 @@ it('rolls back the note when mention creation fails', function (): void {
         }
     };
 
-    expect(fn () => CreateNoteAction::run(new CreateNoteData(
+    expect(fn (): mixed => CreateNoteAction::run(new CreateNoteData(
         subject: $subject,
         author: $author,
         body: 'Mention someone on this note.',

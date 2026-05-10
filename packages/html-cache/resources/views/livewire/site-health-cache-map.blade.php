@@ -11,29 +11,47 @@
     @else
         <div class="space-y-4">
             <div class="grid gap-3 md:grid-cols-3">
-                <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-                    <div class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <div
+                    class="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+                >
+                    <div
+                        class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                    >
                         {{ __('capell-html-cache::admin.cache_map_cached_urls') }}
                     </div>
-                    <div class="mt-2 text-3xl font-semibold tabular-nums text-gray-950 dark:text-white">
+                    <div
+                        class="mt-2 text-3xl font-semibold tabular-nums text-gray-950 dark:text-white"
+                    >
                         {{ $overview->totalUrls }}
                     </div>
                 </div>
 
-                <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-                    <div class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <div
+                    class="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+                >
+                    <div
+                        class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                    >
                         {{ __('capell-html-cache::admin.cache_map_dependencies') }}
                     </div>
-                    <div class="mt-2 text-3xl font-semibold tabular-nums text-gray-950 dark:text-white">
+                    <div
+                        class="mt-2 text-3xl font-semibold tabular-nums text-gray-950 dark:text-white"
+                    >
                         {{ $overview->totalDependencies }}
                     </div>
                 </div>
 
-                <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-                    <div class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <div
+                    class="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+                >
+                    <div
+                        class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                    >
                         {{ __('capell-html-cache::admin.cache_map_model_groups') }}
                     </div>
-                    <div class="mt-2 text-3xl font-semibold tabular-nums text-gray-950 dark:text-white">
+                    <div
+                        class="mt-2 text-3xl font-semibold tabular-nums text-gray-950 dark:text-white"
+                    >
                         {{ count($overview->modelSummaries) }}
                     </div>
                 </div>
@@ -47,7 +65,7 @@
                 <button
                     type="button"
                     wire:click="openDetail"
-                    class="text-primary-600 text-xs font-semibold hover:underline dark:text-primary-400"
+                    class="text-primary-600 dark:text-primary-400 text-xs font-semibold hover:underline"
                 >
                     {{ __('capell-html-cache::admin.cache_map_explore_all') }}
                 </button>
@@ -59,18 +77,25 @@
                         type="button"
                         wire:key="cache-map-top-resource-{{ $resource->key }}"
                         wire:click="openResourceDetail(@js($resource->modelType), @js($resource->key))"
-                        class="block rounded-lg border border-gray-200 bg-white p-3 text-left transition hover:border-primary-300 dark:border-gray-700 dark:bg-gray-900 dark:hover:border-primary-600"
+                        class="hover:border-primary-300 dark:hover:border-primary-600 block rounded-lg border border-gray-200 bg-white p-3 text-left transition dark:border-gray-700 dark:bg-gray-900"
                     >
                         <div class="flex items-start justify-between gap-3">
                             <div>
-                                <div class="text-sm font-medium text-gray-950 dark:text-white">
+                                <div
+                                    class="text-sm font-medium text-gray-950 dark:text-white"
+                                >
                                     {{ $resource->label }}
                                 </div>
-                                <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                    {{ $resource->modelLabel }} #{{ $resource->resourceId }}
+                                <div
+                                    class="mt-1 text-xs text-gray-500 dark:text-gray-400"
+                                >
+                                    {{ $resource->modelLabel }}
+                                    #{{ $resource->resourceId }}
                                 </div>
                             </div>
-                            <span class="rounded-md bg-gray-100 px-2 py-1 text-xs font-semibold tabular-nums text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                            <span
+                                class="rounded-md bg-gray-100 px-2 py-1 text-xs font-semibold tabular-nums text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                            >
                                 {{ $resource->urlCount }}
                             </span>
                         </div>
@@ -88,7 +113,9 @@
                 <div class="space-y-4">
                     <div class="grid gap-4 md:grid-cols-3">
                         <label class="space-y-1">
-                            <span class="text-xs font-medium text-gray-600 dark:text-gray-300">
+                            <span
+                                class="text-xs font-medium text-gray-600 dark:text-gray-300"
+                            >
                                 {{ __('capell-html-cache::admin.model') }}
                             </span>
                             <select
@@ -107,7 +134,9 @@
                         </label>
 
                         <label class="space-y-1">
-                            <span class="text-xs font-medium text-gray-600 dark:text-gray-300">
+                            <span
+                                class="text-xs font-medium text-gray-600 dark:text-gray-300"
+                            >
                                 {{ __('capell-html-cache::admin.cache_map_resource_search') }}
                             </span>
                             <input
@@ -120,7 +149,9 @@
                         </label>
 
                         <label class="space-y-1">
-                            <span class="text-xs font-medium text-gray-600 dark:text-gray-300">
+                            <span
+                                class="text-xs font-medium text-gray-600 dark:text-gray-300"
+                            >
                                 {{ __('capell-html-cache::admin.resource') }}
                             </span>
                             <select
@@ -133,7 +164,8 @@
                                 </option>
                                 @foreach ($this->resourceOptions as $resource)
                                     <option value="{{ $resource->key }}">
-                                        {{ $resource->label }} ({{ trans_choice('capell-html-cache::admin.cache_map_urls_count', $resource->urlCount, ['count' => $resource->urlCount]) }})
+                                        {{ $resource->label }}
+                                        ({{ trans_choice('capell-html-cache::admin.cache_map_urls_count', $resource->urlCount, ['count' => $resource->urlCount]) }})
                                     </option>
                                 @endforeach
                             </select>
@@ -142,14 +174,18 @@
 
                     @if (filled($this->selectedModelType))
                         <div>
-                            <h3 class="text-sm font-semibold text-gray-950 dark:text-white">
-                                @if ($selectedResource instanceof \Capell\HtmlCache\Data\CacheMap\CacheMapResourceSummaryData)
+                            <h3
+                                class="text-sm font-semibold text-gray-950 dark:text-white"
+                            >
+                                @if ($selectedResource instanceof CacheMapResourceSummaryData)
                                     {{ __('capell-html-cache::admin.cache_map_urls_containing_resource', ['resource' => $selectedResource->label]) }}
                                 @else
                                     {{ __('capell-html-cache::admin.cache_map_urls_containing_model', ['model' => $this->modelOptions[$this->selectedModelType] ?? class_basename($this->selectedModelType)]) }}
                                 @endif
                             </h3>
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            <p
+                                class="mt-1 text-xs text-gray-500 dark:text-gray-400"
+                            >
                                 {{ trans_choice('capell-html-cache::admin.cache_map_urls_count', $this->detailUrlCount(), ['count' => $this->detailUrlCount()]) }}
                             </p>
                         </div>

@@ -211,7 +211,7 @@ final class SiteHealthCacheMap extends Component implements HasActions, HasSchem
 
     public function detailUrlCount(): int
     {
-        return (int) $this->query()->distinct('url_hash')->count('url_hash');
+        return $this->query()->distinct('url_hash')->count('url_hash');
     }
 
     /**

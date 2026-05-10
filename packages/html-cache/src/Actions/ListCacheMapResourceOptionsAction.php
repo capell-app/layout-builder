@@ -46,11 +46,11 @@ final class ListCacheMapResourceOptionsAction
 
         return $rows
             ->map(fn (CachedModelUrl $row): CacheMapResourceSummaryData => new CacheMapResourceSummaryData(
-                key: $this->resourceKey($row->cacheable_type, (int) $row->cacheable_id),
+                key: $this->resourceKey($row->cacheable_type, $row->cacheable_id),
                 modelType: $row->cacheable_type,
                 modelLabel: class_basename($row->cacheable_type),
-                resourceId: (int) $row->cacheable_id,
-                label: $this->resourceLabel($row->cacheable_type, (int) $row->cacheable_id),
+                resourceId: $row->cacheable_id,
+                label: $this->resourceLabel($row->cacheable_type, $row->cacheable_id),
                 dependencyCount: (int) $row->getAttribute('dependency_count'),
                 urlCount: (int) $row->getAttribute('url_count'),
             ))

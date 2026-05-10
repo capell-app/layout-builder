@@ -4,12 +4,25 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Creator\PageCreator;
+use Capell\DemoKit\Console\Commands\AdminDemoCommand;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\DemoKit\Support\Creator\DemoResourceResolver;
 use Capell\Tests\Fixtures\Models\User;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+
+it('keeps progress messages short enough to preserve the bar width', function (): void {
+    $command = new AdminDemoCommand;
+    $method = new ReflectionMethod(AdminDemoCommand::class, 'formatProgressMessage');
+    $message = $method->invoke(
+        $command,
+        'Dogs » Spaniel » Springer Spaniel » English Springer Spaniel » Show English Springer Spaniel',
+    );
+
+    expect(mb_strlen($message))->toBeLessThanOrEqual(32)
+        ->and($message)->toEndWith('...');
+});
 
 it('runs demo command successfully', function (): void {
     $user = User::factory()->create(['email' => 'admin@example.com']);

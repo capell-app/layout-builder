@@ -49,7 +49,7 @@ test('tags page list tags', function (): void {
         ->toBeInstanceOf(Page::class)
         ->name->toBe('Tag Page')
         ->type->name->toBe('Tag Page')
-        ->layout->name->toBe('capell::layout.results')
+        ->layout->name->toBe('Results')
         ->translation->language->id->toBe($language->id)
         ->pageUrl->language->id->toBe($language->id);
 

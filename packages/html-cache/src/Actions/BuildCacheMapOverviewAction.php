@@ -25,14 +25,15 @@ final class BuildCacheMapOverviewAction
         $baseQuery = $this->baseQuery($siteId);
 
         return new CacheMapOverviewData(
-            totalUrls: (int) (clone $baseQuery)->distinct('url_hash')->count('url_hash'),
-            totalDependencies: (int) (clone $baseQuery)->count(),
+            totalUrls: (clone $baseQuery)->distinct('url_hash')->count('url_hash'),
+            totalDependencies: (clone $baseQuery)->count(),
             modelSummaries: $this->modelSummaries($baseQuery),
             topResources: $this->topResources($baseQuery),
         );
     }
 
     /**
+     * @param  Builder<CachedModelUrl>  $baseQuery
      * @return list<CacheMapModelSummaryData>
      */
     private function modelSummaries(Builder $baseQuery): array
@@ -56,6 +57,7 @@ final class BuildCacheMapOverviewAction
     }
 
     /**
+     * @param  Builder<CachedModelUrl>  $baseQuery
      * @return list<CacheMapResourceSummaryData>
      */
     private function topResources(Builder $baseQuery): array
@@ -83,7 +85,7 @@ final class BuildCacheMapOverviewAction
     private function resourceSummary(CachedModelUrl $row): CacheMapResourceSummaryData
     {
         $modelType = $row->cacheable_type;
-        $resourceId = (int) $row->cacheable_id;
+        $resourceId = $row->cacheable_id;
 
         return new CacheMapResourceSummaryData(
             key: $this->resourceKey($modelType, $resourceId),

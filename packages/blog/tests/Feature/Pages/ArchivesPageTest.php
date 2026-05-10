@@ -109,7 +109,7 @@ test('archive page list articles by month/year', function (): void {
     expect($archivePage)
         ->toBeInstanceOf(Page::class)
         ->type->name->toBe('Archive Page')
-        ->layout->name->toBe('capell::layout.results')
+        ->layout->name->toBe('Results')
         ->parent->name->toBe('Archives')
         ->pageUrl->url->toBe('/blog/archives/*')
         ->and($archivePage->getAncestors(['name'])->pluck('name')->sort()->values()->toArray())
