@@ -39,6 +39,7 @@ use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\Models\WorkspaceApproval;
 use Capell\PublishingStudio\Models\WorkspaceFieldComment;
 use Capell\PublishingStudio\Models\WorkspaceReviewAssignment;
+use Capell\PublishingStudio\ReleaseWorkspaceItemRegistry;
 use Capell\PublishingStudio\Support\PublishingStudioManager;
 use Capell\PublishingStudio\WorkspaceContext;
 use Capell\PublishingStudio\WorkspaceContextScope;
@@ -64,6 +65,7 @@ class PublishingStudioServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->register(AdminServiceProvider::class);
+        $this->app->singleton(ReleaseWorkspaceItemRegistry::class);
 
         CapellCore::registerPackage(static::$packageName, path: realpath(__DIR__ . '/../..'));
     }
