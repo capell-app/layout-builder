@@ -34,6 +34,7 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Support\Enums\Width;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -143,7 +144,15 @@ class PublishingStudioTable implements TableConfigurator
                 ->label(__('capell-admin::workspace.kind_label'))
                 ->badge()
                 ->color(fn (Workspace $record): string => $record->kind?->getColor() ?? 'gray')
-                ->icon(fn (Workspace $record): string => (string) $record->kind?->getIcon())
+                ->icon(function (Workspace $record): string {
+                    $icon = $record->kind?->getIcon();
+
+                    if ($icon instanceof Heroicon) {
+                        return 'heroicon-' . $icon->value;
+                    }
+
+                    return $icon ?? '';
+                })
                 ->sortable(),
             TextColumn::make('latestApproval.notes')
                 ->label(__('capell-admin::table.latest_review_note'))
