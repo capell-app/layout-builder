@@ -18,6 +18,17 @@ test('default theme escapes site titles and plain footer text', function (): voi
     expect($footer)->not->toContain('{!!' . PHP_EOL . '                Lang::get($footerCopy');
 });
 
+test('hero widget sanitizes cms html before rendering', function (): void {
+    $themePath = dirname(__DIR__, 2);
+
+    $hero = file_get_contents($themePath . '/resources/views/layout-builder/components/widget/hero.blade.php');
+
+    expect($hero)->toContain('RenderHtmlContentAction::run((string) $widgetAsset->asset->translation->content')
+        ->and($hero)->toContain("RenderHtmlContentAction::run((string) __(\$page->translation->getMeta('hero')")
+        ->and($hero)->not->toContain('{!! $widgetAsset->asset->translation->content !!}')
+        ->and($hero)->not->toContain("{!! __(\$page->translation->getMeta('hero'), \$pageVariables) !!}");
+});
+
 test('default theme treats navigation as optional', function (): void {
     $themePath = dirname(__DIR__, 2);
 

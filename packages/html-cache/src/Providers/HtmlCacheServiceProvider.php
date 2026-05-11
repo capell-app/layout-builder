@@ -154,8 +154,10 @@ final class HtmlCacheServiceProvider extends AbstractPackageServiceProvider
     private function configureFrontendMiddleware(FrontendRouteMiddlewareRegistry $registry): FrontendRouteMiddlewareRegistry
     {
         return $registry
-            ->insertAfter('web', [
+            ->insertBefore('web', [
                 'frontend.no_session_cookies_on_cache',
+            ])
+            ->insertAfter('web', [
                 'frontend.cache',
             ])
             ->insertAfter('frontend.anonymous_cacheable_render', [

@@ -2,6 +2,7 @@
 use Capell\Frontend\Facades\Frontend;
 
 $page = Frontend::page();
+$site = Frontend::site();
 $theme = Frontend::theme();
 ?>
 
@@ -39,6 +40,7 @@ $theme = Frontend::theme();
     use Illuminate\Contracts\Pagination\LengthAwarePaginator;
     use Illuminate\Support\Collection;
     use Capell\Frontend\Actions\GetPageVariablesAction;
+    use Capell\Frontend\Actions\RenderHtmlContentAction;
 
     if ($containerIndex === 0 && $theme->getMeta('header_position') === 'fixed') {
         $slideClass .= ' pt-20 lg:pt-32';
@@ -156,7 +158,7 @@ $theme = Frontend::theme();
                                         :color="$slideColorScheme"
                                         :size="! $images?->isNotEmpty() ? 'lg' : 'md'"
                                     >
-                                        {!! $widgetAsset->asset->translation->content !!}
+                                        {!! RenderHtmlContentAction::run((string) $widgetAsset->asset->translation->content, ['page' => $page, 'site' => $site]) !!}
 
                                         @if ($widgetAsset->asset->getMeta('link_text'))
                                             <a
@@ -250,7 +252,7 @@ $theme = Frontend::theme();
                             size="lg"
                             class="hero-page-content"
                         >
-                            {!! __($page->translation->getMeta('hero'), $pageVariables) !!}
+                            {!! RenderHtmlContentAction::run((string) __($page->translation->getMeta('hero'), $pageVariables), ['page' => $page, 'site' => $site]) !!}
 
                             @if (isset($this->results) && $this->results instanceof LengthAwarePaginator && $this->results->hasPages())
                                 @php

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\SiteDomain;
+use Capell\Frontend\Support\Routing\FrontendRouteMiddlewareRegistry;
 use Capell\HtmlCache\Http\Middleware\HtmlCacheMiddleware;
 use Capell\HtmlCache\Support\Cache\PageCache;
 use Capell\HtmlCache\Tests\HtmlCacheTestCase;
@@ -111,4 +112,13 @@ it('strips configured cookies from anonymous cache hits', function (): void {
 
     expect($response->getContent())->toBe('cached html')
         ->and($response->headers->getCookies())->toBe([]);
+});
+
+it('wraps web middleware before stripping cacheable response cookies', function (): void {
+    $middleware = resolve(FrontendRouteMiddlewareRegistry::class)->all();
+
+    expect(array_search('frontend.no_session_cookies_on_cache', $middleware, true))
+        ->toBeLessThan(array_search('web', $middleware, true))
+        ->and(array_search('frontend.cache', $middleware, true))
+        ->toBeGreaterThan(array_search('web', $middleware, true));
 });
