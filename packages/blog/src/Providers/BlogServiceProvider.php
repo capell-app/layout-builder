@@ -230,6 +230,7 @@ class BlogServiceProvider extends AbstractPackageServiceProvider
             if ($livewireComponent === null) {
                 continue;
             }
+
             if ($livewireComponent === '') {
                 continue;
             }

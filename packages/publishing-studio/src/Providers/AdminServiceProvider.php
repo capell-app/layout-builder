@@ -110,7 +110,7 @@ class AdminServiceProvider extends ServiceProvider
             group: 'publishing_studio',
             label: 'capell-publishing-studio::workspace.settings.group',
             icon: Heroicon::OutlinedDocumentCheck,
-            navigationGroup: 'capell-admin::navigation.group_extensions',
+            navigationGroup: 'capell-admin::navigation.group_system',
             navigationSort: 110,
             packageName: PublishingStudioServiceProvider::$packageName,
         ));

@@ -36,7 +36,7 @@
     },
     "commands": {
         "install": null,
-        "setup": null,
+        "setup": "capell:foundation-theme-setup",
         "setupParams": [],
         "demo": null,
         "demoParams": [],

@@ -39,7 +39,7 @@
         "demoParams": [],
         "health": null
     },
-    "settings": ["welcome-tour"],
+    "settings": ["Capell\\WelcomeTour\\Settings\\WelcomeTourSettings"],
     "permissions": [],
     "capabilities": [],
     "assets": [],

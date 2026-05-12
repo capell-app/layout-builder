@@ -7,7 +7,9 @@ use Capell\Core\Models\Page;
 use Capell\PublishingStudio\Actions\CopyOnWriteAction;
 use Capell\PublishingStudio\Enums\WorkspaceKindEnum;
 use Capell\PublishingStudio\Enums\WorkspaceStatusEnum;
+use Capell\PublishingStudio\Facades\CapellPublishingStudio;
 use Capell\PublishingStudio\Models\Workspace;
+use Capell\PublishingStudio\Support\PublishingStudioManager;
 use Capell\PublishingStudio\WorkspaceContext;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Livewire\Livewire;
@@ -16,6 +18,10 @@ use Spatie\Permission\Models\Role;
 uses(CreatesAdminUser::class);
 
 beforeEach(function (): void {
+    config()->set('capell.publishing-studio.release_windows.enabled', false);
+    app()->forgetInstance(PublishingStudioManager::class);
+    CapellPublishingStudio::clearResolvedInstance(PublishingStudioManager::class);
+
     Role::findOrCreate('super_admin');
     $adminUser = $this->createUser();
     $adminUser->assignRole('super_admin');

@@ -321,7 +321,7 @@ class SeoSuiteServiceProvider extends AbstractPackageServiceProvider
             group: 'seo_suite',
             label: 'capell-seo-suite::generic.seo_settings',
             icon: Heroicon::OutlinedMagnifyingGlass,
-            navigationGroup: 'capell-admin::navigation.group_extensions',
+            navigationGroup: 'capell-admin::navigation.group_system',
             navigationSort: 94,
             packageName: static::$packageName,
         ));

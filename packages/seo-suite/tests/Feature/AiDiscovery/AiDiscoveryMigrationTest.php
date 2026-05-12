@@ -211,7 +211,7 @@ it('creates expected ai discovery indexes on sqlite', function (): void {
 it('adds ai discovery seo suite settings defaults', function (): void {
     runAiDiscoverySettingsMigrations(
         [
-            'create_seo_suite_settings',
+            '2026_05_10_190871_03_create_seo_suite_settings',
             '2026_05_10_190871_04_update_seo_suite_settings_add_ai_discovery',
         ],
         dirname(__DIR__, 3) . '/database/settings',

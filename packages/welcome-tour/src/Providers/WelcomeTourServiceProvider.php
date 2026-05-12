@@ -49,6 +49,7 @@ class WelcomeTourServiceProvider extends AbstractPackageServiceProvider
             serviceProviderClass: static::class,
             path: realpath(__DIR__ . '/../..'),
             version: $this->getVersion(),
+            setting: WelcomeTourSettings::class,
             description: fn (): string => __('capell-welcome-tour::package.description'),
         );
 

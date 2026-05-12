@@ -36,7 +36,7 @@ final class DemoKitPage extends Page
     #[Override]
     public static function getNavigationGroup(): ?string
     {
-        return (string) __('capell-admin::navigation.group_extensions');
+        return (string) __('capell-admin::navigation.group_system');
     }
 
     #[Override]

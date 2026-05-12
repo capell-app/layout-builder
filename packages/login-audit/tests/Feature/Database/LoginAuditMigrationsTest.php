@@ -26,7 +26,7 @@ it('creates the final authentication log schema with a custom table name', funct
     Schema::dropIfExists($tableName);
 
     $migrationPath = dirname(__DIR__, 3) . '/database/migrations';
-    $createMigration = include $migrationPath . '/create_login_audit_table.php';
+    $createMigration = include $migrationPath . '/2026_05_10_190857_01_create_login_audit_table.php';
 
     $createMigration->up();
 

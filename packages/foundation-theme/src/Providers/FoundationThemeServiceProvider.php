@@ -17,6 +17,7 @@ use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Core\Support\Settings\SettingsSchemaRegistry;
 use Capell\Core\Support\Themes\ThemeChromeRegistry;
 use Capell\FoundationTheme\Console\Commands\GenerateTailwindAssetsCommand;
+use Capell\FoundationTheme\Console\Commands\SetupCommand;
 use Capell\FoundationTheme\Enums\FoundationThemeAssetEnum;
 use Capell\FoundationTheme\Filament\Settings\FoundationThemeSettingsSchema;
 use Capell\FoundationTheme\Listeners\RunTailwindAssetsOnPackageChange;
@@ -61,7 +62,10 @@ final class FoundationThemeServiceProvider extends AbstractPackageServiceProvide
         $package
             ->name(self::$name)
             ->hasConfigFile()
-            ->hasCommands([GenerateTailwindAssetsCommand::class]);
+            ->hasCommands([
+                GenerateTailwindAssetsCommand::class,
+                SetupCommand::class,
+            ]);
     }
 
     public function packageBooted(): void
@@ -123,6 +127,10 @@ final class FoundationThemeServiceProvider extends AbstractPackageServiceProvide
 
     private function registerBlazeComponents(): void
     {
+        if ($this->app->environment('testing')) {
+            return;
+        }
+
         RegisterBlazeOptimizedViewsAction::run(__DIR__ . '/../../resources/views/components');
     }
 

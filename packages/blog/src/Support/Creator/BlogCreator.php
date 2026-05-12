@@ -20,6 +20,7 @@ use Capell\Blog\Filament\Configurators\Articles\ArticlePageConfigurator;
 use Capell\Blog\Filament\Configurators\Widgets\ArticleWidgetConfigurator;
 use Capell\Blog\Models\Article;
 use Capell\Core\Actions\SetupPageUrlsAction;
+use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Enums\LayoutGroupEnum;
 use Capell\Core\Enums\PageTypeEnum;
@@ -91,7 +92,7 @@ class BlogCreator
         $site->loadMissing(['language', 'siteDomains.language']);
 
         $type ??= $this->createTagPageType();
-        $layout ??= $this->getLayout(LayoutEnum::Results);
+        $layout ??= $this->getResultsLayout();
         $languages ??= $site->getAllLanguages();
         $parent ??= $this->createTagsPage($site, $this->createBlogPage($site));
 
@@ -816,6 +817,54 @@ class BlogCreator
         }
 
         return resolve(LayoutCreator::class)->create($key);
+    }
+
+    private function getResultsLayout(): Layout
+    {
+        $layout = $this->getLayout(LayoutEnum::Results);
+        $containers = $layout->getAttribute('containers');
+
+        if (is_array($containers) && $containers !== []) {
+            return $layout;
+        }
+
+        $widgetCreator = resolve(WidgetCreator::class);
+        $widgetCreator->breadcrumbWidget();
+        $widgetCreator->pageContentWidget();
+        $widgetCreator->pageSlotWidget();
+        $widgetCreator->latestPagesWidget();
+
+        $containers = [
+            'main' => [
+                'meta' => [
+                    'colspan' => 9,
+                ],
+                'widgets' => [
+                    ['widget_key' => 'breadcrumbs'],
+                    ['widget_key' => 'page-content'],
+                    ['widget_key' => 'page-slot'],
+                ],
+            ],
+            'sidebar' => [
+                'meta' => [
+                    'colspan' => 3,
+                    'override_columns' => 1,
+                    'container' => ContainerWidthEnum::Full,
+                    'padding' => ['md'],
+                    'html_class' => 'sidebar-sticky space-y-8',
+                ],
+                'widgets' => [
+                    ['widget_key' => 'latest-pages'],
+                ],
+            ],
+        ];
+
+        $layout->update([
+            'containers' => $containers,
+            'widgets' => $this->widgetKeys($containers),
+        ]);
+
+        return $layout;
     }
 
     private function widgetKeys(array $containers): array

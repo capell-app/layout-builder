@@ -13,6 +13,7 @@ it('owns the opinionated public head behavior', function (): void {
         ->and($tokens)->toContain('--color-brand')
         ->and($tokens)->toContain('DefaultColorEnum::getKeyValues()')
         ->and($tokens)->toContain('->merge($theme->colors)')
-        ->and($tokens)->toContain('$theme->getMeta(\'link_color_active\') ?: $theme->getMeta(\'link_color\')')
-        ->and($tokens)->toContain('ColorConverterAction::run($theme->getMeta(\'divider_color\') ?: \'#e5e7eb\')');
+        ->and($tokens)->toContain('$linkColorActiveMeta = $theme->getMeta(\'link_color_active\')')
+        ->and($tokens)->toContain('$resolveColorToken($linkColorMeta, \'#1e40af\')')
+        ->and($tokens)->toContain('ColorConverterAction::run($resolveColorToken($dividerColorMeta, \'#e5e7eb\'))');
 });

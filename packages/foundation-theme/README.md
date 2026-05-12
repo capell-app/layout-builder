@@ -67,6 +67,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 ## Install Impact
 
 - Adds default theme settings.
+- Adds Foundation-owned Layout Builder defaults when the package setup command runs.
 - Adds Tailwind asset generation command.
 - Adds config keys for asset build tool, npm dependencies, Tailwind sources, and media URL behaviour.
 - No public routes are registered by this package.
@@ -75,6 +76,7 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 ## Commands
 
 - `capell:frontend-tailwind-assets {--report : Print the aggregated assets report instead of writing files} {--output-path= : Absolute path or directory for the generated frontend CSS entrypoint}` (packages/foundation-theme/src/Console/Commands/GenerateTailwindAssetsCommand.php)
+- `capell:foundation-theme-setup {--force : Rebuild Foundation-managed layout defaults}` installs the default, home, and results layout widgets owned by Foundation Theme.
 
 ## Admin And Access
 
@@ -94,7 +96,8 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 
 1. Install the package with `composer require capell-app/foundation-theme`.
 2. Run the package migrations or the Capell package installer required by the host app.
-3. Open the new admin or frontend surface and verify the result.
+3. Run `php artisan capell:foundation-theme-setup` if the package installer did not run package setup commands.
+4. Open the new admin or frontend surface and verify the result.
 
 ## Next Steps
 

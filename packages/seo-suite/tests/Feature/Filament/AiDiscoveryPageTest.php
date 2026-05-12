@@ -193,7 +193,7 @@ it('hides markdown previews for pages excluded from ai discovery', function (): 
 it('honors seo suite ai discovery default and audit settings', function (): void {
     $this->registerAndMigrateSettings(
         [
-            'create_seo_suite_settings',
+            '2026_05_10_190871_03_create_seo_suite_settings',
             '2026_05_10_190871_04_update_seo_suite_settings_add_ai_discovery',
         ],
         dirname(__DIR__, 3) . '/database/settings',

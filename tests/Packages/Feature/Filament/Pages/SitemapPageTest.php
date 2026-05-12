@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
+use Capell\Admin\Filament\Pages\SitemapPage;
 use Capell\Blog\Models\Article;
 use Capell\Blog\Support\Creator\BlogCreator;
 use Capell\Core\Models\Site;
-use Capell\SiteDiscovery\Filament\Pages\SitemapPage;
 use Capell\SiteDiscovery\Support\Creator\SitemapPageCreator;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\View\FileViewFinder;
@@ -54,6 +54,6 @@ test('can render page', function (): void {
     $page = new SitemapPage;
     $page->mount();
 
-    expect($page->getView())->toBe('capell-site-discovery::components.pages.sitemap')
+    expect($page->getView())->toBe('capell-admin::filament.pages.sitemap')
         ->and($page->getSitemap())->not->toBeNull();
 });

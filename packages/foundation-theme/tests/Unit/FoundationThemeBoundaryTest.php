@@ -95,6 +95,8 @@ it('keeps foundation header menu controls screen reader accurate', function (): 
 
     expect($header)->toContain('aria-controls="main-menu"')
         ->and($header)->toContain('x-bind:aria-expanded="isMenuOpen.toString()"')
-        ->and($header)->toContain("x-text=\"isMenuOpen ? '{{ __('capell-frontend::generic.close_menu') }}' : '{{ __('capell-frontend::generic.open_menu') }}'\"")
+        ->and($header)->toContain('x-text=')
+        ->and($header)->toContain("isMenuOpen\n                                ? '{{ __('capell-frontend::generic.close_menu') }}'")
+        ->and($header)->toContain(": '{{ __('capell-frontend::generic.open_menu') }}'")
         ->and($header)->not->toContain("\$refs.toggleMenu.setAttribute('aria-expanded', 'true')");
 });

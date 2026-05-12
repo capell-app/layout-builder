@@ -126,6 +126,10 @@ class Publisher
                     continue;
                 }
 
+                if (! $this->tableHasColumn($table, 'workspace_id')) {
+                    continue;
+                }
+
                 $hasUuid = in_array('uuid', $modelInstance->getFillable(), true)
                     || $this->tableHasColumn($table, 'uuid');
 

@@ -7,10 +7,20 @@ use Capell\Frontend\Facades\Frontend;
 $theme = Frontend::theme();
 $site = Frontend::site();
 
-$brandColor = ColorConverterAction::run($site->getMeta('brand_color') ?: '#111827');
-$linkColor = ColorConverterAction::run($theme->getMeta('link_color') ?: '#1d4ed8');
-$linkColorActive = ColorConverterAction::run($theme->getMeta('link_color_active') ?: $theme->getMeta('link_color') ?: '#1e40af');
-$dividerColor = ColorConverterAction::run($theme->getMeta('divider_color') ?: '#e5e7eb');
+$brandColorMeta = $site->getMeta('brand_color');
+$linkColorMeta = $theme->getMeta('link_color');
+$linkColorActiveMeta = $theme->getMeta('link_color_active');
+$dividerColorMeta = $theme->getMeta('divider_color');
+
+$resolveColorToken = static fn (mixed $value, string $fallback): string => is_string($value) && $value !== '' ? $value : $fallback;
+
+$brandColor = ColorConverterAction::run($resolveColorToken($brandColorMeta, '#111827'));
+$linkColor = ColorConverterAction::run($resolveColorToken($linkColorMeta, '#1d4ed8'));
+$linkColorActive = ColorConverterAction::run($resolveColorToken(
+    $linkColorActiveMeta,
+    $resolveColorToken($linkColorMeta, '#1e40af'),
+));
+$dividerColor = ColorConverterAction::run($resolveColorToken($dividerColorMeta, '#e5e7eb'));
 
 $isSafeToken = static fn (string $name, string $value): bool => preg_match('/^[A-Za-z0-9][A-Za-z0-9_-]*$/', $name) === 1
     && preg_match('/[\x00-\x1F\x7F;{}<>]/', $value) !== 1;

@@ -84,7 +84,7 @@ it('registers its package owned extension page', function (): void {
 
     $expectation = expect(CapellAdmin::getAdminSurfaceRegistry()->pages())->toContain(DemoKitPage::class)
         ->and(resolve(ExtensionPageRegistry::class)->get(DemoKitServiceProvider::$packageName))->toBe(DemoKitPage::class)
-        ->and(DemoKitPage::getNavigationGroup())->toBe(__('capell-admin::navigation.group_extensions'));
+        ->and(DemoKitPage::getNavigationGroup())->toBe(__('capell-admin::navigation.group_system'));
 
     if (! class_exists(ExtensionBreadcrumbDecorator::class)) {
         return;

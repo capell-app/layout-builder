@@ -72,7 +72,7 @@ class QueueHealthPage extends Page implements HasActions, HasTable
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_extensions'));
+        return (string) (__('capell-admin::navigation.group_system'));
     }
 
     public function table(Table $table): Table

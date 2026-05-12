@@ -32,7 +32,7 @@ final class SystemHealthPage extends Dashboard
     #[Override]
     public static function getNavigationGroup(): string
     {
-        return (string) (__('capell-admin::navigation.group_extensions'));
+        return (string) (__('capell-admin::navigation.group_system'));
     }
 
     public static function getRoutePath(Panel $panel): string

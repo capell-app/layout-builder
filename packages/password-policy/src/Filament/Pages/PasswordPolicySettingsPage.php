@@ -36,7 +36,7 @@ class PasswordPolicySettingsPage extends SettingsPage
     #[Override]
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return __('capell-admin::navigation.group_extensions');
+        return __('capell-admin::navigation.group_system');
     }
 
     #[Override]
