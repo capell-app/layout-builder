@@ -10,6 +10,7 @@ use Capell\PublishingStudio\Enums\WorkspaceStatusEnum;
 use Capell\PublishingStudio\Filament\Resources\Pages\Actions\PublishPageAction;
 use Capell\PublishingStudio\Models\Workspace;
 use Capell\PublishingStudio\Models\WorkspaceApproval;
+use Capell\PublishingStudio\WorkspaceContext;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Livewire;
@@ -23,6 +24,12 @@ beforeEach(function (): void {
     $adminUser = $this->createUser();
     $adminUser->assignRole('super_admin');
     $this->actingAs($adminUser);
+
+    WorkspaceContext::clear();
+});
+
+afterEach(function (): void {
+    WorkspaceContext::clear();
 });
 
 function draftInWorkspace(WorkspaceStatusEnum $status): Page
@@ -46,12 +53,16 @@ it('is hidden on a live page', function (): void {
 it('is visible on a draft with Open status', function (): void {
     $draft = draftInWorkspace(WorkspaceStatusEnum::Open);
 
+    WorkspaceContext::set($draft->workspace);
+
     Livewire::test(EditPage::class, ['record' => $draft->getRouteKey()])
         ->assertActionVisible('publish');
 });
 
 it('is visible on a draft with Approved status', function (): void {
     $draft = draftInWorkspace(WorkspaceStatusEnum::Approved);
+
+    WorkspaceContext::set($draft->workspace);
 
     Livewire::test(EditPage::class, ['record' => $draft->getRouteKey()])
         ->assertActionVisible('publish');
@@ -78,6 +89,8 @@ it('is hidden for users who can update the page but cannot publish the workspace
 it('is disabled on a draft with InReview status', function (): void {
     $draft = draftInWorkspace(WorkspaceStatusEnum::InReview);
 
+    WorkspaceContext::set($draft->workspace);
+
     Livewire::test(EditPage::class, ['record' => $draft->getRouteKey()])
         ->assertActionDisabled('publish');
 });
@@ -85,6 +98,8 @@ it('is disabled on a draft with InReview status', function (): void {
 it('publishes the workspace and returns user to live record', function (): void {
     $draft = draftInWorkspace(WorkspaceStatusEnum::Approved);
     $workspaceId = $draft->workspace_id;
+
+    WorkspaceContext::set($draft->workspace);
 
     Livewire::test(EditPage::class, ['record' => $draft->getRouteKey()])
         ->callAction('publish')
@@ -110,6 +125,8 @@ it('shows the Resubmit for review action when latest approval is ChangesRequeste
         'workspace_id' => $draft->workspace_id,
         'action' => WorkspaceApprovalActionEnum::ChangesRequested->value,
     ]);
+
+    WorkspaceContext::set($draft->workspace);
 
     Livewire::test(EditPage::class, ['record' => $draft->getRouteKey()])
         ->assertActionVisible('resubmitForReview');

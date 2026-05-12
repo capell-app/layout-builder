@@ -35,6 +35,8 @@ it('is hidden when viewing a draft page', function (): void {
         $workspace,
     );
 
+    WorkspaceContext::set($workspace);
+
     Livewire::test(EditPage::class, ['record' => $draft->getRouteKey()])
         ->assertActionHidden('saveAsDraft');
 });

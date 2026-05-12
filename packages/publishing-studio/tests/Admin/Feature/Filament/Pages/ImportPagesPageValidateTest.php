@@ -145,26 +145,33 @@ it('blocks dispatch while blocking_errors present and succeeds when clean', func
         ->assertSet('step', ImportPagesPage::STEP_VALIDATE);
 
     // Inject blocking errors on the persisted summary.
-    $component->set('validationSummary', array_merge(
-        $component->get('validationSummary'),
-        ['blocking_errors' => ['forced blocker']],
-    ));
+    $session = ImportSession::query()->latest('id')->firstOrFail();
+    $session->forceFill([
+        'validation_results' => array_merge(
+            $component->get('validationSummary'),
+            ['blocking_errors' => ['forced blocker']],
+        ),
+    ])->save();
+
     $component->set('confirmation', 'Clean WS');
     $component->call('dispatchImport')
         ->assertSet('step', ImportPagesPage::STEP_VALIDATE);
     Queue::assertNotPushed(ExecuteImportPlanJob::class);
 
     // Clear blocking_errors, dispatch cleanly.
-    $component->set('validationSummary', array_merge(
-        $component->get('validationSummary'),
-        ['blocking_errors' => []],
-    ));
+    $session->forceFill([
+        'validation_results' => array_merge(
+            $component->get('validationSummary'),
+            ['blocking_errors' => []],
+        ),
+    ])->save();
+
     $component->call('dispatchImport')
         ->assertSet('step', ImportPagesPage::STEP_DISPATCHED);
 
     Queue::assertPushed(ExecuteImportPlanJob::class, 1);
 
-    $session = ImportSession::query()->latest('id')->firstOrFail();
+    $session->refresh();
     expect($session->status)->toBe(ImportSessionStatus::Queued)
         ->and($session->validation_results)->toBeArray();
 });

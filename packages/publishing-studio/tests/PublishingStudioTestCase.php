@@ -19,6 +19,8 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Media;
 use Capell\Frontend\Contracts\SettingsMigrationProviderInterface;
 use Capell\Frontend\Providers\FrontendServiceProvider;
+use Capell\HtmlCache\Providers\HtmlCacheServiceProvider;
+use Capell\MigrationAssistant\Filament\Pages\ImportSitesPage;
 use Capell\MigrationAssistant\Providers\MigrationAssistantServiceProvider;
 use Capell\PublishingStudio\Extenders\PublishingStudioPageEditExtender;
 use Capell\PublishingStudio\Extenders\PublishingStudioPageResourcePageExtender;
@@ -143,6 +145,7 @@ class PublishingStudioTestCase extends AbstractTestCase
             NotificationsServiceProvider::class,
             AdminServiceProvider::class,
             MigrationAssistantServiceProvider::class,
+            HtmlCacheServiceProvider::class,
             FrontendServiceProvider::class,
             PaginateRouteServiceProvider::class,
             LivewireServiceProvider::class,
@@ -170,28 +173,22 @@ class PublishingStudioTestCase extends AbstractTestCase
             $migrationAssistantPackagePath = null;
         }
 
-        CapellCore::registerPackage(MigrationAssistantServiceProvider::$packageName, path: $migrationAssistantPackagePath);
         CapellCore::forcePackageInstalled(MigrationAssistantServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(HtmlCacheServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled('capell-app/publishing-studio');
         $app->tag([PublishingStudioPageEditExtender::class], PageEditExtender::TAG);
         $app->tag([PublishingStudioPageResourcePageExtender::class], PageResourcePageExtender::TAG);
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(WorkspaceResource::class, group: 'Workspace'));
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(PreviewLinkResource::class, group: 'PreviewLink'));
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(ImportSitesPage::class));
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(ActivityTrailPage::class));
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(ImportPagesPage::class));
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(ScheduledPublishingPage::class));
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::page(StaleDraftsPage::class));
 
-        // Navigation and Tags have no capell.json so they're not auto-discovered;
-        // register them explicitly so BuildsOrderedMigrationWorkspace loads their migrations.
-        CapellCore::registerPackage('capell-app/navigation', path: realpath(__DIR__ . '/../../navigation'));
         CapellCore::forcePackageInstalled('capell-app/navigation');
-
-        CapellCore::registerPackage('capell-app/tags', path: realpath(__DIR__ . '/../../tags'));
         CapellCore::forcePackageInstalled('capell-app/tags');
-
-        CapellCore::registerPackage(BlogServiceProvider::$packageName, path: realpath(__DIR__ . '/../../blog'));
         CapellCore::forcePackageInstalled(BlogServiceProvider::$packageName);
 
         $app->make(Repository::class)->set('media-library.media_model', Media::class);

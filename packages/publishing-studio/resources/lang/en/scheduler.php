@@ -13,6 +13,10 @@ return [
     'descriptions' => [
         'page_publish' => 'Page becomes visible.',
         'page_unpublish' => 'Page stops being visible.',
+        'workspace_embargo' => 'Workspace is held until the embargo lifts.',
+        'workspace_publish' => 'Workspace is scheduled for publication.',
+        'workspace_review_reminder' => 'Workspace review reminder is due.',
+        'workspace_takedown_reminder' => 'Workspace takedown reminder; this does not automatically unpublish content.',
     ],
     'event_types' => [
         'embargo' => 'Embargo',

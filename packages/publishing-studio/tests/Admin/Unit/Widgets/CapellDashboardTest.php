@@ -17,7 +17,7 @@ use Capell\PublishingStudio\Filament\Widgets\WorkspaceActivityWidgetAbstract;
 
 it('getColumns returns the dashboard grid columns', function (): void {
     $dashboard = new CapellDashboard;
-    expect($dashboard->getColumns())->toBe(['default' => 1, 'md' => 12]);
+    expect($dashboard->getColumns())->toBe(['default' => 1, '@3xl' => 12, '!@lg' => 12]);
 });
 
 it('getWidgets contains all expected widget classes', function (): void {

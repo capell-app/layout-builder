@@ -74,6 +74,8 @@ class PublishingStudioServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadTranslationsFrom(__DIR__ . '/../../resources/lang', 'capell-publishing-studio');
+
         if (! $this->isPackageInstalled()) {
             return;
         }
