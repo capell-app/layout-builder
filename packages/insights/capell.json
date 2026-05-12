@@ -1,34 +1,43 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/insights",
+    "slug": "insights",
+    "displayName": "Insights",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Growth",
-    "tier": "premium",
-    "bundle": "growth",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "Insights records first-party visits, events, consent decisions, page views, clicks, and journey data for Capell sites.",
-    "surfaces": ["admin", "frontend"],
+    "product": {
+        "group": "Capell Growth",
+        "tier": "premium",
+        "bundle": "growth"
+    },
+    "namespace": "Capell\\Insights",
+    "surfaces": [
+        "admin",
+        "frontend"
+    ],
     "dependencies": {
         "requires": [
-            "capell-app/core",
             "capell-app/admin",
+            "capell-app/core",
             "capell-app/frontend"
         ],
         "optional": [],
         "conflicts": []
     },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
-    },
     "providers": {
         "metadata": [],
         "install": [],
-        "runtime": ["Capell\\Insights\\Providers\\InsightsServiceProvider"],
-        "admin": ["Capell\\Insights\\Providers\\AdminServiceProvider"],
+        "runtime": [
+            "Capell\\Insights\\Providers\\InsightsServiceProvider"
+        ],
+        "admin": [
+            "Capell\\Insights\\Providers\\AdminServiceProvider"
+        ],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": true,
         "settings": true,
@@ -37,14 +46,57 @@
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
-    "capabilities": [],
-    "assets": [],
-    "healthChecks": []
+    "capabilities": [
+        "insights",
+        "insights-admin",
+        "insights-frontend"
+    ],
+    "performance": {
+        "frontendRenderBudgetMs": 20,
+        "adminQueryBudget": 40,
+        "cacheTags": [
+            "insights"
+        ],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [
+                "site",
+                "locale"
+            ],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": true
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "Insights records first-party visits, events, consent decisions, page views, clicks, and journey data for Capell sites.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "frontend",
+            "growth"
+        ]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "admin-page",
+            "dashboard-widget",
+            "model",
+            "overview-stat",
+            "route",
+            "scheduled-job"
+        ]
+    }
 }

@@ -1,34 +1,41 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/html-cache",
+    "slug": "html-cache",
+    "displayName": "HTML Cache",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Frontend",
-    "tier": "core",
-    "bundle": "foundation",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "Static HTML cache, dependency indexing, and cache administration for Capell.",
-    "surfaces": ["admin", "frontend"],
+    "product": {
+        "group": "Capell Foundation",
+        "tier": "free",
+        "bundle": "foundation"
+    },
+    "namespace": "Capell\\HtmlCache",
+    "surfaces": [
+        "admin",
+        "frontend"
+    ],
     "dependencies": {
         "requires": [
-            "capell-app/core",
             "capell-app/admin",
+            "capell-app/core",
             "capell-app/frontend"
         ],
         "optional": [],
         "conflicts": []
     },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
-    },
     "providers": {
         "metadata": [],
         "install": [],
-        "runtime": ["Capell\\HtmlCache\\Providers\\HtmlCacheServiceProvider"],
+        "runtime": [
+            "Capell\\HtmlCache\\Providers\\HtmlCacheServiceProvider"
+        ],
         "admin": [],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": true,
         "settings": false,
@@ -37,16 +44,56 @@
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
-    "permissions": ["capell-html-cache.view", "capell-html-cache.clear"],
+    "permissions": [
+        "capell-html-cache.view",
+        "capell-html-cache.clear"
+    ],
     "capabilities": [],
-    "assets": [],
+    "performance": {
+        "frontendRenderBudgetMs": 20,
+        "adminQueryBudget": 40,
+        "cacheTags": [
+            "html-cache"
+        ],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [
+                "site",
+                "locale"
+            ],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": true
+        }
+    },
     "healthChecks": [],
-    "scopes": ["backend", "frontend"],
-    "order": 45
+    "commercial": {
+        "proposedLicense": "free",
+        "requestedCertification": "first-party",
+        "supportPolicy": "capell-first-party",
+        "privateDocsRequested": false
+    },
+    "marketplace": {
+        "summary": "Static HTML cache, dependency indexing, and cache administration for Capell.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "foundation",
+            "frontend"
+        ]
+    },
+    "scopes": [
+        "backend",
+        "frontend"
+    ],
+    "order": 45,
+    "contributionTraceability": {
+        "deferredContributions": [
+            "route"
+        ]
+    }
 }

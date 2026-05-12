@@ -31,8 +31,7 @@ describe('address capell.json manifest', function (): void {
             associative: true,
         );
 
-        expect($manifest['commands']['demo'])->toBe('capell:address-demo')
-            ->and($manifest['commands']['demoParams'])->toBe(['sites']);
+        expect($manifest['commands']['demo'])->toBe('capell:address-demo');
     });
 
     it('keeps composer package requirements aligned with the manifest', function (): void {

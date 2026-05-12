@@ -22,11 +22,13 @@ final class KnowledgeRepository
                 continue;
             }
 
+            $product = is_array($decoded['product'] ?? null) ? $decoded['product'] : [];
+
             $packages[] = [
                 'name' => $decoded['name'] ?? basename(dirname((string) $packageFile)),
-                'productGroup' => $decoded['productGroup'] ?? null,
-                'tier' => $decoded['tier'] ?? null,
-                'bundle' => $decoded['bundle'] ?? null,
+                'productGroup' => $product['group'] ?? null,
+                'tier' => $product['tier'] ?? null,
+                'bundle' => $product['bundle'] ?? null,
                 'contexts' => $decoded['surfaces'] ?? $decoded['contexts'] ?? [],
                 'requires' => $decoded['dependencies']['requires'] ?? $decoded['requires'] ?? [],
                 'path' => dirname((string) $packageFile),

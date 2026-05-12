@@ -1,22 +1,30 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/translation-manager",
+    "slug": "translation-manager",
+    "displayName": "Translation Manager",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Admin",
-    "tier": "premium",
-    "bundle": "admin",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "Translation Manager provides a file-based Filament editor for Laravel language files with safe package override writes.",
-    "surfaces": ["admin"],
-    "dependencies": {
-        "requires": ["capell-app/core", "capell-app/admin"],
-        "optional": ["capell-app/ai-orchestrator"],
-        "conflicts": []
+    "product": {
+        "group": "Capell Admin",
+        "tier": "premium",
+        "bundle": "admin"
     },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
+    "namespace": "Capell\\TranslationManager",
+    "surfaces": [
+        "admin"
+    ],
+    "dependencies": {
+        "requires": [
+            "capell-app/admin",
+            "capell-app/core"
+        ],
+        "optional": [
+            "capell-app/ai-orchestrator"
+        ],
+        "conflicts": []
     },
     "providers": {
         "metadata": [],
@@ -29,6 +37,7 @@
         ],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": false,
         "settings": false,
@@ -37,19 +46,46 @@
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
     "capabilities": [
+        "translation.ai.translate-selected",
         "translation.files.browse",
-        "translation.files.write",
         "translation.files.duplicate",
-        "translation.ai.translate-selected"
+        "translation.files.write"
     ],
-    "assets": [],
-    "healthChecks": []
+    "performance": {
+        "frontendRenderBudgetMs": 0,
+        "adminQueryBudget": 40,
+        "cacheTags": [],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": false
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "Translation Manager provides a file-based Filament editor for Laravel language files with safe package override writes.",
+        "screenshots": [],
+        "categories": [
+            "admin"
+        ]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "admin-page"
+        ]
+    }
 }

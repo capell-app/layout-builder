@@ -16,7 +16,7 @@ describe('diagnostics capell.json manifest', function (): void {
             ->toMatchArray([
                 'name' => 'capell-app/diagnostics',
                 'kind' => 'package',
-                'capell-version' => '^4.0',
+                'capellApiVersion' => '^4.0',
             ])
             ->and($manifest['surfaces'])->toContain('admin')
             ->and($manifest['providers']['runtime'])->toContain(DiagnosticsServiceProvider::class)

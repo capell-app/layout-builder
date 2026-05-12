@@ -1,24 +1,28 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/theme-corporate",
+    "slug": "theme-corporate",
+    "displayName": "Theme Corporate",
     "kind": "theme",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Themes",
-    "tier": "premium",
-    "bundle": "themes",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "Theme Corporate registers the corporate theme key and restrained renderer views for B2B, public sector, and professional-service sites.",
-    "themeKey": "corporate",
-    "extends": "capell-app/foundation-theme",
-    "surfaces": ["frontend"],
+    "product": {
+        "group": "Capell Themes",
+        "tier": "premium",
+        "bundle": "themes"
+    },
+    "namespace": "Capell\\ThemeStudio\\Corporate",
+    "surfaces": [
+        "frontend"
+    ],
     "dependencies": {
-        "requires": ["capell-app/foundation-theme"],
+        "requires": [
+            "capell-app/core",
+            "capell-app/foundation-theme"
+        ],
         "optional": [],
         "conflicts": []
-    },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
     },
     "providers": {
         "metadata": [],
@@ -29,6 +33,7 @@
         "admin": [],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": false,
         "settings": false,
@@ -37,14 +42,47 @@
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
-    "capabilities": [],
-    "assets": [],
-    "healthChecks": []
+    "capabilities": [
+        "theme-corporate",
+        "theme-corporate-frontend"
+    ],
+    "performance": {
+        "frontendRenderBudgetMs": 20,
+        "adminQueryBudget": 0,
+        "cacheTags": [
+            "theme-corporate"
+        ],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [
+                "site",
+                "locale"
+            ],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": true
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "Theme Corporate registers the corporate theme key and restrained renderer views for B2B, public sector, and professional-service sites.",
+        "screenshots": [],
+        "categories": [
+            "frontend",
+            "themes"
+        ]
+    },
+    "extends": "capell-app/foundation-theme",
+    "themeKey": "corporate"
 }

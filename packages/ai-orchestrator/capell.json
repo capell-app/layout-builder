@@ -1,22 +1,28 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/ai-orchestrator",
+    "slug": "ai-orchestrator",
+    "displayName": "AI Orchestrator",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Commercial",
-    "tier": "premium",
-    "bundle": "commercial",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "AIOrchestrator provides the orchestration layer for Capell AI modules and capability execution.",
-    "surfaces": ["admin"],
+    "product": {
+        "group": "Capell Commercial",
+        "tier": "premium",
+        "bundle": "commercial"
+    },
+    "namespace": "Capell\\AIOrchestrator",
+    "surfaces": [
+        "admin"
+    ],
     "dependencies": {
-        "requires": ["capell-app/admin"],
+        "requires": [
+            "capell-app/admin",
+            "capell-app/core"
+        ],
         "optional": [],
         "conflicts": []
-    },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
     },
     "providers": {
         "metadata": [],
@@ -27,6 +33,7 @@
         "admin": [],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": false,
         "settings": false,
@@ -35,14 +42,40 @@
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
-    "capabilities": [],
-    "assets": [],
-    "healthChecks": []
+    "capabilities": [
+        "ai-orchestrator",
+        "ai-orchestrator-admin"
+    ],
+    "performance": {
+        "frontendRenderBudgetMs": 0,
+        "adminQueryBudget": 40,
+        "cacheTags": [],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": false
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "AIOrchestrator provides the orchestration layer for Capell AI modules and capability execution.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "commercial"
+        ]
+    }
 }

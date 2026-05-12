@@ -1,24 +1,28 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/foundation-theme",
+    "slug": "foundation-theme",
+    "displayName": "Foundation Theme",
     "kind": "theme",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Foundation",
-    "tier": "free",
-    "bundle": "foundation",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "Foundation Theme provides the default Capell theme assets, Tailwind pipeline, Blade directives, and media handling.",
-    "themeKey": "default",
-    "extends": null,
-    "surfaces": ["frontend", "admin"],
+    "product": {
+        "group": "Capell Foundation",
+        "tier": "free",
+        "bundle": "foundation"
+    },
+    "namespace": "Capell\\FoundationTheme",
+    "surfaces": [
+        "admin",
+        "frontend"
+    ],
     "dependencies": {
-        "requires": [],
+        "requires": [
+            "capell-app/frontend"
+        ],
         "optional": [],
         "conflicts": []
-    },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
     },
     "providers": {
         "metadata": [],
@@ -29,6 +33,7 @@
         "admin": [],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": false,
         "settings": true,
@@ -37,14 +42,50 @@
     "commands": {
         "install": null,
         "setup": "capell:foundation-theme-setup",
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
     "capabilities": [],
-    "assets": [],
-    "healthChecks": []
+    "performance": {
+        "frontendRenderBudgetMs": 20,
+        "adminQueryBudget": 40,
+        "cacheTags": [
+            "foundation-theme"
+        ],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [
+                "site",
+                "locale"
+            ],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": true
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "free",
+        "requestedCertification": "first-party",
+        "supportPolicy": "capell-first-party",
+        "privateDocsRequested": false
+    },
+    "marketplace": {
+        "summary": "Foundation Theme provides the default Capell theme assets, Tailwind pipeline, Blade directives, and media handling.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "foundation",
+            "frontend"
+        ]
+    },
+    "extends": null,
+    "themeKey": "default",
+    "contributionTraceability": {
+        "deferredContributions": [
+            "route"
+        ]
+    }
 }

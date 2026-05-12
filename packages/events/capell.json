@@ -1,11 +1,23 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/events",
+    "slug": "events",
+    "displayName": "Events",
     "kind": "plugin",
-    "capell-version": "^4.0",
-    "title": "Events",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "Events adds listings, recurring events, venues, RSVPs, calendar feeds, and Event schema.",
-    "surfaces": ["admin", "frontend", "console"],
+    "product": {
+        "group": "Capell Content",
+        "tier": "premium",
+        "bundle": "content-product"
+    },
+    "namespace": "Capell\\Events",
+    "surfaces": [
+        "admin",
+        "frontend",
+        "console"
+    ],
     "dependencies": {
         "requires": [
             "capell-app/admin",
@@ -21,18 +33,16 @@
         ],
         "conflicts": []
     },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": true
-    },
     "providers": {
         "metadata": [],
         "install": [],
-        "runtime": ["Capell\\Events\\Providers\\EventsServiceProvider"],
+        "runtime": [
+            "Capell\\Events\\Providers\\EventsServiceProvider"
+        ],
         "admin": [],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": true,
         "settings": false,
@@ -41,14 +51,59 @@
     "commands": {
         "install": "capell:events-install",
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
-    "capabilities": [],
-    "assets": [],
-    "healthChecks": []
+    "capabilities": [
+        "events",
+        "events-admin",
+        "events-console",
+        "events-frontend"
+    ],
+    "performance": {
+        "frontendRenderBudgetMs": 20,
+        "adminQueryBudget": 40,
+        "cacheTags": [
+            "events"
+        ],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [
+                "site",
+                "locale"
+            ],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": true
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "Events adds listings, recurring events, venues, RSVPs, calendar feeds, and Event schema.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "console",
+            "content-product",
+            "frontend"
+        ]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "admin-page",
+            "admin-resource",
+            "model",
+            "page-type",
+            "page-variation",
+            "route"
+        ]
+    }
 }

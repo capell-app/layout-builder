@@ -1,30 +1,45 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/tags",
+    "slug": "tags",
+    "displayName": "Tags",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Foundation",
-    "tier": "free",
-    "bundle": "foundation",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "Tags adds tag management, taggable relationships, a reusable tags input, and model traits for Capell content.",
-    "surfaces": ["admin", "console"],
+    "product": {
+        "group": "Capell Foundation",
+        "tier": "free",
+        "bundle": "foundation"
+    },
+    "namespace": "Capell\\Tags",
+    "surfaces": [
+        "admin",
+        "console"
+    ],
     "dependencies": {
-        "requires": ["capell-app/admin"],
+        "requires": [
+            "capell-app/admin",
+            "capell-app/navigation",
+            "capell-app/publishing-studio"
+        ],
         "optional": [],
         "conflicts": []
     },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": true
-    },
     "providers": {
         "metadata": [],
-        "install": ["Capell\\Tags\\Providers\\ConsoleServiceProvider"],
-        "runtime": ["Capell\\Tags\\Providers\\TagsServiceProvider"],
-        "admin": ["Capell\\Tags\\Providers\\AdminServiceProvider"],
+        "install": [
+            "Capell\\Tags\\Providers\\ConsoleServiceProvider"
+        ],
+        "runtime": [
+            "Capell\\Tags\\Providers\\TagsServiceProvider"
+        ],
+        "admin": [
+            "Capell\\Tags\\Providers\\AdminServiceProvider"
+        ],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": true,
         "settings": false,
@@ -33,14 +48,44 @@
     "commands": {
         "install": "capell:tags-install",
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
     "capabilities": [],
-    "assets": [],
-    "healthChecks": []
+    "performance": {
+        "frontendRenderBudgetMs": 0,
+        "adminQueryBudget": 40,
+        "cacheTags": [],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": false
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "free",
+        "requestedCertification": "first-party",
+        "supportPolicy": "capell-first-party",
+        "privateDocsRequested": false
+    },
+    "marketplace": {
+        "summary": "Tags adds tag management, taggable relationships, a reusable tags input, and model traits for Capell content.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "console",
+            "foundation"
+        ]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "admin-resource",
+            "model"
+        ]
+    }
 }

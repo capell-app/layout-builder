@@ -1,28 +1,34 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/campaign-studio",
+    "slug": "campaign-studio",
+    "displayName": "Campaign Studio",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Growth",
-    "tier": "premium",
-    "bundle": "growth",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "CampaignStudio adds campaign groups, landing pages, CTA blocks, conversion goals, UTM attribution, and conversion reporting to Capell.",
-    "surfaces": ["admin", "frontend"],
+    "product": {
+        "group": "Capell Growth",
+        "tier": "premium",
+        "bundle": "growth"
+    },
+    "namespace": "Capell\\CampaignStudio",
+    "surfaces": [
+        "admin",
+        "frontend"
+    ],
     "dependencies": {
         "requires": [
-            "capell-app/core",
             "capell-app/admin",
+            "capell-app/core",
+            "capell-app/form-builder",
             "capell-app/frontend",
-            "capell-app/insights",
-            "capell-app/form-builder"
+            "capell-app/insights"
         ],
-        "optional": ["capell-app/seo-suite"],
+        "optional": [
+            "capell-app/seo-suite"
+        ],
         "conflicts": []
-    },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
     },
     "providers": {
         "metadata": [],
@@ -30,11 +36,14 @@
         "runtime": [
             "Capell\\CampaignStudio\\Providers\\CampaignStudioServiceProvider"
         ],
-        "admin": ["Capell\\CampaignStudio\\Providers\\AdminServiceProvider"],
+        "admin": [
+            "Capell\\CampaignStudio\\Providers\\AdminServiceProvider"
+        ],
         "frontend": [
             "Capell\\CampaignStudio\\Providers\\FrontendServiceProvider"
         ]
     },
+    "contributes": [],
     "database": {
         "migrations": true,
         "settings": false,
@@ -43,14 +52,56 @@
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
-    "capabilities": [],
-    "assets": [],
-    "healthChecks": []
+    "capabilities": [
+        "campaign-studio",
+        "campaign-studio-admin",
+        "campaign-studio-frontend"
+    ],
+    "performance": {
+        "frontendRenderBudgetMs": 20,
+        "adminQueryBudget": 40,
+        "cacheTags": [
+            "campaign-studio"
+        ],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [
+                "site",
+                "locale"
+            ],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": true
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "CampaignStudio adds campaign groups, landing pages, CTA blocks, conversion goals, UTM attribution, and conversion reporting to Capell.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "frontend",
+            "growth"
+        ]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "admin-resource",
+            "configurator",
+            "dashboard-widget",
+            "model",
+            "overview-stat"
+        ]
+    }
 }

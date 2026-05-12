@@ -1,35 +1,35 @@
 {
     "manifest-version": 3,
-    "name": "capell-app/migration-assistant",
-    "slug": "migration-assistant",
-    "displayName": "Migration Assistant",
+    "name": "capell-app/access-gate",
+    "slug": "access-gate",
+    "displayName": "Access Gate",
     "kind": "package",
     "capellApiVersion": "^4.0",
     "version": "4.x-dev",
-    "description": "MigrationAssistant provides package import workflows, source reads, mapping, preview, validation, execution state, and rollback reports.",
+    "description": "Access gating foundations for Capell CMS.",
     "product": {
         "group": "Capell Operations",
         "tier": "premium",
         "bundle": "operations"
     },
-    "namespace": "Capell\\MigrationAssistant",
+    "namespace": "Capell\\AccessGate",
     "surfaces": [
-        "admin",
-        "console"
+        "admin"
     ],
     "dependencies": {
         "requires": [
-            "capell-app/admin",
             "capell-app/core"
         ],
-        "optional": [],
+        "optional": [
+            "capell-app/public-actions"
+        ],
         "conflicts": []
     },
     "providers": {
         "metadata": [],
         "install": [],
         "runtime": [
-            "Capell\\MigrationAssistant\\Providers\\MigrationAssistantServiceProvider"
+            "Capell\\AccessGate\\Providers\\AccessGateServiceProvider"
         ],
         "admin": [],
         "frontend": []
@@ -38,30 +38,27 @@
     "database": {
         "migrations": true,
         "settings": false,
-        "requiredTables": []
+        "requiredTables": [
+            "access_gate_areas",
+            "access_gate_registrations",
+            "access_gate_grants",
+            "access_gate_claim_tokens",
+            "access_gate_browser_tokens",
+            "access_gate_events"
+        ]
     },
     "commands": {
         "install": null,
         "setup": null,
         "demo": null,
-        "doctor": null
+        "doctor": "capell:access-gate-doctor"
     },
     "settings": [],
-    "permissions": [
-        "page.export",
-        "site.export",
-        "page.import",
-        "site.import",
-        "page.import.update-shared-relations",
-        "page.import.publish-live",
-        "import-session.view",
-        "import-session.cancel",
-        "import-session.retry"
-    ],
+    "permissions": [],
     "capabilities": [
-        "migration-assistant",
-        "migration-assistant-admin",
-        "migration-assistant-console"
+        "access-gating",
+        "registration-approval",
+        "claim-token-management"
     ],
     "performance": {
         "frontendRenderBudgetMs": 0,
@@ -83,19 +80,19 @@
         "privateDocsRequested": true
     },
     "marketplace": {
-        "summary": "MigrationAssistant provides package import workflows, source reads, mapping, preview, validation, execution state, and rollback reports.",
+        "summary": "Access gating foundations for Capell CMS.",
         "screenshots": [],
         "categories": [
             "admin",
-            "console",
             "operations"
         ]
     },
     "contributionTraceability": {
         "deferredContributions": [
-            "admin-page",
             "admin-resource",
-            "model"
+            "migration",
+            "model",
+            "route"
         ]
     }
 }

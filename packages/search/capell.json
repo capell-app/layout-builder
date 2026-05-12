@@ -1,34 +1,44 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/search",
+    "slug": "search",
+    "displayName": "Search",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Search & SEO",
-    "tier": "premium",
-    "bundle": "search-seo",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "Search adds a frontend search route, configurable search drivers, result click tracking, query logging, and admin search insights.",
-    "surfaces": ["admin", "frontend", "console"],
+    "product": {
+        "group": "Capell Search & SEO",
+        "tier": "premium",
+        "bundle": "search-seo"
+    },
+    "namespace": "Capell\\Search",
+    "surfaces": [
+        "admin",
+        "frontend",
+        "console"
+    ],
     "dependencies": {
         "requires": [
-            "capell-app/core",
             "capell-app/admin",
+            "capell-app/core",
             "capell-app/frontend"
         ],
         "optional": [],
         "conflicts": []
     },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
-    },
     "providers": {
         "metadata": [],
         "install": [],
-        "runtime": ["Capell\\Search\\Providers\\SearchServiceProvider"],
-        "admin": ["Capell\\Search\\Providers\\AdminServiceProvider"],
+        "runtime": [
+            "Capell\\Search\\Providers\\SearchServiceProvider"
+        ],
+        "admin": [
+            "Capell\\Search\\Providers\\AdminServiceProvider"
+        ],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": true,
         "settings": true,
@@ -37,14 +47,58 @@
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
-    "capabilities": [],
-    "assets": [],
-    "healthChecks": []
+    "capabilities": [
+        "search",
+        "search-admin",
+        "search-console",
+        "search-frontend"
+    ],
+    "performance": {
+        "frontendRenderBudgetMs": 20,
+        "adminQueryBudget": 40,
+        "cacheTags": [
+            "search"
+        ],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [
+                "site",
+                "locale"
+            ],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": true
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "Search adds a frontend search route, configurable search drivers, result click tracking, query logging, and admin search insights.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "console",
+            "frontend",
+            "search-seo"
+        ]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "dashboard-widget",
+            "model",
+            "overview-stat",
+            "route",
+            "scheduled-job"
+        ]
+    }
 }

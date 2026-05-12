@@ -1,30 +1,40 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/login-audit",
+    "slug": "login-audit",
+    "displayName": "Login Audit",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Operations",
-    "tier": "premium",
-    "bundle": "operations",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "Login Audit records login, failed login, logout, and admin/user activity metadata for Capell users.",
-    "surfaces": ["admin"],
+    "product": {
+        "group": "Capell Operations",
+        "tier": "premium",
+        "bundle": "operations"
+    },
+    "namespace": "Capell\\LoginAudit",
+    "surfaces": [
+        "admin"
+    ],
     "dependencies": {
-        "requires": ["capell-app/admin"],
+        "requires": [
+            "capell-app/admin"
+        ],
         "optional": [],
         "conflicts": []
-    },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
     },
     "providers": {
         "metadata": [],
         "install": [],
-        "runtime": ["Capell\\LoginAudit\\Providers\\LoginAuditServiceProvider"],
-        "admin": ["Capell\\LoginAudit\\Providers\\AdminServiceProvider"],
+        "runtime": [
+            "Capell\\LoginAudit\\Providers\\LoginAuditServiceProvider"
+        ],
+        "admin": [
+            "Capell\\LoginAudit\\Providers\\AdminServiceProvider"
+        ],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": true,
         "settings": true,
@@ -33,14 +43,49 @@
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
-    "capabilities": [],
-    "assets": [],
-    "healthChecks": []
+    "capabilities": [
+        "login-audit",
+        "login-audit-admin"
+    ],
+    "performance": {
+        "frontendRenderBudgetMs": 0,
+        "adminQueryBudget": 40,
+        "cacheTags": [],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": false
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "Login Audit records login, failed login, logout, and admin/user activity metadata for Capell users.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "operations"
+        ]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "admin-resource",
+            "dashboard-widget",
+            "model",
+            "route",
+            "scheduled-job"
+        ]
+    }
 }

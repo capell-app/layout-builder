@@ -1,31 +1,42 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/media-ai",
+    "slug": "media-ai",
+    "displayName": "Media AI",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Media",
-    "tier": "pro",
-    "bundle": "media",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "Media AI adds optional AI-assisted media actions for Capell.",
+    "product": {
+        "group": "Capell Media",
+        "tier": "premium",
+        "bundle": "media"
+    },
     "namespace": "Capell\\MediaAI",
-    "surfaces": ["admin", "console"],
+    "surfaces": [
+        "admin",
+        "console"
+    ],
     "dependencies": {
-        "requires": ["capell-app/admin", "capell-app/core"],
+        "requires": [
+            "capell-app/admin",
+            "capell-app/core"
+        ],
         "optional": [],
         "conflicts": []
     },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
-    },
     "providers": {
         "metadata": [],
-        "install": ["Capell\\MediaAI\\Providers\\MediaAIServiceProvider"],
+        "install": [
+            "Capell\\MediaAI\\Providers\\MediaAIServiceProvider"
+        ],
         "runtime": [],
-        "admin": ["Capell\\MediaAI\\Providers\\MediaAIServiceProvider"],
+        "admin": [
+            "Capell\\MediaAI\\Providers\\MediaAIServiceProvider"
+        ],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": false,
         "settings": false,
@@ -34,14 +45,42 @@
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
-    "capabilities": [],
-    "assets": [],
-    "healthChecks": []
+    "capabilities": [
+        "media-ai",
+        "media-ai-admin",
+        "media-ai-console"
+    ],
+    "performance": {
+        "frontendRenderBudgetMs": 0,
+        "adminQueryBudget": 40,
+        "cacheTags": [],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": false
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "Media AI adds optional AI-assisted media actions for Capell.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "console",
+            "media"
+        ]
+    }
 }

@@ -6,14 +6,21 @@ use Symfony\Component\Finder\Finder;
 
 it('keeps every package manifest in an approved product group', function (): void {
     $allowedProductGroups = [
-        'foundation' => ['productGroup' => 'Capell Foundation', 'tier' => 'free'],
-        'commercial' => ['productGroup' => 'Capell Commercial', 'tier' => 'premium'],
-        'form-builder' => ['productGroup' => 'Capell FormBuilder', 'tier' => 'premium'],
-        'publishing-pro' => ['productGroup' => 'Capell Publishing Pro', 'tier' => 'premium'],
-        'operations' => ['productGroup' => 'Capell Operations', 'tier' => 'premium'],
-        'growth' => ['productGroup' => 'Capell Growth', 'tier' => 'premium'],
-        'search-seo' => ['productGroup' => 'Capell Search & SEO', 'tier' => 'premium'],
-        'themes' => ['productGroup' => 'Capell Themes', 'tier' => 'premium'],
+        'admin' => 'Capell Admin',
+        'automation' => 'Capell Automation',
+        'collaboration' => 'Capell Collaboration',
+        'commercial' => 'Capell Commercial',
+        'communications' => 'Capell Communications',
+        'content-product' => 'Capell Content',
+        'form-builder' => 'Capell FormBuilder',
+        'foundation' => 'Capell Foundation',
+        'growth' => 'Capell Growth',
+        'media' => 'Capell Media',
+        'newsletter' => 'Capell Marketing',
+        'operations' => 'Capell Operations',
+        'publishing-pro' => 'Capell Publishing Pro',
+        'search-seo' => 'Capell Search & SEO',
+        'themes' => 'Capell Themes',
     ];
 
     $manifests = packageManifestPayloads();
@@ -21,7 +28,8 @@ it('keeps every package manifest in an approved product group', function (): voi
     $invalid = [];
 
     foreach ($manifests as $path => $manifest) {
-        $bundle = $manifest['bundle'] ?? null;
+        $product = $manifest['product'] ?? [];
+        $bundle = is_array($product) ? ($product['bundle'] ?? null) : null;
 
         if (! is_string($bundle) || ! isset($allowedProductGroups[$bundle])) {
             $invalid[$path] = 'Unknown bundle.';
@@ -29,14 +37,12 @@ it('keeps every package manifest in an approved product group', function (): voi
             continue;
         }
 
-        $expected = $allowedProductGroups[$bundle];
-
-        if (($manifest['productGroup'] ?? null) !== $expected['productGroup']) {
+        if (($product['group'] ?? null) !== $allowedProductGroups[$bundle]) {
             $invalid[$path] = 'Product group does not match bundle.';
         }
 
-        if (($manifest['tier'] ?? null) !== $expected['tier']) {
-            $invalid[$path] = 'Tier does not match bundle.';
+        if (! in_array($product['tier'] ?? null, ['free', 'premium'], true)) {
+            $invalid[$path] = 'Tier must be free or premium.';
         }
     }
 
@@ -51,7 +57,7 @@ it('groups packages into the current product bundles', function (): void {
     $packagesByBundle = [];
 
     foreach (packageManifestPayloads() as $path => $manifest) {
-        $bundle = $manifest['bundle'] ?? 'missing';
+        $bundle = $manifest['product']['bundle'] ?? 'missing';
         $bundle = is_string($bundle) ? $bundle : 'missing';
 
         $packagesByBundle[$bundle][] = $path;
@@ -64,40 +70,71 @@ it('groups packages into the current product bundles', function (): void {
     }
 
     expect($packagesByBundle)->toBe([
+        'admin' => [
+            'translation-manager/capell.json',
+        ],
+        'automation' => [
+            'public-actions/capell.json',
+        ],
+        'collaboration' => [
+            'notes/capell.json',
+        ],
         'commercial' => [
             'ai-orchestrator/capell.json',
+        ],
+        'communications' => [
+            'email-studio/capell.json',
+        ],
+        'content-product' => [
+            'address/capell.json',
+            'events/capell.json',
         ],
         'form-builder' => [
             'form-builder/capell.json',
         ],
         'foundation' => [
-            'address/capell.json',
             'blog/capell.json',
             'content-sections/capell.json',
+            'demo-kit/capell.json',
             'foundation-theme/capell.json',
             'frontend-authoring/capell.json',
-            'layout-builder/capell.json',
+            'frontend-optimizer/capell.json',
+            'hero/capell.json',
+            'html-cache/capell.json',
             'media-library/capell.json',
             'navigation/capell.json',
             'tags/capell.json',
+            'welcome-tour/capell.json',
         ],
         'growth' => [
-            'insights/capell.json',
             'campaign-studio/capell.json',
+            'ga4-reports/capell.json',
+            'insights/capell.json',
+        ],
+        'media' => [
+            'media-ai/capell.json',
+        ],
+        'newsletter' => [
+            'newsletter/capell.json',
         ],
         'operations' => [
-            'login-audit/capell.json',
-            'backup/capell.json',
+            'access-gate/capell.json',
+            'agent-bridge/capell.json',
+            'dashboard-reports/capell.json',
             'deployments/capell.json',
             'diagnostics/capell.json',
-            'agent-bridge/capell.json',
+            'login-audit/capell.json',
+            'migration-assistant/capell.json',
+            'password-policy/capell.json',
+            'wordpress-importer/capell.json',
         ],
         'publishing-pro' => [
             'publishing-studio/capell.json',
         ],
         'search-seo' => [
-            'seo-suite/capell.json',
             'search/capell.json',
+            'seo-suite/capell.json',
+            'site-discovery/capell.json',
         ],
         'themes' => [
             'theme-agency/capell.json',

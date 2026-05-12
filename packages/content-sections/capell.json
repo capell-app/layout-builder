@@ -1,26 +1,30 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/content-sections",
+    "slug": "content-sections",
+    "displayName": "Content Sections",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Foundation",
-    "tier": "free",
-    "bundle": "foundation",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "Content Sections provides reusable content sections for Capell admin and frontend surfaces.",
-    "surfaces": ["admin", "frontend"],
+    "product": {
+        "group": "Capell Foundation",
+        "tier": "free",
+        "bundle": "foundation"
+    },
+    "namespace": "Capell\\ContentSections",
+    "surfaces": [
+        "admin",
+        "frontend"
+    ],
     "dependencies": {
         "requires": [
-            "capell-app/core",
             "capell-app/admin",
+            "capell-app/core",
             "capell-app/frontend"
         ],
         "optional": [],
         "conflicts": []
-    },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
     },
     "providers": {
         "metadata": [],
@@ -31,6 +35,7 @@
         "admin": [],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": true,
         "settings": false,
@@ -39,14 +44,54 @@
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
     "capabilities": [],
-    "assets": [],
-    "healthChecks": []
+    "performance": {
+        "frontendRenderBudgetMs": 20,
+        "adminQueryBudget": 40,
+        "cacheTags": [
+            "content-sections"
+        ],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [
+                "site",
+                "locale"
+            ],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": true
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "free",
+        "requestedCertification": "first-party",
+        "supportPolicy": "capell-first-party",
+        "privateDocsRequested": false
+    },
+    "marketplace": {
+        "summary": "Content Sections provides reusable content sections for Capell admin and frontend surfaces.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "foundation",
+            "frontend"
+        ]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "admin-resource",
+            "asset",
+            "configurator",
+            "model",
+            "page-type",
+            "route",
+            "schema-extender"
+        ]
+    }
 }

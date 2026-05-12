@@ -1,35 +1,43 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/seo-suite",
+    "slug": "seo-suite",
+    "displayName": "SEO Suite",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Search & SEO",
-    "tier": "premium",
-    "bundle": "search-seo",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "SEO Suite adds metadata panels, structured data, broken link tracking, Search Console insights, AI-assisted content briefs, and publish checks.",
-    "surfaces": ["admin", "frontend", "console"],
+    "product": {
+        "group": "Capell Search & SEO",
+        "tier": "premium",
+        "bundle": "search-seo"
+    },
+    "namespace": "Capell\\SeoSuite",
+    "surfaces": [
+        "admin",
+        "frontend",
+        "console"
+    ],
     "dependencies": {
         "requires": [
             "capell-app/admin",
-            "capell-app/insights",
             "capell-app/frontend",
+            "capell-app/insights",
             "capell-app/site-discovery"
         ],
         "optional": [],
         "conflicts": []
     },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
-    },
     "providers": {
         "metadata": [],
         "install": [],
-        "runtime": ["Capell\\SeoSuite\\Providers\\SeoSuiteServiceProvider"],
+        "runtime": [
+            "Capell\\SeoSuite\\Providers\\SeoSuiteServiceProvider"
+        ],
         "admin": [],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": true,
         "settings": true,
@@ -38,14 +46,56 @@
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
-    "capabilities": [],
-    "assets": [],
-    "healthChecks": []
+    "capabilities": [
+        "seo-suite",
+        "seo-suite-admin",
+        "seo-suite-console",
+        "seo-suite-frontend"
+    ],
+    "performance": {
+        "frontendRenderBudgetMs": 20,
+        "adminQueryBudget": 40,
+        "cacheTags": [
+            "seo-suite"
+        ],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [
+                "site",
+                "locale"
+            ],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": true
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "SEO Suite adds metadata panels, structured data, broken link tracking, Search Console insights, AI-assisted content briefs, and publish checks.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "console",
+            "frontend",
+            "search-seo"
+        ]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "admin-page",
+            "model",
+            "route"
+        ]
+    }
 }

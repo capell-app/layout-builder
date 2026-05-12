@@ -1,26 +1,30 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/form-builder",
+    "slug": "form-builder",
+    "displayName": "Form Builder",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Capell FormBuilder",
-    "tier": "premium",
-    "bundle": "form-builder",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "FormBuilder adds form definitions, encrypted submissions, frontend Livewire rendering, validation, and submission status handling to Capell.",
-    "surfaces": ["admin", "frontend"],
+    "product": {
+        "group": "Capell FormBuilder",
+        "tier": "premium",
+        "bundle": "form-builder"
+    },
+    "namespace": "Capell\\FormBuilder",
+    "surfaces": [
+        "admin",
+        "frontend"
+    ],
     "dependencies": {
         "requires": [
-            "capell-app/core",
             "capell-app/admin",
+            "capell-app/core",
             "capell-app/frontend"
         ],
         "optional": [],
         "conflicts": []
-    },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
     },
     "providers": {
         "metadata": [],
@@ -31,6 +35,7 @@
         "admin": [],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": true,
         "settings": false,
@@ -39,14 +44,53 @@
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
-    "capabilities": [],
-    "assets": [],
-    "healthChecks": []
+    "capabilities": [
+        "form-builder",
+        "form-builder-admin",
+        "form-builder-frontend"
+    ],
+    "performance": {
+        "frontendRenderBudgetMs": 20,
+        "adminQueryBudget": 40,
+        "cacheTags": [
+            "form-builder"
+        ],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [
+                "site",
+                "locale"
+            ],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": true
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "FormBuilder adds form definitions, encrypted submissions, frontend Livewire rendering, validation, and submission status handling to Capell.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "form-builder",
+            "frontend"
+        ]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "admin-resource",
+            "model"
+        ]
+    }
 }

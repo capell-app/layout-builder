@@ -1,13 +1,23 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/email-studio",
+    "slug": "email-studio",
+    "displayName": "Email Studio",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Communications",
-    "tier": "premium",
-    "bundle": "communications",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "Email Studio gives Capell a transactional email centre for reusable templates, delivery profiles, send audit trails, suppressions, replies, and provider events.",
-    "surfaces": ["admin", "frontend", "queue"],
+    "product": {
+        "group": "Capell Communications",
+        "tier": "premium",
+        "bundle": "communications"
+    },
+    "namespace": "Capell\\EmailStudio",
+    "surfaces": [
+        "admin",
+        "frontend",
+        "console"
+    ],
     "dependencies": {
         "requires": [
             "capell-app/admin",
@@ -15,16 +25,11 @@
             "capell-app/frontend"
         ],
         "optional": [
-            "capell-app/form-builder",
             "capell-app/campaign-studio",
+            "capell-app/form-builder",
             "capell-app/insights"
         ],
         "conflicts": []
-    },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
     },
     "providers": {
         "metadata": [],
@@ -32,9 +37,14 @@
         "runtime": [
             "Capell\\EmailStudio\\Providers\\EmailStudioServiceProvider"
         ],
-        "admin": ["Capell\\EmailStudio\\Providers\\AdminServiceProvider"],
-        "frontend": ["Capell\\EmailStudio\\Providers\\FrontendServiceProvider"]
+        "admin": [
+            "Capell\\EmailStudio\\Providers\\AdminServiceProvider"
+        ],
+        "frontend": [
+            "Capell\\EmailStudio\\Providers\\FrontendServiceProvider"
+        ]
     },
+    "contributes": [],
     "database": {
         "migrations": true,
         "settings": false,
@@ -43,20 +53,55 @@
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
     "capabilities": [
-        "transactional-email",
-        "template-rendering",
         "delivery-audit",
+        "provider-adapters",
         "suppressions",
-        "provider-adapters"
+        "template-rendering",
+        "transactional-email"
     ],
-    "assets": [],
-    "healthChecks": []
+    "performance": {
+        "frontendRenderBudgetMs": 20,
+        "adminQueryBudget": 40,
+        "cacheTags": [
+            "email-studio"
+        ],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [
+                "site",
+                "locale"
+            ],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": true
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "Email Studio gives Capell a transactional email centre for reusable templates, delivery profiles, send audit trails, suppressions, replies, and provider events.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "communications",
+            "console",
+            "frontend"
+        ]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "model"
+        ]
+    }
 }

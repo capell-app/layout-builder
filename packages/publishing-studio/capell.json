@@ -1,22 +1,32 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/publishing-studio",
+    "slug": "publishing-studio",
+    "displayName": "Publishing Studio",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Publishing Pro",
-    "tier": "premium",
-    "bundle": "publishing-pro",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "PublishingStudio provides preview, compare, approve, schedule, publish, restore, and rollback workflows for Capell content.",
-    "surfaces": ["admin", "console"],
+    "product": {
+        "group": "Capell Publishing Pro",
+        "tier": "premium",
+        "bundle": "publishing-pro"
+    },
+    "namespace": "Capell\\PublishingStudio",
+    "surfaces": [
+        "admin",
+        "console"
+    ],
     "dependencies": {
-        "requires": ["capell-app/core", "capell-app/admin"],
+        "requires": [
+            "capell-app/admin",
+            "capell-app/core",
+            "capell-app/html-cache",
+            "capell-app/migration-assistant",
+            "capell-app/navigation"
+        ],
         "optional": [],
         "conflicts": []
-    },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
     },
     "providers": {
         "metadata": [],
@@ -26,21 +36,24 @@
         "runtime": [
             "Capell\\PublishingStudio\\Providers\\PublishingStudioServiceProvider"
         ],
-        "admin": ["Capell\\PublishingStudio\\Providers\\AdminServiceProvider"],
+        "admin": [
+            "Capell\\PublishingStudio\\Providers\\AdminServiceProvider"
+        ],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": true,
         "settings": false,
-        "requiredTables": ["workspaces"]
+        "requiredTables": [
+            "workspaces"
+        ]
     },
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [
@@ -52,35 +65,66 @@
         "View:ActivityTrailPage"
     ],
     "capabilities": [
-        "editorial-timeline",
-        "live-preview",
-        "preview-link-management",
-        "content-compare",
-        "approval-history",
-        "review-assignments",
-        "field-comments",
-        "publish-readiness",
-        "dry-run-validation",
-        "release-window-guards",
-        "url-collision-checks",
-        "scheduled-publishing",
-        "embargo-windows",
-        "review-reminders",
-        "version-history",
-        "rollback-restore",
-        "entity-restore",
         "activity-history",
-        "stale-draft-management",
+        "approval-history",
+        "content-compare",
+        "dry-run-validation",
+        "editorial-timeline",
+        "embargo-windows",
+        "entity-restore",
+        "field-comments",
+        "live-preview",
+        "load-testing",
+        "preview-link-management",
+        "publish-readiness",
         "recovery-imports",
-        "workspace-pruning",
-        "load-testing"
+        "release-window-guards",
+        "review-assignments",
+        "review-reminders",
+        "rollback-restore",
+        "scheduled-publishing",
+        "stale-draft-management",
+        "url-collision-checks",
+        "version-history",
+        "workspace-pruning"
     ],
-    "assets": [],
-    "healthChecks": [],
-    "marketing": {
-        "headline": "Editorial timeline workflow for Capell",
-        "summary": "Preview, compare, comment, assign reviewers, approve, validate, schedule, publish, restore, and rollback Capell content through a premium workflow layer with live preview, review history, readiness checks, version history, and recovery surfaces.",
-        "positioning": "Capell's flagship publishing workflow, designed to give editorial teams a Statamic-style content history experience while remaining a separate premium package."
+    "performance": {
+        "frontendRenderBudgetMs": 0,
+        "adminQueryBudget": 40,
+        "cacheTags": [],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": false
+        }
     },
-    "screenshots": "docs/screenshots.json"
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "PublishingStudio provides preview, compare, approve, schedule, publish, restore, and rollback workflows for Capell content.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "console",
+            "publishing-pro"
+        ]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "admin-page",
+            "admin-resource",
+            "dashboard-widget",
+            "model",
+            "overview-stat",
+            "route",
+            "scheduled-job"
+        ]
+    }
 }

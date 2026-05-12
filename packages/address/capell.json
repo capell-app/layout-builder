@@ -1,30 +1,38 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/address",
+    "slug": "address",
+    "displayName": "Address",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Foundation",
-    "tier": "free",
-    "bundle": "foundation",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "Address adds reusable countries, address records, address selectors, country selectors, and flag rendering to the Capell admin surface.",
-    "surfaces": ["admin"],
+    "product": {
+        "group": "Capell Content",
+        "tier": "premium",
+        "bundle": "content-product"
+    },
+    "namespace": "Capell\\Address",
+    "surfaces": [
+        "admin"
+    ],
     "dependencies": {
-        "requires": ["capell-app/admin"],
+        "requires": [
+            "capell-app/admin"
+        ],
         "optional": [],
         "conflicts": []
-    },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
     },
     "providers": {
         "metadata": [],
         "install": [],
-        "runtime": ["Capell\\Address\\Providers\\AddressServiceProvider"],
+        "runtime": [
+            "Capell\\Address\\Providers\\AddressServiceProvider"
+        ],
         "admin": [],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": true,
         "settings": false,
@@ -33,14 +41,48 @@
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": "capell:address-demo",
-        "demoParams": ["sites"],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
-    "capabilities": [],
-    "assets": [],
-    "healthChecks": []
+    "capabilities": [
+        "address",
+        "address-admin"
+    ],
+    "performance": {
+        "frontendRenderBudgetMs": 0,
+        "adminQueryBudget": 40,
+        "cacheTags": [],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": false
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "Address adds reusable countries, address records, address selectors, country selectors, and flag rendering to the Capell admin surface.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "content-product"
+        ]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "admin-resource",
+            "configurator",
+            "model",
+            "schema-extender"
+        ]
+    }
 }

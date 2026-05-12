@@ -1,36 +1,45 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/newsletter",
+    "slug": "newsletter",
+    "displayName": "Newsletter",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Marketing",
-    "tier": "premium",
-    "bundle": "newsletter",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "Newsletter adds subscriber capture and audience workflows for Capell sites.",
-    "surfaces": ["admin", "frontend"],
+    "product": {
+        "group": "Capell Marketing",
+        "tier": "premium",
+        "bundle": "newsletter"
+    },
+    "namespace": "Capell\\Newsletter",
+    "surfaces": [
+        "admin",
+        "frontend"
+    ],
     "dependencies": {
         "requires": [
-            "capell-app/core",
             "capell-app/admin",
-            "capell-app/frontend",
+            "capell-app/core",
             "capell-app/form-builder",
+            "capell-app/frontend",
             "capell-app/tags"
         ],
         "optional": [],
         "conflicts": []
     },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
-    },
     "providers": {
         "metadata": [],
         "install": [],
-        "runtime": ["Capell\\Newsletter\\Providers\\NewsletterServiceProvider"],
-        "admin": ["Capell\\Newsletter\\Providers\\AdminServiceProvider"],
+        "runtime": [
+            "Capell\\Newsletter\\Providers\\NewsletterServiceProvider"
+        ],
+        "admin": [
+            "Capell\\Newsletter\\Providers\\AdminServiceProvider"
+        ],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": true,
         "settings": false,
@@ -39,14 +48,56 @@
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
-    "capabilities": [],
-    "assets": [],
-    "healthChecks": []
+    "capabilities": [
+        "newsletter",
+        "newsletter-admin",
+        "newsletter-frontend"
+    ],
+    "performance": {
+        "frontendRenderBudgetMs": 20,
+        "adminQueryBudget": 40,
+        "cacheTags": [
+            "newsletter"
+        ],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [
+                "site",
+                "locale"
+            ],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": true
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "Newsletter adds subscriber capture and audience workflows for Capell sites.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "frontend",
+            "newsletter"
+        ]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "admin-resource",
+            "model",
+            "overview-stat",
+            "route",
+            "scheduled-job"
+        ]
+    }
 }

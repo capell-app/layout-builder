@@ -1,24 +1,29 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/password-policy",
+    "slug": "password-policy",
+    "displayName": "Password Policy",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Foundation",
-    "tier": "free",
-    "bundle": "foundation",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "Password Policy provides opt-in password rules and enforcement for Capell CMS.",
-    "core": false,
+    "product": {
+        "group": "Capell Operations",
+        "tier": "premium",
+        "bundle": "operations"
+    },
     "namespace": "Capell\\PasswordPolicy",
-    "surfaces": ["admin", "console"],
+    "surfaces": [
+        "admin",
+        "console"
+    ],
     "dependencies": {
-        "requires": ["capell-app/admin", "capell-app/core"],
+        "requires": [
+            "capell-app/admin",
+            "capell-app/core"
+        ],
         "optional": [],
         "conflicts": []
-    },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
     },
     "providers": {
         "metadata": [],
@@ -31,6 +36,7 @@
         ],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": true,
         "settings": true,
@@ -39,14 +45,49 @@
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
-    "settings": ["Capell\\PasswordPolicy\\Settings\\PasswordPolicySettings"],
+    "settings": [
+        "Capell\\PasswordPolicy\\Settings\\PasswordPolicySettings"
+    ],
     "permissions": [],
-    "capabilities": [],
-    "assets": [],
-    "healthChecks": []
+    "capabilities": [
+        "password-policy",
+        "password-policy-admin",
+        "password-policy-console"
+    ],
+    "performance": {
+        "frontendRenderBudgetMs": 0,
+        "adminQueryBudget": 40,
+        "cacheTags": [],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": false
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "Password Policy provides opt-in password rules and enforcement for Capell CMS.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "console",
+            "operations"
+        ]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "admin-page"
+        ]
+    }
 }

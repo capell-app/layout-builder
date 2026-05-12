@@ -1,26 +1,31 @@
 {
-    "manifest-version": 2,
+    "manifest-version": 3,
     "name": "capell-app/site-discovery",
+    "slug": "site-discovery",
+    "displayName": "Site Discovery",
     "kind": "package",
-    "capell-version": "^4.0",
-    "productGroup": "Capell Search & SEO",
-    "tier": "premium",
-    "bundle": "search-seo",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
     "description": "Site Discovery resolves public discoverable pages and URLs, then exposes HTML and XML sitemap outputs.",
-    "surfaces": ["admin", "frontend", "console"],
+    "product": {
+        "group": "Capell Search & SEO",
+        "tier": "premium",
+        "bundle": "search-seo"
+    },
+    "namespace": "Capell\\SiteDiscovery",
+    "surfaces": [
+        "admin",
+        "frontend",
+        "console"
+    ],
     "dependencies": {
         "requires": [
-            "capell-app/core",
             "capell-app/admin",
+            "capell-app/core",
             "capell-app/frontend"
         ],
         "optional": [],
         "conflicts": []
-    },
-    "lifecycle": {
-        "activation": "manual",
-        "defaultStatus": "available",
-        "requiresInstallCommand": false
     },
     "providers": {
         "metadata": [],
@@ -31,6 +36,7 @@
         "admin": [],
         "frontend": []
     },
+    "contributes": [],
     "database": {
         "migrations": false,
         "settings": false,
@@ -39,14 +45,54 @@
     "commands": {
         "install": null,
         "setup": null,
-        "setupParams": [],
         "demo": null,
-        "demoParams": [],
-        "health": null
+        "doctor": null
     },
     "settings": [],
     "permissions": [],
-    "capabilities": [],
-    "assets": [],
-    "healthChecks": []
+    "capabilities": [
+        "site-discovery",
+        "site-discovery-admin",
+        "site-discovery-console",
+        "site-discovery-frontend"
+    ],
+    "performance": {
+        "frontendRenderBudgetMs": 20,
+        "adminQueryBudget": 40,
+        "cacheTags": [
+            "site-discovery"
+        ],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": [
+                "site",
+                "locale"
+            ],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": true
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "Site Discovery resolves public discoverable pages and URLs, then exposes HTML and XML sitemap outputs.",
+        "screenshots": [],
+        "categories": [
+            "admin",
+            "console",
+            "frontend",
+            "search-seo"
+        ]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "route"
+        ]
+    }
 }
