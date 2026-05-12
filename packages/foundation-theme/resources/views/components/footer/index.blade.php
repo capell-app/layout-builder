@@ -61,6 +61,8 @@
     $footerCopy = $site->translation->getMeta('footer_copy');
 
     $containerWidth = GetLayoutContainerWidthAction::run();
+    $footerSpacing = $theme->getMeta('footer_spacing', 'compact');
+    $footerDividerColor = $theme->getMeta('footer_divider') ? $theme->getMeta('footer_border_color') : null;
 @endphp
 
 @props([
@@ -150,19 +152,25 @@
 </a>
 <footer
     id="footer"
-    class="z-0 bg-[var(--bg-color-footer)] text-sm text-[var(--color-footer)]"
+    @class([
+        'z-0 bg-[var(--bg-color-footer)] text-sm text-[var(--color-footer)]',
+        'border-t border-[var(--border-color-footer)]' => $footerDividerColor,
+    ])
 >
     <div
         @class([
             '@container flex-wrap px-8',
-            'py-8 lg:py-10' => ! $hasFooterPrimaryContent,
-            'py-10 lg:py-12' => $hasFooterPrimaryContent,
+            'py-6 lg:py-7' => $footerSpacing === 'compact',
+            'py-8 lg:py-10' => $footerSpacing === 'default' && ! $hasFooterPrimaryContent,
+            'py-10 lg:py-12' => $footerSpacing === 'default' && $hasFooterPrimaryContent,
+            'py-12 lg:py-14' => $footerSpacing === 'comfortable' && ! $hasFooterPrimaryContent,
+            'py-14 lg:py-16' => $footerSpacing === 'comfortable' && $hasFooterPrimaryContent,
             $containerWidth->getContainerClass(),
         ])
     >
         <div
             @class([
-                'rounded-lg bg-[var(--bg-color-footer-panel)] px-6 py-7 md:px-8 md:py-8',
+                'px-0 py-0',
                 'flex justify-center' => ! $hasFooterPrimaryContent,
                 '@2xl:grid-cols-2 @4xl:grid-cols-3 grid gap-x-8 gap-y-8 xl:flex xl:flex-row xl:gap-x-10' => $hasFooterPrimaryContent,
             ])

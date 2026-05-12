@@ -8,7 +8,8 @@
     $site = Frontend::site();
     $theme = Frontend::theme();
 
-    $headerBorderColor = $theme->getMeta('header_border_color');
+    $headerBorderColor = $theme->getMeta('header_divider') ? $theme->getMeta('header_border_color') : null;
+    $headerShadow = $theme->getMeta('header_shadow', 'none');
 
     $containerWidth = GetLayoutContainerWidthAction::run();
 @endphp
@@ -45,6 +46,7 @@
     @class([
         'transition-padding left-0 right-0 top-0 z-50 flex min-h-[var(--header-height)] w-full bg-[var(--bg-color-header)] text-[var(--color-header)] transition-transform duration-300 ease-in-out max-lg:bg-transparent lg:h-auto',
         'border-b border-[var(--border-header)]' => $headerBorderColor,
+        'shadow-sm shadow-black/5 dark:shadow-black/20' => $headerShadow === 'subtle',
         'header-sticky sticky left-0 right-0 top-0 z-50' => $theme->sticky_header,
         'header-fixed fixed left-0 right-0 top-0 z-50' => $theme->fixed_header,
         'header-scroll-up fixed left-0 right-0 top-0 z-50' => $theme->scroll_up_header,
