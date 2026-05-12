@@ -9,6 +9,7 @@
     $theme = Frontend::theme();
 
     $headerBorderColor = $theme->getMeta('header_divider') ? $theme->getMeta('header_border_color') : null;
+    $headerDarkBorderColor = $theme->getMeta('header_divider') ? $theme->getMeta('header_dark_border_color', $headerBorderColor) : null;
     $headerShadow = $theme->getMeta('header_shadow', 'none');
 
     $containerWidth = GetLayoutContainerWidthAction::run();
@@ -31,7 +32,7 @@
         --color-header: {{ ColorConverterAction::run($theme->getMeta('header_dark_color', '233,233,233')) }};
         --bg-color-header: {{ ColorConverterAction::run($theme->getMeta('header_dark_background_color', '32,31,40')) }};
         --bg-color-main: {{ ColorConverterAction::run($theme->getMeta('main_dark_background_color', '32,31,40')) }};
-        --border-header: {{ ColorConverterAction::run($theme->getMeta('header_dark_border_color', $headerBorderColor ?: 'transparent')) }};
+        --border-header: {{ $headerDarkBorderColor ? ColorConverterAction::run($headerDarkBorderColor) : 'transparent' }};
     }
 
     #header.has-hero:not(.header-sticky):has(.fixed, .sticky) {
