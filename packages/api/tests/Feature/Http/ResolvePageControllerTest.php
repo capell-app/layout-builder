@@ -218,6 +218,54 @@ it('blocks unsigned explicit language selection', function (): void {
         ->assertJsonPath('data.url', $pageUrl->url);
 });
 
+it('uses the requested public URL path when resolving path-prefixed site domains', function (): void {
+    [$pageUrl] = createPublicApiPage('/terms', [
+        'title' => 'Tenant Terms',
+    ], siteDomainPath: '/tenant');
+
+    getJson(apiResolveUrl(['url' => '/tenant/terms']))
+        ->assertOk()
+        ->assertJsonPath('data.url', $pageUrl->url)
+        ->assertJsonPath('data.title', 'Tenant Terms');
+});
+
+it('does not hydrate wildcard site domains when an exact host matches', function (): void {
+    [$pageUrl] = createPublicApiPage('/terms', [
+        'title' => 'Exact Host Terms',
+    ], domain: 'exact.example.com');
+
+    foreach (range(1, 15) as $index) {
+        createPublicApiPage("/wildcard-{$index}", [
+            'title' => "Wildcard {$index}",
+        ], domain: null);
+    }
+
+    $retrievedSiteDomains = 0;
+    SiteDomain::retrieved(function () use (&$retrievedSiteDomains): void {
+        $retrievedSiteDomains++;
+    });
+
+    getJson(apiResolveUrl(['url' => $pageUrl->url], host: 'exact.example.com'))
+        ->assertOk()
+        ->assertJsonPath('data.title', 'Exact Host Terms');
+
+    expect($retrievedSiteDomains)->toBeLessThanOrEqual(2);
+});
+
+it('does not allow signed context URLs to change the target page URL', function (): void {
+    [$pageUrl, , , $site] = createPublicApiPage('/terms');
+    createPublicApiPage('/privacy');
+
+    $signedUrl = apiResolveUrl([
+        'url' => $pageUrl->url,
+        'site' => $site->getKey(),
+    ], signed: true);
+
+    getJson(str_replace('url=%2Fterms', 'url=%2Fprivacy', $signedUrl))
+        ->assertForbidden()
+        ->assertExactJson(['message' => 'Forbidden']);
+});
+
 it('does not serve the api when the package is not installed', function (): void {
     createPublicApiPage('/terms');
     CapellCore::forcePackageInstalled(ApiServiceProvider::$packageName, false);
@@ -231,7 +279,7 @@ it('does not serve the api when the package is not installed', function (): void
  * @param  array<string, mixed>  $translation
  * @return array{0: PageUrl, 1: Page, 2: Language, 3: Site}
  */
-function createPublicApiPage(string $url, array $translation = [], string $domain = 'example.com'): array
+function createPublicApiPage(string $url, array $translation = [], ?string $domain = 'example.com', ?string $siteDomainPath = null): array
 {
     $language = Language::factory()->english()->create();
     $site = Site::factory()->default()->create(['language_id' => $language->id]);
@@ -240,7 +288,7 @@ function createPublicApiPage(string $url, array $translation = [], string $domai
         ->language($language)
         ->create([
             'domain' => $domain,
-            'path' => null,
+            'path' => $siteDomainPath,
             'scheme' => null,
         ]);
     $page = Page::factory()
@@ -269,8 +317,8 @@ function apiResolveUrl(array $parameters = [], string $host = 'example.com', boo
     URL::forceRootUrl('https://' . $host);
 
     if ($signed) {
-        $signedUrl = URL::signedRoute('capell-api.pages.resolve', array_diff_key($parameters, array_flip(['url', 'fields', 'include', 'containers'])));
-        $ignoredParameters = array_intersect_key($parameters, array_flip(['url', 'fields', 'include', 'containers']));
+        $signedUrl = URL::signedRoute('capell-api.pages.resolve', array_diff_key($parameters, array_flip(['fields', 'include', 'containers'])));
+        $ignoredParameters = array_intersect_key($parameters, array_flip(['fields', 'include', 'containers']));
 
         return $ignoredParameters === []
             ? $signedUrl

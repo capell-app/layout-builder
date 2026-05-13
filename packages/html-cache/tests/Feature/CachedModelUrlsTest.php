@@ -35,12 +35,20 @@ use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use Livewire\Livewire;
+
+use function Pest\Livewire\livewire;
+
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 uses(HtmlCacheTestCase::class);
+
+function htmlCacheMapTestComponent(int $siteId, string $modelType): mixed
+{
+    return livewire(SiteHealthCacheMap::class, ['siteId' => $siteId])
+        ->set('selectedModelType', $modelType);
+}
 
 it('records rendered models against a cached url and removes stale model links', function (): void {
     [$siteDomain, $page] = EloquentModel::withoutEvents(function (): array {
@@ -715,11 +723,7 @@ it('clears cache map rows through the table action for authorized actors', funct
         'last_seen_at' => now(),
     ]);
 
-    Livewire::component('capell-html-cache.site-health-cache-map', SiteHealthCacheMap::class);
-
-    Livewire::test('capell-html-cache.site-health-cache-map', ['siteId' => $siteDomain->site_id])
-        ->set('selectedModelType', $page->getMorphClass())
-        ->loadTable()
+    htmlCacheMapTestComponent((int) $siteDomain->site_id, $page->getMorphClass())
         ->callTableAction('clear', record: (string) $cachedModelUrl->getKey());
 
     expect(Storage::disk('page_cache')->exists($cachePath))->toBeFalse()
@@ -782,11 +786,7 @@ it('hides cache map clear actions from actors without clear permission', functio
         'last_seen_at' => now(),
     ]);
 
-    Livewire::component('capell-html-cache.site-health-cache-map', SiteHealthCacheMap::class);
-
-    Livewire::test('capell-html-cache.site-health-cache-map', ['siteId' => $siteDomain->site_id])
-        ->set('selectedModelType', $page->getMorphClass())
-        ->loadTable()
+    htmlCacheMapTestComponent((int) $siteDomain->site_id, $page->getMorphClass())
         ->assertCanSeeTableRecords([$cachedModelUrl])
         ->assertTableActionHidden('clear', record: (string) $cachedModelUrl->getKey());
 });

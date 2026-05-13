@@ -22,6 +22,7 @@
     "providers": {
         "metadata": [],
         "install": [],
+        "auth": ["Capell\\LoginAudit\\Providers\\LoginAuditServiceProvider"],
         "runtime": ["Capell\\LoginAudit\\Providers\\LoginAuditServiceProvider"],
         "admin": ["Capell\\LoginAudit\\Providers\\AdminServiceProvider"],
         "frontend": []

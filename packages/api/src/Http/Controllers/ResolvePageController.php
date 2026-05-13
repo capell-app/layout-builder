@@ -8,19 +8,24 @@ use Capell\Api\Providers\ApiServiceProvider;
 use Capell\Api\Support\SanitizesPublicHtml;
 use Capell\Core\Actions\LoadSiteDomainFromUrlAction;
 use Capell\Core\Actions\ResolvePublicPageByUrlAction;
+use Capell\Core\Data\PublicPageFieldsData;
+use Capell\Core\Enums\ExtensionStatusEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
 use Capell\Core\LayoutBuilder\Data\PublicLayoutContainerData;
 use Capell\Core\LayoutBuilder\Data\PublicLayoutGraphData;
 use Capell\Core\LayoutBuilder\Data\PublicLayoutWidgetData;
+use Capell\Core\Models\CapellExtension;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
-use Capell\Core\Support\Extensions\InstalledExtensionRepository;
+use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Throwable;
 
 final class ResolvePageController
 {
@@ -31,6 +36,8 @@ final class ResolvePageController
     private const ALLOWED_FIELDS = ['url', 'title', 'content', 'meta'];
 
     private ?SiteDomain $resolvedSiteDomain = null;
+
+    private ?string $resolvedUrlPath = null;
 
     public function __invoke(Request $request): JsonResponse
     {
@@ -61,7 +68,7 @@ final class ResolvePageController
         $resolution = ResolvePublicPageByUrlAction::run(
             site: $site,
             language: $language,
-            url: $this->queryString($request, 'url', '/'),
+            url: $this->resolvedUrlPath ?? $this->queryString($request, 'url', '/'),
         );
 
         if (! $resolution->found()) {
@@ -93,12 +100,20 @@ final class ResolvePageController
             return true;
         }
 
-        return resolve(InstalledExtensionRepository::class)->has(ApiServiceProvider::$packageName);
+        try {
+            return CapellExtension::query()
+                ->where('composer_name', ApiServiceProvider::$packageName)
+                ->where('status', ExtensionStatusEnum::Enabled)
+                ->where('marketplace_runtime_allowed', true)
+                ->exists();
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     private function resolveSite(Request $request): Site|JsonResponse|null
     {
-        $site = is_scalar($request->query('site')) ? trim((string) $request->query('site')) : '';
+        $site = is_string($request->query('site')) ? trim($request->query('site')) : '';
 
         if ($site !== '') {
             if (! $this->hasValidContextSignature($request)) {
@@ -108,14 +123,17 @@ final class ResolvePageController
             return Site::query()->whereKey($site)->first();
         }
 
-        $resolved = LoadSiteDomainFromUrlAction::run($request->fullUrl(), Site::query()->with('siteDomains.language', 'language')->get());
+        $publicPageUrl = $this->publicPageUrl($request);
+        $resolved = LoadSiteDomainFromUrlAction::run($publicPageUrl, $this->candidateSitesForUrl($publicPageUrl));
         $siteDomain = is_array($resolved) ? ($resolved[0] ?? null) : null;
+        $urlPath = is_array($resolved) ? ($resolved[1] ?? null) : null;
 
         if (! $siteDomain instanceof SiteDomain) {
             return null;
         }
 
         $this->resolvedSiteDomain = $siteDomain;
+        $this->resolvedUrlPath = is_string($urlPath) && $urlPath !== '' ? $urlPath : null;
 
         return $siteDomain->site;
     }
@@ -124,12 +142,12 @@ final class ResolvePageController
     {
         $language = $request->query('language');
 
-        return is_scalar($language) && trim((string) $language) !== '';
+        return is_string($language) && trim($language) !== '';
     }
 
     private function hasValidContextSignature(Request $request): bool
     {
-        return $request->hasValidSignatureWhileIgnoring(['url', 'fields', 'include', 'containers']);
+        return $request->hasValidSignatureWhileIgnoring(['fields', 'include', 'containers']);
     }
 
     private function resolveLanguage(Site $site, mixed $language): ?Language
@@ -155,10 +173,12 @@ final class ResolvePageController
             return $domainLanguage;
         }
 
-        if ($site->language_id !== null) {
+        $siteLanguageId = $site->getAttribute('language_id');
+
+        if (is_int($siteLanguageId)) {
             $siteLanguage = $site->relationLoaded('language')
                 ? $site->language
-                : Language::query()->whereKey($site->language_id)->first();
+                : Language::query()->whereKey($siteLanguageId)->first();
 
             if ($siteLanguage instanceof Language) {
                 return $siteLanguage;
@@ -171,7 +191,7 @@ final class ResolvePageController
     /**
      * @return array<string, mixed>
      */
-    private function fields(Request $request, object $fields): array
+    private function fields(Request $request, PublicPageFieldsData $fields): array
     {
         $requestedFields = $this->requestedList($request, 'fields');
         $selectedFields = $requestedFields === []
@@ -181,7 +201,14 @@ final class ResolvePageController
         $data = [];
 
         foreach ($selectedFields as $field) {
-            $value = $fields->{$field};
+            $value = match ($field) {
+                'url' => $fields->url,
+                'title' => $fields->title,
+                'content' => $fields->content,
+                'meta' => $fields->meta,
+                default => null,
+            };
+
             $data[$field] = $this->sanitizeHtmlValue($value);
         }
 
@@ -267,11 +294,11 @@ final class ResolvePageController
     {
         $value = $request->query($key);
 
-        if (! is_scalar($value)) {
+        if (! is_string($value)) {
             return [];
         }
 
-        return collect(explode(',', (string) $value))
+        return collect(explode(',', $value))
             ->map(fn (string $item): string => trim($item))
             ->filter(fn (string $item): bool => $item !== '')
             ->unique()
@@ -297,10 +324,71 @@ final class ResolvePageController
     {
         $value = $request->query($key);
 
-        if (! is_scalar($value) || trim((string) $value) === '') {
+        if (! is_string($value) || trim($value) === '') {
             return $default;
         }
 
-        return (string) $value;
+        return $value;
+    }
+
+    private function publicPageUrl(Request $request): string
+    {
+        return rtrim($request->getSchemeAndHttpHost(), '/') . '/' . ltrim($this->queryString($request, 'url', '/'), '/');
+    }
+
+    /**
+     * @return Collection<int, Site>
+     */
+    private function candidateSitesForUrl(string $url): Collection
+    {
+        $parts = parse_url($url);
+        $host = is_string($parts['host'] ?? null) ? $parts['host'] : null;
+        $scheme = is_string($parts['scheme'] ?? null) ? $parts['scheme'] : 'https';
+        $exactHostSites = $this->candidateSitesForDomain($host, $scheme, includeWildcardDomains: true);
+
+        if ($exactHostSites->isNotEmpty()) {
+            return $exactHostSites;
+        }
+
+        return $this->candidateSitesForDomain(null, $scheme, includeWildcardDomains: false);
+    }
+
+    /**
+     * @return Collection<int, Site>
+     */
+    private function candidateSitesForDomain(?string $host, string $scheme, bool $includeWildcardDomains): Collection
+    {
+        return Site::query()
+            ->with([
+                'language',
+                'siteDomains' => fn (BuilderContract $query): BuilderContract => $this->candidateSiteDomainQuery($query, $host, $scheme, includeWildcardDomains: $includeWildcardDomains)
+                    ->with('language'),
+            ])
+            ->whereHas('siteDomains', fn (BuilderContract $query): BuilderContract => $this->candidateSiteDomainQuery($query, $host, $scheme, includeWildcardDomains: false))
+            ->get();
+    }
+
+    private function candidateSiteDomainQuery(BuilderContract $query, ?string $host, string $scheme, bool $includeWildcardDomains): BuilderContract
+    {
+        return $query
+            ->where(function (BuilderContract $query) use ($host, $includeWildcardDomains): void {
+                if ($host === null) {
+                    $query->whereNull('domain');
+
+                    return;
+                }
+
+                $query->where('domain', $host);
+
+                if ($includeWildcardDomains) {
+                    $query->orWhereNull('domain');
+                }
+            })
+            ->where(function (BuilderContract $query) use ($scheme): void {
+                $query
+                    ->whereNull('scheme')
+                    ->orWhere('scheme', false)
+                    ->orWhere('scheme', $scheme);
+            });
     }
 }

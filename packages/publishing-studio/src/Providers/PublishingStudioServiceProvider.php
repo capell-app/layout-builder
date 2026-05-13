@@ -20,6 +20,7 @@ use Capell\Core\Models\SiteDomain;
 use Capell\Core\Models\Theme;
 use Capell\Core\Models\Translation;
 use Capell\Core\Models\Type;
+use Capell\Core\Support\Database\RuntimeSchemaState;
 use Capell\Frontend\Enums\RenderHookLocation;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
 use Capell\MigrationAssistant\Contracts\MigrationAssistantContextResolver;
@@ -54,7 +55,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Activitylog\Models\Activity;
 
@@ -135,7 +135,7 @@ class PublishingStudioServiceProvider extends ServiceProvider
     {
         $table = config('permission.table_names.permissions', 'permissions');
 
-        if (is_string($table) && Schema::hasTable($table)) {
+        if (is_string($table) && app(RuntimeSchemaState::class)->hasTable($table)) {
             EnsurePublishingStudioPermissionsAction::run();
         }
 

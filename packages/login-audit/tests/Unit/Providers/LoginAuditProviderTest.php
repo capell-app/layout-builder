@@ -38,6 +38,16 @@ function resetLoginAuditAdminBridgeState(): void
     CapellAdmin::clearAdminSurfaceContributions();
 }
 
+it('declares its login audit provider for auth-context loading', function (): void {
+    $manifest = json_decode(
+        (string) file_get_contents(dirname(__DIR__, 3) . '/capell.json'),
+        associative: true,
+        flags: JSON_THROW_ON_ERROR,
+    );
+
+    expect($manifest['providers']['auth'] ?? [])->toContain(LoginAuditServiceProvider::class);
+});
+
 it('registers login-audit bridges through package-neutral Capell extension points', function (): void {
     $adminPanelExtenders = collect(app()->tagged(AdminPanelExtender::TAG))
         ->map(fn (object $extender): string => $extender::class);

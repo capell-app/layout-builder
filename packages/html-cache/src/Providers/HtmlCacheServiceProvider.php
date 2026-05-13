@@ -16,6 +16,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\PageUrl;
 use Capell\Core\Models\SiteDomain;
 use Capell\Core\Models\Translation;
+use Capell\Core\Support\Database\RuntimeSchemaState;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\RenderedModelTracker;
 use Capell\Frontend\Contracts\StaticMaintenancePageStore;
@@ -46,7 +47,6 @@ use Capell\HtmlCache\Support\StaticSite\StaticSiteExtensionRegistry;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Schema;
 use Livewire\Livewire;
 use Silber\PageCache\Console\ClearCache;
 use Spatie\LaravelPackageTools\Package;
@@ -326,7 +326,7 @@ final class HtmlCacheServiceProvider extends AbstractPackageServiceProvider
     {
         $table = config('permission.table_names.permissions', 'permissions');
 
-        if (is_string($table) && Schema::hasTable($table)) {
+        if (is_string($table) && app(RuntimeSchemaState::class)->hasTable($table)) {
             EnsureHtmlCachePermissionsAction::run();
         }
 

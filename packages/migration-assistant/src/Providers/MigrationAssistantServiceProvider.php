@@ -11,6 +11,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
+use Capell\Core\Support\Database\RuntimeSchemaState;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\MigrationAssistant\Actions\InstallMigrationAssistantPermissionsAction;
 use Capell\MigrationAssistant\Contracts\MigrationAssistantContextResolver;
@@ -38,7 +39,6 @@ use Capell\MigrationAssistant\Support\ImportSourceRegistry;
 use Capell\MigrationAssistant\Support\ImportTargetRegistry;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Schema;
 use Spatie\LaravelPackageTools\Package;
 
 class MigrationAssistantServiceProvider extends AbstractPackageServiceProvider
@@ -135,7 +135,7 @@ class MigrationAssistantServiceProvider extends AbstractPackageServiceProvider
     {
         $table = config('permission.table_names.permissions', 'permissions');
 
-        return is_string($table) && Schema::hasTable($table);
+        return is_string($table) && app(RuntimeSchemaState::class)->hasTable($table);
     }
 
     private function registerAdminPanelExtensions(): void
