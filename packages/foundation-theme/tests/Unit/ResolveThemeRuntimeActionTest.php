@@ -13,46 +13,58 @@ use Capell\Core\ThemeStudio\Rendering\BladeThemeRenderer;
 use Capell\Core\ThemeStudio\Theme\ThemeRegistry;
 
 it('layers parent defaults before child defaults and applies database overrides last', function (): void {
-    CapellCore::registerManifestPackage(new CapellManifestData(
-        manifestVersion: 1,
-        name: 'vendor/base-theme',
-        kind: 'theme',
-        capellVersion: '^4.0',
-        surfaces: ['frontend'],
-        requires: [],
-        optional: [],
-        conflicts: [],
-        providers: [],
-        lifecycle: [],
-        database: [],
-        settings: [],
-        permissions: [],
-        capabilities: [],
-        assets: [],
-        healthChecks: [],
-        extends: null,
-        themeKey: 'base',
-    ));
-    CapellCore::registerManifestPackage(new CapellManifestData(
-        manifestVersion: 1,
-        name: 'vendor/child-theme',
-        kind: 'theme',
-        capellVersion: '^4.0',
-        surfaces: ['frontend'],
-        requires: ['vendor/base-theme'],
-        optional: [],
-        conflicts: [],
-        providers: [],
-        lifecycle: [],
-        database: [],
-        settings: [],
-        permissions: [],
-        capabilities: [],
-        assets: [],
-        healthChecks: [],
-        extends: 'vendor/base-theme',
-        themeKey: 'child',
-    ));
+    CapellCore::registerManifestPackage(CapellManifestData::fromArray([
+        'manifest-version' => 3,
+        'name' => 'vendor/base-theme',
+        'slug' => 'base-theme',
+        'displayName' => 'Base Theme',
+        'kind' => 'theme',
+        'capellApiVersion' => '^4.0',
+        'version' => '1.0.0',
+        'product' => [
+            'group' => 'Theme',
+            'tier' => 'free',
+        ],
+        'performance' => [
+            'cacheSafety' => [
+                'cacheable' => true,
+                'variesBy' => [],
+                'sensitiveOutput' => false,
+                'invalidationSources' => [],
+                'queueInvalidation' => false,
+            ],
+        ],
+        'surfaces' => ['frontend'],
+        'themeKey' => 'base',
+    ]));
+    CapellCore::registerManifestPackage(CapellManifestData::fromArray([
+        'manifest-version' => 3,
+        'name' => 'vendor/child-theme',
+        'slug' => 'child-theme',
+        'displayName' => 'Child Theme',
+        'kind' => 'theme',
+        'capellApiVersion' => '^4.0',
+        'version' => '1.0.0',
+        'product' => [
+            'group' => 'Theme',
+            'tier' => 'free',
+        ],
+        'performance' => [
+            'cacheSafety' => [
+                'cacheable' => true,
+                'variesBy' => [],
+                'sensitiveOutput' => false,
+                'invalidationSources' => [],
+                'queueInvalidation' => false,
+            ],
+        ],
+        'surfaces' => ['frontend'],
+        'dependencies' => [
+            'requires' => ['vendor/base-theme'],
+        ],
+        'extends' => 'vendor/base-theme',
+        'themeKey' => 'child',
+    ]));
 
     $registry = new ThemeRegistry;
     app()->instance(ThemeRegistry::class, $registry);
