@@ -22,7 +22,7 @@
             @foreach ($items as $id => $item)
                 <a
                     href="{{ $item->data['url'] ?? '' }}"
-                    wire:navigate
+                    @wireNavigate
                     @class([
                         'nav-item hover:text-primary flex text-sm font-medium text-[var(--color-footer-link)]',
                         "before:content-['|'] before:px-2 before:opacity-40 before:text-[var(--color-footer-muted)]" => ! $loop->first,

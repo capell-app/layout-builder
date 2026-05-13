@@ -48,6 +48,7 @@
         "install": "capell:blog-install",
         "setup": "capell:blog-setup",
         "demo": "capell:blog-demo",
+        "demoParams": ["sites", "user"],
         "doctor": null
     },
     "settings": [],

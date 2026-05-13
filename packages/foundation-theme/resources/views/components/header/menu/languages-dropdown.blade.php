@@ -64,7 +64,7 @@
             <li>
                 <a
                     href="{{ $pageLanguage['url'] }}"
-                    wire:navigate
+                    @wireNavigate
                     class="focus:text-primary hover:text-primary font-heading group flex w-full cursor-pointer items-center gap-x-2 px-6 py-3 text-sm font-semibold focus-visible:bg-gray-50 lg:gap-x-1 lg:!bg-transparent lg:px-4 lg:py-1.5 dark:hover:bg-gray-800 dark:focus-visible:bg-gray-800"
                 >
                     <img

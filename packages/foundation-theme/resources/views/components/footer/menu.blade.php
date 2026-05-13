@@ -32,7 +32,7 @@
                     >
                         <a
                             href="{{ $item->data['url'] ?? '' }}"
-                            wire:navigate
+                            @wireNavigate
                             class="{{ $menuItemClass }}"
                         >
                             {{ $item->label }}
@@ -45,7 +45,7 @@
                                     >
                                         <a
                                             href="{{ $child->data['url'] ?? '' }}"
-                                            wire:navigate
+                                            @wireNavigate
                                             @class([
                                                 $menuSubItemClass,
                                                 'active' => $child->active,

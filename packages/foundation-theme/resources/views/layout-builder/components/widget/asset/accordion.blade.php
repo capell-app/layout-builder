@@ -115,7 +115,7 @@
                                         @if ($linkedPage)
                                             <a
                                                 href="{{ $linkedPage->pageUrl->full_url }}"
-                                                wire:navigate
+                                                @wireNavigate
                                                 class="shrink-0"
                                             >
                                                 <x-capell::media

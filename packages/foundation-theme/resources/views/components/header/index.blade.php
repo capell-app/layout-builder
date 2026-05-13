@@ -7,6 +7,9 @@
 
     $site = Frontend::site();
     $theme = Frontend::theme();
+    $runtimeManifest = Frontend::getFrontendData('runtimeManifest');
+    $usesAlpine = $runtimeManifest?->usesAlpine ?? false;
+    $usesWireNavigate = $runtimeManifest?->usesWireNavigate ?? false;
 
     $headerBorderColor = $theme->getMeta('header_divider') ? $theme->getMeta('header_border_color') : null;
     $headerDarkBorderColor = $theme->getMeta('header_divider') ? $theme->getMeta('header_dark_border_color', $headerBorderColor) : null;
@@ -43,7 +46,7 @@
 {!! app(RenderHookRegistry::class)->renderAll(RenderHookLocation::HeaderBefore) !!}
 
 <header
-    x-data="siteHeader({ scrollUp: {{ $theme->scroll_up_header ? 'true' : 'false' }} })"
+    @if ($usesAlpine) x-data="siteHeader({ scrollUp: {{ $theme->scroll_up_header ? 'true' : 'false' }} })" @endif
     @class([
         'transition-padding left-0 right-0 top-0 z-50 flex min-h-[var(--header-height)] w-full bg-[var(--bg-color-header)] text-[var(--color-header)] transition-transform duration-300 ease-in-out max-lg:bg-transparent lg:h-auto',
         'border-b border-[var(--border-header)]' => $headerBorderColor,
@@ -53,10 +56,12 @@
         'header-scroll-up fixed left-0 right-0 top-0 z-50' => $theme->scroll_up_header,
     ])
     id="header"
-    :class="{
-        'h-screen': isNavigationOverlayOpen,
-        '-translate-y-full': scrollUp && isHidden && !isNavigationOverlayOpen,
-    }"
+    @if ($usesAlpine)
+        :class="{
+                'h-screen': isNavigationOverlayOpen,
+                '-translate-y-full': scrollUp && isHidden && !isNavigationOverlayOpen,
+            }"
+    @endif
 >
     <div
         @class([
@@ -76,7 +81,7 @@
                 <a
                     href="{{ $site->siteDomain->url }}"
                     aria-label="{{ __('capell-frontend::generic.home') }}"
-                    wire:navigate
+                    @if ($usesWireNavigate) @wireNavigate @endif
                     class="text-brand hover:text-primary focus:text-primary"
                 >
                     @if ($site->logo || $site->logoInverted)
@@ -118,54 +123,60 @@
     </div>
 </header>
 
-@push('scripts')
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('siteHeader', ({ scrollUp = false } = {}) => ({
-                isDarkMode: document.documentElement.classList.contains('dark'),
-                isNavigationOverlayOpen: false,
-                scrollUp,
-                isHidden: false,
-                lastScrollY: 0,
-                init() {
-                    if (this.scrollUp) {
-                        this.lastScrollY = window.scrollY
-                        window.addEventListener(
-                            'scroll',
-                            () => {
-                                const currentY = window.scrollY
-                                const delta = currentY - this.lastScrollY
-                                if (currentY <= 0) {
-                                    this.isHidden = false
-                                } else if (delta > 4) {
-                                    this.isHidden = true
-                                } else if (delta < -4) {
-                                    this.isHidden = false
-                                }
-                                this.lastScrollY = currentY
-                            },
-                            { passive: true },
-                        )
-                    }
-
-                    this.$watch('isDarkMode', (value) => {
-                        document.documentElement.classList.toggle('dark', value)
-                        localStorage.theme = value ? 'dark' : 'light'
-                    })
-
-                    window.addEventListener(
-                        'capell-navigation-menu-open-changed',
-                        (event) => {
-                            this.isNavigationOverlayOpen = Boolean(
-                                event.detail?.open,
+@if ($usesAlpine)
+    @push('scripts')
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('siteHeader', ({ scrollUp = false } = {}) => ({
+                    isDarkMode:
+                        document.documentElement.classList.contains('dark'),
+                    isNavigationOverlayOpen: false,
+                    scrollUp,
+                    isHidden: false,
+                    lastScrollY: 0,
+                    init() {
+                        if (this.scrollUp) {
+                            this.lastScrollY = window.scrollY
+                            window.addEventListener(
+                                'scroll',
+                                () => {
+                                    const currentY = window.scrollY
+                                    const delta = currentY - this.lastScrollY
+                                    if (currentY <= 0) {
+                                        this.isHidden = false
+                                    } else if (delta > 4) {
+                                        this.isHidden = true
+                                    } else if (delta < -4) {
+                                        this.isHidden = false
+                                    }
+                                    this.lastScrollY = currentY
+                                },
+                                { passive: true },
                             )
-                        },
-                    )
-                },
-                toggleDarkMode() {
-                    this.isDarkMode = !this.isDarkMode
-                },
-            }))
-        })
-    </script>
-@endpush
+                        }
+
+                        this.$watch('isDarkMode', (value) => {
+                            document.documentElement.classList.toggle(
+                                'dark',
+                                value,
+                            )
+                            localStorage.theme = value ? 'dark' : 'light'
+                        })
+
+                        window.addEventListener(
+                            'capell-navigation-menu-open-changed',
+                            (event) => {
+                                this.isNavigationOverlayOpen = Boolean(
+                                    event.detail?.open,
+                                )
+                            },
+                        )
+                    },
+                    toggleDarkMode() {
+                        this.isDarkMode = !this.isDarkMode
+                    },
+                }))
+            })
+        </script>
+    @endpush
+@endif

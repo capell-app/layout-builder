@@ -63,7 +63,7 @@
                             'hover:bg-primary inline-block rounded-t border-b-2 border-transparent px-4 py-3 hover:text-white',
                             'border-b-primary' => $item->active,
                         ])
-                        wire:navigate
+                        @wireNavigate
                     >
                         {{ $item->label }}
                     </a>

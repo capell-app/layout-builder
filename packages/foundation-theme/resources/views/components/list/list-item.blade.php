@@ -28,7 +28,7 @@
         <a
             href="{{ $url }}"
             @class([...$classes, 'hover:text-primary focus:text-primary'])
-            wire:navigate
+            @wireNavigate
         >
             <span class="grow">
                 {{ $slot }}

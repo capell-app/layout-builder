@@ -22,7 +22,7 @@ if ($relatedSites->isEmpty()) {
                 href="{{ $relatedSite->siteDomain->full_url }}"
                 role="menuitem"
                 tabindex="-1"
-                wire:navigate
+                @wireNavigate
             >
                 <span
                     class="text-link text-lg font-bold"

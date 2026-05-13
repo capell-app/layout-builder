@@ -7,10 +7,13 @@
     'item',
 ])
 @php
+    use Capell\Frontend\Facades\Frontend;
     use Capell\Navigation\Data\NavigationItemData;
 
     /** @var NavigationItemData $item */
     $currentDropdownName = $dropdownName . '-' . ($id !== null ? (string) $id : hash('sha256', $item->label));
+    $runtimeManifest = Frontend::getFrontendData('runtimeManifest');
+    $usesWireNavigate = $runtimeManifest?->usesWireNavigate ?? false;
 @endphp
 
 <x-capell::dropdown
@@ -88,7 +91,7 @@
                 <a
                     href="{{ $child->data['url'] ?? '' }}"
                     @if (!empty($child->data['target'])) target="{{ $child->data['target'] }}" @endif
-                    wire:navigate
+                    @if ($usesWireNavigate) @wireNavigate @endif
                     @class([
                         $dropdownItemClass,
                         'hover:text-primary focus:text-primary' => ! $child->active,

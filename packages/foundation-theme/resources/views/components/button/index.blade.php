@@ -2,6 +2,7 @@
 use Capell\Frontend\Facades\Frontend;
 
 $site = Frontend::site();
+$runtimeManifest = Frontend::getFrontendData('runtimeManifest');
 
 ?>
 
@@ -21,6 +22,10 @@ $site = Frontend::site();
     'weight' => '',
     'wireNavigation' => true,
 ])
+@php
+    $wireNavigation = $wireNavigation && ($runtimeManifest?->usesWireNavigate ?? false);
+@endphp
+
 @if (! $buttonIcon && $icon)
     @capellBuffer($buttonIcon)
         <x-dynamic-component
@@ -65,7 +70,7 @@ $site = Frontend::site();
             ])
         }}
         @if ($target) target="{{ $target }}" @endif
-        @if ($wireNavigation) wire:navigate @endif
+        @if ($wireNavigation) @wireNavigate @endif
     >
         @if ($buttonIcon && $icon_position !== 'after')
             {{ $buttonIcon() }}

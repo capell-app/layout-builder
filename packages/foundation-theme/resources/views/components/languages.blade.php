@@ -53,7 +53,7 @@ $theme = Frontend::theme();
                 role="menuitem"
                 tabindex="-1"
                 class="{{ $linkClass }}"
-                wire:navigate
+                @wireNavigate
             >
                 <img
                     class="mr-2 inline-block h-4 w-4 align-top"

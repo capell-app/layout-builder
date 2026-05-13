@@ -38,4 +38,11 @@ describe('blog capell.json manifest', function (): void {
             ->and($composerManifest['require'])
             ->not->toHaveKey('capell-app/layout-builder');
     });
+
+    it('passes install context into the demo command', function () use ($blogManifest): void {
+        $manifest = $blogManifest();
+
+        expect($manifest['commands']['demo'])->toBe('capell:blog-demo')
+            ->and($manifest['commands']['demoParams'])->toBe(['sites', 'user']);
+    });
 });

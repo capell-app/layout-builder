@@ -26,7 +26,7 @@ use Capell\Navigation\Data\NavigationItemData;
             'hover:text-primary focus:text-primary' => ! $active,
             'text-primary font-semibold' => $active,
         ])
-        wire:navigate
+        @wireNavigate
     >
         {{ $item->label }}
     </a>

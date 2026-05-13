@@ -49,7 +49,7 @@
                         <a
                             class="hover:text-primary focus:text-primary inline-flex items-center text-sm font-medium text-gray-400"
                             href="{{ $site->siteDomain->url }}"
-                            wire:navigate
+                            @wireNavigate
                         >
                             @svg('heroicon-m-home', 'h-4 w-4 fill-current')
                             <span class="sr-only">
@@ -67,7 +67,7 @@
                                 class="hover:text-primary focus:text-primary text-gray line-clamp-1 text-sm font-medium dark:text-gray-400"
                                 href="{{ $ancestor->pageUrl->full_url }}"
                                 title="{{ htmlspecialchars(strip_tags($ancestor->translation->label)) }}"
-                                wire:navigate
+                                @wireNavigate
                             >
                                 {{ $ancestor->translation->label }}
                             </a>
