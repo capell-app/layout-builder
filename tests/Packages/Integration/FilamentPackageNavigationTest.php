@@ -45,6 +45,7 @@ it('registers every installed package in the Capell package registry', function 
         'capell-app/form-builder',
         'capell-app/frontend',
         'capell-app/frontend-authoring',
+        'capell-app/hero',
         'capell-app/media-library',
         'capell-app/navigation',
         'capell-app/seo-suite',

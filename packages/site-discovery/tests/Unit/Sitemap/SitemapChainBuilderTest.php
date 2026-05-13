@@ -176,6 +176,7 @@ it('uses default values when meta is not set', function (): void {
 
 it('uses updated_at for lastModified when available', function (): void {
     $publishDate = now()->subDays(5);
+    $updatedAt = now()->subDay();
 
     $page = Page::factory()
         ->published()
@@ -183,6 +184,7 @@ it('uses updated_at for lastModified when available', function (): void {
         ->create([
             'parent_id' => null,
             'visible_from' => $publishDate,
+            'updated_at' => $updatedAt,
         ]);
 
     $page->refresh();
@@ -190,7 +192,7 @@ it('uses updated_at for lastModified when available', function (): void {
 
     $result = SitemapChainBuilder::build($page);
 
-    expect($result->lastModified->toAtomString())->toBe($publishDate->toAtomString());
+    expect($result->lastModified->toAtomString())->toBe($updatedAt->toAtomString());
 });
 
 it('falls back to timestamps for lastModified when publish dates are null', function (): void {

@@ -58,7 +58,7 @@ it('returns the existing single-per-email registration for duplicate submissions
         ->and($second->createdModelId)->toBe((string) Registration::query()->firstOrFail()->getKey());
 });
 
-it('rejects paused and invite-only access areas', function (array $areaAttributes): void {
+it('rejects closed and invite-only access areas', function (array $areaAttributes): void {
     Notification::fake();
 
     Area::factory()->create(['key' => 'preview', ...$areaAttributes]);
@@ -70,8 +70,8 @@ it('rejects paused and invite-only access areas', function (array $areaAttribute
 
     expect(Registration::query()->count())->toBe(0);
 })->with([
-    'paused area' => [[
-        'status' => AccessAreaStatus::Paused,
+    'closed area' => [[
+        'status' => AccessAreaStatus::Closed,
     ]],
     'invite-only area' => [[
         'approval_strategy' => ApprovalStrategy::InviteOnly,

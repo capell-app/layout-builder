@@ -23,7 +23,10 @@ return new class extends Migration
             $table->timestamp('suppressed_at')->nullable();
             $table->timestamp('released_at')->nullable();
             $table->timestamps();
-            $table->unique(['site_scope_key', 'email_hash', 'reason', 'source']);
+            $table->unique(
+                ['site_scope_key', 'email_hash', 'reason', 'source'],
+                'email_suppressions_scope_hash_reason_src_unique',
+            );
         });
     }
 

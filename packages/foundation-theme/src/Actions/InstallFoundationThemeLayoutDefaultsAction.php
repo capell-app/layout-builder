@@ -24,14 +24,15 @@ final class InstallFoundationThemeLayoutDefaultsAction
     public function handle(bool $force = false): array
     {
         $layoutCreator = resolve(LayoutCreator::class);
-        $layoutCreator->setup();
+        $layoutCreator->createHomeLayout();
+        $layoutCreator->createDefaultLayout();
 
         $widgetCreator = resolve(WidgetCreator::class);
         $widgetCreator->breadcrumbWidget();
         $widgetCreator->childrenWidget();
         $widgetCreator->latestPagesWidget();
         $widgetCreator->pageContentWidget();
-        $widgetCreator->pageSlotWidget();
+        $widgetCreator->siblingsWidget();
 
         $result = ['created' => 0, 'updated' => 0, 'skipped' => 0];
 
@@ -92,16 +93,7 @@ final class InstallFoundationThemeLayoutDefaultsAction
                     ['widget_key' => 'children'],
                 ]),
                 'sidebar' => $this->sidebarContainer([
-                    ['widget_key' => 'latest-pages'],
-                ]),
-            ],
-            LayoutEnum::Results->value => [
-                'main' => $this->mainContainer([
-                    ['widget_key' => 'breadcrumbs'],
-                    ['widget_key' => 'page-content'],
-                    ['widget_key' => 'page-slot'],
-                ]),
-                'sidebar' => $this->sidebarContainer([
+                    ['widget_key' => 'siblings'],
                     ['widget_key' => 'latest-pages'],
                 ]),
             ],

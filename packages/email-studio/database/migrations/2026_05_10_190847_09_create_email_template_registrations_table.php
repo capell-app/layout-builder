@@ -20,7 +20,10 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->json('variables')->nullable();
             $table->timestamps();
-            $table->unique(['site_scope_key', 'package_name', 'template_key']);
+            $table->unique(
+                ['site_scope_key', 'package_name', 'template_key'],
+                'email_template_regs_scope_package_key_unique',
+            );
         });
     }
 

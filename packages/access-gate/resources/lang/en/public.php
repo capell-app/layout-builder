@@ -18,7 +18,7 @@ return [
         'submit' => 'Request Access',
         'title' => 'Request access to :area',
     ],
-    'request_submitted' => 'If this email can access the preview, we will send the next step shortly.',
+    'request_submitted' => "Thanks. You're on the early access list. If your request is approved, we'll email the approval and setup steps. You'll need to accept the GitHub invite within seven days.",
     'request_unavailable' => 'Access requests are not available for this area right now.',
     'cta' => [
         'submit' => 'Request access',

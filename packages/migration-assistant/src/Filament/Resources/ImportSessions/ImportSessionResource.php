@@ -17,6 +17,7 @@ use Filament\Navigation\NavigationItem;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema as SchemaFacade;
 use Override;
 
@@ -90,11 +91,13 @@ class ImportSessionResource extends Resource
             $items = array_merge($items, $extender->getItems());
         }
 
-        $items[] = NavigationItem::make()
-            ->label(__('capell-admin::exchanger.import_sites'))
-            ->icon(Heroicon::OutlinedGlobeAlt)
-            ->url(ImportSitesPage::getUrl())
-            ->isActiveWhen(fn (): bool => request()->is('*/recovery-center/import-sites*'));
+        if (Route::has(ImportSitesPage::getRouteName())) {
+            $items[] = NavigationItem::make()
+                ->label(__('capell-admin::exchanger.import_sites'))
+                ->icon(Heroicon::OutlinedGlobeAlt)
+                ->url(ImportSitesPage::getUrl())
+                ->isActiveWhen(fn (): bool => request()->is('*/recovery-center/import-sites*'));
+        }
 
         return $items;
     }

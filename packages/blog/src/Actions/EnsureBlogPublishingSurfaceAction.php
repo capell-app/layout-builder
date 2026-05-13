@@ -7,14 +7,13 @@ namespace Capell\Blog\Actions;
 use Capell\Blog\Data\BlogPublishingSurfaceData;
 use Capell\Blog\Enums\BlogPageTypeEnum;
 use Capell\Blog\Support\Creator\BlogCreator;
-use Capell\Core\Enums\LayoutEnum;
+use Capell\Core\Actions\GetOrCreateResultsLayoutAction;
 use Capell\Core\Enums\PageTypeEnum;
 use Capell\Core\LayoutBuilder\Support\Creator\TypeCreator as LayoutTypeCreator;
 use Capell\Core\LayoutBuilder\Support\Creator\WidgetCreator;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
-use Capell\Core\Support\Creator\LayoutCreator;
 use Capell\Core\Support\Creator\TypeCreator;
 use Capell\Navigation\Enums\NavigationHandle;
 use Illuminate\Support\Collection;
@@ -122,12 +121,6 @@ class EnsureBlogPublishingSurfaceAction
 
     private function getResultsLayout(): Layout
     {
-        $layout = Layout::query()->firstWhere('key', LayoutEnum::Results->value);
-
-        if ($layout instanceof Layout) {
-            return $layout;
-        }
-
-        return resolve(LayoutCreator::class)->create(LayoutEnum::Results);
+        return GetOrCreateResultsLayoutAction::run();
     }
 }

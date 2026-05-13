@@ -71,6 +71,8 @@ final class HtmlCacheServiceProvider extends AbstractPackageServiceProvider
     {
         parent::registeringPackage();
 
+        $this->registerPageCacheDisk();
+
         $this->app->singleton(HtmlCachePathResolver::class);
         $this->app->singleton(HtmlCacheStore::class);
         $this->app->singleton(ExtensionCacheSafetyResolver::class);
@@ -226,8 +228,16 @@ final class HtmlCacheServiceProvider extends AbstractPackageServiceProvider
         $routeModelClasses = [Page::class, Translation::class, PageUrl::class];
 
         foreach ($routeModelClasses as $modelClass) {
-            $modelClass::created(fn (Model $model): mixed => ClearAllHtmlCacheAction::dispatchAfterResponse());
-            $modelClass::deleted(fn (Model $model): mixed => ClearAllHtmlCacheAction::dispatchAfterResponse());
+            $modelClass::created(function (Model $model): mixed {
+                $this->dispatchClearAllHtmlCache();
+
+                return null;
+            });
+            $modelClass::deleted(function (Model $model): mixed {
+                $this->dispatchClearAllHtmlCache();
+
+                return null;
+            });
         }
 
         SiteDomain::saved(function (SiteDomain $siteDomain): mixed {
@@ -235,22 +245,70 @@ final class HtmlCacheServiceProvider extends AbstractPackageServiceProvider
                 return null;
             }
 
-            ClearAllHtmlCacheAction::dispatchAfterResponse();
+            $this->dispatchClearAllHtmlCache();
 
             return null;
         });
-        SiteDomain::deleted(fn (SiteDomain $siteDomain): mixed => ClearAllHtmlCacheAction::dispatchAfterResponse());
+        SiteDomain::deleted(function (SiteDomain $siteDomain): mixed {
+            $this->dispatchClearAllHtmlCache();
+
+            return null;
+        });
 
         foreach (CapellCore::getModels() as $modelClass) {
-            $modelClass::updated(fn (Model $model): mixed => ClearCachedUrlsForModelAction::dispatchAfterResponse($model));
+            if ($modelClass === Translation::class) {
+                $modelClass::updated(function (Model $model): mixed {
+                    $this->dispatchClearAllHtmlCache();
+
+                    return null;
+                });
+
+                continue;
+            }
+
+            $modelClass::updated(function (Model $model): mixed {
+                $this->dispatchClearCachedUrlsForModel($model);
+
+                return null;
+            });
 
             if (! in_array($modelClass, $routeModelClasses, true)) {
-                $modelClass::created(fn (Model $model): mixed => ClearAllHtmlCacheAction::dispatchAfterResponse());
-                $modelClass::deleted(fn (Model $model): mixed => ClearCachedUrlsForModelAction::dispatchAfterResponse($model));
+                $modelClass::created(function (Model $model): mixed {
+                    $this->dispatchClearAllHtmlCache();
+
+                    return null;
+                });
+                $modelClass::deleted(function (Model $model): mixed {
+                    $this->dispatchClearCachedUrlsForModel($model);
+
+                    return null;
+                });
             }
         }
 
         return $this;
+    }
+
+    private function dispatchClearAllHtmlCache(): void
+    {
+        if ($this->app->runningUnitTests() || $this->app->runningInConsole()) {
+            ClearAllHtmlCacheAction::dispatchSync();
+
+            return;
+        }
+
+        ClearAllHtmlCacheAction::dispatchAfterResponse();
+    }
+
+    private function dispatchClearCachedUrlsForModel(Model $model): void
+    {
+        if ($this->app->runningUnitTests() || $this->app->runningInConsole()) {
+            ClearCachedUrlsForModelAction::dispatchSync($model);
+
+            return;
+        }
+
+        ClearCachedUrlsForModelAction::dispatchAfterResponse($model);
     }
 
     private function registerCommands(): self

@@ -45,10 +45,6 @@ Helps operators and agencies see setup problems before they become publishing or
 ## Screenshot Plan
 
 - Developer tools dashboard.
-- Command palette page.
-- System health page.
-- Permission audit page.
-- Queue health page.
 - Health widgets on the admin dashboard.
 
 ## Pitfalls

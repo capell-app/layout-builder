@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\SiteDiscovery\Support\Creator;
 
+use Capell\Core\Actions\GetOrCreateResultsLayoutAction;
 use Capell\Core\Contracts\ModelInterceptors\PageInterceptorInterface;
 use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Facades\CapellCore;
@@ -96,6 +97,10 @@ class SitemapPageCreator
 
     private function getLayout(LayoutEnum $layoutEnum): Layout
     {
+        if ($layoutEnum === LayoutEnum::Results) {
+            return GetOrCreateResultsLayoutAction::run();
+        }
+
         $layout = $this->layoutModel::query()->firstWhere('key', $layoutEnum->value);
 
         if ($layout !== null) {

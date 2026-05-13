@@ -1,0 +1,21 @@
+vendor/
+node_modules/
+packages/*/node_modules/
+storage/
+bootstrap/cache/
+public/build/
+public/vendor/
+public/page-cache/
+coverage/
+.temp/
+.phpunit.cache/
+
+# Generated documentation and screenshot output.
+public/docs/screenshots/
+packages/*/docs/screenshots/
+packages/*/docs/images/screenshots/
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif

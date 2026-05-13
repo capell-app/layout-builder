@@ -216,7 +216,7 @@ it('resends a claim link for duplicate requests from approved registrations', fu
     Notification::assertSentOnDemand(AccessApprovedNotification::class);
 });
 
-it('does not accept public registrations for inactive or invite-only areas', function (array $areaAttributes): void {
+it('does not accept public registrations for closed or invite-only areas', function (array $areaAttributes): void {
     Notification::fake();
 
     $area = Area::factory()->create($areaAttributes);
@@ -227,9 +227,6 @@ it('does not accept public registrations for inactive or invite-only areas', fun
 
     expect(Registration::query()->count())->toBe(0);
 })->with([
-    'paused area' => [[
-        'status' => AccessAreaStatus::Paused,
-    ]],
     'closed area' => [[
         'status' => AccessAreaStatus::Closed,
     ]],
@@ -237,6 +234,20 @@ it('does not accept public registrations for inactive or invite-only areas', fun
         'approval_strategy' => ApprovalStrategy::InviteOnly,
     ]],
 ]);
+
+it('accepts public registrations while an area is paused', function (): void {
+    Notification::fake();
+
+    $area = Area::factory()->create([
+        'status' => AccessAreaStatus::Paused,
+    ]);
+
+    $registration = resolve(CreateRegistrationAction::class)->handle($area, [
+        'email' => 'mona@example.test',
+    ]);
+
+    expect($registration->status)->toBe(RegistrationStatus::Pending);
+});
 
 it('does not accept public registrations before a scheduled access area opens', function (): void {
     Notification::fake();

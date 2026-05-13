@@ -20,7 +20,10 @@ return new class extends Migration
             $table->timestamp('decided_at')->nullable();
             $table->timestamps();
 
-            $table->index(['reviewer_type', 'reviewer_id', 'decision']);
+            $table->index(
+                ['reviewer_type', 'reviewer_id', 'decision'],
+                'workspace_review_reviewer_decision_index',
+            );
         });
     }
 

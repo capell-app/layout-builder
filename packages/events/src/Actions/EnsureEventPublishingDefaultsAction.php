@@ -6,7 +6,7 @@ namespace Capell\Events\Actions;
 
 use Capell\Admin\Filament\Configurators\Pages\ResultsPageConfigurator;
 use Capell\Admin\Filament\Configurators\Types\PageTypeConfigurator;
-use Capell\Core\Enums\LayoutEnum;
+use Capell\Core\Actions\GetOrCreateResultsLayoutAction;
 use Capell\Core\Enums\TypeEnum;
 use Capell\Core\Enums\UrlParamTypeEnum;
 use Capell\Core\Models\Layout;
@@ -87,7 +87,6 @@ class EnsureEventPublishingDefaultsAction
 
     public function eventsListingLayout(): Layout
     {
-        return Layout::query()->firstWhere('key', LayoutEnum::Results->value)
-            ?? resolve(LayoutCreator::class)->create(LayoutEnum::Results);
+        return GetOrCreateResultsLayoutAction::run();
     }
 }
