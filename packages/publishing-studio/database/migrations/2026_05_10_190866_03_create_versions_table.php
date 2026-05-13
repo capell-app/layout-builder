@@ -25,6 +25,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['is_live', 'number']);
+            $table->index('published_at');
         });
     }
 

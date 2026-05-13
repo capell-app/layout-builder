@@ -1,8 +1,17 @@
 # Address
 
-Status: **Available, schema-owning** · Kind: **package** · Tier: **free** · Bundle: **foundation** · Contexts: **admin** · Product group: **Capell Foundation**
+Address adds reusable country, region, and address data structures for Capell forms and admin records.
 
-## What This Plugin Adds
+## At A Glance
+
+- Package: `capell-app/address`
+- Namespace: `Capell\Address\`
+- Surfaces: Filament admin, console, database
+- Service providers: `packages/address/src/Providers/AddressServiceProvider.php`
+- Capell dependencies: `capell-app/admin`
+- Third-party dependencies: `stijnvanouplines/blade-country-flags`
+
+## What It Adds
 
 Address adds reusable countries, address records, address selectors, country selectors, and flag rendering to the Capell admin surface.
 
@@ -52,12 +61,44 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Form components: AddressSelect, CountrySelect, FlagSelect.
 - Observers keep model state consistent.
 
-## Data Model
+## Code Map
+
+| Area      | Path                             | Purpose                                                             |
+| --------- | -------------------------------- | ------------------------------------------------------------------- |
+| Data      | `packages/address/src/Data`      | Structured payloads, form state, view models, and integration data. |
+| Enums     | `packages/address/src/Enums`     | Persisted states and Filament option values.                        |
+| Models    | `packages/address/src/Models`    | Eloquent records owned by the package.                              |
+| Filament  | `packages/address/src/Filament`  | Admin resources, pages, widgets, and settings UI.                   |
+| Providers | `packages/address/src/Providers` | Registration, extension hooks, routes, migrations, and resources.   |
+| Resources | `packages/address/resources`     | Views, translations, assets, and package resources.                 |
+| Database  | `packages/address/database`      | Migrations, seeders, and settings migrations.                       |
+| Tests     | `packages/address/tests`         | Package-level Pest coverage.                                        |
+
+## Admin Surface
+
+- Resources: `AddressResource`, `CountryResource`.
+- Pages: `ManageAddresses`, `ManageCountries`.
+
+## Commands
+
+- `capell:address-demo {--sites=}` (packages/address/src/Console/Commands/DemoCommand.php)
+- `capell:address-faker {--count=25} {--force}` (packages/address/src/Console/Commands/FakerCommand.php)
+- `capell:address-install` (packages/address/src/Console/Commands/InstallCommand.php)
+
+## Data And Persistence
 
 - countries stores localized country names with iso2 and iso3 codes.
 - addresses stores line, city, state, postal code, and country relationship data.
 - Countries connect to core languages.
 - Deletion behaviour should be verified before documenting cascading rules.
+
+- Models: `Address`, `Country`.
+- Migrations: `2026_05_10_190839_01_create_countries_table.php`, `2026_05_10_190839_02_create_addresses_table.php`.
+- Data objects live in `src/Data/`; use them for payloads, form state, and view models.
+
+## Extension Points
+
+- Register Capell extension points, routes, migrations, settings, render hooks, and resources from service providers.
 
 ## Install Impact
 
@@ -66,11 +107,11 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Adds address/country form components for package developers.
 - No public route is registered by this package.
 
-## Commands
+## Install And Setup
 
-- `capell:address-demo {--sites=}` (packages/address/src/Console/Commands/DemoCommand.php)
-- `capell:address-faker {--count=25} {--force}` (packages/address/src/Console/Commands/FakerCommand.php)
-- `capell:address-install` (packages/address/src/Console/Commands/InstallCommand.php)
+- Install with `composer require capell-app/address` in the host Capell application.
+- Run migrations through the host application package install flow.
+- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
 
 ## Admin And Access
 
@@ -87,15 +128,22 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Seed or import countries before expecting useful address form-builder.
 - Check language records before relying on localized country names.
 
-## Quick Start
+## Docs
 
-1. Install the package with `composer require capell-app/address`.
-2. Run the package migrations or the Capell package installer required by the host app.
-3. Open the new admin surface or integration point and verify the result.
+- [address-api.md](docs/address-api.md)
+- [address-database.md](docs/address-database.md)
+- [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+- [overview.md](docs/overview.md)
 
-## Next Steps
+## Testing
 
-- [docs/overview.md](docs/overview.md)
-- [../layout-builder/README.md](../layout-builder/README.md)
-- [../navigation/README.md](../navigation/README.md)
-- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+Run package tests from the repository root:
+
+```bash
+vendor/bin/pest packages/address/tests --configuration=phpunit.xml
+```
+
+## Maintenance Notes
+
+- Use package `Data` classes at boundaries instead of passing anonymous arrays between layers.
+- Use backed enums for persisted values and enum labels for Filament options.

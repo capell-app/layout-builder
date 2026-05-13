@@ -1,6 +1,19 @@
-# Capell Password Policy
+# Password Policy
 
-Opt-in password policy package for Capell CMS.
+Password expiry, forced password changes, and password safety policy for Capell CMS.
+
+## At A Glance
+
+- Package: `capell-app/password-policy`
+- Namespace: `Capell\PasswordPolicy\`
+- Surfaces: Filament admin, database
+- Service providers: `packages/password-policy/src/Providers/PasswordPolicyServiceProvider.php`
+- Capell dependencies: `capell-app/admin`, `capell-app/core`
+- Third-party dependencies: `laravel/framework`, `lorisleiva/laravel-actions`, `spatie/laravel-data`, `spatie/laravel-package-tools`
+
+## What It Adds
+
+- Password expiry, forced password changes, and password safety policy for Capell CMS.
 
 ## Built With
 
@@ -25,16 +38,54 @@ This package makes its Composer dependencies visible because they are part of th
 
 [![Spatie Laravel Package Tools GitHub preview](https://opengraph.githubassets.com/capell-readme/spatie/laravel-package-tools)](https://github.com/spatie/laravel-package-tools)
 
-## Features
+## Code Map
 
-- Password expiry after a configurable number of days.
-- Per-user forced password change on next login.
-- Optional compromised-password validation through Laravel's password rule.
-- Optional password history to prevent recent password reuse.
-- Package-owned settings page under the Capell admin panel.
+| Area      | Path                                     | Purpose                                                             |
+| --------- | ---------------------------------------- | ------------------------------------------------------------------- |
+| Actions   | `packages/password-policy/src/Actions`   | Domain operations. Test these directly where possible.              |
+| Data      | `packages/password-policy/src/Data`      | Structured payloads, form state, view models, and integration data. |
+| Filament  | `packages/password-policy/src/Filament`  | Admin resources, pages, widgets, and settings UI.                   |
+| HTTP      | `packages/password-policy/src/Http`      | Controllers, middleware, and request handling.                      |
+| Providers | `packages/password-policy/src/Providers` | Registration, extension hooks, routes, migrations, and resources.   |
+| Resources | `packages/password-policy/resources`     | Views, translations, assets, and package resources.                 |
+| Config    | `packages/password-policy/config`        | Package configuration and publishable config.                       |
+| Database  | `packages/password-policy/database`      | Migrations, seeders, and settings migrations.                       |
+| Tests     | `packages/password-policy/tests`         | Package-level Pest coverage.                                        |
 
-All enforcement features are disabled by default and must be enabled from the Password Policy settings page.
+## Admin Surface
 
-## Package Docs
+- Pages: `ForcedPasswordChangePage`, `PasswordPolicySettingsPage`.
+- Settings: `PasswordPolicySettings`.
 
-- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+## Data And Persistence
+
+- Migrations: `2026_05_10_190863_01_add_password_policy_columns_to_users_table.php`, `2026_05_10_190863_02_create_password_policy_password_histories_table.php`.
+- Config: `packages/password-policy/config/capell-password-policy.php`.
+- Data objects live in `src/Data/`; use them for payloads, form state, and view models.
+
+## Extension Points
+
+- Register Capell extension points, routes, migrations, settings, render hooks, and resources from service providers.
+
+## Install And Setup
+
+- Install with `composer require capell-app/password-policy` in the host Capell application.
+- Run migrations through the host application package install flow.
+- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
+
+## Docs
+
+- [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+
+## Testing
+
+Run package tests from the repository root:
+
+```bash
+vendor/bin/pest packages/password-policy/tests --configuration=phpunit.xml
+```
+
+## Maintenance Notes
+
+- Put behaviour changes in `src/Actions/`; UI classes, commands, and controllers should call actions instead of owning domain logic.
+- Use package `Data` classes at boundaries instead of passing anonymous arrays between layers.

@@ -1,86 +1,120 @@
 # Capell Packages
 
-First-party add-ons for [Capell CMS](https://github.com/capell-app/capell). Install only the packages your project needs: foundation CMS features, premium form-builder, editorial workflows, operations tooling, growth insights, search/SEO, and Theme Studio all live here.
+First-party optional packages for Capell CMS. This repository is the package workspace beside the host application in `../capell-4`; install only the packages a project needs.
 
-## Product groups
+Each package README follows the same shape:
 
-| Group                 | Tier    | Packages                                                                                          |
-| --------------------- | ------- | ------------------------------------------------------------------------------------------------- |
-| Capell Foundation     | Free    | LayoutBuilder, Blog, Navigation, Tags, Address, Media Library, Frontend Toolbar, Foundation Theme |
-| Capell FormBuilder    | Premium | FormBuilder                                                                                       |
-| Capell Publishing Pro | Premium | PublishingStudio                                                                                  |
-| Capell Operations     | Premium | Backup, Diagnostics, Login Audit                                                                  |
-| Capell Growth         | Premium | Insights, CampaignStudio                                                                          |
-| Capell Communications | Premium | Email Studio                                                                                      |
-| Capell Search & SEO   | Premium | SEO Suite, Search                                                                                 |
-| Capell Theme Studio   | Premium | Theme Studio, Theme Studio Core, Theme Studio Admin, SaaS Theme, Corporate Theme, Agency Theme    |
+- At a glance: Composer name, namespace, runtime surfaces, service providers, and package dependencies.
+- What it adds: the editor, frontend, console, queue, or integration behaviour the package owns.
+- Code map: the package directories future changes should inspect first.
+- Surfaces: Filament, Livewire, HTTP, commands, persistence, extension points, docs, and tests.
 
-## Pick the package by job
+## Package Index
 
-| Need                                                   | Product group         | Composer package                                                                 |
-| ------------------------------------------------------ | --------------------- | -------------------------------------------------------------------------------- |
-| Visual page builder                                    | Capell Foundation     | `capell-app/layout-builder`                                                      |
-| Articles, tags, archives, RSS                          | Capell Foundation     | `capell-app/blog`                                                                |
-| Header, footer, and sidebar menus                      | Capell Foundation     | `capell-app/navigation`                                                          |
-| Shared tagging across content types                    | Capell Foundation     | `capell-app/tags`                                                                |
-| 301/302 redirects                                      | Capell Core/Admin     | Built into `capell-app/core` and managed through `capell-app/admin`              |
-| Country and address fields                             | Capell Foundation     | `capell-app/address`                                                             |
-| Curator instead of Spatie MediaLibrary                 | Capell Foundation     | `capell-app/media-library`                                                       |
-| Editor-managed form-builder and submissions            | Capell FormBuilder    | `capell-app/form-builder`                                                        |
-| Drafts, previews, approvals, scheduled publishing      | Capell Publishing Pro | `capell-app/publishing-studio`                                                   |
-| Content package export, import, and restore            | Capell Operations     | `capell-app/backup`                                                              |
-| System, queue, permission, and config health           | Capell Operations     | `capell-app/diagnostics`                                                         |
-| Login and activity visibility                          | Capell Operations     | `capell-app/login-audit`                                                         |
-| Campaign landing pages and conversion goals            | Capell Growth         | `capell-app/campaign-studio`                                                     |
-| First-party insights and visitor journeys              | Capell Growth         | `capell-app/insights`                                                            |
-| Transactional email templates, delivery audit, replies | Capell Communications | `capell-app/email-studio`                                                        |
-| SEO audits, sitemaps, structured data, AI-assisted SEO | Capell Search & SEO   | `capell-app/seo-suite`                                                           |
-| Public site keyword search and search insights         | Capell Search & SEO   | `capell-app/search`                                                              |
-| Premium frontend themes                                | Capell Theme Studio   | `capell-app/theme-saas`, `capell-app/theme-corporate`, `capell-app/theme-agency` |
+### Foundation And Content
 
-## Common install pattern
+| Package                                                 | Composer package              | Purpose                                                                                            |
+| ------------------------------------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------- |
+| [address](packages/address/README.md)                   | `capell-app/address`          | Country, region, and address data for Capell forms and admin records.                              |
+| [blog](packages/blog/README.md)                         | `capell-app/blog`             | Article publishing, archive pages, tag pages, article widgets, and sitemap contributions.          |
+| [content-sections](packages/content-sections/README.md) | `capell-app/content-sections` | Reusable content section records and Livewire rendering.                                           |
+| [events](packages/events/README.md)                     | `capell-app/events`           | Event records, venues, occurrences, registrations, calendar pages, and iCalendar feeds.            |
+| [hero](packages/hero/README.md)                         | `capell-app/hero`             | Default home-page hero widget rendering and setup.                                                 |
+| [media-library](packages/media-library/README.md)       | `capell-app/media-library`    | Awcodes Curator backend integration for Capell media.                                              |
+| [navigation](packages/navigation/README.md)             | `capell-app/navigation`       | Editor-managed menus for Capell frontend themes.                                                   |
+| [notes](packages/notes/README.md)                       | `capell-app/notes`            | Contextual notes, assignments, mentions, and reminders.                                            |
+| [tags](packages/tags/README.md)                         | `capell-app/tags`             | Shared editor-controlled taxonomies.                                                               |
+| [foundation-theme](packages/foundation-theme/README.md) | `capell-app/foundation-theme` | Default frontend theme, asset pipeline, Blade directives, URL generation, and SVG media rendering. |
 
-Most packages follow this shape:
+### Authoring And Publishing
+
+| Package                                                       | Composer package                 | Purpose                                                                                    |
+| ------------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------ |
+| [frontend-authoring](packages/frontend-authoring/README.md)   | `capell-app/frontend-authoring`  | Authenticated admin in-page editing bridge for public frontend pages.                      |
+| [frontend-optimizer](packages/frontend-optimizer/README.md)   | `capell-app/frontend-optimizer`  | Profile-based CSS and JavaScript delivery for public pages.                                |
+| [html-cache](packages/html-cache/README.md)                   | `capell-app/html-cache`          | Static HTML cache, dependency indexing, and cache administration.                          |
+| [publishing-studio](packages/publishing-studio/README.md)     | `capell-app/publishing-studio`   | Revisions, release workspaces, scheduling, approvals, previews, and controlled publishing. |
+| [translation-manager](packages/translation-manager/README.md) | `capell-app/translation-manager` | File-based Laravel translation management for Capell and Filament panels.                  |
+| [welcome-tour](packages/welcome-tour/README.md)               | `capell-app/welcome-tour`        | Optional Filament welcome tour for Capell Admin.                                           |
+
+### Forms, Access, And Public Workflows
+
+| Package                                               | Composer package             | Purpose                                                                                                    |
+| ----------------------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| [access-gate](packages/access-gate/README.md)         | `capell-app/access-gate`     | Public access gates, entitlement checks, and gated delivery foundations.                                   |
+| [form-builder](packages/form-builder/README.md)       | `capell-app/form-builder`    | Editor-managed forms, fields, submissions, validation, and notifications.                                  |
+| [newsletter](packages/newsletter/README.md)           | `capell-app/newsletter`      | Audience management, subscriptions, consent state, imports, notifications, and public subscription routes. |
+| [password-policy](packages/password-policy/README.md) | `capell-app/password-policy` | Password expiry, forced password changes, and password safety policy.                                      |
+| [public-actions](packages/public-actions/README.md)   | `capell-app/public-actions`  | Reusable public submit actions, outbound automation dispatch, and integration endpoints.                   |
+
+### Growth, Search, And Reporting
+
+| Package                                                   | Composer package               | Purpose                                                                                       |
+| --------------------------------------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------- |
+| [campaign-studio](packages/campaign-studio/README.md)     | `capell-app/campaign-studio`   | Campaign landing pages, CTA blocks, UTM attribution, conversion goals, and campaign insights. |
+| [dashboard-reports](packages/dashboard-reports/README.md) | `capell-app/dashboard-reports` | Generic reporting widgets for Capell dashboards.                                              |
+| [email-studio](packages/email-studio/README.md)           | `capell-app/email-studio`      | Transactional templates, delivery audit, provider events, replies, and suppressions.          |
+| [ga4-reports](packages/ga4-reports/README.md)             | `capell-app/ga4-reports`       | GA4 dashboard reporting for Capell.                                                           |
+| [insights](packages/insights/README.md)                   | `capell-app/insights`          | First-party insights, visitor journeys, click tracking, and consent management.               |
+| [search](packages/search/README.md)                       | `capell-app/search`            | Public site search, optional logging, and admin search insights.                              |
+| [seo-suite](packages/seo-suite/README.md)                 | `capell-app/seo-suite`         | Metadata panels, structured data, social meta, SEO audits, sitemaps, and AI-assisted SEO.     |
+| [site-discovery](packages/site-discovery/README.md)       | `capell-app/site-discovery`    | Public discoverability and sitemap outputs.                                                   |
+
+### Operations, Agents, And Migration
+
+| Package                                                       | Composer package                 | Purpose                                                                        |
+| ------------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------ |
+| [agent-bridge](packages/agent-bridge/README.md)               | `capell-app/agent-bridge`        | Agent Bridge servers and capability adapters.                                  |
+| [ai-orchestrator](packages/ai-orchestrator/README.md)         | `capell-app/ai-orchestrator`     | AI providers, prompts, structured requests, and package integration workflows. |
+| [demo-kit](packages/demo-kit/README.md)                       | `capell-app/demo-kit`            | Demo content and media setup for Capell packages.                              |
+| [deployments](packages/deployments/README.md)                 | `capell-app/deployments`         | Repository deployment connections and Composer publishing.                     |
+| [diagnostics](packages/diagnostics/README.md)                 | `capell-app/diagnostics`         | Developer and operational diagnostics.                                         |
+| [login-audit](packages/login-audit/README.md)                 | `capell-app/login-audit`         | Authentication log and login visibility.                                       |
+| [media-ai](packages/media-ai/README.md)                       | `capell-app/media-ai`            | Optional AI-assisted media actions.                                            |
+| [migration-assistant](packages/migration-assistant/README.md) | `capell-app/migration-assistant` | Export, import, rollback report, and migration workflow support.               |
+| [wordpress-importer](packages/wordpress-importer/README.md)   | `capell-app/wordpress-importer`  | WordPress WXR import source for Migration Assistant.                           |
+
+### Themes
+
+| Package                                               | Composer package             | Purpose                               |
+| ----------------------------------------------------- | ---------------------------- | ------------------------------------- |
+| [theme-agency](packages/theme-agency/README.md)       | `capell-app/theme-agency`    | Expressive agency theme for Capell.   |
+| [theme-corporate](packages/theme-corporate/README.md) | `capell-app/theme-corporate` | Trust-led corporate theme for Capell. |
+| [theme-saas](packages/theme-saas/README.md)           | `capell-app/theme-saas`      | Conversion-led SaaS theme for Capell. |
+
+## Install Pattern
+
+Install packages from the host Capell application:
 
 ```bash
 composer require capell-app/<package>
-php artisan capell:<package>-install
-php artisan capell:<package>-demo
 ```
 
-Some packages auto-register through Laravel package discovery or have theme-specific commands. Check each package README for the exact commands.
+Then run the package install command listed in that package README when it owns migrations, settings, generated pages, demo data, or external setup.
 
-## Recommended editorial stack
+## Working In This Repository
 
-For a content-heavy site with pages, widgets, articles, approvals, and search metadata:
+Use package-level checks while editing:
 
 ```bash
-composer require capell-app/layout-builder capell-app/blog capell-app/publishing-studio capell-app/seo-suite
-php artisan capell:layout-builder-install
-php artisan capell:blog-install
+vendor/bin/pest packages/<package>/tests --configuration=phpunit.xml
 ```
 
-Then configure SEO Suite and PublishingStudio from the Capell admin.
+Use broader checks before integration:
 
-## Package notes
+```bash
+composer test
+composer preflight
+```
 
-| Product group         | What appears in the admin                                                                                                                     |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Capell Foundation     | Contents, widgets, layouts, articles, navigation, tags, redirects, address fields, media backend integration                                  |
-| Capell FormBuilder    | Form records, submissions, validation, notifications, and lead capture workflows                                                              |
-| Capell Publishing Pro | Workspace switcher, approvals, preview links, publish checks, scheduled publishing, stale drafts, version comparison, Peek previews           |
-| Capell Operations     | Import sessions, package validation, recovery workflows, system health, queue health, permission audit, config drift, authentication activity |
-| Capell Growth         | Campaign records, CTA blocks, conversion goals, insights widgets, attribution dashboard-dashboard_reports                                     |
-| Capell Communications | Email templates, delivery profiles, message audit trails, suppressions, provider events, replies, and tracking diagnostics                    |
-| Capell Search & SEO   | SEO settings, AI-assist panels, sitemap tools, audits, broken links, 404 dashboard-dashboard_reports, search insights                         |
-| Capell Theme Studio   | Premium SaaS, Corporate, and Agency themes                                                                                                    |
+Do not run `php artisan` in this repository. Testbench provides the Laravel context for package tests.
 
 ## Documentation
 
-- Core docs: [docs.capell.app](https://docs.capell.app)
-- Package registry: [Capell-approved packages](https://docs.capell.app/packages/)
-- Per-package API and database references live beside each package under `packages/<name>/docs/`.
-- Screenshot generation is manifest-driven; see [Package Screenshot Automation](docs/package-screenshot-automation.md).
+- Per-package READMEs live at `packages/<package>/README.md`.
+- Deeper package docs live under `packages/<package>/docs/` when the package needs API, database, workflow, or design notes.
+- Screenshot generation is manifest-driven where `packages/<package>/docs/screenshots.json` exists.
+- External docs: [docs.capell.app](https://docs.capell.app).
 
 ## License
 

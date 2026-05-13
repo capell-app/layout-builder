@@ -1,16 +1,20 @@
 # Frontend Authoring
 
-Frontend Authoring is Capell's admin bridge for rendered frontend pages. It owns the beacon response, in-page edit manifest, signed edit routes, and cache-aware field saves.
+Frontend authoring bridge and in-page editing for Capell frontend.
 
-## What It Does
+## At A Glance
 
-- Adds the `capell-frontend.beacon` route used after the public page has loaded.
-- Returns authoring scripts and editable region metadata only after admin access is confirmed.
-- Opens signed single-field edit screens from hover controls.
-- Saves page title, page description, and page HTML content without exposing record metadata in cached HTML.
-- Clears every cached URL recorded against the edited model in `cached_model_urls`.
+- Package: `capell-app/frontend-authoring`
+- Namespace: `Capell\FrontendAuthoring\`
+- Surfaces: Livewire, HTTP
+- Service providers: `packages/frontend-authoring/src/Providers/FrontendAuthoringServiceProvider.php`
+- Capell dependencies: `capell-app/admin`, `capell-app/frontend`, `capell-app/html-cache`
+- Third-party dependencies: `spatie/laravel-package-tools`
 
-For the full workflow, screenshot contract, and browser-test checklist, see [In-page editing](docs/in-page-editing.md).
+## What It Adds
+
+- Frontend authoring bridge and in-page editing for Capell frontend.
+- Livewire components: `EditRegionField`.
 
 ## Built With
 
@@ -30,28 +34,61 @@ This package makes its Composer dependencies visible because they are part of th
 
 [![Spatie Laravel Package Tools GitHub preview](https://opengraph.githubassets.com/capell-readme/spatie/laravel-package-tools)](https://github.com/spatie/laravel-package-tools)
 
-## HTML Cache Safety
+## Screens And Workflow
 
-The package does not render authoring attributes, containers, or scripts into cached Blade output. Public cached HTML stays ordinary theme HTML. After the page loads, the beacon resolves the current URL, checks the authenticated user, and returns selector-based edit regions with signed edit URLs only for admins.
+Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) during package deployment.
 
-That keeps direct static HTML serving from `public/page-cache` safe: anonymous and non-admin users never receive editor HTML, editor JavaScript, model IDs, field paths, labels, selectors, package hints, or signed authoring URLs.
+## Code Map
 
-## Extension
+| Area      | Path                                        | Purpose                                                             |
+| --------- | ------------------------------------------- | ------------------------------------------------------------------- |
+| Actions   | `packages/frontend-authoring/src/Actions`   | Domain operations. Test these directly where possible.              |
+| Data      | `packages/frontend-authoring/src/Data`      | Structured payloads, form state, view models, and integration data. |
+| Livewire  | `packages/frontend-authoring/src/Livewire`  | Interactive frontend or admin components.                           |
+| HTTP      | `packages/frontend-authoring/src/Http`      | Controllers, middleware, and request handling.                      |
+| Providers | `packages/frontend-authoring/src/Providers` | Registration, extension hooks, routes, migrations, and resources.   |
+| Resources | `packages/frontend-authoring/resources`     | Views, translations, assets, and package resources.                 |
+| Routes    | `packages/frontend-authoring/routes`        | Route files loaded by the service provider.                         |
+| Config    | `packages/frontend-authoring/config`        | Package configuration and publishable config.                       |
+| Tests     | `packages/frontend-authoring/tests`         | Package-level Pest coverage.                                        |
 
-Packages can tag callables with `capell-frontend-authoring:editable-regions`. A callable receives the resolved `PageUrl` and returns additional `EditableRegionPayloadData` instances.
+## Runtime Surface
 
-Use stable public selectors only. Do not add hidden authoring metadata to cached frontend markup.
+- Livewire: `EditRegionField`.
+- Controllers: `BeaconController`, `EditRegionController`.
+- Routes: `packages/frontend-authoring/routes/web.php`.
 
-## Install
+## Data And Persistence
+
+- Config: `packages/frontend-authoring/config/capell-frontend-authoring.php`.
+- Data objects live in `src/Data/`; use them for payloads, form state, and view models.
+
+## Extension Points
+
+- Register Capell extension points, routes, migrations, settings, render hooks, and resources from service providers.
+
+## Install And Setup
+
+- Install with `composer require capell-app/frontend-authoring` in the host Capell application.
+- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
+
+## Docs
+
+- [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+- [editable-regions.md](docs/editable-regions.md)
+- [in-page-editing.md](docs/in-page-editing.md)
+- [overview.md](docs/overview.md)
+
+## Testing
+
+Run package tests from the repository root:
 
 ```bash
-composer require capell-app/frontend-authoring
+vendor/bin/pest packages/frontend-authoring/tests --configuration=phpunit.xml
 ```
 
-Then install or enable the package through Capell's package workflow.
+## Maintenance Notes
 
-Screenshot/demo environments that need to prove editing works must also Composer require the frontend stack listed in [In-page editing](docs/in-page-editing.md#screenshot-package-requirements).
-
-## Package Docs
-
-- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+- Never render authoring controls, model identifiers, field paths, selectors, signed editor URLs, or package hints into public HTML. Add editing affordances only after an authenticated admin beacon response.
+- Put behaviour changes in `src/Actions/`; UI classes, commands, and controllers should call actions instead of owning domain logic.
+- Use package `Data` classes at boundaries instead of passing anonymous arrays between layers.

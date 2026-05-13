@@ -1,8 +1,17 @@
 # Search
 
-Status: **Available, schema-owning** · Kind: **package** · Tier: **premium** · Bundle: **search-seo** · Contexts: **admin, frontend, console** · Product group: **Capell Search & SEO**
+Search adds a frontend search route, configurable search drivers, result click tracking, query logging, and admin search insights.
 
-## What This Plugin Adds
+## At A Glance
+
+- Package: `capell-app/search`
+- Namespace: `Capell\Search\`
+- Surfaces: Filament admin, console, HTTP, database
+- Service providers: `packages/search/src/Providers/AdminServiceProvider.php`, `packages/search/src/Providers/SearchServiceProvider.php`
+- Capell dependencies: `capell-app/admin`, `capell-app/core`, `capell-app/frontend`
+- Third-party dependencies: `lorisleiva/laravel-actions`, `spatie/laravel-data`, `spatie/laravel-package-tools`
+
+## What It Adds
 
 Search adds a frontend search route, configurable search drivers, result click tracking, query logging, and admin search insights.
 
@@ -63,11 +72,52 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Drivers: DatabaseSearch and ScoutSearch.
 - Command: PurgeSearchLogsCommand.
 
-## Data Model
+## Code Map
+
+| Area      | Path                            | Purpose                                                             |
+| --------- | ------------------------------- | ------------------------------------------------------------------- |
+| Actions   | `packages/search/src/Actions`   | Domain operations. Test these directly where possible.              |
+| Data      | `packages/search/src/Data`      | Structured payloads, form state, view models, and integration data. |
+| Enums     | `packages/search/src/Enums`     | Persisted states and Filament option values.                        |
+| Models    | `packages/search/src/Models`    | Eloquent records owned by the package.                              |
+| Filament  | `packages/search/src/Filament`  | Admin resources, pages, widgets, and settings UI.                   |
+| HTTP      | `packages/search/src/Http`      | Controllers, middleware, and request handling.                      |
+| Providers | `packages/search/src/Providers` | Registration, extension hooks, routes, migrations, and resources.   |
+| Resources | `packages/search/resources`     | Views, translations, assets, and package resources.                 |
+| Routes    | `packages/search/routes`        | Route files loaded by the service provider.                         |
+| Config    | `packages/search/config`        | Package configuration and publishable config.                       |
+| Database  | `packages/search/database`      | Migrations, seeders, and settings migrations.                       |
+| Tests     | `packages/search/tests`         | Package-level Pest coverage.                                        |
+
+## Admin Surface
+
+- Widgets: `BuildsSearchInsightsWindow`, `SearchOverviewStatsWidget`, `TopSearchesWidget`, `TrendingSearchesWidget`, `ZeroResultSearchesWidget`.
+- Settings: `SearchSettings`.
+
+## Runtime Surface
+
+- Controllers: `SearchController`.
+- Routes: `packages/search/routes/web.php`.
+
+## Commands
+
+- `search:purge {--days= : Override retention days}` (packages/search/src/Console/Commands/PurgeSearchLogsCommand.php)
+
+## Data And Persistence
 
 - search_logs stores site, language, query, normalized query, result count, clicked URL, and searched_at.
 - Logs connect to sites and languages.
 - Retention defaults to 180 days in config.
+
+- Models: `SearchLog`.
+- Migrations: `2026_05_10_190868_01_create_search_logs_table.php`.
+- Config: `packages/search/config/capell-search.php`.
+- Data objects live in `src/Data/`; use them for payloads, form state, and view models.
+
+## Extension Points
+
+- Contracts: `Search`.
+- Register Capell extension points, routes, migrations, settings, render hooks, and resources from service providers.
 
 ## Install Impact
 
@@ -77,9 +127,11 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Adds dashboard insights widgets.
 - Adds config keys for driver, route, result count, excerpts, logging, hashing, and retention.
 
-## Commands
+## Install And Setup
 
-- `search:purge {--days= : Override retention days}` (packages/search/src/Console/Commands/PurgeSearchLogsCommand.php)
+- Install with `composer require capell-app/search` in the host Capell application.
+- Run migrations through the host application package install flow.
+- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
 
 ## Admin And Access
 
@@ -97,15 +149,23 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Disable logging or hashing according to privacy requirements.
 - Run log purge if retention needs enforcement.
 
-## Quick Start
+## Docs
 
-1. Install the package with `composer require capell-app/search`.
-2. Run the package migrations or the Capell package installer required by the host app.
-3. Open the new admin or frontend surface and verify the result.
+- [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+- [drivers-and-logging.md](docs/drivers-and-logging.md)
+- [overview.md](docs/overview.md)
+- [search.md](docs/search.md)
 
-## Next Steps
+## Testing
 
-- [docs/overview.md](docs/overview.md)
-- [../insights/README.md](../insights/README.md)
-- [../seo-suite/README.md](../seo-suite/README.md)
-- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+Run package tests from the repository root:
+
+```bash
+vendor/bin/pest packages/search/tests --configuration=phpunit.xml
+```
+
+## Maintenance Notes
+
+- Put behaviour changes in `src/Actions/`; UI classes, commands, and controllers should call actions instead of owning domain logic.
+- Use package `Data` classes at boundaries instead of passing anonymous arrays between layers.
+- Use backed enums for persisted values and enum labels for Filament options.

@@ -1,19 +1,21 @@
 # Foundation Theme
 
-Status: **Available, no schema impact except settings** · Kind: **theme** · Tier: **free** · Bundle: **foundation** · Contexts: **frontend, admin** · Product group: **Capell Foundation**
+Capell default theme - ships the standard Tailwind asset pipeline, Blade directives, URL generator, and SVG media component.
 
-## What This Package Adds
+## At A Glance
 
-Foundation Theme is the default Capell theme package. It owns the shared runtime that other themes build on: theme registration, renderer contracts, preview context, token CSS generation, Tailwind assets, Blade directives, media URL handling, and theme settings.
+- Package: `capell-app/foundation-theme`
+- Namespace: `Capell\FoundationTheme\`
+- Surfaces: Livewire, console
+- Service providers: `packages/foundation-theme/src/Providers/AdminServiceProvider.php`, `packages/foundation-theme/src/Providers/FoundationThemeServiceProvider.php`
+- Capell dependencies: `capell-app/frontend`
+- Third-party dependencies: `lorisleiva/laravel-actions`, `spatie/laravel-data`, `spatie/laravel-package-tools`
 
-- Default theme service provider.
-- `themeKey: "default"` for new installs.
-- Theme registry, renderer contracts, preview signing, and token CSS support.
-- Tailwind asset generation command.
-- Theme settings schema and settings migration.
-- SVG media component and Capell URL generator.
-- Blade directives for frontend rendering.
-- Frontend beacon client that can call shared beacon routes after page load.
+## What It Adds
+
+- Capell default theme - ships the standard Tailwind asset pipeline, Blade directives, URL generator, and SVG media component.
+- Livewire components: `AbstractAssets`, `AbstractWidget`, `PageAssets`, `Pages`.
+- Package setup or maintenance commands.
 
 ## Why It Matters
 
@@ -51,32 +53,66 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Config file: capell-foundation-theme.php.
 - Settings migration creates default theme settings.
 - Registers the `capell` Blade namespace and anonymous `capell::...` components.
-- Registers Layout Builder frontend rendering views and widget components.
+- Registers core layout builder frontend rendering views and widget components.
 - Runtime theme data layers parent defaults, child defaults, and database edits in that order.
 - GenerateTailwindAssetsCommand writes one frontend Tailwind directive file; runtime theme colours are emitted as CSS variables by the theme head tokens.
-- Layout Builder JavaScript is registered as a conditional vendor build asset and only loads when the resolved frontend layout contains widgets.
+- core layout builder JavaScript is registered as a conditional vendor build asset and only loads when the resolved frontend layout contains widgets.
 - BladeDirectives and CapellUrlGenerator support rendering.
 - The beacon client is generic. It must not ship authoring controls or authoring metadata in theme HTML; `capell-app/frontend-authoring` owns the admin-only response that decorates the page.
 
-## Data Model
+## Code Map
+
+| Area      | Path                                      | Purpose                                                           |
+| --------- | ----------------------------------------- | ----------------------------------------------------------------- |
+| Actions   | `packages/foundation-theme/src/Actions`   | Domain operations. Test these directly where possible.            |
+| Enums     | `packages/foundation-theme/src/Enums`     | Persisted states and Filament option values.                      |
+| Filament  | `packages/foundation-theme/src/Filament`  | Admin resources, pages, widgets, and settings UI.                 |
+| Livewire  | `packages/foundation-theme/src/Livewire`  | Interactive frontend or admin components.                         |
+| Providers | `packages/foundation-theme/src/Providers` | Registration, extension hooks, routes, migrations, and resources. |
+| Resources | `packages/foundation-theme/resources`     | Views, translations, assets, and package resources.               |
+| Config    | `packages/foundation-theme/config`        | Package configuration and publishable config.                     |
+| Database  | `packages/foundation-theme/database`      | Migrations, seeders, and settings migrations.                     |
+| Tests     | `packages/foundation-theme/tests`         | Package-level Pest coverage.                                      |
+
+## Admin Surface
+
+- Settings: `FoundationThemeSettings`, `FoundationThemeSettingsMigrationProvider`.
+
+## Runtime Surface
+
+- Livewire: `AbstractAssets`, `AbstractWidget`, `PageAssets`, `Pages`.
+
+## Commands
+
+- `capell:foundation-theme-setup {--force : Rebuild Foundation-managed layout defaults}` (packages/foundation-theme/src/Console/Commands/SetupCommand.php)
+- `capell:frontend-tailwind-assets {--report : Print the aggregated assets report instead of writing files} {--output-path= : Absolute path or directory for the generated frontend CSS entrypoint}` (packages/foundation-theme/src/Console/Commands/GenerateTailwindAssetsCommand.php)
+
+## Data And Persistence
 
 - This package does not create content tables.
 - It owns settings through create_foundation_theme_settings.php.
 - Theme output depends on core site, page, layout, and media data.
 
+- Config: `packages/foundation-theme/config/capell-foundation-theme.php`.
+
+## Extension Points
+
+- Listeners: `RunTailwindAssetsOnPackageChange`.
+- Register Capell extension points, routes, migrations, settings, render hooks, and resources from service providers.
+
 ## Install Impact
 
 - Adds default theme settings.
-- Adds Foundation-owned Layout Builder defaults when the package setup command runs.
+- Adds Foundation-owned core layout builder defaults when the package setup command runs.
 - Adds Tailwind asset generation command.
 - Adds config keys for asset build tool, npm dependencies, Tailwind sources, and media URL behaviour.
 - No public routes are registered by this package.
 - Does not add in-page authoring markup to public Blade or cached HTML.
 
-## Commands
+## Install And Setup
 
-- `capell:frontend-tailwind-assets {--report : Print the aggregated assets report instead of writing files} {--output-path= : Absolute path or directory for the generated frontend CSS entrypoint}` (packages/foundation-theme/src/Console/Commands/GenerateTailwindAssetsCommand.php)
-- `capell:foundation-theme-setup {--force : Rebuild Foundation-managed layout defaults}` installs the default, home, and results layout widgets owned by Foundation Theme.
+- Install with `composer require capell-app/foundation-theme` in the host Capell application.
+- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
 
 ## Admin And Access
 
@@ -92,18 +128,21 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Keep authoring behaviour in `capell-app/frontend-authoring`; themes should expose stable presentation selectors, not hidden editor metadata.
 - Keep child themes on shared `capell::...` views unless they need their own section markup.
 
-## Quick Start
+## Docs
 
-1. Install the package with `composer require capell-app/foundation-theme`.
-2. Run the package migrations or the Capell package installer required by the host app.
-3. Run `php artisan capell:foundation-theme-setup` if the package installer did not run package setup commands.
-4. Open the new admin or frontend surface and verify the result.
+- [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+- [overview.md](docs/overview.md)
 
-## Next Steps
+## Testing
 
-- [docs/overview.md](docs/overview.md)
-- [../../docs/creating-a-theme.md](../../docs/creating-a-theme.md)
-- [../theme-agency/README.md](../theme-agency/README.md)
-- [../theme-corporate/README.md](../theme-corporate/README.md)
-- [../theme-saas/README.md](../theme-saas/README.md)
-- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+Run package tests from the repository root:
+
+```bash
+vendor/bin/pest packages/foundation-theme/tests --configuration=phpunit.xml
+```
+
+## Maintenance Notes
+
+- Theme output is public output. Keep admin-only metadata and editor hooks out of rendered markup.
+- Put behaviour changes in `src/Actions/`; UI classes, commands, and controllers should call actions instead of owning domain logic.
+- Use backed enums for persisted values and enum labels for Filament options.

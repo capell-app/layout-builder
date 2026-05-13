@@ -34,6 +34,7 @@ use Capell\PublishingStudio\Events\WorkspaceStateChanged;
 use Capell\PublishingStudio\Extenders\PublishingStudioUserSchemaExtender;
 use Capell\PublishingStudio\Filament\Pages\ActivityTrailPage;
 use Capell\PublishingStudio\Filament\Pages\ImportPagesPage;
+use Capell\PublishingStudio\Filament\Pages\PublishingWorkflowPage;
 use Capell\PublishingStudio\Filament\Pages\ScheduledPublishingPage;
 use Capell\PublishingStudio\Filament\Pages\StaleDraftsPage;
 use Capell\PublishingStudio\Filament\Resources\PreviewLinks\PreviewLinkResource;
@@ -238,6 +239,7 @@ class AdminServiceProvider extends ServiceProvider
         CapellAdmin::registerDashboardWidget(WorkspaceActivityWidgetAbstract::class, DashboardEnum::Main);
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(WorkspaceResource::class, group: 'Workspace'));
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(PreviewLinkResource::class, group: 'PreviewLink'));
+        CapellAdmin::registerExtensionPage(PublishingStudioServiceProvider::$packageName, PublishingWorkflowPage::class);
         CapellAdmin::registerExtensionPage(PublishingStudioServiceProvider::$packageName, ActivityTrailPage::class);
         CapellAdmin::registerExtensionPage(PublishingStudioServiceProvider::$packageName, ImportPagesPage::class);
         CapellAdmin::registerExtensionPage(PublishingStudioServiceProvider::$packageName, ScheduledPublishingPage::class);

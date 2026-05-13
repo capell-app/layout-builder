@@ -12,6 +12,9 @@ enum PublishingStudioPermission: string
     case RollbackWorkspace = 'rollback_workspace';
     case PublishOutsideReleaseWindow = 'publish_outside_release_window';
     case ViewActivityTrailPage = 'View:ActivityTrailPage';
+    case ViewPublishingWorkflowPage = 'View:PublishingWorkflowPage';
+    case ViewScheduledPublishingPage = 'View:ScheduledPublishingPage';
+    case ViewStaleDraftsPage = 'View:StaleDraftsPage';
 
     /**
      * @return list<string>

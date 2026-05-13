@@ -8,7 +8,6 @@ Free baseline packages:
 
 | Package            | Composer name                   |
 | ------------------ | ------------------------------- |
-| LayoutBuilder      | `capell-app/layout-builder`     |
 | Blog               | `capell-app/blog`               |
 | Navigation         | `capell-app/navigation`         |
 | Tags               | `capell-app/tags`               |
@@ -21,16 +20,16 @@ Tags and Media Library are Foundation packages because taxonomy and media manage
 
 ## Premium Groups
 
-| Product group         | Bundle key       | Packages                                     |
-| --------------------- | ---------------- | -------------------------------------------- |
-| Capell Commercial     | `commercial`     | AIOrchestrator                               |
-| Capell FormBuilder    | `form-builder`   | FormBuilder                                  |
-| Capell Publishing Pro | `publishing-pro` | PublishingStudio                             |
-| Capell Operations     | `operations`     | MigrationAssistant, Diagnostics, Login Audit |
-| Capell Growth         | `growth`         | Insights, CampaignStudio                     |
-| Capell Communications | `communications` | Email Studio                                 |
+| Product group         | Bundle key       | Packages                                                                                   |
+| --------------------- | ---------------- | ------------------------------------------------------------------------------------------ |
+| Capell Commercial     | `commercial`     | AIOrchestrator                                                                             |
+| Capell FormBuilder    | `form-builder`   | FormBuilder                                                                                |
+| Capell Publishing Pro | `publishing-pro` | PublishingStudio                                                                           |
+| Capell Operations     | `operations`     | MigrationAssistant, Diagnostics, Login Audit                                               |
+| Capell Growth         | `growth`         | Insights, CampaignStudio                                                                   |
+| Capell Communications | `communications` | Email Studio                                                                               |
 | Capell Search & SEO   | `search-seo`     | SEO Suite, Search; AI Discovery, llms.txt, page Markdown, crawler policy, readiness audits |
-| Capell Themes         | `themes`         | Agency Theme, Corporate Theme, SaaS Theme    |
+| Capell Themes         | `themes`         | Agency Theme, Corporate Theme, SaaS Theme                                                  |
 
 ## Manifest Fields
 

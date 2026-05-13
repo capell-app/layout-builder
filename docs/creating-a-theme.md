@@ -24,12 +24,12 @@ fallback exists, register every section view the theme promises to support.
 
 Use these packages as the working examples:
 
-| Package | Theme key | Role |
-| --- | --- | --- |
-| `capell-app/foundation-theme` | `default` | Shared runtime, default Blade components, Tailwind asset generation, settings, media URL handling, and generic beacon client. |
-| `capell-app/theme-agency` | `agency` | Expressive premium renderer for studio, portfolio, and brand-led sites. |
-| `capell-app/theme-corporate` | `corporate` | Restrained premium renderer for B2B, public sector, and professional-service sites. |
-| `capell-app/theme-saas` | `saas` | Conversion-led premium renderer for software and subscription sites. |
+| Package                       | Theme key   | Role                                                                                                                          |
+| ----------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `capell-app/foundation-theme` | `default`   | Shared runtime, default Blade components, Tailwind asset generation, settings, media URL handling, and generic beacon client. |
+| `capell-app/theme-agency`     | `agency`    | Expressive premium renderer for studio, portfolio, and brand-led sites.                                                       |
+| `capell-app/theme-corporate`  | `corporate` | Restrained premium renderer for B2B, public sector, and professional-service sites.                                           |
+| `capell-app/theme-saas`       | `saas`      | Conversion-led premium renderer for software and subscription sites.                                                          |
 
 The premium themes are intentionally thin. They have no migrations, routes,
 models, admin navigation, or settings of their own. They register renderer
@@ -307,7 +307,7 @@ and leave page adaptation to the frontend package's `ThemePageAdapter` binding.
 Foundation Theme provides:
 
 - `capell` Blade namespace and anonymous `capell::...` components.
-- Layout Builder rendering views and widget components.
+- Core layout builder rendering views and widget components from the admin/frontend packages.
 - `capell:frontend-tailwind-assets`.
 - Tailwind imports and sources from installed vendor assets.
 - `FoundationThemeSettings` for lazy loading and asset minification defaults.

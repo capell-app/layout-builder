@@ -13,10 +13,7 @@
         "bundle": "publishing-pro"
     },
     "namespace": "Capell\\PublishingStudio",
-    "surfaces": [
-        "admin",
-        "console"
-    ],
+    "surfaces": ["admin", "console"],
     "dependencies": {
         "requires": [
             "capell-app/admin",
@@ -36,18 +33,31 @@
         "runtime": [
             "Capell\\PublishingStudio\\Providers\\PublishingStudioServiceProvider"
         ],
-        "admin": [
-            "Capell\\PublishingStudio\\Providers\\AdminServiceProvider"
-        ],
+        "admin": ["Capell\\PublishingStudio\\Providers\\AdminServiceProvider"],
         "frontend": []
     },
-    "contributes": [],
+    "contributes": [
+        {
+            "type": "admin-page",
+            "class": "Capell\\PublishingStudio\\Manifest\\PublishingWorkflowPageContribution",
+            "pageClass": "Capell\\PublishingStudio\\Filament\\Pages\\PublishingWorkflowPage",
+            "labelKey": "capell-publishing-studio::workflow.navigation.label",
+            "permission": "View:PublishingWorkflowPage"
+        },
+        {
+            "type": "workflow-attention",
+            "class": "Capell\\PublishingStudio\\Actions\\Workflow\\BuildPublishingWorkflowAttentionItemsAction",
+            "pageClass": "Capell\\PublishingStudio\\Filament\\Pages\\PublishingWorkflowPage",
+            "labelKey": "capell-publishing-studio::workflow.dashboard.label",
+            "descriptionKey": "capell-publishing-studio::workflow.dashboard.description",
+            "actionLabelKey": "capell-publishing-studio::workflow.dashboard.action",
+            "permission": "View:PublishingWorkflowPage"
+        }
+    ],
     "database": {
         "migrations": true,
         "settings": false,
-        "requiredTables": [
-            "workspaces"
-        ]
+        "requiredTables": ["workspaces"]
     },
     "commands": {
         "install": null,
@@ -62,7 +72,10 @@
         "publish_workspace",
         "rollback_workspace",
         "publish_outside_release_window",
-        "View:ActivityTrailPage"
+        "View:ActivityTrailPage",
+        "View:PublishingWorkflowPage",
+        "View:ScheduledPublishingPage",
+        "View:StaleDraftsPage"
     ],
     "capabilities": [
         "activity-history",
@@ -110,11 +123,7 @@
     "marketplace": {
         "summary": "PublishingStudio provides preview, compare, approve, schedule, publish, restore, and rollback workflows for Capell content.",
         "screenshots": [],
-        "categories": [
-            "admin",
-            "console",
-            "publishing-pro"
-        ]
+        "categories": ["admin", "console", "publishing-pro"]
     },
     "contributionTraceability": {
         "deferredContributions": [

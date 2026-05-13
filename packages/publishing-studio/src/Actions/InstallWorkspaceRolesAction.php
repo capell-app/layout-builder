@@ -60,16 +60,25 @@ class InstallWorkspaceRolesAction
         $publishPermission = $this->permission(PublishingStudioPermission::PublishWorkspace, $guard);
         $rollbackPermission = $this->permission(PublishingStudioPermission::RollbackWorkspace, $guard);
         $bypassWindowPermission = $this->permission(PublishingStudioPermission::PublishOutsideReleaseWindow, $guard);
+        $workflowPagePermission = $this->permission(PublishingStudioPermission::ViewPublishingWorkflowPage, $guard);
+        $scheduledPagePermission = $this->permission(PublishingStudioPermission::ViewScheduledPublishingPage, $guard);
+        $staleDraftsPagePermission = $this->permission(PublishingStudioPermission::ViewStaleDraftsPage, $guard);
 
         $editorRole = $this->role(self::ROLE_EDITOR, $guard);
         $reviewerRole = $this->role(self::ROLE_REVIEWER, $guard);
         $releaseManagerRole = $this->role(self::ROLE_RELEASE_MANAGER, $guard);
 
-        $editorRole->givePermissionTo($submitPermission);
+        $editorRole->givePermissionTo([
+            $submitPermission,
+            $workflowPagePermission,
+            $staleDraftsPagePermission,
+        ]);
 
         $reviewerRole->givePermissionTo([
             $submitPermission,
             $approvePermission,
+            $workflowPagePermission,
+            $staleDraftsPagePermission,
         ]);
 
         $releaseManagerRole->givePermissionTo([
@@ -78,6 +87,9 @@ class InstallWorkspaceRolesAction
             $publishPermission,
             $rollbackPermission,
             $bypassWindowPermission,
+            $workflowPagePermission,
+            $scheduledPagePermission,
+            $staleDraftsPagePermission,
         ]);
     }
 

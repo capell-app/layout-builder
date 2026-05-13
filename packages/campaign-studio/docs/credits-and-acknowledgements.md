@@ -21,7 +21,7 @@ Package role: Campaign landing pages, CTA blocks, UTM attribution, conversion go
 - [Capell Core](https://docs.capell.app) supplies the Capell-side contracts, surfaces, or runtime that Campaign Studio builds on.
 - [Form Builder](../../form-builder/README.md) supplies the Capell-side contracts, surfaces, or runtime that Campaign Studio builds on.
 - [Capell Frontend](https://docs.capell.app) supplies the Capell-side contracts, surfaces, or runtime that Campaign Studio builds on.
-- [Layout Builder](../../layout-builder/README.md) supplies the Capell-side contracts, surfaces, or runtime that Campaign Studio builds on.
+- Core admin/frontend layout builder APIs supply the Capell-side contracts, surfaces, and runtime that Campaign Studio builds on.
 
 ## Open-source Packages And Authors
 

@@ -11,7 +11,7 @@ AIOrchestrator provides the orchestration layer for Capell ai-orchestrator modul
 - AIOrchestrator module registry.
 - Contracts for modules and provider connectors.
 - Actions for listing, registering, and running capabilities.
-- LayoutBuilder integration module for layout planning preview.
+- core layout builder integration module for layout planning preview.
 
 ## Developer Notes
 
@@ -41,7 +41,7 @@ Lets Capell installations add assisted workflows while keeping approvals and cap
 ## Screenshot Plan
 
 - Capability list or prompt surface where provided by a consuming package.
-- LayoutBuilder layout preview workflow if LayoutBuilder integration is enabled.
+- core layout builder preview workflow when the integration is enabled.
 - Approval state where a capability requires review.
 
 ## Pitfalls
@@ -96,5 +96,5 @@ This package has no committed ERD excerpt. Use implementation notes and extensio
 Deployment should read [screenshots.json](screenshots.json), install the package with demo data, resolve each admin surface or frontend URL, and write images to `public/docs/screenshots/packages/ai-orchestrator`.
 
 - Capability list or prompt surface where provided by a consuming package.
-- LayoutBuilder layout preview workflow if LayoutBuilder integration is enabled.
+- core layout builder preview workflow when the integration is enabled.
 - Approval state where a capability requires review.

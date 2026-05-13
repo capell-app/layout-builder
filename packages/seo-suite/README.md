@@ -1,8 +1,17 @@
 # SEO Suite
 
-Status: **Available, schema-owning** · Kind: **package** · Tier: **premium** · Bundle: **search-seo** · Contexts: **admin, frontend, console** · Product group: **Capell Search & SEO**
+SEO Suite adds metadata panels, structured data, broken link tracking, Search Console insights, AI-assisted content briefs, AI Discovery output, crawler policy controls, and publish checks.
 
-## What This Plugin Adds
+## At A Glance
+
+- Package: `capell-app/seo-suite`
+- Namespace: `Capell\SeoSuite\`
+- Surfaces: Filament admin, console, HTTP, database
+- Service providers: `packages/seo-suite/src/Providers/SeoSuiteServiceProvider.php`
+- Capell dependencies: `capell-app/admin`, `capell-app/frontend`, `capell-app/insights`, `capell-app/site-discovery`
+- Third-party dependencies: `prism-php/prism`
+
+## What It Adds
 
 SEO Suite adds metadata panels, structured data, broken link tracking, Search Console insights, AI-assisted content briefs, AI Discovery output, crawler policy controls, and publish checks.
 
@@ -56,7 +65,42 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Commands cover install, setup, AI cache, AI usage, and OpenAI connection testing.
 - Controllers: LlmsTxtController, LlmsFullTxtController, PageMarkdownController, RobotsTxtController.
 
-## Data Model
+## Code Map
+
+| Area      | Path                               | Purpose                                                             |
+| --------- | ---------------------------------- | ------------------------------------------------------------------- |
+| Actions   | `packages/seo-suite/src/Actions`   | Domain operations. Test these directly where possible.              |
+| Data      | `packages/seo-suite/src/Data`      | Structured payloads, form state, view models, and integration data. |
+| Enums     | `packages/seo-suite/src/Enums`     | Persisted states and Filament option values.                        |
+| Models    | `packages/seo-suite/src/Models`    | Eloquent records owned by the package.                              |
+| Filament  | `packages/seo-suite/src/Filament`  | Admin resources, pages, widgets, and settings UI.                   |
+| Livewire  | `packages/seo-suite/src/Livewire`  | Interactive frontend or admin components.                           |
+| HTTP      | `packages/seo-suite/src/Http`      | Controllers, middleware, and request handling.                      |
+| Providers | `packages/seo-suite/src/Providers` | Registration, extension hooks, routes, migrations, and resources.   |
+| Resources | `packages/seo-suite/resources`     | Views, translations, assets, and package resources.                 |
+| Config    | `packages/seo-suite/config`        | Package configuration and publishable config.                       |
+| Database  | `packages/seo-suite/database`      | Migrations, seeders, and settings migrations.                       |
+| Tests     | `packages/seo-suite/tests`         | Package-level Pest coverage.                                        |
+
+## Admin Surface
+
+- Pages: `AiDiscoveryPage`, `AiDiscoveryTable`, `BrokenLinksPage`, `BrokenLinksTable`, `ListPageSeoAuditWidget`, `NotFoundUrlsPage`, `SeoAuditPage`, `SeoAuditTable`, `SeoSuiteSettingsPage`, `TranslationCoveragePage`, `TranslationCoverageTable`.
+- Widgets: `AiMetricsWidgetAbstract`, `AiUsageWidget`, `EditPageSeoAuditWidget`, `ListPageSeoAuditWidget`.
+- Settings: `AIOrchestratorSettings`, `SeoSuiteSettings`.
+
+## Runtime Surface
+
+- Controllers: `LlmsFullTxtController`, `LlmsTxtController`, `PageMarkdownController`, `RobotsTxtController`.
+
+## Commands
+
+- `capell:admin-clear-ai-cache` (packages/seo-suite/src/Console/Commands/ClearAiCacheCommand.php)
+- `capell:admin-monitor-ai-usage` (packages/seo-suite/src/Console/Commands/MonitorAiUsageCommand.php)
+- `capell:admin-test-openai` (packages/seo-suite/src/Console/Commands/TestOpenAiConnectionCommand.php)
+- `capell:seo-suite-install` (packages/seo-suite/src/Console/Commands/InstallCommand.php)
+- `capell:seo-suite-setup` (packages/seo-suite/src/Console/Commands/SetupCommand.php)
+
+## Data And Persistence
 
 - broken_links stores page, target URL, HTTP status, and last check time.
 - page_seo_snapshots store page SEO report state.
@@ -64,6 +108,18 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - ai_creator_contexts, ai_generation_histories, and ai_creator_sessions store AI workflow state.
 - ai_discovery_site_profiles, ai_discovery_page_profiles, ai_discovery_crawler_rules, and ai_discovery_snapshots store AI Discovery configuration, robots controls, and generated document state.
 - SEO data connects to sites, pages, languages, users, and publishing-studio.
+
+- Models: `AIGenerationHistory`, `AiCreatorContext`, `AiCreatorSession`, `AiDiscoveryCrawlerRule`, `AiDiscoveryPageProfile`, `AiDiscoverySiteProfile`, `AiDiscoverySnapshot`, `BrokenLink`, `PageSeoSnapshot`, `SearchConsoleUrlMetric`.
+- Migrations: `2026_05_10_190870_01_create_ai_creator_contexts_table.php`, `2026_05_10_190870_02_create_ai_generation_histories_table.php`, `2026_05_10_190870_03_create_ai_creator_sessions_table.php`, `2026_05_10_190870_04_create_ai_discovery_crawler_rules_table.php`, `2026_05_10_190870_05_create_ai_discovery_page_profiles_table.php`, `2026_05_10_190870_06_create_ai_discovery_site_profiles_table.php`, `2026_05_10_190870_07_create_ai_discovery_snapshots_table.php`, `2026_05_10_190870_08_create_broken_links_table.php`, `2026_05_10_190870_09_create_page_seo_snapshots_table.php`, `2026_05_10_190870_10_create_search_console_url_metrics_table.php`, `2026_05_10_190870_11_remove_redirect_opportunities_count_from_page_seo_snapshots_table.php`.
+- Config: `packages/seo-suite/config/capell-seo-suite.php`, `packages/seo-suite/config/exchanger.php`.
+- Data objects live in `src/Data/`; use them for payloads, form state, and view models.
+
+## Extension Points
+
+- Contracts: `ActionContract`, `AiActionContextInterface`, `ContentTargetContract`, `ExchangerInterface`, `SchemaTemplate`, `SearchConsoleClientInterface`, `SearchMetaDataSectionExtender`, `SearchMetaDataSectionExtenderResolverInterface`, `SeoPublishReportProvider`.
+- Events: `AiGenerationCompleted`, `AiGenerationFailed`, `AiGenerationStarted`.
+- Listeners: `ClearAiDiscoveryCacheOnPageDeleted`, `ClearAiDiscoveryCacheOnPageSaved`, `LogAiGeneration`, `NotifyAiFailure`, `RecordBrokenLink`, `SeedAiCrawlerRulesOnSiteCreated`.
+- Register Capell extension points, routes, migrations, settings, render hooks, and resources from service providers.
 
 ## Install Impact
 
@@ -74,13 +130,11 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Requires Site Discovery for public page discovery and sitemap outputs.
 - Adds config for AI provider/model, image model, Search Console, publish gates, and prompts.
 
-## Commands
+## Install And Setup
 
-- `capell:admin-clear-ai-cache` (packages/seo-suite/src/Console/Commands/ClearAiCacheCommand.php)
-- `capell:seo-suite-install` (packages/seo-suite/src/Console/Commands/InstallCommand.php)
-- `capell:admin-monitor-ai-usage` (packages/seo-suite/src/Console/Commands/MonitorAiUsageCommand.php)
-- `capell:seo-suite-setup` (packages/seo-suite/src/Console/Commands/SetupCommand.php)
-- `capell:admin-test-openai` (packages/seo-suite/src/Console/Commands/TestOpenAiConnectionCommand.php)
+- Install with `composer require capell-app/seo-suite` in the host Capell application.
+- Run migrations through the host application package install flow.
+- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
 
 ## Admin And Access
 
@@ -106,17 +160,29 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Site Discovery owns sitemap output and public URL discovery; SEO Suite consumes that public discovery boundary for AI Discovery.
 - Review AI Discovery summaries, Markdown previews, and crawler policy before launching a site that should be visible to AI search and answer engines.
 
-## Quick Start
+## Docs
 
-1. Install the package with `composer require capell-app/seo-suite`.
-2. Run the package migrations or the Capell package installer required by the host app.
-3. Open the new admin surface or integration point and verify the result.
+- [ai-discovery.md](docs/ai-discovery.md)
+- [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+- [extending-seo-suite.md](docs/extending-seo-suite.md)
+- [overview.md](docs/overview.md)
+- [publish-gates.md](docs/publish-gates.md)
+- [schema-templates.md](docs/schema-templates.md)
+- [search-console.md](docs/search-console.md)
+- [seo-intelligence.md](docs/seo-intelligence.md)
+- [seo-meta-and-discoverability.md](docs/seo-meta-and-discoverability.md)
+- [sitemaps.md](docs/sitemaps.md)
 
-## Next Steps
+## Testing
 
-- [docs/overview.md](docs/overview.md)
-- [docs/ai-discovery.md](docs/ai-discovery.md)
-- [../redirects/README.md](../redirects/README.md)
-- [../blog/README.md](../blog/README.md)
-- [../publishing-studio/README.md](../publishing-studio/README.md)
-- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+Run package tests from the repository root:
+
+```bash
+vendor/bin/pest packages/seo-suite/tests --configuration=phpunit.xml
+```
+
+## Maintenance Notes
+
+- Put behaviour changes in `src/Actions/`; UI classes, commands, and controllers should call actions instead of owning domain logic.
+- Use package `Data` classes at boundaries instead of passing anonymous arrays between layers.
+- Use backed enums for persisted values and enum labels for Filament options.

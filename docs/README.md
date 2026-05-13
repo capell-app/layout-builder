@@ -24,7 +24,6 @@ For optional package integration rules, see [Optional Package Boundaries](option
 | FormBuilder        | [`packages/form-builder/README.md`](../packages/form-builder/README.md)                                                                                          |
 | Agent Bridge       | [`packages/agent-bridge/README.md`](../packages/agent-bridge/README.md)                                                                                          |
 | Media Library      | [`packages/media-library/README.md`](../packages/media-library/README.md)                                                                                        |
-| LayoutBuilder      | [`packages/layout-builder/README.md`](../packages/layout-builder/README.md)                                                                                      |
 | Navigation         | [`packages/navigation/README.md`](../packages/navigation/README.md)                                                                                              |
 | Site Discovery     | [`packages/site-discovery/README.md`](../packages/site-discovery/README.md)                                                                                      |
 | SEO Suite          | [`packages/seo-suite/README.md`](../packages/seo-suite/README.md)                                                                                                |

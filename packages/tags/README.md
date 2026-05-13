@@ -1,8 +1,17 @@
 # Tags
 
-Status: **Available, schema-owning** · Kind: **package** · Tier: **free** · Bundle: **foundation** · Contexts: **admin, console** · Product group: **Capell Foundation**
+Tags adds shared tagging records and admin management for packages that need editor-controlled taxonomies.
 
-## What This Plugin Adds
+## At A Glance
+
+- Package: `capell-app/tags`
+- Namespace: `Capell\Tags\`
+- Surfaces: Filament admin, console, database
+- Service providers: `packages/tags/src/Providers/AdminServiceProvider.php`, `packages/tags/src/Providers/ConsoleServiceProvider.php`, `packages/tags/src/Providers/TagsServiceProvider.php`
+- Capell dependencies: `capell-app/admin`, `capell-app/navigation`, `capell-app/publishing-studio`
+- Third-party dependencies: `filament/spatie-laravel-tags-plugin`
+
+## What It Adds
 
 Tags adds tag management, taggable relationships, a reusable tags input, and model traits for Capell content.
 
@@ -53,12 +62,40 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Filament resource: TagResource.
 - TagTypeEnum defines tag types.
 
-## Data Model
+## Code Map
+
+| Area      | Path                          | Purpose                                                           |
+| --------- | ----------------------------- | ----------------------------------------------------------------- |
+| Enums     | `packages/tags/src/Enums`     | Persisted states and Filament option values.                      |
+| Models    | `packages/tags/src/Models`    | Eloquent records owned by the package.                            |
+| Filament  | `packages/tags/src/Filament`  | Admin resources, pages, widgets, and settings UI.                 |
+| Providers | `packages/tags/src/Providers` | Registration, extension hooks, routes, migrations, and resources. |
+| Resources | `packages/tags/resources`     | Views, translations, assets, and package resources.               |
+| Database  | `packages/tags/database`      | Migrations, seeders, and settings migrations.                     |
+| Tests     | `packages/tags/tests`         | Package-level Pest coverage.                                      |
+
+## Admin Surface
+
+- Resources: `TagResource`.
+- Pages: `CreateTag`, `EditTag`, `ListTags`.
+
+## Commands
+
+- `capell:tags-install` (packages/tags/src/Console/Commands/InstallCommand.php)
+
+## Data And Persistence
 
 - tags stores translated name and slug values plus type.
 - taggables connects tags to articles, pages, and other taggable models.
 - Tag model registrar handles morph/model integration.
 - Deletion behaviour for taggables should be verified before removing shared tags.
+
+- Models: `HasTags`, `Tag`, `Taggable`.
+- Migrations: `2026_05_10_190872_01_alter_tags_table.php`.
+
+## Extension Points
+
+- Register Capell extension points, routes, migrations, settings, render hooks, and resources from service providers.
 
 ## Install Impact
 
@@ -67,9 +104,11 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Adds tags form component.
 - No public route is registered by this package.
 
-## Commands
+## Install And Setup
 
-- `capell:tags-install` (packages/tags/src/Console/Commands/InstallCommand.php)
+- Install with `composer require capell-app/tags` in the host Capell application.
+- Run migrations through the host application package install flow.
+- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
 
 ## Admin And Access
 
@@ -86,15 +125,19 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Register taggable models before expecting relationships.
 - Use typed tag categories rather than ad hoc strings.
 
-## Quick Start
+## Docs
 
-1. Install the package with `composer require capell-app/tags`.
-2. Run the package migrations or the Capell package installer required by the host app.
-3. Open the new admin surface or integration point and verify the result.
+- [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+- [overview.md](docs/overview.md)
 
-## Next Steps
+## Testing
 
-- [docs/overview.md](docs/overview.md)
-- [../blog/README.md](../blog/README.md)
-- [../layout-builder/README.md](../layout-builder/README.md)
-- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+Run package tests from the repository root:
+
+```bash
+vendor/bin/pest packages/tags/tests --configuration=phpunit.xml
+```
+
+## Maintenance Notes
+
+- Use backed enums for persisted values and enum labels for Filament options.

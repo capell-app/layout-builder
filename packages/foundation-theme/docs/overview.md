@@ -25,10 +25,10 @@ Provides the baseline Laravel view and asset pipeline that child themes and fron
 - Config file: capell-foundation-theme.php.
 - Settings migration creates default theme settings.
 - Registers the `capell` Blade namespace and anonymous `capell::...` components.
-- Registers Layout Builder frontend rendering views and widget components.
+- Registers core layout builder frontend rendering views and widget components.
 - Runtime theme data layers parent defaults, child defaults, and database edits in that order.
 - GenerateTailwindAssetsCommand writes one frontend Tailwind directive file; runtime theme colours are emitted as CSS variables by the theme head tokens.
-- Layout Builder JavaScript is registered as a conditional vendor build asset and only loads when the resolved frontend layout contains widgets.
+- core layout builder JavaScript is registered as a conditional vendor build asset and only loads when the resolved frontend layout contains widgets.
 - BladeDirectives and CapellUrlGenerator support rendering.
 - The beacon client is generic. It must not ship authoring controls or authoring metadata in theme HTML; `capell-app/frontend-authoring` owns the admin-only response that decorates the page.
 

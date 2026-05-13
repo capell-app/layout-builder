@@ -19,6 +19,8 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->timestamp('decided_at')->nullable();
             $table->timestamps();
+
+            $table->index(['reviewer_type', 'reviewer_id', 'decision']);
         });
     }
 

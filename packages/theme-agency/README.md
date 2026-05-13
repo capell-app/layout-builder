@@ -1,14 +1,16 @@
 # Theme Agency
 
-Status: **Available, no schema impact** · Kind: **theme** · Tier: **premium** · Bundle: **themes** · Contexts: **frontend** · Product group: **Capell Themes**
+Expressive agency theme for Capell.
 
-## What This Package Adds
+## At A Glance
 
-Theme Agency is a standalone Capell theme package. It registers the `agency` theme key, extends Foundation Theme, and adds expressive renderer views for studio, portfolio, and brand-led sites.
+- Package: `capell-app/theme-agency`
+- Namespace: `Capell\ThemeStudio\Agency\`
+- Capell dependencies: `capell-app/core`, `capell-app/foundation-theme`
 
-- Agency theme service provider.
-- Theme renderer/views for agency-style theme output.
-- Dependency on Foundation Theme.
+## What It Adds
+
+- Expressive agency theme for Capell.
 
 ## Why It Matters
 
@@ -45,7 +47,14 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Ships Blade resources for the page wrapper and standard theme sections.
 - No migrations, config, routes, models, admin navigation, or package-owned settings are present.
 
-## Data Model
+## Code Map
+
+| Area      | Path                              | Purpose                                             |
+| --------- | --------------------------------- | --------------------------------------------------- |
+| Resources | `packages/theme-agency/resources` | Views, translations, assets, and package resources. |
+| Tests     | `packages/theme-agency/tests`     | Package-level Pest coverage.                        |
+
+## Data And Persistence
 
 - This package does not own data.
 - It reads theme runtime data and core page content through Foundation Theme.
@@ -57,9 +66,10 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - No admin navigation by itself.
 - No public routes by itself.
 
-## Commands
+## Install And Setup
 
-- None proven in this package directory.
+- Install with `composer require capell-app/theme-agency` in the host Capell application.
+- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
 
 ## Admin And Access
 
@@ -71,15 +81,19 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Verify frontend assets from Foundation Theme are available.
 - Do not install a Studio metapackage; this package installs independently.
 
-## Quick Start
+## Docs
 
-1. Install the package with `composer require capell-app/theme-agency`.
-2. Choose `agency` during `capell:install`, the web installer, or from the Theme admin page after install.
-3. Generate or publish frontend assets through the host app flow.
+- [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+- [overview.md](docs/overview.md)
 
-## Next Steps
+## Testing
 
-- [docs/overview.md](docs/overview.md)
-- [../../docs/creating-a-theme.md](../../docs/creating-a-theme.md)
-- [../foundation-theme/README.md](../foundation-theme/README.md)
-- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+Run package tests from the repository root:
+
+```bash
+vendor/bin/pest packages/theme-agency/tests --configuration=phpunit.xml
+```
+
+## Maintenance Notes
+
+- Theme output is public output. Keep admin-only metadata and editor hooks out of rendered markup.

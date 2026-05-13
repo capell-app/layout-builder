@@ -105,7 +105,7 @@ These have healthy ratios. Add tests only when fixing bugs from the punch list (
 
 ## 4. Cross-package install conflict tests
 
-Per-package suites cannot detect what only shows up when two packages register against the same registry. Today, `tests/Packages/` boots Address + LayoutBuilder + Blog + SeoSuite + Frontend + Admin, but it doesn't include Plugins, Tags, Navigation, Frontend Authoring, PublishingStudio, or any theme — and it doesn't assert on registry contents.
+Per-package suites cannot detect what only shows up when two packages register against the same registry. Today, `tests/Packages/` boots Address + layout builder + Blog + SeoSuite + Frontend + Admin, but it doesn't include Plugins, Tags, Navigation, Frontend Authoring, PublishingStudio, or any theme — and it doesn't assert on registry contents.
 
 We add tests under `tests/Packages/Integration/` that:
 

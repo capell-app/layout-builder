@@ -1,8 +1,16 @@
 # Media Library
 
-Status: **Available, no schema impact in this package** · Kind: **package** · Tier: **free** · Bundle: **foundation** · Contexts: **admin** · Product group: **Capell Foundation**
+Media Library connects Capell to Awcodes Curator media, media health reporting, and Spatie Media migration support.
 
-## What This Plugin Adds
+## At A Glance
+
+- Package: `capell-app/media-library`
+- Namespace: `Capell\MediaLibrary\`
+- Surfaces: Filament admin, console, database
+- Capell dependencies: `capell-app/admin`, `capell-app/core`
+- Third-party dependencies: `awcodes/filament-curator`
+
+## What It Adds
 
 Media Library connects Capell to Awcodes Curator media, media health reporting, and Spatie Media migration support.
 
@@ -53,11 +61,33 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Page: MediaHealthPage.
 - No migrations are present in this package.
 
-## Data Model
+## Code Map
+
+| Area      | Path                                  | Purpose                                                             |
+| --------- | ------------------------------------- | ------------------------------------------------------------------- |
+| Actions   | `packages/media-library/src/Actions`  | Domain operations. Test these directly where possible.              |
+| Data      | `packages/media-library/src/Data`     | Structured payloads, form state, view models, and integration data. |
+| Models    | `packages/media-library/src/Models`   | Eloquent records owned by the package.                              |
+| Filament  | `packages/media-library/src/Filament` | Admin resources, pages, widgets, and settings UI.                   |
+| Resources | `packages/media-library/resources`    | Views, translations, assets, and package resources.                 |
+| Tests     | `packages/media-library/tests`        | Package-level Pest coverage.                                        |
+
+## Admin Surface
+
+- Pages: `MediaHealthPage`, `MediaHealthTable`.
+
+## Commands
+
+- `capell:media-migrate-to-curator {--dry-run : Report what would happen without writing} {--collection=* : Spatie collection names to migrate (repeatable; default: all)} {--owner-type= : Restrict migration to this owner model FQCN} {--chunk=200 : Number of Spatie media rows to process per chunk}` (packages/media-library/src/Console/MigrateSpatieToCuratorCommand.php)
+
+## Data And Persistence
 
 - This package does not define its own migrations.
 - It relies on Curator and existing media tables.
 - Migration result data records counts and outcomes for Spatie-to-Curator moves.
+
+- Models: `CuratorMedia`.
+- Data objects live in `src/Data/`; use them for payloads, form state, and view models.
 
 ## Install Impact
 
@@ -66,9 +96,10 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Adds migration command.
 - No package-owned database changes.
 
-## Commands
+## Install And Setup
 
-- None proven in this package directory.
+- Install with `composer require capell-app/media-library` in the host Capell application.
+- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
 
 ## Admin And Access
 
@@ -82,14 +113,20 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Back up legacy Spatie media before migration.
 - Check disk paths and conversions before bulk migration.
 
-## Quick Start
+## Docs
 
-1. Install the package with `composer require capell-app/media-library`.
-2. Register the package provider through Composer discovery and clear cached config if the host app uses config caching.
-3. Open the new admin surface or integration point and verify the result.
+- [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+- [overview.md](docs/overview.md)
 
-## Next Steps
+## Testing
 
-- [docs/overview.md](docs/overview.md)
-- [../layout-builder/README.md](../layout-builder/README.md)
-- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+Run package tests from the repository root:
+
+```bash
+vendor/bin/pest packages/media-library/tests --configuration=phpunit.xml
+```
+
+## Maintenance Notes
+
+- Put behaviour changes in `src/Actions/`; UI classes, commands, and controllers should call actions instead of owning domain logic.
+- Use package `Data` classes at boundaries instead of passing anonymous arrays between layers.

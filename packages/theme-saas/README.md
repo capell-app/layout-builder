@@ -1,14 +1,16 @@
-# Theme SaaS
+# Theme Saas
 
-Status: **Available, no schema impact** · Kind: **theme** · Tier: **premium** · Bundle: **themes** · Contexts: **frontend** · Product group: **Capell Themes**
+Conversion-led SaaS theme for Capell.
 
-## What This Package Adds
+## At A Glance
 
-Theme SaaS is a standalone Capell theme package. It registers the `saas` theme key, extends Foundation Theme, and adds product-focused renderer views for software and subscription sites.
+- Package: `capell-app/theme-saas`
+- Namespace: `Capell\ThemeStudio\Saas\`
+- Capell dependencies: `capell-app/core`, `capell-app/foundation-theme`
 
-- SaaS theme service provider.
-- Theme renderer/views for SaaS theme output.
-- Dependency on Foundation Theme.
+## What It Adds
+
+- Conversion-led SaaS theme for Capell.
 
 ## Why It Matters
 
@@ -45,7 +47,14 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Ships Blade resources for the page wrapper and standard theme sections.
 - No migrations, config, routes, models, admin navigation, or package-owned settings are present.
 
-## Data Model
+## Code Map
+
+| Area      | Path                            | Purpose                                             |
+| --------- | ------------------------------- | --------------------------------------------------- |
+| Resources | `packages/theme-saas/resources` | Views, translations, assets, and package resources. |
+| Tests     | `packages/theme-saas/tests`     | Package-level Pest coverage.                        |
+
+## Data And Persistence
 
 - This package does not own data.
 - It consumes theme runtime settings and core page content.
@@ -57,9 +66,10 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - No admin navigation by itself.
 - No public routes by itself.
 
-## Commands
+## Install And Setup
 
-- None proven in this package directory.
+- Install with `composer require capell-app/theme-saas` in the host Capell application.
+- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
 
 ## Admin And Access
 
@@ -71,15 +81,19 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Verify Foundation Theme assets are generated.
 - Do not install a Studio metapackage; this package installs independently.
 
-## Quick Start
+## Docs
 
-1. Install the package with `composer require capell-app/theme-saas`.
-2. Choose `saas` during `capell:install`, the web installer, or from the Theme admin page after install.
-3. Generate or publish frontend assets through the host app flow.
+- [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+- [overview.md](docs/overview.md)
 
-## Next Steps
+## Testing
 
-- [docs/overview.md](docs/overview.md)
-- [../../docs/creating-a-theme.md](../../docs/creating-a-theme.md)
-- [../foundation-theme/README.md](../foundation-theme/README.md)
-- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+Run package tests from the repository root:
+
+```bash
+vendor/bin/pest packages/theme-saas/tests --configuration=phpunit.xml
+```
+
+## Maintenance Notes
+
+- Theme output is public output. Keep admin-only metadata and editor hooks out of rendered markup.

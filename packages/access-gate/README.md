@@ -1,83 +1,89 @@
-# Capell Access Gate
+# Access Gate
 
-Reusable gated access areas for Capell and Laravel applications.
+Access gating foundations for Capell CMS.
 
-The package owns areas, registrations, approvals, grants, claim links, browser tokens, middleware, notifications, audit events, install/setup/doctor commands, and Filament administration.
+## At A Glance
 
-## Targeted Public Action Buttons
+- Package: `capell-app/access-gate`
+- Namespace: `Capell\AccessGate\`
+- Surfaces: Filament admin, console, HTTP, database
+- Service providers: `packages/access-gate/src/Providers/AccessGateServiceProvider.php`
+- Capell dependencies: `capell-app/core`
+- Third-party dependencies: `laravel/framework`, `lorisleiva/laravel-actions`
 
-Access Gate can still protect whole routes with middleware, but it can also be triggered from a single button or standalone public action URL through `capell-app/public-actions`.
+## What It Adds
 
-Create a Public Action whose handler key is `access-gate.request`, then render:
+- Access gating foundations for Capell CMS.
+- Admin resources: `AccessAreaResource`, `AccessGateEventResource`, `BrowserTokenResource`, `ClaimTokenResource`, `GrantResource`, `RegistrationResource`.
+- Package setup or maintenance commands.
 
-```blade
-<x-capell-access-gate::request-cta
-    area="preview"
-    public-action-key="preview-access"
-    requested-url="{{ url()->current() }}"
-/>
+## Code Map
+
+| Area      | Path                                 | Purpose                                                             |
+| --------- | ------------------------------------ | ------------------------------------------------------------------- |
+| Actions   | `packages/access-gate/src/Actions`   | Domain operations. Test these directly where possible.              |
+| Data      | `packages/access-gate/src/Data`      | Structured payloads, form state, view models, and integration data. |
+| Enums     | `packages/access-gate/src/Enums`     | Persisted states and Filament option values.                        |
+| Models    | `packages/access-gate/src/Models`    | Eloquent records owned by the package.                              |
+| Filament  | `packages/access-gate/src/Filament`  | Admin resources, pages, widgets, and settings UI.                   |
+| HTTP      | `packages/access-gate/src/Http`      | Controllers, middleware, and request handling.                      |
+| Providers | `packages/access-gate/src/Providers` | Registration, extension hooks, routes, migrations, and resources.   |
+| Resources | `packages/access-gate/resources`     | Views, translations, assets, and package resources.                 |
+| Routes    | `packages/access-gate/routes`        | Route files loaded by the service provider.                         |
+| Config    | `packages/access-gate/config`        | Package configuration and publishable config.                       |
+| Database  | `packages/access-gate/database`      | Migrations, seeders, and settings migrations.                       |
+| Tests     | `packages/access-gate/tests`         | Package-level Pest coverage.                                        |
+
+## Admin Surface
+
+- Resources: `AccessAreaResource`, `AccessGateEventResource`, `BrowserTokenResource`, `ClaimTokenResource`, `GrantResource`, `RegistrationResource`.
+- Pages: `CreateAccessArea`, `EditAccessArea`, `ListAccessAreas`, `ListAccessGateEvents`, `ListBrowserTokens`, `ListClaimTokens`, `ListGrants`, `ListRegistrations`.
+
+## Runtime Surface
+
+- Controllers: `AccessGateStatusController`, `ClaimAccessGateTokenController`, `LogoutAccessGateController`, `ShowAccessRequestController`, `StoreAccessRequestController`.
+- Routes: `packages/access-gate/routes/web.php`.
+
+## Commands
+
+- `capell:access-gate-doctor` (packages/access-gate/src/Console/Commands/AccessGateDoctorCommand.php)
+- `capell:access-gate-install` (packages/access-gate/src/Console/Commands/AccessGateInstallCommand.php)
+- `capell:access-gate-setup` (packages/access-gate/src/Console/Commands/AccessGateSetupCommand.php)
+
+## Data And Persistence
+
+- Models: `AccessGateModel`, `Area`, `BrowserToken`, `ClaimToken`, `Event`, `Grant`, `Registration`.
+- Migrations: `2026_05_10_190838_01_create_access_gate_areas_table.php`, `2026_05_10_190838_02_create_access_gate_registrations_table.php`, `2026_05_10_190838_03_create_access_gate_grants_table.php`, `2026_05_10_190838_04_create_access_gate_claim_tokens_table.php`, `2026_05_10_190838_05_create_access_gate_browser_tokens_table.php`, `2026_05_10_190838_06_create_access_gate_events_table.php`, `2026_05_10_190838_07_add_site_id_to_access_gate_areas_table.php`, `2026_05_12_120000_08_add_schedule_to_access_gate_areas_table.php`, `2026_05_12_120001_09_add_download_resolver_indexes_to_access_gate_tables.php`.
+- Config: `packages/access-gate/config/access-gate.php`.
+- Data objects live in `src/Data/`; use them for payloads, form state, and view models.
+
+## Extension Points
+
+- Contracts: `AccessRequestMethod`, `RegistrationField`.
+- Events: `RegistrationApproved`.
+- Register Capell extension points, routes, migrations, settings, render hooks, and resources from service providers.
+
+## Install And Setup
+
+- Install with `composer require capell-app/access-gate` in the host Capell application.
+- Run migrations through the host application package install flow.
+- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
+
+## Docs
+
+- [access-requests.md](docs/access-requests.md)
+
+## Testing
+
+Run package tests from the repository root:
+
+```bash
+vendor/bin/pest packages/access-gate/tests --configuration=phpunit.xml
 ```
 
-The button posts a normal public form. Access Gate receives the payload, creates the registration, and Public Actions can then dispatch configured webhook/API destinations. If `public-action-key` is omitted, the component falls back to the built-in `/access/request/{area}` submission route.
+## Maintenance Notes
 
-## Request Methods
-
-The package renders the plain email request flow by default. Host applications can register additional request methods without the package knowing about the provider.
-
-Use this for app-owned flows such as GitHub OAuth:
-
-```php
-use Capell\AccessGate\Contracts\AccessRequestMethod;
-use Capell\AccessGate\Models\Area;
-
-final class GitHubAccessRequestMethod implements AccessRequestMethod
-{
-    public function key(): string
-    {
-        return 'github';
-    }
-
-    public function label(): string
-    {
-        return __('app.access_gate.github');
-    }
-
-    public function description(): ?string
-    {
-        return __('app.access_gate.github_help');
-    }
-
-    public function isEnabled(Area $area): bool
-    {
-        return (bool) config('services.github.access_gate_enabled');
-    }
-
-    public function isPrimary(Area $area): bool
-    {
-        return true;
-    }
-
-    public function url(Area $area, ?string $requestedUrl = null): string
-    {
-        return route('app.access-gate.github.redirect', [
-            'area' => $area->key,
-            'redirect' => $requestedUrl,
-        ]);
-    }
-}
-```
-
-Register the method in `access-gate.registration.identity_methods` or directly through `AccessRequestMethodRegistry`.
-
-The Capell app should own OAuth state, provider callbacks, verified email lookup, GitHub username/profile metadata, and the decision to call `CreateRegistrationAction`, `ApproveRegistrationAction`, or `CreateAccessGateGrantAction`.
-
-## Frontend Rules
-
-When `capell-app/frontend` is installed, Access Gate registers these frontend rule conditions:
-
-- `access_gate_has_active_grant`
-- `access_gate_missing_active_grant`
-- `access_gate_registration_status`
-- `access_gate_area_status`
-
-Rules fail closed when an area, condition, or registration cannot be resolved.
+- Treat public routes as untrusted input and keep validation, permission checks, and side effects inside actions or dedicated services.
+- Put behaviour changes in `src/Actions/`; UI classes, commands, and controllers should call actions instead of owning domain logic.
+- Use package `Data` classes at boundaries instead of passing anonymous arrays between layers.
+- Use backed enums for persisted values and enum labels for Filament options.

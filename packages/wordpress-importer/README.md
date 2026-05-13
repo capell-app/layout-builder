@@ -1,17 +1,18 @@
-# WordPress Importer
+# Wordpress Importer
 
-WordPress Importer adds WordPress WXR XML parsing to the Capell Migration AIOrchestrator.
+WordPress WXR import source for the Capell Migration AIOrchestrator.
 
-It is intentionally separate from `capell-app/migration-assistant`: MigrationAssistant owns the ai-orchestrator workflow, mapping, preview, validation, execution state, and rollback dashboard-dashboard_reports; this package owns the WordPress export reader.
+## At A Glance
 
-## What It Reads
+- Package: `capell-app/wordpress-importer`
+- Namespace: `Capell\WordPressImporter\`
+- Service providers: `packages/wordpress-importer/src/Providers/WordPressImporterServiceProvider.php`
+- Capell dependencies: `capell-app/admin`, `capell-app/core`, `capell-app/migration-assistant`
+- Third-party dependencies: `ext-simplexml`, `spatie/laravel-package-tools`
 
-- WordPress WXR posts and pages.
-- Title, slug, link, content, excerpt, status, date, parent id, and author login.
-- Category and tag metadata.
-- Attachment URL references where the export includes them.
+## What It Adds
 
-The reader returns MigrationAssistant's neutral source shape so the ai-orchestrator can map the rows to Capell pages or types, preview changes, validate the plan, execute the import, and produce the rollback report.
+- WordPress WXR import source for the Capell Migration AIOrchestrator.
 
 ## Built With
 
@@ -32,12 +33,42 @@ This package makes its Composer dependencies visible because they are part of th
 
 [![Spatie Laravel Package Tools GitHub preview](https://opengraph.githubassets.com/capell-readme/spatie/laravel-package-tools)](https://github.com/spatie/laravel-package-tools)
 
+## Screens And Workflow
+
+Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) during package deployment.
+
+## Code Map
+
+| Area      | Path                                        | Purpose                                                           |
+| --------- | ------------------------------------------- | ----------------------------------------------------------------- |
+| Providers | `packages/wordpress-importer/src/Providers` | Registration, extension hooks, routes, migrations, and resources. |
+| Resources | `packages/wordpress-importer/resources`     | Views, translations, assets, and package resources.               |
+| Tests     | `packages/wordpress-importer/tests`         | Package-level Pest coverage.                                      |
+
+## Extension Points
+
+- Register Capell extension points, routes, migrations, settings, render hooks, and resources from service providers.
+
 ## Install Impact
 
 - Requires `capell-app/migration-assistant`, `capell-app/core`, `capell-app/admin`, and `ext-simplexml`.
 - Registers a WordPress WXR source reader with MigrationAssistant.
 - Does not add migrations; MigrationAssistant owns import sessions and rollback dashboard-dashboard_reports.
 
-## Package Docs
+## Install And Setup
 
-- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+- Install with `composer require capell-app/wordpress-importer` in the host Capell application.
+- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
+
+## Docs
+
+- [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+- [overview.md](docs/overview.md)
+
+## Testing
+
+Run package tests from the repository root:
+
+```bash
+vendor/bin/pest packages/wordpress-importer/tests --configuration=phpunit.xml
+```

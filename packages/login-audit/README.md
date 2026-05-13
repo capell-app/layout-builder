@@ -1,8 +1,17 @@
 # Login Audit
 
-Status: **Available, schema-owning** · Kind: **package** · Tier: **premium** · Bundle: **operations** · Contexts: **admin** · Product group: **Capell Operations**
+Login Audit records login, failed login, logout, and admin/user activity metadata for Capell users.
 
-## What This Plugin Adds
+## At A Glance
+
+- Package: `capell-app/login-audit`
+- Namespace: `Capell\LoginAudit\`
+- Surfaces: Filament admin, database
+- Service providers: `packages/login-audit/src/Providers/AdminServiceProvider.php`, `packages/login-audit/src/Providers/LoginAuditServiceProvider.php`
+- Capell dependencies: `capell-app/admin`
+- Third-party dependencies: `rappasoft/laravel-authentication-log`, `tapp/filament-authentication-log`
+
+## What It Adds
 
 Login Audit records login, failed login, logout, and admin/user activity metadata for Capell users.
 
@@ -54,11 +63,39 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Filament resource: LoginAuditResource.
 - Middleware: AdminActivityMiddleware and UserActivityMiddleware.
 
-## Data Model
+## Code Map
+
+| Area      | Path                                 | Purpose                                                           |
+| --------- | ------------------------------------ | ----------------------------------------------------------------- |
+| Actions   | `packages/login-audit/src/Actions`   | Domain operations. Test these directly where possible.            |
+| Models    | `packages/login-audit/src/Models`    | Eloquent records owned by the package.                            |
+| Filament  | `packages/login-audit/src/Filament`  | Admin resources, pages, widgets, and settings UI.                 |
+| HTTP      | `packages/login-audit/src/Http`      | Controllers, middleware, and request handling.                    |
+| Providers | `packages/login-audit/src/Providers` | Registration, extension hooks, routes, migrations, and resources. |
+| Resources | `packages/login-audit/resources`     | Views, translations, assets, and package resources.               |
+| Config    | `packages/login-audit/config`        | Package configuration and publishable config.                     |
+| Database  | `packages/login-audit/database`      | Migrations, seeders, and settings migrations.                     |
+| Tests     | `packages/login-audit/tests`         | Package-level Pest coverage.                                      |
+
+## Admin Surface
+
+- Resources: `LoginAuditResource`.
+- Widgets: `LoginAuditsWidget`.
+- Settings: `LoginAuditSettings`.
+
+## Data And Persistence
 
 - login_audit stores authenticatable type/id, IP address, user agent, login time, and logout time.
 - Records belong polymorphically to authenticatable users.
 - Config purge value defaults to 365 days.
+
+- Models: `LoginAudit`.
+- Migrations: `2026_05_10_190857_01_create_login_audit_table.php`.
+- Config: `packages/login-audit/config/login-audit.php`.
+
+## Extension Points
+
+- Register Capell extension points, routes, migrations, settings, render hooks, and resources from service providers.
 
 ## Install Impact
 
@@ -68,9 +105,11 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Listens to Laravel auth events configured in login-audit.php.
 - May send new-device or failed-login notifications depending on config.
 
-## Commands
+## Install And Setup
 
-- None proven in this package directory.
+- Install with `composer require capell-app/login-audit` in the host Capell application.
+- Run migrations through the host application package install flow.
+- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
 
 ## Admin And Access
 
@@ -84,14 +123,20 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Confirm notification settings before production rollout.
 - Run migrations before loading the resource.
 
-## Quick Start
+## Docs
 
-1. Install the package with `composer require capell-app/login-audit`.
-2. Run the package migrations or the Capell package installer required by the host app.
-3. Open the new admin surface or integration point and verify the result.
+- [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+- [overview.md](docs/overview.md)
+- [settings-and-ip-resolution.md](docs/settings-and-ip-resolution.md)
 
-## Next Steps
+## Testing
 
-- [docs/overview.md](docs/overview.md)
-- [../diagnostics/README.md](../diagnostics/README.md)
-- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+Run package tests from the repository root:
+
+```bash
+vendor/bin/pest packages/login-audit/tests --configuration=phpunit.xml
+```
+
+## Maintenance Notes
+
+- Put behaviour changes in `src/Actions/`; UI classes, commands, and controllers should call actions instead of owning domain logic.

@@ -10,13 +10,13 @@ Blog adds article publishing, archive pages, tag pages, article widgets, Site Di
 
 - Article Filament resource.
 - Blog, archive, and tag frontend Livewire components.
-- Article widgets and configurators for LayoutBuilder.
+- Article widgets and configurators for layout builder.
 - Site Discovery sitemap contributions for articles, archives, and tags.
 - Commands to install and create blog pages.
 
 ## Developer Notes
 
-Builds on core pages, layouts, translations, page URLs, LayoutBuilder widgets, and tags while keeping article-specific logic in actions and loaders.
+Builds on core pages, layouts, translations, page URLs, core layout builder widgets, and tags while keeping article-specific logic in actions and loaders.
 
 - BlogServiceProvider, AdminServiceProvider, ConsoleServiceProvider, and FrontendServiceProvider register package surfaces.
 - Migration creates articles.
@@ -32,14 +32,13 @@ Gives editors a dedicated article workflow that still fits the same structured p
 - Adds articles table and article admin resource.
 - Adds blog frontend components and Site Discovery sitemap contributions.
 - Adds console commands for setup, install, demo, faker, and page creation.
-- Requires LayoutBuilder package first.
 - May add blog pages to navigation through listener behaviour.
 
 ## Data And Retention
 
 - articles stores uuid, workspace, type, layout, site, meta, visible_from, and visible_until.
-- Articles connect to sites, types, layouts, page URLs, translations, LayoutBuilder widget assets, and tags.
-- Blog requires LayoutBuilder before install.
+- Articles connect to sites, types, layouts, page URLs, translations, core layout builder widget assets, and tags.
+- Blog uses the layout builder APIs provided by the admin/frontend core packages.
 - Deletion and retention behaviour should be verified against the host application policy.
 
 ## Screenshot Plan
@@ -52,7 +51,6 @@ Gives editors a dedicated article workflow that still fits the same structured p
 
 ## Pitfalls
 
-- Install LayoutBuilder first.
 - Run the package setup before expecting archive/tag pages.
 - Check layouts before creating article records.
 - Cache and Site Discovery sitemap output may need regeneration after setup.

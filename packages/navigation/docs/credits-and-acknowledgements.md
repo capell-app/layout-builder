@@ -21,7 +21,7 @@ Package role: Navigation for Capell
 
 ## What We Especially Appreciate
 
-Navigation is useful because it gives menus a package boundary. Themes, Blog, Layout Builder, and Publishing Studio can depend on menu behaviour without reaching into each other.
+Navigation is useful because it gives menus a package boundary. Themes, Blog, core layout builder APIs, and Publishing Studio can depend on menu behaviour without reaching into each other.
 
 ## Keeping This Page Current
 

@@ -1,6 +1,6 @@
 # Package Testing Audit
 
-## layout-builder
+## admin/frontend layout builder APIs
 
 - [ ] Installs cleanly in a fresh Capell demo workbench
 - [ ] Declared package dependencies are correct
@@ -14,7 +14,7 @@
 - [ ] Package Pest suite is meaningful, not just smoke coverage
 - [ ] Coverage gap list exists for untested Actions, Data objects, Enums, services, policies, resources, and frontend render paths
 - [ ] `README.md` and package docs match the real install and usage flow
-- [ ] `packages/layout-builder/docs/screenshots.json` covers the important admin and frontend surfaces
+- [ ] Admin/frontend core docs cover the important layout builder admin and frontend surfaces
 - [ ] Generated screenshots are clear, seeded with useful data, and not hiding broken UI states
 - [ ] Known risks and follow-up issues are recorded
 
@@ -36,7 +36,7 @@
 - [x] Generated screenshots are clear, seeded with useful data, and not hiding broken UI states
 - [x] Known risks and follow-up issues are recorded
 - Blog test suite passed cleanly: Arch, Filament resources, widgets, static-site behavior, and integration command coverage all green.
-- Blog dependencies are explicit in `capell.json` and include `layout-builder`, `navigation`, `tags`, `insights`, `frontend`, `admin`, and `core`.
+- Blog dependencies are explicit in `capell.json` and no longer include a separate `capell-app/layout-builder` package.
 
 ## address
 
@@ -76,7 +76,7 @@
 - [x] Generated screenshots are clear, seeded with useful data, and not hiding broken UI states
 - [x] Known risks and follow-up issues are recorded
 - AIOrchestrator test suite passed cleanly with boundary, capability, and registry coverage in place.
-- The package surface stays isolated from LayoutBuilder, which matches the package boundary rule.
+- The package surface stays isolated from removed `Capell\LayoutBuilder` namespaces, which matches the package boundary rule.
 
 ## insights
 

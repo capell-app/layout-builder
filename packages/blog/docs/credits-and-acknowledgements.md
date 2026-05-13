@@ -19,7 +19,7 @@ Package role: Blog for Capell
 - [Capell Admin](https://docs.capell.app) supplies the Capell-side contracts, surfaces, or runtime that Blog builds on.
 - [Insights](../../insights/README.md) supplies the Capell-side contracts, surfaces, or runtime that Blog builds on.
 - [Capell Frontend](https://docs.capell.app) supplies the Capell-side contracts, surfaces, or runtime that Blog builds on.
-- [Layout Builder](../../layout-builder/README.md) supplies the Capell-side contracts, surfaces, or runtime that Blog builds on.
+- Core admin/frontend layout builder APIs supply the Capell-side contracts, surfaces, and runtime that Blog builds on.
 - [Navigation](../../navigation/README.md) supplies the Capell-side contracts, surfaces, or runtime that Blog builds on.
 - [Tags](../../tags/README.md) supplies the Capell-side contracts, surfaces, or runtime that Blog builds on.
 - [Publishing Studio](../../publishing-studio/README.md) supplies the Capell-side contracts, surfaces, or runtime that Blog builds on.

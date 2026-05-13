@@ -1,8 +1,16 @@
 # Navigation
 
-Status: **Available, schema-owning** · Kind: **package** · Tier: **free** · Bundle: **foundation** · Contexts: **admin, frontend, console** · Product group: **Capell Foundation**
+Navigation owns editor-managed menus and renders structured navigation data for Capell frontend themes.
 
-## What This Plugin Adds
+## At A Glance
+
+- Package: `capell-app/navigation`
+- Namespace: `Capell\Navigation\`
+- Surfaces: Filament admin, console, database
+- Service providers: `packages/navigation/src/Providers/NavigationServiceProvider.php`
+- Capell dependencies: `capell-app/admin`, `capell-app/frontend`
+
+## What It Adds
 
 Navigation adds site and language scoped navigation trees, page navigation fields, sync actions, and frontend loading support.
 
@@ -51,12 +59,47 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Policy: NavigationPolicy.
 - Events/listeners handle creation and site replication.
 
-## Data Model
+## Code Map
+
+| Area      | Path                                | Purpose                                                             |
+| --------- | ----------------------------------- | ------------------------------------------------------------------- |
+| Actions   | `packages/navigation/src/Actions`   | Domain operations. Test these directly where possible.              |
+| Data      | `packages/navigation/src/Data`      | Structured payloads, form state, view models, and integration data. |
+| Enums     | `packages/navigation/src/Enums`     | Persisted states and Filament option values.                        |
+| Models    | `packages/navigation/src/Models`    | Eloquent records owned by the package.                              |
+| Filament  | `packages/navigation/src/Filament`  | Admin resources, pages, widgets, and settings UI.                   |
+| Providers | `packages/navigation/src/Providers` | Registration, extension hooks, routes, migrations, and resources.   |
+| Resources | `packages/navigation/resources`     | Views, translations, assets, and package resources.                 |
+| Database  | `packages/navigation/database`      | Migrations, seeders, and settings migrations.                       |
+| Tests     | `packages/navigation/tests`         | Package-level Pest coverage.                                        |
+
+## Admin Surface
+
+- Resources: `NavigationResource`.
+- Pages: `CreateNavigation`, `EditNavigation`, `ListNavigations`.
+
+## Commands
+
+- `capell:navigation-demo {--sites=} {--languages=}` (packages/navigation/src/Console/Commands/DemoCommand.php)
+- `capell:navigation-setup {--sites=}` (packages/navigation/src/Console/Commands/SetupCommand.php)
+
+## Data And Persistence
 
 - navigations stores key, type, site, language, items JSON, meta, and visibility windows.
 - Navigation items may reference pages and page URLs through JSON.
 - Navigations connect to sites, languages, and types.
 - Cache key enum indicates navigation cache behaviour.
+
+- Models: `Navigation`.
+- Migrations: `2026_05_10_190860_01_create_navigations_table.php`.
+- Data objects live in `src/Data/`; use them for payloads, form state, and view models.
+
+## Extension Points
+
+- Contracts: `NavigationNamesResolver`, `NavigationPageSyncer`.
+- Events: `NavigationCreating`.
+- Listeners: `ReplicateSiteNavigationsListener`.
+- Register Capell extension points, routes, migrations, settings, render hooks, and resources from service providers.
 
 ## Install Impact
 
@@ -66,10 +109,11 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - No explicit public route is registered by this package.
 - Adds setup and demo commands.
 
-## Commands
+## Install And Setup
 
-- `capell:navigation-demo {--sites=} {--languages=}` (packages/navigation/src/Console/Commands/DemoCommand.php)
-- `capell:navigation-setup {--sites=}` (packages/navigation/src/Console/Commands/SetupCommand.php)
+- Install with `composer require capell-app/navigation` in the host Capell application.
+- Run migrations through the host application package install flow.
+- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
 
 ## Admin And Access
 
@@ -86,15 +130,22 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Resolve stale page references after deleting pages.
 - Clear navigation cache after manual data changes.
 
-## Quick Start
+## Docs
 
-1. Install the package with `composer require capell-app/navigation`.
-2. Run the package migrations or the Capell package installer required by the host app.
-3. Open the new admin or frontend surface and verify the result.
+- [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+- [overview.md](docs/overview.md)
+- [rendering-and-sync.md](docs/rendering-and-sync.md)
 
-## Next Steps
+## Testing
 
-- [docs/overview.md](docs/overview.md)
-- [../blog/README.md](../blog/README.md)
-- [../publishing-studio/README.md](../publishing-studio/README.md)
-- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+Run package tests from the repository root:
+
+```bash
+vendor/bin/pest packages/navigation/tests --configuration=phpunit.xml
+```
+
+## Maintenance Notes
+
+- Put behaviour changes in `src/Actions/`; UI classes, commands, and controllers should call actions instead of owning domain logic.
+- Use package `Data` classes at boundaries instead of passing anonymous arrays between layers.
+- Use backed enums for persisted values and enum labels for Filament options.

@@ -1,127 +1,71 @@
-# Capell Frontend Optimizer
+# Frontend Optimizer
 
 Profile-based CSS and JavaScript delivery for public Capell pages.
 
-The package keeps frontend optimization out of themes. Themes, layouts, widgets,
-and blocks declare the assets they need; the optimizer resolves a render profile,
-stores a manifest, queues Playwright critical CSS generation, and renders only the
-assets for that profile.
+## At A Glance
 
-## Runtime Model
+- Package: `capell-app/frontend-optimizer`
+- Namespace: `Capell\FrontendOptimizer\`
+- Surfaces: queue, database
+- Service providers: `packages/frontend-optimizer/src/Providers/FrontendOptimizerServiceProvider.php`
+- Capell dependencies: `capell-app/core`, `capell-app/frontend`
+- Third-party dependencies: `lorisleiva/laravel-actions`, `spatie/laravel-data`, `spatie/laravel-package-tools`, `symfony/process`
 
-1. Register layout and widget asset sets from PHP package code.
-2. Resolve the optimization scope. Layout overrides win, then site overrides, then
-   `config('capell-frontend-optimizer.scope')`.
-3. Prepare a render profile with `PrepareRenderProfileAction`.
-4. Render the profile assets in the public layout with `@frontendOptimizerAssets($profileHash)`.
-5. If critical CSS is missing or failed, normal CSS and JavaScript still render.
-   The queued job fails loudly, but public pages do not break.
+## What It Adds
 
-## Registering Assets
+- Profile-based CSS and JavaScript delivery for public Capell pages.
 
-```php
-use Capell\FrontendOptimizer\Enums\AssetLoadingStrategy;
-use Capell\FrontendOptimizer\Enums\AssetSlot;
-use Capell\FrontendOptimizer\Support\FrontendAssetSet;
-use Capell\FrontendOptimizer\Support\LayoutAssetRegistry;
-use Capell\FrontendOptimizer\Support\WidgetAssetRegistry;
+## Code Map
 
-app(LayoutAssetRegistry::class)->register(
-    'landing',
-    FrontendAssetSet::make()
-        ->css('theme-base', '/build/theme/base.css', AssetLoadingStrategy::Blocking, AssetSlot::Base)
-        ->css('hero', '/build/theme/hero.css', AssetLoadingStrategy::Critical, AssetSlot::AboveFold, criticalEligible: true),
-);
+| Area      | Path                                        | Purpose                                                             |
+| --------- | ------------------------------------------- | ------------------------------------------------------------------- |
+| Actions   | `packages/frontend-optimizer/src/Actions`   | Domain operations. Test these directly where possible.              |
+| Data      | `packages/frontend-optimizer/src/Data`      | Structured payloads, form state, view models, and integration data. |
+| Enums     | `packages/frontend-optimizer/src/Enums`     | Persisted states and Filament option values.                        |
+| Models    | `packages/frontend-optimizer/src/Models`    | Eloquent records owned by the package.                              |
+| Jobs      | `packages/frontend-optimizer/src/Jobs`      | Queued work and async side effects.                                 |
+| Providers | `packages/frontend-optimizer/src/Providers` | Registration, extension hooks, routes, migrations, and resources.   |
+| Resources | `packages/frontend-optimizer/resources`     | Views, translations, assets, and package resources.                 |
+| Config    | `packages/frontend-optimizer/config`        | Package configuration and publishable config.                       |
+| Database  | `packages/frontend-optimizer/database`      | Migrations, seeders, and settings migrations.                       |
+| Tests     | `packages/frontend-optimizer/tests`         | Package-level Pest coverage.                                        |
 
-app(WidgetAssetRegistry::class)->register(
-    'carousel',
-    FrontendAssetSet::make()
-        ->css('carousel', '/build/widgets/carousel.css', AssetLoadingStrategy::Preload, AssetSlot::AboveFold, criticalEligible: true)
-        ->js('carousel', '/build/widgets/carousel.js', AssetLoadingStrategy::Deferred),
-);
-```
+## Runtime Surface
 
-Widget registrations can include a condition closure when an asset only applies
-to some widget instances.
+- Jobs: `GenerateCriticalCssJob`.
 
-```php
-app(WidgetAssetRegistry::class)->register(
-    'asset-list',
-    FrontendAssetSet::make()->js('carousel', '/build/widgets/carousel.js'),
-    static fn (array $widgetData): bool => ($widgetData['display'] ?? null) === 'carousel',
-);
-```
+## Data And Persistence
 
-## Preparing A Profile
+- Models: `FrontendOptimizationRun`, `FrontendRenderProfile`.
+- Migrations: `2026_05_10_190851_01_create_frontend_optimizer_tables.php`.
+- Config: `packages/frontend-optimizer/config/capell-frontend-optimizer.php`.
+- Data objects live in `src/Data/`; use them for payloads, form state, and view models.
 
-```php
-use Capell\FrontendOptimizer\Actions\PrepareRenderProfileAction;
-use Capell\FrontendOptimizer\Actions\ResolveOptimizationScopeAction;
+## Extension Points
 
-$scope = ResolveOptimizationScopeAction::run(
-    layoutScope: $layout->frontend_optimization_scope,
-    siteScope: $site->frontend_optimization_scope,
-);
+- Contracts: `CriticalCssGenerator`.
+- Register Capell extension points, routes, migrations, settings, render hooks, and resources from service providers.
 
-$profile = PrepareRenderProfileAction::run(
-    scope: $scope,
-    context: [
-        'layout' => $layout->getKey(),
-        'theme' => $theme->getKey(),
-        'widgets' => $widgetSignature,
-    ],
-    assetSets: $assetSets,
-    url: request()->fullUrl(),
-    label: $layout->name,
-);
-```
+## Install And Setup
 
-Render the assets in the page layout:
+- Install with `composer require capell-app/frontend-optimizer` in the host Capell application.
+- Run migrations through the host application package install flow.
+- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
 
-```blade
-@frontendOptimizerAssets($profile->hash)
-```
+## Docs
 
-The directive emits plain public HTML only. It does not expose editor metadata,
-model identifiers, signed URLs, or Capell package markers.
+- [assets-and-render-profiles.md](docs/assets-and-render-profiles.md)
 
-## Critical CSS
+## Testing
 
-Critical CSS generation requires Node and Playwright. There is no Beasties or
-Critters fallback.
+Run package tests from the repository root:
 
 ```bash
-npm install
-npm run playwright:install
+vendor/bin/pest packages/frontend-optimizer/tests --configuration=phpunit.xml
 ```
 
-The worker opens the page in Chromium for each configured viewport and collects
-CSS rules that match visible above-the-fold elements. Stylesheet inspection is
-limited to profile CSS assets that are critical eligible, above fold, base, head,
-blocking, or preload assets. Below-fold lazy assets are ignored.
+## Maintenance Notes
 
-If generation fails, `GenerateCriticalCssJob` fails and records the run. Public
-rendering continues with normal stylesheet and script tags.
-
-## Configuration
-
-```php
-'enabled' => true,
-'scope' => 'layout',
-'paths' => [
-    'manifests' => 'capell/frontend-optimizer/manifests',
-    'critical_css' => 'capell/frontend-optimizer/critical-css',
-],
-'playwright' => [
-    'node_binary' => env('CAPELL_FRONTEND_OPTIMIZER_NODE', 'node'),
-    'timeout' => 120,
-    'viewports' => [
-        ['width' => 390, 'height' => 844],
-        ['width' => 1440, 'height' => 900],
-    ],
-],
-```
-
-Keep theme-level manual critical CSS fields as legacy input only. New theme and
-widget packages should register assets with this optimizer instead of baking
-critical CSS paths into theme configuration.
+- Put behaviour changes in `src/Actions/`; UI classes, commands, and controllers should call actions instead of owning domain logic.
+- Use package `Data` classes at boundaries instead of passing anonymous arrays between layers.
+- Use backed enums for persisted values and enum labels for Filament options.

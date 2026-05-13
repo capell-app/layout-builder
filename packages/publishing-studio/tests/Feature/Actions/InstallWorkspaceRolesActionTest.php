@@ -15,11 +15,17 @@ it('installs the three workspace roles with the expected permission tiers', func
     $releaseManager = Role::query()->where('name', InstallWorkspaceRolesAction::ROLE_RELEASE_MANAGER)->firstOrFail();
 
     expect($editor->permissions->pluck('name')->all())
-        ->toEqualCanonicalizing([InstallWorkspaceRolesAction::PERMISSION_SUBMIT])
+        ->toEqualCanonicalizing([
+            InstallWorkspaceRolesAction::PERMISSION_SUBMIT,
+            PublishingStudioPermission::ViewPublishingWorkflowPage->value,
+            PublishingStudioPermission::ViewStaleDraftsPage->value,
+        ])
         ->and($reviewer->permissions->pluck('name')->all())
         ->toEqualCanonicalizing([
             InstallWorkspaceRolesAction::PERMISSION_SUBMIT,
             InstallWorkspaceRolesAction::PERMISSION_APPROVE,
+            PublishingStudioPermission::ViewPublishingWorkflowPage->value,
+            PublishingStudioPermission::ViewStaleDraftsPage->value,
         ])
         ->and($releaseManager->permissions->pluck('name')->all())
         ->toEqualCanonicalizing([
@@ -28,6 +34,9 @@ it('installs the three workspace roles with the expected permission tiers', func
             InstallWorkspaceRolesAction::PERMISSION_PUBLISH,
             InstallWorkspaceRolesAction::PERMISSION_ROLLBACK,
             InstallWorkspaceRolesAction::PERMISSION_PUBLISH_OUTSIDE_WINDOW,
+            PublishingStudioPermission::ViewPublishingWorkflowPage->value,
+            PublishingStudioPermission::ViewScheduledPublishingPage->value,
+            PublishingStudioPermission::ViewStaleDraftsPage->value,
         ]);
 });
 
@@ -65,9 +74,9 @@ it('is idempotent when invoked repeatedly — no duplicate roles, permissions, o
 
     // Pivot rows are deduplicated by (role_id, permission_id) — running the
     // action a second time must not double-attach permissions to roles.
-    expect($editor->permissions()->count())->toBe(1)
-        ->and($reviewer->permissions()->count())->toBe(2)
-        ->and($releaseManager->permissions()->count())->toBe(5);
+    expect($editor->permissions()->count())->toBe(3)
+        ->and($reviewer->permissions()->count())->toBe(4)
+        ->and($releaseManager->permissions()->count())->toBe(8);
 });
 
 it('inserts every publishing-studio permission enum case', function (): void {

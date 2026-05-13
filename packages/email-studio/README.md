@@ -1,27 +1,18 @@
 # Email Studio
 
-Status: **In development, schema-owning** · Kind: **package** · Tier: **premium** · Bundle: **communications** · Contexts: **admin, frontend, queue** · Product group: **Capell Communications**
+Template-driven transactional email, delivery auditing, provider events, replies, and suppressions for Capell CMS.
 
-Email Studio is Capell's transactional email centre. It gives packages a common way to register templates, render site-aware variants, send through configured providers, and keep an audit trail of what happened after the send.
+## At A Glance
 
-It is not a newsletter package. Newsletter and audience tools own subscribers, imports, segments, consent, and bulk campaign delivery. Email Studio owns the operational email layer: form confirmations, account messages, editorial notifications, delivery events, replies, suppressions, and the diagnostics needed when a client asks whether an email was sent.
+- Package: `capell-app/email-studio`
+- Namespace: `Capell\EmailStudio\`
+- Surfaces: HTTP, queue, database
+- Service providers: `packages/email-studio/src/Providers/AdminServiceProvider.php`, `packages/email-studio/src/Providers/EmailStudioServiceProvider.php`, `packages/email-studio/src/Providers/FrontendServiceProvider.php`
+- Capell dependencies: `capell-app/admin`, `capell-app/core`, `capell-app/frontend`
 
-## What This Package Adds
+## What It Adds
 
-- Reusable email templates with site-scoped variants, locale fallback, declared variables, subject, preview text, HTML, and plain text bodies.
-- Delivery profiles for sender identity, reply-to addresses, provider type, tracking defaults, and provider settings.
-- `SendEmailAction` as the canonical entrypoint for Capell packages that need audited email.
-- Queue-first delivery through `SendEmailJob`, with immediate delivery available for tests and controlled workflows.
-- Send recording across messages and recipients, including queued, sent, failed, partially failed, and suppressed states.
-- Suppression checks before queueing and again before provider handoff.
-- Provider adapter contracts with fake, SMTP, and Postmark adapters in the first slice.
-- Typed Data objects for addresses, headers, rendering context, send commands, provider results, webhook events, and inbound replies.
-
-## Current Implementation
-
-The current package slice includes the data model, factories, provider registration, template registration, rendering, template variant resolution, suppression actions, the send pipeline, delivery handoff, and focused tests for the high-risk paths.
-
-The next implementation slices will add webhook event recording, inbound reply recording, open/click tracking routes, retention redaction, Filament admin resources, diagnostics, and package integrations such as FormBuilder confirmation emails.
+- Template-driven transactional email, delivery auditing, provider events, replies, and suppressions for Capell CMS.
 
 ## Why It Matters
 
@@ -49,59 +40,44 @@ That is the part clients pay for. Sending an email is easy; proving what happene
 - `SendEmailAction` creates the message and recipient records, renders the selected variant, applies suppression state, and queues delivery.
 - `DeliverEmailMessageAction` rechecks suppressions, calls the provider adapter, and records recipient/message outcomes.
 
-## Provider Support
+## Code Map
 
-| Provider | Status  | Notes                                                                         |
-| -------- | ------- | ----------------------------------------------------------------------------- |
-| Fake     | Ready   | Deterministic IDs for tests and local diagnostics.                            |
-| SMTP     | Ready   | Uses Laravel Mail and the selected mailer from profile settings.              |
-| Postmark | Ready   | Uses the `postmark` mailer by default, or a profile-specific mailer override. |
-| Mailgun  | Planned | Reserved for a production adapter slice.                                      |
-| SES      | Planned | Reserved for a production adapter slice.                                      |
-| Resend   | Planned | Reserved for a production adapter slice.                                      |
+| Area      | Path                                  | Purpose                                                             |
+| --------- | ------------------------------------- | ------------------------------------------------------------------- |
+| Actions   | `packages/email-studio/src/Actions`   | Domain operations. Test these directly where possible.              |
+| Data      | `packages/email-studio/src/Data`      | Structured payloads, form state, view models, and integration data. |
+| Enums     | `packages/email-studio/src/Enums`     | Persisted states and Filament option values.                        |
+| Models    | `packages/email-studio/src/Models`    | Eloquent records owned by the package.                              |
+| Jobs      | `packages/email-studio/src/Jobs`      | Queued work and async side effects.                                 |
+| Providers | `packages/email-studio/src/Providers` | Registration, extension hooks, routes, migrations, and resources.   |
+| Resources | `packages/email-studio/resources`     | Views, translations, assets, and package resources.                 |
+| Routes    | `packages/email-studio/routes`        | Route files loaded by the service provider.                         |
+| Config    | `packages/email-studio/config`        | Package configuration and publishable config.                       |
+| Database  | `packages/email-studio/database`      | Migrations, seeders, and settings migrations.                       |
+| Tests     | `packages/email-studio/tests`         | Package-level Pest coverage.                                        |
 
-## Quick Start
+## Runtime Surface
 
-```bash
-composer require capell-app/email-studio
-php artisan migrate
-```
+- Routes: `packages/email-studio/routes/web.php`.
+- Jobs: `SendEmailJob`.
 
-Create a default `EmailProfile`, an approved `EmailTemplate`, and at least one active `EmailTemplateVariant`. Then send through the Action:
+## Data And Persistence
 
-```php
-use Capell\EmailStudio\Actions\SendEmailAction;
-use Capell\EmailStudio\Data\EmailAddressData;
-use Capell\EmailStudio\Data\EmailHeaderData;
-use Capell\EmailStudio\Data\SendEmailData;
-use Spatie\LaravelData\DataCollection;
+- Models: `EmailEvent`, `EmailMessage`, `EmailProfile`, `EmailRecipient`, `EmailReply`, `EmailSuppression`, `EmailTemplate`, `EmailTemplateRegistration`, `EmailTemplateVariant`, `EmailTrackingToken`.
+- Migrations: `2026_05_10_190847_01_create_email_profiles_table.php`, `2026_05_10_190847_02_create_email_templates_table.php`, `2026_05_10_190847_03_create_email_template_variants_table.php`, `2026_05_10_190847_04_create_email_messages_table.php`, `2026_05_10_190847_05_create_email_recipients_table.php`, `2026_05_10_190847_06_create_email_events_table.php`, `2026_05_10_190847_07_create_email_replies_table.php`, `2026_05_10_190847_08_create_email_suppressions_table.php`, `2026_05_10_190847_09_create_email_template_registrations_table.php`, `2026_05_10_190847_10_create_email_tracking_tokens_table.php`.
+- Config: `packages/email-studio/config/capell-email-studio.php`.
+- Data objects live in `src/Data/`; use them for payloads, form state, and view models.
 
-$message = SendEmailAction::run(new SendEmailData(
-    templateKey: 'forms.confirmation',
-    to: new DataCollection(EmailAddressData::class, [
-        new EmailAddressData('customer@example.com', 'Customer Name'),
-    ]),
-    cc: new DataCollection(EmailAddressData::class, []),
-    bcc: new DataCollection(EmailAddressData::class, []),
-    siteId: 12,
-    siteScopeKey: 'site:12',
-    emailProfileId: null,
-    variables: ['name' => 'Customer Name'],
-    headers: new DataCollection(EmailHeaderData::class, []),
-    triggeredByType: 'form_submission',
-    triggeredById: 44,
-    queue: true,
-    locale: 'en',
-));
-```
+## Extension Points
 
-## Boundaries
+- Contracts: `EmailProviderAdapter`.
+- Register Capell extension points, routes, migrations, settings, render hooks, and resources from service providers.
 
-- Email Studio does not manage newsletter subscribers or audience imports.
-- Email Studio does not send bulk campaigns in the first slice.
-- Email Studio does not expose admin/editor state in public frontend output.
-- Public tracking and webhook routes must use opaque tokens and generic invalid-token responses when they are implemented.
-- Attachments are intentionally out of v1 until retention and privacy rules are settled.
+## Install And Setup
+
+- Install with `composer require capell-app/email-studio` in the host Capell application.
+- Run migrations through the host application package install flow.
+- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
 
 ## Common Pitfalls
 
@@ -112,22 +88,23 @@ $message = SendEmailAction::run(new SendEmailData(
 - Provider-level failures and adapter exceptions are recorded on the Email Studio message and recipients.
 - If no locale is provided to `SendEmailData`, the send uses Laravel's current locale and falls back to a neutral variant.
 
-## Verification
+## Docs
 
-Run the focused package tests:
+- [email-studio-api.md](docs/email-studio-api.md)
+- [email-studio-database.md](docs/email-studio-database.md)
+- [overview.md](docs/overview.md)
+- [templates-and-providers.md](docs/templates-and-providers.md)
+
+## Testing
+
+Run package tests from the repository root:
 
 ```bash
 vendor/bin/pest packages/email-studio/tests --configuration=phpunit.xml
 ```
 
-Run static analysis for package source:
+## Maintenance Notes
 
-```bash
-vendor/bin/phpstan analyse packages/email-studio/src --memory-limit=-1 --configuration=phpstan.source.neon
-```
-
-## Next Steps
-
-- [docs/overview.md](docs/overview.md)
-- [docs/email-studio-api.md](docs/email-studio-api.md)
-- [docs/email-studio-database.md](docs/email-studio-database.md)
+- Put behaviour changes in `src/Actions/`; UI classes, commands, and controllers should call actions instead of owning domain logic.
+- Use package `Data` classes at boundaries instead of passing anonymous arrays between layers.
+- Use backed enums for persisted values and enum labels for Filament options.

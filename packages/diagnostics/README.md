@@ -1,8 +1,17 @@
 # Diagnostics
 
-Status: **Available, audited schema** · Kind: **package** · Tier: **premium** · Bundle: **operations** · Contexts: **admin, console** · Product group: **Capell Operations**
+Diagnostics adds operational diagnostics for cache, configuration drift, migrations, packages, registries, queues, permissions, setup health, and Tailwind build status.
 
-## What This Plugin Adds
+## At A Glance
+
+- Package: `capell-app/diagnostics`
+- Namespace: `Capell\Diagnostics\`
+- Surfaces: Filament admin, database
+- Service providers: `packages/diagnostics/src/Providers/AdminServiceProvider.php`, `packages/diagnostics/src/Providers/DiagnosticsServiceProvider.php`
+- Capell dependencies: `capell-app/admin`, `capell-app/core`, `capell-app/html-cache`
+- Third-party dependencies: `lorisleiva/laravel-actions`, `spatie/laravel-data`
+
+## What It Adds
 
 Diagnostics adds operational diagnostics for cache, configuration drift, migrations, packages, registries, queues, permissions, setup health, and Tailwind build status.
 
@@ -61,10 +70,38 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - FailedJob model supports queue reporting.
 - CommandPaletteRun model records command palette execution history.
 
-## Data Model
+## Code Map
+
+| Area      | Path                                 | Purpose                                                             |
+| --------- | ------------------------------------ | ------------------------------------------------------------------- |
+| Actions   | `packages/diagnostics/src/Actions`   | Domain operations. Test these directly where possible.              |
+| Data      | `packages/diagnostics/src/Data`      | Structured payloads, form state, view models, and integration data. |
+| Enums     | `packages/diagnostics/src/Enums`     | Persisted states and Filament option values.                        |
+| Models    | `packages/diagnostics/src/Models`    | Eloquent records owned by the package.                              |
+| Filament  | `packages/diagnostics/src/Filament`  | Admin resources, pages, widgets, and settings UI.                   |
+| Providers | `packages/diagnostics/src/Providers` | Registration, extension hooks, routes, migrations, and resources.   |
+| Resources | `packages/diagnostics/resources`     | Views, translations, assets, and package resources.                 |
+| Database  | `packages/diagnostics/database`      | Migrations, seeders, and settings migrations.                       |
+| Tests     | `packages/diagnostics/tests`         | Package-level Pest coverage.                                        |
+
+## Admin Surface
+
+- Pages: `CommandPalettePage`, `DiagnosticsPage`, `PermissionAuditPage`, `PermissionAuditTable`, `QueueHealthPage`, `QueueHealthTable`, `SystemHealthPage`.
+- Widgets: `AlertsWidgetAbstract`, `CacheHealthWidgetAbstract`, `ConfigDriftWidgetAbstract`, `ContentGraphHealthWidgetAbstract`, `ContentHealthWidgetAbstract`, `MigrationsHealthWidgetAbstract`, `PackagesInstalledWidgetAbstract`, `RegistryHealthWidgetAbstract`, `SetupHealthWidgetAbstract`, `SiteHealthWidgetAbstract`, `TailwindBuildStatusWidgetAbstract`.
+
+## Data And Persistence
 
 - This package owns the `command_palette_runs` table for command palette audit history.
 - It reads existing Laravel and Capell state such as config, migrations, failed jobs, permissions, packages, registries, and Tailwind outputs.
+
+- Models: `CommandPaletteRun`, `FailedJob`.
+- Migrations: `2026_05_10_190846_01_create_command_palette_runs_table.php`.
+- Data objects live in `src/Data/`; use them for payloads, form state, and view models.
+
+## Extension Points
+
+- Contracts: `CommandPaletteProvider`.
+- Register Capell extension points, routes, migrations, settings, render hooks, and resources from service providers.
 
 ## Install Impact
 
@@ -73,25 +110,11 @@ Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) du
 - Adds the `command_palette_runs` audit table.
 - No public routes are registered by this package.
 
-## Commands
+## Install And Setup
 
-- Adds a Diagnostics command palette page for trusted `capell:*` Artisan commands and operational navigation.
-- Discovers commands dynamically from tagged providers so newly installed Capell commands can appear without hard-coding.
-- Authorizes each command with command-specific abilities when provided.
-- Dangerous commands such as install, setup, upgrade, and demo are marked dangerous.
-- Cache, clear, and publish commands require confirmation.
-- Command parameters are derived from Artisan argument and option definitions.
-
-## Command Palette
-
-Diagnostics provides an operational command palette when the package is installed:
-
-- `diagnostics.open`: open the developer tools workspace.
-- `diagnostics.system-health`: open system health.
-- `diagnostics.queue-health`: open failed job / queue health reporting.
-- `artisan.capell:*`: dynamic entries for trusted Capell Artisan commands.
-
-Palette execution is handled inside Diagnostics so role permissions, confirmation requirements, parameter validation, user feedback, and audit records stay close to the operational commands they protect. Custom packages can add commands by binding a provider and tagging it with `capell.diagnostics.command-palette-provider`.
+- Install with `composer require capell-app/diagnostics` in the host Capell application.
+- Run migrations through the host application package install flow.
+- In this repository, verify package changes with `vendor/bin/pest`; do not use `php artisan`.
 
 ## Admin And Access
 
@@ -119,15 +142,22 @@ Palette execution is handled inside Diagnostics so role permissions, confirmatio
 - Queue health needs access to failed job data.
 - Permission audit output is only useful when permissions are registered.
 
-## Quick Start
+## Docs
 
-1. Install the package with `composer require capell-app/diagnostics`.
-2. Register the package provider through Composer discovery and clear cached config if the host app uses config caching.
-3. Open the new admin surface or integration point and verify the result.
+- [command-palette.md](docs/command-palette.md)
+- [credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+- [overview.md](docs/overview.md)
 
-## Next Steps
+## Testing
 
-- [docs/overview.md](docs/overview.md)
-- [../migration-assistant/README.md](../migration-assistant/README.md)
-- [../login-audit/README.md](../login-audit/README.md)
-- [docs/credits-and-acknowledgements.md](docs/credits-and-acknowledgements.md)
+Run package tests from the repository root:
+
+```bash
+vendor/bin/pest packages/diagnostics/tests --configuration=phpunit.xml
+```
+
+## Maintenance Notes
+
+- Put behaviour changes in `src/Actions/`; UI classes, commands, and controllers should call actions instead of owning domain logic.
+- Use package `Data` classes at boundaries instead of passing anonymous arrays between layers.
+- Use backed enums for persisted values and enum labels for Filament options.

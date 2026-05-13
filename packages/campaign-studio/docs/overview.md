@@ -11,12 +11,12 @@ CampaignStudio adds campaign groups, landing pages, CTA blocks, conversion goals
 - Campaign Filament resources for groups, landing pages, goals, and CTA blocks.
 - Campaign dashboard widgets.
 - Page schema extender for campaign fields.
-- LayoutBuilder widget configurators for campaign hero, CTA, and lead form blocks.
+- core layout builder widget configurators for campaign hero, CTA, and lead form blocks.
 - Conversion recording actions for page views, CTA clicks, and form submissions.
 
 ## Developer Notes
 
-Connects Capell pages, FormBuilder, Insights, and LayoutBuilder through explicit actions and listener classes instead of inline resource logic.
+Connects Capell pages, FormBuilder, Insights, and core layout builder APIs through explicit actions and listener classes instead of inline resource logic.
 
 - CampaignStudioServiceProvider, AdminServiceProvider, and FrontendServiceProvider register package surfaces.
 - Config file: capell-campaign-studio.php.

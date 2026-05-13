@@ -15,6 +15,7 @@ use Capell\Admin\Support\Extensions\ExtensionPageRegistry;
 use Capell\PublishingStudio\Extenders\PublishingStudioUserSchemaExtender;
 use Capell\PublishingStudio\Filament\Pages\ActivityTrailPage;
 use Capell\PublishingStudio\Filament\Pages\ImportPagesPage;
+use Capell\PublishingStudio\Filament\Pages\PublishingWorkflowPage;
 use Capell\PublishingStudio\Filament\Pages\ScheduledPublishingPage;
 use Capell\PublishingStudio\Filament\Pages\StaleDraftsPage;
 use Capell\PublishingStudio\Filament\Resources\PreviewLinks\PreviewLinkResource;
@@ -37,6 +38,7 @@ final class PublishingStudioAdminBridge implements AdminBridge
         $registrar->resource(WorkspaceResource::class, group: 'Workspace');
         $registrar->resource(PreviewLinkResource::class, group: 'PreviewLink');
 
+        $this->extensionPage($registrar, $context->packageName, PublishingWorkflowPage::class);
         $this->extensionPage($registrar, $context->packageName, ActivityTrailPage::class);
         $this->extensionPage($registrar, $context->packageName, ImportPagesPage::class);
         $this->extensionPage($registrar, $context->packageName, ScheduledPublishingPage::class);

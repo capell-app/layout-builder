@@ -1,0 +1,75 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'action_aria_label' => ':action :label, :count item(s)',
+    'actions' => [
+        'abandoned_workspaces' => 'Abandoned workspaces',
+        'approval_history' => 'Approval history',
+        'assigned_to_me' => 'Assigned to me',
+        'awaiting_review' => 'Awaiting review',
+        'embargoed' => 'Embargoed work',
+        'field_comments' => 'Open field comments',
+        'open_workspaces' => 'Open drafts',
+        'preview_links' => 'Preview links',
+        'published_versions' => 'Published versions',
+        'rollback_ready_versions' => 'Rollback-ready versions',
+        'scheduled_workspaces' => 'Scheduled workspaces',
+        'scheduler_events' => 'Scheduler events',
+        'stale_drafts' => 'Stale drafts',
+    ],
+    'empty_panel' => 'No active work in this area.',
+    'descriptions' => [
+        'drafting' => 'Drafts, comments, and unfinished editorial work.',
+        'published_history' => 'Published versions and preview access already issued.',
+        'publishing_risks' => 'Work that can block a clean publish or needs release-manager attention.',
+        'recovery' => 'Rollback and recovery paths when live content needs correction.',
+        'review' => 'Approvals, review assignments, and approval trail activity.',
+        'scheduling' => 'Timed publishing, embargoes, reminders, and release calendar work.',
+    ],
+    'dashboard' => [
+        'action' => 'Open Publishing Studio',
+        'description' => 'Draft, review, schedule, publish, and recover content from one workflow.',
+        'label' => 'Publishing Studio',
+    ],
+    'empty' => [
+        'description' => 'There is no publishing work needing attention right now.',
+        'title' => 'No active publishing work',
+    ],
+    'navigation' => [
+        'label' => 'Publishing Workflow',
+    ],
+    'next_actions' => [
+        'continue_drafting' => 'Continue',
+        'manage_preview_links' => 'Manage',
+        'manage_schedule' => 'Manage',
+        'open_scheduler' => 'Open',
+        'prepare_rollback' => 'Prepare',
+        'resolve_comments' => 'Resolve',
+        'review_assigned' => 'Review',
+        'review_embargoes' => 'Review',
+        'review_recovery' => 'Review',
+        'review_stale' => 'Review',
+        'review_work' => 'Review',
+        'view_history' => 'View',
+        'view_versions' => 'View',
+    ],
+    'owner' => 'Publishing Studio',
+    'panels' => [
+        'drafting' => 'Drafting',
+        'published_history' => 'Published history',
+        'publishing_risks' => 'Publishing risks',
+        'recovery' => 'Recovery',
+        'review' => 'Review',
+        'scheduling' => 'Scheduling',
+    ],
+    'severity' => [
+        'danger' => 'Urgent',
+        'info' => 'Info',
+        'success' => 'Healthy',
+        'warning' => 'Needs review',
+    ],
+    'subheading' => 'Draft, review, schedule, publish, and recover content from one workflow.',
+    'title' => 'Publishing Workflow',
+];
