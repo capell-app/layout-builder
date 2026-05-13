@@ -196,6 +196,7 @@
             "Capell\\Address\\Database\\Factories\\": "packages/address/database/factories",
             "Capell\\AccessGate\\": "packages/access-gate/src",
             "Capell\\AccessGate\\Database\\Factories\\": "packages/access-gate/database/factories",
+            "Capell\\Api\\": "packages/api/src",
             "Capell\\PublicActions\\": "packages/public-actions/src",
             "Capell\\PublicActions\\Database\\Factories\\": "packages/public-actions/database/factories",
             "Capell\\Insights\\": "packages/insights/src",
@@ -260,6 +261,7 @@
         "psr-4": {
             "Capell\\Address\\Tests\\": "packages/address/tests",
             "Capell\\AccessGate\\Tests\\": "packages/access-gate/tests",
+            "Capell\\Api\\Tests\\": "packages/api/tests",
             "Capell\\PublicActions\\Tests\\": "packages/public-actions/tests",
             "Capell\\Insights\\Tests\\": "packages/insights/tests",
             "Capell\\AIOrchestrator\\Tests\\": "packages/ai-orchestrator/tests",

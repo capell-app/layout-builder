@@ -129,6 +129,7 @@ it('groups packages into the current product bundles', function (): void {
             'wordpress-importer/capell.json',
         ],
         'publishing-pro' => [
+            'api/capell.json',
             'publishing-studio/capell.json',
         ],
         'search-seo' => [
