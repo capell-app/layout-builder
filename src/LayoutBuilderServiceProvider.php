@@ -13,6 +13,7 @@ use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\DefaultPublicWidgetPayloadResolver;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminAliasRegistry;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
+use Capell\LayoutBuilder\Support\LayoutBuilderCoreRegistrar;
 use Spatie\LaravelPackageTools\Package;
 
 class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
@@ -48,6 +49,7 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
 
     public function packageBooted(): void
     {
+        $this->app->make(LayoutBuilderCoreRegistrar::class)->register();
         $this->app->make(LayoutBuilderAdminRegistrar::class)->register();
     }
 }
