@@ -34,7 +34,49 @@
             "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
         ]
     },
-    "contributes": [],
+    "contributes": [
+        {
+            "type": "admin-resource",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "resourceClass": "Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Layouts\\LayoutResource",
+            "group": "Layout"
+        },
+        {
+            "type": "admin-resource",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "resourceClass": "Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Widgets\\WidgetResource",
+            "group": "Widget"
+        },
+        {
+            "type": "configurator",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "configuratorEnum": "Capell\\Admin\\LayoutBuilder\\Enums\\ConfiguratorTypeEnum",
+            "groups": ["LayoutContainers", "LayoutWidgets", "Widgets", "WidgetAssets"]
+        },
+        {
+            "type": "schema-extender",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "extenderClass": "Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Pages\\Schemas\\Extenders\\PageSchemaExtender",
+            "tag": "Page"
+        },
+        {
+            "type": "schema-extender",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "extenderClass": "Capell\\Admin\\LayoutBuilder\\Filament\\Extenders\\Page\\HeroPageSchemaExtender",
+            "tag": "Page"
+        },
+        {
+            "type": "schema-extender",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "extenderClass": "Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Layouts\\Schemas\\Extenders\\LayoutSchemaExtender",
+            "tag": "Layout"
+        },
+        {
+            "type": "asset",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "package": "capell-layout-builder"
+        }
+    ],
     "database": {
         "migrations": true,
         "settings": false,
@@ -93,12 +135,9 @@
     },
     "contributionTraceability": {
         "deferredContributions": [
-            "asset",
-            "configurator",
             "migration",
             "model",
-            "route",
-            "schema-extender"
+            "route"
         ]
     }
 }

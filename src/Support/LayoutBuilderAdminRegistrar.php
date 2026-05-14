@@ -7,13 +7,21 @@ namespace Capell\LayoutBuilder\Support;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\Admin\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
+use Capell\Core\Contracts\Extensions\ExtensionContribution;
+use Capell\Core\Contracts\Extensions\RegistersExtensionAdminResource;
+use Capell\Core\Contracts\Extensions\RegistersExtensionAsset;
 use Illuminate\Contracts\Container\Container;
 
-final class LayoutBuilderAdminRegistrar
+final class LayoutBuilderAdminRegistrar implements ExtensionContribution, RegistersExtensionAdminResource, RegistersExtensionAsset
 {
     public const REGISTRATION_FLAG = 'capell.layout_builder.admin_registered';
 
     public function __construct(private readonly Container $app) {}
+
+    public static function compatibleCapellApiVersion(): string
+    {
+        return '^4.0';
+    }
 
     public function register(): void
     {
