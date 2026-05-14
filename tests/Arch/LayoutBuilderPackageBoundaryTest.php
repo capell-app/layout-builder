@@ -21,7 +21,6 @@ it('only uses legacy core layout builder classes at approved bridge points', fun
 
     expect($legacyReferences)->toBe([
         'src/Actions/PersistLayoutBuilderStateAction.php',
-        'src/Enums/LayoutTypeEnum.php',
         'src/Support/DefaultPublicWidgetPayloadResolver.php',
     ]);
 });
