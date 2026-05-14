@@ -10,6 +10,7 @@ use Capell\LayoutBuilder\Filament\Components\Forms\ContainerWidthSelect;
 use Capell\LayoutBuilder\Filament\Components\Forms\HeadingStyleSelect;
 use Capell\LayoutBuilder\Filament\Components\Forms\MarginSelect;
 use Capell\LayoutBuilder\Filament\Components\Forms\PaddingSelect;
+use Capell\LayoutBuilder\Filament\Components\Forms\ResponsiveLayoutPatternSchema;
 use Capell\LayoutBuilder\Filament\Components\Forms\SizeSelect;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
@@ -48,6 +49,7 @@ class DisplaySection
                                 '3xl' => __('capell-admin::generic.3xl'),
                             ]),
                         ContainerWidthSelect::make(),
+                        ...ResponsiveLayoutPatternSchema::make(),
                         AlignSelect::make('align'),
                         HeadingStyleSelect::make('heading_style'),
                         Select::make('content_divider')

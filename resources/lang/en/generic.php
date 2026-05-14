@@ -318,6 +318,8 @@ return [
     'related_pages' => 'Related Pages',
     'release_notes' => 'Release notes',
     'results' => 'Results',
+    'responsive_grid_rows_helper' => 'Limits visible grid items per breakpoint. Leave empty to show all items.',
+    'responsive_layout_pattern_helper' => 'Choose the rendering pattern; breakpoint and carousel details are handled by the theme.',
     'results_spacing_help' => 'Set the spacing between the items',
     'review_required' => 'Review required',
     'reset_role_permissions_description' => "Replace this role's permissions with Capell's current default set for the role.",
