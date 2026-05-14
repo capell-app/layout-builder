@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Actions;
 
-use Capell\Core\LayoutBuilder\Actions\InvalidateLayoutPreviewImageAction;
 use Capell\Core\Models\Layout;
 use Closure;
 use Illuminate\Database\Eloquent\Model;

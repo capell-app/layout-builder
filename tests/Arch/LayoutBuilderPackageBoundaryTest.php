@@ -20,7 +20,6 @@ it('only uses legacy core layout builder classes at approved bridge points', fun
         ->all();
 
     expect($legacyReferences)->toBe([
-        'src/Actions/PersistLayoutBuilderStateAction.php',
         'src/Support/DefaultPublicWidgetPayloadResolver.php',
     ]);
 });
