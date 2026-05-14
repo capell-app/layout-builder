@@ -53,7 +53,15 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "theme-agency.package-health",
+            "label": "Theme Agency package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\ThemeStudio\\Agency\\Health\\ThemeAgencyHealthCheck",
+            "severity": "critical",
+            "surface": "frontend"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

@@ -64,7 +64,15 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "access-gate.package-health",
+            "label": "Access Gate package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\AccessGate\\Health\\AccessGateHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

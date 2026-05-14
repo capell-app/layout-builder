@@ -64,7 +64,36 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "site-discovery.public-urls",
+            "label": "Discoverable public URLs are resolved with site and language scope.",
+            "class": "Capell\\SiteDiscovery\\Health\\SiteDiscoveryHealthCheck",
+            "severity": "critical",
+            "surface": "frontend"
+        },
+        {
+            "key": "site-discovery.xml-sitemaps",
+            "label": "XML sitemap generation writes domain-scoped sitemap files.",
+            "class": "Capell\\SiteDiscovery\\Health\\SiteDiscoveryHealthCheck",
+            "severity": "critical",
+            "surface": "console"
+        },
+        {
+            "key": "site-discovery.incremental",
+            "label": "Incremental sitemap generation skips unchanged URL maps.",
+            "class": "Capell\\SiteDiscovery\\Health\\SiteDiscoveryHealthCheck",
+            "severity": "warning",
+            "surface": "console"
+        },
+        {
+            "key": "site-discovery.html-sitemap",
+            "label": "HTML sitemap page renders discoverable page hierarchy.",
+            "class": "Capell\\SiteDiscovery\\Health\\SiteDiscoveryHealthCheck",
+            "severity": "warning",
+            "surface": "frontend"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

@@ -29,6 +29,51 @@ final class MediaIngestService
      */
     public function ingest(string $archivePath, array $descriptor, Model $temporaryOwner): int|string
     {
+        $archive = $this->openArchive($archivePath);
+
+        try {
+            return $this->ingestFromOpenArchive($archive, $descriptor, $temporaryOwner);
+        } finally {
+            $archive->close();
+        }
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $descriptors
+     * @return array<string, int|string>
+     */
+    public function ingestMany(string $archivePath, array $descriptors, Model $temporaryOwner): array
+    {
+        if ($descriptors === []) {
+            return [];
+        }
+
+        $archive = $this->openArchive($archivePath);
+        $localIdsByRef = [];
+
+        try {
+            foreach ($descriptors as $descriptor) {
+                $ref = is_string($descriptor['ref'] ?? null) ? $descriptor['ref'] : null;
+
+                if ($ref === null) {
+                    continue;
+                }
+
+                $localIdsByRef[$ref] = $this->ingestFromOpenArchive($archive, $descriptor, $temporaryOwner);
+            }
+        } finally {
+            $archive->close();
+        }
+
+        return $localIdsByRef;
+    }
+
+    /**
+     * @param  array<string, mixed>  $descriptor
+     * @return int|string the local media id (existing or newly created)
+     */
+    private function ingestFromOpenArchive(ZipArchive $archive, array $descriptor, Model $temporaryOwner): int|string
+    {
         $checksum = is_string($descriptor['checksum'] ?? null) ? $descriptor['checksum'] : '';
         throw_if($checksum === '' || ! str_starts_with($checksum, 'sha256-'), RuntimeException::class, 'Media descriptor is missing a sha256 checksum.');
 
@@ -48,20 +93,7 @@ final class MediaIngestService
         $extension = pathinfo($fileName, PATHINFO_EXTENSION);
         $entryPath = sprintf('media/%s%s', $hex, $extension === '' ? '' : '.' . $extension);
 
-        $archive = new ZipArchive;
-        $openResult = $archive->open($archivePath, ZipArchive::RDONLY);
-        if ($openResult !== true) {
-            throw new RuntimeException(sprintf('Failed to open package archive [%s].', $archivePath));
-        }
-
-        $mediaStream = null;
-
-        try {
-            [$mediaStream, $size] = $this->verifiedMediaStream($archive, $entryPath, $checksum);
-        } finally {
-            $archive->close();
-        }
-
+        [$mediaStream, $size] = $this->verifiedMediaStream($archive, $entryPath, $checksum);
         $diskConfig = config('media-library.disk_name', 'public');
         $disk = is_string($diskConfig) ? $diskConfig : 'public';
         $safeFileName = $this->safeFileName($fileName, $hex, $extension);
@@ -97,6 +129,17 @@ final class MediaIngestService
         }
 
         return $media->getKey();
+    }
+
+    private function openArchive(string $archivePath): ZipArchive
+    {
+        $archive = new ZipArchive;
+        $openResult = $archive->open($archivePath, ZipArchive::RDONLY);
+        if ($openResult !== true) {
+            throw new RuntimeException(sprintf('Failed to open package archive [%s].', $archivePath));
+        }
+
+        return $archive;
     }
 
     /**

@@ -39,6 +39,17 @@ it('builds generated plans within requested scale controls', function (): void {
     }
 });
 
+it('honours page counts larger than the base page name pool', function (): void {
+    $plan = BuildDemoGenerationPlanAction::run([
+        'site_count' => 1,
+        'pages' => 50,
+        'languages' => ['en'],
+        'seed' => 789,
+    ]);
+
+    expect($plan->sites[0]->pageCount())->toBe(50);
+});
+
 it('keeps generated demo page trees out of publishable config', function (): void {
     expect(config('capell-demo-kit.pages'))->toBeNull()
         ->and(config('capell-demo-kit.counts.pages_per_site'))->toBe([12, 30]);

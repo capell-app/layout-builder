@@ -59,7 +59,15 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "demo-kit.package-health",
+            "label": "Demo Kit package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\DemoKit\\Health\\DemoKitHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "free",
         "requestedCertification": "first-party",

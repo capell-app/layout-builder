@@ -60,7 +60,15 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "frontend-authoring.package-health",
+            "label": "Frontend Authoring package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\FrontendAuthoring\\Health\\FrontendAuthoringHealthCheck",
+            "severity": "critical",
+            "surface": "frontend"
+        }
+    ],
     "commercial": {
         "proposedLicense": "free",
         "requestedCertification": "first-party",

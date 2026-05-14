@@ -18,6 +18,10 @@ const CAPELL_MANIFEST_V3_PROVIDER_BUCKETS = [
     'frontend',
 ];
 
+const CAPELL_MANIFEST_V3_OPTIONAL_PROVIDER_BUCKETS = [
+    'auth',
+];
+
 const CAPELL_MANIFEST_V3_REQUIRED_ROOT_FIELDS = [
     'manifest-version',
     'name',
@@ -47,6 +51,7 @@ const CAPELL_MANIFEST_V3_REQUIRED_ROOT_FIELDS = [
 const CAPELL_MANIFEST_V3_MIGRATION_GROUPS = [
     'foundation' => [
         'blog',
+        'block-library',
         'content-sections',
         'demo-kit',
         'foundation-theme',
@@ -73,6 +78,9 @@ const CAPELL_MANIFEST_V3_MIGRATION_GROUPS = [
         'password-policy',
         'publishing-studio',
         'translation-manager',
+    ],
+    'publishing-pro' => [
+        'api',
     ],
     'content-product' => [
         'address',
@@ -227,7 +235,9 @@ function capell_manifest_v3_package_directories(string $packagesPath): array
 {
     $directories = [];
 
-    foreach (glob($packagesPath . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR) ?: [] as $packagePath) {
+    $packagePaths = glob($packagesPath . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR);
+
+    foreach ($packagePaths !== false ? $packagePaths : [] as $packagePath) {
         if (! is_file($packagePath . DIRECTORY_SEPARATOR . 'composer.json')) {
             continue;
         }
@@ -324,7 +334,10 @@ function capell_manifest_v3_provider_bucket_errors(array $manifest): array
 
     $actual = array_keys($manifest['providers']);
     sort($actual);
-    $expected = CAPELL_MANIFEST_V3_PROVIDER_BUCKETS;
+    $expected = [
+        ...CAPELL_MANIFEST_V3_PROVIDER_BUCKETS,
+        ...array_intersect(CAPELL_MANIFEST_V3_OPTIONAL_PROVIDER_BUCKETS, $actual),
+    ];
     sort($expected);
 
     return $actual === $expected

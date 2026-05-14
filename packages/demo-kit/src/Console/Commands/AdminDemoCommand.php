@@ -28,6 +28,7 @@ use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 use function Laravel\Prompts\text;
 
@@ -119,9 +120,14 @@ class AdminDemoCommand extends Command
     private function resolveSites(): array
     {
         if ($this->option('sites') !== null) {
-            return is_string($this->option('sites'))
+            $sites = is_string($this->option('sites'))
                 ? explode(',', $this->option('sites'))
                 : (is_array($this->option('sites')) ? $this->option('sites') : []);
+
+            return array_values(array_unique(array_filter(
+                array_map(static fn (mixed $site): string => trim((string) $site), $sites),
+                static fn (string $site): bool => $site !== '',
+            )));
         }
 
         return $this->getDemoSites();
@@ -130,9 +136,14 @@ class AdminDemoCommand extends Command
     private function resolveLanguages(): array
     {
         if ($this->hasOption('languages') && $this->option('languages') !== null) {
-            return is_string($this->option('languages'))
+            $languages = is_string($this->option('languages'))
                 ? explode(',', $this->option('languages'))
                 : (is_array($this->option('languages')) ? $this->option('languages') : []);
+
+            return array_values(array_filter(
+                array_map(static fn (mixed $language): string => trim((string) $language), $languages),
+                static fn (string $language): bool => $language !== '',
+            ));
         }
 
         return $this->getDemoLanguages();
@@ -160,7 +171,9 @@ class AdminDemoCommand extends Command
         $user = $this->option('user');
         if ($user !== null) {
             $userModel = config('auth.providers.users.model');
-            $user = $userModel::find($user);
+            $user = str_contains((string) $user, '@')
+                ? $userModel::query()->where('email', $user)->first()
+                : $userModel::query()->whereKey($user)->first();
         }
 
         if (! $user && auth()->check()) {
@@ -180,7 +193,15 @@ class AdminDemoCommand extends Command
             return null;
         }
 
-        return max(1, (int) $value);
+        if (! ctype_digit((string) $value)) {
+            throw new InvalidArgumentException(sprintf('The --%s option must be a positive integer.', $option));
+        }
+
+        $maximum = $option === 'site-count'
+            ? BuildDemoGenerationPlanAction::MAX_SITE_COUNT
+            : BuildDemoGenerationPlanAction::MAX_PAGE_COUNT;
+
+        return min((int) $value, $maximum);
     }
 
     private function resolveSeedOption(): ?int
@@ -307,7 +328,7 @@ class AdminDemoCommand extends Command
         ?ProgressBar $bar = null,
     ): void {
         $pageNameSource = $pageData->name[$defaultLanguage->code] ?? $pageData->name['en'] ?? '';
-        $pageName = Str::title((string) $pageNameSource);
+        $pageName = Str::title($pageNameSource);
         $fullName = in_array($parentName, [null, '', '0'], true) ? $pageName : sprintf('%s » %s', $parentName, $pageName);
 
         if ($bar instanceof ProgressBar) {
@@ -326,10 +347,8 @@ class AdminDemoCommand extends Command
             $bar->advance();
         }
 
-        if ($pageData->children !== []) {
-            foreach ($pageData->children as $childData) {
-                $this->createPagesWithProgress($childData, $site, $languages, $defaultLanguage, $parent, $fullName, $bar);
-            }
+        foreach ($pageData->children as $childData) {
+            $this->createPagesWithProgress($childData, $site, $languages, $defaultLanguage, $parent, $fullName, $bar);
         }
     }
 

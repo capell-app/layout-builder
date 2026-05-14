@@ -113,7 +113,15 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "publishing-studio.package-health",
+            "label": "Publishing Studio package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\PublishingStudio\\Health\\PublishingStudioHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

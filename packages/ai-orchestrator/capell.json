@@ -55,7 +55,15 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "ai-orchestrator.package-health",
+            "label": "AI Orchestrator package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\AIOrchestrator\\Health\\AiOrchestratorHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

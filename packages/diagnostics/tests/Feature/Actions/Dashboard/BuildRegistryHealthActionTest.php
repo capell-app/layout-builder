@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Capell\ContentBlocks\Data\BlockDefinitionData;
+use Capell\ContentBlocks\Support\BlockRegistry;
 use Capell\Core\Data\PageTypeData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
@@ -80,6 +82,30 @@ it('includes counts matching registered entries', function (): void {
         ->first(fn (RegistrySectionData $section): bool => $section->name === 'Page types');
 
     expect($pageTypesSection->count)->toBe($pageTypesSection->entries->count());
+});
+
+it('includes content block registry entries when content blocks are installed', function (): void {
+    $blocks = new BlockRegistry;
+    $blocks->register(new BlockDefinitionData(
+        key: 'section.accordion',
+        label: 'Accordion',
+        description: 'Accordion panels.',
+        category: 'main',
+        view: 'capell-content-sections::section.blocks.accordion',
+        sourcePackage: 'content-sections',
+    ));
+
+    app()->instance(BlockRegistry::class, $blocks);
+
+    $result = BuildRegistryHealthAction::run();
+
+    $contentBlocksSection = $result->sections->toCollection()
+        ->first(fn (RegistrySectionData $section): bool => $section->name === 'Content blocks');
+
+    expect($contentBlocksSection)->not->toBeNull()
+        ->and($contentBlocksSection->count)->toBe(1)
+        ->and($contentBlocksSection->entries->first()->class)->toBe('block:section.accordion')
+        ->and($contentBlocksSection->entries->first()->sourcePackage)->toBe('content-sections');
 });
 
 it('gracefully handles empty registrations', function (): void {

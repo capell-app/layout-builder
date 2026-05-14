@@ -55,7 +55,15 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "agent-bridge.package-health",
+            "label": "Agent Bridge package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\AgentBridge\\Health\\AgentBridgeHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

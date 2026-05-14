@@ -44,16 +44,25 @@ final class FormComponent extends Component
             return;
         }
 
+        $metadata = $this->metadata();
+        $settings = $this->settings();
+
         if ($this->hasTriggeredHoneypot()) {
+            if ($settings->storeSubmissions) {
+                CreateSubmissionAction::run(
+                    form: $this->form,
+                    input: $this->data,
+                    meta: $metadata,
+                );
+            }
+
             $this->submitted = true;
+            $this->reset('data');
 
             return;
         }
 
         $this->validate($this->rules());
-
-        $metadata = $this->metadata();
-        $settings = $this->settings();
 
         if ($settings->storeSubmissions) {
             CreateSubmissionAction::run(
@@ -145,21 +154,6 @@ final class FormComponent extends Component
         return $rules;
     }
 
-    private function hasTriggeredHoneypot(): bool
-    {
-        foreach ($this->fields() as $field) {
-            if ($field->type !== FormFieldType::Honeypot) {
-                continue;
-            }
-
-            if (filled($this->data[$field->key] ?? null)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /**
      * @return array<string, mixed>
      */
@@ -178,6 +172,21 @@ final class FormComponent extends Component
         }
 
         return $payload;
+    }
+
+    private function hasTriggeredHoneypot(): bool
+    {
+        foreach ($this->fields() as $field) {
+            if (! $field->type->isSpamTrap()) {
+                continue;
+            }
+
+            if (filled($this->data[$field->key] ?? null)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function metadata(): SubmissionMetaData

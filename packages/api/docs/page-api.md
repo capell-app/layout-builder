@@ -3,10 +3,18 @@
 Capell API adds a public, read-only page resolver endpoint:
 
 ```http
-GET /api/capell/pages/resolve?url=/terms
+GET /api/capell/v1/pages/resolve?url=/terms
 ```
 
-The route name is `capell-api.pages.resolve`.
+The versioned route name is `capell-api.v1.pages.resolve`. The legacy route
+`/api/capell/pages/resolve` remains available as `capell-api.pages.resolve`.
+
+All responses include:
+
+| Header                 | Value | Notes                                             |
+| ---------------------- | ----- | ------------------------------------------------- |
+| `X-Capell-Api-Version` | `v1`  | Explicit public response contract version.        |
+| `X-Capell-Cache-Tags`  | `api` | Coarse cache tag for downstream API integrations. |
 
 ## Default Response
 
@@ -49,6 +57,22 @@ Supported fields are:
 - `title`
 - `content`
 - `meta`
+
+## Response Schema
+
+Successful responses always use a top-level `data` object. The default v1 page
+schema is:
+
+| Path           | Type         | Notes                                      |
+| -------------- | ------------ | ------------------------------------------ |
+| `data.url`     | string       | Published page URL.                        |
+| `data.title`   | string/null  | Published translation title.               |
+| `data.content` | string/null  | Sanitized public HTML content.             |
+| `data.meta`    | object/array | Only returned when requested with fields.  |
+| `data.layout`  | object       | Only returned when requested with include. |
+
+Error responses use a top-level `message` string and still include the API
+version header.
 
 ## Site Resolution
 
@@ -118,6 +142,26 @@ The API sanitizes returned HTML strings with Symfony's HTML sanitizer using safe
 Sanitization applies recursively to selected page fields, page meta, layout meta, container meta, widget data, and widget HTML.
 
 This is a response safety boundary, not an editor validation layer. Do not use the API as a sanitizer for saving content.
+
+## Middleware Configuration
+
+The package ships public by default. Apps can add route middleware without
+forking the package routes:
+
+```php
+// config/capell-api.php
+return [
+    'middleware' => ['api'],
+    'public_pages' => [
+        'auth_middleware' => null,
+        'rate_limit_middleware' => 'throttle:capell-api',
+        'middleware' => [],
+    ],
+];
+```
+
+Use `auth_middleware` only for private/internal consumers. Keep public delivery
+unauthenticated when the endpoint powers headless public pages.
 
 ## Core Extension Points
 

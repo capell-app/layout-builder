@@ -34,6 +34,28 @@ it('returns default page fields without layout', function (): void {
         ]);
 });
 
+it('serves the v1 route and emits public api contract headers', function (): void {
+    [$pageUrl, $page, $language, $site] = createPublicApiPage('/terms', [
+        'title' => 'Terms',
+        'content' => '<p>Terms content</p>',
+    ]);
+
+    URL::forceRootUrl('https://example.com');
+
+    getJson(route('capell-api.v1.pages.resolve', ['url' => $pageUrl->url]))
+        ->assertOk()
+        ->assertHeader('X-Capell-Api-Version', 'v1')
+        ->assertHeader('X-Capell-Cache-Tags', sprintf('api,site:%s,language:%s,page:%s', $site->getKey(), $language->getKey(), $page->getKey()))
+        ->assertJsonPath('data.url', '/terms')
+        ->assertJsonPath('data.title', 'Terms');
+
+    getJson(route('capell-api.pages.resolve', ['url' => $pageUrl->url]))
+        ->assertOk()
+        ->assertHeader('X-Capell-Api-Version', 'v1')
+        ->assertHeader('X-Capell-Cache-Tags', sprintf('api,site:%s,language:%s,page:%s', $site->getKey(), $language->getKey(), $page->getKey()))
+        ->assertJsonPath('data.url', '/terms');
+});
+
 it('returns only requested fields', function (): void {
     [$pageUrl] = createPublicApiPage('/terms', [
         'title' => 'Terms',
@@ -169,6 +191,7 @@ it('includes layout html and sanitizes unsafe html strings', function (): void {
         'url' => $pageUrl->url,
         'fields' => 'url,title,content,meta',
         'include' => 'layout.html',
+        'containers' => 'main',
     ]))
         ->assertOk()
         ->assertJsonPath('data.content', '<p><a>Terms</a></p>')
@@ -178,6 +201,29 @@ it('includes layout html and sanitizes unsafe html strings', function (): void {
         ->assertJsonPath('data.layout.containers.0.widgets.0.data.content', '<p><a>Widget</a></p>')
         ->assertJsonPath('data.layout.containers.0.widgets.0.data.nested.content', '<div>Nested</div>')
         ->assertJsonPath('data.layout.containers.0.widgets.0.html', '<section><a>Hero</a></section>');
+});
+
+it('rejects unbounded layout html requests', function (): void {
+    [$pageUrl, $page] = createPublicApiPage('/terms');
+    $widget = Widget::factory()->create(['key' => 'hero']);
+
+    $layout = Layout::factory()->site($page->site)->create([
+        'key' => 'article',
+        'widgets' => [$widget->key],
+        'containers' => [
+            'main' => ['widgets' => [['widget_key' => $widget->key, 'occurrence' => 1]]],
+        ],
+    ]);
+
+    $page->update(['layout_id' => $layout->id]);
+
+    getJson(apiResolveUrl([
+        'url' => $pageUrl->url,
+        'include' => 'layout.html',
+        'containers' => 'all',
+    ]))
+        ->assertStatus(422)
+        ->assertExactJson(['message' => 'layout.html requires explicit bounded containers.']);
 });
 
 it('returns not found for missing pages', function (): void {

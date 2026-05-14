@@ -51,7 +51,7 @@ class DummyContentGeneratorAction
         $max = $maxMap[$languageCode] ?? 4;
         $max = min($max, count($sentences));
 
-        $count = random_int(1, max(1, $max));
+        $count = mt_rand(1, max(1, $max));
 
         $selected = array_slice($sentences, 0, $count);
 
@@ -70,7 +70,7 @@ class DummyContentGeneratorAction
 
             $pool = $candidates !== [] ? $candidates : $tokens;
 
-            $pickIndex = random_int(0, count($pool) - 1);
+            $pickIndex = mt_rand(0, count($pool) - 1);
             $word = $pool[$pickIndex];
 
             $pattern = '/' . preg_quote($word, '/') . '/iu';

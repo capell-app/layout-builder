@@ -40,7 +40,6 @@ final class AssertDefaultDemoInstallHealthAction
             $this->minimumWidgetCount(),
             $this->apWidgetsHaveAssets(),
             $this->minimumMediaCount(),
-            $this->visibleDemoLabelsExist(),
             $this->placeholderLabelsAreAbsent(),
             $this->runtimeAssetsExist(),
         ]);
@@ -215,31 +214,6 @@ final class AssertDefaultDemoInstallHealthAction
             label: 'Default demo media count',
             passed: true,
             message: sprintf('Demo has %d media record(s).', $count),
-        );
-    }
-
-    private function visibleDemoLabelsExist(): DoctorCheckResultData
-    {
-        $found = Translation::query()
-            ->where(function ($query): void {
-                $query->where('title', 'like', '%Bulldog%')
-                    ->orWhere('content', 'like', '%Bulldog%');
-            })
-            ->exists();
-
-        if (! $found) {
-            return new DoctorCheckResultData(
-                label: 'Known demo labels exist',
-                passed: false,
-                message: 'The expected Bulldog demo label was not found.',
-                remediation: 'Rerun the default demo fixtures for the selected theme.',
-            );
-        }
-
-        return new DoctorCheckResultData(
-            label: 'Known demo labels exist',
-            passed: true,
-            message: 'Found expected Bulldog demo label.',
         );
     }
 

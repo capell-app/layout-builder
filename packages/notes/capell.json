@@ -53,7 +53,15 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "notes.package-health",
+            "label": "Notes package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\Notes\\Health\\NotesHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

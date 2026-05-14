@@ -57,6 +57,28 @@ it('does not store honeypot values in payload', function (): void {
     expect($submission->payload->values)->toBe(['email' => 'ben@example.com']);
 });
 
+it('stores triggered honeypot submissions as spam without dispatching submission events', function (): void {
+    Event::fake([FormSubmitted::class]);
+
+    $form = Form::factory()->create([
+        'schema' => [
+            ['key' => 'email', 'label' => 'Email', 'type' => 'email', 'required' => true, 'validation_rules' => ['email']],
+            ['key' => 'company_website', 'label' => 'Company website', 'type' => 'honeypot', 'required' => false],
+        ],
+    ]);
+
+    $submission = CreateSubmissionAction::run(
+        form: $form,
+        input: ['email' => 'bot@example.com', 'company_website' => 'https://spam.example'],
+        meta: new SubmissionMetaData(ipAddress: '127.0.0.1', userAgent: 'Bot'),
+    );
+
+    expect($submission->status)->toBe(SubmissionStatus::Spam)
+        ->and($submission->payload->values)->toBe([]);
+
+    Event::assertNotDispatched(FormSubmitted::class);
+});
+
 it('throws a validation exception for invalid data', function (): void {
     $form = Form::factory()->create([
         'schema' => [

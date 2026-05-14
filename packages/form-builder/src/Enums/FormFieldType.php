@@ -33,4 +33,9 @@ enum FormFieldType: string implements HasLabel
     {
         return $this !== self::Honeypot;
     }
+
+    public function isSpamTrap(): bool
+    {
+        return $this === self::Honeypot;
+    }
 }

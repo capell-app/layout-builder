@@ -18,7 +18,9 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
+use Capell\DemoKit\Actions\BuildDemoGenerationPlanAction;
 use Capell\DemoKit\Console\Commands\Concerns\HasSitesOption;
+use Capell\DemoKit\Data\DemoSiteGenerationPlanData;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\Tags\Enums\TagTypeEnum;
 use Capell\Tags\Models\Tag;
@@ -153,14 +155,11 @@ class DemoCommand extends Command
 
         $this->demoCreator = resolve(DemoCreator::class, ['author' => $user]);
 
-        $pagesTree = config('capell-demo-kit.pages', []);
-        $totalPagesAvailable = 0;
+        $site->loadMissing('languages', 'language');
 
-        foreach ($pagesTree as $node) {
-            $totalPagesAvailable += $this->countContentNodes($node);
-        }
-
-        $pagesToCreate = $limit !== null ? min($totalPagesAvailable, $limit) : $totalPagesAvailable;
+        $languages = $this->siteLanguages($site);
+        $sitePlan = $this->buildDemoPlan($site, $languages, $limit);
+        $pagesToCreate = $sitePlan->pageCount();
         $existingArticleCount = $this->countExistingArticles($site);
         $taggingSteps = min($existingArticleCount + $pagesToCreate, 50);
 
@@ -171,11 +170,11 @@ class DemoCommand extends Command
         $this->advanceProgress();
 
         $this->setProgressMessage('Creating demo pages');
-        $created = $this->createArticles($site, $user, $limit);
+        $created = $this->createArticles($site, $user, $sitePlan, $languages, $limit);
 
         $this->setProgressMessage($created ? 'Demo pages created' : 'Demo pages not created');
         $this->setProgressMessage('Creating tags for site pages');
-        $this->createArticleTags($site, $site->languages);
+        $this->createArticleTags($site, $languages);
         $this->setProgressMessage('Tags created/updated');
 
         $this->setProgressMessage('Creating blog hero demo content');
@@ -186,11 +185,16 @@ class DemoCommand extends Command
         $this->newLine();
     }
 
-    private function createArticles(Site $site, ?Model $user, ?int $limit = null): bool
-    {
-        $site->loadMissing('languages', 'language');
-
-        $demo = $this->getDemoData($site->name, $site->languages->pluck('code')->toArray());
+    /**
+     * @param  Collection<int, Language>  $languages
+     */
+    private function createArticles(
+        Site $site,
+        ?Model $user,
+        DemoSiteGenerationPlanData $sitePlan,
+        Collection $languages,
+        ?int $limit = null,
+    ): bool {
         $createdCount = 0;
 
         EnsureArticlePublishingDefaultsAction::run();
@@ -204,15 +208,15 @@ class DemoCommand extends Command
             ->where('key', BlogLayoutEnum::Article->value)
             ->firstOrFail();
 
-        foreach ($demo['children'] as $child) {
+        foreach ($sitePlan->pages as $pageData) {
             if ($limit !== null && $createdCount >= $limit) {
                 break;
             }
 
             $createdCount += $this->createDemoArticleRecursive(
-                $child,
+                $pageData->toContentTreeNode(),
                 $site,
-                $site->languages,
+                $languages,
                 '',
                 $type,
                 $layout,
@@ -223,42 +227,6 @@ class DemoCommand extends Command
         }
 
         return true;
-    }
-
-    /**
-     * @param  list<string>  $languages
-     * @return array<string, mixed>
-     */
-    private function getDemoData(?string $name, array $languages): array
-    {
-        $data = collect(config('capell-demo-kit.pages'));
-
-        if ($name !== null && $data->where('name.en', $name)->isNotEmpty()) {
-            $data = $data->firstWhere(fn (array $item): bool => $item['name']['en'] === $name);
-        } else {
-            $data = [
-                'name' => array_combine($languages, array_fill(0, count($languages), $name)),
-                'children' => $data->pluck('children')->flatten(1)->toArray(),
-            ];
-        }
-
-        if ($languages !== []) {
-            $filterLanguages = function (array $item) use (&$filterLanguages, $languages): array {
-                if (isset($item['name']) && is_array($item['name'])) {
-                    $item['name'] = array_intersect_key($item['name'], array_flip($languages));
-                }
-
-                if (isset($item['children']) && is_array($item['children'])) {
-                    $item['children'] = array_map($filterLanguages, $item['children']);
-                }
-
-                return $item;
-            };
-
-            $data['children'] = array_map($filterLanguages, $data['children']);
-        }
-
-        return $data;
     }
 
     /**
@@ -280,7 +248,7 @@ class DemoCommand extends Command
             return 0;
         }
 
-        $name = Str::title($data['name']['en']);
+        $name = $this->translatedName($data);
         $fullName = $parentName === '' ? $name : sprintf('%s » %s', $parentName, $name);
 
         $this->setProgressMessage('Creating page: ' . $fullName);
@@ -300,7 +268,11 @@ class DemoCommand extends Command
                 continue;
             }
 
-            $data['title'][$languageCode] = $title . ' ' . $data['name'][$languageCode];
+            $translatedName = is_array($data['name'] ?? null)
+                ? ($data['name'][$languageCode] ?? $name)
+                : $name;
+
+            $data['title'][$languageCode] = $title . ' ' . $translatedName;
         }
 
         $articleCreator = resolve(ArticleCreator::class);
@@ -333,6 +305,60 @@ class DemoCommand extends Command
         }
 
         return $created;
+    }
+
+    /**
+     * @return Collection<int, Language>
+     */
+    private function siteLanguages(Site $site): Collection
+    {
+        $languages = $site->languages;
+
+        if ($languages->isNotEmpty()) {
+            return $languages;
+        }
+
+        $site->loadMissing('language');
+
+        return $site->language instanceof Language
+            ? new Collection([$site->language])
+            : new Collection;
+    }
+
+    /**
+     * @param  Collection<int, Language>  $languages
+     */
+    private function buildDemoPlan(Site $site, Collection $languages, ?int $limit): DemoSiteGenerationPlanData
+    {
+        $languageCodes = $languages
+            ->map(fn (Language $language): string => $language->code)
+            ->filter(fn (string $languageCode): bool => $languageCode !== '')
+            ->values()
+            ->all();
+
+        $plan = BuildDemoGenerationPlanAction::run([
+            'sites' => [$site->name],
+            'pages' => $limit,
+            'languages' => $languageCodes,
+        ]);
+
+        return $plan->sites[0];
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function translatedName(array $data): string
+    {
+        $names = $data['name'] ?? null;
+
+        if (! is_array($names)) {
+            return Str::title((string) $names);
+        }
+
+        $name = $names['en'] ?? reset($names);
+
+        return Str::title(is_scalar($name) ? (string) $name : '');
     }
 
     /**

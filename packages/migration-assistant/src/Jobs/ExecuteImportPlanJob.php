@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\MigrationAssistant\Jobs;
 
 use Capell\MigrationAssistant\Actions\CreateImportRollbackReportAction;
+use Capell\MigrationAssistant\Enums\ImportSessionKind;
 use Capell\MigrationAssistant\Enums\ImportSessionStatus;
 use Capell\MigrationAssistant\Events\ImportCompleted;
 use Capell\MigrationAssistant\Events\ImportFailed;
@@ -15,6 +16,7 @@ use Capell\MigrationAssistant\Services\Import\PackageReadResult;
 use Capell\MigrationAssistant\Services\Import\PageImportService;
 use Capell\MigrationAssistant\Services\Import\ResolutionMap;
 use Capell\MigrationAssistant\Services\Import\Resolvers\MatchResolution;
+use Capell\MigrationAssistant\Services\Import\SiteImportService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -55,8 +57,12 @@ final class ExecuteImportPlanJob implements ShouldQueue
         }
     }
 
-    public function handle(PackageReader $reader, PageImportService $importer, MediaIngestService $mediaIngester): void
-    {
+    public function handle(
+        PackageReader $reader,
+        PageImportService $pageImporter,
+        MediaIngestService $mediaIngester,
+        ?SiteImportService $siteImporter = null,
+    ): void {
         $session = ImportSession::query()->findOrFail($this->importSessionId);
         $previousUser = Auth::user();
 
@@ -80,13 +86,10 @@ final class ExecuteImportPlanJob implements ShouldQueue
             $map = $this->hydrateResolutionMap($session);
             $map = $this->ingestMediaBinaries($package, $map, $mediaIngester, $session);
 
-            throw_if(
-                $map->hasUnresolved(),
-                RuntimeException::class,
-                'Refusing to execute import with unresolved references.',
-            );
+            $this->assertNoBlockingUnresolvedReferences($package, $map, $session->kind);
 
-            $report = $importer->import($package, $map, $session->workspace_id);
+            $report = $this->importerFor($session->kind, $pageImporter, $siteImporter)
+                ->import($package, $map, $this->targetWorkspaceId($session));
 
             $failureReason = $report->isSuccess() ? null : implode(' / ', array_slice($report->errors, 0, 5));
 
@@ -112,6 +115,82 @@ final class ExecuteImportPlanJob implements ShouldQueue
         }
     }
 
+    private function targetWorkspaceId(ImportSession $session): ?int
+    {
+        $workspaceId = $session->getRawOriginal('workspace_id');
+
+        return is_numeric($workspaceId) ? (int) $workspaceId : null;
+    }
+
+    private function importerFor(
+        ImportSessionKind $kind,
+        PageImportService $pageImporter,
+        ?SiteImportService $siteImporter,
+    ): PageImportService|SiteImportService {
+        if ($kind === ImportSessionKind::SiteImport) {
+            return $siteImporter ?? resolve(SiteImportService::class);
+        }
+
+        return $pageImporter;
+    }
+
+    private function assertNoBlockingUnresolvedReferences(
+        PackageReadResult $package,
+        ResolutionMap $map,
+        ImportSessionKind $kind,
+    ): void {
+        if (! $map->hasUnresolved()) {
+            return;
+        }
+
+        $unresolved = $kind === ImportSessionKind::SiteImport
+            ? array_values(array_diff($map->unresolved, $this->siteImportCreatedRefs($package)))
+            : $map->unresolved;
+
+        throw_if(
+            $unresolved !== [],
+            RuntimeException::class,
+            'Refusing to execute import with unresolved references.',
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function siteImportCreatedRefs(PackageReadResult $package): array
+    {
+        $refs = [];
+
+        foreach ($package->payload as $entryPath => $contents) {
+            if (! str_starts_with($entryPath, 'relations/sites/') && ! str_starts_with($entryPath, 'relations/site-domains/')) {
+                continue;
+            }
+
+            /** @var array<string, mixed> $descriptor */
+            $descriptor = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+            $ref = $descriptor['ref'] ?? null;
+
+            if (is_string($ref) && $this->isSiteImportCreatedRef($entryPath, $ref)) {
+                $refs[] = $ref;
+            }
+        }
+
+        return array_values(array_unique($refs));
+    }
+
+    private function isSiteImportCreatedRef(string $entryPath, string $ref): bool
+    {
+        if (str_starts_with($entryPath, 'relations/sites/')) {
+            return str_starts_with($ref, 'site:');
+        }
+
+        if (str_starts_with($entryPath, 'relations/site-domains/')) {
+            return str_starts_with($ref, 'site-domain:');
+        }
+
+        return false;
+    }
+
     /**
      * Scan relations/media/*.json descriptors in the package and ingest any
      * binary whose ref is still unresolved — the resulting local Media id is
@@ -128,6 +207,7 @@ final class ExecuteImportPlanJob implements ShouldQueue
     ): ResolutionMap {
         $resolved = $map->resolved;
         $unresolved = $map->unresolved;
+        $descriptors = [];
 
         foreach ($package->payload as $entryPath => $contents) {
             if (! str_starts_with($entryPath, 'relations/media/')) {
@@ -145,7 +225,10 @@ final class ExecuteImportPlanJob implements ShouldQueue
                 continue;
             }
 
-            $localId = $mediaIngester->ingest($package->archivePath, $descriptor, $session);
+            $descriptors[] = $descriptor;
+        }
+
+        foreach ($mediaIngester->ingestMany($package->archivePath, $descriptors, $session) as $ref => $localId) {
             $resolved[$ref] = new MatchResolution(
                 localId: $localId,
                 strategy: 'ingest.checksum',

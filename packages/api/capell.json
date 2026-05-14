@@ -40,11 +40,11 @@
     },
     "settings": [],
     "permissions": [],
-    "capabilities": ["public-page-api"],
+    "capabilities": ["public-page-api", "public-page-api-v1"],
     "performance": {
         "frontendRenderBudgetMs": 20,
         "adminQueryBudget": 0,
-        "cacheTags": ["api"],
+        "cacheTags": ["api", "api:pages"],
         "cacheSafety": {
             "cacheable": false,
             "variesBy": ["site", "locale"],
@@ -53,7 +53,29 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "api.v1.route",
+            "label": "V1 page resolve route is registered",
+            "class": "Capell\\Api\\Health\\ApiHealthCheck",
+            "severity": "critical",
+            "surface": "frontend"
+        },
+        {
+            "key": "api.middleware.config",
+            "label": "Host middleware configuration is publishable",
+            "class": "Capell\\Api\\Health\\ApiHealthCheck",
+            "severity": "warning",
+            "surface": "frontend"
+        },
+        {
+            "key": "api.cache.headers",
+            "label": "API responses expose version and cache-tag headers",
+            "class": "Capell\\Api\\Health\\ApiHealthCheck",
+            "severity": "warning",
+            "surface": "frontend"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

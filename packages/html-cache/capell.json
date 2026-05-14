@@ -57,7 +57,15 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "html-cache.package-health",
+            "label": "HTML Cache package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\HtmlCache\\Health\\HtmlCacheHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "free",
         "requestedCertification": "first-party",
@@ -72,6 +80,6 @@
     "scopes": ["backend", "frontend"],
     "order": 45,
     "contributionTraceability": {
-        "deferredContributions": ["route"]
+        "deferredContributions": ["admin-page", "route"]
     }
 }

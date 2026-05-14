@@ -9,6 +9,7 @@ use Capell\AIOrchestrator\Tests\AIOrchestratorTestCase;
 use Capell\Api\Tests\ApiTestCase;
 use Capell\Blog\Tests\BlogTestCase;
 use Capell\CampaignStudio\Tests\CampaignStudioTestCase;
+use Capell\ContentBlocks\Tests\BlockLibraryTestCase;
 use Capell\ContentSections\Tests\ContentSectionsTestCase;
 use Capell\DemoKit\Tests\DemoKitTestCase;
 use Capell\Deployments\Tests\TestCase as DeploymentsTestCase;
@@ -50,6 +51,7 @@ extendCapellPackageTests(AgentBridgeTestCase::class, 'agent-bridge', 'agent-brid
 extendCapellPackageTests(AIOrchestratorTestCase::class, 'ai-orchestrator', 'ai-orchestrator');
 extendCapellPackageTests(ApiTestCase::class, 'api', 'api');
 extendCapellPackageTests(BlogTestCase::class, 'blog', 'blog');
+extendCapellPackageTests(BlockLibraryTestCase::class, 'block-library', 'block-library');
 extendCapellPackageTests(CampaignStudioTestCase::class, 'campaign-studio', 'campaign-studio');
 extendCapellPackageTests(ContentSectionsTestCase::class, 'content-sections', 'content-sections');
 extendCapellPackageTests(DemoKitTestCase::class, 'demo-kit', 'demo-kit');

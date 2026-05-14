@@ -64,7 +64,36 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "public-actions.webhook-dispatch",
+            "label": "Webhook destinations dispatch JSON payloads with durable attempts",
+            "class": "Capell\\PublicActions\\Health\\PublicActionsHealthCheck",
+            "severity": "critical",
+            "surface": "frontend"
+        },
+        {
+            "key": "public-actions.webhook-security",
+            "label": "Webhook destinations block private hosts and redact secrets",
+            "class": "Capell\\PublicActions\\Health\\PublicActionsHealthCheck",
+            "severity": "critical",
+            "surface": "frontend"
+        },
+        {
+            "key": "public-actions.provider-presets",
+            "label": "Provider presets normalize Zapier, Pipedream, n8n, Make, and generic webhooks",
+            "class": "Capell\\PublicActions\\Health\\PublicActionsHealthCheck",
+            "severity": "warning",
+            "surface": "admin"
+        },
+        {
+            "key": "public-actions.form-builder-integration",
+            "label": "Form Builder submissions can feed Public Actions through package listeners",
+            "class": "Capell\\PublicActions\\Health\\PublicActionsHealthCheck",
+            "severity": "warning",
+            "surface": "frontend"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

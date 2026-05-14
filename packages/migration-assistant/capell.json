@@ -69,7 +69,36 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "migration-assistant.package-reader",
+            "label": "Import packages pass manifest, integrity, and size validation",
+            "class": "Capell\\MigrationAssistant\\Health\\MigrationAssistantHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        },
+        {
+            "key": "migration-assistant.site-import",
+            "label": "Site imports materialise sites, domains, and pages through the execution job",
+            "class": "Capell\\MigrationAssistant\\Health\\MigrationAssistantHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        },
+        {
+            "key": "migration-assistant.rollback-report",
+            "label": "Rollback reports include all created page, site, and site-domain records",
+            "class": "Capell\\MigrationAssistant\\Health\\MigrationAssistantHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        },
+        {
+            "key": "migration-assistant.media-ingest",
+            "label": "Media import validates checksums, limits, and idempotent reuse",
+            "class": "Capell\\MigrationAssistant\\Health\\MigrationAssistantHealthCheck",
+            "severity": "warning",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",
@@ -82,6 +111,11 @@
         "categories": ["admin", "console", "operations"]
     },
     "contributionTraceability": {
-        "deferredContributions": ["admin-page", "admin-resource", "model"]
+        "deferredContributions": [
+            "admin-page",
+            "admin-resource",
+            "model",
+            "route"
+        ]
     }
 }

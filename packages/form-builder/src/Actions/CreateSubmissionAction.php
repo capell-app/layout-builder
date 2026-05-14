@@ -22,21 +22,56 @@ class CreateSubmissionAction
      */
     public function handle(Form $form, array $input, SubmissionMetaData $meta): Submission
     {
-        $validated = Validator::make($input, BuildFormValidationRulesAction::run($form))->validate();
+        if ($this->hasTriggeredHoneypot($form, $input)) {
+            return $this->createSubmission($form, [], $meta, SubmissionStatus::Spam);
+        }
 
-        $submission = new Submission;
-        $submission->forceFill([
-            'form_id' => $form->getKey(),
-            'site_id' => $form->site_id,
-            'payload' => new SubmissionPayloadData($this->storedPayload($form, $validated)),
-            'meta' => $meta,
-            'status' => SubmissionStatus::New,
-            'submitted_at' => now(),
-        ])->save();
+        $validated = Validator::make($input, BuildFormValidationRulesAction::run($form))->validate();
+        $submission = $this->createSubmission($form, $this->storedPayload($form, $validated), $meta, SubmissionStatus::New);
 
         event(new FormSubmitted($form, $submission));
 
         return $submission;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function createSubmission(
+        Form $form,
+        array $payload,
+        SubmissionMetaData $meta,
+        SubmissionStatus $status,
+    ): Submission {
+        $submission = new Submission;
+        $submission->forceFill([
+            'form_id' => $form->getKey(),
+            'site_id' => $form->site_id,
+            'payload' => new SubmissionPayloadData($payload),
+            'meta' => $meta,
+            'status' => $status,
+            'submitted_at' => now(),
+        ])->save();
+
+        return $submission;
+    }
+
+    /**
+     * @param  array<string, mixed>  $input
+     */
+    private function hasTriggeredHoneypot(Form $form, array $input): bool
+    {
+        foreach ($form->schema ?? [] as $field) {
+            if (! $field->type->isSpamTrap()) {
+                continue;
+            }
+
+            if (filled($input[$field->key] ?? null)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

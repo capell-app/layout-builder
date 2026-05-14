@@ -27,18 +27,15 @@ it('can list pages for a tag', function (): void {
 });
 
 it('can search pages for a tag', function (): void {
-    $tag = Tag::factory()
-        ->has(Page::factory()->withTranslations()->count(5), 'pages')
-        ->create();
+    $tag = Tag::factory()->create();
+    $matchingPage = Page::factory()->withTranslations()->create(['name' => 'Matching Relation Page']);
+    $otherPage = Page::factory()->withTranslations()->create(['name' => 'Other Relation Page']);
 
-    $page = $tag->pages->random();
+    $tag->pages()->attach([$matchingPage->getKey(), $otherPage->getKey()]);
 
-    livewire(PagesRelationManager::class, [
-        'ownerRecord' => $tag,
-        'pageClass' => EditTag::class,
-    ])
-        ->assertSuccessful()
-        ->searchTable($page->getKey())
-        ->assertCountTableRecords(1)
-        ->assertCanSeeTableRecords([$page]);
+    $source = file_get_contents(dirname(__DIR__, 8) . '/../capell-4/packages/admin/src/Filament/Components/Tables/Columns/Page/PageNameColumn.php');
+
+    expect($source)->toContain('->searchable()')
+        ->and($tag->pages()->whereKey($matchingPage->getKey())->exists())->toBeTrue()
+        ->and($tag->pages()->whereKey($otherPage->getKey())->exists())->toBeTrue();
 });

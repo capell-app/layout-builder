@@ -19,6 +19,10 @@ final class BuildDemoGenerationPlanAction
 {
     use AsObject;
 
+    public const MAX_SITE_COUNT = 25;
+
+    public const MAX_PAGE_COUNT = 250;
+
     public function __construct(
         private readonly DemoContentPool $contentPool = new DemoContentPool,
     ) {}
@@ -76,7 +80,9 @@ final class BuildDemoGenerationPlanAction
             return $this->takeRandom($available, $count);
         }
 
-        return array_values(array_intersect($requested, $available)) ?: ['en'];
+        $matchedLanguages = array_values(array_intersect($requested, $available));
+
+        return $matchedLanguages !== [] ? $matchedLanguages : ['en'];
     }
 
     /**
@@ -86,10 +92,10 @@ final class BuildDemoGenerationPlanAction
     private function resolveSiteNames(array $requested, ?int $siteCount): array
     {
         if ($requested !== []) {
-            return $requested;
+            return array_values(array_unique($requested));
         }
 
-        $count = $siteCount ?? DemoProfileData::default()->counts['sites'];
+        $count = min($siteCount ?? DemoProfileData::default()->counts['sites'], self::MAX_SITE_COUNT);
         $names = $this->takeRandom($this->contentPool->siteNames(), $count);
 
         while (count($names) < $count) {
@@ -102,7 +108,7 @@ final class BuildDemoGenerationPlanAction
     private function resolvePageCount(?int $requested, DemoProfileData $profile): int
     {
         if ($requested !== null && $requested > 0) {
-            return $requested;
+            return min($requested, self::MAX_PAGE_COUNT);
         }
 
         return mt_rand($profile->counts['pages_per_site'][0], $profile->counts['pages_per_site'][1]);
@@ -128,7 +134,7 @@ final class BuildDemoGenerationPlanAction
      */
     private function buildPages(int $count, DemoProfileData $profile): array
     {
-        $availableNames = $this->takeRandom($this->contentPool->pageNames(), min($count, count($this->contentPool->pageNames())));
+        $availableNames = $this->pageNamesForCount($count);
         $pages = [];
 
         foreach (array_slice($availableNames, 0, $count) as $name) {
@@ -139,6 +145,29 @@ final class BuildDemoGenerationPlanAction
         }
 
         return $this->nestPages($pages, $profile);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function pageNamesForCount(int $count): array
+    {
+        $baseNames = $this->takeRandom($this->contentPool->pageNames(), count($this->contentPool->pageNames()));
+        $names = [];
+
+        while (count($names) < $count) {
+            foreach ($baseNames as $baseName) {
+                $names[] = count($names) < count($baseNames)
+                    ? $baseName
+                    : sprintf('%s %d', $baseName, intdiv(count($names), count($baseNames)) + 1);
+
+                if (count($names) === $count) {
+                    break;
+                }
+            }
+        }
+
+        return $names;
     }
 
     /**

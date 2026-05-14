@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\ContentBlocks\Support\BlockRegistry;
 use Capell\ContentSections\Actions\BuildSectionDemoDataAction;
 use Capell\ContentSections\Actions\RegisterDefaultSectionsAction;
 use Capell\ContentSections\Actions\RegisterSectionDefinitionProviderAction;
@@ -41,6 +42,14 @@ it('registers the main sections', function (): void {
         'team',
         'timeline',
     );
+});
+
+it('exposes registered sections as typed content blocks', function (): void {
+    $blocks = resolve(BlockRegistry::class);
+
+    expect($blocks->get('section.accordion')?->view)->toBe('capell-content-sections::section.blocks.accordion')
+        ->and($blocks->get('section.accordion')?->category)->toBe('main')
+        ->and($blocks->get('section.call_to_action')?->safeForPublicOutput)->toBeTrue();
 });
 
 it('guards against duplicate section keys', function (): void {

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 use Capell\Blog\Actions\InstallPackageAction;
 use Capell\Blog\Enums\BlogPageTypeEnum;
+use Capell\Blog\Enums\CacheEnum;
 use Capell\Blog\Models\Article;
 use Capell\Core\Enums\PageOrderEnum;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\LayoutBuilder\Actions\InstallPackageAction as LayoutBuilderInstallPackageAction;
 use Capell\Core\Models\Type;
 
@@ -81,4 +83,21 @@ it('shouldLogVisit returns false when disable_visit_logs is set to false in type
     $article = Article::factory()->type($type)->create();
 
     expect($article->shouldLogVisit())->toBeFalse();
+});
+
+it('clears cached blog content when articles are saved', function (): void {
+    $article = Article::factory()->create(['name' => 'Original article']);
+    $cacheKey = CacheEnum::blogPage((int) $article->site_id, 'null', BlogPageTypeEnum::Blog->value);
+    $unrelatedCacheKey = 'capell-blog-unrelated-content-test';
+
+    CapellCore::setToCache($cacheKey, 'stale');
+    CapellCore::setToCache($unrelatedCacheKey, 'fresh');
+
+    expect(CapellCore::cacheExists($cacheKey))->toBeTrue()
+        ->and(CapellCore::cacheExists($unrelatedCacheKey))->toBeTrue();
+
+    $article->forceFill(['name' => 'Updated article'])->save();
+
+    expect(CapellCore::cacheExists($cacheKey))->toBeFalse()
+        ->and(CapellCore::cacheExists($unrelatedCacheKey))->toBeTrue();
 });

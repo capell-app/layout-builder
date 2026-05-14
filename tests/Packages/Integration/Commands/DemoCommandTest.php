@@ -7,12 +7,12 @@ use Capell\Blog\Models\Article;
 use Capell\Blog\Support\Creator\BlogCreator;
 use Capell\Core\LayoutBuilder\Actions\AddHeroWidgetToLayoutAction;
 use Capell\Core\LayoutBuilder\Actions\CreateHeroWidgetAction;
-use Capell\Core\LayoutBuilder\Support\Creator\DemoCreator;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Core\Models\Widget;
+use Capell\DemoKit\Support\Creator\DemoCreator;
 use Illuminate\Console\Command;
 use Mockery\MockInterface;
 

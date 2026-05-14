@@ -55,7 +55,15 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "frontend-optimizer.package-health",
+            "label": "Frontend Optimizer package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\FrontendOptimizer\\Health\\FrontendOptimizerHealthCheck",
+            "severity": "critical",
+            "surface": "frontend"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

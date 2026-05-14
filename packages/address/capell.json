@@ -53,7 +53,15 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "address.package-health",
+            "label": "Address package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\Address\\Health\\AddressHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

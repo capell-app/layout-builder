@@ -67,7 +67,15 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "campaign-studio.package-health",
+            "label": "Campaign Studio package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\CampaignStudio\\Health\\CampaignStudioHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

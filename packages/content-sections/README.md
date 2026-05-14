@@ -13,6 +13,7 @@ Reusable content sections for Capell.
 ## What It Adds
 
 - Reusable content sections for Capell.
+- Content block definitions for each registered section, exposed through `capell-app/content-blocks`.
 - Admin resources: `SectionResource`.
 - Livewire components: `AbstractAssets`, `ModalTableSelect`, `SectionAssets`.
 
@@ -52,6 +53,7 @@ Reusable content sections for Capell.
 ## Extension Points
 
 - Contracts: `SectionDefinitionProvider`.
+- Content block bridge: registered sections are exposed as `section.{key}` block definitions through `BlockDefinitionProvider::TAG`.
 - Register Capell extension points, routes, migrations, settings, render hooks, and resources from service providers.
 
 ## Install And Setup

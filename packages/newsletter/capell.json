@@ -59,7 +59,36 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "newsletter.form-subscription",
+            "label": "Form submissions can create subscribers with consent evidence",
+            "class": "Capell\\Newsletter\\Health\\NewsletterHealthCheck",
+            "severity": "critical",
+            "surface": "frontend"
+        },
+        {
+            "key": "newsletter.provider-sync-retry",
+            "label": "Provider sync failures are retried through durable sync attempts",
+            "class": "Capell\\Newsletter\\Health\\NewsletterHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        },
+        {
+            "key": "newsletter.provider-webhooks",
+            "label": "Provider webhooks normalize remote subscriber state",
+            "class": "Capell\\Newsletter\\Health\\NewsletterHealthCheck",
+            "severity": "warning",
+            "surface": "frontend"
+        },
+        {
+            "key": "newsletter.segments",
+            "label": "Static and dynamic subscriber segments evaluate through typed actions",
+            "class": "Capell\\Newsletter\\Health\\NewsletterHealthCheck",
+            "severity": "warning",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

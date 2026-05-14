@@ -55,7 +55,15 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "foundation-theme.package-health",
+            "label": "Foundation Theme package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\FoundationTheme\\Health\\FoundationThemeHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "free",
         "requestedCertification": "first-party",

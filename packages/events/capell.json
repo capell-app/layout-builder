@@ -68,7 +68,36 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "events.recurrence",
+            "label": "Recurring events expand into occurrence records",
+            "class": "Capell\\Events\\Health\\EventsHealthCheck",
+            "severity": "critical",
+            "surface": "console"
+        },
+        {
+            "key": "events.calendar-feed",
+            "label": "Public iCal feeds include event occurrence URLs",
+            "class": "Capell\\Events\\Health\\EventsHealthCheck",
+            "severity": "warning",
+            "surface": "frontend"
+        },
+        {
+            "key": "events.event-schema",
+            "label": "Event occurrences expose schema.org Event structured data",
+            "class": "Capell\\Events\\Health\\EventsHealthCheck",
+            "severity": "warning",
+            "surface": "frontend"
+        },
+        {
+            "key": "events.registration-capacity",
+            "label": "Registrations enforce occurrence capacity and waitlist rules",
+            "class": "Capell\\Events\\Health\\EventsHealthCheck",
+            "severity": "critical",
+            "surface": "frontend"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

@@ -235,7 +235,6 @@
             "Capell\\FrontendAuthoring\\": "packages/frontend-authoring/src",
             "Capell\\HtmlCache\\": "packages/html-cache/src",
             "Capell\\FrontendOptimizer\\": "packages/frontend-optimizer/src",
-            "Capell\\Toolbar\\": "packages/toolbar/src",
             "Capell\\WelcomeTour\\": "packages/welcome-tour/src",
             "Capell\\PublishingStudio\\": "packages/publishing-studio/src",
             "Capell\\PublishingStudio\\Database\\Factories\\": "packages/publishing-studio/database/factories"
@@ -285,7 +284,6 @@
             "Capell\\TranslationManager\\Tests\\": "packages/translation-manager/tests",
             "Capell\\FrontendAuthoring\\Tests\\": "packages/frontend-authoring/tests",
             "Capell\\HtmlCache\\Tests\\": "packages/html-cache/tests",
-            "Capell\\Toolbar\\Tests\\": "packages/toolbar/tests",
             "Capell\\WelcomeTour\\Tests\\": "packages/welcome-tour/tests",
             "Capell\\PublishingStudio\\Tests\\": "packages/publishing-studio/tests",
             "Capell\\FrontendOptimizer\\Tests\\": "packages/frontend-optimizer/tests"

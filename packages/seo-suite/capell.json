@@ -63,7 +63,36 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "seo-suite.page-report",
+            "label": "Page SEO reports cover metadata, canonical, robots, schema, redirects, and Search Console signals.",
+            "class": "Capell\\SeoSuite\\Health\\SeoSuiteHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        },
+        {
+            "key": "seo-suite.schema-graph",
+            "label": "Structured data templates build schema.org graph output.",
+            "class": "Capell\\SeoSuite\\Health\\SeoSuiteHealthCheck",
+            "severity": "warning",
+            "surface": "frontend"
+        },
+        {
+            "key": "seo-suite.broken-links",
+            "label": "Broken link records produce redirect opportunities.",
+            "class": "Capell\\SeoSuite\\Health\\SeoSuiteHealthCheck",
+            "severity": "warning",
+            "surface": "admin"
+        },
+        {
+            "key": "seo-suite.ai-discovery",
+            "label": "AI discovery outputs llms.txt and markdown page surfaces.",
+            "class": "Capell\\SeoSuite\\Health\\SeoSuiteHealthCheck",
+            "severity": "warning",
+            "surface": "frontend"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

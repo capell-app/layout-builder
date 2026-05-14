@@ -86,8 +86,10 @@ class ImportSessionsTable implements TableConfigurator
                     $pages = (int) ($state['pages_imported'] ?? $state['pages_created'] ?? 0);
                     $relations = (int) ($state['relations_resolved'] ?? 0);
                     $media = (int) ($state['media_ingested'] ?? $state['media_reassigned'] ?? 0);
+                    $sites = count(is_array($state['created_site_ids'] ?? null) ? $state['created_site_ids'] : []);
+                    $domains = count(is_array($state['created_site_domain_ids'] ?? null) ? $state['created_site_domain_ids'] : []);
 
-                    return sprintf('P:%d · R:%d · M:%d', $pages, $relations, $media);
+                    return sprintf('P:%d · R:%d · M:%d · S:%d · D:%d', $pages, $relations, $media, $sites, $domains);
                 })
                 ->toggleable(),
             DateColumn::make('executed_at')

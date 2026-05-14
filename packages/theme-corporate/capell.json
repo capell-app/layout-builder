@@ -55,7 +55,15 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "theme-corporate.package-health",
+            "label": "Theme Corporate package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\ThemeStudio\\Corporate\\Health\\ThemeCorporateHealthCheck",
+            "severity": "critical",
+            "surface": "frontend"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

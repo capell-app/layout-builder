@@ -62,7 +62,15 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "translation-manager.package-health",
+            "label": "Translation Manager package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\TranslationManager\\Health\\TranslationManagerHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

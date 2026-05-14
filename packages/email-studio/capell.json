@@ -69,7 +69,36 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "email-studio.template-rendering",
+            "label": "Email templates render through typed template actions",
+            "class": "Capell\\EmailStudio\\Health\\EmailStudioHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        },
+        {
+            "key": "email-studio.provider-delivery",
+            "label": "Queued email delivery records provider results per recipient",
+            "class": "Capell\\EmailStudio\\Health\\EmailStudioHealthCheck",
+            "severity": "critical",
+            "surface": "console"
+        },
+        {
+            "key": "email-studio.suppressions",
+            "label": "Suppressions are enforced before provider handoff",
+            "class": "Capell\\EmailStudio\\Health\\EmailStudioHealthCheck",
+            "severity": "critical",
+            "surface": "console"
+        },
+        {
+            "key": "email-studio.provider-events",
+            "label": "Provider webhook events and inbound replies normalize into local records",
+            "class": "Capell\\EmailStudio\\Health\\EmailStudioHealthCheck",
+            "severity": "warning",
+            "surface": "frontend"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

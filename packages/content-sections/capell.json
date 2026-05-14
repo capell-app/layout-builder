@@ -17,6 +17,7 @@
     "dependencies": {
         "requires": [
             "capell-app/admin",
+            "capell-app/content-blocks",
             "capell-app/core",
             "capell-app/frontend"
         ],
@@ -59,7 +60,15 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "content-sections.package-health",
+            "label": "Content Sections package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\ContentSections\\Health\\ContentSectionsHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "free",
         "requestedCertification": "first-party",

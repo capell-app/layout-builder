@@ -31,6 +31,8 @@ final class ResolvePageController
 {
     use SanitizesPublicHtml;
 
+    private const API_VERSION = 'v1';
+
     private const DEFAULT_FIELDS = ['url', 'title', 'content'];
 
     private const ALLOWED_FIELDS = ['url', 'title', 'content', 'meta'];
@@ -38,6 +40,9 @@ final class ResolvePageController
     private ?SiteDomain $resolvedSiteDomain = null;
 
     private ?string $resolvedUrlPath = null;
+
+    /** @var list<string> */
+    private array $cacheTags = ['api'];
 
     public function __invoke(Request $request): JsonResponse
     {
@@ -75,23 +80,62 @@ final class ResolvePageController
             return $this->notFound();
         }
 
+        $this->cacheTags = $this->cacheTags($site, $language, $resolution->page);
         $data = $this->fields($request, $resolution->fields);
 
         if ($this->shouldIncludeLayout($request) && $resolution->layout instanceof Layout && $resolution->page instanceof Page) {
+            if ($this->requestsUnboundedLayoutHtml($request)) {
+                return $this->badRequest('layout.html requires explicit bounded containers.');
+            }
+
             $data['layout'] = $this->layout($request, $resolution->layout, $resolution->page, $language);
         }
 
-        return response()->json(['data' => $data]);
+        return $this->json(['data' => $data]);
     }
 
     private function notFound(): JsonResponse
     {
-        return response()->json(['message' => 'Page not found'], 404);
+        return $this->json(['message' => 'Page not found'], 404);
     }
 
     private function forbidden(): JsonResponse
     {
-        return response()->json(['message' => 'Forbidden'], 403);
+        return $this->json(['message' => 'Forbidden'], 403);
+    }
+
+    private function badRequest(string $message): JsonResponse
+    {
+        return $this->json(['message' => $message], 422);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function json(array $payload, int $status = 200): JsonResponse
+    {
+        return response()
+            ->json($payload, $status)
+            ->header('X-Capell-Api-Version', self::API_VERSION)
+            ->header('X-Capell-Cache-Tags', implode(',', $this->cacheTags));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function cacheTags(Site $site, Language $language, ?Page $page): array
+    {
+        $tags = [
+            'api',
+            'site:' . $site->getKey(),
+            'language:' . $language->getKey(),
+        ];
+
+        if ($page instanceof Page) {
+            $tags[] = 'page:' . $page->getKey();
+        }
+
+        return $tags;
     }
 
     private function packageIsInstalled(): bool
@@ -287,6 +331,19 @@ final class ResolvePageController
         return in_array('layout', $include, true) || in_array('layout.html', $include, true);
     }
 
+    private function requestsUnboundedLayoutHtml(Request $request): bool
+    {
+        $include = $this->requestedList($request, 'include');
+
+        if (! in_array('layout.html', $include, true)) {
+            return false;
+        }
+
+        $containers = $this->requestedList($request, 'containers');
+
+        return $containers === [] || in_array('all', $containers, true);
+    }
+
     /**
      * @return array<int, string>
      */
@@ -365,7 +422,19 @@ final class ResolvePageController
                     ->with('language'),
             ])
             ->whereHas('siteDomains', fn (BuilderContract $query): BuilderContract => $this->candidateSiteDomainQuery($query, $host, $scheme, includeWildcardDomains: false))
+            ->limit($this->candidateSiteLimit())
             ->get();
+    }
+
+    private function candidateSiteLimit(): int
+    {
+        $limit = config('capell-api.public_pages.max_candidate_sites', 50);
+
+        if (is_int($limit)) {
+            return $limit > 0 ? $limit : 50;
+        }
+
+        return is_numeric($limit) && (int) $limit > 0 ? (int) $limit : 50;
     }
 
     private function candidateSiteDomainQuery(BuilderContract $query, ?string $host, string $scheme, bool $includeWildcardDomains): BuilderContract

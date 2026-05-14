@@ -53,7 +53,15 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "welcome-tour.package-health",
+            "label": "Welcome Tour package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\WelcomeTour\\Health\\WelcomeTourHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "free",
         "requestedCertification": "first-party",

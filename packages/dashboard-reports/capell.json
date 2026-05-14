@@ -55,7 +55,15 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "dashboard-reports.package-health",
+            "label": "Dashboard Reports package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\DashboardReports\\Health\\DashboardReportsHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

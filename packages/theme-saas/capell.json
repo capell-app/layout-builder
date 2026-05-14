@@ -53,7 +53,15 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "theme-saas.package-health",
+            "label": "Theme Saas package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\ThemeStudio\\Saas\\Health\\ThemeSaasHealthCheck",
+            "severity": "critical",
+            "surface": "frontend"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

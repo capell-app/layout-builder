@@ -1,0 +1,46 @@
+{
+    "name": "capell-app/content-blocks",
+    "description": "Shared typed content block primitives for Capell packages.",
+    "keywords": [
+        "capell",
+        "content-blocks",
+        "laravel",
+        "filamentphp",
+        "cms"
+    ],
+    "homepage": "https://github.com/capell-app/content-blocks",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Howdu",
+            "email": "cms.multi2@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "capell-app/core": "*",
+        "lorisleiva/laravel-actions": "*",
+        "spatie/laravel-package-tools": "*"
+    },
+    "suggest": {
+        "capell-app/content-sections": "Registers reusable section blocks against typed block definitions.",
+        "capell-app/foundation-theme": "Renders package block views through the default frontend theme."
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\ContentBlocks\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\ContentBlocks\\Providers\\ContentBlocksServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "prefer-stable": true
+}

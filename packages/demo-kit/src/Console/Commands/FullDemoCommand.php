@@ -11,6 +11,7 @@ use Capell\DemoKit\Data\DemoSiteGenerationPlanData;
 use Capell\DemoKit\Providers\DemoKitServiceProvider;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
+use InvalidArgumentException;
 
 final class FullDemoCommand extends Command
 {
@@ -154,7 +155,15 @@ final class FullDemoCommand extends Command
             return null;
         }
 
-        return max(1, (int) $value);
+        if (! ctype_digit((string) $value)) {
+            throw new InvalidArgumentException(sprintf('The --%s option must be a positive integer.', $option));
+        }
+
+        $maximum = $option === 'site-count'
+            ? BuildDemoGenerationPlanAction::MAX_SITE_COUNT
+            : BuildDemoGenerationPlanAction::MAX_PAGE_COUNT;
+
+        return min((int) $value, $maximum);
     }
 
     private function resolveSeedOption(): ?int

@@ -65,7 +65,36 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "diagnostics.package-catalog",
+            "label": "Installed Capell packages are discovered from composer metadata",
+            "class": "Capell\\Diagnostics\\Health\\DiagnosticsHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        },
+        {
+            "key": "diagnostics.manifest-health",
+            "label": "Package manifests expose bundle, command, and health-check metadata",
+            "class": "Capell\\Diagnostics\\Health\\DiagnosticsHealthCheck",
+            "severity": "warning",
+            "surface": "admin"
+        },
+        {
+            "key": "diagnostics.system-health-widgets",
+            "label": "System health widgets are registered for developer users",
+            "class": "Capell\\Diagnostics\\Health\\DiagnosticsHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        },
+        {
+            "key": "diagnostics.queue-health",
+            "label": "Queue health page and failed-job summary are available",
+            "class": "Capell\\Diagnostics\\Health\\DiagnosticsHealthCheck",
+            "severity": "warning",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

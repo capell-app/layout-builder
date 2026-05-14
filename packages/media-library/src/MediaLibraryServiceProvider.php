@@ -31,32 +31,33 @@ final class MediaLibraryServiceProvider extends ServiceProvider
                 return;
             }
 
+            $this->registerMediaBackend();
             $this->registerInstalledPackage();
         });
     }
 
     public function boot(): void
     {
-        if (! $this->isPackageInstalled()) {
-            return;
-        }
-
-        if ($this->app->runningInConsole()) {
+        if ($this->app->runningInConsole() && $this->isPackageInstalled()) {
             $this->commands([MigrateSpatieToCuratorCommand::class]);
         }
     }
 
     private function registerInstalledPackage(): void
     {
-        config()->set('capell.media.backend', 'curator');
-        config()->set('capell.media.model', CuratorMedia::class);
         CapellCore::registerModels([CuratorMedia::class]);
-
-        $this->app->bind(MediaFieldFactory::class, CuratorMediaFieldFactory::class);
 
         if (class_exists(CapellAdmin::class)) {
             CapellAdmin::registerExtensionPage(self::$packageName, MediaHealthPage::class);
         }
+    }
+
+    private function registerMediaBackend(): void
+    {
+        config()->set('capell.media.backend', 'curator');
+        config()->set('capell.media.model', CuratorMedia::class);
+
+        $this->app->bind(MediaFieldFactory::class, CuratorMediaFieldFactory::class);
     }
 
     private function isPackageInstalled(): bool

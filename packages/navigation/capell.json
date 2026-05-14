@@ -58,7 +58,15 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "navigation.package-health",
+            "label": "Navigation package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\Navigation\\Health\\NavigationHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "free",
         "requestedCertification": "first-party",

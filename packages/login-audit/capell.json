@@ -54,7 +54,15 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "login-audit.package-health",
+            "label": "Login Audit package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\LoginAudit\\Health\\LoginAuditHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

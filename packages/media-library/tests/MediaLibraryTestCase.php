@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\MediaLibrary\Tests;
 
 use Awcodes\Curator\CuratorServiceProvider;
+use Capell\Core\Facades\CapellCore;
 use Capell\MediaLibrary\MediaLibraryServiceProvider;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Database\ConnectionResolverInterface;
@@ -59,6 +60,8 @@ class MediaLibraryTestCase extends OrchestraTestCase
         ]);
 
         $app->make(Repository::class)->set('curator.glide_token', 'test-token');
+
+        CapellCore::forcePackageInstalled(MediaLibraryServiceProvider::$packageName);
     }
 
     protected function defineDatabaseMigrations(): void

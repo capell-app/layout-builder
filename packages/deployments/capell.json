@@ -55,7 +55,15 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "deployments.package-health",
+            "label": "Deployments package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\Deployments\\Health\\DeploymentsHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

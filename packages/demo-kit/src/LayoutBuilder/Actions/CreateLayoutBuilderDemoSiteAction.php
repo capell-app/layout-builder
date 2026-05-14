@@ -61,7 +61,9 @@ class CreateLayoutBuilderDemoSiteAction
             return false;
         }
 
-        $this->setupHomepage($homePage);
+        if ($site->default) {
+            $this->setupHomepage($homePage);
+        }
 
         $this->setupSiteNavigations($site, $languages, $homePage);
 
@@ -163,10 +165,6 @@ class CreateLayoutBuilderDemoSiteAction
         ?EloquentCollection $languages = null,
         ?Model $parent = null,
     ): void {
-        if (Page::query()->where('site_id', $site->id)->count() > 28) {
-            return;
-        }
-
         $languages ??= $site->languages;
 
         $contentData = [

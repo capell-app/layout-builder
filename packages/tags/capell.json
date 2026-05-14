@@ -57,7 +57,15 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "tags.package-health",
+            "label": "Tags package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\Tags\\Health\\TagsHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "free",
         "requestedCertification": "first-party",

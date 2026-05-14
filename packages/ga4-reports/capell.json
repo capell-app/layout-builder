@@ -53,7 +53,15 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "ga4-reports.package-health",
+            "label": "GA4 Reports package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\GA4Reports\\Health\\Ga4ReportsHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

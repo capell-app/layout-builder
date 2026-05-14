@@ -61,7 +61,15 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "password-policy.package-health",
+            "label": "Password Policy package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\PasswordPolicy\\Health\\PasswordPolicyHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

@@ -57,7 +57,15 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "insights.package-health",
+            "label": "Insights package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\Insights\\Health\\InsightsHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

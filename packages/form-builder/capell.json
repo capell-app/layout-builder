@@ -63,7 +63,29 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "form-builder.validation",
+            "label": "Public submissions are validated from typed field schema",
+            "class": "Capell\\FormBuilder\\Health\\FormBuilderHealthCheck",
+            "severity": "critical",
+            "surface": "frontend"
+        },
+        {
+            "key": "form-builder.spam-honeypot",
+            "label": "Triggered honeypot submissions are recorded as spam without dispatching workflows",
+            "class": "Capell\\FormBuilder\\Health\\FormBuilderHealthCheck",
+            "severity": "critical",
+            "surface": "frontend"
+        },
+        {
+            "key": "form-builder.encrypted-submissions",
+            "label": "Submission payload and metadata remain encrypted at rest",
+            "class": "Capell\\FormBuilder\\Health\\FormBuilderHealthCheck",
+            "severity": "warning",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

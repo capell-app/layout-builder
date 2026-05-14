@@ -63,7 +63,15 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "wordpress-importer.package-health",
+            "label": "Wordpress Importer package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\WordPressImporter\\Health\\WordpressImporterHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

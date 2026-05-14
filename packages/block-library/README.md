@@ -1,29 +1,44 @@
 # Capell Content Blocks
 
-Content Blocks is a reserved package namespace for shared block primitives that may be used by richer content-editing packages later.
+Content Blocks provides shared block primitives that richer content-editing packages can register and render without reaching into each other's internals.
 
-At the moment this package is a skeleton. It is autoloaded as `Capell\ContentBlocks\`, but it does not ship migrations, config, Actions, commands, Filament resources, registries, or a package manifest yet. Treat it as an internal placeholder, not as an installable feature package.
+It is intentionally small: a typed block definition DTO, a block registry, provider contracts, and actions for registering/listing/resolving blocks. It does not own migrations, admin resources, frontend output, or authoring markup.
 
 ## Current Surface
 
-| Surface                 | Status                                                                         |
-| ----------------------- | ------------------------------------------------------------------------------ |
-| Namespace               | `Capell\ContentBlocks\`                                                        |
-| Provider                | `Capell\ContentBlocks\Providers\ContentBlocksServiceProvider`, currently empty |
-| Commands                | None                                                                           |
-| Migrations              | None                                                                           |
-| Config                  | None                                                                           |
-| Actions                 | None                                                                           |
-| Public extension points | None yet                                                                       |
-| Tests                   | None yet                                                                       |
+| Surface                 | Status                                                                                                |
+| ----------------------- | ----------------------------------------------------------------------------------------------------- |
+| Namespace               | `Capell\ContentBlocks\`                                                                               |
+| Provider                | `Capell\ContentBlocks\Providers\ContentBlocksServiceProvider`                                         |
+| Commands                | None                                                                                                  |
+| Migrations              | None                                                                                                  |
+| Config                  | None                                                                                                  |
+| Actions                 | `ListBlockDefinitionsAction`, `RegisterBlockDefinitionProviderAction`, `ResolveBlockDefinitionAction` |
+| Public extension points | `BlockDefinitionProvider::TAG`, `BlockRenderer`, `BlockRegistry`                                      |
+| Tests                   | Package manifest, registry, provider registration, action resolution                                  |
 
-## Before Adding Features
+## Registering Blocks
 
-When this package starts carrying real block behavior, document the first public surface in the same change:
+Packages register blocks by tagging a `BlockDefinitionProvider` implementation with `BlockDefinitionProvider::TAG`.
 
-- register any schemas, widgets, settings, render hooks, or admin extension points in this README;
-- add a short copy-paste example for host packages that need to register a block;
-- add package-level tests for the first behavior rather than relying on downstream packages;
-- keep frontend output free of authoring metadata unless it is guarded behind the frontend authoring beacon.
+```php
+use Capell\ContentBlocks\Contracts\BlockDefinitionProvider;
+use Capell\ContentBlocks\Data\BlockDefinitionData;
 
-The package should stay boring: small block DTOs, Actions for mutations, and explicit extension points rather than package-to-package reach-ins.
+final class MarketingBlockProvider implements BlockDefinitionProvider
+{
+    public function definitions(): iterable
+    {
+        yield new BlockDefinitionData(
+            key: 'marketing.hero',
+            label: 'Marketing hero',
+            description: 'A campaign-ready hero block.',
+            category: 'marketing',
+            view: 'vendor-package::blocks.marketing-hero',
+            defaults: ['alignment' => 'center'],
+        );
+    }
+}
+```
+
+Block views must render ordinary public HTML. Authoring metadata, selectors, model IDs, signed URLs, and editor scripts belong behind the authenticated frontend authoring beacon, not in block definitions or public output.

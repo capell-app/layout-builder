@@ -78,7 +78,9 @@ it('runs demo command successfully', function (): void {
         return $mock;
     });
 
-    app()->bind(DemoCreator::class, function (Application $app, array $params): DemoCreator {
+    app()->bind(DemoCreator::class, function (Application $app, array $params) use ($user): DemoCreator {
+        expect($params['author']?->getKey())->toBe($user->getKey());
+
         $mock = Mockery::mock(DemoCreator::class . '[setupRelatedSites,createPage,setupSite,setupMainNavigation,setupFooterNavigation,subFooterNavigation]', [$params['url'], $params['author']]);
         $mock->shouldAllowMockingProtectedMethods();
         $mock->shouldReceive('setupRelatedSites')->andReturnNull();
@@ -113,4 +115,13 @@ it('runs demo command successfully', function (): void {
         ->not->toContain(PHP_EOL . 'Setting up pages' . PHP_EOL);
 
     File::delete($zipPath);
+});
+
+it('rejects invalid numeric demo scale options', function (): void {
+    expect(fn () => test()->artisan('capell:admin-demo', [
+        '--url' => 'https://example.test',
+        '--languages' => 'en',
+        '--sites' => 'Main Site',
+        '--page-count' => 'abc',
+    ]))->toThrow(InvalidArgumentException::class, 'The --page-count option must be a positive integer.');
 });

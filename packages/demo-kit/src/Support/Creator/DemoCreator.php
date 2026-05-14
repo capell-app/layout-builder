@@ -38,7 +38,6 @@ use FilesystemIterator;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
@@ -53,6 +52,8 @@ use ZipArchive;
 class DemoCreator
 {
     use Macroable;
+
+    private const NavigationPackage = 'capell-app/navigation';
 
     /** @var class-string<Language> */
     public string $languageModel;
@@ -71,6 +72,11 @@ class DemoCreator
 
     /** @var class-string<Type> */
     public string $typeModel;
+
+    /**
+     * @var array<string, list<string>>
+     */
+    private static array $demoImageFilenames = [];
 
     /** @var class-string<Model> */
     private readonly string $contentModel;
@@ -224,7 +230,7 @@ class DemoCreator
             'type_id' => $type?->getKey(),
             'layout_id' => $layout?->getKey(),
             'translations' => [],
-            'visible_from' => now()->subDays(random_int(0, 90))->format('Y-m-d'),
+            'visible_from' => now()->subDays(mt_rand(0, 90))->format('Y-m-d'),
         ];
 
         if ($parent instanceof Pageable) {
@@ -245,7 +251,7 @@ class DemoCreator
                     'description' => str($desc_content)->stripTags()->limit(160),
                     'keywords' => implode(',', array_slice(explode(' ', $title), 0, 10)),
                     'label' => Str::title($data['name'][$language->code] ?? $name),
-                    'link_text' => Arr::random([
+                    'link_text' => $this->randomItem([
                         'Learn More',
                         'Read More',
                         'Get Started',
@@ -269,36 +275,35 @@ class DemoCreator
     public function getRandomDemoImage(string $path, string $extension = 'jpg'): string
     {
         $ext = strtolower($extension);
-        $selectedFilename = null;
-        $count = 0;
+        $cacheKey = $path . '|' . $ext;
 
-        // Use FilesystemIterator to stream directory entries without loading all into memory.
-        $iterator = new FilesystemIterator($path, FilesystemIterator::SKIP_DOTS);
+        if (! array_key_exists($cacheKey, self::$demoImageFilenames)) {
+            self::$demoImageFilenames[$cacheKey] = [];
 
-        foreach ($iterator as $fileInfo) {
-            if (! $fileInfo instanceof SplFileInfo) {
-                continue;
-            }
+            $iterator = new FilesystemIterator($path, FilesystemIterator::SKIP_DOTS);
 
-            if (! $fileInfo->isFile()) {
-                continue;
-            }
+            foreach ($iterator as $fileInfo) {
+                if (! $fileInfo instanceof SplFileInfo) {
+                    continue;
+                }
 
-            $fileExtension = strtolower(pathinfo($fileInfo->getFilename(), PATHINFO_EXTENSION));
-            if ($fileExtension !== $ext) {
-                continue;
-            }
+                if (! $fileInfo->isFile()) {
+                    continue;
+                }
 
-            // Reservoir sampling: replace the selected file with decreasing probability.
-            $count++;
-            if (random_int(1, $count) === 1) {
-                $selectedFilename = pathinfo($fileInfo->getFilename(), PATHINFO_FILENAME);
+                $fileExtension = strtolower(pathinfo($fileInfo->getFilename(), PATHINFO_EXTENSION));
+                if ($fileExtension !== $ext) {
+                    continue;
+                }
+
+                self::$demoImageFilenames[$cacheKey][] = pathinfo($fileInfo->getFilename(), PATHINFO_FILENAME);
             }
         }
 
-        throw_if($selectedFilename === null, Exception::class, 'No demo files with extension .' . $extension . ' found in the specified path: ' . $path);
+        $filenames = self::$demoImageFilenames[$cacheKey];
+        throw_if($filenames === [], Exception::class, 'No demo files with extension .' . $extension . ' found in the specified path: ' . $path);
 
-        return $selectedFilename;
+        return $filenames[mt_rand(0, count($filenames) - 1)];
     }
 
     /**
@@ -2461,6 +2466,18 @@ class DemoCreator
             $demoFile = sprintf('%s/%s.%s', $demoPath, $filenameBase, $ext);
         }
 
+        throw_unless(File::exists($demoFile), Exception::class, 'Unable to find demo media file: ' . $demoFile);
+
+        // Attach primary media
+        $image = null;
+        if (! $isVideo) {
+            try {
+                $image = Image::load($demoFile);
+            } catch (Throwable) {
+                $image = null;
+            }
+        }
+
         // Create content and link via WidgetAsset
         $content = $this->contentModel::create([
             'name' => str($filenameBase)->title(),
@@ -2470,12 +2487,6 @@ class DemoCreator
             'asset_id' => $content->getKey(),
             'asset_type' => resolve($this->contentModel)->getMorphClass(),
         ]);
-
-        // Attach primary media
-        $image = null;
-        if (! $isVideo) {
-            $image = Image::load($demoFile);
-        }
 
         $media = $content->addMedia($demoFile)
             ->preservingOriginal()
@@ -2493,14 +2504,35 @@ class DemoCreator
         $posterBase = $this->getRandomDemoImage($posterPath);
         $posterFile = sprintf('%s/%s.jpg', $posterPath, $posterBase);
 
-        $posterImage = Image::load($posterFile);
+        if (! File::exists($posterFile)) {
+            return $media;
+        }
+
+        try {
+            $posterImage = Image::load($posterFile);
+        } catch (Throwable) {
+            $posterImage = null;
+        }
 
         return $content->addMedia($posterFile)
             ->preservingOriginal()
             ->withCustomProperties([
-                'width' => $posterImage->getWidth(),
-                'height' => $posterImage->getHeight(),
+                ...($posterImage instanceof Image ? [
+                    'width' => $posterImage->getWidth(),
+                    'height' => $posterImage->getHeight(),
+                ] : []),
             ])
             ->toMediaCollection(MediaCollectionEnum::Image->value);
+    }
+
+    /**
+     * @template TValue
+     *
+     * @param  non-empty-list<TValue>  $items
+     * @return TValue
+     */
+    private function randomItem(array $items): mixed
+    {
+        return $items[mt_rand(0, count($items) - 1)];
     }
 }

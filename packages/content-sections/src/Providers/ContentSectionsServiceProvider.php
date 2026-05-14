@@ -9,6 +9,7 @@ use Capell\Admin\Data\AdminAssetData;
 use Capell\Admin\Data\AdminSurfaceContributionData;
 use Capell\Admin\Enums\ConfiguratorTypeEnum as AdminConfiguratorTypeEnum;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\ContentBlocks\Contracts\BlockDefinitionProvider;
 use Capell\ContentSections\Actions\RegisterDefaultSectionsAction;
 use Capell\ContentSections\Actions\RegisterSectionDefinitionProviderAction;
 use Capell\ContentSections\Contracts\SectionDefinitionProvider;
@@ -19,6 +20,7 @@ use Capell\ContentSections\Enums\LivewireComponentsEnum;
 use Capell\ContentSections\Enums\ResourceEnum;
 use Capell\ContentSections\Filament\Configurators\Types\ContentTypeConfigurator;
 use Capell\ContentSections\Models\Section;
+use Capell\ContentSections\Support\ContentSectionsBlockDefinitionProvider;
 use Capell\ContentSections\Support\ContentSectionsModelRegistrar;
 use Capell\ContentSections\Support\SectionRegistry;
 use Capell\Core\Actions\RegisterBlazeOptimizedViewsAction;
@@ -47,6 +49,14 @@ class ContentSectionsServiceProvider extends AbstractPackageServiceProvider
     public static string $name = 'capell-content-sections';
 
     public static string $packageName = 'capell-app/content-sections';
+
+    public function packageRegistered(): void
+    {
+        $this->app->tag(
+            [ContentSectionsBlockDefinitionProvider::class],
+            BlockDefinitionProvider::TAG,
+        );
+    }
 
     public function configurePackage(Package $package): void
     {

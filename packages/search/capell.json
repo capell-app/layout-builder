@@ -62,7 +62,36 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "search.frontend-query",
+            "label": "Frontend search normalizes queries and returns paginated results.",
+            "class": "Capell\\Search\\Health\\SearchHealthCheck",
+            "severity": "critical",
+            "surface": "frontend"
+        },
+        {
+            "key": "search.database-driver",
+            "label": "Database search escapes wildcards and clamps pagination arguments.",
+            "class": "Capell\\Search\\Health\\SearchHealthCheck",
+            "severity": "critical",
+            "surface": "frontend"
+        },
+        {
+            "key": "search.logging",
+            "label": "Search logs capture query, result, and zero-result analytics.",
+            "class": "Capell\\Search\\Health\\SearchHealthCheck",
+            "severity": "warning",
+            "surface": "admin"
+        },
+        {
+            "key": "search.retention",
+            "label": "Search log purge command enforces retention windows.",
+            "class": "Capell\\Search\\Health\\SearchHealthCheck",
+            "severity": "warning",
+            "surface": "console"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",

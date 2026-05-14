@@ -66,7 +66,36 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "blog.publishing-surface",
+            "label": "Blog, archive, tag, and article publishing surfaces are installed",
+            "class": "Capell\\Blog\\Health\\BlogHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        },
+        {
+            "key": "blog.cache-invalidation",
+            "label": "Article saves clear blog content caches without clearing unrelated cache keys",
+            "class": "Capell\\Blog\\Health\\BlogHealthCheck",
+            "severity": "critical",
+            "surface": "frontend"
+        },
+        {
+            "key": "blog.author-related-rendering",
+            "label": "Article widgets can render author and related article metadata",
+            "class": "Capell\\Blog\\Health\\BlogHealthCheck",
+            "severity": "warning",
+            "surface": "frontend"
+        },
+        {
+            "key": "blog.sitemap-static-export",
+            "label": "Blog articles, archives, and tags contribute to sitemap and static export surfaces",
+            "class": "Capell\\Blog\\Health\\BlogHealthCheck",
+            "severity": "warning",
+            "surface": "console"
+        }
+    ],
     "commercial": {
         "proposedLicense": "free",
         "requestedCertification": "first-party",

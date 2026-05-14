@@ -20,6 +20,10 @@ final class BuildRegistryHealthAction
 {
     use AsAction;
 
+    private const BLOCK_REGISTRY_CLASS = 'Capell\\ContentBlocks\\Support\\BlockRegistry';
+
+    private const MAX_REGISTRY_ENTRIES_PER_SECTION = 100;
+
     public function handle(): RegistryHealthData
     {
         $sections = [
@@ -28,6 +32,12 @@ final class BuildRegistryHealthAction
             $this->buildSchemaExtendersSection(),
             $this->buildSettingsSchemasSection(),
         ];
+
+        $contentBlocksSection = $this->buildContentBlocksSection();
+
+        if ($contentBlocksSection instanceof RegistrySectionData) {
+            $sections[] = $contentBlocksSection;
+        }
 
         return new RegistryHealthData(
             sections: RegistrySectionData::collect($sections, DataCollection::class),
@@ -117,6 +127,42 @@ final class BuildRegistryHealthAction
         return new RegistrySectionData(
             name: 'Settings schemas',
             count: count($entries),
+            entries: RegistryEntryData::collect($entries, DataCollection::class),
+        );
+    }
+
+    private function buildContentBlocksSection(): ?RegistrySectionData
+    {
+        if (! class_exists(self::BLOCK_REGISTRY_CLASS) || ! app()->bound(self::BLOCK_REGISTRY_CLASS)) {
+            return null;
+        }
+
+        $registry = app(self::BLOCK_REGISTRY_CLASS);
+
+        if (! method_exists($registry, 'all')) {
+            return null;
+        }
+
+        $entries = [];
+
+        $definitions = $registry->all();
+
+        $definitionCount = count($definitions);
+
+        foreach (array_slice($definitions, 0, self::MAX_REGISTRY_ENTRIES_PER_SECTION) as $definition) {
+            $key = property_exists($definition, 'key') ? $definition->key : 'unknown';
+            $sourcePackage = property_exists($definition, 'sourcePackage') ? $definition->sourcePackage : 'unknown';
+
+            $entries[] = new RegistryEntryData(
+                class: 'block:' . $key,
+                sourcePackage: $sourcePackage,
+                autoDiscovered: false,
+            );
+        }
+
+        return new RegistrySectionData(
+            name: 'Content blocks',
+            count: $definitionCount,
             entries: RegistryEntryData::collect($entries, DataCollection::class),
         );
     }

@@ -53,7 +53,29 @@
             "queueInvalidation": false
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "media-ai.provider-adapter",
+            "label": "Image doctor provider adapter is resolved through the Media AI contract.",
+            "class": "Capell\\MediaAI\\Health\\MediaAIHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        },
+        {
+            "key": "media-ai.edit-action",
+            "label": "AI media edit action remains hidden until a real image doctor is bound.",
+            "class": "Capell\\MediaAI\\Health\\MediaAIHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        },
+        {
+            "key": "media-ai.structured-request",
+            "label": "Media AI sends structured operation and instruction data to provider adapters.",
+            "class": "Capell\\MediaAI\\Health\\MediaAIHealthCheck",
+            "severity": "warning",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "paid",
         "requestedCertification": "first-party",
