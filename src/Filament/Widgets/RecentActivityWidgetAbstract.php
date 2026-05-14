@@ -6,9 +6,9 @@ namespace Capell\LayoutBuilder\Filament\Widgets;
 
 use Capell\Admin\Contracts\CapellWidgetContract;
 use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
-use Capell\Core\LayoutBuilder\Data\Dashboard\ActivityItemData;
-use Capell\Core\LayoutBuilder\Data\Dashboard\RecentActivityData;
 use Capell\Core\Models\Page;
+use Capell\LayoutBuilder\Data\Dashboard\ActivityItemData;
+use Capell\LayoutBuilder\Data\Dashboard\RecentActivityData;
 use Filament\Widgets\Widget;
 
 final class RecentActivityWidgetAbstract extends Widget implements CapellWidgetContract
