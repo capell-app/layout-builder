@@ -23,6 +23,11 @@ use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\PageContentWidgetC
 use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\PageWidgetAssetForm;
 use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\ResultsWidgetConfigurator;
 use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\SystemWidgetConfigurator;
+use Capell\Admin\LayoutBuilder\Filament\Extenders\Page\HeroPageSchemaExtender;
+use Capell\Admin\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
+use Capell\Admin\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender;
+use Capell\Admin\LayoutBuilder\Filament\Resources\Pages\Schemas\Extenders\PageSchemaExtender;
+use Capell\Admin\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\Actions\AnalyzeLayoutDiagnosticsAction;
 use Capell\LayoutBuilder\Actions\BuildLayoutContentInventoryAction;
 use Capell\LayoutBuilder\Actions\Mutations\CreateLayoutFragmentAction;
@@ -45,11 +50,6 @@ use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Enums\LayoutBuilderEditorMode;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
-use Capell\LayoutBuilder\Filament\Extenders\Page\HeroPageSchemaExtender;
-use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
-use Capell\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender;
-use Capell\LayoutBuilder\Filament\Resources\Pages\Schemas\Extenders\PageSchemaExtender;
-use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 
 final class LayoutBuilderAdminAliasRegistry
@@ -101,11 +101,11 @@ final class LayoutBuilderAdminAliasRegistry
             PageWidgetAssetForm::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\PageWidgetAssetForm',
             ResultsWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\ResultsWidgetConfigurator',
             SystemWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\SystemWidgetConfigurator',
-            \Capell\Admin\LayoutBuilder\Filament\Extenders\Page\HeroPageSchemaExtender::class => HeroPageSchemaExtender::class,
-            \Capell\Admin\LayoutBuilder\Filament\Resources\Layouts\LayoutResource::class => LayoutResource::class,
-            \Capell\Admin\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender::class => LayoutSchemaExtender::class,
-            \Capell\Admin\LayoutBuilder\Filament\Resources\Pages\Schemas\Extenders\PageSchemaExtender::class => PageSchemaExtender::class,
-            \Capell\Admin\LayoutBuilder\Filament\Resources\Widgets\WidgetResource::class => WidgetResource::class,
+            HeroPageSchemaExtender::class => 'Capell\\LayoutBuilder\\Filament\\Extenders\\Page\\HeroPageSchemaExtender',
+            LayoutResource::class => 'Capell\\LayoutBuilder\\Filament\\Resources\\Layouts\\LayoutResource',
+            LayoutSchemaExtender::class => 'Capell\\LayoutBuilder\\Filament\\Resources\\Layouts\\Schemas\\Extenders\\LayoutSchemaExtender',
+            PageSchemaExtender::class => 'Capell\\LayoutBuilder\\Filament\\Resources\\Pages\\Schemas\\Extenders\\PageSchemaExtender',
+            WidgetResource::class => 'Capell\\LayoutBuilder\\Filament\\Resources\\Widgets\\WidgetResource',
             \Capell\Admin\LayoutBuilder\Support\LayoutClipboard::class => LayoutClipboard::class,
             \Capell\Admin\LayoutBuilder\Support\LayoutMutationHistory::class => LayoutMutationHistory::class,
             \Capell\Admin\LayoutBuilder\Support\LayoutPresetRepository::class => LayoutPresetRepository::class,

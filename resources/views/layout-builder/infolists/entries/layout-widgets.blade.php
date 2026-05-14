@@ -1,6 +1,6 @@
 @php
     use Capell\Admin\Support\AdminSurfaceLookup;
-    use Capell\Core\LayoutBuilder\Enums\ResourceEnum;
+    use Capell\LayoutBuilder\Enums\ResourceEnum;
 @endphp
 
 <ul class="divide-y divide-gray-100 dark:divide-gray-800">

@@ -7,7 +7,7 @@
 ])
 {{-- format-ignore-start --}}
 @php
-    use Capell\Admin\LayoutBuilder\Livewire\Filament\LayoutBuilder;
+    use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
     use Illuminate\Support\HtmlString;
     use Illuminate\View\ComponentAttributeBag;
 
