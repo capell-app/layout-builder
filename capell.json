@@ -1,0 +1,143 @@
+{
+    "manifest-version": 3,
+    "name": "capell-app/layout-builder",
+    "slug": "layout-builder",
+    "displayName": "Layout Builder",
+    "kind": "package",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
+    "description": "Visual layout composition, content-first editing, and public layout rendering for Capell.",
+    "product": {
+        "group": "Capell Foundation",
+        "tier": "free",
+        "bundle": "foundation"
+    },
+    "namespace": "Capell\\LayoutBuilder",
+    "surfaces": ["admin", "frontend", "console"],
+    "dependencies": {
+        "requires": ["capell-app/admin", "capell-app/core", "capell-app/frontend"],
+        "optional": [],
+        "conflicts": []
+    },
+    "providers": {
+        "metadata": [],
+        "install": [
+            "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
+        ],
+        "runtime": [
+            "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
+        ],
+        "admin": [
+            "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
+        ],
+        "frontend": [
+            "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
+        ]
+    },
+    "contributes": [
+        {
+            "type": "admin-resource",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "resourceClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Layouts\\LayoutResource",
+            "group": "Layout"
+        },
+        {
+            "type": "admin-resource",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "resourceClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Widgets\\WidgetResource",
+            "group": "Widget"
+        },
+        {
+            "type": "configurator",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "configuratorEnum": "Capell\\LayoutBuilder\\Enums\\ConfiguratorTypeEnum",
+            "groups": ["LayoutContainers", "LayoutWidgets", "Widgets", "WidgetAssets"]
+        },
+        {
+            "type": "schema-extender",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "extenderClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Pages\\Schemas\\Extenders\\PageSchemaExtender",
+            "tag": "Page"
+        },
+        {
+            "type": "schema-extender",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "extenderClass": "Capell\\LayoutBuilder\\Filament\\Extenders\\Page\\HeroPageSchemaExtender",
+            "tag": "Page"
+        },
+        {
+            "type": "schema-extender",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "extenderClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Layouts\\Schemas\\Extenders\\LayoutSchemaExtender",
+            "tag": "Layout"
+        },
+        {
+            "type": "asset",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "package": "capell-layout-builder"
+        }
+    ],
+    "database": {
+        "migrations": true,
+        "settings": false,
+        "requiredTables": ["layouts", "widgets", "widget_assets"]
+    },
+    "commands": {
+        "install": "capell:layout-builder-install",
+        "setup": null,
+        "demo": null,
+        "doctor": null
+    },
+    "settings": [],
+    "permissions": [
+        "ViewAny:Layout",
+        "View:Layout",
+        "Create:Layout",
+        "EditContent:Layout",
+        "EditLayout:Layout",
+        "Update:Layout",
+        "Delete:Layout",
+        "DeleteAny:Layout",
+        "Restore:Layout",
+        "ForceDelete:Layout",
+        "Replicate:Layout",
+        "Reorder:Layout"
+    ],
+    "capabilities": [
+        "layout-builder",
+        "layout-builder-admin",
+        "layout-builder-content-first",
+        "layout-builder-public-rendering"
+    ],
+    "performance": {
+        "frontendRenderBudgetMs": 20,
+        "adminQueryBudget": 50,
+        "cacheTags": ["layout-builder"],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": ["site", "locale", "page"],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": true
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "free",
+        "requestedCertification": "first-party",
+        "supportPolicy": "capell-first-party",
+        "privateDocsRequested": false
+    },
+    "marketplace": {
+        "summary": "Visual layout composition, content-first editing, and public layout rendering for Capell.",
+        "screenshots": [],
+        "categories": ["admin", "foundation", "frontend"]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "migration",
+            "model",
+            "route"
+        ]
+    }
+}

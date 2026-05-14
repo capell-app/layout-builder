@@ -1,121 +1,76 @@
-# Capell Packages
+# Capell Layout Builder
 
-First-party optional packages for Capell CMS. This repository is the package workspace beside the host application in `../capell-4`; install only the packages a project needs.
+`capell-app/layout-builder` owns Capell's visual layout composition layer: layout containers, widgets, widget assets, public layout graphs, content-first editing, and the Filament layout editor.
 
-Each package README follows the same shape:
+Core still owns sites, pages, languages, URLs, themes, and base content models. Admin still owns the Filament panel shell. Layout Builder plugs into both through package registrars and exposes its public API from the `Capell\LayoutBuilder` namespace.
 
-- At a glance: Composer name, namespace, runtime surfaces, service providers, and package dependencies.
-- What it adds: the editor, frontend, console, queue, or integration behaviour the package owns.
-- Code map: the package directories future changes should inspect first.
-- Surfaces: Filament, Livewire, HTTP, commands, persistence, extension points, docs, and tests.
-
-## Package Index
-
-### Foundation And Content
-
-| Package                                                 | Composer package              | Purpose                                                                                            |
-| ------------------------------------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------- |
-| [address](packages/address/README.md)                   | `capell-app/address`          | Country, region, and address data for Capell forms and admin records.                              |
-| [blog](packages/blog/README.md)                         | `capell-app/blog`             | Article publishing, archive pages, tag pages, article widgets, and sitemap contributions.          |
-| [content-sections](packages/content-sections/README.md) | `capell-app/content-sections` | Reusable content section records and Livewire rendering.                                           |
-| [events](packages/events/README.md)                     | `capell-app/events`           | Event records, venues, occurrences, registrations, calendar pages, and iCalendar feeds.            |
-| [hero](packages/hero/README.md)                         | `capell-app/hero`             | Default home-page hero widget rendering and setup.                                                 |
-| [media-library](packages/media-library/README.md)       | `capell-app/media-library`    | Awcodes Curator backend integration for Capell media.                                              |
-| [navigation](packages/navigation/README.md)             | `capell-app/navigation`       | Editor-managed menus for Capell frontend themes.                                                   |
-| [notes](packages/notes/README.md)                       | `capell-app/notes`            | Contextual notes, assignments, mentions, and reminders.                                            |
-| [tags](packages/tags/README.md)                         | `capell-app/tags`             | Shared editor-controlled taxonomies.                                                               |
-| [foundation-theme](packages/foundation-theme/README.md) | `capell-app/foundation-theme` | Default frontend theme, asset pipeline, Blade directives, URL generation, and SVG media rendering. |
-
-### Authoring And Publishing
-
-| Package                                                       | Composer package                 | Purpose                                                                                    |
-| ------------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------ |
-| [frontend-authoring](packages/frontend-authoring/README.md)   | `capell-app/frontend-authoring`  | Authenticated admin in-page editing bridge for public frontend pages.                      |
-| [frontend-optimizer](packages/frontend-optimizer/README.md)   | `capell-app/frontend-optimizer`  | Profile-based CSS and JavaScript delivery for public pages.                                |
-| [html-cache](packages/html-cache/README.md)                   | `capell-app/html-cache`          | Static HTML cache, dependency indexing, and cache administration.                          |
-| [publishing-studio](packages/publishing-studio/README.md)     | `capell-app/publishing-studio`   | Revisions, release workspaces, scheduling, approvals, previews, and controlled publishing. |
-| [translation-manager](packages/translation-manager/README.md) | `capell-app/translation-manager` | File-based Laravel translation management for Capell and Filament panels.                  |
-| [welcome-tour](packages/welcome-tour/README.md)               | `capell-app/welcome-tour`        | Optional Filament welcome tour for Capell Admin.                                           |
-
-### Forms, Access, And Public Workflows
-
-| Package                                               | Composer package             | Purpose                                                                                                    |
-| ----------------------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| [access-gate](packages/access-gate/README.md)         | `capell-app/access-gate`     | Public access gates, entitlement checks, and gated delivery foundations.                                   |
-| [form-builder](packages/form-builder/README.md)       | `capell-app/form-builder`    | Editor-managed forms, fields, submissions, validation, and notifications.                                  |
-| [newsletter](packages/newsletter/README.md)           | `capell-app/newsletter`      | Audience management, subscriptions, consent state, imports, notifications, and public subscription routes. |
-| [password-policy](packages/password-policy/README.md) | `capell-app/password-policy` | Password expiry, forced password changes, and password safety policy.                                      |
-| [public-actions](packages/public-actions/README.md)   | `capell-app/public-actions`  | Reusable public submit actions, outbound automation dispatch, and integration endpoints.                   |
-
-### Growth, Search, And Reporting
-
-| Package                                                   | Composer package               | Purpose                                                                                       |
-| --------------------------------------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------- |
-| [campaign-studio](packages/campaign-studio/README.md)     | `capell-app/campaign-studio`   | Campaign landing pages, CTA blocks, UTM attribution, conversion goals, and campaign insights. |
-| [dashboard-reports](packages/dashboard-reports/README.md) | `capell-app/dashboard-reports` | Generic reporting widgets for Capell dashboards.                                              |
-| [email-studio](packages/email-studio/README.md)           | `capell-app/email-studio`      | Transactional templates, delivery audit, provider events, replies, and suppressions.          |
-| [ga4-reports](packages/ga4-reports/README.md)             | `capell-app/ga4-reports`       | GA4 dashboard reporting for Capell.                                                           |
-| [insights](packages/insights/README.md)                   | `capell-app/insights`          | First-party insights, visitor journeys, click tracking, and consent management.               |
-| [search](packages/search/README.md)                       | `capell-app/search`            | Public site search, optional logging, and admin search insights.                              |
-| [seo-suite](packages/seo-suite/README.md)                 | `capell-app/seo-suite`         | Metadata panels, structured data, social meta, SEO audits, sitemaps, and AI-assisted SEO.     |
-| [site-discovery](packages/site-discovery/README.md)       | `capell-app/site-discovery`    | Public discoverability and sitemap outputs.                                                   |
-
-### Operations, Agents, And Migration
-
-| Package                                                       | Composer package                 | Purpose                                                                        |
-| ------------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------ |
-| [agent-bridge](packages/agent-bridge/README.md)               | `capell-app/agent-bridge`        | Agent Bridge servers and capability adapters.                                  |
-| [ai-orchestrator](packages/ai-orchestrator/README.md)         | `capell-app/ai-orchestrator`     | AI providers, prompts, structured requests, and package integration workflows. |
-| [demo-kit](packages/demo-kit/README.md)                       | `capell-app/demo-kit`            | Demo content and media setup for Capell packages.                              |
-| [deployments](packages/deployments/README.md)                 | `capell-app/deployments`         | Repository deployment connections and Composer publishing.                     |
-| [diagnostics](packages/diagnostics/README.md)                 | `capell-app/diagnostics`         | Developer and operational diagnostics.                                         |
-| [login-audit](packages/login-audit/README.md)                 | `capell-app/login-audit`         | Authentication log and login visibility.                                       |
-| [media-ai](packages/media-ai/README.md)                       | `capell-app/media-ai`            | Optional AI-assisted media actions.                                            |
-| [migration-assistant](packages/migration-assistant/README.md) | `capell-app/migration-assistant` | Export, import, rollback report, and migration workflow support.               |
-| [wordpress-importer](packages/wordpress-importer/README.md)   | `capell-app/wordpress-importer`  | WordPress WXR import source for Migration Assistant.                           |
-
-### Themes
-
-| Package                                               | Composer package             | Purpose                               |
-| ----------------------------------------------------- | ---------------------------- | ------------------------------------- |
-| [theme-agency](packages/theme-agency/README.md)       | `capell-app/theme-agency`    | Expressive agency theme for Capell.   |
-| [theme-corporate](packages/theme-corporate/README.md) | `capell-app/theme-corporate` | Trust-led corporate theme for Capell. |
-| [theme-saas](packages/theme-saas/README.md)           | `capell-app/theme-saas`      | Conversion-led SaaS theme for Capell. |
-
-## Install Pattern
-
-Install packages from the host Capell application:
+## Install
 
 ```bash
-composer require capell-app/<package>
+composer require capell-app/layout-builder
+php artisan capell:layout-builder-install
 ```
 
-Then run the package install command listed in that package README when it owns migrations, settings, generated pages, demo data, or external setup.
+The install command publishes and runs the package migrations listed by `Capell\LayoutBuilder\Support\CapellLayoutBuilderManager`.
 
-## Working In This Repository
+## Configuration
 
-Use package-level checks while editing:
+Configuration lives in `config/capell-layout-builder.php`.
+
+| Key                                       | Purpose                                                               |
+| ----------------------------------------- | --------------------------------------------------------------------- |
+| `editor_mode.default`                     | Default editor mode. Defaults to `content_first`.                     |
+| `editor_mode.allowed`                     | Allowed modes. Current values are `content_first` and `layout_first`. |
+| `preview.match_frontend_container_layout` | Match admin preview container layout to frontend columns.             |
+| `widget.skip_render_empty`                | Skip empty widgets in public rendering.                               |
+| `default_widget`                          | Default renderable key for new widgets.                               |
+
+## Main Surfaces
+
+| Surface                        | Package path                                                                                             |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| Public graph building          | `src/Actions/BuildPublicLayoutGraphAction.php`                                                           |
+| Public widget payloads         | `src/Contracts/PublicWidgetPayloadContributor.php`, `src/Support/DefaultPublicWidgetPayloadResolver.php` |
+| Content-first inventory        | `src/Actions/BuildLayoutContentInventoryAction.php`                                                      |
+| Layout mutations               | `src/Actions/Mutations/`                                                                                 |
+| Filament resources and schemas | `src/Filament/`                                                                                          |
+| Livewire editor                | `src/Livewire/Filament/LayoutBuilder.php`                                                                |
+| Admin views and components     | `resources/views/`                                                                                       |
+
+## Public Rendering
+
+Use `Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction` when a public route, API, or package needs layout content without depending on the frontend renderer.
+
+```php
+$graph = BuildPublicLayoutGraphAction::run(
+    layout: $layout,
+    page: $page,
+    language: $language,
+    containers: ['main'],
+    includeHtml: false,
+);
+```
+
+Payload contributors are tagged with `Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor::TAG`. Contributors should return public-safe data or HTML only; do not expose admin state, editor-only metadata, private IDs, or unpublished content.
+
+## Editor Modes
+
+`content_first` is the default mode. It shows editor-facing content groups from the current layout state and lets editors update assigned widget assets without navigating the full layout canvas.
+
+`layout_first` opens the drag/drop layout builder directly. Keep it available for designers and implementers who need placement and structure control.
+
+Both modes write through the same `WidgetAsset` persistence path.
+
+## Tests
+
+Run the package suite from the packages monorepo:
 
 ```bash
-vendor/bin/pest packages/<package>/tests --configuration=phpunit.xml
+vendor/bin/pest packages/layout-builder/tests --compact
 ```
 
-Use broader checks before integration:
+Run the focused public graph and package-boundary checks after changing public rendering or package ownership:
 
 ```bash
-composer test
-composer preflight
+vendor/bin/pest packages/layout-builder/tests/Integration/PublicLayoutGraphActionTest.php packages/layout-builder/tests/Arch/LayoutBuilderPackageBoundaryTest.php --compact
 ```
-
-Do not run `php artisan` in this repository. Testbench provides the Laravel context for package tests.
-
-## Documentation
-
-- Per-package READMEs live at `packages/<package>/README.md`.
-- Deeper package docs live under `packages/<package>/docs/` when the package needs API, database, workflow, or design notes.
-- Screenshot generation is manifest-driven where `packages/<package>/docs/screenshots.json` exists.
-- External docs: [docs.capell.app](https://docs.capell.app).
-
-## License
-
-Proprietary unless an individual package states otherwise.

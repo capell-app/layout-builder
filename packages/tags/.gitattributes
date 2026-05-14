@@ -1,2 +1,0 @@
-# Exclude test directory from composer distributions
-/tests export-ignore

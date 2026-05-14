@@ -1,0 +1,214 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\LayoutBuilder\Support;
+
+use BackedEnum;
+use Capell\Core\Data\PageTypeData;
+use Capell\Core\Data\RenderableDefinitionData;
+use Capell\Core\Enums\LayoutEnum;
+use Capell\Core\Enums\RenderableTypeEnum;
+use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Layout;
+use Capell\Core\Models\Page;
+use Capell\Core\Models\Type;
+use Capell\Core\Models\Widget;
+use Capell\Core\Models\WidgetAsset;
+use Capell\Core\Support\Renderables\RenderableRegistry;
+use Capell\LayoutBuilder\Actions\InvalidateTypeLayoutPreviewImagesAction;
+use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadResolver;
+use Capell\LayoutBuilder\Enums\ComponentTypeEnum;
+use Capell\LayoutBuilder\Enums\FrontendComponentKeyEnum;
+use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
+use Capell\LayoutBuilder\Enums\LivewireComponentsEnum;
+use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
+use Capell\LayoutBuilder\Listeners\AfterRecordSaved;
+use Capell\LayoutBuilder\Listeners\LayoutLoaded;
+use Capell\LayoutBuilder\Listeners\LayoutSavingListener;
+use Capell\LayoutBuilder\Listeners\SiteTreeRebuilt;
+use Capell\LayoutBuilder\Support\Interceptors\Layouts\DefaultLayoutInterceptor;
+use Capell\LayoutBuilder\Support\Interceptors\Layouts\HomeLayoutInterceptor;
+use Capell\LayoutBuilder\Support\Interceptors\Layouts\ResultsLayoutInterceptor;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Facades\App;
+
+final class LayoutBuilderCoreRegistrar
+{
+    public function register(): void
+    {
+        LayoutModelRegistrar::register();
+
+        $this->registerManagers();
+        $this->registerRelationships();
+        $this->registerModelEvents();
+        $this->registerModelInterceptors();
+        $this->registerPageTypes();
+        $this->registerComponents();
+        $this->registerRenderables();
+        $this->registerListeners();
+        $this->registerCloneableRelations();
+    }
+
+    private function registerManagers(): void
+    {
+        App::singleton(CapellLayoutManager::class, fn (): CapellLayoutManager => new CapellLayoutManager);
+        App::bind(PublicWidgetPayloadResolver::class, DefaultPublicWidgetPayloadResolver::class);
+        App::tag([], PublicWidgetPayloadContributor::TAG);
+    }
+
+    private function registerRelationships(): void
+    {
+        Page::resolveRelationUsing(
+            'widgetAssets',
+            fn (Page $model): MorphMany => $model->morphMany(WidgetAsset::class, 'pageable'),
+        );
+
+        Page::resolveRelationUsing(
+            'widgets',
+            fn (Page $model): MorphToMany => $model->morphToMany(
+                Widget::class,
+                'asset',
+                'widget_assets',
+                'asset_id',
+                'widget_id',
+            )
+                ->wherePivot('asset_type', $model->getMorphClass()),
+        );
+
+        Type::resolveRelationUsing(
+            'widgets',
+            fn (Type $model): HasMany => $model->hasMany(Widget::class, 'type_id'),
+        );
+    }
+
+    private function registerModelEvents(): void
+    {
+        Layout::saving(resolve(LayoutSavingListener::class));
+
+        Type::updated(function (Type $type): void {
+            $rawType = $type->getRawOriginal('type');
+
+            if ($rawType !== LayoutTypeEnum::Widget->value) {
+                return;
+            }
+
+            if (! $type->wasChanged(['name', 'admin'])) {
+                return;
+            }
+
+            InvalidateTypeLayoutPreviewImagesAction::run($type);
+        });
+    }
+
+    private function registerModelInterceptors(): void
+    {
+        CapellCore::registerModelInterceptor(Layout::class, DefaultLayoutInterceptor::class, LayoutEnum::Default);
+        CapellCore::registerModelInterceptor(Layout::class, HomeLayoutInterceptor::class, LayoutEnum::Home);
+        CapellCore::registerModelInterceptor(Layout::class, ResultsLayoutInterceptor::class, LayoutEnum::Results);
+    }
+
+    private function registerPageTypes(): void
+    {
+        foreach (LayoutTypeEnum::cases() as $type) {
+            CapellCore::registerPageType(
+                new PageTypeData(
+                    name: $type->value,
+                    model: $type->getModel(),
+                    label: $type->getLabel(),
+                ),
+            );
+        }
+    }
+
+    private function registerComponents(): void
+    {
+        foreach (ComponentTypeEnum::cases() as $componentType) {
+            /** @var class-string<BackedEnum> $enumClass */
+            $enumClass = $componentType->value;
+            CapellCore::registerComponents($componentType->name, $enumClass::cases());
+        }
+
+        CapellCore::registerComponents(ComponentTypeEnum::Asset, FrontendComponentKeyEnum::cases());
+    }
+
+    private function registerRenderables(): void
+    {
+        $registry = App::make(RenderableRegistry::class);
+
+        foreach (WidgetComponentEnum::cases() as $widgetComponent) {
+            $registry->register(new RenderableDefinitionData(
+                key: $widgetComponent->value,
+                type: RenderableTypeEnum::Widget,
+                blade: match ($widgetComponent) {
+                    WidgetComponentEnum::AssetAccordion => 'capell::widget.asset.accordion',
+                    WidgetComponentEnum::AssetBanner => 'capell::widget.asset.banners',
+                    WidgetComponentEnum::AssetBlock => 'capell::widget.asset.blocks',
+                    WidgetComponentEnum::AssetCarousel => 'capell::widget.asset.carousel',
+                    WidgetComponentEnum::AssetFeatures => 'capell::widget.asset.features',
+                    WidgetComponentEnum::AssetMedia => 'capell::widget.asset.media',
+                    WidgetComponentEnum::AssetTestimonials => 'capell::widget.asset.testimonials',
+                    WidgetComponentEnum::AnnouncementBar => 'capell::widget.announcement-bar',
+                    WidgetComponentEnum::Assets => 'capell::widget.asset',
+                    WidgetComponentEnum::BannerImage => 'capell::widget.banner-image',
+                    WidgetComponentEnum::Default => 'capell::widget.default',
+                    WidgetComponentEnum::Hero => 'capell::widget.hero',
+                    WidgetComponentEnum::Navigation => 'capell::widget.navigation',
+                    WidgetComponentEnum::NavigationTabs => 'capell::widget.navigation.tabs',
+                    WidgetComponentEnum::PageBreadcrumbs => 'capell::widget.page.breadcrumbs',
+                    WidgetComponentEnum::PageChildren => 'capell::widget.page.children',
+                    WidgetComponentEnum::PageContent => 'capell::widget.page.content',
+                    WidgetComponentEnum::PageLatest => 'capell::widget.page.latest',
+                    WidgetComponentEnum::PageSiblings => 'capell::widget.page.siblings',
+                    WidgetComponentEnum::PageSlot => 'capell::widget.slot',
+                    WidgetComponentEnum::Pages => 'capell::widget.asset.pages',
+                    WidgetComponentEnum::Snippet => 'capell::widget.snippet',
+                    WidgetComponentEnum::ApHeroBanner => 'capell::widget.modern.hero-banner',
+                    WidgetComponentEnum::ApCardGrid => 'capell::widget.modern.card-grid',
+                    WidgetComponentEnum::ApFeatureList => 'capell::widget.modern.feature-list',
+                    WidgetComponentEnum::ApCTASection => 'capell::widget.modern.cta-section',
+                    WidgetComponentEnum::ApImageGallery => 'capell::widget.modern.image-gallery',
+                    WidgetComponentEnum::ApTeamMembers => 'capell::widget.modern.team-members',
+                    WidgetComponentEnum::ApPricingTable => 'capell::widget.modern.pricing-table',
+                    WidgetComponentEnum::ApTestimonials => 'capell::widget.modern.testimonials',
+                    WidgetComponentEnum::ApFaqSection => 'capell::widget.modern.faq-section',
+                    WidgetComponentEnum::ApStatsSection => 'capell::widget.modern.stats-section',
+                    WidgetComponentEnum::ApAlternatingContent => 'capell::widget.modern.alternating-content',
+                    WidgetComponentEnum::ApProcessSteps => 'capell::widget.modern.process-steps',
+                },
+            ));
+        }
+
+        foreach (FrontendComponentKeyEnum::cases() as $assetComponent) {
+            $registry->register(new RenderableDefinitionData(
+                key: $assetComponent->value,
+                type: RenderableTypeEnum::Asset,
+                blade: match ($assetComponent) {
+                    FrontendComponentKeyEnum::SectionBlock => 'capell::components.section.block',
+                    FrontendComponentKeyEnum::SectionTeamMember => 'capell::components.section.team-member',
+                },
+            ));
+        }
+
+        $registry->register(new RenderableDefinitionData(
+            key: LivewireComponentsEnum::PagesWidget->value,
+            type: RenderableTypeEnum::Widget,
+            livewire: 'capell::widget.pages',
+        ));
+    }
+
+    private function registerListeners(): void
+    {
+        CapellCore::subscriberManager()->subscribe(AfterRecordSaved::class);
+        CapellCore::subscriberManager()->subscribe(SiteTreeRebuilt::class);
+        CapellCore::subscriberManager()->subscribe(LayoutLoaded::class);
+    }
+
+    private function registerCloneableRelations(): void
+    {
+        CapellCore::addCloneableRelations('page', 'widgetAssets');
+    }
+}

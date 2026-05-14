@@ -1,7 +1,0 @@
-@import './variants/variants.css';
-@import './theme/theme.css';
-@import './layout/layout.css';
-
-[x-cloak] {
-    display: none !important;
-}
