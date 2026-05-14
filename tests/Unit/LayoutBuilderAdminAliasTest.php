@@ -17,6 +17,8 @@ use Capell\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSche
 use Capell\LayoutBuilder\Filament\Resources\Pages\Schemas\Extenders\PageSchemaExtender;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminAliasRegistry;
+use Capell\LayoutBuilder\Support\LayoutClipboard;
+use Capell\LayoutBuilder\Support\LayoutPresetRepository;
 
 it('keeps package namespace editor classes resolvable while admin namespaces remain compatible', function (): void {
     LayoutBuilderAdminAliasRegistry::register();
@@ -36,6 +38,8 @@ it('exposes package namespace aliases for admin surface classes during extractio
         LayoutResource::class,
         LayoutSchemaExtender::class,
         PageSchemaExtender::class,
+        LayoutClipboard::class,
+        LayoutPresetRepository::class,
         WidgetResource::class,
     ] as $class) {
         expect(class_exists($class) || enum_exists($class))->toBeTrue();
@@ -52,6 +56,8 @@ it('loads content inventory classes from the layout builder package instead of a
         LayoutContentItemData::class,
         LayoutBreakpoint::class,
         LayoutBuilderEditorMode::class,
+        LayoutClipboard::class,
+        LayoutPresetRepository::class,
     ] as $class) {
         $reflection = new ReflectionClass($class);
 

@@ -68,7 +68,9 @@ final class LayoutBuilderAdminAliasRegistry
             \Capell\Admin\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender::class => LayoutSchemaExtender::class,
             \Capell\Admin\LayoutBuilder\Filament\Resources\Pages\Schemas\Extenders\PageSchemaExtender::class => PageSchemaExtender::class,
             \Capell\Admin\LayoutBuilder\Filament\Resources\Widgets\WidgetResource::class => WidgetResource::class,
+            \Capell\Admin\LayoutBuilder\Support\LayoutClipboard::class => LayoutClipboard::class,
             \Capell\Admin\LayoutBuilder\Support\LayoutMutationHistory::class => LayoutMutationHistory::class,
+            \Capell\Admin\LayoutBuilder\Support\LayoutPresetRepository::class => LayoutPresetRepository::class,
             \Capell\Admin\LayoutBuilder\Livewire\Filament\LayoutBuilder::class => LayoutBuilder::class,
         ];
     }
