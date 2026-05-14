@@ -11,6 +11,7 @@ use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadResolver;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\DefaultPublicWidgetPayloadResolver;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminAliasRegistry;
+use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Spatie\LaravelPackageTools\Package;
 
 class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
@@ -41,5 +42,10 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
                 InstallCommand::class,
             ]);
         }
+    }
+
+    public function packageBooted(): void
+    {
+        $this->app->make(LayoutBuilderAdminRegistrar::class)->register();
     }
 }
