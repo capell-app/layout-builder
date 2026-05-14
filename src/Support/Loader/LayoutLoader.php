@@ -15,6 +15,7 @@ use Capell\Core\Models\Widget;
 use Capell\Core\Models\WidgetAsset;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Collection;
 
 class LayoutLoader
 {
@@ -96,6 +97,8 @@ class LayoutLoader
         $layoutWidgets->each(function (Widget $widget) use ($language): void {
             $widget->translation?->setRelation('language', $language);
         });
+
+        $this->hydrateLayoutWidgets($layoutWidgets);
 
         // Build a lookup for widgets by id and by key
         $widgetsById = [];
@@ -247,6 +250,33 @@ class LayoutLoader
         $this->preloadLayoutWidgets($layout, $language, $page, $containerKeys);
 
         return $this->loadWidget($layout, $language, $page, $containerKey, $widgetKey, $occurrence, $containerKeys);
+    }
+
+    /**
+     * @param  Collection<int, Widget>  $widgets
+     */
+    private function hydrateLayoutWidgets(Collection $widgets): void
+    {
+        $widgets
+            ->groupBy(fn (Widget $widget): string => $widget->getComponent() . ':' . $widget->getMetaComponentType())
+            ->each(function (Collection $componentWidgets): void {
+                /** @var Widget|null $firstWidget */
+                $firstWidget = $componentWidgets->first();
+
+                if (! $firstWidget instanceof Widget) {
+                    return;
+                }
+
+                $component = $firstWidget->getComponent();
+                $livewire = $firstWidget->getMetaComponentType() === 'livewire';
+                $componentClass = GetComponentClassAction::run($component, $livewire);
+
+                if (! method_exists($componentClass, 'hydrateWidgets')) {
+                    return;
+                }
+
+                $componentClass::hydrateWidgets($componentWidgets);
+            });
     }
 
     private function trackRetrievedModel(object $model): void

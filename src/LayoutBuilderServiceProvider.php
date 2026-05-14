@@ -14,6 +14,7 @@ use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\DefaultPublicWidgetPayloadResolver;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Capell\LayoutBuilder\Support\LayoutBuilderCoreRegistrar;
+use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Spatie\LaravelPackageTools\Package;
 
 class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
@@ -35,6 +36,7 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     public function packageRegistered(): void
     {
         $this->app->tag([], LayoutContentGroupContributor::TAG);
+        $this->app->scoped(LayoutLoader::class);
         $this->app->bind(PublicWidgetPayloadResolver::class, DefaultPublicWidgetPayloadResolver::class);
         $this->app->tag([], PublicWidgetPayloadContributor::TAG);
 

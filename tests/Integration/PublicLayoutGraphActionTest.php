@@ -15,7 +15,10 @@ use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
 use Capell\LayoutBuilder\Data\PublicLayoutContainerData;
 use Capell\LayoutBuilder\Data\PublicLayoutGraphData;
 use Capell\LayoutBuilder\Data\PublicLayoutWidgetData;
+use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Capell\LayoutBuilder\Tests\Fixtures\View\Components\PackageAlert;
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Support\Facades\DB;
 
 beforeEach(function (): void {
     app()->bind(BladeComponentResolverInterface::class, fn (): BladeComponentResolverInterface => new class implements BladeComponentResolverInterface
@@ -217,4 +220,43 @@ it('scopes default widget assets to the matching occurrence when building public
 
     expect($graph->containers[0]->widgets[0]->data['asset_ids'])->toBe([$firstAsset->getKey()])
         ->and($graph->containers[0]->widgets[1]->data['asset_ids'])->toBe([$secondAsset->getKey()]);
+});
+
+it('reuses scoped preloaded widget assets when building public layout data', function (): void {
+    $language = Language::factory()->create();
+    $site = Site::factory()->create(['language_id' => $language->id]);
+    $widget = Widget::factory()->create(['key' => 'featured']);
+    $asset = Page::factory()->site($site)->withTranslations($language)->create(['name' => 'Preloaded asset']);
+
+    WidgetAsset::factory()
+        ->widget($widget)
+        ->asset($asset)
+        ->occurrence(1)
+        ->create();
+
+    $layout = Layout::factory()->site($site)->create([
+        'widgets' => [$widget->key],
+        'containers' => [
+            'main' => ['widgets' => [
+                ['widget_key' => $widget->key, 'occurrence' => 1],
+            ]],
+        ],
+    ]);
+
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
+
+    resolve(LayoutLoader::class)->preloadLayoutWidgets($layout, $language, $page, ['main']);
+
+    $widgetAssetQueries = 0;
+
+    DB::listen(function (QueryExecuted $query) use (&$widgetAssetQueries): void {
+        if (str_contains($query->sql, 'widget_assets')) {
+            $widgetAssetQueries++;
+        }
+    });
+
+    $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, ['main']);
+
+    expect($graph->containers[0]->widgets)->toHaveCount(1)
+        ->and($widgetAssetQueries)->toBe(0);
 });

@@ -43,7 +43,7 @@ class LayoutLoaded implements EventSubscriber
         CapellLayoutManager::clearContainerWidgets();
 
         // Preload all widgets/assets once to minimize queries during iteration
-        $loader = new LayoutLoader;
+        $loader = resolve(LayoutLoader::class);
         $loader->preloadLayoutWidgets($layout, $language, $page);
 
         $containers = $layout->getAttribute('containers');
