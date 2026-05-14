@@ -4,7 +4,25 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Support;
 
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Layouts\DefaultLayoutContainerConfigurator;
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Layouts\Widgets\DefaultLayoutWidgetConfigurator;
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Layouts\Widgets\PageLayoutWidgetConfigurator;
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Layouts\Widgets\ResultsLayoutWidgetConfigurator;
 use Capell\Admin\LayoutBuilder\Filament\Configurators\Types\WidgetTypeConfigurator;
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\AssetsWidgetConfigurator;
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\CardGridWidgetConfigurator;
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\CarouselWidgetConfigurator;
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\CTASectionWidgetConfigurator;
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\DefaultWidgetConfigurator;
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\FeatureListWidgetConfigurator;
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\HeroBannerWidgetConfigurator;
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\HeroWidgetConfigurator;
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\ImageGalleryWidgetConfigurator;
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\NavigationWidgetConfigurator;
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\PageContentWidgetConfigurator;
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\PageWidgetAssetForm;
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\ResultsWidgetConfigurator;
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Widgets\SystemWidgetConfigurator;
 use Capell\LayoutBuilder\Actions\AnalyzeLayoutDiagnosticsAction;
 use Capell\LayoutBuilder\Actions\BuildLayoutContentInventoryAction;
 use Capell\LayoutBuilder\Actions\Mutations\CreateLayoutFragmentAction;
@@ -64,7 +82,25 @@ final class LayoutBuilderAdminAliasRegistry
             \Capell\Admin\LayoutBuilder\Enums\LayoutBuilderEditorMode::class => LayoutBuilderEditorMode::class,
             \Capell\Admin\LayoutBuilder\Enums\LayoutDiagnosticSeverity::class => LayoutDiagnosticSeverity::class,
             \Capell\Admin\LayoutBuilder\Enums\ConfiguratorTypeEnum::class => ConfiguratorTypeEnum::class,
+            DefaultLayoutContainerConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Layouts\\DefaultLayoutContainerConfigurator',
+            DefaultLayoutWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Layouts\\Widgets\\DefaultLayoutWidgetConfigurator',
+            PageLayoutWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Layouts\\Widgets\\PageLayoutWidgetConfigurator',
+            ResultsLayoutWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Layouts\\Widgets\\ResultsLayoutWidgetConfigurator',
             WidgetTypeConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Types\\WidgetTypeConfigurator',
+            AssetsWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\AssetsWidgetConfigurator',
+            CardGridWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\CardGridWidgetConfigurator',
+            CarouselWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\CarouselWidgetConfigurator',
+            CTASectionWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\CTASectionWidgetConfigurator',
+            DefaultWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\DefaultWidgetConfigurator',
+            FeatureListWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\FeatureListWidgetConfigurator',
+            HeroBannerWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\HeroBannerWidgetConfigurator',
+            HeroWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\HeroWidgetConfigurator',
+            ImageGalleryWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\ImageGalleryWidgetConfigurator',
+            NavigationWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\NavigationWidgetConfigurator',
+            PageContentWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\PageContentWidgetConfigurator',
+            PageWidgetAssetForm::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\PageWidgetAssetForm',
+            ResultsWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\ResultsWidgetConfigurator',
+            SystemWidgetConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\SystemWidgetConfigurator',
             \Capell\Admin\LayoutBuilder\Filament\Extenders\Page\HeroPageSchemaExtender::class => HeroPageSchemaExtender::class,
             \Capell\Admin\LayoutBuilder\Filament\Resources\Layouts\LayoutResource::class => LayoutResource::class,
             \Capell\Admin\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender::class => LayoutSchemaExtender::class,

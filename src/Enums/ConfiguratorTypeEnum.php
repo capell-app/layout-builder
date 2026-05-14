@@ -5,10 +5,6 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Enums;
 
 use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
-use Capell\Core\LayoutBuilder\Enums\LayoutContainerConfiguratorEnum;
-use Capell\Core\LayoutBuilder\Enums\LayoutWidgetConfiguratorEnum;
-use Capell\Core\LayoutBuilder\Enums\WidgetAssetConfiguratorEnum;
-use Capell\Core\LayoutBuilder\Enums\WidgetConfiguratorEnum;
 
 enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
 {
