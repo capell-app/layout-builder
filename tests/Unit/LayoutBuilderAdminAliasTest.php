@@ -11,6 +11,7 @@ use Capell\LayoutBuilder\Data\LayoutContentItemData;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Enums\LayoutBuilderEditorMode;
+use Capell\LayoutBuilder\Filament\Configurators\Types\WidgetTypeConfigurator;
 use Capell\LayoutBuilder\Filament\Extenders\Page\HeroPageSchemaExtender;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender;
@@ -34,6 +35,7 @@ it('exposes package namespace aliases for admin surface classes during extractio
 
     foreach ([
         ConfiguratorTypeEnum::class,
+        WidgetTypeConfigurator::class,
         HeroPageSchemaExtender::class,
         LayoutResource::class,
         LayoutSchemaExtender::class,

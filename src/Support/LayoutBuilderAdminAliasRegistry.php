@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Support;
 
+use Capell\Admin\LayoutBuilder\Filament\Configurators\Types\WidgetTypeConfigurator;
 use Capell\LayoutBuilder\Actions\AnalyzeLayoutDiagnosticsAction;
 use Capell\LayoutBuilder\Actions\BuildLayoutContentInventoryAction;
 use Capell\LayoutBuilder\Actions\Mutations\CreateLayoutFragmentAction;
@@ -63,6 +64,7 @@ final class LayoutBuilderAdminAliasRegistry
             \Capell\Admin\LayoutBuilder\Enums\LayoutBuilderEditorMode::class => LayoutBuilderEditorMode::class,
             \Capell\Admin\LayoutBuilder\Enums\LayoutDiagnosticSeverity::class => LayoutDiagnosticSeverity::class,
             \Capell\Admin\LayoutBuilder\Enums\ConfiguratorTypeEnum::class => ConfiguratorTypeEnum::class,
+            WidgetTypeConfigurator::class => 'Capell\\LayoutBuilder\\Filament\\Configurators\\Types\\WidgetTypeConfigurator',
             \Capell\Admin\LayoutBuilder\Filament\Extenders\Page\HeroPageSchemaExtender::class => HeroPageSchemaExtender::class,
             \Capell\Admin\LayoutBuilder\Filament\Resources\Layouts\LayoutResource::class => LayoutResource::class,
             \Capell\Admin\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender::class => LayoutSchemaExtender::class,
