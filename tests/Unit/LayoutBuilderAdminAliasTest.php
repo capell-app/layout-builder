@@ -49,6 +49,7 @@ it('exposes package namespace aliases for admin surface classes during extractio
 it('loads content inventory classes from the layout builder package instead of admin aliases', function (): void {
     foreach ([
         BuildLayoutContentInventoryAction::class,
+        ConfiguratorTypeEnum::class,
         LayoutContentGroupContributor::class,
         LayoutContentGroupData::class,
         LayoutContentInventoryData::class,
