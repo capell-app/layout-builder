@@ -6,6 +6,11 @@ namespace Capell\LayoutBuilder;
 
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
+use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadResolver;
+use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
+use Capell\LayoutBuilder\Support\DefaultPublicWidgetPayloadResolver;
+use Capell\LayoutBuilder\Support\LayoutBuilderAdminAliasRegistry;
 use Spatie\LaravelPackageTools\Package;
 
 class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
@@ -19,12 +24,18 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $package
             ->name(self::$name)
             ->hasConfigFile('capell-layout-builder')
+            ->hasMigrations(CapellLayoutBuilderManager::getMigrations())
             ->hasTranslations()
             ->hasViews(self::$name);
     }
 
     public function packageRegistered(): void
     {
+        LayoutBuilderAdminAliasRegistry::register();
+
+        $this->app->bind(PublicWidgetPayloadResolver::class, DefaultPublicWidgetPayloadResolver::class);
+        $this->app->tag([], PublicWidgetPayloadContributor::TAG);
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 InstallCommand::class,

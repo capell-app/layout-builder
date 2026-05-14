@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Console\Commands;
 
+use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Illuminate\Console\Command;
 
 class InstallCommand extends Command
@@ -39,6 +40,9 @@ class InstallCommand extends Command
      */
     private function migrations(): array
     {
-        return [];
+        return array_map(
+            static fn (string $migration): string => __DIR__ . '/../../../database/migrations/' . $migration . '.php',
+            CapellLayoutBuilderManager::getMigrations(),
+        );
     }
 }

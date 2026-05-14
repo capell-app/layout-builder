@@ -36,9 +36,9 @@
     },
     "contributes": [],
     "database": {
-        "migrations": false,
+        "migrations": true,
         "settings": false,
-        "requiredTables": []
+        "requiredTables": ["layouts", "widgets", "widget_assets"]
     },
     "commands": {
         "install": "capell:layout-builder-install",
