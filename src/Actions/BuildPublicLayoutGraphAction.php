@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Actions;
 
-use Capell\Core\LayoutBuilder\Support\Loader\LayoutLoader;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
@@ -13,6 +12,7 @@ use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadResolver;
 use Capell\LayoutBuilder\Data\PublicLayoutContainerData;
 use Capell\LayoutBuilder\Data\PublicLayoutGraphData;
 use Capell\LayoutBuilder\Data\PublicLayoutWidgetData;
+use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class BuildPublicLayoutGraphAction
