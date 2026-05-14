@@ -181,7 +181,7 @@ class LayoutLoader
             $this->trackRetrievedModel($asset);
 
             $widgetId = (int) $asset->widget_id;
-            $occurrence = (int) ($asset->occurrence ?? 1);
+            $occurrence = $asset->occurrence ?? 1;
 
             if ($asset->pageable_id === null && $asset->pageable_type === null) {
                 $defaultAssetsByWidgetIdOccurrence[$widgetId][$occurrence] ??= [];

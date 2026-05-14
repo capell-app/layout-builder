@@ -210,7 +210,7 @@ trait ManagesAssets
                     'id' => $widgetAsset->id,
                     'widget_id' => $widgetAsset->widget_id,
                     'workspace_id' => $widgetAsset->workspace_id,
-                    'asset_id' => is_numeric($widgetAsset->asset_id) ? (int) $widgetAsset->asset_id : $widgetAsset->asset_id,
+                    'asset_id' => $widgetAsset->asset_id,
                     'asset_type' => $widgetAsset->asset_type,
                     'meta' => $widgetAsset->meta,
                     'order' => $widgetAsset->order,
@@ -1124,13 +1124,7 @@ trait ManagesAssets
 
         return $eloquentCollection->load(['asset' => fn (MorphTo $query): MorphTo => $query->morphWith($this->getAssetRelations())])
             ->filter(fn (WidgetAsset $widgetAsset): bool => $this->canUseAssetRecord($widgetAsset->asset))
-            ->map(function (WidgetAsset $widgetAsset): WidgetAsset {
-                if (is_numeric($widgetAsset->asset_id)) {
-                    $widgetAsset->asset_id = (int) $widgetAsset->asset_id;
-                }
-
-                return $widgetAsset;
-            });
+            ->map(fn (WidgetAsset $widgetAsset): WidgetAsset => $widgetAsset);
     }
 
     protected function filterContainerWidgetAssets(Collection $assets, string $containerKey, int $widgetOccurrence, ?Widget $widget = null): SupportCollection|Enumerable
