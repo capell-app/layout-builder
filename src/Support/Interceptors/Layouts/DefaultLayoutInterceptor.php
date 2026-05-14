@@ -17,7 +17,7 @@ final class DefaultLayoutInterceptor implements LayoutInterceptorInterface
 
     public function afterCreated(Layout $layout, array $data): void
     {
-        if (! app(RuntimeSchemaState::class)->hasColumn('layouts', 'containers')) {
+        if (! resolve(RuntimeSchemaState::class)->hasColumn('layouts', 'containers')) {
             return;
         }
 

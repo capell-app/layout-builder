@@ -65,6 +65,42 @@ it('lets content editors use content first without advanced layout access from t
         ->assertForbidden();
 });
 
+it('lets content editors submit widget asset edits without layout access from the package namespace', function (): void {
+    Permission::findOrCreate('EditContent:Layout');
+    Permission::findOrCreate('EditLayout:Layout');
+    Permission::findOrCreate('Update:Layout');
+    Permission::findOrCreate('View:Page');
+
+    test()->actingAs(test()->createUserWithPermission(['EditContent:Layout', 'View:Page']));
+
+    $widget = Widget::factory()->create(['key' => 'featured', 'name' => 'Featured']);
+    $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
+    $widgetAsset = WidgetAsset::factory()
+        ->widget($widget)
+        ->asset($asset)
+        ->occurrence(1)
+        ->create(['order' => 1, 'meta' => ['variant' => 'default']]);
+
+    $layout = Layout::factory()->create(['containers' => [
+        'main' => ['widgets' => [
+            ['widget_key' => $widget->key, 'occurrence' => 1],
+        ]],
+    ]]);
+
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->callAction('editWidgetAsset', data: [
+            'meta' => ['variant' => 'featured'],
+        ], arguments: [
+            'containerKey' => 'main',
+            'widgetIndex' => 0,
+            'index' => 0,
+            'type' => 'page',
+        ])
+        ->assertHasNoActionErrors();
+
+    expect($widgetAsset->fresh()->meta['variant'] ?? null)->toBe('default');
+});
+
 it('sends layout only editors straight to the advanced layout editor from the package namespace', function (): void {
     Permission::findOrCreate('EditLayout:Layout');
     Permission::findOrCreate('Update:Layout');

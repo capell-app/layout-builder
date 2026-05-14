@@ -2,11 +2,15 @@
 
 declare(strict_types=1);
 
+use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
+use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Illuminate\Support\Arr;
 
 it('declares the admin resources and extension points owned by layout builder', function (): void {
+    $manifestContents = file_get_contents(dirname(__DIR__, 2) . '/capell.json');
     $manifest = json_decode(
-        file_get_contents(dirname(__DIR__, 2) . '/capell.json') ?: '[]',
+        $manifestContents !== false ? $manifestContents : '[]',
         true,
     );
 
@@ -18,8 +22,9 @@ it('declares the admin resources and extension points owned by layout builder', 
 });
 
 it('advertises package-owned layout builder admin classes in its manifest', function (): void {
+    $manifestContents = file_get_contents(dirname(__DIR__, 2) . '/capell.json');
     $manifest = json_decode(
-        file_get_contents(dirname(__DIR__, 2) . '/capell.json') ?: '[]',
+        $manifestContents !== false ? $manifestContents : '[]',
         true,
     );
 
@@ -29,8 +34,8 @@ it('advertises package-owned layout builder admin classes in its manifest', func
 
     expect($manifestStrings->filter(fn (string $value): bool => str_starts_with($value, 'Capell\\Admin\\LayoutBuilder\\')))->toBeEmpty()
         ->and($manifestStrings)->toContain(
-            'Capell\\LayoutBuilder\\Filament\\Resources\\Layouts\\LayoutResource',
-            'Capell\\LayoutBuilder\\Filament\\Resources\\Widgets\\WidgetResource',
-            'Capell\\LayoutBuilder\\Enums\\ConfiguratorTypeEnum',
+            LayoutResource::class,
+            WidgetResource::class,
+            ConfiguratorTypeEnum::class,
         );
 });

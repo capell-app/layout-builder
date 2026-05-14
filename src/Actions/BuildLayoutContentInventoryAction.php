@@ -52,7 +52,7 @@ final class BuildLayoutContentInventoryAction
         $itemCount = 0;
 
         foreach ($containers as $containerOrder => $container) {
-            $containerKey = (string) $containerOrder;
+            $containerKey = $containerOrder;
 
             if (is_string($containerOrder)) {
                 $containerKey = $containerOrder;
@@ -97,16 +97,16 @@ final class BuildLayoutContentInventoryAction
                         placementLabel: $this->placementLabel($containerLabel, $widgetLabel, $assetIndex),
                         containerKey: $containerKey,
                         containerLabel: $containerLabel,
-                        widgetIndex: (int) $widgetIndex,
+                        widgetIndex: $widgetIndex,
                         widgetLabel: $widgetLabel,
-                        assetIndex: (int) $assetIndex,
+                        assetIndex: $assetIndex,
                         assetType: (string) ($assetState['asset_type'] ?? ''),
                         assetId: $assetState['asset_id'] ?? null,
                         isReused: isset($reusedAssetKeys[$assetKey]),
                         editActionArguments: [
                             'containerKey' => $containerKey,
-                            'widgetIndex' => (int) $widgetIndex,
-                            'index' => (int) $assetIndex,
+                            'widgetIndex' => $widgetIndex,
+                            'index' => $assetIndex,
                             'type' => (string) ($assetState['asset_type'] ?? ''),
                             'contentInventorySignature' => $signature,
                         ],
@@ -311,6 +311,6 @@ final class BuildLayoutContentInventoryAction
      */
     private function assetKey(array $assetState): string
     {
-        return (string) ($assetState['asset_type'] ?? '') . ':' . (string) ($assetState['asset_id'] ?? '');
+        return ($assetState['asset_type'] ?? '') . ':' . ($assetState['asset_id'] ?? '');
     }
 }

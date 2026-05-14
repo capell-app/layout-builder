@@ -36,10 +36,7 @@
     <div class="space-y-2 p-4 pr-14">
         <div class="flex flex-wrap items-center justify-between gap-3">
             @if ($previewData->typeLabel)
-                <x-filament::badge
-                    size="xs"
-                    color="info"
-                >
+                <x-filament::badge size="xs" color="info">
                     {{ $previewData->typeLabel }}
                 </x-filament::badge>
             @endif

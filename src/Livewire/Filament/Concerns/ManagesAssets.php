@@ -210,8 +210,7 @@ trait ManagesAssets
                     'id' => $widgetAsset->id,
                     'widget_id' => $widgetAsset->widget_id,
                     'workspace_id' => $widgetAsset->workspace_id,
-                    /** @phpstan-ignore-next-line */
-                    'asset_id' => is_string($widgetAsset->asset_id) ? (int) $widgetAsset->asset_id : $widgetAsset->asset_id,
+                    'asset_id' => is_numeric($widgetAsset->asset_id) ? (int) $widgetAsset->asset_id : $widgetAsset->asset_id,
                     'asset_type' => $widgetAsset->asset_type,
                     'meta' => $widgetAsset->meta,
                     'order' => $widgetAsset->order,
@@ -266,7 +265,7 @@ trait ManagesAssets
                 }
 
                 $matchesWidget = $asset->asset_type === $type
-                    && (int) $asset->asset_id === $assetId;
+                    && (string) $asset->asset_id === (string) $assetId;
 
                 if (! $matchesWidget) {
                     return false;
@@ -943,6 +942,15 @@ trait ManagesAssets
         $this->assets[$containerKey][$widgetIndex][$index] = array_merge_recursive($widgetAsset, $data);
     }
 
+    protected function updateWidgetAssetContentState(string $containerKey, int $widgetIndex, int $index, array $data): void
+    {
+        $this->assertCanEditContent();
+
+        $widgetAsset = $this->assets[$containerKey][$widgetIndex][$index];
+
+        $this->assets[$containerKey][$widgetIndex][$index] = array_replace_recursive($widgetAsset, $data);
+    }
+
     protected function shouldAddPageAssets(string $containerKey, int $widgetIndex): bool
     {
         if (! $this->inPageContext()) {
@@ -1117,8 +1125,7 @@ trait ManagesAssets
         return $eloquentCollection->load(['asset' => fn (MorphTo $query): MorphTo => $query->morphWith($this->getAssetRelations())])
             ->filter(fn (WidgetAsset $widgetAsset): bool => $this->canUseAssetRecord($widgetAsset->asset))
             ->map(function (WidgetAsset $widgetAsset): WidgetAsset {
-                if (is_string($widgetAsset->asset_id)) {
-                    /** @phpstan-ignore-next-line */
+                if (is_numeric($widgetAsset->asset_id)) {
                     $widgetAsset->asset_id = (int) $widgetAsset->asset_id;
                 }
 
@@ -1187,7 +1194,7 @@ trait ManagesAssets
             return false;
         }
 
-        if (isset($widgetAssetData['asset_id']) && (int) $widgetAssetData['asset_id'] !== (int) $asset->asset_id) {
+        if (isset($widgetAssetData['asset_id']) && (string) $widgetAssetData['asset_id'] !== (string) $asset->asset_id) {
             return false;
         }
 

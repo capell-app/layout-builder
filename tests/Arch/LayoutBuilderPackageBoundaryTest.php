@@ -9,9 +9,10 @@ it('does not use retired core layout builder namespaces', function (): void {
 
     $legacyReferences = collect((new Finder)->files()->in($sourcePath)->name('*.php'))
         ->mapWithKeys(function (SplFileInfo $file): array {
-            $relativePath = str_replace(dirname(__DIR__, 2) . '/', '', $file->getRealPath() ?: $file->getPathname());
+            $filePath = $file->getRealPath() !== false ? $file->getRealPath() : $file->getPathname();
+            $relativePath = str_replace(dirname(__DIR__, 2) . '/', '', $filePath);
 
-            return [$relativePath => file_get_contents($file->getRealPath() ?: $file->getPathname())];
+            return [$relativePath => file_get_contents($filePath)];
         })
         ->filter(fn (string $contents): bool => str_contains($contents, 'Capell\\Core\\LayoutBuilder\\'))
         ->keys()
@@ -29,9 +30,10 @@ it('keeps companion package source off legacy layout builder namespaces', functi
         ->filter(fn (SplFileInfo $file): bool => str_contains($file->getPathname(), '/src/')
             || str_contains($file->getPathname(), '/resources/'))
         ->mapWithKeys(function (SplFileInfo $file) use ($packagesPath): array {
-            $relativePath = str_replace($packagesPath . '/', '', $file->getRealPath() ?: $file->getPathname());
+            $filePath = $file->getRealPath() !== false ? $file->getRealPath() : $file->getPathname();
+            $relativePath = str_replace($packagesPath . '/', '', $filePath);
 
-            return [$relativePath => file_get_contents($file->getRealPath() ?: $file->getPathname())];
+            return [$relativePath => file_get_contents($filePath)];
         })
         ->filter(fn (string $contents): bool => str_contains($contents, 'Capell\\Core\\LayoutBuilder\\')
             || str_contains($contents, 'Capell\\Admin\\LayoutBuilder\\'))

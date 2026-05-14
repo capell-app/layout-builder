@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Support\Creator;
 
 use BackedEnum;
-use Capell\Core\Actions\DummyContentGeneratorAction;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Enums\MediaCollectionEnum;
@@ -19,12 +18,15 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Type;
 use Capell\Core\Models\Widget;
 use Capell\Core\Models\WidgetAsset;
+use Capell\DemoKit\Actions\DummyContentGeneratorAction;
 use Capell\LayoutBuilder\Enums\ActionLinkEnum;
 use Capell\LayoutBuilder\Enums\ContentTypeEnum;
 use Capell\LayoutBuilder\Enums\FrontendComponentKeyEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
+use Capell\Navigation\Models\Navigation;
+use Capell\Navigation\Support\Creator\NavigationCreator;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Model;
@@ -36,7 +38,7 @@ use Spatie\MediaLibrary\HasMedia;
 
 class DemoCreator
 {
-    private const DEMO_CREATOR = 'Capell\\DemoKit\\Support\\Creator\\DemoCreator';
+    private const DEMO_CREATOR = \Capell\DemoKit\Support\Creator\DemoCreator::class;
 
     private const DemoKitPackage = 'capell-app/demo-kit';
 
@@ -407,7 +409,7 @@ class DemoCreator
 
     public function createStaticNavigationWidget(Collection $languages, Site $site): Widget
     {
-        $model = 'Capell\\Navigation\\Models\\Navigation';
+        $model = Navigation::class;
 
         // Create menu + items
         $name = 'Example Menu';
@@ -1697,7 +1699,7 @@ class DemoCreator
 
     protected function getPageNavigationLabel(Page $page, Language $language): string
     {
-        $navigationCreator = 'Capell\\Navigation\\Support\\Creator\\NavigationCreator';
+        $navigationCreator = NavigationCreator::class;
 
         if (CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($navigationCreator) && method_exists($navigationCreator, 'getPageNavigationLabel')) {
             return (string) $navigationCreator::getPageNavigationLabel($page, $language);
@@ -2147,7 +2149,7 @@ class DemoCreator
         $demoCreator = self::DEMO_CREATOR;
 
         if (CapellCore::isPackageInstalled(self::DemoKitPackage) && class_exists($demoCreator) && method_exists($demoCreator, 'getDemoResourcePath')) {
-            return (string) $demoCreator::getDemoResourcePath($type);
+            return $demoCreator::getDemoResourcePath($type);
         }
 
         throw new RuntimeException('The demo kit package is required to create demo layout builder media.');

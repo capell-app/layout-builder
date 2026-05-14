@@ -15,6 +15,7 @@ use Capell\Core\Contracts\Extensions\RegistersExtensionAdminResource;
 use Capell\Core\Contracts\Extensions\RegistersExtensionAsset;
 use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
+use Capell\LayoutBuilder\Filament\Configurators\Types\WidgetTypeConfigurator;
 use Capell\LayoutBuilder\Filament\Extenders\Page\HeroPageSchemaExtender;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender;
@@ -38,7 +39,7 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
 
     private const LEGACY_WIDGET_RESOURCE = 'Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Widgets\\WidgetResource';
 
-    private const WIDGET_TYPE_CONFIGURATOR = 'Capell\\LayoutBuilder\\Filament\\Configurators\\Types\\WidgetTypeConfigurator';
+    private const WIDGET_TYPE_CONFIGURATOR = WidgetTypeConfigurator::class;
 
     public function __construct(private readonly Container $app) {}
 
@@ -109,7 +110,22 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
     {
         foreach (ConfiguratorTypeEnum::getAllConfigurators() as $type => $configurators) {
             foreach ($configurators as $configurator) {
-                $configuratorClass = $configurator instanceof BackedEnum ? $configurator->value : $configurator;
+                if (! $configurator instanceof BackedEnum) {
+                    continue;
+                }
+
+                if (! is_string($configurator->value)) {
+                    continue;
+                }
+
+                $configuratorClass = $configurator->value;
+                if (! class_exists($configuratorClass)) {
+                    continue;
+                }
+
+                if (! method_exists($configuratorClass, 'getKey')) {
+                    continue;
+                }
 
                 CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
                     class: $configuratorClass,

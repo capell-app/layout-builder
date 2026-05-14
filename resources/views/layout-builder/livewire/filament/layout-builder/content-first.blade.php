@@ -57,13 +57,17 @@
                         </h3>
 
                         @if ($group->summary)
-                            <p class="mt-1 text-xs text-gray-600 dark:text-gray-300">
+                            <p
+                                class="mt-1 text-xs text-gray-600 dark:text-gray-300"
+                            >
                                 {{ $group->summary }}
                             </p>
                         @endif
                     </div>
 
-                    <div class="divide-y divide-gray-950/5 dark:divide-white/10">
+                    <div
+                        class="divide-y divide-gray-950/5 dark:divide-white/10"
+                    >
                         @foreach ($group->items as $item)
                             @php
                                 $editWidgetAssetAction = ($this->editWidgetAssetAction)($item->editActionArguments);
@@ -76,31 +80,43 @@
                                 tabindex="-1"
                             >
                                 <div class="min-w-0">
-                                    <div class="flex flex-wrap items-center gap-2">
+                                    <div
+                                        class="flex flex-wrap items-center gap-2"
+                                    >
                                         <h4
                                             class="line-clamp-1 text-sm font-medium text-gray-950 dark:text-white"
                                         >
                                             {{ $item->label }}
                                         </h4>
 
-                                        <x-filament::badge color="gray" size="sm">
+                                        <x-filament::badge
+                                            color="gray"
+                                            size="sm"
+                                        >
                                             {{ $item->typeLabel }}
                                         </x-filament::badge>
 
                                         @if ($item->isReused)
-                                            <x-filament::badge color="warning" size="sm">
+                                            <x-filament::badge
+                                                color="warning"
+                                                size="sm"
+                                            >
                                                 {{ __('capell-layout-builder::message.content_item_reused') }}
                                             </x-filament::badge>
                                         @endif
                                     </div>
 
                                     @if ($item->summary)
-                                        <p class="mt-1 line-clamp-2 text-sm text-gray-600 dark:text-gray-300">
+                                        <p
+                                            class="mt-1 line-clamp-2 text-sm text-gray-600 dark:text-gray-300"
+                                        >
                                             {{ $item->summary }}
                                         </p>
                                     @endif
 
-                                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                    <p
+                                        class="mt-1 text-xs text-gray-500 dark:text-gray-400"
+                                    >
                                         {{ $item->placementLabel }}
                                     </p>
                                 </div>

@@ -29,6 +29,7 @@ use Capell\LayoutBuilder\Livewire\Filament\Concerns\HasLayoutActions;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesAssets;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesContainers;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesWidgets;
+use Capell\LayoutBuilder\Support\LayoutBuilderConfiguration;
 use Capell\LayoutBuilder\Support\LayoutClipboard;
 use Capell\LayoutBuilder\Support\LayoutPresetRepository;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -930,7 +931,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     private function configuredDefaultEditorMode(): string
     {
-        $configuration = 'Capell\\LayoutBuilder\\Support\\LayoutBuilderConfiguration';
+        $configuration = LayoutBuilderConfiguration::class;
 
         if (class_exists($configuration) && method_exists($configuration, 'defaultEditorMode')) {
             return $configuration::defaultEditorMode();

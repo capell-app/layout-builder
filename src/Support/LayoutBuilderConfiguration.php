@@ -33,13 +33,13 @@ final class LayoutBuilderConfiguration
         $configuredModes = config('capell-layout-builder.editor_mode.allowed');
 
         if (is_array($configuredModes) && $configuredModes !== []) {
-            return array_values(array_filter($configuredModes, 'is_string'));
+            return array_values(array_filter($configuredModes, is_string(...)));
         }
 
         $adminModes = config('capell-admin.layout_builder.allowed_editor_modes');
 
         if (is_array($adminModes) && $adminModes !== []) {
-            return array_values(array_filter($adminModes, 'is_string'));
+            return array_values(array_filter($adminModes, is_string(...)));
         }
 
         return ['content_first', 'layout_first'];
@@ -47,7 +47,7 @@ final class LayoutBuilderConfiguration
 
     public static function matchFrontendContainerLayout(): bool
     {
-        return (bool) config(
+        return config(
             'capell-layout-builder.preview.match_frontend_container_layout',
             config('capell-admin.layout_builder.preview.match_frontend_container_layout', true),
         );
@@ -55,6 +55,6 @@ final class LayoutBuilderConfiguration
 
     public static function lazy(): bool
     {
-        return (bool) config('capell-layout-builder.layout_builder.lazy', true);
+        return config('capell-layout-builder.layout_builder.lazy', true);
     }
 }

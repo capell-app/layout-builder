@@ -14,6 +14,7 @@ use Capell\Core\Models\Widget;
 use Capell\LayoutBuilder\Actions\InstallLayoutBuilderWidgetCatalogAction;
 use Capell\LayoutBuilder\Enums\FrontendComponentKeyEnum;
 use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
+use Capell\Navigation\Models\Navigation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
@@ -463,7 +464,7 @@ class WidgetCreator
     ): Widget {
         $type ??= resolve(TypeCreator::class)->navigationWidgetType();
         $typeModel = Type::class;
-        $navigationModel = 'Capell\\Navigation\\Models\\Navigation';
+        $navigationModel = Navigation::class;
 
         $navigationType = $typeModel::query()->navigationType()->default()->first();
         if ($navigationType === null) {

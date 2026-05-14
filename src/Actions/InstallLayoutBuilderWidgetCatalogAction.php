@@ -12,6 +12,7 @@ use Capell\Core\Models\Widget;
 use Capell\Core\Support\Creator\TypeCreator as CoreTypeCreator;
 use Capell\LayoutBuilder\Data\WidgetDefinitionData;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
+use Capell\Navigation\Models\Navigation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsFake;
@@ -107,7 +108,7 @@ class InstallLayoutBuilderWidgetCatalogAction
 
     private function installNavigation(WidgetDefinitionData $definition): ?Model
     {
-        $navigationModel = 'Capell\\Navigation\\Models\\Navigation';
+        $navigationModel = Navigation::class;
 
         if (! CapellCore::isPackageInstalled(self::NavigationPackage) || ! class_exists($navigationModel)) {
             return null;
@@ -119,7 +120,6 @@ class InstallLayoutBuilderWidgetCatalogAction
             $navigationType = resolve(CoreTypeCreator::class)->createNavigationType();
         }
 
-        /** @var Model $navigation */
         $navigation = $navigationModel::query()->firstOrCreate([
             'key' => $definition->navigationKey,
             'type_id' => $navigationType->id,

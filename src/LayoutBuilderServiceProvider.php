@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder;
 
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
 use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
@@ -47,6 +48,16 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     public function packageBooted(): void
     {
         $this->app->make(LayoutBuilderCoreRegistrar::class)->register();
+
+        if (! $this->isPackageInstalled()) {
+            return;
+        }
+
         $this->app->make(LayoutBuilderAdminRegistrar::class)->register();
+    }
+
+    private function isPackageInstalled(): bool
+    {
+        return CapellCore::isPackageInstalled(static::$packageName);
     }
 }

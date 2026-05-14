@@ -12,6 +12,7 @@ use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadResolver;
 use Capell\LayoutBuilder\Data\PublicLayoutContainerData;
 use Capell\LayoutBuilder\Data\PublicLayoutGraphData;
 use Capell\LayoutBuilder\Data\PublicLayoutWidgetData;
+use Capell\LayoutBuilder\Support\CapellLayoutManager;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -30,7 +31,9 @@ class BuildPublicLayoutGraphAction
         $selectedContainers = $this->selectedContainers($containers);
         $loader = resolve(LayoutLoader::class);
 
-        $loader->preloadLayoutWidgets($layout, $language, $page, $selectedContainers);
+        if (CapellLayoutManager::getContainerWidgets()->isEmpty()) {
+            $loader->preloadLayoutWidgets($layout, $language, $page, $selectedContainers);
+        }
 
         return new PublicLayoutGraphData(
             key: $layout->key,
@@ -109,7 +112,8 @@ class BuildPublicLayoutGraphAction
         }
 
         $occurrence = (int) ($widgetData['occurrence'] ?? 1);
-        $widget = $loader->getLayoutWidget($layout, $widgetKey, $language, $page, $containerKey, $occurrence, $selectedContainers);
+        $widget = CapellLayoutManager::getStoredContainerWidget($containerKey, $widgetKey, $occurrence)
+            ?? $loader->getLayoutWidget($layout, $widgetKey, $language, $page, $containerKey, $occurrence, $selectedContainers);
 
         if (! $widget instanceof Widget) {
             return null;

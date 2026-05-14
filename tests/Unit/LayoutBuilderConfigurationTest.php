@@ -15,7 +15,7 @@ it('resolves package owned editor mode configuration', function (): void {
 });
 
 it('falls back to legacy admin editor mode configuration', function (): void {
-    config()->set('capell-layout-builder.editor_mode.default', null);
+    config()->set('capell-layout-builder.editor_mode.default');
     config()->set('capell-layout-builder.editor_mode.allowed', []);
     config()->set('capell-admin.layout_builder.default_editor_mode', 'layout_first');
     config()->set('capell-admin.layout_builder.allowed_editor_modes', ['layout_first']);

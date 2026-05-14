@@ -17,6 +17,7 @@ use Capell\LayoutBuilder\Support\Creator\ContentCreator;
 use Capell\LayoutBuilder\Support\Creator\DemoCreator;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Capell\LayoutBuilder\Support\Creator\WidgetCreator;
+use Capell\Navigation\Support\Creator\NavigationDemoCreator;
 use Exception;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
@@ -293,7 +294,7 @@ class CreateLayoutBuilderDemoSiteAction
 
     private function setupSiteNavigations(Site $site, EloquentCollection $languages, Page $homePage): void
     {
-        $navigationDemoCreatorClass = 'Capell\\Navigation\\Support\\Creator\\NavigationDemoCreator';
+        $navigationDemoCreatorClass = NavigationDemoCreator::class;
 
         if (! CapellCore::isPackageInstalled(self::NavigationPackage) || ! class_exists($navigationDemoCreatorClass)) {
             return;

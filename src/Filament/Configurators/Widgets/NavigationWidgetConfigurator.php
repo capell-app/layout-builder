@@ -13,6 +13,7 @@ use Capell\LayoutBuilder\Filament\Components\Forms\Widget\SettingsSchema;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetDisplayTab;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\TranslationsRepeater;
+use Capell\Navigation\Filament\Components\Forms\NavigationSelect;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
@@ -49,7 +50,7 @@ class NavigationWidgetConfigurator extends DefaultWidgetConfigurator
 
     protected function navigationSelect(): Group
     {
-        $navigationSelect = 'Capell\\Navigation\\Filament\\Components\\Forms\\NavigationSelect';
+        $navigationSelect = NavigationSelect::class;
 
         return Group::make()
             ->statePath('meta')

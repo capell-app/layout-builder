@@ -9,12 +9,13 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Widget;
-use Capell\Core\Tests\Support\View\Components\PackageAlert;
+use Capell\Core\Models\WidgetAsset;
 use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
 use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
 use Capell\LayoutBuilder\Data\PublicLayoutContainerData;
 use Capell\LayoutBuilder\Data\PublicLayoutGraphData;
 use Capell\LayoutBuilder\Data\PublicLayoutWidgetData;
+use Capell\LayoutBuilder\Tests\Fixtures\View\Components\PackageAlert;
 
 beforeEach(function (): void {
     app()->bind(BladeComponentResolverInterface::class, fn (): BladeComponentResolverInterface => new class implements BladeComponentResolverInterface
@@ -131,7 +132,7 @@ it('lets package tagged contributors extend widget payload data and html', funct
             ];
         }
 
-        public function html(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): ?string
+        public function html(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): string
         {
             return '<section>' . $widget->key . ':' . $containerKey . ':' . $occurrence . '</section>';
         }
@@ -152,4 +153,68 @@ it('lets package tagged contributors extend widget payload data and html', funct
             ],
         ])
         ->and($widgetData->html)->toBe('<section>featured:main:3</section>');
+});
+
+it('scopes default widget assets to the matching occurrence when building public layout data', function (): void {
+    $language = Language::factory()->create();
+    $site = Site::factory()->create(['language_id' => $language->id]);
+    $widget = Widget::factory()->create(['key' => 'featured']);
+    $firstAsset = Page::factory()->site($site)->withTranslations($language)->create(['name' => 'First asset']);
+    $secondAsset = Page::factory()->site($site)->withTranslations($language)->create(['name' => 'Second asset']);
+
+    WidgetAsset::factory()
+        ->widget($widget)
+        ->asset($firstAsset)
+        ->occurrence(1)
+        ->create();
+    WidgetAsset::factory()
+        ->widget($widget)
+        ->asset($secondAsset)
+        ->occurrence(2)
+        ->create();
+
+    $layout = Layout::factory()->site($site)->create([
+        'widgets' => [$widget->key],
+        'containers' => [
+            'main' => ['widgets' => [
+                ['widget_key' => $widget->key, 'occurrence' => 1],
+                ['widget_key' => $widget->key, 'occurrence' => 2],
+            ]],
+        ],
+    ]);
+
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
+
+    app()->singleton('test.layout-builder-asset-contributor', fn (): PublicWidgetPayloadContributor => new class implements PublicWidgetPayloadContributor
+    {
+        public function priority(): int
+        {
+            return 10;
+        }
+
+        /**
+         * @return array<string, mixed>
+         */
+        public function data(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): array
+        {
+            return [
+                'asset_ids' => $widget->assets
+                    ->map(fn (WidgetAsset $widgetAsset): mixed => $widgetAsset->asset?->getKey())
+                    ->values()
+                    ->all(),
+            ];
+        }
+
+        public function html(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): ?string
+        {
+            return null;
+        }
+    });
+
+    app()->tag(['test.layout-builder-asset-contributor'], PublicWidgetPayloadContributor::TAG);
+
+    $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language);
+
+    expect($graph->containers[0]->widgets[0]->data['asset_ids'])->toBe([$firstAsset->getKey()])
+        ->and($graph->containers[0]->widgets[1]->data['asset_ids'])->toBe([$secondAsset->getKey()]);
 });

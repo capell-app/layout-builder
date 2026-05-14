@@ -171,24 +171,23 @@ class LayoutLoader
         $assets = $assetQuery->get();
 
         // Group assets for fast lookups
-        $defaultAssetsByWidgetId = [];
+        $defaultAssetsByWidgetIdOccurrence = [];
         $pageAssetsByWidgetIdContainerOcc = [];
 
-        $assets->each(function (WidgetAsset $asset) use (&$defaultAssetsByWidgetId, &$pageAssetsByWidgetIdContainerOcc): void {
+        $assets->each(function (WidgetAsset $asset) use (&$defaultAssetsByWidgetIdOccurrence, &$pageAssetsByWidgetIdContainerOcc): void {
             $this->trackRetrievedModel($asset);
 
             $widgetId = (int) $asset->widget_id;
+            $occurrence = (int) ($asset->occurrence ?? 1);
 
             if ($asset->pageable_id === null && $asset->pageable_type === null) {
-                $defaultAssetsByWidgetId[$widgetId] ??= [];
-                $defaultAssetsByWidgetId[$widgetId][] = $asset;
+                $defaultAssetsByWidgetIdOccurrence[$widgetId][$occurrence] ??= [];
+                $defaultAssetsByWidgetIdOccurrence[$widgetId][$occurrence][] = $asset;
 
                 return;
             }
 
             $container = $asset->container;
-
-            $occurrence = (int) $asset->occurrence;
 
             $pageAssetsByWidgetIdContainerOcc[$widgetId][$container][$occurrence] ??= [];
             $pageAssetsByWidgetIdContainerOcc[$widgetId][$container][$occurrence][] = $asset;
@@ -224,7 +223,7 @@ class LayoutLoader
                 $wid = $baseWidget->id;
                 $assetsForPosition = $pageAssetsByWidgetIdContainerOcc[$wid][$containerKey][$occurrence] ?? [];
                 if ($assetsForPosition === []) {
-                    $assetsForPosition = $defaultAssetsByWidgetId[$wid] ?? [];
+                    $assetsForPosition = $defaultAssetsByWidgetIdOccurrence[$wid][$occurrence] ?? [];
                 }
 
                 $clone->setRelation('assets', collect($assetsForPosition));

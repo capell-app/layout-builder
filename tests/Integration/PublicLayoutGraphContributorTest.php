@@ -9,9 +9,9 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Widget;
-use Capell\Core\Tests\Support\View\Components\PackageAlert;
 use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
 use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
+use Capell\LayoutBuilder\Tests\Fixtures\View\Components\PackageAlert;
 
 beforeEach(function (): void {
     app()->bind(BladeComponentResolverInterface::class, fn (): BladeComponentResolverInterface => new class implements BladeComponentResolverInterface
@@ -76,7 +76,7 @@ it('routes public graph rendering through layout builder package payload contrib
             ];
         }
 
-        public function html(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): ?string
+        public function html(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): string
         {
             return '<section data-package-contributor="' . $widget->key . '"></section>';
         }

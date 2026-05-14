@@ -15,24 +15,20 @@
     "namespace": "Capell\\LayoutBuilder",
     "surfaces": ["admin", "frontend", "console"],
     "dependencies": {
-        "requires": ["capell-app/admin", "capell-app/core", "capell-app/frontend"],
+        "requires": [
+            "capell-app/admin",
+            "capell-app/core",
+            "capell-app/frontend"
+        ],
         "optional": [],
         "conflicts": []
     },
     "providers": {
         "metadata": [],
-        "install": [
-            "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
-        ],
-        "runtime": [
-            "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
-        ],
-        "admin": [
-            "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
-        ],
-        "frontend": [
-            "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
-        ]
+        "install": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"],
+        "runtime": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"],
+        "admin": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"],
+        "frontend": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"]
     },
     "contributes": [
         {
@@ -51,7 +47,12 @@
             "type": "configurator",
             "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
             "configuratorEnum": "Capell\\LayoutBuilder\\Enums\\ConfiguratorTypeEnum",
-            "groups": ["LayoutContainers", "LayoutWidgets", "Widgets", "WidgetAssets"]
+            "groups": [
+                "LayoutContainers",
+                "LayoutWidgets",
+                "Widgets",
+                "WidgetAssets"
+            ]
         },
         {
             "type": "schema-extender",
@@ -134,10 +135,6 @@
         "categories": ["admin", "foundation", "frontend"]
     },
     "contributionTraceability": {
-        "deferredContributions": [
-            "migration",
-            "model",
-            "route"
-        ]
+        "deferredContributions": ["migration", "model", "route"]
     }
 }

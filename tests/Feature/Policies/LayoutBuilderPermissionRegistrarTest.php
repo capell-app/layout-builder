@@ -31,8 +31,9 @@ it('filters role permissions to permissions that exist for the guard', function 
 });
 
 it('keeps manifest permissions traceable to the registrar', function (): void {
+    $manifestContents = file_get_contents(dirname(__DIR__, 3) . '/capell.json');
     $manifest = json_decode(
-        file_get_contents(dirname(__DIR__, 3) . '/capell.json') ?: '[]',
+        $manifestContents !== false ? $manifestContents : '[]',
         true,
     );
 

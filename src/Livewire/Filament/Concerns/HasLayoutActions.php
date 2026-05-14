@@ -1080,7 +1080,7 @@ trait HasLayoutActions
         }
 
         if (isset($data['meta'])) {
-            $livewire->updateWidgetAsset($arguments['containerKey'], $arguments['widgetIndex'], $arguments['index'], ['meta' => $data['meta']]);
+            $livewire->updateWidgetAssetContentState($arguments['containerKey'], $arguments['widgetIndex'], $arguments['index'], ['meta' => $data['meta']]);
         }
 
         $livewire->reloadContainerWidgetAsset($arguments['containerKey'], $arguments['widgetIndex'], $arguments['index']);
