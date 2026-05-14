@@ -6,6 +6,7 @@ namespace Capell\LayoutBuilder;
 
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
+use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
 use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadResolver;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
@@ -34,6 +35,7 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     {
         LayoutBuilderAdminAliasRegistry::register();
 
+        $this->app->tag([], LayoutContentGroupContributor::TAG);
         $this->app->bind(PublicWidgetPayloadResolver::class, DefaultPublicWidgetPayloadResolver::class);
         $this->app->tag([], PublicWidgetPayloadContributor::TAG);
 

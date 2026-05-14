@@ -39,7 +39,7 @@ final class LayoutBuilderAdminAliasRegistry
                 continue;
             }
 
-            if (class_exists($alias, false) || enum_exists($alias, false)) {
+            if (class_exists($alias) || enum_exists($alias)) {
                 continue;
             }
 
