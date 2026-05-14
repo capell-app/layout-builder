@@ -1,7 +1,0 @@
-/vendor/
-/.phpunit.cache/
-/.pest.cache/
-/.phpstan.cache/
-/coverage/
-/.env
-.DS_Store

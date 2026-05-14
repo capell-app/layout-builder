@@ -1,0 +1,92 @@
+{
+    "manifest-version": 3,
+    "name": "capell-app/layout-builder",
+    "slug": "layout-builder",
+    "displayName": "Layout Builder",
+    "kind": "package",
+    "capellApiVersion": "^4.0",
+    "version": "4.x-dev",
+    "description": "Visual layout composition, content-first editing, and public layout rendering for Capell.",
+    "product": {
+        "group": "Capell Foundation",
+        "tier": "free",
+        "bundle": "foundation"
+    },
+    "namespace": "Capell\\LayoutBuilder",
+    "surfaces": ["admin", "frontend", "console"],
+    "dependencies": {
+        "requires": ["capell-app/admin", "capell-app/core", "capell-app/frontend"],
+        "optional": [],
+        "conflicts": []
+    },
+    "providers": {
+        "metadata": [],
+        "install": [
+            "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
+        ],
+        "runtime": [
+            "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
+        ],
+        "admin": [
+            "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
+        ],
+        "frontend": [
+            "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
+        ]
+    },
+    "contributes": [],
+    "database": {
+        "migrations": false,
+        "settings": false,
+        "requiredTables": []
+    },
+    "commands": {
+        "install": "capell:layout-builder-install",
+        "setup": null,
+        "demo": null,
+        "doctor": null
+    },
+    "settings": [],
+    "permissions": [],
+    "capabilities": [
+        "layout-builder",
+        "layout-builder-admin",
+        "layout-builder-content-first",
+        "layout-builder-public-rendering"
+    ],
+    "performance": {
+        "frontendRenderBudgetMs": 20,
+        "adminQueryBudget": 50,
+        "cacheTags": ["layout-builder"],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": ["site", "locale", "page"],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": true
+        }
+    },
+    "healthChecks": [],
+    "commercial": {
+        "proposedLicense": "free",
+        "requestedCertification": "first-party",
+        "supportPolicy": "capell-first-party",
+        "privateDocsRequested": false
+    },
+    "marketplace": {
+        "summary": "Visual layout composition, content-first editing, and public layout rendering for Capell.",
+        "screenshots": [],
+        "categories": ["admin", "foundation", "frontend"]
+    },
+    "contributionTraceability": {
+        "deferredContributions": [
+            "asset",
+            "configurator",
+            "migration",
+            "model",
+            "permission",
+            "route",
+            "schema-extender"
+        ]
+    }
+}
