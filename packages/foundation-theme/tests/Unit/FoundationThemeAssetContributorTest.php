@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Models\Theme;
 use Capell\FoundationTheme\Support\Assets\FoundationThemeAssetContributor;
 use Capell\Frontend\Data\FrontendAssetContextData;
 use Capell\Frontend\Data\FrontendAssetRequirementData;
@@ -21,6 +22,28 @@ it('declares only the foundation css asset for blade only pages', function (): v
     expect($requirements)->toHaveCount(1)
         ->and($requirements[0]->kind)->toBe(FrontendAssetRequirementData::KIND_CSS)
         ->and($requirements[0]->source)->toBe('resources/css/capell/frontend.css');
+});
+
+it('uses an existing theme css asset as the foundation css requirement when configured', function (): void {
+    $theme = Theme::factory()->make([
+        'meta' => [
+            'assets' => ['resources/css/app.css'],
+            'assets_path' => 'build',
+        ],
+    ]);
+
+    $requirements = resolve(FoundationThemeAssetContributor::class)->requirements(new FrontendAssetContextData(
+        page: null,
+        site: null,
+        language: null,
+        layout: null,
+        theme: $theme,
+        runtime: FrontendRuntimeManifestData::forRenderingStrategy(RenderingStrategyEnum::BladeOnly),
+    ));
+
+    expect($requirements)->toHaveCount(1)
+        ->and($requirements[0]->source)->toBe('resources/css/app.css')
+        ->and($requirements[0]->buildPath)->toBe('build');
 });
 
 it('declares runtime javascript only when the frontend runtime needs javascript', function (): void {

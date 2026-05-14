@@ -7,6 +7,8 @@ namespace Capell\FoundationTheme\Support\Assets;
 use Capell\Frontend\Contracts\FrontendAssetContributor;
 use Capell\Frontend\Data\FrontendAssetContextData;
 use Capell\Frontend\Data\FrontendAssetRequirementData;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 final class FoundationThemeAssetContributor implements FrontendAssetContributor
 {
@@ -16,8 +18,8 @@ final class FoundationThemeAssetContributor implements FrontendAssetContributor
             new FrontendAssetRequirementData(
                 handle: 'foundation-theme:css',
                 kind: FrontendAssetRequirementData::KIND_CSS,
-                source: $this->frontendCssPath(),
-                buildPath: 'build',
+                source: $this->frontendCssPath($context),
+                buildPath: $this->frontendCssBuildPath($context),
             ),
         ];
 
@@ -44,11 +46,24 @@ final class FoundationThemeAssetContributor implements FrontendAssetContributor
         return $requirements;
     }
 
-    private function frontendCssPath(): string
+    private function frontendCssPath(FrontendAssetContextData $context): string
     {
+        foreach (Arr::wrap($context->theme?->getMeta('assets')) as $asset) {
+            if (is_string($asset) && $asset !== '' && ! Str::endsWith($asset, '.js')) {
+                return $asset;
+            }
+        }
+
         $path = config('capell-foundation-theme.tailwind.output_css', 'resources/css/capell/frontend.css');
 
         return is_string($path) && $path !== '' ? $path : 'resources/css/capell/frontend.css';
+    }
+
+    private function frontendCssBuildPath(FrontendAssetContextData $context): string
+    {
+        $buildPath = $context->theme?->getMeta('assets_path', 'build');
+
+        return is_string($buildPath) && $buildPath !== '' ? $buildPath : 'build';
     }
 
     private function shouldLoadRuntimeJavaScript(FrontendAssetContextData $context): bool
