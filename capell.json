@@ -47,7 +47,20 @@
         "doctor": null
     },
     "settings": [],
-    "permissions": [],
+    "permissions": [
+        "ViewAny:Layout",
+        "View:Layout",
+        "Create:Layout",
+        "EditContent:Layout",
+        "EditLayout:Layout",
+        "Update:Layout",
+        "Delete:Layout",
+        "DeleteAny:Layout",
+        "Restore:Layout",
+        "ForceDelete:Layout",
+        "Replicate:Layout",
+        "Reorder:Layout"
+    ],
     "capabilities": [
         "layout-builder",
         "layout-builder-admin",
@@ -84,7 +97,6 @@
             "configurator",
             "migration",
             "model",
-            "permission",
             "route",
             "schema-extender"
         ]

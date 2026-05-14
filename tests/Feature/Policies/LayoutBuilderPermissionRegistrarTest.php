@@ -29,3 +29,14 @@ it('filters role permissions to permissions that exist for the guard', function 
         'EditLayout:Layout',
     ]);
 });
+
+it('keeps manifest permissions traceable to the registrar', function (): void {
+    $manifest = json_decode(
+        file_get_contents(dirname(__DIR__, 3) . '/capell.json') ?: '[]',
+        true,
+    );
+
+    expect($manifest['permissions'] ?? [])->toEqualCanonicalizing(
+        LayoutBuilderPermissionRegistrar::permissionsForRole('admin'),
+    );
+});
