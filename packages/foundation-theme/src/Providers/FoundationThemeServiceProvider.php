@@ -24,6 +24,7 @@ use Capell\FoundationTheme\Listeners\RunTailwindAssetsOnPackageChange;
 use Capell\FoundationTheme\Livewire\Assets\Table\PageAssets;
 use Capell\FoundationTheme\Livewire\Widget\Pages;
 use Capell\FoundationTheme\Settings\FoundationThemeSettings;
+use Capell\FoundationTheme\Support\Assets\FoundationThemeAssetContributor;
 use Capell\FoundationTheme\Support\Blade\BladeDirectives;
 use Capell\FoundationTheme\Support\Interceptors\Themes\FoundationThemeInterceptor;
 use Capell\FoundationTheme\Support\Media\CapellUrlGenerator;
@@ -36,6 +37,7 @@ use Capell\FoundationTheme\View\Components\Widget\Page\Latest as PageLatestCompo
 use Capell\FoundationTheme\View\Components\Widget\Page\Siblings as PageSiblingsComponent;
 use Capell\FoundationTheme\View\Components\Widget\Slot as SlotComponent;
 use Capell\Frontend\Contracts\AssetsRegistryInterface;
+use Capell\Frontend\Contracts\FrontendAssetContributor;
 use Capell\Frontend\Contracts\FrontendComponentRegistryInterface;
 use Capell\Frontend\Data\FrontendAssetData;
 use Capell\Frontend\Facades\Frontend;
@@ -95,6 +97,8 @@ final class FoundationThemeServiceProvider extends AbstractPackageServiceProvide
         $this->app->singleton('capell.tailwind.generator', fn (): TailwindAssetsGenerator => new TailwindAssetsGenerator(
             $this->app->make(Filesystem::class),
         ));
+        $this->app->scoped(FoundationThemeAssetContributor::class);
+        $this->app->tag(FoundationThemeAssetContributor::class, FrontendAssetContributor::TAG);
 
         $this->registerVendorNpmDependencies();
     }
