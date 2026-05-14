@@ -12,6 +12,9 @@ use Capell\Core\Models\Widget;
 use Capell\Core\Tests\Support\View\Components\PackageAlert;
 use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
 use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
+use Capell\LayoutBuilder\Data\PublicLayoutContainerData;
+use Capell\LayoutBuilder\Data\PublicLayoutGraphData;
+use Capell\LayoutBuilder\Data\PublicLayoutWidgetData;
 
 beforeEach(function (): void {
     app()->bind(BladeComponentResolverInterface::class, fn (): BladeComponentResolverInterface => new class implements BladeComponentResolverInterface
@@ -74,10 +77,13 @@ it('builds public layout data for selected containers only', function (): void {
 
     $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, ['main']);
 
-    expect($graph->key)->toBe('article')
+    expect($graph)->toBeInstanceOf(PublicLayoutGraphData::class)
+        ->and($graph->key)->toBe('article')
         ->and($graph->containers)->toHaveCount(1)
+        ->and($graph->containers[0])->toBeInstanceOf(PublicLayoutContainerData::class)
         ->and($graph->containers[0]->key)->toBe('main')
         ->and($graph->containers[0]->widgets)->toHaveCount(1)
+        ->and($graph->containers[0]->widgets[0])->toBeInstanceOf(PublicLayoutWidgetData::class)
         ->and($graph->containers[0]->widgets[0]->key)->toBe('main-widget')
         ->and($graph->containers[0]->widgets[0]->data['title'])->toBe('Main Widget')
         ->and($graph->containers[0]->widgets[0]->data['content'])->toBe('<p>Main content</p>');
