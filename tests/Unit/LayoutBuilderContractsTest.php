@@ -9,11 +9,6 @@ it('exposes layout builder contracts from the package namespace', function (): v
         ->and(interface_exists(LayoutContentGroupContributor::class))->toBeTrue();
 });
 
-it('keeps old layout builder contract namespaces compatible', function (): void {
-    expect(interface_exists(Capell\Core\LayoutBuilder\Contracts\PublicWidgetPayloadContributor::class))->toBeTrue()
-        ->and(interface_exists(Capell\Admin\LayoutBuilder\Contracts\LayoutContentGroupContributor::class))->toBeTrue();
-});
-
 it('keeps package contributor tags stable without requiring legacy contracts', function (): void {
     expect(PublicWidgetPayloadContributor::TAG)->toBe('capell.layout_builder.public_widget_payload_contributor')
         ->and(LayoutContentGroupContributor::TAG)->toBe('capell.layout_builder.content_group_contributor');

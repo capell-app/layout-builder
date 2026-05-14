@@ -2,7 +2,7 @@
 
 `capell-app/layout-builder` owns Capell's visual layout composition layer: layout containers, widgets, widget assets, public layout graphs, content-first editing, and the Filament layout editor.
 
-Core still owns sites, pages, languages, URLs, themes, and base content models. Admin still owns the Filament panel shell. Layout Builder plugs into both through package registrars and keeps old `Capell\Core\LayoutBuilder\*` and `Capell\Admin\LayoutBuilder\*` namespaces available through compatibility adapters for one release.
+Core still owns sites, pages, languages, URLs, themes, and base content models. Admin still owns the Filament panel shell. Layout Builder plugs into both through package registrars and exposes its public API from the `Capell\LayoutBuilder` namespace.
 
 ## Install
 

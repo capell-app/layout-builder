@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 use Capell\Core\Contracts\BladeComponentResolverInterface;
 use Capell\Core\Database\Factories\TranslationFactory;
-use Capell\Core\LayoutBuilder\Actions\BuildPublicLayoutGraphAction as CoreBuildPublicLayoutGraphAction;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Widget;
 use Capell\Core\Tests\Support\View\Components\PackageAlert;
+use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
 use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
 
 beforeEach(function (): void {
@@ -36,7 +36,7 @@ beforeEach(function (): void {
     });
 });
 
-it('routes the legacy core public graph action through layout builder package payload contributors', function (): void {
+it('routes public graph rendering through layout builder package payload contributors', function (): void {
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->id]);
     $widget = Widget::factory()->create(['key' => 'package-backed-widget']);
@@ -84,7 +84,7 @@ it('routes the legacy core public graph action through layout builder package pa
 
     app()->tag('test.package-public-widget-payload-contributor', PublicWidgetPayloadContributor::TAG);
 
-    $graph = CoreBuildPublicLayoutGraphAction::run($layout, $page, $language, includeHtml: true);
+    $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, includeHtml: true);
     $widgetData = $graph->containers[0]->widgets[0];
 
     expect($widgetData->data['title'])->toBe('Package-backed widget')

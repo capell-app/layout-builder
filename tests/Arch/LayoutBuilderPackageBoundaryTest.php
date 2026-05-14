@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Symfony\Component\Finder\Finder;
 
-it('only uses legacy core layout builder classes at approved bridge points', function (): void {
+it('does not use retired core layout builder namespaces', function (): void {
     $sourcePath = dirname(__DIR__, 2) . '/src';
 
     $legacyReferences = collect((new Finder)->files()->in($sourcePath)->name('*.php'))
