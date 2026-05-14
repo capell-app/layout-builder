@@ -8,8 +8,14 @@ use Capell\LayoutBuilder\Data\LayoutContentGroupData;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryContextData;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryData;
 use Capell\LayoutBuilder\Data\LayoutContentItemData;
+use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Enums\LayoutBuilderEditorMode;
+use Capell\LayoutBuilder\Filament\Extenders\Page\HeroPageSchemaExtender;
+use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
+use Capell\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender;
+use Capell\LayoutBuilder\Filament\Resources\Pages\Schemas\Extenders\PageSchemaExtender;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminAliasRegistry;
 
 it('keeps package namespace editor classes resolvable while admin namespaces remain compatible', function (): void {
@@ -18,6 +24,21 @@ it('keeps package namespace editor classes resolvable while admin namespaces rem
     foreach (LayoutBuilderAdminAliasRegistry::aliases() as $source => $alias) {
         expect(class_exists($alias) || enum_exists($alias))->toBeTrue()
             ->and(class_exists($source) || enum_exists($source))->toBeTrue();
+    }
+});
+
+it('exposes package namespace aliases for admin surface classes during extraction', function (): void {
+    LayoutBuilderAdminAliasRegistry::register();
+
+    foreach ([
+        ConfiguratorTypeEnum::class,
+        HeroPageSchemaExtender::class,
+        LayoutResource::class,
+        LayoutSchemaExtender::class,
+        PageSchemaExtender::class,
+        WidgetResource::class,
+    ] as $class) {
+        expect(class_exists($class) || enum_exists($class))->toBeTrue();
     }
 });
 

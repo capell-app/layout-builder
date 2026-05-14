@@ -22,9 +22,15 @@ use Capell\LayoutBuilder\Data\LayoutContentItemData;
 use Capell\LayoutBuilder\Data\LayoutDiagnosticData;
 use Capell\LayoutBuilder\Data\LayoutFragmentData;
 use Capell\LayoutBuilder\Data\LayoutMutationResultData;
+use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Enums\LayoutBuilderEditorMode;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
+use Capell\LayoutBuilder\Filament\Extenders\Page\HeroPageSchemaExtender;
+use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
+use Capell\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender;
+use Capell\LayoutBuilder\Filament\Resources\Pages\Schemas\Extenders\PageSchemaExtender;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 
 final class LayoutBuilderAdminAliasRegistry
@@ -56,6 +62,12 @@ final class LayoutBuilderAdminAliasRegistry
             \Capell\Admin\LayoutBuilder\Enums\LayoutBreakpoint::class => LayoutBreakpoint::class,
             \Capell\Admin\LayoutBuilder\Enums\LayoutBuilderEditorMode::class => LayoutBuilderEditorMode::class,
             \Capell\Admin\LayoutBuilder\Enums\LayoutDiagnosticSeverity::class => LayoutDiagnosticSeverity::class,
+            \Capell\Admin\LayoutBuilder\Enums\ConfiguratorTypeEnum::class => ConfiguratorTypeEnum::class,
+            \Capell\Admin\LayoutBuilder\Filament\Extenders\Page\HeroPageSchemaExtender::class => HeroPageSchemaExtender::class,
+            \Capell\Admin\LayoutBuilder\Filament\Resources\Layouts\LayoutResource::class => LayoutResource::class,
+            \Capell\Admin\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender::class => LayoutSchemaExtender::class,
+            \Capell\Admin\LayoutBuilder\Filament\Resources\Pages\Schemas\Extenders\PageSchemaExtender::class => PageSchemaExtender::class,
+            \Capell\Admin\LayoutBuilder\Filament\Resources\Widgets\WidgetResource::class => WidgetResource::class,
             \Capell\Admin\LayoutBuilder\Support\LayoutMutationHistory::class => LayoutMutationHistory::class,
             \Capell\Admin\LayoutBuilder\Livewire\Filament\LayoutBuilder::class => LayoutBuilder::class,
         ];

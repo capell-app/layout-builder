@@ -5,16 +5,20 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Support;
 
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Admin\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
-use Capell\Admin\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\Core\Contracts\Extensions\ExtensionContribution;
 use Capell\Core\Contracts\Extensions\RegistersExtensionAdminResource;
 use Capell\Core\Contracts\Extensions\RegistersExtensionAsset;
+use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Illuminate\Contracts\Container\Container;
 
 final class LayoutBuilderAdminRegistrar implements ExtensionContribution, RegistersExtensionAdminResource, RegistersExtensionAsset
 {
     public const REGISTRATION_FLAG = 'capell.layout_builder.admin_registered';
+
+    private const LEGACY_LAYOUT_RESOURCE = 'Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Layouts\\LayoutResource';
+
+    private const LEGACY_WIDGET_RESOURCE = 'Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Widgets\\WidgetResource';
 
     public function __construct(private readonly Container $app) {}
 
@@ -61,7 +65,21 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
 
         $resources = CapellAdmin::getAdminSurfaceRegistry()->resources();
 
-        return in_array(LayoutResource::class, $resources, true)
-            && in_array(WidgetResource::class, $resources, true);
+        return $this->containsResource($resources, LayoutResource::class, self::LEGACY_LAYOUT_RESOURCE)
+            && $this->containsResource($resources, WidgetResource::class, self::LEGACY_WIDGET_RESOURCE);
+    }
+
+    /**
+     * @param  array<int, class-string>  $resources
+     */
+    private function containsResource(array $resources, string ...$classes): bool
+    {
+        foreach ($classes as $class) {
+            if (in_array($class, $resources, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
