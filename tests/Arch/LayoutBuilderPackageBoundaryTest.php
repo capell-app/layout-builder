@@ -19,7 +19,5 @@ it('only uses legacy core layout builder classes at approved bridge points', fun
         ->values()
         ->all();
 
-    expect($legacyReferences)->toBe([
-        'src/Support/DefaultPublicWidgetPayloadResolver.php',
-    ]);
+    expect($legacyReferences)->toBe([]);
 });
