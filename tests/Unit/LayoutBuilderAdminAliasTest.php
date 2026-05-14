@@ -12,11 +12,13 @@ use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Enums\LayoutBuilderEditorMode;
 use Capell\LayoutBuilder\Filament\Configurators\Types\WidgetTypeConfigurator;
+use Capell\LayoutBuilder\Filament\Configurators\Widgets\DefaultWidgetConfigurator;
 use Capell\LayoutBuilder\Filament\Extenders\Page\HeroPageSchemaExtender;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender;
 use Capell\LayoutBuilder\Filament\Resources\Pages\Schemas\Extenders\PageSchemaExtender;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
+use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminAliasRegistry;
 use Capell\LayoutBuilder\Support\LayoutClipboard;
 use Capell\LayoutBuilder\Support\LayoutPresetRepository;
@@ -61,6 +63,19 @@ it('loads content inventory classes from the layout builder package instead of a
         LayoutBuilderEditorMode::class,
         LayoutClipboard::class,
         LayoutPresetRepository::class,
+    ] as $class) {
+        $reflection = new ReflectionClass($class);
+
+        expect($reflection->getFileName())->toContain('packages/layout-builder/src');
+    }
+});
+
+it('loads admin UI classes from the layout builder package instead of admin aliases', function (): void {
+    foreach ([
+        DefaultWidgetConfigurator::class,
+        LayoutBuilder::class,
+        LayoutResource::class,
+        WidgetResource::class,
     ] as $class) {
         $reflection = new ReflectionClass($class);
 
