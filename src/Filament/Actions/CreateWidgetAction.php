@@ -6,8 +6,8 @@ namespace Capell\LayoutBuilder\Filament\Actions;
 
 use Capell\Admin\Actions\BuildDefaultTranslationsAction;
 use Capell\Admin\Filament\Actions\CreateAction;
-use Capell\Core\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\Core\Models\Type;
+use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Filament\Support\Enums\Width;
 use Override;
 

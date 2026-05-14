@@ -6,8 +6,8 @@ namespace Capell\LayoutBuilder\Actions;
 
 use Capell\Admin\Data\LayoutBuilder\AdminWidgetPreviewData;
 use Capell\Core\Contracts\Pageable;
-use Capell\Core\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\Core\Models\Widget;
+use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsObject;

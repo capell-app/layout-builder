@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Filament\Components\Forms\Widget;
 
 use Capell\Admin\Filament\Components\Forms\ComponentSelect;
-use Capell\Core\LayoutBuilder\Enums\ComponentTypeEnum;
+use Capell\LayoutBuilder\Enums\ComponentTypeEnum;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;

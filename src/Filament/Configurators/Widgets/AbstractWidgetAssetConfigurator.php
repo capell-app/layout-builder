@@ -7,8 +7,8 @@ namespace Capell\LayoutBuilder\Filament\Configurators\Widgets;
 use Capell\Admin\Contracts\ConfiguratorInterface;
 use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
 use Capell\Admin\Filament\Concerns\HasConfigurator;
-use Capell\Core\LayoutBuilder\Enums\SchemaExtenderEnum;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
+use Capell\LayoutBuilder\Enums\SchemaExtenderEnum;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 

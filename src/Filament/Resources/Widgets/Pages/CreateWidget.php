@@ -6,7 +6,7 @@ namespace Capell\LayoutBuilder\Filament\Resources\Widgets\Pages;
 
 use Capell\Admin\Filament\Concerns\HasConfigurableFormActionPosition;
 use Capell\Admin\Support\AdminSurfaceLookup;
-use Capell\Core\LayoutBuilder\Enums\ResourceEnum;
+use Capell\LayoutBuilder\Enums\ResourceEnum;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;

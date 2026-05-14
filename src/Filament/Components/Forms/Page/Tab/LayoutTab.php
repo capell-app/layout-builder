@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Filament\Components\Forms\Page\Tab;
 
 use Capell\Core\Contracts\Pageable;
-use Capell\Core\LayoutBuilder\Enums\LivewireComponentsEnum;
 use Capell\Core\Models\Layout;
+use Capell\LayoutBuilder\Enums\LivewireComponentsEnum;
 use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;

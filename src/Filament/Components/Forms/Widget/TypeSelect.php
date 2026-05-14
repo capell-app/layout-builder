@@ -6,7 +6,7 @@ namespace Capell\LayoutBuilder\Filament\Components\Forms\Widget;
 
 use Capell\Admin\Filament\Components\Forms\TypeSelect as BaseTypeSelect;
 use Capell\Core\Enums\TypeEnum;
-use Capell\Core\LayoutBuilder\Enums\LayoutTypeEnum;
+use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 
 class TypeSelect extends BaseTypeSelect
 {

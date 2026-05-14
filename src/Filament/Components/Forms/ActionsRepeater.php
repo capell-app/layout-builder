@@ -7,7 +7,7 @@ namespace Capell\LayoutBuilder\Filament\Components\Forms;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\PageSelect;
 use Capell\Admin\Filament\Components\Forms\SiteSelect;
-use Capell\Core\LayoutBuilder\Enums\ActionLinkEnum;
+use Capell\LayoutBuilder\Enums\ActionLinkEnum;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
