@@ -888,7 +888,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
                 foreach ($widgetAssets as $assetIndex => $asset) {
                     $assets[$containerKey][$widgetIndex][$assetIndex] = [
                         'id' => $asset['id'] ?? null,
-                        'widget_id' => $asset['widget_id'] ?? null,
+                        'layout_module_id' => $asset['layout_module_id'] ?? null,
                         'asset_id' => $asset['asset_id'] ?? null,
                         'asset_type' => $asset['asset_type'] ?? null,
                         'order' => $asset['order'] ?? null,

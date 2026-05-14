@@ -114,7 +114,7 @@ class WidgetAssetsTable implements TableConfigurator
                                 ->all(),
                         ),
                     AssetTypeSelect::make('type'),
-                    Select::make('type_id')
+                    Select::make('blueprint_id')
                         ->label(__('capell-admin::form.type'))
                         ->visibleJs(<<<'JS'
                              $get('type')
@@ -131,8 +131,8 @@ class WidgetAssetsTable implements TableConfigurator
                             fn (Builder $query): Builder => $query->where('asset_type', $data['asset_type']),
                         )
                         ->when(
-                            isset($data['type_id']) && filled($data['type_id']),
-                            fn (Builder $query): Builder => $query->where('type_id', $data['type_id']),
+                            isset($data['blueprint_id']) && filled($data['blueprint_id']),
+                            fn (Builder $query): Builder => $query->where('blueprint_id', $data['blueprint_id']),
                         )
                         ->when(
                             isset($data['pages']) && filled($data['pages']),
@@ -168,10 +168,10 @@ class WidgetAssetsTable implements TableConfigurator
                         );
                     }
 
-                    if (isset($data['type_id'])) {
-                        $indicators['type_id'] = __(
+                    if (isset($data['blueprint_id'])) {
+                        $indicators['blueprint_id'] = __(
                             'capell-layout-builder::filter.type',
-                            ['search' => Type::query()->find($data['type_id'], ['name'])->name],
+                            ['search' => Type::query()->find($data['blueprint_id'], ['name'])->name],
                         );
                     }
 

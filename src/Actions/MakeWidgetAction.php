@@ -74,7 +74,7 @@ class MakeWidgetAction
             );
 
             Widget::firstOrCreate(
-                ['type_id' => \$type->id, 'key' => '{$kebab}'],
+                ['blueprint_id' => \$type->id, 'key' => '{$kebab}'],
                 [
                     'name' => '{$headline}',
                     'status' => true,

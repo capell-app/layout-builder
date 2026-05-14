@@ -250,7 +250,7 @@ it('reuses scoped preloaded widget assets when building public layout data', fun
     $widgetAssetQueries = 0;
 
     DB::listen(function (QueryExecuted $query) use (&$widgetAssetQueries): void {
-        if (str_contains($query->sql, 'widget_assets')) {
+        if (str_contains($query->sql, 'layout_module_assets')) {
             $widgetAssetQueries++;
         }
     });

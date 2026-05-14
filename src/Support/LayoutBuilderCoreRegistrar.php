@@ -72,16 +72,16 @@ final class LayoutBuilderCoreRegistrar
             fn (Page $model): MorphToMany => $model->morphToMany(
                 Widget::class,
                 'asset',
-                'widget_assets',
+                'layout_module_assets',
                 'asset_id',
-                'widget_id',
+                'layout_module_id',
             )
                 ->wherePivot('asset_type', $model->getMorphClass()),
         );
 
         Type::resolveRelationUsing(
             'widgets',
-            fn (Type $model): HasMany => $model->hasMany(Widget::class, 'type_id'),
+            fn (Type $model): HasMany => $model->hasMany(Widget::class, 'blueprint_id'),
         );
     }
 

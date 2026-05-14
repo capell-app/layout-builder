@@ -31,7 +31,7 @@ class CreateHeroWidgetAction
             'key' => $key,
         ], [
             'name' => $label ?? __('capell-layout-builder::generic.hero'),
-            'type_id' => $this->createType()->id,
+            'blueprint_id' => $this->createType()->id,
             'meta' => [
                 'component' => WidgetComponentEnum::Hero,
                 'heading_size' => 'h1',

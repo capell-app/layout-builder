@@ -26,7 +26,7 @@ class CreateDetailsSchema
                 ->schema([
                     NameInput::make('name')
                         ->withTitleUpdater(),
-                    TypeSelect::make('type_id')
+                    TypeSelect::make('blueprint_id')
                         ->live()
                         ->withRelation()
                         ->when(

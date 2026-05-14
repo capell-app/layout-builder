@@ -17,7 +17,7 @@ it('registers package migrations in the layout builder manager', function (): vo
 it('creates or recognises the existing layout builder tables', function (): void {
     expect(Schema::hasTable('layouts'))->toBeTrue()
         ->and(Schema::hasTable('widgets'))->toBeTrue()
-        ->and(Schema::hasTable('widget_assets'))->toBeTrue()
+        ->and(Schema::hasTable('layout_module_assets'))->toBeTrue()
         ->and(Schema::hasColumns('layouts', ['containers', 'widgets']))->toBeTrue();
 });
 
@@ -31,6 +31,6 @@ it('keeps layout builder migrations idempotent for existing core installs', func
 
     expect(Schema::hasTable('layouts'))->toBeTrue()
         ->and(Schema::hasTable('widgets'))->toBeTrue()
-        ->and(Schema::hasTable('widget_assets'))->toBeTrue()
+        ->and(Schema::hasTable('layout_module_assets'))->toBeTrue()
         ->and(Schema::hasColumns('layouts', ['containers', 'widgets']))->toBeTrue();
 });

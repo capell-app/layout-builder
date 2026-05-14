@@ -48,7 +48,7 @@ class ContentCreator
         $payload = [
             'name' => $data['name'],
             'site_id' => $site?->id,
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'parent_id' => $parentId,
         ];
 

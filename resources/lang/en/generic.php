@@ -435,7 +435,7 @@ return [
     'widget' => 'Widget',
     'widget_asset_configurator_info' => 'Widget Asset Configurator Info',
     'widget_asset_page' => 'Widget Asset Page',
-    'widget_assets' => 'Widget Assets',
+    'layout_module_assets' => 'Widget Assets',
     'widget_assets_info' => 'Widget Assets Info',
     'widget_assets_page_info' => 'Widget Assets Page Info',
     'widget_assets_repeater_hint' => 'Widget Assets Repeater Hint',

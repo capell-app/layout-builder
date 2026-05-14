@@ -41,7 +41,7 @@ class SettingsSchema
                     modifyRuleUsing: fn (Unique $rule) => $rule->withoutTrashed(),
                 ),
 
-            TypeSelect::make('type_id')
+            TypeSelect::make('blueprint_id')
                 ->withRelation()
                 ->when(
                     $configurator->isCreating(),

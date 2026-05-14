@@ -82,7 +82,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-content'], [
             'name' => 'Example Content',
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'size' => 'md',
                 'margin' => 'none',
@@ -135,7 +135,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-split-content'], [
             'name' => 'Example Split Content',
-            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::SectionBuilder, 'type' => LayoutTypeEnum::Widget])->id,
+            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::SectionBuilder, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'align' => 'center',
                 'size' => 'md',
@@ -277,7 +277,7 @@ class DemoCreator
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'faq'], [
             'key' => 'faq',
             'name' => __('capell-admin::generic.faq'),
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'icon' => 'heroicon-m-question-mark-circle',
                 'component' => WidgetComponentEnum::AssetAccordion,
@@ -308,7 +308,7 @@ class DemoCreator
 
         $parentContent = $this->contentModel::query()->firstOrCreate([
             'name' => 'FAQs',
-            'type_id' => $contentType->id,
+            'blueprint_id' => $contentType->id,
         ], [
         ]);
 
@@ -359,7 +359,7 @@ class DemoCreator
             $content = $this->contentModel::query()->firstOrCreate([
                 'name' => $question,
                 'parent_id' => $parentContent->id,
-                'type_id' => $contentType->id,
+                'blueprint_id' => $contentType->id,
             ]);
 
             $widget->assets()->firstOrCreate([
@@ -445,7 +445,7 @@ class DemoCreator
             ? $model::query()->updateOrCreate([
                 'key' => $key,
                 'site_id' => $site->id,
-                'type_id' => $navigationType->id,
+                'blueprint_id' => $navigationType->id,
             ], [
                 'name' => $name,
                 'items' => $this->navigationPageItems($pages, $languages->first()),
@@ -455,7 +455,7 @@ class DemoCreator
         // Create widget
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-navigation'], [
             'name' => __('Example Navigation'),
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'navigation' => $navigation instanceof Model ? (string) $navigation->getAttribute('key') : $key,
                 'margin' => ['lg'],
@@ -517,7 +517,7 @@ class DemoCreator
         foreach ($features as $feature) {
             $content = $this->contentModel::query()->firstOrCreate([
                 'name' => $feature['title'],
-                'type_id' => $type->getKey(),
+                'blueprint_id' => $type->getKey(),
             ], [
                 'meta' => [
                     'actions' => [
@@ -589,7 +589,7 @@ class DemoCreator
             'key' => 'client-logos',
         ], [
             'name' => 'Client Logos',
-            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
+            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
@@ -628,7 +628,7 @@ class DemoCreator
             'key' => 'business-features',
         ], [
             'name' => 'Business Features',
-            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Sections, 'type' => LayoutTypeEnum::Widget])->id,
+            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Sections, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
@@ -722,7 +722,7 @@ class DemoCreator
     {
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'statistics'], [
             'name' => 'Statistic Blocks',
-            'type_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
+            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => WidgetTypeEnum::Assets, 'type' => LayoutTypeEnum::Widget])->id,
             'meta' => [
                 'component_item' => FrontendComponentKeyEnum::SectionBlock->value,
                 'view_file' => 'capell-layout-builder::components.widget.asset.blocks',
@@ -811,7 +811,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'team-portfolio'], [
             'name' => 'Team Portfolio',
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'align' => 'center',
                 'padding' => ['lg'],
@@ -863,7 +863,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-feature-list'], [
             'name' => 'Modern Feature List',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApFeatureList,
                 'margin' => ['lg'],
@@ -922,7 +922,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-team-members'], [
             'name' => 'Modern Team Members',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApTeamMembers,
                 'columns' => 3,
@@ -1005,7 +1005,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-pricing-table'], [
             'name' => 'Modern Pricing Table',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApPricingTable,
                 'currency' => '$',
@@ -1097,7 +1097,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-testimonials'], [
             'name' => 'Modern Testimonials',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApTestimonials,
                 'columns' => 2,
@@ -1157,7 +1157,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-faq'], [
             'name' => 'Modern FAQ Section',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApFaqSection,
                 'margin' => ['lg'],
@@ -1215,7 +1215,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-stats'], [
             'name' => 'Modern Stats Section',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApStatsSection,
                 'margin' => ['lg'],
@@ -1272,7 +1272,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-alternating-content'], [
             'name' => 'Modern Alternating Content',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApAlternatingContent,
                 'margin' => ['lg'],
@@ -1328,7 +1328,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-process-steps'], [
             'name' => 'Modern Process Steps',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApProcessSteps,
                 'margin' => ['lg'],
@@ -1385,7 +1385,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'modern-image-gallery'], [
             'name' => 'Modern Image Gallery',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApImageGallery,
                 'columns' => 3,
@@ -1420,7 +1420,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-hero-banner'], [
             'name' => 'AP Hero Banner',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'primary_button_text' => 'Get Started',
                 'primary_button_url' => '/docs/installation',
@@ -1452,7 +1452,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-card-grid'], [
             'name' => 'AP Card Grid',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'columns' => 3,
                 'margin' => ['lg'],
@@ -1510,7 +1510,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-feature-list'], [
             'name' => 'AP Feature List',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'layout' => 'vertical',
                 'margin' => ['lg'],
@@ -1610,7 +1610,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-cta-section'], [
             'name' => 'AP CTA Section',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'primary_button_text' => 'Get Started Free',
                 'primary_button_url' => '/docs/installation',
@@ -1642,7 +1642,7 @@ class DemoCreator
 
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'ap-image-gallery'], [
             'name' => 'AP Image Gallery',
-            'type_id' => $widgetType->id,
+            'blueprint_id' => $widgetType->id,
             'meta' => [
                 'layout' => 'grid',
                 'columns' => 3,
@@ -1868,7 +1868,7 @@ class DemoCreator
             $content = $this->contentModel::query()->firstOrCreate([
                 'name' => $testimonial['name'],
                 'parent_id' => $testimonialContent->id,
-                'type_id' => $testimonialType->id,
+                'blueprint_id' => $testimonialType->id,
             ], [
                 'meta' => [
                     'position' => $testimonial['position'],

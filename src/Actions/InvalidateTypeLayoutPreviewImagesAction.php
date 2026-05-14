@@ -18,7 +18,7 @@ class InvalidateTypeLayoutPreviewImagesAction
     public function handle(Type $type): int
     {
         $widgetKeys = Widget::query()
-            ->where('type_id', $type->getKey())
+            ->where('blueprint_id', $type->getKey())
             ->pluck('key')
             ->all();
 

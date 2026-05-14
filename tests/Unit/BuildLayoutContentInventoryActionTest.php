@@ -186,7 +186,7 @@ function layoutBuilderInventoryAssetState(WidgetAsset $widgetAsset): array
 {
     return [
         'id' => $widgetAsset->getKey(),
-        'widget_id' => $widgetAsset->widget_id,
+        'layout_module_id' => $widgetAsset->layout_module_id,
         'asset_id' => $widgetAsset->asset_id,
         'asset_type' => $widgetAsset->asset_type,
         'meta' => $widgetAsset->meta ?? [],

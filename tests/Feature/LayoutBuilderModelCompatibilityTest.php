@@ -18,5 +18,5 @@ it('exposes package models as compatible extensions of the core models', functio
 it('keeps the existing layout builder table names', function (): void {
     expect((new Layout)->getTable())->toBe('layouts')
         ->and((new Widget)->getTable())->toBe('widgets')
-        ->and((new WidgetAsset)->getTable())->toBe('widget_assets');
+        ->and((new WidgetAsset)->getTable())->toBe('layout_module_assets');
 });

@@ -32,7 +32,7 @@
             ])
         >
             <span class="font-semi-bold">
-                {{ $hasPageAssets ? __('capell-layout-builder::generic.widget_asset_page') : __('capell-layout-builder::generic.widget_assets') }}
+                {{ $hasPageAssets ? __('capell-layout-builder::generic.widget_asset_page') : __('capell-layout-builder::generic.layout_module_assets') }}
             </span>
             -
             {{ $hasPageAssets ? __('capell-layout-builder::generic.widget_assets_page_info') : __('capell-layout-builder::generic.widget_assets_info') }}

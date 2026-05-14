@@ -47,7 +47,8 @@ class WidgetTypeConfigurator extends DefaultTypeConfigurator
                 ->mapWithKeys(fn (WidgetTypeGroupEnum $case): array => [$case->value => $case->name])
                 ->all(),
         )
-            ->label('Group');
+            ->label(__('capell-admin::form.group'))
+            ->hint(__('capell-admin::generic.type_group_info'));
     }
 
     protected function adminTab(): Tab
@@ -58,9 +59,17 @@ class WidgetTypeConfigurator extends DefaultTypeConfigurator
             ->columnSpanFull()
             ->columns()
             ->schema([
+                $this->typeConfiguratorSelect(static::getKey()),
                 ConfiguratorSelect::make('configurator')
+                    ->label(__('capell-admin::form.admin_form_configurator'))
+                    ->helperText(__('capell-admin::generic.admin_form_configurator_info'))
                     ->default(fn (): string => WidgetConfiguratorEnum::Default->name)
                     ->setupOptions(ConfiguratorTypeEnum::Widget),
+                ConfiguratorSelect::make('layout_widget_configurator')
+                    ->label(__('capell-admin::form.layout_widget_configurator'))
+                    ->helperText(__('capell-admin::generic.layout_widget_configurator_info'))
+                    ->default('Default')
+                    ->setupOptions(ConfiguratorTypeEnum::LayoutWidget),
                 IconPicker::make('icon')
                     ->label(__('capell-admin::form.admin_icon')),
                 AssetTypeSelect::make('asset_types')

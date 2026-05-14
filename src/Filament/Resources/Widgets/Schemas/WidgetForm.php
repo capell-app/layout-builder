@@ -10,6 +10,7 @@ use Capell\Admin\Support\Configurators\ConfiguratorResolver;
 use Capell\Core\Models\Type;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Filament\Configurators\Widgets\DefaultWidgetConfigurator;
+use Filament\Actions\Exceptions\ActionNotResolvableException;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 
@@ -26,7 +27,9 @@ class WidgetForm implements FormConfigurator
             $type = $loadedType instanceof Type ? $loadedType : null;
         }
 
-        $typeId = $configurator->getRawState()['type_id'] ?? ($record instanceof Model ? $record->getAttribute('type_id') : null);
+        $typeId = $record instanceof Model
+            ? $record->getAttribute('blueprint_id')
+            : (self::safeRawState($configurator)['blueprint_id'] ?? null);
 
         if (! $type instanceof Type && $typeId !== null) {
             /** @var class-string<Type> $model */
@@ -40,5 +43,17 @@ class WidgetForm implements FormConfigurator
             : DefaultWidgetConfigurator::class;
 
         return $adminType::configure($configurator)->columns();
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private static function safeRawState(Schema $configurator): ?array
+    {
+        try {
+            return $configurator->getRawState();
+        } catch (ActionNotResolvableException) {
+            return null;
+        }
     }
 }

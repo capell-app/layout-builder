@@ -621,7 +621,7 @@ trait HasLayoutActions
                 $asset = CapellAdmin::getAsset($assetType);
 
                 return [
-                    'widget_id' => $widget->id,
+                    'layout_module_id' => $widget->id,
                     'workspace_id' => $this->getCurrentWidgetAssetWorkspaceId($widget),
                     'asset_type' => $assetType,
                     'meta' => [],
@@ -894,7 +894,7 @@ trait HasLayoutActions
         $widgetAsset->exists = true;
         $widgetAsset->wasRecentlyCreated = true; // prevent MissingAttributeException
 
-        $data['widget_id'] = $widget->id;
+        $data['layout_module_id'] = $widget->id;
 
         // Ensure UpdatedModelAction is not triggered
         WidgetAsset::withoutEvents(function () use ($configurator): void {
@@ -917,7 +917,7 @@ trait HasLayoutActions
             'asset_id' => $assetId,
             'asset_type' => $type,
             'meta' => $meta,
-            'widget_id' => $widget->id,
+            'layout_module_id' => $widget->id,
             'order' => $order,
             'occurrence' => $occurrence,
         ];
@@ -983,7 +983,7 @@ trait HasLayoutActions
         $model = WidgetAsset::class;
 
         $record = $model::query()->make([
-            'widget_id' => $widget->id,
+            'layout_module_id' => $widget->id,
             'workspace_id' => $this->getCurrentWidgetAssetWorkspaceId($widget),
             'asset_type' => $assetType,
             'meta' => [],
@@ -1020,7 +1020,7 @@ trait HasLayoutActions
             ->first();
 
         throw_unless($widgetAsset, Exception::class, sprintf('Asset of type [%s] with ID [%s] not found.', $type, $assetId));
-        throw_unless((int) $widgetAsset->widget_id === (int) $widget->getKey(), Exception::class, sprintf('Asset of type [%s] with ID [%s] is not attached to this widget.', $type, $assetId));
+        throw_unless((int) $widgetAsset->layout_module_id === (int) $widget->getKey(), Exception::class, sprintf('Asset of type [%s] with ID [%s] is not attached to this widget.', $type, $assetId));
 
         return $widgetAsset;
     }

@@ -205,7 +205,7 @@ class WidgetsTable implements TableConfigurator
                                 'capell-admin::components.tables.url',
                                 [
                                     'state' => $state,
-                                    'url' => AdminSurfaceLookup::resource(ResourceEnum::Layout)::getUrl('index', ['filters[widget_id][value]' => $record->key]),
+                                    'url' => AdminSurfaceLookup::resource(ResourceEnum::Layout)::getUrl('index', ['filters[layout_module_id][value]' => $record->key]),
                                 ],
                             ),
                         );
@@ -227,7 +227,7 @@ class WidgetsTable implements TableConfigurator
     protected static function getTableFilters(): array
     {
         return [
-            SelectFilter::make('type_id')
+            SelectFilter::make('blueprint_id')
                 ->label(__('capell-layout-builder::form.widget_type'))
                 ->relationship(
                     name: 'type',

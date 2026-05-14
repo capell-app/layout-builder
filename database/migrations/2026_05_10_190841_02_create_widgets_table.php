@@ -18,7 +18,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('workspace_id')->default(0)->index();
             $table->string('name');
-            $table->foreignId('type_id')->constrained();
+            $table->foreignId('blueprint_id')->constrained();
             $table->string('key', 128);
             $table->visibleDates();
             $table->longText('content')->nullable();

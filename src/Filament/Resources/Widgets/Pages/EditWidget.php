@@ -6,8 +6,8 @@ namespace Capell\LayoutBuilder\Filament\Resources\Widgets\Pages;
 
 use Capell\Admin\Filament\Actions\DeleteAction;
 use Capell\Admin\Filament\Actions\ReplicateAction;
+use Capell\Admin\Filament\Concerns\HasBlueprintRelationManagers;
 use Capell\Admin\Filament\Concerns\HasConfigurableFormActionPosition;
-use Capell\Admin\Filament\Concerns\HasTypeRelationManagers;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Models\Widget;
 use Capell\LayoutBuilder\Enums\ResourceEnum;
@@ -27,11 +27,11 @@ use Illuminate\Support\Str;
  */
 class EditWidget extends EditRecord
 {
+    use HasBlueprintRelationManagers;
     use HasConfigurableFormActionPosition;
     use HasRecordSwitcher{
         afterSave as recordSwitcherAfterSave;
     }
-    use HasTypeRelationManagers;
 
     /** @return class-string<WidgetResource> */
     public static function getResource(): string

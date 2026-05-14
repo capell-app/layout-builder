@@ -24,7 +24,7 @@ class CreateWidgetAction extends CreateAction
     #[Override]
     protected function mutateFormData(array $data): array
     {
-        $data['type_id'] = Type::query()->where('type', LayoutTypeEnum::Widget)->default()->value('id');
+        $data['blueprint_id'] = Type::query()->where('type', LayoutTypeEnum::Widget)->default()->value('id');
 
         $data['status'] = true;
 

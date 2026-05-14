@@ -87,7 +87,7 @@ class InstallLayoutBuilderWidgetCatalogAction
             'key' => $definition->key,
         ], [
             'name' => $definition->name,
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => $meta,
             'admin' => $this->normalizeArray($definition->admin),
         ]);
@@ -122,7 +122,7 @@ class InstallLayoutBuilderWidgetCatalogAction
 
         $navigation = $navigationModel::query()->firstOrCreate([
             'key' => $definition->navigationKey,
-            'type_id' => $navigationType->id,
+            'blueprint_id' => $navigationType->id,
             'site_id' => null,
         ], [
             'name' => $definition->navigationName,

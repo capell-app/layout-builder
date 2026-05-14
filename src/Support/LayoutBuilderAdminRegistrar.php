@@ -138,7 +138,7 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
         if (class_exists(self::WIDGET_TYPE_CONFIGURATOR)) {
             CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::configurator(
                 class: self::WIDGET_TYPE_CONFIGURATOR,
-                group: AdminConfiguratorTypeEnum::Type->value,
+                group: AdminConfiguratorTypeEnum::Blueprint->value,
                 name: self::WIDGET_TYPE_CONFIGURATOR::getKey(),
             ));
         }

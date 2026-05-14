@@ -137,7 +137,7 @@ class LayoutLoader
         // Fetch assets for all widgets in one go (page-specific + defaults), eager loading morph relations
         $widgetIds = array_keys($widgetsById);
         $assetQuery = WidgetAsset::query()
-            ->whereIn('widget_id', $widgetIds)
+            ->whereIn('layout_module_id', $widgetIds)
             ->whereHas('asset')
             ->with([
                 'media',
@@ -180,7 +180,7 @@ class LayoutLoader
         $assets->each(function (WidgetAsset $asset) use (&$defaultAssetsByWidgetIdOccurrence, &$pageAssetsByWidgetIdContainerOcc): void {
             $this->trackRetrievedModel($asset);
 
-            $widgetId = (int) $asset->widget_id;
+            $widgetId = (int) $asset->layout_module_id;
             $occurrence = $asset->occurrence ?? 1;
 
             if ($asset->pageable_id === null && $asset->pageable_type === null) {

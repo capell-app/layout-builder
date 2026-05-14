@@ -45,7 +45,7 @@ class WidgetCreator
             'key' => 'breadcrumbs',
         ], [
             'name' => __('capell-admin::generic.breadcrumbs'),
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::PageBreadcrumbs,
             ],
@@ -64,7 +64,7 @@ class WidgetCreator
             'key' => 'children',
         ], [
             'name' => __('capell-admin::generic.page_children'),
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::PageChildren,
                 'content_divider' => true,
@@ -105,7 +105,7 @@ class WidgetCreator
             'key' => 'assets',
         ], [
             'name' => __('capell-layout-builder::generic.assets'),
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'limit' => 6,
                 'pagination' => false,
@@ -132,7 +132,7 @@ class WidgetCreator
             'key' => 'gallery',
         ], [
             'name' => __('capell-admin::generic.gallery'),
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'widget_theme' => 'masonry',
                 'spacing' => 'md',
@@ -164,7 +164,7 @@ class WidgetCreator
             'key' => 'latest-pages',
         ], [
             'name' => __('capell-admin::generic.latest_pages'),
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::PageLatest,
                 'content_divider' => true,
@@ -207,7 +207,7 @@ class WidgetCreator
             'key' => 'media-carousel',
         ], [
             'name' => __('capell-admin::generic.media_carousel'),
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'carousel_align' => 'center',
                 'carousel_arrows' => true,
@@ -245,7 +245,7 @@ class WidgetCreator
             'key' => 'page-content',
         ], [
             'name' => __('capell-admin::generic.page_content'),
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::PageContent,
                 'margin' => ['t-lg', 'b-xl'],
@@ -262,7 +262,7 @@ class WidgetCreator
             'key' => 'pages-card',
         ], [
             'name' => __('capell-admin::generic.pages_card'),
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::Pages,
                 'limit' => 10,
@@ -283,7 +283,7 @@ class WidgetCreator
             'key' => 'page-slot',
         ], [
             'name' => __('capell-admin::generic.page_slot'),
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::PageSlot,
                 'type' => 'slot',
@@ -303,7 +303,7 @@ class WidgetCreator
             'key' => 'siblings',
         ], [
             'name' => __('capell-admin::generic.page_siblings'),
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::PageSiblings,
                 'content_divider' => true,
@@ -341,7 +341,7 @@ class WidgetCreator
 
         return $this->widgetModel::query()->firstOrCreate(['key' => 'default'], [
             'name' => 'Default Widget',
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
         ]);
     }
 
@@ -352,7 +352,7 @@ class WidgetCreator
         return $this->widgetModel::query()->firstOrCreate(['key' => 'assets-accordion'], [
             'key' => 'assets-accordion',
             'name' => __('capell-layout-builder::generic.accordion'),
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'icon' => 'heroicon-m-question-mark-circle',
                 'component' => WidgetComponentEnum::AssetAccordion,
@@ -373,7 +373,7 @@ class WidgetCreator
 
         return $this->widgetModel::query()->firstOrCreate(['key' => 'assets-banner'], [
             'name' => 'Banner Showcase',
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'align' => 'center',
                 'background_overlay' => true,
@@ -388,7 +388,7 @@ class WidgetCreator
 
         return $this->widgetModel::query()->firstOrCreate(['key' => 'assets-block'], [
             'name' => 'Blocks',
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::AssetBlock,
                 'component_item' => FrontendComponentKeyEnum::SectionBlock->value,
@@ -410,7 +410,7 @@ class WidgetCreator
 
         return $this->widgetModel::query()->firstOrCreate(['key' => 'asset-features'], [
             'name' => 'Features',
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'align' => 'center',
                 'component' => WidgetComponentEnum::AssetFeatures,
@@ -425,7 +425,7 @@ class WidgetCreator
 
         return $this->widgetModel::query()->firstOrCreate(['key' => 'asset-testimonials'], [
             'name' => 'Testimonials',
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'align' => 'center',
                 'spacing' => 'none',
@@ -475,7 +475,7 @@ class WidgetCreator
             /** @phpstan-ignore-next-line Navigation is an optional package model resolved by class string. */
             ? $navigationModel::query()->firstOrCreate([
                 'key' => $navigationKey,
-                'type_id' => $navigationType->id,
+                'blueprint_id' => $navigationType->id,
                 'site_id' => $site?->id,
             ], [
                 'name' => $navigationName,
@@ -489,7 +489,7 @@ class WidgetCreator
 
         return $this->widgetModel::query()->firstOrCreate(['key' => $widgetKey], [
             'name' => __('Navigation'),
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'navigation' => $navigation instanceof Model ? (string) $navigation->getAttribute('key') : $navigationKey,
                 'margin' => ['lg'],
@@ -537,7 +537,7 @@ class WidgetCreator
 
         return $this->widgetModel::query()->firstOrCreate(['key' => 'banner-image'], [
             'name' => 'Banner Image',
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::BannerImage,
                 'margin' => ['none'],
@@ -552,7 +552,7 @@ class WidgetCreator
 
         return $this->widgetModel::query()->firstOrCreate(['key' => 'ap-hero-banner'], [
             'name' => 'AP Hero Banner',
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApHeroBanner,
                 'primary_button_text' => 'Get Started',
@@ -568,7 +568,7 @@ class WidgetCreator
 
         return $this->widgetModel::query()->firstOrCreate(['key' => 'ap-card-grid'], [
             'name' => 'AP Card Grid',
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApCardGrid,
                 'columns' => 3,
@@ -583,7 +583,7 @@ class WidgetCreator
 
         return $this->widgetModel::query()->firstOrCreate(['key' => 'ap-feature-list'], [
             'name' => 'AP Feature List',
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApFeatureList,
                 'layout' => 'grid',
@@ -598,7 +598,7 @@ class WidgetCreator
 
         return $this->widgetModel::query()->firstOrCreate(['key' => 'ap-cta-section'], [
             'name' => 'AP CTA Section',
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApCTASection,
                 'primary_button_text' => 'Get Started',
@@ -614,7 +614,7 @@ class WidgetCreator
 
         return $this->widgetModel::query()->firstOrCreate(['key' => 'ap-image-gallery'], [
             'name' => 'AP Image Gallery',
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'meta' => [
                 'component' => WidgetComponentEnum::ApImageGallery,
                 'columns' => 3,

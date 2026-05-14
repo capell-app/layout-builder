@@ -208,7 +208,7 @@ trait ManagesAssets
             static function (WidgetAsset $widgetAsset) use ($containerKey, $oldContainerKey): array {
                 $asset = [
                     'id' => $widgetAsset->id,
-                    'widget_id' => $widgetAsset->widget_id,
+                    'layout_module_id' => $widgetAsset->layout_module_id,
                     'workspace_id' => $widgetAsset->workspace_id,
                     'asset_id' => $widgetAsset->asset_id,
                     'asset_type' => $widgetAsset->asset_type,
@@ -256,7 +256,7 @@ trait ManagesAssets
                 : null;
 
             $matchingAsset ??= $allWidgetAssets->first(function (WidgetAsset $asset) use ($type, $assetId, $oldContainerKey, $occurrence, $widget): bool {
-                if ((int) $asset->widget_id !== (int) $widget->getKey()) {
+                if ((int) $asset->layout_module_id !== (int) $widget->getKey()) {
                     return false;
                 }
 
@@ -381,7 +381,7 @@ trait ManagesAssets
                 'asset_id' => $assetId,
                 'asset_type' => $type,
                 'meta' => $meta,
-                'widget_id' => $widget->id,
+                'layout_module_id' => $widget->id,
                 'order' => $order,
                 'occurrence' => $occurrence,
             ];
@@ -819,7 +819,7 @@ trait ManagesAssets
             $widgetAsset = $widget->assets()->newModelInstance([
                 'meta' => $meta,
                 'order' => $order,
-                'widget_id' => $widget->id,
+                'layout_module_id' => $widget->id,
                 'workspace_id' => $this->getCurrentWidgetAssetWorkspaceId($widget),
                 'asset_type' => mb_strtolower($type),
                 'asset_id' => $assetId,
@@ -845,7 +845,7 @@ trait ManagesAssets
         array $asset,
     ): WidgetAsset {
         $attributes = [
-            'widget_id' => $widget->id,
+            'layout_module_id' => $widget->id,
             'workspace_id' => $this->getCurrentWidgetAssetWorkspaceId($widget),
             'asset_type' => $asset['asset_type'],
             'asset_id' => $asset['asset_id'],
@@ -1006,7 +1006,7 @@ trait ManagesAssets
                 'asset' => fn (MorphTo $query): MorphTo => $query->morphWith($this->getAssetRelations()),
                 'media',
             ])
-            ->where('widget_id', $widget->id)
+            ->where('layout_module_id', $widget->id)
             ->whereIn('workspace_id', $this->getReadableWidgetAssetWorkspaceIds($widget))
             ->where('occurrence', $widgetOccurrence)
             ->where(
@@ -1085,7 +1085,7 @@ trait ManagesAssets
             ? (new $model)->newCollection()
             : $model::query()
                 ->whereKey($existingIds)
-                ->whereIn('widget_id', $this->getCurrentContainerWidgetIds())
+                ->whereIn('layout_module_id', $this->getCurrentContainerWidgetIds())
                 ->whereIn('workspace_id', $this->getCurrentContainerWidgetAssetWorkspaceIds())
                 ->when(
                     $this->page,
@@ -1176,11 +1176,11 @@ trait ManagesAssets
 
     protected function widgetAssetMatchesState(WidgetAsset $asset, array $widgetAssetData, string $containerKey, string $oldContainerKey, int $occurrence, Widget $widget): bool
     {
-        if ((int) $asset->widget_id !== (int) $widget->getKey()) {
+        if ((int) $asset->layout_module_id !== (int) $widget->getKey()) {
             return false;
         }
 
-        if (isset($widgetAssetData['widget_id']) && (int) $widgetAssetData['widget_id'] !== (int) $asset->widget_id) {
+        if (isset($widgetAssetData['layout_module_id']) && (int) $widgetAssetData['layout_module_id'] !== (int) $asset->layout_module_id) {
             return false;
         }
 
@@ -1286,7 +1286,7 @@ trait ManagesAssets
                                 'asset_id' => $asset['asset_id'],
                                 'asset_type' => $asset['asset_type'],
                                 'occurrence' => $asset['occurrence'],
-                                'widget_id' => $asset['original_widget_id'],
+                                'layout_module_id' => $asset['original_widget_id'],
                                 'workspace_id' => (int) ($asset['workspace_id'] ?? $this->getCurrentWidgetAssetWorkspaceId()),
                             ]),
                         )
