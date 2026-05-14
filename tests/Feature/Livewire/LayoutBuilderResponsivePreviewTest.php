@@ -41,7 +41,7 @@ it('can resize the active responsive preview without waiting for breakpoint rere
 });
 
 it('renders responsive preview switching as an alpine interaction from the package namespace', function (): void {
-    config()->set('capell-admin.layout_builder.default_editor_mode', 'layout_first');
+    config()->set('capell-layout-builder.editor_mode.default', 'layout_first');
 
     $layout = Layout::factory()->create(['containers' => [
         'main' => ['widgets' => [], 'meta' => ['colspan' => 12]],
@@ -59,7 +59,7 @@ it('renders responsive preview switching as an alpine interaction from the packa
 });
 
 it('can opt out of frontend container stacking in the admin preview from the package namespace', function (): void {
-    config()->set('capell-admin.layout_builder.preview.match_frontend_container_layout', false);
+    config()->set('capell-layout-builder.preview.match_frontend_container_layout', false);
 
     $layout = Layout::factory()->create(['containers' => [
         'main' => ['widgets' => [], 'meta' => ['colspan' => 12]],
