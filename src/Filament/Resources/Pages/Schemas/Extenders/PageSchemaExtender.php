@@ -7,8 +7,8 @@ namespace Capell\LayoutBuilder\Filament\Resources\Pages\Schemas\Extenders;
 use Capell\Admin\Contracts\Extenders;
 use Capell\Admin\Enums\PageTranslationSchemaHookEnum;
 use Capell\Core\Contracts\Pageable;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Layout;
-use Capell\Core\Models\Type;
 use Capell\LayoutBuilder\Filament\Components\Forms\Page\Tab\LayoutTab;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -65,7 +65,7 @@ class PageSchemaExtender implements Extenders\PageSchemaExtender
 
         $type = $record->getRelationValue('type');
 
-        if (! $type instanceof Type) {
+        if (! $type instanceof Blueprint) {
             return true;
         }
 

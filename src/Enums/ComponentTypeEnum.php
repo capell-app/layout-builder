@@ -10,5 +10,5 @@ enum ComponentTypeEnum: string
 {
     case Asset = AssetComponentEnum::class;
 
-    case Widget = WidgetComponentEnum::class;
+    case Element = ElementComponentEnum::class;
 }

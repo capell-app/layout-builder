@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Actions;
 
-use Capell\Core\Models\Type;
-use Capell\Core\Models\Widget;
+use Capell\Core\Models\Blueprint;
+use Capell\LayoutBuilder\Models\Element;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static int run(Type $type)
+ * @method static int run(Blueprint $type)
  */
 class InvalidateTypeLayoutPreviewImagesAction
 {
     use AsObject;
 
-    public function handle(Type $type): int
+    public function handle(Blueprint $type): int
     {
-        $widgetKeys = Widget::query()
+        $elementKeys = Element::query()
             ->where('blueprint_id', $type->getKey())
             ->pluck('key')
             ->all();
 
-        return InvalidateWidgetLayoutPreviewImagesAction::run($widgetKeys);
+        return InvalidateElementLayoutPreviewImagesAction::run($elementKeys);
     }
 }

@@ -4,66 +4,67 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Support;
 
-use Capell\Core\Models\Widget;
+use Capell\LayoutBuilder\Models\Element;
 use Illuminate\Support\Collection;
 
 class CapellLayoutManager
 {
-    protected static array $containerWidgets = [];
+    protected static array $containerElements = [];
 
     public static function getMigrations(): array
     {
-        return [
-            '2026_05_10_190832_09_create_widgets_table',
-            '2026_05_10_190832_10_create_widget_assets_table',
-            '2026_05_10_190832_11_add_container_widgets_to_layouts_table',
-        ];
+        return CapellLayoutBuilderManager::getMigrations();
     }
 
     /**
-     * Store widgets for a container
+     * Store elements for a container
      */
-    public static function storeContainerWidget(string $containerKey, string $widgetKey, Widget $widget, int $occurrence = 1): void
+    public static function storeContainerElement(string $containerKey, string $elementKey, Element $element, int $occurrence = 1): void
     {
-        if (! isset(static::$containerWidgets[$containerKey])) {
-            static::$containerWidgets[$containerKey] = [];
+        if (! isset(static::$containerElements[$containerKey])) {
+            static::$containerElements[$containerKey] = [];
         }
 
-        if (! isset(static::$containerWidgets[$containerKey][$widgetKey])) {
-            static::$containerWidgets[$containerKey][$widgetKey] = [];
+        if (! isset(static::$containerElements[$containerKey][$elementKey])) {
+            static::$containerElements[$containerKey][$elementKey] = [];
         }
 
-        static::$containerWidgets[$containerKey][$widgetKey][$occurrence] = $widget;
+        static::$containerElements[$containerKey][$elementKey][$occurrence] = $element;
     }
 
     /**
-     * Get a widget for a container
+     * Get a element for a container
      */
-    public static function getContainerWidget(string $containerKey, string $widgetKey, int $occurrence = 1): ?Widget
+    public static function getContainerElement(string $containerKey, string $elementKey, int $occurrence = 1): ?Element
     {
-        return static::getStoredContainerWidget($containerKey, $widgetKey, $occurrence)
-            ?? Widget::query()->with('type')->firstWhere('key', $widgetKey);
+        return static::getStoredContainerElement($containerKey, $elementKey, $occurrence)
+            ?? Element::query()->with('type')->firstWhere('key', $elementKey);
     }
 
-    public static function getStoredContainerWidget(string $containerKey, string $widgetKey, int $occurrence = 1): ?Widget
+    public static function getContainerWidget(string $containerKey, string $widgetKey, int $occurrence = 1): ?Element
     {
-        return static::$containerWidgets[$containerKey][$widgetKey][$occurrence] ?? null;
+        return static::getContainerElement($containerKey, $widgetKey, $occurrence);
     }
 
-    public static function getContainerWidgets(?string $containerKey = null): Collection
+    public static function getStoredContainerElement(string $containerKey, string $elementKey, int $occurrence = 1): ?Element
     {
-        $widgets = in_array($containerKey, [null, '', '0'], true)
-            ? (static::$containerWidgets)
-            : static::$containerWidgets[$containerKey] ?? [];
+        return static::$containerElements[$containerKey][$elementKey][$occurrence] ?? null;
+    }
 
-        return collect($widgets);
+    public static function getContainerElements(?string $containerKey = null): Collection
+    {
+        $elements = in_array($containerKey, [null, '', '0'], true)
+            ? (static::$containerElements)
+            : static::$containerElements[$containerKey] ?? [];
+
+        return collect($elements);
     }
 
     /**
-     * Clear all stored widgets
+     * Clear all stored elements
      */
-    public static function clearContainerWidgets(): void
+    public static function clearContainerElements(): void
     {
-        static::$containerWidgets = [];
+        static::$containerElements = [];
     }
 }

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Actions;
 
-use Capell\Core\Models\Widget;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutDiagnosticData;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
+use Capell\LayoutBuilder\Models\Element;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 final class AnalyzeLayoutDiagnosticsAction
@@ -20,36 +20,36 @@ final class AnalyzeLayoutDiagnosticsAction
      */
     public function handle(LayoutBuilderStateData $state): array
     {
-        $layoutWidgetKeys = collect($state->containers)
+        $layoutElementKeys = collect($state->containers)
             ->flatMap(fn (array $container): array => array_map(
-                static fn (array $widget): mixed => $widget['widget_key'] ?? null,
-                $container['widgets'] ?? [],
+                static fn (array $element): mixed => $element['element_key'] ?? null,
+                $container['elements'] ?? [],
             ))
-            ->filter(static fn (mixed $widgetKey): bool => is_string($widgetKey) && $widgetKey !== '')
+            ->filter(static fn (mixed $elementKey): bool => is_string($elementKey) && $elementKey !== '')
             ->unique()
             ->values()
             ->all();
 
-        $knownWidgetKeys = $layoutWidgetKeys === []
+        $knownElementKeys = $layoutElementKeys === []
             ? []
-            : Widget::query()
-                ->whereIn('key', $layoutWidgetKeys)
+            : Element::query()
+                ->whereIn('key', $layoutElementKeys)
                 ->pluck('key')
                 ->all();
 
         $diagnostics = [];
 
         foreach ($state->containers as $containerKey => $container) {
-            foreach (($container['widgets'] ?? []) as $widgetIndex => $widget) {
-                $widgetKey = $widget['widget_key'] ?? null;
+            foreach (($container['elements'] ?? []) as $elementIndex => $element) {
+                $elementKey = $element['element_key'] ?? null;
 
-                if (! is_string($widgetKey) || ! in_array($widgetKey, $knownWidgetKeys, true)) {
+                if (! is_string($elementKey) || ! in_array($elementKey, $knownElementKeys, true)) {
                     $diagnostics[] = new LayoutDiagnosticData(
                         severity: LayoutDiagnosticSeverity::Blocking,
-                        code: 'unknown_widget',
-                        message: __('capell-admin::message.unknown_widget', ['widget' => (string) $widgetKey]),
+                        code: 'unknown_element',
+                        message: __('capell-admin::message.unknown_element', ['element' => (string) $elementKey]),
                         containerKey: (string) $containerKey,
-                        widgetIndex: (int) $widgetIndex,
+                        elementIndex: (int) $elementIndex,
                     );
                 }
             }
@@ -66,7 +66,7 @@ final class AnalyzeLayoutDiagnosticsAction
                         code: 'invalid_responsive_colspan',
                         message: __('capell-admin::message.invalid_responsive_colspan', ['container' => (string) $containerKey]),
                         containerKey: (string) $containerKey,
-                        widgetIndex: null,
+                        elementIndex: null,
                     );
                 }
             }

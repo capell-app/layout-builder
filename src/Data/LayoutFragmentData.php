@@ -10,16 +10,16 @@ final class LayoutFragmentData extends Data
 {
     /**
      * @param  array<string, mixed>|null  $container
-     * @param  array<string, mixed>|null  $widget
+     * @param  array<string, mixed>|null  $element
      * @param  array<int, array<string, mixed>>  $assets
      * @param  array<int, array<string, mixed>>  $originalAssets
      * @param  array<int, mixed>  $selectedRecords
      */
     public function __construct(
         public readonly string $sourceContainerKey,
-        public readonly ?int $sourceWidgetIndex,
+        public readonly ?int $sourceElementIndex,
         public readonly ?array $container,
-        public readonly ?array $widget,
+        public readonly ?array $element,
         public readonly array $assets = [],
         public readonly array $originalAssets = [],
         public readonly array $selectedRecords = [],
@@ -27,11 +27,11 @@ final class LayoutFragmentData extends Data
 
     public function isContainerFragment(): bool
     {
-        return $this->container !== null && $this->sourceWidgetIndex === null;
+        return $this->container !== null && $this->sourceElementIndex === null;
     }
 
-    public function isWidgetFragment(): bool
+    public function isElementFragment(): bool
     {
-        return $this->widget !== null && $this->sourceWidgetIndex !== null;
+        return $this->element !== null && $this->sourceElementIndex !== null;
     }
 }

@@ -8,8 +8,8 @@ use Capell\Admin\Enums\FilamentColorEnum;
 use Capell\Admin\Filament\Components\Tables\Columns\ImageColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Core\Models\Layout;
-use Capell\Core\Models\Widget;
 use Capell\LayoutBuilder\Actions\GetLayoutPreviewImageUrlAction;
+use Capell\LayoutBuilder\Models\Element;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\ViewEntry;
@@ -24,7 +24,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
 {
     protected static function getTableQueryModifier(Builder $query): Builder
     {
-        return parent::getTableQueryModifier($query)->with('layoutWidgets');
+        return parent::getTableQueryModifier($query)->with('layoutElements');
     }
 
     protected static function getTableActions(): array
@@ -43,11 +43,11 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
             ->iconButton()
             ->color('info')
             ->schema(fn (Layout $record): array => [
-                ViewEntry::make('widgets')
+                ViewEntry::make('elements')
                     ->view(
-                        'capell-layout-builder::components.infolists.entries.layout-widgets',
+                        'capell-layout-builder::components.infolists.entries.layout-elements',
                         [
-                            'widgets' => $record->getRelationValue('layoutWidgets'),
+                            'elements' => $record->getRelationValue('layoutElements'),
                         ],
                     ),
             ]);
@@ -67,8 +67,8 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
 
         if ($nameColumnIndex !== false && ! $usesCardLayout) {
             array_splice($columns, $nameColumnIndex + 1, 0, [
-                TextColumn::make('layoutWidgets.name')
-                    ->label(__('capell-layout-builder::table.container_widgets'))
+                TextColumn::make('layoutElements.name')
+                    ->label(__('capell-layout-builder::table.container_elements'))
                     ->wrap()
                     ->color(FilamentColorEnum::LightGray->value)
                     ->bulleted()
@@ -111,11 +111,11 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     protected static function getTableFilters(): array
     {
         return [
-            SelectFilter::make('widget_key')
-                ->label(__('capell-layout-builder::form.widget'))
+            SelectFilter::make('element_key')
+                ->label(__('capell-layout-builder::form.element'))
                 ->options(function () {
-                    /** @var class-string<Widget> $model */
-                    $model = Widget::class;
+                    /** @var class-string<Element> $model */
+                    $model = Element::class;
 
                     return $model::getOptions('key', 'name');
                 })
@@ -123,11 +123,11 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                     $indicators = [];
 
                     if (isset($state['value']) && $state['value'] !== '') {
-                        /** @var class-string<Widget> $model */
-                        $model = Widget::class;
+                        /** @var class-string<Element> $model */
+                        $model = Element::class;
 
-                        $indicators['widget_key'] = __(
-                            'capell-layout-builder::filter.widget',
+                        $indicators['element_key'] = __(
+                            'capell-layout-builder::filter.element',
                             ['search' => $model::query()->firstWhere('key', $state['value'], 'name')?->name],
                         );
                     }
@@ -137,7 +137,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                 ->modifyQueryUsing(
                     fn (Builder $query, array $state) => $query->when(
                         isset($state['value']) && $state['value'] !== '',
-                        fn (Builder $query) => $query->whereJsonContains('widgets', $state['value']),
+                        fn (Builder $query) => $query->whereJsonContains('elements', $state['value']),
                     ),
                 ),
             ...parent::getTableFilters(),

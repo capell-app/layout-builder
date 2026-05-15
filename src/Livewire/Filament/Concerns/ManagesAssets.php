@@ -8,8 +8,8 @@ use BackedEnum;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
-use Capell\Core\Models\Widget;
-use Capell\Core\Models\WidgetAsset;
+use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\ElementAsset;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
@@ -27,21 +27,21 @@ use Throwable;
 
 trait ManagesAssets
 {
-    public function reorderAssets(string $containerKey, int $widgetIndex, int $index, int $newIndex): void
+    public function reorderAssets(string $containerKey, int $elementIndex, int $index, int $newIndex): void
     {
         $this->assertCanUpdateLayout();
 
-        $assets = $this->assets[$containerKey][$widgetIndex];
+        $assets = $this->assets[$containerKey][$elementIndex];
 
-        $widgetAsset = $this->getWidgetAsset($containerKey, $widgetIndex, $index);
+        $elementAsset = $this->getElementAsset($containerKey, $elementIndex, $index);
 
-        throw_if($widgetAsset === null || $widgetAsset === [], Exception::class, sprintf('Asset %d not found for container: %s widget: %d', $index, $containerKey, $widgetIndex));
+        throw_if($elementAsset === null || $elementAsset === [], Exception::class, sprintf('Asset %d not found for container: %s element: %d', $index, $containerKey, $elementIndex));
 
         unset($assets[$index]);
 
         $assets = array_values($assets);
 
-        array_splice($assets, $newIndex, 0, [$widgetAsset]);
+        array_splice($assets, $newIndex, 0, [$elementAsset]);
 
         $order = 1;
         $assets = array_map(
@@ -54,46 +54,46 @@ trait ManagesAssets
             $assets,
         );
 
-        $this->assets[$containerKey][$widgetIndex] = $assets;
+        $this->assets[$containerKey][$elementIndex] = $assets;
 
         $this->layoutUpdated();
     }
 
-    public function moveAssetUp(string $containerKey, int $widgetIndex, int $assetIndex): void
+    public function moveAssetUp(string $containerKey, int $elementIndex, int $assetIndex): void
     {
-        if (! $this->canMoveAssetUp($containerKey, $widgetIndex, $assetIndex)) {
+        if (! $this->canMoveAssetUp($containerKey, $elementIndex, $assetIndex)) {
             return;
         }
 
-        $this->reorderAssets($containerKey, $widgetIndex, $assetIndex, $assetIndex - 1);
+        $this->reorderAssets($containerKey, $elementIndex, $assetIndex, $assetIndex - 1);
     }
 
-    public function moveAssetDown(string $containerKey, int $widgetIndex, int $assetIndex): void
+    public function moveAssetDown(string $containerKey, int $elementIndex, int $assetIndex): void
     {
-        if (! $this->canMoveAssetDown($containerKey, $widgetIndex, $assetIndex)) {
+        if (! $this->canMoveAssetDown($containerKey, $elementIndex, $assetIndex)) {
             return;
         }
 
-        $this->reorderAssets($containerKey, $widgetIndex, $assetIndex, $assetIndex + 1);
+        $this->reorderAssets($containerKey, $elementIndex, $assetIndex, $assetIndex + 1);
     }
 
-    public function canMoveAssetUp(string $containerKey, int $widgetIndex, int $assetIndex): bool
+    public function canMoveAssetUp(string $containerKey, int $elementIndex, int $assetIndex): bool
     {
-        return $assetIndex > 0 && isset($this->assets[$containerKey][$widgetIndex][$assetIndex]);
+        return $assetIndex > 0 && isset($this->assets[$containerKey][$elementIndex][$assetIndex]);
     }
 
-    public function canMoveAssetDown(string $containerKey, int $widgetIndex, int $assetIndex): bool
+    public function canMoveAssetDown(string $containerKey, int $elementIndex, int $assetIndex): bool
     {
-        return isset($this->assets[$containerKey][$widgetIndex][$assetIndex + 1]);
+        return isset($this->assets[$containerKey][$elementIndex][$assetIndex + 1]);
     }
 
-    public function hasPageAssets(string $containerKey, int $widgetIndex): bool
+    public function hasPageAssets(string $containerKey, int $elementIndex): bool
     {
         if (! $this->inPageContext()) {
             return false;
         }
 
-        $assets = $this->getWidgetAssets($containerKey, $widgetIndex);
+        $assets = $this->getElementAssets($containerKey, $elementIndex);
 
         if ($assets === []) {
             return false;
@@ -107,17 +107,17 @@ trait ManagesAssets
             );
     }
 
-    public function widgetHasPageAssets(Widget $widget): bool
+    public function elementHasPageAssets(Element $element): bool
     {
         if (! $this->inPageContext()) {
-            return $widget->assets()->whereNotNull('pageable_type')->whereNotNull('pageable_id')->exists();
+            return $element->assets()->whereNotNull('pageable_type')->whereNotNull('pageable_id')->exists();
         }
 
-        if (property_exists($widget, 'page_assets_count')) {
-            return $widget->page_assets_count > 0;
+        if (property_exists($element, 'page_assets_count')) {
+            return $element->page_assets_count > 0;
         }
 
-        return $widget
+        return $element
             ->assets()
             ->where([
                 'pageable_type' => $this->page->getMorphClass(),
@@ -126,44 +126,44 @@ trait ManagesAssets
             ->exists();
     }
 
-    public function widgetHasGlobalAssets(Widget $widget): bool
+    public function elementHasGlobalAssets(Element $element): bool
     {
-        if (property_exists($widget, 'global_assets_count')) {
-            return $widget->global_assets_count > 0;
+        if (property_exists($element, 'global_assets_count')) {
+            return $element->global_assets_count > 0;
         }
 
-        return $widget->assets()->whereNull(['pageable_type', 'pageable_id'])->exists();
+        return $element->assets()->whereNull(['pageable_type', 'pageable_id'])->exists();
     }
 
-    public function selectAllAssets(string $containerKey, int $widgetIndex): void
+    public function selectAllAssets(string $containerKey, int $elementIndex): void
     {
         $this->assertCanUpdateLayout();
 
-        $this->selectedRecords[$containerKey][$widgetIndex] = $this->getAllSelectableAssetsKeys(
+        $this->selectedRecords[$containerKey][$elementIndex] = $this->getAllSelectableAssetsKeys(
             $containerKey,
-            $widgetIndex,
+            $elementIndex,
         );
     }
 
-    public function deSelectAllAssets(string $containerKey, int $widgetIndex): void
+    public function deSelectAllAssets(string $containerKey, int $elementIndex): void
     {
         $this->assertCanUpdateLayout();
 
-        $this->selectedRecords[$containerKey][$widgetIndex] = [];
+        $this->selectedRecords[$containerKey][$elementIndex] = [];
     }
 
-    public function getWidgetAssetTypes(Widget $widget): array
+    public function getElementAssetTypes(Element $element): array
     {
-        return $this->getAllowedAssetTypes($widget);
+        return $this->getAllowedAssetTypes($element);
     }
 
-    protected function moveContainerWidgetAssets(string $originalContainer, int $originalIndex, string $containerKey, int $widgetIndex): void
+    protected function moveContainerElementAssets(string $originalContainer, int $originalIndex, string $containerKey, int $elementIndex): void
     {
-        $widget = $this->assets[$originalContainer][$originalIndex];
-        $widgetSelectedRecords = $this->selectedRecords[$originalContainer][$originalIndex] ?? [];
+        $element = $this->assets[$originalContainer][$originalIndex];
+        $elementSelectedRecords = $this->selectedRecords[$originalContainer][$originalIndex] ?? [];
 
         $assets = $this->assets[$containerKey] ?? [];
-        $assets = array_merge(array_slice($assets, 0, $widgetIndex), [$widget], array_slice($assets, $widgetIndex));
+        $assets = array_merge(array_slice($assets, 0, $elementIndex), [$element], array_slice($assets, $elementIndex));
         $this->assets[$containerKey] = $assets;
 
         if ($containerKey !== $originalContainer) {
@@ -172,7 +172,7 @@ trait ManagesAssets
         }
 
         $selectedRecords = $this->selectedRecords[$containerKey] ?? [];
-        $selectedRecords = array_merge(array_slice($selectedRecords, 0, $widgetIndex), [$widgetSelectedRecords], array_slice($selectedRecords, $widgetIndex));
+        $selectedRecords = array_merge(array_slice($selectedRecords, 0, $elementIndex), [$elementSelectedRecords], array_slice($selectedRecords, $elementIndex));
         $this->selectedRecords[$containerKey] = $selectedRecords;
 
         if ($containerKey !== $originalContainer && isset($this->selectedRecords[$originalContainer][$originalIndex])) {
@@ -181,45 +181,45 @@ trait ManagesAssets
         }
     }
 
-    protected function updatePageAssets(string $containerKey, int $widgetIndex, ?bool $hasPageAssets = null): void
+    protected function updatePageAssets(string $containerKey, int $elementIndex, ?bool $hasPageAssets = null): void
     {
-        if (! $this->assets[$containerKey][$widgetIndex]) {
+        if (! $this->assets[$containerKey][$elementIndex]) {
             return;
         }
 
         if ($hasPageAssets === null) {
-            $hasPageAssets = $this->hasPageAssets($containerKey, $widgetIndex);
+            $hasPageAssets = $this->hasPageAssets($containerKey, $elementIndex);
         }
 
-        foreach ($this->assets[$containerKey][$widgetIndex] as $assetIndex => $asset) {
+        foreach ($this->assets[$containerKey][$elementIndex] as $assetIndex => $asset) {
             if ($hasPageAssets) {
-                $this->assets[$containerKey][$widgetIndex][$assetIndex]['pageable_id'] = $this->page->getKey();
-                $this->assets[$containerKey][$widgetIndex][$assetIndex]['pageable_type'] = $this->page->getMorphClass();
+                $this->assets[$containerKey][$elementIndex][$assetIndex]['pageable_id'] = $this->page->getKey();
+                $this->assets[$containerKey][$elementIndex][$assetIndex]['pageable_type'] = $this->page->getMorphClass();
             } else {
-                $this->assets[$containerKey][$widgetIndex][$assetIndex]['pageable_id'] = null;
-                $this->assets[$containerKey][$widgetIndex][$assetIndex]['pageable_type'] = null;
+                $this->assets[$containerKey][$elementIndex][$assetIndex]['pageable_id'] = null;
+                $this->assets[$containerKey][$elementIndex][$assetIndex]['pageable_type'] = null;
             }
         }
     }
 
-    protected function mapWidgetAssets(Widget $widget, string $containerKey, ?string $oldContainerKey = null): array
+    protected function mapElementAssets(Element $element, string $containerKey, ?string $oldContainerKey = null): array
     {
-        return $widget->assets->map(
-            static function (WidgetAsset $widgetAsset) use ($containerKey, $oldContainerKey): array {
+        return $element->assets->map(
+            static function (ElementAsset $elementAsset) use ($containerKey, $oldContainerKey): array {
                 $asset = [
-                    'id' => $widgetAsset->id,
-                    'layout_module_id' => $widgetAsset->layout_module_id,
-                    'workspace_id' => $widgetAsset->workspace_id,
-                    'asset_id' => $widgetAsset->asset_id,
-                    'asset_type' => $widgetAsset->asset_type,
-                    'meta' => $widgetAsset->meta,
-                    'order' => $widgetAsset->order,
-                    'occurrence' => $widgetAsset->occurrence,
+                    'id' => $elementAsset->id,
+                    'layout_element_id' => $elementAsset->layout_element_id,
+                    'workspace_id' => $elementAsset->workspace_id,
+                    'asset_id' => $elementAsset->asset_id,
+                    'asset_type' => $elementAsset->asset_type,
+                    'meta' => $elementAsset->meta,
+                    'order' => $elementAsset->order,
+                    'occurrence' => $elementAsset->occurrence,
                 ];
 
-                if ($widgetAsset->pageable_id !== null && $widgetAsset->pageable_type !== null) {
-                    $asset['pageable_id'] = $widgetAsset->pageable_id;
-                    $asset['pageable_type'] = $widgetAsset->pageable_type;
+                if ($elementAsset->pageable_id !== null && $elementAsset->pageable_type !== null) {
+                    $asset['pageable_id'] = $elementAsset->pageable_id;
+                    $asset['pageable_type'] = $elementAsset->pageable_type;
                     $asset['container'] = $containerKey;
                 }
 
@@ -232,42 +232,42 @@ trait ManagesAssets
         )->all();
     }
 
-    protected function setupWidgetAssets(string $containerKey, int $widgetIndex, array $widgetAssets, ?Collection $allWidgetAssets, Widget $widget): Collection
+    protected function setupElementAssets(string $containerKey, int $elementIndex, array $elementAssets, ?Collection $allElementAssets, Element $element): Collection
     {
         $assets = new Collection;
 
-        if (! $allWidgetAssets instanceof Collection || $allWidgetAssets->isEmpty()) {
+        if (! $allElementAssets instanceof Collection || $allElementAssets->isEmpty()) {
             return $assets;
         }
 
-        /** @var Collection<int, WidgetAsset> $allWidgetAssets */
-        $occurrence = $this->getContainerWidgetOccurrence($containerKey, $widgetIndex);
+        /** @var Collection<int, ElementAsset> $allElementAssets */
+        $occurrence = $this->getContainerElementOccurrence($containerKey, $elementIndex);
 
-        foreach ($widgetAssets as $widgetAssetData) {
-            $type = $widgetAssetData['asset_type'];
-            $assetId = is_numeric($widgetAssetData['asset_id']) ? (int) $widgetAssetData['asset_id'] : $widgetAssetData['asset_id'];
+        foreach ($elementAssets as $elementAssetData) {
+            $type = $elementAssetData['asset_type'];
+            $assetId = is_numeric($elementAssetData['asset_id']) ? (int) $elementAssetData['asset_id'] : $elementAssetData['asset_id'];
 
-            $oldContainerKey = $widgetAssetData['old_container'] ?? $containerKey;
+            $oldContainerKey = $elementAssetData['old_container'] ?? $containerKey;
 
-            /** @var ?WidgetAsset $matchingAsset */
-            $matchingAsset = isset($widgetAssetData['id'])
-                ? $allWidgetAssets->first(fn (WidgetAsset $asset): bool => $asset->getKey() === (int) $widgetAssetData['id']
-                    && $this->widgetAssetMatchesState($asset, $widgetAssetData, $containerKey, $oldContainerKey, $occurrence, $widget))
+            /** @var ?ElementAsset $matchingAsset */
+            $matchingAsset = isset($elementAssetData['id'])
+                ? $allElementAssets->first(fn (ElementAsset $asset): bool => $asset->getKey() === (int) $elementAssetData['id']
+                    && $this->elementAssetMatchesState($asset, $elementAssetData, $containerKey, $oldContainerKey, $occurrence, $element))
                 : null;
 
-            $matchingAsset ??= $allWidgetAssets->first(function (WidgetAsset $asset) use ($type, $assetId, $oldContainerKey, $occurrence, $widget): bool {
-                if ((int) $asset->layout_module_id !== (int) $widget->getKey()) {
+            $matchingAsset ??= $allElementAssets->first(function (ElementAsset $asset) use ($type, $assetId, $oldContainerKey, $occurrence, $element): bool {
+                if ((int) $asset->layout_element_id !== (int) $element->getKey()) {
                     return false;
                 }
 
-                if (! in_array($asset->workspace_id, $this->getReadableWidgetAssetWorkspaceIds($widget), true)) {
+                if (! in_array($asset->workspace_id, $this->getReadableElementAssetWorkspaceIds($element), true)) {
                     return false;
                 }
 
-                $matchesWidget = $asset->asset_type === $type
+                $matchesElement = $asset->asset_type === $type
                     && (string) $asset->asset_id === (string) $assetId;
 
-                if (! $matchesWidget) {
+                if (! $matchesElement) {
                     return false;
                 }
 
@@ -293,13 +293,13 @@ trait ManagesAssets
                 continue;
             }
 
-            $widgetAsset = clone $matchingAsset;
-            $widgetAsset->order = $widgetAssetData['order'] ?? $widgetAsset->order;
-            $widgetAsset->occurrence = $widgetAssetData['occurrence'] ?? $occurrence;
-            $widgetAsset->pageable_id = $widgetAssetData['pageable_id'] ?? null;
-            $widgetAsset->pageable_type = $widgetAssetData['pageable_type'] ?? null;
+            $elementAsset = clone $matchingAsset;
+            $elementAsset->order = $elementAssetData['order'] ?? $elementAsset->order;
+            $elementAsset->occurrence = $elementAssetData['occurrence'] ?? $occurrence;
+            $elementAsset->pageable_id = $elementAssetData['pageable_id'] ?? null;
+            $elementAsset->pageable_type = $elementAssetData['pageable_type'] ?? null;
 
-            $assets->push($widgetAsset);
+            $assets->push($elementAsset);
         }
 
         return $assets;
@@ -312,8 +312,8 @@ trait ManagesAssets
         foreach ($this->containers as $containerKey => $container) {
             $this->selectedRecords[$containerKey] = [];
 
-            foreach ($container['widgets'] as $widgetIndex => $widget) {
-                $this->selectedRecords[$containerKey][$widgetIndex] = [];
+            foreach ($container['elements'] as $elementIndex => $element) {
+                $this->selectedRecords[$containerKey][$elementIndex] = [];
             }
         }
     }
@@ -322,16 +322,16 @@ trait ManagesAssets
     {
         $originalAssets = [];
 
-        foreach ($this->assets as $containerKey => $containerWidgets) {
-            foreach ($containerWidgets as $widgetIndex => $widgetAssets) {
-                $containerWidget = $this->getContainerWidget($containerKey, $widgetIndex);
+        foreach ($this->assets as $containerKey => $containerElements) {
+            foreach ($containerElements as $elementIndex => $elementAssets) {
+                $containerElement = $this->getContainerElement($containerKey, $elementIndex);
 
-                foreach ($widgetAssets as $widgetAssetIndex => $widgetAsset) {
-                    $widgetAsset['original_container_key'] = $containerKey;
-                    $widgetAsset['original_widget_id'] = $containerWidget->id;
-                    $widgetAsset['original_widget_key'] = $containerWidget->key;
+                foreach ($elementAssets as $elementAssetIndex => $elementAsset) {
+                    $elementAsset['original_container_key'] = $containerKey;
+                    $elementAsset['original_element_id'] = $containerElement->id;
+                    $elementAsset['original_element_key'] = $containerElement->key;
 
-                    $originalAssets[$containerKey][$widgetIndex][$widgetAssetIndex] = $widgetAsset;
+                    $originalAssets[$containerKey][$elementIndex][$elementAssetIndex] = $elementAsset;
                 }
             }
         }
@@ -339,38 +339,38 @@ trait ManagesAssets
         $this->originalAssets = $originalAssets;
     }
 
-    protected function getSelectedAssets(string $containerKey, int $widgetIndex): array
+    protected function getSelectedAssets(string $containerKey, int $elementIndex): array
     {
-        return $this->selectedRecords[$containerKey][$widgetIndex] ?? [];
+        return $this->selectedRecords[$containerKey][$elementIndex] ?? [];
     }
 
-    protected function getAllSelectableAssetsKeys(string $containerKey, int $widgetIndex): array
+    protected function getAllSelectableAssetsKeys(string $containerKey, int $elementIndex): array
     {
-        return collect($this->assets[$containerKey][$widgetIndex])
-            ->map(fn (array $widgetAsset): string => sprintf('%s.%s', $widgetAsset['asset_type'], $widgetAsset['asset_id']))
+        return collect($this->assets[$containerKey][$elementIndex])
+            ->map(fn (array $elementAsset): string => sprintf('%s.%s', $elementAsset['asset_type'], $elementAsset['asset_id']))
             ->values()
             ->all();
     }
 
-    protected function addAssets(string $containerKey, int $widgetIndex, ?bool $hasPageAssets, string $type, mixed $assets, array $assetsMeta = []): void
+    protected function addAssets(string $containerKey, int $elementIndex, ?bool $hasPageAssets, string $type, mixed $assets, array $assetsMeta = []): void
     {
         $this->assertCanUpdateLayout();
 
-        if (! isset($this->assets[$containerKey][$widgetIndex])) {
-            $this->assets[$containerKey][$widgetIndex] = [];
+        if (! isset($this->assets[$containerKey][$elementIndex])) {
+            $this->assets[$containerKey][$elementIndex] = [];
         }
 
-        $widget = $this->getContainerWidget($containerKey, $widgetIndex);
+        $element = $this->getContainerElement($containerKey, $elementIndex);
 
-        $validatedAssetIds = $this->getValidatedAssetIds($widget, $type, $assets);
+        $validatedAssetIds = $this->getValidatedAssetIds($element, $type, $assets);
 
         if ($validatedAssetIds === []) {
             return;
         }
 
-        $occurrence = $this->getContainerWidgetOccurrence($containerKey, $widgetIndex);
+        $occurrence = $this->getContainerElementOccurrence($containerKey, $elementIndex);
 
-        $order = $this->countWidgetAssets($containerKey, $widgetIndex);
+        $order = $this->countElementAssets($containerKey, $elementIndex);
 
         foreach ($validatedAssetIds as $assetId) {
             $order++;
@@ -381,7 +381,7 @@ trait ManagesAssets
                 'asset_id' => $assetId,
                 'asset_type' => $type,
                 'meta' => $meta,
-                'layout_module_id' => $widget->id,
+                'layout_element_id' => $element->id,
                 'order' => $order,
                 'occurrence' => $occurrence,
             ];
@@ -392,10 +392,10 @@ trait ManagesAssets
                 $asset['container'] = $containerKey;
             }
 
-            $this->assets[$containerKey][$widgetIndex][] = $asset;
+            $this->assets[$containerKey][$elementIndex][] = $asset;
 
-            $widgetAsset = $this->addWidgetAsset(
-                widget: $widget,
+            $elementAsset = $this->addElementAsset(
+                element: $element,
                 containerKey: $containerKey,
                 type: $type,
                 hasPageAssets: $hasPageAssets,
@@ -405,23 +405,23 @@ trait ManagesAssets
                 order: $order,
             );
 
-            $widgetAsset->setRelation('widget', $widget);
+            $elementAsset->setRelation('element', $element);
 
-            $widget->assets->add($widgetAsset);
+            $element->assets->add($elementAsset);
         }
 
-        $widget->assets->load([
+        $element->assets->load([
             'asset' => fn (MorphTo $query): MorphTo => $query->morphWith($this->getAssetRelations()),
         ]);
 
-        $this->containerWidgets[$containerKey][$widgetIndex] = $widget;
+        $this->containerElements[$containerKey][$elementIndex] = $element;
     }
 
-    protected function getValidatedAssetIds(Widget $widget, string $type, mixed $assetIds): array
+    protected function getValidatedAssetIds(Element $element, string $type, mixed $assetIds): array
     {
         $normalizedType = $this->normalizeAssetType($type);
 
-        if (! in_array($normalizedType, $this->getAllowedAssetTypes($widget), true)) {
+        if (! in_array($normalizedType, $this->getAllowedAssetTypes($element), true)) {
             return [];
         }
 
@@ -462,11 +462,11 @@ trait ManagesAssets
             ->all();
     }
 
-    protected function getAllowedAssetTypes(Widget $widget): array
+    protected function getAllowedAssetTypes(Element $element): array
     {
-        $assetTypes = isset($widget->admin['asset_types']) && $widget->admin['asset_types'] !== []
-            ? $widget->admin['asset_types']
-            : ($widget->type->admin['asset_types'] ?? []);
+        $assetTypes = isset($element->admin['asset_types']) && $element->admin['asset_types'] !== []
+            ? $element->admin['asset_types']
+            : ($element->type->admin['asset_types'] ?? []);
 
         if ($assetTypes === []) {
             return CapellCore::getAssets()
@@ -557,10 +557,10 @@ trait ManagesAssets
         return null;
     }
 
-    protected function getCurrentWidgetAssetWorkspaceId(?Widget $widget = null): int
+    protected function getCurrentElementAssetWorkspaceId(?Element $element = null): int
     {
-        if ($widget instanceof Widget && array_key_exists('workspace_id', $widget->getAttributes())) {
-            return (int) $widget->getAttribute('workspace_id');
+        if ($element instanceof Element && array_key_exists('workspace_id', $element->getAttributes())) {
+            return (int) $element->getAttribute('workspace_id');
         }
 
         return $this->getCurrentWorkspaceId() ?? 0;
@@ -569,9 +569,9 @@ trait ManagesAssets
     /**
      * @return array<int>
      */
-    protected function getReadableWidgetAssetWorkspaceIds(?Widget $widget = null): array
+    protected function getReadableElementAssetWorkspaceIds(?Element $element = null): array
     {
-        $workspaceId = $this->getCurrentWidgetAssetWorkspaceId($widget);
+        $workspaceId = $this->getCurrentElementAssetWorkspaceId($element);
 
         if ($workspaceId === 0) {
             return [0];
@@ -583,10 +583,10 @@ trait ManagesAssets
     /**
      * @return array<int>
      */
-    protected function getCurrentContainerWidgetAssetWorkspaceIds(): array
+    protected function getCurrentContainerElementAssetWorkspaceIds(): array
     {
-        $workspaceIds = Widget::query()
-            ->whereIn('key', $this->getContainerWidgetKeys())
+        $workspaceIds = Element::query()
+            ->whereIn('key', $this->getContainerElementKeys())
             ->pluck('workspace_id')
             ->map(fn (mixed $workspaceId): int => (int) $workspaceId)
             ->push($this->getCurrentWorkspaceId() ?? 0)
@@ -601,28 +601,28 @@ trait ManagesAssets
     /**
      * @return array<int>
      */
-    protected function getCurrentContainerWidgetIds(): array
+    protected function getCurrentContainerElementIds(): array
     {
-        return Widget::query()
-            ->whereIn('key', $this->getContainerWidgetKeys())
+        return Element::query()
+            ->whereIn('key', $this->getContainerElementKeys())
             ->pluck('id')
-            ->map(fn (mixed $widgetId): int => (int) $widgetId)
+            ->map(fn (mixed $elementId): int => (int) $elementId)
             ->all();
     }
 
-    protected function updateAssets(string $containerKey, int $widgetIndex, ?string $oldContainerKey = null): void
+    protected function updateAssets(string $containerKey, int $elementIndex, ?string $oldContainerKey = null): void
     {
         $oldContainerKey ??= $containerKey;
 
-        $assets = $this->assets[$containerKey][$widgetIndex] ?? [];
+        $assets = $this->assets[$containerKey][$elementIndex] ?? [];
 
-        $widget = $this->getContainerWidget($containerKey, $widgetIndex);
+        $element = $this->getContainerElement($containerKey, $elementIndex);
 
-        $occurrence = $this->getContainerWidgetOccurrence($containerKey, $widgetIndex);
+        $occurrence = $this->getContainerElementOccurrence($containerKey, $elementIndex);
 
-        $widgetHasPageAssets = $assets !== [] ? $this->widgetHasPageAssets($widget) : $this->inPageContext();
+        $elementHasPageAssets = $assets !== [] ? $this->elementHasPageAssets($element) : $this->inPageContext();
 
-        $hasPageAssets = $assets !== [] ? $this->hasPageAssets($containerKey, $widgetIndex) : $this->inPageContext();
+        $hasPageAssets = $assets !== [] ? $this->hasPageAssets($containerKey, $elementIndex) : $this->inPageContext();
 
         $assetIds = collect($assets)
             ->pluck('id')
@@ -632,15 +632,15 @@ trait ManagesAssets
             ->unique()
             ->values();
 
-        $existingAssets = $widget->assets()
-            ->where('workspace_id', $this->getCurrentWidgetAssetWorkspaceId($widget))
+        $existingAssets = $element->assets()
+            ->where('workspace_id', $this->getCurrentElementAssetWorkspaceId($element))
             ->where(
                 fn (EloquentBuilder $query): EloquentBuilder => $query
                     ->where(
                         fn (EloquentBuilder $query): EloquentBuilder => $query
                             ->where('occurrence', $occurrence)
                             ->when(
-                                $widgetHasPageAssets ? fn (EloquentBuilder $query) => $query
+                                $elementHasPageAssets ? fn (EloquentBuilder $query) => $query
                                     ->where([
                                         'container' => $oldContainerKey,
                                         'pageable_type' => $this->page->getMorphClass(),
@@ -660,36 +660,36 @@ trait ManagesAssets
             ->get();
 
         $existingAssetsByKey = $existingAssets
-            ->mapWithKeys(fn (WidgetAsset $widgetAsset): array => [$widgetAsset->asset_key => $widgetAsset]);
+            ->mapWithKeys(fn (ElementAsset $elementAsset): array => [$elementAsset->asset_key => $elementAsset]);
 
         $existingAssetsById = $existingAssets
-            ->keyBy(fn (WidgetAsset $widgetAsset): int => $widgetAsset->getKey());
+            ->keyBy(fn (ElementAsset $elementAsset): int => $elementAsset->getKey());
 
         if ($existingAssets->isNotEmpty()) {
-            $activeWidgetAssetIds = $this->activeWidgetAssetIds($widget);
+            $activeElementAssetIds = $this->activeElementAssetIds($element);
 
             $currentAssets = collect($assets)
-                ->filter(fn (array $widgetAsset): bool => $existingAssetsByKey->has(sprintf('%s.%s', $widgetAsset['asset_type'], $widgetAsset['asset_id'])))
-                ->mapWithKeys(fn (array $widgetAsset): array => [sprintf('%s.%s', $widgetAsset['asset_type'], $widgetAsset['asset_id']) => $widgetAsset]);
+                ->filter(fn (array $elementAsset): bool => $existingAssetsByKey->has(sprintf('%s.%s', $elementAsset['asset_type'], $elementAsset['asset_id'])))
+                ->mapWithKeys(fn (array $elementAsset): array => [sprintf('%s.%s', $elementAsset['asset_type'], $elementAsset['asset_id']) => $elementAsset]);
 
             $assetsToRemove = $currentAssets->isNotEmpty()
                 ? $existingAssetsByKey->diffKeys($currentAssets)
                 : $existingAssetsByKey;
 
             $assetsToRemove = $assetsToRemove->reject(
-                fn (WidgetAsset $widgetAsset): bool => in_array((int) $widgetAsset->getKey(), $activeWidgetAssetIds, true),
+                fn (ElementAsset $elementAsset): bool => in_array((int) $elementAsset->getKey(), $activeElementAssetIds, true),
             );
 
             if ($assetsToRemove->isNotEmpty()) {
-                $assetsToRemove->each(function (WidgetAsset $widgetAsset) use ($containerKey, $widgetIndex, $widget): void {
-                    $searchIndex = $widget->assets->search(fn (WidgetAsset $asset): bool => $asset->id === $widgetAsset->id);
+                $assetsToRemove->each(function (ElementAsset $elementAsset) use ($containerKey, $elementIndex, $element): void {
+                    $searchIndex = $element->assets->search(fn (ElementAsset $asset): bool => $asset->id === $elementAsset->id);
                     if (is_int($searchIndex)) {
-                        $widget->assets->forget([$searchIndex]);
+                        $element->assets->forget([$searchIndex]);
                     }
 
-                    $this->removeAsset($containerKey, $widgetIndex, $widgetAsset->asset_id, $widgetAsset->asset_type);
+                    $this->removeAsset($containerKey, $elementIndex, $elementAsset->asset_id, $elementAsset->asset_type);
 
-                    $widgetAsset->delete();
+                    $elementAsset->delete();
                 });
             }
         }
@@ -699,22 +699,22 @@ trait ManagesAssets
         }
 
         collect($assets)->each(
-            function (array $widgetAsset) use ($existingAssetsById, $existingAssetsByKey, $widget, $containerKey, $occurrence, $hasPageAssets): void {
-                $key = sprintf('%s.%s', $widgetAsset['asset_type'], $widgetAsset['asset_id']);
+            function (array $elementAsset) use ($existingAssetsById, $existingAssetsByKey, $element, $containerKey, $occurrence, $hasPageAssets): void {
+                $key = sprintf('%s.%s', $elementAsset['asset_type'], $elementAsset['asset_id']);
 
-                $order = $widgetAsset['order'];
+                $order = $elementAsset['order'];
 
-                $existingAsset = isset($widgetAsset['id'])
-                    ? $existingAssetsById->get((int) $widgetAsset['id'])
+                $existingAsset = isset($elementAsset['id'])
+                    ? $existingAssetsById->get((int) $elementAsset['id'])
                     : null;
 
-                if (! $existingAsset instanceof WidgetAsset) {
+                if (! $existingAsset instanceof ElementAsset) {
                     $existingAsset = $existingAssetsByKey->get($key);
                 }
 
-                if ($existingAsset instanceof WidgetAsset) {
+                if ($existingAsset instanceof ElementAsset) {
                     $existingAsset->order = $order;
-                    $existingAsset->meta = $widgetAsset['meta'] ?? [];
+                    $existingAsset->meta = $elementAsset['meta'] ?? [];
                     $existingAsset->occurrence = $occurrence;
 
                     if ($hasPageAssets) {
@@ -732,13 +732,13 @@ trait ManagesAssets
                     return;
                 }
 
-                $this->createWidgetAsset(
-                    widget: $widget,
+                $this->createElementAsset(
+                    element: $element,
                     containerKey: $containerKey,
                     occurrence: $occurrence,
                     hasPageAssets: $hasPageAssets,
                     order: $order,
-                    asset: $widgetAsset,
+                    asset: $elementAsset,
                 );
             },
         );
@@ -747,16 +747,16 @@ trait ManagesAssets
     /**
      * @return array<int>
      */
-    protected function activeWidgetAssetIds(Widget $widget): array
+    protected function activeElementAssetIds(Element $element): array
     {
         $assetIds = [];
 
-        foreach ($this->currentWidgetAssetData() as $widgetAsset) {
-            if (! isset($widgetAsset['id'])) {
+        foreach ($this->currentElementAssetData() as $elementAsset) {
+            if (! isset($elementAsset['id'])) {
                 continue;
             }
 
-            $assetId = (int) $widgetAsset['id'];
+            $assetId = (int) $elementAsset['id'];
 
             if ($assetId > 0) {
                 $assetIds[] = $assetId;
@@ -769,25 +769,25 @@ trait ManagesAssets
     /**
      * @return array<int, array<string, mixed>>
      */
-    protected function currentWidgetAssetData(): array
+    protected function currentElementAssetData(): array
     {
-        $widgetAssets = [];
+        $elementAssets = [];
 
-        foreach ($this->assets as $containerWidgets) {
-            foreach ($containerWidgets as $containerWidgetAssets) {
-                foreach ($containerWidgetAssets as $widgetAsset) {
-                    if (is_array($widgetAsset)) {
-                        $widgetAssets[] = $widgetAsset;
+        foreach ($this->assets as $containerElements) {
+            foreach ($containerElements as $containerElementAssets) {
+                foreach ($containerElementAssets as $elementAsset) {
+                    if (is_array($elementAsset)) {
+                        $elementAssets[] = $elementAsset;
                     }
                 }
             }
         }
 
-        return $widgetAssets;
+        return $elementAssets;
     }
 
-    protected function addWidgetAsset(
-        Widget $widget,
+    protected function addElementAsset(
+        Element $element,
         string $containerKey,
         string $type,
         bool $hasPageAssets,
@@ -795,10 +795,10 @@ trait ManagesAssets
         array $meta,
         int $occurrence,
         int $order,
-    ): WidgetAsset {
+    ): ElementAsset {
         $pageId = $hasPageAssets ? $this->page->getKey() : null;
 
-        $widgetAsset = $widget->assets
+        $elementAsset = $element->assets
             ->where([
                 'asset_id' => $assetId,
                 'asset_type' => $type,
@@ -814,39 +814,39 @@ trait ManagesAssets
             )
             ->first();
 
-        if (! $widgetAsset instanceof WidgetAsset) {
-            /** @var WidgetAsset $widgetAsset */
-            $widgetAsset = $widget->assets()->newModelInstance([
+        if (! $elementAsset instanceof ElementAsset) {
+            /** @var ElementAsset $elementAsset */
+            $elementAsset = $element->assets()->newModelInstance([
                 'meta' => $meta,
                 'order' => $order,
-                'layout_module_id' => $widget->id,
-                'workspace_id' => $this->getCurrentWidgetAssetWorkspaceId($widget),
+                'layout_element_id' => $element->id,
+                'workspace_id' => $this->getCurrentElementAssetWorkspaceId($element),
                 'asset_type' => mb_strtolower($type),
                 'asset_id' => $assetId,
                 'occurrence' => $occurrence,
             ]);
 
             if ($pageId !== null) {
-                $widgetAsset->pageable_id = $pageId;
-                $widgetAsset->pageable_type = $this->page->getMorphClass();
-                $widgetAsset->container = $containerKey;
+                $elementAsset->pageable_id = $pageId;
+                $elementAsset->pageable_type = $this->page->getMorphClass();
+                $elementAsset->container = $containerKey;
             }
         }
 
-        return $widgetAsset;
+        return $elementAsset;
     }
 
-    protected function createWidgetAsset(
-        Widget $widget,
+    protected function createElementAsset(
+        Element $element,
         string $containerKey,
         int $occurrence,
         bool $hasPageAssets,
         int $order,
         array $asset,
-    ): WidgetAsset {
+    ): ElementAsset {
         $attributes = [
-            'layout_module_id' => $widget->id,
-            'workspace_id' => $this->getCurrentWidgetAssetWorkspaceId($widget),
+            'layout_element_id' => $element->id,
+            'workspace_id' => $this->getCurrentElementAssetWorkspaceId($element),
             'asset_type' => $asset['asset_type'],
             'asset_id' => $asset['asset_id'],
             'occurrence' => $occurrence,
@@ -862,12 +862,12 @@ trait ManagesAssets
             $attributes['container'] = null;
         }
 
-        /** @var WidgetAsset|null $existing */
-        $existing = WidgetAsset::query()
+        /** @var ElementAsset|null $existing */
+        $existing = ElementAsset::query()
             ->where($attributes)
             ->first();
 
-        if ($existing instanceof WidgetAsset) {
+        if ($existing instanceof ElementAsset) {
             $existing->order = $order;
             $existing->meta = $asset['meta'] ?? [];
             $existing->save();
@@ -875,140 +875,140 @@ trait ManagesAssets
             return $existing;
         }
 
-        /** @var WidgetAsset $widgetAsset */
-        $widgetAsset = $widget->assets()->make(array_merge([
+        /** @var ElementAsset $elementAsset */
+        $elementAsset = $element->assets()->make(array_merge([
             'meta' => $asset['meta'] ?? [],
             'order' => $order,
         ], $attributes));
 
-        $widgetAsset->save();
+        $elementAsset->save();
 
-        return $widgetAsset;
+        return $elementAsset;
     }
 
-    protected function removeAsset(string $containerKey, int $widgetIndex, mixed $uuid, string $type): void
+    protected function removeAsset(string $containerKey, int $elementIndex, mixed $uuid, string $type): void
     {
-        foreach ($this->assets[$containerKey][$widgetIndex] as $index => $widgetAsset) {
-            if ($widgetAsset['asset_id'] !== $uuid) {
+        foreach ($this->assets[$containerKey][$elementIndex] as $index => $elementAsset) {
+            if ($elementAsset['asset_id'] !== $uuid) {
                 continue;
             }
 
-            if ($widgetAsset['asset_type'] !== $type) {
+            if ($elementAsset['asset_type'] !== $type) {
                 continue;
             }
 
-            unset($this->assets[$containerKey][$widgetIndex][$index]);
+            unset($this->assets[$containerKey][$elementIndex][$index]);
         }
     }
 
-    protected function removeSelectedAssets(string $containerKey, int $widgetIndex): void
+    protected function removeSelectedAssets(string $containerKey, int $elementIndex): void
     {
         $this->assertCanUpdateLayout();
 
-        foreach ($this->selectedRecords[$containerKey][$widgetIndex] as $asset) {
+        foreach ($this->selectedRecords[$containerKey][$elementIndex] as $asset) {
             [$type, $uuid] = explode('.', (string) $asset);
 
             if (is_numeric($uuid)) {
                 $uuid = (int) $uuid;
             }
 
-            $this->removeAsset($containerKey, $widgetIndex, $uuid, $type);
+            $this->removeAsset($containerKey, $elementIndex, $uuid, $type);
         }
 
-        $this->assets[$containerKey][$widgetIndex] = array_values($this->assets[$containerKey][$widgetIndex]);
+        $this->assets[$containerKey][$elementIndex] = array_values($this->assets[$containerKey][$elementIndex]);
 
-        $this->selectedRecords[$containerKey][$widgetIndex] = [];
+        $this->selectedRecords[$containerKey][$elementIndex] = [];
 
         $this->layoutUpdated();
     }
 
-    protected function togglePageAssets(string $containerKey, int $widgetIndex, ?Pageable $page): void
+    protected function togglePageAssets(string $containerKey, int $elementIndex, ?Pageable $page): void
     {
         $this->assertCanUpdateLayout();
 
         $hasPageAssets = $page instanceof Pageable;
 
-        $this->updatePageAssets($containerKey, $widgetIndex, $hasPageAssets);
+        $this->updatePageAssets($containerKey, $elementIndex, $hasPageAssets);
 
         $this->layoutUpdated();
     }
 
-    protected function updateWidgetAsset(string $containerKey, int $widgetIndex, int $index, array $data): void
+    protected function updateElementAsset(string $containerKey, int $elementIndex, int $index, array $data): void
     {
         $this->assertCanUpdateLayout();
 
-        $widgetAsset = $this->assets[$containerKey][$widgetIndex][$index];
+        $elementAsset = $this->assets[$containerKey][$elementIndex][$index];
 
-        $this->assets[$containerKey][$widgetIndex][$index] = array_merge_recursive($widgetAsset, $data);
+        $this->assets[$containerKey][$elementIndex][$index] = array_merge_recursive($elementAsset, $data);
     }
 
-    protected function updateWidgetAssetContentState(string $containerKey, int $widgetIndex, int $index, array $data): void
+    protected function updateElementAssetContentState(string $containerKey, int $elementIndex, int $index, array $data): void
     {
         $this->assertCanEditContent();
 
-        $widgetAsset = $this->assets[$containerKey][$widgetIndex][$index];
+        $elementAsset = $this->assets[$containerKey][$elementIndex][$index];
 
-        $this->assets[$containerKey][$widgetIndex][$index] = array_replace_recursive($widgetAsset, $data);
+        $this->assets[$containerKey][$elementIndex][$index] = array_replace_recursive($elementAsset, $data);
     }
 
-    protected function shouldAddPageAssets(string $containerKey, int $widgetIndex): bool
+    protected function shouldAddPageAssets(string $containerKey, int $elementIndex): bool
     {
         if (! $this->inPageContext()) {
             return false;
         }
 
-        $assets = $this->getWidgetAssets($containerKey, $widgetIndex);
+        $assets = $this->getElementAssets($containerKey, $elementIndex);
 
         if ($assets === []) {
             return true;
         }
 
         return collect($assets)->contains(
-            fn (array $widgetAsset): bool => $widgetAsset['pageable_id'] === $this->page->getKey()
-                && $widgetAsset['pageable_type'] === $this->page->getMorphClass(),
+            fn (array $elementAsset): bool => $elementAsset['pageable_id'] === $this->page->getKey()
+                && $elementAsset['pageable_type'] === $this->page->getMorphClass(),
         );
     }
 
-    protected function getWidgetAssets(string $containerKey, int $widgetIndex): array
+    protected function getElementAssets(string $containerKey, int $elementIndex): array
     {
-        return $this->assets[$containerKey][$widgetIndex];
+        return $this->assets[$containerKey][$elementIndex];
     }
 
-    protected function countWidgetAssets(string $containerKey, int $widgetIndex): int
+    protected function countElementAssets(string $containerKey, int $elementIndex): int
     {
-        return count($this->getWidgetAssets($containerKey, $widgetIndex));
+        return count($this->getElementAssets($containerKey, $elementIndex));
     }
 
-    protected function getWidgetAsset(string $containerKey, int $widgetIndex, int $index): ?array
+    protected function getElementAsset(string $containerKey, int $elementIndex, int $index): ?array
     {
-        return $this->assets[$containerKey][$widgetIndex][$index] ?? null;
+        return $this->assets[$containerKey][$elementIndex][$index] ?? null;
     }
 
-    protected function getWidgetAssetsByType(string $containerKey, int $widgetIndex, string $type): array
+    protected function getElementAssetsByType(string $containerKey, int $elementIndex, string $type): array
     {
-        if (! isset($this->assets[$containerKey][$widgetIndex])) {
+        if (! isset($this->assets[$containerKey][$elementIndex])) {
             return [];
         }
 
         return array_column(
-            array_filter($this->assets[$containerKey][$widgetIndex], fn (array $widgetAsset): bool => $widgetAsset['asset_type'] === $type),
+            array_filter($this->assets[$containerKey][$elementIndex], fn (array $elementAsset): bool => $elementAsset['asset_type'] === $type),
             'asset_id',
         );
     }
 
-    protected function loadWidgetAssets(Widget $widget, string $containerKey, int $widgetOccurrence): Collection
+    protected function loadElementAssets(Element $element, string $containerKey, int $elementOccurrence): Collection
     {
-        /** @var class-string<WidgetAsset> $model */
-        $model = WidgetAsset::class;
+        /** @var class-string<ElementAsset> $model */
+        $model = ElementAsset::class;
 
         $assets = $model::query()
             ->with([
                 'asset' => fn (MorphTo $query): MorphTo => $query->morphWith($this->getAssetRelations()),
                 'media',
             ])
-            ->where('layout_module_id', $widget->id)
-            ->whereIn('workspace_id', $this->getReadableWidgetAssetWorkspaceIds($widget))
-            ->where('occurrence', $widgetOccurrence)
+            ->where('layout_element_id', $element->id)
+            ->whereIn('workspace_id', $this->getReadableElementAssetWorkspaceIds($element))
+            ->where('occurrence', $elementOccurrence)
             ->where(
                 fn (EloquentBuilder $query): EloquentBuilder => $query->where('container', $containerKey)
                     ->orWhereNull('container'),
@@ -1026,67 +1026,67 @@ trait ManagesAssets
             )
             ->ordered()
             ->get()
-            ->each->setRelation('widget', $widget);
+            ->each->setRelation('element', $element);
 
-        return $this->filterContainerWidgetAssets($assets, $containerKey, $widgetOccurrence, $widget);
+        return $this->filterContainerElementAssets($assets, $containerKey, $elementOccurrence, $element);
     }
 
-    protected function loadWidgetAssetsFor(Widget $widget, string $containerKey, int $widgetIndex): Collection
+    protected function loadElementAssetsFor(Element $element, string $containerKey, int $elementIndex): Collection
     {
-        $occurrence = $this->getContainerWidgetOccurrence($containerKey, $widgetIndex);
+        $occurrence = $this->getContainerElementOccurrence($containerKey, $elementIndex);
 
-        $widgetAssets = collect($this->assets[$containerKey][$widgetIndex] ?? []);
+        $elementAssets = collect($this->assets[$containerKey][$elementIndex] ?? []);
 
-        if ($widgetAssets->isEmpty()) {
+        if ($elementAssets->isEmpty()) {
             return new Collection;
         }
 
-        $existingIds = $widgetAssets
+        $existingIds = $elementAssets
             ->filter(fn (array $asset): bool => isset($asset['id']))
             ->pluck('id')
             ->all();
 
-        $newAssets = $widgetAssets
+        $newAssets = $elementAssets
             ->reject(fn (array $asset): bool => isset($asset['id']))
             ->all();
 
-        $assets = $this->buildPreloadedWidgetAssets($existingIds, $newAssets);
+        $assets = $this->buildPreloadedElementAssets($existingIds, $newAssets);
 
-        return $this->filterContainerWidgetAssets($assets, $containerKey, $occurrence, $widget)
-            ->each(fn (WidgetAsset $asset): WidgetAsset => $asset->setRelation('widget', $widget));
+        return $this->filterContainerElementAssets($assets, $containerKey, $occurrence, $element)
+            ->each(fn (ElementAsset $asset): ElementAsset => $asset->setRelation('element', $element));
     }
 
-    protected function preloadAllWidgetAssets(): ?Collection
+    protected function preloadAllElementAssets(): ?Collection
     {
-        $widgetAssets = collect($this->currentWidgetAssetData());
+        $elementAssets = collect($this->currentElementAssetData());
 
-        if ($widgetAssets->isEmpty()) {
+        if ($elementAssets->isEmpty()) {
             return null;
         }
 
-        $existingIds = $widgetAssets
+        $existingIds = $elementAssets
             ->filter(fn (array $asset): bool => isset($asset['id']))
             ->pluck('id')
             ->all();
 
-        $newAssets = $widgetAssets
+        $newAssets = $elementAssets
             ->reject(fn (array $asset): bool => isset($asset['id']))
             ->all();
 
-        return $this->buildPreloadedWidgetAssets($existingIds, $newAssets);
+        return $this->buildPreloadedElementAssets($existingIds, $newAssets);
     }
 
-    protected function buildPreloadedWidgetAssets(array $existingIds, array $newAssets): Collection
+    protected function buildPreloadedElementAssets(array $existingIds, array $newAssets): Collection
     {
-        /** @var class-string<WidgetAsset> $model */
-        $model = WidgetAsset::class;
+        /** @var class-string<ElementAsset> $model */
+        $model = ElementAsset::class;
 
         $existingAssets = $existingIds === []
             ? (new $model)->newCollection()
             : $model::query()
                 ->whereKey($existingIds)
-                ->whereIn('layout_module_id', $this->getCurrentContainerWidgetIds())
-                ->whereIn('workspace_id', $this->getCurrentContainerWidgetAssetWorkspaceIds())
+                ->whereIn('layout_element_id', $this->getCurrentContainerElementIds())
+                ->whereIn('workspace_id', $this->getCurrentContainerElementAssetWorkspaceIds())
                 ->when(
                     $this->page,
                     fn (EloquentBuilder $query) => $query->where(
@@ -1115,7 +1115,7 @@ trait ManagesAssets
 
         $newAssetsCollection = collect($newAssets)
             ->values()
-            ->filter(fn (array $data): bool => in_array((int) ($data['workspace_id'] ?? $this->getCurrentWidgetAssetWorkspaceId()), $this->getCurrentContainerWidgetAssetWorkspaceIds(), true))
+            ->filter(fn (array $data): bool => in_array((int) ($data['workspace_id'] ?? $this->getCurrentElementAssetWorkspaceId()), $this->getCurrentContainerElementAssetWorkspaceIds(), true))
             ->map(fn (array $data) => $model::query()->newModelInstance()->forceFill($data));
 
         $allAssets = (new $model)->newCollection(array_merge($existingAssets->all(), $newAssetsCollection->all()));
@@ -1123,33 +1123,33 @@ trait ManagesAssets
         $eloquentCollection = new Collection($allAssets->all());
 
         return $eloquentCollection->load(['asset' => fn (MorphTo $query): MorphTo => $query->morphWith($this->getAssetRelations())])
-            ->filter(fn (WidgetAsset $widgetAsset): bool => $this->canUseAssetRecord($widgetAsset->asset))
-            ->map(fn (WidgetAsset $widgetAsset): WidgetAsset => $widgetAsset);
+            ->filter(fn (ElementAsset $elementAsset): bool => $this->canUseAssetRecord($elementAsset->asset))
+            ->map(fn (ElementAsset $elementAsset): ElementAsset => $elementAsset);
     }
 
-    protected function filterContainerWidgetAssets(Collection $assets, string $containerKey, int $widgetOccurrence, ?Widget $widget = null): SupportCollection|Enumerable
+    protected function filterContainerElementAssets(Collection $assets, string $containerKey, int $elementOccurrence, ?Element $element = null): SupportCollection|Enumerable
     {
-        $currentWorkspaceId = $this->getCurrentWidgetAssetWorkspaceId($widget);
-        $readableWorkspaceIds = $this->getReadableWidgetAssetWorkspaceIds($widget);
+        $currentWorkspaceId = $this->getCurrentElementAssetWorkspaceId($element);
+        $readableWorkspaceIds = $this->getReadableElementAssetWorkspaceIds($element);
 
-        $filteredAssets = $assets->filter(function (WidgetAsset $widgetAsset) use ($containerKey, $widgetOccurrence, $readableWorkspaceIds): bool {
-            if (! in_array($widgetAsset->workspace_id, $readableWorkspaceIds, true)) {
+        $filteredAssets = $assets->filter(function (ElementAsset $elementAsset) use ($containerKey, $elementOccurrence, $readableWorkspaceIds): bool {
+            if (! in_array($elementAsset->workspace_id, $readableWorkspaceIds, true)) {
                 return false;
             }
 
-            if ((int) $widgetAsset->occurrence !== $widgetOccurrence) {
+            if ((int) $elementAsset->occurrence !== $elementOccurrence) {
                 return false;
             }
 
-            if ($widgetAsset->container === null) {
+            if ($elementAsset->container === null) {
                 return true;
             }
 
-            if ($widgetAsset->container !== $containerKey) {
+            if ($elementAsset->container !== $containerKey) {
                 return false;
             }
 
-            if ($widgetAsset->pageable_type === null && $widgetAsset->pageable_id === null) {
+            if ($elementAsset->pageable_type === null && $elementAsset->pageable_id === null) {
                 return true;
             }
 
@@ -1157,42 +1157,42 @@ trait ManagesAssets
                 return false;
             }
 
-            return $widgetAsset->pageable_type === $this->page->getMorphClass()
-                && $widgetAsset->pageable_id === $this->page->getKey();
+            return $elementAsset->pageable_type === $this->page->getMorphClass()
+                && $elementAsset->pageable_id === $this->page->getKey();
         })->values();
 
         return $filteredAssets
-            ->groupBy(fn (WidgetAsset $widgetAsset): string => implode(':', [
-                $widgetAsset->asset_type,
-                (string) $widgetAsset->asset_id,
-                (string) $widgetAsset->occurrence,
+            ->groupBy(fn (ElementAsset $elementAsset): string => implode(':', [
+                $elementAsset->asset_type,
+                (string) $elementAsset->asset_id,
+                (string) $elementAsset->occurrence,
             ]))
-            ->map(fn (SupportCollection $matchingAssets): WidgetAsset => $matchingAssets
-                ->first(fn (WidgetAsset $widgetAsset): bool => $widgetAsset->workspace_id === $currentWorkspaceId)
+            ->map(fn (SupportCollection $matchingAssets): ElementAsset => $matchingAssets
+                ->first(fn (ElementAsset $elementAsset): bool => $elementAsset->workspace_id === $currentWorkspaceId)
                 ?? $matchingAssets->first())
-            ->sortBy(fn (WidgetAsset $widgetAsset): int => $widgetAsset->order)
+            ->sortBy(fn (ElementAsset $elementAsset): int => $elementAsset->order)
             ->values();
     }
 
-    protected function widgetAssetMatchesState(WidgetAsset $asset, array $widgetAssetData, string $containerKey, string $oldContainerKey, int $occurrence, Widget $widget): bool
+    protected function elementAssetMatchesState(ElementAsset $asset, array $elementAssetData, string $containerKey, string $oldContainerKey, int $occurrence, Element $element): bool
     {
-        if ((int) $asset->layout_module_id !== (int) $widget->getKey()) {
+        if ((int) $asset->layout_element_id !== (int) $element->getKey()) {
             return false;
         }
 
-        if (isset($widgetAssetData['layout_module_id']) && (int) $widgetAssetData['layout_module_id'] !== (int) $asset->layout_module_id) {
+        if (isset($elementAssetData['layout_element_id']) && (int) $elementAssetData['layout_element_id'] !== (int) $asset->layout_element_id) {
             return false;
         }
 
-        if (isset($widgetAssetData['asset_type']) && $widgetAssetData['asset_type'] !== $asset->asset_type) {
+        if (isset($elementAssetData['asset_type']) && $elementAssetData['asset_type'] !== $asset->asset_type) {
             return false;
         }
 
-        if (isset($widgetAssetData['asset_id']) && (string) $widgetAssetData['asset_id'] !== (string) $asset->asset_id) {
+        if (isset($elementAssetData['asset_id']) && (string) $elementAssetData['asset_id'] !== (string) $asset->asset_id) {
             return false;
         }
 
-        if (! in_array($asset->workspace_id, $this->getReadableWidgetAssetWorkspaceIds($widget), true)) {
+        if (! in_array($asset->workspace_id, $this->getReadableElementAssetWorkspaceIds($element), true)) {
             return false;
         }
 
@@ -1233,20 +1233,20 @@ trait ManagesAssets
         return $relations;
     }
 
-    protected function reloadContainerWidgetAsset(string $containerKey, int $widgetIndex, int $index): void
+    protected function reloadContainerElementAsset(string $containerKey, int $elementIndex, int $index): void
     {
-        $widget = $this->getContainerWidget($containerKey, $widgetIndex);
+        $element = $this->getContainerElement($containerKey, $elementIndex);
 
-        $assets = $widget->assets;
+        $assets = $element->assets;
         $assets[$index] = $assets[$index]->fresh();
-        $widget->setRelation('assets', $assets);
+        $element->setRelation('assets', $assets);
     }
 
-    protected function deleteRemovedWidgetAssets(): void
+    protected function deleteRemovedElementAssets(): void
     {
-        foreach ($this->originalAssets as $containerKey => $originalWidgetAssets) {
-            foreach ($originalWidgetAssets as $widgetIndex => $originalAssets) {
-                $currentAssets = $this->assets[$containerKey][$widgetIndex] ?? [];
+        foreach ($this->originalAssets as $containerKey => $originalElementAssets) {
+            foreach ($originalElementAssets as $elementIndex => $originalAssets) {
+                $currentAssets = $this->assets[$containerKey][$elementIndex] ?? [];
 
                 $originalKeys = collect($originalAssets)
                     ->map(static fn (array $asset): string => $asset['asset_type'] . ':' . $asset['asset_id'] . ':' . $asset['occurrence'] . ':' . $asset['original_container_key'])
@@ -1278,7 +1278,7 @@ trait ManagesAssets
                         continue;
                     }
 
-                    WidgetAsset::query()
+                    ElementAsset::query()
                         ->when(
                             isset($asset['id']),
                             fn (EloquentBuilder $query): EloquentBuilder => $query->whereKey((int) $asset['id']),
@@ -1286,8 +1286,8 @@ trait ManagesAssets
                                 'asset_id' => $asset['asset_id'],
                                 'asset_type' => $asset['asset_type'],
                                 'occurrence' => $asset['occurrence'],
-                                'layout_module_id' => $asset['original_widget_id'],
-                                'workspace_id' => (int) ($asset['workspace_id'] ?? $this->getCurrentWidgetAssetWorkspaceId()),
+                                'layout_element_id' => $asset['original_element_id'],
+                                'workspace_id' => (int) ($asset['workspace_id'] ?? $this->getCurrentElementAssetWorkspaceId()),
                             ]),
                         )
                         ->when(

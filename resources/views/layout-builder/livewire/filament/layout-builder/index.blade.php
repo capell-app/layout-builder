@@ -24,12 +24,12 @@
         data-active-breakpoint="{{ $activeBreakpoint?->value }}"
         data-match-frontend-container-layout="{{ $matchFrontendContainerLayout ? 'true' : 'false' }}"
         x-bind:class="{
-            'layout-builder-widget-actions-suppressed': isWidgetActionSuppressed,
+            'layout-builder-element-actions-suppressed': isElementActionSuppressed,
         }"
         x-on:expand-all-containers.window="expandAll"
         x-on:collapse-all-containers.window="collapseAll"
-        x-on:pointerup.window="releaseWidgetActions()"
-        x-on:pointercancel.window="releaseWidgetActions()"
+        x-on:pointerup.window="releaseElementActions()"
+        x-on:pointercancel.window="releaseElementActions()"
     >
         <div>
             <div
@@ -123,7 +123,7 @@
                         <ul class="mt-2 list-disc space-y-1 ps-5 text-sm">
                             @foreach ($this->layoutDiagnostics as $diagnostic)
                                 <li>
-                                    {{ $diagnostic['message'] ?? __('capell-admin::message.unknown_widget', ['widget' => __('capell-admin::generic.unknown')]) }}
+                                    {{ $diagnostic['message'] ?? __('capell-admin::message.unknown_element', ['element' => __('capell-admin::generic.unknown')]) }}
                                 </li>
                             @endforeach
                         </ul>
@@ -160,7 +160,7 @@
                                 </x-filament::button>
                             @endif
 
-                            {{ $this->addWidgetAction }}
+                            {{ $this->addElementAction }}
 
                             {{ $this->addContainerAction }}
 
@@ -332,7 +332,7 @@
                                             <x-capell-layout-builder::filament.layout-builder.container
                                                 :$container
                                                 :$containerKey
-                                                :containerWidgets="$this->containerWidgets[$containerKey] ?? []"
+                                                :containerElements="$this->containerElements[$containerKey] ?? []"
                                             />
 
                                             @php

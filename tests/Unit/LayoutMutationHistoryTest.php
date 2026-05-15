@@ -5,10 +5,10 @@ declare(strict_types=1);
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Support\LayoutMutationHistory;
 
-function historyState(string $widgetKey): LayoutBuilderStateData
+function historyState(string $elementKey): LayoutBuilderStateData
 {
     return new LayoutBuilderStateData(
-        containers: ['main' => ['widgets' => [['widget_key' => $widgetKey]], 'meta' => []]],
+        containers: ['main' => ['elements' => [['element_key' => $elementKey]], 'meta' => []]],
         assets: ['main' => [[]]],
         originalAssets: ['main' => [[]]],
         selectedRecords: ['main' => [[]]],
@@ -21,10 +21,10 @@ it('undoes and redoes layout state snapshots', function (): void {
     $history->push(historyState('third'));
 
     expect($history->canUndo())->toBeTrue()
-        ->and($history->undo()->containers['main']['widgets'][0]['widget_key'])->toBe('second')
-        ->and($history->undo()->containers['main']['widgets'][0]['widget_key'])->toBe('first')
+        ->and($history->undo()->containers['main']['elements'][0]['element_key'])->toBe('second')
+        ->and($history->undo()->containers['main']['elements'][0]['element_key'])->toBe('first')
         ->and($history->canUndo())->toBeFalse()
-        ->and($history->redo()->containers['main']['widgets'][0]['widget_key'])->toBe('second');
+        ->and($history->redo()->containers['main']['elements'][0]['element_key'])->toBe('second');
 });
 
 it('clears redo history when a new mutation branches from an undone state', function (): void {

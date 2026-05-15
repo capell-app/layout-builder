@@ -1,7 +1,7 @@
 @props([
     'previewData',
     'assetsToggleAction' => null,
-    'widgetActions' => null,
+    'elementActions' => null,
 ])
 @php
     use Capell\Core\Enums\MediaConversionEnum;
@@ -9,7 +9,7 @@
 @endphp
 
 <div
-    class="layout-builder-widget-preview relative rounded-lg bg-white shadow-sm transition-shadow focus-within:shadow-md hover:shadow-md dark:bg-gray-900"
+    class="layout-builder-element-preview relative rounded-lg bg-white shadow-sm transition-shadow focus-within:shadow-md hover:shadow-md dark:bg-gray-900"
 >
     @if ($previewData->image)
         <div
@@ -19,16 +19,16 @@
         </div>
     @endif
 
-    @if ($assetsToggleAction || $widgetActions)
+    @if ($assetsToggleAction || $elementActions)
         <div
-            class="layout-widget-preview-actions absolute right-4 top-4 z-10 flex items-center justify-end gap-1"
+            class="layout-element-preview-actions absolute right-4 top-4 z-10 flex items-center justify-end gap-1"
         >
             @if ($assetsToggleAction)
                 {{ $assetsToggleAction }}
             @endif
 
-            @if ($widgetActions)
-                {{ $widgetActions }}
+            @if ($elementActions)
+                {{ $elementActions }}
             @endif
         </div>
     @endif

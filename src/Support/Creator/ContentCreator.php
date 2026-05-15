@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Support\Creator;
 
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
-use Capell\Core\Models\Type;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use RuntimeException;
@@ -20,7 +20,7 @@ class ContentCreator
     private readonly string $contentModel;
 
     /**
-     * @var class-string<Type>
+     * @var class-string<Blueprint>
      */
     private readonly string $typeModel;
 
@@ -30,7 +30,7 @@ class ContentCreator
 
         $this->contentModel = CapellCore::getAsset('Section')->model;
 
-        $this->typeModel = Type::class;
+        $this->typeModel = Blueprint::class;
     }
 
     public function createContent(array $data, ?Site $site, Collection $languages): Model

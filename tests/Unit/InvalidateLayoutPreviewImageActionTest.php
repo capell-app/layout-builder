@@ -22,7 +22,7 @@ it('invalidates generated preview images using package owned preview metadata', 
         ],
         'containers' => [
             'main' => [
-                'widgets' => [],
+                'elements' => [],
             ],
         ],
     ]);

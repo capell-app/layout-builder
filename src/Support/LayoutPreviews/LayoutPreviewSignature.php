@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Support\LayoutPreviews;
 
 use Capell\Core\Models\Layout;
-use Capell\Core\Models\Widget;
+use Capell\LayoutBuilder\Models\Element;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 final class LayoutPreviewSignature
@@ -26,15 +26,15 @@ final class LayoutPreviewSignature
         $containers = $layout->getAttribute('containers');
         $containers = is_array($containers) ? $containers : [];
 
-        $widgetKeys = $this->widgetKeys($containers);
-        $widgets = $this->widgetsByKey($widgetKeys);
+        $elementKeys = $this->elementKeys($containers);
+        $elements = $this->elementsByKey($elementKeys);
 
         return [
             'layout' => [
                 'id' => $layout->getKey(),
                 'key' => $layout->getAttribute('key'),
             ],
-            'containers' => $this->normalizeContainers($containers, $widgets),
+            'containers' => $this->normalizeContainers($containers, $elements),
         ];
     }
 
@@ -42,62 +42,62 @@ final class LayoutPreviewSignature
      * @param  array<string, mixed>  $containers
      * @return array<int, string>
      */
-    private function widgetKeys(array $containers): array
+    private function elementKeys(array $containers): array
     {
-        $widgetKeys = [];
+        $elementKeys = [];
 
         foreach ($containers as $container) {
             if (! is_array($container)) {
                 continue;
             }
 
-            $widgets = $container['widgets'] ?? [];
+            $elements = $container['elements'] ?? [];
 
-            if (! is_array($widgets)) {
+            if (! is_array($elements)) {
                 continue;
             }
 
-            foreach ($widgets as $widget) {
-                if (! is_array($widget)) {
+            foreach ($elements as $element) {
+                if (! is_array($element)) {
                     continue;
                 }
 
-                if (! isset($widget['widget_key'])) {
+                if (! isset($element['element_key'])) {
                     continue;
                 }
 
-                $widgetKeys[] = (string) $widget['widget_key'];
+                $elementKeys[] = (string) $element['element_key'];
             }
         }
 
-        return array_values(array_unique($widgetKeys));
+        return array_values(array_unique($elementKeys));
     }
 
     /**
-     * @param  array<int, string>  $widgetKeys
-     * @return array<string, Widget>
+     * @param  array<int, string>  $elementKeys
+     * @return array<string, Element>
      */
-    private function widgetsByKey(array $widgetKeys): array
+    private function elementsByKey(array $elementKeys): array
     {
-        if ($widgetKeys === []) {
+        if ($elementKeys === []) {
             return [];
         }
 
-        /** @var EloquentCollection<int, Widget> $widgets */
-        $widgets = Widget::query()
+        /** @var EloquentCollection<int, Element> $elements */
+        $elements = Element::query()
             ->with('type')
-            ->whereIn('key', $widgetKeys)
+            ->whereIn('key', $elementKeys)
             ->get();
 
-        return $widgets->keyBy('key')->all();
+        return $elements->keyBy('key')->all();
     }
 
     /**
      * @param  array<string, mixed>  $containers
-     * @param  array<string, Widget>  $widgets
+     * @param  array<string, Element>  $elements
      * @return array<int, array<string, mixed>>
      */
-    private function normalizeContainers(array $containers, array $widgets): array
+    private function normalizeContainers(array $containers, array $elements): array
     {
         $normalizedContainers = [];
 
@@ -109,7 +109,7 @@ final class LayoutPreviewSignature
             $normalizedContainers[] = [
                 'key' => $containerKey,
                 'colspan' => $this->colspan($container),
-                'widgets' => $this->normalizeWidgets($container['widgets'] ?? [], $widgets),
+                'elements' => $this->normalizeElements($container['elements'] ?? [], $elements),
             ];
         }
 
@@ -127,36 +127,36 @@ final class LayoutPreviewSignature
     }
 
     /**
-     * @param  array<string, Widget>  $widgets
+     * @param  array<string, Element>  $elements
      * @return array<int, array<string, mixed>>
      */
-    private function normalizeWidgets(mixed $containerWidgets, array $widgets): array
+    private function normalizeElements(mixed $containerElements, array $elements): array
     {
-        if (! is_array($containerWidgets)) {
+        if (! is_array($containerElements)) {
             return [];
         }
 
-        $normalizedWidgets = [];
+        $normalizedElements = [];
 
-        foreach ($containerWidgets as $containerWidget) {
-            if (! is_array($containerWidget)) {
+        foreach ($containerElements as $containerElement) {
+            if (! is_array($containerElement)) {
                 continue;
             }
 
-            $widgetKey = (string) ($containerWidget['widget_key'] ?? '');
-            $widget = $widgets[$widgetKey] ?? null;
+            $elementKey = (string) ($containerElement['element_key'] ?? '');
+            $element = $elements[$elementKey] ?? null;
 
-            $normalizedWidgets[] = [
-                'key' => $widgetKey,
-                'occurrence' => (int) ($containerWidget['occurrence'] ?? 1),
-                'name' => $widget?->name,
-                'icon' => $widget?->admin['icon'] ?? $widget?->type?->admin['icon'] ?? null,
-                'type_name' => $widget?->type?->name,
-                'type_icon' => $widget?->type?->admin['icon'] ?? null,
-                'meta_name' => $containerWidget['meta']['name'] ?? null,
+            $normalizedElements[] = [
+                'key' => $elementKey,
+                'occurrence' => (int) ($containerElement['occurrence'] ?? 1),
+                'name' => $element?->name,
+                'icon' => $element?->admin['icon'] ?? $element?->type?->admin['icon'] ?? null,
+                'type_name' => $element?->type?->name,
+                'type_icon' => $element?->type?->admin['icon'] ?? null,
+                'meta_name' => $containerElement['meta']['name'] ?? null,
             ];
         }
 
-        return $normalizedWidgets;
+        return $normalizedElements;
     }
 }

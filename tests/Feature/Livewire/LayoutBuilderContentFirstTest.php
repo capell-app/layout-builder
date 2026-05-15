@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
-use Capell\Core\Models\Widget;
-use Capell\Core\Models\WidgetAsset;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
+use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\ElementAsset;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
@@ -19,7 +19,7 @@ beforeEach(function (): void {
 
 it('uses the content first editor mode by default from the package namespace', function (): void {
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['widgets' => []],
+        'main' => ['elements' => []],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
@@ -29,10 +29,10 @@ it('uses the content first editor mode by default from the package namespace', f
 });
 
 it('can switch from content first to advanced layout and back from the package namespace', function (): void {
-    $widget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
+    $element = Element::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['widgets' => [
-            ['widget_key' => $widget->key, 'occurrence' => 1],
+        'main' => ['elements' => [
+            ['element_key' => $element->key, 'occurrence' => 1],
         ]],
     ]]);
 
@@ -52,7 +52,7 @@ it('lets content editors use content first without advanced layout access from t
     test()->actingAs(test()->createUserWithPermission('EditContent:Layout'));
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['widgets' => []],
+        'main' => ['elements' => []],
     ]]);
 
     $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
@@ -65,7 +65,7 @@ it('lets content editors use content first without advanced layout access from t
         ->assertForbidden();
 });
 
-it('lets content editors submit widget asset edits without layout access from the package namespace', function (): void {
+it('lets content editors submit element asset edits without layout access from the package namespace', function (): void {
     Permission::findOrCreate('EditContent:Layout');
     Permission::findOrCreate('EditLayout:Layout');
     Permission::findOrCreate('Update:Layout');
@@ -73,32 +73,32 @@ it('lets content editors submit widget asset edits without layout access from th
 
     test()->actingAs(test()->createUserWithPermission(['EditContent:Layout', 'View:Page']));
 
-    $widget = Widget::factory()->create(['key' => 'featured', 'name' => 'Featured']);
+    $element = Element::factory()->create(['key' => 'featured', 'name' => 'Featured']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
-    $widgetAsset = WidgetAsset::factory()
-        ->widget($widget)
+    $elementAsset = ElementAsset::factory()
+        ->element($element)
         ->asset($asset)
         ->occurrence(1)
         ->create(['order' => 1, 'meta' => ['variant' => 'default']]);
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['widgets' => [
-            ['widget_key' => $widget->key, 'occurrence' => 1],
+        'main' => ['elements' => [
+            ['element_key' => $element->key, 'occurrence' => 1],
         ]],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
-        ->callAction('editWidgetAsset', data: [
+        ->callAction('editElementAsset', data: [
             'meta' => ['variant' => 'featured'],
         ], arguments: [
             'containerKey' => 'main',
-            'widgetIndex' => 0,
+            'elementIndex' => 0,
             'index' => 0,
             'type' => 'page',
         ])
         ->assertHasNoActionErrors();
 
-    expect($widgetAsset->fresh()->meta['variant'] ?? null)->toBe('default');
+    expect($elementAsset->fresh()->meta['variant'] ?? null)->toBe('default');
 });
 
 it('sends layout only editors straight to the advanced layout editor from the package namespace', function (): void {
@@ -108,7 +108,7 @@ it('sends layout only editors straight to the advanced layout editor from the pa
     test()->actingAs(test()->createUserWithPermission('EditLayout:Layout'));
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['widgets' => []],
+        'main' => ['elements' => []],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
@@ -118,31 +118,31 @@ it('sends layout only editors straight to the advanced layout editor from the pa
 });
 
 it('rejects stale content first asset saves from the package namespace', function (): void {
-    $widget = Widget::factory()->create(['key' => 'featured', 'name' => 'Featured']);
+    $element = Element::factory()->create(['key' => 'featured', 'name' => 'Featured']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
-    $widgetAsset = WidgetAsset::factory()
-        ->widget($widget)
+    $elementAsset = ElementAsset::factory()
+        ->element($element)
         ->asset($asset)
         ->occurrence(1)
         ->create(['order' => 1, 'meta' => ['variant' => 'default']]);
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['widgets' => [
-            ['widget_key' => $widget->key, 'occurrence' => 1],
+        'main' => ['elements' => [
+            ['element_key' => $element->key, 'occurrence' => 1],
         ]],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
-        ->callAction('editWidgetAsset', data: [
+        ->callAction('editElementAsset', data: [
             'meta' => ['variant' => 'featured'],
         ], arguments: [
             'containerKey' => 'main',
-            'widgetIndex' => 0,
+            'elementIndex' => 0,
             'index' => 0,
             'type' => 'page',
             'contentInventorySignature' => 'stale-signature',
         ])
         ->assertNotified(__('capell-layout-builder::message.content_stale'));
 
-    expect($widgetAsset->fresh()->meta['variant'] ?? null)->toBe('default');
+    expect($elementAsset->fresh()->meta['variant'] ?? null)->toBe('default');
 });

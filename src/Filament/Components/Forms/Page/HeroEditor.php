@@ -11,7 +11,7 @@ use Capell\Admin\Filament\Components\Forms\Editor\RichEditor;
 use Capell\Admin\Filament\Components\Forms\Editor\TinyEditor;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Translation;
-use Capell\Core\Models\WidgetAsset;
+use Capell\LayoutBuilder\Models\ElementAsset;
 use Filament\Schemas\Components\Group;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -40,7 +40,7 @@ class HeroEditor extends Group
                     return false;
                 }
 
-                return ! $this->hasPageWidgetHeroAssets($page);
+                return ! $this->hasPageElementHeroAssets($page);
             })
             ->schema([
                 ContentEditor::make('hero')
@@ -54,7 +54,7 @@ class HeroEditor extends Group
             ]);
     }
 
-    protected function hasPageWidgetHeroAssets(Pageable $page): bool
+    protected function hasPageElementHeroAssets(Pageable $page): bool
     {
         $cache = cache();
 
@@ -63,15 +63,15 @@ class HeroEditor extends Group
         }
 
         return $cache->rememberForever(
-            sprintf('page-%d-has-hero-widget-assets', $page->id),
+            sprintf('page-%d-has-hero-element-assets', $page->id),
             function () use ($page): bool {
-                /** @var class-string<WidgetAsset> $model */
-                $model = WidgetAsset::class;
+                /** @var class-string<ElementAsset> $model */
+                $model = ElementAsset::class;
 
                 return $model::query()
                     ->where('pageable_type', $page->getMorphClass())
                     ->where('pageable_id', $page->getKey())
-                    ->whereHas('widget', fn (Builder $query): Builder => $query->whereLike('key', 'hero%'))
+                    ->whereHas('element', fn (Builder $query): Builder => $query->whereLike('key', 'hero%'))
                     ->exists();
             },
         );

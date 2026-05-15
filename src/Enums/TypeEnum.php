@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Enums;
 
-use Capell\Core\Models\Widget;
+use Capell\LayoutBuilder\Models\Element;
 
 enum TypeEnum: string
 {
-    case Widget = 'widget';
+    case Element = 'element';
 
     public function getModel(): string
     {
         return match ($this) {
-            self::Widget => Widget::class,
+            self::Element => Element::class,
         };
     }
 
     public function getLabel(): string
     {
         return match ($this) {
-            self::Widget => __('capell-layout-builder::generic.widget')
+            self::Element => __('capell-layout-builder::generic.element')
         };
     }
 }

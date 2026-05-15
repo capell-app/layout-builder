@@ -10,18 +10,18 @@ use Spatie\LaravelData\Data;
 final class LayoutHealthData extends Data
 {
     /**
-     * @param  Collection<int, WidgetGroupData>  $widgetsByGroup
-     * @param  Collection<int, UnusedWidgetData>  $unusedWidgets
-     * @param  Collection<int, LeastUsedWidgetData>  $leastUsedWidgets
+     * @param  Collection<int, ElementGroupData>  $elementsByGroup
+     * @param  Collection<int, UnusedElementData>  $unusedElements
+     * @param  Collection<int, LeastUsedElementData>  $leastUsedElements
      */
     public function __construct(
-        public readonly int $totalWidgets,
+        public readonly int $totalElements,
         public readonly int $totalSections,
         public readonly int $publishedSections,
         public readonly int $draftSections,
         public readonly int $layoutsWithModifications,
-        public readonly Collection $widgetsByGroup,
-        public readonly Collection $unusedWidgets,
-        public readonly Collection $leastUsedWidgets,
+        public readonly Collection $elementsByGroup,
+        public readonly Collection $unusedElements,
+        public readonly Collection $leastUsedElements,
     ) {}
 }

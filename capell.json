@@ -40,8 +40,8 @@
         {
             "type": "admin-resource",
             "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
-            "resourceClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Widgets\\WidgetResource",
-            "group": "Widget"
+            "resourceClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Elements\\ElementResource",
+            "group": "Element"
         },
         {
             "type": "configurator",
@@ -49,9 +49,9 @@
             "configuratorEnum": "Capell\\LayoutBuilder\\Enums\\ConfiguratorTypeEnum",
             "groups": [
                 "LayoutContainers",
-                "LayoutWidgets",
-                "Widgets",
-                "WidgetAssets"
+                "LayoutElements",
+                "Elements",
+                "ElementAssets"
             ]
         },
         {
@@ -75,13 +75,14 @@
         {
             "type": "asset",
             "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
-            "package": "capell-layout-builder"
+            "package": "capell-layout-builder",
+            "surface": "admin"
         }
     ],
     "database": {
         "migrations": true,
         "settings": false,
-        "requiredTables": ["layouts", "widgets", "widget_assets"]
+        "requiredTables": ["layouts", "elements", "element_assets"]
     },
     "commands": {
         "install": "capell:layout-builder-install",

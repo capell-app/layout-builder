@@ -12,7 +12,7 @@ use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
 
 it('represents layout builder state and mutation output with typed data', function (): void {
     $state = new LayoutBuilderStateData(
-        containers: ['main' => ['widgets' => [], 'meta' => ['colspan' => 12]]],
+        containers: ['main' => ['elements' => [], 'meta' => ['colspan' => 12]]],
         assets: ['main' => []],
         originalAssets: ['main' => []],
         selectedRecords: ['main' => []],
@@ -23,22 +23,22 @@ it('represents layout builder state and mutation output with typed data', functi
         code: 'responsive_colspan_clamped',
         message: 'Responsive colspan was clamped.',
         containerKey: 'main',
-        widgetIndex: null,
+        elementIndex: null,
     );
 
     $blockingDiagnostic = new LayoutDiagnosticData(
         severity: LayoutDiagnosticSeverity::Blocking,
-        code: 'missing_required_widget',
-        message: 'A required widget is missing.',
+        code: 'missing_required_element',
+        message: 'A required element is missing.',
         containerKey: 'main',
-        widgetIndex: null,
+        elementIndex: null,
     );
 
     $change = new LayoutChangeData(
         type: 'container_resized',
         label: 'Container main resized',
         containerKey: 'main',
-        widgetIndex: null,
+        elementIndex: null,
     );
 
     $result = new LayoutMutationResultData(
@@ -73,21 +73,21 @@ it('represents layout builder state and mutation output with typed data', functi
         ->and($stateFromLivewire->originalAssets)->toBe([])
         ->and($stateFromLivewire->selectedRecords)->toBe(['main' => []])
         ->and($state->toLivewirePayload())->toBe([
-            'containers' => ['main' => ['widgets' => [], 'meta' => ['colspan' => 12]]],
+            'containers' => ['main' => ['elements' => [], 'meta' => ['colspan' => 12]]],
             'assets' => ['main' => []],
             'originalAssets' => ['main' => []],
             'selectedRecords' => ['main' => []],
         ]);
 });
 
-it('normalizes sparse widget state and clamps responsive metadata', function (): void {
+it('normalizes sparse element state and clamps responsive metadata', function (): void {
     $state = new LayoutBuilderStateData(
         containers: [
             'main' => [
-                'widgets' => [
-                    ['widget_key' => 'hero'],
-                    ['widget_key' => 'cards'],
-                    ['widget_key' => 'cta'],
+                'elements' => [
+                    ['element_key' => 'hero'],
+                    ['element_key' => 'cards'],
+                    ['element_key' => 'cta'],
                 ],
                 'meta' => [
                     'colspan' => 14,

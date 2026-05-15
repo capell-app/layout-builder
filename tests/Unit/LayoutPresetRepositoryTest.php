@@ -30,8 +30,8 @@ function presetFragment(string $key): LayoutFragmentData
 {
     return new LayoutFragmentData(
         sourceContainerKey: $key,
-        sourceWidgetIndex: 0,
+        sourceElementIndex: 0,
         container: null,
-        widget: ['key' => $key],
+        element: ['key' => $key],
     );
 }

@@ -7,6 +7,8 @@ namespace Capell\LayoutBuilder\Support;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Widget;
 use Capell\Core\Models\WidgetAsset;
+use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\ElementAsset;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 
@@ -14,8 +16,8 @@ class LayoutModelRegistrar
 {
     /** @var list<class-string> */
     private const MODELS = [
-        Widget::class,
-        WidgetAsset::class,
+        Element::class,
+        ElementAsset::class,
     ];
 
     public static function register(): void
@@ -25,6 +27,12 @@ class LayoutModelRegistrar
         Relation::morphMap(
             collect(self::MODELS)
                 ->mapWithKeys(fn (string $modelClass): array => [Str::snake(class_basename($modelClass)) => $modelClass])
+                ->merge([
+                    'widget' => Widget::class,
+                    'widget_asset' => WidgetAsset::class,
+                    'element' => Element::class,
+                    'element_asset' => ElementAsset::class,
+                ])
                 ->all(),
         );
     }

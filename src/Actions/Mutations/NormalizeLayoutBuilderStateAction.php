@@ -21,13 +21,13 @@ final class NormalizeLayoutBuilderStateAction
         $selectedRecords = $state->selectedRecords;
 
         foreach ($containers as $containerKey => $container) {
-            $containers[$containerKey]['widgets'] = array_values($container['widgets'] ?? []);
+            $containers[$containerKey]['elements'] = array_values($container['elements'] ?? []);
             $containers[$containerKey]['meta'] = $this->normalizeContainerMeta($container['meta'] ?? []);
 
-            $widgetCount = count($containers[$containerKey]['widgets']);
-            $assets[$containerKey] = $this->normalizeWidgetSlots($assets[$containerKey] ?? [], $widgetCount);
-            $originalAssets[$containerKey] = $this->normalizeWidgetSlots($originalAssets[$containerKey] ?? [], $widgetCount);
-            $selectedRecords[$containerKey] = $this->normalizeWidgetSlots($selectedRecords[$containerKey] ?? [], $widgetCount);
+            $elementCount = count($containers[$containerKey]['elements']);
+            $assets[$containerKey] = $this->normalizeElementSlots($assets[$containerKey] ?? [], $elementCount);
+            $originalAssets[$containerKey] = $this->normalizeElementSlots($originalAssets[$containerKey] ?? [], $elementCount);
+            $selectedRecords[$containerKey] = $this->normalizeElementSlots($selectedRecords[$containerKey] ?? [], $elementCount);
         }
 
         return new LayoutMutationResultData(
@@ -44,12 +44,12 @@ final class NormalizeLayoutBuilderStateAction
      * @param  array<int, mixed>  $slots
      * @return array<int, mixed>
      */
-    private function normalizeWidgetSlots(array $slots, int $widgetCount): array
+    private function normalizeElementSlots(array $slots, int $elementCount): array
     {
         $normalizedSlots = [];
 
-        for ($widgetIndex = 0; $widgetIndex < $widgetCount; $widgetIndex++) {
-            $normalizedSlots[$widgetIndex] = $slots[$widgetIndex] ?? [];
+        for ($elementIndex = 0; $elementIndex < $elementCount; $elementIndex++) {
+            $normalizedSlots[$elementIndex] = $slots[$elementIndex] ?? [];
         }
 
         return $normalizedSlots;

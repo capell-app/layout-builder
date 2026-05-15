@@ -8,8 +8,8 @@ use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 it('reorders containers while preserving metadata and state keyed by container', function (): void {
     $state = new LayoutBuilderStateData(
         containers: [
-            'main' => ['widgets' => [['widget_key' => 'first']], 'meta' => ['colspan' => 8]],
-            'sidebar' => ['widgets' => [], 'meta' => ['colspan' => 4]],
+            'main' => ['elements' => [['element_key' => 'first']], 'meta' => ['colspan' => 8]],
+            'sidebar' => ['elements' => [], 'meta' => ['colspan' => 4]],
         ],
         assets: ['main' => [[['asset' => 'first']]], 'sidebar' => []],
         originalAssets: ['main' => [[['original' => 'first']]], 'sidebar' => []],

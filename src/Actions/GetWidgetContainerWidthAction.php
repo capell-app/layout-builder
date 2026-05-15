@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions;
 
 use Capell\Core\Enums\ContainerWidthEnum;
-use Capell\Core\Models\Widget;
+use Capell\Core\Models\LayoutModule;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static ContainerWidthEnum run(Widget $widget, ?string $default = null)
+ * @method static ContainerWidthEnum run(LayoutModule $widget, ?string $default = null)
  */
 class GetWidgetContainerWidthAction
 {
@@ -17,7 +17,7 @@ class GetWidgetContainerWidthAction
 
     private const LAYOUT_CONTAINER_WIDTH_RESOLVER_SERVICE = 'capell.frontend.layout-container-width-resolver';
 
-    public function handle(Widget $widget, ?string $default = null): ContainerWidthEnum
+    public function handle(LayoutModule $widget, ?string $default = null): ContainerWidthEnum
     {
         $containerWidth = $widget->getMeta('container');
 

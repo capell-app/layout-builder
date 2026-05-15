@@ -6,7 +6,7 @@ namespace Capell\LayoutBuilder\Enums;
 
 enum CapellLayoutCacheKeyEnum: string
 {
-    case WidgetByKey = 'capell_layout_widget_by_key:';
+    case ElementByKey = 'capell_layout_element_by_key:';
 
-    case WidgetOptions = 'capell_layout_widget_options:';
+    case ElementOptions = 'capell_layout_element_options:';
 }

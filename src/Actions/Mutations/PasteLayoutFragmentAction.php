@@ -28,8 +28,8 @@ final class PasteLayoutFragmentAction
             return $this->pasteContainer($state, $fragment);
         }
 
-        if ($fragment->isWidgetFragment()) {
-            return $this->pasteWidget($state, $fragment, $targetContainerKey, $targetIndex);
+        if ($fragment->isElementFragment()) {
+            return $this->pasteElement($state, $fragment, $targetContainerKey, $targetIndex);
         }
 
         return new LayoutMutationResultData($state);
@@ -65,26 +65,26 @@ final class PasteLayoutFragmentAction
                 type: 'container_pasted',
                 label: __('capell-layout-builder::message.container_pasted', ['container' => $containerKey]),
                 containerKey: $containerKey,
-                widgetIndex: null,
+                elementIndex: null,
             ),
         ]);
     }
 
-    private function pasteWidget(
+    private function pasteElement(
         LayoutBuilderStateData $state,
         LayoutFragmentData $fragment,
         string $targetContainerKey,
         ?int $targetIndex,
     ): LayoutMutationResultData {
-        if ($fragment->widget === null) {
+        if ($fragment->element === null) {
             return new LayoutMutationResultData($state);
         }
 
         $containers = $state->containers;
-        $widgets = $containers[$targetContainerKey]['widgets'] ?? [];
-        $targetIndex = min(count($widgets), max(0, $targetIndex ?? count($widgets)));
+        $elements = $containers[$targetContainerKey]['elements'] ?? [];
+        $targetIndex = min(count($elements), max(0, $targetIndex ?? count($elements)));
 
-        $containers[$targetContainerKey]['widgets'] = $this->insertSlot($widgets, $targetIndex, $fragment->widget);
+        $containers[$targetContainerKey]['elements'] = $this->insertSlot($elements, $targetIndex, $fragment->element);
 
         $assets = $state->assets;
         $assets[$targetContainerKey] = $this->insertSlot($assets[$targetContainerKey] ?? [], $targetIndex, $fragment->assets);
@@ -102,10 +102,10 @@ final class PasteLayoutFragmentAction
             selectedRecords: $selectedRecords,
         ))->withChanges([
             new LayoutChangeData(
-                type: 'widget_pasted',
-                label: __('capell-layout-builder::message.widget_pasted', ['container' => $targetContainerKey]),
+                type: 'element_pasted',
+                label: __('capell-layout-builder::message.element_pasted', ['container' => $targetContainerKey]),
                 containerKey: $targetContainerKey,
-                widgetIndex: $targetIndex,
+                elementIndex: $targetIndex,
             ),
         ]);
     }

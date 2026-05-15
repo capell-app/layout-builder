@@ -10,7 +10,7 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Forms\SelectWithBelongsToRelation;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Data\AssetData;
-use Capell\Core\Enums\TypeGroupEnum;
+use Capell\Core\Enums\BlueprintGroupEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Filament\Actions\Action;
@@ -124,7 +124,7 @@ class AssetsRepeater extends Repeater
                             ->whereHas(
                                 'type',
                                 fn (Builder $query) => $query->where(
-                                    fn (Builder $query) => $query->where('group', '!=', TypeGroupEnum::System->value)
+                                    fn (Builder $query) => $query->where('group', '!=', BlueprintGroupEnum::System->value)
                                         ->orWhereNull('group'),
                                 ),
                             ),

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicElementPayloadContributor;
 
 it('exposes layout builder contracts from the package namespace', function (): void {
-    expect(interface_exists(PublicWidgetPayloadContributor::class))->toBeTrue()
+    expect(interface_exists(PublicElementPayloadContributor::class))->toBeTrue()
         ->and(interface_exists(LayoutContentGroupContributor::class))->toBeTrue();
 });
 
 it('keeps package contributor tags stable without requiring legacy contracts', function (): void {
-    expect(PublicWidgetPayloadContributor::TAG)->toBe('capell.layout_builder.public_widget_payload_contributor')
+    expect(PublicElementPayloadContributor::TAG)->toBe('capell.layout_builder.public_element_payload_contributor')
         ->and(LayoutContentGroupContributor::TAG)->toBe('capell.layout_builder.content_group_contributor');
 });

@@ -10,11 +10,11 @@ enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
 {
     case LayoutContainer = 'LayoutContainers';
 
-    case LayoutWidget = 'LayoutWidgets';
+    case LayoutElement = 'LayoutElements';
 
-    case Widget = 'Widgets';
+    case Element = 'Elements';
 
-    case WidgetAsset = 'WidgetAssets';
+    case ElementAsset = 'ElementAssets';
 
     /**
      * @return array<string, array<int, object>>
@@ -44,9 +44,9 @@ enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
     {
         return match ($this) {
             self::LayoutContainer => LayoutContainerConfiguratorEnum::cases(),
-            self::LayoutWidget => LayoutWidgetConfiguratorEnum::cases(),
-            self::Widget => WidgetConfiguratorEnum::cases(),
-            self::WidgetAsset => WidgetAssetConfiguratorEnum::cases(),
+            self::LayoutElement => LayoutElementConfiguratorEnum::cases(),
+            self::Element => ElementConfiguratorEnum::cases(),
+            self::ElementAsset => ElementAssetConfiguratorEnum::cases(),
         };
     }
 

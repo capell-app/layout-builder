@@ -28,8 +28,8 @@ function clipboardFragment(string $key): LayoutFragmentData
 {
     return new LayoutFragmentData(
         sourceContainerKey: $key,
-        sourceWidgetIndex: null,
+        sourceElementIndex: null,
         container: ['key' => $key],
-        widget: null,
+        element: null,
     );
 }

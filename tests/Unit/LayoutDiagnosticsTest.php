@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-use Capell\Core\Models\Widget;
 use Capell\LayoutBuilder\Actions\AnalyzeLayoutDiagnosticsAction;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
+use Capell\LayoutBuilder\Models\Element;
 
-it('reports unknown widgets and invalid responsive metadata', function (): void {
-    Widget::factory()->create(['key' => 'known']);
+it('reports unknown elements and invalid responsive metadata', function (): void {
+    Element::factory()->create(['key' => 'known']);
 
     $state = new LayoutBuilderStateData(
         containers: [
             'main' => [
-                'widgets' => [
-                    ['widget_key' => 'known'],
-                    ['widget_key' => 'missing'],
+                'elements' => [
+                    ['element_key' => 'known'],
+                    ['element_key' => 'missing'],
                 ],
                 'meta' => [
                     'responsive' => [
@@ -33,7 +33,7 @@ it('reports unknown widgets and invalid responsive metadata', function (): void 
 
     expect($diagnostics)->toHaveCount(2)
         ->and($diagnostics[0]->severity)->toBe(LayoutDiagnosticSeverity::Blocking)
-        ->and($diagnostics[0]->code)->toBe('unknown_widget')
+        ->and($diagnostics[0]->code)->toBe('unknown_element')
         ->and($diagnostics[1]->severity)->toBe(LayoutDiagnosticSeverity::Warning)
         ->and($diagnostics[1]->code)->toBe('invalid_responsive_colspan');
 });

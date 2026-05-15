@@ -8,11 +8,11 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
 use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
-use Capell\LayoutBuilder\Contracts\LayoutSidebarWidgetContributor;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadResolver;
+use Capell\LayoutBuilder\Contracts\LayoutSidebarElementContributor;
+use Capell\LayoutBuilder\Contracts\PublicElementPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicElementPayloadResolver;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
-use Capell\LayoutBuilder\Support\DefaultPublicWidgetPayloadResolver;
+use Capell\LayoutBuilder\Support\DefaultPublicElementPayloadResolver;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Capell\LayoutBuilder\Support\LayoutBuilderCoreRegistrar;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
@@ -37,10 +37,10 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     public function packageRegistered(): void
     {
         $this->app->tag([], LayoutContentGroupContributor::TAG);
-        $this->app->tag([], LayoutSidebarWidgetContributor::TAG);
+        $this->app->tag([], LayoutSidebarElementContributor::TAG);
         $this->app->scoped(LayoutLoader::class);
-        $this->app->bind(PublicWidgetPayloadResolver::class, DefaultPublicWidgetPayloadResolver::class);
-        $this->app->tag([], PublicWidgetPayloadContributor::TAG);
+        $this->app->bind(PublicElementPayloadResolver::class, DefaultPublicElementPayloadResolver::class);
+        $this->app->tag([], PublicElementPayloadContributor::TAG);
 
         if ($this->app->runningInConsole()) {
             $this->commands([

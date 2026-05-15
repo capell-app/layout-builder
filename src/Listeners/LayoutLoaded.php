@@ -8,7 +8,7 @@ use Capell\Core\Contracts\EventSubscriber;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
-use Capell\Core\Models\Widget;
+use Capell\LayoutBuilder\Models\Element;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 
@@ -35,51 +35,51 @@ class LayoutLoaded implements EventSubscriber
             return;
         }
 
-        $this->loadLayoutWidgets($layout, $page, $language);
+        $this->loadLayoutElements($layout, $page, $language);
     }
 
-    protected function loadLayoutWidgets(Layout $layout, Pageable $page, Language $language): void
+    protected function loadLayoutElements(Layout $layout, Pageable $page, Language $language): void
     {
-        CapellLayoutManager::clearContainerWidgets();
+        CapellLayoutManager::clearContainerElements();
 
-        // Preload all widgets/assets once to minimize queries during iteration
+        // Preload all elements/assets once to minimize queries during iteration
         $loader = resolve(LayoutLoader::class);
-        $loader->preloadLayoutWidgets($layout, $language, $page);
+        $loader->preloadLayoutElements($layout, $language, $page);
 
         $containers = $layout->getAttribute('containers');
         $containers = is_array($containers) ? $containers : [];
 
         foreach ($containers as $containerKey => $container) {
-            if (! isset($container['widgets'])) {
+            if (! isset($container['elements'])) {
                 continue;
             }
 
-            if (! is_array($container['widgets'])) {
+            if (! is_array($container['elements'])) {
                 continue;
             }
 
-            foreach ($container['widgets'] as $widgetData) {
-                if (! isset($widgetData['widget_key'])) {
+            foreach ($container['elements'] as $elementData) {
+                if (! isset($elementData['element_key'])) {
                     continue;
                 }
 
-                $widgetKey = $widgetData['widget_key'];
-                $occurrence = $widgetData['occurrence'] ?? 1;
+                $elementKey = $elementData['element_key'];
+                $occurrence = $elementData['occurrence'] ?? 1;
 
-                $widget = $loader->getLayoutWidget(
+                $element = $loader->getLayoutElement(
                     $layout,
-                    $widgetKey,
+                    $elementKey,
                     $language,
                     $page,
                     $containerKey,
                     $occurrence,
                 );
 
-                if (! $widget instanceof Widget) {
+                if (! $element instanceof Element) {
                     continue;
                 }
 
-                CapellLayoutManager::storeContainerWidget($containerKey, $widgetKey, $widget, $occurrence);
+                CapellLayoutManager::storeContainerElement($containerKey, $elementKey, $element, $occurrence);
             }
         }
     }

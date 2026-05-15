@@ -17,15 +17,15 @@ return [
     ],
 
     'resources' => [
-        'widget' => [
+        'element' => [
             'icon' => 'heroicon-o-squares-2x2',
             'active_icon' => 'heroicon-s-squares-2x2',
         ],
     ],
 
-    'widget' => [
+    'element' => [
         'skip_render_empty' => env('CAPELL_LAYOUT_BUILDER_SKIP_RENDER_EMPTY_WIDGETS', true),
     ],
 
-    'default_widget' => 'capell.widget.default',
+    'default_element' => 'capell.element.default',
 ];

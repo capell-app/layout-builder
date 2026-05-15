@@ -7,11 +7,11 @@ namespace Capell\LayoutBuilder\Actions;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
-use Capell\Core\Models\Widget;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadResolver;
+use Capell\LayoutBuilder\Contracts\PublicElementPayloadResolver;
 use Capell\LayoutBuilder\Data\PublicLayoutContainerData;
+use Capell\LayoutBuilder\Data\PublicLayoutElementData;
 use Capell\LayoutBuilder\Data\PublicLayoutGraphData;
-use Capell\LayoutBuilder\Data\PublicLayoutWidgetData;
+use Capell\LayoutBuilder\Models\Element;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -31,9 +31,7 @@ class BuildPublicLayoutGraphAction
         $selectedContainers = $this->selectedContainers($containers);
         $loader = resolve(LayoutLoader::class);
 
-        if (CapellLayoutManager::getContainerWidgets()->isEmpty()) {
-            $loader->preloadLayoutWidgets($layout, $language, $page, $selectedContainers);
-        }
+        $loader->preloadLayoutElements($layout, $language, $page, $selectedContainers);
 
         return new PublicLayoutGraphData(
             key: $layout->key,
@@ -69,20 +67,20 @@ class BuildPublicLayoutGraphAction
         bool $includeHtml,
         ?array $selectedContainers,
     ): PublicLayoutContainerData {
-        $widgets = $container['widgets'] ?? [];
-        $widgets = is_array($widgets) ? $widgets : [];
+        $elements = $container['elements'] ?? [];
+        $elements = is_array($elements) ? $elements : [];
 
         return new PublicLayoutContainerData(
             key: $containerKey,
             meta: [],
-            widgets: collect($widgets)
-                ->map(fn (mixed $widgetData): ?PublicLayoutWidgetData => $this->widgetData(
+            elements: collect($elements)
+                ->map(fn (mixed $elementData): ?PublicLayoutElementData => $this->elementData(
                     layout: $layout,
                     page: $page,
                     language: $language,
                     loader: $loader,
                     containerKey: $containerKey,
-                    widgetData: is_array($widgetData) ? $widgetData : [],
+                    elementData: is_array($elementData) ? $elementData : [],
                     includeHtml: $includeHtml,
                     selectedContainers: $selectedContainers,
                 ))
@@ -93,40 +91,40 @@ class BuildPublicLayoutGraphAction
     }
 
     /**
-     * @param  array<string, mixed>  $widgetData
+     * @param  array<string, mixed>  $elementData
      * @param  array<int, string>|null  $selectedContainers
      */
-    private function widgetData(
+    private function elementData(
         Layout $layout,
         Page $page,
         Language $language,
         LayoutLoader $loader,
         string $containerKey,
-        array $widgetData,
+        array $elementData,
         bool $includeHtml,
         ?array $selectedContainers,
-    ): ?PublicLayoutWidgetData {
-        $widgetKey = $widgetData['widget_key'] ?? null;
-        if (! is_string($widgetKey) || $widgetKey === '') {
+    ): ?PublicLayoutElementData {
+        $elementKey = $elementData['element_key'] ?? null;
+        if (! is_string($elementKey) || $elementKey === '') {
             return null;
         }
 
-        $occurrence = (int) ($widgetData['occurrence'] ?? 1);
-        $widget = CapellLayoutManager::getStoredContainerWidget($containerKey, $widgetKey, $occurrence)
-            ?? $loader->getLayoutWidget($layout, $widgetKey, $language, $page, $containerKey, $occurrence, $selectedContainers);
+        $occurrence = (int) ($elementData['occurrence'] ?? 1);
+        $element = CapellLayoutManager::getStoredContainerElement($containerKey, $elementKey, $occurrence)
+            ?? $loader->getLayoutElement($layout, $elementKey, $language, $page, $containerKey, $occurrence, $selectedContainers);
 
-        if (! $widget instanceof Widget) {
+        if (! $element instanceof Element) {
             return null;
         }
 
-        $resolver = resolve(PublicWidgetPayloadResolver::class);
+        $resolver = resolve(PublicElementPayloadResolver::class);
 
-        return new PublicLayoutWidgetData(
-            key: $widgetKey,
+        return new PublicLayoutElementData(
+            key: $elementKey,
             occurrence: $occurrence,
-            type: $widget->type?->key,
-            data: $resolver->data($widget, $page, $language, $containerKey, $occurrence),
-            html: $includeHtml ? $resolver->html($widget, $page, $language, $containerKey, $occurrence) : null,
+            type: $element->type?->key,
+            data: $resolver->data($element, $page, $language, $containerKey, $occurrence),
+            html: $includeHtml ? $resolver->html($element, $page, $language, $containerKey, $occurrence) : null,
         );
     }
 

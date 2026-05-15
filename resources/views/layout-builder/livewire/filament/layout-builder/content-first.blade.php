@@ -70,7 +70,7 @@
                     >
                         @foreach ($group->items as $item)
                             @php
-                                $editWidgetAssetAction = ($this->editWidgetAssetAction)($item->editActionArguments);
+                                $editElementAssetAction = ($this->editElementAssetAction)($item->editActionArguments);
                             @endphp
 
                             <article
@@ -122,7 +122,7 @@
                                 </div>
 
                                 <div class="flex shrink-0 items-center gap-2">
-                                    {{ $editWidgetAssetAction }}
+                                    {{ $editElementAssetAction }}
 
                                     @if ($this->canEditLayout())
                                         <x-filament::icon-button

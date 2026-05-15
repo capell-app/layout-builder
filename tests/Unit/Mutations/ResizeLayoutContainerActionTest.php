@@ -8,7 +8,7 @@ use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 
 it('resizes base and responsive container spans', function (): void {
     $state = new LayoutBuilderStateData(
-        containers: ['main' => ['widgets' => [], 'meta' => ['colspan' => 12]]],
+        containers: ['main' => ['elements' => [], 'meta' => ['colspan' => 12]]],
         assets: ['main' => []],
         originalAssets: ['main' => []],
         selectedRecords: ['main' => []],

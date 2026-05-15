@@ -7,11 +7,10 @@ namespace Capell\LayoutBuilder\Livewire\Filament;
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Filament\Contracts\HasPageResource;
 use Capell\Admin\Support\AdminSurfaceLookup;
-use Capell\Core\Actions\GetResourceFromTypeAction;
+use Capell\Core\Actions\GetResourceFromBlueprintAction;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
-use Capell\Core\Models\Widget;
 use Capell\LayoutBuilder\Actions\AnalyzeLayoutDiagnosticsAction;
 use Capell\LayoutBuilder\Actions\BuildLayoutContentInventoryAction;
 use Capell\LayoutBuilder\Actions\Mutations\CreateLayoutFragmentAction;
@@ -28,7 +27,8 @@ use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\HasLayoutActions;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesAssets;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesContainers;
-use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesWidgets;
+use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesElements;
+use Capell\LayoutBuilder\Models\Element;
 use Capell\LayoutBuilder\Support\LayoutBuilderConfiguration;
 use Capell\LayoutBuilder\Support\LayoutClipboard;
 use Capell\LayoutBuilder\Support\LayoutPresetRepository;
@@ -56,8 +56,8 @@ use Livewire\Component;
  * @property-read mixed $changeLayoutAction
  * @property-read mixed $cloneLayoutForPageAction
  * @property-read mixed $duplicateLayoutAction
- * @property-read mixed $addWidgetAction
- * @property-read mixed $editWidgetAssetAction
+ * @property-read mixed $addElementAction
+ * @property-read mixed $editElementAssetAction
  */
 class LayoutBuilder extends Component implements HasActions, HasForms, HasPageResource
 {
@@ -66,7 +66,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     use InteractsWithForms;
     use ManagesAssets;
     use ManagesContainers;
-    use ManagesWidgets;
+    use ManagesElements;
 
     #[Locked]
     public ?Pageable $page = null;
@@ -107,7 +107,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     public ?string $returnToContentItemKey = null;
 
-    protected array $containerWidgets;
+    protected array $containerElements;
 
     protected ?LayoutClipboard $layoutClipboard = null;
 
@@ -204,8 +204,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             layout: $this->layout,
             page: $this->page instanceof Model ? $this->page : null,
             containers: $this->containers,
-            persistWidgetAssets: function (): void {
-                $this->persistWidgetAssets();
+            persistElementAssets: function (): void {
+                $this->persistElementAssets();
             },
         );
 
@@ -229,15 +229,15 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         return true;
     }
 
-    #[On('add-widgets-to-container')]
-    public function addWidgetsToContainer(string $containerKey, array $widgets, ?string $actionModalId = null, ?int $position = null): void
+    #[On('add-elements-to-container')]
+    public function addElementsToContainer(string $containerKey, array $elements, ?string $actionModalId = null, ?int $position = null): void
     {
         $this->assertCanUpdateLayout();
         $this->assertValidContainerKey($containerKey);
 
-        if ($widgets === []) {
-            Notification::make('no-widgets-selected')
-                ->body(__('capell-layout-builder::message.no_widgets_selected'))
+        if ($elements === []) {
+            Notification::make('no-elements-selected')
+                ->body(__('capell-layout-builder::message.no_elements_selected'))
                 ->warning()
                 ->send();
 
@@ -248,20 +248,20 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
         $targetPosition = $position;
 
-        foreach ($widgets as $widgetId) {
-            $widget = $this->getWidget($widgetId);
+        foreach ($elements as $elementId) {
+            $element = $this->getElement($elementId);
 
-            $widgetIndex = $this->addWidgetToContainerAtPosition($widget, $containerKey, $targetPosition);
+            $elementIndex = $this->addElementToContainerAtPosition($element, $containerKey, $targetPosition);
 
             if ($targetPosition !== null) {
                 $targetPosition++;
             }
 
-            $widget = $this->loadWidget($containerKey, $widgetIndex);
+            $element = $this->loadElement($containerKey, $elementIndex);
 
-            $this->assets[$containerKey][$widgetIndex] = $this->mapWidgetAssets($widget, $containerKey);
+            $this->assets[$containerKey][$elementIndex] = $this->mapElementAssets($element, $containerKey);
 
-            $this->updatePageAssets($containerKey, $widgetIndex);
+            $this->updatePageAssets($containerKey, $elementIndex);
         }
 
         session(['layout-builder.container' => $containerKey]);
@@ -276,17 +276,17 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     }
 
     #[On('sync-selected-assets')]
-    public function addAssetsToWidget(array $arguments, string $type, array $assets): void
+    public function addAssetsToElement(array $arguments, string $type, array $assets): void
     {
         $this->assertCanUpdateLayout();
 
         $this->ensureLoaded();
 
         $containerKey = $arguments['containerKey'];
-        $widgetIndex = $arguments['widgetIndex'];
+        $elementIndex = $arguments['elementIndex'];
         $hasPageAssets = $arguments['hasPageAssets'] ?? false;
 
-        $this->addAssets($containerKey, $widgetIndex, $hasPageAssets, $type, $assets);
+        $this->addAssets($containerKey, $elementIndex, $hasPageAssets, $type, $assets);
 
         $this->layoutUpdated();
     }
@@ -297,7 +297,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     public function getPageResource(): string
     {
         if ($this->page !== null) {
-            $resource = GetResourceFromTypeAction::run(ResourceEnum::Page, $this->page->type);
+            $resource = GetResourceFromBlueprintAction::run(ResourceEnum::Page, $this->page->type);
 
             if ($resource !== null) {
                 return $resource;
@@ -340,7 +340,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             layout: $this->layout,
             page: $this->page,
             containers: $this->containers ?? [],
-            containerWidgets: $this->containerWidgets ?? [],
+            containerElements: $this->containerElements ?? [],
             assets: $this->assets,
             signature: $this->contentInventorySignature(),
             siteName: $this->site?->name,
@@ -465,16 +465,16 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->clipboard()->copy(CreateLayoutFragmentAction::run($this->layoutState(), $containerKey, null));
     }
 
-    public function copyLayoutWidget(string $containerKey, int $widgetIndex): void
+    public function copyLayoutElement(string $containerKey, int $elementIndex): void
     {
         $this->assertCanUpdateLayout();
         $this->ensureLoaded();
 
-        if (! isset($this->containers[$containerKey]['widgets'][$widgetIndex])) {
+        if (! isset($this->containers[$containerKey]['elements'][$elementIndex])) {
             return;
         }
 
-        $this->clipboard()->copy(CreateLayoutFragmentAction::run($this->layoutState(), $containerKey, $widgetIndex));
+        $this->clipboard()->copy(CreateLayoutFragmentAction::run($this->layoutState(), $containerKey, $elementIndex));
     }
 
     public function pasteLayoutFragment(string $targetContainerKey, ?int $targetIndex = null): void
@@ -546,30 +546,30 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->trackNewContainerKeysSince($knownContainerKeys);
     }
 
-    protected function persistWidgetAssets(): void
+    protected function persistElementAssets(): void
     {
-        $processedWidgetKeys = [];
+        $processedElementKeys = [];
 
         foreach ($this->containers as $containerKey => $container) {
-            foreach ($container['widgets'] as $widgetIndex => $widget) {
-                if ($this->inPageContext() && isset($widget['pageable_type'], $widget['pageable_id'])) {
-                    $key = $widget['widget_key'] . '_' . $widget['pageable_type'] . '_' . $widget['pageable_id'] . '_' . $widget['container'] . '_' . $widget['occurrence'];
+            foreach ($container['elements'] as $elementIndex => $element) {
+                if ($this->inPageContext() && isset($element['pageable_type'], $element['pageable_id'])) {
+                    $key = $element['element_key'] . '_' . $element['pageable_type'] . '_' . $element['pageable_id'] . '_' . $element['container'] . '_' . $element['occurrence'];
                 } else {
-                    $key = $widget['widget_key'] . '_' . $widget['occurrence'];
+                    $key = $element['element_key'] . '_' . $element['occurrence'];
                 }
 
-                if (in_array($key, $processedWidgetKeys, true)) {
+                if (in_array($key, $processedElementKeys, true)) {
                     continue;
                 }
 
-                $processedWidgetKeys[] = $key;
+                $processedElementKeys[] = $key;
 
-                $this->updateAssets($containerKey, $widgetIndex, $widget['old_container'] ?? null);
+                $this->updateAssets($containerKey, $elementIndex, $element['old_container'] ?? null);
             }
         }
 
         if ($this->inPageContext()) {
-            $this->deleteRemovedWidgetAssets();
+            $this->deleteRemovedElementAssets();
         }
     }
 
@@ -580,7 +580,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     protected function ensureLoaded(): void
     {
-        if (! isset($this->containerWidgets)) {
+        if (! isset($this->containerElements)) {
             $this->loadFromStore();
         }
     }
@@ -589,10 +589,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     {
         $this->setupContainers();
 
-        $widgets = $this->preloadAllWidgets();
+        $elements = $this->preloadAllElements();
 
         foreach (array_keys($this->containers) as $containerKey) {
-            $this->setupContainerWidgets($containerKey, $widgets);
+            $this->setupContainerElements($containerKey, $elements);
         }
 
         $this->setupSelectedAssets();
@@ -607,41 +607,41 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     {
         $this->setupContainers();
 
-        $widgets = $this->preloadAllWidgets(withAssets: false);
+        $elements = $this->preloadAllElements(withAssets: false);
 
-        $allWidgetAssets = $this->preloadAllWidgetAssets();
+        $allElementAssets = $this->preloadAllElementAssets();
 
-        $containerWidgetAssets = [];
+        $containerElementAssets = [];
 
-        foreach ($this->assets as $containerKey => $containerWidgets) {
-            foreach ($containerWidgets as $widgetIndex => $widgetAssets) {
-                $widgetKey = $this->containers[$containerKey]['widgets'][$widgetIndex]['widget_key'] ?? null;
+        foreach ($this->assets as $containerKey => $containerElements) {
+            foreach ($containerElements as $elementIndex => $elementAssets) {
+                $elementKey = $this->containers[$containerKey]['elements'][$elementIndex]['element_key'] ?? null;
 
-                if ($widgetKey === null) {
+                if ($elementKey === null) {
                     continue;
                 }
 
-                /** @var Widget $widget */
-                $widget = $widgets[$widgetKey];
+                /** @var Element $element */
+                $element = $elements[$elementKey];
 
-                $containerWidgetAssets[$containerKey][$widgetIndex] = $this->setupWidgetAssets(
+                $containerElementAssets[$containerKey][$elementIndex] = $this->setupElementAssets(
                     $containerKey,
-                    $widgetIndex,
-                    $widgetAssets,
-                    $allWidgetAssets,
-                    $widget,
+                    $elementIndex,
+                    $elementAssets,
+                    $allElementAssets,
+                    $element,
                 );
             }
         }
 
         foreach (array_keys($this->containers) as $containerKey) {
-            $this->setupContainerWidgets($containerKey, $widgets, $containerWidgetAssets);
+            $this->setupContainerElements($containerKey, $elements, $containerElementAssets);
         }
     }
 
     protected function reload(): void
     {
-        $this->reset('containerWidgets', 'selectedRecords', 'assets', 'originalAssets', 'containers', 'layout');
+        $this->reset('containerElements', 'selectedRecords', 'assets', 'originalAssets', 'containers', 'layout');
 
         $this->loadNew();
     }
@@ -750,43 +750,43 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->originalAssets = $state->originalAssets;
         $this->selectedRecords = $state->selectedRecords;
 
-        $this->rebuildLoadedContainerWidgets();
+        $this->rebuildLoadedContainerElements();
 
         $this->layoutUpdated($markModified);
     }
 
-    protected function rebuildLoadedContainerWidgets(): void
+    protected function rebuildLoadedContainerElements(): void
     {
-        $this->containerWidgets = [];
-        $widgetKeys = collect($this->containers ?? [])
+        $this->containerElements = [];
+        $elementKeys = collect($this->containers ?? [])
             ->flatMap(fn (array $container): array => array_map(
-                static fn (array $widget): mixed => $widget['widget_key'] ?? null,
-                $container['widgets'] ?? [],
+                static fn (array $element): mixed => $element['element_key'] ?? null,
+                $container['elements'] ?? [],
             ))
-            ->filter(static fn (mixed $widgetKey): bool => is_string($widgetKey) && $widgetKey !== '')
+            ->filter(static fn (mixed $elementKey): bool => is_string($elementKey) && $elementKey !== '')
             ->unique()
             ->values()
             ->all();
 
-        $widgetsByKey = $widgetKeys === []
+        $elementsByKey = $elementKeys === []
             ? collect()
-            : $this->getWidgetDisplayQuery()
-                ->whereIn('key', $widgetKeys)
+            : $this->getElementDisplayQuery()
+                ->whereIn('key', $elementKeys)
                 ->get()
                 ->keyBy('key');
 
         foreach ($this->containers ?? [] as $containerKey => $container) {
-            foreach (($container['widgets'] ?? []) as $widgetIndex => $widget) {
-                $widgetKey = $widget['widget_key'] ?? null;
+            foreach (($container['elements'] ?? []) as $elementIndex => $element) {
+                $elementKey = $element['element_key'] ?? null;
 
-                if (! is_string($widgetKey)) {
+                if (! is_string($elementKey)) {
                     continue;
                 }
 
-                $loadedWidget = $widgetsByKey->get($widgetKey);
+                $loadedElement = $elementsByKey->get($elementKey);
 
-                if ($loadedWidget !== null) {
-                    $this->containerWidgets[$containerKey][$widgetIndex] = $loadedWidget;
+                if ($loadedElement !== null) {
+                    $this->containerElements[$containerKey][$elementIndex] = $loadedElement;
                 }
             }
         }
@@ -884,11 +884,11 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $assets = [];
 
         foreach ($this->assets as $containerKey => $containerAssets) {
-            foreach ($containerAssets as $widgetIndex => $widgetAssets) {
-                foreach ($widgetAssets as $assetIndex => $asset) {
-                    $assets[$containerKey][$widgetIndex][$assetIndex] = [
+            foreach ($containerAssets as $elementIndex => $elementAssets) {
+                foreach ($elementAssets as $assetIndex => $asset) {
+                    $assets[$containerKey][$elementIndex][$assetIndex] = [
                         'id' => $asset['id'] ?? null,
-                        'layout_module_id' => $asset['layout_module_id'] ?? null,
+                        'layout_element_id' => $asset['layout_element_id'] ?? null,
                         'asset_id' => $asset['asset_id'] ?? null,
                         'asset_type' => $asset['asset_type'] ?? null,
                         'order' => $asset['order'] ?? null,

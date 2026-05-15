@@ -5,62 +5,62 @@ declare(strict_types=1);
 use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
-use Capell\Core\Models\Widget;
-use Capell\Core\Models\WidgetAsset;
 use Capell\LayoutBuilder\Actions\BuildLayoutContentInventoryAction;
 use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Data\LayoutContentGroupData;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryContextData;
 use Capell\LayoutBuilder\Data\LayoutContentItemData;
+use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\ElementAsset;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 it('builds editor safe content groups in visual layout order from the package namespace', function (): void {
     $layout = Layout::factory()->create([
         'containers' => [
-            'main' => ['widgets' => []],
-            'footer' => ['widgets' => []],
+            'main' => ['elements' => []],
+            'footer' => ['elements' => []],
         ],
     ]);
 
-    $mainWidget = Widget::factory()->create(['key' => 'featured-products', 'name' => 'Featured products']);
-    $footerWidget = Widget::factory()->create(['key' => 'footer-links', 'name' => 'Footer links']);
+    $mainElement = Element::factory()->create(['key' => 'featured-products', 'name' => 'Featured products']);
+    $footerElement = Element::factory()->create(['key' => 'footer-links', 'name' => 'Footer links']);
     $sharedPage = Page::factory()->withTranslations()->create(['name' => 'Reusable product']);
     $footerPage = Page::factory()->withTranslations()->create(['name' => 'Terms page']);
 
-    $mainAsset = WidgetAsset::factory()
-        ->widget($mainWidget)
+    $mainAsset = ElementAsset::factory()
+        ->element($mainElement)
         ->asset($sharedPage)
         ->container('main')
         ->occurrence(1)
         ->create(['order' => 1]);
 
-    $reusedMainAsset = WidgetAsset::factory()
-        ->widget($mainWidget)
+    $reusedMainAsset = ElementAsset::factory()
+        ->element($mainElement)
         ->asset($sharedPage)
         ->container('main')
         ->occurrence(1)
         ->create(['order' => 2]);
 
-    $footerAsset = WidgetAsset::factory()
-        ->widget($footerWidget)
+    $footerAsset = ElementAsset::factory()
+        ->element($footerElement)
         ->asset($footerPage)
         ->container('footer')
         ->occurrence(1)
         ->create(['order' => 1]);
 
-    $mainWidget->setRelation('assets', new EloquentCollection([$mainAsset->load('asset.translation'), $reusedMainAsset->load('asset.translation')]));
-    $footerWidget->setRelation('assets', new EloquentCollection([$footerAsset->load('asset.translation')]));
+    $mainElement->setRelation('assets', new EloquentCollection([$mainAsset->load('asset.translation'), $reusedMainAsset->load('asset.translation')]));
+    $footerElement->setRelation('assets', new EloquentCollection([$footerAsset->load('asset.translation')]));
 
     $inventory = BuildLayoutContentInventoryAction::run(
         layout: $layout,
         page: null,
         containers: [
-            'main' => ['widgets' => [['widget_key' => $mainWidget->key, 'occurrence' => 1]], 'meta' => []],
-            'footer' => ['widgets' => [['widget_key' => $footerWidget->key, 'occurrence' => 1]], 'meta' => []],
+            'main' => ['elements' => [['element_key' => $mainElement->key, 'occurrence' => 1]], 'meta' => []],
+            'footer' => ['elements' => [['element_key' => $footerElement->key, 'occurrence' => 1]], 'meta' => []],
         ],
-        containerWidgets: [
-            'main' => [0 => $mainWidget],
-            'footer' => [0 => $footerWidget],
+        containerElements: [
+            'main' => [0 => $mainElement],
+            'footer' => [0 => $footerElement],
         ],
         assets: [
             'main' => [
@@ -85,7 +85,7 @@ it('builds editor safe content groups in visual layout order from the package na
         ->and($inventory->groups[0]->items[0]->isReused)->toBeTrue()
         ->and($inventory->groups[0]->items[0]->editActionArguments)->toMatchArray([
             'containerKey' => 'main',
-            'widgetIndex' => 0,
+            'elementIndex' => 0,
             'index' => 0,
             'type' => AssetEnum::Page->value,
             'contentInventorySignature' => 'known-signature',
@@ -96,10 +96,10 @@ it('builds editor safe content groups in visual layout order from the package na
 
 it('lets higher priority package contributors decorate groups and items last', function (): void {
     $layout = Layout::factory()->create();
-    $widget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero widget']);
+    $element = Element::factory()->create(['key' => 'hero', 'name' => 'Hero element']);
     $page = Page::factory()->withTranslations()->create(['name' => 'Home page']);
-    $widgetAsset = WidgetAsset::factory()->widget($widget)->asset($page)->create();
-    $widget->setRelation('assets', new EloquentCollection([$widgetAsset->load('asset.translation')]));
+    $elementAsset = ElementAsset::factory()->element($element)->asset($page)->create();
+    $element->setRelation('assets', new EloquentCollection([$elementAsset->load('asset.translation')]));
 
     $lowPriorityContributor = new class implements LayoutContentGroupContributor
     {
@@ -129,7 +129,7 @@ it('lets higher priority package contributors decorate groups and items last', f
 
         public function cacheDependencies(): array
         {
-            return ['widgets'];
+            return ['elements'];
         }
     };
 
@@ -168,9 +168,9 @@ it('lets higher priority package contributors decorate groups and items last', f
     $inventory = BuildLayoutContentInventoryAction::run(
         layout: $layout,
         page: null,
-        containers: ['hero' => ['widgets' => [['widget_key' => $widget->key, 'occurrence' => 1]], 'meta' => []]],
-        containerWidgets: ['hero' => [0 => $widget]],
-        assets: ['hero' => [0 => [layoutBuilderInventoryAssetState($widgetAsset)]]],
+        containers: ['hero' => ['elements' => [['element_key' => $element->key, 'occurrence' => 1]], 'meta' => []]],
+        containerElements: ['hero' => [0 => $element]],
+        assets: ['hero' => [0 => [layoutBuilderInventoryAssetState($elementAsset)]]],
         signature: 'known-signature',
         contributors: [$highPriorityContributor, $lowPriorityContributor],
     );
@@ -182,15 +182,15 @@ it('lets higher priority package contributors decorate groups and items last', f
 /**
  * @return array<string, mixed>
  */
-function layoutBuilderInventoryAssetState(WidgetAsset $widgetAsset): array
+function layoutBuilderInventoryAssetState(ElementAsset $elementAsset): array
 {
     return [
-        'id' => $widgetAsset->getKey(),
-        'layout_module_id' => $widgetAsset->layout_module_id,
-        'asset_id' => $widgetAsset->asset_id,
-        'asset_type' => $widgetAsset->asset_type,
-        'meta' => $widgetAsset->meta ?? [],
-        'order' => $widgetAsset->order,
-        'occurrence' => $widgetAsset->occurrence,
+        'id' => $elementAsset->getKey(),
+        'layout_element_id' => $elementAsset->layout_element_id,
+        'asset_id' => $elementAsset->asset_id,
+        'asset_type' => $elementAsset->asset_type,
+        'meta' => $elementAsset->meta ?? [],
+        'order' => $elementAsset->order,
+        'occurrence' => $elementAsset->occurrence,
     ];
 }
