@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Listeners;
 
 use Capell\Core\Models\Layout;
+use Capell\LayoutBuilder\Support\LayoutElementData;
 use Illuminate\Support\Facades\Schema;
 
 class LayoutSavingListener
@@ -19,9 +20,11 @@ class LayoutSavingListener
         $containers = is_array($containers) ? $containers : [];
 
         $layout->setAttribute('elements', collect($containers)
-            ->flatMap(fn (array $container): array => $container['elements'] ?? [])
-            ->unique('element_key')
-            ->pluck('element_key')
+            ->flatMap(fn (array $container): array => LayoutElementData::normalizeMany($container['elements'] ?? []))
+            ->map(fn (array $element): ?string => LayoutElementData::key($element))
+            ->filter()
+            ->unique()
+            ->values()
             ->all());
     }
 }

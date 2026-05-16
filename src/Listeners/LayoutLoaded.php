@@ -10,6 +10,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Models\Element;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
+use Capell\LayoutBuilder\Support\LayoutElementData;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 
 class LayoutLoaded implements EventSubscriber
@@ -50,21 +51,13 @@ class LayoutLoaded implements EventSubscriber
         $containers = is_array($containers) ? $containers : [];
 
         foreach ($containers as $containerKey => $container) {
-            if (! isset($container['elements'])) {
-                continue;
-            }
-
-            if (! is_array($container['elements'])) {
-                continue;
-            }
-
-            foreach ($container['elements'] as $elementData) {
-                if (! isset($elementData['element_key'])) {
+            foreach (LayoutElementData::normalizeMany($container['elements'] ?? []) as $elementData) {
+                $elementKey = LayoutElementData::key($elementData);
+                if ($elementKey === null) {
                     continue;
                 }
 
-                $elementKey = $elementData['element_key'];
-                $occurrence = $elementData['occurrence'] ?? 1;
+                $occurrence = LayoutElementData::occurrence($elementData);
 
                 $element = $loader->getLayoutElement(
                     $layout,

@@ -9,6 +9,7 @@ use Capell\LayoutBuilder\Data\LayoutDiagnosticData;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
 use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Support\LayoutElementData;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 final class AnalyzeLayoutDiagnosticsAction
@@ -18,30 +19,18 @@ final class AnalyzeLayoutDiagnosticsAction
     /**
      * @return array<int, LayoutDiagnosticData>
      */
-    public function handle(LayoutBuilderStateData $state): array
+    /**
+     * @param  array<int, string>|null  $knownElementKeys
+     */
+    public function handle(LayoutBuilderStateData $state, ?array $knownElementKeys = null): array
     {
-        $layoutElementKeys = collect($state->containers)
-            ->flatMap(fn (array $container): array => array_map(
-                static fn (array $element): mixed => $element['element_key'] ?? null,
-                $container['elements'] ?? [],
-            ))
-            ->filter(static fn (mixed $elementKey): bool => is_string($elementKey) && $elementKey !== '')
-            ->unique()
-            ->values()
-            ->all();
-
-        $knownElementKeys = $layoutElementKeys === []
-            ? []
-            : Element::query()
-                ->whereIn('key', $layoutElementKeys)
-                ->pluck('key')
-                ->all();
+        $knownElementKeys ??= $this->knownElementKeys($state);
 
         $diagnostics = [];
 
         foreach ($state->containers as $containerKey => $container) {
-            foreach (($container['elements'] ?? []) as $elementIndex => $element) {
-                $elementKey = $element['element_key'] ?? null;
+            foreach (LayoutElementData::normalizeMany($container['elements'] ?? []) as $elementIndex => $element) {
+                $elementKey = LayoutElementData::key($element);
 
                 if (! is_string($elementKey) || ! in_array($elementKey, $knownElementKeys, true)) {
                     $diagnostics[] = new LayoutDiagnosticData(
@@ -73,5 +62,26 @@ final class AnalyzeLayoutDiagnosticsAction
         }
 
         return $diagnostics;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function knownElementKeys(LayoutBuilderStateData $state): array
+    {
+        $layoutElementKeys = collect($state->containers)
+            ->flatMap(fn (array $container): array => LayoutElementData::normalizeMany($container['elements'] ?? []))
+            ->map(static fn (array $element): ?string => LayoutElementData::key($element))
+            ->filter(static fn (mixed $elementKey): bool => is_string($elementKey) && $elementKey !== '')
+            ->unique()
+            ->values()
+            ->all();
+
+        return $layoutElementKeys === []
+            ? []
+            : Element::query()
+                ->whereIn('key', $layoutElementKeys)
+                ->pluck('key')
+                ->all();
     }
 }

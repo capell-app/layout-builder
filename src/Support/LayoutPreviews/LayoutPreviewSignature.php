@@ -6,6 +6,7 @@ namespace Capell\LayoutBuilder\Support\LayoutPreviews;
 
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Support\LayoutElementData;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 final class LayoutPreviewSignature
@@ -51,22 +52,13 @@ final class LayoutPreviewSignature
                 continue;
             }
 
-            $elements = $container['elements'] ?? [];
-
-            if (! is_array($elements)) {
-                continue;
-            }
-
-            foreach ($elements as $element) {
-                if (! is_array($element)) {
+            foreach (LayoutElementData::normalizeMany($container['elements'] ?? []) as $element) {
+                $elementKey = LayoutElementData::key($element);
+                if ($elementKey === null) {
                     continue;
                 }
 
-                if (! isset($element['element_key'])) {
-                    continue;
-                }
-
-                $elementKeys[] = (string) $element['element_key'];
+                $elementKeys[] = $elementKey;
             }
         }
 
@@ -132,23 +124,19 @@ final class LayoutPreviewSignature
      */
     private function normalizeElements(mixed $containerElements, array $elements): array
     {
-        if (! is_array($containerElements)) {
-            return [];
-        }
-
         $normalizedElements = [];
 
-        foreach ($containerElements as $containerElement) {
-            if (! is_array($containerElement)) {
+        foreach (LayoutElementData::normalizeMany($containerElements) as $containerElement) {
+            $elementKey = LayoutElementData::key($containerElement);
+            if ($elementKey === null) {
                 continue;
             }
 
-            $elementKey = (string) ($containerElement['element_key'] ?? '');
             $element = $elements[$elementKey] ?? null;
 
             $normalizedElements[] = [
                 'key' => $elementKey,
-                'occurrence' => (int) ($containerElement['occurrence'] ?? 1),
+                'occurrence' => LayoutElementData::occurrence($containerElement),
                 'name' => $element?->name,
                 'icon' => $element?->admin['icon'] ?? $element?->type?->admin['icon'] ?? null,
                 'type_name' => $element?->type?->name,

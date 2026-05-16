@@ -6,16 +6,21 @@ namespace Capell\LayoutBuilder;
 
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\LayoutBuilder\Console\Commands\BlockVisualRegressionCommand;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
 use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Contracts\LayoutSidebarElementContributor;
 use Capell\LayoutBuilder\Contracts\PublicElementPayloadContributor;
 use Capell\LayoutBuilder\Contracts\PublicElementPayloadResolver;
+use Capell\LayoutBuilder\Models\LayoutPreset;
+use Capell\LayoutBuilder\Policies\LayoutPresetPolicy;
+use Capell\LayoutBuilder\Support\BlockPresentationPublicElementPayloadContributor;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\DefaultPublicElementPayloadResolver;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Capell\LayoutBuilder\Support\LayoutBuilderCoreRegistrar;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
+use Illuminate\Support\Facades\Gate;
 use Spatie\LaravelPackageTools\Package;
 
 class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
@@ -39,11 +44,12 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->tag([], LayoutContentGroupContributor::TAG);
         $this->app->tag([], LayoutSidebarElementContributor::TAG);
         $this->app->scoped(LayoutLoader::class);
-        $this->app->bind(PublicElementPayloadResolver::class, DefaultPublicElementPayloadResolver::class);
-        $this->app->tag([], PublicElementPayloadContributor::TAG);
+        $this->app->scoped(PublicElementPayloadResolver::class, DefaultPublicElementPayloadResolver::class);
+        $this->app->tag([BlockPresentationPublicElementPayloadContributor::class], PublicElementPayloadContributor::TAG);
 
         if ($this->app->runningInConsole()) {
             $this->commands([
+                BlockVisualRegressionCommand::class,
                 InstallCommand::class,
             ]);
         }
@@ -51,6 +57,8 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
 
     public function packageBooted(): void
     {
+        Gate::policy(LayoutPreset::class, LayoutPresetPolicy::class);
+
         $this->app->make(LayoutBuilderCoreRegistrar::class)->register();
 
         if (! $this->isPackageInstalled()) {

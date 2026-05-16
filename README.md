@@ -27,15 +27,18 @@ Configuration lives in `config/capell-layout-builder.php`.
 
 ## Main Surfaces
 
-| Surface                        | Package path                                                                                               |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| Public graph building          | `src/Actions/BuildPublicLayoutGraphAction.php`                                                             |
-| Public element payloads        | `src/Contracts/PublicElementPayloadContributor.php`, `src/Support/DefaultPublicElementPayloadResolver.php` |
-| Content-first inventory        | `src/Actions/BuildLayoutContentInventoryAction.php`                                                        |
-| Layout mutations               | `src/Actions/Mutations/`                                                                                   |
-| Filament resources and schemas | `src/Filament/`                                                                                            |
-| Livewire editor                | `src/Livewire/Filament/LayoutBuilder.php`                                                                  |
-| Admin views and components     | `resources/views/`                                                                                         |
+| Surface                        | Package path                                                                                                       |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| Public graph building          | `src/Actions/BuildPublicLayoutGraphAction.php`                                                                     |
+| Public element payloads        | `src/Contracts/PublicElementPayloadContributor.php`, `src/Support/DefaultPublicElementPayloadResolver.php`         |
+| Block presentation projection  | `src/Actions/ResolveBlockPresentationDataAction.php`                                                               |
+| Layout health checks           | `src/Actions/AnalyzeLayoutHealthAction.php`                                                                        |
+| Reusable layout presets        | `src/Models/LayoutPreset.php`, `src/Actions/SaveLayoutPresetAction.php`, `src/Actions/ApplyLayoutPresetAction.php` |
+| Content-first inventory        | `src/Actions/BuildLayoutContentInventoryAction.php`                                                                |
+| Layout mutations               | `src/Actions/Mutations/`                                                                                           |
+| Filament resources and schemas | `src/Filament/`                                                                                                    |
+| Livewire editor                | `src/Livewire/Filament/LayoutBuilder.php`                                                                          |
+| Admin views and components     | `resources/views/`                                                                                                 |
 
 ## Public Rendering
 
@@ -52,6 +55,35 @@ $graph = BuildPublicLayoutGraphAction::run(
 ```
 
 Payload contributors are tagged with `Capell\LayoutBuilder\Contracts\PublicElementPayloadContributor::TAG`. Contributors should return public-safe data or HTML only; do not expose admin state, editor-only metadata, private IDs, or unpublished content.
+
+Block variants and settings are stored as authoring state in element meta, but public rendering receives only the sanitized `presentation` payload:
+
+```php
+[
+    'variant' => 'split-media',
+    'spacing' => 'normal',
+    'background' => 'default',
+    'mediaPosition' => 'top',
+    'cardsPerRow' => 3,
+    'showCta' => true,
+    'headingWidth' => 'normal',
+    'anchorId' => null,
+]
+```
+
+Public Blade must not query the database, lazy-load relationships, resolve block contracts, expose raw meta, or include authoring selectors, signed URLs, diagnostics, package internals, schema, labels, or preview/admin view names.
+
+## Reusable Presets
+
+Saved agency presets are persisted in `layout_presets` and scoped to a required `site_id` with optional `theme_key`. Presets are layout-only by default: they deep-copy structure, selected block variants, and settings without duplicating client content. Applying a preset revalidates site scope and regenerates duplicate anchors.
+
+The older in-session `LayoutPresetRepository` remains only for temporary editor fragments; package and agency presets should use `SaveLayoutPresetAction` and `ApplyLayoutPresetAction`.
+
+## Visual Regression Manifests
+
+Use `capell:layout-builder-block-visual-regression capture` or `assert` to emit deterministic block/variant/viewport fixture entries for a screenshot runner. The command supports `--block`, `--theme`, `--variant`, `--changed`, `--concurrency`, and `--ci-limit`.
+
+The command does not authenticate, generate signed routes, query tenant content, or use live media. Browser capture/compare remains the responsibility of the runner.
 
 ## Editor Modes
 

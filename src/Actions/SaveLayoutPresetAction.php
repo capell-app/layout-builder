@@ -1,0 +1,280 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\LayoutBuilder\Actions;
+
+use Capell\Core\Models\Layout;
+use Capell\Core\Models\Site;
+use Capell\LayoutBuilder\Models\LayoutPreset;
+use Capell\LayoutBuilder\Support\LayoutElementData;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use InvalidArgumentException;
+use LogicException;
+use Lorisleiva\Actions\Concerns\AsObject;
+
+final class SaveLayoutPresetAction
+{
+    use AsObject;
+
+    /** @var list<string> */
+    private const UNSAFE_PRESET_KEYS = [
+        'admin_schema',
+        'admin_url',
+        'adminSchema',
+        'authoring',
+        'data_model_id',
+        'data_model_type',
+        'diagnostics',
+        'edit_url',
+        'editUrl',
+        'editor_selectors',
+        'editorSelectors',
+        'editor_url',
+        'editorUrl',
+        'field_path',
+        'fieldPath',
+        'model_id',
+        'modelId',
+        'package',
+        'package_name',
+        'permissions',
+        'preview_view',
+        'public_view',
+        'schema',
+        'signed_url',
+        'signed_admin_url',
+        'signed_editor_url',
+        'signedAdminUrl',
+        'signedEditorUrl',
+        'signedUrl',
+    ];
+
+    public function handle(
+        Layout $layout,
+        Site $site,
+        string $name,
+        ?string $key = null,
+        string $category = 'general',
+        ?string $themeKey = null,
+        ?array $containers = null,
+        bool $includeStarterContent = false,
+        bool $replaceExisting = false,
+    ): LayoutPreset {
+        if ($layout->site_id !== null && (int) $layout->site_id !== (int) $site->getKey()) {
+            throw new LogicException('Layout presets can only be saved for the layout site.');
+        }
+
+        $presetKey = $key !== null && trim($key) !== '' ? Str::slug($key) : Str::slug($name);
+
+        if ($presetKey === '') {
+            throw new InvalidArgumentException('Layout preset key must not be empty.');
+        }
+
+        return DB::transaction(function () use ($site, $presetKey, $themeKey, $name, $category, $layout, $containers, $includeStarterContent, $replaceExisting): LayoutPreset {
+            $identity = [
+                'site_id' => $site->getKey(),
+                'key' => $presetKey,
+            ];
+
+            $values = [
+                'theme_key' => $themeKey,
+                'name' => $name,
+                'category' => $category,
+                'scope' => $includeStarterContent ? 'starter_content' : 'layout_only',
+                'snapshot' => [
+                    'containers' => $this->snapshotContainers($layout, $includeStarterContent, $containers),
+                    'includeStarterContent' => $includeStarterContent,
+                ],
+            ];
+
+            $existingPreset = LayoutPreset::query()
+                ->where($identity)
+                ->lockForUpdate()
+                ->first();
+
+            if ($existingPreset instanceof LayoutPreset) {
+                if (! $replaceExisting) {
+                    throw new LogicException('A layout preset with this key already exists for the site.');
+                }
+
+                $existingPreset->fill($values);
+                $existingPreset->save();
+
+                return $existingPreset->refresh();
+            }
+
+            try {
+                return LayoutPreset::query()->create([...$identity, ...$values]);
+            } catch (QueryException $exception) {
+                $conflictingPreset = LayoutPreset::query()
+                    ->where($identity)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $conflictingPreset instanceof LayoutPreset) {
+                    throw $exception;
+                }
+
+                if (! $replaceExisting) {
+                    throw new LogicException('A layout preset with this key already exists for the site.', previous: $exception);
+                }
+
+                $conflictingPreset->fill($values);
+                $conflictingPreset->save();
+
+                return $conflictingPreset->refresh();
+            }
+        });
+    }
+
+    /**
+     * @param  array<string, mixed>  $containers
+     * @return array<string, mixed>
+     */
+    public function sanitizePresetContainers(array $containers): array
+    {
+        return $this->scrubUnsafePresetData($containers);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function snapshotContainers(Layout $layout, bool $includeStarterContent, ?array $containers = null): array
+    {
+        $containers ??= is_array($layout->containers) ? $layout->containers : [];
+
+        return collect($containers)
+            ->map(function (mixed $container) use ($includeStarterContent): array {
+                $container = is_array($container) ? $container : [];
+                $elements = is_array($container['elements'] ?? null) ? $container['elements'] : [];
+
+                $container = $this->scrubUnsafePresetData($container);
+                $container['elements'] = array_map(
+                    fn (array $element): array => $this->snapshotElement($element, $includeStarterContent),
+                    LayoutElementData::normalizeMany($elements),
+                );
+
+                return $container;
+            })
+            ->all();
+    }
+
+    /**
+     * @param  array<string, mixed>  $element
+     * @return array<string, mixed>
+     */
+    private function snapshotElement(array $element, bool $includeStarterContent): array
+    {
+        $snapshot = array_intersect_key($element, array_flip(['element_key', 'occurrence']));
+        $snapshot['occurrence'] = LayoutElementData::occurrence($element);
+
+        $meta = is_array($element['meta'] ?? null) ? $element['meta'] : [];
+        $snapshot['meta'] = $this->safeBlockMeta($meta, $includeStarterContent);
+
+        if (! $includeStarterContent) {
+            return $snapshot;
+        }
+
+        foreach (['content', 'items', 'cta', 'media', 'image', 'images'] as $key) {
+            if (array_key_exists($key, $element)) {
+                $snapshot[$key] = $this->scrubUnsafePresetData($element[$key]);
+            }
+        }
+
+        return $snapshot;
+    }
+
+    /**
+     * @param  array<string, mixed>  $meta
+     * @return array<string, mixed>
+     */
+    private function safeBlockMeta(array $meta, bool $includeStarterContent): array
+    {
+        $safeMeta = array_intersect_key($meta, array_flip(['block_key', 'block_variant']));
+        $settings = is_array($meta['block_settings'] ?? null) ? $meta['block_settings'] : [];
+        $safeSettings = array_intersect_key($settings, array_flip([
+            'spacing',
+            'background',
+            'media_position',
+            'cards_per_row',
+            'show_cta',
+            'heading_width',
+            'anchor_id',
+        ]));
+
+        if ($safeSettings !== []) {
+            $safeMeta['block_settings'] = $safeSettings;
+        }
+
+        if ($includeStarterContent && is_array($meta['content'] ?? null)) {
+            $safeMeta['content'] = $this->scrubUnsafePresetData($meta['content']);
+        }
+
+        return $this->scrubUnsafePresetData($safeMeta);
+    }
+
+    private function scrubUnsafePresetData(mixed $value): mixed
+    {
+        if (is_string($value) && $this->containsUnsafePresetToken($value)) {
+            return '';
+        }
+
+        if (! is_array($value)) {
+            return $value;
+        }
+
+        $value = array_filter(
+            $value,
+            fn (mixed $item, mixed $key): bool => ! is_string($key) || ! $this->isUnsafePresetKey($key),
+            ARRAY_FILTER_USE_BOTH,
+        );
+
+        return array_map(fn (mixed $item): mixed => $this->scrubUnsafePresetData($item), $value);
+    }
+
+    private function isUnsafePresetKey(string $key): bool
+    {
+        $normalizedKey = Str::of($key)
+            ->snake()
+            ->replace('-', '_')
+            ->lower()
+            ->value();
+
+        return in_array($normalizedKey, self::UNSAFE_PRESET_KEYS, true)
+            || str_contains($normalizedKey, 'authoring')
+            || str_contains($normalizedKey, 'editor')
+            || str_contains($normalizedKey, 'field_path')
+            || str_contains($normalizedKey, 'model_id')
+            || str_contains($normalizedKey, 'permission')
+            || str_contains($normalizedKey, 'signed')
+            || str_starts_with($normalizedKey, 'admin_')
+            || str_starts_with($normalizedKey, 'data_model_');
+    }
+
+    private function containsUnsafePresetToken(string $value): bool
+    {
+        $normalizedValue = Str::of($value)
+            ->lower()
+            ->replace(['-', ' '], '_')
+            ->value();
+
+        $urlLike = str_starts_with($normalizedValue, 'http://')
+            || str_starts_with($normalizedValue, 'https://')
+            || str_starts_with($normalizedValue, '/')
+            || str_contains($normalizedValue, '?')
+            || str_contains($normalizedValue, '=');
+
+        if (! $urlLike) {
+            return false;
+        }
+
+        return str_contains($normalizedValue, 'signed')
+            || str_contains($normalizedValue, 'editor')
+            || str_contains($normalizedValue, '/admin')
+            || str_contains($normalizedValue, 'admin/')
+            || str_contains($normalizedValue, 'signature=');
+    }
+}

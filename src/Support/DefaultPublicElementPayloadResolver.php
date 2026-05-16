@@ -13,6 +13,11 @@ use Capell\LayoutBuilder\Models\Element;
 class DefaultPublicElementPayloadResolver implements PublicElementPayloadResolver
 {
     /**
+     * @var array<int, object>|null
+     */
+    private ?array $contributors = null;
+
+    /**
      * @return array<string, mixed>
      */
     public function data(Element $element, Page $page, Language $language, string $containerKey, int $occurrence): array
@@ -47,7 +52,11 @@ class DefaultPublicElementPayloadResolver implements PublicElementPayloadResolve
      */
     private function contributors(): array
     {
-        return collect(app()->tagged(PublicElementPayloadContributor::TAG))
+        if ($this->contributors !== null) {
+            return $this->contributors;
+        }
+
+        $this->contributors = collect(app()->tagged(PublicElementPayloadContributor::TAG))
             ->filter(fn (mixed $contributor): bool => is_object($contributor)
                 && method_exists($contributor, 'priority')
                 && method_exists($contributor, 'data')
@@ -55,5 +64,7 @@ class DefaultPublicElementPayloadResolver implements PublicElementPayloadResolve
             ->sortBy(fn (object $contributor): int => $contributor->priority())
             ->values()
             ->all();
+
+        return $this->contributors;
     }
 }

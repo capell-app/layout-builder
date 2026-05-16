@@ -13,6 +13,7 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Models\Element;
 use Capell\LayoutBuilder\Models\ElementAsset;
+use Capell\LayoutBuilder\Support\LayoutElementData;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Collection;
@@ -65,6 +66,10 @@ class LayoutLoader
         $containers = $this->selectedLayoutContainers($layout, $containerKeys);
         $selectedElementKeys = $this->selectedElementKeys($containers);
         $selectedContainerOccurrences = $this->selectedContainerOccurrences($containers);
+
+        if (! $layout->relationLoaded('media')) {
+            $layout->load(['media' => fn (BuilderContract $query): BuilderContract => $query->ordered()]);
+        }
 
         if ($selectedElementKeys === [] || ! Schema::hasTable('elements')) {
             $layout->setRelation('layoutElements', collect());
@@ -209,21 +214,13 @@ class LayoutLoader
         // Build the final preloaded map per container/element/occurrence
         $result = [];
         foreach ($containers as $containerKey => $container) {
-            if (! isset($container['elements'])) {
-                continue;
-            }
-
-            if (! is_array($container['elements'])) {
-                continue;
-            }
-
-            foreach ($container['elements'] as $elementData) {
-                if (! isset($elementData['element_key'])) {
+            foreach (LayoutElementData::normalizeMany($container['elements'] ?? []) as $elementData) {
+                $elementKey = LayoutElementData::key($elementData);
+                if ($elementKey === null) {
                     continue;
                 }
 
-                $elementKey = (string) $elementData['element_key'];
-                $occurrence = (int) ($elementData['occurrence'] ?? 1);
+                $occurrence = LayoutElementData::occurrence($elementData);
 
                 $baseElement = $elementsByKey[$elementKey] ?? null;
                 if (! $baseElement instanceof Element) {
@@ -371,8 +368,8 @@ class LayoutLoader
     private function selectedElementKeys(array $containers): array
     {
         return collect($containers)
-            ->flatMap(fn (array $container): array => is_array($container['elements'] ?? null) ? $container['elements'] : [])
-            ->map(fn (mixed $elementData): ?string => is_array($elementData) && is_string($elementData['element_key'] ?? null) ? $elementData['element_key'] : null)
+            ->flatMap(fn (array $container): array => LayoutElementData::normalizeMany($container['elements'] ?? []))
+            ->map(static fn (array $elementData): ?string => LayoutElementData::key($elementData))
             ->filter()
             ->unique()
             ->values()
@@ -388,20 +385,10 @@ class LayoutLoader
         $positions = [];
 
         foreach ($containers as $containerKey => $container) {
-            $elements = $container['elements'] ?? [];
-
-            if (! is_array($elements)) {
-                continue;
-            }
-
-            foreach ($elements as $elementData) {
-                if (! is_array($elementData)) {
-                    continue;
-                }
-
+            foreach (LayoutElementData::normalizeMany($container['elements'] ?? []) as $elementData) {
                 $positions[] = [
                     'container' => $containerKey,
-                    'occurrence' => (int) ($elementData['occurrence'] ?? 1),
+                    'occurrence' => LayoutElementData::occurrence($elementData),
                 ];
             }
         }

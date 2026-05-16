@@ -11,11 +11,13 @@ use Capell\Core\Actions\GetResourceFromBlueprintAction;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
-use Capell\LayoutBuilder\Actions\AnalyzeLayoutDiagnosticsAction;
+use Capell\Core\Models\Theme;
+use Capell\LayoutBuilder\Actions\AnalyzeLayoutHealthAction;
 use Capell\LayoutBuilder\Actions\BuildLayoutContentInventoryAction;
 use Capell\LayoutBuilder\Actions\Mutations\CreateLayoutFragmentAction;
 use Capell\LayoutBuilder\Actions\Mutations\PasteLayoutFragmentAction;
 use Capell\LayoutBuilder\Actions\PersistLayoutBuilderStateAction;
+use Capell\LayoutBuilder\Actions\SaveLayoutPresetAction;
 use Capell\LayoutBuilder\Actions\SummarizeLayoutChangesAction;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryData;
@@ -29,9 +31,9 @@ use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesAssets;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesContainers;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesElements;
 use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Support\LayoutBuilderConfiguration;
 use Capell\LayoutBuilder\Support\LayoutClipboard;
-use Capell\LayoutBuilder\Support\LayoutPresetRepository;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
@@ -43,13 +45,16 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
+use InvalidArgumentException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use LogicException;
 
 /**
  * @property-read ?Pageable $page
@@ -501,25 +506,73 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->trackNewContainerKeysSince($knownContainerKeys);
     }
 
-    public function saveLayoutPreset(string $containerKey, string $name, string $description): void
+    public function saveLayoutPreset(string $containerKey, string $name): void
     {
         $this->assertCanUpdateLayout();
         $this->ensureLoaded();
         $this->assertValidContainerKey($containerKey);
 
         if (! isset($this->containers[$containerKey])) {
+            Notification::make('layout-preset-container-missing')
+                ->body(__('capell-layout-builder::message.no_container_selected'))
+                ->warning()
+                ->send();
+
             return;
         }
 
         $name = trim($name);
 
         if ($name === '') {
+            Notification::make('layout-preset-name-required')
+                ->body(__('capell-layout-builder::message.layout_preset_name_required'))
+                ->warning()
+                ->send();
+
             return;
         }
 
-        $fragment = CreateLayoutFragmentAction::run($this->layoutState(), $containerKey, null);
+        if (! $this->site instanceof Site) {
+            Notification::make('layout-preset-site-missing')
+                ->body(__('capell-layout-builder::message.site_missing_warning'))
+                ->warning()
+                ->send();
 
-        resolve(LayoutPresetRepository::class)->put($name, $description, $fragment);
+            return;
+        }
+
+        $this->assertCanCreateLayoutPreset($this->site);
+
+        try {
+            SaveLayoutPresetAction::run(
+                layout: $this->layout,
+                site: $this->site,
+                name: $name,
+                category: $containerKey,
+                containers: [$containerKey => $this->containers[$containerKey]],
+            );
+        } catch (InvalidArgumentException) {
+            Notification::make('layout-preset-save-failed')
+                ->body(__('capell-layout-builder::message.layout_preset_name_required'))
+                ->warning()
+                ->send();
+
+            return;
+        } catch (LogicException $exception) {
+            Notification::make('layout-preset-save-failed')
+                ->body(str_contains($exception->getMessage(), 'already exists')
+                    ? __('capell-layout-builder::message.layout_preset_duplicate')
+                    : __('capell-layout-builder::message.layout_preset_save_failed'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        Notification::make('layout-preset-saved')
+            ->body(__('capell-layout-builder::message.layout_preset_saved'))
+            ->success()
+            ->send();
     }
 
     public function insertLayoutPreset(string $name, string $targetContainerKey): void
@@ -528,11 +581,55 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->ensureLoaded();
         $this->assertValidContainerKey($targetContainerKey);
 
-        $fragment = resolve(LayoutPresetRepository::class)->find($name);
+        if (! $this->site instanceof Site) {
+            Notification::make('layout-preset-site-missing')
+                ->body(__('capell-layout-builder::message.site_missing_warning'))
+                ->warning()
+                ->send();
 
-        if ($fragment === null) {
             return;
         }
+
+        $preset = LayoutPreset::query()
+            ->forSite($this->site)
+            ->where(function (EloquentBuilder $query) use ($name): void {
+                $query->where('name', $name)
+                    ->orWhere('key', $name);
+            })
+            ->first();
+
+        if (! $preset instanceof LayoutPreset) {
+            Notification::make('layout-preset-missing')
+                ->body(__('capell-layout-builder::message.layout_preset_not_found'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $snapshot = is_array($preset->snapshot) ? $preset->snapshot : [];
+        $this->assertCanApplyLayoutPreset($preset, $this->site);
+
+        $containers = is_array($snapshot['containers'] ?? null) ? $snapshot['containers'] : [];
+        $containers = app(SaveLayoutPresetAction::class)->sanitizePresetContainers($containers);
+        $sourceContainerKey = array_key_first($containers);
+        $container = is_string($sourceContainerKey) ? ($containers[$sourceContainerKey] ?? null) : null;
+
+        if (! is_string($sourceContainerKey) || ! is_array($container)) {
+            Notification::make('layout-preset-invalid')
+                ->body(__('capell-layout-builder::message.layout_preset_invalid'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $fragment = new LayoutFragmentData(
+            sourceContainerKey: $sourceContainerKey,
+            sourceElementIndex: null,
+            container: $container,
+            element: null,
+        );
 
         $knownContainerKeys = array_keys($this->containers ?? []);
 
@@ -703,6 +800,24 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->authorizeLayoutBuilderAbility($actor, 'editLayout', $this->layout);
     }
 
+    protected function assertCanCreateLayoutPreset(Site $site): void
+    {
+        $actor = Filament::auth()->user();
+
+        throw_if($actor === null, AuthenticationException::class);
+
+        Gate::forUser($actor)->authorize('create', [LayoutPreset::class, $site]);
+    }
+
+    protected function assertCanApplyLayoutPreset(LayoutPreset $preset, Site $site): void
+    {
+        $actor = Filament::auth()->user();
+
+        throw_if($actor === null, AuthenticationException::class);
+
+        Gate::forUser($actor)->authorize('apply', [$preset, $site]);
+    }
+
     protected function assertLayoutMatchesPageSite(): void
     {
         if (! $this->page instanceof Model) {
@@ -838,8 +953,22 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     {
         $this->layoutDiagnostics = array_map(
             fn (mixed $diagnostic): array => method_exists($diagnostic, 'toArray') ? $diagnostic->toArray() : (array) $diagnostic,
-            AnalyzeLayoutDiagnosticsAction::run($this->layoutState()),
+            AnalyzeLayoutHealthAction::run($this->layoutState(), $this->activeThemeKey()),
         );
+    }
+
+    protected function activeThemeKey(): ?string
+    {
+        $layoutTheme = $this->layout->relationLoaded('theme') ? $this->layout->getRelation('theme') : $this->layout->theme()->first();
+
+        if ($layoutTheme instanceof Theme) {
+            return $layoutTheme->key;
+        }
+
+        $site = $this->getSite();
+        $siteTheme = $site?->relationLoaded('theme') === true ? $site->getRelation('theme') : $site?->theme()->first();
+
+        return $siteTheme instanceof Theme ? $siteTheme->key : null;
     }
 
     protected function hasBlockingLayoutDiagnostics(): bool

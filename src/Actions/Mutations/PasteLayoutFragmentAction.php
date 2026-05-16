@@ -8,6 +8,7 @@ use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutChangeData;
 use Capell\LayoutBuilder\Data\LayoutFragmentData;
 use Capell\LayoutBuilder\Data\LayoutMutationResultData;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 final class PasteLayoutFragmentAction
@@ -44,7 +45,8 @@ final class PasteLayoutFragmentAction
         $containers = $state->containers;
         $containerKey = $this->availableContainerKey($containers, $fragment->sourceContainerKey);
 
-        $containers[$containerKey] = $fragment->container;
+        $usedAnchors = $this->usedAnchors($containers);
+        $containers[$containerKey] = $this->withUniqueAnchors($fragment->container, $usedAnchors);
 
         $assets = $state->assets;
         $assets[$containerKey] = $fragment->assets;
@@ -83,8 +85,10 @@ final class PasteLayoutFragmentAction
         $containers = $state->containers;
         $elements = $containers[$targetContainerKey]['elements'] ?? [];
         $targetIndex = min(count($elements), max(0, $targetIndex ?? count($elements)));
+        $usedAnchors = $this->usedAnchors($containers);
+        $element = $this->withUniqueElementAnchor($fragment->element, $usedAnchors);
 
-        $containers[$targetContainerKey]['elements'] = $this->insertSlot($elements, $targetIndex, $fragment->element);
+        $containers[$targetContainerKey]['elements'] = $this->insertSlot($elements, $targetIndex, $element);
 
         $assets = $state->assets;
         $assets[$targetContainerKey] = $this->insertSlot($assets[$targetContainerKey] ?? [], $targetIndex, $fragment->assets);
@@ -137,5 +141,83 @@ final class PasteLayoutFragmentAction
             $item,
             ...array_slice($items, $index),
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $containers
+     * @return array<string, bool>
+     */
+    private function usedAnchors(array $containers): array
+    {
+        $anchors = [];
+
+        foreach ($containers as $container) {
+            if (! is_array($container)) {
+                continue;
+            }
+
+            $elements = is_array($container['elements'] ?? null) ? $container['elements'] : [];
+
+            foreach ($elements as $element) {
+                if (! is_array($element)) {
+                    continue;
+                }
+
+                $anchor = $element['meta']['block_settings']['anchor_id'] ?? null;
+                if (! is_string($anchor) || trim($anchor) === '') {
+                    continue;
+                }
+
+                $anchors[Str::slug($anchor)] = true;
+            }
+        }
+
+        return $anchors;
+    }
+
+    /**
+     * @param  array<string, bool>  $usedAnchors
+     * @return array<string, mixed>
+     */
+    private function withUniqueAnchors(array $container, array &$usedAnchors): array
+    {
+        $elements = is_array($container['elements'] ?? null) ? $container['elements'] : [];
+
+        foreach ($elements as &$element) {
+            $element = $this->withUniqueElementAnchor($element, $usedAnchors);
+        }
+
+        $container['elements'] = $elements;
+
+        return $container;
+    }
+
+    /**
+     * @param  array<string, bool>  $usedAnchors
+     */
+    private function withUniqueElementAnchor(mixed $element, array &$usedAnchors): mixed
+    {
+        if (! is_array($element)) {
+            return $element;
+        }
+
+        $anchor = $element['meta']['block_settings']['anchor_id'] ?? null;
+        if (! is_string($anchor) || trim($anchor) === '') {
+            return $element;
+        }
+
+        $baseAnchor = Str::slug($anchor);
+        $uniqueAnchor = $baseAnchor;
+        $suffix = 2;
+
+        while (isset($usedAnchors[$uniqueAnchor])) {
+            $uniqueAnchor = $baseAnchor . '-' . $suffix;
+            $suffix++;
+        }
+
+        $element['meta']['block_settings']['anchor_id'] = $uniqueAnchor;
+        $usedAnchors[$uniqueAnchor] = true;
+
+        return $element;
     }
 }
