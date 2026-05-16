@@ -21,8 +21,12 @@ class ApplyLayoutSidebarElementContributionsAction
     {
         $containers = $layout->getAttribute('containers');
 
-        if (! is_array($containers) || ! isset($containers['sidebar']) || ! is_array($containers['sidebar'])) {
-            return;
+        if (! is_array($containers)) {
+            $containers = [];
+        }
+
+        if (! isset($containers['sidebar']) || ! is_array($containers['sidebar'])) {
+            $containers['sidebar'] = $this->defaultSidebarContainer();
         }
 
         $sidebarElements = $containers['sidebar']['elements'] ?? [];
@@ -53,6 +57,23 @@ class ApplyLayoutSidebarElementContributionsAction
                     ->all(),
             ),
         ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function defaultSidebarContainer(): array
+    {
+        return [
+            'meta' => [
+                'colspan' => 3,
+                'override_columns' => 1,
+                'container' => 'full',
+                'padding' => ['md'],
+                'html_class' => 'sidebar-sticky space-y-8',
+            ],
+            'elements' => [],
+        ];
     }
 
     /**

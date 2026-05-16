@@ -223,7 +223,7 @@ final class BuildLayoutContentInventoryAction
 
         return $element->assets
             ->first(fn (ElementAsset $candidate): bool => $candidate->asset_type === $assetType
-                && (string) $candidate->asset_id === (string) $assetId);
+                && $candidate->asset_id === $assetId);
     }
 
     private function assetLabel(ElementAsset $elementAsset): string

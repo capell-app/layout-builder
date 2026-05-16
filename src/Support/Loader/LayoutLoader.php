@@ -16,6 +16,7 @@ use Capell\LayoutBuilder\Models\ElementAsset;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 class LayoutLoader
@@ -65,6 +66,13 @@ class LayoutLoader
         $selectedElementKeys = $this->selectedElementKeys($containers);
         $selectedContainerOccurrences = $this->selectedContainerOccurrences($containers);
 
+        if ($selectedElementKeys === [] || ! Schema::hasTable('elements')) {
+            $layout->setRelation('layoutElements', collect());
+            $this->preloaded[$cacheKey] = [];
+
+            return;
+        }
+
         $layout->setRelation('layoutElements', Element::query()
             ->whereIn('key', $selectedElementKeys)
             ->whereHas('type', fn (BuilderContract $query): BuilderContract => $query->enabled()->accessible())
@@ -80,10 +88,6 @@ class LayoutLoader
 
         $this->layoutElements($layout)->each(function (Element $element): void {
             $this->trackRetrievedModel($element);
-
-            if ($element->media->isEmpty()) {
-                return;
-            }
 
             $element->setRelation('image', $element->media->firstWhere('type', MediaCollectionEnum::Image->value));
 

@@ -68,17 +68,17 @@ class ElementResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return (string) (__('capell-admin::navigation.elements'));
+        return (string) (__('capell-layout-builder::navigation.elements'));
     }
 
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_content'));
+        return (string) (__('capell-admin::navigation.group_layouts'));
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('capell-admin::navigation.elements');
+        return __('capell-layout-builder::navigation.elements');
     }
 
     public static function getNavigationIcon(): string|BackedEnum|Htmlable|null

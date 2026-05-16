@@ -265,7 +265,7 @@ trait ManagesAssets
                 }
 
                 $matchesElement = $asset->asset_type === $type
-                    && (string) $asset->asset_id === (string) $assetId;
+                    && $asset->asset_id === $assetId;
 
                 if (! $matchesElement) {
                     return false;
@@ -1164,8 +1164,8 @@ trait ManagesAssets
         return $filteredAssets
             ->groupBy(fn (ElementAsset $elementAsset): string => implode(':', [
                 $elementAsset->asset_type,
-                (string) $elementAsset->asset_id,
-                (string) $elementAsset->occurrence,
+                $elementAsset->asset_id,
+                $elementAsset->occurrence,
             ]))
             ->map(fn (SupportCollection $matchingAssets): ElementAsset => $matchingAssets
                 ->first(fn (ElementAsset $elementAsset): bool => $elementAsset->workspace_id === $currentWorkspaceId)
@@ -1188,7 +1188,7 @@ trait ManagesAssets
             return false;
         }
 
-        if (isset($elementAssetData['asset_id']) && (string) $elementAssetData['asset_id'] !== (string) $asset->asset_id) {
+        if (isset($elementAssetData['asset_id']) && $elementAssetData['asset_id'] !== $asset->asset_id) {
             return false;
         }
 

@@ -12,7 +12,7 @@
     use Illuminate\View\ComponentAttributeBag;
 
     /**
-     * @var \Capell\Core\Models\Widget $element
+     * @var \Capell\LayoutBuilder\Models\Element $element
     */
 
     /**

@@ -172,12 +172,12 @@ final class LayoutBuilderCoreRegistrar
                 ElementComponentEnum::Hero => 'capell::element.hero',
                 ElementComponentEnum::Navigation => 'capell::element.navigation',
                 ElementComponentEnum::NavigationTabs => 'capell::element.navigation.tabs',
-                ElementComponentEnum::PageBreadcrumbs => 'capell::element.page.breadcrumbs',
+                ElementComponentEnum::PageBreadcrumbs => 'capell::widget.page.breadcrumbs',
                 ElementComponentEnum::PageChildren => 'capell::element.page.children',
-                ElementComponentEnum::PageContent => 'capell::element.page.content',
+                ElementComponentEnum::PageContent => 'capell::widget.page.content',
                 ElementComponentEnum::PageLatest => 'capell::element.page.latest',
                 ElementComponentEnum::PageSiblings => 'capell::element.page.siblings',
-                ElementComponentEnum::PageSlot => 'capell::element.slot',
+                ElementComponentEnum::PageSlot => 'capell::widget.slot',
                 ElementComponentEnum::Pages => 'capell::element.asset.pages',
                 ElementComponentEnum::Snippet => 'capell::element.snippet',
                 ElementComponentEnum::ApHeroBanner => 'capell::element.modern.hero-banner',
@@ -198,13 +198,7 @@ final class LayoutBuilderCoreRegistrar
 
             $registry->register(new RenderableDefinitionData(
                 key: $elementComponent->value,
-                type: RenderableTypeEnum::Widget,
-                blade: $blade,
-            ));
-
-            $registry->register(new RenderableDefinitionData(
-                key: str_replace('capell.element.', 'capell.widget.', $elementComponent->value),
-                type: RenderableTypeEnum::Widget,
+                type: RenderableTypeEnum::Element,
                 blade: $blade,
             ));
         }
@@ -222,8 +216,8 @@ final class LayoutBuilderCoreRegistrar
 
         $registry->register(new RenderableDefinitionData(
             key: LivewireComponentsEnum::PagesElement->value,
-            type: RenderableTypeEnum::Widget,
-            livewire: 'capell::element.pages',
+            type: RenderableTypeEnum::Element,
+            livewire: 'capell::widget.pages',
         ));
     }
 

@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Support;
 
 use Capell\Core\Facades\CapellCore;
-use Capell\Core\Models\Widget;
-use Capell\Core\Models\WidgetAsset;
 use Capell\LayoutBuilder\Models\Element;
 use Capell\LayoutBuilder\Models\ElementAsset;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -28,8 +26,6 @@ class LayoutModelRegistrar
             collect(self::MODELS)
                 ->mapWithKeys(fn (string $modelClass): array => [Str::snake(class_basename($modelClass)) => $modelClass])
                 ->merge([
-                    'widget' => Widget::class,
-                    'widget_asset' => WidgetAsset::class,
                     'element' => Element::class,
                     'element_asset' => ElementAsset::class,
                 ])

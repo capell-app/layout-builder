@@ -16,7 +16,7 @@ class ElementSelectionTable implements TableConfigurator
         ElementsTable::configure($table);
 
         return $table->query(function (): Builder {
-            /* @var class-string<\Capell\Core\Models\Widget> $model */
+            /* @var class-string<\Capell\LayoutBuilder\Models\Element> $model */
             $model = Element::class;
 
             return $model::query();

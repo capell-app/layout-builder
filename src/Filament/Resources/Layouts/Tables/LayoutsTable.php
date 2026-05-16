@@ -113,22 +113,16 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
         return [
             SelectFilter::make('element_key')
                 ->label(__('capell-layout-builder::form.element'))
-                ->options(function () {
-                    /** @var class-string<Element> $model */
-                    $model = Element::class;
-
-                    return $model::getOptions('key', 'name');
-                })
+                ->options(fn () => Element::query()
+                    ->pluck('name', 'key')
+                    ->all())
                 ->indicateUsing(function (array $state): array {
                     $indicators = [];
 
                     if (isset($state['value']) && $state['value'] !== '') {
-                        /** @var class-string<Element> $model */
-                        $model = Element::class;
-
                         $indicators['element_key'] = __(
                             'capell-layout-builder::filter.element',
-                            ['search' => $model::query()->firstWhere('key', $state['value'], 'name')?->name],
+                            ['search' => Element::query()->where('key', $state['value'])->value('name')],
                         );
                     }
 

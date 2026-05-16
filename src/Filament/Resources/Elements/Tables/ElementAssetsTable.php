@@ -50,7 +50,7 @@ class ElementAssetsTable implements TableConfigurator
             ->recordUrl(
                 fn (ElementAsset $record): ?string => match ($record->asset_type) {
                     BlueprintSubjectEnum::Page->value => GetEditPageResourceUrlAction::run($record->asset),
-                    default => AdminSurfaceLookup::resource(ucfirst((string) $record->asset_type))::getUrl(
+                    default => AdminSurfaceLookup::resource(ucfirst($record->asset_type))::getUrl(
                         'edit',
                         ['record' => $record->asset],
                     ),
@@ -104,12 +104,12 @@ class ElementAssetsTable implements TableConfigurator
                         ->options(
                             fn (HasTable $livewire): array => $livewire->getTable()->getQuery()
                                 ->select(['pageable_type', 'pageable_id'])
-                                ->withOnly('page')
+                                ->withOnly('pageable')
                                 ->whereNotNull(['pageable_type', 'pageable_id'])
                                 ->groupBy(['pageable_type', 'pageable_id'])
                                 ->get()
                                 ->pluck(
-                                    fn (ElementAsset $elementAsset): array => [self::buildLookupKey($elementAsset->pageable_type, $elementAsset->pageable_id) => $elementAsset->page?->getAttribute('name')],
+                                    fn (ElementAsset $elementAsset): array => [self::buildLookupKey($elementAsset->pageable_type, $elementAsset->pageable_id) => $elementAsset->pageable instanceof Model ? $elementAsset->pageable->getAttribute('name') : null],
                                 )
                                 ->all(),
                         ),
@@ -168,10 +168,12 @@ class ElementAssetsTable implements TableConfigurator
                         );
                     }
 
-                    if (isset($data['blueprint_id'])) {
+                    if (is_numeric($data['blueprint_id'] ?? null)) {
+                        $blueprint = Blueprint::query()->find((int) $data['blueprint_id'], ['name']);
+
                         $indicators['blueprint_id'] = __(
                             'capell-layout-builder::filter.type',
-                            ['search' => Blueprint::query()->find($data['blueprint_id'], ['name'])->name],
+                            ['search' => $blueprint?->name],
                         );
                     }
 

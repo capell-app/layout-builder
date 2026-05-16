@@ -42,15 +42,21 @@ class ElementCreator
     {
         $type ??= resolve(TypeCreator::class)->systemElementType();
 
-        return $this->elementModel::query()->firstOrCreate([
+        $element = $this->elementModel::query()->firstOrNew([
             'key' => 'breadcrumbs',
-        ], [
+        ]);
+
+        $element->forceFill([
             'name' => __('capell-admin::generic.breadcrumbs'),
             'blueprint_id' => $type->id,
+            'component' => ElementComponentEnum::PageBreadcrumbs->value,
+            'is_livewire' => false,
             'meta' => [
-                'component' => ElementComponentEnum::PageBreadcrumbs,
+                'component' => ElementComponentEnum::PageBreadcrumbs->value,
             ],
-        ]);
+        ])->save();
+
+        return $element;
     }
 
     public function childrenElement(?Blueprint $type = null, ?Collection $languages = null): Element
@@ -242,17 +248,23 @@ class ElementCreator
     {
         $type ??= resolve(TypeCreator::class)->pageContentElementType();
 
-        return $this->elementModel::query()->firstOrCreate([
+        $element = $this->elementModel::query()->firstOrNew([
             'key' => 'page-content',
-        ], [
+        ]);
+
+        $element->forceFill([
             'name' => __('capell-admin::generic.page_content'),
             'blueprint_id' => $type->id,
+            'component' => ElementComponentEnum::PageContent->value,
+            'is_livewire' => false,
             'meta' => [
-                'component' => ElementComponentEnum::PageContent,
+                'component' => ElementComponentEnum::PageContent->value,
                 'margin' => ['t-lg', 'b-xl'],
                 'page_content' => ['title', 'content'],
             ],
-        ]);
+        ])->save();
+
+        return $element;
     }
 
     public function pagesCardElement(?Blueprint $type = null): Element
@@ -280,16 +292,22 @@ class ElementCreator
     {
         $type ??= resolve(TypeCreator::class)->systemElementType();
 
-        return $this->elementModel::query()->firstOrCreate([
+        $element = $this->elementModel::query()->firstOrNew([
             'key' => 'page-slot',
-        ], [
+        ]);
+
+        $element->forceFill([
             'name' => __('capell-admin::generic.page_slot'),
             'blueprint_id' => $type->id,
+            'component' => ElementComponentEnum::PageSlot->value,
+            'is_livewire' => false,
             'meta' => [
-                'component' => ElementComponentEnum::PageSlot,
+                'component' => ElementComponentEnum::PageSlot->value,
                 'type' => 'slot',
             ],
-        ]);
+        ])->save();
+
+        return $element;
     }
 
     public function siblingsElement(?Blueprint $type = null, ?Collection $languages = null): Element
