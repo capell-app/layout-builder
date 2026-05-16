@@ -63,15 +63,11 @@ final class SaveLayoutPresetAction
         bool $includeStarterContent = false,
         bool $replaceExisting = false,
     ): LayoutPreset {
-        if ($layout->site_id !== null && (int) $layout->site_id !== (int) $site->getKey()) {
-            throw new LogicException('Layout presets can only be saved for the layout site.');
-        }
+        throw_if($layout->site_id !== null && $layout->site_id !== (int) $site->getKey(), LogicException::class, 'Layout presets can only be saved for the layout site.');
 
         $presetKey = $key !== null && trim($key) !== '' ? Str::slug($key) : Str::slug($name);
 
-        if ($presetKey === '') {
-            throw new InvalidArgumentException('Layout preset key must not be empty.');
-        }
+        throw_if($presetKey === '', InvalidArgumentException::class, 'Layout preset key must not be empty.');
 
         return DB::transaction(function () use ($site, $presetKey, $themeKey, $name, $category, $layout, $containers, $includeStarterContent, $replaceExisting): LayoutPreset {
             $identity = [
@@ -96,9 +92,7 @@ final class SaveLayoutPresetAction
                 ->first();
 
             if ($existingPreset instanceof LayoutPreset) {
-                if (! $replaceExisting) {
-                    throw new LogicException('A layout preset with this key already exists for the site.');
-                }
+                throw_unless($replaceExisting, LogicException::class, 'A layout preset with this key already exists for the site.');
 
                 $existingPreset->fill($values);
                 $existingPreset->save();
@@ -108,18 +102,16 @@ final class SaveLayoutPresetAction
 
             try {
                 return LayoutPreset::query()->create([...$identity, ...$values]);
-            } catch (QueryException $exception) {
+            } catch (QueryException $queryException) {
                 $conflictingPreset = LayoutPreset::query()
                     ->where($identity)
                     ->lockForUpdate()
                     ->first();
 
-                if (! $conflictingPreset instanceof LayoutPreset) {
-                    throw $exception;
-                }
+                throw_unless($conflictingPreset instanceof LayoutPreset, $queryException);
 
                 if (! $replaceExisting) {
-                    throw new LogicException('A layout preset with this key already exists for the site.', previous: $exception);
+                    throw new LogicException('A layout preset with this key already exists for the site.', $queryException->getCode(), previous: $queryException);
                 }
 
                 $conflictingPreset->fill($values);
@@ -232,7 +224,7 @@ final class SaveLayoutPresetAction
             ARRAY_FILTER_USE_BOTH,
         );
 
-        return array_map(fn (mixed $item): mixed => $this->scrubUnsafePresetData($item), $value);
+        return array_map($this->scrubUnsafePresetData(...), $value);
     }
 
     private function isUnsafePresetKey(string $key): bool

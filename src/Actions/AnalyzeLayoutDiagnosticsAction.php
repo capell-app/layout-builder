@@ -38,7 +38,7 @@ final class AnalyzeLayoutDiagnosticsAction
                         code: 'unknown_element',
                         message: __('capell-admin::message.unknown_element', ['element' => (string) $elementKey]),
                         containerKey: (string) $containerKey,
-                        elementIndex: (int) $elementIndex,
+                        elementIndex: $elementIndex,
                     );
                 }
             }

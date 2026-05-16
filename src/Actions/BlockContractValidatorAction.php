@@ -31,7 +31,7 @@ final class BlockContractValidatorAction
         foreach ($definition->contentContract->requiredFields as $requiredField) {
             $value = $payload[$requiredField] ?? null;
 
-            if ($value === null || $value === '' || $value === []) {
+            if (in_array($value, [null, '', []], true)) {
                 $diagnostics[] = new LayoutDiagnosticData(
                     severity: LayoutDiagnosticSeverity::Blocking,
                     code: 'missing_required_block_field',

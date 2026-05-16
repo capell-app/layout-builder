@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use Capell\LayoutBuilder\Actions\Mutations\NormalizeLayoutBuilderStateAction;
+use Capell\LayoutBuilder\Actions\Mutations\PushLayoutMutationSnapshotAction;
+use Capell\LayoutBuilder\Actions\Mutations\RedoLayoutMutationSnapshotAction;
+use Capell\LayoutBuilder\Actions\Mutations\UndoLayoutMutationSnapshotAction;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutChangeData;
 use Capell\LayoutBuilder\Data\LayoutDiagnosticData;
@@ -116,4 +119,36 @@ it('normalizes sparse element state and clamps responsive metadata', function ()
         ->and($result->state->originalAssets['main'][1])->toBe([])
         ->and($result->state->selectedRecords['main'][0])->toBe([])
         ->and($result->state->selectedRecords['main'][2])->toBe(['record']);
+});
+
+it('moves layout mutation history through typed actions', function (): void {
+    $first = new LayoutBuilderStateData(
+        containers: ['main' => ['elements' => [['element_key' => 'hero']], 'meta' => []]],
+        assets: ['main' => [[]]],
+        originalAssets: ['main' => [[]]],
+        selectedRecords: ['main' => [[]]],
+    );
+    $second = new LayoutBuilderStateData(
+        containers: ['main' => ['elements' => [['element_key' => 'cards']], 'meta' => []]],
+        assets: ['main' => [[]]],
+        originalAssets: ['main' => [[]]],
+        selectedRecords: ['main' => [[]]],
+    );
+
+    $history = PushLayoutMutationSnapshotAction::run($first, []);
+    $undo = UndoLayoutMutationSnapshotAction::run($second, $history->undoSnapshots, $history->redoSnapshots);
+    $undoState = $undo->state;
+
+    expect($undoState)->toBeInstanceOf(LayoutBuilderStateData::class);
+    throw_unless($undoState instanceof LayoutBuilderStateData, RuntimeException::class, 'Undo state was not available.');
+
+    $redo = RedoLayoutMutationSnapshotAction::run($undoState, $undo->history->undoSnapshots, $undo->history->redoSnapshots);
+
+    expect($history->undoSnapshots)->toHaveCount(1)
+        ->and($history->redoSnapshots)->toBe([])
+        ->and($undo->changed())->toBeTrue()
+        ->and($undo->state->containers['main']['elements'][0]['element_key'])->toBe('hero')
+        ->and($undo->history->redoSnapshots)->toHaveCount(1)
+        ->and($redo->changed())->toBeTrue()
+        ->and($redo->state->containers['main']['elements'][0]['element_key'])->toBe('cards');
 });

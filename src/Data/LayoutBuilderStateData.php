@@ -29,6 +29,19 @@ final class LayoutBuilderStateData extends Data
         );
     }
 
+    /**
+     * @param  array<string, mixed>  $snapshot
+     */
+    public static function fromSnapshot(array $snapshot): self
+    {
+        return new self(
+            containers: is_array($snapshot['containers'] ?? null) ? $snapshot['containers'] : [],
+            assets: is_array($snapshot['assets'] ?? null) ? $snapshot['assets'] : [],
+            originalAssets: is_array($snapshot['originalAssets'] ?? null) ? $snapshot['originalAssets'] : [],
+            selectedRecords: is_array($snapshot['selectedRecords'] ?? null) ? $snapshot['selectedRecords'] : [],
+        );
+    }
+
     public function toLivewirePayload(): array
     {
         return [

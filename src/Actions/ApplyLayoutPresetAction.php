@@ -17,13 +17,11 @@ final class ApplyLayoutPresetAction
 
     public function handle(LayoutPreset $preset, Layout $layout, Site $site, bool $persist = false): Layout
     {
-        if ($preset->site_id !== $site->getKey() || ($layout->site_id !== null && (int) $layout->site_id !== (int) $site->getKey())) {
-            throw new LogicException('Layout presets can only be applied within the same site.');
-        }
+        throw_if($preset->site_id !== $site->getKey() || ($layout->site_id !== null && $layout->site_id !== $site->getKey()), LogicException::class, 'Layout presets can only be applied within the same site.');
 
         $snapshot = is_array($preset->snapshot) ? $preset->snapshot : [];
         $containers = is_array($snapshot['containers'] ?? null) ? $snapshot['containers'] : [];
-        $containers = app(SaveLayoutPresetAction::class)->sanitizePresetContainers($containers);
+        $containers = resolve(SaveLayoutPresetAction::class)->sanitizePresetContainers($containers);
 
         $layout->setAttribute('containers', $this->withUniqueAnchors($containers));
 
@@ -57,7 +55,11 @@ final class ApplyLayoutPresetAction
                 }
 
                 $anchor = $element['meta']['block_settings']['anchor_id'] ?? null;
-                if (! is_string($anchor) || trim($anchor) === '') {
+                if (! is_string($anchor)) {
+                    continue;
+                }
+
+                if (trim($anchor) === '') {
                     continue;
                 }
 

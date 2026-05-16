@@ -30,6 +30,7 @@ class BuildPublicLayoutGraphAction
     {
         $layoutContainers = $layout->getAttribute('containers');
         $layoutContainers = is_array($layoutContainers) ? $layoutContainers : [];
+
         $page->setRelation('layout', $layout);
         $this->hydrateSiteRelation($layout, $page);
 
@@ -164,7 +165,7 @@ class BuildPublicLayoutGraphAction
             $value = $meta[$key] ?? null;
 
             if ($this->isSafeIdentifier($value)) {
-                $safeMeta[$key] = trim($value);
+                $safeMeta[$key] = trim((string) $value);
             }
         }
 

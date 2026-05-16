@@ -46,7 +46,7 @@ final class AnalyzeLayoutHealthAction
                         code: 'duplicate_block_anchor',
                         message: __('capell-layout-builder::message.duplicate_block_anchor', ['anchor' => $anchorId]),
                         containerKey: (string) $containerKey,
-                        elementIndex: (int) $elementIndex,
+                        elementIndex: $elementIndex,
                     );
                 }
 
@@ -54,7 +54,11 @@ final class AnalyzeLayoutHealthAction
                     $anchors[$anchorId] = true;
                 }
 
-                if (! is_string($elementKey) || ! in_array($elementKey, $knownElementKeys, true)) {
+                if (! is_string($elementKey)) {
+                    continue;
+                }
+
+                if (! in_array($elementKey, $knownElementKeys, true)) {
                     continue;
                 }
 
@@ -65,7 +69,7 @@ final class AnalyzeLayoutHealthAction
                         code: 'too_many_block_cards',
                         message: __('capell-layout-builder::message.too_many_block_cards', ['max' => 6]),
                         containerKey: (string) $containerKey,
-                        elementIndex: (int) $elementIndex,
+                        elementIndex: $elementIndex,
                     );
                 }
 
@@ -81,13 +85,13 @@ final class AnalyzeLayoutHealthAction
 
                 $diagnostics = [
                     ...$diagnostics,
-                    ...$this->variantDiagnostics($definition, $meta, $themeKey, (string) $containerKey, (int) $elementIndex),
+                    ...$this->variantDiagnostics($definition, $meta, $themeKey, (string) $containerKey, $elementIndex),
                     ...BlockContractValidatorAction::run(
                         definition: $definition,
                         presentation: $presentation,
                         payload: $this->contentPayload($containerElement, is_array($assets) ? $assets : []),
                         containerKey: (string) $containerKey,
-                        elementIndex: (int) $elementIndex,
+                        elementIndex: $elementIndex,
                     ),
                 ];
             }

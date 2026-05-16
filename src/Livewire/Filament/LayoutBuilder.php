@@ -16,6 +16,9 @@ use Capell\LayoutBuilder\Actions\AnalyzeLayoutHealthAction;
 use Capell\LayoutBuilder\Actions\BuildLayoutContentInventoryAction;
 use Capell\LayoutBuilder\Actions\Mutations\CreateLayoutFragmentAction;
 use Capell\LayoutBuilder\Actions\Mutations\PasteLayoutFragmentAction;
+use Capell\LayoutBuilder\Actions\Mutations\PushLayoutMutationSnapshotAction;
+use Capell\LayoutBuilder\Actions\Mutations\RedoLayoutMutationSnapshotAction;
+use Capell\LayoutBuilder\Actions\Mutations\UndoLayoutMutationSnapshotAction;
 use Capell\LayoutBuilder\Actions\PersistLayoutBuilderStateAction;
 use Capell\LayoutBuilder\Actions\SaveLayoutPresetAction;
 use Capell\LayoutBuilder\Actions\SummarizeLayoutChangesAction;
@@ -405,11 +408,21 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return;
         }
 
-        $this->layoutRedoSnapshots[] = $this->layoutState()->toLivewirePayload();
+        $navigation = UndoLayoutMutationSnapshotAction::run(
+            currentState: $this->layoutState(),
+            undoSnapshots: $this->layoutUndoSnapshots,
+            redoSnapshots: $this->layoutRedoSnapshots,
+        );
 
-        $snapshot = array_pop($this->layoutUndoSnapshots);
+        $this->layoutUndoSnapshots = $navigation->history->undoSnapshots;
+        $this->layoutRedoSnapshots = $navigation->history->redoSnapshots;
 
-        $this->applyLayoutState($this->stateFromSnapshot($snapshot), markModified: true);
+        $state = $navigation->state;
+        if (! $state instanceof LayoutBuilderStateData) {
+            return;
+        }
+
+        $this->applyLayoutState($state, markModified: true);
         $this->refreshLayoutChanges();
         $this->refreshLayoutDiagnostics();
     }
@@ -422,11 +435,21 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return;
         }
 
-        $this->layoutUndoSnapshots[] = $this->layoutState()->toLivewirePayload();
+        $navigation = RedoLayoutMutationSnapshotAction::run(
+            currentState: $this->layoutState(),
+            undoSnapshots: $this->layoutUndoSnapshots,
+            redoSnapshots: $this->layoutRedoSnapshots,
+        );
 
-        $snapshot = array_pop($this->layoutRedoSnapshots);
+        $this->layoutUndoSnapshots = $navigation->history->undoSnapshots;
+        $this->layoutRedoSnapshots = $navigation->history->redoSnapshots;
 
-        $this->applyLayoutState($this->stateFromSnapshot($snapshot), markModified: true);
+        $state = $navigation->state;
+        if (! $state instanceof LayoutBuilderStateData) {
+            return;
+        }
+
+        $this->applyLayoutState($state, markModified: true);
         $this->refreshLayoutChanges();
         $this->refreshLayoutDiagnostics();
     }
@@ -446,8 +469,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return;
         }
 
-        $this->layoutUndoSnapshots[] = $this->layoutState()->toLivewirePayload();
-        $this->layoutRedoSnapshots = [];
+        $history = PushLayoutMutationSnapshotAction::run($this->layoutState(), $this->layoutUndoSnapshots);
+        $this->layoutUndoSnapshots = $history->undoSnapshots;
+        $this->layoutRedoSnapshots = $history->redoSnapshots;
 
         unset($this->containers[$containerKey]['meta']['responsive'][$this->activeBreakpoint->value]);
 
@@ -611,7 +635,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->assertCanApplyLayoutPreset($preset, $this->site);
 
         $containers = is_array($snapshot['containers'] ?? null) ? $snapshot['containers'] : [];
-        $containers = app(SaveLayoutPresetAction::class)->sanitizePresetContainers($containers);
+        $containers = resolve(SaveLayoutPresetAction::class)->sanitizePresetContainers($containers);
+
         $sourceContainerKey = array_key_first($containers);
         $container = is_string($sourceContainerKey) ? ($containers[$sourceContainerKey] ?? null) : null;
 
@@ -842,8 +867,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     protected function applyLayoutMutationResult(LayoutMutationResultData $result): void
     {
-        $this->layoutUndoSnapshots[] = $this->layoutState()->toLivewirePayload();
-        $this->layoutRedoSnapshots = [];
+        $history = PushLayoutMutationSnapshotAction::run($this->layoutState(), $this->layoutUndoSnapshots);
+        $this->layoutUndoSnapshots = $history->undoSnapshots;
+        $this->layoutRedoSnapshots = $history->redoSnapshots;
 
         $this->applyLayoutState($result->state, markModified: true);
         $this->layoutDiagnostics = array_map(
@@ -919,12 +945,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     protected function stateFromSnapshot(array $snapshot): LayoutBuilderStateData
     {
-        return new LayoutBuilderStateData(
-            containers: $snapshot['containers'] ?? [],
-            assets: $snapshot['assets'] ?? [],
-            originalAssets: $snapshot['originalAssets'] ?? [],
-            selectedRecords: $snapshot['selectedRecords'] ?? [],
-        );
+        return LayoutBuilderStateData::fromSnapshot($snapshot);
     }
 
     protected function captureSavedBaselineState(): void

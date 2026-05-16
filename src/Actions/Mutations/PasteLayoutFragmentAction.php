@@ -164,7 +164,11 @@ final class PasteLayoutFragmentAction
                 }
 
                 $anchor = $element['meta']['block_settings']['anchor_id'] ?? null;
-                if (! is_string($anchor) || trim($anchor) === '') {
+                if (! is_string($anchor)) {
+                    continue;
+                }
+
+                if (trim($anchor) === '') {
                     continue;
                 }
 

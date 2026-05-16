@@ -32,6 +32,7 @@ use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use RuntimeException;
 use Spatie\Image\Image;
@@ -254,14 +255,9 @@ class DemoCreator
             return $element;
         }
 
-        $relatedPages->each(fn (Page $relatedPage): ElementAsset => $element->assets()->create([
-            'pageable_id' => $page->id,
-            'pageable_type' => $page->getMorphClass(),
-            'asset_id' => $relatedPage->id,
-            'asset_type' => resolve($this->pageModel)->getMorphClass(),
-            'container' => $container,
-            'occurrence' => $occurrence,
-        ]));
+        $relatedPages->each(
+            fn (Page $relatedPage): ElementAsset => $this->createPageElementAsset($element, $page, $container, $occurrence, $relatedPage),
+        );
 
         return $element;
     }
@@ -573,14 +569,7 @@ class DemoCreator
 
             $this->createMedia($content);
 
-            $element->assets()->create([
-                'pageable_id' => $page->id,
-                'pageable_type' => $page->getMorphClass(),
-                'container' => $container,
-                'occurrence' => $occurrence,
-                'asset_type' => resolve($this->contentModel)->getMorphClass(),
-                'asset_id' => $content->id,
-            ]);
+            $this->createPageElementAsset($element, $page, $container, $occurrence, $content);
         }
     }
 
@@ -1707,6 +1696,21 @@ class DemoCreator
         }
 
         return $page->translation?->title ?? $page->name;
+    }
+
+    private function createPageElementAsset(Element $element, Pageable $page, string $container, int $occurrence, Model $asset): ElementAsset
+    {
+        return DB::transaction(
+            fn (): ElementAsset => $element->assets()->createOrFirst([
+                'pageable_id' => $page->getKey(),
+                'pageable_type' => $page->getMorphClass(),
+                'container' => $container,
+                'occurrence' => $occurrence,
+                'asset_type' => $asset->getMorphClass(),
+                'asset_id' => $asset->getKey(),
+            ]),
+            attempts: 5,
+        );
     }
 
     private function createFeatures(Site $site): Collection

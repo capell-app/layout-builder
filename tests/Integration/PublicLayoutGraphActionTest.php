@@ -118,6 +118,7 @@ it('uses the site theme key for public block compatibility even when the site re
     $theme = Theme::factory()->create(['key' => 'unsupported-theme']);
     $site = Site::factory()->create(['language_id' => $language->id, 'theme_id' => $theme->getKey()]);
     $site->unsetRelation('theme');
+
     $element = Element::factory()->create(['key' => 'theme-limited']);
     $layout = Layout::factory()->site($site)->create([
         'elements' => [$element->key],
