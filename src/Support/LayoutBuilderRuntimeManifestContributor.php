@@ -10,6 +10,7 @@ use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
 use Capell\Frontend\Data\FrontendRuntimeManifestData;
 use Capell\Frontend\Enums\RenderingStrategyEnum;
 use Capell\LayoutBuilder\Models\Element;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeManifestContributor
@@ -84,6 +85,9 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
         return Element::query()
             ->with('type')
             ->whereIn('key', $elementKeys)
+            ->whereHas('type', fn (Builder $query): Builder => $query->enabled()->accessible())
+            ->enabled()
+            ->publishedDate()
             ->get()
             ->contains(fn (Model $element): bool => method_exists($element, 'getMetaComponentType') && $element->getMetaComponentType() === 'livewire');
     }

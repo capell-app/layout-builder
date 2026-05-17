@@ -152,3 +152,32 @@ it('moves layout mutation history through typed actions', function (): void {
         ->and($redo->changed())->toBeTrue()
         ->and($redo->state->containers['main']['elements'][0]['element_key'])->toBe('cards');
 });
+
+it('caps layout mutation history snapshots and clears redo on new mutations', function (): void {
+    $state = new LayoutBuilderStateData(
+        containers: ['main' => ['elements' => [], 'meta' => []]],
+        assets: ['main' => []],
+        originalAssets: ['main' => []],
+        selectedRecords: ['main' => []],
+    );
+
+    $undoSnapshots = [];
+
+    for ($snapshotIndex = 0; $snapshotIndex < PushLayoutMutationSnapshotAction::MAX_HISTORY_DEPTH + 5; $snapshotIndex++) {
+        $undoSnapshots = PushLayoutMutationSnapshotAction::run(
+            new LayoutBuilderStateData(
+                containers: ['main' => ['elements' => [], 'meta' => ['snapshot' => $snapshotIndex]]],
+                assets: ['main' => []],
+                originalAssets: ['main' => []],
+                selectedRecords: ['main' => []],
+            ),
+            $undoSnapshots,
+        )->undoSnapshots;
+    }
+
+    $history = PushLayoutMutationSnapshotAction::run($state, $undoSnapshots);
+
+    expect($history->undoSnapshots)->toHaveCount(PushLayoutMutationSnapshotAction::MAX_HISTORY_DEPTH)
+        ->and($history->undoSnapshots[0]['containers']['main']['meta']['snapshot'])->toBe(6)
+        ->and($history->redoSnapshots)->toBe([]);
+});

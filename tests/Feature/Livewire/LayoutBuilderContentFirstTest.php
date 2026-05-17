@@ -117,6 +117,91 @@ it('sends layout only editors straight to the advanced layout editor from the pa
         ->assertDontSee(__('capell-layout-builder::generic.content_first_editor'));
 });
 
+it('moves responsive layout mutations through undo and redo stacks from the package namespace', function (): void {
+    $layout = Layout::factory()->create(['containers' => [
+        'main' => [
+            'elements' => [],
+            'meta' => [
+                'responsive' => [
+                    'tablet' => ['colspan' => 6],
+                ],
+            ],
+        ],
+    ]]);
+
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->call('setActiveBreakpoint', 'tablet')
+        ->call('resetResponsiveContainerOverride', 'main');
+
+    expect($component->get('containers')['main']['meta']['responsive'])->toBe([])
+        ->and($component->get('layoutUndoSnapshots'))->toHaveCount(1)
+        ->and($component->get('layoutRedoSnapshots'))->toBe([]);
+
+    $component->call('undoLayoutMutation');
+
+    expect($component->get('containers')['main']['meta']['responsive']['tablet']['colspan'])->toBe(6)
+        ->and($component->get('layoutUndoSnapshots'))->toBe([])
+        ->and($component->get('layoutRedoSnapshots'))->toHaveCount(1);
+
+    $component->call('redoLayoutMutation');
+
+    expect($component->get('containers')['main']['meta']['responsive'])->toBe([])
+        ->and($component->get('layoutUndoSnapshots'))->toHaveCount(1)
+        ->and($component->get('layoutRedoSnapshots'))->toBe([]);
+});
+
+it('clears redo history when a new layout mutation follows undo from the package namespace', function (): void {
+    $layout = Layout::factory()->create(['containers' => [
+        'main' => [
+            'elements' => [],
+            'meta' => [
+                'responsive' => [
+                    'tablet' => ['colspan' => 6],
+                ],
+            ],
+        ],
+    ]]);
+
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->call('setActiveBreakpoint', 'tablet')
+        ->call('resetResponsiveContainerOverride', 'main')
+        ->call('undoLayoutMutation')
+        ->call('resetResponsiveContainerOverride', 'main');
+
+    expect($component->get('containers')['main']['meta']['responsive'])->toBe([])
+        ->and($component->get('layoutUndoSnapshots'))->toHaveCount(1)
+        ->and($component->get('layoutRedoSnapshots'))->toBe([]);
+});
+
+it('blocks content only editors from layout undo and redo from the package namespace', function (): void {
+    Permission::findOrCreate('EditContent:Layout');
+    Permission::findOrCreate('EditLayout:Layout');
+    Permission::findOrCreate('Update:Layout');
+
+    test()->actingAs(test()->createUserWithPermission('EditContent:Layout'));
+
+    $layout = Layout::factory()->create(['containers' => [
+        'main' => ['elements' => []],
+    ]]);
+
+    $snapshot = [
+        'containers' => ['main' => ['elements' => [], 'meta' => []]],
+        'assets' => ['main' => []],
+        'originalAssets' => ['main' => []],
+        'selectedRecords' => ['main' => []],
+    ];
+
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->set('layoutUndoSnapshots', [$snapshot])
+        ->call('undoLayoutMutation')
+        ->assertForbidden();
+
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->set('layoutRedoSnapshots', [$snapshot])
+        ->call('redoLayoutMutation')
+        ->assertForbidden();
+});
+
 it('rejects stale content first asset saves from the package namespace', function (): void {
     $element = Element::factory()->create(['key' => 'featured', 'name' => 'Featured']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);

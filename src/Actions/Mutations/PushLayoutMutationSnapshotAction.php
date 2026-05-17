@@ -12,11 +12,15 @@ final class PushLayoutMutationSnapshotAction
 {
     use AsAction;
 
+    public const MAX_HISTORY_DEPTH = 20;
+
     /**
      * @param  array<int, array<string, mixed>>  $undoSnapshots
      */
     public function handle(LayoutBuilderStateData $currentState, array $undoSnapshots): LayoutMutationHistoryData
     {
+        $undoSnapshots = array_slice($undoSnapshots, -self::MAX_HISTORY_DEPTH + 1);
+
         return new LayoutMutationHistoryData(
             undoSnapshots: [
                 ...$undoSnapshots,
