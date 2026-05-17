@@ -14,6 +14,7 @@ use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Renderables\RenderableRegistry;
+use Capell\Frontend\Support\Render\RenderHookRegistry;
 use Capell\LayoutBuilder\Actions\InvalidateTypeLayoutPreviewImagesAction;
 use Capell\LayoutBuilder\Contracts\PublicElementPayloadContributor;
 use Capell\LayoutBuilder\Contracts\PublicElementPayloadResolver;
@@ -31,6 +32,7 @@ use Capell\LayoutBuilder\Models\ElementAsset;
 use Capell\LayoutBuilder\Support\Interceptors\Layouts\DefaultLayoutInterceptor;
 use Capell\LayoutBuilder\Support\Interceptors\Layouts\HomeLayoutInterceptor;
 use Capell\LayoutBuilder\Support\Interceptors\Layouts\ResultsLayoutInterceptor;
+use Capell\LayoutBuilder\Support\RenderHooks\RegisterMainContentLayoutHook;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -39,6 +41,9 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
 
 final class LayoutBuilderCoreRegistrar
 {
+    /** @var array<int, true> */
+    private static array $mainContentHookRegistries = [];
+
     public function register(): void
     {
         LayoutModelRegistrar::register();
@@ -51,6 +56,7 @@ final class LayoutBuilderCoreRegistrar
         $this->registerPageTypes();
         $this->registerComponents();
         $this->registerRenderables();
+        $this->registerRenderHooks();
         $this->registerListeners();
         $this->registerCloneableRelations();
     }
@@ -217,6 +223,33 @@ final class LayoutBuilderCoreRegistrar
             type: RenderableTypeEnum::Element,
             livewire: 'capell::element.pages',
         ));
+    }
+
+    private function registerRenderHooks(): void
+    {
+        App::afterResolving(
+            RenderHookRegistry::class,
+            function (RenderHookRegistry $registry): void {
+                $this->registerRenderHooksForRegistry($registry);
+            },
+        );
+
+        if (App::bound(RenderHookRegistry::class)) {
+            $this->registerRenderHooksForRegistry(App::make(RenderHookRegistry::class));
+        }
+    }
+
+    private function registerRenderHooksForRegistry(RenderHookRegistry $registry): void
+    {
+        $registryId = spl_object_id($registry);
+
+        if (isset(self::$mainContentHookRegistries[$registryId])) {
+            return;
+        }
+
+        (new RegisterMainContentLayoutHook($registry))->register();
+
+        self::$mainContentHookRegistries[$registryId] = true;
     }
 
     private function registerListeners(): void

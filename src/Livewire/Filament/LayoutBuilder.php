@@ -35,6 +35,7 @@ use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesContainers;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesElements;
 use Capell\LayoutBuilder\Models\Element;
 use Capell\LayoutBuilder\Models\LayoutPreset;
+use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
 use Capell\LayoutBuilder\Support\LayoutBuilderConfiguration;
 use Capell\LayoutBuilder\Support\LayoutClipboard;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -398,6 +399,27 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     public function canEditLayout(): bool
     {
         return $this->canPerformLayoutBuilderAbility('editLayout');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function layoutAreaOptions(): array
+    {
+        return resolve(LayoutAreaRegistry::class)->options($this->activeThemeKey());
+    }
+
+    /**
+     * @param  array<string, mixed>  $container
+     */
+    public function layoutAreaForContainer(array $container): string
+    {
+        return resolve(LayoutAreaRegistry::class)->containerArea($container);
+    }
+
+    public function layoutAreaLabel(string $area): string
+    {
+        return resolve(LayoutAreaRegistry::class)->label($area, $this->activeThemeKey());
     }
 
     public function undoLayoutMutation(): void

@@ -31,6 +31,7 @@ Configuration lives in `config/capell-layout-builder.php`.
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
 | Public graph building          | `src/Actions/BuildPublicLayoutGraphAction.php`                                                                     |
 | Public element payloads        | `src/Contracts/PublicElementPayloadContributor.php`, `src/Support/DefaultPublicElementPayloadResolver.php`         |
+| Layout areas                   | `src/Support/LayoutAreas/LayoutAreaRegistry.php`, `src/Actions/ResolveLayoutAreaContainersAction.php`              |
 | Block presentation projection  | `src/Actions/ResolveBlockPresentationDataAction.php`                                                               |
 | Layout health checks           | `src/Actions/AnalyzeLayoutHealthAction.php`                                                                        |
 | Reusable layout presets        | `src/Models/LayoutPreset.php`, `src/Actions/SaveLayoutPresetAction.php`, `src/Actions/ApplyLayoutPresetAction.php` |
@@ -73,6 +74,49 @@ Block variants and settings are stored as authoring state in element meta, but p
 
 Public Blade must not query the database, lazy-load relationships, resolve block contracts, expose raw meta, or include authoring selectors, signed URLs, diagnostics, package internals, schema, labels, or preview/admin view names.
 
+## Layout Areas
+
+Layout areas let a theme expose named places where normal Layout Builder elements can render outside the main page-body loop. The storage model stays unchanged: elements still live inside layout containers, and containers may set `meta.area`.
+
+- Missing `meta.area` is treated as `main` for backwards compatibility.
+- `main` is built in and rendered by the normal main-content hook.
+- Themes and packages can register extra areas through `Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry`.
+- The Foundation Theme registers `header`, so editors can place normal elements into the site header without hidden containers or a separate data model.
+
+Register areas from a package service provider after the registry resolves:
+
+```php
+use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
+
+$this->app->afterResolving(
+    LayoutAreaRegistry::class,
+    function (LayoutAreaRegistry $registry): void {
+        $registry->register(
+            key: 'header',
+            label: __('capell-layout-builder::generic.header_area'),
+        );
+    },
+);
+```
+
+If an area only applies to one active theme, pass the theme key:
+
+```php
+$registry->register(
+    key: 'announcement',
+    label: __('capell-theme-client::layout_areas.announcement'),
+    themeKey: 'client',
+);
+```
+
+Public area rendering should use the package renderer rather than querying from Blade:
+
+```blade
+<x-capell::layout.area area="header" />
+```
+
+The area component reads the already-resolved layout containers and uses the stored `CapellLayoutManager` element instances. Keep public Blade query-free and authoring-free; area keys are public placement data, but editor state, model IDs, field paths, signed URLs, and package/admin metadata must stay out of the HTML.
+
 ## Reusable Presets
 
 Saved agency presets are persisted in `layout_presets` and scoped to a required `site_id` with optional `theme_key`. Presets are layout-only by default: they deep-copy structure, selected block variants, and settings without duplicating client content. Applying a preset revalidates site scope and regenerates duplicate anchors.
@@ -98,11 +142,11 @@ Both modes write through the same `ElementAsset` persistence path.
 Run the package suite from the packages monorepo:
 
 ```bash
-vendor/bin/pest packages/layout-builder/tests --compact
+vendor/bin/pest packages/layout-builder/tests --configuration=phpunit.xml
 ```
 
 Run the focused public graph and package-boundary checks after changing public rendering or package ownership:
 
 ```bash
-vendor/bin/pest packages/layout-builder/tests/Integration/PublicLayoutGraphActionTest.php packages/layout-builder/tests/Arch/LayoutBuilderPackageBoundaryTest.php --compact
+vendor/bin/pest packages/layout-builder/tests/Integration/PublicLayoutGraphActionTest.php packages/layout-builder/tests/Arch/LayoutBuilderPackageBoundaryTest.php --configuration=phpunit.xml
 ```

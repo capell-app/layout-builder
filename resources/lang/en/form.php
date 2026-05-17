@@ -24,6 +24,7 @@ return [
     'asset_types' => 'Asset Type(s)',
     'assets' => 'Assets',
     'author' => 'Author',
+    'area' => 'Area',
     'auto_children' => 'Auto Children',
     'auto_languages' => 'Auto languages',
     'background' => 'Background',

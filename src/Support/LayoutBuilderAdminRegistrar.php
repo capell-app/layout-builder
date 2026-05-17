@@ -83,7 +83,7 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
 
         $this->app->make(ViewFactory::class)->replaceNamespace(
             'capell-layout-builder',
-            $basePath . '/resources/views/layout-builder',
+            $basePath . '/resources/views',
         );
 
         $this->app->afterResolving('translation.loader', function (mixed $translatorLoader) use ($basePath): void {
@@ -170,9 +170,9 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
             Livewire::addNamespace(
                 namespace: 'capell-layout-builder',
                 classNamespace: 'Capell\\LayoutBuilder\\Livewire',
-                viewPath: $this->packageBasePath() . '/resources/views/layout-builder/livewire',
+                viewPath: $this->packageBasePath() . '/resources/views/livewire',
                 classPath: __DIR__ . '/../Livewire',
-                classViewPath: $this->packageBasePath() . '/resources/views/layout-builder/livewire',
+                classViewPath: $this->packageBasePath() . '/resources/views/livewire',
             );
 
             resolve('livewire.factory')->resolveMissingComponent(

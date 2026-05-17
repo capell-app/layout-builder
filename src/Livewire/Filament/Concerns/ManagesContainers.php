@@ -11,7 +11,9 @@ use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Filament\Configurators\Layouts\DefaultLayoutContainerConfigurator;
+use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
 use Closure;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Collection as SupportCollection;
@@ -169,7 +171,10 @@ trait ManagesContainers
             $this->addContainer($key, $position);
         }
 
-        $this->containers[$key]['meta'] = $data['meta'] ?? [];
+        $meta = $data['meta'] ?? [];
+        $meta['area'] ??= LayoutAreaRegistry::MAIN;
+
+        $this->containers[$key]['meta'] = $meta;
 
         $this->setupSelectedAssets();
 
@@ -318,6 +323,12 @@ trait ManagesContainers
                         $fail(__('capell-layout-builder::message.layout_container_key_not_unique', ['key' => $value]));
                     },
                 ]),
+            Select::make('meta.area')
+                ->label(__('capell-layout-builder::form.area'))
+                ->options(fn (): array => $this->layoutAreaOptions())
+                ->default(LayoutAreaRegistry::MAIN)
+                ->required()
+                ->native(false),
             ...$typeSchema,
         ];
     }

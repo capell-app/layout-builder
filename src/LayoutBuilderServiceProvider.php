@@ -23,6 +23,7 @@ use Capell\LayoutBuilder\Support\ContentGraph\Extractors\ElementAssetContentGrap
 use Capell\LayoutBuilder\Support\ContentGraph\Extractors\ElementContentGraphExtractor;
 use Capell\LayoutBuilder\Support\ContentGraph\Extractors\LayoutElementContentGraphExtractor;
 use Capell\LayoutBuilder\Support\DefaultPublicElementPayloadResolver;
+use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Capell\LayoutBuilder\Support\LayoutBuilderCoreRegistrar;
 use Capell\LayoutBuilder\Support\LayoutBuilderPublicLayoutGraphBuilder;
@@ -49,6 +50,7 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
 
     public function packageRegistered(): void
     {
+        $this->app->singleton(LayoutAreaRegistry::class, fn (): LayoutAreaRegistry => new LayoutAreaRegistry);
         $this->app->tag([], LayoutContentGroupContributor::TAG);
         $this->app->tag([], LayoutSidebarElementContributor::TAG);
         $this->app->scoped(LayoutLoader::class);
@@ -74,12 +76,11 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     {
         Gate::policy(LayoutPreset::class, LayoutPresetPolicy::class);
 
-        $this->app->make(LayoutBuilderCoreRegistrar::class)->register();
-
         if (! $this->isPackageInstalled()) {
             return;
         }
 
+        $this->app->make(LayoutBuilderCoreRegistrar::class)->register();
         $this->app->make(LayoutBuilderAdminRegistrar::class)->register();
     }
 

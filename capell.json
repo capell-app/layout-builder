@@ -15,11 +15,7 @@
     "namespace": "Capell\\LayoutBuilder",
     "surfaces": ["admin", "frontend", "console"],
     "dependencies": {
-        "requires": [
-            "capell-app/admin",
-            "capell-app/core",
-            "capell-app/frontend"
-        ],
+        "requires": ["capell-app/core", "capell-app/frontend"],
         "optional": [],
         "conflicts": []
     },

@@ -33,7 +33,7 @@ class CreateHeroElementAction
             'name' => $label ?? __('capell-layout-builder::generic.hero'),
             'blueprint_id' => $this->createType()->id,
             'meta' => [
-                'component' => ElementComponentEnum::Hero,
+                'component' => ElementComponentEnum::Hero->value,
                 'heading_size' => 'h1',
                 'height' => $height,
                 'carousel_fade' => true,

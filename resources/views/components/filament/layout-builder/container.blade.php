@@ -4,6 +4,8 @@
     'containerElements',
 ])
 @php
+    use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
+
     // Represent in two columns to ensure there's enough space
     $colspan = min(12, max(1, (int) ($container['meta']['colspan'] ?? 12)));
 
@@ -14,6 +16,8 @@
         ->all();
 
     $containerTitle = str($containerKey)->title();
+    $containerArea = $this->layoutAreaForContainer($container);
+    $containerAreaLabel = $this->layoutAreaLabel($containerArea);
 
     $elementCount = count($container['elements'] ?? []);
 @endphp
@@ -203,6 +207,14 @@
                         >
                             {{ __('capell-admin::generic.container_name', ['name' => $containerTitle]) }}
                         </span>
+
+                        @if ($containerArea !== LayoutAreaRegistry::MAIN)
+                            <span
+                                class="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-[0.6875rem] font-medium text-gray-500 dark:bg-white/10 dark:text-gray-300"
+                            >
+                                {{ $containerAreaLabel }}
+                            </span>
+                        @endif
 
                         <span
                             class="mx-2 text-gray-300 dark:text-gray-600"

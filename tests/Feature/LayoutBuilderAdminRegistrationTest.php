@@ -26,8 +26,11 @@ it('owns admin registration without delegating to the legacy admin registrar', f
 
     resolve(LayoutBuilderAdminRegistrar::class)->register();
 
+    $previewViewPath = view()->getFinder()->find('capell-layout-builder::filament.layout-builder.previews.default');
+    $nestedViewDirectory = 'resources/views/' . 'layout-builder';
+
     expect($source)->not->toContain('Capell\\\\Admin\\\\LayoutBuilder\\\\Support\\\\LayoutBuilderAdminRegistrar')
         ->and(view()->exists('capell-layout-builder::filament.layout-builder.previews.default'))->toBeTrue()
-        ->and(view()->getFinder()->find('capell-layout-builder::filament.layout-builder.previews.default'))
-        ->toContain('packages/layout-builder/resources/views');
+        ->and($previewViewPath)->toContain('packages/layout-builder/resources/views')
+        ->and($previewViewPath)->not->toContain($nestedViewDirectory);
 });
