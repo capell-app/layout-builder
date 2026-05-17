@@ -172,12 +172,12 @@ final class LayoutBuilderCoreRegistrar
                 ElementComponentEnum::Hero => 'capell::element.hero',
                 ElementComponentEnum::Navigation => 'capell::element.navigation',
                 ElementComponentEnum::NavigationTabs => 'capell::element.navigation.tabs',
-                ElementComponentEnum::PageBreadcrumbs => 'capell::widget.page.breadcrumbs',
+                ElementComponentEnum::PageBreadcrumbs => 'capell::element.page.breadcrumbs',
                 ElementComponentEnum::PageChildren => 'capell::element.page.children',
-                ElementComponentEnum::PageContent => 'capell::widget.page.content',
+                ElementComponentEnum::PageContent => 'capell::element.page.content',
                 ElementComponentEnum::PageLatest => 'capell::element.page.latest',
                 ElementComponentEnum::PageSiblings => 'capell::element.page.siblings',
-                ElementComponentEnum::PageSlot => 'capell::widget.slot',
+                ElementComponentEnum::PageSlot => 'capell::element.slot',
                 ElementComponentEnum::Pages => 'capell::element.asset.pages',
                 ElementComponentEnum::Snippet => 'capell::element.snippet',
                 ElementComponentEnum::ApHeroBanner => 'capell::element.modern.hero-banner',
@@ -193,8 +193,6 @@ final class LayoutBuilderCoreRegistrar
                 ElementComponentEnum::ApAlternatingContent => 'capell::element.modern.alternating-content',
                 ElementComponentEnum::ApProcessSteps => 'capell::element.modern.process-steps',
             };
-
-            $blade = str_replace('capell::element.', 'capell::widget.', $blade);
 
             $registry->register(new RenderableDefinitionData(
                 key: $elementComponent->value,
@@ -217,7 +215,7 @@ final class LayoutBuilderCoreRegistrar
         $registry->register(new RenderableDefinitionData(
             key: LivewireComponentsEnum::PagesElement->value,
             type: RenderableTypeEnum::Element,
-            livewire: 'capell::widget.pages',
+            livewire: 'capell::element.pages',
         ));
     }
 

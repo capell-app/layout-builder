@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use Capell\Frontend\Contracts\PublicLayoutGraphBuilder;
 use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
+use Capell\LayoutBuilder\Support\LayoutBuilderPublicLayoutGraphBuilder;
 use Illuminate\Support\Facades\Artisan;
 
 it('discovers the layout builder package service provider', function (): void {
@@ -11,4 +13,8 @@ it('discovers the layout builder package service provider', function (): void {
 
 it('registers the layout builder install command', function (): void {
     expect(array_keys(Artisan::all()))->toContain('capell:layout-builder-install');
+});
+
+it('registers the public layout graph builder for frontend rendering', function (): void {
+    expect(app(PublicLayoutGraphBuilder::class))->toBeInstanceOf(LayoutBuilderPublicLayoutGraphBuilder::class);
 });

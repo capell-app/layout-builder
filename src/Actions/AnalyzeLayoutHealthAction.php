@@ -29,7 +29,7 @@ final class AnalyzeLayoutHealthAction
         $knownElementKeys = $elementModels->keys()->all();
         $diagnostics = AnalyzeLayoutDiagnosticsAction::run($state, $knownElementKeys);
         $anchors = [];
-        $registry = resolve(BlockRegistry::class);
+        $registry = class_exists(BlockRegistry::class) ? resolve(BlockRegistry::class) : null;
 
         foreach ($state->containers as $containerKey => $container) {
             $containerElements = LayoutElementData::normalizeMany($container['elements'] ?? []);
@@ -71,6 +71,10 @@ final class AnalyzeLayoutHealthAction
                         containerKey: (string) $containerKey,
                         elementIndex: $elementIndex,
                     );
+                }
+
+                if (! $registry instanceof BlockRegistry) {
+                    continue;
                 }
 
                 $element = $elementModels->get($elementKey);

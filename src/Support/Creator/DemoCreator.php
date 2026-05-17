@@ -622,7 +622,7 @@ class DemoCreator
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
-                'view_file' => 'capell-layout-builder::components.element.asset.features',
+                'view_file' => 'capell-foundation-theme::components.element.asset.features',
             ],
         ]);
 
@@ -715,7 +715,7 @@ class DemoCreator
             'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => ElementTypeEnum::Assets, 'type' => LayoutTypeEnum::Element])->id,
             'meta' => [
                 'component_item' => FrontendComponentKeyEnum::SectionBlock->value,
-                'view_file' => 'capell-layout-builder::components.element.asset.blocks',
+                'view_file' => 'capell-foundation-theme::components.element.asset.blocks',
                 'spacing' => 'none',
                 'columns' => 4,
                 'margin' => 'none',
