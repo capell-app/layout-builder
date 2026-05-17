@@ -16,5 +16,5 @@ it('registers the layout builder install command', function (): void {
 });
 
 it('registers the public layout graph builder for frontend rendering', function (): void {
-    expect(app(PublicLayoutGraphBuilder::class))->toBeInstanceOf(LayoutBuilderPublicLayoutGraphBuilder::class);
+    expect(resolve(PublicLayoutGraphBuilder::class))->toBeInstanceOf(LayoutBuilderPublicLayoutGraphBuilder::class);
 });

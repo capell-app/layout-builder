@@ -81,9 +81,9 @@ class ElementAssetFactory extends Factory
         ]);
     }
 
-    public function widget(Element $widget): self
+    public function widget(Element $element): self
     {
-        return $this->element($widget);
+        return $this->element($element);
     }
 
     public function assetHavingMedia(int $mediaCount = 1, MediaCollectionEnum $collection = MediaCollectionEnum::Image): self

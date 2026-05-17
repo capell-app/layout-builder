@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder;
 
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
 use Capell\Frontend\Contracts\PublicLayoutGraphBuilder;
@@ -18,6 +19,9 @@ use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Policies\LayoutPresetPolicy;
 use Capell\LayoutBuilder\Support\BlockPresentationPublicElementPayloadContributor;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
+use Capell\LayoutBuilder\Support\ContentGraph\Extractors\ElementAssetContentGraphExtractor;
+use Capell\LayoutBuilder\Support\ContentGraph\Extractors\ElementContentGraphExtractor;
+use Capell\LayoutBuilder\Support\ContentGraph\Extractors\LayoutElementContentGraphExtractor;
 use Capell\LayoutBuilder\Support\DefaultPublicElementPayloadResolver;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Capell\LayoutBuilder\Support\LayoutBuilderCoreRegistrar;
@@ -52,6 +56,11 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->scoped(PublicLayoutGraphBuilder::class, LayoutBuilderPublicLayoutGraphBuilder::class);
         $this->app->tag([BlockPresentationPublicElementPayloadContributor::class], PublicElementPayloadContributor::TAG);
         $this->app->tag([LayoutBuilderRuntimeManifestContributor::class], FrontendRuntimeManifestContributor::TAG);
+        $this->app->tag([
+            ElementAssetContentGraphExtractor::class,
+            ElementContentGraphExtractor::class,
+            LayoutElementContentGraphExtractor::class,
+        ], ContentGraphRegistry::TAG);
 
         if ($this->app->runningInConsole()) {
             $this->commands([

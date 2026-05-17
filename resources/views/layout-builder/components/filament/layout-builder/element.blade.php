@@ -29,7 +29,7 @@
 
     $hasPageAssets = $this->hasPageAssets($containerKey, $elementIndex);
 
-    $previewData = $this->resolveAdminWidgetPreviewData($containerKey, $elementIndex);
+    $previewData = $this->resolveAdminElementPreviewData($containerKey, $elementIndex);
 
     $previewView = $this->resolveAdminElementPreviewView($previewData);
 

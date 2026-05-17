@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Actions;
 
-use Capell\Admin\Data\LayoutBuilder\AdminWidgetPreviewData;
+use Capell\Admin\Data\LayoutBuilder\AdminWidgetPreviewData as AdminElementPreviewData;
 use Capell\Core\Contracts\Pageable;
 use Capell\LayoutBuilder\Enums\ElementComponentEnum;
 use Capell\LayoutBuilder\Models\Element;
@@ -26,13 +26,13 @@ final class ResolveAdminElementPreviewDataAction
         ?Pageable $page,
         int $assetCount,
         bool $hasPageAssets,
-    ): AdminWidgetPreviewData {
+    ): AdminElementPreviewData {
         $usesPageContent = $this->isPageContentElement($element);
         $title = $this->title($element, $containerElement, $page, $usesPageContent);
         $excerpt = $this->excerpt($element, $page, $usesPageContent);
         $image = $this->image($element, $page, $usesPageContent);
 
-        return new AdminWidgetPreviewData(
+        return new AdminElementPreviewData(
             view: $this->view($element, $usesPageContent),
             label: $this->label($element, $containerElement),
             title: $title,

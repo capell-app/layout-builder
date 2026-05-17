@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Livewire\Filament\Concerns;
 
-use Capell\Admin\Data\LayoutBuilder\AdminWidgetPreviewData;
+use Capell\Admin\Data\LayoutBuilder\AdminWidgetPreviewData as AdminElementPreviewData;
 use Capell\LayoutBuilder\Actions\Mutations\ReorderLayoutElementAction;
 use Capell\LayoutBuilder\Actions\ResolveAdminElementPreviewDataAction;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
@@ -144,7 +144,7 @@ trait ManagesElements
                 ->contains(fn (string $targetContainerKey): bool => $targetContainerKey !== $containerKey);
     }
 
-    public function resolveAdminWidgetPreviewData(string $containerKey, int $elementIndex): AdminWidgetPreviewData
+    public function resolveAdminElementPreviewData(string $containerKey, int $elementIndex): AdminElementPreviewData
     {
         $element = $this->getContainerElement($containerKey, $elementIndex);
 
@@ -157,7 +157,7 @@ trait ManagesElements
         );
     }
 
-    public function resolveAdminElementPreviewView(AdminWidgetPreviewData $previewData): string
+    public function resolveAdminElementPreviewView(AdminElementPreviewData $previewData): string
     {
         if (view()->exists($previewData->view)) {
             return $previewData->view;

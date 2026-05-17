@@ -17,7 +17,7 @@ it('adds layout builder runtime manifest flags for blade layouts with blade elem
     $element = Element::factory()->create([
         'key' => 'blade-element',
         'meta' => [
-            'component' => 'capell.widget.default',
+            'component' => 'capell.element.default',
         ],
     ]);
     $layout = Layout::factory()->make([
@@ -50,7 +50,7 @@ it('adds livewire island flags for blade layouts with livewire elements', functi
     $element = Element::factory()->create([
         'key' => 'livewire-element',
         'meta' => [
-            'component' => 'capell.widget.default',
+            'component' => 'capell.element.default',
             'livewire' => true,
         ],
     ]);
@@ -184,7 +184,7 @@ it('does not change non blade-only runtime manifests', function (): void {
     $element = Element::factory()->create([
         'key' => 'livewire-element',
         'meta' => [
-            'component' => 'capell.widget.default',
+            'component' => 'capell.element.default',
             'livewire' => true,
         ],
     ]);
