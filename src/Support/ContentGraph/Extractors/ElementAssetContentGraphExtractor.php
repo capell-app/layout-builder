@@ -77,7 +77,7 @@ final class ElementAssetContentGraphExtractor implements ContentGraphExtractor
         }
 
         if ($this->resolveMorphType($model->asset_type) === Page::class && is_numeric($model->asset_id)) {
-            $pageIds[] = (int) $model->asset_id;
+            $pageIds[] = $model->asset_id;
         }
 
         if ($this->resolveMorphType((string) data_get($model->meta, 'linked_pageable_type')) === Page::class) {
@@ -93,9 +93,9 @@ final class ElementAssetContentGraphExtractor implements ContentGraphExtractor
     /**
      * @return class-string<Model>|null
      */
-    private function resolveMorphType(string $targetType): ?string
+    private function resolveMorphType(?string $targetType): ?string
     {
-        if ($targetType === '') {
+        if ($targetType === null || $targetType === '') {
             return null;
         }
 

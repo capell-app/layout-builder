@@ -1692,7 +1692,7 @@ class DemoCreator
         $navigationCreator = NavigationCreator::class;
 
         if (CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($navigationCreator) && method_exists($navigationCreator, 'getPageNavigationLabel')) {
-            return (string) $navigationCreator::getPageNavigationLabel($page, $language);
+            return $navigationCreator::getPageNavigationLabel($page, $language);
         }
 
         return $page->translation?->title ?? $page->name;
