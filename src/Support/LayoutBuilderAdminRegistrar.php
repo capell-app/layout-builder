@@ -167,6 +167,12 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
     private function registerLivewireComponents(): void
     {
         $register = function (): void {
+            Livewire::component('capell-layout-builder::filament.layout-builder', LayoutBuilder::class);
+
+            if (! method_exists(Livewire::getFacadeRoot(), 'addNamespace')) {
+                return;
+            }
+
             Livewire::addNamespace(
                 namespace: 'capell-layout-builder',
                 classNamespace: 'Capell\\LayoutBuilder\\Livewire',
@@ -174,6 +180,10 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
                 classPath: __DIR__ . '/../Livewire',
                 classViewPath: $this->packageBasePath() . '/resources/views/livewire',
             );
+
+            if (! $this->app->bound('livewire.factory')) {
+                return;
+            }
 
             resolve('livewire.factory')->resolveMissingComponent(
                 static fn (string $name): ?string => match ($name) {
