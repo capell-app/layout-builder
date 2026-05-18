@@ -5,17 +5,17 @@ declare(strict_types=1);
 use Capell\LayoutBuilder\Actions\AnalyzeLayoutDiagnosticsAction;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\Block;
 
-it('reports unknown elements and invalid responsive metadata', function (): void {
-    Element::factory()->create(['key' => 'known']);
+it('reports unknown blocks and invalid responsive metadata', function (): void {
+    Block::factory()->create(['key' => 'known']);
 
     $state = new LayoutBuilderStateData(
         containers: [
             'main' => [
-                'elements' => [
-                    ['element_key' => 'known'],
-                    ['element_key' => 'missing'],
+                'blocks' => [
+                    ['block_key' => 'known'],
+                    ['block_key' => 'missing'],
                 ],
                 'meta' => [
                     'responsive' => [
@@ -33,7 +33,7 @@ it('reports unknown elements and invalid responsive metadata', function (): void
 
     expect($diagnostics)->toHaveCount(2)
         ->and($diagnostics[0]->severity)->toBe(LayoutDiagnosticSeverity::Blocking)
-        ->and($diagnostics[0]->code)->toBe('unknown_element')
+        ->and($diagnostics[0]->code)->toBe('unknown_block')
         ->and($diagnostics[1]->severity)->toBe(LayoutDiagnosticSeverity::Warning)
         ->and($diagnostics[1]->code)->toBe('invalid_responsive_colspan');
 });

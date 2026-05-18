@@ -7,7 +7,7 @@ namespace Capell\LayoutBuilder\Actions;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Models\LayoutPreset;
-use Capell\LayoutBuilder\Support\LayoutElementData;
+use Capell\LayoutBuilder\Support\LayoutBlockData;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -141,12 +141,12 @@ final class SaveLayoutPresetAction
         return collect($containers)
             ->map(function (mixed $container) use ($includeStarterContent): array {
                 $container = is_array($container) ? $container : [];
-                $elements = is_array($container['elements'] ?? null) ? $container['elements'] : [];
+                $blocks = is_array($container['blocks'] ?? null) ? $container['blocks'] : [];
 
                 $container = $this->scrubUnsafePresetData($container);
-                $container['elements'] = array_map(
-                    fn (array $element): array => $this->snapshotElement($element, $includeStarterContent),
-                    LayoutElementData::normalizeMany($elements),
+                $container['blocks'] = array_map(
+                    fn (array $block): array => $this->snapshotBlock($block, $includeStarterContent),
+                    LayoutBlockData::normalizeMany($blocks),
                 );
 
                 return $container;
@@ -155,15 +155,15 @@ final class SaveLayoutPresetAction
     }
 
     /**
-     * @param  array<string, mixed>  $element
+     * @param  array<string, mixed>  $block
      * @return array<string, mixed>
      */
-    private function snapshotElement(array $element, bool $includeStarterContent): array
+    private function snapshotBlock(array $block, bool $includeStarterContent): array
     {
-        $snapshot = array_intersect_key($element, array_flip(['element_key', 'occurrence']));
-        $snapshot['occurrence'] = LayoutElementData::occurrence($element);
+        $snapshot = array_intersect_key($block, array_flip(['block_key', 'occurrence']));
+        $snapshot['occurrence'] = LayoutBlockData::occurrence($block);
 
-        $meta = is_array($element['meta'] ?? null) ? $element['meta'] : [];
+        $meta = is_array($block['meta'] ?? null) ? $block['meta'] : [];
         $snapshot['meta'] = $this->safeBlockMeta($meta, $includeStarterContent);
 
         if (! $includeStarterContent) {
@@ -171,8 +171,8 @@ final class SaveLayoutPresetAction
         }
 
         foreach (['content', 'items', 'cta', 'media', 'image', 'images'] as $key) {
-            if (array_key_exists($key, $element)) {
-                $snapshot[$key] = $this->scrubUnsafePresetData($element[$key]);
+            if (array_key_exists($key, $block)) {
+                $snapshot[$key] = $this->scrubUnsafePresetData($block[$key]);
             }
         }
 

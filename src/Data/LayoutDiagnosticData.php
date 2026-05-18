@@ -14,7 +14,7 @@ final class LayoutDiagnosticData extends Data
         public string $code,
         public string $message,
         public ?string $containerKey,
-        public ?int $elementIndex,
+        public ?int $blockIndex,
     ) {}
 
     public function isBlocking(): bool

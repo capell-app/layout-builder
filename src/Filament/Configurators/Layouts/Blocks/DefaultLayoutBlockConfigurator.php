@@ -1,0 +1,32 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\LayoutBuilder\Filament\Configurators\Layouts\Blocks;
+
+use Capell\Admin\Contracts\ConfiguratorInterface;
+use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
+use Capell\Admin\Filament\Concerns\HasConfigurator;
+use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
+use Capell\LayoutBuilder\Enums\SchemaExtenderEnum;
+use Capell\LayoutBuilder\Filament\Components\Forms\HtmlClassInput;
+use Filament\Schemas\Schema;
+
+class DefaultLayoutBlockConfigurator implements ConfiguratorInterface
+{
+    use HasConfigurator;
+
+    protected static ConfiguratorTypeEnumInterface $configuratorType = ConfiguratorTypeEnum::LayoutBlock;
+
+    public static function getExtenders(): iterable
+    {
+        return app()->tagged(SchemaExtenderEnum::LayoutBlock->value);
+    }
+
+    public function make(Schema $configurator): array
+    {
+        return [
+            HtmlClassInput::make('html_class'),
+        ];
+    }
+}

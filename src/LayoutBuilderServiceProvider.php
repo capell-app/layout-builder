@@ -12,17 +12,17 @@ use Capell\Frontend\Contracts\PublicLayoutGraphBuilder;
 use Capell\LayoutBuilder\Console\Commands\BlockVisualRegressionCommand;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
 use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
-use Capell\LayoutBuilder\Contracts\LayoutSidebarElementContributor;
-use Capell\LayoutBuilder\Contracts\PublicElementPayloadContributor;
-use Capell\LayoutBuilder\Contracts\PublicElementPayloadResolver;
+use Capell\LayoutBuilder\Contracts\LayoutSidebarBlockContributor;
+use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicBlockPayloadResolver;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Policies\LayoutPresetPolicy;
-use Capell\LayoutBuilder\Support\BlockPresentationPublicElementPayloadContributor;
+use Capell\LayoutBuilder\Support\BlockPresentationPublicBlockPayloadContributor;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
-use Capell\LayoutBuilder\Support\ContentGraph\Extractors\ElementAssetContentGraphExtractor;
-use Capell\LayoutBuilder\Support\ContentGraph\Extractors\ElementContentGraphExtractor;
-use Capell\LayoutBuilder\Support\ContentGraph\Extractors\LayoutElementContentGraphExtractor;
-use Capell\LayoutBuilder\Support\DefaultPublicElementPayloadResolver;
+use Capell\LayoutBuilder\Support\ContentGraph\Extractors\BlockAssetContentGraphExtractor;
+use Capell\LayoutBuilder\Support\ContentGraph\Extractors\BlockContentGraphExtractor;
+use Capell\LayoutBuilder\Support\ContentGraph\Extractors\LayoutBlockContentGraphExtractor;
+use Capell\LayoutBuilder\Support\DefaultPublicBlockPayloadResolver;
 use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Capell\LayoutBuilder\Support\LayoutBuilderCoreRegistrar;
@@ -52,16 +52,16 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     {
         $this->app->singleton(LayoutAreaRegistry::class, fn (): LayoutAreaRegistry => new LayoutAreaRegistry);
         $this->app->tag([], LayoutContentGroupContributor::TAG);
-        $this->app->tag([], LayoutSidebarElementContributor::TAG);
+        $this->app->tag([], LayoutSidebarBlockContributor::TAG);
         $this->app->scoped(LayoutLoader::class);
-        $this->app->scoped(PublicElementPayloadResolver::class, DefaultPublicElementPayloadResolver::class);
+        $this->app->scoped(PublicBlockPayloadResolver::class, DefaultPublicBlockPayloadResolver::class);
         $this->app->scoped(PublicLayoutGraphBuilder::class, LayoutBuilderPublicLayoutGraphBuilder::class);
-        $this->app->tag([BlockPresentationPublicElementPayloadContributor::class], PublicElementPayloadContributor::TAG);
+        $this->app->tag([BlockPresentationPublicBlockPayloadContributor::class], PublicBlockPayloadContributor::TAG);
         $this->app->tag([LayoutBuilderRuntimeManifestContributor::class], FrontendRuntimeManifestContributor::TAG);
         $this->app->tag([
-            ElementAssetContentGraphExtractor::class,
-            ElementContentGraphExtractor::class,
-            LayoutElementContentGraphExtractor::class,
+            BlockAssetContentGraphExtractor::class,
+            BlockContentGraphExtractor::class,
+            LayoutBlockContentGraphExtractor::class,
         ], ContentGraphRegistry::TAG);
 
         if ($this->app->runningInConsole()) {

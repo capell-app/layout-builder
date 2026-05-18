@@ -3,22 +3,22 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Blueprint;
-use Capell\LayoutBuilder\Enums\ElementTypeEnum;
+use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 
-it('creates layout builder element types with clear names and descriptions', function (): void {
-    resolve(TypeCreator::class)->createElementTypes();
+it('creates layout builder block types with clear names and descriptions', function (): void {
+    resolve(TypeCreator::class)->createBlockTypes();
 
     $types = Blueprint::query()
-        ->where('type', LayoutTypeEnum::Element->value)
+        ->where('type', LayoutTypeEnum::Block->value)
         ->get()
         ->keyBy('key');
 
-    $heroType = $types->get(ElementTypeEnum::Hero->value);
-    $callToActionType = $types->get(ElementTypeEnum::CTASection->value);
-    $imageGalleryType = $types->get(ElementTypeEnum::ImageGallery->value);
-    $systemType = $types->get(ElementTypeEnum::System->value);
+    $heroType = $types->get(BlockTypeEnum::Hero->value);
+    $callToActionType = $types->get(BlockTypeEnum::CTASection->value);
+    $imageGalleryType = $types->get(BlockTypeEnum::ImageGallery->value);
+    $systemType = $types->get(BlockTypeEnum::System->value);
 
     expect($heroType?->name)->toBe('Hero')
         ->and(data_get($heroType?->admin, 'notes'))->toBe('The main opening block for a page headline, intro copy, and primary action.')

@@ -10,8 +10,8 @@ use Capell\ContentBlocks\Support\NullBlockDefinition;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutDiagnosticData;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
-use Capell\LayoutBuilder\Models\Element;
-use Capell\LayoutBuilder\Support\LayoutElementData;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Support\LayoutBlockData;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -25,18 +25,18 @@ final class AnalyzeLayoutHealthAction
      */
     public function handle(LayoutBuilderStateData $state, ?string $themeKey = null): array
     {
-        $elementModels = $this->elements($state);
-        $knownElementKeys = $elementModels->keys()->all();
-        $diagnostics = AnalyzeLayoutDiagnosticsAction::run($state, $knownElementKeys);
+        $blockModels = $this->blocks($state);
+        $knownBlockKeys = $blockModels->keys()->all();
+        $diagnostics = AnalyzeLayoutDiagnosticsAction::run($state, $knownBlockKeys);
         $anchors = [];
         $registry = class_exists(BlockRegistry::class) ? resolve(BlockRegistry::class) : null;
 
         foreach ($state->containers as $containerKey => $container) {
-            $containerElements = LayoutElementData::normalizeMany($container['elements'] ?? []);
+            $containerBlocks = LayoutBlockData::normalizeMany($container['blocks'] ?? []);
 
-            foreach ($containerElements as $elementIndex => $containerElement) {
-                $elementKey = $containerElement['element_key'] ?? null;
-                $meta = is_array($containerElement['meta'] ?? null) ? $containerElement['meta'] : [];
+            foreach ($containerBlocks as $blockIndex => $containerBlock) {
+                $blockKey = $containerBlock['block_key'] ?? null;
+                $meta = is_array($containerBlock['meta'] ?? null) ? $containerBlock['meta'] : [];
                 $settings = is_array($meta['block_settings'] ?? null) ? $meta['block_settings'] : [];
                 $anchorId = $this->anchorId($settings['anchor_id'] ?? null);
 
@@ -46,7 +46,7 @@ final class AnalyzeLayoutHealthAction
                         code: 'duplicate_block_anchor',
                         message: __('capell-layout-builder::message.duplicate_block_anchor', ['anchor' => $anchorId]),
                         containerKey: (string) $containerKey,
-                        elementIndex: $elementIndex,
+                        blockIndex: $blockIndex,
                     );
                 }
 
@@ -54,22 +54,22 @@ final class AnalyzeLayoutHealthAction
                     $anchors[$anchorId] = true;
                 }
 
-                if (! is_string($elementKey)) {
+                if (! is_string($blockKey)) {
                     continue;
                 }
 
-                if (! in_array($elementKey, $knownElementKeys, true)) {
+                if (! in_array($blockKey, $knownBlockKeys, true)) {
                     continue;
                 }
 
-                $assets = $state->assets[(string) $containerKey][$elementIndex] ?? [];
+                $assets = $state->assets[(string) $containerKey][$blockIndex] ?? [];
                 if (is_array($assets) && count($assets) > 6) {
                     $diagnostics[] = new LayoutDiagnosticData(
                         severity: LayoutDiagnosticSeverity::Warning,
                         code: 'too_many_block_cards',
                         message: __('capell-layout-builder::message.too_many_block_cards', ['max' => 6]),
                         containerKey: (string) $containerKey,
-                        elementIndex: $elementIndex,
+                        blockIndex: $blockIndex,
                     );
                 }
 
@@ -77,25 +77,25 @@ final class AnalyzeLayoutHealthAction
                     continue;
                 }
 
-                $element = $elementModels->get($elementKey);
-                if (! $element instanceof Element) {
+                $block = $blockModels->get($blockKey);
+                if (! $block instanceof Block) {
                     continue;
                 }
 
-                $publicElement = $this->elementWithPublicOccurrenceMeta($element, $meta);
-                $definitionKey = $this->definitionKey($publicElement, $registry);
+                $publicBlock = $this->blockWithPublicOccurrenceMeta($block, $meta);
+                $definitionKey = $this->definitionKey($publicBlock, $registry);
                 $definition = $registry->get($definitionKey) ?? NullBlockDefinition::make($definitionKey);
-                $presentation = ResolveBlockPresentationDataAction::run($publicElement, $themeKey);
+                $presentation = ResolveBlockPresentationDataAction::run($publicBlock, $themeKey);
 
                 $diagnostics = [
                     ...$diagnostics,
-                    ...$this->variantDiagnostics($definition, $meta, $themeKey, (string) $containerKey, $elementIndex),
+                    ...$this->variantDiagnostics($definition, $meta, $themeKey, (string) $containerKey, $blockIndex),
                     ...BlockContractValidatorAction::run(
                         definition: $definition,
                         presentation: $presentation,
-                        payload: $this->contentPayload($containerElement, is_array($assets) ? $assets : []),
+                        payload: $this->contentPayload($containerBlock, is_array($assets) ? $assets : []),
                         containerKey: (string) $containerKey,
-                        elementIndex: $elementIndex,
+                        blockIndex: $blockIndex,
                     ),
                 ];
             }
@@ -105,21 +105,21 @@ final class AnalyzeLayoutHealthAction
     }
 
     /**
-     * @return Collection<string, Element>
+     * @return Collection<string, Block>
      */
-    private function elements(LayoutBuilderStateData $state): Collection
+    private function blocks(LayoutBuilderStateData $state): Collection
     {
-        $layoutElementKeys = collect($state->containers)
-            ->flatMap(fn (array $container): array => LayoutElementData::normalizeMany($container['elements'] ?? []))
-            ->map(static fn (array $element): ?string => LayoutElementData::key($element))
-            ->filter(static fn (mixed $elementKey): bool => is_string($elementKey) && $elementKey !== '')
+        $layoutBlockKeys = collect($state->containers)
+            ->flatMap(fn (array $container): array => LayoutBlockData::normalizeMany($container['blocks'] ?? []))
+            ->map(static fn (array $block): ?string => LayoutBlockData::key($block))
+            ->filter(static fn (mixed $blockKey): bool => is_string($blockKey) && $blockKey !== '')
             ->unique()
             ->values()
             ->all();
 
-        return $layoutElementKeys === []
+        return $layoutBlockKeys === []
             ? collect()
-            : Element::query()->with('type:id,key')->whereIn('key', $layoutElementKeys)->get()->keyBy('key');
+            : Block::query()->with('type:id,key')->whereIn('key', $layoutBlockKeys)->get()->keyBy('key');
     }
 
     private function anchorId(mixed $value): ?string
@@ -136,7 +136,7 @@ final class AnalyzeLayoutHealthAction
     /**
      * @param  array<string, mixed>  $meta
      */
-    private function elementWithPublicOccurrenceMeta(Element $element, array $meta): Element
+    private function blockWithPublicOccurrenceMeta(Block $block, array $meta): Block
     {
         $safeMeta = array_intersect_key($meta, array_flip([
             'block_key',
@@ -158,39 +158,39 @@ final class AnalyzeLayoutHealthAction
         }
 
         if ($safeMeta === []) {
-            return $element;
+            return $block;
         }
 
-        $publicElement = clone $element;
-        $baseMeta = is_array($element->meta) ? $element->meta : [];
-        $publicElement->setAttribute('meta', array_replace_recursive($baseMeta, $safeMeta));
+        $publicBlock = clone $block;
+        $baseMeta = is_array($block->meta) ? $block->meta : [];
+        $publicBlock->setAttribute('meta', array_replace_recursive($baseMeta, $safeMeta));
 
-        return $publicElement;
+        return $publicBlock;
     }
 
-    private function definitionKey(Element $element, BlockRegistry $registry): string
+    private function definitionKey(Block $block, BlockRegistry $registry): string
     {
-        $meta = is_array($element->meta) ? $element->meta : [];
+        $meta = is_array($block->meta) ? $block->meta : [];
         $configuredKey = $meta['block_key'] ?? null;
 
         if (is_string($configuredKey) && trim($configuredKey) !== '') {
             return trim($configuredKey);
         }
 
-        $typeKey = $element->type?->key;
+        $typeKey = $block->type?->key;
 
         if (is_string($typeKey) && $registry->has($typeKey)) {
             return $typeKey;
         }
 
-        return $element->key;
+        return $block->key;
     }
 
     /**
      * @param  array<string, mixed>  $meta
      * @return array<int, LayoutDiagnosticData>
      */
-    private function variantDiagnostics(BlockDefinitionData $definition, array $meta, ?string $themeKey, string $containerKey, int $elementIndex): array
+    private function variantDiagnostics(BlockDefinitionData $definition, array $meta, ?string $themeKey, string $containerKey, int $blockIndex): array
     {
         $configuredVariant = $meta['block_variant'] ?? null;
         $variant = is_string($configuredVariant) && $configuredVariant !== ''
@@ -209,7 +209,7 @@ final class AnalyzeLayoutHealthAction
                     'variant' => $this->variantLabel($definition, $variant),
                 ]),
                 containerKey: $containerKey,
-                elementIndex: $elementIndex,
+                blockIndex: $blockIndex,
             ),
         ];
     }
@@ -230,13 +230,13 @@ final class AnalyzeLayoutHealthAction
     }
 
     /**
-     * @param  array<string, mixed>  $containerElement
+     * @param  array<string, mixed>  $containerBlock
      * @param  array<int, mixed>  $assets
      * @return array<string, mixed>
      */
-    private function contentPayload(array $containerElement, array $assets): array
+    private function contentPayload(array $containerBlock, array $assets): array
     {
-        $meta = is_array($containerElement['meta'] ?? null) ? $containerElement['meta'] : [];
+        $meta = is_array($containerBlock['meta'] ?? null) ? $containerBlock['meta'] : [];
         $content = is_array($meta['content'] ?? null) ? $meta['content'] : [];
 
         if (! array_key_exists('items', $content) && $assets !== []) {

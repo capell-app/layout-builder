@@ -1,7 +1,7 @@
 @props([
     'container',
     'containerKey',
-    'containerElements',
+    'containerBlocks',
 ])
 @php
     use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
@@ -19,7 +19,7 @@
     $containerArea = $this->layoutAreaForContainer($container);
     $containerAreaLabel = $this->layoutAreaLabel($containerArea);
 
-    $elementCount = count($container['elements'] ?? []);
+    $blockCount = count($container['blocks'] ?? []);
 @endphp
 
 <div
@@ -89,7 +89,7 @@
             this.notify()
         },
         startResize(event) {
-            this.$dispatch('layout-builder-suppress-element-actions')
+            this.$dispatch('layout-builder-suppress-block-actions')
             this.isResizing = true
             this.isResizeHandleFocused = true
             this.resizeStartX = event.clientX
@@ -98,7 +98,7 @@
         resize(event) {
             if (! this.isResizing) return
 
-            const grid = this.$el.parentElement
+            const grid = this.$el.parentBlock
             const columnWidth = grid ? grid.getBoundingClientRect().width / 12 : 1
             const pointerDelta = event.clientX - this.resizeStartX
             const snapDeadZone = 3
@@ -393,9 +393,9 @@
 
         <div
             x-show="! isCollapsed"
-            class="layout-container-elements"
-            x-sort="reorderElement('{{ $containerKey }}', $item, $position)"
-            x-sort:group="elements"
+            class="layout-container-blocks"
+            x-sort="reorderBlock('{{ $containerKey }}', $item, $position)"
+            x-sort:group="blocks"
             x-sort:config="{
                 animation: window.matchMedia('(prefers-reduced-motion: reduce)').matches
                     ? 0
@@ -408,9 +408,9 @@
                 dragClass: 'layout-sort-drag',
             }"
         >
-            @foreach ($container['elements'] as $elementIndex => $containerElement)
+            @foreach ($container['blocks'] as $blockIndex => $containerBlock)
                 <div
-                    class="layout-container-element-drop-zone group flex min-h-8 items-center px-3 transition"
+                    class="layout-container-block-drop-zone group flex min-h-8 items-center px-3 transition"
                     x-show="shouldShowInsertTargets()"
                     x-transition.opacity
                     x-cloak
@@ -421,15 +421,15 @@
                         <span
                             class="border-primary-500/50 h-px flex-1 border-t border-dashed"
                         ></span>
-                        <span class="layout-container-element-insert-action">
+                        <span class="layout-container-block-insert-action">
                             <button
                                 type="button"
                                 class="fi-btn fi-size-sm fi-btn-color-gray fi-color-gray fi-btn-outlined focus-visible:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
-                                x-on:click="$wire.mountAction('addElement', { containerKey: @js($containerKey), position: @js($elementIndex) })"
+                                x-on:click="$wire.mountAction('addBlock', { containerKey: @js($containerKey), position: @js($blockIndex) })"
                             >
                                 @svg('heroicon-m-plus', 'h-3.5 w-3.5')
                                 <span>
-                                    {{ __('capell-layout-builder::button.add_element_here') }}
+                                    {{ __('capell-layout-builder::button.add_block_here') }}
                                 </span>
                             </button>
                         </span>
@@ -439,25 +439,25 @@
                     </div>
                 </div>
 
-                @if (isset($containerElements[$elementIndex]))
-                    <x-capell-layout-builder::filament.layout-builder.element
+                @if (isset($containerBlocks[$blockIndex]))
+                    <x-capell-layout-builder::filament.layout-builder.block
                         :$containerKey
-                        :$containerElement
+                        :$containerBlock
                         :$loop
-                        :element="$containerElements[$elementIndex]"
-                        :$elementIndex
+                        :block="$containerBlocks[$blockIndex]"
+                        :$blockIndex
                     />
                 @else
                     <div
-                        class="layout-container-element border-b border-dashed border-rose-200 bg-rose-50/70 px-4 py-3 text-sm text-rose-700 last:rounded-b-lg dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200"
+                        class="layout-container-block border-b border-dashed border-rose-200 bg-rose-50/70 px-4 py-3 text-sm text-rose-700 last:rounded-b-lg dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200"
                     >
-                        {{ __('capell-admin::message.unknown_element', ['element' => $containerElement['element_key'] ?? __('capell-admin::generic.unknown')]) }}
+                        {{ __('capell-admin::message.unknown_block', ['block' => $containerBlock['block_key'] ?? __('capell-admin::generic.unknown')]) }}
                     </div>
                 @endif
             @endforeach
 
             <div
-                class="layout-container-element-drop-zone group flex min-h-8 items-center px-3 transition"
+                class="layout-container-block-drop-zone group flex min-h-8 items-center px-3 transition"
                 x-show="shouldShowInsertTargets()"
                 x-transition.opacity
                 x-cloak
@@ -468,15 +468,15 @@
                     <span
                         class="border-primary-500/50 h-px flex-1 border-t border-dashed"
                     ></span>
-                    <span class="layout-container-element-insert-action">
+                    <span class="layout-container-block-insert-action">
                         <button
                             type="button"
                             class="fi-btn fi-size-sm fi-btn-color-gray fi-color-gray fi-btn-outlined focus-visible:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
-                            x-on:click="$wire.mountAction('addElement', { containerKey: @js($containerKey), position: @js(count($container['elements'] ?? [])) })"
+                            x-on:click="$wire.mountAction('addBlock', { containerKey: @js($containerKey), position: @js(count($container['blocks'] ?? [])) })"
                         >
                             @svg('heroicon-m-plus', 'h-3.5 w-3.5')
                             <span>
-                                {{ __('capell-layout-builder::button.add_element_here') }}
+                                {{ __('capell-layout-builder::button.add_block_here') }}
                             </span>
                         </button>
                     </span>

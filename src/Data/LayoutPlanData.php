@@ -17,6 +17,6 @@ class LayoutPlanData extends Data
         public string $presetKey,
         public array $containers,
         public array $sections,
-        public bool $reusesExistingElements = true,
+        public bool $reusesExistingBlocks = true,
     ) {}
 }

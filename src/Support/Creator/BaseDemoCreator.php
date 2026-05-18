@@ -15,8 +15,8 @@ use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\DemoKit\Support\Creator\DemoCreator;
-use Capell\LayoutBuilder\Models\Element;
-use Capell\LayoutBuilder\Models\ElementAsset;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\BlockAsset;
 use Capell\Navigation\Support\Creator\NavigationCreator;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -43,9 +43,9 @@ abstract class BaseDemoCreator
     protected string $contentModel;
 
     /**
-     * @var class-string<Element>
+     * @var class-string<Block>
      */
-    protected string $elementModel;
+    protected string $blockModel;
 
     /**
      * @var class-string<Blueprint>
@@ -87,10 +87,10 @@ abstract class BaseDemoCreator
         return $page->translation?->title ?? $page->name;
     }
 
-    protected function createPageElementAsset(Element $element, Pageable $page, string $container, int $occurrence, Model $asset): ElementAsset
+    protected function createPageBlockAsset(Block $block, Pageable $page, string $container, int $occurrence, Model $asset): BlockAsset
     {
         return DB::transaction(
-            fn (): ElementAsset => $element->assets()->createOrFirst([
+            fn (): BlockAsset => $block->assets()->createOrFirst([
                 'pageable_id' => $page->getKey(),
                 'pageable_type' => $page->getMorphClass(),
                 'container' => $container,
@@ -446,7 +446,7 @@ abstract class BaseDemoCreator
         $demoCreator->createMedia($model, $name, $type, $collection);
     }
 
-    protected function createElementMedia(Element $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
+    protected function createBlockMedia(Block $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
     {
         // Normalize input name and derive extension if provided
         $inputName = in_array($name, [null, '', '0'], true) ? null : $name;
@@ -490,7 +490,7 @@ abstract class BaseDemoCreator
             $demoFile = sprintf('%s/%s.%s', $demoPath, $filenameBase, $ext);
         }
 
-        // Create content and link via ElementAsset
+        // Create content and link via BlockAsset
         $content = $this->contentModel::query()->create([
             'name' => str($filenameBase)->title(),
         ]);

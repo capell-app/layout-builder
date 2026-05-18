@@ -8,13 +8,13 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\LayoutBuilder\Contracts\PublicElementPayloadResolver;
+use Capell\LayoutBuilder\Contracts\PublicBlockPayloadResolver;
+use Capell\LayoutBuilder\Data\PublicLayoutBlockData;
 use Capell\LayoutBuilder\Data\PublicLayoutContainerData;
-use Capell\LayoutBuilder\Data\PublicLayoutElementData;
 use Capell\LayoutBuilder\Data\PublicLayoutGraphData;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\Block;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
-use Capell\LayoutBuilder\Support\LayoutElementData;
+use Capell\LayoutBuilder\Support\LayoutBlockData;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -36,9 +36,9 @@ class BuildPublicLayoutGraphAction
 
         $selectedContainers = $this->selectedContainers($containers);
         $loader = resolve(LayoutLoader::class);
-        $resolver = resolve(PublicElementPayloadResolver::class);
+        $resolver = resolve(PublicBlockPayloadResolver::class);
 
-        $loader->preloadLayoutElements($layout, $language, $page, $selectedContainers);
+        $loader->preloadLayoutBlocks($layout, $language, $page, $selectedContainers);
 
         return new PublicLayoutGraphData(
             key: $layout->key,
@@ -70,26 +70,26 @@ class BuildPublicLayoutGraphAction
         Page $page,
         Language $language,
         LayoutLoader $loader,
-        PublicElementPayloadResolver $resolver,
+        PublicBlockPayloadResolver $resolver,
         string $containerKey,
         array $container,
         bool $includeHtml,
         ?array $selectedContainers,
     ): PublicLayoutContainerData {
-        $elements = LayoutElementData::normalizeMany($container['elements'] ?? []);
+        $blocks = LayoutBlockData::normalizeMany($container['blocks'] ?? []);
 
         return new PublicLayoutContainerData(
             key: $containerKey,
             meta: [],
-            elements: collect($elements)
-                ->map(fn (mixed $elementData): ?PublicLayoutElementData => $this->elementData(
+            blocks: collect($blocks)
+                ->map(fn (mixed $blockData): ?PublicLayoutBlockData => $this->blockData(
                     layout: $layout,
                     page: $page,
                     language: $language,
                     loader: $loader,
                     resolver: $resolver,
                     containerKey: $containerKey,
-                    elementData: $elementData,
+                    blockData: $blockData,
                     includeHtml: $includeHtml,
                     selectedContainers: $selectedContainers,
                 ))
@@ -100,57 +100,57 @@ class BuildPublicLayoutGraphAction
     }
 
     /**
-     * @param  array<string, mixed>  $elementData
+     * @param  array<string, mixed>  $blockData
      * @param  array<int, string>|null  $selectedContainers
      */
-    private function elementData(
+    private function blockData(
         Layout $layout,
         Page $page,
         Language $language,
         LayoutLoader $loader,
-        PublicElementPayloadResolver $resolver,
+        PublicBlockPayloadResolver $resolver,
         string $containerKey,
-        array $elementData,
+        array $blockData,
         bool $includeHtml,
         ?array $selectedContainers,
-    ): ?PublicLayoutElementData {
-        $elementKey = LayoutElementData::key($elementData);
-        if ($elementKey === null) {
+    ): ?PublicLayoutBlockData {
+        $blockKey = LayoutBlockData::key($blockData);
+        if ($blockKey === null) {
             return null;
         }
 
-        $occurrence = LayoutElementData::occurrence($elementData);
-        $element = CapellLayoutManager::getStoredContainerElement($containerKey, $elementKey, $occurrence)
-            ?? $loader->getLayoutElement($layout, $elementKey, $language, $page, $containerKey, $occurrence, $selectedContainers);
+        $occurrence = LayoutBlockData::occurrence($blockData);
+        $block = CapellLayoutManager::getStoredContainerBlock($containerKey, $blockKey, $occurrence)
+            ?? $loader->getLayoutBlock($layout, $blockKey, $language, $page, $containerKey, $occurrence, $selectedContainers);
 
-        if (! $element instanceof Element) {
+        if (! $block instanceof Block) {
             return null;
         }
 
-        $publicElement = $this->elementWithPublicOccurrenceMeta($element, $elementData);
+        $publicBlock = $this->blockWithPublicOccurrenceMeta($block, $blockData);
 
-        return new PublicLayoutElementData(
-            key: $elementKey,
+        return new PublicLayoutBlockData(
+            key: $blockKey,
             occurrence: $occurrence,
-            type: $element->type?->key,
-            data: $resolver->data($publicElement, $page, $language, $containerKey, $occurrence),
-            html: $includeHtml ? $resolver->html($publicElement, $page, $language, $containerKey, $occurrence) : null,
+            type: $block->type?->key,
+            data: $resolver->data($publicBlock, $page, $language, $containerKey, $occurrence),
+            html: $includeHtml ? $resolver->html($publicBlock, $page, $language, $containerKey, $occurrence) : null,
         );
     }
 
     /**
-     * @param  array<string, mixed>  $elementData
+     * @param  array<string, mixed>  $blockData
      */
-    private function elementWithPublicOccurrenceMeta(Element $element, array $elementData): Element
+    private function blockWithPublicOccurrenceMeta(Block $block, array $blockData): Block
     {
-        $occurrenceMeta = is_array($elementData['meta'] ?? null) ? $elementData['meta'] : [];
+        $occurrenceMeta = is_array($blockData['meta'] ?? null) ? $blockData['meta'] : [];
         $safeOccurrenceMeta = $this->safePublicBlockMeta($occurrenceMeta);
-        $baseMeta = is_array($element->meta) ? $element->meta : [];
+        $baseMeta = is_array($block->meta) ? $block->meta : [];
 
-        $publicElement = clone $element;
-        $publicElement->setAttribute('meta', array_replace_recursive($this->safePublicBlockMeta($baseMeta), $safeOccurrenceMeta));
+        $publicBlock = clone $block;
+        $publicBlock->setAttribute('meta', array_replace_recursive($this->safePublicBlockMeta($baseMeta), $safeOccurrenceMeta));
 
-        return $publicElement;
+        return $publicBlock;
     }
 
     /**

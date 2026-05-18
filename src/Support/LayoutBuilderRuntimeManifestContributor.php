@@ -9,7 +9,7 @@ use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
 use Capell\Frontend\Data\FrontendRuntimeManifestData;
 use Capell\Frontend\Enums\RenderingStrategyEnum;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\Block;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -22,16 +22,16 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
         }
 
         $layout = $context->layout();
-        $elementKeys = $this->layoutElementKeys($layout);
+        $blockKeys = $this->layoutBlockKeys($layout);
 
-        if ($elementKeys === []) {
+        if ($blockKeys === []) {
             return;
         }
 
         $manifest->usesAlpine = true;
         $manifest->modules['layout-builder'] = true;
 
-        if (! $this->layoutUsesLivewireElements($elementKeys)) {
+        if (! $this->layoutUsesLivewireBlocks($blockKeys)) {
             return;
         }
 
@@ -42,13 +42,13 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
     /**
      * @return list<string>
      */
-    private function layoutElementKeys(?Layout $layout): array
+    private function layoutBlockKeys(?Layout $layout): array
     {
         if (! $layout instanceof Layout) {
             return [];
         }
 
-        $elementKeys = collect((array) $layout->getAttribute('elements'));
+        $blockKeys = collect((array) $layout->getAttribute('blocks'));
         $containers = $layout->containers;
 
         if (is_array($containers)) {
@@ -57,38 +57,38 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
                     continue;
                 }
 
-                $elements = $container['elements'] ?? [];
+                $blocks = $container['blocks'] ?? [];
 
-                if (! is_array($elements)) {
+                if (! is_array($blocks)) {
                     continue;
                 }
 
-                $elementKeys = $elementKeys->merge(collect($elements)->map(
-                    fn (mixed $element): mixed => is_array($element) ? ($element['element_key'] ?? $element['key'] ?? null) : $element,
+                $blockKeys = $blockKeys->merge(collect($blocks)->map(
+                    fn (mixed $block): mixed => is_array($block) ? ($block['block_key'] ?? $block['key'] ?? null) : $block,
                 ));
             }
         }
 
-        return $elementKeys
-            ->filter(fn (mixed $elementKey): bool => is_string($elementKey) || is_numeric($elementKey))
-            ->map(fn (mixed $elementKey): string => (string) $elementKey)
+        return $blockKeys
+            ->filter(fn (mixed $blockKey): bool => is_string($blockKey) || is_numeric($blockKey))
+            ->map(fn (mixed $blockKey): string => (string) $blockKey)
             ->unique()
             ->values()
             ->all();
     }
 
     /**
-     * @param  list<string>  $elementKeys
+     * @param  list<string>  $blockKeys
      */
-    private function layoutUsesLivewireElements(array $elementKeys): bool
+    private function layoutUsesLivewireBlocks(array $blockKeys): bool
     {
-        return Element::query()
+        return Block::query()
             ->with('type')
-            ->whereIn('key', $elementKeys)
+            ->whereIn('key', $blockKeys)
             ->whereHas('type', fn (Builder $query): Builder => $query->enabled()->accessible())
             ->enabled()
             ->publishedDate()
             ->get()
-            ->contains(fn (Model $element): bool => method_exists($element, 'getMetaComponentType') && $element->getMetaComponentType() === 'livewire');
+            ->contains(fn (Model $block): bool => method_exists($block, 'getMetaComponentType') && $block->getMetaComponentType() === 'livewire');
     }
 }

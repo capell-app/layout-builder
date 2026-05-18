@@ -10,5 +10,5 @@ enum LivewireComponentsEnum: string
 
     case PageAssetsTable = 'capell-layout-builder::assets.table.page-assets';
 
-    case PagesElement = 'capell.element.pages';
+    case PagesBlock = 'capell.block.pages';
 }

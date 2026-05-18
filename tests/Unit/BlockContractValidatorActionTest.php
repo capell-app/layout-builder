@@ -31,7 +31,7 @@ it('reports missing required content and over-limit items', function (): void {
             'items' => [['title' => 'One'], ['title' => 'Two'], ['title' => 'Three']],
         ],
         containerKey: 'main',
-        elementIndex: 0,
+        blockIndex: 0,
     );
 
     expect($diagnostics)->toHaveCount(3)
@@ -66,7 +66,7 @@ it('reports accessibility contract violations for media alt text and cta labels'
             'media' => ['ratio' => '16:9'],
         ],
         containerKey: 'main',
-        elementIndex: 0,
+        blockIndex: 0,
     );
 
     expect(collect($diagnostics)->pluck('code')->all())

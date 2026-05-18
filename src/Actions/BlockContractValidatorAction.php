@@ -24,7 +24,7 @@ final class BlockContractValidatorAction
         PublicBlockPresentationData $presentation,
         array $payload,
         ?string $containerKey = null,
-        ?int $elementIndex = null,
+        ?int $blockIndex = null,
     ): array {
         $diagnostics = [];
 
@@ -37,7 +37,7 @@ final class BlockContractValidatorAction
                     code: 'missing_required_block_field',
                     message: __('capell-layout-builder::message.missing_required_block_field', ['field' => Str::headline($requiredField)]),
                     containerKey: $containerKey,
-                    elementIndex: $elementIndex,
+                    blockIndex: $blockIndex,
                 );
             }
         }
@@ -49,7 +49,7 @@ final class BlockContractValidatorAction
                 code: 'too_many_block_items',
                 message: __('capell-layout-builder::message.too_many_block_items', ['max' => $definition->contentContract->maxItems]),
                 containerKey: $containerKey,
-                elementIndex: $elementIndex,
+                blockIndex: $blockIndex,
             );
         }
 
@@ -62,7 +62,7 @@ final class BlockContractValidatorAction
                 code: 'empty_block_cta',
                 message: __('capell-layout-builder::message.empty_block_cta'),
                 containerKey: $containerKey,
-                elementIndex: $elementIndex,
+                blockIndex: $blockIndex,
             );
         }
 
@@ -72,7 +72,7 @@ final class BlockContractValidatorAction
                 code: 'missing_block_cta_label',
                 message: __('capell-layout-builder::message.missing_block_cta_label'),
                 containerKey: $containerKey,
-                elementIndex: $elementIndex,
+                blockIndex: $blockIndex,
             );
         }
 
@@ -82,7 +82,7 @@ final class BlockContractValidatorAction
                 code: 'missing_block_image_alt',
                 message: __('capell-layout-builder::message.missing_block_image_alt'),
                 containerKey: $containerKey,
-                elementIndex: $elementIndex,
+                blockIndex: $blockIndex,
             );
         }
 
@@ -92,7 +92,7 @@ final class BlockContractValidatorAction
                 code: 'unverified_block_contrast_pairs',
                 message: __('capell-layout-builder::message.unverified_block_contrast_pairs'),
                 containerKey: $containerKey,
-                elementIndex: $elementIndex,
+                blockIndex: $blockIndex,
             );
         }
 

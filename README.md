@@ -1,6 +1,6 @@
 # Capell Layout Builder
 
-`capell-app/layout-builder` owns Capell's visual layout composition layer: layout containers, elements, element assets, public layout graphs, content-first editing, and the Filament layout editor.
+`capell-app/layout-builder` owns Capell's visual layout composition layer: layout containers, blocks, block assets, public layout graphs, content-first editing, and the Filament layout editor.
 
 Core still owns sites, pages, languages, URLs, themes, and base content models. Admin still owns the Filament panel shell. Layout Builder plugs into both through package registrars and exposes its public API from the `Capell\LayoutBuilder` namespace.
 
@@ -22,15 +22,15 @@ Configuration lives in `config/capell-layout-builder.php`.
 | `editor_mode.default`                     | Default editor mode. Defaults to `content_first`.                     |
 | `editor_mode.allowed`                     | Allowed modes. Current values are `content_first` and `layout_first`. |
 | `preview.match_frontend_container_layout` | Match admin preview container layout to frontend columns.             |
-| `element.skip_render_empty`               | Skip empty elements in public rendering.                              |
-| `default_element`                         | Default renderable key for new elements.                              |
+| `block.skip_render_empty`                 | Skip empty blocks in public rendering.                                |
+| `default_block`                           | Default renderable key for new blocks.                                |
 
 ## Main Surfaces
 
 | Surface                        | Package path                                                                                                       |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
 | Public graph building          | `src/Actions/BuildPublicLayoutGraphAction.php`                                                                     |
-| Public element payloads        | `src/Contracts/PublicElementPayloadContributor.php`, `src/Support/DefaultPublicElementPayloadResolver.php`         |
+| Public block payloads          | `src/Contracts/PublicBlockPayloadContributor.php`, `src/Support/DefaultPublicBlockPayloadResolver.php`             |
 | Layout areas                   | `src/Support/LayoutAreas/LayoutAreaRegistry.php`, `src/Actions/ResolveLayoutAreaContainersAction.php`              |
 | Block presentation projection  | `src/Actions/ResolveBlockPresentationDataAction.php`                                                               |
 | Layout health checks           | `src/Actions/AnalyzeLayoutHealthAction.php`                                                                        |
@@ -55,9 +55,9 @@ $graph = BuildPublicLayoutGraphAction::run(
 );
 ```
 
-Payload contributors are tagged with `Capell\LayoutBuilder\Contracts\PublicElementPayloadContributor::TAG`. Contributors should return public-safe data or HTML only; do not expose admin state, editor-only metadata, private IDs, or unpublished content.
+Payload contributors are tagged with `Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor::TAG`. Contributors should return public-safe data or HTML only; do not expose admin state, editor-only metadata, private IDs, or unpublished content.
 
-Block variants and settings are stored as authoring state in element meta, but public rendering receives only the sanitized `presentation` payload:
+Block variants and settings are stored as authoring state in block meta, but public rendering receives only the sanitized `presentation` payload:
 
 ```php
 [
@@ -76,12 +76,12 @@ Public Blade must not query the database, lazy-load relationships, resolve block
 
 ## Layout Areas
 
-Layout areas let a theme expose named places where normal Layout Builder elements can render outside the main page-body loop. The storage model stays unchanged: elements still live inside layout containers, and containers may set `meta.area`.
+Layout areas let a theme expose named places where normal Layout Builder blocks can render outside the main page-body loop. The storage model stays unchanged: blocks still live inside layout containers, and containers may set `meta.area`.
 
 - Missing `meta.area` is treated as `main` for backwards compatibility.
 - `main` is built in and rendered by the normal main-content hook.
 - Themes and packages can register extra areas through `Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry`.
-- The Foundation Theme registers `header`, so editors can place normal elements into the site header without hidden containers or a separate data model.
+- The Foundation Theme registers `header`, so editors can place normal blocks into the site header without hidden containers or a separate data model.
 
 Register areas from a package service provider after the registry resolves:
 
@@ -115,17 +115,17 @@ Public area rendering should use the package renderer rather than querying from 
 <x-capell::layout.area area="header" />
 ```
 
-The area component reads the already-resolved layout containers and uses the stored `CapellLayoutManager` element instances. Keep public Blade query-free and authoring-free; area keys are public placement data, but editor state, model IDs, field paths, signed URLs, and package/admin metadata must stay out of the HTML.
+The area component reads the already-resolved layout containers and uses the stored `CapellLayoutManager` block instances. Keep public Blade query-free and authoring-free; area keys are public placement data, but editor state, model IDs, field paths, signed URLs, and package/admin metadata must stay out of the HTML.
 
-Apps and package seeders should use `AttachElementToLayoutAreaAction` when placing elements into a named area. The action creates the area container when needed, normalizes the area key, preserves existing container metadata, and avoids duplicate element/occurrence pairs.
+Apps and package seeders should use `AttachBlockToLayoutAreaAction` when placing blocks into a named area. The action creates the area container when needed, normalizes the area key, preserves existing container metadata, and avoids duplicate block/occurrence pairs.
 
 ```php
-use Capell\LayoutBuilder\Actions\AttachElementToLayoutAreaAction;
+use Capell\LayoutBuilder\Actions\AttachBlockToLayoutAreaAction;
 
-AttachElementToLayoutAreaAction::run(
+AttachBlockToLayoutAreaAction::run(
     layout: $layout,
     area: 'header',
-    elementKey: 'announcement-bar',
+    blockKey: 'announcement-bar',
     containerKey: 'site-announcement',
     containerMeta: ['container' => 'full'],
 );
@@ -145,11 +145,11 @@ The command does not authenticate, generate signed routes, query tenant content,
 
 ## Editor Modes
 
-`content_first` is the default mode. It shows editor-facing content groups from the current layout state and lets editors update assigned element assets without navigating the full layout canvas.
+`content_first` is the default mode. It shows editor-facing content groups from the current layout state and lets editors update assigned block assets without navigating the full layout canvas.
 
 `layout_first` opens the drag/drop layout builder directly. Keep it available for designers and implementers who need placement and structure control.
 
-Both modes write through the same `ElementAsset` persistence path.
+Both modes write through the same `BlockAsset` persistence path.
 
 ## Tests
 

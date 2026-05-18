@@ -25,8 +25,8 @@ use Capell\LayoutBuilder\Enums\LayoutBuilderEditorMode;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\AuthorizesLayoutBuilderAccess;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\HasLayoutActions;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesAssets;
+use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesBlocks;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesContainers;
-use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesElements;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesLayoutBuilderState;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
@@ -54,8 +54,8 @@ use LogicException;
  * @property-read mixed $changeLayoutAction
  * @property-read mixed $cloneLayoutForPageAction
  * @property-read mixed $duplicateLayoutAction
- * @property-read mixed $addElementAction
- * @property-read mixed $editElementAssetAction
+ * @property-read mixed $addBlockAction
+ * @property-read mixed $editBlockAssetAction
  */
 class LayoutBuilder extends Component implements HasActions, HasForms, HasPageResource
 {
@@ -64,8 +64,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     use InteractsWithActions;
     use InteractsWithForms;
     use ManagesAssets;
+    use ManagesBlocks;
     use ManagesContainers;
-    use ManagesElements;
     use ManagesLayoutBuilderState;
 
     #[Locked]
@@ -107,7 +107,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     public ?string $returnToContentItemKey = null;
 
-    protected array $containerElements;
+    protected array $containerBlocks;
 
     protected ?LayoutClipboard $layoutClipboard = null;
 
@@ -204,8 +204,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             layout: $this->layout,
             page: $this->page instanceof Model ? $this->page : null,
             containers: $this->containers,
-            persistElementAssets: function (): void {
-                $this->persistElementAssets();
+            persistBlockAssets: function (): void {
+                $this->persistBlockAssets();
             },
         );
 
@@ -229,15 +229,15 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         return true;
     }
 
-    #[On('add-elements-to-container')]
-    public function addElementsToContainer(string $containerKey, array $elements, ?string $actionModalId = null, ?int $position = null): void
+    #[On('add-blocks-to-container')]
+    public function addBlocksToContainer(string $containerKey, array $blocks, ?string $actionModalId = null, ?int $position = null): void
     {
         $this->assertCanUpdateLayout();
         $this->assertValidContainerKey($containerKey);
 
-        if ($elements === []) {
-            Notification::make('no-elements-selected')
-                ->body(__('capell-layout-builder::message.no_elements_selected'))
+        if ($blocks === []) {
+            Notification::make('no-blocks-selected')
+                ->body(__('capell-layout-builder::message.no_blocks_selected'))
                 ->warning()
                 ->send();
 
@@ -248,20 +248,20 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
         $targetPosition = $position;
 
-        foreach ($elements as $elementId) {
-            $element = $this->getElement($elementId);
+        foreach ($blocks as $blockId) {
+            $block = $this->getBlock($blockId);
 
-            $elementIndex = $this->addElementToContainerAtPosition($element, $containerKey, $targetPosition);
+            $blockIndex = $this->addBlockToContainerAtPosition($block, $containerKey, $targetPosition);
 
             if ($targetPosition !== null) {
                 $targetPosition++;
             }
 
-            $element = $this->loadElement($containerKey, $elementIndex);
+            $block = $this->loadBlock($containerKey, $blockIndex);
 
-            $this->assets[$containerKey][$elementIndex] = $this->mapElementAssets($element, $containerKey);
+            $this->assets[$containerKey][$blockIndex] = $this->mapBlockAssets($block, $containerKey);
 
-            $this->updatePageAssets($containerKey, $elementIndex);
+            $this->updatePageAssets($containerKey, $blockIndex);
         }
 
         session(['layout-builder.container' => $containerKey]);
@@ -276,17 +276,17 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     }
 
     #[On('sync-selected-assets')]
-    public function addAssetsToElement(array $arguments, string $type, array $assets): void
+    public function addAssetsToBlock(array $arguments, string $type, array $assets): void
     {
         $this->assertCanUpdateLayout();
 
         $this->ensureLoaded();
 
         $containerKey = $arguments['containerKey'];
-        $elementIndex = $arguments['elementIndex'];
+        $blockIndex = $arguments['blockIndex'];
         $hasPageAssets = $arguments['hasPageAssets'] ?? false;
 
-        $this->addAssets($containerKey, $elementIndex, $hasPageAssets, $type, $assets);
+        $this->addAssets($containerKey, $blockIndex, $hasPageAssets, $type, $assets);
 
         $this->layoutUpdated();
     }
@@ -469,16 +469,16 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->clipboard()->copy(CreateLayoutFragmentAction::run($this->layoutState(), $containerKey, null));
     }
 
-    public function copyLayoutElement(string $containerKey, int $elementIndex): void
+    public function copyLayoutBlock(string $containerKey, int $blockIndex): void
     {
         $this->assertCanUpdateLayout();
         $this->ensureLoaded();
 
-        if (! isset($this->containers[$containerKey]['elements'][$elementIndex])) {
+        if (! isset($this->containers[$containerKey]['blocks'][$blockIndex])) {
             return;
         }
 
-        $this->clipboard()->copy(CreateLayoutFragmentAction::run($this->layoutState(), $containerKey, $elementIndex));
+        $this->clipboard()->copy(CreateLayoutFragmentAction::run($this->layoutState(), $containerKey, $blockIndex));
     }
 
     public function pasteLayoutFragment(string $targetContainerKey, ?int $targetIndex = null): void
@@ -623,9 +623,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
         $fragment = new LayoutFragmentData(
             sourceContainerKey: $sourceContainerKey,
-            sourceElementIndex: null,
+            sourceBlockIndex: null,
             container: $container,
-            element: null,
+            block: null,
         );
 
         $knownContainerKeys = array_keys($this->containers ?? []);

@@ -1,4 +1,5 @@
 @php
+    use Illuminate\Support\Js;
     use Illuminate\Support\Str;
 
     $inventory = $this->contentInventory;
@@ -17,19 +18,19 @@
         hasActiveSearch() {
             return this.search.trim() !== ''
         },
-        itemMatches(element) {
+        itemMatches(block) {
             return (
                 ! this.hasActiveSearch() ||
-                this.normalize(element.dataset.layoutContentSearch).includes(
+                this.normalize(block.dataset.layoutContentSearch).includes(
                     this.normalize(this.search),
                 )
             )
         },
-        groupMatches(element) {
+        groupMatches(block) {
             return (
                 ! this.hasActiveSearch() ||
                 Array.from(
-                    element.querySelectorAll('[data-layout-content-item-key]'),
+                    block.querySelectorAll('[data-layout-content-item-key]'),
                 ).some((item) => this.itemMatches(item))
             )
         },
@@ -184,10 +185,11 @@
                                         $item->typeLabel,
                                         $item->placementLabel,
                                         $item->containerLabel,
-                                        $item->elementLabel,
+                                        $item->blockLabel,
                                         $item->assetType,
                                         (string) $item->assetId,
                                     ])->filter(fn (?string $value): bool => filled($value))->implode(' '))->squish();
+                                    $editBlockAssetClickHandler = '$wire.mountAction(\'editBlockAsset\', ' . Js::from($item->editActionArguments) . ')';
                                 @endphp
 
                                 <article
@@ -252,8 +254,8 @@
                                                 icon="heroicon-o-pencil"
                                                 size="xs"
                                                 type="button"
-                                                data-layout-content-action="editElementAsset"
-                                                x-on:click="$wire.mountAction('editElementAsset', @js($item->editActionArguments))"
+                                                data-layout-content-action="editBlockAsset"
+                                                x-on:click="{{ $editBlockAssetClickHandler }}"
                                             >
                                                 {{ __('capell-admin::button.edit') }}
                                             </x-filament::button>

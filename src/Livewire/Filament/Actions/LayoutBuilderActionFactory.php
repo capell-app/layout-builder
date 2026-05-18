@@ -13,14 +13,14 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
-use Capell\LayoutBuilder\Exceptions\MissingElementAssetException;
-use Capell\LayoutBuilder\Filament\Resources\Elements\Schemas\ElementAssetForm;
-use Capell\LayoutBuilder\Filament\Resources\Elements\Schemas\ElementForm;
-use Capell\LayoutBuilder\Filament\Resources\Elements\Tables\ElementSelectionTable;
+use Capell\LayoutBuilder\Exceptions\MissingBlockAssetException;
+use Capell\LayoutBuilder\Filament\Resources\Blocks\Schemas\BlockAssetForm;
+use Capell\LayoutBuilder\Filament\Resources\Blocks\Schemas\BlockForm;
+use Capell\LayoutBuilder\Filament\Resources\Blocks\Tables\BlockSelectionTable;
 use Capell\LayoutBuilder\Filament\Resources\Pages\Tables\PageSelectionTable;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
-use Capell\LayoutBuilder\Models\Element;
-use Capell\LayoutBuilder\Models\ElementAsset;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\BlockAsset;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -249,35 +249,35 @@ final class LayoutBuilderActionFactory
             });
     }
 
-    public function editLayoutElementAction(): Action
+    public function editLayoutBlockAction(): Action
     {
-        return Action::make('editLayoutElement')
-            ->label(__('capell-layout-builder::button.edit_layout_element'))
+        return Action::make('editLayoutBlock')
+            ->label(__('capell-layout-builder::button.edit_layout_block'))
             ->groupedIcon('heroicon-o-cog-6-tooth')
             ->color('gray')
             ->grouped()
             ->visible(
-                fn (array $arguments, LayoutBuilder $livewire): bool => (bool) $livewire->getContainerElementConfigurator(
+                fn (array $arguments, LayoutBuilder $livewire): bool => (bool) $livewire->getContainerBlockConfigurator(
                     $arguments['containerKey'],
-                    $arguments['elementIndex'],
+                    $arguments['blockIndex'],
                 ),
             )
-            ->modalHeading(__('capell-layout-builder::heading.container_element_settings'))
+            ->modalHeading(__('capell-layout-builder::heading.container_block_settings'))
             ->modalSubmitActionLabel(fn (Action $action): string => $action->getLabel())
             ->modalDescription(
                 fn (array $arguments, LayoutBuilder $livewire): string => __(
-                    'capell-admin::generic.edit_container_element',
+                    'capell-admin::generic.edit_container_block',
                     [
                         'container' => $arguments['containerKey'],
-                        'element' => $livewire->getContainerElement($arguments['containerKey'], $arguments['elementIndex'])?->name,
+                        'block' => $livewire->getContainerBlock($arguments['containerKey'], $arguments['blockIndex'])?->name,
                     ],
                 ),
             )
             ->modalWidth(Width::ScreenSmall)
             ->schema(function (array $arguments, LayoutBuilder $livewire, Schema $schema): Schema {
                 $adminSchema = AdminSurfaceLookup::configurator(
-                    ConfiguratorTypeEnum::LayoutElement->value,
-                    $livewire->getContainerElementConfigurator($arguments['containerKey'], $arguments['elementIndex']),
+                    ConfiguratorTypeEnum::LayoutBlock->value,
+                    $livewire->getContainerBlockConfigurator($arguments['containerKey'], $arguments['blockIndex']),
                 );
 
                 $typeSchema = resolve($adminSchema)->make($schema);
@@ -285,23 +285,23 @@ final class LayoutBuilderActionFactory
                 return $schema->operation('editOption')->components($typeSchema);
             })
             ->fillForm(
-                fn (LayoutBuilder $livewire, array $arguments): array => $livewire->containers[$arguments['containerKey']]['elements'][$arguments['elementIndex']]['meta'] ?? [],
+                fn (LayoutBuilder $livewire, array $arguments): array => $livewire->containers[$arguments['containerKey']]['blocks'][$arguments['blockIndex']]['meta'] ?? [],
             )
             ->action(function (Action $action, LayoutBuilder $livewire, array $arguments, array $data): void {
-                $livewire->editLayoutElement($arguments['containerKey'], $arguments['elementIndex'], $data);
+                $livewire->editLayoutBlock($arguments['containerKey'], $arguments['blockIndex'], $data);
 
                 $action->success();
             });
     }
 
-    public function addElementAction(): Action
+    public function addBlockAction(): Action
     {
-        return Action::make('addElement')
+        return Action::make('addBlock')
             ->label(fn (array $arguments): string => isset($arguments['position'])
-                ? __('capell-layout-builder::button.add_element_here')
-                : __('capell-layout-builder::button.add_element'))
-            ->tooltip(__('capell-layout-builder::button.add_element'))
-            ->modalHeading(__('capell-layout-builder::heading.add_element_to_container'))
+                ? __('capell-layout-builder::button.add_block_here')
+                : __('capell-layout-builder::button.add_block'))
+            ->tooltip(__('capell-layout-builder::button.add_block'))
+            ->modalHeading(__('capell-layout-builder::heading.add_block_to_container'))
             ->icon('heroicon-c-plus')
             ->size(Size::Small)
             ->color('primary')
@@ -327,9 +327,9 @@ final class LayoutBuilderActionFactory
                         ->options($containerOptions);
                 }
 
-                $components[] = TableSelect::make('elements')
-                    ->label(__('capell-layout-builder::button.element'))
-                    ->tableConfiguration(ElementSelectionTable::class)
+                $components[] = TableSelect::make('blocks')
+                    ->label(__('capell-layout-builder::button.block'))
+                    ->tableConfiguration(BlockSelectionTable::class)
                     ->multiple()
                     ->required();
 
@@ -345,19 +345,19 @@ final class LayoutBuilderActionFactory
                         : ($data['container'] ?? null);
                 }
 
-                $livewire->addElementsToContainer(
+                $livewire->addBlocksToContainer(
                     containerKey: (string) $containerKey,
-                    elements: $data['elements'] ?? [],
+                    blocks: $data['blocks'] ?? [],
                     position: isset($arguments['position']) ? (int) $arguments['position'] : null,
                 );
             });
     }
 
-    public function editElementAction(): Action
+    public function editBlockAction(): Action
     {
-        return Action::make('editElement')
-            ->label(__('capell-layout-builder::button.edit_element'))
-            ->tooltip(__('capell-layout-builder::button.edit_element'))
+        return Action::make('editBlock')
+            ->label(__('capell-layout-builder::button.edit_block'))
+            ->tooltip(__('capell-layout-builder::button.edit_block'))
             ->button()
             ->slideOver()
             ->closeModalByClickingAway(false)
@@ -366,90 +366,90 @@ final class LayoutBuilderActionFactory
             ->size(Size::Small)
             ->modalWidth(Width::ScreenLarge)
             ->record(
-                fn (array $arguments): Element => $this->livewire->getContainerElement(
+                fn (array $arguments): Block => $this->livewire->getContainerBlock(
                     $arguments['containerKey'],
-                    $arguments['elementIndex'],
+                    $arguments['blockIndex'],
                 ),
             )
-            ->modalHeading(fn (Element $record): string => $record->name)
+            ->modalHeading(fn (Block $record): string => $record->name)
             ->modalDescription(
-                fn (Element $record): string => __(
-                    'capell-layout-builder::heading.element_type',
+                fn (Block $record): string => __(
+                    'capell-layout-builder::heading.block_type',
                     ['type' => $record->type?->name],
                 ),
             )
             ->modalSubmitActionLabel(__('capell-layout-builder::button.save_changes'))
-            ->successNotificationTitle(__('capell-layout-builder::message.element_updated'))
-            ->fillForm(fn (Element $record): array => $record->attributesToArray())
+            ->successNotificationTitle(__('capell-layout-builder::message.block_updated'))
+            ->fillForm(fn (Block $record): array => $record->attributesToArray())
             ->schema(
-                fn (Action $action, Schema $schema): Schema => ElementForm::configure(
+                fn (Action $action, Schema $schema): Schema => BlockForm::configure(
                     $schema->operation('editOption')
-                        ->record(fn (): Element => $action->getRecord()->fresh()),
+                        ->record(fn (): Block => $action->getRecord()->fresh()),
                 ),
             )
-            ->action(function (Action $action, Element $record, Schema $schema, array $data): void {
-                $this->saveElementForm(configurator: $schema, record: $record, data: $data);
+            ->action(function (Action $action, Block $record, Schema $schema, array $data): void {
+                $this->saveBlockForm(configurator: $schema, record: $record, data: $data);
 
                 $action->success();
             });
     }
 
-    public function duplicateElementAction(): Action
+    public function duplicateBlockAction(): Action
     {
-        return Action::make('duplicateElement')
-            ->label(__('capell-layout-builder::button.duplicate_element'))
+        return Action::make('duplicateBlock')
+            ->label(__('capell-layout-builder::button.duplicate_block'))
             ->grouped()
             ->groupedIcon('heroicon-o-square-2-stack')
             ->color('gray')
             ->size('sm')
             ->action(function (Action $action, LayoutBuilder $livewire, array $arguments): void {
-                $livewire->duplicateElement(containerKey: $arguments['containerKey'], originalIndex: $arguments['elementIndex']);
+                $livewire->duplicateBlock(containerKey: $arguments['containerKey'], originalIndex: $arguments['blockIndex']);
 
                 $action->success();
             });
     }
 
-    public function moveElementUpAction(): Action
+    public function moveBlockUpAction(): Action
     {
-        return Action::make('moveElementUp')
+        return Action::make('moveBlockUp')
             ->label(__('capell-layout-builder::button.move_up'))
             ->grouped()
             ->groupedIcon('heroicon-o-arrow-up')
             ->color('gray')
             ->size(Size::Small)
-            ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => $livewire->canMoveElementUp(
+            ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => $livewire->canMoveBlockUp(
                 $arguments['containerKey'],
-                $arguments['elementIndex'],
+                $arguments['blockIndex'],
             ))
             ->action(function (Action $action, LayoutBuilder $livewire, array $arguments): void {
-                $livewire->moveElementUp($arguments['containerKey'], $arguments['elementIndex']);
+                $livewire->moveBlockUp($arguments['containerKey'], $arguments['blockIndex']);
 
                 $action->success();
             });
     }
 
-    public function moveElementDownAction(): Action
+    public function moveBlockDownAction(): Action
     {
-        return Action::make('moveElementDown')
+        return Action::make('moveBlockDown')
             ->label(__('capell-layout-builder::button.move_down'))
             ->grouped()
             ->groupedIcon('heroicon-o-arrow-down')
             ->color('gray')
             ->size(Size::Small)
-            ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => $livewire->canMoveElementDown(
+            ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => $livewire->canMoveBlockDown(
                 $arguments['containerKey'],
-                $arguments['elementIndex'],
+                $arguments['blockIndex'],
             ))
             ->action(function (Action $action, LayoutBuilder $livewire, array $arguments): void {
-                $livewire->moveElementDown($arguments['containerKey'], $arguments['elementIndex']);
+                $livewire->moveBlockDown($arguments['containerKey'], $arguments['blockIndex']);
 
                 $action->success();
             });
     }
 
-    public function moveElementToContainerAction(): Action
+    public function moveBlockToContainerAction(): Action
     {
-        return Action::make('moveElementToContainer')
+        return Action::make('moveBlockToContainer')
             ->label(__('capell-layout-builder::button.move_to_container'))
             ->grouped()
             ->groupedIcon('heroicon-o-arrow-right')
@@ -457,9 +457,9 @@ final class LayoutBuilderActionFactory
             ->size(Size::Small)
             ->modalWidth(Width::ScreenSmall)
             ->modalHeading(__('capell-layout-builder::button.move_to_container'))
-            ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => $livewire->canMoveElementToAnotherContainer(
+            ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => $livewire->canMoveBlockToAnotherContainer(
                 $arguments['containerKey'],
-                $arguments['elementIndex'],
+                $arguments['blockIndex'],
             ))
             ->schema(fn (LayoutBuilder $livewire, array $arguments, Schema $schema): Schema => $schema->schema([
                 Select::make('target_container')
@@ -472,9 +472,9 @@ final class LayoutBuilderActionFactory
                     ->required(),
             ]))
             ->action(function (Action $action, LayoutBuilder $livewire, array $arguments, array $data): void {
-                $livewire->moveElementToContainer(
+                $livewire->moveBlockToContainer(
                     $arguments['containerKey'],
-                    $arguments['elementIndex'],
+                    $arguments['blockIndex'],
                     (string) $data['target_container'],
                 );
 
@@ -482,18 +482,18 @@ final class LayoutBuilderActionFactory
             });
     }
 
-    public function removeElementAction(): Action
+    public function removeBlockAction(): Action
     {
-        return Action::make('removeElement')
-            ->label(__('capell-layout-builder::button.remove_element'))
+        return Action::make('removeBlock')
+            ->label(__('capell-layout-builder::button.remove_block'))
             ->grouped()
             ->groupedIcon('heroicon-m-trash')
             ->color('danger')
             ->size('sm')
             ->requiresConfirmation()
-            ->modalDescription(__('capell-layout-builder::message.remove_element_confirmation'))
+            ->modalDescription(__('capell-layout-builder::message.remove_block_confirmation'))
             ->action(function (Action $action, LayoutBuilder $livewire, array $arguments): void {
-                $livewire->removeElement(containerKey: $arguments['containerKey'], elementIndex: $arguments['elementIndex']);
+                $livewire->removeBlock(containerKey: $arguments['containerKey'], blockIndex: $arguments['blockIndex']);
 
                 $action->success();
             });
@@ -518,25 +518,25 @@ final class LayoutBuilderActionFactory
             ])
             ->modalWidth(Width::ScreenLarge)
             ->modalHeading(function (LayoutBuilder $livewire, array $arguments): string {
-                $totalAssets = $livewire->countElementAssets($arguments['containerKey'], $arguments['elementIndex']);
+                $totalAssets = $livewire->countBlockAssets($arguments['containerKey'], $arguments['blockIndex']);
 
                 if ($totalAssets !== 0) {
-                    $hasPageAssets = $livewire->hasPageAssets($arguments['containerKey'], $arguments['elementIndex']);
+                    $hasPageAssets = $livewire->hasPageAssets($arguments['containerKey'], $arguments['blockIndex']);
                 } else {
                     $hasPageAssets = $livewire->inPageContext();
                 }
 
                 return $hasPageAssets
-                    ? __('capell-admin::generic.select_page_element_asset_description', ['type' => $arguments['type']])
-                    : __('capell-admin::generic.select_element_asset_description', ['type' => $arguments['type']]);
+                    ? __('capell-admin::generic.select_page_block_asset_description', ['type' => $arguments['type']])
+                    : __('capell-admin::generic.select_block_asset_description', ['type' => $arguments['type']]);
             })
             ->closeModalByClickingAway(false)
             ->schema(function (Schema $schema, array $arguments, LayoutBuilder $livewire): Schema {
                 $tableConfiguration = PageSelectionTable::class;
 
-                $excludeIds = $livewire->getElementAssetsByType(
+                $excludeIds = $livewire->getBlockAssetsByType(
                     $arguments['containerKey'],
-                    (int) $arguments['elementIndex'],
+                    (int) $arguments['blockIndex'],
                     $arguments['type'],
                 );
 
@@ -554,17 +554,17 @@ final class LayoutBuilderActionFactory
             })
             ->action(function (array $data, array $arguments, LayoutBuilder $livewire): void {
                 $containerKey = $arguments['containerKey'];
-                $elementIndex = (int) $arguments['elementIndex'];
+                $blockIndex = (int) $arguments['blockIndex'];
                 $type = $arguments['type'];
 
-                $hasPageAssets = $livewire->countElementAssets($containerKey, $elementIndex) > 0
-                    ? $livewire->hasPageAssets($containerKey, $elementIndex)
+                $hasPageAssets = $livewire->countBlockAssets($containerKey, $blockIndex) > 0
+                    ? $livewire->hasPageAssets($containerKey, $blockIndex)
                     : $livewire->inPageContext();
 
-                $livewire->addAssetsToElement(
+                $livewire->addAssetsToBlock(
                     arguments: [
                         'containerKey' => $containerKey,
-                        'elementIndex' => $elementIndex,
+                        'blockIndex' => $blockIndex,
                         'hasPageAssets' => $hasPageAssets,
                     ],
                     type: $type,
@@ -593,39 +593,39 @@ final class LayoutBuilderActionFactory
             ->closeModalByClickingAway(false)
             ->modalHeading(
                 fn (array $arguments, LayoutBuilder $livewire): string => __(
-                    'capell-admin::generic.add_element_asset',
+                    'capell-admin::generic.add_block_asset',
                     [
-                        'element' => $livewire->getContainerElement($arguments['containerKey'], $arguments['elementIndex'])?->name,
+                        'block' => $livewire->getContainerBlock($arguments['containerKey'], $arguments['blockIndex'])?->name,
                         'asset' => $arguments['type'],
                     ],
                 ),
             )
             ->modalSubmitActionLabel(
                 fn (array $arguments, Action $action): string => __(
-                    'capell-layout-builder::button.create_element_asset',
+                    'capell-layout-builder::button.create_block_asset',
                     ['type' => $arguments['type']],
                 ),
             )
             ->successNotificationTitle(__('capell-layout-builder::message.asset_added'))
             ->schema(
-                fn (array $arguments, Schema $schema): Schema => $this->getElementAssetSchema(
+                fn (array $arguments, Schema $schema): Schema => $this->getBlockAssetSchema(
                     $schema->operation('createOption')
-                        ->record(fn (): ElementAsset => $this->makeElementAssetRecordForCreate($arguments)),
+                        ->record(fn (): BlockAsset => $this->makeBlockAssetRecordForCreate($arguments)),
                 ),
             )
-            ->model(fn (): string => ElementAsset::class)
+            ->model(fn (): string => BlockAsset::class)
             ->fillForm(function (array $arguments): array {
                 $containerKey = $arguments['containerKey'];
-                $elementIndex = $arguments['elementIndex'];
+                $blockIndex = $arguments['blockIndex'];
                 $assetType = $arguments['type'];
 
-                $element = $this->livewire->getContainerElement($containerKey, $elementIndex);
+                $block = $this->livewire->getContainerBlock($containerKey, $blockIndex);
 
                 $asset = CapellAdmin::getAsset($assetType);
 
                 return [
-                    'layout_element_id' => $element->id,
-                    'workspace_id' => $this->livewire->getCurrentElementAssetWorkspaceId($element),
+                    'block_id' => $block->id,
+                    'workspace_id' => $this->livewire->getCurrentBlockAssetWorkspaceId($block),
                     'asset_type' => $assetType,
                     'meta' => [],
                     'asset' => in_array($asset->defaultDataAction, [null, '', '0'], true)
@@ -636,9 +636,9 @@ final class LayoutBuilderActionFactory
             ->action($this->addAssetFromAction(...));
     }
 
-    public function editElementAssetAction(): Action
+    public function editBlockAssetAction(): Action
     {
-        return Action::make('editElementAsset')
+        return Action::make('editBlockAsset')
             ->label(__('capell-admin::button.edit'))
             ->button()
             ->modal()
@@ -657,25 +657,25 @@ final class LayoutBuilderActionFactory
             )
             ->modalWidth(Width::ScreenLarge)
             ->modalHeading(
-                fn (LayoutBuilder $livewire, array $arguments): string => $this->getEditElementAssetModalHeading($livewire, $arguments),
+                fn (LayoutBuilder $livewire, array $arguments): string => $this->getEditBlockAssetModalHeading($livewire, $arguments),
             )
             ->modalDescription(
-                fn (LayoutBuilder $livewire, array $arguments): ?string => $this->getEditElementAssetModalDescription($livewire, $arguments),
+                fn (LayoutBuilder $livewire, array $arguments): ?string => $this->getEditBlockAssetModalDescription($livewire, $arguments),
             )
             ->modalSubmitActionLabel(__('capell-layout-builder::button.save_changes'))
             ->successNotificationTitle(__('capell-layout-builder::message.asset_updated'))
             ->schema(
-                fn (LayoutBuilder $livewire, Schema $schema, array $arguments): Schema => $this->getElementAssetSchema(
+                fn (LayoutBuilder $livewire, Schema $schema, array $arguments): Schema => $this->getBlockAssetSchema(
                     $schema->operation('editOption'),
                 ),
             )
-            ->fillForm(fn (ElementAsset $record, array $arguments): array => [
+            ->fillForm(fn (BlockAsset $record, array $arguments): array => [
                 'meta' => $record->meta,
             ])
-            ->record(fn (array $arguments): ElementAsset => $this->resolveEditableElementAsset($arguments))
-            ->disabled(fn (ElementAsset $record): bool => ! $record->exists)
+            ->record(fn (array $arguments): BlockAsset => $this->resolveEditableBlockAsset($arguments))
+            ->disabled(fn (BlockAsset $record): bool => ! $record->exists)
             ->action(
-                fn (ElementAsset $record, array $data, LayoutBuilder $livewire, array $arguments, Action $action, Schema $schema) => $this->applyElementAssetUpdate(
+                fn (BlockAsset $record, array $data, LayoutBuilder $livewire, array $arguments, Action $action, Schema $schema) => $this->applyBlockAssetUpdate(
                     record: $record,
                     data: $data,
                     livewire: $livewire,
@@ -696,11 +696,11 @@ final class LayoutBuilderActionFactory
             ->size(Size::Small)
             ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => $livewire->canMoveAssetUp(
                 $arguments['containerKey'],
-                (int) $arguments['elementIndex'],
+                (int) $arguments['blockIndex'],
                 (int) $arguments['assetIndex'],
             ))
             ->action(function (Action $action, LayoutBuilder $livewire, array $arguments): void {
-                $livewire->moveAssetUp($arguments['containerKey'], (int) $arguments['elementIndex'], (int) $arguments['assetIndex']);
+                $livewire->moveAssetUp($arguments['containerKey'], (int) $arguments['blockIndex'], (int) $arguments['assetIndex']);
 
                 $action->success();
             });
@@ -716,11 +716,11 @@ final class LayoutBuilderActionFactory
             ->size(Size::Small)
             ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => $livewire->canMoveAssetDown(
                 $arguments['containerKey'],
-                (int) $arguments['elementIndex'],
+                (int) $arguments['blockIndex'],
                 (int) $arguments['assetIndex'],
             ))
             ->action(function (Action $action, LayoutBuilder $livewire, array $arguments): void {
-                $livewire->moveAssetDown($arguments['containerKey'], (int) $arguments['elementIndex'], (int) $arguments['assetIndex']);
+                $livewire->moveAssetDown($arguments['containerKey'], (int) $arguments['blockIndex'], (int) $arguments['assetIndex']);
 
                 $action->success();
             });
@@ -737,12 +737,12 @@ final class LayoutBuilderActionFactory
                 'class' => 'whitespace-nowrap',
                 'x-cloak' => '',
                 'x-show' => new HtmlString(
-                    sprintf("selectedRecords['%s'][%s].length", $arguments['containerKey'], $arguments['elementIndex']),
+                    sprintf("selectedRecords['%s'][%s].length", $arguments['containerKey'], $arguments['blockIndex']),
                 ),
             ])
             ->successNotificationTitle(__('capell-layout-builder::message.assets_removed_save_layout'))
             ->action(function (LayoutBuilder $livewire, array $arguments, Action $action): void {
-                $selectedAssets = $livewire->getSelectedAssets($arguments['containerKey'], $arguments['elementIndex']);
+                $selectedAssets = $livewire->getSelectedAssets($arguments['containerKey'], $arguments['blockIndex']);
 
                 if ($selectedAssets === []) {
                     Notification::make('no-assets-selected')
@@ -753,7 +753,7 @@ final class LayoutBuilderActionFactory
                     $action->halt();
                 }
 
-                $livewire->removeSelectedAssets($arguments['containerKey'], $arguments['elementIndex']);
+                $livewire->removeSelectedAssets($arguments['containerKey'], $arguments['blockIndex']);
 
                 $action->success();
             });
@@ -793,11 +793,11 @@ final class LayoutBuilderActionFactory
                 function (LayoutBuilder $livewire, array $arguments): string {
                     $hasPageAssets = $livewire->hasPageAssets(
                         containerKey: $arguments['containerKey'],
-                        elementIndex: $arguments['elementIndex'],
+                        blockIndex: $arguments['blockIndex'],
                     );
 
                     return $hasPageAssets
-                        ? __('capell-layout-builder::button.convert_element_assets')
+                        ? __('capell-layout-builder::button.convert_block_assets')
                         : __('capell-layout-builder::button.convert_page_assets');
                 },
             )
@@ -812,28 +812,28 @@ final class LayoutBuilderActionFactory
 
                 $this->livewire->ensureLoaded();
 
-                $element = $livewire->getContainerElement($arguments['containerKey'], $arguments['elementIndex']);
+                $block = $livewire->getContainerBlock($arguments['containerKey'], $arguments['blockIndex']);
 
-                $assetTypes = isset($element->admin['asset_types']) && $element->admin['asset_types'] !== []
-                    ? $element->admin['asset_types']
-                    : ($element->type->admin['asset_types'] ?? null);
+                $assetTypes = isset($block->admin['asset_types']) && $block->admin['asset_types'] !== []
+                    ? $block->admin['asset_types']
+                    : ($block->type->admin['asset_types'] ?? null);
 
                 if ($assetTypes === null) {
                     return false;
                 }
 
-                $assets = $livewire->getElementAssets(
+                $assets = $livewire->getBlockAssets(
                     $arguments['containerKey'],
-                    $arguments['elementIndex'],
+                    $arguments['blockIndex'],
                 );
 
                 if ($assets === []) {
                     return false;
                 }
 
-                $hasPageAssets = $livewire->elementHasPageAssets($element);
+                $hasPageAssets = $livewire->blockHasPageAssets($block);
 
-                $hasGlobalAssets = $livewire->elementHasGlobalAssets($element);
+                $hasGlobalAssets = $livewire->blockHasGlobalAssets($block);
 
                 return ! $hasPageAssets || ! $hasGlobalAssets;
             })
@@ -842,11 +842,11 @@ final class LayoutBuilderActionFactory
                 function (LayoutBuilder $livewire, array $arguments): string {
                     $hasPageAssets = $livewire->hasPageAssets(
                         containerKey: $arguments['containerKey'],
-                        elementIndex: $arguments['elementIndex'],
+                        blockIndex: $arguments['blockIndex'],
                     );
 
                     return $hasPageAssets
-                        ? __('capell-admin::generic.convert_element_assets')
+                        ? __('capell-admin::generic.convert_block_assets')
                         : __('capell-admin::generic.convert_page_assets');
                 },
             )
@@ -855,12 +855,12 @@ final class LayoutBuilderActionFactory
 
                 $hasPageAssets = $livewire->hasPageAssets(
                     containerKey: $arguments['containerKey'],
-                    elementIndex: $arguments['elementIndex'],
+                    blockIndex: $arguments['blockIndex'],
                 );
 
                 $livewire->togglePageAssets(
                     $arguments['containerKey'],
-                    $arguments['elementIndex'],
+                    $arguments['blockIndex'],
                     page: $hasPageAssets ? $livewire->page : null,
                 );
 
@@ -881,38 +881,38 @@ final class LayoutBuilderActionFactory
         $configurator->livewire($this);
 
         $containerKey = $arguments['containerKey'];
-        $elementIndex = $arguments['elementIndex'];
+        $blockIndex = $arguments['blockIndex'];
         $type = $arguments['type'];
 
-        $hasPageAssets = $this->livewire->shouldAddPageAssets($containerKey, $elementIndex);
+        $hasPageAssets = $this->livewire->shouldAddPageAssets($containerKey, $blockIndex);
 
-        $element = $this->livewire->getContainerElement($containerKey, $elementIndex);
+        $block = $this->livewire->getContainerBlock($containerKey, $blockIndex);
 
-        $order = $this->livewire->countElementAssets($containerKey, $elementIndex) + 1;
+        $order = $this->livewire->countBlockAssets($containerKey, $blockIndex) + 1;
 
-        /** @var ElementAsset $elementAsset */
-        $elementAsset = $configurator->getRecord();
+        /** @var BlockAsset $blockAsset */
+        $blockAsset = $configurator->getRecord();
 
         // Fake exists to ensure assets relations are saved correctly
-        $elementAsset->exists = true;
-        $elementAsset->wasRecentlyCreated = true; // prevent MissingAttributeException
+        $blockAsset->exists = true;
+        $blockAsset->wasRecentlyCreated = true; // prevent MissingAttributeException
 
-        $data['layout_element_id'] = $element->id;
+        $data['block_id'] = $block->id;
 
         // Ensure UpdatedModelAction is not triggered
-        ElementAsset::withoutEvents(function () use ($configurator): void {
+        BlockAsset::withoutEvents(function () use ($configurator): void {
             $configurator->saveRelationships();
         });
 
-        if (! isset($this->livewire->assets[$containerKey][$elementIndex])) {
-            $this->livewire->assets[$containerKey][$elementIndex] = [];
+        if (! isset($this->livewire->assets[$containerKey][$blockIndex])) {
+            $this->livewire->assets[$containerKey][$blockIndex] = [];
         }
 
-        $assetId = $elementAsset->asset_id;
+        $assetId = $blockAsset->asset_id;
 
-        $element = $this->livewire->getContainerElement($containerKey, $elementIndex);
+        $block = $this->livewire->getContainerBlock($containerKey, $blockIndex);
 
-        $occurrence = $this->livewire->getContainerElementOccurrence($containerKey, $elementIndex);
+        $occurrence = $this->livewire->getContainerBlockOccurrence($containerKey, $blockIndex);
 
         $meta = $data[$assetId] ?? [];
 
@@ -920,7 +920,7 @@ final class LayoutBuilderActionFactory
             'asset_id' => $assetId,
             'asset_type' => $type,
             'meta' => $meta,
-            'layout_element_id' => $element->id,
+            'block_id' => $block->id,
             'order' => $order,
             'occurrence' => $occurrence,
         ];
@@ -931,15 +931,15 @@ final class LayoutBuilderActionFactory
             $asset['container'] = $containerKey;
         }
 
-        $this->livewire->assets[$containerKey][$elementIndex][] = $asset;
+        $this->livewire->assets[$containerKey][$blockIndex][] = $asset;
 
-        $elementAsset->load([
+        $blockAsset->load([
             'asset' => fn (MorphTo $query): MorphTo => $query->morphWith($this->livewire->getAssetRelations()),
         ]);
 
-        $elementAsset->setRelation('element', $element);
+        $blockAsset->setRelation('block', $block);
 
-        $element->assets->add($elementAsset);
+        $block->assets->add($blockAsset);
 
         $this->livewire->layoutUpdated();
 
@@ -948,7 +948,7 @@ final class LayoutBuilderActionFactory
         $this->livewire->dispatch(
             'refresh-assets',
             containerKey: $containerKey,
-            elementIndex: $elementIndex,
+            blockIndex: $blockIndex,
         );
     }
 
@@ -974,20 +974,20 @@ final class LayoutBuilderActionFactory
         $this->livewire->dispatch('page-layout-changed', id: $layoutId);
     }
 
-    private function makeElementAssetRecordForCreate(array $arguments): ElementAsset
+    private function makeBlockAssetRecordForCreate(array $arguments): BlockAsset
     {
         $containerKey = $arguments['containerKey'];
-        $elementIndex = $arguments['elementIndex'];
+        $blockIndex = $arguments['blockIndex'];
         $assetType = $arguments['type'];
 
-        $element = $this->livewire->getContainerElement($containerKey, $elementIndex);
+        $block = $this->livewire->getContainerBlock($containerKey, $blockIndex);
 
-        /** @var class-string<ElementAsset> $model */
-        $model = ElementAsset::class;
+        /** @var class-string<BlockAsset> $model */
+        $model = BlockAsset::class;
 
         $record = $model::query()->make([
-            'layout_element_id' => $element->id,
-            'workspace_id' => $this->livewire->getCurrentElementAssetWorkspaceId($element),
+            'block_id' => $block->id,
+            'workspace_id' => $this->livewire->getCurrentBlockAssetWorkspaceId($block),
             'asset_type' => $assetType,
             'meta' => [],
         ]);
@@ -999,62 +999,62 @@ final class LayoutBuilderActionFactory
         return $record;
     }
 
-    private function resolveEditableElementAsset(array $arguments): ElementAsset
+    private function resolveEditableBlockAsset(array $arguments): BlockAsset
     {
         $containerKey = $arguments['containerKey'];
-        $elementIndex = $arguments['elementIndex'];
+        $blockIndex = $arguments['blockIndex'];
         $index = $arguments['index'];
         $type = $arguments['type'];
 
-        $element = $this->livewire->getContainerElement($containerKey, $elementIndex);
-        $asset = $this->livewire->getElementAsset($containerKey, $elementIndex, $index);
+        $block = $this->livewire->getContainerBlock($containerKey, $blockIndex);
+        $asset = $this->livewire->getBlockAsset($containerKey, $blockIndex, $index);
 
-        throw_unless($asset, MissingElementAssetException::class, $element, $type, $index, $arguments);
+        throw_unless($asset, MissingBlockAssetException::class, $block, $type, $index, $arguments);
 
         $assetId = $asset['asset_id'];
 
-        $elementAsset = isset($asset['id'])
-            ? $element->assets->first(fn (ElementAsset $elementAsset): bool => (int) $elementAsset->getKey() === (int) $asset['id'])
+        $blockAsset = isset($asset['id'])
+            ? $block->assets->first(fn (BlockAsset $blockAsset): bool => (int) $blockAsset->getKey() === (int) $asset['id'])
             : null;
 
-        $elementAsset ??= $element->assets
+        $blockAsset ??= $block->assets
             ->where('asset_type', $type)
             ->where('asset_id', $assetId)
             ->first();
 
-        throw_unless($elementAsset, Exception::class, sprintf('Asset of type [%s] with ID [%s] not found.', $type, $assetId));
-        throw_unless((int) $elementAsset->getAttribute('layout_element_id') === (int) $element->getKey(), Exception::class, sprintf('Asset of type [%s] with ID [%s] is not attached to this element.', $type, $assetId));
+        throw_unless($blockAsset, Exception::class, sprintf('Asset of type [%s] with ID [%s] not found.', $type, $assetId));
+        throw_unless((int) $blockAsset->getAttribute('block_id') === (int) $block->getKey(), Exception::class, sprintf('Asset of type [%s] with ID [%s] is not attached to this block.', $type, $assetId));
 
-        return $elementAsset;
+        return $blockAsset;
     }
 
-    private function getEditElementAssetModalHeading(LayoutBuilder $livewire, array $arguments): string
+    private function getEditBlockAssetModalHeading(LayoutBuilder $livewire, array $arguments): string
     {
         $name = str($arguments['type'])->title();
 
         if ($livewire->inPageContext()) {
-            return __('capell-layout-builder::heading.edit_page_element_asset', ['name' => $name]);
+            return __('capell-layout-builder::heading.edit_page_block_asset', ['name' => $name]);
         }
 
-        return __('capell-layout-builder::heading.edit_element_asset', ['name' => $name]);
+        return __('capell-layout-builder::heading.edit_block_asset', ['name' => $name]);
     }
 
-    private function getEditElementAssetModalDescription(LayoutBuilder $livewire, array $arguments): ?string
+    private function getEditBlockAssetModalDescription(LayoutBuilder $livewire, array $arguments): ?string
     {
         if (! $livewire->inPageContext()) {
             return null;
         }
 
-        $elementAsset = $this->livewire->getElementAsset($arguments['containerKey'], $arguments['elementIndex'], $arguments['index']);
+        $blockAsset = $this->livewire->getBlockAsset($arguments['containerKey'], $arguments['blockIndex'], $arguments['index']);
 
-        if (! isset($elementAsset['pageable_id'], $elementAsset['pageable_type'])) {
+        if (! isset($blockAsset['pageable_id'], $blockAsset['pageable_type'])) {
             return null;
         }
 
-        return __('capell-layout-builder::heading.page_element_asset', ['name' => $livewire->page->name]);
+        return __('capell-layout-builder::heading.page_block_asset', ['name' => $livewire->page->name]);
     }
 
-    private function applyElementAssetUpdate(ElementAsset $record, array $data, LayoutBuilder $livewire, array $arguments, Action $action, Schema $configurator): void
+    private function applyBlockAssetUpdate(BlockAsset $record, array $data, LayoutBuilder $livewire, array $arguments, Action $action, Schema $configurator): void
     {
         $this->livewire->assertCanEditContent();
 
@@ -1071,8 +1071,8 @@ final class LayoutBuilderActionFactory
             $action->halt();
         }
 
-        $element = $this->livewire->getContainerElement($arguments['containerKey'], $arguments['elementIndex']);
-        $canUpdatePersistedRecord = $record->workspace_id === $this->livewire->getCurrentElementAssetWorkspaceId($element);
+        $block = $this->livewire->getContainerBlock($arguments['containerKey'], $arguments['blockIndex']);
+        $canUpdatePersistedRecord = $record->workspace_id === $this->livewire->getCurrentBlockAssetWorkspaceId($block);
 
         if ($canUpdatePersistedRecord) {
             $configurator->saveRelationships();
@@ -1083,17 +1083,17 @@ final class LayoutBuilderActionFactory
         }
 
         if (isset($data['meta'])) {
-            $livewire->updateElementAssetContentState($arguments['containerKey'], $arguments['elementIndex'], $arguments['index'], ['meta' => $data['meta']]);
+            $livewire->updateBlockAssetContentState($arguments['containerKey'], $arguments['blockIndex'], $arguments['index'], ['meta' => $data['meta']]);
         }
 
-        $livewire->reloadContainerElementAsset($arguments['containerKey'], $arguments['elementIndex'], $arguments['index']);
+        $livewire->reloadContainerBlockAsset($arguments['containerKey'], $arguments['blockIndex'], $arguments['index']);
 
         $action->success();
     }
 
-    private function getElementAssetSchema(Schema $configurator): Schema
+    private function getBlockAssetSchema(Schema $configurator): Schema
     {
-        return ElementAssetForm::configure($configurator);
+        return BlockAssetForm::configure($configurator);
     }
 
     private function getChangeLayoutSchema(): array
@@ -1168,7 +1168,7 @@ final class LayoutBuilderActionFactory
         ];
     }
 
-    private function saveElementForm(Schema $configurator, Element $record, array $data): void
+    private function saveBlockForm(Schema $configurator, Block $record, array $data): void
     {
         $this->livewire->assertCanUpdateLayout();
 

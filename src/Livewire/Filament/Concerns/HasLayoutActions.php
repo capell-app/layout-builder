@@ -65,44 +65,44 @@ trait HasLayoutActions
         return $this->layoutBuilderActionFactory()->duplicateContainerAction();
     }
 
-    public function editLayoutElementAction(): Action
+    public function editLayoutBlockAction(): Action
     {
-        return $this->layoutBuilderActionFactory()->editLayoutElementAction();
+        return $this->layoutBuilderActionFactory()->editLayoutBlockAction();
     }
 
-    public function addElementAction(): Action
+    public function addBlockAction(): Action
     {
-        return $this->layoutBuilderActionFactory()->addElementAction();
+        return $this->layoutBuilderActionFactory()->addBlockAction();
     }
 
-    public function editElementAction(): Action
+    public function editBlockAction(): Action
     {
-        return $this->layoutBuilderActionFactory()->editElementAction();
+        return $this->layoutBuilderActionFactory()->editBlockAction();
     }
 
-    public function duplicateElementAction(): Action
+    public function duplicateBlockAction(): Action
     {
-        return $this->layoutBuilderActionFactory()->duplicateElementAction();
+        return $this->layoutBuilderActionFactory()->duplicateBlockAction();
     }
 
-    public function moveElementUpAction(): Action
+    public function moveBlockUpAction(): Action
     {
-        return $this->layoutBuilderActionFactory()->moveElementUpAction();
+        return $this->layoutBuilderActionFactory()->moveBlockUpAction();
     }
 
-    public function moveElementDownAction(): Action
+    public function moveBlockDownAction(): Action
     {
-        return $this->layoutBuilderActionFactory()->moveElementDownAction();
+        return $this->layoutBuilderActionFactory()->moveBlockDownAction();
     }
 
-    public function moveElementToContainerAction(): Action
+    public function moveBlockToContainerAction(): Action
     {
-        return $this->layoutBuilderActionFactory()->moveElementToContainerAction();
+        return $this->layoutBuilderActionFactory()->moveBlockToContainerAction();
     }
 
-    public function removeElementAction(): Action
+    public function removeBlockAction(): Action
     {
-        return $this->layoutBuilderActionFactory()->removeElementAction();
+        return $this->layoutBuilderActionFactory()->removeBlockAction();
     }
 
     public function selectAssetAction(): Action
@@ -115,9 +115,9 @@ trait HasLayoutActions
         return $this->layoutBuilderActionFactory()->addAssetAction();
     }
 
-    public function editElementAssetAction(): Action
+    public function editBlockAssetAction(): Action
     {
-        return $this->layoutBuilderActionFactory()->editElementAssetAction();
+        return $this->layoutBuilderActionFactory()->editBlockAssetAction();
     }
 
     public function moveAssetUpAction(): Action

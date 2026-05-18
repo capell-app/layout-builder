@@ -36,8 +36,8 @@
         {
             "type": "admin-resource",
             "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
-            "resourceClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Elements\\ElementResource",
-            "group": "Element"
+            "resourceClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Blocks\\BlockResource",
+            "group": "Block"
         },
         {
             "type": "configurator",
@@ -45,9 +45,9 @@
             "configuratorEnum": "Capell\\LayoutBuilder\\Enums\\ConfiguratorTypeEnum",
             "groups": [
                 "LayoutContainers",
-                "LayoutElements",
-                "Elements",
-                "ElementAssets"
+                "LayoutBlocks",
+                "Blocks",
+                "BlockAssets"
             ]
         },
         {
@@ -78,7 +78,7 @@
     "database": {
         "migrations": true,
         "settings": false,
-        "requiredTables": ["layouts", "elements", "element_assets"]
+        "requiredTables": ["layouts", "blocks", "block_assets"]
     },
     "commands": {
         "install": "capell:layout-builder-install",

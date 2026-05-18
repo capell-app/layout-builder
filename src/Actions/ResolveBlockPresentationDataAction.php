@@ -7,7 +7,7 @@ namespace Capell\LayoutBuilder\Actions;
 use Capell\ContentBlocks\Data\PublicBlockPresentationData;
 use Capell\ContentBlocks\Support\BlockRegistry;
 use Capell\ContentBlocks\Support\NullBlockDefinition;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\Block;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -15,14 +15,14 @@ final class ResolveBlockPresentationDataAction
 {
     use AsObject;
 
-    public function handle(Element $element, ?string $themeKey = null): PublicBlockPresentationData
+    public function handle(Block $block, ?string $themeKey = null): PublicBlockPresentationData
     {
         $registry = resolve(BlockRegistry::class);
-        $definitionKey = $this->definitionKey($element, $registry);
+        $definitionKey = $this->definitionKey($block, $registry);
         $definition = $registry->get($definitionKey)
             ?? NullBlockDefinition::make($definitionKey);
 
-        $meta = is_array($element->meta) ? $element->meta : [];
+        $meta = is_array($block->meta) ? $block->meta : [];
         $settings = is_array($meta['block_settings'] ?? null) ? $meta['block_settings'] : [];
         $variant = is_string($meta['block_variant'] ?? null) ? $meta['block_variant'] : $definition->defaultVariant->value();
 
@@ -43,21 +43,21 @@ final class ResolveBlockPresentationDataAction
         );
     }
 
-    private function definitionKey(Element $element, BlockRegistry $registry): string
+    private function definitionKey(Block $block, BlockRegistry $registry): string
     {
-        $meta = is_array($element->meta) ? $element->meta : [];
+        $meta = is_array($block->meta) ? $block->meta : [];
         $configuredKey = $meta['block_key'] ?? null;
 
         if (is_string($configuredKey) && trim($configuredKey) !== '') {
             return trim($configuredKey);
         }
 
-        $typeKey = $element->type?->key;
+        $typeKey = $block->type?->key;
         if (is_string($typeKey) && $registry->has($typeKey)) {
             return $typeKey;
         }
 
-        return $element->key;
+        return $block->key;
     }
 
     /**

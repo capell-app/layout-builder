@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Support\LayoutPreviews;
 
 use Capell\Core\Models\Layout;
-use Capell\LayoutBuilder\Models\Element;
-use Capell\LayoutBuilder\Support\LayoutElementData;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Support\LayoutBlockData;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 final class LayoutPreviewSignature
@@ -27,15 +27,15 @@ final class LayoutPreviewSignature
         $containers = $layout->getAttribute('containers');
         $containers = is_array($containers) ? $containers : [];
 
-        $elementKeys = $this->elementKeys($containers);
-        $elements = $this->elementsByKey($elementKeys);
+        $blockKeys = $this->blockKeys($containers);
+        $blocks = $this->blocksByKey($blockKeys);
 
         return [
             'layout' => [
                 'id' => $layout->getKey(),
                 'key' => $layout->getAttribute('key'),
             ],
-            'containers' => $this->normalizeContainers($containers, $elements),
+            'containers' => $this->normalizeContainers($containers, $blocks),
         ];
     }
 
@@ -43,53 +43,53 @@ final class LayoutPreviewSignature
      * @param  array<string, mixed>  $containers
      * @return array<int, string>
      */
-    private function elementKeys(array $containers): array
+    private function blockKeys(array $containers): array
     {
-        $elementKeys = [];
+        $blockKeys = [];
 
         foreach ($containers as $container) {
             if (! is_array($container)) {
                 continue;
             }
 
-            foreach (LayoutElementData::normalizeMany($container['elements'] ?? []) as $element) {
-                $elementKey = LayoutElementData::key($element);
-                if ($elementKey === null) {
+            foreach (LayoutBlockData::normalizeMany($container['blocks'] ?? []) as $block) {
+                $blockKey = LayoutBlockData::key($block);
+                if ($blockKey === null) {
                     continue;
                 }
 
-                $elementKeys[] = $elementKey;
+                $blockKeys[] = $blockKey;
             }
         }
 
-        return array_values(array_unique($elementKeys));
+        return array_values(array_unique($blockKeys));
     }
 
     /**
-     * @param  array<int, string>  $elementKeys
-     * @return array<string, Element>
+     * @param  array<int, string>  $blockKeys
+     * @return array<string, Block>
      */
-    private function elementsByKey(array $elementKeys): array
+    private function blocksByKey(array $blockKeys): array
     {
-        if ($elementKeys === []) {
+        if ($blockKeys === []) {
             return [];
         }
 
-        /** @var EloquentCollection<int, Element> $elements */
-        $elements = Element::query()
+        /** @var EloquentCollection<int, Block> $blocks */
+        $blocks = Block::query()
             ->with('type')
-            ->whereIn('key', $elementKeys)
+            ->whereIn('key', $blockKeys)
             ->get();
 
-        return $elements->keyBy('key')->all();
+        return $blocks->keyBy('key')->all();
     }
 
     /**
      * @param  array<string, mixed>  $containers
-     * @param  array<string, Element>  $elements
+     * @param  array<string, Block>  $blocks
      * @return array<int, array<string, mixed>>
      */
-    private function normalizeContainers(array $containers, array $elements): array
+    private function normalizeContainers(array $containers, array $blocks): array
     {
         $normalizedContainers = [];
 
@@ -101,7 +101,7 @@ final class LayoutPreviewSignature
             $normalizedContainers[] = [
                 'key' => $containerKey,
                 'colspan' => $this->colspan($container),
-                'elements' => $this->normalizeElements($container['elements'] ?? [], $elements),
+                'blocks' => $this->normalizeBlocks($container['blocks'] ?? [], $blocks),
             ];
         }
 
@@ -119,32 +119,32 @@ final class LayoutPreviewSignature
     }
 
     /**
-     * @param  array<string, Element>  $elements
+     * @param  array<string, Block>  $blocks
      * @return array<int, array<string, mixed>>
      */
-    private function normalizeElements(mixed $containerElements, array $elements): array
+    private function normalizeBlocks(mixed $containerBlocks, array $blocks): array
     {
-        $normalizedElements = [];
+        $normalizedBlocks = [];
 
-        foreach (LayoutElementData::normalizeMany($containerElements) as $containerElement) {
-            $elementKey = LayoutElementData::key($containerElement);
-            if ($elementKey === null) {
+        foreach (LayoutBlockData::normalizeMany($containerBlocks) as $containerBlock) {
+            $blockKey = LayoutBlockData::key($containerBlock);
+            if ($blockKey === null) {
                 continue;
             }
 
-            $element = $elements[$elementKey] ?? null;
+            $block = $blocks[$blockKey] ?? null;
 
-            $normalizedElements[] = [
-                'key' => $elementKey,
-                'occurrence' => LayoutElementData::occurrence($containerElement),
-                'name' => $element?->name,
-                'icon' => $element?->admin['icon'] ?? $element?->type?->admin['icon'] ?? null,
-                'type_name' => $element?->type?->name,
-                'type_icon' => $element?->type?->admin['icon'] ?? null,
-                'meta_name' => $containerElement['meta']['name'] ?? null,
+            $normalizedBlocks[] = [
+                'key' => $blockKey,
+                'occurrence' => LayoutBlockData::occurrence($containerBlock),
+                'name' => $block?->name,
+                'icon' => $block?->admin['icon'] ?? $block?->type?->admin['icon'] ?? null,
+                'type_name' => $block?->type?->name,
+                'type_icon' => $block?->type?->admin['icon'] ?? null,
+                'meta_name' => $containerBlock['meta']['name'] ?? null,
             ];
         }
 
-        return $normalizedElements;
+        return $normalizedBlocks;
     }
 }

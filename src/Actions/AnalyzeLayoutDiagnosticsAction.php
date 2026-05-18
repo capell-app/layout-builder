@@ -8,8 +8,8 @@ use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutDiagnosticData;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
-use Capell\LayoutBuilder\Models\Element;
-use Capell\LayoutBuilder\Support\LayoutElementData;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Support\LayoutBlockData;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 final class AnalyzeLayoutDiagnosticsAction
@@ -20,25 +20,25 @@ final class AnalyzeLayoutDiagnosticsAction
      * @return array<int, LayoutDiagnosticData>
      */
     /**
-     * @param  array<int, string>|null  $knownElementKeys
+     * @param  array<int, string>|null  $knownBlockKeys
      */
-    public function handle(LayoutBuilderStateData $state, ?array $knownElementKeys = null): array
+    public function handle(LayoutBuilderStateData $state, ?array $knownBlockKeys = null): array
     {
-        $knownElementKeys ??= $this->knownElementKeys($state);
+        $knownBlockKeys ??= $this->knownBlockKeys($state);
 
         $diagnostics = [];
 
         foreach ($state->containers as $containerKey => $container) {
-            foreach (LayoutElementData::normalizeMany($container['elements'] ?? []) as $elementIndex => $element) {
-                $elementKey = LayoutElementData::key($element);
+            foreach (LayoutBlockData::normalizeMany($container['blocks'] ?? []) as $blockIndex => $block) {
+                $blockKey = LayoutBlockData::key($block);
 
-                if (! is_string($elementKey) || ! in_array($elementKey, $knownElementKeys, true)) {
+                if (! is_string($blockKey) || ! in_array($blockKey, $knownBlockKeys, true)) {
                     $diagnostics[] = new LayoutDiagnosticData(
                         severity: LayoutDiagnosticSeverity::Blocking,
-                        code: 'unknown_element',
-                        message: __('capell-admin::message.unknown_element', ['element' => (string) $elementKey]),
+                        code: 'unknown_block',
+                        message: __('capell-admin::message.unknown_block', ['block' => (string) $blockKey]),
                         containerKey: (string) $containerKey,
-                        elementIndex: $elementIndex,
+                        blockIndex: $blockIndex,
                     );
                 }
             }
@@ -55,7 +55,7 @@ final class AnalyzeLayoutDiagnosticsAction
                         code: 'invalid_responsive_colspan',
                         message: __('capell-admin::message.invalid_responsive_colspan', ['container' => (string) $containerKey]),
                         containerKey: (string) $containerKey,
-                        elementIndex: null,
+                        blockIndex: null,
                     );
                 }
             }
@@ -67,20 +67,20 @@ final class AnalyzeLayoutDiagnosticsAction
     /**
      * @return array<int, string>
      */
-    private function knownElementKeys(LayoutBuilderStateData $state): array
+    private function knownBlockKeys(LayoutBuilderStateData $state): array
     {
-        $layoutElementKeys = collect($state->containers)
-            ->flatMap(fn (array $container): array => LayoutElementData::normalizeMany($container['elements'] ?? []))
-            ->map(static fn (array $element): ?string => LayoutElementData::key($element))
-            ->filter(static fn (mixed $elementKey): bool => is_string($elementKey) && $elementKey !== '')
+        $layoutBlockKeys = collect($state->containers)
+            ->flatMap(fn (array $container): array => LayoutBlockData::normalizeMany($container['blocks'] ?? []))
+            ->map(static fn (array $block): ?string => LayoutBlockData::key($block))
+            ->filter(static fn (mixed $blockKey): bool => is_string($blockKey) && $blockKey !== '')
             ->unique()
             ->values()
             ->all();
 
-        return $layoutElementKeys === []
+        return $layoutBlockKeys === []
             ? []
-            : Element::query()
-                ->whereIn('key', $layoutElementKeys)
+            : Block::query()
+                ->whereIn('key', $layoutBlockKeys)
                 ->pluck('key')
                 ->all();
     }

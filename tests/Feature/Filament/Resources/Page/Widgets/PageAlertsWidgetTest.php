@@ -6,7 +6,7 @@ use Capell\Admin\Filament\Resources\Pages\Widgets\PageAlertsWidget;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Translation;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\Block;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
@@ -45,18 +45,18 @@ it('shows the missing hero widget alert action when the user can update the layo
 
 function pageWithHeroContentAndLayoutWithoutHeroWidget(): Page
 {
-    Element::factory()->create([
+    Block::factory()->create([
         'key' => 'page-content',
         'meta' => [
-            'component' => 'capell.element.page.content',
+            'component' => 'capell.block.page.content',
         ],
     ]);
 
     $layout = Layout::factory()->create([
         'containers' => [
             'main' => [
-                'elements' => [
-                    ['element_key' => 'page-content'],
+                'blocks' => [
+                    ['block_key' => 'page-content'],
                 ],
             ],
         ],

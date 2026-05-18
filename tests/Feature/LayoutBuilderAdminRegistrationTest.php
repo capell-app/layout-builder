@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\LayoutBuilder\Filament\Resources\Elements\ElementResource;
+use Capell\LayoutBuilder\Filament\Resources\Blocks\BlockResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 
@@ -16,7 +16,7 @@ it('registers the admin surface through the layout builder package registrar', f
     expect($registrar->isRegistered())->toBeTrue()
         ->and(CapellAdmin::getAdminSurfaceRegistry()->resources())->toContain(
             LayoutResource::class,
-            ElementResource::class,
+            BlockResource::class,
         );
 });
 

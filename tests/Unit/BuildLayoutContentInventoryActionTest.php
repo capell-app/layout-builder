@@ -10,57 +10,57 @@ use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Data\LayoutContentGroupData;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryContextData;
 use Capell\LayoutBuilder\Data\LayoutContentItemData;
-use Capell\LayoutBuilder\Models\Element;
-use Capell\LayoutBuilder\Models\ElementAsset;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\BlockAsset;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 it('builds editor safe content groups in visual layout order from the package namespace', function (): void {
     $layout = Layout::factory()->create([
         'containers' => [
-            'main' => ['elements' => []],
-            'footer' => ['elements' => []],
+            'main' => ['blocks' => []],
+            'footer' => ['blocks' => []],
         ],
     ]);
 
-    $mainElement = Element::factory()->create(['key' => 'featured-products', 'name' => 'Featured products']);
-    $footerElement = Element::factory()->create(['key' => 'footer-links', 'name' => 'Footer links']);
+    $mainBlock = Block::factory()->create(['key' => 'featured-products', 'name' => 'Featured products']);
+    $footerBlock = Block::factory()->create(['key' => 'footer-links', 'name' => 'Footer links']);
     $sharedPage = Page::factory()->withTranslations()->create(['name' => 'Reusable product']);
     $footerPage = Page::factory()->withTranslations()->create(['name' => 'Terms page']);
 
-    $mainAsset = ElementAsset::factory()
-        ->element($mainElement)
+    $mainAsset = BlockAsset::factory()
+        ->block($mainBlock)
         ->asset($sharedPage)
         ->container('main')
         ->occurrence(1)
         ->create(['order' => 1]);
 
-    $reusedMainAsset = ElementAsset::factory()
-        ->element($mainElement)
+    $reusedMainAsset = BlockAsset::factory()
+        ->block($mainBlock)
         ->asset($sharedPage)
         ->container('main')
         ->occurrence(1)
         ->create(['order' => 2]);
 
-    $footerAsset = ElementAsset::factory()
-        ->element($footerElement)
+    $footerAsset = BlockAsset::factory()
+        ->block($footerBlock)
         ->asset($footerPage)
         ->container('footer')
         ->occurrence(1)
         ->create(['order' => 1]);
 
-    $mainElement->setRelation('assets', new EloquentCollection([$mainAsset->load('asset.translation'), $reusedMainAsset->load('asset.translation')]));
-    $footerElement->setRelation('assets', new EloquentCollection([$footerAsset->load('asset.translation')]));
+    $mainBlock->setRelation('assets', new EloquentCollection([$mainAsset->load('asset.translation'), $reusedMainAsset->load('asset.translation')]));
+    $footerBlock->setRelation('assets', new EloquentCollection([$footerAsset->load('asset.translation')]));
 
     $inventory = BuildLayoutContentInventoryAction::run(
         layout: $layout,
         page: null,
         containers: [
-            'main' => ['elements' => [['element_key' => $mainElement->key, 'occurrence' => 1]], 'meta' => []],
-            'footer' => ['elements' => [['element_key' => $footerElement->key, 'occurrence' => 1]], 'meta' => []],
+            'main' => ['blocks' => [['block_key' => $mainBlock->key, 'occurrence' => 1]], 'meta' => []],
+            'footer' => ['blocks' => [['block_key' => $footerBlock->key, 'occurrence' => 1]], 'meta' => []],
         ],
-        containerElements: [
-            'main' => [0 => $mainElement],
-            'footer' => [0 => $footerElement],
+        containerBlocks: [
+            'main' => [0 => $mainBlock],
+            'footer' => [0 => $footerBlock],
         ],
         assets: [
             'main' => [
@@ -85,7 +85,7 @@ it('builds editor safe content groups in visual layout order from the package na
         ->and($inventory->groups[0]->items[0]->isReused)->toBeTrue()
         ->and($inventory->groups[0]->items[0]->editActionArguments)->toMatchArray([
             'containerKey' => 'main',
-            'elementIndex' => 0,
+            'blockIndex' => 0,
             'index' => 0,
             'type' => AssetEnum::Page->value,
             'contentInventorySignature' => 'known-signature',
@@ -96,10 +96,10 @@ it('builds editor safe content groups in visual layout order from the package na
 
 it('lets higher priority package contributors decorate groups and items last', function (): void {
     $layout = Layout::factory()->create();
-    $element = Element::factory()->create(['key' => 'hero', 'name' => 'Hero element']);
+    $block = Block::factory()->create(['key' => 'hero', 'name' => 'Hero block']);
     $page = Page::factory()->withTranslations()->create(['name' => 'Home page']);
-    $elementAsset = ElementAsset::factory()->element($element)->asset($page)->create();
-    $element->setRelation('assets', new EloquentCollection([$elementAsset->load('asset.translation')]));
+    $blockAsset = BlockAsset::factory()->block($block)->asset($page)->create();
+    $block->setRelation('assets', new EloquentCollection([$blockAsset->load('asset.translation')]));
 
     $lowPriorityContributor = new class implements LayoutContentGroupContributor
     {
@@ -129,7 +129,7 @@ it('lets higher priority package contributors decorate groups and items last', f
 
         public function cacheDependencies(): array
         {
-            return ['elements'];
+            return ['blocks'];
         }
     };
 
@@ -168,9 +168,9 @@ it('lets higher priority package contributors decorate groups and items last', f
     $inventory = BuildLayoutContentInventoryAction::run(
         layout: $layout,
         page: null,
-        containers: ['hero' => ['elements' => [['element_key' => $element->key, 'occurrence' => 1]], 'meta' => []]],
-        containerElements: ['hero' => [0 => $element]],
-        assets: ['hero' => [0 => [layoutBuilderInventoryAssetState($elementAsset)]]],
+        containers: ['hero' => ['blocks' => [['block_key' => $block->key, 'occurrence' => 1]], 'meta' => []]],
+        containerBlocks: ['hero' => [0 => $block]],
+        assets: ['hero' => [0 => [layoutBuilderInventoryAssetState($blockAsset)]]],
         signature: 'known-signature',
         contributors: [$highPriorityContributor, $lowPriorityContributor],
     );
@@ -182,15 +182,15 @@ it('lets higher priority package contributors decorate groups and items last', f
 /**
  * @return array<string, mixed>
  */
-function layoutBuilderInventoryAssetState(ElementAsset $elementAsset): array
+function layoutBuilderInventoryAssetState(BlockAsset $blockAsset): array
 {
     return [
-        'id' => $elementAsset->getKey(),
-        'layout_element_id' => $elementAsset->layout_element_id,
-        'asset_id' => $elementAsset->asset_id,
-        'asset_type' => $elementAsset->asset_type,
-        'meta' => $elementAsset->meta ?? [],
-        'order' => $elementAsset->order,
-        'occurrence' => $elementAsset->occurrence,
+        'id' => $blockAsset->getKey(),
+        'block_id' => $blockAsset->block_id,
+        'asset_id' => $blockAsset->asset_id,
+        'asset_type' => $blockAsset->asset_type,
+        'meta' => $blockAsset->meta ?? [],
+        'order' => $blockAsset->order,
+        'occurrence' => $blockAsset->occurrence,
     ];
 }

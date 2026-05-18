@@ -10,17 +10,17 @@ use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
-use Capell\LayoutBuilder\Models\Element;
-use Capell\LayoutBuilder\Models\ElementAsset;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\BlockAsset;
 use Illuminate\Database\Eloquent\Model;
 
-it('extracts layout element content graph dependencies', function (): void {
-    $element = Element::factory()->create();
+it('extracts layout block content graph dependencies', function (): void {
+    $block = Block::factory()->create();
     $layout = Layout::factory()->create([
         'containers' => [
             'main' => [
-                'elements' => [
-                    ['element_key' => $element->key],
+                'blocks' => [
+                    ['block_key' => $block->key],
                 ],
             ],
         ],
@@ -28,29 +28,29 @@ it('extracts layout element content graph dependencies', function (): void {
 
     $edges = BuildContentGraphForModelAction::run($layout)->edges;
 
-    expect(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesElement, Element::class, $element->id, ContentGraphEdgeStrength::Strong))->toBeTrue();
+    expect(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesBlock, Block::class, $block->id, ContentGraphEdgeStrength::Strong))->toBeTrue();
 });
 
-it('extracts element media and default asset dependencies', function (): void {
-    $element = Element::factory()->create();
-    $image = Media::factory()->model($element)->collection(MediaCollectionEnum::Image)->create();
-    $backgroundImage = Media::factory()->model($element)->collection(MediaCollectionEnum::BackgroundImage)->create();
-    $elementAsset = ElementAsset::factory()->widget($element)->create();
+it('extracts block media and default asset dependencies', function (): void {
+    $block = Block::factory()->create();
+    $image = Media::factory()->model($block)->collection(MediaCollectionEnum::Image)->create();
+    $backgroundImage = Media::factory()->model($block)->collection(MediaCollectionEnum::BackgroundImage)->create();
+    $blockAsset = BlockAsset::factory()->widget($block)->create();
 
-    $edges = BuildContentGraphForModelAction::run($element)->edges;
+    $edges = BuildContentGraphForModelAction::run($block)->edges;
 
     expect(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesMedia, Media::class, $image->id, ContentGraphEdgeStrength::Strong))->toBeTrue()
         ->and(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesMedia, Media::class, $backgroundImage->id, ContentGraphEdgeStrength::Strong))->toBeTrue()
-        ->and(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesElement, ElementAsset::class, $elementAsset->id, ContentGraphEdgeStrength::Informational))->toBeTrue();
+        ->and(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesBlock, BlockAsset::class, $blockAsset->id, ContentGraphEdgeStrength::Informational))->toBeTrue();
 });
 
-it('extracts element asset page links from pageable asset and linked page references', function (): void {
-    $element = Element::factory()->create();
+it('extracts block asset page links from pageable asset and linked page references', function (): void {
+    $block = Block::factory()->create();
     $pageablePage = Page::factory()->create();
     $assetPage = Page::factory()->create();
     $linkedPage = Page::factory()->create();
-    $elementAsset = ElementAsset::factory()
-        ->widget($element)
+    $blockAsset = BlockAsset::factory()
+        ->widget($block)
         ->page($pageablePage)
         ->asset($assetPage)
         ->create([
@@ -60,39 +60,39 @@ it('extracts element asset page links from pageable asset and linked page refere
             ],
         ]);
 
-    $edges = BuildContentGraphForModelAction::run($elementAsset)->edges;
+    $edges = BuildContentGraphForModelAction::run($blockAsset)->edges;
 
     expect(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::LinksToPage, Page::class, $pageablePage->id, ContentGraphEdgeStrength::Strong))->toBeTrue()
         ->and(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::LinksToPage, Page::class, $assetPage->id, ContentGraphEdgeStrength::Strong))->toBeTrue()
         ->and(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::LinksToPage, Page::class, $linkedPage->id, ContentGraphEdgeStrength::Strong))->toBeTrue();
 });
 
-it('extracts element asset element and media asset dependencies', function (): void {
-    $element = Element::factory()->create();
+it('extracts block asset block and media asset dependencies', function (): void {
+    $block = Block::factory()->create();
     $mediaOwner = Page::factory()->create();
     $media = Media::factory()->model($mediaOwner)->create();
-    $elementAsset = ElementAsset::factory()
-        ->widget($element)
+    $blockAsset = BlockAsset::factory()
+        ->widget($block)
         ->create([
             'asset_type' => $media->getMorphClass(),
             'asset_id' => (string) $media->getKey(),
         ]);
 
-    $edges = BuildContentGraphForModelAction::run($elementAsset)->edges;
+    $edges = BuildContentGraphForModelAction::run($blockAsset)->edges;
 
-    expect(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesElement, Element::class, $element->id, ContentGraphEdgeStrength::Strong))->toBeTrue()
+    expect(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesBlock, Block::class, $block->id, ContentGraphEdgeStrength::Strong))->toBeTrue()
         ->and(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesMedia, Media::class, $media->id, ContentGraphEdgeStrength::Strong))->toBeTrue();
 });
 
-it('uses layout element id for element asset relationships', function (): void {
-    $element = Element::factory()->create();
+it('uses layout block id for block asset relationships', function (): void {
+    $block = Block::factory()->create();
 
-    ElementAsset::factory()
-        ->widget($element)
+    BlockAsset::factory()
+        ->widget($block)
         ->create();
 
-    expect($element->assets()->getQualifiedForeignKeyName())->toBe('layout_element_assets.layout_element_id')
-        ->and($element->assets()->exists())->toBeTrue();
+    expect($block->assets()->getQualifiedForeignKeyName())->toBe('block_assets.block_id')
+        ->and($block->assets()->exists())->toBeTrue();
 });
 
 /**

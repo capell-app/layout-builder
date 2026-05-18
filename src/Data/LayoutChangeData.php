@@ -12,6 +12,6 @@ final class LayoutChangeData extends Data
         public string $type,
         public string $label,
         public ?string $containerKey,
-        public ?int $elementIndex,
+        public ?int $blockIndex,
     ) {}
 }

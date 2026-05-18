@@ -16,9 +16,9 @@ it('persists site-scoped layout presets as layout-only snapshots by default', fu
     $layout = Layout::factory()->site($site)->create([
         'containers' => [
             'main' => [
-                'elements' => [
+                'blocks' => [
                     [
-                        'element_key' => 'hero',
+                        'block_key' => 'hero',
                         'occurrence' => 1,
                         'meta' => [
                             'block_variant' => 'split-media',
@@ -41,8 +41,8 @@ it('persists site-scoped layout presets as layout-only snapshots by default', fu
         ->and($preset->site_id)->toBe($site->getKey())
         ->and($preset->key)->toBe('feature-intro')
         ->and($preset->scope)->toBe('layout_only')
-        ->and($preset->snapshot['containers']['main']['elements'][0])->toHaveKeys(['element_key', 'occurrence', 'meta'])
-        ->and($preset->snapshot['containers']['main']['elements'][0])->not->toHaveKey('editor_only')
+        ->and($preset->snapshot['containers']['main']['blocks'][0])->toHaveKeys(['block_key', 'occurrence', 'meta'])
+        ->and($preset->snapshot['containers']['main']['blocks'][0])->not->toHaveKey('editor_only')
         ->and(json_encode($preset->snapshot, JSON_THROW_ON_ERROR))->not->toContain('signed_url')
         ->and(json_encode($preset->snapshot, JSON_THROW_ON_ERROR))->not->toContain('admin_schema');
 });
@@ -51,7 +51,7 @@ it('can persist a current editor container snapshot without reading stale layout
     $site = Site::factory()->create();
     $layout = Layout::factory()->site($site)->create([
         'containers' => [
-            'main' => ['elements' => []],
+            'main' => ['blocks' => []],
         ],
     ]);
 
@@ -62,9 +62,9 @@ it('can persist a current editor container snapshot without reading stale layout
         category: 'hero',
         containers: [
             'hero' => [
-                'elements' => [
+                'blocks' => [
                     [
-                        'element_key' => 'hero',
+                        'block_key' => 'hero',
                         'occurrence' => 1,
                         'meta' => ['block_settings' => ['anchor_id' => 'Edited']],
                     ],
@@ -76,7 +76,7 @@ it('can persist a current editor container snapshot without reading stale layout
     expect($preset->category)->toBe('hero')
         ->and($preset->snapshot['containers'])->toHaveKey('hero')
         ->and($preset->snapshot['containers'])->not->toHaveKey('main')
-        ->and($preset->snapshot['containers']['hero']['elements'][0]['meta']['block_settings']['anchor_id'])->toBe('Edited');
+        ->and($preset->snapshot['containers']['hero']['blocks'][0]['meta']['block_settings']['anchor_id'])->toBe('Edited');
 });
 
 it('can save a site-scoped preset from a global layout', function (): void {
@@ -85,8 +85,8 @@ it('can save a site-scoped preset from a global layout', function (): void {
         'site_id' => null,
         'containers' => [
             'main' => [
-                'elements' => [
-                    ['element_key' => 'hero'],
+                'blocks' => [
+                    ['block_key' => 'hero'],
                 ],
             ],
         ],
@@ -98,15 +98,15 @@ it('can save a site-scoped preset from a global layout', function (): void {
         ->and($preset->snapshot['containers'])->toHaveKey('main');
 });
 
-it('normalizes shorthand layout elements when saving presets', function (): void {
+it('normalizes shorthand layout blocks when saving presets', function (): void {
     $site = Site::factory()->create();
     $layout = Layout::factory()->site($site)->create([
         'containers' => [
             'main' => [
-                'elements' => [
+                'blocks' => [
                     'hero',
                     [
-                        'element_key' => 'cards',
+                        'block_key' => 'cards',
                         'occurrence' => 2,
                     ],
                 ],
@@ -116,14 +116,14 @@ it('normalizes shorthand layout elements when saving presets', function (): void
 
     $preset = SaveLayoutPresetAction::run($layout, $site, 'Shorthand layout');
 
-    expect($preset->snapshot['containers']['main']['elements'])->toBe([
+    expect($preset->snapshot['containers']['main']['blocks'])->toBe([
         [
-            'element_key' => 'hero',
+            'block_key' => 'hero',
             'occurrence' => 1,
             'meta' => [],
         ],
         [
-            'element_key' => 'cards',
+            'block_key' => 'cards',
             'occurrence' => 2,
             'meta' => [],
         ],
@@ -155,9 +155,9 @@ it('strips unsafe metadata from starter content presets', function (): void {
     $layout = Layout::factory()->site($site)->create([
         'containers' => [
             'main' => [
-                'elements' => [
+                'blocks' => [
                     [
-                        'element_key' => 'hero',
+                        'block_key' => 'hero',
                         'occurrence' => 1,
                         'meta' => [
                             'content' => [
@@ -200,9 +200,9 @@ it('strips unsafe preset metadata values', function (): void {
     $layout = Layout::factory()->site($site)->create([
         'containers' => [
             'main' => [
-                'elements' => [
+                'blocks' => [
                     [
-                        'element_key' => 'hero',
+                        'block_key' => 'hero',
                         'meta' => [
                             'block_key' => 'package_pricing',
                             'block_variant' => 'schema-markup',
@@ -239,13 +239,13 @@ it('applies presets only within the same site and uniques duplicate anchors', fu
         'snapshot' => [
             'containers' => [
                 'main' => [
-                    'elements' => [
+                    'blocks' => [
                         [
-                            'element_key' => 'hero',
+                            'block_key' => 'hero',
                             'meta' => ['block_settings' => ['anchor_id' => 'Feature Grid']],
                         ],
                         [
-                            'element_key' => 'cards',
+                            'block_key' => 'cards',
                             'meta' => ['block_settings' => ['anchor_id' => 'Feature Grid']],
                         ],
                     ],
@@ -256,8 +256,8 @@ it('applies presets only within the same site and uniques duplicate anchors', fu
 
     $updatedLayout = ApplyLayoutPresetAction::run($preset, $layout, $site);
 
-    expect($updatedLayout->containers['main']['elements'][0]['meta']['block_settings']['anchor_id'])->toBe('feature-grid')
-        ->and($updatedLayout->containers['main']['elements'][1]['meta']['block_settings']['anchor_id'])->toBe('feature-grid-2')
+    expect($updatedLayout->containers['main']['blocks'][0]['meta']['block_settings']['anchor_id'])->toBe('feature-grid')
+        ->and($updatedLayout->containers['main']['blocks'][1]['meta']['block_settings']['anchor_id'])->toBe('feature-grid-2')
         ->and($layout->fresh()->containers)->toBe([]);
 });
 
@@ -269,8 +269,8 @@ it('can persist an applied preset after an explicit confirmation path', function
         'snapshot' => [
             'containers' => [
                 'main' => [
-                    'elements' => [
-                        ['element_key' => 'hero'],
+                    'blocks' => [
+                        ['block_key' => 'hero'],
                     ],
                 ],
             ],
@@ -293,8 +293,8 @@ it('can apply a site preset to a global layout', function (): void {
         'snapshot' => [
             'containers' => [
                 'main' => [
-                    'elements' => [
-                        ['element_key' => 'hero'],
+                    'blocks' => [
+                        ['block_key' => 'hero'],
                     ],
                 ],
             ],
@@ -314,9 +314,9 @@ it('strips unsafe metadata when applying stored preset snapshots', function (): 
         'snapshot' => [
             'containers' => [
                 'main' => [
-                    'elements' => [
+                    'blocks' => [
                         [
-                            'element_key' => 'hero',
+                            'block_key' => 'hero',
                             'meta' => [
                                 'admin_schema' => ['secret' => true],
                                 'block_settings' => [
@@ -346,9 +346,9 @@ it('uniques pasted preset anchors against the current builder state', function (
     $state = new LayoutBuilderStateData(
         containers: [
             'main' => [
-                'elements' => [
+                'blocks' => [
                     [
-                        'element_key' => 'hero',
+                        'block_key' => 'hero',
                         'meta' => ['block_settings' => ['anchor_id' => 'feature-grid']],
                     ],
                 ],
@@ -361,21 +361,21 @@ it('uniques pasted preset anchors against the current builder state', function (
 
     $fragment = new LayoutFragmentData(
         sourceContainerKey: 'preset',
-        sourceElementIndex: null,
+        sourceBlockIndex: null,
         container: [
-            'elements' => [
+            'blocks' => [
                 [
-                    'element_key' => 'cards',
+                    'block_key' => 'cards',
                     'meta' => ['block_settings' => ['anchor_id' => 'Feature Grid']],
                 ],
             ],
         ],
-        element: null,
+        block: null,
     );
 
     $result = PasteLayoutFragmentAction::run($state, $fragment, 'main');
 
-    expect($result->state->containers['preset-copy']['elements'][0]['meta']['block_settings']['anchor_id'])
+    expect($result->state->containers['preset-copy']['blocks'][0]['meta']['block_settings']['anchor_id'])
         ->toBe('feature-grid-2');
 });
 

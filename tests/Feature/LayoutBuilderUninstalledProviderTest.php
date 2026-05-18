@@ -12,9 +12,9 @@ use Override;
 
 final class LayoutBuilderUninstalledProviderTest extends AbstractTestCase
 {
-    public function test_it_does_not_register_page_element_assets_as_cloneable_when_uninstalled(): void
+    public function test_it_does_not_register_page_block_assets_as_cloneable_when_uninstalled(): void
     {
-        expect(CapellCore::getCloneableRelations('page'))->not->toContain('elementAssets');
+        expect(CapellCore::getCloneableRelations('page'))->not->toContain('blockAssets');
     }
 
     protected function getPackageServiceName(): string

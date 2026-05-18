@@ -8,9 +8,9 @@ use Capell\Core\Contracts\EventSubscriber;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\Block;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
-use Capell\LayoutBuilder\Support\LayoutElementData;
+use Capell\LayoutBuilder\Support\LayoutBlockData;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 
 class LayoutLoaded implements EventSubscriber
@@ -36,43 +36,43 @@ class LayoutLoaded implements EventSubscriber
             return;
         }
 
-        $this->loadLayoutElements($layout, $page, $language);
+        $this->loadLayoutBlocks($layout, $page, $language);
     }
 
-    protected function loadLayoutElements(Layout $layout, Pageable $page, Language $language): void
+    protected function loadLayoutBlocks(Layout $layout, Pageable $page, Language $language): void
     {
-        CapellLayoutManager::clearContainerElements();
+        CapellLayoutManager::clearContainerBlocks();
 
-        // Preload all elements/assets once to minimize queries during iteration
+        // Preload all blocks/assets once to minimize queries during iteration
         $loader = resolve(LayoutLoader::class);
-        $loader->preloadLayoutElements($layout, $language, $page);
+        $loader->preloadLayoutBlocks($layout, $language, $page);
 
         $containers = $layout->getAttribute('containers');
         $containers = is_array($containers) ? $containers : [];
 
         foreach ($containers as $containerKey => $container) {
-            foreach (LayoutElementData::normalizeMany($container['elements'] ?? []) as $elementData) {
-                $elementKey = LayoutElementData::key($elementData);
-                if ($elementKey === null) {
+            foreach (LayoutBlockData::normalizeMany($container['blocks'] ?? []) as $blockData) {
+                $blockKey = LayoutBlockData::key($blockData);
+                if ($blockKey === null) {
                     continue;
                 }
 
-                $occurrence = LayoutElementData::occurrence($elementData);
+                $occurrence = LayoutBlockData::occurrence($blockData);
 
-                $element = $loader->getLayoutElement(
+                $block = $loader->getLayoutBlock(
                     $layout,
-                    $elementKey,
+                    $blockKey,
                     $language,
                     $page,
                     $containerKey,
                     $occurrence,
                 );
 
-                if (! $element instanceof Element) {
+                if (! $block instanceof Block) {
                     continue;
                 }
 
-                CapellLayoutManager::storeContainerElement($containerKey, $elementKey, $element, $occurrence);
+                CapellLayoutManager::storeContainerBlock($containerKey, $blockKey, $block, $occurrence);
             }
         }
     }

@@ -14,5 +14,5 @@ return [
     'site' => 'Site',
     'tag' => 'Tag',
     'type' => 'Type',
-    'element' => 'Element',
+    'block' => 'Block',
 ];

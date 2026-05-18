@@ -15,7 +15,7 @@ use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryData;
 use Capell\LayoutBuilder\Data\LayoutMutationResultData;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\Block;
 use Capell\LayoutBuilder\Support\LayoutClipboard;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
@@ -31,7 +31,7 @@ trait ManagesLayoutBuilderState
             layout: $this->layout,
             page: $this->page,
             containers: $this->containers ?? [],
-            containerElements: $this->containerElements ?? [],
+            containerBlocks: $this->containerBlocks ?? [],
             assets: $this->assets,
             signature: $this->contentInventorySignature(),
             siteName: $this->site?->name,
@@ -52,7 +52,7 @@ trait ManagesLayoutBuilderState
 
     public function ensureLoaded(): void
     {
-        if (! isset($this->containerElements)) {
+        if (! isset($this->containerBlocks)) {
             $this->loadFromStore();
         }
     }
@@ -61,35 +61,35 @@ trait ManagesLayoutBuilderState
     {
         $this->setupContainers();
 
-        $elements = $this->preloadAllElements(withAssets: false);
+        $blocks = $this->preloadAllBlocks(withAssets: false);
 
-        $allElementAssets = $this->preloadAllElementAssets();
+        $allBlockAssets = $this->preloadAllBlockAssets();
 
-        $containerElementAssets = [];
+        $containerBlockAssets = [];
 
-        foreach ($this->assets as $containerKey => $containerElements) {
-            foreach ($containerElements as $elementIndex => $elementAssets) {
-                $elementKey = $this->containers[$containerKey]['elements'][$elementIndex]['element_key'] ?? null;
+        foreach ($this->assets as $containerKey => $containerBlocks) {
+            foreach ($containerBlocks as $blockIndex => $blockAssets) {
+                $blockKey = $this->containers[$containerKey]['blocks'][$blockIndex]['block_key'] ?? null;
 
-                if ($elementKey === null) {
+                if ($blockKey === null) {
                     continue;
                 }
 
-                /** @var Element $element */
-                $element = $elements[$elementKey];
+                /** @var Block $block */
+                $block = $blocks[$blockKey];
 
-                $containerElementAssets[$containerKey][$elementIndex] = $this->setupElementAssets(
+                $containerBlockAssets[$containerKey][$blockIndex] = $this->setupBlockAssets(
                     $containerKey,
-                    $elementIndex,
-                    $elementAssets,
-                    $allElementAssets,
-                    $element,
+                    $blockIndex,
+                    $blockAssets,
+                    $allBlockAssets,
+                    $block,
                 );
             }
         }
 
         foreach (array_keys($this->containers) as $containerKey) {
-            $this->setupContainerElements($containerKey, $elements, $containerElementAssets);
+            $this->setupContainerBlocks($containerKey, $blocks, $containerBlockAssets);
         }
     }
 
@@ -116,30 +116,30 @@ trait ManagesLayoutBuilderState
         return $this->page->site;
     }
 
-    protected function persistElementAssets(): void
+    protected function persistBlockAssets(): void
     {
-        $processedElementKeys = [];
+        $processedBlockKeys = [];
 
         foreach ($this->containers as $containerKey => $container) {
-            foreach ($container['elements'] as $elementIndex => $element) {
-                if ($this->inPageContext() && isset($element['pageable_type'], $element['pageable_id'])) {
-                    $key = $element['element_key'] . '_' . $element['pageable_type'] . '_' . $element['pageable_id'] . '_' . $element['container'] . '_' . $element['occurrence'];
+            foreach ($container['blocks'] as $blockIndex => $block) {
+                if ($this->inPageContext() && isset($block['pageable_type'], $block['pageable_id'])) {
+                    $key = $block['block_key'] . '_' . $block['pageable_type'] . '_' . $block['pageable_id'] . '_' . $block['container'] . '_' . $block['occurrence'];
                 } else {
-                    $key = $element['element_key'] . '_' . $element['occurrence'];
+                    $key = $block['block_key'] . '_' . $block['occurrence'];
                 }
 
-                if (in_array($key, $processedElementKeys, true)) {
+                if (in_array($key, $processedBlockKeys, true)) {
                     continue;
                 }
 
-                $processedElementKeys[] = $key;
+                $processedBlockKeys[] = $key;
 
-                $this->updateAssets($containerKey, $elementIndex, $element['old_container'] ?? null);
+                $this->updateAssets($containerKey, $blockIndex, $block['old_container'] ?? null);
             }
         }
 
         if ($this->inPageContext()) {
-            $this->deleteRemovedElementAssets();
+            $this->deleteRemovedBlockAssets();
         }
     }
 
@@ -152,10 +152,10 @@ trait ManagesLayoutBuilderState
     {
         $this->setupContainers();
 
-        $elements = $this->preloadAllElements();
+        $blocks = $this->preloadAllBlocks();
 
         foreach (array_keys($this->containers) as $containerKey) {
-            $this->setupContainerElements($containerKey, $elements);
+            $this->setupContainerBlocks($containerKey, $blocks);
         }
 
         $this->setupSelectedAssets();
@@ -168,7 +168,7 @@ trait ManagesLayoutBuilderState
 
     protected function reload(): void
     {
-        $this->reset('containerElements', 'selectedRecords', 'assets', 'originalAssets', 'containers', 'layout');
+        $this->reset('containerBlocks', 'selectedRecords', 'assets', 'originalAssets', 'containers', 'layout');
 
         $this->loadNew();
     }
@@ -199,43 +199,43 @@ trait ManagesLayoutBuilderState
         $this->originalAssets = $state->originalAssets;
         $this->selectedRecords = $state->selectedRecords;
 
-        $this->rebuildLoadedContainerElements();
+        $this->rebuildLoadedContainerBlocks();
 
         $this->layoutUpdated($markModified);
     }
 
-    protected function rebuildLoadedContainerElements(): void
+    protected function rebuildLoadedContainerBlocks(): void
     {
-        $this->containerElements = [];
-        $elementKeys = collect($this->containers ?? [])
+        $this->containerBlocks = [];
+        $blockKeys = collect($this->containers ?? [])
             ->flatMap(fn (array $container): array => array_map(
-                static fn (array $element): mixed => $element['element_key'] ?? null,
-                $container['elements'] ?? [],
+                static fn (array $block): mixed => $block['block_key'] ?? null,
+                $container['blocks'] ?? [],
             ))
-            ->filter(static fn (mixed $elementKey): bool => is_string($elementKey) && $elementKey !== '')
+            ->filter(static fn (mixed $blockKey): bool => is_string($blockKey) && $blockKey !== '')
             ->unique()
             ->values()
             ->all();
 
-        $elementsByKey = $elementKeys === []
+        $blocksByKey = $blockKeys === []
             ? collect()
-            : $this->getElementDisplayQuery()
-                ->whereIn('key', $elementKeys)
+            : $this->getBlockDisplayQuery()
+                ->whereIn('key', $blockKeys)
                 ->get()
                 ->keyBy('key');
 
         foreach ($this->containers ?? [] as $containerKey => $container) {
-            foreach (($container['elements'] ?? []) as $elementIndex => $element) {
-                $elementKey = $element['element_key'] ?? null;
+            foreach (($container['blocks'] ?? []) as $blockIndex => $block) {
+                $blockKey = $block['block_key'] ?? null;
 
-                if (! is_string($elementKey)) {
+                if (! is_string($blockKey)) {
                     continue;
                 }
 
-                $loadedElement = $elementsByKey->get($elementKey);
+                $loadedBlock = $blocksByKey->get($blockKey);
 
-                if ($loadedElement !== null) {
-                    $this->containerElements[$containerKey][$elementIndex] = $loadedElement;
+                if ($loadedBlock !== null) {
+                    $this->containerBlocks[$containerKey][$blockIndex] = $loadedBlock;
                 }
             }
         }
@@ -329,11 +329,11 @@ trait ManagesLayoutBuilderState
         $assets = [];
 
         foreach ($this->assets as $containerKey => $containerAssets) {
-            foreach ($containerAssets as $elementIndex => $elementAssets) {
-                foreach ($elementAssets as $assetIndex => $asset) {
-                    $assets[$containerKey][$elementIndex][$assetIndex] = [
+            foreach ($containerAssets as $blockIndex => $blockAssets) {
+                foreach ($blockAssets as $assetIndex => $asset) {
+                    $assets[$containerKey][$blockIndex][$assetIndex] = [
                         'id' => $asset['id'] ?? null,
-                        'layout_element_id' => $asset['layout_element_id'] ?? null,
+                        'block_id' => $asset['block_id'] ?? null,
                         'asset_id' => $asset['asset_id'] ?? null,
                         'asset_type' => $asset['asset_type'] ?? null,
                         'order' => $asset['order'] ?? null,

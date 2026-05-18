@@ -14,14 +14,14 @@ use Capell\Frontend\Contracts\FrontendResponseRenderer;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\Frontend\Http\Controllers\PageController;
 use Capell\Frontend\Support\Render\FrontendResponseRendererRegistry;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\Block;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 it('does not force layout builder admin metadata into public responses', function (): void {
-    $element = Element::factory()->create(['key' => 'hero']);
+    $block = Block::factory()->create(['key' => 'hero']);
     $layout = Layout::factory()->create(['containers' => [
         'main' => [
-            'elements' => [['element_key' => $element->key]],
+            'blocks' => [['block_key' => $block->key]],
             'meta' => [
                 'colspan' => 12,
                 'responsive' => ['mobile' => ['colspan' => 6]],
@@ -120,7 +120,7 @@ it('does not force layout builder admin metadata into public responses', functio
         ->and($html)->not->toContain('LayoutFragmentData')
         ->and($html)->not->toContain('signed editor')
         ->and($html)->not->toContain('pageable_type')
-        ->and($html)->not->toContain('element_key')
+        ->and($html)->not->toContain('block_key')
         ->and($html)->not->toContain('responsive')
         ->and($html)->not->toContain('colspan');
 });

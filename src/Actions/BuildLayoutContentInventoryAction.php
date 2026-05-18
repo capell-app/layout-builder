@@ -11,8 +11,8 @@ use Capell\LayoutBuilder\Data\LayoutContentGroupData;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryContextData;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryData;
 use Capell\LayoutBuilder\Data\LayoutContentItemData;
-use Capell\LayoutBuilder\Models\Element;
-use Capell\LayoutBuilder\Models\ElementAsset;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\BlockAsset;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -24,7 +24,7 @@ final class BuildLayoutContentInventoryAction
 
     /**
      * @param  array<string, array<string, mixed>>  $containers
-     * @param  array<string, array<int, Element>>  $containerElements
+     * @param  array<string, array<int, Block>>  $containerBlocks
      * @param  array<string, array<int, array<int, array<string, mixed>>>>  $assets
      * @param  iterable<int, LayoutContentGroupContributor>|null  $contributors
      */
@@ -32,7 +32,7 @@ final class BuildLayoutContentInventoryAction
         Layout $layout,
         ?Pageable $page,
         array $containers,
-        array $containerElements,
+        array $containerBlocks,
         array $assets,
         string $signature,
         ?iterable $contributors = null,
@@ -71,41 +71,41 @@ final class BuildLayoutContentInventoryAction
                 $group = $contributor->group($group, $context);
             }
 
-            foreach (($container['elements'] ?? []) as $elementIndex => $containerElement) {
-                $element = $containerElements[$containerKey][$elementIndex] ?? null;
+            foreach (($container['blocks'] ?? []) as $blockIndex => $containerBlock) {
+                $block = $containerBlocks[$containerKey][$blockIndex] ?? null;
 
-                if (! $element instanceof Element) {
+                if (! $block instanceof Block) {
                     continue;
                 }
 
-                $elementLabel = $this->elementLabel($element, $containerElement);
-                $elementAssets = $assets[$containerKey][$elementIndex] ?? [];
+                $blockLabel = $this->blockLabel($block, $containerBlock);
+                $blockAssets = $assets[$containerKey][$blockIndex] ?? [];
 
-                foreach ($elementAssets as $assetIndex => $assetState) {
-                    $elementAsset = $this->resolveElementAsset($element, $assetState, $assetIndex);
+                foreach ($blockAssets as $assetIndex => $assetState) {
+                    $blockAsset = $this->resolveBlockAsset($block, $assetState, $assetIndex);
 
-                    if (! $elementAsset instanceof ElementAsset) {
+                    if (! $blockAsset instanceof BlockAsset) {
                         continue;
                     }
 
                     $assetKey = $this->assetKey($assetState);
                     $item = new LayoutContentItemData(
-                        key: $this->itemKey($containerKey, $elementIndex, $assetIndex, $assetState),
-                        label: $this->assetLabel($elementAsset),
-                        summary: $this->assetSummary($elementAsset),
+                        key: $this->itemKey($containerKey, $blockIndex, $assetIndex, $assetState),
+                        label: $this->assetLabel($blockAsset),
+                        summary: $this->assetSummary($blockAsset),
                         typeLabel: $this->assetTypeLabel($assetState),
-                        placementLabel: $this->placementLabel($containerLabel, $elementLabel, $assetIndex),
+                        placementLabel: $this->placementLabel($containerLabel, $blockLabel, $assetIndex),
                         containerKey: $containerKey,
                         containerLabel: $containerLabel,
-                        elementIndex: $elementIndex,
-                        elementLabel: $elementLabel,
+                        blockIndex: $blockIndex,
+                        blockLabel: $blockLabel,
                         assetIndex: $assetIndex,
                         assetType: (string) ($assetState['asset_type'] ?? ''),
                         assetId: $assetState['asset_id'] ?? null,
                         isReused: isset($reusedAssetKeys[$assetKey]),
                         editActionArguments: [
                             'containerKey' => $containerKey,
-                            'elementIndex' => $elementIndex,
+                            'blockIndex' => $blockIndex,
                             'index' => $assetIndex,
                             'type' => (string) ($assetState['asset_type'] ?? ''),
                             'contentInventorySignature' => $signature,
@@ -158,8 +158,8 @@ final class BuildLayoutContentInventoryAction
         $counts = [];
 
         foreach ($assets as $containerAssets) {
-            foreach ($containerAssets as $elementAssets) {
-                foreach ($elementAssets as $assetState) {
+            foreach ($containerAssets as $blockAssets) {
+                foreach ($blockAssets as $assetState) {
                     $key = $this->assetKey($assetState);
                     $counts[$key] = ($counts[$key] ?? 0) + 1;
                 }
@@ -194,41 +194,41 @@ final class BuildLayoutContentInventoryAction
     }
 
     /**
-     * @param  array<string, mixed>  $containerElement
+     * @param  array<string, mixed>  $containerBlock
      */
-    private function elementLabel(Element $element, array $containerElement): string
+    private function blockLabel(Block $block, array $containerBlock): string
     {
-        $configuredName = Arr::get($containerElement, 'meta.name');
+        $configuredName = Arr::get($containerBlock, 'meta.name');
 
         if (is_string($configuredName) && trim($configuredName) !== '') {
             return trim($configuredName);
         }
 
-        return $element->name !== '' ? $element->name : __('capell-layout-builder::generic.untitled_content_block');
+        return $block->name !== '' ? $block->name : __('capell-layout-builder::generic.untitled_content_block');
     }
 
     /**
      * @param  array<string, mixed>  $assetState
      */
-    private function resolveElementAsset(Element $element, array $assetState, int $assetIndex): ?ElementAsset
+    private function resolveBlockAsset(Block $block, array $assetState, int $assetIndex): ?BlockAsset
     {
-        $elementAsset = $element->assets->get($assetIndex);
+        $blockAsset = $block->assets->get($assetIndex);
 
-        if ($elementAsset instanceof ElementAsset) {
-            return $elementAsset;
+        if ($blockAsset instanceof BlockAsset) {
+            return $blockAsset;
         }
 
         $assetId = $assetState['asset_id'] ?? null;
         $assetType = $assetState['asset_type'] ?? null;
 
-        return $element->assets
-            ->first(fn (ElementAsset $candidate): bool => $candidate->asset_type === $assetType
+        return $block->assets
+            ->first(fn (BlockAsset $candidate): bool => $candidate->asset_type === $assetType
                 && $candidate->asset_id === $assetId);
     }
 
-    private function assetLabel(ElementAsset $elementAsset): string
+    private function assetLabel(BlockAsset $blockAsset): string
     {
-        $asset = $elementAsset->asset;
+        $asset = $blockAsset->asset;
 
         if ($asset instanceof Model) {
             foreach (['name', 'title'] as $attribute) {
@@ -247,9 +247,9 @@ final class BuildLayoutContentInventoryAction
         return __('capell-layout-builder::generic.untitled_content_block');
     }
 
-    private function assetSummary(ElementAsset $elementAsset): ?string
+    private function assetSummary(BlockAsset $blockAsset): ?string
     {
-        $asset = $elementAsset->asset;
+        $asset = $blockAsset->asset;
 
         if (! $asset instanceof Model) {
             return null;
@@ -260,7 +260,7 @@ final class BuildLayoutContentInventoryAction
         if ($translation instanceof Model && $translation->hasAttribute('title')) {
             $title = $translation->getAttribute('title');
 
-            if (is_string($title) && $title !== '' && $title !== $this->assetLabel($elementAsset)) {
+            if (is_string($title) && $title !== '' && $title !== $this->assetLabel($blockAsset)) {
                 return $title;
             }
         }
@@ -282,11 +282,11 @@ final class BuildLayoutContentInventoryAction
         return Str::of($type)->replace(['_', '-'], ' ')->headline()->toString();
     }
 
-    private function placementLabel(string $containerLabel, string $elementLabel, int $assetIndex): string
+    private function placementLabel(string $containerLabel, string $blockLabel, int $assetIndex): string
     {
         return __('capell-layout-builder::generic.content_placement', [
             'container' => $containerLabel,
-            'element' => $elementLabel,
+            'block' => $blockLabel,
             'position' => $assetIndex + 1,
         ]);
     }
@@ -294,11 +294,11 @@ final class BuildLayoutContentInventoryAction
     /**
      * @param  array<string, mixed>  $assetState
      */
-    private function itemKey(string $containerKey, int $elementIndex, int $assetIndex, array $assetState): string
+    private function itemKey(string $containerKey, int $blockIndex, int $assetIndex, array $assetState): string
     {
         return implode(':', [
             $containerKey,
-            (string) $elementIndex,
+            (string) $blockIndex,
             (string) ($assetState['occurrence'] ?? 1),
             (string) ($assetState['asset_type'] ?? ''),
             (string) ($assetState['asset_id'] ?? ''),

@@ -25,12 +25,12 @@ trait ManagesContainers
         $this->assertCanUpdateLayout();
 
         $container = [
-            'elements' => [],
+            'blocks' => [],
         ];
 
         if ($position === null) {
             $this->containers[$key] = $container;
-            $this->containerElements[$key] = [];
+            $this->containerBlocks[$key] = [];
             $this->assets[$key] = [];
             $this->trackKnownContainerKey($key);
 
@@ -43,9 +43,9 @@ trait ManagesContainers
             [$key => $container] +
             array_slice($this->containers, $position, null, true);
 
-        $this->containerElements = array_slice($this->containerElements, 0, $position, true) +
+        $this->containerBlocks = array_slice($this->containerBlocks, 0, $position, true) +
             [$key => []] +
-            array_slice($this->containerElements, $position, null, true);
+            array_slice($this->containerBlocks, $position, null, true);
 
         $this->assets = array_slice($this->assets, 0, $position, true) +
             [$key => []] +
@@ -129,9 +129,9 @@ trait ManagesContainers
             [$newContainerKey => $this->containers[$containerKey]] +
             array_slice($this->containers, $insertPosition, null, true);
 
-        $this->containerElements = array_slice($this->containerElements, 0, $insertPosition, true) +
-            [$newContainerKey => $this->containerElements[$containerKey] ?? []] +
-            array_slice($this->containerElements, $insertPosition, null, true);
+        $this->containerBlocks = array_slice($this->containerBlocks, 0, $insertPosition, true) +
+            [$newContainerKey => $this->containerBlocks[$containerKey] ?? []] +
+            array_slice($this->containerBlocks, $insertPosition, null, true);
 
         $this->assets = array_slice($this->assets, 0, $insertPosition, true) +
             [$newContainerKey => $this->assets[$containerKey] ?? []] +
@@ -139,10 +139,10 @@ trait ManagesContainers
 
         $this->selectedRecords[$newContainerKey] = [];
 
-        foreach (array_keys($this->containers[$newContainerKey]['elements']) as $elementIndex) {
-            foreach ($this->assets[$newContainerKey][$elementIndex] ?? [] as $assetIndex => $asset) {
+        foreach (array_keys($this->containers[$newContainerKey]['blocks']) as $blockIndex) {
+            foreach ($this->assets[$newContainerKey][$blockIndex] ?? [] as $assetIndex => $asset) {
                 if (isset($asset['container'])) {
-                    $this->assets[$newContainerKey][$elementIndex][$assetIndex]['container'] = $newContainerKey;
+                    $this->assets[$newContainerKey][$blockIndex][$assetIndex]['container'] = $newContainerKey;
                 }
             }
         }
@@ -185,7 +185,7 @@ trait ManagesContainers
     {
         $this->assertCanUpdateLayout();
 
-        foreach (['containers', 'containerElements', 'assets'] as $property) {
+        foreach (['containers', 'containerBlocks', 'assets'] as $property) {
             if (! isset($this->{$property}[$containerKey])) {
                 continue;
             }
@@ -263,7 +263,7 @@ trait ManagesContainers
 
     protected function updateContainerKey(string $oldKey, string $newKey): string
     {
-        foreach (['containers', 'containerElements', 'assets'] as $property) {
+        foreach (['containers', 'containerBlocks', 'assets'] as $property) {
             if (! isset($this->{$property}[$oldKey])) {
                 continue;
             }
@@ -273,25 +273,25 @@ trait ManagesContainers
             unset($this->{$property}[$oldKey]);
         }
 
-        foreach ($this->containers[$newKey]['elements'] as $elementIndex => $element) {
-            $element['old_container'] ??= $oldKey;
-            $element['container_key'] = $newKey;
+        foreach ($this->containers[$newKey]['blocks'] as $blockIndex => $block) {
+            $block['old_container'] ??= $oldKey;
+            $block['container_key'] = $newKey;
 
-            $this->containers[$newKey]['elements'][$elementIndex] = $element;
+            $this->containers[$newKey]['blocks'][$blockIndex] = $block;
         }
 
-        foreach ($this->assets[$newKey] ?? [] as $elementIndex => $elementAssets) {
-            foreach ($elementAssets as $assetIndex => $asset) {
+        foreach ($this->assets[$newKey] ?? [] as $blockIndex => $blockAssets) {
+            foreach ($blockAssets as $assetIndex => $asset) {
                 $asset['old_container'] ??= $oldKey;
                 $asset['container'] = $newKey;
 
-                $this->assets[$newKey][$elementIndex][$assetIndex] = $asset;
+                $this->assets[$newKey][$blockIndex][$assetIndex] = $asset;
             }
         }
 
-        $originalContainerElementAssets = $this->originalAssets[$oldKey] ?? [];
+        $originalContainerBlockAssets = $this->originalAssets[$oldKey] ?? [];
         unset($this->originalAssets[$oldKey]);
-        $this->originalAssets[$newKey] = $originalContainerElementAssets;
+        $this->originalAssets[$newKey] = $originalContainerBlockAssets;
 
         if (isset($this->selectedRecords[$oldKey])) {
             $this->selectedRecords[$newKey] = $this->selectedRecords[$oldKey];
@@ -333,7 +333,7 @@ trait ManagesContainers
 
         foreach ($containers as $key => $container) {
             $this->containers[$key] = [
-                'elements' => $container['elements'] ?? [],
+                'blocks' => $container['blocks'] ?? [],
                 'meta' => $container['meta'] ?? [],
             ];
             $this->trackKnownContainerKey((string) $key);

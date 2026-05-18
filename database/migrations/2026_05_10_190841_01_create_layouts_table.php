@@ -24,7 +24,7 @@ return new class extends Migration
             $table->json('meta')->nullable();
             $table->json('admin')->nullable();
             $table->json('containers')->nullable();
-            $table->json('elements')->nullable();
+            $table->json('blocks')->nullable();
             $table->unsignedInteger('order')->default(0)->index();
             $table->boolean('default')->index()->default(0);
             $table->boolean('status')->index()->default(1);

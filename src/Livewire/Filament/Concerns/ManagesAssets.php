@@ -8,8 +8,8 @@ use BackedEnum;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
-use Capell\LayoutBuilder\Models\Element;
-use Capell\LayoutBuilder\Models\ElementAsset;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\BlockAsset;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
@@ -27,21 +27,21 @@ use Throwable;
 
 trait ManagesAssets
 {
-    public function reorderAssets(string $containerKey, int $elementIndex, int $index, int $newIndex): void
+    public function reorderAssets(string $containerKey, int $blockIndex, int $index, int $newIndex): void
     {
         $this->assertCanUpdateLayout();
 
-        $assets = $this->assets[$containerKey][$elementIndex];
+        $assets = $this->assets[$containerKey][$blockIndex];
 
-        $elementAsset = $this->getElementAsset($containerKey, $elementIndex, $index);
+        $blockAsset = $this->getBlockAsset($containerKey, $blockIndex, $index);
 
-        throw_if($elementAsset === null || $elementAsset === [], Exception::class, sprintf('Asset %d not found for container: %s element: %d', $index, $containerKey, $elementIndex));
+        throw_if($blockAsset === null || $blockAsset === [], Exception::class, sprintf('Asset %d not found for container: %s block: %d', $index, $containerKey, $blockIndex));
 
         unset($assets[$index]);
 
         $assets = array_values($assets);
 
-        array_splice($assets, $newIndex, 0, [$elementAsset]);
+        array_splice($assets, $newIndex, 0, [$blockAsset]);
 
         $order = 1;
         $assets = array_map(
@@ -54,46 +54,46 @@ trait ManagesAssets
             $assets,
         );
 
-        $this->assets[$containerKey][$elementIndex] = $assets;
+        $this->assets[$containerKey][$blockIndex] = $assets;
 
         $this->layoutUpdated();
     }
 
-    public function moveAssetUp(string $containerKey, int $elementIndex, int $assetIndex): void
+    public function moveAssetUp(string $containerKey, int $blockIndex, int $assetIndex): void
     {
-        if (! $this->canMoveAssetUp($containerKey, $elementIndex, $assetIndex)) {
+        if (! $this->canMoveAssetUp($containerKey, $blockIndex, $assetIndex)) {
             return;
         }
 
-        $this->reorderAssets($containerKey, $elementIndex, $assetIndex, $assetIndex - 1);
+        $this->reorderAssets($containerKey, $blockIndex, $assetIndex, $assetIndex - 1);
     }
 
-    public function moveAssetDown(string $containerKey, int $elementIndex, int $assetIndex): void
+    public function moveAssetDown(string $containerKey, int $blockIndex, int $assetIndex): void
     {
-        if (! $this->canMoveAssetDown($containerKey, $elementIndex, $assetIndex)) {
+        if (! $this->canMoveAssetDown($containerKey, $blockIndex, $assetIndex)) {
             return;
         }
 
-        $this->reorderAssets($containerKey, $elementIndex, $assetIndex, $assetIndex + 1);
+        $this->reorderAssets($containerKey, $blockIndex, $assetIndex, $assetIndex + 1);
     }
 
-    public function canMoveAssetUp(string $containerKey, int $elementIndex, int $assetIndex): bool
+    public function canMoveAssetUp(string $containerKey, int $blockIndex, int $assetIndex): bool
     {
-        return $assetIndex > 0 && isset($this->assets[$containerKey][$elementIndex][$assetIndex]);
+        return $assetIndex > 0 && isset($this->assets[$containerKey][$blockIndex][$assetIndex]);
     }
 
-    public function canMoveAssetDown(string $containerKey, int $elementIndex, int $assetIndex): bool
+    public function canMoveAssetDown(string $containerKey, int $blockIndex, int $assetIndex): bool
     {
-        return isset($this->assets[$containerKey][$elementIndex][$assetIndex + 1]);
+        return isset($this->assets[$containerKey][$blockIndex][$assetIndex + 1]);
     }
 
-    public function hasPageAssets(string $containerKey, int $elementIndex): bool
+    public function hasPageAssets(string $containerKey, int $blockIndex): bool
     {
         if (! $this->inPageContext()) {
             return false;
         }
 
-        $assets = $this->getElementAssets($containerKey, $elementIndex);
+        $assets = $this->getBlockAssets($containerKey, $blockIndex);
 
         if ($assets === []) {
             return false;
@@ -107,17 +107,17 @@ trait ManagesAssets
             );
     }
 
-    public function elementHasPageAssets(Element $element): bool
+    public function blockHasPageAssets(Block $block): bool
     {
         if (! $this->inPageContext()) {
-            return $element->assets()->whereNotNull('pageable_type')->whereNotNull('pageable_id')->exists();
+            return $block->assets()->whereNotNull('pageable_type')->whereNotNull('pageable_id')->exists();
         }
 
-        if (property_exists($element, 'page_assets_count')) {
-            return $element->page_assets_count > 0;
+        if (property_exists($block, 'page_assets_count')) {
+            return $block->page_assets_count > 0;
         }
 
-        return $element
+        return $block
             ->assets()
             ->where([
                 'pageable_type' => $this->page->getMorphClass(),
@@ -126,135 +126,135 @@ trait ManagesAssets
             ->exists();
     }
 
-    public function elementHasGlobalAssets(Element $element): bool
+    public function blockHasGlobalAssets(Block $block): bool
     {
-        if (property_exists($element, 'global_assets_count')) {
-            return $element->global_assets_count > 0;
+        if (property_exists($block, 'global_assets_count')) {
+            return $block->global_assets_count > 0;
         }
 
-        return $element->assets()->whereNull(['pageable_type', 'pageable_id'])->exists();
+        return $block->assets()->whereNull(['pageable_type', 'pageable_id'])->exists();
     }
 
-    public function selectAllAssets(string $containerKey, int $elementIndex): void
+    public function selectAllAssets(string $containerKey, int $blockIndex): void
     {
         $this->assertCanUpdateLayout();
 
-        $this->selectedRecords[$containerKey][$elementIndex] = $this->getAllSelectableAssetsKeys(
+        $this->selectedRecords[$containerKey][$blockIndex] = $this->getAllSelectableAssetsKeys(
             $containerKey,
-            $elementIndex,
+            $blockIndex,
         );
     }
 
-    public function deSelectAllAssets(string $containerKey, int $elementIndex): void
+    public function deSelectAllAssets(string $containerKey, int $blockIndex): void
     {
         $this->assertCanUpdateLayout();
 
-        $this->selectedRecords[$containerKey][$elementIndex] = [];
+        $this->selectedRecords[$containerKey][$blockIndex] = [];
     }
 
-    public function getElementAssetTypes(Element $element): array
+    public function getBlockAssetTypes(Block $block): array
     {
-        return $this->getAllowedAssetTypes($element);
+        return $this->getAllowedAssetTypes($block);
     }
 
-    public function getCurrentElementAssetWorkspaceId(?Element $element = null): int
+    public function getCurrentBlockAssetWorkspaceId(?Block $block = null): int
     {
-        if ($element instanceof Element && array_key_exists('workspace_id', $element->getAttributes())) {
-            return (int) $element->getAttribute('workspace_id');
+        if ($block instanceof Block && array_key_exists('workspace_id', $block->getAttributes())) {
+            return (int) $block->getAttribute('workspace_id');
         }
 
         return $this->getCurrentWorkspaceId() ?? 0;
     }
 
-    public function togglePageAssets(string $containerKey, int $elementIndex, ?Pageable $page): void
+    public function togglePageAssets(string $containerKey, int $blockIndex, ?Pageable $page): void
     {
         $this->assertCanUpdateLayout();
 
         $hasPageAssets = $page instanceof Pageable;
 
-        $this->updatePageAssets($containerKey, $elementIndex, $hasPageAssets);
+        $this->updatePageAssets($containerKey, $blockIndex, $hasPageAssets);
 
         $this->layoutUpdated();
     }
 
-    public function shouldAddPageAssets(string $containerKey, int $elementIndex): bool
+    public function shouldAddPageAssets(string $containerKey, int $blockIndex): bool
     {
         if (! $this->inPageContext()) {
             return false;
         }
 
-        $assets = $this->getElementAssets($containerKey, $elementIndex);
+        $assets = $this->getBlockAssets($containerKey, $blockIndex);
 
         if ($assets === []) {
             return true;
         }
 
         return collect($assets)->contains(
-            fn (array $elementAsset): bool => $elementAsset['pageable_id'] === $this->page->getKey()
-                && $elementAsset['pageable_type'] === $this->page->getMorphClass(),
+            fn (array $blockAsset): bool => $blockAsset['pageable_id'] === $this->page->getKey()
+                && $blockAsset['pageable_type'] === $this->page->getMorphClass(),
         );
     }
 
-    public function getElementAssets(string $containerKey, int $elementIndex): array
+    public function getBlockAssets(string $containerKey, int $blockIndex): array
     {
-        return $this->assets[$containerKey][$elementIndex];
+        return $this->assets[$containerKey][$blockIndex];
     }
 
-    public function countElementAssets(string $containerKey, int $elementIndex): int
+    public function countBlockAssets(string $containerKey, int $blockIndex): int
     {
-        return count($this->getElementAssets($containerKey, $elementIndex));
+        return count($this->getBlockAssets($containerKey, $blockIndex));
     }
 
-    public function getElementAsset(string $containerKey, int $elementIndex, int $index): ?array
+    public function getBlockAsset(string $containerKey, int $blockIndex, int $index): ?array
     {
-        return $this->assets[$containerKey][$elementIndex][$index] ?? null;
+        return $this->assets[$containerKey][$blockIndex][$index] ?? null;
     }
 
-    public function getElementAssetsByType(string $containerKey, int $elementIndex, string $type): array
+    public function getBlockAssetsByType(string $containerKey, int $blockIndex, string $type): array
     {
-        if (! isset($this->assets[$containerKey][$elementIndex])) {
+        if (! isset($this->assets[$containerKey][$blockIndex])) {
             return [];
         }
 
         return array_column(
-            array_filter($this->assets[$containerKey][$elementIndex], fn (array $elementAsset): bool => $elementAsset['asset_type'] === $type),
+            array_filter($this->assets[$containerKey][$blockIndex], fn (array $blockAsset): bool => $blockAsset['asset_type'] === $type),
             'asset_id',
         );
     }
 
-    public function getSelectedAssets(string $containerKey, int $elementIndex): array
+    public function getSelectedAssets(string $containerKey, int $blockIndex): array
     {
-        return $this->selectedRecords[$containerKey][$elementIndex] ?? [];
+        return $this->selectedRecords[$containerKey][$blockIndex] ?? [];
     }
 
-    public function removeSelectedAssets(string $containerKey, int $elementIndex): void
+    public function removeSelectedAssets(string $containerKey, int $blockIndex): void
     {
         $this->assertCanUpdateLayout();
 
-        foreach ($this->selectedRecords[$containerKey][$elementIndex] as $asset) {
+        foreach ($this->selectedRecords[$containerKey][$blockIndex] as $asset) {
             [$type, $uuid] = explode('.', (string) $asset);
 
             if (is_numeric($uuid)) {
                 $uuid = (int) $uuid;
             }
 
-            $this->removeAsset($containerKey, $elementIndex, $uuid, $type);
+            $this->removeAsset($containerKey, $blockIndex, $uuid, $type);
         }
 
-        $this->assets[$containerKey][$elementIndex] = array_values($this->assets[$containerKey][$elementIndex]);
+        $this->assets[$containerKey][$blockIndex] = array_values($this->assets[$containerKey][$blockIndex]);
 
-        $this->selectedRecords[$containerKey][$elementIndex] = [];
+        $this->selectedRecords[$containerKey][$blockIndex] = [];
 
         $this->layoutUpdated();
     }
 
-    public function updateElementAssetContentState(string $containerKey, int $elementIndex, int $index, array $data): void
+    public function updateBlockAssetContentState(string $containerKey, int $blockIndex, int $index, array $data): void
     {
         $this->assertCanEditContent();
 
-        $elementAsset = $this->assets[$containerKey][$elementIndex][$index];
+        $blockAsset = $this->assets[$containerKey][$blockIndex][$index];
 
-        $this->assets[$containerKey][$elementIndex][$index] = array_replace_recursive($elementAsset, $data);
+        $this->assets[$containerKey][$blockIndex][$index] = array_replace_recursive($blockAsset, $data);
     }
 
     public function getAssetRelations(): array
@@ -281,22 +281,22 @@ trait ManagesAssets
         return $relations;
     }
 
-    public function reloadContainerElementAsset(string $containerKey, int $elementIndex, int $index): void
+    public function reloadContainerBlockAsset(string $containerKey, int $blockIndex, int $index): void
     {
-        $element = $this->getContainerElement($containerKey, $elementIndex);
+        $block = $this->getContainerBlock($containerKey, $blockIndex);
 
-        $assets = $element->assets;
+        $assets = $block->assets;
         $assets[$index] = $assets[$index]->fresh();
-        $element->setRelation('assets', $assets);
+        $block->setRelation('assets', $assets);
     }
 
-    protected function moveContainerElementAssets(string $originalContainer, int $originalIndex, string $containerKey, int $elementIndex): void
+    protected function moveContainerBlockAssets(string $originalContainer, int $originalIndex, string $containerKey, int $blockIndex): void
     {
-        $element = $this->assets[$originalContainer][$originalIndex];
-        $elementSelectedRecords = $this->selectedRecords[$originalContainer][$originalIndex] ?? [];
+        $block = $this->assets[$originalContainer][$originalIndex];
+        $blockSelectedRecords = $this->selectedRecords[$originalContainer][$originalIndex] ?? [];
 
         $assets = $this->assets[$containerKey] ?? [];
-        $assets = array_merge(array_slice($assets, 0, $elementIndex), [$element], array_slice($assets, $elementIndex));
+        $assets = array_merge(array_slice($assets, 0, $blockIndex), [$block], array_slice($assets, $blockIndex));
         $this->assets[$containerKey] = $assets;
 
         if ($containerKey !== $originalContainer) {
@@ -305,7 +305,7 @@ trait ManagesAssets
         }
 
         $selectedRecords = $this->selectedRecords[$containerKey] ?? [];
-        $selectedRecords = array_merge(array_slice($selectedRecords, 0, $elementIndex), [$elementSelectedRecords], array_slice($selectedRecords, $elementIndex));
+        $selectedRecords = array_merge(array_slice($selectedRecords, 0, $blockIndex), [$blockSelectedRecords], array_slice($selectedRecords, $blockIndex));
         $this->selectedRecords[$containerKey] = $selectedRecords;
 
         if ($containerKey !== $originalContainer && isset($this->selectedRecords[$originalContainer][$originalIndex])) {
@@ -314,45 +314,45 @@ trait ManagesAssets
         }
     }
 
-    protected function updatePageAssets(string $containerKey, int $elementIndex, ?bool $hasPageAssets = null): void
+    protected function updatePageAssets(string $containerKey, int $blockIndex, ?bool $hasPageAssets = null): void
     {
-        if (! $this->assets[$containerKey][$elementIndex]) {
+        if (! $this->assets[$containerKey][$blockIndex]) {
             return;
         }
 
         if ($hasPageAssets === null) {
-            $hasPageAssets = $this->hasPageAssets($containerKey, $elementIndex);
+            $hasPageAssets = $this->hasPageAssets($containerKey, $blockIndex);
         }
 
-        foreach ($this->assets[$containerKey][$elementIndex] as $assetIndex => $asset) {
+        foreach ($this->assets[$containerKey][$blockIndex] as $assetIndex => $asset) {
             if ($hasPageAssets) {
-                $this->assets[$containerKey][$elementIndex][$assetIndex]['pageable_id'] = $this->page->getKey();
-                $this->assets[$containerKey][$elementIndex][$assetIndex]['pageable_type'] = $this->page->getMorphClass();
+                $this->assets[$containerKey][$blockIndex][$assetIndex]['pageable_id'] = $this->page->getKey();
+                $this->assets[$containerKey][$blockIndex][$assetIndex]['pageable_type'] = $this->page->getMorphClass();
             } else {
-                $this->assets[$containerKey][$elementIndex][$assetIndex]['pageable_id'] = null;
-                $this->assets[$containerKey][$elementIndex][$assetIndex]['pageable_type'] = null;
+                $this->assets[$containerKey][$blockIndex][$assetIndex]['pageable_id'] = null;
+                $this->assets[$containerKey][$blockIndex][$assetIndex]['pageable_type'] = null;
             }
         }
     }
 
-    protected function mapElementAssets(Element $element, string $containerKey, ?string $oldContainerKey = null): array
+    protected function mapBlockAssets(Block $block, string $containerKey, ?string $oldContainerKey = null): array
     {
-        return $element->assets->map(
-            static function (ElementAsset $elementAsset) use ($containerKey, $oldContainerKey): array {
+        return $block->assets->map(
+            static function (BlockAsset $blockAsset) use ($containerKey, $oldContainerKey): array {
                 $asset = [
-                    'id' => $elementAsset->id,
-                    'layout_element_id' => $elementAsset->layout_element_id,
-                    'workspace_id' => $elementAsset->workspace_id,
-                    'asset_id' => $elementAsset->asset_id,
-                    'asset_type' => $elementAsset->asset_type,
-                    'meta' => $elementAsset->meta,
-                    'order' => $elementAsset->order,
-                    'occurrence' => $elementAsset->occurrence,
+                    'id' => $blockAsset->id,
+                    'block_id' => $blockAsset->block_id,
+                    'workspace_id' => $blockAsset->workspace_id,
+                    'asset_id' => $blockAsset->asset_id,
+                    'asset_type' => $blockAsset->asset_type,
+                    'meta' => $blockAsset->meta,
+                    'order' => $blockAsset->order,
+                    'occurrence' => $blockAsset->occurrence,
                 ];
 
-                if ($elementAsset->pageable_id !== null && $elementAsset->pageable_type !== null) {
-                    $asset['pageable_id'] = $elementAsset->pageable_id;
-                    $asset['pageable_type'] = $elementAsset->pageable_type;
+                if ($blockAsset->pageable_id !== null && $blockAsset->pageable_type !== null) {
+                    $asset['pageable_id'] = $blockAsset->pageable_id;
+                    $asset['pageable_type'] = $blockAsset->pageable_type;
                     $asset['container'] = $containerKey;
                 }
 
@@ -365,42 +365,42 @@ trait ManagesAssets
         )->all();
     }
 
-    protected function setupElementAssets(string $containerKey, int $elementIndex, array $elementAssets, ?Collection $allElementAssets, Element $element): Collection
+    protected function setupBlockAssets(string $containerKey, int $blockIndex, array $blockAssets, ?Collection $allBlockAssets, Block $block): Collection
     {
         $assets = new Collection;
 
-        if (! $allElementAssets instanceof Collection || $allElementAssets->isEmpty()) {
+        if (! $allBlockAssets instanceof Collection || $allBlockAssets->isEmpty()) {
             return $assets;
         }
 
-        /** @var Collection<int, ElementAsset> $allElementAssets */
-        $occurrence = $this->getContainerElementOccurrence($containerKey, $elementIndex);
+        /** @var Collection<int, BlockAsset> $allBlockAssets */
+        $occurrence = $this->getContainerBlockOccurrence($containerKey, $blockIndex);
 
-        foreach ($elementAssets as $elementAssetData) {
-            $type = $elementAssetData['asset_type'];
-            $assetId = is_numeric($elementAssetData['asset_id']) ? (int) $elementAssetData['asset_id'] : $elementAssetData['asset_id'];
+        foreach ($blockAssets as $blockAssetData) {
+            $type = $blockAssetData['asset_type'];
+            $assetId = is_numeric($blockAssetData['asset_id']) ? (int) $blockAssetData['asset_id'] : $blockAssetData['asset_id'];
 
-            $oldContainerKey = $elementAssetData['old_container'] ?? $containerKey;
+            $oldContainerKey = $blockAssetData['old_container'] ?? $containerKey;
 
-            /** @var ?ElementAsset $matchingAsset */
-            $matchingAsset = isset($elementAssetData['id'])
-                ? $allElementAssets->first(fn (ElementAsset $asset): bool => $asset->getKey() === (int) $elementAssetData['id']
-                    && $this->elementAssetMatchesState($asset, $elementAssetData, $containerKey, $oldContainerKey, $occurrence, $element))
+            /** @var ?BlockAsset $matchingAsset */
+            $matchingAsset = isset($blockAssetData['id'])
+                ? $allBlockAssets->first(fn (BlockAsset $asset): bool => $asset->getKey() === (int) $blockAssetData['id']
+                    && $this->blockAssetMatchesState($asset, $blockAssetData, $containerKey, $oldContainerKey, $occurrence, $block))
                 : null;
 
-            $matchingAsset ??= $allElementAssets->first(function (ElementAsset $asset) use ($type, $assetId, $oldContainerKey, $occurrence, $element): bool {
-                if ((int) $asset->layout_element_id !== (int) $element->getKey()) {
+            $matchingAsset ??= $allBlockAssets->first(function (BlockAsset $asset) use ($type, $assetId, $oldContainerKey, $occurrence, $block): bool {
+                if ((int) $asset->block_id !== (int) $block->getKey()) {
                     return false;
                 }
 
-                if (! in_array($asset->workspace_id, $this->getReadableElementAssetWorkspaceIds($element), true)) {
+                if (! in_array($asset->workspace_id, $this->getReadableBlockAssetWorkspaceIds($block), true)) {
                     return false;
                 }
 
-                $matchesElement = $asset->asset_type === $type
+                $matchesBlock = $asset->asset_type === $type
                     && $asset->asset_id === $assetId;
 
-                if (! $matchesElement) {
+                if (! $matchesBlock) {
                     return false;
                 }
 
@@ -426,13 +426,13 @@ trait ManagesAssets
                 continue;
             }
 
-            $elementAsset = clone $matchingAsset;
-            $elementAsset->order = $elementAssetData['order'] ?? $elementAsset->order;
-            $elementAsset->occurrence = $elementAssetData['occurrence'] ?? $occurrence;
-            $elementAsset->pageable_id = $elementAssetData['pageable_id'] ?? null;
-            $elementAsset->pageable_type = $elementAssetData['pageable_type'] ?? null;
+            $blockAsset = clone $matchingAsset;
+            $blockAsset->order = $blockAssetData['order'] ?? $blockAsset->order;
+            $blockAsset->occurrence = $blockAssetData['occurrence'] ?? $occurrence;
+            $blockAsset->pageable_id = $blockAssetData['pageable_id'] ?? null;
+            $blockAsset->pageable_type = $blockAssetData['pageable_type'] ?? null;
 
-            $assets->push($elementAsset);
+            $assets->push($blockAsset);
         }
 
         return $assets;
@@ -445,8 +445,8 @@ trait ManagesAssets
         foreach ($this->containers as $containerKey => $container) {
             $this->selectedRecords[$containerKey] = [];
 
-            foreach ($container['elements'] as $elementIndex => $element) {
-                $this->selectedRecords[$containerKey][$elementIndex] = [];
+            foreach ($container['blocks'] as $blockIndex => $block) {
+                $this->selectedRecords[$containerKey][$blockIndex] = [];
             }
         }
     }
@@ -455,16 +455,16 @@ trait ManagesAssets
     {
         $originalAssets = [];
 
-        foreach ($this->assets as $containerKey => $containerElements) {
-            foreach ($containerElements as $elementIndex => $elementAssets) {
-                $containerElement = $this->getContainerElement($containerKey, $elementIndex);
+        foreach ($this->assets as $containerKey => $containerBlocks) {
+            foreach ($containerBlocks as $blockIndex => $blockAssets) {
+                $containerBlock = $this->getContainerBlock($containerKey, $blockIndex);
 
-                foreach ($elementAssets as $elementAssetIndex => $elementAsset) {
-                    $elementAsset['original_container_key'] = $containerKey;
-                    $elementAsset['original_element_id'] = $containerElement->id;
-                    $elementAsset['original_element_key'] = $containerElement->key;
+                foreach ($blockAssets as $blockAssetIndex => $blockAsset) {
+                    $blockAsset['original_container_key'] = $containerKey;
+                    $blockAsset['original_block_id'] = $containerBlock->id;
+                    $blockAsset['original_block_key'] = $containerBlock->key;
 
-                    $originalAssets[$containerKey][$elementIndex][$elementAssetIndex] = $elementAsset;
+                    $originalAssets[$containerKey][$blockIndex][$blockAssetIndex] = $blockAsset;
                 }
             }
         }
@@ -472,33 +472,33 @@ trait ManagesAssets
         $this->originalAssets = $originalAssets;
     }
 
-    protected function getAllSelectableAssetsKeys(string $containerKey, int $elementIndex): array
+    protected function getAllSelectableAssetsKeys(string $containerKey, int $blockIndex): array
     {
-        return collect($this->assets[$containerKey][$elementIndex])
-            ->map(fn (array $elementAsset): string => sprintf('%s.%s', $elementAsset['asset_type'], $elementAsset['asset_id']))
+        return collect($this->assets[$containerKey][$blockIndex])
+            ->map(fn (array $blockAsset): string => sprintf('%s.%s', $blockAsset['asset_type'], $blockAsset['asset_id']))
             ->values()
             ->all();
     }
 
-    protected function addAssets(string $containerKey, int $elementIndex, ?bool $hasPageAssets, string $type, mixed $assets, array $assetsMeta = []): void
+    protected function addAssets(string $containerKey, int $blockIndex, ?bool $hasPageAssets, string $type, mixed $assets, array $assetsMeta = []): void
     {
         $this->assertCanUpdateLayout();
 
-        if (! isset($this->assets[$containerKey][$elementIndex])) {
-            $this->assets[$containerKey][$elementIndex] = [];
+        if (! isset($this->assets[$containerKey][$blockIndex])) {
+            $this->assets[$containerKey][$blockIndex] = [];
         }
 
-        $element = $this->getContainerElement($containerKey, $elementIndex);
+        $block = $this->getContainerBlock($containerKey, $blockIndex);
 
-        $validatedAssetIds = $this->getValidatedAssetIds($element, $type, $assets);
+        $validatedAssetIds = $this->getValidatedAssetIds($block, $type, $assets);
 
         if ($validatedAssetIds === []) {
             return;
         }
 
-        $occurrence = $this->getContainerElementOccurrence($containerKey, $elementIndex);
+        $occurrence = $this->getContainerBlockOccurrence($containerKey, $blockIndex);
 
-        $order = $this->countElementAssets($containerKey, $elementIndex);
+        $order = $this->countBlockAssets($containerKey, $blockIndex);
 
         foreach ($validatedAssetIds as $assetId) {
             $order++;
@@ -509,7 +509,7 @@ trait ManagesAssets
                 'asset_id' => $assetId,
                 'asset_type' => $type,
                 'meta' => $meta,
-                'layout_element_id' => $element->id,
+                'block_id' => $block->id,
                 'order' => $order,
                 'occurrence' => $occurrence,
             ];
@@ -520,10 +520,10 @@ trait ManagesAssets
                 $asset['container'] = $containerKey;
             }
 
-            $this->assets[$containerKey][$elementIndex][] = $asset;
+            $this->assets[$containerKey][$blockIndex][] = $asset;
 
-            $elementAsset = $this->addElementAsset(
-                element: $element,
+            $blockAsset = $this->addBlockAsset(
+                block: $block,
                 containerKey: $containerKey,
                 type: $type,
                 hasPageAssets: $hasPageAssets,
@@ -533,23 +533,23 @@ trait ManagesAssets
                 order: $order,
             );
 
-            $elementAsset->setRelation('element', $element);
+            $blockAsset->setRelation('block', $block);
 
-            $element->assets->add($elementAsset);
+            $block->assets->add($blockAsset);
         }
 
-        $element->assets->load([
+        $block->assets->load([
             'asset' => fn (MorphTo $query): MorphTo => $query->morphWith($this->getAssetRelations()),
         ]);
 
-        $this->containerElements[$containerKey][$elementIndex] = $element;
+        $this->containerBlocks[$containerKey][$blockIndex] = $block;
     }
 
-    protected function getValidatedAssetIds(Element $element, string $type, mixed $assetIds): array
+    protected function getValidatedAssetIds(Block $block, string $type, mixed $assetIds): array
     {
         $normalizedType = $this->normalizeAssetType($type);
 
-        if (! in_array($normalizedType, $this->getAllowedAssetTypes($element), true)) {
+        if (! in_array($normalizedType, $this->getAllowedAssetTypes($block), true)) {
             return [];
         }
 
@@ -590,11 +590,11 @@ trait ManagesAssets
             ->all();
     }
 
-    protected function getAllowedAssetTypes(Element $element): array
+    protected function getAllowedAssetTypes(Block $block): array
     {
-        $assetTypes = isset($element->admin['asset_types']) && $element->admin['asset_types'] !== []
-            ? $element->admin['asset_types']
-            : ($element->type->admin['asset_types'] ?? []);
+        $assetTypes = isset($block->admin['asset_types']) && $block->admin['asset_types'] !== []
+            ? $block->admin['asset_types']
+            : ($block->type->admin['asset_types'] ?? []);
 
         if ($assetTypes === []) {
             return CapellCore::getAssets()
@@ -688,9 +688,9 @@ trait ManagesAssets
     /**
      * @return array<int>
      */
-    protected function getReadableElementAssetWorkspaceIds(?Element $element = null): array
+    protected function getReadableBlockAssetWorkspaceIds(?Block $block = null): array
     {
-        $workspaceId = $this->getCurrentElementAssetWorkspaceId($element);
+        $workspaceId = $this->getCurrentBlockAssetWorkspaceId($block);
 
         if ($workspaceId === 0) {
             return [0];
@@ -702,10 +702,10 @@ trait ManagesAssets
     /**
      * @return array<int>
      */
-    protected function getCurrentContainerElementAssetWorkspaceIds(): array
+    protected function getCurrentContainerBlockAssetWorkspaceIds(): array
     {
-        $workspaceIds = Element::query()
-            ->whereIn('key', $this->getContainerElementKeys())
+        $workspaceIds = Block::query()
+            ->whereIn('key', $this->getContainerBlockKeys())
             ->pluck('workspace_id')
             ->map(fn (mixed $workspaceId): int => (int) $workspaceId)
             ->push($this->getCurrentWorkspaceId() ?? 0)
@@ -720,28 +720,28 @@ trait ManagesAssets
     /**
      * @return array<int>
      */
-    protected function getCurrentContainerElementIds(): array
+    protected function getCurrentContainerBlockIds(): array
     {
-        return Element::query()
-            ->whereIn('key', $this->getContainerElementKeys())
+        return Block::query()
+            ->whereIn('key', $this->getContainerBlockKeys())
             ->pluck('id')
-            ->map(fn (mixed $elementId): int => (int) $elementId)
+            ->map(fn (mixed $blockId): int => (int) $blockId)
             ->all();
     }
 
-    protected function updateAssets(string $containerKey, int $elementIndex, ?string $oldContainerKey = null): void
+    protected function updateAssets(string $containerKey, int $blockIndex, ?string $oldContainerKey = null): void
     {
         $oldContainerKey ??= $containerKey;
 
-        $assets = $this->assets[$containerKey][$elementIndex] ?? [];
+        $assets = $this->assets[$containerKey][$blockIndex] ?? [];
 
-        $element = $this->getContainerElement($containerKey, $elementIndex);
+        $block = $this->getContainerBlock($containerKey, $blockIndex);
 
-        $occurrence = $this->getContainerElementOccurrence($containerKey, $elementIndex);
+        $occurrence = $this->getContainerBlockOccurrence($containerKey, $blockIndex);
 
-        $elementHasPageAssets = $assets !== [] ? $this->elementHasPageAssets($element) : $this->inPageContext();
+        $blockHasPageAssets = $assets !== [] ? $this->blockHasPageAssets($block) : $this->inPageContext();
 
-        $hasPageAssets = $assets !== [] ? $this->hasPageAssets($containerKey, $elementIndex) : $this->inPageContext();
+        $hasPageAssets = $assets !== [] ? $this->hasPageAssets($containerKey, $blockIndex) : $this->inPageContext();
 
         $assetIds = collect($assets)
             ->pluck('id')
@@ -751,15 +751,15 @@ trait ManagesAssets
             ->unique()
             ->values();
 
-        $existingAssets = $element->assets()
-            ->where('workspace_id', $this->getCurrentElementAssetWorkspaceId($element))
+        $existingAssets = $block->assets()
+            ->where('workspace_id', $this->getCurrentBlockAssetWorkspaceId($block))
             ->where(
                 fn (EloquentBuilder $query): EloquentBuilder => $query
                     ->where(
                         fn (EloquentBuilder $query): EloquentBuilder => $query
                             ->where('occurrence', $occurrence)
                             ->when(
-                                $elementHasPageAssets ? fn (EloquentBuilder $query) => $query
+                                $blockHasPageAssets ? fn (EloquentBuilder $query) => $query
                                     ->where([
                                         'container' => $oldContainerKey,
                                         'pageable_type' => $this->page->getMorphClass(),
@@ -779,36 +779,36 @@ trait ManagesAssets
             ->get();
 
         $existingAssetsByKey = $existingAssets
-            ->mapWithKeys(fn (ElementAsset $elementAsset): array => [$elementAsset->asset_key => $elementAsset]);
+            ->mapWithKeys(fn (BlockAsset $blockAsset): array => [$blockAsset->asset_key => $blockAsset]);
 
         $existingAssetsById = $existingAssets
-            ->keyBy(fn (ElementAsset $elementAsset): int => $elementAsset->getKey());
+            ->keyBy(fn (BlockAsset $blockAsset): int => $blockAsset->getKey());
 
         if ($existingAssets->isNotEmpty()) {
-            $activeElementAssetIds = $this->activeElementAssetIds($element);
+            $activeBlockAssetIds = $this->activeBlockAssetIds($block);
 
             $currentAssets = collect($assets)
-                ->filter(fn (array $elementAsset): bool => $existingAssetsByKey->has(sprintf('%s.%s', $elementAsset['asset_type'], $elementAsset['asset_id'])))
-                ->mapWithKeys(fn (array $elementAsset): array => [sprintf('%s.%s', $elementAsset['asset_type'], $elementAsset['asset_id']) => $elementAsset]);
+                ->filter(fn (array $blockAsset): bool => $existingAssetsByKey->has(sprintf('%s.%s', $blockAsset['asset_type'], $blockAsset['asset_id'])))
+                ->mapWithKeys(fn (array $blockAsset): array => [sprintf('%s.%s', $blockAsset['asset_type'], $blockAsset['asset_id']) => $blockAsset]);
 
             $assetsToRemove = $currentAssets->isNotEmpty()
                 ? $existingAssetsByKey->diffKeys($currentAssets)
                 : $existingAssetsByKey;
 
             $assetsToRemove = $assetsToRemove->reject(
-                fn (ElementAsset $elementAsset): bool => in_array((int) $elementAsset->getKey(), $activeElementAssetIds, true),
+                fn (BlockAsset $blockAsset): bool => in_array((int) $blockAsset->getKey(), $activeBlockAssetIds, true),
             );
 
             if ($assetsToRemove->isNotEmpty()) {
-                $assetsToRemove->each(function (ElementAsset $elementAsset) use ($containerKey, $elementIndex, $element): void {
-                    $searchIndex = $element->assets->search(fn (ElementAsset $asset): bool => $asset->id === $elementAsset->id);
+                $assetsToRemove->each(function (BlockAsset $blockAsset) use ($containerKey, $blockIndex, $block): void {
+                    $searchIndex = $block->assets->search(fn (BlockAsset $asset): bool => $asset->id === $blockAsset->id);
                     if (is_int($searchIndex)) {
-                        $element->assets->forget([$searchIndex]);
+                        $block->assets->forget([$searchIndex]);
                     }
 
-                    $this->removeAsset($containerKey, $elementIndex, $elementAsset->asset_id, $elementAsset->asset_type);
+                    $this->removeAsset($containerKey, $blockIndex, $blockAsset->asset_id, $blockAsset->asset_type);
 
-                    $elementAsset->delete();
+                    $blockAsset->delete();
                 });
             }
         }
@@ -818,22 +818,22 @@ trait ManagesAssets
         }
 
         collect($assets)->each(
-            function (array $elementAsset) use ($existingAssetsById, $existingAssetsByKey, $element, $containerKey, $occurrence, $hasPageAssets): void {
-                $key = sprintf('%s.%s', $elementAsset['asset_type'], $elementAsset['asset_id']);
+            function (array $blockAsset) use ($existingAssetsById, $existingAssetsByKey, $block, $containerKey, $occurrence, $hasPageAssets): void {
+                $key = sprintf('%s.%s', $blockAsset['asset_type'], $blockAsset['asset_id']);
 
-                $order = $elementAsset['order'];
+                $order = $blockAsset['order'];
 
-                $existingAsset = isset($elementAsset['id'])
-                    ? $existingAssetsById->get((int) $elementAsset['id'])
+                $existingAsset = isset($blockAsset['id'])
+                    ? $existingAssetsById->get((int) $blockAsset['id'])
                     : null;
 
-                if (! $existingAsset instanceof ElementAsset) {
+                if (! $existingAsset instanceof BlockAsset) {
                     $existingAsset = $existingAssetsByKey->get($key);
                 }
 
-                if ($existingAsset instanceof ElementAsset) {
+                if ($existingAsset instanceof BlockAsset) {
                     $existingAsset->order = $order;
-                    $existingAsset->meta = $elementAsset['meta'] ?? [];
+                    $existingAsset->meta = $blockAsset['meta'] ?? [];
                     $existingAsset->occurrence = $occurrence;
 
                     if ($hasPageAssets) {
@@ -851,13 +851,13 @@ trait ManagesAssets
                     return;
                 }
 
-                $this->createElementAsset(
-                    element: $element,
+                $this->createBlockAsset(
+                    block: $block,
                     containerKey: $containerKey,
                     occurrence: $occurrence,
                     hasPageAssets: $hasPageAssets,
                     order: $order,
-                    asset: $elementAsset,
+                    asset: $blockAsset,
                 );
             },
         );
@@ -866,16 +866,16 @@ trait ManagesAssets
     /**
      * @return array<int>
      */
-    protected function activeElementAssetIds(Element $element): array
+    protected function activeBlockAssetIds(Block $block): array
     {
         $assetIds = [];
 
-        foreach ($this->currentElementAssetData() as $elementAsset) {
-            if (! isset($elementAsset['id'])) {
+        foreach ($this->currentBlockAssetData() as $blockAsset) {
+            if (! isset($blockAsset['id'])) {
                 continue;
             }
 
-            $assetId = (int) $elementAsset['id'];
+            $assetId = (int) $blockAsset['id'];
 
             if ($assetId > 0) {
                 $assetIds[] = $assetId;
@@ -888,25 +888,25 @@ trait ManagesAssets
     /**
      * @return array<int, array<string, mixed>>
      */
-    protected function currentElementAssetData(): array
+    protected function currentBlockAssetData(): array
     {
-        $elementAssets = [];
+        $blockAssets = [];
 
-        foreach ($this->assets as $containerElements) {
-            foreach ($containerElements as $containerElementAssets) {
-                foreach ($containerElementAssets as $elementAsset) {
-                    if (is_array($elementAsset)) {
-                        $elementAssets[] = $elementAsset;
+        foreach ($this->assets as $containerBlocks) {
+            foreach ($containerBlocks as $containerBlockAssets) {
+                foreach ($containerBlockAssets as $blockAsset) {
+                    if (is_array($blockAsset)) {
+                        $blockAssets[] = $blockAsset;
                     }
                 }
             }
         }
 
-        return $elementAssets;
+        return $blockAssets;
     }
 
-    protected function addElementAsset(
-        Element $element,
+    protected function addBlockAsset(
+        Block $block,
         string $containerKey,
         string $type,
         bool $hasPageAssets,
@@ -914,10 +914,10 @@ trait ManagesAssets
         array $meta,
         int $occurrence,
         int $order,
-    ): ElementAsset {
+    ): BlockAsset {
         $pageId = $hasPageAssets ? $this->page->getKey() : null;
 
-        $elementAsset = $element->assets
+        $blockAsset = $block->assets
             ->where([
                 'asset_id' => $assetId,
                 'asset_type' => $type,
@@ -933,39 +933,39 @@ trait ManagesAssets
             )
             ->first();
 
-        if (! $elementAsset instanceof ElementAsset) {
-            /** @var ElementAsset $elementAsset */
-            $elementAsset = $element->assets()->newModelInstance([
+        if (! $blockAsset instanceof BlockAsset) {
+            /** @var BlockAsset $blockAsset */
+            $blockAsset = $block->assets()->newModelInstance([
                 'meta' => $meta,
                 'order' => $order,
-                'layout_element_id' => $element->id,
-                'workspace_id' => $this->getCurrentElementAssetWorkspaceId($element),
+                'block_id' => $block->id,
+                'workspace_id' => $this->getCurrentBlockAssetWorkspaceId($block),
                 'asset_type' => mb_strtolower($type),
                 'asset_id' => $assetId,
                 'occurrence' => $occurrence,
             ]);
 
             if ($pageId !== null) {
-                $elementAsset->pageable_id = $pageId;
-                $elementAsset->pageable_type = $this->page->getMorphClass();
-                $elementAsset->container = $containerKey;
+                $blockAsset->pageable_id = $pageId;
+                $blockAsset->pageable_type = $this->page->getMorphClass();
+                $blockAsset->container = $containerKey;
             }
         }
 
-        return $elementAsset;
+        return $blockAsset;
     }
 
-    protected function createElementAsset(
-        Element $element,
+    protected function createBlockAsset(
+        Block $block,
         string $containerKey,
         int $occurrence,
         bool $hasPageAssets,
         int $order,
         array $asset,
-    ): ElementAsset {
+    ): BlockAsset {
         $attributes = [
-            'layout_element_id' => $element->id,
-            'workspace_id' => $this->getCurrentElementAssetWorkspaceId($element),
+            'block_id' => $block->id,
+            'workspace_id' => $this->getCurrentBlockAssetWorkspaceId($block),
             'asset_type' => $asset['asset_type'],
             'asset_id' => $asset['asset_id'],
             'occurrence' => $occurrence,
@@ -981,12 +981,12 @@ trait ManagesAssets
             $attributes['container'] = null;
         }
 
-        /** @var ElementAsset|null $existing */
-        $existing = ElementAsset::query()
+        /** @var BlockAsset|null $existing */
+        $existing = BlockAsset::query()
             ->where($attributes)
             ->first();
 
-        if ($existing instanceof ElementAsset) {
+        if ($existing instanceof BlockAsset) {
             $existing->order = $order;
             $existing->meta = $asset['meta'] ?? [];
             $existing->save();
@@ -994,54 +994,54 @@ trait ManagesAssets
             return $existing;
         }
 
-        /** @var ElementAsset $elementAsset */
-        $elementAsset = $element->assets()->make(array_merge([
+        /** @var BlockAsset $blockAsset */
+        $blockAsset = $block->assets()->make(array_merge([
             'meta' => $asset['meta'] ?? [],
             'order' => $order,
         ], $attributes));
 
-        $elementAsset->save();
+        $blockAsset->save();
 
-        return $elementAsset;
+        return $blockAsset;
     }
 
-    protected function removeAsset(string $containerKey, int $elementIndex, mixed $uuid, string $type): void
+    protected function removeAsset(string $containerKey, int $blockIndex, mixed $uuid, string $type): void
     {
-        foreach ($this->assets[$containerKey][$elementIndex] as $index => $elementAsset) {
-            if ($elementAsset['asset_id'] !== $uuid) {
+        foreach ($this->assets[$containerKey][$blockIndex] as $index => $blockAsset) {
+            if ($blockAsset['asset_id'] !== $uuid) {
                 continue;
             }
 
-            if ($elementAsset['asset_type'] !== $type) {
+            if ($blockAsset['asset_type'] !== $type) {
                 continue;
             }
 
-            unset($this->assets[$containerKey][$elementIndex][$index]);
+            unset($this->assets[$containerKey][$blockIndex][$index]);
         }
     }
 
-    protected function updateElementAsset(string $containerKey, int $elementIndex, int $index, array $data): void
+    protected function updateBlockAsset(string $containerKey, int $blockIndex, int $index, array $data): void
     {
         $this->assertCanUpdateLayout();
 
-        $elementAsset = $this->assets[$containerKey][$elementIndex][$index];
+        $blockAsset = $this->assets[$containerKey][$blockIndex][$index];
 
-        $this->assets[$containerKey][$elementIndex][$index] = array_merge_recursive($elementAsset, $data);
+        $this->assets[$containerKey][$blockIndex][$index] = array_merge_recursive($blockAsset, $data);
     }
 
-    protected function loadElementAssets(Element $element, string $containerKey, int $elementOccurrence): Collection
+    protected function loadBlockAssets(Block $block, string $containerKey, int $blockOccurrence): Collection
     {
-        /** @var class-string<ElementAsset> $model */
-        $model = ElementAsset::class;
+        /** @var class-string<BlockAsset> $model */
+        $model = BlockAsset::class;
 
         $assets = $model::query()
             ->with([
                 'asset' => fn (MorphTo $query): MorphTo => $query->morphWith($this->getAssetRelations()),
                 'media',
             ])
-            ->where('layout_element_id', $element->id)
-            ->whereIn('workspace_id', $this->getReadableElementAssetWorkspaceIds($element))
-            ->where('occurrence', $elementOccurrence)
+            ->where('block_id', $block->id)
+            ->whereIn('workspace_id', $this->getReadableBlockAssetWorkspaceIds($block))
+            ->where('occurrence', $blockOccurrence)
             ->where(
                 fn (EloquentBuilder $query): EloquentBuilder => $query->where('container', $containerKey)
                     ->orWhereNull('container'),
@@ -1059,67 +1059,67 @@ trait ManagesAssets
             )
             ->ordered()
             ->get()
-            ->each->setRelation('element', $element);
+            ->each->setRelation('block', $block);
 
-        return $this->filterContainerElementAssets($assets, $containerKey, $elementOccurrence, $element);
+        return $this->filterContainerBlockAssets($assets, $containerKey, $blockOccurrence, $block);
     }
 
-    protected function loadElementAssetsFor(Element $element, string $containerKey, int $elementIndex): Collection
+    protected function loadBlockAssetsFor(Block $block, string $containerKey, int $blockIndex): Collection
     {
-        $occurrence = $this->getContainerElementOccurrence($containerKey, $elementIndex);
+        $occurrence = $this->getContainerBlockOccurrence($containerKey, $blockIndex);
 
-        $elementAssets = collect($this->assets[$containerKey][$elementIndex] ?? []);
+        $blockAssets = collect($this->assets[$containerKey][$blockIndex] ?? []);
 
-        if ($elementAssets->isEmpty()) {
+        if ($blockAssets->isEmpty()) {
             return new Collection;
         }
 
-        $existingIds = $elementAssets
+        $existingIds = $blockAssets
             ->filter(fn (array $asset): bool => isset($asset['id']))
             ->pluck('id')
             ->all();
 
-        $newAssets = $elementAssets
+        $newAssets = $blockAssets
             ->reject(fn (array $asset): bool => isset($asset['id']))
             ->all();
 
-        $assets = $this->buildPreloadedElementAssets($existingIds, $newAssets);
+        $assets = $this->buildPreloadedBlockAssets($existingIds, $newAssets);
 
-        return $this->filterContainerElementAssets($assets, $containerKey, $occurrence, $element)
-            ->each(fn (ElementAsset $asset): ElementAsset => $asset->setRelation('element', $element));
+        return $this->filterContainerBlockAssets($assets, $containerKey, $occurrence, $block)
+            ->each(fn (BlockAsset $asset): BlockAsset => $asset->setRelation('block', $block));
     }
 
-    protected function preloadAllElementAssets(): ?Collection
+    protected function preloadAllBlockAssets(): ?Collection
     {
-        $elementAssets = collect($this->currentElementAssetData());
+        $blockAssets = collect($this->currentBlockAssetData());
 
-        if ($elementAssets->isEmpty()) {
+        if ($blockAssets->isEmpty()) {
             return null;
         }
 
-        $existingIds = $elementAssets
+        $existingIds = $blockAssets
             ->filter(fn (array $asset): bool => isset($asset['id']))
             ->pluck('id')
             ->all();
 
-        $newAssets = $elementAssets
+        $newAssets = $blockAssets
             ->reject(fn (array $asset): bool => isset($asset['id']))
             ->all();
 
-        return $this->buildPreloadedElementAssets($existingIds, $newAssets);
+        return $this->buildPreloadedBlockAssets($existingIds, $newAssets);
     }
 
-    protected function buildPreloadedElementAssets(array $existingIds, array $newAssets): Collection
+    protected function buildPreloadedBlockAssets(array $existingIds, array $newAssets): Collection
     {
-        /** @var class-string<ElementAsset> $model */
-        $model = ElementAsset::class;
+        /** @var class-string<BlockAsset> $model */
+        $model = BlockAsset::class;
 
         $existingAssets = $existingIds === []
             ? (new $model)->newCollection()
             : $model::query()
                 ->whereKey($existingIds)
-                ->whereIn('layout_element_id', $this->getCurrentContainerElementIds())
-                ->whereIn('workspace_id', $this->getCurrentContainerElementAssetWorkspaceIds())
+                ->whereIn('block_id', $this->getCurrentContainerBlockIds())
+                ->whereIn('workspace_id', $this->getCurrentContainerBlockAssetWorkspaceIds())
                 ->when(
                     $this->page,
                     fn (EloquentBuilder $query) => $query->where(
@@ -1148,7 +1148,7 @@ trait ManagesAssets
 
         $newAssetsCollection = collect($newAssets)
             ->values()
-            ->filter(fn (array $data): bool => in_array((int) ($data['workspace_id'] ?? $this->getCurrentElementAssetWorkspaceId()), $this->getCurrentContainerElementAssetWorkspaceIds(), true))
+            ->filter(fn (array $data): bool => in_array((int) ($data['workspace_id'] ?? $this->getCurrentBlockAssetWorkspaceId()), $this->getCurrentContainerBlockAssetWorkspaceIds(), true))
             ->map(fn (array $data) => $model::query()->newModelInstance()->forceFill($data));
 
         $allAssets = (new $model)->newCollection(array_merge($existingAssets->all(), $newAssetsCollection->all()));
@@ -1156,33 +1156,33 @@ trait ManagesAssets
         $eloquentCollection = new Collection($allAssets->all());
 
         return $eloquentCollection->load(['asset' => fn (MorphTo $query): MorphTo => $query->morphWith($this->getAssetRelations())])
-            ->filter(fn (ElementAsset $elementAsset): bool => $this->canUseAssetRecord($elementAsset->asset))
-            ->map(fn (ElementAsset $elementAsset): ElementAsset => $elementAsset);
+            ->filter(fn (BlockAsset $blockAsset): bool => $this->canUseAssetRecord($blockAsset->asset))
+            ->map(fn (BlockAsset $blockAsset): BlockAsset => $blockAsset);
     }
 
-    protected function filterContainerElementAssets(Collection $assets, string $containerKey, int $elementOccurrence, ?Element $element = null): SupportCollection|Enumerable
+    protected function filterContainerBlockAssets(Collection $assets, string $containerKey, int $blockOccurrence, ?Block $block = null): SupportCollection|Enumerable
     {
-        $currentWorkspaceId = $this->getCurrentElementAssetWorkspaceId($element);
-        $readableWorkspaceIds = $this->getReadableElementAssetWorkspaceIds($element);
+        $currentWorkspaceId = $this->getCurrentBlockAssetWorkspaceId($block);
+        $readableWorkspaceIds = $this->getReadableBlockAssetWorkspaceIds($block);
 
-        $filteredAssets = $assets->filter(function (ElementAsset $elementAsset) use ($containerKey, $elementOccurrence, $readableWorkspaceIds): bool {
-            if (! in_array($elementAsset->workspace_id, $readableWorkspaceIds, true)) {
+        $filteredAssets = $assets->filter(function (BlockAsset $blockAsset) use ($containerKey, $blockOccurrence, $readableWorkspaceIds): bool {
+            if (! in_array($blockAsset->workspace_id, $readableWorkspaceIds, true)) {
                 return false;
             }
 
-            if ((int) $elementAsset->occurrence !== $elementOccurrence) {
+            if ((int) $blockAsset->occurrence !== $blockOccurrence) {
                 return false;
             }
 
-            if ($elementAsset->container === null) {
+            if ($blockAsset->container === null) {
                 return true;
             }
 
-            if ($elementAsset->container !== $containerKey) {
+            if ($blockAsset->container !== $containerKey) {
                 return false;
             }
 
-            if ($elementAsset->pageable_type === null && $elementAsset->pageable_id === null) {
+            if ($blockAsset->pageable_type === null && $blockAsset->pageable_id === null) {
                 return true;
             }
 
@@ -1190,42 +1190,42 @@ trait ManagesAssets
                 return false;
             }
 
-            return $elementAsset->pageable_type === $this->page->getMorphClass()
-                && $elementAsset->pageable_id === $this->page->getKey();
+            return $blockAsset->pageable_type === $this->page->getMorphClass()
+                && $blockAsset->pageable_id === $this->page->getKey();
         })->values();
 
         return $filteredAssets
-            ->groupBy(fn (ElementAsset $elementAsset): string => implode(':', [
-                $elementAsset->asset_type,
-                $elementAsset->asset_id,
-                $elementAsset->occurrence,
+            ->groupBy(fn (BlockAsset $blockAsset): string => implode(':', [
+                $blockAsset->asset_type,
+                $blockAsset->asset_id,
+                $blockAsset->occurrence,
             ]))
-            ->map(fn (SupportCollection $matchingAssets): ElementAsset => $matchingAssets
-                ->first(fn (ElementAsset $elementAsset): bool => $elementAsset->workspace_id === $currentWorkspaceId)
+            ->map(fn (SupportCollection $matchingAssets): BlockAsset => $matchingAssets
+                ->first(fn (BlockAsset $blockAsset): bool => $blockAsset->workspace_id === $currentWorkspaceId)
                 ?? $matchingAssets->first())
-            ->sortBy(fn (ElementAsset $elementAsset): int => $elementAsset->order)
+            ->sortBy(fn (BlockAsset $blockAsset): int => $blockAsset->order)
             ->values();
     }
 
-    protected function elementAssetMatchesState(ElementAsset $asset, array $elementAssetData, string $containerKey, string $oldContainerKey, int $occurrence, Element $element): bool
+    protected function blockAssetMatchesState(BlockAsset $asset, array $blockAssetData, string $containerKey, string $oldContainerKey, int $occurrence, Block $block): bool
     {
-        if ((int) $asset->layout_element_id !== (int) $element->getKey()) {
+        if ((int) $asset->block_id !== (int) $block->getKey()) {
             return false;
         }
 
-        if (isset($elementAssetData['layout_element_id']) && (int) $elementAssetData['layout_element_id'] !== (int) $asset->layout_element_id) {
+        if (isset($blockAssetData['block_id']) && (int) $blockAssetData['block_id'] !== (int) $asset->block_id) {
             return false;
         }
 
-        if (isset($elementAssetData['asset_type']) && $elementAssetData['asset_type'] !== $asset->asset_type) {
+        if (isset($blockAssetData['asset_type']) && $blockAssetData['asset_type'] !== $asset->asset_type) {
             return false;
         }
 
-        if (isset($elementAssetData['asset_id']) && $elementAssetData['asset_id'] !== $asset->asset_id) {
+        if (isset($blockAssetData['asset_id']) && $blockAssetData['asset_id'] !== $asset->asset_id) {
             return false;
         }
 
-        if (! in_array($asset->workspace_id, $this->getReadableElementAssetWorkspaceIds($element), true)) {
+        if (! in_array($asset->workspace_id, $this->getReadableBlockAssetWorkspaceIds($block), true)) {
             return false;
         }
 
@@ -1242,11 +1242,11 @@ trait ManagesAssets
                 && $asset->pageable_id === $this->page->getKey());
     }
 
-    protected function deleteRemovedElementAssets(): void
+    protected function deleteRemovedBlockAssets(): void
     {
-        foreach ($this->originalAssets as $containerKey => $originalElementAssets) {
-            foreach ($originalElementAssets as $elementIndex => $originalAssets) {
-                $currentAssets = $this->assets[$containerKey][$elementIndex] ?? [];
+        foreach ($this->originalAssets as $containerKey => $originalBlockAssets) {
+            foreach ($originalBlockAssets as $blockIndex => $originalAssets) {
+                $currentAssets = $this->assets[$containerKey][$blockIndex] ?? [];
 
                 $originalKeys = collect($originalAssets)
                     ->map(static fn (array $asset): string => $asset['asset_type'] . ':' . $asset['asset_id'] . ':' . $asset['occurrence'] . ':' . $asset['original_container_key'])
@@ -1278,7 +1278,7 @@ trait ManagesAssets
                         continue;
                     }
 
-                    ElementAsset::query()
+                    BlockAsset::query()
                         ->when(
                             isset($asset['id']),
                             fn (EloquentBuilder $query): EloquentBuilder => $query->whereKey((int) $asset['id']),
@@ -1286,8 +1286,8 @@ trait ManagesAssets
                                 'asset_id' => $asset['asset_id'],
                                 'asset_type' => $asset['asset_type'],
                                 'occurrence' => $asset['occurrence'],
-                                'layout_element_id' => $asset['original_element_id'],
-                                'workspace_id' => (int) ($asset['workspace_id'] ?? $this->getCurrentElementAssetWorkspaceId()),
+                                'block_id' => $asset['original_block_id'],
+                                'workspace_id' => (int) ($asset['workspace_id'] ?? $this->getCurrentBlockAssetWorkspaceId()),
                             ]),
                         )
                         ->when(

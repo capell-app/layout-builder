@@ -9,11 +9,11 @@ use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
 use Capell\Core\Enums\PublishStatusEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
-use Capell\LayoutBuilder\Data\Dashboard\ElementGroupData;
+use Capell\LayoutBuilder\Data\Dashboard\BlockGroupData;
 use Capell\LayoutBuilder\Data\Dashboard\LayoutHealthData;
-use Capell\LayoutBuilder\Data\Dashboard\LeastUsedElementData;
-use Capell\LayoutBuilder\Data\Dashboard\UnusedElementData;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Data\Dashboard\LeastUsedBlockData;
+use Capell\LayoutBuilder\Data\Dashboard\UnusedBlockData;
+use Capell\LayoutBuilder\Models\Block;
 use Filament\Widgets\Widget as FilamentWidget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -44,12 +44,12 @@ final class LayoutHealthWidgetAbstract extends FilamentWidget implements CapellW
 
     private function getData(): LayoutHealthData
     {
-        /** @var class-string<Element> $elementModel */
-        $elementModel = Element::class;
+        /** @var class-string<Block> $blockModel */
+        $blockModel = Block::class;
 
-        // Get total element counts
-        $totalElements = $elementModel::query()->count();
-        $elementsByGroup = $this->getElementsByGroup($elementModel);
+        // Get total block counts
+        $totalBlocks = $blockModel::query()->count();
+        $blocksByGroup = $this->getBlocksByGroup($blockModel);
 
         // Get section counts
         $sectionModel = CapellCore::hasAsset('Section')
@@ -64,42 +64,42 @@ final class LayoutHealthWidgetAbstract extends FilamentWidget implements CapellW
             ? $layoutModel::query()->where('workspace_id', '>', 0)->count()
             : 0;
 
-        // Get least-used elements
-        $leastUsedElements = $this->getLeastUsedElements($elementModel);
+        // Get least-used blocks
+        $leastUsedBlocks = $this->getLeastUsedBlocks($blockModel);
 
-        // Get unused elements
-        $unusedElements = $this->getUnusedElements($elementModel);
+        // Get unused blocks
+        $unusedBlocks = $this->getUnusedBlocks($blockModel);
 
         return new LayoutHealthData(
-            totalElements: $totalElements,
+            totalBlocks: $totalBlocks,
             totalSections: $totalSections,
             publishedSections: $publishedSections,
             draftSections: $draftSections,
             layoutsWithModifications: $layoutsWithModifications,
-            elementsByGroup: $elementsByGroup,
-            unusedElements: $unusedElements,
-            leastUsedElements: $leastUsedElements,
+            blocksByGroup: $blocksByGroup,
+            unusedBlocks: $unusedBlocks,
+            leastUsedBlocks: $leastUsedBlocks,
         );
     }
 
     /**
-     * @param  class-string<Element>  $elementModel
-     * @return Collection<int, ElementGroupData>
+     * @param  class-string<Block>  $blockModel
+     * @return Collection<int, BlockGroupData>
      */
-    private function getElementsByGroup(string $elementModel): Collection
+    private function getBlocksByGroup(string $blockModel): Collection
     {
-        $elements = $elementModel::query()->with('type')->get();
+        $blocks = $blockModel::query()->with('type')->get();
         $groups = [];
 
-        foreach ($elements as $element) {
-            $group = $element->type?->group ?? 'default';
+        foreach ($blocks as $block) {
+            $group = $block->type?->group ?? 'default';
             if (! isset($groups[$group])) {
                 $groups[$group] = ['total' => 0, 'published' => 0, 'pending' => 0, 'expired' => 0];
             }
 
             $groups[$group]['total']++;
 
-            $status = $element->publish_status;
+            $status = $block->publish_status;
             if ($status === PublishStatusEnum::published) {
                 $groups[$group]['published']++;
             } elseif ($status === PublishStatusEnum::pending) {
@@ -111,7 +111,7 @@ final class LayoutHealthWidgetAbstract extends FilamentWidget implements CapellW
 
         $data = [];
         foreach ($groups as $groupName => $counts) {
-            $data[] = new ElementGroupData(
+            $data[] = new BlockGroupData(
                 group: $groupName,
                 count: $counts['total'],
                 published: $counts['published'],
@@ -120,45 +120,45 @@ final class LayoutHealthWidgetAbstract extends FilamentWidget implements CapellW
             );
         }
 
-        return ElementGroupData::collect($data, Collection::class);
+        return BlockGroupData::collect($data, Collection::class);
     }
 
     /**
-     * @param  class-string<Element>  $elementModel
-     * @return Collection<int, LeastUsedElementData>
+     * @param  class-string<Block>  $blockModel
+     * @return Collection<int, LeastUsedBlockData>
      */
-    private function getLeastUsedElements(string $elementModel): Collection
+    private function getLeastUsedBlocks(string $blockModel): Collection
     {
-        $leastUsed = $elementModel::query()
+        $leastUsed = $blockModel::query()
             ->with('type')
             ->withCount(['assets' => fn (Builder $query) => $query->distinct('container')])
             ->orderBy('assets_count', 'asc')
             ->limit(5)
             ->get()
-            ->map(fn (Element $element): LeastUsedElementData => new LeastUsedElementData(
-                name: $element->name ?? $element->class,
-                layoutCount: $element->assets_count ?? 0,
-                group: $element->type?->group ?? 'default',
+            ->map(fn (Block $block): LeastUsedBlockData => new LeastUsedBlockData(
+                name: $block->name ?? $block->class,
+                layoutCount: $block->assets_count ?? 0,
+                group: $block->type?->group ?? 'default',
             ));
 
-        return LeastUsedElementData::collect($leastUsed, Collection::class);
+        return LeastUsedBlockData::collect($leastUsed, Collection::class);
     }
 
     /**
-     * @param  class-string<Element>  $elementModel
-     * @return Collection<int, UnusedElementData>
+     * @param  class-string<Block>  $blockModel
+     * @return Collection<int, UnusedBlockData>
      */
-    private function getUnusedElements(string $elementModel): Collection
+    private function getUnusedBlocks(string $blockModel): Collection
     {
-        $unused = $elementModel::query()
+        $unused = $blockModel::query()
             ->with('type')
             ->doesntHave('assets')
             ->get()
-            ->map(fn (Element $element): UnusedElementData => new UnusedElementData(
-                name: $element->name ?? $element->class,
-                group: $element->type?->group ?? 'default',
+            ->map(fn (Block $block): UnusedBlockData => new UnusedBlockData(
+                name: $block->name ?? $block->class,
+                group: $block->type?->group ?? 'default',
             ));
 
-        return UnusedElementData::collect($unused, Collection::class);
+        return UnusedBlockData::collect($unused, Collection::class);
     }
 }

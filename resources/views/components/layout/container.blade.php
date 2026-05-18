@@ -2,10 +2,10 @@
     use Capell\Core\Enums\ContainerWidthEnum;
     use Capell\Frontend\Actions\GetLayoutContainerWidthAction;
     use Capell\LayoutBuilder\Enums\ContainerAlignmentEnum;
-    use Capell\LayoutBuilder\Enums\ElementComponentEnum;
+    use Capell\LayoutBuilder\Enums\BlockComponentEnum;
     use Capell\LayoutBuilder\Enums\ResponsiveVisibilityEnum;
     use Capell\LayoutBuilder\Support\CapellLayoutManager;
-    use Capell\LayoutBuilder\Support\LayoutElementData;
+    use Capell\LayoutBuilder\Support\LayoutBlockData;
 
     $containerWidth = ! empty($container['meta']['container'])
         ? ContainerWidthEnum::from($container['meta']['container'])
@@ -99,45 +99,45 @@
         'mb-20' => in_array('b-xl', $margin, true),
     ])
 >
-    @foreach (LayoutElementData::normalizeMany($container['elements'] ?? []) as $elementIndex => $elementData)
+    @foreach (LayoutBlockData::normalizeMany($container['blocks'] ?? []) as $blockIndex => $blockData)
         @php
-            $elementKey = LayoutElementData::key($elementData);
-            if ($elementKey === null) {
+            $blockKey = LayoutBlockData::key($blockData);
+            if ($blockKey === null) {
                 continue;
             }
 
-            $element = CapellLayoutManager::getStoredContainerElement(
+            $block = CapellLayoutManager::getStoredContainerBlock(
                 (string) $containerKey,
-                $elementKey,
-                LayoutElementData::occurrence($elementData),
+                $blockKey,
+                LayoutBlockData::occurrence($blockData),
             );
 
-            if (! $element) {
+            if (! $block) {
                 continue;
             }
 
-            $component = $element->getComponent();
+            $component = $block->getComponent();
             if (! $component) {
                 continue;
             }
 
             $componentKey = (string) $component;
             if (! $showHero && in_array($componentKey, [
-                ElementComponentEnum::Hero->value,
-                ElementComponentEnum::BannerImage->value,
-                ElementComponentEnum::ApHeroBanner->value,
+                BlockComponentEnum::Hero->value,
+                BlockComponentEnum::BannerImage->value,
+                BlockComponentEnum::ApHeroBanner->value,
             ], true)) {
                 continue;
             }
 
-            $type = $element->getMetaComponentType();
+            $type = $block->getMetaComponentType();
             $currentColspan = (int) $previousColspan + (int) $colspan;
             if ($columnStart) {
                 $currentColspan += $columnStart - 1;
             }
         @endphp
 
-        @include('capell-layout-builder::components.layout.element', [
+        @include('capell-layout-builder::components.layout.block', [
             'component' => $component,
             'containerColspan' => $colspan,
             'container' => $container,
@@ -147,9 +147,9 @@
             'loop' => $loop,
             'layout' => $layout,
             'type' => $type,
-            'element' => $element,
-            'elementIndex' => $elementIndex,
-            'elementData' => $elementData,
+            'block' => $block,
+            'blockIndex' => $blockIndex,
+            'blockData' => $blockData,
             'pageSlot' => $pageSlot,
         ])
     @endforeach

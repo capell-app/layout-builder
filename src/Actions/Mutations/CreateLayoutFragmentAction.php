@@ -12,41 +12,41 @@ final class CreateLayoutFragmentAction
 {
     use AsAction;
 
-    public function handle(LayoutBuilderStateData $state, string $containerKey, ?int $elementIndex): LayoutFragmentData
+    public function handle(LayoutBuilderStateData $state, string $containerKey, ?int $blockIndex): LayoutFragmentData
     {
         $container = $state->containers[$containerKey] ?? null;
 
         if (! is_array($container)) {
             return new LayoutFragmentData(
                 sourceContainerKey: $containerKey,
-                sourceElementIndex: $elementIndex,
+                sourceBlockIndex: $blockIndex,
                 container: null,
-                element: null,
+                block: null,
             );
         }
 
-        if ($elementIndex === null) {
+        if ($blockIndex === null) {
             return new LayoutFragmentData(
                 sourceContainerKey: $containerKey,
-                sourceElementIndex: null,
+                sourceBlockIndex: null,
                 container: $container,
-                element: null,
+                block: null,
                 assets: $state->assets[$containerKey] ?? [],
                 originalAssets: $state->originalAssets[$containerKey] ?? [],
                 selectedRecords: $state->selectedRecords[$containerKey] ?? [],
             );
         }
 
-        $element = $container['elements'][$elementIndex] ?? null;
+        $block = $container['blocks'][$blockIndex] ?? null;
 
         return new LayoutFragmentData(
             sourceContainerKey: $containerKey,
-            sourceElementIndex: $elementIndex,
+            sourceBlockIndex: $blockIndex,
             container: null,
-            element: is_array($element) ? $element : null,
-            assets: $state->assets[$containerKey][$elementIndex] ?? [],
-            originalAssets: $state->originalAssets[$containerKey][$elementIndex] ?? [],
-            selectedRecords: $state->selectedRecords[$containerKey][$elementIndex] ?? [],
+            block: is_array($block) ? $block : null,
+            assets: $state->assets[$containerKey][$blockIndex] ?? [],
+            originalAssets: $state->originalAssets[$containerKey][$blockIndex] ?? [],
+            selectedRecords: $state->selectedRecords[$containerKey][$blockIndex] ?? [],
         );
     }
 }

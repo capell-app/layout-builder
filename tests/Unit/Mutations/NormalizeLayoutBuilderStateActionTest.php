@@ -15,7 +15,7 @@ use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
 
 it('represents layout builder state and mutation output with typed data', function (): void {
     $state = new LayoutBuilderStateData(
-        containers: ['main' => ['elements' => [], 'meta' => ['colspan' => 12]]],
+        containers: ['main' => ['blocks' => [], 'meta' => ['colspan' => 12]]],
         assets: ['main' => []],
         originalAssets: ['main' => []],
         selectedRecords: ['main' => []],
@@ -26,22 +26,22 @@ it('represents layout builder state and mutation output with typed data', functi
         code: 'responsive_colspan_clamped',
         message: 'Responsive colspan was clamped.',
         containerKey: 'main',
-        elementIndex: null,
+        blockIndex: null,
     );
 
     $blockingDiagnostic = new LayoutDiagnosticData(
         severity: LayoutDiagnosticSeverity::Blocking,
-        code: 'missing_required_element',
-        message: 'A required element is missing.',
+        code: 'missing_required_block',
+        message: 'A required block is missing.',
         containerKey: 'main',
-        elementIndex: null,
+        blockIndex: null,
     );
 
     $change = new LayoutChangeData(
         type: 'container_resized',
         label: 'Container main resized',
         containerKey: 'main',
-        elementIndex: null,
+        blockIndex: null,
     );
 
     $result = new LayoutMutationResultData(
@@ -76,21 +76,21 @@ it('represents layout builder state and mutation output with typed data', functi
         ->and($stateFromLivewire->originalAssets)->toBe([])
         ->and($stateFromLivewire->selectedRecords)->toBe(['main' => []])
         ->and($state->toLivewirePayload())->toBe([
-            'containers' => ['main' => ['elements' => [], 'meta' => ['colspan' => 12]]],
+            'containers' => ['main' => ['blocks' => [], 'meta' => ['colspan' => 12]]],
             'assets' => ['main' => []],
             'originalAssets' => ['main' => []],
             'selectedRecords' => ['main' => []],
         ]);
 });
 
-it('normalizes sparse element state and clamps responsive metadata', function (): void {
+it('normalizes sparse block state and clamps responsive metadata', function (): void {
     $state = new LayoutBuilderStateData(
         containers: [
             'main' => [
-                'elements' => [
-                    ['element_key' => 'hero'],
-                    ['element_key' => 'cards'],
-                    ['element_key' => 'cta'],
+                'blocks' => [
+                    ['block_key' => 'hero'],
+                    ['block_key' => 'cards'],
+                    ['block_key' => 'cta'],
                 ],
                 'meta' => [
                     'colspan' => 14,
@@ -123,13 +123,13 @@ it('normalizes sparse element state and clamps responsive metadata', function ()
 
 it('moves layout mutation history through typed actions', function (): void {
     $first = new LayoutBuilderStateData(
-        containers: ['main' => ['elements' => [['element_key' => 'hero']], 'meta' => []]],
+        containers: ['main' => ['blocks' => [['block_key' => 'hero']], 'meta' => []]],
         assets: ['main' => [[]]],
         originalAssets: ['main' => [[]]],
         selectedRecords: ['main' => [[]]],
     );
     $second = new LayoutBuilderStateData(
-        containers: ['main' => ['elements' => [['element_key' => 'cards']], 'meta' => []]],
+        containers: ['main' => ['blocks' => [['block_key' => 'cards']], 'meta' => []]],
         assets: ['main' => [[]]],
         originalAssets: ['main' => [[]]],
         selectedRecords: ['main' => [[]]],
@@ -147,15 +147,15 @@ it('moves layout mutation history through typed actions', function (): void {
     expect($history->undoSnapshots)->toHaveCount(1)
         ->and($history->redoSnapshots)->toBe([])
         ->and($undo->changed())->toBeTrue()
-        ->and($undo->state->containers['main']['elements'][0]['element_key'])->toBe('hero')
+        ->and($undo->state->containers['main']['blocks'][0]['block_key'])->toBe('hero')
         ->and($undo->history->redoSnapshots)->toHaveCount(1)
         ->and($redo->changed())->toBeTrue()
-        ->and($redo->state->containers['main']['elements'][0]['element_key'])->toBe('cards');
+        ->and($redo->state->containers['main']['blocks'][0]['block_key'])->toBe('cards');
 });
 
 it('caps layout mutation history snapshots and clears redo on new mutations', function (): void {
     $state = new LayoutBuilderStateData(
-        containers: ['main' => ['elements' => [], 'meta' => []]],
+        containers: ['main' => ['blocks' => [], 'meta' => []]],
         assets: ['main' => []],
         originalAssets: ['main' => []],
         selectedRecords: ['main' => []],
@@ -166,7 +166,7 @@ it('caps layout mutation history snapshots and clears redo on new mutations', fu
     for ($snapshotIndex = 0; $snapshotIndex < PushLayoutMutationSnapshotAction::MAX_HISTORY_DEPTH + 5; $snapshotIndex++) {
         $undoSnapshots = PushLayoutMutationSnapshotAction::run(
             new LayoutBuilderStateData(
-                containers: ['main' => ['elements' => [], 'meta' => ['snapshot' => $snapshotIndex]]],
+                containers: ['main' => ['blocks' => [], 'meta' => ['snapshot' => $snapshotIndex]]],
                 assets: ['main' => []],
                 originalAssets: ['main' => []],
                 selectedRecords: ['main' => []],

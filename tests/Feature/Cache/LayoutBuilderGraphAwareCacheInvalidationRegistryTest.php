@@ -9,10 +9,10 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Frontend\Data\CacheInvalidationRule;
 use Capell\Frontend\Support\Cache\CacheInvalidationRegistry;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\Block;
 
-it('walks layout builder element graph dependents back to pages', function (): void {
-    $element = Element::factory()->create();
+it('walks layout builder block graph dependents back to pages', function (): void {
+    $block = Block::factory()->create();
     $layout = Layout::factory()->create();
     $page = Page::factory()
         ->withTranslations()
@@ -32,15 +32,15 @@ it('walks layout builder element graph dependents back to pages', function (): v
     ContentGraphEdge::query()->create([
         'source_type' => Layout::class,
         'source_id' => $layout->id,
-        'target_type' => Element::class,
-        'target_id' => $element->id,
-        'kind' => ContentGraphEdgeKind::UsesElement,
+        'target_type' => Block::class,
+        'target_id' => $block->id,
+        'kind' => ContentGraphEdgeKind::UsesBlock,
         'strength' => ContentGraphEdgeStrength::Strong,
         'source_package' => 'capell-app/layout-builder',
         'site_id' => $page->site_id,
     ]);
 
-    $plan = resolve(CacheInvalidationRegistry::class)->planForChangedModel($element);
+    $plan = resolve(CacheInvalidationRegistry::class)->planForChangedModel($block);
 
     expect(collect($plan->rules)->contains(
         fn (CacheInvalidationRule $rule): bool => $rule->kind === CacheInvalidationRule::KIND_PUBLIC_RENDER_DATA

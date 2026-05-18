@@ -3,24 +3,24 @@
 declare(strict_types=1);
 
 use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
+use Capell\LayoutBuilder\Enums\BlockAssetConfiguratorEnum;
+use Capell\LayoutBuilder\Enums\BlockConfiguratorEnum;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
-use Capell\LayoutBuilder\Enums\ElementAssetConfiguratorEnum;
-use Capell\LayoutBuilder\Enums\ElementConfiguratorEnum;
+use Capell\LayoutBuilder\Enums\LayoutBlockConfiguratorEnum;
 use Capell\LayoutBuilder\Enums\LayoutContainerConfiguratorEnum;
-use Capell\LayoutBuilder\Enums\LayoutElementConfiguratorEnum;
 
 it('owns layout configurator group metadata in the layout builder package', function (): void {
     $reflection = new ReflectionClass(ConfiguratorTypeEnum::class);
 
     expect($reflection->getFileName())->toContain('packages/layout-builder/src')
         ->and(ConfiguratorTypeEnum::LayoutContainer)->toBeInstanceOf(ConfiguratorTypeEnumInterface::class)
-        ->and(ConfiguratorTypeEnum::fromName('Element'))->toBe(ConfiguratorTypeEnum::Element)
-        ->and(ConfiguratorTypeEnum::ElementAsset->getName())->toBe('ElementAsset')
+        ->and(ConfiguratorTypeEnum::fromName('Block'))->toBe(ConfiguratorTypeEnum::Block)
+        ->and(ConfiguratorTypeEnum::BlockAsset->getName())->toBe('BlockAsset')
         ->and(array_keys(ConfiguratorTypeEnum::getAllConfigurators()))->toBe([
             'LayoutContainers',
-            'LayoutElements',
-            'Elements',
-            'ElementAssets',
+            'LayoutBlocks',
+            'Blocks',
+            'BlockAssets',
         ]);
 });
 
@@ -30,9 +30,9 @@ it('uses package-owned configurator enum lists instead of core layout builder en
 
     expect($source)->not->toContain('Capell\\Core\\LayoutBuilder\\Enums')
         ->and(ConfiguratorTypeEnum::LayoutContainer->getConfigurators())->toBe(LayoutContainerConfiguratorEnum::cases())
-        ->and(ConfiguratorTypeEnum::LayoutElement->getConfigurators())->toBe(LayoutElementConfiguratorEnum::cases())
-        ->and(ConfiguratorTypeEnum::Element->getConfigurators())->toBe(ElementConfiguratorEnum::cases())
-        ->and(ConfiguratorTypeEnum::ElementAsset->getConfigurators())->toBe(ElementAssetConfiguratorEnum::cases());
+        ->and(ConfiguratorTypeEnum::LayoutBlock->getConfigurators())->toBe(LayoutBlockConfiguratorEnum::cases())
+        ->and(ConfiguratorTypeEnum::Block->getConfigurators())->toBe(BlockConfiguratorEnum::cases())
+        ->and(ConfiguratorTypeEnum::BlockAsset->getConfigurators())->toBe(BlockAssetConfiguratorEnum::cases());
 });
 
 it('advertises package namespace configurator classes', function (): void {

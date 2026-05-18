@@ -9,8 +9,8 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
-use Capell\LayoutBuilder\Contracts\PublicElementPayloadContributor;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
+use Capell\LayoutBuilder\Models\Block;
 use Capell\LayoutBuilder\Tests\Fixtures\View\Components\PackageAlert;
 
 beforeEach(function (): void {
@@ -22,7 +22,7 @@ beforeEach(function (): void {
         public function getClassComponentAliases(): array
         {
             return [
-                'capell::element.default' => PackageAlert::class,
+                'capell::block.default' => PackageAlert::class,
             ];
         }
 
@@ -39,59 +39,59 @@ beforeEach(function (): void {
 it('routes public graph rendering through layout builder package payload contributors', function (): void {
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->id]);
-    $element = Element::factory()->create(['key' => 'package-backed-element']);
+    $block = Block::factory()->create(['key' => 'package-backed-block']);
 
     TranslationFactory::new()
-        ->translatable($element)
+        ->translatable($block)
         ->language($language)
         ->create([
-            'title' => 'Package-backed element',
+            'title' => 'Package-backed block',
             'content' => '<p>Base content</p>',
         ]);
 
     $layout = Layout::factory()->site($site)->create([
-        'elements' => [$element->key],
+        'blocks' => [$block->key],
         'containers' => [
-            'main' => ['elements' => [['element_key' => $element->key, 'occurrence' => 1]]],
+            'main' => ['blocks' => [['block_key' => $block->key, 'occurrence' => 1]]],
         ],
     ]);
 
     $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
 
-    app()->singleton('test.package-public-element-payload-contributor', fn (): PublicElementPayloadContributor => new class implements PublicElementPayloadContributor
+    app()->singleton('test.package-public-block-payload-contributor', fn (): PublicBlockPayloadContributor => new class implements PublicBlockPayloadContributor
     {
         public function priority(): int
         {
             return 10;
         }
 
-        public function data(Element $element, Page $page, Language $language, string $containerKey, int $occurrence): array
+        public function data(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): array
         {
             return [
                 'package_contributor' => [
-                    'element' => $element->key,
+                    'block' => $block->key,
                     'container' => $containerKey,
                     'occurrence' => $occurrence,
                 ],
             ];
         }
 
-        public function html(Element $element, Page $page, Language $language, string $containerKey, int $occurrence): string
+        public function html(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): string
         {
-            return '<section data-package-contributor="' . $element->key . '"></section>';
+            return '<section data-package-contributor="' . $block->key . '"></section>';
         }
     });
 
-    app()->tag('test.package-public-element-payload-contributor', PublicElementPayloadContributor::TAG);
+    app()->tag('test.package-public-block-payload-contributor', PublicBlockPayloadContributor::TAG);
 
     $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, includeHtml: true);
-    $elementData = $graph->containers[0]->elements[0];
+    $blockData = $graph->containers[0]->blocks[0];
 
-    expect($elementData->data['title'])->toBe('Package-backed element')
-        ->and($elementData->data['package_contributor'])->toBe([
-            'element' => 'package-backed-element',
+    expect($blockData->data['title'])->toBe('Package-backed block')
+        ->and($blockData->data['package_contributor'])->toBe([
+            'block' => 'package-backed-block',
             'container' => 'main',
             'occurrence' => 1,
         ])
-        ->and($elementData->html)->toBe('<section data-package-contributor="package-backed-element"></section>');
+        ->and($blockData->html)->toBe('<section data-package-contributor="package-backed-block"></section>');
 });

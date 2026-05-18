@@ -8,9 +8,9 @@ use Capell\ContentBlocks\Data\BlockVariantData;
 use Capell\ContentBlocks\Data\BlockVariantKey;
 use Capell\ContentBlocks\Support\BlockRegistry;
 use Capell\LayoutBuilder\Actions\ResolveBlockPresentationDataAction;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\Block;
 
-it('projects only allowlisted block presentation keys from element meta', function (): void {
+it('projects only allowlisted block presentation keys from block meta', function (): void {
     resolve(BlockRegistry::class)->register(new BlockDefinitionData(
         key: 'hero',
         label: 'Hero',
@@ -23,7 +23,7 @@ it('projects only allowlisted block presentation keys from element meta', functi
         ],
     ));
 
-    $element = Element::factory()->create([
+    $block = Block::factory()->create([
         'key' => 'hero',
         'meta' => [
             'block_variant' => 'split-media',
@@ -41,7 +41,7 @@ it('projects only allowlisted block presentation keys from element meta', functi
         ],
     ]);
 
-    $payload = ResolveBlockPresentationDataAction::run($element)->toArray();
+    $payload = ResolveBlockPresentationDataAction::run($block)->toArray();
 
     expect($payload)
         ->toBe([
@@ -72,7 +72,7 @@ it('falls back to a safe variant when the variant is unknown or theme unsupporte
         compatibility: new BlockCompatibilityData(themeKeys: ['foundation']),
     ));
 
-    $element = Element::factory()->create([
+    $block = Block::factory()->create([
         'key' => 'proof',
         'meta' => [
             'block_variant' => 'bento',
@@ -80,7 +80,7 @@ it('falls back to a safe variant when the variant is unknown or theme unsupporte
         ],
     ]);
 
-    $payload = ResolveBlockPresentationDataAction::run($element, 'unsupported-theme')->toArray();
+    $payload = ResolveBlockPresentationDataAction::run($block, 'unsupported-theme')->toArray();
 
     expect($payload['variant'])->toBe('default')
         ->and($payload['spacing'])->toBe('normal');

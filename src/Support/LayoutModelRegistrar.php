@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Support;
 
 use Capell\Core\Facades\CapellCore;
-use Capell\LayoutBuilder\Models\Element;
-use Capell\LayoutBuilder\Models\ElementAsset;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\BlockAsset;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 
@@ -14,8 +14,8 @@ class LayoutModelRegistrar
 {
     /** @var list<class-string> */
     private const array MODELS = [
-        Element::class,
-        ElementAsset::class,
+        Block::class,
+        BlockAsset::class,
     ];
 
     public static function register(): void
@@ -26,8 +26,8 @@ class LayoutModelRegistrar
             collect(self::MODELS)
                 ->mapWithKeys(fn (string $modelClass): array => [Str::snake(class_basename($modelClass)) => $modelClass])
                 ->merge([
-                    'element' => Element::class,
-                    'element_asset' => ElementAsset::class,
+                    'block' => Block::class,
+                    'block_asset' => BlockAsset::class,
                 ])
                 ->all(),
         );

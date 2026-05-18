@@ -43,7 +43,7 @@ final class ResizeLayoutContainerAction
                 type: 'container_resized',
                 label: __('capell-layout-builder::message.container_resized', ['container' => $containerKey]),
                 containerKey: $containerKey,
-                elementIndex: null,
+                blockIndex: null,
             ),
         ]);
     }

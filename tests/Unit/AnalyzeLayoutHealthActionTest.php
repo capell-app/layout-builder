@@ -12,24 +12,24 @@ use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Actions\AnalyzeLayoutHealthAction;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Listeners\LayoutSavingListener;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\Block;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewSignature;
 
 it('reports duplicate anchors and over-limit cards without exposing diagnostics publicly', function (): void {
-    Element::factory()->create(['key' => 'known']);
+    Block::factory()->create(['key' => 'known']);
 
     $state = new LayoutBuilderStateData(
         containers: [
             'main' => [
-                'elements' => [
+                'blocks' => [
                     [
-                        'element_key' => 'known',
+                        'block_key' => 'known',
                         'meta' => [
                             'block_settings' => ['anchor_id' => 'Feature Grid'],
                         ],
                     ],
                     [
-                        'element_key' => 'known',
+                        'block_key' => 'known',
                         'meta' => [
                             'block_settings' => ['anchor_id' => 'Feature Grid'],
                         ],
@@ -80,14 +80,14 @@ it('includes block contract and theme compatibility warnings in layout health', 
         ),
     ));
 
-    Element::factory()->create(['key' => 'known']);
+    Block::factory()->create(['key' => 'known']);
 
     $state = new LayoutBuilderStateData(
         containers: [
             'main' => [
-                'elements' => [
+                'blocks' => [
                     [
-                        'element_key' => 'known',
+                        'block_key' => 'known',
                         'meta' => [
                             'content' => ['heading' => ''],
                         ],
@@ -110,13 +110,13 @@ it('includes block contract and theme compatibility warnings in layout health', 
         ->toContain('Default');
 });
 
-it('supports legacy shorthand element keys in layout health analysis', function (): void {
-    Element::factory()->create(['key' => 'breadcrumbs']);
+it('supports legacy shorthand block keys in layout health analysis', function (): void {
+    Block::factory()->create(['key' => 'breadcrumbs']);
 
     $state = new LayoutBuilderStateData(
         containers: [
             'main' => [
-                'elements' => ['breadcrumbs'],
+                'blocks' => ['breadcrumbs'],
             ],
         ],
         assets: [],
@@ -126,17 +126,17 @@ it('supports legacy shorthand element keys in layout health analysis', function 
 
     $diagnostics = AnalyzeLayoutHealthAction::run($state);
 
-    expect(collect($diagnostics)->pluck('code')->all())->not->toContain('unknown_element');
+    expect(collect($diagnostics)->pluck('code')->all())->not->toContain('unknown_block');
 });
 
-it('persists legacy shorthand element keys when syncing layout elements', function (): void {
+it('persists legacy shorthand block keys when syncing layout blocks', function (): void {
     $layout = Layout::factory()->make([
         'containers' => [
             'main' => [
-                'elements' => [
+                'blocks' => [
                     'breadcrumbs',
-                    ['element_key' => 'page-content'],
-                    ['element_key' => 'breadcrumbs'],
+                    ['block_key' => 'page-content'],
+                    ['block_key' => 'breadcrumbs'],
                 ],
             ],
         ],
@@ -144,22 +144,22 @@ it('persists legacy shorthand element keys when syncing layout elements', functi
 
     (new LayoutSavingListener)($layout);
 
-    expect($layout->getAttribute('elements'))->toBe(['breadcrumbs', 'page-content']);
+    expect($layout->getAttribute('blocks'))->toBe(['breadcrumbs', 'page-content']);
 });
 
-it('includes legacy shorthand element keys in preview signatures', function (): void {
-    Element::factory()->create(['key' => 'breadcrumbs']);
+it('includes legacy shorthand block keys in preview signatures', function (): void {
+    Block::factory()->create(['key' => 'breadcrumbs']);
 
     $layout = Layout::factory()->make([
         'key' => 'default',
         'containers' => [
             'main' => [
-                'elements' => ['breadcrumbs'],
+                'blocks' => ['breadcrumbs'],
             ],
         ],
     ]);
 
     $payload = resolve(LayoutPreviewSignature::class)->payload($layout);
 
-    expect($payload['containers'][0]['elements'][0]['key'])->toBe('breadcrumbs');
+    expect($payload['containers'][0]['blocks'][0]['key'])->toBe('breadcrumbs');
 });

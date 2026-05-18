@@ -29,8 +29,8 @@ final class PasteLayoutFragmentAction
             return $this->pasteContainer($state, $fragment);
         }
 
-        if ($fragment->isElementFragment()) {
-            return $this->pasteElement($state, $fragment, $targetContainerKey, $targetIndex);
+        if ($fragment->isBlockFragment()) {
+            return $this->pasteBlock($state, $fragment, $targetContainerKey, $targetIndex);
         }
 
         return new LayoutMutationResultData($state);
@@ -67,28 +67,28 @@ final class PasteLayoutFragmentAction
                 type: 'container_pasted',
                 label: __('capell-layout-builder::message.container_pasted', ['container' => $containerKey]),
                 containerKey: $containerKey,
-                elementIndex: null,
+                blockIndex: null,
             ),
         ]);
     }
 
-    private function pasteElement(
+    private function pasteBlock(
         LayoutBuilderStateData $state,
         LayoutFragmentData $fragment,
         string $targetContainerKey,
         ?int $targetIndex,
     ): LayoutMutationResultData {
-        if ($fragment->element === null) {
+        if ($fragment->block === null) {
             return new LayoutMutationResultData($state);
         }
 
         $containers = $state->containers;
-        $elements = $containers[$targetContainerKey]['elements'] ?? [];
-        $targetIndex = min(count($elements), max(0, $targetIndex ?? count($elements)));
+        $blocks = $containers[$targetContainerKey]['blocks'] ?? [];
+        $targetIndex = min(count($blocks), max(0, $targetIndex ?? count($blocks)));
         $usedAnchors = $this->usedAnchors($containers);
-        $element = $this->withUniqueElementAnchor($fragment->element, $usedAnchors);
+        $block = $this->withUniqueBlockAnchor($fragment->block, $usedAnchors);
 
-        $containers[$targetContainerKey]['elements'] = $this->insertSlot($elements, $targetIndex, $element);
+        $containers[$targetContainerKey]['blocks'] = $this->insertSlot($blocks, $targetIndex, $block);
 
         $assets = $state->assets;
         $assets[$targetContainerKey] = $this->insertSlot($assets[$targetContainerKey] ?? [], $targetIndex, $fragment->assets);
@@ -106,10 +106,10 @@ final class PasteLayoutFragmentAction
             selectedRecords: $selectedRecords,
         ))->withChanges([
             new LayoutChangeData(
-                type: 'element_pasted',
-                label: __('capell-layout-builder::message.element_pasted', ['container' => $targetContainerKey]),
+                type: 'block_pasted',
+                label: __('capell-layout-builder::message.block_pasted', ['container' => $targetContainerKey]),
                 containerKey: $targetContainerKey,
-                elementIndex: $targetIndex,
+                blockIndex: $targetIndex,
             ),
         ]);
     }
@@ -156,14 +156,14 @@ final class PasteLayoutFragmentAction
                 continue;
             }
 
-            $elements = is_array($container['elements'] ?? null) ? $container['elements'] : [];
+            $blocks = is_array($container['blocks'] ?? null) ? $container['blocks'] : [];
 
-            foreach ($elements as $element) {
-                if (! is_array($element)) {
+            foreach ($blocks as $block) {
+                if (! is_array($block)) {
                     continue;
                 }
 
-                $anchor = $element['meta']['block_settings']['anchor_id'] ?? null;
+                $anchor = $block['meta']['block_settings']['anchor_id'] ?? null;
                 if (! is_string($anchor)) {
                     continue;
                 }
@@ -185,13 +185,13 @@ final class PasteLayoutFragmentAction
      */
     private function withUniqueAnchors(array $container, array &$usedAnchors): array
     {
-        $elements = is_array($container['elements'] ?? null) ? $container['elements'] : [];
+        $blocks = is_array($container['blocks'] ?? null) ? $container['blocks'] : [];
 
-        foreach ($elements as &$element) {
-            $element = $this->withUniqueElementAnchor($element, $usedAnchors);
+        foreach ($blocks as &$block) {
+            $block = $this->withUniqueBlockAnchor($block, $usedAnchors);
         }
 
-        $container['elements'] = $elements;
+        $container['blocks'] = $blocks;
 
         return $container;
     }
@@ -199,15 +199,15 @@ final class PasteLayoutFragmentAction
     /**
      * @param  array<string, bool>  $usedAnchors
      */
-    private function withUniqueElementAnchor(mixed $element, array &$usedAnchors): mixed
+    private function withUniqueBlockAnchor(mixed $block, array &$usedAnchors): mixed
     {
-        if (! is_array($element)) {
-            return $element;
+        if (! is_array($block)) {
+            return $block;
         }
 
-        $anchor = $element['meta']['block_settings']['anchor_id'] ?? null;
+        $anchor = $block['meta']['block_settings']['anchor_id'] ?? null;
         if (! is_string($anchor) || trim($anchor) === '') {
-            return $element;
+            return $block;
         }
 
         $baseAnchor = Str::slug($anchor);
@@ -219,9 +219,9 @@ final class PasteLayoutFragmentAction
             $suffix++;
         }
 
-        $element['meta']['block_settings']['anchor_id'] = $uniqueAnchor;
+        $block['meta']['block_settings']['anchor_id'] = $uniqueAnchor;
         $usedAnchors[$uniqueAnchor] = true;
 
-        return $element;
+        return $block;
     }
 }

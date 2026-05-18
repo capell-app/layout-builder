@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
-use Capell\LayoutBuilder\Data\AdminElementPreviewData;
+use Capell\LayoutBuilder\Data\AdminBlockPreviewData;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
-use Capell\LayoutBuilder\Models\Element;
-use Capell\LayoutBuilder\Models\ElementAsset;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\BlockAsset;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
@@ -20,7 +20,7 @@ beforeEach(function (): void {
 
 it('uses the content first editor mode by default from the package namespace', function (): void {
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['elements' => []],
+        'main' => ['blocks' => []],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
@@ -29,8 +29,8 @@ it('uses the content first editor mode by default from the package namespace', f
         ->assertSee(__('capell-layout-builder::message.content_inventory_empty'));
 });
 
-it('resolves the saved admin element preview view without checking the filesystem', function (): void {
-    $previewData = new AdminElementPreviewData(
+it('resolves the saved admin block preview view without checking the filesystem', function (): void {
+    $previewData = new AdminBlockPreviewData(
         view: 'capell-layout-builder::filament.layout-builder.previews.custom',
         label: 'Custom preview',
         title: null,
@@ -45,15 +45,15 @@ it('resolves the saved admin element preview view without checking the filesyste
 
     $component = new LayoutBuilder;
 
-    expect($component->resolveAdminElementPreviewView($previewData))
+    expect($component->resolveAdminBlockPreviewView($previewData))
         ->toBe('capell-layout-builder::filament.layout-builder.previews.custom');
 });
 
 it('can switch from content first to advanced layout and back from the package namespace', function (): void {
-    $element = Element::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
+    $block = Block::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['elements' => [
-            ['element_key' => $element->key, 'occurrence' => 1],
+        'main' => ['blocks' => [
+            ['block_key' => $block->key, 'occurrence' => 1],
         ]],
     ]]);
 
@@ -73,7 +73,7 @@ it('lets content editors use content first without advanced layout access from t
     test()->actingAs(test()->createUserWithPermission('EditContent:Layout'));
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['elements' => []],
+        'main' => ['blocks' => []],
     ]]);
 
     $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
@@ -86,7 +86,7 @@ it('lets content editors use content first without advanced layout access from t
         ->assertForbidden();
 });
 
-it('lets content editors submit element asset edits without layout access from the package namespace', function (): void {
+it('lets content editors submit block asset edits without layout access from the package namespace', function (): void {
     Permission::findOrCreate('EditContent:Layout');
     Permission::findOrCreate('EditLayout:Layout');
     Permission::findOrCreate('Update:Layout');
@@ -94,46 +94,46 @@ it('lets content editors submit element asset edits without layout access from t
 
     test()->actingAs(test()->createUserWithPermission(['EditContent:Layout', 'View:Page']));
 
-    $element = Element::factory()->create(['key' => 'featured', 'name' => 'Featured']);
+    $block = Block::factory()->create(['key' => 'featured', 'name' => 'Featured']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
-    $elementAsset = ElementAsset::factory()
-        ->element($element)
+    $blockAsset = BlockAsset::factory()
+        ->block($block)
         ->asset($asset)
         ->occurrence(1)
         ->create(['order' => 1, 'meta' => ['variant' => 'default']]);
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['elements' => [
-            ['element_key' => $element->key, 'occurrence' => 1],
+        'main' => ['blocks' => [
+            ['block_key' => $block->key, 'occurrence' => 1],
         ]],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
-        ->callAction('editElementAsset', data: [
+        ->callAction('editBlockAsset', data: [
             'meta' => ['variant' => 'featured'],
         ], arguments: [
             'containerKey' => 'main',
-            'elementIndex' => 0,
+            'blockIndex' => 0,
             'index' => 0,
             'type' => 'page',
         ])
         ->assertHasNoActionErrors();
 
-    expect($elementAsset->fresh()->meta['variant'] ?? null)->toBe('default');
+    expect($blockAsset->fresh()->meta['variant'] ?? null)->toBe('default');
 });
 
 it('renders content first rows as custom action triggers instead of per row action schemas from the package namespace', function (): void {
-    $element = Element::factory()->create(['key' => 'featured', 'name' => 'Featured']);
+    $block = Block::factory()->create(['key' => 'featured', 'name' => 'Featured']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
-    ElementAsset::factory()
-        ->element($element)
+    BlockAsset::factory()
+        ->block($block)
         ->asset($asset)
         ->occurrence(1)
         ->create(['order' => 1, 'meta' => ['variant' => 'default']]);
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['elements' => [
-            ['element_key' => $element->key, 'occurrence' => 1],
+        'main' => ['blocks' => [
+            ['block_key' => $block->key, 'occurrence' => 1],
         ]],
     ]]);
 
@@ -144,8 +144,8 @@ it('renders content first rows as custom action triggers instead of per row acti
         ->assertSeeHtml('data-layout-content-search-input')
         ->assertSeeHtml('data-layout-content-search-empty')
         ->assertSeeHtml('data-layout-content-search=')
-        ->assertSeeHtml('data-layout-content-action="editElementAsset"')
-        ->assertSeeHtml('$wire.mountAction(\'editElementAsset\'')
+        ->assertSeeHtml('data-layout-content-action="editBlockAsset"')
+        ->assertSeeHtml('mountAction')
         ->assertSeeHtml('wire:key="layout-content-group-')
         ->assertSeeHtml('wire:key="layout-content-item-');
 
@@ -153,9 +153,9 @@ it('renders content first rows as custom action triggers instead of per row acti
     $assetRowView = file_get_contents(__DIR__ . '/../../../resources/views/components/filament/layout-builder/asset.blade.php');
 
     expect($contentFirstView)
-        ->not->toContain('$this->editElementAssetAction')
+        ->not->toContain('$this->editBlockAssetAction')
         ->and($assetRowView)
-        ->not->toContain('$this->editElementAssetAction');
+        ->not->toContain('$this->editBlockAssetAction');
 });
 
 it('sends layout only editors straight to the advanced layout editor from the package namespace', function (): void {
@@ -165,7 +165,7 @@ it('sends layout only editors straight to the advanced layout editor from the pa
     test()->actingAs(test()->createUserWithPermission('EditLayout:Layout'));
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['elements' => []],
+        'main' => ['blocks' => []],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
@@ -177,7 +177,7 @@ it('sends layout only editors straight to the advanced layout editor from the pa
 it('moves responsive layout mutations through undo and redo stacks from the package namespace', function (): void {
     $layout = Layout::factory()->create(['containers' => [
         'main' => [
-            'elements' => [],
+            'blocks' => [],
             'meta' => [
                 'responsive' => [
                     'tablet' => ['colspan' => 6],
@@ -210,7 +210,7 @@ it('moves responsive layout mutations through undo and redo stacks from the pack
 it('clears redo history when a new layout mutation follows undo from the package namespace', function (): void {
     $layout = Layout::factory()->create(['containers' => [
         'main' => [
-            'elements' => [],
+            'blocks' => [],
             'meta' => [
                 'responsive' => [
                     'tablet' => ['colspan' => 6],
@@ -238,11 +238,11 @@ it('blocks content only editors from layout undo and redo from the package names
     test()->actingAs(test()->createUserWithPermission('EditContent:Layout'));
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['elements' => []],
+        'main' => ['blocks' => []],
     ]]);
 
     $snapshot = [
-        'containers' => ['main' => ['elements' => [], 'meta' => []]],
+        'containers' => ['main' => ['blocks' => [], 'meta' => []]],
         'assets' => ['main' => []],
         'originalAssets' => ['main' => []],
         'selectedRecords' => ['main' => []],
@@ -260,31 +260,31 @@ it('blocks content only editors from layout undo and redo from the package names
 });
 
 it('rejects stale content first asset saves from the package namespace', function (): void {
-    $element = Element::factory()->create(['key' => 'featured', 'name' => 'Featured']);
+    $block = Block::factory()->create(['key' => 'featured', 'name' => 'Featured']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
-    $elementAsset = ElementAsset::factory()
-        ->element($element)
+    $blockAsset = BlockAsset::factory()
+        ->block($block)
         ->asset($asset)
         ->occurrence(1)
         ->create(['order' => 1, 'meta' => ['variant' => 'default']]);
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['elements' => [
-            ['element_key' => $element->key, 'occurrence' => 1],
+        'main' => ['blocks' => [
+            ['block_key' => $block->key, 'occurrence' => 1],
         ]],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
-        ->callAction('editElementAsset', data: [
+        ->callAction('editBlockAsset', data: [
             'meta' => ['variant' => 'featured'],
         ], arguments: [
             'containerKey' => 'main',
-            'elementIndex' => 0,
+            'blockIndex' => 0,
             'index' => 0,
             'type' => 'page',
             'contentInventorySignature' => 'stale-signature',
         ])
         ->assertNotified(__('capell-layout-builder::message.content_stale'));
 
-    expect($elementAsset->fresh()->meta['variant'] ?? null)->toBe('default');
+    expect($blockAsset->fresh()->meta['variant'] ?? null)->toBe('default');
 });

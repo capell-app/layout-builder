@@ -7,9 +7,9 @@ use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
 
 it('resolves main containers while preserving legacy containers without area metadata', function (): void {
     $containers = [
-        'legacy' => ['elements' => [], 'meta' => []],
-        'main' => ['elements' => [], 'meta' => ['area' => LayoutAreaRegistry::MAIN]],
-        'header' => ['elements' => [], 'meta' => ['area' => 'header']],
+        'legacy' => ['blocks' => [], 'meta' => []],
+        'main' => ['blocks' => [], 'meta' => ['area' => LayoutAreaRegistry::MAIN]],
+        'header' => ['blocks' => [], 'meta' => ['area' => 'header']],
     ];
 
     $resolved = ResolveLayoutAreaContainersAction::run($containers);
@@ -20,8 +20,8 @@ it('resolves main containers while preserving legacy containers without area met
 
 it('resolves named chrome area containers', function (): void {
     $containers = [
-        'main' => ['elements' => [], 'meta' => ['area' => LayoutAreaRegistry::MAIN]],
-        'header' => ['elements' => [], 'meta' => ['area' => 'header']],
+        'main' => ['blocks' => [], 'meta' => ['area' => LayoutAreaRegistry::MAIN]],
+        'header' => ['blocks' => [], 'meta' => ['area' => 'header']],
     ];
 
     $resolved = ResolveLayoutAreaContainersAction::run($containers, 'header');
@@ -32,7 +32,7 @@ it('resolves named chrome area containers', function (): void {
 
 it('normalizes requested area keys before matching containers', function (): void {
     $containers = [
-        'header' => ['elements' => [], 'meta' => ['area' => 'header']],
+        'header' => ['blocks' => [], 'meta' => ['area' => 'header']],
     ];
 
     expect(ResolveLayoutAreaContainersAction::run($containers, 'Header'))->toHaveKey('header');

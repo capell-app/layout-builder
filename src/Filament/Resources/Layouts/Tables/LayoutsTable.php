@@ -9,7 +9,7 @@ use Capell\Admin\Filament\Components\Tables\Columns\ImageColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Actions\GetLayoutPreviewImageUrlAction;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Models\Block;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\ViewEntry;
@@ -26,7 +26,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     #[Override]
     protected static function getTableQueryModifier(Builder $query): Builder
     {
-        return parent::getTableQueryModifier($query)->with('layoutElements');
+        return parent::getTableQueryModifier($query)->with('layoutBlocks');
     }
 
     #[Override]
@@ -46,11 +46,11 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
             ->iconButton()
             ->color('info')
             ->schema(fn (Layout $record): array => [
-                ViewEntry::make('elements')
+                ViewEntry::make('blocks')
                     ->view(
-                        'capell-layout-builder::components.infolists.entries.layout-elements',
+                        'capell-layout-builder::components.infolists.entries.layout-blocks',
                         [
-                            'elements' => $record->getRelationValue('layoutElements'),
+                            'blocks' => $record->getRelationValue('layoutBlocks'),
                         ],
                     ),
             ]);
@@ -71,8 +71,8 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
 
         if ($nameColumnIndex !== false && ! $usesCardLayout) {
             array_splice($columns, $nameColumnIndex + 1, 0, [
-                TextColumn::make('layoutElements.name')
-                    ->label(__('capell-layout-builder::table.container_elements'))
+                TextColumn::make('layoutBlocks.name')
+                    ->label(__('capell-layout-builder::table.container_blocks'))
                     ->wrap()
                     ->color(FilamentColorEnum::LightGray->value)
                     ->bulleted()
@@ -116,18 +116,18 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     protected static function getTableFilters(): array
     {
         return [
-            SelectFilter::make('element_key')
-                ->label(__('capell-layout-builder::form.element'))
-                ->options(fn () => Element::query()
+            SelectFilter::make('block_key')
+                ->label(__('capell-layout-builder::form.block'))
+                ->options(fn () => Block::query()
                     ->pluck('name', 'key')
                     ->all())
                 ->indicateUsing(function (array $state): array {
                     $indicators = [];
 
                     if (isset($state['value']) && $state['value'] !== '') {
-                        $indicators['element_key'] = __(
-                            'capell-layout-builder::filter.element',
-                            ['search' => Element::query()->where('key', $state['value'])->value('name')],
+                        $indicators['block_key'] = __(
+                            'capell-layout-builder::filter.block',
+                            ['search' => Block::query()->where('key', $state['value'])->value('name')],
                         );
                     }
 
@@ -136,7 +136,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                 ->modifyQueryUsing(
                     fn (Builder $query, array $state) => $query->when(
                         isset($state['value']) && $state['value'] !== '',
-                        fn (Builder $query) => $query->whereJsonContains('elements', $state['value']),
+                        fn (Builder $query) => $query->whereJsonContains('blocks', $state['value']),
                     ),
                 ),
             ...parent::getTableFilters(),

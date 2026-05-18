@@ -20,6 +20,6 @@ it('registers the public layout graph builder for frontend rendering', function 
     expect(resolve(PublicLayoutGraphBuilder::class))->toBeInstanceOf(LayoutBuilderPublicLayoutGraphBuilder::class);
 });
 
-it('registers page element assets as a cloneable relation when installed', function (): void {
-    expect(CapellCore::getCloneableRelations('page'))->toContain('elementAssets');
+it('registers page block assets as a cloneable relation when installed', function (): void {
+    expect(CapellCore::getCloneableRelations('page'))->toContain('blockAssets');
 });
