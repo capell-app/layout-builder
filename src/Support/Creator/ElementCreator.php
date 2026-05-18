@@ -21,7 +21,7 @@ use Illuminate\Support\Collection;
 
 class ElementCreator
 {
-    private const NavigationPackage = 'capell-app/navigation';
+    private const string NavigationPackage = 'capell-app/navigation';
 
     /**
      * @var class-string<Element>

@@ -14,7 +14,7 @@ final class LayoutPresetPolicy
 {
     use ResolvesShieldPermission;
 
-    private const SUBJECT = 'Layout';
+    private const string SUBJECT = 'Layout';
 
     public function create(User $user, Site $site): bool
     {

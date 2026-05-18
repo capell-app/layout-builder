@@ -56,6 +56,7 @@ class ResultsElementConfigurator extends DefaultElementConfigurator
         ];
     }
 
+    #[Override]
     protected function getFormSchema(Schema $configurator): array
     {
         return [
@@ -73,6 +74,7 @@ class ResultsElementConfigurator extends DefaultElementConfigurator
         ];
     }
 
+    #[Override]
     protected function getTabs(Schema $configurator, bool $withSettingsTab = false): Tabs
     {
         return Tabs::make()

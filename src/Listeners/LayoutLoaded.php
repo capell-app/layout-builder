@@ -15,7 +15,7 @@ use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 
 class LayoutLoaded implements EventSubscriber
 {
-    private const FRONTEND_CONTEXT_SERVICE = 'capell.frontend.context';
+    private const string FRONTEND_CONTEXT_SERVICE = 'capell.frontend.context';
 
     public function handle(string $event, object $context): void
     {

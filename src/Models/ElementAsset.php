@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Override;
 use Spatie\MediaLibrary\HasMedia;
 
 /**
@@ -117,6 +118,7 @@ class ElementAsset extends Model implements HasMedia, Userstampable
     /**
      * @return array<string, string>
      */
+    #[Override]
     protected function casts(): array
     {
         return [

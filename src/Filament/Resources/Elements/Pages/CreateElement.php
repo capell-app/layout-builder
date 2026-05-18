@@ -10,12 +10,14 @@ use Capell\LayoutBuilder\Enums\ResourceEnum;
 use Capell\LayoutBuilder\Filament\Resources\Elements\ElementResource;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
+use Override;
 
 class CreateElement extends CreateRecord
 {
     use HasConfigurableFormActionPosition;
 
     /** @return class-string<ElementResource> */
+    #[Override]
     public static function getResource(): string
     {
         return AdminSurfaceLookup::resource(ResourceEnum::Element);

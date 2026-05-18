@@ -24,6 +24,7 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Override;
 
 class ElementResource extends Resource
 {
@@ -43,11 +44,13 @@ class ElementResource extends Resource
 
     protected static ?int $navigationSort = 5;
 
+    #[Override]
     public static function form(Schema $configurator): Schema
     {
         return static::getFormConfigurator()::configure($configurator);
     }
 
+    #[Override]
     public static function table(Table $table): Table
     {
         return static::getTableConfigurator()::configure($table);
@@ -61,41 +64,49 @@ class ElementResource extends Resource
     /**
      * @return class-string<Element>
      */
+    #[Override]
     public static function getModel(): string
     {
         return Element::class;
     }
 
+    #[Override]
     public static function getNavigationLabel(): string
     {
         return (string) (__('capell-layout-builder::navigation.elements'));
     }
 
+    #[Override]
     public static function getNavigationGroup(): ?string
     {
         return (string) (__('capell-admin::navigation.group_layouts'));
     }
 
+    #[Override]
     public static function getPluralModelLabel(): string
     {
         return __('capell-layout-builder::navigation.elements');
     }
 
+    #[Override]
     public static function getNavigationIcon(): string|BackedEnum|Htmlable|null
     {
         return config('capell-layout-builder.resources.element.icon', static::$navigationIcon);
     }
 
+    #[Override]
     public static function getActiveNavigationIcon(): string|BackedEnum|Htmlable|null
     {
         return config('capell-layout-builder.resources.element.active_icon', static::$activeNavigationIcon);
     }
 
+    #[Override]
     public static function shouldRegisterNavigation(): bool
     {
         return true;
     }
 
+    #[Override]
     public static function getGloballySearchableAttributes(): array
     {
         return ['name', 'key', 'translations.title', 'component', 'view_file'];
@@ -105,6 +116,7 @@ class ElementResource extends Resource
      * @param  Model&Element  $record
      * @return array|string[]
      */
+    #[Override]
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         $details = [];
@@ -116,6 +128,7 @@ class ElementResource extends Resource
         return $details;
     }
 
+    #[Override]
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
@@ -124,6 +137,7 @@ class ElementResource extends Resource
             ]);
     }
 
+    #[Override]
     public static function getRelations(): array
     {
         return [
@@ -131,6 +145,7 @@ class ElementResource extends Resource
         ];
     }
 
+    #[Override]
     public static function getPages(): array
     {
         return [

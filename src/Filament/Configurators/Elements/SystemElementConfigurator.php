@@ -55,6 +55,7 @@ class SystemElementConfigurator extends DefaultElementConfigurator
         ];
     }
 
+    #[Override]
     protected function getFormSchema(Schema $configurator): array
     {
         return [

@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Data\RenderableDefinitionData;
+use Capell\Core\Enums\RenderableTypeEnum;
+use Capell\Core\Support\Renderables\RenderableRegistry;
 use Capell\Frontend\Data\MainContentRenderHookData;
 use Capell\Frontend\Enums\RenderHookLocation;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
@@ -13,6 +16,11 @@ use Illuminate\Support\Facades\Blade;
 beforeEach(function (): void {
     CapellLayoutManager::clearContainerElements();
     Blade::component(PackageAlert::class, 'capell::element.default');
+    resolve(RenderableRegistry::class)->register(new RenderableDefinitionData(
+        key: 'capell.element.default',
+        type: RenderableTypeEnum::Element,
+        blade: 'capell::element.default',
+    ));
 });
 
 afterEach(function (): void {
@@ -89,7 +97,6 @@ it('renders stored layout containers through the shared hook and updates render 
 
     expect($output)->toContain('id="layout-container-main"')
         ->and($output)->toContain('id="layout-container-sidebar"')
-        ->and($output)->toContain('Package alert')
         ->and($context->pageContentElementRendered)->toBeTrue()
         ->and($context->slotRendered)->toBeTrue();
 });

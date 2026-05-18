@@ -12,9 +12,9 @@ use Livewire\Blaze\Blaze;
 
 final class RegisterMainContentLayoutHook
 {
-    private const Scenario = 'frontend-main-layout';
+    private const string Scenario = 'frontend-main-layout';
 
-    private const Target = 'capell::layout.main';
+    private const string Target = 'capell::layout.main';
 
     public function __construct(private readonly RenderHookRegistry $registry) {}
 

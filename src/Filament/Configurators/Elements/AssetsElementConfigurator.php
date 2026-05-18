@@ -54,6 +54,7 @@ class AssetsElementConfigurator extends DefaultElementConfigurator
         ];
     }
 
+    #[Override]
     protected function getFormSchema(Schema $configurator): array
     {
         return [
@@ -113,11 +114,13 @@ class AssetsElementConfigurator extends DefaultElementConfigurator
         return ElementAdminTab::make();
     }
 
+    #[Override]
     protected function settingsTab(Schema $configurator): Tab
     {
         return ElementSettingsTab::make($configurator);
     }
 
+    #[Override]
     protected function displayTab(Schema $configurator): Tab
     {
         return ElementDisplayTab::make([

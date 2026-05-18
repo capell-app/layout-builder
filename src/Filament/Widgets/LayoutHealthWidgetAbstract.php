@@ -18,6 +18,7 @@ use Filament\Widgets\Widget as FilamentWidget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
+use Override;
 
 final class LayoutHealthWidgetAbstract extends FilamentWidget implements CapellWidgetContract
 {
@@ -33,6 +34,7 @@ final class LayoutHealthWidgetAbstract extends FilamentWidget implements CapellW
     /**
      * @return array<string, mixed>
      */
+    #[Override]
     protected function getViewData(): array
     {
         return [

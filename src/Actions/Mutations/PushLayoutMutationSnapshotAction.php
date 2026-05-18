@@ -12,7 +12,7 @@ final class PushLayoutMutationSnapshotAction
 {
     use AsAction;
 
-    public const MAX_HISTORY_DEPTH = 20;
+    public const int MAX_HISTORY_DEPTH = 20;
 
     /**
      * @param  array<int, array<string, mixed>>  $undoSnapshots

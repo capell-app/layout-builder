@@ -33,13 +33,13 @@ use RuntimeException;
 
 final class LayoutBuilderAdminRegistrar implements ExtensionContribution, RegistersExtensionAdminResource, RegistersExtensionAsset
 {
-    public const REGISTRATION_FLAG = 'capell.layout_builder.admin_registered';
+    public const string REGISTRATION_FLAG = 'capell.layout_builder.admin_registered';
 
-    private const LEGACY_LAYOUT_RESOURCE = 'Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Layouts\\LayoutResource';
+    private const string LEGACY_LAYOUT_RESOURCE = 'Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Layouts\\LayoutResource';
 
-    private const LEGACY_WIDGET_RESOURCE = 'Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Elements\\ElementResource';
+    private const string LEGACY_WIDGET_RESOURCE = 'Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Elements\\ElementResource';
 
-    private const WIDGET_TYPE_CONFIGURATOR = ElementTypeConfigurator::class;
+    private const string WIDGET_TYPE_CONFIGURATOR = ElementTypeConfigurator::class;
 
     public function __construct(private readonly Container $app) {}
 

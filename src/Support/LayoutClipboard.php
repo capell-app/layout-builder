@@ -8,7 +8,7 @@ use Capell\LayoutBuilder\Data\LayoutFragmentData;
 
 final class LayoutClipboard
 {
-    private const SESSION_KEY = 'capell.layout-builder.clipboard';
+    private const string SESSION_KEY = 'capell.layout-builder.clipboard';
 
     public function __construct(private ?LayoutFragmentData $fragment = null) {}
 

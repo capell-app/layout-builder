@@ -12,6 +12,7 @@ use Capell\Core\Data\Makers\MakerResultData;
 use Capell\Core\Support\Makers\AbstractFileMaker;
 use Capell\LayoutBuilder\Actions\MakeElementAction;
 use Illuminate\Support\Str;
+use Override;
 
 class LayoutBuilderElementMaker extends AbstractFileMaker
 {
@@ -20,6 +21,7 @@ class LayoutBuilderElementMaker extends AbstractFileMaker
         return new MakerDefinitionData('layout-builder.element', 'LayoutBuilder Element', 'Create LayoutBuilder element files and registration snippets', 'LayoutBuilder', 'heroicon-o-squares-2x2', true, true);
     }
 
+    #[Override]
     public function run(MakerInputData $input): MakerResultData
     {
         $preview = $this->preview($input);

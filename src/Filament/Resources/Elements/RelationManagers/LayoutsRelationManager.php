@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
+use Override;
 
 class LayoutsRelationManager extends RelationManager
 {
@@ -31,6 +32,7 @@ class LayoutsRelationManager extends RelationManager
 
     protected static string $relationship = 'layouts';
 
+    #[Override]
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
         return __('capell-admin::generic.layouts');

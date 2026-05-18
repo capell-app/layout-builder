@@ -16,17 +16,20 @@ use Filament\Resources\Pages\ListRecords;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Override;
 
 class ListElements extends ListRecords
 {
     use ApplySearchRelationsTable;
 
     /** @return class-string<ElementResource> */
+    #[Override]
     public static function getResource(): string
     {
         return AdminSurfaceLookup::resource(LayoutResourceEnum::Element);
     }
 
+    #[Override]
     public function getSubheading(): string|Htmlable|null
     {
         return __('capell-admin::generic.element_info');
@@ -52,6 +55,7 @@ class ListElements extends ListRecords
         return $query;
     }
 
+    #[Override]
     protected function getActions(): array
     {
         $layoutResource = AdminSurfaceLookup::resource(ResourceEnum::Layout);

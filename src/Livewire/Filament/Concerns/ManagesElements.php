@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Livewire\Filament\Concerns;
 
-use Capell\Admin\Data\LayoutBuilder\AdminWidgetPreviewData as AdminElementPreviewData;
 use Capell\LayoutBuilder\Actions\Mutations\ReorderLayoutElementAction;
 use Capell\LayoutBuilder\Actions\ResolveAdminElementPreviewDataAction;
+use Capell\LayoutBuilder\Data\AdminElementPreviewData;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Models\Element;
 use Capell\LayoutBuilder\Models\ElementAsset;

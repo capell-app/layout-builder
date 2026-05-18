@@ -34,6 +34,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Override;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
@@ -315,6 +316,7 @@ class Element extends Model implements Blueprintable, HasMedia, Publishable, Sta
     /**
      * @return array<string, string>
      */
+    #[Override]
     protected function casts(): array
     {
         return [

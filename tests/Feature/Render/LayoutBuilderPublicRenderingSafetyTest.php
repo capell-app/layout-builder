@@ -34,14 +34,14 @@ it('does not force layout builder admin metadata into public responses', functio
     $theme = new Theme;
     $theme->key = 'test-theme';
 
-    app()->instance(FrontendContextReader::class, new class($page, $site, $language, $layout, $theme) implements FrontendContextReader
+    app()->instance(FrontendContextReader::class, new readonly class($page, $site, $language, $layout, $theme) implements FrontendContextReader
     {
         public function __construct(
-            private readonly Pageable $page,
-            private readonly Site $site,
-            private readonly Language $language,
-            private readonly Layout $layout,
-            private readonly Theme $theme,
+            private Pageable $page,
+            private Site $site,
+            private Language $language,
+            private Layout $layout,
+            private Theme $theme,
         ) {}
 
         public function site(): Site

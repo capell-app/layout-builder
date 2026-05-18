@@ -26,7 +26,7 @@ class InstallLayoutBuilderElementCatalogAction
     use AsFake;
     use AsObject;
 
-    private const NavigationPackage = 'capell-app/navigation';
+    private const string NavigationPackage = 'capell-app/navigation';
 
     public function handle(?Collection $languages = null, bool $extraElements = false): void
     {

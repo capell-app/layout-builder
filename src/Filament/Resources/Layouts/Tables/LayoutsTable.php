@@ -19,14 +19,17 @@ use Filament\Tables\Columns\Layout\View;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Override;
 
 class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\LayoutsTable
 {
+    #[Override]
     protected static function getTableQueryModifier(Builder $query): Builder
     {
         return parent::getTableQueryModifier($query)->with('layoutElements');
     }
 
+    #[Override]
     protected static function getTableActions(): array
     {
         return [
@@ -53,6 +56,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
             ]);
     }
 
+    #[Override]
     protected static function getTableColumns(): array
     {
         $columns = parent::getTableColumns();
@@ -108,6 +112,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
         return $columns;
     }
 
+    #[Override]
     protected static function getTableFilters(): array
     {
         return [

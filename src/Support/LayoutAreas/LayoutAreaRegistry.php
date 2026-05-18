@@ -8,9 +8,9 @@ use InvalidArgumentException;
 
 final class LayoutAreaRegistry
 {
-    public const MAIN = 'main';
+    public const string MAIN = 'main';
 
-    private const GLOBAL_SCOPE = '*';
+    private const string GLOBAL_SCOPE = '*';
 
     /**
      * @var array<string, array<string, string>>

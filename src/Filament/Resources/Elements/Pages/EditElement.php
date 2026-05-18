@@ -21,6 +21,7 @@ use Howdu\FilamentRecordSwitcher\Filament\Concerns\HasRecordSwitcher;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use Override;
 
 /**
  * @property Element $record
@@ -34,11 +35,13 @@ class EditElement extends EditRecord
     }
 
     /** @return class-string<ElementResource> */
+    #[Override]
     public static function getResource(): string
     {
         return AdminSurfaceLookup::resource(ResourceEnum::Element);
     }
 
+    #[Override]
     public function getRelationManagers(): array
     {
         $relationManagers = $this->getTypeRelationManagers();
@@ -50,6 +53,7 @@ class EditElement extends EditRecord
         return $relationManagers;
     }
 
+    #[Override]
     public function getTitle(): string|Htmlable
     {
         return new HtmlString(
@@ -59,6 +63,7 @@ class EditElement extends EditRecord
         );
     }
 
+    #[Override]
     public function getSubheading(): string|Htmlable|null
     {
         $subheading = '';
@@ -101,6 +106,7 @@ class EditElement extends EditRecord
         $this->recordSwitcherAfterSave();
     }
 
+    #[Override]
     protected function getActions(): array
     {
         return $this->getBaseHeaderActions();

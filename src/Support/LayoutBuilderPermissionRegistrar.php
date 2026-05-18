@@ -11,7 +11,7 @@ final class LayoutBuilderPermissionRegistrar
 {
     use ResolvesShieldPermission;
 
-    private const SUBJECT = 'Layout';
+    private const string SUBJECT = 'Layout';
 
     /**
      * @return list<string>

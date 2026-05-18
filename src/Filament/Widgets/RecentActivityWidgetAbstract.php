@@ -10,6 +10,7 @@ use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Data\Dashboard\ActivityItemData;
 use Capell\LayoutBuilder\Data\Dashboard\RecentActivityData;
 use Filament\Widgets\Widget;
+use Override;
 
 final class RecentActivityWidgetAbstract extends Widget implements CapellWidgetContract
 {
@@ -28,6 +29,7 @@ final class RecentActivityWidgetAbstract extends Widget implements CapellWidgetC
     /**
      * @return array<string, mixed>
      */
+    #[Override]
     protected function getViewData(): array
     {
         return ['data' => $this->getData()];

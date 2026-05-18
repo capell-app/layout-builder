@@ -22,7 +22,7 @@ use Throwable;
 
 class LayoutLoader
 {
-    private const RETRIEVED_MODEL_STORE_SERVICE = 'capell.frontend.retrieved-model-store';
+    private const string RETRIEVED_MODEL_STORE_SERVICE = 'capell.frontend.retrieved-model-store';
 
     /**
      * Preloaded elements per [layoutId][languageId][pageIdOr0] => [containerKey][elementKey][occurrence] => Element

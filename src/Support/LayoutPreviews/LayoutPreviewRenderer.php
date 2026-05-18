@@ -10,19 +10,19 @@ use RuntimeException;
 
 class LayoutPreviewRenderer
 {
-    private const CANVAS_SIZE = 1200;
+    private const int CANVAS_SIZE = 1200;
 
-    private const PADDING = 56;
+    private const int PADDING = 56;
 
-    private const GAP = 22;
+    private const int GAP = 22;
 
-    private const HEADER_HEIGHT = 54;
+    private const int HEADER_HEIGHT = 54;
 
-    private const WIDGET_HEIGHT = 78;
+    private const int WIDGET_HEIGHT = 78;
 
-    private const WIDGET_GAP = 14;
+    private const int WIDGET_GAP = 14;
 
-    private const FOOTER_HEIGHT = 58;
+    private const int FOOTER_HEIGHT = 58;
 
     public function render(Layout $layout): string
     {

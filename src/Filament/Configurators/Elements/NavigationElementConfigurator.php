@@ -23,7 +23,7 @@ use Override;
 
 class NavigationElementConfigurator extends DefaultElementConfigurator
 {
-    private const NavigationPackage = 'capell-app/navigation';
+    private const string NavigationPackage = 'capell-app/navigation';
 
     #[Override]
     public function make(Schema $configurator): array
@@ -37,6 +37,7 @@ class NavigationElementConfigurator extends DefaultElementConfigurator
         };
     }
 
+    #[Override]
     protected function getCreateOptionSchema(Schema $configurator): array
     {
         return [
@@ -60,6 +61,7 @@ class NavigationElementConfigurator extends DefaultElementConfigurator
             ]);
     }
 
+    #[Override]
     protected function getEditOptionSchema(Schema $configurator): array
     {
         return [
@@ -68,6 +70,7 @@ class NavigationElementConfigurator extends DefaultElementConfigurator
         ];
     }
 
+    #[Override]
     protected function getFormSchema(Schema $configurator): array
     {
         return [

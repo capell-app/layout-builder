@@ -32,7 +32,7 @@ class CreateLayoutBuilderDemoSiteAction
     use AsFake;
     use AsObject;
 
-    private const NavigationPackage = 'capell-app/navigation';
+    private const string NavigationPackage = 'capell-app/navigation';
 
     private DemoCreator $demoCreator;
 

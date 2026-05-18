@@ -15,7 +15,7 @@ class GetElementContainerWidthAction
 {
     use AsObject;
 
-    private const LAYOUT_CONTAINER_WIDTH_RESOLVER_SERVICE = 'capell.frontend.layout-container-width-resolver';
+    private const string LAYOUT_CONTAINER_WIDTH_RESOLVER_SERVICE = 'capell.frontend.layout-container-width-resolver';
 
     public function handle(Element $element, ?string $default = null): ContainerWidthEnum
     {

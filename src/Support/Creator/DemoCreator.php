@@ -40,11 +40,11 @@ use Spatie\MediaLibrary\HasMedia;
 
 class DemoCreator
 {
-    private const DEMO_CREATOR = \Capell\DemoKit\Support\Creator\DemoCreator::class;
+    private const string DEMO_CREATOR = \Capell\DemoKit\Support\Creator\DemoCreator::class;
 
-    private const DemoKitPackage = 'capell-app/demo-kit';
+    private const string DemoKitPackage = 'capell-app/demo-kit';
 
-    private const NavigationPackage = 'capell-app/navigation';
+    private const string NavigationPackage = 'capell-app/navigation';
 
     /**
      * @var class-string<Model>

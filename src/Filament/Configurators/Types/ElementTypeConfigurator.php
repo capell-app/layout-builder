@@ -39,6 +39,7 @@ class ElementTypeConfigurator extends DefaultTypeConfigurator
         ];
     }
 
+    #[Override]
     protected function getGroupField(): Component
     {
         return CustomSelectGroup::make(

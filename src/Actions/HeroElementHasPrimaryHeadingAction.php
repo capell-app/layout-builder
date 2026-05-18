@@ -16,7 +16,7 @@ class HeroElementHasPrimaryHeadingAction
 {
     use AsObject;
 
-    private const FRONTEND_CONTEXT_SERVICE = 'capell.frontend.context';
+    private const string FRONTEND_CONTEXT_SERVICE = 'capell.frontend.context';
 
     public function handle(Element $element, Pageable $page): bool
     {

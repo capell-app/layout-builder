@@ -20,7 +20,7 @@ final class SaveLayoutPresetAction
     use AsObject;
 
     /** @var list<string> */
-    private const UNSAFE_PRESET_KEYS = [
+    private const array UNSAFE_PRESET_KEYS = [
         'admin_schema',
         'admin_url',
         'adminSchema',

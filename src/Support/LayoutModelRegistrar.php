@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 class LayoutModelRegistrar
 {
     /** @var list<class-string> */
-    private const MODELS = [
+    private const array MODELS = [
         Element::class,
         ElementAsset::class,
     ];

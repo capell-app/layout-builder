@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Actions;
 
-use Capell\Admin\Data\LayoutBuilder\AdminWidgetPreviewData as AdminElementPreviewData;
 use Capell\Core\Contracts\Pageable;
+use Capell\LayoutBuilder\Data\AdminElementPreviewData;
 use Capell\LayoutBuilder\Enums\ElementComponentEnum;
 use Capell\LayoutBuilder\Models\Element;
 use Illuminate\Database\Eloquent\Model;
