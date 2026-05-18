@@ -9,7 +9,6 @@ use Capell\Core\Actions\ResolveRenderableComponentAction;
 use Capell\Core\Concerns\HasCapellMedia;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\MediaCollectionEnum;
-use Capell\Core\Enums\RenderableTypeEnum;
 use Capell\Core\Models\Blueprint as CoreBlueprint;
 use Capell\Core\Models\Concerns\HasBlueprint;
 use Capell\Core\Models\Concerns\HasMetaData;
@@ -145,7 +144,7 @@ class Block extends Model implements Blueprintable, HasMedia, Publishable, Statu
     public function getComponent(): ?string
     {
         return ResolveRenderableComponentAction::run(
-            RenderableTypeEnum::Block,
+            'layout-block',
             $this->getMetaComponent() ?? config('capell-layout-builder.default_block', 'capell.block.default'),
             $this->getMetaComponentType(),
         );

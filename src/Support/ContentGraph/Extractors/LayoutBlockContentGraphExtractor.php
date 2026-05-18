@@ -8,7 +8,6 @@ use Capell\Core\Contracts\ContentGraph\ContentGraphExtractor;
 use Capell\Core\Data\ContentGraph\ContentGraphEdgeCollectionData;
 use Capell\Core\Data\ContentGraph\ContentGraphEdgeData;
 use Capell\Core\Data\ContentGraph\ContentGraphNodeData;
-use Capell\Core\Enums\ContentGraph\ContentGraphEdgeKind;
 use Capell\Core\Enums\ContentGraph\ContentGraphEdgeStrength;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
@@ -17,6 +16,8 @@ use Illuminate\Database\Eloquent\Model;
 
 final class LayoutBlockContentGraphExtractor implements ContentGraphExtractor
 {
+    private const string USES_LAYOUT_BLOCK = 'uses_layout_block';
+
     public static function sourceModel(): string
     {
         return Layout::class;
@@ -52,7 +53,7 @@ final class LayoutBlockContentGraphExtractor implements ContentGraphExtractor
                 $edges[] = new ContentGraphEdgeData(
                     source: $source,
                     target: ContentGraphNodeData::fromModelIdentity(Block::class, (int) $block->getKey()),
-                    kind: ContentGraphEdgeKind::UsesBlock,
+                    kind: self::USES_LAYOUT_BLOCK,
                     strength: ContentGraphEdgeStrength::Strong,
                     sourcePackage: LayoutBuilderServiceProvider::$packageName,
                     siteId: $siteId,

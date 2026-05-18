@@ -19,6 +19,8 @@ use Illuminate\Support\Collection;
 
 final class BlockContentGraphExtractor implements ContentGraphExtractor
 {
+    private const string USES_LAYOUT_BLOCK = 'uses_layout_block';
+
     public static function sourceModel(): string
     {
         return Block::class;
@@ -58,7 +60,7 @@ final class BlockContentGraphExtractor implements ContentGraphExtractor
                 $edges[] = $this->edge(
                     source: $source,
                     target: ContentGraphNodeData::fromModelIdentity($asset::class, (int) $asset->getKey()),
-                    kind: ContentGraphEdgeKind::UsesBlock,
+                    kind: self::USES_LAYOUT_BLOCK,
                     strength: ContentGraphEdgeStrength::Informational,
                 );
             });
@@ -70,7 +72,7 @@ final class BlockContentGraphExtractor implements ContentGraphExtractor
     private function edge(
         ContentGraphNodeData $source,
         ContentGraphNodeData $target,
-        ContentGraphEdgeKind $kind,
+        ContentGraphEdgeKind|string $kind,
         ContentGraphEdgeStrength $strength,
     ): ContentGraphEdgeData {
         return new ContentGraphEdgeData(

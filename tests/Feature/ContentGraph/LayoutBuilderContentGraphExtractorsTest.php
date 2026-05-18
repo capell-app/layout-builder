@@ -14,6 +14,8 @@ use Capell\LayoutBuilder\Models\Block;
 use Capell\LayoutBuilder\Models\BlockAsset;
 use Illuminate\Database\Eloquent\Model;
 
+const LAYOUT_BUILDER_USES_LAYOUT_BLOCK = 'uses_layout_block';
+
 it('extracts layout block content graph dependencies', function (): void {
     $block = Block::factory()->create();
     $layout = Layout::factory()->create([
@@ -28,7 +30,7 @@ it('extracts layout block content graph dependencies', function (): void {
 
     $edges = BuildContentGraphForModelAction::run($layout)->edges;
 
-    expect(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesBlock, Block::class, $block->id, ContentGraphEdgeStrength::Strong))->toBeTrue();
+    expect(layoutBuilderContentGraphHasEdge($edges, LAYOUT_BUILDER_USES_LAYOUT_BLOCK, Block::class, $block->id, ContentGraphEdgeStrength::Strong))->toBeTrue();
 });
 
 it('extracts block media and default asset dependencies', function (): void {
@@ -41,7 +43,7 @@ it('extracts block media and default asset dependencies', function (): void {
 
     expect(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesMedia, Media::class, $image->id, ContentGraphEdgeStrength::Strong))->toBeTrue()
         ->and(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesMedia, Media::class, $backgroundImage->id, ContentGraphEdgeStrength::Strong))->toBeTrue()
-        ->and(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesBlock, BlockAsset::class, $blockAsset->id, ContentGraphEdgeStrength::Informational))->toBeTrue();
+        ->and(layoutBuilderContentGraphHasEdge($edges, LAYOUT_BUILDER_USES_LAYOUT_BLOCK, BlockAsset::class, $blockAsset->id, ContentGraphEdgeStrength::Informational))->toBeTrue();
 });
 
 it('extracts block asset page links from pageable asset and linked page references', function (): void {
@@ -80,7 +82,7 @@ it('extracts block asset block and media asset dependencies', function (): void 
 
     $edges = BuildContentGraphForModelAction::run($blockAsset)->edges;
 
-    expect(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesBlock, Block::class, $block->id, ContentGraphEdgeStrength::Strong))->toBeTrue()
+    expect(layoutBuilderContentGraphHasEdge($edges, LAYOUT_BUILDER_USES_LAYOUT_BLOCK, Block::class, $block->id, ContentGraphEdgeStrength::Strong))->toBeTrue()
         ->and(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesMedia, Media::class, $media->id, ContentGraphEdgeStrength::Strong))->toBeTrue();
 });
 
@@ -101,13 +103,13 @@ it('uses layout block id for block asset relationships', function (): void {
  */
 function layoutBuilderContentGraphHasEdge(
     array $edges,
-    ContentGraphEdgeKind $kind,
+    ContentGraphEdgeKind|string $kind,
     string $targetType,
     int $targetId,
     ContentGraphEdgeStrength $strength,
 ): bool {
     return collect($edges)->contains(
-        fn (ContentGraphEdgeData $edge): bool => $edge->kind === $kind
+        fn (ContentGraphEdgeData $edge): bool => (is_string($edge->kind) ? $edge->kind : $edge->kind->value) === (is_string($kind) ? $kind : $kind->value)
             && $edge->target->modelType === $targetType
             && $edge->target->modelId === $targetId
             && $edge->strength === $strength,

@@ -20,6 +20,8 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 
 final class BlockAssetContentGraphExtractor implements ContentGraphExtractor
 {
+    private const string USES_LAYOUT_BLOCK = 'uses_layout_block';
+
     public static function sourceModel(): string
     {
         return BlockAsset::class;
@@ -38,7 +40,7 @@ final class BlockAssetContentGraphExtractor implements ContentGraphExtractor
             $edges[] = $this->edge(
                 source: $source,
                 target: ContentGraphNodeData::fromModelIdentity(Block::class, $model->block_id),
-                kind: ContentGraphEdgeKind::UsesBlock,
+                kind: self::USES_LAYOUT_BLOCK,
                 strength: ContentGraphEdgeStrength::Strong,
             );
         }
@@ -112,7 +114,7 @@ final class BlockAssetContentGraphExtractor implements ContentGraphExtractor
     private function edge(
         ContentGraphNodeData $source,
         ContentGraphNodeData $target,
-        ContentGraphEdgeKind $kind,
+        ContentGraphEdgeKind|string $kind,
         ContentGraphEdgeStrength $strength,
     ): ContentGraphEdgeData {
         return new ContentGraphEdgeData(

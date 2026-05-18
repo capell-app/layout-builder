@@ -34,7 +34,7 @@ it('walks layout builder block graph dependents back to pages', function (): voi
         'source_id' => $layout->id,
         'target_type' => Block::class,
         'target_id' => $block->id,
-        'kind' => ContentGraphEdgeKind::UsesBlock,
+        'kind' => 'uses_layout_block',
         'strength' => ContentGraphEdgeStrength::Strong,
         'source_package' => 'capell-app/layout-builder',
         'site_id' => $page->site_id,

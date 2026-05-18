@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Capell\Core\Data\RenderableDefinitionData;
-use Capell\Core\Enums\RenderableTypeEnum;
 use Capell\Core\Support\Renderables\RenderableRegistry;
 use Capell\Frontend\Data\MainContentRenderHookData;
 use Capell\Frontend\Enums\RenderHookLocation;
@@ -18,7 +17,7 @@ beforeEach(function (): void {
     Blade::component(PackageAlert::class, 'capell::block.default');
     resolve(RenderableRegistry::class)->register(new RenderableDefinitionData(
         key: 'capell.block.default',
-        type: RenderableTypeEnum::Block,
+        type: 'layout-block',
         blade: 'capell::block.default',
     ));
 });

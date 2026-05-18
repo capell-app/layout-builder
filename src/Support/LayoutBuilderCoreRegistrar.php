@@ -202,7 +202,7 @@ final class LayoutBuilderCoreRegistrar
 
             $registry->register(new RenderableDefinitionData(
                 key: $blockComponent->value,
-                type: RenderableTypeEnum::Block,
+                type: 'layout-block',
                 blade: $blade,
             ));
         }
@@ -220,7 +220,7 @@ final class LayoutBuilderCoreRegistrar
 
         $registry->register(new RenderableDefinitionData(
             key: LivewireComponentsEnum::PagesBlock->value,
-            type: RenderableTypeEnum::Block,
+            type: 'layout-block',
             livewire: 'capell::block.pages',
         ));
     }
