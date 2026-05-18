@@ -3,7 +3,9 @@
     use Capell\LayoutBuilder\Enums\ResourceEnum;
 @endphp
 
-<ul class="divide-y divide-gray-100 dark:divide-gray-800">
+<ul
+    class="capell-entries-layout-elements divide-y divide-gray-100 dark:divide-gray-800"
+>
     @foreach ($getState() as $elementKey)
         @php
             $element = $elements->firstWhere('key', $elementKey);

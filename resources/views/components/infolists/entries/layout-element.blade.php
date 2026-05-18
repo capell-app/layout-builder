@@ -2,7 +2,7 @@
     use Capell\Admin\Facades\CapellAdmin;
 @endphp
 
-<div class="flex items-center justify-between">
+<div class="capell-entries-layout-element flex items-center justify-between">
     <h3 class="text-lg font-medium leading-6 text-gray-900">
         {{ $element->key }}
     </h3>

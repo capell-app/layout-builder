@@ -7,6 +7,7 @@
 
 @if ($type === 'blade')
     <x-dynamic-component
+        class="capell-layout-builder-layout-element"
         :component="$component"
         :$container
         :$containerColspan

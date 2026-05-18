@@ -491,7 +491,6 @@ class ElementCreator
         }
 
         $navigation = CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($navigationModel)
-            /** @phpstan-ignore-next-line Navigation is an optional package model resolved by class string. */
             ? $navigationModel::query()->firstOrCreate([
                 'key' => $navigationKey,
                 'blueprint_id' => $navigationType->id,

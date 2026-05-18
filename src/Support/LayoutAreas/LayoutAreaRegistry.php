@@ -80,7 +80,7 @@ final class LayoutAreaRegistry
         $areas = $this->areas[self::GLOBAL_SCOPE] ?? [];
 
         if ($themeKey !== null && $themeKey !== '' && isset($this->areas[$themeKey])) {
-            $areas = array_replace($areas, $this->areas[$themeKey]);
+            return array_replace($areas, $this->areas[$themeKey]);
         }
 
         return $areas;

@@ -9,6 +9,7 @@ it('persists the hero component as a string value without an encoded enum meta p
     $element = CreateHeroElementAction::run();
 
     $element->refresh();
+
     $meta = json_decode((string) $element->getRawOriginal('meta'), true, flags: JSON_THROW_ON_ERROR);
 
     expect($element)->toBeInstanceOf(Element::class)
