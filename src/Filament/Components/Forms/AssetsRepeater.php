@@ -24,7 +24,6 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Contracts\Database\Query\Builder as BuilderContract;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -113,22 +112,7 @@ class AssetsRepeater extends Repeater
                 ->relationship(
                     'asset',
                     'name',
-                    modifyQueryUsing: fn (Builder $query, Get $get): Builder => $query->when(
-                        $get('asset_type') === 'page',
-                        fn (BuilderContract $query): BuilderContract => $query->with([
-                            'ancestors',
-                            'site',
-                        ])
-                            ->orderBy('site_id')
-                            ->orderBy(NestedSet::LFT, 'DESC')
-                            ->whereHas(
-                                'type',
-                                fn (Builder $query) => $query->where(
-                                    fn (Builder $query) => $query->where('group', '!=', BlueprintGroupEnum::System->value)
-                                        ->orWhereNull('group'),
-                                ),
-                            ),
-                    ),
+                    modifyQueryUsing: self::modifyAssetQuery(...),
                 )
                 ->savesBelongsToRelation()
                 ->getSelectedRecordUsing(
@@ -227,6 +211,34 @@ class AssetsRepeater extends Repeater
 
         return $action->group($actions)
             ->view('capell-admin::components.actions.dropdown-group');
+    }
+
+    protected static function modifyAssetQuery(Builder $query, Get $get): Builder
+    {
+        if ($get('asset_type') !== 'page') {
+            return $query;
+        }
+
+        return $query
+            ->with([
+                'ancestors',
+                'site',
+            ])
+            ->orderBy('site_id')
+            ->orderBy(NestedSet::LFT, 'DESC')
+            ->whereHas('type', self::applySelectablePageTypeQuery(...));
+    }
+
+    protected static function applySelectablePageTypeQuery(Builder $query): Builder
+    {
+        return $query->where(self::applyNonSystemBlueprintGroupQuery(...));
+    }
+
+    protected static function applyNonSystemBlueprintGroupQuery(Builder $query): Builder
+    {
+        return $query
+            ->where('group', '!=', BlueprintGroupEnum::System->value)
+            ->orWhereNull('group');
     }
 
     private static function modifyCreateAction(Action $action): Action

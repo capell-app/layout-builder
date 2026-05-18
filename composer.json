@@ -11,7 +11,7 @@
     "homepage": "https://github.com/capell-app/layout-builder",
     "license": "proprietary",
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "capell-app/admin": "*",
         "capell-app/content-blocks": "*",
         "capell-app/core": "*",

@@ -8,7 +8,7 @@ use Capell\LayoutBuilder\Data\LayoutSidebarElementData;
 
 interface LayoutSidebarElementContributor
 {
-    public const TAG = 'capell.layout-builder.sidebar-element-contributor';
+    public const string TAG = 'capell.layout-builder.sidebar-element-contributor';
 
     /**
      * @return array<int, LayoutSidebarElementData>

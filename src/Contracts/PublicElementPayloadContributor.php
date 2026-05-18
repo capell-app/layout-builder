@@ -10,7 +10,7 @@ use Capell\LayoutBuilder\Models\Element;
 
 interface PublicElementPayloadContributor
 {
-    public const TAG = 'capell.layout_builder.public_element_payload_contributor';
+    public const string TAG = 'capell.layout_builder.public_element_payload_contributor';
 
     public function priority(): int;
 

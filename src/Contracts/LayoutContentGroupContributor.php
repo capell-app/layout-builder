@@ -10,7 +10,7 @@ use Capell\LayoutBuilder\Data\LayoutContentItemData;
 
 interface LayoutContentGroupContributor
 {
-    public const TAG = 'capell.layout_builder.content_group_contributor';
+    public const string TAG = 'capell.layout_builder.content_group_contributor';
 
     public function priority(): int;
 

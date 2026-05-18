@@ -100,14 +100,7 @@ class ElementsTable implements TableConfigurator
             TextColumn::make('translation.content')
                 ->label(__('capell-admin::table.content'))
                 ->sortable()
-                ->searchable(
-                    query: fn (Builder $query, string $search): Builder => $query->whereRelation(
-                        'translations',
-                        'content',
-                        'like',
-                        $search,
-                    ),
-                )
+                ->searchable(query: self::applyContentSearch(...))
                 ->limit(200)
                 ->wrap()
                 ->color(FilamentColorEnum::LightGray->value)
@@ -141,22 +134,7 @@ class ElementsTable implements TableConfigurator
                 ->toggleable(isToggledHiddenByDefault: true),
             TextColumn::make('component')
                 ->label(__('capell-admin::table.component'))
-                ->searchable(query: function (Builder $query, string $search): Builder {
-                    /** @var Connection $databaseConnection */
-                    $databaseConnection = $query->getConnection();
-
-                    $searchOperator = match ($databaseConnection->getDriverName()) {
-                        'pgsql' => 'ilike',
-                        default => 'like',
-                    };
-
-                    return $query->where(
-                        fn (Builder $query): Builder => $query
-                            ->where('component', $searchOperator, sprintf('%%%s%%', $search))
-                            ->orWhere('view_file', $searchOperator, sprintf('%%%s%%', $search))
-                            ->orWhere('component_item', $searchOperator, sprintf('%%%s%%', $search)),
-                    );
-                })
+                ->searchable(query: self::applyComponentSearch(...))
                 ->size('xs')
                 ->color(FilamentColorEnum::LightGray->value)
                 ->formatStateUsing(function (Element $record): ?HtmlString {
@@ -222,6 +200,34 @@ class ElementsTable implements TableConfigurator
             DateColumn::make('updated_at'),
             DateColumn::make('deleted_at'),
         ];
+    }
+
+    protected static function applyContentSearch(Builder $query, string $search): Builder
+    {
+        return $query->whereRelation(
+            'translations',
+            'content',
+            'like',
+            $search,
+        );
+    }
+
+    protected static function applyComponentSearch(Builder $query, string $search): Builder
+    {
+        /** @var Connection $databaseConnection */
+        $databaseConnection = $query->getConnection();
+
+        $searchOperator = match ($databaseConnection->getDriverName()) {
+            'pgsql' => 'ilike',
+            default => 'like',
+        };
+
+        return $query->where(
+            fn (Builder $query): Builder => $query
+                ->where('component', $searchOperator, sprintf('%%%s%%', $search))
+                ->orWhere('view_file', $searchOperator, sprintf('%%%s%%', $search))
+                ->orWhere('component_item', $searchOperator, sprintf('%%%s%%', $search)),
+        );
     }
 
     protected static function getTableFilters(): array

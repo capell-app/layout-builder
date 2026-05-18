@@ -11,9 +11,6 @@ use Capell\Core\Actions\GetResourceFromBlueprintAction;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
-use Capell\Core\Models\Theme;
-use Capell\LayoutBuilder\Actions\AnalyzeLayoutHealthAction;
-use Capell\LayoutBuilder\Actions\BuildLayoutContentInventoryAction;
 use Capell\LayoutBuilder\Actions\Mutations\CreateLayoutFragmentAction;
 use Capell\LayoutBuilder\Actions\Mutations\PasteLayoutFragmentAction;
 use Capell\LayoutBuilder\Actions\Mutations\PushLayoutMutationSnapshotAction;
@@ -21,22 +18,18 @@ use Capell\LayoutBuilder\Actions\Mutations\RedoLayoutMutationSnapshotAction;
 use Capell\LayoutBuilder\Actions\Mutations\UndoLayoutMutationSnapshotAction;
 use Capell\LayoutBuilder\Actions\PersistLayoutBuilderStateAction;
 use Capell\LayoutBuilder\Actions\SaveLayoutPresetAction;
-use Capell\LayoutBuilder\Actions\SummarizeLayoutChangesAction;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
-use Capell\LayoutBuilder\Data\LayoutContentInventoryData;
 use Capell\LayoutBuilder\Data\LayoutFragmentData;
-use Capell\LayoutBuilder\Data\LayoutMutationResultData;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Enums\LayoutBuilderEditorMode;
-use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
+use Capell\LayoutBuilder\Livewire\Filament\Concerns\AuthorizesLayoutBuilderAccess;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\HasLayoutActions;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesAssets;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesContainers;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesElements;
-use Capell\LayoutBuilder\Models\Element;
+use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesLayoutBuilderState;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
-use Capell\LayoutBuilder\Support\LayoutBuilderConfiguration;
 use Capell\LayoutBuilder\Support\LayoutClipboard;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
@@ -45,14 +38,10 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
@@ -70,12 +59,14 @@ use LogicException;
  */
 class LayoutBuilder extends Component implements HasActions, HasForms, HasPageResource
 {
+    use AuthorizesLayoutBuilderAccess;
     use HasLayoutActions;
     use InteractsWithActions;
     use InteractsWithForms;
     use ManagesAssets;
     use ManagesContainers;
     use ManagesElements;
+    use ManagesLayoutBuilderState;
 
     #[Locked]
     public ?Pageable $page = null;
@@ -340,34 +331,6 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         return view($this->view);
     }
 
-    #[Computed]
-    public function contentInventory(): LayoutContentInventoryData
-    {
-        $this->ensureLoaded();
-
-        return BuildLayoutContentInventoryAction::run(
-            layout: $this->layout,
-            page: $this->page,
-            containers: $this->containers ?? [],
-            containerElements: $this->containerElements ?? [],
-            assets: $this->assets,
-            signature: $this->contentInventorySignature(),
-            siteName: $this->site?->name,
-        );
-    }
-
-    public function contentInventorySignature(): string
-    {
-        $payload = [
-            'layout' => $this->layout->getKey(),
-            'layout_updated_at' => $this->layout->updated_at?->getTimestamp(),
-            'containers' => $this->containers ?? [],
-            'assets' => $this->contentInventorySignatureAssets(),
-        ];
-
-        return hash('sha256', json_encode($payload, JSON_THROW_ON_ERROR));
-    }
-
     public function showAdvancedLayout(?string $returnToContentItemKey = null): void
     {
         $this->assertCanEditLayout();
@@ -389,16 +352,6 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             mode: $this->editorMode,
             returnToContentItemKey: $this->returnToContentItemKey,
         );
-    }
-
-    public function canEditContent(): bool
-    {
-        return $this->canPerformLayoutBuilderAbility('editContent');
-    }
-
-    public function canEditLayout(): bool
-    {
-        return $this->canPerformLayoutBuilderAbility('editLayout');
     }
 
     /**
@@ -638,10 +591,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
         $preset = LayoutPreset::query()
             ->forSite($this->site)
-            ->where(function (EloquentBuilder $query) use ($name): void {
-                $query->where('name', $name)
-                    ->orWhere('key', $name);
-            })
+            ->where(fn (EloquentBuilder $query): EloquentBuilder => $this->wherePresetNameOrKey($query, $name))
             ->first();
 
         if (! $preset instanceof LayoutPreset) {
@@ -690,517 +640,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->trackNewContainerKeysSince($knownContainerKeys);
     }
 
-    protected function persistElementAssets(): void
+    private function wherePresetNameOrKey(EloquentBuilder $query, string $name): EloquentBuilder
     {
-        $processedElementKeys = [];
-
-        foreach ($this->containers as $containerKey => $container) {
-            foreach ($container['elements'] as $elementIndex => $element) {
-                if ($this->inPageContext() && isset($element['pageable_type'], $element['pageable_id'])) {
-                    $key = $element['element_key'] . '_' . $element['pageable_type'] . '_' . $element['pageable_id'] . '_' . $element['container'] . '_' . $element['occurrence'];
-                } else {
-                    $key = $element['element_key'] . '_' . $element['occurrence'];
-                }
-
-                if (in_array($key, $processedElementKeys, true)) {
-                    continue;
-                }
-
-                $processedElementKeys[] = $key;
-
-                $this->updateAssets($containerKey, $elementIndex, $element['old_container'] ?? null);
-            }
-        }
-
-        if ($this->inPageContext()) {
-            $this->deleteRemovedElementAssets();
-        }
-    }
-
-    protected function clipboard(): LayoutClipboard
-    {
-        return $this->layoutClipboard ??= new LayoutClipboard;
-    }
-
-    protected function ensureLoaded(): void
-    {
-        if (! isset($this->containerElements)) {
-            $this->loadFromStore();
-        }
-    }
-
-    protected function loadNew(): void
-    {
-        $this->setupContainers();
-
-        $elements = $this->preloadAllElements();
-
-        foreach (array_keys($this->containers) as $containerKey) {
-            $this->setupContainerElements($containerKey, $elements);
-        }
-
-        $this->setupSelectedAssets();
-
-        $this->saveOriginalAssets();
-        $this->captureSavedBaselineState();
-        $this->refreshLayoutChanges();
-        $this->refreshLayoutDiagnostics();
-    }
-
-    protected function loadFromStore(): void
-    {
-        $this->setupContainers();
-
-        $elements = $this->preloadAllElements(withAssets: false);
-
-        $allElementAssets = $this->preloadAllElementAssets();
-
-        $containerElementAssets = [];
-
-        foreach ($this->assets as $containerKey => $containerElements) {
-            foreach ($containerElements as $elementIndex => $elementAssets) {
-                $elementKey = $this->containers[$containerKey]['elements'][$elementIndex]['element_key'] ?? null;
-
-                if ($elementKey === null) {
-                    continue;
-                }
-
-                /** @var Element $element */
-                $element = $elements[$elementKey];
-
-                $containerElementAssets[$containerKey][$elementIndex] = $this->setupElementAssets(
-                    $containerKey,
-                    $elementIndex,
-                    $elementAssets,
-                    $allElementAssets,
-                    $element,
-                );
-            }
-        }
-
-        foreach (array_keys($this->containers) as $containerKey) {
-            $this->setupContainerElements($containerKey, $elements, $containerElementAssets);
-        }
-    }
-
-    protected function reload(): void
-    {
-        $this->reset('containerElements', 'selectedRecords', 'assets', 'originalAssets', 'containers', 'layout');
-
-        $this->loadNew();
-    }
-
-    protected function inPageContext(): bool
-    {
-        return $this->page instanceof Pageable;
-    }
-
-    protected function assertCanUpdateLayout(): void
-    {
-        $this->assertCanEditLayout();
-    }
-
-    protected function assertCanUseLayoutBuilder(): void
-    {
-        $actor = Filament::auth()->user();
-
-        throw_if($actor === null, AuthenticationException::class);
-
-        $this->assertLayoutMatchesPageSite();
-
-        if ($this->canEditContent() || $this->canEditLayout()) {
-            return;
-        }
-
-        $this->assertCanEditLayout();
-    }
-
-    protected function assertCanEditContent(): void
-    {
-        $actor = Filament::auth()->user();
-
-        throw_if($actor === null, AuthenticationException::class);
-
-        $this->assertLayoutMatchesPageSite();
-
-        if ($this->page instanceof Model) {
-            $this->authorizeLayoutBuilderAbility($actor, 'editContent', $this->page);
-
-            return;
-        }
-
-        $this->authorizeLayoutBuilderAbility($actor, 'editContent', $this->layout);
-    }
-
-    protected function assertCanEditLayout(): void
-    {
-        $actor = Filament::auth()->user();
-
-        throw_if($actor === null, AuthenticationException::class);
-
-        $this->assertLayoutMatchesPageSite();
-
-        if ($this->page instanceof Model) {
-            $this->authorizeLayoutBuilderAbility($actor, 'editLayout', $this->page);
-        }
-
-        $this->authorizeLayoutBuilderAbility($actor, 'editLayout', $this->layout);
-    }
-
-    protected function assertCanCreateLayoutPreset(Site $site): void
-    {
-        $actor = Filament::auth()->user();
-
-        throw_if($actor === null, AuthenticationException::class);
-
-        Gate::forUser($actor)->authorize('create', [LayoutPreset::class, $site]);
-    }
-
-    protected function assertCanApplyLayoutPreset(LayoutPreset $preset, Site $site): void
-    {
-        $actor = Filament::auth()->user();
-
-        throw_if($actor === null, AuthenticationException::class);
-
-        Gate::forUser($actor)->authorize('apply', [$preset, $site]);
-    }
-
-    protected function assertLayoutMatchesPageSite(): void
-    {
-        if (! $this->page instanceof Model) {
-            return;
-        }
-
-        if (! $this->layout->hasAttribute('site_id') || $this->layout->site_id === null) {
-            return;
-        }
-
-        if (! $this->page->hasAttribute('site_id') || $this->page->site_id === $this->layout->site_id) {
-            return;
-        }
-
-        throw new AuthorizationException;
-    }
-
-    protected function layoutUpdated(bool $modified = true): void
-    {
-        $this->layoutModified = $modified;
-    }
-
-    protected function applyLayoutMutationResult(LayoutMutationResultData $result): void
-    {
-        $history = PushLayoutMutationSnapshotAction::run($this->layoutState(), $this->layoutUndoSnapshots);
-        $this->layoutUndoSnapshots = $history->undoSnapshots;
-        $this->layoutRedoSnapshots = $history->redoSnapshots;
-
-        $this->applyLayoutState($result->state, markModified: true);
-        $this->layoutDiagnostics = array_map(
-            fn (mixed $diagnostic): array => method_exists($diagnostic, 'toArray') ? $diagnostic->toArray() : (array) $diagnostic,
-            $result->diagnostics,
-        );
-        $this->layoutChanges = array_map(
-            fn (mixed $change): array => method_exists($change, 'toArray') ? $change->toArray() : (array) $change,
-            $result->changes,
-        );
-        $this->refreshLayoutChanges();
-        $this->refreshLayoutDiagnostics();
-    }
-
-    protected function applyLayoutState(LayoutBuilderStateData $state, bool $markModified): void
-    {
-        $this->containers = $state->containers;
-        $this->assets = $state->assets;
-        $this->originalAssets = $state->originalAssets;
-        $this->selectedRecords = $state->selectedRecords;
-
-        $this->rebuildLoadedContainerElements();
-
-        $this->layoutUpdated($markModified);
-    }
-
-    protected function rebuildLoadedContainerElements(): void
-    {
-        $this->containerElements = [];
-        $elementKeys = collect($this->containers ?? [])
-            ->flatMap(fn (array $container): array => array_map(
-                static fn (array $element): mixed => $element['element_key'] ?? null,
-                $container['elements'] ?? [],
-            ))
-            ->filter(static fn (mixed $elementKey): bool => is_string($elementKey) && $elementKey !== '')
-            ->unique()
-            ->values()
-            ->all();
-
-        $elementsByKey = $elementKeys === []
-            ? collect()
-            : $this->getElementDisplayQuery()
-                ->whereIn('key', $elementKeys)
-                ->get()
-                ->keyBy('key');
-
-        foreach ($this->containers ?? [] as $containerKey => $container) {
-            foreach (($container['elements'] ?? []) as $elementIndex => $element) {
-                $elementKey = $element['element_key'] ?? null;
-
-                if (! is_string($elementKey)) {
-                    continue;
-                }
-
-                $loadedElement = $elementsByKey->get($elementKey);
-
-                if ($loadedElement !== null) {
-                    $this->containerElements[$containerKey][$elementIndex] = $loadedElement;
-                }
-            }
-        }
-    }
-
-    protected function layoutState(): LayoutBuilderStateData
-    {
-        return LayoutBuilderStateData::fromLivewire(
-            containers: $this->containers,
-            assets: $this->assets,
-            originalAssets: $this->originalAssets,
-            selectedRecords: $this->selectedRecords,
-        );
-    }
-
-    protected function stateFromSnapshot(array $snapshot): LayoutBuilderStateData
-    {
-        return LayoutBuilderStateData::fromSnapshot($snapshot);
-    }
-
-    protected function captureSavedBaselineState(): void
-    {
-        $this->savedBaselineSnapshot = $this->layoutState()->toLivewirePayload();
-    }
-
-    protected function savedBaselineState(): LayoutBuilderStateData
-    {
-        if ($this->savedBaselineSnapshot === null) {
-            $this->captureSavedBaselineState();
-        }
-
-        return $this->stateFromSnapshot($this->savedBaselineSnapshot ?? []);
-    }
-
-    protected function refreshLayoutChanges(): void
-    {
-        $this->layoutChanges = array_map(
-            fn (mixed $change): array => method_exists($change, 'toArray') ? $change->toArray() : (array) $change,
-            SummarizeLayoutChangesAction::run($this->savedBaselineState(), $this->layoutState()),
-        );
-    }
-
-    protected function refreshLayoutDiagnostics(): void
-    {
-        $this->layoutDiagnostics = array_map(
-            fn (mixed $diagnostic): array => method_exists($diagnostic, 'toArray') ? $diagnostic->toArray() : (array) $diagnostic,
-            AnalyzeLayoutHealthAction::run($this->layoutState(), $this->activeThemeKey()),
-        );
-    }
-
-    protected function activeThemeKey(): ?string
-    {
-        $layoutTheme = $this->layout->relationLoaded('theme') ? $this->layout->getRelation('theme') : $this->layout->theme()->first();
-
-        if ($layoutTheme instanceof Theme) {
-            return $layoutTheme->key;
-        }
-
-        $site = $this->getSite();
-        $siteTheme = $site?->relationLoaded('theme') === true ? $site->getRelation('theme') : $site?->theme()->first();
-
-        return $siteTheme instanceof Theme ? $siteTheme->key : null;
-    }
-
-    protected function hasBlockingLayoutDiagnostics(): bool
-    {
-        foreach ($this->layoutDiagnostics as $diagnostic) {
-            $severity = data_get($diagnostic, 'severity');
-
-            if ($severity instanceof LayoutDiagnosticSeverity) {
-                if ($severity === LayoutDiagnosticSeverity::Blocking) {
-                    return true;
-                }
-
-                continue;
-            }
-
-            if ($severity === LayoutDiagnosticSeverity::Blocking->value) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    protected function getSite(): ?Site
-    {
-        if ($this->site instanceof Site) {
-            return $this->site;
-        }
-
-        if (! $this->inPageContext()) {
-            return null;
-        }
-
-        return $this->page->site;
-    }
-
-    /**
-     * @return array<string, array<int, array<int, array<string, mixed>>>>
-     */
-    private function contentInventorySignatureAssets(): array
-    {
-        $assets = [];
-
-        foreach ($this->assets as $containerKey => $containerAssets) {
-            foreach ($containerAssets as $elementIndex => $elementAssets) {
-                foreach ($elementAssets as $assetIndex => $asset) {
-                    $assets[$containerKey][$elementIndex][$assetIndex] = [
-                        'id' => $asset['id'] ?? null,
-                        'layout_element_id' => $asset['layout_element_id'] ?? null,
-                        'asset_id' => $asset['asset_id'] ?? null,
-                        'asset_type' => $asset['asset_type'] ?? null,
-                        'order' => $asset['order'] ?? null,
-                        'occurrence' => $asset['occurrence'] ?? null,
-                        'pageable_id' => $asset['pageable_id'] ?? null,
-                        'pageable_type' => $asset['pageable_type'] ?? null,
-                        'container' => $asset['container'] ?? null,
-                    ];
-                }
-            }
-        }
-
-        return $assets;
-    }
-
-    private function resolveInitialEditorMode(): string
-    {
-        $configuredMode = LayoutBuilderEditorMode::fromConfig(
-            $this->configuredDefaultEditorMode(),
-        );
-
-        if ($configuredMode === LayoutBuilderEditorMode::ContentFirst && $this->canEditContent()) {
-            return $configuredMode->value;
-        }
-
-        if ($configuredMode === LayoutBuilderEditorMode::LayoutFirst && $this->canEditLayout()) {
-            return $configuredMode->value;
-        }
-
-        if ($this->canEditContent()) {
-            return LayoutBuilderEditorMode::ContentFirst->value;
-        }
-
-        if ($this->canEditLayout()) {
-            return LayoutBuilderEditorMode::LayoutFirst->value;
-        }
-
-        return $configuredMode->value;
-    }
-
-    private function configuredDefaultEditorMode(): string
-    {
-        $configuration = LayoutBuilderConfiguration::class;
-
-        if (class_exists($configuration) && method_exists($configuration, 'defaultEditorMode')) {
-            return $configuration::defaultEditorMode();
-        }
-
-        $packageMode = config('capell-layout-builder.editor_mode.default');
-
-        if (is_string($packageMode) && $packageMode !== '') {
-            return $packageMode;
-        }
-
-        $legacyPackageMode = config('capell-layout-builder.editor_mode');
-
-        if (is_string($legacyPackageMode) && $legacyPackageMode !== '') {
-            return $legacyPackageMode;
-        }
-
-        $adminMode = config('capell-admin.layout_builder.default_editor_mode');
-
-        return is_string($adminMode) && $adminMode !== ''
-            ? $adminMode
-            : LayoutBuilderEditorMode::ContentFirst->value;
-    }
-
-    private function canPerformLayoutBuilderAbility(string $ability): bool
-    {
-        $actor = Filament::auth()->user();
-
-        if ($actor === null) {
-            return false;
-        }
-
-        if ($ability === 'editLayout' && $this->page instanceof Model) {
-            return $this->allowsLayoutBuilderAbility($actor, $ability, $this->page)
-                && $this->allowsLayoutBuilderAbility($actor, $ability, $this->layout);
-        }
-
-        $record = $this->page instanceof Model ? $this->page : $this->layout;
-
-        return $this->allowsLayoutBuilderAbility($actor, $ability, $record);
-    }
-
-    private function allowsLayoutBuilderAbility(Authenticatable $actor, string $ability, Model $record): bool
-    {
-        $policy = Gate::getPolicyFor($record);
-        $resolvedAbility = $policy !== null && method_exists($policy, $ability) ? $ability : 'update';
-
-        return Gate::forUser($actor)->allows($resolvedAbility, $record);
-    }
-
-    private function authorizeLayoutBuilderAbility(Authenticatable $actor, string $ability, Model $record): void
-    {
-        $policy = Gate::getPolicyFor($record);
-        $resolvedAbility = $policy !== null && method_exists($policy, $ability) ? $ability : 'update';
-
-        Gate::forUser($actor)->authorize($resolvedAbility, $record);
-    }
-
-    /**
-     * @param  array<int, string>  $knownContainerKeys
-     */
-    private function trackNewContainerKeysSince(array $knownContainerKeys): void
-    {
-        foreach (array_diff(array_keys($this->containers ?? []), $knownContainerKeys) as $containerKey) {
-            $this->trackKnownContainerKey($containerKey);
-        }
-    }
-
-    private function assertValidContainerKey(string $containerKey): void
-    {
-        $this->ensureLoaded();
-
-        if (array_key_exists($containerKey, $this->containers) && in_array($containerKey, $this->knownContainerKeys, true)) {
-            return;
-        }
-
-        throw ValidationException::withMessages([
-            'containerKey' => __('capell-layout-builder::message.no_container_selected'),
-        ]);
-    }
-
-    private function assertKnownContainerStructure(): void
-    {
-        $this->ensureLoaded();
-
-        foreach (array_keys($this->containers) as $containerKey) {
-            if (! is_string($containerKey) || $containerKey === '' || preg_match('/^[A-Za-z0-9_-]+$/', $containerKey) !== 1) {
-                throw ValidationException::withMessages([
-                    'containers' => __('capell-layout-builder::message.invalid_layout_containers'),
-                ]);
-            }
-
-            if (! in_array($containerKey, $this->knownContainerKeys, true)) {
-                throw ValidationException::withMessages([
-                    'containers' => __('capell-layout-builder::message.invalid_layout_containers'),
-                ]);
-            }
-        }
+        return $query
+            ->where('name', $name)
+            ->orWhere('key', $name);
     }
 }

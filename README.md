@@ -117,6 +117,20 @@ Public area rendering should use the package renderer rather than querying from 
 
 The area component reads the already-resolved layout containers and uses the stored `CapellLayoutManager` element instances. Keep public Blade query-free and authoring-free; area keys are public placement data, but editor state, model IDs, field paths, signed URLs, and package/admin metadata must stay out of the HTML.
 
+Apps and package seeders should use `AttachElementToLayoutAreaAction` when placing elements into a named area. The action creates the area container when needed, normalizes the area key, preserves existing container metadata, and avoids duplicate element/occurrence pairs.
+
+```php
+use Capell\LayoutBuilder\Actions\AttachElementToLayoutAreaAction;
+
+AttachElementToLayoutAreaAction::run(
+    layout: $layout,
+    area: 'header',
+    elementKey: 'announcement-bar',
+    containerKey: 'site-announcement',
+    containerMeta: ['container' => 'full'],
+);
+```
+
 ## Reusable Presets
 
 Saved agency presets are persisted in `layout_presets` and scoped to a required `site_id` with optional `theme_key`. Presets are layout-only by default: they deep-copy structure, selected block variants, and settings without duplicating client content. Applying a preset revalidates site scope and regenerates duplicate anchors.
