@@ -27,9 +27,26 @@ trait AuthorizesLayoutBuilderAccess
         return $this->canPerformLayoutBuilderAbility('editLayout');
     }
 
-    protected function assertCanUpdateLayout(): void
+    public function assertCanUpdateLayout(): void
     {
         $this->assertCanEditLayout();
+    }
+
+    public function assertCanEditContent(): void
+    {
+        $actor = Filament::auth()->user();
+
+        throw_if($actor === null, AuthenticationException::class);
+
+        $this->assertLayoutMatchesPageSite();
+
+        if ($this->page instanceof Model) {
+            $this->authorizeLayoutBuilderAbility($actor, 'editContent', $this->page);
+
+            return;
+        }
+
+        $this->authorizeLayoutBuilderAbility($actor, 'editContent', $this->layout);
     }
 
     protected function assertCanUseLayoutBuilder(): void
@@ -45,23 +62,6 @@ trait AuthorizesLayoutBuilderAccess
         }
 
         $this->assertCanEditLayout();
-    }
-
-    protected function assertCanEditContent(): void
-    {
-        $actor = Filament::auth()->user();
-
-        throw_if($actor === null, AuthenticationException::class);
-
-        $this->assertLayoutMatchesPageSite();
-
-        if ($this->page instanceof Model) {
-            $this->authorizeLayoutBuilderAbility($actor, 'editContent', $this->page);
-
-            return;
-        }
-
-        $this->authorizeLayoutBuilderAbility($actor, 'editContent', $this->layout);
     }
 
     protected function assertCanEditLayout(): void
@@ -187,6 +187,11 @@ trait AuthorizesLayoutBuilderAccess
     private function allowsLayoutBuilderAbility(Authenticatable $actor, string $ability, Model $record): bool
     {
         $policy = Gate::getPolicyFor($record);
+
+        if ($policy === null) {
+            return true;
+        }
+
         $resolvedAbility = $policy !== null && method_exists($policy, $ability) ? $ability : 'update';
 
         return Gate::forUser($actor)->allows($resolvedAbility, $record);
@@ -195,6 +200,11 @@ trait AuthorizesLayoutBuilderAccess
     private function authorizeLayoutBuilderAbility(Authenticatable $actor, string $ability, Model $record): void
     {
         $policy = Gate::getPolicyFor($record);
+
+        if ($policy === null) {
+            return;
+        }
+
         $resolvedAbility = $policy !== null && method_exists($policy, $ability) ? $ability : 'update';
 
         Gate::forUser($actor)->authorize($resolvedAbility, $record);

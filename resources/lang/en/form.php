@@ -321,6 +321,7 @@ return [
     'right_to_left' => 'Right-to-left',
     'role_restrictions' => 'Restrict to roles',
     'rounded_images' => 'Rounded Images',
+    'search_content_inventory' => 'Search editable content',
     'search_elements' => 'Search elements',
     'secondary_button_text' => 'Secondary Button Text',
     'secondary_button_url' => 'Secondary Button URL',

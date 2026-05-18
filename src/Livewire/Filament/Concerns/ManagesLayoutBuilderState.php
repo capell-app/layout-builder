@@ -50,64 +50,14 @@ trait ManagesLayoutBuilderState
         return hash('sha256', json_encode($payload, JSON_THROW_ON_ERROR));
     }
 
-    protected function persistElementAssets(): void
-    {
-        $processedElementKeys = [];
-
-        foreach ($this->containers as $containerKey => $container) {
-            foreach ($container['elements'] as $elementIndex => $element) {
-                if ($this->inPageContext() && isset($element['pageable_type'], $element['pageable_id'])) {
-                    $key = $element['element_key'] . '_' . $element['pageable_type'] . '_' . $element['pageable_id'] . '_' . $element['container'] . '_' . $element['occurrence'];
-                } else {
-                    $key = $element['element_key'] . '_' . $element['occurrence'];
-                }
-
-                if (in_array($key, $processedElementKeys, true)) {
-                    continue;
-                }
-
-                $processedElementKeys[] = $key;
-
-                $this->updateAssets($containerKey, $elementIndex, $element['old_container'] ?? null);
-            }
-        }
-
-        if ($this->inPageContext()) {
-            $this->deleteRemovedElementAssets();
-        }
-    }
-
-    protected function clipboard(): LayoutClipboard
-    {
-        return $this->layoutClipboard ??= new LayoutClipboard;
-    }
-
-    protected function ensureLoaded(): void
+    public function ensureLoaded(): void
     {
         if (! isset($this->containerElements)) {
             $this->loadFromStore();
         }
     }
 
-    protected function loadNew(): void
-    {
-        $this->setupContainers();
-
-        $elements = $this->preloadAllElements();
-
-        foreach (array_keys($this->containers) as $containerKey) {
-            $this->setupContainerElements($containerKey, $elements);
-        }
-
-        $this->setupSelectedAssets();
-
-        $this->saveOriginalAssets();
-        $this->captureSavedBaselineState();
-        $this->refreshLayoutChanges();
-        $this->refreshLayoutDiagnostics();
-    }
-
-    protected function loadFromStore(): void
+    public function loadFromStore(): void
     {
         $this->setupContainers();
 
@@ -143,21 +93,84 @@ trait ManagesLayoutBuilderState
         }
     }
 
+    public function inPageContext(): bool
+    {
+        return $this->page instanceof Pageable;
+    }
+
+    public function layoutUpdated(bool $modified = true): void
+    {
+        $this->layoutModified = $modified;
+    }
+
+    public function getSite(): ?Site
+    {
+        if ($this->site instanceof Site) {
+            return $this->site;
+        }
+
+        if (! $this->inPageContext()) {
+            return null;
+        }
+
+        return $this->page->site;
+    }
+
+    protected function persistElementAssets(): void
+    {
+        $processedElementKeys = [];
+
+        foreach ($this->containers as $containerKey => $container) {
+            foreach ($container['elements'] as $elementIndex => $element) {
+                if ($this->inPageContext() && isset($element['pageable_type'], $element['pageable_id'])) {
+                    $key = $element['element_key'] . '_' . $element['pageable_type'] . '_' . $element['pageable_id'] . '_' . $element['container'] . '_' . $element['occurrence'];
+                } else {
+                    $key = $element['element_key'] . '_' . $element['occurrence'];
+                }
+
+                if (in_array($key, $processedElementKeys, true)) {
+                    continue;
+                }
+
+                $processedElementKeys[] = $key;
+
+                $this->updateAssets($containerKey, $elementIndex, $element['old_container'] ?? null);
+            }
+        }
+
+        if ($this->inPageContext()) {
+            $this->deleteRemovedElementAssets();
+        }
+    }
+
+    protected function clipboard(): LayoutClipboard
+    {
+        return $this->layoutClipboard ??= new LayoutClipboard;
+    }
+
+    protected function loadNew(): void
+    {
+        $this->setupContainers();
+
+        $elements = $this->preloadAllElements();
+
+        foreach (array_keys($this->containers) as $containerKey) {
+            $this->setupContainerElements($containerKey, $elements);
+        }
+
+        $this->setupSelectedAssets();
+
+        $this->saveOriginalAssets();
+        $this->captureSavedBaselineState();
+        $this->refreshLayoutChanges();
+        $this->refreshLayoutDiagnostics();
+    }
+
     protected function reload(): void
     {
         $this->reset('containerElements', 'selectedRecords', 'assets', 'originalAssets', 'containers', 'layout');
 
         $this->loadNew();
-    }
-
-    protected function inPageContext(): bool
-    {
-        return $this->page instanceof Pageable;
-    }
-
-    protected function layoutUpdated(bool $modified = true): void
-    {
-        $this->layoutModified = $modified;
     }
 
     protected function applyLayoutMutationResult(LayoutMutationResultData $result): void
@@ -306,19 +319,6 @@ trait ManagesLayoutBuilderState
         }
 
         return false;
-    }
-
-    protected function getSite(): ?Site
-    {
-        if ($this->site instanceof Site) {
-            return $this->site;
-        }
-
-        if (! $this->inPageContext()) {
-            return null;
-        }
-
-        return $this->page->site;
     }
 
     /**

@@ -153,7 +153,7 @@ trait ManagesContainers
         $this->layoutUpdated();
     }
 
-    protected function saveContainer(array $data, ?string $key = null, ?int $position = null): void
+    public function saveContainer(array $data, ?string $key = null, ?int $position = null): void
     {
         $this->assertCanUpdateLayout();
 
@@ -181,7 +181,7 @@ trait ManagesContainers
         $this->layoutUpdated();
     }
 
-    protected function removeContainer(string $containerKey): void
+    public function removeContainer(string $containerKey): void
     {
         $this->assertCanUpdateLayout();
 
@@ -198,16 +198,67 @@ trait ManagesContainers
         $this->layoutUpdated();
     }
 
-    protected function canMoveContainerUp(string $containerKey): bool
+    public function canMoveContainerUp(string $containerKey): bool
     {
         return $this->containerPosition($containerKey) > 0;
     }
 
-    protected function canMoveContainerDown(string $containerKey): bool
+    public function canMoveContainerDown(string $containerKey): bool
     {
         $position = $this->containerPosition($containerKey);
 
         return $position !== null && $position < count($this->containers) - 1;
+    }
+
+    public function getContainerSchema(Schema $configurator, array $arguments): array
+    {
+        $containerKey = $arguments['containerKey'] ?? null;
+
+        $adminSchema = AdminSurfaceLookup::configurator(
+            ConfiguratorTypeEnum::LayoutContainer->value,
+            $this->layout->admin['container_schema'][$containerKey] ?? DefaultLayoutContainerConfigurator::getKey(),
+        );
+
+        $typeSchema = resolve($adminSchema)->make($configurator);
+
+        return [
+            TextInput::make('key')
+                ->label(__('capell-admin::form.key'))
+                ->placeholder(__('capell-admin::generic.key_placeholder'))
+                ->helperText(__('capell-layout-builder::message.container_key_helper'))
+                ->alphaDash()
+                ->required()
+                ->maxLength(128)
+                ->afterStateHydrated(
+                    fn (TextInput $component, ?string $state): TextInput => $component->state(
+                        str($state)->slug()->lower()->toString(),
+                    ),
+                )
+                ->dehydrateStateUsing(fn (?string $state): string => str($state)->slug()->lower()->toString())
+                ->rules([
+                    fn (self $livewire): Closure => function (string $attribute, string $value, Closure $fail) use ($livewire, $containerKey): void {
+                        if (! isset($livewire->containers[$value]) || ($containerKey && $containerKey === $value)) {
+                            return;
+                        }
+
+                        $fail(__('capell-layout-builder::message.layout_container_key_not_unique', ['key' => $value]));
+                    },
+                ]),
+            Select::make('meta.area')
+                ->label(__('capell-layout-builder::form.area'))
+                ->options(fn (): array => $this->layoutAreaOptions())
+                ->default(LayoutAreaRegistry::MAIN)
+                ->required()
+                ->native(false),
+            ...$typeSchema,
+        ];
+    }
+
+    public function getContainerOptions(): SupportCollection
+    {
+        return collect($this->containers)
+            ->keys()
+            ->mapWithKeys(fn (string $container): array => [$container => __($container)]);
     }
 
     protected function updateContainerKey(string $oldKey, string $newKey): string
@@ -287,57 +338,6 @@ trait ManagesContainers
             ];
             $this->trackKnownContainerKey((string) $key);
         }
-    }
-
-    protected function getContainerSchema(Schema $configurator, array $arguments): array
-    {
-        $containerKey = $arguments['containerKey'] ?? null;
-
-        $adminSchema = AdminSurfaceLookup::configurator(
-            ConfiguratorTypeEnum::LayoutContainer->value,
-            $this->layout->admin['container_schema'][$containerKey] ?? DefaultLayoutContainerConfigurator::getKey(),
-        );
-
-        $typeSchema = resolve($adminSchema)->make($configurator);
-
-        return [
-            TextInput::make('key')
-                ->label(__('capell-admin::form.key'))
-                ->placeholder(__('capell-admin::generic.key_placeholder'))
-                ->helperText(__('capell-layout-builder::message.container_key_helper'))
-                ->alphaDash()
-                ->required()
-                ->maxLength(128)
-                ->afterStateHydrated(
-                    fn (TextInput $component, ?string $state): TextInput => $component->state(
-                        str($state)->slug()->lower()->toString(),
-                    ),
-                )
-                ->dehydrateStateUsing(fn (?string $state): string => str($state)->slug()->lower()->toString())
-                ->rules([
-                    fn (self $livewire): Closure => function (string $attribute, string $value, Closure $fail) use ($livewire, $containerKey): void {
-                        if (! isset($livewire->containers[$value]) || ($containerKey && $containerKey === $value)) {
-                            return;
-                        }
-
-                        $fail(__('capell-layout-builder::message.layout_container_key_not_unique', ['key' => $value]));
-                    },
-                ]),
-            Select::make('meta.area')
-                ->label(__('capell-layout-builder::form.area'))
-                ->options(fn (): array => $this->layoutAreaOptions())
-                ->default(LayoutAreaRegistry::MAIN)
-                ->required()
-                ->native(false),
-            ...$typeSchema,
-        ];
-    }
-
-    protected function getContainerOptions(): SupportCollection
-    {
-        return collect($this->containers)
-            ->keys()
-            ->mapWithKeys(fn (string $container): array => [$container => __($container)]);
     }
 
     private function moveContainer(string $containerKey, int $direction): void

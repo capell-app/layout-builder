@@ -33,6 +33,7 @@ return [
     'change_layout' => 'Change Layout',
     'check_now' => 'Check now',
     'upload' => 'Upload',
+    'clear_content_inventory_search' => 'Clear content search',
     'clear_cache' => 'Clear cache',
     'clone' => 'Clone',
     'clone_layout_for_page' => 'Clone layout for this page',

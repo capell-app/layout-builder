@@ -16,9 +16,9 @@
     use Capell\Admin\Facades\CapellAdmin;
     use Capell\Core\Actions\GetResourceFromBlueprintAction;
     use Capell\Core\Enums\MediaConversionEnum;
+    use Capell\Core\Facades\CapellCore;
     use Capell\Core\Models\Page;
     use Capell\Core\Models\Site;
-    use Filament\Actions\Action;
     use Filament\Support\Contracts\ScalableIcon;
     use Filament\Support\Enums\IconSize;
     use Filament\Support\Enums\Size;
@@ -26,13 +26,12 @@
     use Illuminate\Support\Str;
     use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-    /** @var Action $editElementAssetAction */
-    $editElementAssetAction = ($this->editElementAssetAction)([
+    $editElementAssetArguments = [
         'containerKey' => $containerKey,
         'elementIndex' => $elementIndex,
         'index' => $index,
         'type' => $elementAsset->asset_type,
-    ]);
+    ];
 
     if (! $elementAsset->asset) {
         throw new \RuntimeException("Asset of type [{$elementAsset->asset_type}] with ID [{$elementAsset->asset_id}] not found.");
@@ -89,15 +88,9 @@
         }
     }
 
-    $icon = $editElementAssetAction->getIcon();
-    if ($icon instanceof ScalableIcon) {
-        $icon = $icon->getIconForSize(IconSize::Small);
-    } elseif ($icon instanceof BackedEnum) {
-        $icon = $icon->value;
-    }
-
     $plainLabel = trim(strip_tags((string) $label));
     $plainDescription = trim(strip_tags(str_replace('&raquo;', ' > ', (string) $description)));
+    $editElementAssetTooltip = __('capell-layout-builder::button.edit_asset_type', ['type' => $elementAsset->asset_type]);
     $moveAssetUpAction = ($this->moveAssetUpAction)([
         'containerKey' => $containerKey,
         'elementIndex' => $elementIndex,
@@ -108,9 +101,15 @@
         'elementIndex' => $elementIndex,
         'assetIndex' => $index,
     ]);
+
+    $icon = CapellCore::getAsset($elementAsset->asset_type)->getIcon();
+    if ($icon instanceof ScalableIcon) {
+        $icon = $icon->getIconForSize(IconSize::Small);
+    } elseif ($icon instanceof BackedEnum) {
+        $icon = $icon->value;
+    }
 @endphp
 {{-- format-ignore-end --}}
-
 <div
     x-sort:item="{{ $index }}"
     wire:key="{{ $assetKey }}"
@@ -130,13 +129,13 @@
                 x-model="selectedRecords['{{ $containerKey }}'][{{ $elementIndex }}]"
                 x-show="! isElementReorderingResources('{{ $containerKey }}', {{ $elementIndex }})"
                 wire:loading.remove
-                wire:target="{{ $editElementAssetAction->getLivewireClickHandler() }}"
+                wire:target="mountAction"
             />
 
             <x-filament::loading-indicator
                 class="text-primary-500 h-5 w-5"
                 wire:loading
-                :wire:target="$editElementAssetAction->getLivewireClickHandler()"
+                wire:target="mountAction"
                 :wire:loading.delay="config('filament.livewire_loading_delay', 'default')"
             />
 
@@ -156,7 +155,8 @@
 
         <button
             type="button"
-            wire:click="{{ $editElementAssetAction->getLivewireClickHandler() }}"
+            data-layout-asset-action="editElementAsset"
+            x-on:click="$wire.mountAction('editElementAsset', @js($editElementAssetArguments))"
             @class([
                 'group/asset flex w-full cursor-pointer items-center gap-x-4 text-left',
                 'lg:!grid lg:grid-cols-4 lg:gap-4' => $image,
@@ -171,7 +171,7 @@
                     @svg($icon,
                         [
                             'class' => 'group-hover/asset:text-primary-500 dark:group-hover/asset:text-primary-400 inline h-4 w-4 align-text-bottom text-gray-400 dark:text-gray-500',
-                            'x-tooltip.raw' => $editElementAssetAction->getTooltip(),
+                            'x-tooltip.raw' => $editElementAssetTooltip,
                         ])
                 </div>
 

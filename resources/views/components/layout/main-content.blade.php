@@ -33,7 +33,7 @@
                 ->contains(static fn (array $elementData): bool => LayoutElementData::key($elementData) === 'page-content');
 
             $hasSlotElement = ! $context->slotRendered && $layoutElements->contains(
-                static fn (Element $layoutModule): bool => ElementIsSlotAction::run($layoutModule),
+                static fn (Element $layoutElement): bool => ElementIsSlotAction::run($layoutElement),
             );
 
             $colspan = (int) ($container['meta']['colspan'] ?? 12);

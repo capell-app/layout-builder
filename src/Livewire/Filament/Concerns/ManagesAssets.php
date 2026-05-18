@@ -157,6 +157,139 @@ trait ManagesAssets
         return $this->getAllowedAssetTypes($element);
     }
 
+    public function getCurrentElementAssetWorkspaceId(?Element $element = null): int
+    {
+        if ($element instanceof Element && array_key_exists('workspace_id', $element->getAttributes())) {
+            return (int) $element->getAttribute('workspace_id');
+        }
+
+        return $this->getCurrentWorkspaceId() ?? 0;
+    }
+
+    public function togglePageAssets(string $containerKey, int $elementIndex, ?Pageable $page): void
+    {
+        $this->assertCanUpdateLayout();
+
+        $hasPageAssets = $page instanceof Pageable;
+
+        $this->updatePageAssets($containerKey, $elementIndex, $hasPageAssets);
+
+        $this->layoutUpdated();
+    }
+
+    public function shouldAddPageAssets(string $containerKey, int $elementIndex): bool
+    {
+        if (! $this->inPageContext()) {
+            return false;
+        }
+
+        $assets = $this->getElementAssets($containerKey, $elementIndex);
+
+        if ($assets === []) {
+            return true;
+        }
+
+        return collect($assets)->contains(
+            fn (array $elementAsset): bool => $elementAsset['pageable_id'] === $this->page->getKey()
+                && $elementAsset['pageable_type'] === $this->page->getMorphClass(),
+        );
+    }
+
+    public function getElementAssets(string $containerKey, int $elementIndex): array
+    {
+        return $this->assets[$containerKey][$elementIndex];
+    }
+
+    public function countElementAssets(string $containerKey, int $elementIndex): int
+    {
+        return count($this->getElementAssets($containerKey, $elementIndex));
+    }
+
+    public function getElementAsset(string $containerKey, int $elementIndex, int $index): ?array
+    {
+        return $this->assets[$containerKey][$elementIndex][$index] ?? null;
+    }
+
+    public function getElementAssetsByType(string $containerKey, int $elementIndex, string $type): array
+    {
+        if (! isset($this->assets[$containerKey][$elementIndex])) {
+            return [];
+        }
+
+        return array_column(
+            array_filter($this->assets[$containerKey][$elementIndex], fn (array $elementAsset): bool => $elementAsset['asset_type'] === $type),
+            'asset_id',
+        );
+    }
+
+    public function getSelectedAssets(string $containerKey, int $elementIndex): array
+    {
+        return $this->selectedRecords[$containerKey][$elementIndex] ?? [];
+    }
+
+    public function removeSelectedAssets(string $containerKey, int $elementIndex): void
+    {
+        $this->assertCanUpdateLayout();
+
+        foreach ($this->selectedRecords[$containerKey][$elementIndex] as $asset) {
+            [$type, $uuid] = explode('.', (string) $asset);
+
+            if (is_numeric($uuid)) {
+                $uuid = (int) $uuid;
+            }
+
+            $this->removeAsset($containerKey, $elementIndex, $uuid, $type);
+        }
+
+        $this->assets[$containerKey][$elementIndex] = array_values($this->assets[$containerKey][$elementIndex]);
+
+        $this->selectedRecords[$containerKey][$elementIndex] = [];
+
+        $this->layoutUpdated();
+    }
+
+    public function updateElementAssetContentState(string $containerKey, int $elementIndex, int $index, array $data): void
+    {
+        $this->assertCanEditContent();
+
+        $elementAsset = $this->assets[$containerKey][$elementIndex][$index];
+
+        $this->assets[$containerKey][$elementIndex][$index] = array_replace_recursive($elementAsset, $data);
+    }
+
+    public function getAssetRelations(): array
+    {
+        $relations = [];
+        foreach (CapellCore::getAssets() as $asset) {
+            $model = $asset->model;
+            $relations[$model] = method_exists($model, 'getMorphRelations') ? $model::getMorphRelations() : [];
+
+            if (! in_array('site', $relations[$model], true) && method_exists($model, 'site')) {
+                $relations[$model][] = 'site';
+            }
+
+            if (! in_array('related', $relations[$model], true) && method_exists($model, 'related')) {
+                $relations[$model][] = 'related';
+            }
+        }
+
+        $relations[Page::class] ??= Page::getMorphRelations();
+        if (! in_array('related', $relations[Page::class], true)) {
+            $relations[Page::class][] = 'related';
+        }
+
+        return $relations;
+    }
+
+    public function reloadContainerElementAsset(string $containerKey, int $elementIndex, int $index): void
+    {
+        $element = $this->getContainerElement($containerKey, $elementIndex);
+
+        $assets = $element->assets;
+        $assets[$index] = $assets[$index]->fresh();
+        $element->setRelation('assets', $assets);
+    }
+
     protected function moveContainerElementAssets(string $originalContainer, int $originalIndex, string $containerKey, int $elementIndex): void
     {
         $element = $this->assets[$originalContainer][$originalIndex];
@@ -337,11 +470,6 @@ trait ManagesAssets
         }
 
         $this->originalAssets = $originalAssets;
-    }
-
-    protected function getSelectedAssets(string $containerKey, int $elementIndex): array
-    {
-        return $this->selectedRecords[$containerKey][$elementIndex] ?? [];
     }
 
     protected function getAllSelectableAssetsKeys(string $containerKey, int $elementIndex): array
@@ -555,15 +683,6 @@ trait ManagesAssets
         }
 
         return null;
-    }
-
-    protected function getCurrentElementAssetWorkspaceId(?Element $element = null): int
-    {
-        if ($element instanceof Element && array_key_exists('workspace_id', $element->getAttributes())) {
-            return (int) $element->getAttribute('workspace_id');
-        }
-
-        return $this->getCurrentWorkspaceId() ?? 0;
     }
 
     /**
@@ -901,38 +1020,6 @@ trait ManagesAssets
         }
     }
 
-    protected function removeSelectedAssets(string $containerKey, int $elementIndex): void
-    {
-        $this->assertCanUpdateLayout();
-
-        foreach ($this->selectedRecords[$containerKey][$elementIndex] as $asset) {
-            [$type, $uuid] = explode('.', (string) $asset);
-
-            if (is_numeric($uuid)) {
-                $uuid = (int) $uuid;
-            }
-
-            $this->removeAsset($containerKey, $elementIndex, $uuid, $type);
-        }
-
-        $this->assets[$containerKey][$elementIndex] = array_values($this->assets[$containerKey][$elementIndex]);
-
-        $this->selectedRecords[$containerKey][$elementIndex] = [];
-
-        $this->layoutUpdated();
-    }
-
-    protected function togglePageAssets(string $containerKey, int $elementIndex, ?Pageable $page): void
-    {
-        $this->assertCanUpdateLayout();
-
-        $hasPageAssets = $page instanceof Pageable;
-
-        $this->updatePageAssets($containerKey, $elementIndex, $hasPageAssets);
-
-        $this->layoutUpdated();
-    }
-
     protected function updateElementAsset(string $containerKey, int $elementIndex, int $index, array $data): void
     {
         $this->assertCanUpdateLayout();
@@ -940,60 +1027,6 @@ trait ManagesAssets
         $elementAsset = $this->assets[$containerKey][$elementIndex][$index];
 
         $this->assets[$containerKey][$elementIndex][$index] = array_merge_recursive($elementAsset, $data);
-    }
-
-    protected function updateElementAssetContentState(string $containerKey, int $elementIndex, int $index, array $data): void
-    {
-        $this->assertCanEditContent();
-
-        $elementAsset = $this->assets[$containerKey][$elementIndex][$index];
-
-        $this->assets[$containerKey][$elementIndex][$index] = array_replace_recursive($elementAsset, $data);
-    }
-
-    protected function shouldAddPageAssets(string $containerKey, int $elementIndex): bool
-    {
-        if (! $this->inPageContext()) {
-            return false;
-        }
-
-        $assets = $this->getElementAssets($containerKey, $elementIndex);
-
-        if ($assets === []) {
-            return true;
-        }
-
-        return collect($assets)->contains(
-            fn (array $elementAsset): bool => $elementAsset['pageable_id'] === $this->page->getKey()
-                && $elementAsset['pageable_type'] === $this->page->getMorphClass(),
-        );
-    }
-
-    protected function getElementAssets(string $containerKey, int $elementIndex): array
-    {
-        return $this->assets[$containerKey][$elementIndex];
-    }
-
-    protected function countElementAssets(string $containerKey, int $elementIndex): int
-    {
-        return count($this->getElementAssets($containerKey, $elementIndex));
-    }
-
-    protected function getElementAsset(string $containerKey, int $elementIndex, int $index): ?array
-    {
-        return $this->assets[$containerKey][$elementIndex][$index] ?? null;
-    }
-
-    protected function getElementAssetsByType(string $containerKey, int $elementIndex, string $type): array
-    {
-        if (! isset($this->assets[$containerKey][$elementIndex])) {
-            return [];
-        }
-
-        return array_column(
-            array_filter($this->assets[$containerKey][$elementIndex], fn (array $elementAsset): bool => $elementAsset['asset_type'] === $type),
-            'asset_id',
-        );
     }
 
     protected function loadElementAssets(Element $element, string $containerKey, int $elementOccurrence): Collection
@@ -1207,39 +1240,6 @@ trait ManagesAssets
         return ($asset->pageable_type === null && $asset->pageable_id === null)
             || ($asset->pageable_type === $this->page->getMorphClass()
                 && $asset->pageable_id === $this->page->getKey());
-    }
-
-    protected function getAssetRelations(): array
-    {
-        $relations = [];
-        foreach (CapellCore::getAssets() as $asset) {
-            $model = $asset->model;
-            $relations[$model] = method_exists($model, 'getMorphRelations') ? $model::getMorphRelations() : [];
-
-            if (! in_array('site', $relations[$model], true) && method_exists($model, 'site')) {
-                $relations[$model][] = 'site';
-            }
-
-            if (! in_array('related', $relations[$model], true) && method_exists($model, 'related')) {
-                $relations[$model][] = 'related';
-            }
-        }
-
-        $relations[Page::class] ??= Page::getMorphRelations();
-        if (! in_array('related', $relations[Page::class], true)) {
-            $relations[Page::class][] = 'related';
-        }
-
-        return $relations;
-    }
-
-    protected function reloadContainerElementAsset(string $containerKey, int $elementIndex, int $index): void
-    {
-        $element = $this->getContainerElement($containerKey, $elementIndex);
-
-        $assets = $element->assets;
-        $assets[$index] = $assets[$index]->fresh();
-        $element->setRelation('assets', $assets);
     }
 
     protected function deleteRemovedElementAssets(): void

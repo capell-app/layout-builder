@@ -159,14 +159,10 @@ trait ManagesElements
 
     public function resolveAdminElementPreviewView(AdminElementPreviewData $previewData): string
     {
-        if (view()->exists($previewData->view)) {
-            return $previewData->view;
-        }
-
-        return 'capell-layout-builder::filament.layout-builder.previews.default';
+        return $previewData->view;
     }
 
-    protected function duplicateElement(string $containerKey, int $originalIndex, bool $withAssets = true): void
+    public function duplicateElement(string $containerKey, int $originalIndex, bool $withAssets = true): void
     {
         $this->assertCanUpdateLayout();
 
@@ -188,7 +184,7 @@ trait ManagesElements
         $this->layoutUpdated();
     }
 
-    protected function removeElement(string $containerKey, int $elementIndex): void
+    public function removeElement(string $containerKey, int $elementIndex): void
     {
         $this->assertCanUpdateLayout();
 
@@ -213,6 +209,46 @@ trait ManagesElements
         }
 
         $this->layoutUpdated();
+    }
+
+    public function editLayoutElement(string $containerKey, int $elementIndex, array $data): void
+    {
+        $this->ensureLoaded();
+
+        $this->containers[$containerKey]['elements'][$elementIndex]['meta'] = array_merge(
+            $this->containers[$containerKey]['elements'][$elementIndex]['meta'] ?? [],
+            $data,
+        );
+
+        $this->layoutUpdated();
+    }
+
+    public function getContainerElement(string $containerKey, int $elementIndex): Element
+    {
+        if (! isset($this->containerElements[$containerKey][$elementIndex])) {
+            $this->ensureLoaded();
+        }
+
+        if (! isset($this->containerElements[$containerKey][$elementIndex])) {
+            $element = $this->loadElement($containerKey, $elementIndex, withAssets: false);
+
+            $assets = $this->loadElementAssetsFor($element, $containerKey, $elementIndex);
+
+            $element->setRelation('assets', $assets);
+        }
+
+        return $this->containerElements[$containerKey][$elementIndex];
+    }
+
+    public function getContainerElementConfigurator(string $containerKey, int $elementIndex): ?string
+    {
+        return $this->getContainerElement($containerKey, $elementIndex)?->type->admin['layout_element_configurator']
+            ?? null;
+    }
+
+    public function getContainerElementOccurrence(string $containerKey, int $elementIndex): int
+    {
+        return (int) ($this->containers[$containerKey]['elements'][$elementIndex]['occurrence'] ?? 1);
     }
 
     protected function moveContainerElement(string $originalContainer, int $originalIndex, string $containerKey, int $elementIndex): void
@@ -348,35 +384,6 @@ trait ManagesElements
         }
     }
 
-    protected function editLayoutElement(string $containerKey, int $elementIndex, array $data): void
-    {
-        $this->ensureLoaded();
-
-        $this->containers[$containerKey]['elements'][$elementIndex]['meta'] = array_merge(
-            $this->containers[$containerKey]['elements'][$elementIndex]['meta'] ?? [],
-            $data,
-        );
-
-        $this->layoutUpdated();
-    }
-
-    protected function getContainerElement(string $containerKey, int $elementIndex): Element
-    {
-        if (! isset($this->containerElements[$containerKey][$elementIndex])) {
-            $this->ensureLoaded();
-        }
-
-        if (! isset($this->containerElements[$containerKey][$elementIndex])) {
-            $element = $this->loadElement($containerKey, $elementIndex, withAssets: false);
-
-            $assets = $this->loadElementAssetsFor($element, $containerKey, $elementIndex);
-
-            $element->setRelation('assets', $assets);
-        }
-
-        return $this->containerElements[$containerKey][$elementIndex];
-    }
-
     protected function getContainerElementKeys(): array
     {
         return collect($this->containers)
@@ -384,11 +391,6 @@ trait ManagesElements
             ->flatten()
             ->unique()
             ->toArray();
-    }
-
-    protected function getContainerElementOccurrence(string $containerKey, int $elementIndex): int
-    {
-        return (int) ($this->containers[$containerKey]['elements'][$elementIndex]['occurrence'] ?? 1);
     }
 
     protected function getLastContainerElementOccurrence(string $containerKey, string $elementKey, ?int $compareIndex = null, ?array $elements = null): int
@@ -410,12 +412,6 @@ trait ManagesElements
         }
 
         return $occurrence;
-    }
-
-    protected function getContainerElementConfigurator(string $containerKey, int $elementIndex): ?string
-    {
-        return $this->getContainerElement($containerKey, $elementIndex)?->type->admin['layout_element_configurator']
-            ?? null;
     }
 
     protected function loadElement(string $containerKey, int $elementIndex, bool $withAssets = true): Element

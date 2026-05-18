@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
+use Capell\LayoutBuilder\Data\AdminElementPreviewData;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\LayoutBuilder\Models\Element;
 use Capell\LayoutBuilder\Models\ElementAsset;
@@ -26,6 +27,26 @@ it('uses the content first editor mode by default from the package namespace', f
         ->assertSet('editorMode', 'content_first')
         ->assertSee(__('capell-layout-builder::generic.content_first_editor'))
         ->assertSee(__('capell-layout-builder::message.content_inventory_empty'));
+});
+
+it('resolves the saved admin element preview view without checking the filesystem', function (): void {
+    $previewData = new AdminElementPreviewData(
+        view: 'capell-layout-builder::filament.layout-builder.previews.custom',
+        label: 'Custom preview',
+        title: null,
+        excerpt: null,
+        image: null,
+        typeLabel: null,
+        icon: null,
+        assetCount: 0,
+        hasPageAssets: false,
+        usesPageContent: false,
+    );
+
+    $component = new LayoutBuilder;
+
+    expect($component->resolveAdminElementPreviewView($previewData))
+        ->toBe('capell-layout-builder::filament.layout-builder.previews.custom');
 });
 
 it('can switch from content first to advanced layout and back from the package namespace', function (): void {
@@ -99,6 +120,42 @@ it('lets content editors submit element asset edits without layout access from t
         ->assertHasNoActionErrors();
 
     expect($elementAsset->fresh()->meta['variant'] ?? null)->toBe('default');
+});
+
+it('renders content first rows as custom action triggers instead of per row action schemas from the package namespace', function (): void {
+    $element = Element::factory()->create(['key' => 'featured', 'name' => 'Featured']);
+    $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
+    ElementAsset::factory()
+        ->element($element)
+        ->asset($asset)
+        ->occurrence(1)
+        ->create(['order' => 1, 'meta' => ['variant' => 'default']]);
+
+    $layout = Layout::factory()->create(['containers' => [
+        'main' => ['elements' => [
+            ['element_key' => $element->key, 'occurrence' => 1],
+        ]],
+    ]]);
+
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->assertSee(__('capell-layout-builder::form.search_content_inventory'))
+        ->assertSee(__('capell-layout-builder::message.content_inventory_search_empty'))
+        ->assertSee(__('capell-layout-builder::message.content_inventory_search_hint'))
+        ->assertSeeHtml('data-layout-content-search-input')
+        ->assertSeeHtml('data-layout-content-search-empty')
+        ->assertSeeHtml('data-layout-content-search=')
+        ->assertSeeHtml('data-layout-content-action="editElementAsset"')
+        ->assertSeeHtml('$wire.mountAction(\'editElementAsset\'')
+        ->assertSeeHtml('wire:key="layout-content-group-')
+        ->assertSeeHtml('wire:key="layout-content-item-');
+
+    $contentFirstView = file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/content-first.blade.php');
+    $assetRowView = file_get_contents(__DIR__ . '/../../../resources/views/components/filament/layout-builder/asset.blade.php');
+
+    expect($contentFirstView)
+        ->not->toContain('$this->editElementAssetAction')
+        ->and($assetRowView)
+        ->not->toContain('$this->editElementAssetAction');
 });
 
 it('sends layout only editors straight to the advanced layout editor from the package namespace', function (): void {

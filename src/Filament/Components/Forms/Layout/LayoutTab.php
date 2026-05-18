@@ -26,7 +26,7 @@ class LayoutTab extends Tab
                         'site' => $record->site,
                         'layout' => $record,
                     ],
-                ),
+                )->lazy(),
             ] : []);
     }
 }
