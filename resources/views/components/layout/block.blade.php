@@ -1,6 +1,6 @@
 @php
     use Capell\Frontend\Facades\Frontend;
-    use Illuminate\Support\Facades\Crypt;
+    use Capell\LayoutBuilder\Support\Livewire\OpaqueBlockReference;
 
     $occurrence = $blockData['occurrence'] ?? 1;
 @endphp
@@ -23,7 +23,7 @@
     />
 @elseif ($type === 'livewire')
     @php
-        $blockReference = Crypt::encryptString(json_encode([
+        $blockReference = OpaqueBlockReference::encode([
             'container_key' => $containerKey,
             'block_key' => $blockData['block_key'] ?? $block->key,
             'layout_id' => $layout?->getKey(),
@@ -34,7 +34,7 @@
             'site_id' => Frontend::site()?->getKey(),
             'block_data' => $blockData,
             'block_index' => $blockIndex,
-        ], JSON_THROW_ON_ERROR));
+        ]);
     @endphp
 
     @livewire($component, ['blockReference' => $blockReference], key($containerKey . '-' . $block->key . '-' . $occurrence))
