@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Extenders\Page;
+namespace Capell\LayoutBuilder\Filament\Extenders\Page;
 
 use Capell\Admin\Contracts\Extenders\PageSchemaExtender;
 use Capell\Admin\Enums\PageTranslationSchemaHookEnum;
-use Capell\Mosaic\Filament\Components\Forms\Page\HeroEditor;
+use Capell\LayoutBuilder\Filament\Components\Forms\Page\HeroEditor;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
@@ -35,7 +35,7 @@ class HeroPageSchemaExtender implements PageSchemaExtender
         return [HeroEditor::make()];
     }
 
-    public function extendSettingsTabComponents(): array
+    public function extendSidebarComponents(Schema $configurator): array
     {
         return [];
     }

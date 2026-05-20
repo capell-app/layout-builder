@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Support\Interceptors\Layouts;
+namespace Capell\LayoutBuilder\Support\Interceptors\Layouts;
 
 use Capell\Core\Contracts\ModelInterceptors\LayoutInterceptorInterface;
 use Capell\Core\Models\Layout;
-use Capell\Mosaic\Support\Creator\WidgetCreator;
-use Illuminate\Support\Facades\Schema;
+use Capell\Core\Support\Database\RuntimeSchemaState;
 
 final class HomeLayoutInterceptor implements LayoutInterceptorInterface
 {
@@ -18,21 +17,13 @@ final class HomeLayoutInterceptor implements LayoutInterceptorInterface
 
     public function afterCreated(Layout $layout, array $data): void
     {
-        if (! Schema::hasColumn('layouts', 'containers')) {
+        if (! resolve(RuntimeSchemaState::class)->hasColumn('layouts', 'containers')) {
             return;
         }
 
-        $widgetCreator = resolve(WidgetCreator::class);
-        $widgetCreator->pageContentWidget();
-
         $layout->update([
-            'containers' => [
-                'main' => [
-                    'widgets' => [
-                        ['widget_key' => 'page-content'],
-                    ],
-                ],
-            ],
+            'containers' => [],
+            'blocks' => [],
         ]);
     }
 }

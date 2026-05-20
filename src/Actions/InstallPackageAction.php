@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Actions;
+namespace Capell\LayoutBuilder\Actions;
 
 use Capell\Core\Support\Creator\LayoutCreator;
-use Capell\Mosaic\Support\Creator\TypeCreator;
-use Capell\Mosaic\Support\LayoutModelRegistrar;
+use Capell\LayoutBuilder\Support\Creator\TypeCreator;
+use Capell\LayoutBuilder\Support\LayoutModelRegistrar;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -23,12 +23,12 @@ class InstallPackageAction
         LayoutModelRegistrar::register();
 
         $typeCreator = resolve(TypeCreator::class);
-        $typeCreator->createWidgetTypes();
+        $typeCreator->createBlockTypes();
 
         $typeCreator->createDefaultContentType();
         $typeCreator->createBuilderContentType();
 
-        InstallMosaicWidgetCatalogAction::run();
+        InstallLayoutBuilderBlockCatalogAction::run();
 
         $layoutCreator = resolve(LayoutCreator::class);
         $layoutCreator->setup();

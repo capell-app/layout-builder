@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Pages\Tables;
+namespace Capell\LayoutBuilder\Filament\Resources\Pages\Tables;
 
 use Capell\Admin\Filament\Components\Tables\Columns\IdentifierColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\Page\PageNameColumn;
@@ -45,13 +45,15 @@ class PageSelectionTable implements TableConfigurator
                     ),
             ])
             ->modifyQueryUsing(function (Builder $query, HasTable $livewire): Builder {
-                $arguments = $livewire->getTableArguments();
+                $arguments = method_exists($livewire, 'getTableArguments') ? $livewire->getTableArguments() : [];
                 $excludeIds = $arguments['excludeIds'] ?? [];
                 $pageId = $arguments['pageId'] ?? null;
+                $siteId = $arguments['siteId'] ?? null;
 
                 return $query
                     ->when($excludeIds !== [], fn (Builder $query) => $query->whereNotIn('id', $excludeIds))
-                    ->when($pageId, fn (Builder $query) => $query->whereKeyNot($pageId));
+                    ->when($pageId, fn (Builder $query) => $query->whereKeyNot($pageId))
+                    ->when($siteId, fn (Builder $query): Builder => $query->where('site_id', $siteId));
             });
     }
 }

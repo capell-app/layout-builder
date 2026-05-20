@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Layouts;
+namespace Capell\LayoutBuilder\Filament\Resources\Layouts;
 
-use Capell\Mosaic\Filament\Resources\Layouts\Tables\LayoutsTable;
+use Capell\LayoutBuilder\Filament\Resources\Layouts\Tables\LayoutsTable;
 
 class LayoutResource extends \Capell\Admin\Filament\Resources\Layouts\LayoutResource
 {

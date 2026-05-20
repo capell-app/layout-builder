@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Components\Forms;
+namespace Capell\LayoutBuilder\Filament\Components\Forms;
 
 use Capell\Core\Data\PageTypeData;
 use Capell\Core\Facades\CapellCore;
@@ -14,8 +14,8 @@ class PageModelSelect extends Select
     {
         parent::setUp();
 
-        $this->label(__('capell-mosaic::form.page_model'))
-            ->helperText(__('capell-mosaic::generic.page_model_helper'))
+        $this->label(__('capell-layout-builder::form.page_model'))
+            ->helperText(__('capell-layout-builder::generic.page_model_helper'))
             ->options(
                 fn (): array => collect(CapellCore::getPageTypes())
                     ->mapWithKeys(fn (PageTypeData $type): array => [

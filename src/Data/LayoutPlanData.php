@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Data;
+namespace Capell\LayoutBuilder\Data;
 
 use Spatie\LaravelData\Data;
 
@@ -17,6 +17,6 @@ class LayoutPlanData extends Data
         public string $presetKey,
         public array $containers,
         public array $sections,
-        public bool $reusesExistingWidgets = true,
+        public bool $reusesExistingBlocks = true,
     ) {}
 }

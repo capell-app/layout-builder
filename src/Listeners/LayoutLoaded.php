@@ -2,79 +2,89 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Listeners;
+namespace Capell\LayoutBuilder\Listeners;
 
 use Capell\Core\Contracts\EventSubscriber;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
-use Capell\Frontend\Enums\ListenerEnum;
-use Capell\Frontend\Facades\Frontend;
-use Capell\Mosaic\Models\Widget;
-use Capell\Mosaic\Support\CapellLayoutManager;
-use Capell\Mosaic\Support\Loader\LayoutLoader;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Support\CapellLayoutManager;
+use Capell\LayoutBuilder\Support\LayoutBlockData;
+use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 
 class LayoutLoaded implements EventSubscriber
 {
+    private const string FRONTEND_CONTEXT_SERVICE = 'capell.frontend.context';
+
     public function handle(string $event, object $context): void
     {
-        if ($event !== ListenerEnum::LayoutLoaded->value) {
+        if ($event !== 'loadedLayout') {
             return;
         }
 
-        $layout = Frontend::layout();
-        $language = Frontend::language();
-        $page = Frontend::page();
+        $frontend = $this->frontendContext();
+        if ($frontend === null) {
+            return;
+        }
+
+        $layout = method_exists($frontend, 'layout') ? $frontend->layout() : null;
+        $language = method_exists($frontend, 'language') ? $frontend->language() : null;
+        $page = method_exists($frontend, 'page') ? $frontend->page() : null;
 
         if (! $layout instanceof Layout || ! $language instanceof Language || ! $page instanceof Pageable) {
             return;
         }
 
-        $this->loadLayoutWidgets($layout, $page, $language);
+        $this->loadLayoutBlocks($layout, $page, $language);
     }
 
-    protected function loadLayoutWidgets(Layout $layout, Pageable $page, Language $language): void
+    protected function loadLayoutBlocks(Layout $layout, Pageable $page, Language $language): void
     {
-        CapellLayoutManager::clearContainerWidgets();
+        CapellLayoutManager::clearContainerBlocks();
 
-        // Preload all widgets/assets once to minimize queries during iteration
-        $loader = new LayoutLoader;
-        $loader->preloadLayoutWidgets($layout, $language, $page);
+        // Preload all blocks/assets once to minimize queries during iteration
+        $loader = resolve(LayoutLoader::class);
+        $loader->preloadLayoutBlocks($layout, $language, $page);
 
-        $containers = $layout->containers ?? [];
+        $containers = $layout->getAttribute('containers');
+        $containers = is_array($containers) ? $containers : [];
 
         foreach ($containers as $containerKey => $container) {
-            if (! isset($container['widgets'])) {
-                continue;
-            }
-
-            if (! is_array($container['widgets'])) {
-                continue;
-            }
-
-            foreach ($container['widgets'] as $widgetData) {
-                if (! isset($widgetData['widget_key'])) {
+            foreach (LayoutBlockData::normalizeMany($container['blocks'] ?? []) as $blockData) {
+                $blockKey = LayoutBlockData::key($blockData);
+                if ($blockKey === null) {
                     continue;
                 }
 
-                $widgetKey = $widgetData['widget_key'];
-                $occurrence = $widgetData['occurrence'] ?? 1;
+                $occurrence = LayoutBlockData::occurrence($blockData);
 
-                $widget = $loader->getLayoutWidget(
+                $block = $loader->getLayoutBlock(
                     $layout,
-                    $widgetKey,
+                    $blockKey,
                     $language,
                     $page,
                     $containerKey,
                     $occurrence,
                 );
 
-                if (! $widget instanceof Widget) {
+                if (! $block instanceof Block) {
                     continue;
                 }
 
-                CapellLayoutManager::storeContainerWidget($containerKey, $widgetKey, $widget, $occurrence);
+                CapellLayoutManager::storeContainerBlock($containerKey, $blockKey, $block, $occurrence);
             }
         }
+    }
+
+    private function frontendContext(): ?object
+    {
+        if (! app()->bound(self::FRONTEND_CONTEXT_SERVICE)) {
+            return null;
+        }
+
+        $frontend = resolve(self::FRONTEND_CONTEXT_SERVICE);
+
+        return is_object($frontend) ? $frontend : null;
     }
 }

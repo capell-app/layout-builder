@@ -2,30 +2,25 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Enums;
+namespace Capell\LayoutBuilder\Enums;
 
-use Capell\Mosaic\Models\Section;
-use Capell\Mosaic\Models\Widget;
+use Capell\LayoutBuilder\Models\Block;
 
 enum TypeEnum: string
 {
-    case Section = 'section';
-
-    case Widget = 'widget';
+    case Block = 'block';
 
     public function getModel(): string
     {
         return match ($this) {
-            self::Section => Section::class,
-            self::Widget => Widget::class,
+            self::Block => Block::class,
         };
     }
 
     public function getLabel(): string
     {
         return match ($this) {
-            self::Section => __('capell-mosaic::generic.content'),
-            self::Widget => __('capell-mosaic::generic.widget')
+            self::Block => __('capell-layout-builder::generic.block')
         };
     }
 }

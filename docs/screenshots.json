@@ -1,59 +1,129 @@
 {
-    "package": "mosaic",
-    "composerName": "capell-app/mosaic",
+    "package": "layout-builder",
+    "composerName": "capell-app/layout-builder",
     "generatedFor": "deployment-screenshot-runner",
     "requiresInstalledPackage": true,
-    "outputDirectory": "public/docs/screenshots/packages/mosaic",
+    "outputDirectory": "public/docs/screenshots/packages/layout-builder",
     "entries": [
         {
-            "id": "widgets-admin-index",
-            "title": "Widgets admin index.",
-            "package": "mosaic",
+            "id": "blocks-admin-index",
+            "title": "Blocks admin index.",
+            "package": "layout-builder",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "BlockResource",
+            "required": true,
+            "notes": "Shows reusable blocks, component/search columns, filters, and table actions.",
+            "useCase": "An administrator scans reusable blocks by component, usage, status, and search/filter state.",
+            "screenshotPath": "public/docs/screenshots/packages/layout-builder/blocks-admin-index.png"
+        },
+        {
+            "id": "create-edit-block-form",
+            "title": "Create/edit block form with block assets.",
+            "package": "layout-builder",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "BlockResource",
+            "required": true,
+            "notes": "Capture the component, display, settings, translations, and asset configuration tabs.",
+            "useCase": "An editor configures a reusable block, its display settings, translations, and block assets.",
+            "screenshotPath": "public/docs/screenshots/packages/layout-builder/create-edit-block-form.png"
+        },
+        {
+            "id": "block-layouts-relation-manager",
+            "title": "Block layouts relation manager.",
+            "package": "layout-builder",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "BlockResource",
+            "required": true,
+            "notes": "Shows which layouts currently use a reusable block.",
+            "useCase": "An editor checks which layouts use a reusable block before editing or deleting it.",
+            "screenshotPath": "public/docs/screenshots/packages/layout-builder/block-layouts-relation-manager.png"
+        },
+        {
+            "id": "layouts-admin-index",
+            "title": "Layouts admin index with Layout Builder table extensions.",
+            "package": "layout-builder",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "LayoutResource",
             "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+            "notes": "Capture package-specific layout table columns, filters, and actions.",
+            "useCase": "An administrator reviews layout records with Layout Builder table extensions and actions.",
+            "screenshotPath": "public/docs/screenshots/packages/layout-builder/layouts-admin-index.png"
         },
         {
-            "id": "create-edit-widget-form",
-            "title": "Create/edit widget form.",
-            "package": "mosaic",
+            "id": "page-layout-content-first-editor",
+            "title": "Page form content-first layout editor.",
+            "package": "layout-builder",
             "surface": "admin",
             "targetType": "admin-surface",
-            "target": "LayoutResource",
+            "target": "PageSchemaExtender",
             "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+            "notes": "Requires a seeded page and layout with editable block assets.",
+            "useCase": "An editor manages page content through the content-first layout editor for seeded block assets.",
+            "screenshotPath": "public/docs/screenshots/packages/layout-builder/page-layout-content-first-editor.png"
         },
         {
-            "id": "sections-admin-index",
-            "title": "Sections admin index.",
-            "package": "mosaic",
+            "id": "page-hero-editor",
+            "title": "Page hero editor extension.",
+            "package": "layout-builder",
             "surface": "admin",
             "targetType": "admin-surface",
-            "target": "LayoutResource",
+            "target": "HeroPageSchemaExtender",
             "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+            "notes": "Shows hero-specific page schema fields added by the package.",
+            "useCase": "An editor configures the hero fields injected into the page schema.",
+            "screenshotPath": "public/docs/screenshots/packages/layout-builder/page-hero-editor.png"
         },
         {
-            "id": "layout-builder-screen",
-            "title": "Layout builder screen.",
-            "package": "mosaic",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "LayoutResource",
-            "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
-        },
-        {
-            "id": "frontend-page-rendering-mosaic-widgets",
-            "title": "Frontend page rendering Mosaic widgets.",
-            "package": "mosaic",
+            "id": "public-main-content-render",
+            "title": "Public main content layout render.",
+            "package": "layout-builder",
             "surface": "frontend",
             "targetType": "frontend-url",
             "target": null,
             "required": true,
-            "notes": "Resolved by the deployment screenshot runner after the package is installed and demo data is prepared."
+            "notes": "Anonymous public page render with seeded blocks; must expose no admin/editor state.",
+            "useCase": "An anonymous visitor sees seeded layout blocks rendered as safe public HTML.",
+            "screenshotPath": "public/docs/screenshots/packages/layout-builder/public-main-content-render.png"
+        },
+        {
+            "id": "public-layout-area-render",
+            "title": "Public named layout area render.",
+            "package": "layout-builder",
+            "surface": "frontend",
+            "targetType": "frontend-url",
+            "target": null,
+            "required": true,
+            "notes": "Anonymous render of a named layout area such as header; must expose no authoring metadata.",
+            "useCase": "An anonymous visitor sees a named layout area, such as a header, rendered without authoring metadata.",
+            "screenshotPath": "public/docs/screenshots/packages/layout-builder/public-layout-area-render.png"
+        },
+        {
+            "id": "layout-health-widget",
+            "title": "Layout health dashboard widget.",
+            "package": "layout-builder",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "LayoutHealthWidget",
+            "required": false,
+            "notes": "Capture when the host admin dashboard enables this widget.",
+            "useCase": "An administrator reviews layout health counts when the host dashboard enables the widget.",
+            "screenshotPath": "public/docs/screenshots/packages/layout-builder/layout-health-widget.png"
+        },
+        {
+            "id": "recent-activity-widget",
+            "title": "Recent layout activity dashboard widget.",
+            "package": "layout-builder",
+            "surface": "admin",
+            "targetType": "admin-surface",
+            "target": "RecentActivityWidget",
+            "required": false,
+            "notes": "Capture when the host admin dashboard enables this widget.",
+            "useCase": "An administrator reviews recent layout changes when the host dashboard enables the widget.",
+            "screenshotPath": "public/docs/screenshots/packages/layout-builder/recent-activity-widget.png"
         }
     ]
 }

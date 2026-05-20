@@ -7,66 +7,58 @@
     'name' => null,
     'occurrence',
     'pageId' => $this->page?->getKey(),
-    'widget',
-    'widgetAsset',
-    'widgetIndex',
+    'block',
+    'blockAsset',
+    'blockIndex',
 ])
 {{-- format-ignore-start --}}
 @php
     use Capell\Admin\Facades\CapellAdmin;
-    use Capell\Core\Actions\GetResourceFromTypeAction;
+    use Capell\Core\Actions\GetResourceFromBlueprintAction;
     use Capell\Core\Enums\MediaConversionEnum;
+    use Capell\Core\Facades\CapellCore;
     use Capell\Core\Models\Page;
-    use Capell\Core\Models\Site;use Capell\Mosaic\Models\Section;
-    use Filament\Actions\Action;
+    use Capell\Core\Models\Site;
     use Filament\Support\Contracts\ScalableIcon;
     use Filament\Support\Enums\IconSize;
     use Filament\Support\Enums\Size;
     use Illuminate\Database\Eloquent\Model;
+    use Illuminate\Support\Js;
     use Illuminate\Support\Str;
     use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-    /** @var Action $editWidgetAssetAction */
-    $editWidgetAssetAction = ($this->editWidgetAssetAction)([
+    $editBlockAssetArguments = [
         'containerKey' => $containerKey,
-        'widgetIndex' => $widgetIndex,
+        'blockIndex' => $blockIndex,
         'index' => $index,
-        'type' => $widgetAsset->asset_type,
-    ]);
+        'type' => $blockAsset->asset_type,
+    ];
+    $editBlockAssetClickHandler = '$wire.mountAction(\'editBlockAsset\', ' . Js::from($editBlockAssetArguments) . ')';
 
-    if (! $widgetAsset->asset) {
-        throw new \RuntimeException("Asset of type [{$widgetAsset->asset_type}] with ID [{$widgetAsset->asset_id}] not found.");
+    if (! $blockAsset->asset) {
+        throw new \RuntimeException("Asset of type [{$blockAsset->asset_type}] with ID [{$blockAsset->asset_id}] not found.");
     }
 
-    $assetKey = "{$widgetAsset->asset_type}.{$widgetAsset->asset_id}";
+    $assetKey = "{$blockAsset->asset_type}.{$blockAsset->asset_id}";
 
     if (! $image) {
-        $image = match (get_class($widgetAsset->asset)) {
-            Page::class, Section::class => $widgetAsset->asset->image,
-            Media::class => $widgetAsset->asset,
-            default => null,
+        $image = match (get_class($blockAsset->asset)) {
+            Page::class => $blockAsset->asset->image,
+            Media::class => $blockAsset->asset,
+            default => $blockAsset->asset->image ?? null,
         };
     }
 
-    $mediaCount = match (get_class($widgetAsset->asset)) {
-        Section::class => $widgetAsset->asset->media->count(),
-        default => null,
-    };
+    $mediaCount = $blockAsset->asset->media?->count();
 
-    $relatedCount = match (get_class($widgetAsset->asset)) {
-        Section::class => $widgetAsset->asset->related->count(),
-        default => null,
-    };
+    $relatedCount = $blockAsset->asset->related?->count();
 
-    $actionsCount = match (get_class($widgetAsset->asset)) {
-        Section::class => count($widgetAsset->asset->actions),
-        default => null,
-    };
+    $actionsCount = isset($blockAsset->asset->actions) ? count($blockAsset->asset->actions) : null;
 
     $label = '';
 
     if (! $name) {
-        $name = $widgetAsset->asset->name;
+        $name = $blockAsset->asset->name;
     }
 
     $label .= $name;
@@ -74,16 +66,16 @@
     if (! $description) {
         $description = '';
 
-        if ($widgetAsset->asset instanceof Page && $widgetAsset->asset->ancestors?->isNotEmpty()) {
-            $description .= $widgetAsset->asset->ancestors->pluck('name')
+        if ($blockAsset->asset instanceof Page && $blockAsset->asset->ancestors?->isNotEmpty()) {
+            $description .= $blockAsset->asset->ancestors->pluck('name')
                 ->map(fn (string $name): string => Str::limit($name, 30))
                 ->implode(' &raquo; ');
         }
 
-        $description .= match (get_class($widgetAsset->asset)) {
-            Page::class, Section::class => $widgetAsset->asset->translation?->title &&
-            $widgetAsset->asset->translation->title !== $widgetAsset->asset->name
-                ? $widgetAsset->asset->translation->title
+        $description .= match (get_class($blockAsset->asset)) {
+            Page::class, Section::class => $blockAsset->asset->translation?->title &&
+            $blockAsset->asset->translation->title !== $blockAsset->asset->name
+                ? $blockAsset->asset->translation->title
                 : null,
             default => null,
         };
@@ -93,12 +85,26 @@
     $model = Site::class;
 
     if ($model::totalSites() > 1) {
-        if ($widgetAsset->asset->hasAttribute('site_id') && $widgetAsset->asset->site_id) {
-            $description = $widgetAsset->asset->site?->name . ($description ? ' - ' . $description : '');
+        if ($blockAsset->asset->hasAttribute('site_id') && $blockAsset->asset->site_id) {
+            $description = $blockAsset->asset->site?->name . ($description ? ' - ' . $description : '');
         }
     }
 
-    $icon = $editWidgetAssetAction->getIcon();
+    $plainLabel = trim(strip_tags((string) $label));
+    $plainDescription = trim(strip_tags(str_replace('&raquo;', ' > ', (string) $description)));
+    $editBlockAssetTooltip = __('capell-layout-builder::button.edit_asset_type', ['type' => $blockAsset->asset_type]);
+    $moveAssetUpAction = ($this->moveAssetUpAction)([
+        'containerKey' => $containerKey,
+        'blockIndex' => $blockIndex,
+        'assetIndex' => $index,
+    ]);
+    $moveAssetDownAction = ($this->moveAssetDownAction)([
+        'containerKey' => $containerKey,
+        'blockIndex' => $blockIndex,
+        'assetIndex' => $index,
+    ]);
+
+    $icon = CapellCore::getAsset($blockAsset->asset_type)->getIcon();
     if ($icon instanceof ScalableIcon) {
         $icon = $icon->getIconForSize(IconSize::Small);
     } elseif ($icon instanceof BackedEnum) {
@@ -106,16 +112,12 @@
     }
 @endphp
 {{-- format-ignore-end --}}
-
 <div
     x-sort:item="{{ $index }}"
     wire:key="{{ $assetKey }}"
     {{ $attributes->class(['flex gap-4 pr-4']) }}
 >
-    <div
-        wire:click="{{ $editWidgetAssetAction->getLivewireClickHandler() }}"
-        class="flex flex-1 flex-grow items-center"
-    >
+    <div class="flex flex-1 flex-grow items-center">
         <label
             x-on:click.stop
             class="group/asset flex h-full w-12 cursor-pointer items-center justify-center"
@@ -124,17 +126,18 @@
                 type="checkbox"
                 class="group-hover/asset:border-primary-500 group/asset-focus:border-primary-500 text-primary-600 focus:border-primary-500 focus:ring-primary-500 dark:checked:bg-primary-500 ml-1 h-4 w-4 cursor-pointer rounded border-gray-600 shadow-sm transition duration-75 focus:ring-2 disabled:opacity-70 dark:border-gray-400 dark:bg-gray-700"
                 value="{{ $assetKey }}"
-                wire:key="{{ 'selectedRecords' . $containerKey . '-' . $widgetIndex . '-' . $assetKey }}"
-                x-model="selectedRecords['{{ $containerKey }}'][{{ $widgetIndex }}]"
-                x-show="! isWidgetReorderingResources('{{ $containerKey }}', {{ $widgetIndex }})"
+                aria-label="{{ __('capell-layout-builder::button.select_asset_record', ['asset' => $plainLabel]) }}"
+                wire:key="{{ 'selectedRecords' . $containerKey . '-' . $blockIndex . '-' . $assetKey }}"
+                x-model="selectedRecords['{{ $containerKey }}'][{{ $blockIndex }}]"
+                x-show="! isBlockReorderingResources('{{ $containerKey }}', {{ $blockIndex }})"
                 wire:loading.remove
-                wire:target="{{ $editWidgetAssetAction->getLivewireClickHandler() }}"
+                wire:target="mountAction"
             />
 
             <x-filament::loading-indicator
                 class="text-primary-500 h-5 w-5"
                 wire:loading
-                :wire:target="$editWidgetAssetAction->getLivewireClickHandler()"
+                wire:target="mountAction"
                 :wire:loading.delay="config('filament.livewire_loading_delay', 'default')"
             />
 
@@ -143,16 +146,21 @@
                 class="hover:text-primary-600 dark:hover:text-primary-400 focus:text-primary-600 dark:focus:text-primary-400 cursor-pointer text-gray-400 transition dark:text-gray-500"
                 wire:loading.class="pointer-events-none opacity-40"
                 x-sort:handle
-                x-show="isWidgetReorderingResources('{{ $containerKey }}', {{ $widgetIndex }})"
+                x-show="isBlockReorderingResources('{{ $containerKey }}', {{ $blockIndex }})"
                 x-cloak
+                tabindex="-1"
+                aria-hidden="true"
             >
                 @svg('heroicon-o-arrows-up-down', 'h-5 w-5')
             </button>
         </label>
 
-        <div
+        <button
+            type="button"
+            data-layout-asset-action="editBlockAsset"
+            x-on:click="{{ $editBlockAssetClickHandler }}"
             @class([
-                'group/asset flex w-full cursor-pointer items-center gap-x-4',
+                'group/asset flex w-full cursor-pointer items-center gap-x-4 text-left',
                 'lg:!grid lg:grid-cols-4 lg:gap-4' => $image,
             ])
         >
@@ -160,20 +168,20 @@
                 <div
                     class="group-hover/asset:text-primary-600 dark:group-hover/asset:text-primary-400 line-clamp-1 text-sm text-gray-800 dark:text-gray-100"
                 >
-                    {!! $label !!}
+                    {{ $plainLabel }}
 
                     @svg($icon,
                         [
                             'class' => 'group-hover/asset:text-primary-500 dark:group-hover/asset:text-primary-400 inline h-4 w-4 align-text-bottom text-gray-400 dark:text-gray-500',
-                            'x-tooltip.raw' => $editWidgetAssetAction->getTooltip(),
+                            'x-tooltip.raw' => $editBlockAssetTooltip,
                         ])
                 </div>
 
-                @if (! empty($description) && ! $description !== $name)
+                @if ($plainDescription !== '' && $plainDescription !== $plainLabel)
                     <div
                         class="mt-0.5 line-clamp-2 text-xs leading-tight text-gray-600 dark:text-gray-300"
                     >
-                        {!! $description !!}
+                        {{ $plainDescription }}
                     </div>
                 @endif
             </div>
@@ -236,7 +244,7 @@
                     </span>
                 @endif
             </div>
-        </div>
+        </button>
     </div>
 
     <div class="flex grow-0 flex-wrap items-center gap-x-3">
@@ -250,12 +258,21 @@
                     icon="heroicon-o-ellipsis-vertical"
                     size="sm"
                     color="gray"
+                    :label="__('capell-layout-builder::button.asset_actions', ['asset' => $plainLabel])"
                 />
             </x-slot>
 
             <x-filament::dropdown.list>
+                @if ($moveAssetUpAction?->isVisible())
+                    {{ $moveAssetUpAction }}
+                @endif
+
+                @if ($moveAssetDownAction?->isVisible())
+                    {{ $moveAssetDownAction }}
+                @endif
+
                 @php
-                    $resource = GetResourceFromTypeAction::run(ucfirst($widgetAsset->asset_type), $widgetAsset->asset->type);
+                    $resource = GetResourceFromBlueprintAction::run(ucfirst($blockAsset->asset_type), $blockAsset->asset->type);
                 @endphp
 
                 @if ($resource)
@@ -263,9 +280,9 @@
                         icon="heroicon-o-arrow-top-right-on-square"
                         target="_blank"
                         tag="a"
-                        :href="$resource::getUrl('edit', ['record' => $widgetAsset->asset->getKey()])"
+                        :href="$resource::getUrl('edit', ['record' => $blockAsset->asset->getKey()])"
                     >
-                        {{ __('capell-mosaic::button.edit_asset_type', ['type' => $widgetAsset->asset_type]) }}
+                        {{ __('capell-layout-builder::button.edit_asset_type', ['type' => $blockAsset->asset_type]) }}
                     </x-filament::dropdown.list.item>
                 @endif
             </x-filament::dropdown.list>

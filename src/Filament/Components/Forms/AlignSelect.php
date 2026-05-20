@@ -2,15 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Components\Forms;
+namespace Capell\LayoutBuilder\Filament\Components\Forms;
 
 use Filament\Forms\Components\Select;
+use Override;
 
 class AlignSelect extends Select
 {
+    #[Override]
     protected function setUp(): void
     {
-        $this->label(__('capell-mosaic::form.align'))
+        $this->label(__('capell-layout-builder::form.align'))
             ->options([
                 'left' => __('capell-admin::generic.left'),
                 'right' => __('capell-admin::generic.right'),

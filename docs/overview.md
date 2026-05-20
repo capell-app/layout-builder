@@ -1,169 +1,56 @@
-# Mosaic
+# Layout Builder
 
-Status: **Available, schema-owning** · Kind: **package** · Tier: **free** · Bundle: **foundation** · Contexts: **admin, frontend** · Product group: **Capell Foundation**
+Status: **Available, schema-owning** · Kind: **package** · Tier: **free** · Bundle: **foundation** · Contexts: **admin, frontend, console** · Product group: **Capell Foundation**
 
-This page is the consolidated implementation overview for the Mosaic package. It is extracted from the package README, service providers, migrations, config files, routes, resources, models, actions, and the shared Capell ERD notes where available.
+Layout Builder owns Capell's visual composition layer: reusable layouts, blocks, block assets, content-first editing, public layout rendering, layout areas, presets, and block visual-regression manifests.
 
-## What This Plugin Adds
+## Install
 
-Mosaic adds reusable widgets, sections, layout containers, widget assets, layout planning, and frontend widget rendering to Capell.
+```bash
+composer require capell-app/layout-builder
+php artisan capell:layout-builder-install
+```
 
-- Widget and section Filament resources.
-- Layout and page schema extenders.
-- Modern widget configurators for hero, card grids, FAQs, galleries, pricing, process steps, stats, teams, and testimonials.
-- Actions for layout plans, widget creation, reusable widget lookup, and layout placement.
-- Commands for install, setup, widget scaffolding, demo, faker, and upgrades.
-
-## Developer Notes
-
-Provides the package-based layout and widget foundation used by Blog, Campaigns, content blocks, and theme integrations.
-
-- MosaicServiceProvider registers widgets, schemas, views, config, commands, and extension hooks.
-- Config file: capell-mosaic.php.
-- Migrations create widgets, widget_assets, sections, and add container widgets to layouts.
-- Models include Widget, WidgetAsset, and Section.
-- Filament resources cover widgets and sections.
-- CapellLayout facade supports layout rendering concerns.
-
-## Operational Notes
-
-Lets editors build structured pages from reusable sections and widgets instead of editing raw templates.
-
-- Adds widgets, widget_assets, and sections tables.
-- Extends page and layout admin forms.
-- Adds widget and section admin navigation.
-- Adds layout builder lazy-loading config.
-- May affect page cache and layout rendering.
-
-## Data And Retention
-
-- widgets stores workspace, type, key, content, meta, and admin JSON.
-- widget_assets connects widgets to media and pageable context.
-- sections stores site, type, parent, meta, and visibility windows.
-- layouts can store container widget references after migration.
-- Mosaic connects to core types, sites, layouts, pages, and media.
-
-## Screenshot Plan
-
-- Widgets admin index.
-- Create/edit widget form.
-- Sections admin index.
-- Layout builder screen.
-- Frontend page rendering Mosaic widgets.
-
-## Pitfalls
-
-- Run Mosaic install before Blog or other widget-dependent packages.
-- Keep widget types and configurators registered together.
-- Check layout cache after changing widgets.
-
-## Verification
-
-- Run `vendor/bin/pest packages/mosaic/tests` when package tests exist.
-- Run the relevant host-app migration or package install flow in a disposable database.
-- Open the listed admin or frontend surface and compare it with the screenshot plan.
-
-## Package Manifest
-
-- Composer name: `capell-app/mosaic`
-- Product group: Capell Foundation
-- Kind: package
-- Tier: free
-- Bundle: foundation
-- Contexts: `admin`, `frontend`
-- Requires: `capell-app/admin`, `capell-app/frontend`, `capell-app/workspaces`
-- Optional dependencies: None listed.
+The package requires `capell-app/admin`, `capell-app/content-blocks`, `capell-app/core`, and `capell-app/frontend` through Composer. The isolated audit harness confirmed that `content-blocks` is installed as a hard Composer dependency.
 
 ## Admin Surfaces
 
-- LayoutResource (packages/mosaic/src/Filament/Resources/Layouts/LayoutResource.php)
-- CreateSection (packages/mosaic/src/Filament/Resources/Sections/Pages/CreateSection.php)
-- EditSection (packages/mosaic/src/Filament/Resources/Sections/Pages/EditSection.php)
-- ListSections (packages/mosaic/src/Filament/Resources/Sections/Pages/ListSections.php)
-- SectionResource (packages/mosaic/src/Filament/Resources/Sections/SectionResource.php)
-- CreateWidget (packages/mosaic/src/Filament/Resources/Widgets/Pages/CreateWidget.php)
-- EditWidget (packages/mosaic/src/Filament/Resources/Widgets/Pages/EditWidget.php)
-- ListWidgets (packages/mosaic/src/Filament/Resources/Widgets/Pages/ListWidgets.php)
-- WidgetResource (packages/mosaic/src/Filament/Resources/Widgets/WidgetResource.php)
+- `BlockResource` for reusable blocks, block metadata, block assets, and layout relationships.
+- `LayoutResource`, extending the core Layouts admin resource with package-specific table and editor behaviour.
+- Page schema extenders for layout/content-first editing and hero editing.
+- Layout schema extender for package layout fields.
+- Livewire layout builder component and Filament assets.
+- Dashboard widgets for layout health and recent activity when enabled by the host admin surface.
 
-## Commands
+## Frontend Surfaces
 
-- `capell:mosaic-demo {--user= : Whether to associate the created demo content with the first user in the system. If not provided, content will be created without an associated user.} {--sites= : Comma-separated list of site names to target for demo content insertion. If not provided, all sites will be targeted.} {--skip-hero : Skip hero demo content after creating mosaic demo content.}` (packages/mosaic/src/Console/Commands/DemoCommand.php)
-- `capell:mosaic-faker {--count=25} {--force}` (packages/mosaic/src/Console/Commands/FakerCommand.php)
-- `capell:hero-demo {--sites=}` (packages/mosaic/src/Console/Commands/Hero/DemoCommand.php)
-- `capell:hero-setup` (packages/mosaic/src/Console/Commands/Hero/SetupCommand.php)
-- `capell:mosaic-install` (packages/mosaic/src/Console/Commands/InstallCommand.php)
-- `capell:mosaic-make-widget {name : The widget name (e.g. HeroBanner)} {--livewire : Also scaffold a Livewire widget class and view} {--F|force : Overwrite existing files after warning}` (packages/mosaic/src/Console/Commands/MakeWidgetCommand.php)
-- `capell:mosaic-setup {--user= : Ignored — accepted for compatibility with capell:install} {--sites= : Ignored — accepted for compatibility with capell:install} {--languages= : Ignored — accepted for compatibility with capell:install} {--url= : Ignored — accepted for compatibility with capell:install}` (packages/mosaic/src/Console/Commands/SetupCommand.php)
-- `capell:mosaic-upgrade` (packages/mosaic/src/Console/Commands/UpgradeCommand.php)
+- Public layout components under `resources/views/components/layout`.
+- Main-content and named layout-area rendering through the resolved layout graph.
+- Public block payload resolution through `BuildPublicLayoutGraphAction`.
+- No standalone public route is registered by this package.
 
-## Routes And Config
+Public Blade must stay query-free and authoring-free. Rendered HTML should not expose editor state, signed URLs, field paths, admin labels, internal model identifiers, or package diagnostics.
 
-- Config: packages/mosaic/config/capell-mosaic.php
+## Screenshot Plan
 
-## Permissions And Gates
+- Blocks admin index.
+- Create/edit block form, including block assets.
+- Block layouts relation manager.
+- Layouts admin index with Layout Builder table extensions.
+- Page form layout/content-first editor tab.
+- Hero editor page extension.
+- Public main content render.
+- Public named layout area render.
+- Layout health dashboard widget.
+- Recent activity dashboard widget.
 
-- Gate: LayoutHealthWidgetAbstract: `super_admin`
-- Gate: RecentActivityWidgetAbstract: `admin`, `super_admin`
+## Verification
 
-## Migrations
+- Package tests: `vendor/bin/pest packages/layout-builder/tests --configuration=phpunit.xml`.
+- Harness install: `composer require capell-app/layout-builder:4.x-dev -W`, then `php artisan package:discover --ansi` and `php artisan migrate --graceful --ansi`.
 
-- Migration: 2026_04_20_000001_create_widgets_table.php
-- Migration: 2026_04_20_000002_create_widget_assets_table.php
-- Migration: add_container_widgets_to_layouts_table.php
-- Migration: create_sections_table.php
+## Known Risks
 
-## ERD Excerpt
-
-```mermaid
-erDiagram
-    TYPES ||--o{ WIDGETS : classifies
-    TYPES ||--o{ SECTIONS : classifies
-    SITES ||--o{ SECTIONS : owns
-    LAYOUTS ||--o{ WIDGETS : embeds_by_json_reference
-    WIDGETS ||--o{ WIDGET_ASSETS : has_assets
-    PAGES ||--o{ WIDGET_ASSETS : pageable_context
-    SECTIONS ||--o{ SECTIONS : parent_child
-    MEDIA ||--o{ WIDGET_ASSETS : asset
-
-    WIDGETS {
-        bigint id PK
-        bigint workspace_id
-        bigint type_id FK
-        string key
-        longtext content
-        json meta
-        json admin
-    }
-
-    WIDGET_ASSETS {
-        bigint id PK
-        bigint widget_id FK
-        string pageable_type
-        bigint pageable_id
-        string asset_type
-        uuid asset_id
-        string container
-        int occurrence
-    }
-
-    SECTIONS {
-        bigint id PK
-        bigint type_id FK
-        bigint site_id FK
-        bigint parent_id
-        json meta
-        timestamp visible_from
-        timestamp visible_until
-    }
-```
-
-## Screenshot Automation
-
-Deployment should read [screenshots.json](screenshots.json), install the package with demo data, resolve each admin surface or frontend URL, and write images to `public/docs/screenshots/packages/mosaic`.
-
-- Widgets admin index.
-- Create/edit widget form.
-- Sections admin index.
-- Layout builder screen.
-- Frontend page rendering Mosaic widgets.
+- `capell.json` lists core/frontend as hard dependencies, but Composer also requires `capell-app/admin` and `capell-app/content-blocks`; align the manifest before marketplace publication.
+- Frontend screenshots need seeded layouts and blocks to prove public rendering coverage.
+- Content-first and layout-first editor screenshots should be captured separately because they exercise different editor states.

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Actions;
+namespace Capell\LayoutBuilder\Actions;
 
-use Capell\Mosaic\Data\LayoutPresetData;
-use Capell\Mosaic\Support\LayoutPresets\LayoutPresetRegistry;
+use Capell\LayoutBuilder\Data\LayoutPresetData;
+use Capell\LayoutBuilder\Support\LayoutPresets\LayoutPresetRegistry;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class ListLayoutPresetsAction

@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Widgets;
+namespace Capell\LayoutBuilder\Filament\Widgets;
 
 use Capell\Admin\Contracts\CapellWidgetContract;
 use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
 use Capell\Core\Models\Page;
-use Capell\Mosaic\Data\Dashboard\ActivityItemData;
-use Capell\Mosaic\Data\Dashboard\RecentActivityData;
+use Capell\LayoutBuilder\Data\Dashboard\ActivityItemData;
+use Capell\LayoutBuilder\Data\Dashboard\RecentActivityData;
 use Filament\Widgets\Widget;
+use Override;
 
 final class RecentActivityWidgetAbstract extends Widget implements CapellWidgetContract
 {
@@ -20,14 +21,15 @@ final class RecentActivityWidgetAbstract extends Widget implements CapellWidgetC
     /** @var list<string> */
     protected static array $rolesConfigKeys = ['admin', 'super_admin'];
 
-    protected string $view = 'capell-mosaic::filament.widgets.recent-activity';
+    protected string $view = 'capell-layout-builder::filament.widgets.recent-activity';
 
-    /** @var int|string|array<string, int|string|null> */
-    protected int|string|array $columnSpan = ['default' => 'full', 'md' => 1];
+    /** @var int|string|array<string, int|null> */
+    protected int|string|array $columnSpan = ['md' => 1];
 
     /**
      * @return array<string, mixed>
      */
+    #[Override]
     protected function getViewData(): array
     {
         return ['data' => $this->getData()];

@@ -2,14 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Enums;
+namespace Capell\LayoutBuilder\Enums;
 
-use Capell\Mosaic\Filament\Resources\Sections\SectionResource;
-use Capell\Mosaic\Filament\Resources\Widgets\WidgetResource;
+use Capell\LayoutBuilder\Filament\Resources\Blocks\BlockResource;
 
 enum ResourceEnum: string
 {
-    case Section = SectionResource::class;
-
-    case Widget = WidgetResource::class;
+    case Block = BlockResource::class;
 }

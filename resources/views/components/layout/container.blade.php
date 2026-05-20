@@ -1,35 +1,22 @@
 @php
     use Capell\Core\Enums\ContainerWidthEnum;
-    use Capell\Core\Enums\MediaConversionEnum;
     use Capell\Frontend\Actions\GetLayoutContainerWidthAction;
-    use Capell\Mosaic\Enums\ContainerAlignmentEnum;
-    use Capell\Mosaic\Enums\ResponsiveVisibilityEnum;
-    use Capell\Mosaic\Facades\CapellLayout;
-    use Spatie\MediaLibrary\MediaCollections\Models\Media;
-@endphp
+    use Capell\LayoutBuilder\Enums\ContainerAlignmentEnum;
+    use Capell\LayoutBuilder\Enums\BlockComponentEnum;
+    use Capell\LayoutBuilder\Enums\ResponsiveVisibilityEnum;
+    use Capell\LayoutBuilder\Support\CapellLayoutManager;
+    use Capell\LayoutBuilder\Support\LayoutBlockData;
 
-@props([
-    'colspan' => 12,
-    'columnStart' => 0,
-    'container',
-    'containerKey',
-    'containerIndex',
-    'containerWidth' => ! empty($container['meta']['container'])
-    ? ContainerWidthEnum::from($container['meta']['container'])
-    : GetLayoutContainerWidthAction::run(),
-    'layout',
-    'spacing' => $container['meta']['spacing'] ?? null,
-    'padding' => $container['meta']['padding'] ?? [],
-    'margin' => $container['meta']['margin'] ?? [],
-    'htmlClass' => '',
-    'previousColspan' => null,
-    'pageSlot' => null,
-    'tag' => $container['meta']['tag'] ?? 'div',
-])
-{{-- format-ignore-start --}}
-@php
+    $containerWidth = ! empty($container['meta']['container'])
+        ? ContainerWidthEnum::from($container['meta']['container'])
+        : GetLayoutContainerWidthAction::run();
+    $spacing = $container['meta']['spacing'] ?? null;
+    $padding = $container['meta']['padding'] ?? [];
+    $margin = $container['meta']['margin'] ?? [];
+    $htmlClass = trim((string) ($htmlClass ?? ''));
+
     if (! empty($container['meta']['html_class'])) {
-        $htmlClass .= ' ' . $container['meta']['html_class'];
+        $htmlClass = trim($htmlClass . ' ' . $container['meta']['html_class']);
     }
 
     $alignment = ContainerAlignmentEnum::tryFrom((string) ($container['meta']['alignment'] ?? ''))
@@ -40,56 +27,39 @@
     $hideOnTablet = in_array(ResponsiveVisibilityEnum::Tablet->value, $hiddenOn, true);
     $hideOnDesktop = in_array(ResponsiveVisibilityEnum::Desktop->value, $hiddenOn, true);
 
-    /** @var ?Media $backgroundImage */
-    $backgroundImage = $layout->getFirstMedia($containerKey . '-background');
-
-    $currentColspan = $colspan;
+    $currentColspan = (int) $colspan;
+    $pageMeta = is_array($page?->meta ?? null) ? $page->meta : [];
+    $showHero = ! array_key_exists('show_hero', $pageMeta) || $pageMeta['show_hero'] !== false;
 @endphp
-{{-- format-ignore-end --}}
+
 @if ($colspan === 12 && $previousColspan && $previousColspan !== 12)
-    {{-- format-ignore-start --}}</div>
-</div>{{-- format-ignore-end --}}
+    </div>
+    </div>
 @endif
 
-{{-- format-ignore-start --}}
-@if ($backgroundImage)
-    <div class="relative">
-        <div
-            @if ($backgroundImage)
-                style="{{ $backgroundImage ? 'background-image:url('.$backgroundImage->getAvailableUrl([MediaConversionEnum::Large->value]).');' : '' }}"
-            @endif
-            @class([
-                "absolute top-0 bottom-0 left-0 w-1/2 -z-1 h-full bg-cover bg-center bg-no-repeat",
-            ])
-        >
-        </div>
-        @endif
+@if ($colspan !== 12)
+    @if (! $previousColspan || $previousColspan === 12)
+        <div @class([
+            'capell-layout-builder-layout-container',
+            $containerWidth->getContainerClass(),
+        ])>
+            <div class="flex w-full min-w-0 flex-col gap-x-12 lg:grid lg:grid-cols-12 xl:gap-x-16">
+    @endif
 
-        @if ($colspan !== 12)
-            @if (! $previousColspan || $previousColspan === 12)
-                <div
-                    @class([
-                        $containerWidth->getContainerClass(),
-                    ])
-                >
-                    <div class="flex w-full flex-col gap-x-12 lg:grid lg:grid-cols-12 xl:gap-x-16">
-                        @endif
-
-                        <div
-                            @class([
-                                "lg:col-span-[var(--colspan)]",
-                                "lg:col-start-[var(--column-start)]",
-                            ])
-                            style="--colspan: {{ $colspan }}; --column-start: {{ $columnStart }};"
-                        >
-                            @endif
-                            {{-- format-ignore-end --}}
+    <div
+        @class([
+            'min-w-0 lg:col-span-[var(--colspan)]',
+            'lg:col-start-[var(--column-start)]',
+        ])
+        style="--colspan: {{ $colspan }}; --column-start: {{ $columnStart }};"
+    >
+@endif
 
 <div
     id="layout-container-{{ $containerKey }}"
     @class([
         'layout-container',
-        $htmlClass => (bool) $htmlClass,
+        $htmlClass => $htmlClass !== '',
         'self-start justify-self-start' => $alignment === ContainerAlignmentEnum::Start,
         'self-center justify-self-center' => $alignment === ContainerAlignmentEnum::Center,
         'self-end justify-self-end' => $alignment === ContainerAlignmentEnum::End,
@@ -129,61 +99,67 @@
         'mb-20' => in_array('b-xl', $margin, true),
     ])
 >
-    @foreach ($container['widgets'] as $widgetIndex => $widgetData)
-        {{-- format-ignore-start --}}
-                                    @php
-                                        $widget = CapellLayout::getContainerWidget(
-                                            $containerKey,
-                                            $widgetData['widget_key'],
-                                            $widgetData['occurrence'] ?? 1,
-                                        );
+    @foreach (LayoutBlockData::normalizeMany($container['blocks'] ?? []) as $blockIndex => $blockData)
+        @php
+            $blockKey = LayoutBlockData::key($blockData);
+            if ($blockKey === null) {
+                continue;
+            }
 
-                                        if (! $widget) {
-                                            continue;
-                                        }
+            $block = CapellLayoutManager::getStoredContainerBlock(
+                (string) $containerKey,
+                $blockKey,
+                LayoutBlockData::occurrence($blockData),
+            );
 
-                                        $component = $widget->getComponent();
-                                        if (! $component) {
-                                            continue;
-                                        }
+            if (! $block) {
+                continue;
+            }
 
-                                        $type = $widget->getMetaComponentType();
+            $component = $block->getComponent();
+            if (! $component) {
+                continue;
+            }
 
-                                        $currentColspan = $previousColspan + $colspan;
-                                        if ($columnStart) {
-                                            $currentColspan += $columnStart - 1;
-                                        }
-                                    @endphp
-                                    {{-- format-ignore-end --}}
-        {!! config('app.debug') ? "<!-- {$widget->key} Widget ({$widget->id}) - {$component} -->" : '' !!}
+            $componentKey = (string) $component;
+            if (! $showHero && in_array($componentKey, [
+                BlockComponentEnum::Hero->value,
+                BlockComponentEnum::BannerImage->value,
+                BlockComponentEnum::ApHeroBanner->value,
+            ], true)) {
+                continue;
+            }
 
-        <x-capell-mosaic::layout.widget
-            :$component
-            :container-colspan="$colspan"
-            :$container
-            :$containerKey
-            :$containerIndex
-            :container-width="$colspan === 12 ? $containerWidth : ContainerWidthEnum::Full"
-            :$loop
-            :$type
-            :$widget
-            :$widgetIndex
-            :$widgetData
-            :page-slot="$pageSlot"
-        />
+            $type = $block->getMetaComponentType();
+            $currentColspan = (int) $previousColspan + (int) $colspan;
+            if ($columnStart) {
+                $currentColspan += $columnStart - 1;
+            }
+        @endphp
+
+        @include('capell-layout-builder::components.layout.block', [
+            'component' => $component,
+            'containerColspan' => $colspan,
+            'container' => $container,
+            'containerKey' => (string) $containerKey,
+            'containerIndex' => $containerIndex,
+            'containerWidth' => $colspan === 12 ? $containerWidth : ContainerWidthEnum::Full,
+            'loop' => $loop,
+            'layout' => $layout,
+            'type' => $type,
+            'block' => $block,
+            'blockIndex' => $blockIndex,
+            'blockData' => $blockData,
+            'pageSlot' => $pageSlot,
+        ])
     @endforeach
 </div>
 
-{{-- format-ignore-start --}}
-                            @if ($backgroundImage)
-                        </div>
-                        @endif
-                        @if ($colspan !== 12)
-                    </div>
-
-                    @if ($currentColspan === 12)
-                </div>
+@if ($colspan !== 12)
     </div>
+
+    @if ($currentColspan === 12)
+            </div>
+        </div>
+    @endif
 @endif
-@endif
-{{-- format-ignore-end --}}

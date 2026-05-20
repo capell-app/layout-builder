@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Data\Dashboard;
+namespace Capell\LayoutBuilder\Data\Dashboard;
 
 use Illuminate\Support\Collection;
 use Spatie\LaravelData\Data;

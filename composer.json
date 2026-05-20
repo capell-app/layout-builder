@@ -1,39 +1,31 @@
 {
-    "name": "capell-app/mosaic",
-    "description": "Mosaic for Capell",
+    "name": "capell-app/layout-builder",
+    "description": "Visual layout composition, content-first editing, and public layout rendering for Capell",
     "keywords": [
         "capell",
-        "mosaic",
-        "laravel",
-        "filamentphp",
-        "cms"
+        "layout-builder",
+        "cms",
+        "filament",
+        "livewire"
     ],
-    "homepage": "https://github.com/capell-app/mosaic",
+    "homepage": "https://github.com/capell-app/layout-builder",
     "license": "proprietary",
-    "authors": [
-        {
-            "name": "Howdu",
-            "email": "cms.multi2@gmail.com",
-            "role": "Developer"
-        }
-    ],
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "capell-app/admin": "*",
-        "capell-app/frontend": "*",
-        "capell-app/navigation": "*",
-        "capell-app/workspaces": "*"
+        "capell-app/content-blocks": "*",
+        "capell-app/core": "*",
+        "capell-app/frontend": "*"
     },
     "autoload": {
         "psr-4": {
-            "Capell\\Mosaic\\": "src/",
-            "Capell\\Mosaic\\Database\\Factories\\": "database/factories"
+            "Capell\\LayoutBuilder\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Capell\\Mosaic\\Providers\\MosaicServiceProvider"
+                "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
             ]
         }
     },

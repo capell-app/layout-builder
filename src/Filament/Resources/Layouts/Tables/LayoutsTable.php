@@ -2,26 +2,34 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Layouts\Tables;
+namespace Capell\LayoutBuilder\Filament\Resources\Layouts\Tables;
 
 use Capell\Admin\Enums\FilamentColorEnum;
+use Capell\Admin\Filament\Components\Tables\Columns\ImageColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Core\Models\Layout;
-use Capell\Mosaic\Models\Widget;
+use Capell\LayoutBuilder\Actions\GetLayoutPreviewImageUrlAction;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\ViewEntry;
 use Filament\Tables\Columns\Column;
+use Filament\Tables\Columns\Layout\Component;
+use Filament\Tables\Columns\Layout\View;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Override;
 
 class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\LayoutsTable
 {
+    #[Override]
     protected static function getTableQueryModifier(Builder $query): Builder
     {
-        return parent::getTableQueryModifier($query)->with('layoutWidgets');
+        return parent::getTableQueryModifier($query)->with('layoutBlocks');
     }
 
+    #[Override]
     protected static function getTableActions(): array
     {
         return [
@@ -33,35 +41,38 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     protected static function getLayoutInfoAction(): Action
     {
         return Action::make('info')
-            ->label(__('capell-mosaic::button.info'))
+            ->label(__('capell-layout-builder::button.info'))
             ->icon('heroicon-o-information-circle')
             ->iconButton()
             ->color('info')
             ->schema(fn (Layout $record): array => [
-                ViewEntry::make('widgets')
+                ViewEntry::make('blocks')
                     ->view(
-                        'capell-mosaic::components.infolists.entries.layout-widgets',
+                        'capell-layout-builder::components.infolists.entries.layout-blocks',
                         [
-                            'widgets' => $record->layoutWidgets,
+                            'blocks' => $record->getRelationValue('layoutBlocks'),
                         ],
                     ),
             ]);
     }
 
+    #[Override]
     protected static function getTableColumns(): array
     {
         $columns = parent::getTableColumns();
 
         $nameColumnIndex = array_search(
             NameColumn::class,
-            array_map(fn (Column $column): string|false => $column::class, $columns),
+            array_map(fn (Column|Component $column): string|false => $column::class, $columns),
             true,
         );
 
-        if ($nameColumnIndex !== false) {
+        $usesCardLayout = collect($columns)->contains(fn (Column|Component $column): bool => $column instanceof View);
+
+        if ($nameColumnIndex !== false && ! $usesCardLayout) {
             array_splice($columns, $nameColumnIndex + 1, 0, [
-                TextColumn::make('layoutWidgets.name')
-                    ->label(__('capell-mosaic::table.container_widgets'))
+                TextColumn::make('layoutBlocks.name')
+                    ->label(__('capell-layout-builder::table.container_blocks'))
                     ->wrap()
                     ->color(FilamentColorEnum::LightGray->value)
                     ->bulleted()
@@ -71,30 +82,52 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
             ]);
         }
 
+        foreach ($columns as $column) {
+            if (! $column instanceof ImageColumn) {
+                continue;
+            }
+
+            if ($column->getName() !== 'admin.image') {
+                continue;
+            }
+
+            $column->getStateUsing(fn (Layout $record): ?string => GetLayoutPreviewImageUrlAction::run($record));
+        }
+
+        $imageColumnIndex = array_search(
+            ImageColumn::class,
+            array_map(fn (Column|Component $column): string|false => $column::class, $columns),
+            true,
+        );
+
+        if ($imageColumnIndex !== false && ! $usesCardLayout) {
+            array_splice($columns, $imageColumnIndex + 1, 0, [
+                TextColumn::make('admin.' . LayoutPreviewMetaKey::STATUS)
+                    ->label(__('capell-layout-builder::table.generated_preview'))
+                    ->badge()
+                    ->toggleable(),
+            ]);
+        }
+
         return $columns;
     }
 
+    #[Override]
     protected static function getTableFilters(): array
     {
         return [
-            SelectFilter::make('widget_key')
-                ->label(__('capell-mosaic::form.widget'))
-                ->options(function () {
-                    /** @var class-string<Widget> $model */
-                    $model = Widget::class;
-
-                    return $model::getOptions('key', 'name');
-                })
+            SelectFilter::make('block_key')
+                ->label(__('capell-layout-builder::form.block'))
+                ->options(fn () => Block::query()
+                    ->pluck('name', 'key')
+                    ->all())
                 ->indicateUsing(function (array $state): array {
                     $indicators = [];
 
                     if (isset($state['value']) && $state['value'] !== '') {
-                        /** @var class-string<Widget> $model */
-                        $model = Widget::class;
-
-                        $indicators['widget_key'] = __(
-                            'capell-mosaic::filter.widget',
-                            ['search' => $model::query()->firstWhere('key', $state['value'], 'name')?->name],
+                        $indicators['block_key'] = __(
+                            'capell-layout-builder::filter.block',
+                            ['search' => Block::query()->where('key', $state['value'])->value('name')],
                         );
                     }
 
@@ -103,7 +136,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                 ->modifyQueryUsing(
                     fn (Builder $query, array $state) => $query->when(
                         isset($state['value']) && $state['value'] !== '',
-                        fn (Builder $query) => $query->whereJsonContains('widgets', $state['value']),
+                        fn (Builder $query) => $query->whereJsonContains('blocks', $state['value']),
                     ),
                 ),
             ...parent::getTableFilters(),

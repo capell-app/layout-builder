@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Components\Forms;
+namespace Capell\LayoutBuilder\Filament\Components\Forms;
 
 use Closure;
 use Filament\Forms\Components\ColorPicker;
@@ -56,7 +56,7 @@ class CustomColorInput
                             $options = $options->toArray();
                         }
 
-                        if ($state && ! isset($options[$state])) {
+                        if ($state !== null && $state !== '' && ! isset($options[$state])) {
                             $set($name, 'custom');
                             $set($name . '_custom', $state);
                         }
@@ -67,7 +67,7 @@ class CustomColorInput
                     }),
 
                 ColorPicker::make($name . '_custom')
-                    ->label(__('capell-mosaic::form.custom'))
+                    ->label(__('capell-layout-builder::form.custom'))
                     ->hiddenLabel()
                     ->placeholder(__('capell-admin::generic.custom'))
                     ->dehydrated(false)

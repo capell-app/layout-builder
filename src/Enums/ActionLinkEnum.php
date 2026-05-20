@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Enums;
+namespace Capell\LayoutBuilder\Enums;
 
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;

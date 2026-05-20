@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Actions;
+namespace Capell\LayoutBuilder\Actions;
 
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Contracts\CanEntangleWithSingularRelationships;

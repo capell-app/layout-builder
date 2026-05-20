@@ -2,23 +2,29 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Listeners;
+namespace Capell\LayoutBuilder\Listeners;
 
 use Capell\Core\Models\Layout;
+use Capell\LayoutBuilder\Support\LayoutBlockData;
 use Illuminate\Support\Facades\Schema;
 
 class LayoutSavingListener
 {
     public function __invoke(Layout $layout): void
     {
-        if (! Schema::hasColumn('layouts', 'widgets')) {
+        if (! Schema::hasColumn('layouts', 'blocks')) {
             return;
         }
 
-        $layout->widgets = collect($layout->containers)
-            ->flatMap(fn (array $container): array => $container['widgets'] ?? [])
-            ->unique('widget_key')
-            ->pluck('widget_key')
-            ->all();
+        $containers = $layout->getAttribute('containers');
+        $containers = is_array($containers) ? $containers : [];
+
+        $layout->setAttribute('blocks', collect($containers)
+            ->flatMap(fn (array $container): array => LayoutBlockData::normalizeMany($container['blocks'] ?? []))
+            ->map(fn (array $block): ?string => LayoutBlockData::key($block))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all());
     }
 }

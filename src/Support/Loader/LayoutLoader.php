@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Support\Loader;
+namespace Capell\LayoutBuilder\Support\Loader;
 
 use Capell\Core\Actions\GetComponentClassAction;
 use Capell\Core\Contracts\Pageable;
@@ -11,18 +11,22 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
-use Capell\Frontend\Support\ModelServing\RetrievedModelStore;
-use Capell\Mosaic\Models\Section;
-use Capell\Mosaic\Models\Widget;
-use Capell\Mosaic\Models\WidgetAsset;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Support\LayoutBlockData;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
+use Throwable;
 
 class LayoutLoader
 {
+    private const string RETRIEVED_MODEL_STORE_SERVICE = 'capell.frontend.retrieved-model-store';
+
     /**
-     * Preloaded widgets per [layoutId][languageId][pageIdOr0] => [containerKey][widgetKey][occurrence] => Widget
-     * Used to avoid N+1 queries when resolving multiple widgets for a layout.
+     * Preloaded blocks per [layoutId][languageId][pageIdOr0] => [containerKey][blockKey][occurrence] => Block
+     * Used to avoid N+1 queries when resolving multiple blocks for a layout.
      */
     private array $preloaded = [];
 
@@ -35,14 +39,14 @@ class LayoutLoader
         $layout = CapellCore::rememberCache($key, function () use ($id, &$fromCache): ?Layout {
             $fromCache = false;
 
-            return Layout::query()->with('layoutWidgets')->find($id);
+            return Layout::query()->find($id);
         });
 
         if ($fromCache && $layout instanceof Layout) {
-            resolve(RetrievedModelStore::class)->track($layout);
+            $this->trackRetrievedModel($layout);
 
-            $layout->layoutWidgets->each(function (Widget $widget): void {
-                resolve(RetrievedModelStore::class)->track($widget);
+            $this->layoutBlocks($layout)->each(function (Block $block): void {
+                $this->trackRetrievedModel($block);
             });
         }
 
@@ -50,72 +54,105 @@ class LayoutLoader
     }
 
     /**
-     * Preload all widgets and their assets for a layout for the given language and page.
-     * Results are stored in-memory only for the current request lifecycle.
+     * @param  array<int, string>|null  $containerKeys
      */
-    public function preloadLayoutWidgets(Layout $layout, Language $language, ?Pageable $page): void
+    public function preloadLayoutBlocks(Layout $layout, Language $language, ?Pageable $page, ?array $containerKeys = null): void
     {
-        $cacheKey = $this->preloadedKey($layout, $language, $page);
+        $cacheKey = $this->preloadedKey($layout, $language, $page, $containerKeys);
         if (isset($this->preloaded[$cacheKey])) {
             return;
         }
 
-        $layout->load([
-            'layoutWidgets' => fn (BuilderContract $query): BuilderContract => $query->with([
+        $containers = $this->selectedLayoutContainers($layout, $containerKeys);
+        $selectedBlockKeys = $this->selectedBlockKeys($containers);
+        $selectedContainerOccurrences = $this->selectedContainerOccurrences($containers);
+
+        if (! $layout->relationLoaded('media')) {
+            $layout->load(['media' => fn (BuilderContract $query): BuilderContract => $query->ordered()]);
+        }
+
+        if ($selectedBlockKeys === [] || ! Schema::hasTable('blocks')) {
+            $layout->setRelation('layoutBlocks', collect());
+            $this->preloaded[$cacheKey] = [];
+
+            return;
+        }
+
+        $layout->setRelation('layoutBlocks', Block::query()
+            ->whereIn('key', $selectedBlockKeys)
+            ->whereHas('type', fn (BuilderContract $query): BuilderContract => $query->enabled()->accessible())
+            ->with([
+                'blueprint',
                 'type',
                 'media' => fn (BuilderContract $query): BuilderContract => $query->ordered(),
                 'translation' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', $language->id),
-            ]),
-        ]);
+            ])
+            ->enabled()
+            ->publishedDate()
+            ->get());
 
-        $layout->layoutWidgets->each(function (Widget $widget): void {
-            resolve(RetrievedModelStore::class)->track($widget);
+        $this->layoutBlocks($layout)->each(function (Block $block): void {
+            $this->trackRetrievedModel($block);
 
-            if ($widget->media->isEmpty()) {
-                return;
-            }
+            $block->setRelation('image', $block->media->firstWhere('type', MediaCollectionEnum::Image->value));
 
-            $widget->setRelation('image', $widget->media->firstWhere('type', MediaCollectionEnum::Image->value));
-
-            $widget->setRelation('backgroundImage', $widget->media->firstWhere('type', MediaCollectionEnum::BackgroundImage->value));
+            $block->setRelation('backgroundImage', $block->media->firstWhere('type', MediaCollectionEnum::BackgroundImage->value));
         });
 
-        $layoutWidgets = $layout->layoutWidgets;
+        $layoutBlocks = $selectedBlockKeys === []
+            ? collect()
+            : $this->layoutBlocks($layout)->whereIn('key', $selectedBlockKeys)->values();
 
         // Attach language relation to the loaded translation for consistency
-        $layoutWidgets->each(function (Widget $widget) use ($language): void {
-            $widget->translation?->setRelation('language', $language);
+        $layoutBlocks->each(function (Block $block) use ($language): void {
+            $block->translation?->setRelation('language', $language);
         });
 
-        // Build a lookup for widgets by id and by key
-        $widgetsById = [];
-        $widgetsByKey = [];
-        foreach ($layoutWidgets as $widget) {
-            $widgetsById[$widget->id] = $widget;
-            $widgetsByKey[$widget->key] = $widget;
+        $this->hydrateLayoutBlocks($layoutBlocks);
+
+        // Build a lookup for blocks by id and by key
+        $blocksById = [];
+        $blocksByKey = [];
+        foreach ($layoutBlocks as $block) {
+            $blocksById[$block->id] = $block;
+            $blocksByKey[$block->key] = $block;
         }
 
-        // Compute morph eager loads, including component-specific additions across all widgets
+        // Compute morph eager loads, including component-specific additions across all blocks
         $with = [
-            Section::class => Section::getMorphRelations($language),
             Page::class => Page::getMorphRelations($language),
         ];
 
-        foreach ($layoutWidgets as $widget) {
-            $component = $widget->getComponent();
-            $componentType = $widget->getMetaComponentType();
+        CapellCore::getAssets()->each(function (mixed $asset) use (&$with, $language): void {
+            $model = $asset->model;
+
+            if ($model === Page::class || ! method_exists($model, 'getMorphRelations')) {
+                return;
+            }
+
+            $with[$model] = $model::getMorphRelations($language);
+        });
+
+        foreach ($layoutBlocks as $block) {
+            $component = $block->getComponent();
+            $componentType = $block->getMetaComponentType();
             $livewire = $componentType === 'livewire';
 
-            $componentClass = GetComponentClassAction::run($component, $livewire);
-            if (method_exists($componentClass, 'loadWidgetAssets')) {
-                $componentClass::loadWidgetAssets($with, $language);
+            try {
+                $componentClass = GetComponentClassAction::run($component, $livewire);
+            } catch (Throwable) {
+                continue;
+            }
+
+            if (method_exists($componentClass, 'loadBlockAssets')) {
+                $componentClass::loadBlockAssets($with, $language);
             }
         }
 
-        // Fetch assets for all widgets in one go (page-specific + defaults), eager loading morph relations
-        $widgetIds = array_keys($widgetsById);
-        $assetQuery = WidgetAsset::query()
-            ->whereIn('widget_id', $widgetIds)
+        // Fetch assets for all blocks in one go (page-specific + defaults), eager loading morph relations
+        $blockIds = array_keys($blocksById);
+        $assetQuery = BlockAsset::query()
+            ->whereIn('block_id', $blockIds)
             ->whereHas('asset')
             ->with([
                 'media',
@@ -127,11 +164,22 @@ class LayoutLoader
             ->alphabetical($language);
 
         if ($page instanceof Pageable) {
-            $assetQuery->where(function (BuilderContract $query) use ($page): void {
+            $assetQuery->where(function (BuilderContract $query) use ($page, $selectedContainerOccurrences): void {
                 $query->where([
                     'pageable_type' => $page->getMorphClass(),
                     'pageable_id' => $page->getKey(),
                 ])
+                    ->when($selectedContainerOccurrences !== [], function (BuilderContract $query) use ($selectedContainerOccurrences): BuilderContract {
+                        return $query->where(function (BuilderContract $query) use ($selectedContainerOccurrences): void {
+                            foreach ($selectedContainerOccurrences as $position) {
+                                $query->orWhere(function (BuilderContract $query) use ($position): void {
+                                    $query
+                                        ->where('container', $position['container'])
+                                        ->where('occurrence', $position['occurrence']);
+                                });
+                            }
+                        });
+                    })
                     ->orWhereNull(['pageable_type', 'pageable_id']);
             });
         } else {
@@ -141,104 +189,213 @@ class LayoutLoader
         $assets = $assetQuery->get();
 
         // Group assets for fast lookups
-        $defaultAssetsByWidgetId = [];
-        $pageAssetsByWidgetIdContainerOcc = [];
+        $defaultAssetsByBlockIdOccurrence = [];
+        $pageAssetsByBlockIdContainerOcc = [];
 
-        $assets->each(function (WidgetAsset $asset) use (&$defaultAssetsByWidgetId, &$pageAssetsByWidgetIdContainerOcc): void {
-            resolve(RetrievedModelStore::class)->track($asset);
+        $assets->each(function (BlockAsset $asset) use (&$defaultAssetsByBlockIdOccurrence, &$pageAssetsByBlockIdContainerOcc): void {
+            $this->trackRetrievedModel($asset);
 
-            $widgetId = (int) $asset->widget_id;
+            $blockId = (int) $asset->block_id;
+            $occurrence = $asset->occurrence ?? 1;
 
             if ($asset->pageable_id === null && $asset->pageable_type === null) {
-                $defaultAssetsByWidgetId[$widgetId] ??= [];
-                $defaultAssetsByWidgetId[$widgetId][] = $asset;
+                $defaultAssetsByBlockIdOccurrence[$blockId][$occurrence] ??= [];
+                $defaultAssetsByBlockIdOccurrence[$blockId][$occurrence][] = $asset;
 
                 return;
             }
 
             $container = $asset->container;
 
-            $occurrence = (int) $asset->occurrence;
-
-            $pageAssetsByWidgetIdContainerOcc[$widgetId][$container][$occurrence] ??= [];
-            $pageAssetsByWidgetIdContainerOcc[$widgetId][$container][$occurrence][] = $asset;
+            $pageAssetsByBlockIdContainerOcc[$blockId][$container][$occurrence] ??= [];
+            $pageAssetsByBlockIdContainerOcc[$blockId][$container][$occurrence][] = $asset;
         });
 
-        // Build the final preloaded map per container/widget/occurrence
+        // Build the final preloaded map per container/block/occurrence
         $result = [];
-        $containers = is_array($layout->containers ?? null) ? $layout->containers : [];
         foreach ($containers as $containerKey => $container) {
-            if (! isset($container['widgets'])) {
-                continue;
-            }
-
-            if (! is_array($container['widgets'])) {
-                continue;
-            }
-
-            foreach ($container['widgets'] as $widgetData) {
-                if (! isset($widgetData['widget_key'])) {
+            foreach (LayoutBlockData::normalizeMany($container['blocks'] ?? []) as $blockData) {
+                $blockKey = LayoutBlockData::key($blockData);
+                if ($blockKey === null) {
                     continue;
                 }
 
-                $widgetKey = (string) $widgetData['widget_key'];
-                $occurrence = (int) ($widgetData['occurrence'] ?? 1);
+                $occurrence = LayoutBlockData::occurrence($blockData);
 
-                $baseWidget = $widgetsByKey[$widgetKey] ?? null;
-                if (! $baseWidget instanceof Widget) {
+                $baseBlock = $blocksByKey[$blockKey] ?? null;
+                if (! $baseBlock instanceof Block) {
                     continue;
                 }
 
-                $clone = clone $baseWidget;
+                $clone = clone $baseBlock;
                 $clone->translation?->setRelation('language', $language);
 
-                $wid = $baseWidget->id;
-                $assetsForPosition = $pageAssetsByWidgetIdContainerOcc[$wid][$containerKey][$occurrence] ?? [];
+                $wid = $baseBlock->id;
+                $assetsForPosition = $pageAssetsByBlockIdContainerOcc[$wid][$containerKey][$occurrence] ?? [];
                 if ($assetsForPosition === []) {
-                    $assetsForPosition = $defaultAssetsByWidgetId[$wid] ?? [];
+                    $assetsForPosition = $defaultAssetsByBlockIdOccurrence[$wid][$occurrence] ?? [];
                 }
 
                 $clone->setRelation('assets', collect($assetsForPosition));
 
-                $result[$containerKey][$widgetKey][$occurrence] = $clone;
+                $result[$containerKey][$blockKey][$occurrence] = $clone;
             }
         }
 
         $this->preloaded[$cacheKey] = $result;
     }
 
-    public function getLayoutWidget(
+    public function getLayoutBlock(
         Layout $layout,
-        string $widgetKey,
+        string $blockKey,
         Language $language,
         ?Pageable $page,
         string $containerKey,
         int $occurrence,
-    ): ?Widget {
-        $this->preloadLayoutWidgets($layout, $language, $page);
+        ?array $containerKeys = null,
+    ): ?Block {
+        $this->preloadLayoutBlocks($layout, $language, $page, $containerKeys);
 
-        return $this->loadWidget($layout, $language, $page, $containerKey, $widgetKey, $occurrence);
+        return $this->loadBlock($layout, $language, $page, $containerKey, $blockKey, $occurrence, $containerKeys);
     }
 
-    private function preloadedKey(Layout $layout, Language $language, ?Pageable $page): string
+    /**
+     * @param  Collection<int, Block>  $blocks
+     */
+    private function hydrateLayoutBlocks(Collection $blocks): void
     {
-        return 'layout:' . $layout->id . ':lang:' . $language->id . ':page:' . ($page instanceof Pageable ? $page->id : 0);
+        $blocks
+            ->groupBy(fn (Block $block): string => $block->getComponent() . ':' . $block->getMetaComponentType())
+            ->each(function (Collection $componentBlocks): void {
+                /** @var Block|null $firstBlock */
+                $firstBlock = $componentBlocks->first();
+
+                if (! $firstBlock instanceof Block) {
+                    return;
+                }
+
+                $component = $firstBlock->getComponent();
+                $livewire = $firstBlock->getMetaComponentType() === 'livewire';
+
+                try {
+                    $componentClass = GetComponentClassAction::run($component, $livewire);
+                } catch (Throwable) {
+                    return;
+                }
+
+                if (! method_exists($componentClass, 'hydrateBlocks')) {
+                    return;
+                }
+
+                $componentClass::hydrateBlocks($componentBlocks);
+            });
     }
 
-    private function loadWidget(
+    /**
+     * @return Collection<int, Block>
+     */
+    private function layoutBlocks(Layout $layout): Collection
+    {
+        $blocks = $layout->getRelationValue('layoutBlocks');
+
+        return $blocks instanceof Collection ? $blocks : collect();
+    }
+
+    private function trackRetrievedModel(object $model): void
+    {
+        if (! app()->bound(self::RETRIEVED_MODEL_STORE_SERVICE)) {
+            return;
+        }
+
+        $store = resolve(self::RETRIEVED_MODEL_STORE_SERVICE);
+
+        if (is_object($store) && method_exists($store, 'track')) {
+            $store->track($model);
+        }
+    }
+
+    /**
+     * @param  array<int, string>|null  $containerKeys
+     */
+    private function preloadedKey(Layout $layout, Language $language, ?Pageable $page, ?array $containerKeys = null): string
+    {
+        $containers = $containerKeys === null ? '*' : implode(',', array_values(array_unique($containerKeys)));
+
+        return 'layout:' . $layout->id . ':lang:' . $language->id . ':page:' . ($page instanceof Pageable ? $page->id : 0) . ':containers:' . $containers;
+    }
+
+    private function loadBlock(
         Layout $layout,
         Language $language,
         ?Pageable $page,
         string $containerKey,
-        string $widgetKey,
+        string $blockKey,
         int $occurrence,
-    ): ?Widget {
-        $cacheKey = $this->preloadedKey($layout, $language, $page);
+        ?array $containerKeys = null,
+    ): ?Block {
+        $cacheKey = $this->preloadedKey($layout, $language, $page, $containerKeys);
         $map = $this->preloaded[$cacheKey] ?? null;
         if ($map === null) {
             return null;
         }
 
-        return $map[$containerKey][$widgetKey][$occurrence] ?? null;
+        return $map[$containerKey][$blockKey][$occurrence] ?? null;
+    }
+
+    /**
+     * @param  array<int, string>|null  $containerKeys
+     * @return array<string, array<string, mixed>>
+     */
+    private function selectedLayoutContainers(Layout $layout, ?array $containerKeys): array
+    {
+        $containers = $layout->getAttribute('containers');
+        $containers = is_array($containers) ? $containers : [];
+
+        if ($containerKeys === null) {
+            return $containers;
+        }
+
+        return collect($containers)
+            ->filter(fn (mixed $container, string|int $containerKey): bool => in_array((string) $containerKey, $containerKeys, true))
+            ->map(fn (mixed $container): array => is_array($container) ? $container : [])
+            ->all();
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     * @return array<int, string>
+     */
+    private function selectedBlockKeys(array $containers): array
+    {
+        return collect($containers)
+            ->flatMap(fn (array $container): array => LayoutBlockData::normalizeMany($container['blocks'] ?? []))
+            ->map(static fn (array $blockData): ?string => LayoutBlockData::key($blockData))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     * @return array<int, array{container: string, occurrence: int}>
+     */
+    private function selectedContainerOccurrences(array $containers): array
+    {
+        $positions = [];
+
+        foreach ($containers as $containerKey => $container) {
+            foreach (LayoutBlockData::normalizeMany($container['blocks'] ?? []) as $blockData) {
+                $positions[] = [
+                    'container' => $containerKey,
+                    'occurrence' => LayoutBlockData::occurrence($blockData),
+                ];
+            }
+        }
+
+        return collect($positions)
+            ->unique(fn (array $position): string => $position['container'] . ':' . $position['occurrence'])
+            ->values()
+            ->all();
     }
 }

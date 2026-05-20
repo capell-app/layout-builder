@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Data;
+namespace Capell\LayoutBuilder\Data;
 
 use BackedEnum;
-use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Core\Contracts\Actionable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -13,7 +12,7 @@ class LayoutAssetBridgeData
 {
     /**
      * @param  class-string<Model>  $model
-     * @param  class-string<FormConfigurator>  $formClass
+     * @param  class-string  $formClass
      * @param  class-string<Actionable>  $createAction
      * @param  class-string<Actionable>  $defaultDataAction
      * @param  class-string|null  $livewireTable

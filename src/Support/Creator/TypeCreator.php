@@ -2,46 +2,35 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Support\Creator;
+namespace Capell\LayoutBuilder\Support\Creator;
 
 use Capell\Core\Enums\AssetComponentEnum as CapellAssetComponentEnum;
 use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Enums\ContentStructure;
-use Capell\Core\Models\Type;
-use Capell\Mosaic\Enums\AssetEnum as LayoutAssetEnum;
-use Capell\Mosaic\Enums\ContentTypeEnum;
-use Capell\Mosaic\Enums\LayoutTypeEnum;
-use Capell\Mosaic\Enums\WidgetComponentEnum;
-use Capell\Mosaic\Enums\WidgetTypeEnum;
-use Capell\Mosaic\Enums\WidgetTypeGroupEnum;
-use Capell\Mosaic\Filament\Configurators\Layouts\Widgets\DefaultLayoutWidgetConfigurator;
-use Capell\Mosaic\Filament\Configurators\Layouts\Widgets\PageLayoutWidgetConfigurator;
-use Capell\Mosaic\Filament\Configurators\Layouts\Widgets\ResultsLayoutWidgetConfigurator;
-use Capell\Mosaic\Filament\Configurators\Types\ContentTypeConfigurator;
-use Capell\Mosaic\Filament\Configurators\Types\WidgetTypeConfigurator;
-use Capell\Mosaic\Filament\Configurators\Widgets\AssetsWidgetConfigurator;
-use Capell\Mosaic\Filament\Configurators\Widgets\NavigationWidgetConfigurator;
-use Capell\Mosaic\Filament\Configurators\Widgets\PageContentWidgetConfigurator;
-use Capell\Mosaic\Filament\Configurators\Widgets\ResultsWidgetConfigurator;
-use Capell\Mosaic\Filament\Configurators\Widgets\SystemWidgetConfigurator;
+use Capell\Core\Models\Blueprint;
+use Capell\LayoutBuilder\Enums\BlockComponentEnum;
+use Capell\LayoutBuilder\Enums\BlockTypeEnum;
+use Capell\LayoutBuilder\Enums\BlockTypeGroupEnum;
+use Capell\LayoutBuilder\Enums\ContentTypeEnum;
+use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Exception;
 
 class TypeCreator
 {
     /**
-     * @var class-string<Type>
+     * @var class-string<Blueprint>
      */
-    public string $typeModel = Type::class;
+    public string $typeModel = Blueprint::class;
 
     public function create(string $key): void
     {
         switch ($key) {
-            case LayoutTypeEnum::Section->value:
+            case 'section':
                 $this->createDefaultContentType();
                 $this->createBuilderContentType();
                 break;
-            case LayoutTypeEnum::Widget->value:
-                $this->defaultWidgetType();
+            case LayoutTypeEnum::Block->value:
+                $this->defaultBlockType();
                 break;
             default:
                 throw new Exception('Invalid page type key: ' . $key);
@@ -52,12 +41,13 @@ class TypeCreator
     {
         $this->typeModel::query()->firstOrCreate([
             'default' => true,
-            'type' => LayoutTypeEnum::Section,
+            'type' => 'section',
         ], [
             'name' => __('capell-admin::generic.default'),
             'key' => ContentTypeEnum::Default,
             'admin' => [
-                'type_configurator' => ContentTypeConfigurator::getKey(),
+                'type_configurator' => 'content-type',
+                'notes' => __('capell-layout-builder::type.default_content_description'),
             ],
         ]);
     }
@@ -66,11 +56,12 @@ class TypeCreator
     {
         $this->typeModel::query()->firstOrCreate([
             'key' => ContentTypeEnum::Builder,
-            'type' => LayoutTypeEnum::Section,
+            'type' => 'section',
         ], [
             'name' => __('capell-admin::generic.contents_builder'),
             'admin' => [
-                'type_configurator' => ContentTypeConfigurator::getKey(),
+                'type_configurator' => 'content-type',
+                'notes' => __('capell-layout-builder::type.builder_content_description'),
             ],
             'meta' => [
 
@@ -79,327 +70,343 @@ class TypeCreator
         ]);
     }
 
-    public function createWidgetTypes(): void
+    public function createBlockTypes(): void
     {
-        $this->defaultWidgetType();
-        $this->contentsWidgetType();
-        $this->contentBuilderWidgetType();
-        $this->mediaWidgetType();
-        $this->navigationWidgetType();
-        $this->pageContentWidgetType();
-        $this->resultsWidgetType();
-        $this->pagesWidgetType();
-        $this->assetsWidgetType();
-        $this->systemWidgetType();
-        $this->heroWidgetType();
-        $this->heroBannerWidgetType();
-        $this->cardGridWidgetType();
-        $this->featureListWidgetType();
-        $this->ctaSectionWidgetType();
-        $this->imageGalleryWidgetType();
+        $this->defaultBlockType();
+        $this->contentsBlockType();
+        $this->contentBuilderBlockType();
+        $this->mediaBlockType();
+        $this->navigationBlockType();
+        $this->pageContentBlockType();
+        $this->resultsBlockType();
+        $this->pagesBlockType();
+        $this->assetsBlockType();
+        $this->systemBlockType();
+        $this->heroBlockType();
+        $this->heroBannerBlockType();
+        $this->cardGridBlockType();
+        $this->featureListBlockType();
+        $this->ctaSectionBlockType();
+        $this->imageGalleryBlockType();
     }
 
-    public function defaultWidgetType(): Type
+    public function defaultBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'type' => LayoutTypeEnum::Widget,
+            'type' => LayoutTypeEnum::Block,
             'key' => 'default',
             'default' => true,
         ], [
             'name' => __('capell-admin::generic.default'),
             'admin' => [
-                'type_configurator' => WidgetTypeConfigurator::getKey(),
+                'type_configurator' => 'Block',
                 'icon' => 'heroicon-o-puzzle-piece',
+                'notes' => __('capell-layout-builder::type.default_block_description'),
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Default,
+                'component' => BlockComponentEnum::Default,
                 'padding' => ['lg'],
             ],
         ]);
     }
 
-    public function contentBuilderWidgetType(): Type
+    public function contentBuilderBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::SectionBuilder,
-            'type' => LayoutTypeEnum::Widget,
+            'key' => BlockTypeEnum::SectionBuilder,
+            'type' => LayoutTypeEnum::Block,
         ], [
             'name' => __('capell-admin::generic.contents_builder'),
             'admin' => [
-                'type_configurator' => WidgetTypeConfigurator::getKey(),
+                'type_configurator' => 'Block',
                 'icon' => 'heroicon-o-puzzle-piece',
+                'notes' => __('capell-layout-builder::type.section_builder_block_description'),
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Default,
+                'component' => BlockComponentEnum::Default,
                 'content_structure' => ContentStructure::Blocks,
                 'padding' => ['lg'],
             ],
         ]);
     }
 
-    public function mediaWidgetType(): Type
+    public function mediaBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::Media,
-            'type' => LayoutTypeEnum::Widget,
+            'key' => BlockTypeEnum::Media,
+            'type' => LayoutTypeEnum::Block,
         ], [
             'name' => __('capell-admin::generic.media'),
-            'group' => WidgetTypeGroupEnum::Asset,
+            'group' => BlockTypeGroupEnum::Asset,
             'admin' => [
-                'configurator' => AssetsWidgetConfigurator::getKey(),
+                'configurator' => 'Assets',
                 'icon' => config('capell-admin.assets.media.icon'),
-                'asset_types' => [LayoutAssetEnum::Section],
+                'asset_types' => ['section'],
+                'notes' => __('capell-layout-builder::type.media_block_description'),
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::AssetMedia,
+                'component' => BlockComponentEnum::AssetMedia,
                 'component_item' => CapellAssetComponentEnum::Media,
             ],
         ]);
     }
 
-    public function navigationWidgetType(): Type
+    public function navigationBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::Navigation,
-            'type' => LayoutTypeEnum::Widget,
+            'key' => BlockTypeEnum::Navigation,
+            'type' => LayoutTypeEnum::Block,
         ], [
             'name' => __('capell-admin::generic.navigation'),
-            'group' => WidgetTypeGroupEnum::Page,
+            'group' => BlockTypeGroupEnum::Page,
             'admin' => [
-                'type_configurator' => WidgetTypeConfigurator::getKey(),
-                'configurator' => NavigationWidgetConfigurator::getKey(),
+                'type_configurator' => 'Block',
+                'configurator' => 'Navigation',
                 'icon' => 'heroicon-o-clipboard-document-list',
+                'notes' => __('capell-layout-builder::type.navigation_block_description'),
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Navigation,
+                'component' => BlockComponentEnum::Navigation,
             ],
         ]);
     }
 
-    public function pageContentWidgetType(): Type
+    public function pageContentBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::PageContents,
-            'type' => LayoutTypeEnum::Widget,
+            'key' => BlockTypeEnum::PageContents,
+            'type' => LayoutTypeEnum::Block,
         ], [
             'name' => __('capell-admin::generic.page_content'),
-            'group' => WidgetTypeGroupEnum::Page,
+            'group' => BlockTypeGroupEnum::Page,
             'admin' => [
-                'type_configurator' => WidgetTypeConfigurator::getKey(),
-                'configurator' => PageContentWidgetConfigurator::getKey(),
-                'layout_widget_configurator' => PageLayoutWidgetConfigurator::getKey(),
+                'type_configurator' => 'Block',
+                'configurator' => 'PageContent',
+                'layout_block_configurator' => 'Page',
                 'icon' => 'heroicon-o-document-text',
+                'notes' => __('capell-layout-builder::type.page_content_block_description'),
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Default,
+                'component' => BlockComponentEnum::Default,
                 'with_next_prev' => true,
             ],
         ]);
     }
 
-    public function resultsWidgetType(): Type
+    public function resultsBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::Results,
-            'type' => LayoutTypeEnum::Widget,
+            'key' => BlockTypeEnum::Results,
+            'type' => LayoutTypeEnum::Block,
         ], [
             'name' => __('capell-admin::generic.results'),
-            'group' => WidgetTypeGroupEnum::Asset,
+            'group' => BlockTypeGroupEnum::Asset,
             'admin' => [
-                'type_configurator' => WidgetTypeConfigurator::getKey(),
-                'configurator' => ResultsWidgetConfigurator::getKey(),
-                'layout_widget_configurator' => ResultsLayoutWidgetConfigurator::getKey(),
+                'type_configurator' => 'Block',
+                'configurator' => 'Results',
+                'layout_block_configurator' => 'Results',
                 'icon' => 'heroicon-o-list-bullet',
+                'notes' => __('capell-layout-builder::type.results_block_description'),
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::PageLatest,
+                'component' => BlockComponentEnum::PageLatest,
             ],
         ]);
     }
 
-    public function pagesWidgetType(): Type
+    public function pagesBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::Pages,
-            'type' => LayoutTypeEnum::Widget,
+            'key' => BlockTypeEnum::Pages,
+            'type' => LayoutTypeEnum::Block,
         ], [
             'name' => __('capell-admin::generic.pages'),
-            'group' => WidgetTypeGroupEnum::Asset,
+            'group' => BlockTypeGroupEnum::Asset,
             'admin' => [
-                'type_configurator' => WidgetTypeConfigurator::getKey(),
-                'configurator' => AssetsWidgetConfigurator::getKey(),
+                'type_configurator' => 'Block',
+                'configurator' => 'Assets',
                 'icon' => 'heroicon-o-document-text',
                 'asset_types' => [AssetEnum::Page],
+                'notes' => __('capell-layout-builder::type.pages_block_description'),
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Assets,
+                'component' => BlockComponentEnum::Assets,
             ],
         ]);
     }
 
-    public function assetsWidgetType(): Type
+    public function assetsBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::Assets,
-            'type' => LayoutTypeEnum::Widget,
+            'key' => BlockTypeEnum::Assets,
+            'type' => LayoutTypeEnum::Block,
         ], [
             'name' => __('capell-admin::generic.assets'),
-            'group' => WidgetTypeGroupEnum::Asset,
+            'group' => BlockTypeGroupEnum::Asset,
             'admin' => [
-                'type_configurator' => WidgetTypeConfigurator::getKey(),
-                'configurator' => AssetsWidgetConfigurator::getKey(),
+                'type_configurator' => 'Block',
+                'configurator' => 'Assets',
                 'icon' => 'heroicon-o-rectangle-stack',
                 'asset_types' => [
                     AssetEnum::Page,
-                    LayoutAssetEnum::Section,
+                    'section',
                 ],
+                'notes' => __('capell-layout-builder::type.assets_block_description'),
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Assets,
+                'component' => BlockComponentEnum::Assets,
             ],
         ]);
     }
 
-    public function systemWidgetType(): Type
+    public function systemBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::System,
-            'type' => LayoutTypeEnum::Widget,
+            'key' => BlockTypeEnum::System,
+            'type' => LayoutTypeEnum::Block,
         ], [
             'name' => __('capell-admin::generic.system'),
-            'group' => WidgetTypeGroupEnum::System,
+            'group' => BlockTypeGroupEnum::System,
             'admin' => [
-                'type_configurator' => WidgetTypeConfigurator::getKey(),
-                'configurator' => SystemWidgetConfigurator::getKey(),
-                'layout_widget_configurator' => DefaultLayoutWidgetConfigurator::getKey(),
+                'type_configurator' => 'Block',
+                'configurator' => 'System',
+                'layout_block_configurator' => 'Default',
                 'icon' => 'heroicon-o-wrench',
+                'notes' => __('capell-layout-builder::type.system_block_description'),
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Default,
+                'component' => BlockComponentEnum::Default,
             ],
         ]);
     }
 
-    public function contentsWidgetType(): Type
+    public function contentsBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::Sections,
-            'type' => LayoutTypeEnum::Widget,
+            'key' => BlockTypeEnum::Sections,
+            'type' => LayoutTypeEnum::Block,
         ], [
             'name' => __('capell-admin::generic.contents'),
-            'group' => WidgetTypeGroupEnum::Asset,
+            'group' => BlockTypeGroupEnum::Asset,
             'admin' => [
-                'type_configurator' => WidgetTypeConfigurator::getKey(),
-                'configurator' => AssetsWidgetConfigurator::getKey(),
+                'type_configurator' => 'Block',
+                'configurator' => 'Assets',
                 'icon' => 'heroicon-o-rectangle-stack',
-                'asset_types' => [LayoutAssetEnum::Section],
+                'asset_types' => ['section'],
+                'notes' => __('capell-layout-builder::type.sections_block_description'),
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Assets,
+                'component' => BlockComponentEnum::Assets,
                 'component_item' => CapellAssetComponentEnum::Card,
                 'margin' => ['lg'],
             ],
         ]);
     }
 
-    public function heroWidgetType(): Type
+    public function heroBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::Hero,
-            'type' => LayoutTypeEnum::Widget,
+            'key' => BlockTypeEnum::Hero,
+            'type' => LayoutTypeEnum::Block,
         ], [
-            'name' => 'Hero',
+            'name' => __('capell-layout-builder::type.hero_block_name'),
             'admin' => [
-                'type_configurator' => WidgetTypeConfigurator::getKey(),
+                'type_configurator' => 'Block',
                 'icon' => 'heroicon-o-rocket-launch',
+                'notes' => __('capell-layout-builder::type.hero_block_description'),
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Default,
+                'component' => BlockComponentEnum::Default,
             ],
         ]);
     }
 
-    public function heroBannerWidgetType(): Type
+    public function heroBannerBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::HeroBanner,
-            'type' => LayoutTypeEnum::Widget,
+            'key' => BlockTypeEnum::HeroBanner,
+            'type' => LayoutTypeEnum::Block,
         ], [
-            'name' => 'Hero Banner',
+            'name' => __('capell-layout-builder::type.hero_banner_block_name'),
             'admin' => [
-                'type_configurator' => WidgetTypeConfigurator::getKey(),
+                'type_configurator' => 'Block',
                 'icon' => 'heroicon-o-flag',
+                'notes' => __('capell-layout-builder::type.hero_banner_block_description'),
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Default,
+                'component' => BlockComponentEnum::Default,
             ],
         ]);
     }
 
-    public function cardGridWidgetType(): Type
+    public function cardGridBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::CardGrid,
-            'type' => LayoutTypeEnum::Widget,
+            'key' => BlockTypeEnum::CardGrid,
+            'type' => LayoutTypeEnum::Block,
         ], [
-            'name' => 'Card Grid',
+            'name' => __('capell-layout-builder::type.card_grid_block_name'),
             'admin' => [
-                'type_configurator' => WidgetTypeConfigurator::getKey(),
+                'type_configurator' => 'Block',
                 'icon' => 'heroicon-o-square-3-stack-3d',
+                'notes' => __('capell-layout-builder::type.card_grid_block_description'),
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Default,
+                'component' => BlockComponentEnum::Default,
             ],
         ]);
     }
 
-    public function featureListWidgetType(): Type
+    public function featureListBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::FeatureList,
-            'type' => LayoutTypeEnum::Widget,
+            'key' => BlockTypeEnum::FeatureList,
+            'type' => LayoutTypeEnum::Block,
         ], [
-            'name' => 'Feature List',
+            'name' => __('capell-layout-builder::type.feature_list_block_name'),
             'admin' => [
-                'type_configurator' => WidgetTypeConfigurator::getKey(),
+                'type_configurator' => 'Block',
                 'icon' => 'heroicon-o-list-bullet',
+                'notes' => __('capell-layout-builder::type.feature_list_block_description'),
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Default,
+                'component' => BlockComponentEnum::Default,
             ],
         ]);
     }
 
-    public function ctaSectionWidgetType(): Type
+    public function ctaSectionBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::CTASection,
-            'type' => LayoutTypeEnum::Widget,
+            'key' => BlockTypeEnum::CTASection,
+            'type' => LayoutTypeEnum::Block,
         ], [
-            'name' => 'CTA Section',
+            'name' => __('capell-layout-builder::type.call_to_action_block_name'),
             'admin' => [
-                'type_configurator' => WidgetTypeConfigurator::getKey(),
+                'type_configurator' => 'Block',
                 'icon' => 'heroicon-o-megaphone',
+                'notes' => __('capell-layout-builder::type.call_to_action_block_description'),
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Default,
+                'component' => BlockComponentEnum::Default,
             ],
         ]);
     }
 
-    public function imageGalleryWidgetType(): Type
+    public function imageGalleryBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => WidgetTypeEnum::ImageGallery,
-            'type' => LayoutTypeEnum::Widget,
+            'key' => BlockTypeEnum::ImageGallery,
+            'type' => LayoutTypeEnum::Block,
         ], [
-            'name' => 'Image Gallery',
+            'name' => __('capell-layout-builder::type.image_gallery_block_name'),
             'admin' => [
-                'type_configurator' => WidgetTypeConfigurator::getKey(),
+                'type_configurator' => 'Block',
                 'icon' => 'heroicon-o-photo',
+                'notes' => __('capell-layout-builder::type.image_gallery_block_description'),
             ],
             'meta' => [
-                'component' => WidgetComponentEnum::Default,
+                'component' => BlockComponentEnum::Default,
             ],
         ]);
     }

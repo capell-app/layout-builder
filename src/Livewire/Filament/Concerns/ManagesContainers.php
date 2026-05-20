@@ -2,12 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Livewire\Filament\Concerns;
+namespace Capell\LayoutBuilder\Livewire\Filament\Concerns;
 
 use Capell\Admin\Support\AdminSurfaceLookup;
-use Capell\Mosaic\Enums\ConfiguratorTypeEnum;
-use Capell\Mosaic\Filament\Configurators\Layouts\DefaultLayoutContainerConfigurator;
+use Capell\LayoutBuilder\Actions\Mutations\ReorderLayoutContainerAction;
+use Capell\LayoutBuilder\Actions\Mutations\ResizeLayoutContainerAction;
+use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
+use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
+use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
+use Capell\LayoutBuilder\Filament\Configurators\Layouts\DefaultLayoutContainerConfigurator;
+use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
 use Closure;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Collection as SupportCollection;
@@ -19,13 +25,14 @@ trait ManagesContainers
         $this->assertCanUpdateLayout();
 
         $container = [
-            'widgets' => [],
+            'blocks' => [],
         ];
 
         if ($position === null) {
             $this->containers[$key] = $container;
-            $this->containerWidgets[$key] = [];
+            $this->containerBlocks[$key] = [];
             $this->assets[$key] = [];
+            $this->trackKnownContainerKey($key);
 
             return;
         }
@@ -36,32 +43,38 @@ trait ManagesContainers
             [$key => $container] +
             array_slice($this->containers, $position, null, true);
 
-        $this->containerWidgets = array_slice($this->containerWidgets, 0, $position, true) +
+        $this->containerBlocks = array_slice($this->containerBlocks, 0, $position, true) +
             [$key => []] +
-            array_slice($this->containerWidgets, $position, null, true);
+            array_slice($this->containerBlocks, $position, null, true);
 
         $this->assets = array_slice($this->assets, 0, $position, true) +
             [$key => []] +
             array_slice($this->assets, $position, null, true);
+
+        $this->trackKnownContainerKey($key);
     }
 
     public function reorderContainers(string $containerKey, int $position): void
     {
         $this->assertCanUpdateLayout();
 
-        $containers = $this->containers;
+        $result = ReorderLayoutContainerAction::run(
+            state: LayoutBuilderStateData::fromLivewire($this->containers, $this->assets, $this->originalAssets, $this->selectedRecords),
+            containerKey: $containerKey,
+            position: $position,
+        );
 
-        $container = $containers[$containerKey];
+        $this->applyLayoutMutationResult($result);
+    }
 
-        unset($containers[$containerKey]);
+    public function moveContainerUp(string $containerKey): void
+    {
+        $this->moveContainer($containerKey, -1);
+    }
 
-        $containers = array_slice($containers, 0, $position, true) +
-            [$containerKey => $container] +
-            array_slice($containers, $position, null, true);
-
-        $this->containers = $containers;
-
-        $this->layoutUpdated();
+    public function moveContainerDown(string $containerKey): void
+    {
+        $this->moveContainer($containerKey, 1);
     }
 
     public function insertContainerAtPosition(int $position): void
@@ -77,23 +90,23 @@ trait ManagesContainers
         $this->layoutUpdated();
     }
 
-    public function resizeContainer(string $containerKey, int $colspan): void
+    public function resizeContainer(string $containerKey, int $colspan, ?string $breakpoint = null): void
     {
         $this->assertCanUpdateLayout();
 
         $this->ensureLoaded();
 
-        if (! isset($this->containers[$containerKey])) {
-            return;
-        }
+        $result = ResizeLayoutContainerAction::run(
+            state: LayoutBuilderStateData::fromLivewire($this->containers, $this->assets, $this->originalAssets, $this->selectedRecords),
+            containerKey: $containerKey,
+            colspan: $colspan,
+            breakpoint: $this->currentLayoutBreakpoint($breakpoint),
+        );
 
-        $this->containers[$containerKey]['meta'] ??= [];
-        $this->containers[$containerKey]['meta']['colspan'] = min(12, max(1, $colspan));
-
-        $this->layoutUpdated();
+        $this->applyLayoutMutationResult($result);
     }
 
-    protected function duplicateContainer(string $containerKey): void
+    public function duplicateContainer(string $containerKey): void
     {
         $this->assertCanUpdateLayout();
 
@@ -116,9 +129,9 @@ trait ManagesContainers
             [$newContainerKey => $this->containers[$containerKey]] +
             array_slice($this->containers, $insertPosition, null, true);
 
-        $this->containerWidgets = array_slice($this->containerWidgets, 0, $insertPosition, true) +
-            [$newContainerKey => $this->containerWidgets[$containerKey] ?? []] +
-            array_slice($this->containerWidgets, $insertPosition, null, true);
+        $this->containerBlocks = array_slice($this->containerBlocks, 0, $insertPosition, true) +
+            [$newContainerKey => $this->containerBlocks[$containerKey] ?? []] +
+            array_slice($this->containerBlocks, $insertPosition, null, true);
 
         $this->assets = array_slice($this->assets, 0, $insertPosition, true) +
             [$newContainerKey => $this->assets[$containerKey] ?? []] +
@@ -126,20 +139,21 @@ trait ManagesContainers
 
         $this->selectedRecords[$newContainerKey] = [];
 
-        foreach (array_keys($this->containers[$newContainerKey]['widgets']) as $widgetIndex) {
-            foreach ($this->assets[$newContainerKey][$widgetIndex] ?? [] as $assetIndex => $asset) {
+        foreach (array_keys($this->containers[$newContainerKey]['blocks']) as $blockIndex) {
+            foreach ($this->assets[$newContainerKey][$blockIndex] ?? [] as $assetIndex => $asset) {
                 if (isset($asset['container'])) {
-                    $this->assets[$newContainerKey][$widgetIndex][$assetIndex]['container'] = $newContainerKey;
+                    $this->assets[$newContainerKey][$blockIndex][$assetIndex]['container'] = $newContainerKey;
                 }
             }
         }
 
         $this->setupSelectedAssets();
 
+        $this->trackKnownContainerKey($newContainerKey);
         $this->layoutUpdated();
     }
 
-    protected function saveContainer(array $data, ?string $key = null, ?int $position = null): void
+    public function saveContainer(array $data, ?string $key = null, ?int $position = null): void
     {
         $this->assertCanUpdateLayout();
 
@@ -157,18 +171,21 @@ trait ManagesContainers
             $this->addContainer($key, $position);
         }
 
-        $this->containers[$key]['meta'] = $data['meta'] ?? [];
+        $meta = $data['meta'] ?? [];
+        $meta['area'] ??= LayoutAreaRegistry::MAIN;
+
+        $this->containers[$key]['meta'] = $meta;
 
         $this->setupSelectedAssets();
 
         $this->layoutUpdated();
     }
 
-    protected function removeContainer(string $containerKey): void
+    public function removeContainer(string $containerKey): void
     {
         $this->assertCanUpdateLayout();
 
-        foreach (['containers', 'containerWidgets', 'assets'] as $property) {
+        foreach (['containers', 'containerBlocks', 'assets'] as $property) {
             if (! isset($this->{$property}[$containerKey])) {
                 continue;
             }
@@ -176,12 +193,77 @@ trait ManagesContainers
             unset($this->{$property}[$containerKey]);
         }
 
+        $this->forgetKnownContainerKey($containerKey);
+
         $this->layoutUpdated();
+    }
+
+    public function canMoveContainerUp(string $containerKey): bool
+    {
+        return $this->containerPosition($containerKey) > 0;
+    }
+
+    public function canMoveContainerDown(string $containerKey): bool
+    {
+        $position = $this->containerPosition($containerKey);
+
+        return $position !== null && $position < count($this->containers) - 1;
+    }
+
+    public function getContainerSchema(Schema $configurator, array $arguments): array
+    {
+        $containerKey = $arguments['containerKey'] ?? null;
+
+        $adminSchema = AdminSurfaceLookup::configurator(
+            ConfiguratorTypeEnum::LayoutContainer->value,
+            $this->layout->admin['container_schema'][$containerKey] ?? DefaultLayoutContainerConfigurator::getKey(),
+        );
+
+        $typeSchema = resolve($adminSchema)->make($configurator);
+
+        return [
+            TextInput::make('key')
+                ->label(__('capell-admin::form.key'))
+                ->placeholder(__('capell-admin::generic.key_placeholder'))
+                ->helperText(__('capell-layout-builder::message.container_key_helper'))
+                ->alphaDash()
+                ->required()
+                ->maxLength(128)
+                ->afterStateHydrated(
+                    fn (TextInput $component, ?string $state): TextInput => $component->state(
+                        str($state)->slug()->lower()->toString(),
+                    ),
+                )
+                ->dehydrateStateUsing(fn (?string $state): string => str($state)->slug()->lower()->toString())
+                ->rules([
+                    fn (self $livewire): Closure => function (string $attribute, string $value, Closure $fail) use ($livewire, $containerKey): void {
+                        if (! isset($livewire->containers[$value]) || ($containerKey && $containerKey === $value)) {
+                            return;
+                        }
+
+                        $fail(__('capell-layout-builder::message.layout_container_key_not_unique', ['key' => $value]));
+                    },
+                ]),
+            Select::make('meta.area')
+                ->label(__('capell-layout-builder::form.area'))
+                ->options(fn (): array => $this->layoutAreaOptions())
+                ->default(LayoutAreaRegistry::MAIN)
+                ->required()
+                ->native(false),
+            ...$typeSchema,
+        ];
+    }
+
+    public function getContainerOptions(): SupportCollection
+    {
+        return collect($this->containers)
+            ->keys()
+            ->mapWithKeys(fn (string $container): array => [$container => __($container)]);
     }
 
     protected function updateContainerKey(string $oldKey, string $newKey): string
     {
-        foreach (['containers', 'containerWidgets', 'assets'] as $property) {
+        foreach (['containers', 'containerBlocks', 'assets'] as $property) {
             if (! isset($this->{$property}[$oldKey])) {
                 continue;
             }
@@ -191,31 +273,34 @@ trait ManagesContainers
             unset($this->{$property}[$oldKey]);
         }
 
-        foreach ($this->containers[$newKey]['widgets'] as $widgetIndex => $widget) {
-            $widget['old_container'] ??= $oldKey;
-            $widget['container_key'] = $newKey;
+        foreach ($this->containers[$newKey]['blocks'] as $blockIndex => $block) {
+            $block['old_container'] ??= $oldKey;
+            $block['container_key'] = $newKey;
 
-            $this->containers[$newKey]['widgets'][$widgetIndex] = $widget;
+            $this->containers[$newKey]['blocks'][$blockIndex] = $block;
         }
 
-        foreach ($this->assets[$newKey] ?? [] as $widgetIndex => $widgetAssets) {
-            foreach ($widgetAssets as $assetIndex => $asset) {
+        foreach ($this->assets[$newKey] ?? [] as $blockIndex => $blockAssets) {
+            foreach ($blockAssets as $assetIndex => $asset) {
                 $asset['old_container'] ??= $oldKey;
                 $asset['container'] = $newKey;
 
-                $this->assets[$newKey][$widgetIndex][$assetIndex] = $asset;
+                $this->assets[$newKey][$blockIndex][$assetIndex] = $asset;
             }
         }
 
-        $originalContainerWidgetAssets = $this->originalAssets[$oldKey] ?? [];
+        $originalContainerBlockAssets = $this->originalAssets[$oldKey] ?? [];
         unset($this->originalAssets[$oldKey]);
-        $this->originalAssets[$newKey] = $originalContainerWidgetAssets;
+        $this->originalAssets[$newKey] = $originalContainerBlockAssets;
 
         if (isset($this->selectedRecords[$oldKey])) {
             $this->selectedRecords[$newKey] = $this->selectedRecords[$oldKey];
 
             unset($this->selectedRecords[$oldKey]);
         }
+
+        $this->forgetKnownContainerKey($oldKey);
+        $this->trackKnownContainerKey($newKey);
 
         return $newKey;
     }
@@ -240,60 +325,86 @@ trait ManagesContainers
 
         $this->containers = [];
 
-        if (! $this->layout->containers) {
+        $containers = $this->layout->getAttribute('containers');
+
+        if (! is_array($containers) || $containers === []) {
             return;
         }
 
-        foreach ($this->layout->containers as $key => $container) {
+        foreach ($containers as $key => $container) {
             $this->containers[$key] = [
-                'widgets' => $container['widgets'] ?? [],
+                'blocks' => $container['blocks'] ?? [],
                 'meta' => $container['meta'] ?? [],
             ];
+            $this->trackKnownContainerKey((string) $key);
         }
     }
 
-    protected function getContainerSchema(Schema $configurator, array $arguments): array
+    private function moveContainer(string $containerKey, int $direction): void
     {
-        $containerKey = $arguments['containerKey'] ?? null;
+        $this->assertCanUpdateLayout();
 
-        $adminSchema = AdminSurfaceLookup::configurator(
-            ConfiguratorTypeEnum::LayoutContainer->value,
-            $this->layout->admin['container_schema'][$containerKey] ?? DefaultLayoutContainerConfigurator::getKey(),
-        );
+        $this->ensureLoaded();
 
-        $typeSchema = resolve($adminSchema)->make($configurator);
+        $currentPosition = $this->containerPosition($containerKey);
 
-        return [
-            TextInput::make('key')
-                ->label(__('capell-admin::form.key'))
-                ->placeholder(__('capell-admin::generic.key_placeholder'))
-                ->helperText(__('Lowercase text, numbers, hyphens, and underscores only'))
-                ->alphaDash()
-                ->required()
-                ->maxLength(128)
-                ->afterStateHydrated(
-                    fn (TextInput $component, ?string $state): TextInput => $component->state(
-                        str($state)->slug()->lower()->toString(),
-                    ),
-                )
-                ->dehydrateStateUsing(fn (?string $state): string => str($state)->slug()->lower()->toString())
-                ->rules([
-                    fn (self $livewire): Closure => function (string $attribute, string $value, Closure $fail) use ($livewire, $containerKey): void {
-                        if (! isset($livewire->containers[$value]) || ($containerKey && $containerKey === $value)) {
-                            return;
-                        }
+        if ($currentPosition === null) {
+            return;
+        }
 
-                        $fail(__('capell-mosaic::message.layout_container_key_not_unique', ['key' => $value]));
-                    },
-                ]),
-            ...$typeSchema,
-        ];
+        $targetPosition = $currentPosition + $direction;
+
+        if ($targetPosition < 0 || $targetPosition >= count($this->containers)) {
+            return;
+        }
+
+        $this->reorderContainers($containerKey, $targetPosition);
     }
 
-    protected function getContainerOptions(): SupportCollection
+    private function containerPosition(string $containerKey): ?int
     {
-        return collect($this->containers)
-            ->keys()
-            ->mapWithKeys(fn (string $container): array => [$container => __($container)]);
+        $position = array_search($containerKey, array_keys($this->containers), true);
+
+        return $position === false ? null : $position;
+    }
+
+    private function currentLayoutBreakpoint(?string $breakpoint = null): ?LayoutBreakpoint
+    {
+        if ($breakpoint !== null) {
+            return LayoutBreakpoint::fromNullable($breakpoint);
+        }
+
+        if (! property_exists($this, 'activeBreakpoint')) {
+            return null;
+        }
+
+        $breakpoint = $this->activeBreakpoint;
+
+        if ($breakpoint instanceof LayoutBreakpoint) {
+            return $breakpoint;
+        }
+
+        if (is_string($breakpoint)) {
+            return LayoutBreakpoint::fromNullable($breakpoint);
+        }
+
+        return null;
+    }
+
+    private function trackKnownContainerKey(string $containerKey): void
+    {
+        if (in_array($containerKey, $this->knownContainerKeys, true)) {
+            return;
+        }
+
+        $this->knownContainerKeys[] = $containerKey;
+    }
+
+    private function forgetKnownContainerKey(string $containerKey): void
+    {
+        $this->knownContainerKeys = array_values(array_filter(
+            $this->knownContainerKeys,
+            fn (string $knownContainerKey): bool => $knownContainerKey !== $containerKey,
+        ));
     }
 }

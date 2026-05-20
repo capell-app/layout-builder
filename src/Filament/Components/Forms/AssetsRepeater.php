@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Components\Forms;
+namespace Capell\LayoutBuilder\Filament\Components\Forms;
 
 use Aimeos\Nestedset\NestedSet;
 use Capell\Admin\Actions\GetAssetResourceUrlAction;
@@ -10,7 +10,7 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Components\Forms\SelectWithBelongsToRelation;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Data\AssetData;
-use Capell\Core\Enums\TypeGroupEnum;
+use Capell\Core\Enums\BlueprintGroupEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Filament\Actions\Action;
@@ -24,7 +24,6 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Contracts\Database\Query\Builder as BuilderContract;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -56,7 +55,7 @@ class AssetsRepeater extends Repeater
                         $itemData = $component->getRawItemState($arguments['item']);
 
                         return __(
-                            'capell-mosaic::button.edit_asset_type',
+                            'capell-layout-builder::button.edit_asset_type',
                             ['type' => $itemData['asset_type']],
                         );
                     })
@@ -107,28 +106,13 @@ class AssetsRepeater extends Repeater
         return [
             Hidden::make('asset_type'),
             $select
-                ->label(__('capell-mosaic::form.select_add_asset_type'))
+                ->label(__('capell-layout-builder::form.select_add_asset_type'))
                 ->required()
                 ->searchable()
                 ->relationship(
                     'asset',
                     'name',
-                    modifyQueryUsing: fn (Builder $query, Get $get): Builder => $query->when(
-                        $get('asset_type') === 'page',
-                        fn (BuilderContract $query): BuilderContract => $query->with([
-                            'ancestors',
-                            'site',
-                        ])
-                            ->orderBy('site_id')
-                            ->orderBy(NestedSet::LFT, 'DESC')
-                            ->whereHas(
-                                'type',
-                                fn (Builder $query) => $query->where(
-                                    fn (Builder $query) => $query->where('group', '!=', TypeGroupEnum::System->value)
-                                        ->orWhereNull('group'),
-                                ),
-                            ),
-                    ),
+                    modifyQueryUsing: self::modifyAssetQuery(...),
                 )
                 ->savesBelongsToRelation()
                 ->getSelectedRecordUsing(
@@ -191,7 +175,7 @@ class AssetsRepeater extends Repeater
                     $configurator->model($record)->saveRelationships();
 
                     Notification::make()
-                        ->title(__('capell-mosaic::message.page_created_successfully'))
+                        ->title(__('capell-layout-builder::message.page_created_successfully'))
                         ->body($record->name)
                         ->send();
 
@@ -227,6 +211,34 @@ class AssetsRepeater extends Repeater
 
         return $action->group($actions)
             ->view('capell-admin::components.actions.dropdown-group');
+    }
+
+    protected static function modifyAssetQuery(Builder $query, Get $get): Builder
+    {
+        if ($get('asset_type') !== 'page') {
+            return $query;
+        }
+
+        return $query
+            ->with([
+                'ancestors',
+                'site',
+            ])
+            ->orderBy('site_id')
+            ->orderBy(NestedSet::LFT, 'DESC')
+            ->whereHas('type', self::applySelectablePageTypeQuery(...));
+    }
+
+    protected static function applySelectablePageTypeQuery(Builder $query): Builder
+    {
+        return $query->where(self::applyNonSystemBlueprintGroupQuery(...));
+    }
+
+    protected static function applyNonSystemBlueprintGroupQuery(Builder $query): Builder
+    {
+        return $query
+            ->where('group', '!=', BlueprintGroupEnum::System->value)
+            ->orWhereNull('group');
     }
 
     private static function modifyCreateAction(Action $action): Action

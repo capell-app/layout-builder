@@ -1,99 +1,171 @@
-# Mosaic
+# Capell Layout Builder
 
-Status: **Available, schema-owning** · Kind: **package** · Tier: **free** · Bundle: **foundation** · Contexts: **admin, frontend** · Product group: **Capell Foundation**
+`capell-app/layout-builder` owns Capell's visual layout composition layer: layout containers, blocks, block assets, public layout graphs, content-first editing, and the Filament layout editor.
 
-## What This Plugin Adds
+Core still owns sites, pages, languages, URLs, themes, and base content models. Admin still owns the Filament panel shell. Layout Builder plugs into both through package registrars and exposes its public API from the `Capell\LayoutBuilder` namespace.
 
-Mosaic adds reusable widgets, sections, layout containers, widget assets, layout planning, and frontend widget rendering to Capell.
+## Install
 
-- Widget and section Filament resources.
-- Layout and page schema extenders.
-- Modern widget configurators for hero, card grids, FAQs, galleries, pricing, process steps, stats, teams, and testimonials.
-- Actions for layout plans, widget creation, reusable widget lookup, and layout placement.
-- Commands for install, setup, widget scaffolding, demo, faker, and upgrades.
+```bash
+composer require capell-app/layout-builder
+php artisan capell:layout-builder-install
+```
 
-## Why It Matters
+The install command publishes and runs the package migrations listed by `Capell\LayoutBuilder\Support\CapellLayoutBuilderManager`.
 
-**For developers:** Provides the package-based layout and widget foundation used by Blog, Campaigns, content blocks, and theme integrations.
+## Configuration
 
-**For teams:** Lets editors build structured pages from reusable sections and widgets instead of editing raw templates.
+Configuration lives in `config/capell-layout-builder.php`.
 
-## Screens And Workflow
+| Key                                       | Purpose                                                               |
+| ----------------------------------------- | --------------------------------------------------------------------- |
+| `editor_mode.default`                     | Default editor mode. Defaults to `content_first`.                     |
+| `editor_mode.allowed`                     | Allowed modes. Current values are `content_first` and `layout_first`. |
+| `preview.match_frontend_container_layout` | Match admin preview container layout to frontend columns.             |
+| `block.skip_render_empty`                 | Skip empty blocks in public rendering.                                |
+| `default_block`                           | Default renderable key for new blocks.                                |
 
-Screenshots are generated from [docs/screenshots.json](docs/screenshots.json) during package deployment.
+## Main Surfaces
 
-- Widgets admin index.
-- Create/edit widget form.
-- Sections admin index.
-- Layout builder screen.
-- Frontend page rendering Mosaic widgets.
+| Surface                        | Package path                                                                                                       |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| Public graph building          | `src/Actions/BuildPublicLayoutGraphAction.php`                                                                     |
+| Public block payloads          | `src/Contracts/PublicBlockPayloadContributor.php`, `src/Support/DefaultPublicBlockPayloadResolver.php`             |
+| Layout areas                   | `src/Support/LayoutAreas/LayoutAreaRegistry.php`, `src/Actions/ResolveLayoutAreaContainersAction.php`              |
+| Block presentation projection  | `src/Actions/ResolveBlockPresentationDataAction.php`                                                               |
+| Layout health checks           | `src/Actions/AnalyzeLayoutHealthAction.php`                                                                        |
+| Reusable layout presets        | `src/Models/LayoutPreset.php`, `src/Actions/SaveLayoutPresetAction.php`, `src/Actions/ApplyLayoutPresetAction.php` |
+| Content-first inventory        | `src/Actions/BuildLayoutContentInventoryAction.php`                                                                |
+| Layout mutations               | `src/Actions/Mutations/`                                                                                           |
+| Filament resources and schemas | `src/Filament/`                                                                                                    |
+| Livewire editor                | `src/Livewire/Filament/LayoutBuilder.php`                                                                          |
+| Admin views and components     | `resources/views/`                                                                                                 |
 
-## Technical Shape
+## Public Rendering
 
-- MosaicServiceProvider registers widgets, schemas, views, config, commands, and extension hooks.
-- Config file: capell-mosaic.php.
-- Migrations create widgets, widget_assets, sections, and add container widgets to layouts.
-- Models include Widget, WidgetAsset, and Section.
-- Filament resources cover widgets and sections.
-- CapellLayout facade supports layout rendering concerns.
+Use `Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction` when a public route, API, or package needs layout content without depending on the frontend renderer.
 
-## Data Model
+```php
+$graph = BuildPublicLayoutGraphAction::run(
+    layout: $layout,
+    page: $page,
+    language: $language,
+    containers: ['main'],
+    includeHtml: false,
+);
+```
 
-- widgets stores workspace, type, key, content, meta, and admin JSON.
-- widget_assets connects widgets to media and pageable context.
-- sections stores site, type, parent, meta, and visibility windows.
-- layouts can store container widget references after migration.
-- Mosaic connects to core types, sites, layouts, pages, and media.
+Payload contributors are tagged with `Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor::TAG`. Contributors should return public-safe data or HTML only; do not expose admin state, editor-only metadata, private IDs, or unpublished content.
 
-## Install Impact
+Block variants and settings are stored as authoring state in block meta, but public rendering receives only the sanitized `presentation` payload:
 
-- Adds widgets, widget_assets, and sections tables.
-- Extends page and layout admin forms.
-- Adds widget and section admin navigation.
-- Adds layout builder lazy-loading config.
-- May affect page cache and layout rendering.
+```php
+[
+    'variant' => 'split-media',
+    'spacing' => 'normal',
+    'background' => 'default',
+    'mediaPosition' => 'top',
+    'cardsPerRow' => 3,
+    'showCta' => true,
+    'headingWidth' => 'normal',
+    'anchorId' => null,
+]
+```
 
-## Commands
+Public Blade must not query the database, lazy-load relationships, resolve block contracts, expose raw meta, or include authoring selectors, signed URLs, diagnostics, package internals, schema, labels, or preview/admin view names.
 
-- `capell:mosaic-demo {--user= : Whether to associate the created demo content with the first user in the system. If not provided, content will be created without an associated user.} {--sites= : Comma-separated list of site names to target for demo content insertion. If not provided, all sites will be targeted.} {--skip-hero : Skip hero demo content after creating mosaic demo content.}` (packages/mosaic/src/Console/Commands/DemoCommand.php)
-- `capell:mosaic-faker {--count=25} {--force}` (packages/mosaic/src/Console/Commands/FakerCommand.php)
-- `capell:hero-demo {--sites=}` (packages/mosaic/src/Console/Commands/Hero/DemoCommand.php)
-- `capell:hero-setup` (packages/mosaic/src/Console/Commands/Hero/SetupCommand.php)
-- `capell:mosaic-install` (packages/mosaic/src/Console/Commands/InstallCommand.php)
-- `capell:mosaic-make-widget {name : The widget name (e.g. HeroBanner)} {--livewire : Also scaffold a Livewire widget class and view} {--F|force : Overwrite existing files after warning}` (packages/mosaic/src/Console/Commands/MakeWidgetCommand.php)
-- `capell:mosaic-setup {--user= : Ignored — accepted for compatibility with capell:install} {--sites= : Ignored — accepted for compatibility with capell:install} {--languages= : Ignored — accepted for compatibility with capell:install} {--url= : Ignored — accepted for compatibility with capell:install}` (packages/mosaic/src/Console/Commands/SetupCommand.php)
-- `capell:mosaic-upgrade` (packages/mosaic/src/Console/Commands/UpgradeCommand.php)
+## Layout Areas
 
-## Admin And Access
+Layout areas let a theme expose named places where normal Layout Builder blocks can render outside the main page-body loop. The storage model stays unchanged: blocks still live inside layout containers, and containers may set `meta.area`.
 
-- LayoutResource (packages/mosaic/src/Filament/Resources/Layouts/LayoutResource.php)
-- CreateSection (packages/mosaic/src/Filament/Resources/Sections/Pages/CreateSection.php)
-- EditSection (packages/mosaic/src/Filament/Resources/Sections/Pages/EditSection.php)
-- ListSections (packages/mosaic/src/Filament/Resources/Sections/Pages/ListSections.php)
-- SectionResource (packages/mosaic/src/Filament/Resources/Sections/SectionResource.php)
-- CreateWidget (packages/mosaic/src/Filament/Resources/Widgets/Pages/CreateWidget.php)
-- EditWidget (packages/mosaic/src/Filament/Resources/Widgets/Pages/EditWidget.php)
-- ListWidgets (packages/mosaic/src/Filament/Resources/Widgets/Pages/ListWidgets.php)
-- WidgetResource (packages/mosaic/src/Filament/Resources/Widgets/WidgetResource.php)
+- Missing `meta.area` is treated as `main` for backwards compatibility.
+- `main` is built in and rendered by the normal main-content hook.
+- Themes and packages can register extra areas through `Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry`.
+- The Foundation Theme registers `header`, so editors can place normal blocks into the site header without hidden containers or a separate data model.
 
-- Gate: LayoutHealthWidgetAbstract: `super_admin`
-- Gate: RecentActivityWidgetAbstract: `admin`, `super_admin`
+Register areas from a package service provider after the registry resolves:
 
-## Common Pitfalls
+```php
+use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
 
-- Run Mosaic install before Blog or other widget-dependent packages.
-- Keep widget types and configurators registered together.
-- Check layout cache after changing widgets.
+$this->app->afterResolving(
+    LayoutAreaRegistry::class,
+    function (LayoutAreaRegistry $registry): void {
+        $registry->register(
+            key: 'header',
+            label: __('capell-layout-builder::generic.header_area'),
+        );
+    },
+);
+```
 
-## Quick Start
+If an area only applies to one active theme, pass the theme key:
 
-1. Install the package with `composer require capell-app/mosaic`.
-2. Run the package migrations or the Capell package installer required by the host app.
-3. Open the new admin surface or integration point and verify the result.
+```php
+$registry->register(
+    key: 'announcement',
+    label: __('capell-theme-client::layout_areas.announcement'),
+    themeKey: 'client',
+);
+```
 
-## Next Steps
+Public area rendering should use the package renderer rather than querying from Blade:
 
-- [docs/overview.md](docs/overview.md)
-- [../blog/README.md](../blog/README.md)
-- [../campaigns/README.md](../campaigns/README.md)
-- [../content-blocks/README.md](../content-blocks/README.md)
+```blade
+<x-capell::layout.area area="header" />
+```
+
+The area component reads the already-resolved layout containers and uses the stored `CapellLayoutManager` block instances. Keep public Blade query-free and authoring-free; area keys are public placement data, but editor state, model IDs, field paths, signed URLs, and package/admin metadata must stay out of the HTML.
+
+Apps and package seeders should use `AttachBlockToLayoutAreaAction` when placing blocks into a named area. The action creates the area container when needed, normalizes the area key, preserves existing container metadata, and avoids duplicate block/occurrence pairs.
+
+```php
+use Capell\LayoutBuilder\Actions\AttachBlockToLayoutAreaAction;
+
+AttachBlockToLayoutAreaAction::run(
+    layout: $layout,
+    area: 'header',
+    blockKey: 'announcement-bar',
+    containerKey: 'site-announcement',
+    containerMeta: ['container' => 'full'],
+);
+```
+
+## Reusable Presets
+
+Saved agency presets are persisted in `layout_presets` and scoped to a required `site_id` with optional `theme_key`. Presets are layout-only by default: they deep-copy structure, selected block variants, and settings without duplicating client content. Applying a preset revalidates site scope and regenerates duplicate anchors.
+
+The older in-session `LayoutPresetRepository` remains only for temporary editor fragments; package and agency presets should use `SaveLayoutPresetAction` and `ApplyLayoutPresetAction`.
+
+## Visual Regression Manifests
+
+Use `capell:layout-builder-block-visual-regression capture` or `assert` to emit deterministic block/variant/viewport fixture entries for a screenshot runner. The command supports `--block`, `--theme`, `--variant`, `--changed`, `--concurrency`, and `--ci-limit`.
+
+The command does not authenticate, generate signed routes, query tenant content, or use live media. Browser capture/compare remains the responsibility of the runner.
+
+## Docs
+
+- [overview.md](docs/overview.md)
+- [screenshots.json](docs/screenshots.json)
+
+## Editor Modes
+
+`content_first` is the default mode. It shows editor-facing content groups from the current layout state and lets editors update assigned block assets without navigating the full layout canvas.
+
+`layout_first` opens the drag/drop layout builder directly. Keep it available for designers and implementers who need placement and structure control.
+
+Both modes write through the same `BlockAsset` persistence path.
+
+## Tests
+
+Run the package suite from the packages monorepo:
+
+```bash
+vendor/bin/pest packages/layout-builder/tests --configuration=phpunit.xml
+```
+
+Run the focused public graph and package-boundary checks after changing public rendering or package ownership:
+
+```bash
+vendor/bin/pest packages/layout-builder/tests/Integration/PublicLayoutGraphActionTest.php packages/layout-builder/tests/Arch/LayoutBuilderPackageBoundaryTest.php --configuration=phpunit.xml
+```

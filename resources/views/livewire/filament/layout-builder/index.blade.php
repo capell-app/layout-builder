@@ -1,14 +1,14 @@
 {{-- format-ignore-start --}}
 @php
-    use Capell\Admin\Enums\AlertTypeEnum;
-    use Capell\Admin\Enums\ResourceEnum;
-    use Capell\Admin\Support\AdminSurfaceLookup;
-    use Filament\Support\Enums\Size;
     use Filament\Support\Facades\FilamentAsset;
 
-    $changeLayoutAction = $this->changeLayoutAction;
-    $duplicateLayoutAction = $this->duplicateLayoutAction;
-    $widgetPalette = $this->widgetPalette;
+    $layoutBuilderConfiguration = 'Capell\\LayoutBuilder\\Support\\LayoutBuilderConfiguration';
+    $matchFrontendContainerLayout = class_exists($layoutBuilderConfiguration) && method_exists($layoutBuilderConfiguration, 'matchFrontendContainerLayout')
+        ? $layoutBuilderConfiguration::matchFrontendContainerLayout()
+        : (bool) config(
+            'capell-layout-builder.preview.match_frontend_container_layout',
+            config('capell-admin.layout_builder.preview.match_frontend_container_layout', true),
+        );
 @endphp
 {{-- format-ignore-end --}}
 <div>
@@ -17,147 +17,117 @@
         x-load-src="{{
             FilamentAsset::getAlpineComponentSrc(
                 'layout-builder',
-                'capell-mosaic',
+                'capell-layout-builder',
             )
         }}"
         x-data="layoutBuilderComponent"
+        data-active-breakpoint="{{ $activeBreakpoint?->value }}"
+        data-match-frontend-container-layout="{{ $matchFrontendContainerLayout ? 'true' : 'false' }}"
+        x-bind:class="{
+            'layout-builder-block-actions-suppressed': isBlockActionSuppressed,
+        }"
         x-on:expand-all-containers.window="expandAll"
         x-on:collapse-all-containers.window="collapseAll"
+        x-on:pointerup.window="releaseBlockActions()"
+        x-on:pointercancel.window="releaseBlockActions()"
     >
-        <div x-data="{ isWidgetPaletteOpen: false }">
+        <div>
             <div
                 class="mb-4 flex flex-wrap justify-between gap-4 pl-1 pr-4 sm:flex-nowrap lg:justify-end"
             >
                 <div class="grow">
                     <div class="text-lg font-semibold">
-                        {{ __('capell-mosaic::heading.layout_record', ['name' => $this->layout->name]) }}
-                    </div>
-
-                    <div class="mt-3 text-sm text-gray-500 dark:text-gray-400">
-                        @svg('heroicon-o-information-circle', 'inline-block h-6 w-6')
-
-                        <span class="text-gray-800 dark:text-gray-300">
-                            {!!
-                                trans_choice(
-                                    'capell-mosaic::message.layout_count_on_pages',
-                                    $this->layoutPagesCount,
-                                    [
-                                        'count' => $this->layoutPagesCount,
-                                        'url' => AdminSurfaceLookup::resource(ResourceEnum::Page)::getUrl(
-                                            'index',
-                                            ['filters' => ['layout_id' => ['value' => $this->layout->id]]],
-                                        ),
-                                    ],
-                                )
-                            !!}
-                        </span>
-
-                        @if ($duplicateLayoutAction->isVisible())
-                            <span class="font-medium">
-                                {!! __('capell-admin::generic.copy_page_layout', ['link' => $duplicateLayoutAction->link()->size(Size::Small)->toHtml()]) !!}
-                            </span>
-                        @endif
-                    </div>
-                </div>
-                <div class="ml-auto mt-auto space-y-4 text-right">
-                    @if ($this->page || $changeLayoutAction->isVisible())
-                        <div
-                            class="flex flex-wrap items-center justify-end gap-4"
-                        >
-                            <div class="fi-btn-group flex items-center">
-                                {{ $this->changeLayoutAction }}
-
-                                <x-filament::dropdown
-                                    class="fi-btn-group-dropdown"
-                                    placement="bottom-end"
-                                    teleport
-                                >
-                                    <x-slot name="trigger">
-                                        <x-filament::button
-                                            class="fi-btn-outlined"
-                                            icon="heroicon-o-ellipsis-vertical"
-                                            size="sm"
-                                            color="gray"
-                                            :label-sr-only="true"
-                                        />
-                                    </x-slot>
-
-                                    <x-filament::dropdown.list>
-                                        @if ($duplicateLayoutAction->isVisible())
-                                            {{ $duplicateLayoutAction->grouped() }}
-                                        @endif
-
-                                        <x-filament::dropdown.list.item
-                                            href="{{ AdminSurfaceLookup::resource(ResourceEnum::Layout)::getUrl('edit', ['record' => $this->layout->id]) }}"
-                                            icon="heroicon-o-arrow-top-right-on-square"
-                                            target="_blank"
-                                            tag="a"
-                                        >
-                                            {{ __('capell-mosaic::button.open_edit_layout') }}
-                                        </x-filament::dropdown.list.item>
-                                    </x-filament::dropdown.list>
-                                </x-filament::dropdown>
-                            </div>
-                        </div>
-                    @endif
-
-                    <div class="flex flex-wrap items-center justify-end gap-2">
-                        <x-filament::button
-                            icon="heroicon-o-squares-2x2"
-                            size="sm"
-                            color="primary"
-                            x-on:click="isWidgetPaletteOpen = true"
-                        >
-                            {{ __('capell-mosaic::button.open_widget_palette') }}
-                        </x-filament::button>
-
-                        <div
-                            class="flex justify-end gap-2"
-                            x-show="! isReordering"
-                            x-cloak
-                        >
-                            <x-filament::link
-                                class="whitespace-nowrap"
-                                color="gray"
-                                icon="heroicon-m-plus"
-                                iconSize="sm"
-                                size="xs"
-                                tag="button"
-                                weight="normal"
-                                x-on:click="$dispatch('expand-all-containers')"
-                                x-show="isContainersAllCollapsed !== false"
-                                x-tooltip.raw="{{ __('capell-mosaic::button.expand_all') }}"
-                            >
-                                {{ __('capell-mosaic::button.expand') }}
-                            </x-filament::link>
-                            <x-filament::link
-                                class="whitespace-nowrap"
-                                color="gray"
-                                icon="heroicon-o-minus"
-                                iconSize="sm"
-                                size="xs"
-                                tag="button"
-                                weight="normal"
-                                x-on:click="$dispatch('collapse-all-containers')"
-                                x-show="isContainersAllCollapsed !== true"
-                                x-tooltip.raw="{{ __('capell-mosaic::button.collapse_all') }}"
-                            >
-                                {{ __('capell-mosaic::button.collapse') }}
-                            </x-filament::link>
-                        </div>
+                        {{ __('capell-layout-builder::heading.layout_record', ['name' => $this->layout->name]) }}
                     </div>
                 </div>
             </div>
 
-            @if ($this->layoutModified)
+            @if ($this->layoutIsSharedWithOtherPages || ($this->page === null && $this->layoutIsUsedByPages))
                 <x-filament::callout
-                    icon="heroicon-o-exclamation-triangle"
-                    color="info"
+                    :icon="$this->layoutIsSharedWithOtherPages ? 'heroicon-o-exclamation-triangle' : 'heroicon-o-information-circle'"
+                    :color="$this->layoutIsSharedWithOtherPages ? 'warning' : 'info'"
                     class="mb-5"
                 >
                     <x-slot name="heading">
-                        {{ __('capell-mosaic::message.layout_unsaved') }}
+                        @if ($this->layoutIsSharedWithOtherPages)
+                            {{
+                                trans_choice(
+                                    'capell-layout-builder::message.layout_shared_with_other_pages_heading',
+                                    $this->otherPagesUsingLayoutCount,
+                                    ['count' => $this->otherPagesUsingLayoutCount],
+                                )
+                            }}
+                        @else
+                            {{
+                                trans_choice(
+                                    'capell-layout-builder::message.layout_used_by_pages_heading',
+                                    $this->layoutPagesCount,
+                                    ['count' => $this->layoutPagesCount],
+                                )
+                            }}
+                        @endif
+
+                        <x-filament::link
+                            href="{{ $this->getPagesUsingLayoutUrl() }}"
+                            class="text-primary-700 hover:text-primary-600 decoration-primary-500/40 dark:text-primary-300 dark:hover:text-primary-200 inline-flex items-center gap-1 font-medium underline underline-offset-4"
+                        >
+                            {{ __('capell-layout-builder::button.view_pages_using_layout') }}
+                        </x-filament::link>
                     </x-slot>
+
+                    <x-slot name="description">
+                        @if ($this->layoutIsSharedWithOtherPages)
+                            {{
+                                trans_choice(
+                                    'capell-layout-builder::message.layout_shared_with_other_pages_body',
+                                    $this->otherPagesUsingLayoutCount,
+                                )
+                            }}
+                        @else
+                            {{
+                                trans_choice(
+                                    'capell-layout-builder::message.layout_used_by_pages_body',
+                                    $this->layoutPagesCount,
+                                )
+                            }}
+                        @endif
+                    </x-slot>
+
+                    @if ($this->layoutIsSharedWithOtherPages)
+                        <x-slot name="controls">
+                            {{ $this->cloneLayoutForPageAction }}
+                        </x-slot>
+                    @endif
+                </x-filament::callout>
+            @endif
+
+            @if ($this->layoutModified)
+                <x-filament::callout
+                    icon="heroicon-o-exclamation-triangle"
+                    color="warning"
+                    class="mb-5"
+                >
+                    <x-slot name="heading">
+                        {{ __('capell-layout-builder::message.layout_unsaved') }}
+                    </x-slot>
+
+                    @error('layoutDiagnostics')
+                        <p
+                            class="text-danger-600 dark:text-danger-400 mt-2 text-sm font-medium"
+                        >
+                            {{ $message }}
+                        </p>
+                    @enderror
+
+                    @if ($this->layoutDiagnostics !== [])
+                        <ul class="mt-2 list-disc space-y-1 ps-5 text-sm">
+                            @foreach ($this->layoutDiagnostics as $diagnostic)
+                                <li>
+                                    {{ $diagnostic['message'] ?? __('capell-admin::message.unknown_block', ['block' => __('capell-admin::generic.unknown')]) }}
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
 
                     @if ($this->saveLayoutAction->isVisible())
                         <x-slot name="controls">
@@ -167,289 +137,260 @@
                 </x-filament::callout>
             @endif
 
-            <div
-                class="fixed inset-0 z-30 bg-gray-950/50 xl:hidden"
-                x-show="isWidgetPaletteOpen"
-                x-transition.opacity
-                x-on:click="isWidgetPaletteOpen = false"
-                x-cloak
-            ></div>
-
-            <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_24rem]">
-                <div class="space-y-5">
-                    @if ($containers)
+            @if ($editorMode === 'content_first')
+                @include('capell-layout-builder::livewire.filament.layout-builder.content-first')
+            @else
+                <div
+                    class="layout-canvas rounded-lg bg-gray-50 p-4 dark:bg-gray-950"
+                >
+                    <div
+                        class="layout-builder-workboard-toolbar mb-5 grid grid-cols-1 items-center gap-3 md:grid-cols-[1fr_minmax(16rem,28rem)_1fr]"
+                    >
                         <div
-                            class="layout-containers mb-4 grid grid-cols-1 gap-4 xl:grid-cols-12 xl:gap-6"
-                            x-sort="$wire.reorderContainers($item, $position)"
-                            x-sort:config="{
-                                animation: 180,
-                                easing: 'cubic-bezier(0.2, 0, 0, 1)',
-                                forceFallback: true,
-                                fallbackClass: 'layout-sort-fallback',
-                                ghostClass: 'layout-sort-ghost',
-                                chosenClass: 'layout-sort-chosen',
-                                dragClass: 'layout-sort-drag',
+                            class="layout-builder-primary-actions flex flex-wrap items-center justify-start gap-2"
+                        >
+                            @if ($this->canEditContent())
+                                <x-filament::button
+                                    color="gray"
+                                    icon="heroicon-o-arrow-left"
+                                    size="sm"
+                                    wire:click="showContentEditor"
+                                >
+                                    {{ __('capell-layout-builder::button.return_to_content') }}
+                                </x-filament::button>
+                            @endif
+
+                            {{ $this->addBlockAction }}
+
+                            {{ $this->addContainerAction }}
+
+                            <button
+                                type="button"
+                                class="layout-builder-edit-mode-toggle"
+                                x-on:click="setMode(mode === 'edit' ? 'view' : 'edit')"
+                                x-bind:aria-pressed="(mode === 'edit').toString()"
+                                x-bind:aria-label="
+                                    mode === 'edit'
+                                        ? {{ Js::from(__('capell-layout-builder::button.exit_edit_mode')) }}
+                                        : {{ Js::from(__('capell-layout-builder::button.edit_mode')) }}
+                                "
+                                x-bind:class="mode === 'edit' ? 'layout-builder-edit-mode-toggle-active' : ''"
+                                x-tooltip.raw="{{ __('capell-layout-builder::button.edit_mode') }}"
+                            >
+                                @svg('heroicon-o-pencil-square', 'h-4 w-4')
+                            </button>
+                        </div>
+
+                        @if ($containers)
+                            <div
+                                class="layout-builder-breakpoint-control inline-flex w-full max-w-full justify-self-center rounded-lg bg-white text-xs font-medium text-gray-600 shadow-sm ring-1 ring-gray-950/10 sm:w-auto dark:bg-white/5 dark:text-gray-300 dark:ring-white/10"
+                                role="group"
+                                aria-label="{{ __('capell-layout-builder::button.preview_breakpoint') }}"
+                            >
+                                @foreach ([['value' => null, 'label' => __('capell-layout-builder::button.desktop'), 'icon' => 'heroicon-o-computer-desktop'], ['value' => 'tablet', 'label' => __('capell-layout-builder::button.tablet'), 'icon' => 'heroicon-o-device-tablet'], ['value' => 'mobile', 'label' => __('capell-layout-builder::button.mobile'), 'icon' => 'heroicon-o-device-phone-mobile']] as $breakpointOption)
+                                    <button
+                                        type="button"
+                                        class="layout-builder-breakpoint-button"
+                                        x-on:click="setActiveBreakpointPreview({{ Js::from($breakpointOption['value']) }})"
+                                        x-bind:aria-pressed="isActiveBreakpoint({{ Js::from($breakpointOption['value']) }}).toString()"
+                                        aria-pressed="{{ ($activeBreakpoint?->value ?? null) === $breakpointOption['value'] ? 'true' : 'false' }}"
+                                        aria-label="{{ $breakpointOption['label'] }}"
+                                        x-tooltip.raw="{{ $breakpointOption['label'] }}"
+                                    >
+                                        @svg($breakpointOption['icon'], 'h-5 w-5 shrink-0')
+
+                                        <span
+                                            class="layout-builder-breakpoint-label"
+                                        >
+                                            {{ $breakpointOption['label'] }}
+                                        </span>
+                                    </button>
+                                @endforeach
+                            </div>
+                        @else
+                            <div></div>
+                        @endif
+
+                        <div
+                            class="flex flex-wrap items-center justify-end gap-2"
+                        >
+                            <div
+                                class="layout-builder-history-actions flex items-center gap-2"
+                            >
+                                {{ $this->undoLayoutMutationAction }}
+
+                                {{ $this->redoLayoutMutationAction }}
+                            </div>
+
+                            <div
+                                class="layout-builder-density-actions inline-flex w-full sm:w-auto"
+                            >
+                                <button
+                                    type="button"
+                                    class="text-primary-700 hover:text-primary-600 focus-visible:text-primary-600 dark:text-primary-300 dark:hover:text-primary-200 dark:focus-visible:text-primary-200 inline-flex h-9 w-full items-center justify-center gap-1.5 px-1 text-xs font-medium underline-offset-4 transition hover:underline focus-visible:underline sm:w-auto"
+                                    x-on:click="toggleAllComponents()"
+                                    x-bind:aria-label="
+                                        isContainersAllCollapsed === true
+                                            ? '{{ __('capell-layout-builder::button.expand_all') }}'
+                                            : '{{ __('capell-layout-builder::button.collapse_all') }}'
+                                    "
+                                >
+                                    @svg('heroicon-m-plus', 'h-4 w-4', ['x-show' => 'isContainersAllCollapsed === true'])
+                                    @svg('heroicon-o-minus', 'h-4 w-4', ['x-show' => 'isContainersAllCollapsed !== true'])
+                                    <span
+                                        x-show="isContainersAllCollapsed === true"
+                                    >
+                                        {{ __('capell-layout-builder::button.expand_all') }}
+                                    </span>
+                                    <span
+                                        x-show="isContainersAllCollapsed !== true"
+                                        x-cloak
+                                    >
+                                        {{ __('capell-layout-builder::button.collapse_all') }}
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layout-builder-canvas-scroll">
+                        <div
+                            class="layout-builder-canvas-frame mx-auto transition-all duration-150"
+                            x-bind:style="{
+                                maxWidth: activeBreakpointMaxCanvasWidth(),
+                                minWidth: activeBreakpointMinCanvasWidth(),
                             }"
                         >
-                            @foreach ($containers as $containerKey => $container)
-                                <div
-                                    class="layout-container-insert-zone col-span-12 -my-1 flex items-center gap-3 px-2"
-                                >
-                                    <span
-                                        class="border-primary-500/45 h-px flex-1 border-t border-dashed"
-                                    ></span>
-
+                            <div class="space-y-10">
+                                @if ($containers)
                                     <div
-                                        class="border-primary-500/45 text-primary-600 hover:border-primary-500 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-500/10 rounded-full border bg-white text-xs font-medium shadow-sm transition dark:bg-gray-900"
+                                        class="layout-containers mb-4 grid grid-cols-12 gap-4"
+                                        x-sort="reorderContainer($item, $position)"
+                                        x-sort:config="{
+                                            animation: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                                                ? 0
+                                                : 180,
+                                            easing: 'cubic-bezier(0.2, 0, 0, 1)',
+                                            forceFallback: true,
+                                            fallbackClass: 'layout-sort-fallback',
+                                            ghostClass: 'layout-sort-ghost',
+                                            chosenClass: 'layout-sort-chosen',
+                                            dragClass: 'layout-sort-drag',
+                                        }"
                                     >
-                                        <button
-                                            type="button"
-                                            class="inline-flex items-center gap-1 px-2 py-0.5"
-                                            wire:click="insertContainerAtPosition({{ $loop->index }})"
-                                        >
-                                            @svg('heroicon-m-plus', 'h-3.5 w-3.5')
-                                            <span>
-                                                {{ __('capell-mosaic::button.container') }}
-                                            </span>
-                                        </button>
-                                        <span class="sr-only">
-                                            {{ __('capell-mosaic::message.insert_container_here') }}
-                                        </span>
+                                        @php
+                                            $occupiedContainerColumns = 0;
+                                            $nextContainerStartsRow = true;
+                                        @endphp
+
+                                        @foreach ($containers as $containerKey => $container)
+                                            @php
+                                                $containerColspan = min(12, max(1, (int) data_get($container, 'meta.colspan', 12)));
+                                                $startsContainerRow = $nextContainerStartsRow || ($occupiedContainerColumns + $containerColspan > 12);
+
+                                                if ($startsContainerRow) {
+                                                    $occupiedContainerColumns = 0;
+                                                }
+                                            @endphp
+
+                                            @if ($startsContainerRow)
+                                                <div
+                                                    class="layout-container-insert-zone col-span-12 -my-1 flex items-center gap-3 px-2"
+                                                    x-show="shouldShowInsertTargets()"
+                                                    x-transition.opacity
+                                                    x-cloak
+                                                >
+                                                    <span
+                                                        class="border-primary-500/45 h-px flex-1 border-t border-dashed"
+                                                    ></span>
+
+                                                    <div
+                                                        class="layout-container-insert-button border-primary-500/45 text-primary-600 hover:border-primary-500 dark:text-primary-400 rounded-full border bg-white text-xs font-medium shadow-sm transition"
+                                                    >
+                                                        <button
+                                                            type="button"
+                                                            class="inline-flex items-center gap-1 px-2 py-0.5"
+                                                            wire:click="insertContainerAtPosition({{ $loop->index }})"
+                                                            aria-label="{{ __('capell-layout-builder::message.insert_container_here') }}"
+                                                        >
+                                                            @svg('heroicon-m-plus', 'h-3.5 w-3.5')
+                                                            <span>
+                                                                {{ __('capell-layout-builder::button.container') }}
+                                                            </span>
+                                                        </button>
+                                                        <span class="sr-only">
+                                                            {{ __('capell-layout-builder::message.insert_container_here') }}
+                                                        </span>
+                                                    </div>
+
+                                                    <span
+                                                        class="border-primary-500/45 h-px flex-1 border-t border-dashed"
+                                                    ></span>
+                                                </div>
+                                            @endif
+
+                                            <x-capell-layout-builder::filament.layout-builder.container
+                                                :$container
+                                                :$containerKey
+                                                :containerBlocks="$this->containerBlocks[$containerKey] ?? []"
+                                            />
+
+                                            @php
+                                                $occupiedContainerColumns += $containerColspan;
+                                                $nextContainerStartsRow = $occupiedContainerColumns >= 12;
+                                            @endphp
+
+                                            @if ($loop->last)
+                                                <div
+                                                    class="layout-container-insert-zone col-span-12 -my-1 flex items-center gap-3 px-2"
+                                                    x-show="shouldShowInsertTargets()"
+                                                    x-transition.opacity
+                                                    x-cloak
+                                                >
+                                                    <span
+                                                        class="border-primary-500/45 h-px flex-1 border-t border-dashed"
+                                                    ></span>
+
+                                                    <div
+                                                        class="layout-container-insert-button border-primary-500/45 text-primary-600 hover:border-primary-500 dark:text-primary-400 rounded-full border bg-white text-xs font-medium shadow-sm transition"
+                                                    >
+                                                        <button
+                                                            type="button"
+                                                            class="inline-flex items-center gap-1 px-2 py-0.5"
+                                                            wire:click="insertContainerAtPosition({{ $loop->iteration }})"
+                                                            aria-label="{{ __('capell-layout-builder::message.insert_container_here') }}"
+                                                        >
+                                                            @svg('heroicon-m-plus', 'h-3.5 w-3.5')
+                                                            <span>
+                                                                {{ __('capell-layout-builder::button.container') }}
+                                                            </span>
+                                                        </button>
+                                                        <span class="sr-only">
+                                                            {{ __('capell-layout-builder::message.insert_container_here') }}
+                                                        </span>
+                                                    </div>
+
+                                                    <span
+                                                        class="border-primary-500/45 h-px flex-1 border-t border-dashed"
+                                                    ></span>
+                                                </div>
+                                            @endif
+                                        @endforeach
                                     </div>
-
-                                    <span
-                                        class="border-primary-500/45 h-px flex-1 border-t border-dashed"
-                                    ></span>
-                                </div>
-
-                                <x-capell-mosaic::filament.layout-builder.container
-                                    :$container
-                                    :$containerKey
-                                    :containerWidgets="$this->containerWidgets[$containerKey] ?? []"
-                                />
-
-                                @if ($loop->last)
+                                @else
                                     <div
-                                        class="layout-container-insert-zone col-span-12 -my-1 flex items-center gap-3 px-2"
+                                        class="layout-empty rounded-xl border border-gray-200 p-6 px-3 text-center text-base text-gray-600 dark:border-gray-700 dark:text-gray-100"
                                     >
-                                        <span
-                                            class="border-primary-500/45 h-px flex-1 border-t border-dashed"
-                                        ></span>
-
-                                        <div
-                                            class="border-primary-500/45 text-primary-600 hover:border-primary-500 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-500/10 rounded-full border bg-white text-xs font-medium shadow-sm transition dark:bg-gray-900"
-                                        >
-                                            <button
-                                                type="button"
-                                                class="inline-flex items-center gap-1 px-2 py-0.5"
-                                                wire:click="insertContainerAtPosition({{ $loop->iteration }})"
-                                            >
-                                                @svg('heroicon-m-plus', 'h-3.5 w-3.5')
-                                                <span>
-                                                    {{ __('capell-mosaic::button.container') }}
-                                                </span>
-                                            </button>
-                                            <span class="sr-only">
-                                                {{ __('capell-mosaic::message.insert_container_here') }}
-                                            </span>
-                                        </div>
-
-                                        <span
-                                            class="border-primary-500/45 h-px flex-1 border-t border-dashed"
-                                        ></span>
+                                        {{ __('capell-layout-builder::message.layout_empty') }}
                                     </div>
                                 @endif
-                            @endforeach
+                            </div>
                         </div>
-                    @else
-                        <div
-                            class="layout-empty rounded-xl border border-gray-200 p-6 px-3 text-center text-base text-gray-600 dark:border-gray-700 dark:text-gray-100"
-                        >
-                            {{ __('capell-mosaic::message.layout_empty') }}
-                        </div>
-                    @endif
+                    </div>
                 </div>
-
-                <aside
-                    class="fixed bottom-0 right-0 top-0 z-40 flex w-[min(26rem,calc(100vw-2rem))] flex-col bg-white p-4 shadow-2xl ring-1 ring-gray-950/10 transition-transform duration-200 xl:sticky xl:top-6 xl:z-auto xl:max-h-[calc(100vh-3rem)] xl:w-auto xl:translate-x-0 xl:rounded-lg xl:p-3 xl:shadow-none dark:bg-gray-900 dark:ring-white/10"
-                    x-bind:class="isWidgetPaletteOpen ? 'translate-x-0' : 'translate-x-full xl:translate-x-0'"
-                    wire:key="widget-palette"
-                    x-on:keydown.escape.window="isWidgetPaletteOpen = false"
-                    x-cloak
-                >
-                    <div class="mb-3 flex items-center justify-between gap-3">
-                        <div>
-                            <h2
-                                class="text-sm font-semibold text-gray-950 dark:text-white"
-                            >
-                                {{ __('capell-mosaic::form.widget_palette') }}
-                            </h2>
-
-                            <span
-                                class="text-xs text-gray-500 dark:text-gray-400"
-                            >
-                                {{ __('capell-mosaic::message.widget_palette_count', ['count' => $widgetPalette->total()]) }}
-                            </span>
-                        </div>
-
-                        <x-filament::icon-button
-                            class="xl:hidden"
-                            icon="heroicon-o-x-mark"
-                            color="gray"
-                            size="sm"
-                            x-on:click="isWidgetPaletteOpen = false"
-                            :label="__('capell-admin::button.close')"
-                        />
-                    </div>
-
-                    <x-filament::input.wrapper
-                        class="mb-3"
-                        prefix-icon="heroicon-m-magnifying-glass"
-                    >
-                        <x-filament::input
-                            type="search"
-                            wire:model.live.debounce.300ms="widgetPaletteSearch"
-                            :placeholder="__('capell-mosaic::form.search_widgets')"
-                        />
-                    </x-filament::input.wrapper>
-
-                    <div
-                        class="grid min-h-0 flex-1 auto-rows-fr grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-3 xl:grid-cols-2"
-                        x-sort
-                        x-sort:group="widgets"
-                        x-sort:config="{
-                            group: {
-                                name: 'widgets',
-                                pull: 'clone',
-                                put: false,
-                            },
-                            sort: false,
-                        }"
-                    >
-                        @forelse ($widgetPalette as $widget)
-                            <div
-                                class="hover:border-primary-500 hover:bg-primary-50/60 dark:hover:bg-primary-500/10 group flex aspect-square cursor-grab flex-col justify-between rounded-lg border border-gray-200 bg-gray-50 p-3 transition active:cursor-grabbing dark:border-white/10 dark:bg-white/5"
-                                draggable="true"
-                                x-sort:item="'palette.{{ $widget->getKey() }}'"
-                                x-on:dragstart="
-                                    $event.dataTransfer.effectAllowed = 'copy'
-                                    $event.dataTransfer.setData(
-                                        'application/x-capell-widget-id',
-                                        '{{ $widget->getKey() }}',
-                                    )
-                                "
-                                wire:key="widget-palette-{{ $widget->getKey() }}"
-                            >
-                                <div
-                                    class="flex items-start justify-between gap-2"
-                                >
-                                    @svg('heroicon-o-cube-transparent', 'group-hover:text-primary-500 h-5 w-5 shrink-0 text-gray-400 transition')
-
-                                    <span
-                                        class="rounded-full bg-white px-1.5 py-0.5 text-[10px] font-medium text-gray-500 ring-1 ring-gray-950/10 dark:bg-gray-900 dark:text-gray-400 dark:ring-white/10"
-                                    >
-                                        {{ $widget->getKey() }}
-                                    </span>
-                                </div>
-
-                                <div class="min-w-0">
-                                    <div
-                                        class="line-clamp-2 text-sm font-semibold leading-5 text-gray-950 dark:text-white"
-                                    >
-                                        {{ $widget->name }}
-                                    </div>
-
-                                    <div
-                                        class="mt-1 truncate text-xs text-gray-500 dark:text-gray-400"
-                                    >
-                                        {{ $widget->key }}
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <div
-                                class="col-span-full rounded-md border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400"
-                            >
-                                {{ __('capell-mosaic::message.widget_palette_empty') }}
-                            </div>
-                        @endforelse
-                    </div>
-
-                    <div class="mt-3 flex items-center justify-between gap-2">
-                        <x-filament::button
-                            color="gray"
-                            size="xs"
-                            icon="heroicon-o-chevron-left"
-                            wire:click="previousWidgetPalettePage"
-                            :disabled="$widgetPalette->onFirstPage()"
-                        >
-                            {{ __('capell-mosaic::button.previous') }}
-                        </x-filament::button>
-
-                        <span class="text-xs text-gray-500 dark:text-gray-400">
-                            {{ __('capell-mosaic::message.widget_palette_page', ['current' => $widgetPalette->currentPage(), 'last' => $widgetPalette->lastPage()]) }}
-                        </span>
-
-                        <x-filament::button
-                            color="gray"
-                            size="xs"
-                            icon="heroicon-o-chevron-right"
-                            icon-position="after"
-                            wire:click="nextWidgetPalettePage"
-                            :disabled="! $widgetPalette->hasMorePages()"
-                        >
-                            {{ __('capell-mosaic::button.next') }}
-                        </x-filament::button>
-                    </div>
-                </aside>
-            </div>
-
-            <div class="mt-6 flex items-center justify-center gap-4">
-                {{ $this->addContainerAction }}
-
-                <x-filament::link
-                    color="gray"
-                    :size="Size::Small"
-                    x-on:click="toggleReordering"
-                    x-bind:class="isReordering ? '!text-primary-600' : ''"
-                >
-                    @svg('heroicon-o-arrows-up-down',
-                        'inline-block h-4 w-4 text-gray-400 transition duration-75 dark:text-gray-500',
-                        ['x-show' => '! isReordering'])
-                    @svg('heroicon-o-x-mark',
-                        'fi-btn-icon inline-block h-4 w-4 text-gray-400 transition duration-75 dark:text-gray-500',
-                        [
-                            'x-show' => 'isReordering',
-                            'x-cloak' => '',
-                        ])
-                    <span
-                        x-text="
-                            ! isReordering
-                                ? '{{ __('capell-mosaic::button.reorder') }}'
-                                : '{{ __('capell-mosaic::button.cancel_reorder') }}'
-                        "
-                    ></span>
-                </x-filament::link>
-            </div>
+            @endif
         </div>
     </div>
 
     <x-filament-actions::modals />
-
-    <style>
-        .layout-sort-ghost {
-            opacity: 0.35;
-        }
-
-        .layout-sort-chosen {
-            outline: 1px solid rgba(var(--primary-500), 0.7);
-            outline-offset: 2px;
-        }
-
-        .layout-sort-drag,
-        .layout-sort-fallback {
-            transform: rotate(0.25deg);
-            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.24);
-        }
-    </style>
 </div>

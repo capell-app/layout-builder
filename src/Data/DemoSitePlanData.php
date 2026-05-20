@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Data;
+namespace Capell\LayoutBuilder\Data;
 
 use Capell\Core\Models\Site;
 use Illuminate\Database\Eloquent\Model;

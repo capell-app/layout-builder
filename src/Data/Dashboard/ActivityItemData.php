@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Data\Dashboard;
+namespace Capell\LayoutBuilder\Data\Dashboard;
 
 use Carbon\CarbonInterface;
 use Spatie\LaravelData\Data;

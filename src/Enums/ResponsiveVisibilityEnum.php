@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Enums;
+namespace Capell\LayoutBuilder\Enums;
 
 use Filament\Support\Contracts\HasLabel;
 
@@ -17,9 +17,9 @@ enum ResponsiveVisibilityEnum: string implements HasLabel
     public function getLabel(): string
     {
         return match ($this) {
-            self::Mobile => __('capell-mosaic::form.mobile'),
-            self::Tablet => __('capell-mosaic::form.tablet'),
-            self::Desktop => __('capell-mosaic::form.desktop'),
+            self::Mobile => __('capell-layout-builder::form.mobile'),
+            self::Tablet => __('capell-layout-builder::form.tablet'),
+            self::Desktop => __('capell-layout-builder::form.desktop'),
         };
     }
 }

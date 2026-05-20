@@ -2,64 +2,64 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Support;
+namespace Capell\LayoutBuilder\Support;
 
-use Capell\Mosaic\Models\Widget;
+use Capell\LayoutBuilder\Models\Block;
 use Illuminate\Support\Collection;
 
 class CapellLayoutManager
 {
-    protected static array $containerWidgets = [];
+    protected static array $containerBlocks = [];
 
     public static function getMigrations(): array
     {
-        return [
-            'create_sections_table',
-            'create_widgets_table',
-            'create_widget_assets_table',
-            'add_container_widgets_to_layouts_table',
-        ];
+        return CapellLayoutBuilderManager::getMigrations();
     }
 
     /**
-     * Store widgets for a container
+     * Store blocks for a container
      */
-    public static function storeContainerWidget(string $containerKey, string $widgetKey, Widget $widget, int $occurrence = 1): void
+    public static function storeContainerBlock(string $containerKey, string $blockKey, Block $block, int $occurrence = 1): void
     {
-        if (! isset(static::$containerWidgets[$containerKey])) {
-            static::$containerWidgets[$containerKey] = [];
+        if (! isset(static::$containerBlocks[$containerKey])) {
+            static::$containerBlocks[$containerKey] = [];
         }
 
-        if (! isset(static::$containerWidgets[$containerKey][$widgetKey])) {
-            static::$containerWidgets[$containerKey][$widgetKey] = [];
+        if (! isset(static::$containerBlocks[$containerKey][$blockKey])) {
+            static::$containerBlocks[$containerKey][$blockKey] = [];
         }
 
-        static::$containerWidgets[$containerKey][$widgetKey][$occurrence] = $widget;
+        static::$containerBlocks[$containerKey][$blockKey][$occurrence] = $block;
     }
 
     /**
-     * Get a widget for a container
+     * Get a block for a container
      */
-    public static function getContainerWidget(string $containerKey, string $widgetKey, int $occurrence = 1): ?Widget
+    public static function getContainerBlock(string $containerKey, string $blockKey, int $occurrence = 1): ?Block
     {
-        return static::$containerWidgets[$containerKey][$widgetKey][$occurrence]
-            ?? Widget::query()->with('type')->firstWhere('key', $widgetKey);
+        return static::getStoredContainerBlock($containerKey, $blockKey, $occurrence)
+            ?? Block::query()->with('type')->firstWhere('key', $blockKey);
     }
 
-    public static function getContainerWidgets(?string $containerKey = null): Collection
+    public static function getStoredContainerBlock(string $containerKey, string $blockKey, int $occurrence = 1): ?Block
     {
-        $widgets = in_array($containerKey, [null, '', '0'], true)
-            ? (static::$containerWidgets)
-            : static::$containerWidgets[$containerKey] ?? [];
+        return static::$containerBlocks[$containerKey][$blockKey][$occurrence] ?? null;
+    }
 
-        return collect($widgets);
+    public static function getContainerBlocks(?string $containerKey = null): Collection
+    {
+        $blocks = in_array($containerKey, [null, '', '0'], true)
+            ? (static::$containerBlocks)
+            : static::$containerBlocks[$containerKey] ?? [];
+
+        return collect($blocks);
     }
 
     /**
-     * Clear all stored widgets
+     * Clear all stored blocks
      */
-    public static function clearContainerWidgets(): void
+    public static function clearContainerBlocks(): void
     {
-        static::$containerWidgets = [];
+        static::$containerBlocks = [];
     }
 }

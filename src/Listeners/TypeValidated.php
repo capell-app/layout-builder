@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Listeners;
+namespace Capell\LayoutBuilder\Listeners;
 
-use Capell\Admin\Contracts\ValidationSubscriber;
-use Capell\Admin\Enums\ListenerEnum;
+use Capell\Core\Support\Subscriber\Contracts\ValidatingSubscriber;
 
-class TypeValidated implements ValidationSubscriber
+class TypeValidated implements ValidatingSubscriber
 {
     /**
      * Handle the event.
@@ -29,6 +28,6 @@ class TypeValidated implements ValidationSubscriber
      */
     public function validate(string $event, object $context): bool
     {
-        return $event !== ListenerEnum::ValidateCustomType->value;
+        return $event !== 'validateCustomType';
     }
 }

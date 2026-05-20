@@ -2,33 +2,56 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Enums;
+namespace Capell\LayoutBuilder\Enums;
 
-use Capell\Admin\Concerns\HasConfiguratorTypes;
 use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
 
 enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
 {
-    use HasConfiguratorTypes;
-
-    case Section = 'Sections';
-
     case LayoutContainer = 'LayoutContainers';
 
-    case LayoutWidget = 'LayoutWidgets';
+    case LayoutBlock = 'LayoutBlocks';
 
-    case Widget = 'Widgets';
+    case Block = 'Blocks';
 
-    case WidgetAsset = 'WidgetAssets';
+    case BlockAsset = 'BlockAssets';
 
+    /**
+     * @return array<string, array<int, object>>
+     */
+    public static function getAllConfigurators(): array
+    {
+        return collect(self::cases())
+            ->mapWithKeys(fn (self $enum): array => [$enum->value => $enum->getConfigurators()])
+            ->all();
+    }
+
+    public static function fromName(string $name): ?static
+    {
+        foreach (self::cases() as $case) {
+            if ($case->name === $name) {
+                return $case;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<int, object>
+     */
     public function getConfigurators(): array
     {
         return match ($this) {
-            self::Section => SectionConfiguratorEnum::cases(),
             self::LayoutContainer => LayoutContainerConfiguratorEnum::cases(),
-            self::LayoutWidget => LayoutWidgetConfiguratorEnum::cases(),
-            self::Widget => WidgetConfiguratorEnum::cases(),
-            self::WidgetAsset => WidgetAssetConfiguratorEnum::cases(),
+            self::LayoutBlock => LayoutBlockConfiguratorEnum::cases(),
+            self::Block => BlockConfiguratorEnum::cases(),
+            self::BlockAsset => BlockAssetConfiguratorEnum::cases(),
         };
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 }

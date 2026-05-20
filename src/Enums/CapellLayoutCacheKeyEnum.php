@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Enums;
+namespace Capell\LayoutBuilder\Enums;
 
 enum CapellLayoutCacheKeyEnum: string
 {
-    case WidgetByKey = 'capell_layout_widget_by_key:';
+    case BlockByKey = 'capell_layout_block_by_key:';
 
-    case WidgetOptions = 'capell_layout_widget_options:';
+    case BlockOptions = 'capell_layout_block_options:';
 }

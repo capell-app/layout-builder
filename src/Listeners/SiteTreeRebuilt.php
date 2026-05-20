@@ -2,10 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Listeners;
+namespace Capell\LayoutBuilder\Listeners;
 
-use Capell\Admin\Enums\ListenerEnum;
-use Capell\Admin\Livewire\Header\AdminTools;
 use Capell\Core\Contracts\EventSubscriber;
 use Filament\Notifications\Notification;
 
@@ -19,14 +17,14 @@ class SiteTreeRebuilt implements EventSubscriber
      */
     public function handle(string $event, object $context): void
     {
-        if ($event !== ListenerEnum::SiteTreeRebuilt->value) {
+        if ($event !== 'siteTreeRebuilt') {
             return;
         }
 
-        if ($context instanceof AdminTools && $context->siteTree()) {
+        if (is_a($context, 'Capell\\Admin\\Livewire\\Header\\AdminTools') && $context->siteTree()) {
             Notification::make('content_tree')
                 ->status('warning')
-                ->title(__('capell-mosaic::generic.fixed_content_tree'))
+                ->title(__('capell-layout-builder::generic.fixed_content_tree'))
                 ->send();
 
             return;

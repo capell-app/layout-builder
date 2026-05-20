@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Enums;
+namespace Capell\LayoutBuilder\Enums;
+
+use Capell\Core\Enums\AssetComponentEnum;
 
 enum ComponentTypeEnum: string
 {
     case Asset = AssetComponentEnum::class;
 
-    case Widget = WidgetComponentEnum::class;
+    case Block = BlockComponentEnum::class;
 }

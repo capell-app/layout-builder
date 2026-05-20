@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Components\Forms\Layout;
+namespace Capell\LayoutBuilder\Filament\Components\Forms\Layout;
 
 use Capell\Core\Models\Layout;
-use Capell\Mosaic\Enums\LivewireComponentsEnum;
+use Capell\LayoutBuilder\Enums\LivewireComponentsEnum;
 use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Support\Icons\Heroicon;
@@ -16,7 +16,7 @@ class LayoutTab extends Tab
     {
         parent::setUp();
 
-        $this->label(__('capell-mosaic::tab.layout'))
+        $this->label(__('capell-layout-builder::tab.layout'))
             ->visibleOn(['edit', 'editOption'])
             ->icon(Heroicon::OutlinedPuzzlePiece)
             ->schema(fn (?Layout $record): array => $record instanceof Layout ? [
@@ -26,7 +26,7 @@ class LayoutTab extends Tab
                         'site' => $record->site,
                         'layout' => $record,
                     ],
-                ),
+                )->lazy(),
             ] : []);
     }
 }

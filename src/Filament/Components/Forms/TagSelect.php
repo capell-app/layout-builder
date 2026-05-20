@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Components\Forms;
+namespace Capell\LayoutBuilder\Filament\Components\Forms;
 
 use Filament\Forms\Components\Select;
 
@@ -12,17 +12,17 @@ class TagSelect extends Select
     {
         parent::setUp();
 
-        $this->label(__('capell-mosaic::form.tag'))
+        $this->label(__('capell-layout-builder::form.tag'))
             ->default('div')
             ->options([
-                'div' => __('capell-mosaic::form.tag_div'),
-                'section' => __('capell-mosaic::form.tag_section'),
-                'article' => __('capell-mosaic::form.tag_article'),
-                'aside' => __('capell-mosaic::form.tag_aside'),
-                'header' => __('capell-mosaic::form.tag_header'),
-                'footer' => __('capell-mosaic::form.tag_footer'),
-                'nav' => __('capell-mosaic::form.tag_nav'),
-                'main' => __('capell-mosaic::form.tag_main'),
+                'div' => __('capell-layout-builder::form.tag_div'),
+                'section' => __('capell-layout-builder::form.tag_section'),
+                'article' => __('capell-layout-builder::form.tag_article'),
+                'aside' => __('capell-layout-builder::form.tag_aside'),
+                'header' => __('capell-layout-builder::form.tag_header'),
+                'footer' => __('capell-layout-builder::form.tag_footer'),
+                'nav' => __('capell-layout-builder::form.tag_nav'),
+                'main' => __('capell-layout-builder::form.tag_main'),
             ]);
     }
 }

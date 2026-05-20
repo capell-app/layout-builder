@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Components\Forms;
+namespace Capell\LayoutBuilder\Filament\Components\Forms;
 
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\PageSelect;
 use Capell\Admin\Filament\Components\Forms\SiteSelect;
-use Capell\Mosaic\Enums\ActionLinkEnum;
+use Capell\LayoutBuilder\Enums\ActionLinkEnum;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -36,7 +36,7 @@ class ActionsRepeater extends Repeater
             ->cloneable()
             ->orderColumn()
             ->defaultItems(0)
-            ->addActionLabel(__('capell-mosaic::button.add_action'))
+            ->addActionLabel(__('capell-layout-builder::button.add_action'))
             ->itemLabel(function (array $state, string $key): ?string {
                 $type = $this->getItemType($key);
 
@@ -65,14 +65,16 @@ class ActionsRepeater extends Repeater
                             return null;
                         }
 
-                        return $modelClass::query()->find($pageableId, ['name'])?->name;
+                        $name = $modelClass::query()->whereKey($pageableId)->value('name');
+
+                        return is_string($name) ? $name : null;
                     })(),
                     ActionLinkEnum::Link => $state['url'],
                 };
 
                 if (filled($itemLabel)) {
                     return __(
-                        'capell-mosaic::generic.action_type_label',
+                        'capell-layout-builder::generic.action_type_label',
                         ['type' => $type->getLabel(), 'label' => $itemLabel],
                     );
                 }

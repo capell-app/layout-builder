@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Actions;
+namespace Capell\LayoutBuilder\Actions;
 
-use Capell\Mosaic\Data\LayoutPlanData;
-use Capell\Mosaic\Data\LayoutPlanResultData;
+use Capell\LayoutBuilder\Data\LayoutPlanData;
+use Capell\LayoutBuilder\Data\LayoutPlanResultData;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class ApplyLayoutPlanAction

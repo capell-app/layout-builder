@@ -2,36 +2,40 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Support\Creator;
+namespace Capell\LayoutBuilder\Support\Creator;
 
+use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Site;
-use Capell\Core\Models\Type;
-use Capell\Mosaic\Enums\LayoutTypeEnum;
-use Capell\Mosaic\Models\Section;
+use Capell\Core\Models\Translation;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use RuntimeException;
 
 class ContentCreator
 {
     /**
-     * @var class-string<Section>
+     * @var class-string<Model>
      */
     private readonly string $contentModel;
 
     /**
-     * @var class-string<Type>
+     * @var class-string<Blueprint>
      */
     private readonly string $typeModel;
 
     public function __construct()
     {
-        $this->contentModel = Section::class;
+        throw_unless(CapellCore::hasAsset('Section'), RuntimeException::class, 'Content Sections must be installed to create section demo content.');
 
-        $this->typeModel = Type::class;
+        $this->contentModel = CapellCore::getAsset('Section')->model;
+
+        $this->typeModel = Blueprint::class;
     }
 
-    public function createContent(array $data, ?Site $site, Collection $languages): Section
+    public function createContent(array $data, ?Site $site, Collection $languages): Model
     {
-        $type = $this->typeModel::query()->where('type', LayoutTypeEnum::Section)->default()->first();
+        $type = $this->typeModel::query()->where('type', 'section')->default()->first();
 
         if (isset($data['type']) && $data['type'] !== '') {
             $type->where('key', $data['type'])->first();
@@ -44,22 +48,29 @@ class ContentCreator
         $payload = [
             'name' => $data['name'],
             'site_id' => $site?->id,
-            'type_id' => $type->id,
+            'blueprint_id' => $type->id,
             'parent_id' => $parentId,
         ];
 
-        /** @var Section $content */
         $content = $this->contentModel::query()->firstOrCreate($payload);
 
         foreach ($languages as $language) {
-            $translation_data = $data['translations'][$language->code];
+            $code = $language->getAttribute('code');
 
-            $content->translations()->firstOrCreate([
-                'language_id' => $language->id,
+            if (! is_string($code)) {
+                continue;
+            }
+
+            $translationData = $data['translations'][$code];
+
+            Translation::query()->firstOrCreate([
+                'translatable_type' => $content->getMorphClass(),
+                'translatable_id' => $content->getKey(),
+                'language_id' => $language->getKey(),
             ], [
-                'title' => $translation_data['title'],
-                'content' => $translation_data['content'] ?? null,
-                'meta' => $translation_data['meta'] ?? [],
+                'title' => $translationData['title'],
+                'content' => $translationData['content'] ?? null,
+                'meta' => $translationData['meta'] ?? [],
             ]);
         }
 

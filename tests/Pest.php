@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
-use Capell\Mosaic\Tests\MosaicTestCase;
+use Capell\LayoutBuilder\Tests\LayoutBuilderTestCase;
 
-pest()->extend(MosaicTestCase::class)->group('mosaic')->in(__DIR__);
+require_once __DIR__ . '/LayoutBuilderTestCase.php';
+
+pest()->extend(LayoutBuilderTestCase::class)->group('layout-builder')->in(__DIR__);

@@ -2,59 +2,46 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Enums;
+namespace Capell\LayoutBuilder\Enums;
 
-use Capell\Mosaic\Filament\Resources\Sections\SectionResource;
-use Capell\Mosaic\Filament\Resources\Widgets\WidgetResource;
-use Capell\Mosaic\Models\Section;
-use Capell\Mosaic\Models\Widget;
-use Capell\Mosaic\Support\Creator\TypeCreator;
+use Capell\LayoutBuilder\Filament\Resources\Blocks\BlockResource;
+use Capell\LayoutBuilder\Models\Block;
 use Filament\Support\Contracts\HasLabel;
 
 enum LayoutTypeEnum: string implements HasLabel
 {
-    case Section = 'section';
-
-    case Widget = 'widget';
+    case Block = 'block';
 
     public function getResource(): string
     {
         return match ($this) {
-            self::Section => SectionResource::class,
-            self::Widget => WidgetResource::class,
+            self::Block => BlockResource::class,
         };
     }
 
     public function getModel(): string
     {
         return match ($this) {
-            self::Section => Section::class,
-            self::Widget => Widget::class,
+            self::Block => Block::class,
         };
     }
 
     public function getTable(): string
     {
         return match ($this) {
-            self::Section => 'sections',
-            self::Widget => 'widgets',
+            self::Block => 'blocks',
         };
     }
 
-    // TODO when this is translated this causes Livewire error: Exception: Property type not supported in Livewire for property: [{}]
     public function getLabel(): string
     {
         return match ($this) {
-            self::Section => 'Section',
-            self::Widget => 'Widget',
+            self::Block => 'Block',
         };
     }
 
-    /**
-     * @return class-string<TypeCreator>|null
-     */
     public function getCreatorClass(): ?string
     {
-        return TypeCreator::class;
+        return null;
     }
 }

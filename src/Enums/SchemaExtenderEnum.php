@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Enums;
+namespace Capell\LayoutBuilder\Enums;
 
 enum SchemaExtenderEnum: string
 {
@@ -10,9 +10,9 @@ enum SchemaExtenderEnum: string
 
     case LayoutContainer = 'capell.layout_container_schema.extenders';
 
-    case LayoutWidget = 'capell.layout_widget_configurator.extenders';
+    case LayoutBlock = 'capell.layout_block_configurator.extenders';
 
-    case Widget = 'capell.widget_schema.extenders';
+    case Block = 'capell.block_schema.extenders';
 
-    case WidgetAsset = 'capell.widget_asset_configurator.extenders';
+    case BlockAsset = 'capell.block_asset_configurator.extenders';
 }

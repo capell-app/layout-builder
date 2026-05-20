@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Livewire\Filament;
+namespace Capell\LayoutBuilder\Livewire\Filament;
 
 use Closure;
 use Filament\Actions\Action;
@@ -11,6 +11,7 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -50,7 +51,7 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
     #[Locked]
     public Builder|Closure $tableQuery;
 
-    protected string $view = 'capell-mosaic::livewire.filament.layout-builder.widgets-table-select';
+    protected string $view = 'capell-layout-builder::livewire.filament.layout-builder.blocks-table-select';
 
     public function mount(): void
     {
@@ -125,7 +126,7 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
 
     public function getSelectRecordsLabel(): string
     {
-        return __('capell-mosaic::button.select_records');
+        return __('capell-layout-builder::button.select_records');
     }
 
     public function selectRecordsAction(): Action
@@ -134,6 +135,7 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
             ->label($this->getSelectRecordsLabel())
             ->button()
             ->color('primary')
+            ->disabled(fn (): bool => $this->isDisabled)
             ->action(fn () => $this->selectRecords());
     }
 
@@ -160,5 +162,23 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
         }
 
         throw new LogicException('No table query configured. Set $tableQuery to a Builder or a callable returning a Builder, or override getTableQuery().');
+    }
+
+    protected function canSubmitSelectedRecords(): bool
+    {
+        if ($this->isDisabled) {
+            return false;
+        }
+
+        if ($this->selectedTableRecords === []) {
+            Notification::make('no-assets-selected')
+                ->body(__('capell-layout-builder::message.no_assets_selected'))
+                ->warning()
+                ->send();
+
+            return false;
+        }
+
+        return true;
     }
 }

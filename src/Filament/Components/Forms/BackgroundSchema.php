@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Components\Forms;
+namespace Capell\LayoutBuilder\Filament\Components\Forms;
 
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
-use Capell\Mosaic\Models\WidgetAsset;
+use Capell\LayoutBuilder\Models\BlockAsset;
 use Closure;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Field;
@@ -30,7 +30,7 @@ class BackgroundSchema
                 ]),
 
             MediaLibraryFileUpload::make($backgroundName)
-                ->label(__('capell-mosaic::form.background_image'))
+                ->label(__('capell-layout-builder::form.background_image'))
                 ->reactive()
                 ->columnSpan(['md' => 2])
                 ->when(
@@ -48,51 +48,51 @@ class BackgroundSchema
                 ->statePath('meta')
                 ->schema([
                     Select::make('background_size')
-                        ->label(__('capell-mosaic::form.background_size'))
+                        ->label(__('capell-layout-builder::form.background_size'))
                         ->default('cover')
                         ->options([
-                            'cover' => __('capell-mosaic::form.background_cover'),
-                            'contain' => __('capell-mosaic::form.background_contain'),
+                            'cover' => __('capell-layout-builder::form.background_cover'),
+                            'contain' => __('capell-layout-builder::form.background_contain'),
                         ])
                         ->helperText(self::getHelperText(...)),
 
                     Select::make('background_position')
-                        ->label(__('capell-mosaic::form.background_position'))
+                        ->label(__('capell-layout-builder::form.background_position'))
                         ->default('center')
                         ->helperText(self::getHelperText(...))
                         ->options([
-                            'center' => __('capell-mosaic::form.background_center'),
-                            'top' => __('capell-mosaic::form.background_top'),
-                            'right' => __('capell-mosaic::form.background_right'),
-                            'bottom' => __('capell-mosaic::form.background_bottom'),
-                            'left' => __('capell-mosaic::form.background_left'),
-                            'top right' => __('capell-mosaic::form.background_top_right'),
-                            'top left' => __('capell-mosaic::form.background_top_left'),
-                            'bottom right' => __('capell-mosaic::form.background_bottom_right'),
-                            'bottom left' => __('capell-mosaic::form.background_bottom_left'),
+                            'center' => __('capell-layout-builder::form.background_center'),
+                            'top' => __('capell-layout-builder::form.background_top'),
+                            'right' => __('capell-layout-builder::form.background_right'),
+                            'bottom' => __('capell-layout-builder::form.background_bottom'),
+                            'left' => __('capell-layout-builder::form.background_left'),
+                            'top right' => __('capell-layout-builder::form.background_top_right'),
+                            'top left' => __('capell-layout-builder::form.background_top_left'),
+                            'bottom right' => __('capell-layout-builder::form.background_bottom_right'),
+                            'bottom left' => __('capell-layout-builder::form.background_bottom_left'),
                         ]),
 
                     Select::make('background_repeat')
-                        ->label(__('capell-mosaic::form.background_repeat'))
+                        ->label(__('capell-layout-builder::form.background_repeat'))
                         ->default('no-repeat')
                         ->helperText(self::getHelperText(...))
                         ->options([
-                            'no-repeat' => __('capell-mosaic::form.repeat_once'),
-                            'repeat' => __('capell-mosaic::form.repeat_both'),
-                            'repeat-x' => __('capell-mosaic::form.repeat_vertical'),
-                            'repeat-y' => __('capell-mosaic::form.repeat_horizontal'),
+                            'no-repeat' => __('capell-layout-builder::form.repeat_once'),
+                            'repeat' => __('capell-layout-builder::form.repeat_both'),
+                            'repeat-x' => __('capell-layout-builder::form.repeat_vertical'),
+                            'repeat-y' => __('capell-layout-builder::form.repeat_horizontal'),
                         ]),
 
                     Select::make('background_attachment')
-                        ->label(__('capell-mosaic::form.background_attachment'))
+                        ->label(__('capell-layout-builder::form.background_attachment'))
                         ->helperText(self::getHelperText(...))
                         ->options([
-                            'fixed' => __('capell-mosaic::form.background_fixed'),
-                            'scroll' => __('capell-mosaic::form.background_scroll'),
+                            'fixed' => __('capell-layout-builder::form.background_fixed'),
+                            'scroll' => __('capell-layout-builder::form.background_scroll'),
                         ]),
 
                     Checkbox::make('background_overlay')
-                        ->label(__('capell-mosaic::form.background_overlay'))
+                        ->label(__('capell-layout-builder::form.background_overlay'))
                         ->helperText(__('capell-admin::generic.background_overlay_helper_text')),
                 ]),
         ];
@@ -104,16 +104,16 @@ class BackgroundSchema
             return null;
         }
 
-        if (! $record instanceof WidgetAsset) {
+        if (! $record instanceof BlockAsset) {
             return null;
         }
 
-        $backgroundColor = $record->widget->getMeta($component->getName());
+        $backgroundColor = $record->block->getMeta($component->getName());
 
         if (blank($backgroundColor)) {
             return null;
         }
 
-        return __('capell-mosaic::generic.default_value', ['value' => $backgroundColor]);
+        return __('capell-layout-builder::generic.default_value', ['value' => $backgroundColor]);
     }
 }

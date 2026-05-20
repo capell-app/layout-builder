@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Components\Forms;
+namespace Capell\LayoutBuilder\Filament\Components\Forms;
 
 use Filament\Forms\Components\Select;
 
@@ -12,7 +12,7 @@ class HeadingStyleSelect extends Select
     {
         parent::setUp();
 
-        $this->label(__('capell-mosaic::form.heading_style'))
+        $this->label(__('capell-layout-builder::form.heading_style'))
             ->options([
                 'secondary' => __('capell-admin::generic.secondary'),
             ]);

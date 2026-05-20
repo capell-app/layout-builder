@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Data;
+namespace Capell\LayoutBuilder\Data;
 
 use Spatie\LaravelData\Data;
 

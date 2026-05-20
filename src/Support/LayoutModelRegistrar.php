@@ -2,22 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Support;
+namespace Capell\LayoutBuilder\Support;
 
 use Capell\Core\Facades\CapellCore;
-use Capell\Mosaic\Models\Section;
-use Capell\Mosaic\Models\Widget;
-use Capell\Mosaic\Models\WidgetAsset;
+use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\BlockAsset;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 
 class LayoutModelRegistrar
 {
     /** @var list<class-string> */
-    private const MODELS = [
-        Section::class,
-        Widget::class,
-        WidgetAsset::class,
+    private const array MODELS = [
+        Block::class,
+        BlockAsset::class,
     ];
 
     public static function register(): void
@@ -27,6 +25,10 @@ class LayoutModelRegistrar
         Relation::morphMap(
             collect(self::MODELS)
                 ->mapWithKeys(fn (string $modelClass): array => [Str::snake(class_basename($modelClass)) => $modelClass])
+                ->merge([
+                    'block' => Block::class,
+                    'block_asset' => BlockAsset::class,
+                ])
                 ->all(),
         );
     }

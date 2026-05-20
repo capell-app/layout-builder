@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Support;
+namespace Capell\LayoutBuilder\Support;
 
-use Capell\Mosaic\Data\LayoutAssetBridgeData;
+use Capell\LayoutBuilder\Data\LayoutAssetBridgeData;
 
 class LayoutAssetBridgeRegistry
 {

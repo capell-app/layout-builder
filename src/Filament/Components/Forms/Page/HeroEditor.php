@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Components\Forms\Page;
+namespace Capell\LayoutBuilder\Filament\Components\Forms\Page;
 
 use Capell\Admin\Enums\TinyEditorProfile;
 use Capell\Admin\Filament\Components\Forms\ContentEditor;
@@ -11,7 +11,7 @@ use Capell\Admin\Filament\Components\Forms\Editor\RichEditor;
 use Capell\Admin\Filament\Components\Forms\Editor\TinyEditor;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Translation;
-use Capell\Mosaic\Models\WidgetAsset;
+use Capell\LayoutBuilder\Models\BlockAsset;
 use Filament\Schemas\Components\Group;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -40,12 +40,12 @@ class HeroEditor extends Group
                     return false;
                 }
 
-                return ! $this->hasPageWidgetHeroAssets($page);
+                return ! $this->hasPageBlockHeroAssets($page);
             })
             ->schema([
                 ContentEditor::make('hero')
-                    ->label(__('capell-mosaic::form.hero'))
-                    ->hint(__('capell-mosaic::generic.hero_info'))
+                    ->label(__('capell-layout-builder::form.hero'))
+                    ->hint(__('capell-layout-builder::generic.hero_info'))
                     ->tap(
                         fn (ContentBuilder|RichEditor|TinyEditor $component): ContentBuilder|RichEditor|TinyEditor => $component instanceof TinyEditor
                             ? $component->profile(TinyEditorProfile::Simple->value)
@@ -54,7 +54,7 @@ class HeroEditor extends Group
             ]);
     }
 
-    protected function hasPageWidgetHeroAssets(Pageable $page): bool
+    protected function hasPageBlockHeroAssets(Pageable $page): bool
     {
         $cache = cache();
 
@@ -63,15 +63,15 @@ class HeroEditor extends Group
         }
 
         return $cache->rememberForever(
-            sprintf('page-%d-has-hero-widget-assets', $page->id),
+            sprintf('page-%d-has-hero-block-assets', $page->id),
             function () use ($page): bool {
-                /** @var class-string<WidgetAsset> $model */
-                $model = WidgetAsset::class;
+                /** @var class-string<BlockAsset> $model */
+                $model = BlockAsset::class;
 
                 return $model::query()
                     ->where('pageable_type', $page->getMorphClass())
                     ->where('pageable_id', $page->getKey())
-                    ->whereHas('widget', fn (Builder $query): Builder => $query->whereLike('key', 'hero%'))
+                    ->whereHas('block', fn (Builder $query): Builder => $query->whereLike('key', 'hero%'))
                     ->exists();
             },
         );

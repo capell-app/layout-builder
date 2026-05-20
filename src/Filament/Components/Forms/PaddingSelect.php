@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Components\Forms;
+namespace Capell\LayoutBuilder\Filament\Components\Forms;
 
 use Filament\Forms\Components\Select;
 
@@ -12,7 +12,7 @@ class PaddingSelect extends Select
     {
         parent::setUp();
 
-        $this->label(__('capell-mosaic::form.padding'))
+        $this->label(__('capell-layout-builder::form.padding'))
             ->multiple()
             ->options([
                 'none' => __('capell-admin::generic.none'),

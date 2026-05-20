@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Facades;
+namespace Capell\LayoutBuilder\Facades;
 
-use Capell\Mosaic\Support\CapellLayoutManager;
+use Capell\LayoutBuilder\Support\CapellLayoutManager;
 use Illuminate\Support\Facades\Facade;
 
 /**

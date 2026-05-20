@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Resources\Pages\Schemas\Extenders;
+namespace Capell\LayoutBuilder\Filament\Resources\Pages\Schemas\Extenders;
 
 use Capell\Admin\Contracts\Extenders;
 use Capell\Admin\Enums\PageTranslationSchemaHookEnum;
-use Capell\Mosaic\Filament\Components\Forms\Page\Tab\LayoutTab;
-use Capell\Mosaic\Filament\Resources\Pages\RelationManagers\SectionsRelationManager;
+use Capell\Core\Contracts\Pageable;
+use Capell\Core\Models\Blueprint;
+use Capell\Core\Models\Layout;
+use Capell\LayoutBuilder\Filament\Components\Forms\Page\Tab\LayoutTab;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
@@ -17,18 +19,18 @@ class PageSchemaExtender implements Extenders\PageSchemaExtender
 {
     public function extendRelationManagers(Model $record, array $relationManagers): array
     {
-        $alreadyHasContents = in_array(SectionsRelationManager::class, $relationManagers, true);
-
-        if (! $alreadyHasContents) {
-            $relationManagers[] = SectionsRelationManager::class;
-        }
-
         return $relationManagers;
     }
 
     public function extendTabs(Schema $configurator, array $tabs): array
     {
-        $hasLayoutTab = collect($tabs)->contains(fn (Tab $tab): bool => $tab instanceof LayoutTab);
+        if (! $this->isLayoutEditable($configurator)) {
+            return $tabs;
+        }
+
+        $hasLayoutTab = collect($tabs)->contains(
+            fn (Tab $tab): bool => $tab->getLabel() === __('capell-admin::tab.layout'),
+        );
 
         if (! $hasLayoutTab) {
             array_unshift($tabs, LayoutTab::make());
@@ -48,8 +50,35 @@ class PageSchemaExtender implements Extenders\PageSchemaExtender
     /**
      * @return array<int, Component>
      */
-    public function extendSettingsTabComponents(): array
+    public function extendSidebarComponents(Schema $configurator): array
     {
         return [];
+    }
+
+    private function isLayoutEditable(Schema $configurator): bool
+    {
+        $record = $configurator->getRecord();
+
+        if (! $record instanceof Pageable) {
+            return true;
+        }
+
+        $type = $record->getRelationValue('type');
+
+        if (! $type instanceof Blueprint) {
+            return true;
+        }
+
+        if ($type->getMeta('layout_editable') === false) {
+            return false;
+        }
+
+        $layout = $record->getRelationValue('layout');
+
+        if (! $layout instanceof Layout) {
+            return true;
+        }
+
+        return data_get($layout->admin ?? [], 'disable_layout_builder') !== true;
     }
 }

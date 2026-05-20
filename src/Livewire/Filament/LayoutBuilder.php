@@ -2,21 +2,35 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Livewire\Filament;
+namespace Capell\LayoutBuilder\Livewire\Filament;
 
-use Capell\Admin\Actions\NotifyClearCachedPagesAction;
 use Capell\Admin\Enums\ResourceEnum;
-use Capell\Admin\Filament\Concerns\HasPageCacheNotification;
 use Capell\Admin\Filament\Contracts\HasPageResource;
 use Capell\Admin\Support\AdminSurfaceLookup;
-use Capell\Core\Actions\GetResourceFromTypeAction;
+use Capell\Core\Actions\GetResourceFromBlueprintAction;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
-use Capell\Mosaic\Livewire\Filament\Concerns\HasLayoutActions;
-use Capell\Mosaic\Livewire\Filament\Concerns\ManagesAssets;
-use Capell\Mosaic\Livewire\Filament\Concerns\ManagesContainers;
-use Capell\Mosaic\Livewire\Filament\Concerns\ManagesWidgets;
+use Capell\LayoutBuilder\Actions\Mutations\CreateLayoutFragmentAction;
+use Capell\LayoutBuilder\Actions\Mutations\PasteLayoutFragmentAction;
+use Capell\LayoutBuilder\Actions\Mutations\PushLayoutMutationSnapshotAction;
+use Capell\LayoutBuilder\Actions\Mutations\RedoLayoutMutationSnapshotAction;
+use Capell\LayoutBuilder\Actions\Mutations\UndoLayoutMutationSnapshotAction;
+use Capell\LayoutBuilder\Actions\PersistLayoutBuilderStateAction;
+use Capell\LayoutBuilder\Actions\SaveLayoutPresetAction;
+use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
+use Capell\LayoutBuilder\Data\LayoutFragmentData;
+use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
+use Capell\LayoutBuilder\Enums\LayoutBuilderEditorMode;
+use Capell\LayoutBuilder\Livewire\Filament\Concerns\AuthorizesLayoutBuilderAccess;
+use Capell\LayoutBuilder\Livewire\Filament\Concerns\HasLayoutActions;
+use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesAssets;
+use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesBlocks;
+use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesContainers;
+use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesLayoutBuilderState;
+use Capell\LayoutBuilder\Models\LayoutPreset;
+use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
+use Capell\LayoutBuilder\Support\LayoutClipboard;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
@@ -28,30 +42,31 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection as SupportCollection;
-use Illuminate\Support\Facades\Gate;
+use InvalidArgumentException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use LogicException;
 
 /**
  * @property-read ?Pageable $page
- * @property-read $changeLayoutAction
- * @property-read $duplicateLayoutAction
- * @property-read $addWidgetAction
- * @property-read $editWidgetAssetAction
+ * @property-read mixed $changeLayoutAction
+ * @property-read mixed $cloneLayoutForPageAction
+ * @property-read mixed $duplicateLayoutAction
+ * @property-read mixed $addBlockAction
+ * @property-read mixed $editBlockAssetAction
  */
 class LayoutBuilder extends Component implements HasActions, HasForms, HasPageResource
 {
+    use AuthorizesLayoutBuilderAccess;
     use HasLayoutActions;
-    use HasPageCacheNotification;
     use InteractsWithActions;
     use InteractsWithForms;
     use ManagesAssets;
+    use ManagesBlocks;
     use ManagesContainers;
-    use ManagesWidgets;
+    use ManagesLayoutBuilderState;
 
     #[Locked]
     public ?Pageable $page = null;
@@ -65,6 +80,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     #[Locked]
     public ?array $originalAssets = null;
 
+    #[Locked]
+    public array $knownContainerKeys = [];
+
     public ?array $containers = null;
 
     public array $assets = [];
@@ -73,15 +91,27 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     public bool $layoutModified = false;
 
-    public string $widgetPaletteSearch = '';
+    public array $layoutDiagnostics = [];
 
-    public int $widgetPalettePage = 1;
+    public array $layoutChanges = [];
 
-    public int $widgetPalettePerPage = 12;
+    public ?array $savedBaselineSnapshot = null;
 
-    protected array $containerWidgets;
+    public array $layoutUndoSnapshots = [];
 
-    protected string $view = 'capell-mosaic::livewire.filament.layout-builder.index';
+    public array $layoutRedoSnapshots = [];
+
+    public ?LayoutBreakpoint $activeBreakpoint = null;
+
+    public string $editorMode = 'content_first';
+
+    public ?string $returnToContentItemKey = null;
+
+    protected array $containerBlocks;
+
+    protected ?LayoutClipboard $layoutClipboard = null;
+
+    protected string $view = 'capell-layout-builder::livewire.filament.layout-builder.index';
 
     public static function getResource(): string
     {
@@ -90,7 +120,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     public function mount(): void
     {
-        $this->assertCanUpdateLayout();
+        $this->assertLayoutMatchesPageSite();
+
+        $this->editorMode = $this->resolveInitialEditorMode();
+        $this->assertCanUseLayoutBuilder();
 
         $this->loadNew();
     }
@@ -98,65 +131,6 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     public function boot(): void
     {
         throw_if(! Filament::auth()->check(), AuthenticationException::class);
-    }
-
-    public function updatedWidgetPaletteSearch(): void
-    {
-        $this->resetWidgetPalettePage();
-    }
-
-    #[Computed]
-    public function widgetPalette(): LengthAwarePaginator
-    {
-        $search = trim($this->widgetPaletteSearch);
-
-        return $this->getWidgetQuery()
-            ->when(
-                $search !== '',
-                fn (EloquentBuilder $query): EloquentBuilder => $query->where(
-                    fn (EloquentBuilder $query): EloquentBuilder => $query
-                        ->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('key', 'like', '%' . $search . '%')
-                        ->orWhereHas(
-                            'type',
-                            fn (EloquentBuilder $query): EloquentBuilder => $query
-                                ->where('name', 'like', '%' . $search . '%')
-                                ->orWhere('key', 'like', '%' . $search . '%'),
-                        )
-                        ->orWhereHas(
-                            'translations',
-                            fn (EloquentBuilder $query): EloquentBuilder => $query->where('title', 'like', '%' . $search . '%'),
-                        ),
-                ),
-            )
-            ->ordered()
-            ->paginate(
-                perPage: $this->widgetPalettePerPage,
-                page: $this->widgetPalettePage,
-            );
-    }
-
-    public function resetWidgetPalettePage(): void
-    {
-        $this->widgetPalettePage = 1;
-    }
-
-    public function previousWidgetPalettePage(): void
-    {
-        $this->widgetPalettePage = max(1, $this->widgetPalettePage - 1);
-
-        unset($this->widgetPalette);
-    }
-
-    public function nextWidgetPalettePage(): void
-    {
-        if ($this->widgetPalettePage >= $this->widgetPalette->lastPage()) {
-            return;
-        }
-
-        $this->widgetPalettePage++;
-
-        unset($this->widgetPalette);
     }
 
     #[Computed]
@@ -171,79 +145,99 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         return $this->layout->pages_count;
     }
 
+    #[Computed]
+    public function layoutIsUsedByPages(): bool
+    {
+        return $this->layoutPagesCount() > 0;
+    }
+
+    #[Computed]
+    public function otherPagesUsingLayoutCount(): int
+    {
+        if ($this->page === null) {
+            return $this->layoutPagesCount();
+        }
+
+        return $this->layout
+            ->pages()
+            ->whereKeyNot($this->page->getKey())
+            ->count();
+    }
+
+    #[Computed]
+    public function layoutIsSharedWithOtherPages(): bool
+    {
+        return $this->page !== null && $this->otherPagesUsingLayoutCount() > 0;
+    }
+
+    public function getPagesUsingLayoutUrl(): string
+    {
+        return AdminSurfaceLookup::resource(ResourceEnum::Page)::getUrl(parameters: [
+            'tableFilters' => [
+                'layout_id' => [
+                    'value' => $this->layout->getKey(),
+                ],
+            ],
+        ]);
+    }
+
     #[On('save-layout')]
-    public function saveLayout(bool $withNotifications = false): void
+    public function saveLayout(bool $withNotifications = false): bool
     {
         $this->assertCanUpdateLayout();
 
         if (! $this->layoutModified) {
-            return;
+            return true;
         }
 
         $this->loadFromStore();
+        $this->assertKnownContainerStructure();
+        $this->refreshLayoutDiagnostics();
 
-        $this->layout->update([
-            'containers' => $this->containers,
-        ]);
+        if ($this->hasBlockingLayoutDiagnostics()) {
+            $this->addError('layoutDiagnostics', __('capell-layout-builder::message.layout_has_blocking_diagnostics'));
 
-        if ($this->page && $this->page->layout_id !== $this->layout->getKey()) {
-            $this->page->update([
-                'layout_id' => $this->layout->getKey(),
-            ]);
+            return false;
         }
 
-        $processedWidgetKeys = [];
-
-        foreach ($this->containers as $containerKey => $container) {
-            foreach ($container['widgets'] as $widgetIndex => $widget) {
-                if ($this->inPageContext() && isset($widget['pageable_type'], $widget['pageable_id'])) {
-                    $key = $widget['widget_key'] . '_' . $widget['pageable_type'] . '_' . $widget['pageable_id'] . '_' . $widget['container'] . '_' . $widget['occurrence'];
-                } else {
-                    $key = $widget['widget_key'] . '_' . $widget['occurrence'];
-                }
-
-                if (in_array($key, $processedWidgetKeys, true)) {
-                    continue;
-                }
-
-                $processedWidgetKeys[] = $key;
-
-                $this->updateAssets($containerKey, $widgetIndex, $widget['old_container'] ?? null);
-            }
-        }
-
-        if ($this->inPageContext()) {
-            $this->deleteRemovedWidgetAssets();
-        }
+        PersistLayoutBuilderStateAction::run(
+            layout: $this->layout,
+            page: $this->page instanceof Model ? $this->page : null,
+            containers: $this->containers,
+            persistBlockAssets: function (): void {
+                $this->persistBlockAssets();
+            },
+        );
 
         $this->dispatch('layout-builder-reset');
+
+        $this->layoutUndoSnapshots = [];
+        $this->layoutRedoSnapshots = [];
+        $this->captureSavedBaselineState();
+        $this->refreshLayoutChanges();
+        $this->refreshLayoutDiagnostics();
 
         $this->layoutUpdated(false);
 
         if ($withNotifications) {
             Notification::make('layout-saved')
-                ->body(__('capell-mosaic::message.layout_saved'))
+                ->body(__('capell-layout-builder::message.layout_saved'))
                 ->success()
                 ->send();
-
-            NotifyClearCachedPagesAction::run(
-                collect([$this->layout])
-                    ->when(
-                        $this->page,
-                        fn (SupportCollection $collection, Pageable $page): SupportCollection => $collection->push($page),
-                    ),
-            );
         }
+
+        return true;
     }
 
-    #[On('add-widgets-to-container')]
-    public function addWidgetsToContainer(string $containerKey, array $widgets, ?string $actionModalId = null): void
+    #[On('add-blocks-to-container')]
+    public function addBlocksToContainer(string $containerKey, array $blocks, ?string $actionModalId = null, ?int $position = null): void
     {
         $this->assertCanUpdateLayout();
+        $this->assertValidContainerKey($containerKey);
 
-        if ($widgets === []) {
-            Notification::make('no-widgets-selected')
-                ->body(__('capell-mosaic::message.no_widgets_selected'))
+        if ($blocks === []) {
+            Notification::make('no-blocks-selected')
+                ->body(__('capell-layout-builder::message.no_blocks_selected'))
                 ->warning()
                 ->send();
 
@@ -252,16 +246,22 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
         $this->ensureLoaded();
 
-        foreach ($widgets as $widgetId) {
-            $widget = $this->getWidget($widgetId);
+        $targetPosition = $position;
 
-            $widgetIndex = $this->addWidgetToContainer($widget, $containerKey);
+        foreach ($blocks as $blockId) {
+            $block = $this->getBlock($blockId);
 
-            $widget = $this->loadWidget($containerKey, $widgetIndex);
+            $blockIndex = $this->addBlockToContainerAtPosition($block, $containerKey, $targetPosition);
 
-            $this->assets[$containerKey][$widgetIndex] = $this->mapWidgetAssets($widget, $containerKey);
+            if ($targetPosition !== null) {
+                $targetPosition++;
+            }
 
-            $this->updatePageAssets($containerKey, $widgetIndex);
+            $block = $this->loadBlock($containerKey, $blockIndex);
+
+            $this->assets[$containerKey][$blockIndex] = $this->mapBlockAssets($block, $containerKey);
+
+            $this->updatePageAssets($containerKey, $blockIndex);
         }
 
         session(['layout-builder.container' => $containerKey]);
@@ -270,46 +270,23 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
         $this->layoutUpdated();
 
-        if ($actionModalId) {
+        if ($actionModalId !== null && $actionModalId !== '') {
             $this->dispatch('close-modal', id: $actionModalId);
         }
     }
 
-    public function addPaletteWidgetToContainer(int $widgetId, string $containerKey, ?int $position = null): void
-    {
-        $this->assertCanUpdateLayout();
-
-        $this->ensureLoaded();
-
-        $widget = $this->getWidget($widgetId);
-
-        $widgetIndex = $this->addWidgetToContainerAtPosition($widget, $containerKey, $position);
-
-        $widget = $this->loadWidget($containerKey, $widgetIndex);
-
-        $this->assets[$containerKey][$widgetIndex] = $this->mapWidgetAssets($widget, $containerKey);
-
-        $this->updatePageAssets($containerKey, $widgetIndex);
-
-        session(['layout-builder.container' => $containerKey]);
-
-        $this->setupSelectedAssets();
-
-        $this->layoutUpdated();
-    }
-
     #[On('sync-selected-assets')]
-    public function addAssetsToWidget(array $arguments, string $type, array $assets): void
+    public function addAssetsToBlock(array $arguments, string $type, array $assets): void
     {
         $this->assertCanUpdateLayout();
 
         $this->ensureLoaded();
 
         $containerKey = $arguments['containerKey'];
-        $widgetIndex = $arguments['widgetIndex'];
+        $blockIndex = $arguments['blockIndex'];
         $hasPageAssets = $arguments['hasPageAssets'] ?? false;
 
-        $this->addAssets($containerKey, $widgetIndex, $hasPageAssets, $type, $assets);
+        $this->addAssets($containerKey, $blockIndex, $hasPageAssets, $type, $assets);
 
         $this->layoutUpdated();
     }
@@ -319,8 +296,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
      */
     public function getPageResource(): string
     {
-        if ($this->page) {
-            $resource = GetResourceFromTypeAction::run(ResourceEnum::Page, $this->page->type);
+        if ($this->page !== null) {
+            $resource = GetResourceFromBlueprintAction::run(ResourceEnum::Page, $this->page->type);
 
             if ($resource !== null) {
                 return $resource;
@@ -354,94 +331,319 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         return view($this->view);
     }
 
-    protected function ensureLoaded(): void
+    public function showAdvancedLayout(?string $returnToContentItemKey = null): void
     {
-        if (! isset($this->containerWidgets)) {
-            $this->loadFromStore();
-        }
+        $this->assertCanEditLayout();
+
+        $this->returnToContentItemKey = $returnToContentItemKey;
+        $this->editorMode = LayoutBuilderEditorMode::LayoutFirst->value;
+
+        $this->dispatch('layout-builder-editor-mode-changed', mode: $this->editorMode);
     }
 
-    protected function loadNew(): void
+    public function showContentEditor(): void
     {
-        $this->setupContainers();
+        $this->assertCanEditContent();
 
-        $widgets = $this->preloadAllWidgets();
+        $this->editorMode = LayoutBuilderEditorMode::ContentFirst->value;
 
-        foreach (array_keys($this->containers) as $containerKey) {
-            $this->setupContainerWidgets($containerKey, $widgets);
-        }
-
-        $this->setupSelectedAssets();
-
-        $this->saveOriginalAssets();
+        $this->dispatch(
+            'layout-builder-editor-mode-changed',
+            mode: $this->editorMode,
+            returnToContentItemKey: $this->returnToContentItemKey,
+        );
     }
 
-    protected function loadFromStore(): void
+    /**
+     * @return array<string, string>
+     */
+    public function layoutAreaOptions(): array
     {
-        $this->setupContainers();
-
-        $widgets = $this->preloadAllWidgets(withAssets: false);
-
-        $allWidgetAssets = $this->preloadAllWidgetAssets();
-
-        $containerWidgetAssets = [];
-
-        foreach ($this->assets as $containerKey => $containerWidgets) {
-            foreach ($containerWidgets as $widgetIndex => $widgetAssets) {
-                $containerWidgetAssets[$containerKey][$widgetIndex] = $this->setupWidgetAssets(
-                    $containerKey,
-                    $widgetIndex,
-                    $widgetAssets,
-                    $allWidgetAssets,
-                );
-            }
-        }
-
-        foreach (array_keys($this->containers) as $containerKey) {
-            $this->setupContainerWidgets($containerKey, $widgets, $containerWidgetAssets);
-        }
+        return resolve(LayoutAreaRegistry::class)->options($this->activeThemeKey());
     }
 
-    protected function reload(): void
+    /**
+     * @param  array<string, mixed>  $container
+     */
+    public function layoutAreaForContainer(array $container): string
     {
-        $this->reset('containerWidgets', 'selectedRecords', 'assets', 'originalAssets', 'containers', 'layout');
-
-        $this->loadNew();
+        return resolve(LayoutAreaRegistry::class)->containerArea($container);
     }
 
-    protected function inPageContext(): bool
+    public function layoutAreaLabel(string $area): string
     {
-        return $this->page instanceof Pageable;
+        return resolve(LayoutAreaRegistry::class)->label($area, $this->activeThemeKey());
     }
 
-    protected function assertCanUpdateLayout(): void
+    public function undoLayoutMutation(): void
     {
-        $actor = Filament::auth()->user();
+        $this->assertCanUpdateLayout();
 
-        throw_if($actor === null, AuthenticationException::class);
-
-        if ($this->page instanceof Model) {
-            Gate::forUser($actor)->authorize('update', $this->page);
+        if ($this->layoutUndoSnapshots === []) {
+            return;
         }
 
-        Gate::forUser($actor)->authorize('update', $this->layout);
-    }
+        $navigation = UndoLayoutMutationSnapshotAction::run(
+            currentState: $this->layoutState(),
+            undoSnapshots: $this->layoutUndoSnapshots,
+            redoSnapshots: $this->layoutRedoSnapshots,
+        );
 
-    protected function layoutUpdated(bool $modified = true): void
-    {
-        $this->layoutModified = $modified;
-    }
+        $this->layoutUndoSnapshots = $navigation->history->undoSnapshots;
+        $this->layoutRedoSnapshots = $navigation->history->redoSnapshots;
 
-    protected function getSite(): ?Site
-    {
-        if ($this->site instanceof Site) {
-            return $this->site;
+        $state = $navigation->state;
+        if (! $state instanceof LayoutBuilderStateData) {
+            return;
         }
 
-        if (! $this->inPageContext()) {
-            return null;
+        $this->applyLayoutState($state, markModified: true);
+        $this->refreshLayoutChanges();
+        $this->refreshLayoutDiagnostics();
+    }
+
+    public function redoLayoutMutation(): void
+    {
+        $this->assertCanUpdateLayout();
+
+        if ($this->layoutRedoSnapshots === []) {
+            return;
         }
 
-        return $this->page->site;
+        $navigation = RedoLayoutMutationSnapshotAction::run(
+            currentState: $this->layoutState(),
+            undoSnapshots: $this->layoutUndoSnapshots,
+            redoSnapshots: $this->layoutRedoSnapshots,
+        );
+
+        $this->layoutUndoSnapshots = $navigation->history->undoSnapshots;
+        $this->layoutRedoSnapshots = $navigation->history->redoSnapshots;
+
+        $state = $navigation->state;
+        if (! $state instanceof LayoutBuilderStateData) {
+            return;
+        }
+
+        $this->applyLayoutState($state, markModified: true);
+        $this->refreshLayoutChanges();
+        $this->refreshLayoutDiagnostics();
+    }
+
+    public function setActiveBreakpoint(?string $breakpoint): void
+    {
+        $this->activeBreakpoint = LayoutBreakpoint::fromNullable($breakpoint);
+    }
+
+    public function resetResponsiveContainerOverride(string $containerKey): void
+    {
+        $this->assertCanUpdateLayout();
+
+        $this->ensureLoaded();
+
+        if (! $this->activeBreakpoint instanceof LayoutBreakpoint || ! isset($this->containers[$containerKey])) {
+            return;
+        }
+
+        $history = PushLayoutMutationSnapshotAction::run($this->layoutState(), $this->layoutUndoSnapshots);
+        $this->layoutUndoSnapshots = $history->undoSnapshots;
+        $this->layoutRedoSnapshots = $history->redoSnapshots;
+
+        unset($this->containers[$containerKey]['meta']['responsive'][$this->activeBreakpoint->value]);
+
+        if (($this->containers[$containerKey]['meta']['responsive'] ?? []) === []) {
+            $this->containers[$containerKey]['meta']['responsive'] = [];
+        }
+
+        $this->layoutUpdated();
+    }
+
+    public function copyLayoutContainer(string $containerKey): void
+    {
+        $this->assertCanUpdateLayout();
+        $this->ensureLoaded();
+
+        if (! isset($this->containers[$containerKey])) {
+            return;
+        }
+
+        $this->clipboard()->copy(CreateLayoutFragmentAction::run($this->layoutState(), $containerKey, null));
+    }
+
+    public function copyLayoutBlock(string $containerKey, int $blockIndex): void
+    {
+        $this->assertCanUpdateLayout();
+        $this->ensureLoaded();
+
+        if (! isset($this->containers[$containerKey]['blocks'][$blockIndex])) {
+            return;
+        }
+
+        $this->clipboard()->copy(CreateLayoutFragmentAction::run($this->layoutState(), $containerKey, $blockIndex));
+    }
+
+    public function pasteLayoutFragment(string $targetContainerKey, ?int $targetIndex = null): void
+    {
+        $this->assertCanUpdateLayout();
+        $this->ensureLoaded();
+        $this->assertValidContainerKey($targetContainerKey);
+
+        $fragment = $this->clipboard()->current();
+
+        if (! $fragment instanceof LayoutFragmentData) {
+            return;
+        }
+
+        $knownContainerKeys = array_keys($this->containers ?? []);
+
+        $this->applyLayoutMutationResult(PasteLayoutFragmentAction::run(
+            state: $this->layoutState(),
+            fragment: $fragment,
+            targetContainerKey: $targetContainerKey,
+            targetIndex: $targetIndex,
+        ));
+
+        $this->trackNewContainerKeysSince($knownContainerKeys);
+    }
+
+    public function saveLayoutPreset(string $containerKey, string $name): void
+    {
+        $this->assertCanUpdateLayout();
+        $this->ensureLoaded();
+        $this->assertValidContainerKey($containerKey);
+
+        if (! isset($this->containers[$containerKey])) {
+            Notification::make('layout-preset-container-missing')
+                ->body(__('capell-layout-builder::message.no_container_selected'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $name = trim($name);
+
+        if ($name === '') {
+            Notification::make('layout-preset-name-required')
+                ->body(__('capell-layout-builder::message.layout_preset_name_required'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        if (! $this->site instanceof Site) {
+            Notification::make('layout-preset-site-missing')
+                ->body(__('capell-layout-builder::message.site_missing_warning'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $this->assertCanCreateLayoutPreset($this->site);
+
+        try {
+            SaveLayoutPresetAction::run(
+                layout: $this->layout,
+                site: $this->site,
+                name: $name,
+                category: $containerKey,
+                containers: [$containerKey => $this->containers[$containerKey]],
+            );
+        } catch (InvalidArgumentException) {
+            Notification::make('layout-preset-save-failed')
+                ->body(__('capell-layout-builder::message.layout_preset_name_required'))
+                ->warning()
+                ->send();
+
+            return;
+        } catch (LogicException $exception) {
+            Notification::make('layout-preset-save-failed')
+                ->body(str_contains($exception->getMessage(), 'already exists')
+                    ? __('capell-layout-builder::message.layout_preset_duplicate')
+                    : __('capell-layout-builder::message.layout_preset_save_failed'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        Notification::make('layout-preset-saved')
+            ->body(__('capell-layout-builder::message.layout_preset_saved'))
+            ->success()
+            ->send();
+    }
+
+    public function insertLayoutPreset(string $name, string $targetContainerKey): void
+    {
+        $this->assertCanUpdateLayout();
+        $this->ensureLoaded();
+        $this->assertValidContainerKey($targetContainerKey);
+
+        if (! $this->site instanceof Site) {
+            Notification::make('layout-preset-site-missing')
+                ->body(__('capell-layout-builder::message.site_missing_warning'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $preset = LayoutPreset::query()
+            ->forSite($this->site)
+            ->where(fn (EloquentBuilder $query): EloquentBuilder => $this->wherePresetNameOrKey($query, $name))
+            ->first();
+
+        if (! $preset instanceof LayoutPreset) {
+            Notification::make('layout-preset-missing')
+                ->body(__('capell-layout-builder::message.layout_preset_not_found'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $snapshot = is_array($preset->snapshot) ? $preset->snapshot : [];
+        $this->assertCanApplyLayoutPreset($preset, $this->site);
+
+        $containers = is_array($snapshot['containers'] ?? null) ? $snapshot['containers'] : [];
+        $containers = resolve(SaveLayoutPresetAction::class)->sanitizePresetContainers($containers);
+
+        $sourceContainerKey = array_key_first($containers);
+        $container = is_string($sourceContainerKey) ? ($containers[$sourceContainerKey] ?? null) : null;
+
+        if (! is_string($sourceContainerKey) || ! is_array($container)) {
+            Notification::make('layout-preset-invalid')
+                ->body(__('capell-layout-builder::message.layout_preset_invalid'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $fragment = new LayoutFragmentData(
+            sourceContainerKey: $sourceContainerKey,
+            sourceBlockIndex: null,
+            container: $container,
+            block: null,
+        );
+
+        $knownContainerKeys = array_keys($this->containers ?? []);
+
+        $this->applyLayoutMutationResult(PasteLayoutFragmentAction::run(
+            state: $this->layoutState(),
+            fragment: $fragment,
+            targetContainerKey: $targetContainerKey,
+            targetIndex: null,
+        ));
+
+        $this->trackNewContainerKeysSince($knownContainerKeys);
+    }
+
+    private function wherePresetNameOrKey(EloquentBuilder $query, string $name): EloquentBuilder
+    {
+        return $query
+            ->where('name', $name)
+            ->orWhere('key', $name);
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Filament\Components\Forms;
+namespace Capell\LayoutBuilder\Filament\Components\Forms;
 
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\TextInput;
@@ -15,50 +15,50 @@ class CarouselSettingsSchema
     {
         return [
             Checkbox::make('carousel_fade')
-                ->label(__('capell-mosaic::form.carousel_fade')),
+                ->label(__('capell-layout-builder::form.carousel_fade')),
             Checkbox::make('carousel_arrows')
-                ->label(__('capell-mosaic::form.carousel_arrows')),
+                ->label(__('capell-layout-builder::form.carousel_arrows')),
             Checkbox::make('carousel_pagination')
-                ->label(__('capell-mosaic::form.carousel_pagination')),
+                ->label(__('capell-layout-builder::form.carousel_pagination')),
             Checkbox::make('carousel_loop')
-                ->label(__('capell-mosaic::form.carousel_loop')),
+                ->label(__('capell-layout-builder::form.carousel_loop')),
             Checkbox::make('carousel_rewind')
-                ->label(__('capell-mosaic::form.carousel_rewind'))
+                ->label(__('capell-layout-builder::form.carousel_rewind'))
                 ->visible(fn (Get $get): bool => ! (bool) $get('carousel_loop')),
             Checkbox::make('carousel_drag')
-                ->label(__('capell-mosaic::form.carousel_drag')),
+                ->label(__('capell-layout-builder::form.carousel_drag')),
             Checkbox::make('carousel_touch')
-                ->label(__('capell-mosaic::form.carousel_touch')),
+                ->label(__('capell-layout-builder::form.carousel_touch')),
             Checkbox::make('carousel_wheel')
-                ->label(__('capell-mosaic::form.carousel_wheel')),
+                ->label(__('capell-layout-builder::form.carousel_wheel')),
             Checkbox::make('lightbox')
-                ->label(__('capell-mosaic::form.lightbox')),
+                ->label(__('capell-layout-builder::form.lightbox')),
             Checkbox::make('carousel_auto_play')
-                ->label(__('capell-mosaic::form.carousel_auto_play'))
+                ->label(__('capell-layout-builder::form.carousel_auto_play'))
                 ->reactive(),
             Checkbox::make('carousel_pause_on_hover')
-                ->label(__('capell-mosaic::form.carousel_pause_on_hover'))
+                ->label(__('capell-layout-builder::form.carousel_pause_on_hover'))
                 ->visible(fn (Get $get): bool => $get('carousel_auto_play')),
             Checkbox::make('carousel_disable_on_interaction')
-                ->label(__('capell-mosaic::form.carousel_disable_on_interaction'))
+                ->label(__('capell-layout-builder::form.carousel_disable_on_interaction'))
                 ->visible(fn (Get $get): bool => $get('carousel_auto_play')),
             Grid::make(3)
                 ->schema([
                     TextInput::make('carousel_auto_delay')
-                        ->label(__('capell-mosaic::form.carousel_auto_delay'))
+                        ->label(__('capell-layout-builder::form.carousel_auto_delay'))
                         ->inlineLabel()
                         ->suffix(__('capell-admin::generic.milliseconds'))
                         ->default(5000)
                         ->placeholder('5000')
                         ->visible(fn (Get $get): bool => $get('carousel_auto_play')),
                     TextInput::make('carousel_speed')
-                        ->label(__('capell-mosaic::form.carousel_speed'))
+                        ->label(__('capell-layout-builder::form.carousel_speed'))
                         ->inlineLabel()
                         ->suffix(__('capell-admin::generic.milliseconds'))
                         ->default(300)
                         ->placeholder('300'),
                     AlignSelect::make('carousel_align')
-                        ->label(__('capell-mosaic::form.carousel_align')),
+                        ->label(__('capell-layout-builder::form.carousel_align')),
                 ]),
         ];
     }

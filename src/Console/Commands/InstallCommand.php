@@ -2,60 +2,47 @@
 
 declare(strict_types=1);
 
-namespace Capell\Mosaic\Console\Commands;
+namespace Capell\LayoutBuilder\Console\Commands;
 
-use Capell\Admin\Actions\AssignPermissionsToRole;
-use Capell\Core\Support\Migration\MigrationFilesystemInterface;
-use Capell\Mosaic\Enums\ResourceEnum;
-use Capell\Mosaic\Support\CapellLayoutManager;
-use Capell\Mosaic\Support\LayoutModelRegistrar;
-use Filament\Facades\Filament;
+use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Illuminate\Console\Command;
 
 class InstallCommand extends Command
 {
-    protected $signature = 'capell:mosaic-install';
+    protected $description = 'Install layout builder package';
 
-    protected $description = 'Install the Capell Mosaic package';
-
-    public function __construct(private readonly MigrationFilesystemInterface $fileManager)
-    {
-        parent::__construct();
-    }
+    protected $signature = 'capell:layout-builder-install';
 
     public function handle(): int
     {
-        LayoutModelRegistrar::register();
-
-        Filament::getDefaultPanel()
-            ->resources(array_map(fn (ResourceEnum $resourceEnum) => $resourceEnum->value, ResourceEnum::cases()));
-
-        AssignPermissionsToRole::run(resources: ResourceEnum::cases());
-
-        $this->call('vendor:publish', ['--tag' => 'capell-mosaic-assets', '--force' => true]);
-
-        $migrations = __DIR__ . '/../../../database/migrations';
-        if (! $this->fileManager->isDir($migrations)) {
-            $this->error('Migrations directory does not exist.');
-
-            return Command::FAILURE;
-        }
-
-        $this->call(
-            'capell:publish-migrations',
-            [
-                '--items' => CapellLayoutManager::getMigrations(),
-                '--path' => $migrations,
-            ],
-        );
-
-        $this->call('migrate');
-
-        $this->callSilent('filament:assets');
+        $this->publishMigrations();
 
         $this->newLine();
-        $this->info('Capell Mosaic installed successfully.');
+        $this->info('Capell Layout Builder installed successfully.');
 
         return self::SUCCESS;
+    }
+
+    private function publishMigrations(): void
+    {
+        $migrations = $this->migrations();
+
+        if ($migrations === []) {
+            return;
+        }
+
+        $this->call('capell:publish-migrations', ['--items' => $migrations]);
+        $this->call('migrate');
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function migrations(): array
+    {
+        return array_map(
+            static fn (string $migration): string => __DIR__ . '/../../../database/migrations/' . $migration . '.php',
+            CapellLayoutBuilderManager::getMigrations(),
+        );
     }
 }
