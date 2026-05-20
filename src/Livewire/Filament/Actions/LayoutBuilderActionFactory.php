@@ -666,7 +666,8 @@ final class LayoutBuilderActionFactory
             ->successNotificationTitle(__('capell-layout-builder::message.asset_updated'))
             ->schema(
                 fn (LayoutBuilder $livewire, Schema $schema, array $arguments): Schema => $this->getBlockAssetSchema(
-                    $schema->operation('editOption'),
+                    $schema->operation('editOption')
+                        ->record(fn (): BlockAsset => $this->resolveEditableBlockAsset($arguments)),
                 ),
             )
             ->fillForm(fn (BlockAsset $record, array $arguments): array => [

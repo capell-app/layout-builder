@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\Translation;
 use Capell\LayoutBuilder\Data\AdminBlockPreviewData;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\LayoutBuilder\Models\Block;
@@ -144,6 +146,7 @@ it('renders content first rows as custom action triggers instead of per row acti
         ->assertSeeHtml('data-layout-content-search-input')
         ->assertSeeHtml('data-layout-content-search-empty')
         ->assertSeeHtml('data-layout-content-search=')
+        ->assertSeeHtml('data-layout-content-source-field=')
         ->assertSeeHtml('data-layout-content-action="editBlockAsset"')
         ->assertSeeHtml('mountAction')
         ->assertSeeHtml('wire:key="layout-content-group-')
@@ -156,6 +159,38 @@ it('renders content first rows as custom action triggers instead of per row acti
         ->not->toContain('$this->editBlockAssetAction')
         ->and($assetRowView)
         ->not->toContain('$this->editBlockAssetAction');
+});
+
+it('renders block copy source rows with an edit action from the package namespace', function (): void {
+    $language = Language::factory()->create();
+    $block = Block::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
+    $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
+    BlockAsset::factory()
+        ->block($block)
+        ->asset($asset)
+        ->occurrence(1)
+        ->create(['order' => 1]);
+
+    Translation::query()->create([
+        'translatable_type' => $block->getMorphClass(),
+        'translatable_id' => $block->getKey(),
+        'language_id' => $language->getKey(),
+        'title' => 'Every section can be rebuilt in the layout builder',
+        'content' => '<p>Block-owned support copy.</p>',
+    ]);
+
+    $layout = Layout::factory()->create(['containers' => [
+        'main' => ['blocks' => [
+            ['block_key' => $block->key, 'occurrence' => 1],
+        ]],
+    ]]);
+
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->assertSee(__('capell-layout-builder::generic.block_content_sources'))
+        ->assertSee(__('capell-layout-builder::generic.rendered_text'))
+        ->assertSee('Every section can be rebuilt in the layout builder')
+        ->assertSee(__('capell-layout-builder::button.edit_block_copy'))
+        ->assertSeeHtml('data-layout-content-action="editBlock"');
 });
 
 it('sends layout only editors straight to the advanced layout editor from the package namespace', function (): void {

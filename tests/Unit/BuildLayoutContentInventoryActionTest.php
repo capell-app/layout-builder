@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use Capell\Core\Enums\AssetEnum;
+use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\Translation;
 use Capell\LayoutBuilder\Actions\BuildLayoutContentInventoryAction;
 use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Data\LayoutContentGroupData;
@@ -78,10 +80,12 @@ it('builds editor safe content groups in visual layout order from the package na
         signature: 'known-signature',
     );
 
-    expect($inventory->groups)->toHaveCount(2)
-        ->and($inventory->groups[0]->label)->toBe('Main content')
-        ->and($inventory->groups[1]->label)->toBe('Footer')
+    expect($inventory->groups)->toHaveCount(1)
+        ->and($inventory->groups[0]->label)->toBe(__('capell-layout-builder::generic.page_content_sources'))
         ->and($inventory->groups[0]->items[0]->label)->toBe('Reusable product')
+        ->and($inventory->groups[0]->items[0]->sourceLabel)->toBe(__('capell-layout-builder::generic.page_translation_source'))
+        ->and($inventory->groups[0]->items[0]->sourceDetail)->toBe(__('capell-layout-builder::generic.content_tab_title_content_fields'))
+        ->and($inventory->groups[0]->items[0]->canEditAsset)->toBeTrue()
         ->and($inventory->groups[0]->items[0]->isReused)->toBeTrue()
         ->and($inventory->groups[0]->items[0]->editActionArguments)->toMatchArray([
             'containerKey' => 'main',
@@ -92,6 +96,48 @@ it('builds editor safe content groups in visual layout order from the package na
         ])
         ->and($inventory->groups[0]->items[0]->key)->toBe('main:0:1:page:' . $sharedPage->getKey() . ':0')
         ->and($inventory->itemCount)->toBe(3);
+});
+
+it('adds block copy as its own editable ownership group', function (): void {
+    $layout = Layout::factory()->create();
+    $language = Language::factory()->create();
+    $block = Block::factory()->create(['key' => 'hero', 'name' => 'Hero block']);
+    $page = Page::factory()->withTranslations()->create(['name' => 'Home page']);
+    $blockAsset = BlockAsset::factory()->block($block)->asset($page)->create();
+
+    $blockTranslation = Translation::query()->create([
+        'translatable_type' => $block->getMorphClass(),
+        'translatable_id' => $block->getKey(),
+        'language_id' => $language->getKey(),
+        'title' => 'Every section can be rebuilt in the layout builder',
+        'content' => '<p>Own this line on the block, not the attached section.</p>',
+    ]);
+
+    $block->setRelation('translation', $blockTranslation);
+    $block->setRelation('assets', new EloquentCollection([$blockAsset->load('asset.translation')]));
+
+    $inventory = BuildLayoutContentInventoryAction::run(
+        layout: $layout,
+        page: null,
+        containers: ['main' => ['blocks' => [['block_key' => $block->key, 'occurrence' => 1]], 'meta' => []]],
+        containerBlocks: ['main' => [0 => $block]],
+        assets: ['main' => [0 => [layoutBuilderInventoryAssetState($blockAsset)]]],
+        signature: 'known-signature',
+    );
+
+    expect($inventory->groups)->toHaveCount(2)
+        ->and($inventory->groups[0]->key)->toBe('block-content')
+        ->and($inventory->groups[0]->items[0]->canEditAsset)->toBeFalse()
+        ->and($inventory->groups[0]->items[0]->hasBlockCopySource)->toBeTrue()
+        ->and($inventory->groups[0]->items[0]->sourceLabel)->toBe(__('capell-layout-builder::generic.block_translation_source'))
+        ->and($inventory->groups[0]->items[0]->renderedText)->toContain('Every section can be rebuilt in the layout builder')
+        ->and($inventory->groups[0]->items[0]->blockEditActionArguments)->toMatchArray([
+            'containerKey' => 'main',
+            'blockIndex' => 0,
+        ])
+        ->and($inventory->groups[1]->key)->toBe('page-content')
+        ->and($inventory->groups[1]->items[0]->warnings)->toContain(__('capell-layout-builder::message.block_copy_source_warning'))
+        ->and($inventory->itemCount)->toBe(2);
 });
 
 it('lets higher priority package contributors decorate groups and items last', function (): void {

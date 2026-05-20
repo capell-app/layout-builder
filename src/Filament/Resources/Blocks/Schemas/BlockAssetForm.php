@@ -10,6 +10,7 @@ use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\LayoutBuilder\Enums\BlockAssetConfiguratorEnum;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Filament\Configurators\Blocks\PageBlockAssetForm;
+use Capell\LayoutBuilder\Filament\Configurators\Blocks\RegisteredAssetBlockAssetForm;
 use Capell\LayoutBuilder\Models\BlockAsset;
 use Filament\Schemas\Schema;
 use RuntimeException;
@@ -38,6 +39,10 @@ class BlockAssetForm implements FormConfigurator
 
         if ($adminSchema === null && defined($enumCase)) {
             $adminSchema = BlockAssetConfiguratorEnum::fromName(ucfirst((string) $assetType))->value::getKey();
+        }
+
+        if ($adminSchema === null && $assetType !== 'page') {
+            $adminSchema = RegisteredAssetBlockAssetForm::getKey();
         }
 
         if ($adminSchema === null) {

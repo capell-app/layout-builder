@@ -5,43 +5,86 @@
     $inventory = $this->contentInventory;
 @endphp
 
-<section
-    x-data="{
-        search: '',
-        normalize(value) {
-            return (value || '')
-                .toString()
-                .toLowerCase()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-        },
-        hasActiveSearch() {
-            return this.search.trim() !== ''
-        },
-        itemMatches(block) {
-            return (
-                ! this.hasActiveSearch() ||
-                this.normalize(block.dataset.layoutContentSearch).includes(
-                    this.normalize(this.search),
+@once
+    <script>
+        window.layoutBuilderContentInventory = () => ({
+            search: '',
+            init() {
+                this.$nextTick(() => {
+                    const target = window.location.hash.substring(1)
+
+                    if (!target) {
+                        return
+                    }
+
+                    document.getElementById(target)?.focus()
+                })
+            },
+            normalize(value) {
+                return (value || '')
+                    .toString()
+                    .toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+            },
+            escapeHtml(value) {
+                return (value || '')
+                    .toString()
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;')
+            },
+            highlight(value) {
+                const escaped = this.escapeHtml(value)
+                const term = this.search.trim()
+
+                if (!term) {
+                    return escaped
+                }
+
+                const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+                return escaped.replace(
+                    new RegExp(`(${escapedTerm})`, 'gi'),
+                    '<mark class="rounded bg-warning-100 px-0.5 text-warning-900 dark:bg-warning-500/20 dark:text-warning-200">$1</mark>',
                 )
-            )
-        },
-        groupMatches(block) {
-            return (
-                ! this.hasActiveSearch() ||
-                Array.from(
-                    block.querySelectorAll('[data-layout-content-item-key]'),
-                ).some((item) => this.itemMatches(item))
-            )
-        },
-        visibleItems() {
-            return Array.from(
-                this.$refs.contentItems?.querySelectorAll(
-                    '[data-layout-content-item-key]',
-                ) || [],
-            ).filter((item) => this.itemMatches(item)).length
-        },
-    }"
+            },
+            hasActiveSearch() {
+                return this.search.trim() !== ''
+            },
+            itemMatches(block) {
+                return (
+                    !this.hasActiveSearch() ||
+                    this.normalize(block.dataset.layoutContentSearch).includes(
+                        this.normalize(this.search),
+                    )
+                )
+            },
+            groupMatches(block) {
+                return (
+                    !this.hasActiveSearch() ||
+                    Array.from(
+                        block.querySelectorAll(
+                            '[data-layout-content-item-key]',
+                        ),
+                    ).some((item) => this.itemMatches(item))
+                )
+            },
+            visibleItems() {
+                return Array.from(
+                    this.$refs.contentItems?.querySelectorAll(
+                        '[data-layout-content-item-key]',
+                    ) || [],
+                ).filter((item) => this.itemMatches(item)).length
+            },
+        })
+    </script>
+@endonce
+
+<section
+    x-data="window.layoutBuilderContentInventory()"
     class="rounded-lg bg-gray-50 p-4 dark:bg-gray-950"
     aria-labelledby="layout-content-editor-heading"
 >
@@ -183,13 +226,18 @@
                                         $item->label,
                                         $item->summary,
                                         $item->typeLabel,
+                                        $item->sourceLabel,
+                                        $item->sourceDetail,
+                                        $item->renderedText,
                                         $item->placementLabel,
                                         $item->containerLabel,
                                         $item->blockLabel,
                                         $item->assetType,
                                         (string) $item->assetId,
+                                        implode(' ', $item->warnings),
                                     ])->filter(fn (?string $value): bool => filled($value))->implode(' '))->squish();
                                     $editBlockAssetClickHandler = '$wire.mountAction(\'editBlockAsset\', ' . Js::from($item->editActionArguments) . ')';
+                                    $editBlockClickHandler = '$wire.mountAction(\'editBlock\', ' . Js::from($item->blockEditActionArguments) . ')';
                                 @endphp
 
                                 <article
@@ -209,14 +257,27 @@
                                             <h4
                                                 class="line-clamp-1 text-sm font-medium text-gray-950 dark:text-white"
                                             >
-                                                {{ $item->label }}
+                                                <span
+                                                    x-html="highlight({{ Js::from($item->label) }})"
+                                                ></span>
                                             </h4>
 
                                             <x-filament::badge
                                                 color="gray"
                                                 size="sm"
                                             >
-                                                {{ $item->typeLabel }}
+                                                <span
+                                                    x-html="highlight({{ Js::from($item->typeLabel) }})"
+                                                ></span>
+                                            </x-filament::badge>
+
+                                            <x-filament::badge
+                                                color="info"
+                                                size="sm"
+                                            >
+                                                <span
+                                                    x-html="highlight({{ Js::from($item->sourceLabel) }})"
+                                                ></span>
                                             </x-filament::badge>
 
                                             @if ($item->isReused)
@@ -233,22 +294,74 @@
                                             <p
                                                 class="mt-1 line-clamp-2 text-sm leading-6 text-gray-600 dark:text-gray-300"
                                             >
-                                                {{ $item->summary }}
+                                                <span
+                                                    x-html="highlight({{ Js::from($item->summary) }})"
+                                                ></span>
                                             </p>
+                                        @endif
+
+                                        <div
+                                            class="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400"
+                                        >
+                                            @if ($item->sourceDetail)
+                                                <span
+                                                    class="inline-flex items-center gap-1"
+                                                    data-layout-content-source-field="{{ $item->sourceDetail }}"
+                                                >
+                                                    @svg('heroicon-o-pencil-square', 'h-3.5 w-3.5 shrink-0')
+                                                    <span
+                                                        x-html="highlight({{ Js::from($item->sourceDetail) }})"
+                                                    ></span>
+                                                </span>
+                                            @endif
+
+                                            @foreach ($item->warnings as $warning)
+                                                <x-filament::badge
+                                                    color="warning"
+                                                    size="sm"
+                                                >
+                                                    {{ $warning }}
+                                                </x-filament::badge>
+                                            @endforeach
+                                        </div>
+
+                                        @if ($item->renderedText)
+                                            <div
+                                                class="border-warning-200 bg-warning-50 text-warning-900 dark:border-warning-500/30 dark:bg-warning-500/10 dark:text-warning-100 mt-2 rounded-md border px-3 py-2 text-xs"
+                                            >
+                                                <p class="font-medium">
+                                                    {{ __('capell-layout-builder::generic.rendered_text') }}
+                                                    @if ($item->renderedTextSourceLabel)
+                                                        <span
+                                                            class="font-normal"
+                                                        >
+                                                            ·
+                                                            {{ $item->renderedTextSourceLabel }}
+                                                        </span>
+                                                    @endif
+                                                </p>
+                                                <p class="mt-1 line-clamp-2">
+                                                    <span
+                                                        x-html="highlight({{ Js::from($item->renderedText) }})"
+                                                    ></span>
+                                                </p>
+                                            </div>
                                         @endif
 
                                         <p
                                             class="mt-1 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400"
                                         >
                                             @svg('heroicon-o-map-pin', 'h-3.5 w-3.5 shrink-0')
-                                            {{ $item->placementLabel }}
+                                            <span
+                                                x-html="highlight({{ Js::from($item->placementLabel) }})"
+                                            ></span>
                                         </p>
                                     </div>
 
                                     <div
                                         class="flex shrink-0 items-center gap-2"
                                     >
-                                        @if ($this->canEditContent())
+                                        @if ($this->canEditContent() && $item->canEditAsset)
                                             <x-filament::button
                                                 color="primary"
                                                 icon="heroicon-o-pencil"
@@ -262,12 +375,33 @@
                                         @endif
 
                                         @if ($this->canEditLayout())
+                                            @if ($item->hasBlockCopySource)
+                                                <x-filament::button
+                                                    color="gray"
+                                                    icon="heroicon-o-document-text"
+                                                    size="xs"
+                                                    type="button"
+                                                    data-layout-content-action="editBlock"
+                                                    x-on:click="{{ $editBlockClickHandler }}"
+                                                >
+                                                    {{ __('capell-layout-builder::button.edit_block_copy') }}
+                                                </x-filament::button>
+                                            @endif
+
                                             <x-filament::icon-button
                                                 color="gray"
                                                 icon="heroicon-o-adjustments-horizontal"
                                                 size="sm"
                                                 :label="__('capell-layout-builder::button.advanced_layout')"
                                                 wire:click="showAdvancedLayout({{ Js::from($item->key) }})"
+                                            />
+
+                                            <x-filament::icon-button
+                                                color="gray"
+                                                icon="heroicon-o-link"
+                                                size="sm"
+                                                :label="__('capell-layout-builder::generic.source_field')"
+                                                x-on:click="window.location.hash = 'layout-content-item-{{ $itemDomKey }}'"
                                             />
                                         @endif
                                     </div>

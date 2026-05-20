@@ -143,6 +143,11 @@ Use `capell:layout-builder-block-visual-regression capture` or `assert` to emit 
 
 The command does not authenticate, generate signed routes, query tenant content, or use live media. Browser capture/compare remains the responsibility of the runner.
 
+## Docs
+
+- [overview.md](docs/overview.md)
+- [screenshots.json](docs/screenshots.json)
+
 ## Editor Modes
 
 `content_first` is the default mode. It shows editor-facing content groups from the current layout state and lets editors update assigned block assets without navigating the full layout canvas.
