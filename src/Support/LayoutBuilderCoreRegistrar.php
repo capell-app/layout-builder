@@ -38,11 +38,12 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Facades\App;
 use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
+use WeakMap;
 
 final class LayoutBuilderCoreRegistrar
 {
-    /** @var array<int, true> */
-    private static array $mainContentHookRegistries = [];
+    /** @var WeakMap<RenderHookRegistry, true>|null */
+    private static ?WeakMap $mainContentHookRegistries = null;
 
     public function register(): void
     {
@@ -241,15 +242,15 @@ final class LayoutBuilderCoreRegistrar
 
     private function registerRenderHooksForRegistry(RenderHookRegistry $registry): void
     {
-        $registryId = spl_object_id($registry);
+        self::$mainContentHookRegistries ??= new WeakMap;
 
-        if (isset(self::$mainContentHookRegistries[$registryId])) {
+        if (isset(self::$mainContentHookRegistries[$registry])) {
             return;
         }
 
         (new RegisterMainContentLayoutHook($registry))->register();
 
-        self::$mainContentHookRegistries[$registryId] = true;
+        self::$mainContentHookRegistries[$registry] = true;
     }
 
     private function registerListeners(): void

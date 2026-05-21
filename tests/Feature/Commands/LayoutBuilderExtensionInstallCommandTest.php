@@ -16,6 +16,23 @@ afterEach(function (): void {
     CapellCore::clearPackages();
 });
 
+it('forces migrations when installing layout builder directly', function (): void {
+    $migrateForceOptions = [];
+
+    Artisan::command('capell:publish-migrations {--items=*}', fn (): int => Command::SUCCESS);
+
+    Artisan::command('migrate {--force}', function () use (&$migrateForceOptions): int {
+        $migrateForceOptions[] = $this->option('force');
+
+        return Command::SUCCESS;
+    });
+
+    test()->artisan('capell:layout-builder-install')
+        ->assertSuccessful();
+
+    expect($migrateForceOptions)->toBe([true]);
+});
+
 it('installs layout builder from its package manifest', function (): void {
     $installCalls = [];
 

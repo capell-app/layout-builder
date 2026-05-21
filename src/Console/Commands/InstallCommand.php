@@ -32,7 +32,7 @@ class InstallCommand extends Command
         }
 
         $this->call('capell:publish-migrations', ['--items' => $migrations]);
-        $this->call('migrate');
+        $this->call('migrate', ['--force' => true]);
     }
 
     /**
