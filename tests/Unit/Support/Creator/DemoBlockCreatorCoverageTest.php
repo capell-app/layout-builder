@@ -26,11 +26,13 @@ final class LayoutBuilderDemoContentPage extends Page
 
     protected $table = 'pages';
 
+    #[Override]
     public function getMorphClass(): string
     {
         return (new Page)->getMorphClass();
     }
 
+    #[Override]
     protected static function booted(): void
     {
         self::creating(function (self $page): void {
@@ -52,8 +54,10 @@ final class LayoutBuilderDemoBlockCreatorHarness extends ApDemoBlockCreator
         $this->pageModel = Page::class;
     }
 
+    #[Override]
     protected function createMedia(HasMedia $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = 'image'): void {}
 
+    #[Override]
     protected function createBlockMedia(Block $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = 'image'): Media
     {
         return Media::factory()->create([

@@ -9,10 +9,10 @@ use Capell\LayoutBuilder\Models\Block;
 
 final class LayoutBuilderContainerBlockMutationHarness extends LayoutBuilder
 {
+    #[Override]
     public function assertCanUpdateLayout(): void {}
 
-    public function assertCanEditLayout(): void {}
-
+    #[Override]
     public function assertCanEditContent(): void {}
 
     /**
@@ -37,6 +37,9 @@ final class LayoutBuilderContainerBlockMutationHarness extends LayoutBuilder
     {
         return $this->getLastContainerBlockOccurrence($containerKey, $blockKey, $compareIndex);
     }
+
+    #[Override]
+    protected function assertCanEditLayout(): void {}
 }
 
 function makeLayoutBuilderMutationHarness(Layout $layout): LayoutBuilderContainerBlockMutationHarness
@@ -135,6 +138,7 @@ it('mutates blocks across positions containers and occurrence metadata', functio
     ]);
 
     $harness->addBlockToContainer($heroBlock, 'main');
+
     $insertedIndex = $harness->addBlockToContainerAtPosition($cardBlock, 'main', 0);
 
     expect($insertedIndex)->toBe(0)

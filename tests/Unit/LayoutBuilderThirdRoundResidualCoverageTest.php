@@ -59,7 +59,6 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -78,11 +77,11 @@ final class LayoutBuilderResidualModalTableSelect extends ModalTableSelect
 
 final class LayoutBuilderResidualAssetHarness extends LayoutBuilder
 {
+    #[Override]
     public function assertCanUpdateLayout(): void {}
 
+    #[Override]
     public function assertCanEditContent(): void {}
-
-    public function assertCanEditLayout(): void {}
 
     /**
      * @param  array<string, array<int, Block>>  $containerBlocks
@@ -143,10 +142,14 @@ final class LayoutBuilderResidualAssetHarness extends LayoutBuilder
     {
         $this->deleteRemovedBlockAssets();
     }
+
+    #[Override]
+    protected function assertCanEditLayout(): void {}
 }
 
 final class LayoutBuilderResidualSuccessfulPreviewRenderer extends LayoutPreviewRenderer
 {
+    #[Override]
     public function render(Layout $layout): string
     {
         return 'png:' . $layout->getKey();
@@ -155,6 +158,7 @@ final class LayoutBuilderResidualSuccessfulPreviewRenderer extends LayoutPreview
 
 final class LayoutBuilderResidualFailingPreviewRenderer extends LayoutPreviewRenderer
 {
+    #[Override]
     public function render(Layout $layout): string
     {
         throw new RuntimeException('Renderer failed with a deliberately long message for coverage.');
@@ -192,11 +196,13 @@ final class LayoutBuilderResidualEditBlockPage extends EditBlock
         $this->record = $testRecord;
     }
 
-    public function getRecord(): Model
+    #[Override]
+    public function getRecord(): Block
     {
         return $this->testRecord;
     }
 
+    #[Override]
     public function getRecordTitle(): string
     {
         return $this->testRecord->name;
@@ -236,7 +242,6 @@ final class LayoutBuilderResidualEditBlockPage extends EditBlock
 function invokeLayoutBuilderResidualMethod(string|object $classOrObject, string $methodName, mixed ...$arguments): mixed
 {
     $method = new ReflectionMethod($classOrObject, $methodName);
-    $method->setAccessible(true);
 
     return $method->invoke(is_string($classOrObject) ? null : $classOrObject, ...$arguments);
 }
@@ -585,7 +590,6 @@ it('orchestrates demo site layout population with creator collaborators', functi
 
     $action = new CreateLayoutBuilderDemoSiteAction;
     $demoCreatorProperty = new ReflectionProperty($action, 'demoCreator');
-    $demoCreatorProperty->setAccessible(true);
     $demoCreatorProperty->setValue($action, $demoCreator);
 
     invokeLayoutBuilderResidualMethod($action, 'setupHomepage', $page, new Collection([$language]));
@@ -609,6 +613,7 @@ it('creates demo site content recursively and stops when the site is already lar
         ->withTranslations($language)
         ->create();
     $site->setRelation('languages', new Collection([$language]));
+
     $createdContent = [];
 
     $contentCreator = Mockery::mock(ContentCreator::class);
@@ -685,6 +690,7 @@ it('adds updates preloads and deletes page-scoped block assets through the edito
     $harness->setContainerBlocks(['main' => [$block]]);
 
     $harness->exposeAddAssets('main', 0, true, 'missing-type', [$firstAssetPage->getKey()]);
+
     $createdAsset = $harness->exposeCreateBlockAsset(
         $block,
         'main',

@@ -22,7 +22,6 @@ use Illuminate\Database\Eloquent\Builder;
 function invokeLayoutBuilderTableMethod(string $className, string $methodName, mixed ...$arguments): mixed
 {
     $method = new ReflectionMethod($className, $methodName);
-    $method->setAccessible(true);
 
     return $method->invoke(null, ...$arguments);
 }

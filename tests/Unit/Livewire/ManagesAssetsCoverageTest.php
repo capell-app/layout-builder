@@ -12,8 +12,10 @@ use Illuminate\Support\Collection as SupportCollection;
 
 final class LayoutBuilderAssetHarness extends LayoutBuilder
 {
+    #[Override]
     public function assertCanUpdateLayout(): void {}
 
+    #[Override]
     public function assertCanEditContent(): void {}
 
     /**
