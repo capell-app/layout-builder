@@ -19,22 +19,22 @@ class ModernAlternatingContentConfigurator
     public static function getFormSchema(): array
     {
         return [
-            Section::make('Content')
-                ->description('Section title and layout')
+            Section::make(__('capell-layout-builder::blocks.common.section_content'))
+                ->description(__('capell-layout-builder::blocks.modern.alternating_content.section_content_description'))
                 ->schema([
                     TextInput::make('data.title')
-                        ->label('Section Title')
-                        ->placeholder('How It Works')
+                        ->label(__('capell-layout-builder::blocks.common.section_title_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.alternating_content.title_placeholder'))
                         ->columnSpanFull(),
                 ])->columns(1),
 
-            Section::make('Display')
-                ->description('Visibility and admin hints')
+            Section::make(__('capell-layout-builder::blocks.common.section_display'))
+                ->description(__('capell-layout-builder::blocks.common.section_display_description'))
                 ->schema([
                     Toggle::make('data.customizable')
-                        ->label('Show Admin Hints')
+                        ->label(__('capell-layout-builder::blocks.common.admin_hints_label'))
                         ->default(true)
-                        ->helperText('Display "✨ Customize..." message'),
+                        ->helperText(__('capell-layout-builder::blocks.common.customize_message_helper')),
                 ])->columns(1),
         ];
     }

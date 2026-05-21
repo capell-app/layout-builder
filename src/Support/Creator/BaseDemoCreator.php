@@ -113,8 +113,8 @@ abstract class BaseDemoCreator
         $features = [
             [
                 'icon' => 'heroicon-o-light-bulb',
-                'title' => 'Innovative Solutions',
-                'content' => '<p>We leverage cutting-edge technology to create innovative solutions that drive success.</p>',
+                'title' => 'Reusable CMS Patterns',
+                'content' => '<p>We use Laravel packages, Filament resources, and reusable blocks to keep CMS implementations maintainable.</p>',
             ],
             [
                 'icon' => 'heroicon-o-academic-cap',
@@ -128,8 +128,8 @@ abstract class BaseDemoCreator
             ],
             [
                 'icon' => 'heroicon-o-chart-bar',
-                'title' => 'Measurable Results',
-                'content' => '<p>We focus on delivering measurable results that drive growth and success.</p>',
+                'title' => 'Operational Checks',
+                'content' => '<p>We ship with checks for content, assets, cache, and frontend output so teams can verify each release.</p>',
             ],
             [
                 'icon' => 'heroicon-o-sparkles',
@@ -237,7 +237,7 @@ abstract class BaseDemoCreator
             [
                 'name' => 'John Doe',
                 'position' => 'CEO of Example Corp',
-                'content' => 'Capell has transformed our business with their innovative solutions and exceptional service.',
+                'content' => 'Capell gave our editors a clearer workflow and gave engineering a smaller surface area to maintain.',
             ],
             [
                 'name' => 'Jane Smith',
@@ -300,7 +300,7 @@ abstract class BaseDemoCreator
             [
                 'name' => 'Alice Johnson',
                 'position' => 'CEO',
-                'bio' => '<p>Alice is the visionary behind our success, leading the team with passion and expertise.</p>',
+                'bio' => '<p>Alice coordinates product priorities, release scope, and editorial feedback across the demo team.</p>',
             ],
             [
                 'name' => 'Charlie Brown',
@@ -315,7 +315,7 @@ abstract class BaseDemoCreator
             [
                 'name' => 'George White',
                 'position' => 'Lead Designer',
-                'bio' => '<p>George brings creativity and innovation to our design projects, making them visually stunning.</p>',
+                'bio' => '<p>George turns design requirements into reusable section patterns and practical editorial controls.</p>',
             ],
             [
                 'name' => 'Hannah Blue',
@@ -335,12 +335,12 @@ abstract class BaseDemoCreator
             [
                 'name' => 'Kevin Yellow',
                 'position' => 'Data Analyst',
-                'bio' => '<p>Kevin turns data into insights, helping us make informed decisions for our clients.</p>',
+                'bio' => '<p>Kevin reviews usage data and release checks so the demo keeps reflecting real CMS workflows.</p>',
             ],
             [
                 'name' => 'Laura Purple',
                 'position' => 'Customer Success Manager',
-                'bio' => '<p>Laura ensures our clients are happy and successful, building lasting relationships.</p>',
+                'bio' => '<p>Laura gathers editor feedback and keeps onboarding notes clear for new project teams.</p>',
             ],
             [
                 'name' => 'Mike Orange',
@@ -375,7 +375,7 @@ abstract class BaseDemoCreator
             [
                 'name' => 'Zane Purple',
                 'position' => 'Research Scientist',
-                'bio' => '<p>Zane conducts research to develop innovative solutions that push the boundaries of technology.</p>',
+                'bio' => '<p>Zane tests integration ideas and documents the ones that belong in the package roadmap.</p>',
             ],
         ];
 

@@ -20,36 +20,36 @@ class ModernTeamMembersConfigurator
     public static function getFormSchema(): array
     {
         return [
-            Section::make('Content')
-                ->description('Team section title')
+            Section::make(__('capell-layout-builder::blocks.common.section_content'))
+                ->description(__('capell-layout-builder::blocks.modern.team_members.section_content_description'))
                 ->schema([
                     TextInput::make('data.title')
-                        ->label('Section Title')
-                        ->placeholder('Our Team')
+                        ->label(__('capell-layout-builder::blocks.common.section_title_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.team_members.title_placeholder'))
                         ->columnSpanFull(),
                 ])->columns(1),
 
-            Section::make('Layout')
-                ->description('Customize grid columns and responsive behavior')
+            Section::make(__('capell-layout-builder::blocks.common.section_layout'))
+                ->description(__('capell-layout-builder::blocks.modern.team_members.section_layout_description'))
                 ->schema([
                     Select::make('data.columns')
-                        ->label('Grid Columns')
+                        ->label(__('capell-layout-builder::blocks.common.grid_columns_label'))
                         ->options([
-                            '2' => '2 Columns',
-                            '3' => '3 Columns',
-                            '4' => '4 Columns',
+                            '2' => __('capell-layout-builder::blocks.common.columns_2'),
+                            '3' => __('capell-layout-builder::blocks.common.columns_3'),
+                            '4' => __('capell-layout-builder::blocks.common.columns_4'),
                         ])
                         ->default('3')
-                        ->helperText('Number of team members per row (desktop)'),
+                        ->helperText(__('capell-layout-builder::blocks.common.grid_columns_helper')),
                 ])->columns(1),
 
-            Section::make('Display')
-                ->description('Visibility and admin hints')
+            Section::make(__('capell-layout-builder::blocks.common.section_display'))
+                ->description(__('capell-layout-builder::blocks.common.section_display_description'))
                 ->schema([
                     Toggle::make('data.customizable')
-                        ->label('Show Admin Hints')
+                        ->label(__('capell-layout-builder::blocks.common.admin_hints_label'))
                         ->default(true)
-                        ->helperText('Display "✨ Customize..." message'),
+                        ->helperText(__('capell-layout-builder::blocks.common.customize_message_helper')),
                 ])->columns(1),
         ];
     }

@@ -22,6 +22,7 @@ return [
         'section_header_description' => 'Section title and description displayed above content',
         'section_cards' => 'Cards',
         'section_cards_description' => 'Add and customize individual cards',
+        'customize_message_helper' => 'Display "Customize..." prompts in editor previews',
         'button_label' => 'Button label',
         'button_url' => 'Button URL',
         'button_icon' => 'Button icon (emoji)',
@@ -52,7 +53,7 @@ return [
             'title_placeholder' => 'Welcome to Capell',
             'title_helper' => 'Main heading shown on the hero banner',
             'subtitle_label' => 'Subtitle / description',
-            'subtitle_placeholder' => 'Create beautiful layouts without code',
+            'subtitle_placeholder' => 'Create structured CMS pages from reusable blocks',
             'subtitle_helper' => 'Secondary line shown beneath the title',
             'primary_button_label_placeholder' => 'Get Started',
             'primary_button_url_placeholder' => '/pages/create',
@@ -88,9 +89,9 @@ return [
         'cta_section' => [
             'section_content_description' => 'Heading, subheading, and call-to-action buttons',
             'heading_label' => 'Main heading',
-            'heading_placeholder' => 'Ready to Create Stunning Layouts?',
+            'heading_placeholder' => 'Ready to structure this page?',
             'subheading_label' => 'Subheading / description',
-            'subheading_placeholder' => 'No coding required. Drag, drop, customize, and publish.',
+            'subheading_placeholder' => 'Choose blocks, edit the copy, preview the page, and publish when it is ready.',
             'primary_button_label_placeholder' => 'Start Building',
             'primary_button_url_placeholder' => '#signup',
             'primary_button_icon_placeholder' => '🚀',
@@ -103,7 +104,8 @@ return [
         ],
 
         'feature_list' => [
-            'title_placeholder' => 'Why Choose Our Platform',
+            'section_content_description' => 'Feature list title and layout',
+            'title_placeholder' => 'Why Capell Fits This Workflow',
             'layout_label' => 'Layout type',
             'layout_helper' => 'How features are arranged',
             'layout_vertical' => 'Vertical (stacked)',
@@ -118,6 +120,8 @@ return [
         ],
 
         'image_gallery' => [
+            'section_content_description' => 'Gallery section title and subtitle',
+            'section_layout_description' => 'Customize grid layout and display',
             'title_placeholder' => 'Our Work',
             'subtitle_placeholder' => 'Showcasing our latest projects',
             'layout_label' => 'Layout type',
@@ -127,10 +131,13 @@ return [
         ],
 
         'alternating_content' => [
+            'section_content_description' => 'Section title and layout',
             'title_placeholder' => 'How It Works',
         ],
 
         'process_steps' => [
+            'section_content_description' => 'Process section title and subtitle',
+            'section_layout_description' => 'Customize steps display layout',
             'title_placeholder' => 'Our Process',
             'subtitle_placeholder' => 'Four simple steps to get started',
             'layout_label' => 'Layout type',
@@ -140,6 +147,7 @@ return [
         ],
 
         'pricing_table' => [
+            'section_content_description' => 'Pricing section title, currency, and billing options',
             'title_placeholder' => 'Simple, Transparent Pricing',
             'currency_label' => 'Currency symbol',
             'currency_placeholder' => '$',
@@ -151,6 +159,7 @@ return [
         ],
 
         'faq' => [
+            'section_content_description' => 'FAQ section title and categories',
             'title_placeholder' => 'Frequently Asked Questions',
             'categories_label' => 'Categories',
             'category_name_label' => 'Category name',
@@ -159,6 +168,8 @@ return [
         ],
 
         'testimonials' => [
+            'section_content_description' => 'Testimonials section title',
+            'section_layout_description' => 'Customize display mode and responsive behavior',
             'title_placeholder' => 'What Customers Say',
             'display_mode_label' => 'Display mode',
             'display_mode_helper' => 'How testimonials are presented',
@@ -170,6 +181,8 @@ return [
         ],
 
         'stats_section' => [
+            'section_content_description' => 'Statistics section title and subtitle',
+            'section_layout_description' => 'Customize statistics layout',
             'title_placeholder' => 'By The Numbers',
             'subtitle_placeholder' => 'Proven results that speak for themselves',
             'layout_label' => 'Layout type',
@@ -179,6 +192,8 @@ return [
         ],
 
         'team_members' => [
+            'section_content_description' => 'Team section title',
+            'section_layout_description' => 'Customize grid columns and responsive behavior',
             'title_placeholder' => 'Our Team',
         ],
 
@@ -195,6 +210,7 @@ return [
             'card_description_label' => 'Card description',
             'card_description_placeholder' => 'Modern tokens and components',
             'card_image_label' => 'Card image URL',
+            'card_image_placeholder' => 'https://example.com/image.jpg',
             'card_image_helper' => 'Optional image shown at the top of the card',
             'card_badge_label' => 'Badge label',
             'card_badge_placeholder' => 'Popular',
@@ -202,7 +218,9 @@ return [
             'card_link_label' => 'Link text',
             'card_link_placeholder' => 'Learn More',
             'card_link_url_label' => 'Link URL',
+            'card_link_url_placeholder' => '/docs',
             'add_card' => 'Add card',
+            'section_layout_description' => 'Grid columns and visual variant',
             'columns_label' => 'Number of columns',
             'columns_helper' => 'Adapts to a single column on mobile',
             'variant_label' => 'Card variant',

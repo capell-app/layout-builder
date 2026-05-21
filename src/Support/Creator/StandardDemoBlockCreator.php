@@ -450,15 +450,15 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         $features = [
             [
                 'title' => 'Empower Your Vision',
-                'content' => '<p>Step into a world where your ideas become reality. Experience innovation and growth with us.</p>',
+                'content' => '<p>Turn an outline into structured CMS content, then preview it before publishing.</p>',
             ],
             [
                 'title' => 'Start Your Journey',
-                'content' => '<p>Begin your adventure today and unlock new opportunities for success.</p>',
+                'content' => '<p>Create the next content section, review it in admin, and publish when the preview is ready.</p>',
             ],
             [
                 'title' => 'Explore Our Achievements',
-                'content' => '<p>Discover the groundbreaking projects and milestones that define our excellence.</p>',
+                'content' => '<p>Review the project notes, release milestones, and checks that keep this demo honest.</p>',
             ],
             [
                 'title' => 'See Our Story Unfold',
@@ -777,7 +777,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         $languages->each(function (Language $language) use ($block): void {
             $block->translations()->firstOrCreate(['language_id' => $language->id], [
                 'title' => 'Meet Our Team',
-                'content' => '<p>Discover the talented individuals behind our success.</p>',
+                'content' => '<p>Meet the people represented in the sample team directory.</p>',
             ]);
         });
 

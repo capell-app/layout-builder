@@ -22,19 +22,19 @@ class ModernCTASectionConfigurator
     public static function getFormSchema(): array
     {
         return [
-            Section::make('Content')
-                ->description('Heading, subheading, and call-to-action buttons')
+            Section::make(__('capell-layout-builder::blocks.common.section_content'))
+                ->description(__('capell-layout-builder::blocks.modern.cta_section.section_content_description'))
                 ->schema([
                     TextInput::make('data.heading')
-                        ->label('Main Heading')
-                        ->placeholder('Ready to Create Stunning Layouts?')
+                        ->label(__('capell-layout-builder::blocks.modern.cta_section.heading_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.cta_section.heading_placeholder'))
                         ->required()
                         ->maxLength(100)
                         ->columnSpanFull(),
 
                     Textarea::make('data.subheading')
-                        ->label('Subheading / Description')
-                        ->placeholder('No coding required. Drag, drop, customize, and publish.')
+                        ->label(__('capell-layout-builder::blocks.modern.cta_section.subheading_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.cta_section.subheading_placeholder'))
                         ->rows(2)
                         ->maxLength(300)
                         ->columnSpanFull(),
@@ -42,71 +42,71 @@ class ModernCTASectionConfigurator
                     Group::make()
                         ->schema([
                             TextInput::make('data.primaryButton.label')
-                                ->label('Button Label')
-                                ->placeholder('Start Building')
+                                ->label(__('capell-layout-builder::blocks.common.button_label'))
+                                ->placeholder(__('capell-layout-builder::blocks.modern.cta_section.primary_button_label_placeholder'))
                                 ->required()
                                 ->maxLength(50),
 
                             TextInput::make('data.primaryButton.url')
-                                ->label('Button URL')
-                                ->placeholder('#signup')
+                                ->label(__('capell-layout-builder::blocks.common.button_url'))
+                                ->placeholder(__('capell-layout-builder::blocks.modern.cta_section.primary_button_url_placeholder'))
                                 ->required()
                                 ->url(),
 
                             TextInput::make('data.primaryButton.icon')
-                                ->label('Button Icon (emoji)')
-                                ->placeholder('🚀')
+                                ->label(__('capell-layout-builder::blocks.common.button_icon'))
+                                ->placeholder(__('capell-layout-builder::blocks.modern.cta_section.primary_button_icon_placeholder'))
                                 ->maxLength(2),
                         ])->columns(3)->columnSpanFull(),
 
                     Group::make()
                         ->schema([
                             TextInput::make('data.secondaryButton.label')
-                                ->label('Button Label')
-                                ->placeholder('View Docs'),
+                                ->label(__('capell-layout-builder::blocks.common.button_label'))
+                                ->placeholder(__('capell-layout-builder::blocks.modern.cta_section.secondary_button_label_placeholder')),
 
                             TextInput::make('data.secondaryButton.url')
-                                ->label('Button URL')
-                                ->placeholder('/docs')
+                                ->label(__('capell-layout-builder::blocks.common.button_url'))
+                                ->placeholder(__('capell-layout-builder::blocks.modern.cta_section.secondary_button_url_placeholder'))
                                 ->url(),
                         ])->columns(2)->columnSpanFull(),
                 ])->columns(2),
 
-            Section::make('Layout & Styling')
-                ->description('Customize layout variant and background')
+            Section::make(__('capell-layout-builder::blocks.common.section_layout_styling'))
+                ->description(__('capell-layout-builder::blocks.common.section_layout_styling_description'))
                 ->schema([
                     Select::make('data.layout')
-                        ->label('Layout')
+                        ->label(__('capell-layout-builder::blocks.modern.cta_section.layout_label'))
                         ->options([
-                            'centered' => 'Centered (Text + buttons stacked)',
-                            'split' => 'Split (Text left, icon right)',
+                            'centered' => __('capell-layout-builder::blocks.modern.cta_section.layout_centered'),
+                            'split' => __('capell-layout-builder::blocks.modern.cta_section.layout_split'),
                         ])
                         ->default('centered')
-                        ->helperText('How content is arranged'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.cta_section.layout_helper')),
 
                     Select::make('data.accentColor')
-                        ->label('Accent Color')
+                        ->label(__('capell-layout-builder::blocks.common.accent_color_label'))
                         ->options([
-                            'primary' => 'Violet',
-                            'secondary' => 'Indigo',
-                            'tertiary' => 'Gold',
+                            'primary' => __('capell-layout-builder::blocks.common.accent_violet'),
+                            'secondary' => __('capell-layout-builder::blocks.common.accent_indigo'),
+                            'tertiary' => __('capell-layout-builder::blocks.common.accent_gold'),
                         ])
                         ->default('tertiary'),
 
                     TextInput::make('data.backgroundGradient')
-                        ->label('Background Gradient CSS')
-                        ->placeholder('linear-gradient(135deg, #7c3aed 0%, #3131c0 100%)')
-                        ->helperText('Custom CSS gradient for section background')
+                        ->label(__('capell-layout-builder::blocks.common.background_gradient_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.common.background_gradient_placeholder'))
+                        ->helperText(__('capell-layout-builder::blocks.common.background_gradient_helper'))
                         ->columnSpanFull(),
                 ])->columns(2),
 
-            Section::make('Display')
-                ->description('Visibility and admin hints')
+            Section::make(__('capell-layout-builder::blocks.common.section_display'))
+                ->description(__('capell-layout-builder::blocks.common.section_display_description'))
                 ->schema([
                     Toggle::make('data.customizable')
-                        ->label('Show Admin Hints')
+                        ->label(__('capell-layout-builder::blocks.common.admin_hints_label'))
                         ->default(true)
-                        ->helperText('Display "✨ Customize..." message'),
+                        ->helperText(__('capell-layout-builder::blocks.common.customize_message_helper')),
                 ])->columns(1),
         ];
     }

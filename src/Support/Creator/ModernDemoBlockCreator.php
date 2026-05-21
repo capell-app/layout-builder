@@ -33,7 +33,7 @@ abstract class ModernDemoBlockCreator extends StandardDemoBlockCreator
         foreach (Site::getDefault()?->languages ?? [] as $language) {
             $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
-                ['title' => 'Why Choose Our Platform'],
+                ['title' => 'Why Capell Fits This Workflow'],
             );
         }
 

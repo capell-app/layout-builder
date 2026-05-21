@@ -20,56 +20,56 @@ class ModernFeatureListConfigurator
     public static function getFormSchema(): array
     {
         return [
-            Section::make('Content')
-                ->description('Feature list title and layout')
+            Section::make(__('capell-layout-builder::blocks.common.section_content'))
+                ->description(__('capell-layout-builder::blocks.modern.feature_list.section_content_description'))
                 ->schema([
                     TextInput::make('data.title')
-                        ->label('Section Title')
-                        ->placeholder('Why Choose Our Platform')
+                        ->label(__('capell-layout-builder::blocks.common.section_title_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.feature_list.title_placeholder'))
                         ->columnSpanFull(),
                 ])->columns(1),
 
-            Section::make('Layout & Display')
-                ->description('Customize layout variant, columns, and animations')
+            Section::make(__('capell-layout-builder::blocks.common.section_layout_display'))
+                ->description(__('capell-layout-builder::blocks.common.section_layout_display_description'))
                 ->schema([
                     Select::make('data.layout')
-                        ->label('Layout Type')
+                        ->label(__('capell-layout-builder::blocks.modern.feature_list.layout_label'))
                         ->options([
-                            'vertical' => 'Vertical (Stacked)',
-                            'grid' => 'Grid (Side by side)',
+                            'vertical' => __('capell-layout-builder::blocks.modern.feature_list.layout_vertical'),
+                            'grid' => __('capell-layout-builder::blocks.modern.feature_list.layout_grid'),
                         ])
                         ->default('grid')
-                        ->helperText('How features are arranged'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.feature_list.layout_helper')),
 
                     Select::make('data.columns')
-                        ->label('Grid Columns')
+                        ->label(__('capell-layout-builder::blocks.common.grid_columns_label'))
                         ->options([
-                            '2' => '2 Columns',
-                            '3' => '3 Columns',
-                            '4' => '4 Columns',
+                            '2' => __('capell-layout-builder::blocks.common.columns_2'),
+                            '3' => __('capell-layout-builder::blocks.common.columns_3'),
+                            '4' => __('capell-layout-builder::blocks.common.columns_4'),
                         ])
                         ->default('3')
                         ->visible(fn (callable $get): bool => $get('data.layout') === 'grid'),
 
                     Select::make('data.animation')
-                        ->label('Entry Animation')
+                        ->label(__('capell-layout-builder::blocks.modern.feature_list.animation_label'))
                         ->options([
-                            'fade-in' => 'Fade In',
-                            'slide-up' => 'Slide Up',
-                            'zoom' => 'Zoom',
-                            'bounce' => 'Bounce In',
+                            'fade-in' => __('capell-layout-builder::blocks.modern.feature_list.animation_fade'),
+                            'slide-up' => __('capell-layout-builder::blocks.modern.feature_list.animation_slide'),
+                            'zoom' => __('capell-layout-builder::blocks.modern.feature_list.animation_zoom'),
+                            'bounce' => __('capell-layout-builder::blocks.modern.feature_list.animation_bounce'),
                         ])
                         ->default('fade-in')
-                        ->helperText('Animation effect when features appear'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.feature_list.animation_helper')),
                 ])->columns(2),
 
-            Section::make('Display')
-                ->description('Visibility and admin hints')
+            Section::make(__('capell-layout-builder::blocks.common.section_display'))
+                ->description(__('capell-layout-builder::blocks.common.section_display_description'))
                 ->schema([
                     Toggle::make('data.customizable')
-                        ->label('Show Admin Hints')
+                        ->label(__('capell-layout-builder::blocks.common.admin_hints_label'))
                         ->default(true)
-                        ->helperText('Display "✨ Customize..." message'),
+                        ->helperText(__('capell-layout-builder::blocks.common.customize_message_helper')),
                 ])->columns(1),
         ];
     }

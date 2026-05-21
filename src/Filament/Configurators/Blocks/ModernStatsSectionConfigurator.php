@@ -20,40 +20,40 @@ class ModernStatsSectionConfigurator
     public static function getFormSchema(): array
     {
         return [
-            Section::make('Content')
-                ->description('Statistics section title and subtitle')
+            Section::make(__('capell-layout-builder::blocks.common.section_content'))
+                ->description(__('capell-layout-builder::blocks.modern.stats_section.section_content_description'))
                 ->schema([
                     TextInput::make('data.title')
-                        ->label('Section Title')
-                        ->placeholder('By The Numbers')
+                        ->label(__('capell-layout-builder::blocks.common.section_title_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.stats_section.title_placeholder'))
                         ->columnSpanFull(),
 
                     TextInput::make('data.subtitle')
-                        ->label('Subtitle / Description')
-                        ->placeholder('Proven results that speak for themselves')
+                        ->label(__('capell-layout-builder::blocks.common.subtitle_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.stats_section.subtitle_placeholder'))
                         ->columnSpanFull(),
                 ])->columns(1),
 
-            Section::make('Layout')
-                ->description('Customize statistics layout')
+            Section::make(__('capell-layout-builder::blocks.common.section_layout'))
+                ->description(__('capell-layout-builder::blocks.modern.stats_section.section_layout_description'))
                 ->schema([
                     Select::make('data.layout')
-                        ->label('Layout Type')
+                        ->label(__('capell-layout-builder::blocks.modern.stats_section.layout_label'))
                         ->options([
-                            'horizontal' => 'Horizontal (4 columns)',
-                            'vertical' => 'Vertical (Single column)',
+                            'horizontal' => __('capell-layout-builder::blocks.modern.stats_section.layout_horizontal'),
+                            'vertical' => __('capell-layout-builder::blocks.modern.stats_section.layout_vertical'),
                         ])
                         ->default('horizontal')
-                        ->helperText('How statistics are arranged'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.stats_section.layout_helper')),
                 ])->columns(1),
 
-            Section::make('Display')
-                ->description('Visibility and admin hints')
+            Section::make(__('capell-layout-builder::blocks.common.section_display'))
+                ->description(__('capell-layout-builder::blocks.common.section_display_description'))
                 ->schema([
                     Toggle::make('data.customizable')
-                        ->label('Show Admin Hints')
+                        ->label(__('capell-layout-builder::blocks.common.admin_hints_label'))
                         ->default(true)
-                        ->helperText('Display "✨ Customize..." message'),
+                        ->helperText(__('capell-layout-builder::blocks.common.customize_message_helper')),
                 ])->columns(1),
         ];
     }

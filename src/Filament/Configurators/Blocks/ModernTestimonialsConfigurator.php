@@ -20,46 +20,46 @@ class ModernTestimonialsConfigurator
     public static function getFormSchema(): array
     {
         return [
-            Section::make('Content')
-                ->description('Testimonials section title')
+            Section::make(__('capell-layout-builder::blocks.common.section_content'))
+                ->description(__('capell-layout-builder::blocks.modern.testimonials.section_content_description'))
                 ->schema([
                     TextInput::make('data.title')
-                        ->label('Section Title')
-                        ->placeholder('What Customers Say')
+                        ->label(__('capell-layout-builder::blocks.common.section_title_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.testimonials.title_placeholder'))
                         ->columnSpanFull(),
                 ])->columns(1),
 
-            Section::make('Layout')
-                ->description('Customize display mode and responsive behavior')
+            Section::make(__('capell-layout-builder::blocks.common.section_layout'))
+                ->description(__('capell-layout-builder::blocks.modern.testimonials.section_layout_description'))
                 ->schema([
                     Select::make('data.displayMode')
-                        ->label('Display Mode')
+                        ->label(__('capell-layout-builder::blocks.modern.testimonials.display_mode_label'))
                         ->options([
-                            'grid' => 'Grid (Multiple columns)',
-                            'carousel' => 'Carousel (Slider with navigation)',
+                            'grid' => __('capell-layout-builder::blocks.modern.testimonials.display_mode_grid'),
+                            'carousel' => __('capell-layout-builder::blocks.modern.testimonials.display_mode_carousel'),
                         ])
                         ->default('grid')
-                        ->helperText('How to display testimonials'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.testimonials.display_mode_helper')),
 
                     Select::make('data.columns')
-                        ->label('Grid Columns')
+                        ->label(__('capell-layout-builder::blocks.modern.testimonials.columns_label'))
                         ->options([
-                            '1' => '1 Column (Full width)',
-                            '2' => '2 Columns',
-                            '3' => '3 Columns',
+                            '1' => __('capell-layout-builder::blocks.modern.testimonials.columns_1'),
+                            '2' => __('capell-layout-builder::blocks.common.columns_2'),
+                            '3' => __('capell-layout-builder::blocks.common.columns_3'),
                         ])
                         ->default('2')
-                        ->helperText('Number of testimonials per row (desktop)')
+                        ->helperText(__('capell-layout-builder::blocks.modern.testimonials.columns_helper'))
                         ->visible(fn (callable $get): bool => $get('data.displayMode') === 'grid'),
                 ])->columns(1),
 
-            Section::make('Display')
-                ->description('Visibility and admin hints')
+            Section::make(__('capell-layout-builder::blocks.common.section_display'))
+                ->description(__('capell-layout-builder::blocks.common.section_display_description'))
                 ->schema([
                     Toggle::make('data.customizable')
-                        ->label('Show Admin Hints')
+                        ->label(__('capell-layout-builder::blocks.common.admin_hints_label'))
                         ->default(true)
-                        ->helperText('Display "✨ Customize..." message'),
+                        ->helperText(__('capell-layout-builder::blocks.common.customize_message_helper')),
                 ])->columns(1),
         ];
     }

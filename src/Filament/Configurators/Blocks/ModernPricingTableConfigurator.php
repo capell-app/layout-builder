@@ -20,38 +20,38 @@ class ModernPricingTableConfigurator
     public static function getFormSchema(): array
     {
         return [
-            Section::make('Content')
-                ->description('Pricing section title, currency, and billing options')
+            Section::make(__('capell-layout-builder::blocks.common.section_content'))
+                ->description(__('capell-layout-builder::blocks.modern.pricing_table.section_content_description'))
                 ->schema([
                     TextInput::make('data.title')
-                        ->label('Section Title')
-                        ->placeholder('Simple, Transparent Pricing')
+                        ->label(__('capell-layout-builder::blocks.common.section_title_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.pricing_table.title_placeholder'))
                         ->columnSpanFull(),
 
                     TextInput::make('data.currency')
-                        ->label('Currency Symbol')
-                        ->placeholder('$')
+                        ->label(__('capell-layout-builder::blocks.modern.pricing_table.currency_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.pricing_table.currency_placeholder'))
                         ->maxLength(5)
                         ->default('$'),
 
                     Select::make('data.billingOptions')
-                        ->label('Billing Cycle Options')
+                        ->label(__('capell-layout-builder::blocks.modern.pricing_table.billing_label'))
                         ->options([
-                            'monthly' => 'Monthly only',
-                            'annual' => 'Annual only',
-                            'both' => 'Monthly & Annual (with toggle)',
+                            'monthly' => __('capell-layout-builder::blocks.modern.pricing_table.billing_monthly'),
+                            'annual' => __('capell-layout-builder::blocks.modern.pricing_table.billing_annual'),
+                            'both' => __('capell-layout-builder::blocks.modern.pricing_table.billing_both'),
                         ])
                         ->default('monthly')
-                        ->helperText('Show toggle for monthly/annual pricing'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.pricing_table.billing_helper')),
                 ])->columns(2),
 
-            Section::make('Display')
-                ->description('Visibility and admin hints')
+            Section::make(__('capell-layout-builder::blocks.common.section_display'))
+                ->description(__('capell-layout-builder::blocks.common.section_display_description'))
                 ->schema([
                     Toggle::make('data.customizable')
-                        ->label('Show Admin Hints')
+                        ->label(__('capell-layout-builder::blocks.common.admin_hints_label'))
                         ->default(true)
-                        ->helperText('Display "✨ Customize..." message'),
+                        ->helperText(__('capell-layout-builder::blocks.common.customize_message_helper')),
                 ])->columns(1),
         ];
     }
