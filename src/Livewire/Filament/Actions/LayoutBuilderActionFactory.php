@@ -33,6 +33,7 @@ use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\HtmlString;
+use RuntimeException;
 
 final class LayoutBuilderActionFactory
 {
@@ -384,7 +385,13 @@ final class LayoutBuilderActionFactory
             ->schema(
                 fn (Action $action, Schema $schema): Schema => BlockForm::configure(
                     $schema->operation('editOption')
-                        ->record(fn (): Block => $action->getRecord()->fresh()),
+                        ->record(function () use ($action): Block {
+                            $block = $action->getRecord()->fresh();
+
+                            throw_unless($block instanceof Block, RuntimeException::class, 'Block edit action record must refresh to a block model.');
+
+                            return $block;
+                        }),
                 ),
             )
             ->action(function (Action $action, Block $record, Schema $schema, array $data): void {

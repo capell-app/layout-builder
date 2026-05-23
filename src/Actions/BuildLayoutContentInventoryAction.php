@@ -205,10 +205,15 @@ final class BuildLayoutContentInventoryAction
             }
         }
 
-        return collect($counts)
-            ->filter(fn (int $count): bool => $count > 1)
-            ->map(fn (): bool => true)
-            ->all();
+        $reusedKeys = [];
+
+        foreach ($counts as $key => $count) {
+            if ($count > 1) {
+                $reusedKeys[$key] = true;
+            }
+        }
+
+        return $reusedKeys;
     }
 
     /**

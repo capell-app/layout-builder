@@ -28,6 +28,7 @@ use Illuminate\Support\Str;
 use RuntimeException;
 use Spatie\Image\Image;
 use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media as SpatieMedia;
 
 abstract class BaseDemoCreator
 {
@@ -89,8 +90,8 @@ abstract class BaseDemoCreator
 
     protected function createPageBlockAsset(Block $block, Pageable $page, string $container, int $occurrence, Model $asset): BlockAsset
     {
-        return DB::transaction(
-            fn (): BlockAsset => $block->assets()->createOrFirst([
+        $blockAsset = DB::transaction(
+            fn (): Model => $block->assets()->createOrFirst([
                 'pageable_id' => $page->getKey(),
                 'pageable_type' => $page->getMorphClass(),
                 'container' => $container,
@@ -100,6 +101,10 @@ abstract class BaseDemoCreator
             ]),
             attempts: 5,
         );
+
+        throw_unless($blockAsset instanceof BlockAsset, RuntimeException::class, 'Layout block asset creation must return a block asset model.');
+
+        return $blockAsset;
     }
 
     protected function translationsFor(Model $model): HasMany|MorphMany
@@ -149,12 +154,18 @@ abstract class BaseDemoCreator
         ];
 
         $layout = Layout::query()->default()->first();
+        $defaultPageType = Blueprint::query()
+            ->where('type', 'page')
+            ->default()
+            ->first();
 
         throw_unless($layout instanceof Layout, Exception::class, 'Default layout not found');
+        throw_unless($defaultPageType instanceof Blueprint, Exception::class, 'Default page type not found');
 
         $parentPage = Page::query()->firstOrNew([
             'site_id' => $site->id,
             'layout_id' => $layout->id,
+            'blueprint_id' => $defaultPageType->id,
             'name' => 'Features',
         ]);
 
@@ -178,6 +189,8 @@ abstract class BaseDemoCreator
 
             $page->fill([
                 'parent_id' => $parentPage->id,
+                'layout_id' => $layout->id,
+                'blueprint_id' => $defaultPageType->id,
                 'meta' => [
                     'icon' => $feature['icon'],
                 ],
@@ -516,7 +529,7 @@ abstract class BaseDemoCreator
 
         // For videos, also attach a jpg poster image
         if (! $isVideo) {
-            return $media;
+            return $this->ensureCapellMedia($media);
         }
 
         $posterPath = $this->getDemoResourcePath('img');
@@ -525,13 +538,22 @@ abstract class BaseDemoCreator
 
         $posterImage = Image::load($posterFile);
 
-        return $content->addMedia($posterFile)
+        $posterMedia = $content->addMedia($posterFile)
             ->preservingOriginal()
             ->withCustomProperties([
                 'width' => $posterImage->getWidth(),
                 'height' => $posterImage->getHeight(),
             ])
             ->toMediaCollection(MediaCollectionEnum::Image->value);
+
+        return $this->ensureCapellMedia($posterMedia);
+    }
+
+    protected function ensureCapellMedia(SpatieMedia $media): Media
+    {
+        throw_unless($media instanceof Media, RuntimeException::class, 'Demo media creation must return a Capell media model.');
+
+        return $media;
     }
 
     protected function getRandomDemoImage(string $demo_path, string $extension = 'jpg'): string

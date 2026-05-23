@@ -26,7 +26,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     #[Override]
     protected static function getTableQueryModifier(Builder $query): Builder
     {
-        return parent::getTableQueryModifier($query)->with('layoutBlocks');
+        return parent::getTableQueryModifier($query);
     }
 
     #[Override]

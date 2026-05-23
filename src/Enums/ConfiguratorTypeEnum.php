@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Enums;
 
+use Capell\Admin\Contracts\ConfiguratorInterface;
 use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
 
 enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
@@ -17,7 +18,7 @@ enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
     case BlockAsset = 'BlockAssets';
 
     /**
-     * @return array<string, array<int, object>>
+     * @return array<string, list<class-string<ConfiguratorInterface>>>
      */
     public static function getAllConfigurators(): array
     {
@@ -37,9 +38,6 @@ enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
         return null;
     }
 
-    /**
-     * @return array<int, object>
-     */
     public function getConfigurators(): array
     {
         return match ($this) {

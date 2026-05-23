@@ -18,11 +18,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as SupportCollection;
-use Illuminate\Support\Enumerable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use RuntimeException;
 use Throwable;
 
 trait ManagesAssets
@@ -1149,7 +1149,12 @@ trait ManagesAssets
         $newAssetsCollection = collect($newAssets)
             ->values()
             ->filter(fn (array $data): bool => in_array((int) ($data['workspace_id'] ?? $this->getCurrentBlockAssetWorkspaceId()), $this->getCurrentContainerBlockAssetWorkspaceIds(), true))
-            ->map(fn (array $data) => $model::query()->newModelInstance()->forceFill($data));
+            ->map(function (array $data) use ($model): BlockAsset {
+                $blockAsset = $model::query()->newModelInstance();
+                $blockAsset->forceFill($data);
+
+                return $blockAsset;
+            });
 
         $allAssets = (new $model)->newCollection(array_merge($existingAssets->all(), $newAssetsCollection->all()));
 
@@ -1160,7 +1165,7 @@ trait ManagesAssets
             ->map(fn (BlockAsset $blockAsset): BlockAsset => $blockAsset);
     }
 
-    protected function filterContainerBlockAssets(Collection $assets, string $containerKey, int $blockOccurrence, ?Block $block = null): SupportCollection|Enumerable
+    protected function filterContainerBlockAssets(Collection $assets, string $containerKey, int $blockOccurrence, ?Block $block = null): Collection
     {
         $currentWorkspaceId = $this->getCurrentBlockAssetWorkspaceId($block);
         $readableWorkspaceIds = $this->getReadableBlockAssetWorkspaceIds($block);
@@ -1194,17 +1199,31 @@ trait ManagesAssets
                 && $blockAsset->pageable_id === $this->page->getKey();
         })->values();
 
-        return $filteredAssets
+        $selectedAssets = $filteredAssets
             ->groupBy(fn (BlockAsset $blockAsset): string => implode(':', [
                 $blockAsset->asset_type,
                 $blockAsset->asset_id,
                 $blockAsset->occurrence,
             ]))
-            ->map(fn (SupportCollection $matchingAssets): BlockAsset => $matchingAssets
-                ->first(fn (BlockAsset $blockAsset): bool => $blockAsset->workspace_id === $currentWorkspaceId)
-                ?? $matchingAssets->first())
+            ->map(function (SupportCollection $matchingAssets) use ($currentWorkspaceId): BlockAsset {
+                $workspaceAsset = $matchingAssets->first(
+                    fn (BlockAsset $blockAsset): bool => $blockAsset->workspace_id === $currentWorkspaceId,
+                );
+
+                if ($workspaceAsset instanceof BlockAsset) {
+                    return $workspaceAsset;
+                }
+
+                $firstAsset = $matchingAssets->first();
+
+                throw_unless($firstAsset instanceof BlockAsset, RuntimeException::class, 'Expected a block asset while filtering container assets.');
+
+                return $firstAsset;
+            })
             ->sortBy(fn (BlockAsset $blockAsset): int => $blockAsset->order)
             ->values();
+
+        return new Collection($selectedAssets->all());
     }
 
     protected function blockAssetMatchesState(BlockAsset $asset, array $blockAssetData, string $containerKey, string $oldContainerKey, int $occurrence, Block $block): bool

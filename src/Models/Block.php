@@ -106,6 +106,7 @@ class Block extends Model implements Blueprintable, HasMedia, Publishable, Statu
         $this->addMediaCollection(MediaCollectionEnum::BackgroundImage->value)->singleFile();
     }
 
+    /** @return BelongsTo<CoreBlueprint, Model> */
     public function blueprint(): BelongsTo
     {
         return $this->belongsTo(CoreBlueprint::class, 'blueprint_id');

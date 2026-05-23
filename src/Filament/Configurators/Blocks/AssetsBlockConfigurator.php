@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Filament\Configurators\Blocks;
 
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
-use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
+use Capell\Admin\Filament\Components\Forms\ImageSourcePicker;
 use Capell\LayoutBuilder\Filament\Components\Forms\AssetsRepeater;
 use Capell\LayoutBuilder\Filament\Components\Forms\Block\ComponentSection;
 use Capell\LayoutBuilder\Filament\Components\Forms\Block\CreateDetailsSchema;
@@ -76,7 +76,9 @@ class AssetsBlockConfigurator extends DefaultBlockConfigurator
                         ->columns(['@md' => 2])
                         ->schema([
                             ...SettingsSchema::make($configurator),
-                            MediaLibraryFileUpload::make('image'),
+                            ImageSourcePicker::make('image')
+                                ->sourceStatePath('meta.image_source')
+                                ->imageSourcePolicy(blueprintSources: $this->blueprintImageSourcePolicy($configurator, 'image')),
                         ]),
                 ]),
         ];

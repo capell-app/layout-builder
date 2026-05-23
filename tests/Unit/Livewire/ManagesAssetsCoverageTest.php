@@ -8,7 +8,6 @@ use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\LayoutBuilder\Models\Block;
 use Capell\LayoutBuilder\Models\BlockAsset;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
-use Illuminate\Support\Collection as SupportCollection;
 
 final class LayoutBuilderAssetHarness extends LayoutBuilder
 {
@@ -51,11 +50,8 @@ final class LayoutBuilderAssetHarness extends LayoutBuilder
         string $containerKey,
         int $blockOccurrence,
         ?Block $block = null,
-    ): SupportCollection {
-        /** @var SupportCollection $filteredAssets */
-        $filteredAssets = $this->filterContainerBlockAssets($assets, $containerKey, $blockOccurrence, $block);
-
-        return $filteredAssets;
+    ): EloquentCollection {
+        return $this->filterContainerBlockAssets($assets, $containerKey, $blockOccurrence, $block);
     }
 
     public function exposeSaveOriginalAssets(): void

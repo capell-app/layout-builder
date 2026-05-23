@@ -4,6 +4,18 @@
 
 Core still owns sites, pages, languages, URLs, themes, and base content models. Admin still owns the Filament panel shell. Layout Builder plugs into both through package registrars and exposes its public API from the `Capell\LayoutBuilder` namespace.
 
+## Why It Helps Your Capell Workflow
+
+- Provides the visual composition layer for Capell: layouts, containers, blocks, assets, public render graphs, and editor mutations.
+- Helps editors assemble pages without storing theme-specific presentation markup in database content fields.
+- Gives developers Actions and registries for public-safe layout payloads, reusable presets, layout areas, and content-first editing.
+
+## Best Used With
+
+- [Block Library](../block-library/README.md)
+- [Content Sections](../content-sections/README.md)
+- [Foundation Theme](../foundation-theme/README.md)
+
 ## Install
 
 ```bash
@@ -145,6 +157,7 @@ The command does not authenticate, generate signed routes, query tenant content,
 
 ## Docs
 
+- [docs index](docs/README.md)
 - [overview.md](docs/overview.md)
 - [screenshots.json](docs/screenshots.json)
 

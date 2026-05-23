@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Data\PageTypeData;
 use Capell\Core\Enums\MediaCollectionEnum;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
@@ -101,6 +103,14 @@ final class LayoutBuilderStandardDemoBlockCreatorHarness extends StandardDemoBlo
 
 function prepareStandardDemoCreatorHarness(Language $language): array
 {
+    if (! CapellCore::hasPageType('section')) {
+        CapellCore::registerPageType(new PageTypeData(
+            name: 'section',
+            model: LayoutBuilderStandardDemoContentPage::class,
+            label: 'Section',
+        ));
+    }
+
     $site = Site::factory()
         ->default()
         ->language($language)

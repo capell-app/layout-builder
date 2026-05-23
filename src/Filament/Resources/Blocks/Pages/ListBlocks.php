@@ -10,9 +10,9 @@ use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Models\Language;
 use Capell\LayoutBuilder\Enums\ResourceEnum as LayoutResourceEnum;
 use Capell\LayoutBuilder\Filament\Actions\CreateBlockAction;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\BlockResource;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Resource;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,7 +22,7 @@ class ListBlocks extends ListRecords
 {
     use ApplySearchRelationsTable;
 
-    /** @return class-string<BlockResource> */
+    /** @return class-string<resource> */
     #[Override]
     public static function getResource(): string
     {

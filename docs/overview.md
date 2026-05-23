@@ -51,6 +51,6 @@ Public Blade must stay query-free and authoring-free. Rendered HTML should not e
 
 ## Known Risks
 
-- `capell.json` lists core/frontend as hard dependencies, but Composer also requires `capell-app/admin` and `capell-app/content-blocks`; align the manifest before marketplace publication.
+- `capell.json` lists core/frontend as hard dependencies, but Composer also requires `capell-app/admin` and `capell-app/content-blocks`; align the manifest before package catalog publication.
 - Frontend screenshots need seeded layouts and blocks to prove public rendering coverage.
 - Content-first and layout-first editor screenshots should be captured separately because they exercise different editor states.

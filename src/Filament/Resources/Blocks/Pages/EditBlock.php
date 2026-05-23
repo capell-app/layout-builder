@@ -11,12 +11,12 @@ use Capell\Admin\Filament\Concerns\HasConfigurableFormActionPosition;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\LayoutBuilder\Enums\ResourceEnum;
 use Capell\LayoutBuilder\Filament\Actions\CreateBlockAction;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\BlockResource;
 use Capell\LayoutBuilder\Filament\Resources\Blocks\RelationManagers\LayoutsRelationManager;
 use Capell\LayoutBuilder\Models\Block;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Resources\Resource;
 use Howdu\FilamentRecordSwitcher\Filament\Concerns\HasRecordSwitcher;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
@@ -34,7 +34,7 @@ class EditBlock extends EditRecord
         afterSave as recordSwitcherAfterSave;
     }
 
-    /** @return class-string<BlockResource> */
+    /** @return class-string<resource> */
     #[Override]
     public static function getResource(): string
     {
@@ -138,7 +138,9 @@ class EditBlock extends EditRecord
         return [
             $this->getSaveFormAction()
                 ->submit(null)
-                ->action(fn (): mixed => $this->save()),
+                ->action(function (): void {
+                    $this->save();
+                }),
             $this->getCancelFormAction(),
         ];
     }

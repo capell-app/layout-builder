@@ -101,6 +101,25 @@ trait ManagesLayoutBuilderState
     public function layoutUpdated(bool $modified = true): void
     {
         $this->layoutModified = $modified;
+
+        if (! $modified || ! $this->inPageContext()) {
+            return;
+        }
+
+        $actionClass = 'Capell\\FilamentPeek\\Actions\\StoreLayoutBuilderPreviewStateAction';
+
+        if (! class_exists($actionClass)) {
+            return;
+        }
+
+        $actionClass::run(
+            page: $this->page,
+            layout: $this->layout,
+            containers: $this->containers ?? [],
+            assets: $this->assets,
+            originalAssets: $this->originalAssets,
+            selectedRecords: $this->selectedRecords ?? [],
+        );
     }
 
     public function getSite(): ?Site

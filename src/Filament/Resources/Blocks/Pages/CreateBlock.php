@@ -7,16 +7,16 @@ namespace Capell\LayoutBuilder\Filament\Resources\Blocks\Pages;
 use Capell\Admin\Filament\Concerns\HasConfigurableFormActionPosition;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\LayoutBuilder\Enums\ResourceEnum;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\BlockResource;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
+use Filament\Resources\Resource;
 use Override;
 
 class CreateBlock extends CreateRecord
 {
     use HasConfigurableFormActionPosition;
 
-    /** @return class-string<BlockResource> */
+    /** @return class-string<resource> */
     #[Override]
     public static function getResource(): string
     {
@@ -43,7 +43,9 @@ class CreateBlock extends CreateRecord
         return [
             $this->getCreateFormAction()
                 ->submit(null)
-                ->action(fn (): mixed => $this->create()),
+                ->action(function (): void {
+                    $this->create();
+                }),
             $this->getCreateAnotherFormAction(),
             $this->getCancelFormAction(),
         ];

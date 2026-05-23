@@ -7,8 +7,9 @@ namespace Capell\LayoutBuilder\Filament\Configurators\Blocks;
 use Capell\Admin\Contracts\ConfiguratorInterface;
 use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
-use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
+use Capell\Admin\Filament\Components\Forms\ImageSourcePicker;
 use Capell\Admin\Filament\Concerns\HasConfigurator;
+use Capell\Core\Models\Blueprint;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\SchemaExtenderEnum;
 use Capell\LayoutBuilder\Filament\Components\Forms\ActionsRepeater;
@@ -26,6 +27,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Model;
 
 class DefaultBlockConfigurator implements ConfiguratorInterface
 {
@@ -63,7 +65,9 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
                         ->columns(['@md' => 2])
                         ->schema([
                             ...SettingsSchema::make($configurator),
-                            MediaLibraryFileUpload::make('image'),
+                            ImageSourcePicker::make('image')
+                                ->sourceStatePath('meta.image_source')
+                                ->imageSourcePolicy(blueprintSources: $this->blueprintImageSourcePolicy($configurator, 'image')),
                         ]),
                 ]),
         ];
@@ -132,5 +136,20 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
     protected function settingsTab(Schema $configurator): Tab
     {
         return BlockSettingsTab::make($configurator);
+    }
+
+    protected function blueprintImageSourcePolicy(Schema $schema, string $field): string|array|null
+    {
+        $record = $schema->getRecord();
+        $blueprint = null;
+
+        if ($record instanceof Model && $record->relationLoaded('blueprint')) {
+            $relation = $record->getRelation('blueprint');
+            $blueprint = $relation instanceof Blueprint ? $relation : null;
+        }
+
+        $policy = data_get($blueprint?->admin, 'image_source_policy.' . $field);
+
+        return is_string($policy) || is_array($policy) ? $policy : null;
     }
 }

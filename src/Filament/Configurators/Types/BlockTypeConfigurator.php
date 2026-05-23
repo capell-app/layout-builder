@@ -10,11 +10,13 @@ use Capell\Admin\Filament\Components\Forms\CustomSelectGroup;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\RequiredFields;
 use Capell\Admin\Filament\Configurators\Types\DefaultTypeConfigurator;
+use Capell\Core\Support\Media\ImageSourcePresets;
 use Capell\LayoutBuilder\Enums\BlockConfiguratorEnum;
 use Capell\LayoutBuilder\Enums\BlockTypeGroupEnum;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Filament\Components\Forms\Block\ComponentSection;
 use Capell\LayoutBuilder\Filament\Components\Forms\Block\DisplaySection;
+use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -75,6 +77,11 @@ class BlockTypeConfigurator extends DefaultTypeConfigurator
                     ->label(__('capell-admin::form.admin_icon')),
                 AssetTypeSelect::make('asset_types')
                     ->multiple(),
+                Select::make('image_source_policy.image')
+                    ->label(__('capell-admin::form.image_source_policy'))
+                    ->helperText(__('capell-admin::form.image_source_policy_helper'))
+                    ->options(ImageSourcePresets::options())
+                    ->placeholder(__('capell-admin::generic.default')),
                 RequiredFields::make(),
             ]);
     }
