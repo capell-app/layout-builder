@@ -11,7 +11,7 @@ use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\Interactions\InteractionSettingsSchema;
 use Capell\Admin\Filament\Components\Forms\Presentation\PresentationSettingsSchema;
 use Capell\Admin\Filament\Components\Forms\RequiredFields;
-use Capell\Admin\Filament\Configurators\Types\DefaultTypeConfigurator;
+use Capell\Admin\Filament\Configurators\Blueprints\DefaultBlueprintConfigurator;
 use Capell\Core\Support\Media\ImageSourcePresets;
 use Capell\LayoutBuilder\Enums\BlockConfiguratorEnum;
 use Capell\LayoutBuilder\Enums\BlockTypeGroupEnum;
@@ -26,7 +26,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Override;
 
-class BlockTypeConfigurator extends DefaultTypeConfigurator
+class BlockTypeConfigurator extends DefaultBlueprintConfigurator
 {
     #[Override]
     public function make(Schema $configurator): array
@@ -64,7 +64,7 @@ class BlockTypeConfigurator extends DefaultTypeConfigurator
             ->columnSpanFull()
             ->columns()
             ->schema([
-                $this->typeConfiguratorSelect(static::getKey()),
+                $this->blueprintConfiguratorSelect(static::getKey()),
                 ConfiguratorSelect::make('configurator')
                     ->label(__('capell-admin::form.admin_form_configurator'))
                     ->helperText(__('capell-admin::generic.admin_form_configurator_info'))
