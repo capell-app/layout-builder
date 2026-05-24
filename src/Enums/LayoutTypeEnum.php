@@ -40,7 +40,7 @@ enum LayoutTypeEnum: string implements HasLabel
         };
     }
 
-    public function getCreatorClass(): ?string
+    public function getCreatorClass(): null
     {
         return null;
     }

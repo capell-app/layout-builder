@@ -13,33 +13,18 @@
         "bundle": "foundation"
     },
     "namespace": "Capell\\LayoutBuilder",
-    "surfaces": [
-        "admin",
-        "frontend",
-        "console"
-    ],
+    "surfaces": ["admin", "frontend", "console"],
     "dependencies": {
-        "requires": [
-            "capell-app/core",
-            "capell-app/frontend"
-        ],
-        "optional": [],
+        "requires": ["capell-app/core", "capell-app/frontend"],
+        "supports": [],
         "conflicts": []
     },
     "providers": {
         "metadata": [],
-        "install": [
-            "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
-        ],
-        "runtime": [
-            "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
-        ],
-        "admin": [
-            "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
-        ],
-        "frontend": [
-            "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
-        ]
+        "install": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"],
+        "runtime": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"],
+        "admin": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"],
+        "frontend": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"]
     },
     "contributes": [
         {
@@ -93,11 +78,7 @@
     "database": {
         "migrations": true,
         "settings": false,
-        "requiredTables": [
-            "layouts",
-            "blocks",
-            "block_assets"
-        ]
+        "requiredTables": ["layouts", "blocks", "block_assets"]
     },
     "commands": {
         "install": "capell:layout-builder-install",
@@ -129,16 +110,10 @@
     "performance": {
         "frontendRenderBudgetMs": 20,
         "adminQueryBudget": 50,
-        "cacheTags": [
-            "layout-builder"
-        ],
+        "cacheTags": ["layout-builder"],
         "cacheSafety": {
             "cacheable": false,
-            "variesBy": [
-                "site",
-                "locale",
-                "page"
-            ],
+            "variesBy": ["site", "locale", "page"],
             "sensitiveOutput": false,
             "invalidationSources": [],
             "queueInvalidation": true
@@ -168,17 +143,9 @@
                 "caption": "Layout Builder extension preview"
             }
         ],
-        "categories": [
-            "admin",
-            "foundation",
-            "frontend"
-        ]
+        "categories": ["admin", "foundation", "frontend"]
     },
     "contributionTraceability": {
-        "deferredContributions": [
-            "migration",
-            "model",
-            "route"
-        ]
+        "deferredContributions": ["migration", "model", "route"]
     }
 }

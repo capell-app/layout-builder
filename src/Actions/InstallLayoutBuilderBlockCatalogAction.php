@@ -65,6 +65,7 @@ class InstallLayoutBuilderBlockCatalogAction
             'pagesBlockType' => $typeCreator->pagesBlockType(),
             'resultsBlockType' => $typeCreator->resultsBlockType(),
             'systemBlockType' => $typeCreator->systemBlockType(),
+            default => $typeCreator->defaultBlockType(),
         };
     }
 

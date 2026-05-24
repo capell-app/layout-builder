@@ -33,7 +33,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
 {
     public function createContentBlock(Collection $languages): Block
     {
-        $siteId = Site::query()->default()?->value('id');
+        $siteId = Site::query()->default()->value('id');
 
         $type = resolve(TypeCreator::class)->contentBuilderBlockType();
 
@@ -88,7 +88,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
 
     public function createSplitContentBlock(Collection $languages): Block
     {
-        $siteId = Site::query()->default()?->value('id');
+        $siteId = Site::query()->default()->value('id');
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'example-split-content'], [
             'name' => 'Example Split Content',

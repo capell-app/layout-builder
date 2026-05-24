@@ -155,7 +155,7 @@ class Block extends Model implements Blueprintable, HasMedia, Publishable, Statu
     {
         $value = $this->component
             ?? $this->meta['component']
-            ?? $this->blueprint?->component
+            ?? $this->blueprint->component
             ?? $this->blueprint?->meta['component']
             ?? null;
 
@@ -166,7 +166,7 @@ class Block extends Model implements Blueprintable, HasMedia, Publishable, Statu
     {
         $value = $this->component_item
             ?? $this->meta['component_item']
-            ?? $this->blueprint?->component_item
+            ?? $this->blueprint->component_item
             ?? $this->blueprint?->meta['component_item']
             ?? null;
 
@@ -177,7 +177,7 @@ class Block extends Model implements Blueprintable, HasMedia, Publishable, Statu
     {
         $value = $this->view_file
             ?? $this->meta['view_file']
-            ?? $this->blueprint?->view_file
+            ?? $this->blueprint->view_file
             ?? $this->blueprint?->meta['view_file']
             ?? null;
 

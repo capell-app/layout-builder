@@ -16,6 +16,7 @@ use Capell\LayoutBuilder\Models\BlockAsset;
 use Capell\LayoutBuilder\Support\LayoutBlockData;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Throwable;
@@ -99,9 +100,7 @@ class LayoutLoader
             $block->setRelation('backgroundImage', $block->media->firstWhere('type', MediaCollectionEnum::BackgroundImage->value));
         });
 
-        $layoutBlocks = $selectedBlockKeys === []
-            ? collect()
-            : $this->layoutBlocks($layout)->whereIn('key', $selectedBlockKeys)->values();
+        $layoutBlocks = $this->layoutBlocks($layout)->whereIn('key', $selectedBlockKeys)->values();
 
         // Attach language relation to the loaded translation for consistency
         $layoutBlocks->each(function (Block $block) use ($language): void {
@@ -156,8 +155,10 @@ class LayoutLoader
             ->whereHas('asset')
             ->with([
                 'media',
-                'asset' => function (MorphTo $morphTo) use ($with): void {
-                    $morphTo->morphWith($with);
+                'asset' => function (Relation $morphTo) use ($with): void {
+                    if ($morphTo instanceof MorphTo) {
+                        $morphTo->morphWith($with);
+                    }
                 },
             ])
             ->ordered()

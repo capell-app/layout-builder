@@ -84,7 +84,7 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->make(LayoutBuilderAdminRegistrar::class)->register();
     }
 
-    private function isPackageInstalled(): bool
+    protected function isPackageInstalled(): bool
     {
         return CapellCore::isPackageInstalled(static::$packageName);
     }

@@ -92,7 +92,7 @@ final class LayoutHealthWidgetAbstract extends FilamentWidget implements CapellW
         $groups = [];
 
         foreach ($blocks as $block) {
-            $group = $block->type?->group ?? 'default';
+            $group = $block->type->group ?? 'default';
             if (! isset($groups[$group])) {
                 $groups[$group] = ['total' => 0, 'published' => 0, 'pending' => 0, 'expired' => 0];
             }
@@ -138,7 +138,7 @@ final class LayoutHealthWidgetAbstract extends FilamentWidget implements CapellW
             ->map(fn (Block $block): LeastUsedBlockData => new LeastUsedBlockData(
                 name: $block->name ?? $block->class,
                 layoutCount: $block->assets_count ?? 0,
-                group: $block->type?->group ?? 'default',
+                group: $block->type->group ?? 'default',
             ));
 
         return LeastUsedBlockData::collect($leastUsed, Collection::class);
@@ -156,7 +156,7 @@ final class LayoutHealthWidgetAbstract extends FilamentWidget implements CapellW
             ->get()
             ->map(fn (Block $block): UnusedBlockData => new UnusedBlockData(
                 name: $block->name ?? $block->class,
-                group: $block->type?->group ?? 'default',
+                group: $block->type->group ?? 'default',
             ));
 
         return UnusedBlockData::collect($unused, Collection::class);

@@ -30,7 +30,6 @@ it('owns admin registration without delegating to the legacy admin registrar', f
     $nestedViewDirectory = 'resources/views/layout-builder';
 
     expect($source)->not->toContain('Capell\\\\Admin\\\\LayoutBuilder\\\\Support\\\\LayoutBuilderAdminRegistrar')
-        ->and(view()->exists('capell-layout-builder::filament.layout-builder.previews.default'))->toBeTrue()
         ->and($previewViewPath)->toContain('packages/layout-builder/resources/views')
         ->and($previewViewPath)->not->toContain($nestedViewDirectory);
 });

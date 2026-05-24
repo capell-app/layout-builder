@@ -26,7 +26,7 @@ final class ResolveLayoutAreaContainersAction
 
         return collect($containers)
             ->filter(fn (mixed $container): bool => is_array($container) && $this->areas->containerArea($container) === $areaKey)
-            ->map(fn (mixed $container): array => is_array($container) ? $container : [])
+            ->map(fn (array $container): array => $container)
             ->all();
     }
 }

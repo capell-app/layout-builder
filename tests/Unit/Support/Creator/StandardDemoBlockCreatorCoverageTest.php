@@ -16,9 +16,9 @@ use Capell\LayoutBuilder\Models\Block;
 use Capell\LayoutBuilder\Support\Creator\BlockCreator;
 use Capell\LayoutBuilder\Support\Creator\StandardDemoBlockCreator;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use Spatie\MediaLibrary\HasMedia;
 
 final class LayoutBuilderStandardDemoContentPage extends Page
 {
@@ -79,7 +79,7 @@ final class LayoutBuilderStandardDemoBlockCreatorHarness extends StandardDemoBlo
     }
 
     #[Override]
-    protected function createMedia(HasMedia $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = 'image'): void {}
+    protected function createMedia(Model $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = 'image'): void {}
 
     #[Override]
     protected function createBlockMedia(Block $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = 'image'): Media

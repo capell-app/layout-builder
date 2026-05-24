@@ -63,7 +63,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
 
         $nameColumnIndex = array_search(
             NameColumn::class,
-            array_map(fn (Column|Component $column): string|false => $column::class, $columns),
+            array_map(fn (Column|Component $column): string => $column::class, $columns),
             true,
         );
 
@@ -96,7 +96,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
 
         $imageColumnIndex = array_search(
             ImageColumn::class,
-            array_map(fn (Column|Component $column): string|false => $column::class, $columns),
+            array_map(fn (Column|Component $column): string => $column::class, $columns),
             true,
         );
 

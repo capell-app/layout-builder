@@ -81,11 +81,11 @@ abstract class BaseDemoCreator
     {
         $navigationCreator = NavigationCreator::class;
 
-        if (CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($navigationCreator) && method_exists($navigationCreator, 'getPageNavigationLabel')) {
+        if (CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($navigationCreator)) {
             return $navigationCreator::getPageNavigationLabel($page, $language);
         }
 
-        return $page->translation?->title ?? $page->name;
+        return $page->translation->title ?? $page->name;
     }
 
     protected function createPageBlockAsset(Block $block, Pageable $page, string $container, int $occurrence, Model $asset): BlockAsset
@@ -433,8 +433,12 @@ abstract class BaseDemoCreator
         return $teamMembersCollection;
     }
 
-    protected function createMedia(HasMedia $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): void
+    protected function createMedia(Model $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): void
     {
+        if (! $model instanceof HasMedia) {
+            return;
+        }
+
         $collectionName = $collection instanceof BackedEnum ? $collection->value : $collection;
 
         // Build an optional filter to match existing media by inferred filename when a name is provided
@@ -571,7 +575,7 @@ abstract class BaseDemoCreator
     {
         $demoCreator = self::DEMO_CREATOR;
 
-        if (CapellCore::isPackageInstalled(self::DemoKitPackage) && class_exists($demoCreator) && method_exists($demoCreator, 'getDemoResourcePath')) {
+        if (CapellCore::isPackageInstalled(self::DemoKitPackage) && class_exists($demoCreator)) {
             return $demoCreator::getDemoResourcePath($type);
         }
 

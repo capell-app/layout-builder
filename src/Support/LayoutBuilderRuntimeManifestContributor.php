@@ -91,6 +91,6 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
             ->enabled()
             ->publishedDate()
             ->get()
-            ->contains(fn (Model $block): bool => method_exists($block, 'getMetaComponentType') && $block->getMetaComponentType() === 'livewire');
+            ->contains(fn (Model $block): bool => $block->getMetaComponentType() === 'livewire');
     }
 }

@@ -41,10 +41,22 @@ enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
     public function getConfigurators(): array
     {
         return match ($this) {
-            self::LayoutContainer => LayoutContainerConfiguratorEnum::cases(),
-            self::LayoutBlock => LayoutBlockConfiguratorEnum::cases(),
-            self::Block => BlockConfiguratorEnum::cases(),
-            self::BlockAsset => BlockAssetConfiguratorEnum::cases(),
+            self::LayoutContainer => array_map(
+                fn (LayoutContainerConfiguratorEnum $configurator): string => $configurator->value,
+                LayoutContainerConfiguratorEnum::cases(),
+            ),
+            self::LayoutBlock => array_map(
+                fn (LayoutBlockConfiguratorEnum $configurator): string => $configurator->value,
+                LayoutBlockConfiguratorEnum::cases(),
+            ),
+            self::Block => array_map(
+                fn (BlockConfiguratorEnum $configurator): string => $configurator->value,
+                BlockConfiguratorEnum::cases(),
+            ),
+            self::BlockAsset => array_map(
+                fn (BlockAssetConfiguratorEnum $configurator): string => $configurator->value,
+                BlockAssetConfiguratorEnum::cases(),
+            ),
         };
     }
 

@@ -440,7 +440,7 @@ class TypeCreator
     {
         $contentSectionsModel = Section::class;
 
-        if (class_exists($contentSectionsModel) && is_subclass_of($contentSectionsModel, Model::class)) {
+        if (class_exists($contentSectionsModel)) {
             return $contentSectionsModel;
         }
 

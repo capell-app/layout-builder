@@ -42,7 +42,7 @@ class InvalidateBlockLayoutPreviewImagesAction
     }
 
     /**
-     * @param  Collection<int, string>  $blockKeys
+     * @param  Collection<int, non-empty-string>  $blockKeys
      * @return Builder<Layout>
      */
     private function layoutQuery(Collection $blockKeys): Builder

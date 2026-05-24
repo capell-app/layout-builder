@@ -165,9 +165,9 @@ final class LayoutBuilderActionFactory
             ->record(fn (): Layout => $this->livewire->layout)
             ->modalWidth(Width::ScreenLarge)
             ->modalHeading(
-                fn (array $arguments): string|array|null => __(
+                fn (array $arguments): string|array => __(
                     'capell-layout-builder::heading.edit_container',
-                    ['key' => str($arguments['containerKey'])->title()],
+                    ['key' => (string) str($arguments['containerKey'])->title()],
                 ),
             )
             ->modalSubmitActionLabel(fn (Action $action): string => $action->getLabel())
@@ -270,7 +270,7 @@ final class LayoutBuilderActionFactory
                     'capell-admin::generic.edit_container_block',
                     [
                         'container' => $arguments['containerKey'],
-                        'block' => $livewire->getContainerBlock($arguments['containerKey'], $arguments['blockIndex'])?->name,
+                        'block' => $livewire->getContainerBlock($arguments['containerKey'], $arguments['blockIndex'])->name,
                     ],
                 ),
             )
@@ -602,7 +602,7 @@ final class LayoutBuilderActionFactory
                 fn (array $arguments, LayoutBuilder $livewire): string => __(
                     'capell-admin::generic.add_block_asset',
                     [
-                        'block' => $livewire->getContainerBlock($arguments['containerKey'], $arguments['blockIndex'])?->name,
+                        'block' => $livewire->getContainerBlock($arguments['containerKey'], $arguments['blockIndex'])->name,
                         'asset' => $arguments['type'],
                     ],
                 ),
@@ -886,7 +886,7 @@ final class LayoutBuilderActionFactory
 
         throw_unless($configurator instanceof Schema, Exception::class, 'Mounted action schema not found.');
 
-        $configurator->livewire($this);
+        $configurator->livewire($this->livewire);
 
         $containerKey = $arguments['containerKey'];
         $blockIndex = $arguments['blockIndex'];
@@ -1041,10 +1041,10 @@ final class LayoutBuilderActionFactory
         $name = str($arguments['type'])->title();
 
         if ($livewire->inPageContext()) {
-            return __('capell-layout-builder::heading.edit_page_block_asset', ['name' => $name]);
+            return __('capell-layout-builder::heading.edit_page_block_asset', ['name' => (string) $name]);
         }
 
-        return __('capell-layout-builder::heading.edit_block_asset', ['name' => $name]);
+        return __('capell-layout-builder::heading.edit_block_asset', ['name' => (string) $name]);
     }
 
     private function getEditBlockAssetModalDescription(LayoutBuilder $livewire, array $arguments): ?string

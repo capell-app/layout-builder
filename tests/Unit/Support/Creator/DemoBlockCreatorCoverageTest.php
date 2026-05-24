@@ -13,8 +13,8 @@ use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\LayoutBuilder\Models\Block;
 use Capell\LayoutBuilder\Support\Creator\ApDemoBlockCreator;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Spatie\MediaLibrary\HasMedia;
 
 final class LayoutBuilderDemoContentPage extends Page
 {
@@ -55,7 +55,7 @@ final class LayoutBuilderDemoBlockCreatorHarness extends ApDemoBlockCreator
     }
 
     #[Override]
-    protected function createMedia(HasMedia $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = 'image'): void {}
+    protected function createMedia(Model $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = 'image'): void {}
 
     #[Override]
     protected function createBlockMedia(Block $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = 'image'): Media

@@ -51,7 +51,7 @@ final class LayoutPresetPolicy
             return true;
         }
 
-        if (method_exists($user, 'getAssignedSiteIds') && $user->getAssignedSiteIds()->isNotEmpty() && ! $user->getAssignedSiteIds()->contains($site->getKey())) {
+        if ($user->getAssignedSiteIds()->isNotEmpty() && ! $user->getAssignedSiteIds()->contains($site->getKey())) {
             return false;
         }
 
@@ -72,8 +72,7 @@ final class LayoutPresetPolicy
 
     private function isSuperAdmin(User $user): bool
     {
-        return method_exists($user, 'hasRole')
-            && $user->hasRole(config('capell.roles.super_admin', 'super_admin'));
+        return $user->hasRole(config('capell.roles.super_admin', 'super_admin'));
     }
 
     private function allows(callable $callback): bool

@@ -49,7 +49,7 @@ final class ResolveAdminBlockPreviewDataAction
     private function view(Block $block, bool $usesPageContent): string
     {
         $customView = Arr::get($block->admin ?? [], 'admin_preview_view')
-            ?? Arr::get($block->type?->admin ?? [], 'admin_preview_view');
+            ?? Arr::get($block->type->admin ?? [], 'admin_preview_view');
 
         if (is_string($customView) && $customView !== '' && $this->isPreviewView($customView)) {
             return $customView;
@@ -154,7 +154,7 @@ final class ResolveAdminBlockPreviewDataAction
     private function typeLabel(Block $block): ?string
     {
         $type = Arr::get($block->admin ?? [], 'type')
-            ?? Arr::get($block->type?->admin ?? [], 'type');
+            ?? Arr::get($block->type->admin ?? [], 'type');
 
         return is_string($type) && $type !== '' ? $type : null;
     }
@@ -162,7 +162,7 @@ final class ResolveAdminBlockPreviewDataAction
     private function icon(Block $block): ?string
     {
         $icon = Arr::get($block->admin ?? [], 'icon')
-            ?? Arr::get($block->type?->admin ?? [], 'icon');
+            ?? Arr::get($block->type->admin ?? [], 'icon');
 
         return is_string($icon) && $icon !== '' ? $icon : null;
     }

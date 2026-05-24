@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
@@ -779,10 +780,18 @@ trait ManagesAssets
             ->get();
 
         $existingAssetsByKey = $existingAssets
-            ->mapWithKeys(fn (BlockAsset $blockAsset): array => [$blockAsset->asset_key => $blockAsset]);
+            ->mapWithKeys(function (Model $blockAsset): array {
+                throw_unless($blockAsset instanceof BlockAsset);
+
+                return [$blockAsset->asset_key => $blockAsset];
+            });
 
         $existingAssetsById = $existingAssets
-            ->keyBy(fn (BlockAsset $blockAsset): int => $blockAsset->getKey());
+            ->keyBy(function (Model $blockAsset): int {
+                throw_unless($blockAsset instanceof BlockAsset);
+
+                return $blockAsset->getKey();
+            });
 
         if ($existingAssets->isNotEmpty()) {
             $activeBlockAssetIds = $this->activeBlockAssetIds($block);
@@ -801,7 +810,7 @@ trait ManagesAssets
 
             if ($assetsToRemove->isNotEmpty()) {
                 $assetsToRemove->each(function (BlockAsset $blockAsset) use ($containerKey, $blockIndex, $block): void {
-                    $searchIndex = $block->assets->search(fn (BlockAsset $asset): bool => $asset->id === $blockAsset->id);
+                    $searchIndex = $block->assets->search(fn (Model $asset): bool => $asset instanceof BlockAsset && $asset->id === $blockAsset->id);
                     if (is_int($searchIndex)) {
                         $block->assets->forget([$searchIndex]);
                     }
@@ -925,11 +934,10 @@ trait ManagesAssets
             ])
             ->when(
                 $pageId,
-                fn (SupportCollection $collection) => $collection->where([
-                    'container' => $containerKey,
-                    'pageable_id' => $pageId,
-                    'pageable_type' => $this->page->getMorphClass(),
-                ]),
+                fn (SupportCollection $collection): SupportCollection => $collection
+                    ->where('container', $containerKey)
+                    ->where('pageable_id', $pageId)
+                    ->where('pageable_type', $this->page->getMorphClass()),
             )
             ->first();
 
@@ -1036,7 +1044,13 @@ trait ManagesAssets
 
         $assets = $model::query()
             ->with([
-                'asset' => fn (MorphTo $query): MorphTo => $query->morphWith($this->getAssetRelations()),
+                'asset' => function (Relation $query): Relation {
+                    if ($query instanceof MorphTo) {
+                        $query->morphWith($this->getAssetRelations());
+                    }
+
+                    return $query;
+                },
                 'media',
             ])
             ->where('block_id', $block->id)
@@ -1086,7 +1100,11 @@ trait ManagesAssets
         $assets = $this->buildPreloadedBlockAssets($existingIds, $newAssets);
 
         return $this->filterContainerBlockAssets($assets, $containerKey, $occurrence, $block)
-            ->each(fn (BlockAsset $asset): BlockAsset => $asset->setRelation('block', $block));
+            ->each(function (Model $asset) use ($block): void {
+                if ($asset instanceof BlockAsset) {
+                    $asset->setRelation('block', $block);
+                }
+            });
     }
 
     protected function preloadAllBlockAssets(): ?Collection
@@ -1160,9 +1178,16 @@ trait ManagesAssets
 
         $eloquentCollection = new Collection($allAssets->all());
 
-        return $eloquentCollection->load(['asset' => fn (MorphTo $query): MorphTo => $query->morphWith($this->getAssetRelations())])
-            ->filter(fn (BlockAsset $blockAsset): bool => $this->canUseAssetRecord($blockAsset->asset))
-            ->map(fn (BlockAsset $blockAsset): BlockAsset => $blockAsset);
+        return $eloquentCollection->load([
+            'asset' => function (Relation $query): Relation {
+                if ($query instanceof MorphTo) {
+                    $query->morphWith($this->getAssetRelations());
+                }
+
+                return $query;
+            },
+        ])
+            ->filter(fn (BlockAsset $blockAsset): bool => $this->canUseAssetRecord($blockAsset->asset));
     }
 
     protected function filterContainerBlockAssets(Collection $assets, string $containerKey, int $blockOccurrence, ?Block $block = null): Collection
@@ -1170,7 +1195,11 @@ trait ManagesAssets
         $currentWorkspaceId = $this->getCurrentBlockAssetWorkspaceId($block);
         $readableWorkspaceIds = $this->getReadableBlockAssetWorkspaceIds($block);
 
-        $filteredAssets = $assets->filter(function (BlockAsset $blockAsset) use ($containerKey, $blockOccurrence, $readableWorkspaceIds): bool {
+        $filteredAssets = $assets->filter(function (Model $blockAsset) use ($containerKey, $blockOccurrence, $readableWorkspaceIds): bool {
+            if (! $blockAsset instanceof BlockAsset) {
+                return false;
+            }
+
             if (! in_array($blockAsset->workspace_id, $readableWorkspaceIds, true)) {
                 return false;
             }
@@ -1200,14 +1229,18 @@ trait ManagesAssets
         })->values();
 
         $selectedAssets = $filteredAssets
-            ->groupBy(fn (BlockAsset $blockAsset): string => implode(':', [
-                $blockAsset->asset_type,
-                $blockAsset->asset_id,
-                $blockAsset->occurrence,
-            ]))
+            ->groupBy(function (Model $blockAsset): string {
+                throw_unless($blockAsset instanceof BlockAsset);
+
+                return implode(':', [
+                    $blockAsset->asset_type,
+                    $blockAsset->asset_id,
+                    $blockAsset->occurrence,
+                ]);
+            })
             ->map(function (SupportCollection $matchingAssets) use ($currentWorkspaceId): BlockAsset {
                 $workspaceAsset = $matchingAssets->first(
-                    fn (BlockAsset $blockAsset): bool => $blockAsset->workspace_id === $currentWorkspaceId,
+                    fn (Model $blockAsset): bool => $blockAsset instanceof BlockAsset && $blockAsset->workspace_id === $currentWorkspaceId,
                 );
 
                 if ($workspaceAsset instanceof BlockAsset) {

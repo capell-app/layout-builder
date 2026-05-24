@@ -991,7 +991,7 @@ it('adds hero blocks to new and existing layout containers once', function (): v
 
 it('covers cold type configurator and modal page table setup with livewire table owner', function (): void {
     $blockTypeConfigurator = resolve(BlockTypeConfigurator::class);
-    $schema = Mockery::mock(Schema::class)->shouldIgnoreMissing();
+    $schema = Schema::make();
     $blockTypeSchema = $blockTypeConfigurator->make($schema);
     $component = new LayoutBuilderResidualModalTableSelect;
     $component->tableConfiguration = PageSelectionTable::class;
@@ -1008,7 +1008,7 @@ it('covers cold type configurator and modal page table setup with livewire table
     expect($blockTypeSchema)->toHaveCount(4)
         ->and($configuredTable)->toBeInstanceOf(Table::class)
         ->and($modalConfiguredTable)->toBeInstanceOf(Table::class)
-        ->and($component->form(Mockery::mock(Schema::class)->shouldIgnoreMissing()))->toBeInstanceOf(Schema::class)
+        ->and($component->form(Schema::make()))->toBeInstanceOf(Schema::class)
         ->and($component->render()->name())->toBe('capell-layout-builder::livewire.filament.layout-builder.blocks-table-select');
 });
 

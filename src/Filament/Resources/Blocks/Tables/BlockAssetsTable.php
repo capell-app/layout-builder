@@ -108,9 +108,13 @@ class BlockAssetsTable implements TableConfigurator
                                 ->whereNotNull(['pageable_type', 'pageable_id'])
                                 ->groupBy(['pageable_type', 'pageable_id'])
                                 ->get()
-                                ->pluck(
-                                    fn (BlockAsset $blockAsset): array => [self::buildLookupKey($blockAsset->pageable_type, $blockAsset->pageable_id) => $blockAsset->pageable instanceof Model ? $blockAsset->pageable->getAttribute('name') : null],
-                                )
+                                ->mapWithKeys(function (Model $blockAsset): array {
+                                    throw_unless($blockAsset instanceof BlockAsset);
+
+                                    return [
+                                        self::buildLookupKey($blockAsset->pageable_type, $blockAsset->pageable_id) => $blockAsset->pageable instanceof Model ? $blockAsset->pageable->getAttribute('name') : null,
+                                    ];
+                                })
                                 ->all(),
                         ),
                     AssetTypeSelect::make('type'),

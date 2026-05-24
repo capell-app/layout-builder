@@ -35,9 +35,13 @@ class BackgroundSchema
                 ->columnSpan(['md' => 2])
                 ->when(
                     $backgroundCollectionUsing instanceof Closure,
-                    fn (SpatieMediaLibraryFileUpload $component): SpatieMediaLibraryFileUpload => $component->collection(
-                        fn (SpatieMediaLibraryFileUpload $component): string => $component->evaluate($backgroundCollectionUsing),
-                    ),
+                    function (Field $component) use ($backgroundCollectionUsing): SpatieMediaLibraryFileUpload {
+                        throw_unless($component instanceof SpatieMediaLibraryFileUpload);
+
+                        return $component->collection(
+                            fn (SpatieMediaLibraryFileUpload $component): string => $component->evaluate($backgroundCollectionUsing),
+                        );
+                    },
                 ),
 
             Grid::make(['sm' => 2, 'md' => 3])

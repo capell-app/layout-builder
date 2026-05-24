@@ -143,7 +143,7 @@ trait AuthorizesLayoutBuilderAccess
     {
         $configuration = LayoutBuilderConfiguration::class;
 
-        if (class_exists($configuration) && method_exists($configuration, 'defaultEditorMode')) {
+        if (class_exists($configuration)) {
             return $configuration::defaultEditorMode();
         }
 
@@ -192,7 +192,7 @@ trait AuthorizesLayoutBuilderAccess
             return true;
         }
 
-        $resolvedAbility = $policy !== null && method_exists($policy, $ability) ? $ability : 'update';
+        $resolvedAbility = method_exists($policy, $ability) ? $ability : 'update';
 
         return Gate::forUser($actor)->allows($resolvedAbility, $record);
     }
@@ -205,7 +205,7 @@ trait AuthorizesLayoutBuilderAccess
             return;
         }
 
-        $resolvedAbility = $policy !== null && method_exists($policy, $ability) ? $ability : 'update';
+        $resolvedAbility = method_exists($policy, $ability) ? $ability : 'update';
 
         Gate::forUser($actor)->authorize($resolvedAbility, $record);
     }

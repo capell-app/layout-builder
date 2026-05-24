@@ -374,21 +374,7 @@ trait ManagesContainers
             return LayoutBreakpoint::fromNullable($breakpoint);
         }
 
-        if (! property_exists($this, 'activeBreakpoint')) {
-            return null;
-        }
-
-        $breakpoint = $this->activeBreakpoint;
-
-        if ($breakpoint instanceof LayoutBreakpoint) {
-            return $breakpoint;
-        }
-
-        if (is_string($breakpoint)) {
-            return LayoutBreakpoint::fromNullable($breakpoint);
-        }
-
-        return null;
+        return $this->activeBreakpoint;
     }
 
     private function trackKnownContainerKey(string $containerKey): void

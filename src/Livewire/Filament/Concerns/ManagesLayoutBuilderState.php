@@ -208,11 +208,11 @@ trait ManagesLayoutBuilderState
 
         $this->applyLayoutState($result->state, markModified: true);
         $this->layoutDiagnostics = array_map(
-            fn (mixed $diagnostic): array => method_exists($diagnostic, 'toArray') ? $diagnostic->toArray() : (array) $diagnostic,
+            fn (mixed $diagnostic): array => $diagnostic->toArray(),
             $result->diagnostics,
         );
         $this->layoutChanges = array_map(
-            fn (mixed $change): array => method_exists($change, 'toArray') ? $change->toArray() : (array) $change,
+            fn (mixed $change): array => $change->toArray(),
             $result->changes,
         );
         $this->refreshLayoutChanges();

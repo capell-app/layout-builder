@@ -31,7 +31,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
             ],
         ]);
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
@@ -60,7 +60,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
             ],
         ]);
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 ['title' => 'AP Card Grid'],
@@ -86,7 +86,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
                 ],
             ]);
 
-            foreach (Site::getDefault()?->languages ?? [] as $language) {
+            foreach (Site::getDefault()->languages ?? [] as $language) {
                 $this->translationsFor($section)->firstOrCreate(
                     ['language_id' => $language->id],
                     ['title' => $card['title'], 'content' => sprintf('<p>%s</p>', $card['description'])],
@@ -118,7 +118,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
             ],
         ]);
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 ['title' => 'AP Feature List'],
@@ -141,7 +141,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
                 'meta' => ['icon' => $feature['icon']],
             ]);
 
-            foreach (Site::getDefault()?->languages ?? [] as $language) {
+            foreach (Site::getDefault()->languages ?? [] as $language) {
                 $this->translationsFor($section)->firstOrCreate(
                     ['language_id' => $language->id],
                     ['title' => $feature['title'], 'content' => sprintf('<p>%s</p>', $feature['description'])],
@@ -161,7 +161,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
     {
         $block = resolve(BlockCreator::class)->featuresBlock();
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->firstOrCreate(
                 ['language_id' => $language->id],
                 ['title' => 'Features'],
@@ -186,7 +186,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
                 'meta' => ['icon' => $feature['icon']],
             ]);
 
-            foreach (Site::getDefault()?->languages ?? [] as $language) {
+            foreach (Site::getDefault()->languages ?? [] as $language) {
                 $this->translationsFor($section)->firstOrCreate(
                     ['language_id' => $language->id],
                     ['title' => $feature['title'], 'content' => sprintf('<p>%s</p>', $feature['description'])],
@@ -221,7 +221,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
             ],
         ]);
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
@@ -252,7 +252,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
             ],
         ]);
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 ['title' => 'Our Work'],

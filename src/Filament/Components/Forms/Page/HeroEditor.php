@@ -30,10 +30,8 @@ class HeroEditor extends Group
                 $page = null;
                 if ($record instanceof Pageable) {
                     $page = $record;
-                } elseif ($record instanceof Translation) {
+                } else {
                     $page = $record->translatable;
-                } elseif (method_exists($record, 'pageable')) {
-                    $page = $record->pageable;
                 }
 
                 if (! $page instanceof Pageable) {
