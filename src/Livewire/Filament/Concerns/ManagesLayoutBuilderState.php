@@ -102,7 +102,7 @@ trait ManagesLayoutBuilderState
     {
         $this->layoutModified = $modified;
 
-        if (! $modified || ! $this->inPageContext()) {
+        if (! $this->inPageContext()) {
             return;
         }
 
@@ -112,13 +112,21 @@ trait ManagesLayoutBuilderState
             return;
         }
 
-        $actionClass::run(
+        $action = app($actionClass);
+
+        if (! $modified) {
+            if (method_exists($action, 'clear')) {
+                $action->clear($this->page);
+            }
+
+            return;
+        }
+
+        $action->handle(
             page: $this->page,
             layout: $this->layout,
             containers: $this->containers ?? [],
             assets: $this->assets,
-            originalAssets: $this->originalAssets,
-            selectedRecords: $this->selectedRecords ?? [],
         );
     }
 

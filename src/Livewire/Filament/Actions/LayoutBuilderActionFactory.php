@@ -1095,6 +1095,7 @@ final class LayoutBuilderActionFactory
         }
 
         $livewire->reloadContainerBlockAsset($arguments['containerKey'], $arguments['blockIndex'], $arguments['index']);
+        $livewire->layoutUpdated();
 
         $action->success();
     }
