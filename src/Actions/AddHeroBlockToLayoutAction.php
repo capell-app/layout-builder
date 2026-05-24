@@ -31,6 +31,9 @@ class AddHeroBlockToLayoutAction
         AddBlockToLayoutContainerAction::run($block, $layout, $container, skipExists: true);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     private function heroContainer(Block $block): array
     {
         return [

@@ -38,6 +38,9 @@ class AssetsBlockConfigurator extends DefaultBlockConfigurator
         };
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getOptionSchema(Schema $configurator): array
     {
         return [

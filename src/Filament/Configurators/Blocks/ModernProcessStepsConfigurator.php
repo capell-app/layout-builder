@@ -17,6 +17,9 @@ use Filament\Schemas\Components\Section;
  */
 class ModernProcessStepsConfigurator
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getFormSchema(): array
     {
         return [
@@ -58,6 +61,9 @@ class ModernProcessStepsConfigurator
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getDefaults(): array
     {
         return [

@@ -9,6 +9,9 @@ use Filament\Support\Icons\Heroicon;
 
 class BlockDisplayTab
 {
+    /**
+     * @param  array<array-key, mixed>  $configurator
+     */
     public static function make(array $configurator = []): Tab
     {
         return Tab::make(__('capell-layout-builder::tab.display'))

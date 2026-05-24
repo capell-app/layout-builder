@@ -28,6 +28,8 @@ class LayoutLoader
     /**
      * Preloaded blocks per [layoutId][languageId][pageIdOr0] => [containerKey][blockKey][occurrence] => Block
      * Used to avoid N+1 queries when resolving multiple blocks for a layout.
+     *
+     * @var array<array-key, mixed>
      */
     private array $preloaded = [];
 
@@ -246,6 +248,9 @@ class LayoutLoader
         $this->preloaded[$cacheKey] = $result;
     }
 
+    /**
+     * @param  array<array-key, mixed>  $containerKeys
+     */
     public function getLayoutBlock(
         Layout $layout,
         string $blockKey,
@@ -325,6 +330,9 @@ class LayoutLoader
         return 'layout:' . $layout->id . ':lang:' . $language->id . ':page:' . ($page instanceof Pageable ? $page->id : 0) . ':containers:' . $containers;
     }
 
+    /**
+     * @param  array<array-key, mixed>  $containerKeys
+     */
     private function loadBlock(
         Layout $layout,
         Language $language,
@@ -345,7 +353,7 @@ class LayoutLoader
 
     /**
      * @param  array<int, string>|null  $containerKeys
-     * @return array<string, array<string, mixed>>
+     * @return array<string, array<array-key, mixed>>
      */
     private function selectedLayoutContainers(Layout $layout, ?array $containerKeys): array
     {
@@ -363,7 +371,7 @@ class LayoutLoader
     }
 
     /**
-     * @param  array<string, array<string, mixed>>  $containers
+     * @param  array<string, array<array-key, mixed>>  $containers
      * @return array<int, string>
      */
     private function selectedBlockKeys(array $containers): array
@@ -378,7 +386,7 @@ class LayoutLoader
     }
 
     /**
-     * @param  array<string, array<string, mixed>>  $containers
+     * @param  array<string, array<array-key, mixed>>  $containers
      * @return array<int, array{container: string, occurrence: int}>
      */
     private function selectedContainerOccurrences(array $containers): array

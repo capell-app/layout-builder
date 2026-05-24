@@ -58,21 +58,36 @@ final class LayoutBuilderStandardDemoBlockCreatorHarness extends StandardDemoBlo
         $this->pageModel = Page::class;
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $siteTree
+     * @return array<array-key, mixed>
+     */
     public function exposeNavigationPageItems(Collection $siteTree, Language $language): array
     {
         return $this->navigationPageItems($siteTree, $language);
     }
 
+    /**
+     * @return Collection<array-key, mixed>
+     */
     public function exposeCreateFeatures(Site $site): Collection
     {
         return $this->createFeatures($site);
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     * @return Collection<array-key, mixed>
+     */
     public function exposeCreateTestimonials(Collection $languages): Collection
     {
         return $this->createTestimonials($languages);
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     * @return Collection<array-key, mixed>
+     */
     public function exposeCreateTeamMembers(Collection $languages): Collection
     {
         return $this->createTeamMembers($languages);
@@ -101,6 +116,9 @@ final class LayoutBuilderStandardDemoBlockCreatorHarness extends StandardDemoBlo
     }
 }
 
+/**
+ * @return array<array-key, mixed>
+ */
 function prepareStandardDemoCreatorHarness(Language $language): array
 {
     if (! CapellCore::hasPageType('section')) {

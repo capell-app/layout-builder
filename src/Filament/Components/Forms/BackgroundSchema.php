@@ -17,6 +17,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class BackgroundSchema
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function make(string $backgroundName = 'background_image', ?Closure $backgroundCollectionUsing = null): array
     {
         return [

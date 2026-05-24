@@ -17,6 +17,9 @@ use Filament\Schemas\Components\Section;
  */
 class ModernImageGalleryConfigurator
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getFormSchema(): array
     {
         return [
@@ -68,6 +71,9 @@ class ModernImageGalleryConfigurator
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getDefaults(): array
     {
         return [

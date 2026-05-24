@@ -12,6 +12,9 @@ use Filament\Schemas\Components\Utilities\Get;
 
 class ResponsiveLayoutPatternSchema
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function make(): array
     {
         return [

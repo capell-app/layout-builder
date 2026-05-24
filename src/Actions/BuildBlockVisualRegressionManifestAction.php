@@ -10,6 +10,9 @@ use Capell\ContentBlocks\Support\BlockRegistry;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/**
+ * @method static array<int, array<string, mixed>> run(?string $block = null, ?string $variant = null, ?string $theme = null, ?int $limit = null)
+ */
 final class BuildBlockVisualRegressionManifestAction
 {
     use AsObject;

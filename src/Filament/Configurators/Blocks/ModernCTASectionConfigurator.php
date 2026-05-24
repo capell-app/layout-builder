@@ -19,6 +19,9 @@ use Filament\Schemas\Components\Section;
  */
 class ModernCTASectionConfigurator
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getFormSchema(): array
     {
         return [
@@ -111,6 +114,9 @@ class ModernCTASectionConfigurator
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getDefaults(): array
     {
         return [

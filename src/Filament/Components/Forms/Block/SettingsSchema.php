@@ -16,6 +16,10 @@ use Illuminate\Validation\Rules\Unique;
 
 class SettingsSchema
 {
+    /**
+     * @param  array<array-key, mixed>  $components
+     * @return array<array-key, mixed>
+     */
     public static function make(Schema $configurator, array $components = []): array
     {
         return [

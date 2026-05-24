@@ -83,8 +83,7 @@ it('builds block table columns filters and search query branches', function (): 
         'hero-card',
     );
 
-    $languageFilter = collect($filters)
-        ->first(fn (mixed $filter): bool => method_exists($filter, 'getName') && $filter->getName() === 'filter');
+    $languageFilter = firstLayoutBuilderTableComponent($filters, 'filter');
 
     expect($columns)->toContainOnlyInstancesOf(Column::class)
         ->and($filters)->toHaveCount(5)
@@ -126,14 +125,51 @@ it('adds layout-builder specific layout table filters columns and query relation
         Layout::query(),
     );
 
-    $blockFilter = collect($filters)
-        ->first(fn (mixed $filter): bool => $filter instanceof SelectFilter && $filter->getName() === 'block_key');
+    $blockFilter = firstLayoutBuilderTableComponent($filters, 'block_key', SelectFilter::class);
 
     expect($blockFilter)->not->toBeNull()
         ->and($columns)->not->toBeEmpty()
         ->and($query)->toBeInstanceOf(Builder::class)
         ->and($block->exists)->toBeTrue()
-        ->and(collect($columns)->contains(
-            fn (mixed $column): bool => $column instanceof TextColumn && in_array($column->getName(), ['layoutBlocks.name', 'admin.' . LayoutPreviewMetaKey::STATUS], true),
-        ))->toBeBool();
+        ->and(layoutBuilderTableContainsColumn($columns, ['layoutBlocks.name', 'admin.' . LayoutPreviewMetaKey::STATUS]))->toBeBool();
 });
+
+/**
+ * @param  array<int, mixed>  $components
+ * @param  class-string|null  $expectedClass
+ */
+function firstLayoutBuilderTableComponent(array $components, string $name, ?string $expectedClass = null): ?object
+{
+    foreach ($components as $component) {
+        if (! is_object($component) || ! method_exists($component, 'getName')) {
+            continue;
+        }
+
+        if ($component->getName() !== $name) {
+            continue;
+        }
+
+        if ($expectedClass !== null && ! $component instanceof $expectedClass) {
+            continue;
+        }
+
+        return $component;
+    }
+
+    return null;
+}
+
+/**
+ * @param  array<int, mixed>  $columns
+ * @param  array<int, string>  $names
+ */
+function layoutBuilderTableContainsColumn(array $columns, array $names): bool
+{
+    foreach ($columns as $column) {
+        if ($column instanceof TextColumn && in_array($column->getName(), $names, true)) {
+            return true;
+        }
+    }
+
+    return false;
+}

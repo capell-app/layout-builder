@@ -30,11 +30,19 @@ final class LayoutBuilderAssetHarness extends LayoutBuilder
         $this->updatePageAssets($containerKey, $blockIndex, $hasPageAssets);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function exposeMapBlockAssets(Block $block, string $containerKey, ?string $oldContainerKey = null): array
     {
         return $this->mapBlockAssets($block, $containerKey, $oldContainerKey);
     }
 
+    /**
+     * @param  array<array-key, mixed>  $blockAssets
+     * @param  EloquentCollection<int, BlockAsset>|null  $allBlockAssets
+     * @return EloquentCollection<int, BlockAsset>
+     */
     public function exposeSetupBlockAssets(
         string $containerKey,
         int $blockIndex,
@@ -45,6 +53,10 @@ final class LayoutBuilderAssetHarness extends LayoutBuilder
         return $this->setupBlockAssets($containerKey, $blockIndex, $blockAssets, $allBlockAssets, $block);
     }
 
+    /**
+     * @param  EloquentCollection<int, BlockAsset>  $assets
+     * @return EloquentCollection<int, BlockAsset>
+     */
     public function exposeFilterContainerBlockAssets(
         EloquentCollection $assets,
         string $containerKey,

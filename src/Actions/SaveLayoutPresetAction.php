@@ -52,6 +52,9 @@ final class SaveLayoutPresetAction
         'signedUrl',
     ];
 
+    /**
+     * @param  array<array-key, mixed>|null  $containers
+     */
     public function handle(
         Layout $layout,
         Site $site,
@@ -123,8 +126,8 @@ final class SaveLayoutPresetAction
     }
 
     /**
-     * @param  array<string, mixed>  $containers
-     * @return array<string, mixed>
+     * @param  array<array-key, mixed>  $containers
+     * @return array<array-key, mixed>
      */
     public function sanitizePresetContainers(array $containers): array
     {
@@ -132,7 +135,8 @@ final class SaveLayoutPresetAction
     }
 
     /**
-     * @return array<string, mixed>
+     * @param  array<array-key, mixed>|null  $containers
+     * @return array<array-key, mixed>
      */
     private function snapshotContainers(Layout $layout, bool $includeStarterContent, ?array $containers = null): array
     {
@@ -155,8 +159,8 @@ final class SaveLayoutPresetAction
     }
 
     /**
-     * @param  array<string, mixed>  $block
-     * @return array<string, mixed>
+     * @param  array<array-key, mixed>  $block
+     * @return array<array-key, mixed>
      */
     private function snapshotBlock(array $block, bool $includeStarterContent): array
     {
@@ -180,8 +184,8 @@ final class SaveLayoutPresetAction
     }
 
     /**
-     * @param  array<string, mixed>  $meta
-     * @return array<string, mixed>
+     * @param  array<array-key, mixed>  $meta
+     * @return array<array-key, mixed>
      */
     private function safeBlockMeta(array $meta, bool $includeStarterContent): array
     {

@@ -17,6 +17,9 @@ use Filament\Schemas\Components\Section;
  */
 class ModernTeamMembersConfigurator
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getFormSchema(): array
     {
         return [
@@ -54,6 +57,9 @@ class ModernTeamMembersConfigurator
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getDefaults(): array
     {
         return [

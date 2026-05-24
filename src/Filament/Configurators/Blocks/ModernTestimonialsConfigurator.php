@@ -17,6 +17,9 @@ use Filament\Schemas\Components\Section;
  */
 class ModernTestimonialsConfigurator
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getFormSchema(): array
     {
         return [
@@ -64,6 +67,9 @@ class ModernTestimonialsConfigurator
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getDefaults(): array
     {
         return [

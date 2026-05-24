@@ -19,6 +19,9 @@ use Filament\Schemas\Components\Section;
  */
 class ModernHeroBannerConfigurator
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getFormSchema(): array
     {
         return [
@@ -142,6 +145,8 @@ class ModernHeroBannerConfigurator
 
     /**
      * Get component data with defaults
+     *
+     * @return array<array-key, mixed>
      */
     public static function getDefaults(): array
     {

@@ -11,6 +11,9 @@ use Filament\Schemas\Components\Utilities\Get;
 
 class CarouselSettingsSchema
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function make(): array
     {
         return [

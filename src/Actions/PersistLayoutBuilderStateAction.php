@@ -14,6 +14,9 @@ final class PersistLayoutBuilderStateAction
 {
     use AsAction;
 
+    /**
+     * @param  array<array-key, mixed>  $containers
+     */
     public function handle(Layout $layout, ?Model $page, array $containers, Closure $persistBlockAssets): void
     {
         DB::transaction(function () use ($layout, $page, $containers, $persistBlockAssets): void {

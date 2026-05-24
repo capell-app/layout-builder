@@ -21,6 +21,7 @@ final class AnalyzeLayoutDiagnosticsAction
      */
     /**
      * @param  array<int, string>|null  $knownBlockKeys
+     * @return array<array-key, mixed>
      */
     public function handle(LayoutBuilderStateData $state, ?array $knownBlockKeys = null): array
     {

@@ -18,6 +18,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class TranslationsRepeater
 {
+    /**
+     * @param  array<array-key, mixed>  $components
+     */
     public static function make(Schema $configurator, array $components = []): RepeaterTabs
     {
         return BaseTranslationsRepeater::make('translations')

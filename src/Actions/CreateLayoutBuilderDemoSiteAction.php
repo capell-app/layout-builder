@@ -69,6 +69,9 @@ class CreateLayoutBuilderDemoSiteAction
         return true;
     }
 
+    /**
+     * @param  EloquentCollection<int, Language>  $languages
+     */
     private function setupHomepage(Pageable $page, EloquentCollection $languages): void
     {
         $layout = $this->getHomeLayout();
@@ -89,6 +92,9 @@ class CreateLayoutBuilderDemoSiteAction
         $layout->update(['containers' => $containers]);
     }
 
+    /**
+     * @param  array<array-key, mixed>  $containers
+     */
     private function populateMainContainer(array &$containers, Pageable $page): void
     {
         $pageCardsBlock = $this->demoCreator->createPageCardsBlock($page);
@@ -110,6 +116,10 @@ class CreateLayoutBuilderDemoSiteAction
         ];
     }
 
+    /**
+     * @param  array<array-key, mixed>  $containers
+     * @param  EloquentCollection<int, Language>  $languages
+     */
     private function populateFaqContainers(array &$containers, EloquentCollection $languages, Pageable $page): void
     {
         $faqBlock = $this->demoCreator->createFaqBlock($languages);
@@ -136,6 +146,10 @@ class CreateLayoutBuilderDemoSiteAction
         ];
     }
 
+    /**
+     * @param  array<array-key, mixed>  $containers
+     * @param  EloquentCollection<int, Language>  $languages
+     */
     private function populateSecondaryContainer(array &$containers, EloquentCollection $languages, Pageable $page): void
     {
         $featureListBlock = $this->demoCreator->createModernFeatureListBlock();
@@ -201,6 +215,9 @@ class CreateLayoutBuilderDemoSiteAction
         ];
     }
 
+    /**
+     * @param  array<array-key, mixed>  $containers
+     */
     private function populateAPBlocksContainer(array &$containers): void
     {
         $heroBannerBlock = $this->demoCreator->createApHeroBannerBlock();
@@ -223,6 +240,10 @@ class CreateLayoutBuilderDemoSiteAction
         ];
     }
 
+    /**
+     * @param  array<array-key, mixed>  $containers
+     * @param  EloquentCollection<int, Language>  $languages
+     */
     private function populateSplitTwoContainer(array &$containers, EloquentCollection $languages): void
     {
         $splitContentBlock = $this->demoCreator->createSplitContentBlock($languages);
@@ -246,6 +267,10 @@ class CreateLayoutBuilderDemoSiteAction
         $this->demoCreator->addSplitTwoBackgroundMedia($layout);
     }
 
+    /**
+     * @param  array{name: array<string, string>, children?: array<int, array<string, mixed>>}  $contentNode
+     * @param  EloquentCollection<int, Language>|null  $languages
+     */
     private function createSiteContents(
         ContentCreator $contentCreator,
         array $contentNode,
@@ -292,6 +317,9 @@ class CreateLayoutBuilderDemoSiteAction
         }
     }
 
+    /**
+     * @param  EloquentCollection<int, Language>  $languages
+     */
     private function setupSiteNavigations(Site $site, EloquentCollection $languages, Page $homePage): void
     {
         $navigationDemoCreatorClass = NavigationDemoCreator::class;
@@ -302,9 +330,7 @@ class CreateLayoutBuilderDemoSiteAction
 
         $navigationDemoCreator = resolve($navigationDemoCreatorClass);
 
-        $languages->each(function (Model $language) use ($navigationDemoCreator, $site, $homePage): void {
-            throw_unless($language instanceof Language);
-
+        $languages->each(function (Language $language) use ($navigationDemoCreator, $site, $homePage): void {
             $navigationDemoCreator->setupMainNavigation($site, $language, $homePage);
             $navigationDemoCreator->setupFooterNavigation($site, $language);
             $navigationDemoCreator->setupSubFooterNavigation($site, $language);

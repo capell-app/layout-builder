@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Livewire\Filament;
 
+use Capell\Core\Models\Page;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -19,6 +20,7 @@ use Filament\Tables\Table;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithoutUrlPagination;
@@ -44,10 +46,19 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
     public string $tableConfiguration;
 
     #[Locked]
+    /**
+     * @var array<array-key, mixed>
+     */
     public array $tableArguments = [];
 
+    /**
+     * @var array<array-key, mixed>
+     */
     public ?array $data = [];
 
+    /**
+     * @var Builder<Model>|Closure(): Builder<Model>
+     */
     #[Locked]
     public Builder|Closure $tableQuery;
 
@@ -146,6 +157,8 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
 
     /**
      * Provide a default query resolution using the configurable $tableQuery.
+     *
+     * @return Builder<Model>|Builder<Page>
      */
     protected function getTableQuery(): Builder
     {

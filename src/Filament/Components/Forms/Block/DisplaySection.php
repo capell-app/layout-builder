@@ -21,6 +21,9 @@ use Filament\Schemas\Components\Utilities\Get;
 
 class DisplaySection
 {
+    /**
+     * @param  array<array-key, mixed>  $configurator
+     */
     public static function make(array $configurator = []): Section
     {
         return Section::make(__('capell-admin::generic.display_settings'))

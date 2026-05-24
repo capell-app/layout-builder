@@ -33,6 +33,9 @@ class BlockCreator
         $this->blockModel = Block::class;
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
     public function createBlocks(Collection $languages, bool $extraBlocks = false): void
     {
         InstallLayoutBuilderBlockCatalogAction::run($languages, $extraBlocks);
@@ -59,6 +62,9 @@ class BlockCreator
         return $block;
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
     public function childrenBlock(?Blueprint $type = null, ?Collection $languages = null): Block
     {
         /** @var class-string<Language> $model */
@@ -127,6 +133,9 @@ class BlockCreator
         ]);
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
     public function galleryBlock(?Blueprint $type = null, ?Collection $languages = null): Block
     {
         /** @var class-string<Language> $model */
@@ -159,6 +168,9 @@ class BlockCreator
         return $block;
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
     public function latestPagesBlock(?Blueprint $type = null, ?Collection $languages = null): Block
     {
         /** @var class-string<Language> $model */
@@ -310,6 +322,9 @@ class BlockCreator
         return $block;
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
     public function siblingsBlock(?Blueprint $type = null, ?Collection $languages = null): Block
     {
         /** @var class-string<Language> $model */
@@ -472,6 +487,10 @@ class BlockCreator
         ]);
     }
 
+    /**
+     * @param  array<array-key, mixed>  $blockMeta
+     * @param  array<array-key, mixed>  $navigationItems
+     */
     public function navigationBlock(
         ?Blueprint $type = null,
         ?Site $site = null,
@@ -516,6 +535,10 @@ class BlockCreator
         ]);
     }
 
+    /**
+     * @param  array<array-key, mixed>  $blockMeta
+     * @param  array<array-key, mixed>  $navigationItems
+     */
     public function navigationTabsBlock(
         ?Blueprint $type = null,
         ?Site $site = null,

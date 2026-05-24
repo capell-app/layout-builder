@@ -77,28 +77,58 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     #[Locked]
     public Layout $layout;
 
+    /**
+     * @var array<array-key, mixed>
+     */
     #[Locked]
     public ?array $originalAssets = null;
 
+    /**
+     * @var array<int, string>
+     */
     #[Locked]
     public array $knownContainerKeys = [];
 
+    /**
+     * @var array<array-key, mixed>
+     */
     public ?array $containers = null;
 
+    /**
+     * @var array<array-key, mixed>
+     */
     public array $assets = [];
 
+    /**
+     * @var array<array-key, mixed>
+     */
     public array $selectedRecords;
 
     public bool $layoutModified = false;
 
+    /**
+     * @var array<array-key, mixed>
+     */
     public array $layoutDiagnostics = [];
 
+    /**
+     * @var array<array-key, mixed>
+     */
     public array $layoutChanges = [];
 
+    /**
+     * @var array<array-key, mixed>
+     */
     public ?array $savedBaselineSnapshot = null;
 
+    /**
+     * @var array<array-key, mixed>
+     */
     public array $layoutUndoSnapshots = [];
 
+    /**
+     * @var array<array-key, mixed>
+     */
     public array $layoutRedoSnapshots = [];
 
     public ?LayoutBreakpoint $activeBreakpoint = null;
@@ -107,6 +137,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     public ?string $returnToContentItemKey = null;
 
+    /**
+     * @var array<array-key, mixed>
+     */
     protected array $containerBlocks;
 
     protected ?LayoutClipboard $layoutClipboard = null;
@@ -229,6 +262,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         return true;
     }
 
+    /**
+     * @param  array<int, int|string>  $blocks
+     */
     #[On('add-blocks-to-container')]
     public function addBlocksToContainer(string $containerKey, array $blocks, ?string $actionModalId = null, ?int $position = null): void
     {
@@ -275,6 +311,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         }
     }
 
+    /**
+     * @param  array{containerKey: string, blockIndex: int, hasPageAssets?: bool}  $arguments
+     * @param  array<int, int|string>  $assets
+     */
     #[On('sync-selected-assets')]
     public function addAssetsToBlock(array $arguments, string $type, array $assets): void
     {
@@ -319,6 +359,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         return AdminSurfaceLookup::resource(ResourceEnum::Layout);
     }
 
+    /**
+     * @param  array<array-key, mixed>  $params
+     */
     public function placeholder(array $params = []): View
     {
         return view('capell-admin::components.placeholder', $params);
@@ -363,7 +406,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     }
 
     /**
-     * @param  array<string, mixed>  $container
+     * @param  array<array-key, mixed>  $container
      */
     public function layoutAreaForContainer(array $container): string
     {
@@ -640,6 +683,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->trackNewContainerKeysSince($knownContainerKeys);
     }
 
+    /**
+     * @param  EloquentBuilder<LayoutPreset>  $query
+     * @return EloquentBuilder<LayoutPreset>
+     */
     private function wherePresetNameOrKey(EloquentBuilder $query, string $name): EloquentBuilder
     {
         return $query

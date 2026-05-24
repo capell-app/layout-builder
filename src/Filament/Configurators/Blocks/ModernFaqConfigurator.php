@@ -17,6 +17,9 @@ use Filament\Schemas\Components\Section;
  */
 class ModernFaqConfigurator
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getFormSchema(): array
     {
         return [
@@ -55,6 +58,9 @@ class ModernFaqConfigurator
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getDefaults(): array
     {
         return [

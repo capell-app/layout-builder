@@ -15,6 +15,11 @@ use Livewire\Component;
 
 class CustomColorInput
 {
+    /**
+     * @param  array  $options
+     * @param  Arrayable<array-key, mixed>  $options
+     * @param  array<array-key, mixed>  $options
+     */
     public static function make(string $name, string $label, null|array|Arrayable|Closure $options = null): Group
     {
         if ($options === null) {

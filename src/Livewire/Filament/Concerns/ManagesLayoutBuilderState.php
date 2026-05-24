@@ -278,6 +278,9 @@ trait ManagesLayoutBuilderState
         );
     }
 
+    /**
+     * @param  array<array-key, mixed>  $snapshot
+     */
     protected function stateFromSnapshot(array $snapshot): LayoutBuilderStateData
     {
         return LayoutBuilderStateData::fromSnapshot($snapshot);
@@ -349,7 +352,7 @@ trait ManagesLayoutBuilderState
     }
 
     /**
-     * @return array<string, array<int, array<int, array<string, mixed>>>>
+     * @return array<string, array<int, array<int, array<array-key, mixed>>>>
      */
     private function contentInventorySignatureAssets(): array
     {

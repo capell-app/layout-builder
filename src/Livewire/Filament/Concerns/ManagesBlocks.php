@@ -211,6 +211,9 @@ trait ManagesBlocks
         $this->layoutUpdated();
     }
 
+    /**
+     * @param  array<array-key, mixed>  $data
+     */
     public function editLayoutBlock(string $containerKey, int $blockIndex, array $data): void
     {
         $this->ensureLoaded();
@@ -329,6 +332,10 @@ trait ManagesBlocks
         $this->updatePageAssets($containerKey, $position);
     }
 
+    /**
+     * @param  array<array-key, mixed>  $items
+     * @return array<array-key, mixed>
+     */
     protected function insertArrayItemAtPosition(array $items, int $originalIndex, int $position): array
     {
         $item = $items[$originalIndex];
@@ -384,6 +391,9 @@ trait ManagesBlocks
         }
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getContainerBlockKeys(): array
     {
         return collect($this->containers)
@@ -393,6 +403,9 @@ trait ManagesBlocks
             ->toArray();
     }
 
+    /**
+     * @param  array<array-key, mixed>  $blocks
+     */
     protected function getLastContainerBlockOccurrence(string $containerKey, string $blockKey, ?int $compareIndex = null, ?array $blocks = null): int
     {
         if ($blocks === null || $blocks === []) {
@@ -435,6 +448,10 @@ trait ManagesBlocks
         return $block;
     }
 
+    /**
+     * @param  array<array-key, mixed>  $allBlockAssets
+     * @param  array<array-key, mixed>  $allBlocks
+     */
     protected function setupContainerBlocks(string $containerKey, array $allBlocks, ?array $allBlockAssets = null): void
     {
         $container = $this->containers[$containerKey];
@@ -573,6 +590,9 @@ trait ManagesBlocks
             ]);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function preloadAllBlocks(bool $withAssets = true): array
     {
         $blockKeys = $this->getContainerBlockKeys();

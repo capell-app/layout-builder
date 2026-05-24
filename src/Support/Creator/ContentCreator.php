@@ -33,6 +33,10 @@ class ContentCreator
         $this->typeModel = Blueprint::class;
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     * @param  array<array-key, mixed>  $data
+     */
     public function createContent(array $data, ?Site $site, Collection $languages): Model
     {
         $type = $this->typeModel::query()->where('type', 'section')->default()->first();

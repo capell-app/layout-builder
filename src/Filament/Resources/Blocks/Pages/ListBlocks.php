@@ -16,6 +16,7 @@ use Filament\Resources\Resource;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Override;
 
 class ListBlocks extends ListRecords
@@ -35,6 +36,9 @@ class ListBlocks extends ListRecords
         return __('capell-admin::generic.block_info');
     }
 
+    /**
+     * @return Builder<Model>
+     */
     public function getFilteredTableQuery(): Builder
     {
         $query = parent::getFilteredTableQuery();

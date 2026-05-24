@@ -16,6 +16,9 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/**
+ * @method static array<int, LayoutDiagnosticData> run(LayoutBuilderStateData $state, ?string $themeKey = null)
+ */
 final class AnalyzeLayoutHealthAction
 {
     use AsObject;

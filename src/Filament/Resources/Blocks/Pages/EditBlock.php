@@ -88,6 +88,9 @@ class EditBlock extends EditRecord
         return new HtmlString($subheading);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected static function getRecordSwitcherSearchColumns(): array
     {
         return ['name', '`key`', 'admin->notes'];
@@ -112,6 +115,9 @@ class EditBlock extends EditRecord
         return $this->getBaseHeaderActions();
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getBaseHeaderActions(): array
     {
         return [
@@ -133,6 +139,9 @@ class EditBlock extends EditRecord
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getPositionedHeaderFormActions(): array
     {
         return [
@@ -145,6 +154,9 @@ class EditBlock extends EditRecord
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getRecordSwitcherColumns(): array
     {
         return ['name', 'admin'];

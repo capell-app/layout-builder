@@ -74,6 +74,9 @@ class BlockAssetsTable implements TableConfigurator
             ]);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected static function getTableColumns(): array
     {
         return [
@@ -92,6 +95,9 @@ class BlockAssetsTable implements TableConfigurator
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected static function getTableFilters(): array
     {
         return [
@@ -239,6 +245,9 @@ class BlockAssetsTable implements TableConfigurator
         return $pageableType . ':' . $pageableId;
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     private static function getAssetTypes(string $assetType): array
     {
         if (blank($assetType)) {

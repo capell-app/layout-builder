@@ -9,6 +9,9 @@ use Filament\Schemas\Schema;
 
 class ResultsOverrideSchema
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function make(Schema $configurator): array
     {
         return [

@@ -31,6 +31,9 @@ use Illuminate\Support\Str;
 
 abstract class StandardDemoBlockCreator extends BaseDemoCreator
 {
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
     public function createContentBlock(Collection $languages): Block
     {
         $siteId = Site::query()->default()->value('id');
@@ -86,6 +89,9 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         return $block;
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
     public function createSplitContentBlock(Collection $languages): Block
     {
         $siteId = Site::query()->default()->value('id');
@@ -139,6 +145,9 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         return $block;
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
     public function createBannerImageBlock(Collection $languages): Block
     {
         $block = resolve(BlockCreator::class)->bannerImageBlock();
@@ -217,6 +226,9 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         return $block;
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
     public function createFaqBlock(Collection $languages): Block
     {
         $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block->value)
@@ -359,6 +371,9 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         return $block;
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
     public function createStaticNavigationBlock(Collection $languages, Site $site): Block
     {
         $model = Navigation::class;
@@ -528,6 +543,9 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         }
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
     public function createClientLogosBlock(Collection $languages): Block
     {
         $block = Block::query()->firstOrCreate([
@@ -634,6 +652,9 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         return $block;
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
     public function createTestimonialsBlock(Collection $languages): Block
     {
         $blockCreator = resolve(BlockCreator::class);
@@ -741,6 +762,9 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         return $block;
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
     public function createTeamPortfolioBlock(Collection $languages): Block
     {
         $type = $this->typeModel::query()

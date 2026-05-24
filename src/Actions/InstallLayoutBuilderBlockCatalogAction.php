@@ -28,6 +28,9 @@ class InstallLayoutBuilderBlockCatalogAction
 
     private const string NavigationPackage = 'capell-app/navigation';
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
     public function handle(?Collection $languages = null, bool $extraBlocks = false): void
     {
         /** @var Collection<int, Language> $catalogLanguages */

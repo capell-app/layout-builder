@@ -14,7 +14,7 @@ use Livewire\Component as LivewireComponent;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static array run(Component|CanEntangleWithSingularRelationships $component, LivewireComponent $livewire): void
+ * @method static array<array-key, mixed> run(Component|CanEntangleWithSingularRelationships $component, LivewireComponent $livewire): void
  */
 class SaveFormComponentRelationshipAction
 {

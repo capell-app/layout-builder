@@ -35,11 +35,17 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
 
     protected static ConfiguratorTypeEnumInterface $configuratorType = ConfiguratorTypeEnum::Block;
 
+    /**
+     * @return iterable<int, mixed>
+     */
     public static function getExtenders(): iterable
     {
         return app()->tagged(SchemaExtenderEnum::Block->value);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function make(Schema $configurator): array
     {
         return match ($configurator->getOperation()) {
@@ -49,6 +55,9 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
         };
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getFormSchema(Schema $configurator): array
     {
         return [
@@ -73,6 +82,9 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getEditOptionSchema(Schema $configurator): array
     {
         return [
@@ -81,6 +93,9 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getCreateOptionSchema(Schema $configurator): array
     {
         return [
@@ -90,6 +105,9 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getExtraSchema(Schema $configurator, bool $withSettingsTab = false): array
     {
         return [
@@ -138,6 +156,9 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
         return BlockSettingsTab::make($configurator);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function blueprintImageSourcePolicy(Schema $schema, string $field): string|array|null
     {
         $record = $schema->getRecord();

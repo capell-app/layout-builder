@@ -16,6 +16,9 @@ use Filament\Schemas\Components\Section;
  */
 class ModernAlternatingContentConfigurator
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getFormSchema(): array
     {
         return [
@@ -39,6 +42,9 @@ class ModernAlternatingContentConfigurator
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getDefaults(): array
     {
         return [

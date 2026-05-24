@@ -97,6 +97,9 @@ class AssetsRepeater extends Repeater
             });
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected static function getFormSchema(): array
     {
         $select = SelectWithBelongsToRelation::make('asset_id');
@@ -213,6 +216,10 @@ class AssetsRepeater extends Repeater
             ->view('capell-admin::components.actions.dropdown-group');
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function modifyAssetQuery(Builder $query, Get $get): Builder
     {
         if ($get('asset_type') !== 'page') {
@@ -229,11 +236,19 @@ class AssetsRepeater extends Repeater
             ->whereHas('type', self::applySelectablePageTypeQuery(...));
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function applySelectablePageTypeQuery(Builder $query): Builder
     {
         return $query->where(self::applyNonSystemBlueprintGroupQuery(...));
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function applyNonSystemBlueprintGroupQuery(Builder $query): Builder
     {
         return $query

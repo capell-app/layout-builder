@@ -62,21 +62,33 @@ class BlockAsset extends Model implements HasMedia, Userstampable
         $this->addMediaCollection(MediaCollectionEnum::Image->value)->singleFile();
     }
 
+    /**
+     * @return BelongsTo<Block, $this>
+     */
     public function block(): BelongsTo
     {
         return $this->belongsTo(Block::class, 'block_id');
     }
 
+    /**
+     * @return MorphTo<Model, $this>
+     */
     public function pageable(): MorphTo
     {
         return $this->morphTo();
     }
 
+    /**
+     * @return MorphTo<Model, $this>
+     */
     public function asset(): MorphTo
     {
         return $this->morphTo();
     }
 
+    /**
+     * @return MorphTo<Model, $this>
+     */
     public function linkedPage(): MorphTo
     {
         return $this->morphTo('meta->linked_pageable_type', 'meta->linked_pageable_id');
@@ -99,11 +111,17 @@ class BlockAsset extends Model implements HasMedia, Userstampable
         return $this->asset_type . '.' . $this->asset_id;
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     */
     protected function scopeOrdered(Builder $query, string $dir = 'asc'): void
     {
         $query->orderBy($this->qualifyColumn('order'), $dir);
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     */
     protected function scopeAlphabetical(Builder $query, Language $language, string $direction = 'asc'): void
     {
         $query->orderBy(

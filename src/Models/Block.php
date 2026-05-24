@@ -37,6 +37,7 @@ use Override;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
 use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
@@ -54,7 +55,10 @@ class Block extends Model implements Blueprintable, HasMedia, Publishable, Statu
     use HasMetaData;
     use HasPublishDates;
     use HasRelationships;
+
+    /** @use HasStatus<self> */
     use HasStatus;
+
     use HasTranslations;
     use HasUserstamps;
     use LogsActivity;
@@ -112,6 +116,7 @@ class Block extends Model implements Blueprintable, HasMedia, Publishable, Statu
         return $this->belongsTo(CoreBlueprint::class, 'blueprint_id');
     }
 
+    /** @return BelongsTo<CoreBlueprint, Model> */
     public function type(): BelongsTo
     {
         return $this->blueprint();
@@ -184,22 +189,28 @@ class Block extends Model implements Blueprintable, HasMedia, Publishable, Statu
         return $value === null ? null : (string) $value;
     }
 
+    /** @return MorphOne<Media, $this> */
     public function image(): MorphOne
     {
         return $this->morphOneMedia(MediaCollectionEnum::Image->value);
     }
 
+    /** @return MorphOne<Media, $this> */
     public function backgroundImage(): MorphOne
     {
         return $this->morphOneMedia(MediaCollectionEnum::BackgroundImage->value);
     }
 
+    /**
+     * @return HasMany<BlockAsset, $this>
+     */
     public function assets(): HasMany
     {
         return $this->hasMany(BlockAsset::class, 'block_id')
             ->chaperone();
     }
 
+    /** @return HasMany<BlockAsset, $this> */
     public function layoutBlockAssets(): HasMany
     {
         return $this->assets()
@@ -207,11 +218,13 @@ class Block extends Model implements Blueprintable, HasMedia, Publishable, Statu
             ->whereNull('pageable_id');
     }
 
+    /** @return HasMany<BlockAsset, $this> */
     public function blockAssets(): HasMany
     {
         return $this->layoutBlockAssets();
     }
 
+    /** @return HasMany<BlockAsset, $this> */
     public function blockPageAssets(): HasMany
     {
         return $this->assets()
@@ -219,6 +232,7 @@ class Block extends Model implements Blueprintable, HasMedia, Publishable, Statu
             ->whereNotNull('pageable_id');
     }
 
+    /** @return HasMany<BlockAsset, $this> */
     public function pageAssets(Pageable $page, string $container, int $occurrence): HasMany
     {
         return $this->assets()
@@ -228,6 +242,9 @@ class Block extends Model implements Blueprintable, HasMedia, Publishable, Statu
             ->where('block_assets.occurrence', $occurrence);
     }
 
+    /**
+     * @return MorphToMany<Page, $this>
+     */
     public function pages(): MorphToMany
     {
         return $this->morphedByMany(
@@ -239,11 +256,15 @@ class Block extends Model implements Blueprintable, HasMedia, Publishable, Statu
         );
     }
 
+    /** @return HasManyJson<CoreLayout, $this> */
     public function layouts(): HasManyJson
     {
         return $this->hasManyJson(CoreLayout::class, 'blocks', 'key');
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     */
     protected function scopeWithLayoutsCount(Builder $query): void
     {
         $query->addSelect(DB::raw(
@@ -258,6 +279,9 @@ class Block extends Model implements Blueprintable, HasMedia, Publishable, Statu
         ));
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     */
     protected function scopeOrdered(Builder $query, string $dir = 'asc'): void
     {
         $query->orderBy($this->qualifyColumn('order'), $dir)

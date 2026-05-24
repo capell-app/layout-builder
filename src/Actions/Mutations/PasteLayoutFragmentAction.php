@@ -115,7 +115,7 @@ final class PasteLayoutFragmentAction
     }
 
     /**
-     * @param  array<string, mixed>  $containers
+     * @param  array<array-key, mixed>  $containers
      */
     private function availableContainerKey(array $containers, string $baseKey): string
     {
@@ -144,7 +144,7 @@ final class PasteLayoutFragmentAction
     }
 
     /**
-     * @param  array<string, mixed>  $containers
+     * @param  array<array-key, mixed>  $containers
      * @return array<string, bool>
      */
     private function usedAnchors(array $containers): array
@@ -181,7 +181,8 @@ final class PasteLayoutFragmentAction
 
     /**
      * @param  array<string, bool>  $usedAnchors
-     * @return array<string, mixed>
+     * @param  array<array-key, mixed>  $container
+     * @return array<array-key, mixed>
      */
     private function withUniqueAnchors(array $container, array &$usedAnchors): array
     {

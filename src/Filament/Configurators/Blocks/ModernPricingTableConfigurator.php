@@ -17,6 +17,9 @@ use Filament\Schemas\Components\Section;
  */
 class ModernPricingTableConfigurator
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getFormSchema(): array
     {
         return [
@@ -56,6 +59,9 @@ class ModernPricingTableConfigurator
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getDefaults(): array
     {
         return [

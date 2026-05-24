@@ -9,6 +9,9 @@ use Filament\Schemas\Components\Tabs\Tab;
 
 class BlockAdminTab
 {
+    /**
+     * @param  array<array-key, mixed>  $configurator
+     */
     public static function make(array $configurator = []): Tab
     {
         return Tab::make(__('capell-admin::generic.admin'))

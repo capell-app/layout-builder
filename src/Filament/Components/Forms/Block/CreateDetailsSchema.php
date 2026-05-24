@@ -18,6 +18,9 @@ class CreateDetailsSchema
             ->columnSpanFull();
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     private static function getConfigurator(Schema $configurator): array
     {
         return [

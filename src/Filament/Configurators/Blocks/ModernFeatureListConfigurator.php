@@ -17,6 +17,9 @@ use Filament\Schemas\Components\Section;
  */
 class ModernFeatureListConfigurator
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getFormSchema(): array
     {
         return [
@@ -74,6 +77,9 @@ class ModernFeatureListConfigurator
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getDefaults(): array
     {
         return [

@@ -59,11 +59,15 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 final class LayoutBuilderResidualModalTableSelect extends ModalTableSelect
 {
+    /**
+     * @return Builder<Model>
+     */
     public function exposeTableQuery(): Builder
     {
         return $this->getTableQuery();
@@ -91,6 +95,9 @@ final class LayoutBuilderResidualAssetHarness extends LayoutBuilder
         $this->containerBlocks = $containerBlocks;
     }
 
+    /**
+     * @param  array<array-key, mixed>  $assetsMeta
+     */
     public function exposeAddAssets(
         string $containerKey,
         int $blockIndex,
@@ -107,26 +114,41 @@ final class LayoutBuilderResidualAssetHarness extends LayoutBuilder
         $this->updateAssets($containerKey, $blockIndex, $oldContainerKey);
     }
 
+    /**
+     * @return Collection<int, BlockAsset>
+     */
     public function exposeLoadBlockAssetsFor(Block $block, string $containerKey, int $blockIndex): Collection
     {
         return $this->loadBlockAssetsFor($block, $containerKey, $blockIndex);
     }
 
+    /**
+     * @return Collection<int, BlockAsset>
+     */
     public function exposeLoadBlockAssets(Block $block, string $containerKey, int $blockOccurrence): Collection
     {
         return $this->loadBlockAssets($block, $containerKey, $blockOccurrence);
     }
 
+    /**
+     * @return Collection<int, BlockAsset>|null
+     */
     public function exposePreloadAllBlockAssets(): ?Collection
     {
         return $this->preloadAllBlockAssets();
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function exposeActiveBlockAssetIds(Block $block): array
     {
         return $this->activeBlockAssetIds($block);
     }
 
+    /**
+     * @param  array<array-key, mixed>  $asset
+     */
     public function exposeCreateBlockAsset(
         Block $block,
         string $containerKey,
@@ -208,6 +230,9 @@ final class LayoutBuilderResidualEditBlockPage extends EditBlock
         return $this->testRecord->name;
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function exposeRelationManagers(): array
     {
         return $this->getRelationManagers();
@@ -218,16 +243,25 @@ final class LayoutBuilderResidualEditBlockPage extends EditBlock
         return (string) $this->getSubheading();
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function exposeBaseHeaderActions(): array
     {
         return $this->getBaseHeaderActions();
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function exposeRecordSwitcherColumns(): array
     {
         return $this->getRecordSwitcherColumns();
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function exposeRecordSwitcherSearchColumns(): array
     {
         return self::getRecordSwitcherSearchColumns();

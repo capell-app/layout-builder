@@ -18,13 +18,22 @@ abstract class AbstractBlockAssetConfigurator implements ConfiguratorInterface
 
     protected static ConfiguratorTypeEnumInterface $configuratorType = ConfiguratorTypeEnum::BlockAsset;
 
+    /**
+     * @return array<array-key, mixed>
+     */
     abstract protected function getAssetSchema(Schema $configurator): array;
 
+    /**
+     * @return iterable<int, mixed>
+     */
     public static function getExtenders(): iterable
     {
         return app()->tagged(SchemaExtenderEnum::BlockAsset->value);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function make(Schema $configurator): array
     {
         return [

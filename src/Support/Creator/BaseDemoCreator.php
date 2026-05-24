@@ -58,6 +58,10 @@ abstract class BaseDemoCreator
      */
     protected string $pageModel;
 
+    /**
+     * @param  Collection<array-key, mixed>  $siteTree
+     * @return array<array-key, mixed>
+     */
     protected function navigationPageItems(Collection $siteTree, Language $language): array
     {
         $items = [];
@@ -113,6 +117,9 @@ abstract class BaseDemoCreator
         return $model->translations();
     }
 
+    /**
+     * @return Collection<array-key, mixed>
+     */
     protected function createFeatures(Site $site): Collection
     {
         $features = [
@@ -234,6 +241,10 @@ abstract class BaseDemoCreator
         return $contentFeatures;
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     * @return Collection<array-key, mixed>
+     */
     protected function createTestimonials(Collection $languages): Collection
     {
         $testimonialContent = $this->contentModel::query()->firstOrCreate([
@@ -307,6 +318,10 @@ abstract class BaseDemoCreator
         return $testimonialsCollection;
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     * @return Collection<array-key, mixed>
+     */
     protected function createTeamMembers(Collection $languages): Collection
     {
         $teamMembers = [

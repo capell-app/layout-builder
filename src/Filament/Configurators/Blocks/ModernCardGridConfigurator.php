@@ -19,6 +19,9 @@ use Filament\Schemas\Components\Section;
  */
 class ModernCardGridConfigurator
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getFormSchema(): array
     {
         return [
@@ -143,6 +146,9 @@ class ModernCardGridConfigurator
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getDefaults(): array
     {
         return [

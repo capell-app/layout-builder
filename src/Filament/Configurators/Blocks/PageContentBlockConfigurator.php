@@ -29,11 +29,17 @@ class PageContentBlockConfigurator implements ConfiguratorInterface
 
     protected static ConfiguratorTypeEnumInterface $configuratorType = ConfiguratorTypeEnum::Block;
 
+    /**
+     * @return iterable<int, mixed>
+     */
     public static function getExtenders(): iterable
     {
         return app()->tagged(SchemaExtenderEnum::Block->value);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function make(Schema $configurator): array
     {
         return match ($configurator->getOperation()) {
@@ -74,6 +80,9 @@ class PageContentBlockConfigurator implements ConfiguratorInterface
             ]);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getFormSchema(Schema $configurator): array
     {
         return [
@@ -89,6 +98,9 @@ class PageContentBlockConfigurator implements ConfiguratorInterface
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getOptionSchema(Schema $configurator): array
     {
         return [

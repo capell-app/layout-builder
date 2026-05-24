@@ -28,6 +28,9 @@ final class LayoutBuilderContainerBlockMutationHarness extends LayoutBuilder
         $this->normalizeContainerBlockOccurrences($containerKey);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function exposeGetContainerBlockKeys(): array
     {
         return $this->getContainerBlockKeys();

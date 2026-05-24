@@ -12,6 +12,9 @@ use Filament\Schemas\Schema;
 
 class ResultsSchema
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function make(Schema $configurator): array
     {
         return [

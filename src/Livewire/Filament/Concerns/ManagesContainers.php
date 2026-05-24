@@ -16,6 +16,7 @@ use Closure;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 
 trait ManagesContainers
@@ -153,6 +154,9 @@ trait ManagesContainers
         $this->layoutUpdated();
     }
 
+    /**
+     * @param  array<array-key, mixed>  $data
+     */
     public function saveContainer(array $data, ?string $key = null, ?int $position = null): void
     {
         $this->assertCanUpdateLayout();
@@ -210,6 +214,10 @@ trait ManagesContainers
         return $position !== null && $position < count($this->containers) - 1;
     }
 
+    /**
+     * @param  array<array-key, mixed>  $arguments
+     * @return array<array-key, mixed>
+     */
     public function getContainerSchema(Schema $configurator, array $arguments): array
     {
         $containerKey = $arguments['containerKey'] ?? null;
@@ -254,6 +262,9 @@ trait ManagesContainers
         ];
     }
 
+    /**
+     * @return Collection<array-key, mixed>
+     */
     public function getContainerOptions(): SupportCollection
     {
         return collect($this->containers)

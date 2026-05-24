@@ -14,6 +14,9 @@ use Filament\Schemas\Components\Fieldset;
 
 class AdminSchema
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function make(): array
     {
         return [

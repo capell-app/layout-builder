@@ -876,6 +876,10 @@ final class LayoutBuilderActionFactory
             });
     }
 
+    /**
+     * @param  array<array-key, mixed>  $arguments
+     * @param  array<array-key, mixed>  $data
+     */
     private function addAssetFromAction(Action $action, array $arguments, array $data): void
     {
         $this->livewire->assertCanUpdateLayout();
@@ -982,6 +986,9 @@ final class LayoutBuilderActionFactory
         $this->livewire->dispatch('page-layout-changed', id: $layoutId);
     }
 
+    /**
+     * @param  array<array-key, mixed>  $arguments
+     */
     private function makeBlockAssetRecordForCreate(array $arguments): BlockAsset
     {
         $containerKey = $arguments['containerKey'];
@@ -1007,6 +1014,9 @@ final class LayoutBuilderActionFactory
         return $record;
     }
 
+    /**
+     * @param  array<array-key, mixed>  $arguments
+     */
     private function resolveEditableBlockAsset(array $arguments): BlockAsset
     {
         $containerKey = $arguments['containerKey'];
@@ -1036,6 +1046,9 @@ final class LayoutBuilderActionFactory
         return $blockAsset;
     }
 
+    /**
+     * @param  array<array-key, mixed>  $arguments
+     */
     private function getEditBlockAssetModalHeading(LayoutBuilder $livewire, array $arguments): string
     {
         $name = str($arguments['type'])->title();
@@ -1047,6 +1060,9 @@ final class LayoutBuilderActionFactory
         return __('capell-layout-builder::heading.edit_block_asset', ['name' => (string) $name]);
     }
 
+    /**
+     * @param  array<array-key, mixed>  $arguments
+     */
     private function getEditBlockAssetModalDescription(LayoutBuilder $livewire, array $arguments): ?string
     {
         if (! $livewire->inPageContext()) {
@@ -1062,6 +1078,10 @@ final class LayoutBuilderActionFactory
         return __('capell-layout-builder::heading.page_block_asset', ['name' => $livewire->page->name]);
     }
 
+    /**
+     * @param  array<array-key, mixed>  $arguments
+     * @param  array<array-key, mixed>  $data
+     */
     private function applyBlockAssetUpdate(BlockAsset $record, array $data, LayoutBuilder $livewire, array $arguments, Action $action, Schema $configurator): void
     {
         $this->livewire->assertCanEditContent();
@@ -1105,6 +1125,9 @@ final class LayoutBuilderActionFactory
         return BlockAssetForm::configure($configurator);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     private function getChangeLayoutSchema(): array
     {
         return [
@@ -1177,6 +1200,9 @@ final class LayoutBuilderActionFactory
         ];
     }
 
+    /**
+     * @param  array<array-key, mixed>  $data
+     */
     private function saveBlockForm(Schema $configurator, Block $record, array $data): void
     {
         $this->livewire->assertCanUpdateLayout();

@@ -35,6 +35,7 @@ use Filament\Tables\Table;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -77,6 +78,9 @@ class BlocksTable implements TableConfigurator
             ]);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected static function getTableColumns(): array
     {
         return [
@@ -202,6 +206,10 @@ class BlocksTable implements TableConfigurator
         ];
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function applyContentSearch(Builder $query, string $search): Builder
     {
         return $query->whereRelation(
@@ -212,6 +220,10 @@ class BlocksTable implements TableConfigurator
         );
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function applyComponentSearch(Builder $query, string $search): Builder
     {
         /** @var Connection $databaseConnection */
@@ -230,6 +242,9 @@ class BlocksTable implements TableConfigurator
         );
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected static function getTableFilters(): array
     {
         return [

@@ -9,8 +9,14 @@ use Illuminate\Support\Collection;
 
 class CapellLayoutManager
 {
+    /**
+     * @var array<array-key, mixed>
+     */
     protected static array $containerBlocks = [];
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getMigrations(): array
     {
         return CapellLayoutBuilderManager::getMigrations();
@@ -46,6 +52,9 @@ class CapellLayoutManager
         return static::$containerBlocks[$containerKey][$blockKey][$occurrence] ?? null;
     }
 
+    /**
+     * @return Collection<array-key, mixed>
+     */
     public static function getContainerBlocks(?string $containerKey = null): Collection
     {
         $blocks = in_array($containerKey, [null, '', '0'], true)
