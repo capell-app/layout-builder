@@ -715,6 +715,7 @@ final class LayoutBuilderActionFactory
             )
             ->fillForm(fn (WidgetAsset $record, array $arguments): array => [
                 'meta' => $record->meta,
+                'asset' => $this->editableAssetFormState($record),
             ])
             ->record(fn (array $arguments): WidgetAsset => $this->resolveEditableBlockAsset($arguments))
             ->disabled(fn (WidgetAsset $record): bool => ! $record->exists)
@@ -1527,6 +1528,18 @@ final class LayoutBuilderActionFactory
         $modelClass = $asset->model ?? null;
 
         return is_string($modelClass) && is_a($modelClass, Model::class, true) && WorkspaceRegistry::isRegistered($modelClass);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function editableAssetFormState(WidgetAsset $record): array
+    {
+        $record->loadMissing('asset');
+
+        $asset = $record->asset;
+
+        return $asset instanceof Model ? $asset->attributesToArray() : [];
     }
 
     /**
