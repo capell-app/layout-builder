@@ -8,8 +8,8 @@ use Capell\LayoutBuilder\Actions\Mutations\ReorderLayoutBlockAction;
 use Capell\LayoutBuilder\Actions\ResolveAdminBlockPreviewDataAction;
 use Capell\LayoutBuilder\Data\AdminBlockPreviewData;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
@@ -18,18 +18,18 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 trait ManagesBlocks
 {
-    public function addBlockToContainer(Block $block, string $containerKey): int
+    public function addBlockToContainer(Widget $block, string $containerKey): int
     {
         $this->assertCanUpdateLayout();
 
         $occurrence = $this->getLastContainerBlockOccurrence($containerKey, $block->key) + 1;
 
-        $this->containers[$containerKey]['blocks'][] = [
-            'block_key' => $block->key,
+        $this->containers[$containerKey]['widgets'][] = [
+            'widget_key' => $block->key,
             'occurrence' => $occurrence,
         ];
 
-        $index = array_key_last($this->containers[$containerKey]['blocks']);
+        $index = array_key_last($this->containers[$containerKey]['widgets']);
 
         $this->containerBlocks[$containerKey][$index] = $block;
 
@@ -38,7 +38,7 @@ trait ManagesBlocks
         return $index;
     }
 
-    public function addBlockToContainerAtPosition(Block $block, string $containerKey, ?int $position = null): int
+    public function addBlockToContainerAtPosition(Widget $block, string $containerKey, ?int $position = null): int
     {
         $blockIndex = $this->addBlockToContainer($block, $containerKey);
 
@@ -75,7 +75,7 @@ trait ManagesBlocks
 
         $this->applyLayoutMutationResult($result);
 
-        if (isset($this->containers[$containerKey]['blocks'][$blockIndex])) {
+        if (isset($this->containers[$containerKey]['widgets'][$blockIndex])) {
             $this->updatePageAssets($containerKey, $blockIndex);
         }
     }
@@ -104,7 +104,7 @@ trait ManagesBlocks
             return;
         }
 
-        $targetIndex = count($this->containers[$targetContainerKey]['blocks']);
+        $targetIndex = count($this->containers[$targetContainerKey]['widgets']);
 
         $this->reorderBlocks($targetContainerKey, $containerKey . '.' . $blockIndex, $targetIndex);
     }
@@ -113,7 +113,7 @@ trait ManagesBlocks
     {
         $this->ensureLoaded();
 
-        return isset($this->containers[$containerKey]['blocks'][$blockIndex])
+        return isset($this->containers[$containerKey]['widgets'][$blockIndex])
             && $blockIndex > 0;
     }
 
@@ -121,15 +121,15 @@ trait ManagesBlocks
     {
         $this->ensureLoaded();
 
-        return isset($this->containers[$containerKey]['blocks'][$blockIndex])
-            && $blockIndex < count($this->containers[$containerKey]['blocks']) - 1;
+        return isset($this->containers[$containerKey]['widgets'][$blockIndex])
+            && $blockIndex < count($this->containers[$containerKey]['widgets']) - 1;
     }
 
     public function canMoveBlockToContainer(string $containerKey, int $blockIndex, string $targetContainerKey): bool
     {
         $this->ensureLoaded();
 
-        return isset($this->containers[$containerKey]['blocks'][$blockIndex])
+        return isset($this->containers[$containerKey]['widgets'][$blockIndex])
             && isset($this->containers[$targetContainerKey])
             && $containerKey !== $targetContainerKey;
     }
@@ -138,7 +138,7 @@ trait ManagesBlocks
     {
         $this->ensureLoaded();
 
-        return isset($this->containers[$containerKey]['blocks'][$blockIndex])
+        return isset($this->containers[$containerKey]['widgets'][$blockIndex])
             && collect($this->containers)
                 ->keys()
                 ->contains(fn (string $targetContainerKey): bool => $targetContainerKey !== $containerKey);
@@ -150,7 +150,7 @@ trait ManagesBlocks
 
         return ResolveAdminBlockPreviewDataAction::run(
             block: $block,
-            containerBlock: $this->containers[$containerKey]['blocks'][$blockIndex],
+            containerBlock: $this->containers[$containerKey]['widgets'][$blockIndex],
             page: $this->page,
             assetCount: $this->countBlockAssets($containerKey, $blockIndex),
             hasPageAssets: $this->hasPageAssets($containerKey, $blockIndex),
@@ -168,11 +168,11 @@ trait ManagesBlocks
 
         $this->ensureLoaded();
 
-        $containerBlock = $this->containers[$containerKey]['blocks'][$originalIndex];
+        $containerBlock = $this->containers[$containerKey]['widgets'][$originalIndex];
 
-        $containerBlock['occurrence'] = $this->getLastContainerBlockOccurrence($containerKey, $containerBlock['block_key']) + 1;
+        $containerBlock['occurrence'] = $this->getLastContainerBlockOccurrence($containerKey, $containerBlock['widget_key']) + 1;
 
-        $this->containers[$containerKey]['blocks'][] = $containerBlock;
+        $this->containers[$containerKey]['widgets'][] = $containerBlock;
 
         $this->containerBlocks[$containerKey][] = $this->getContainerBlock($containerKey, $originalIndex);
         $blockIndex = array_key_last($this->containerBlocks[$containerKey]);
@@ -188,9 +188,9 @@ trait ManagesBlocks
     {
         $this->assertCanUpdateLayout();
 
-        if (isset($this->containers[$containerKey]['blocks'][$blockIndex])) {
-            unset($this->containers[$containerKey]['blocks'][$blockIndex]);
-            $this->containers[$containerKey]['blocks'] = array_values($this->containers[$containerKey]['blocks']);
+        if (isset($this->containers[$containerKey]['widgets'][$blockIndex])) {
+            unset($this->containers[$containerKey]['widgets'][$blockIndex]);
+            $this->containers[$containerKey]['widgets'] = array_values($this->containers[$containerKey]['widgets']);
         }
 
         if (isset($this->containerBlocks[$containerKey][$blockIndex])) {
@@ -218,15 +218,15 @@ trait ManagesBlocks
     {
         $this->ensureLoaded();
 
-        $this->containers[$containerKey]['blocks'][$blockIndex]['meta'] = array_merge(
-            $this->containers[$containerKey]['blocks'][$blockIndex]['meta'] ?? [],
+        $this->containers[$containerKey]['widgets'][$blockIndex]['meta'] = array_merge(
+            $this->containers[$containerKey]['widgets'][$blockIndex]['meta'] ?? [],
             $data,
         );
 
         $this->layoutUpdated();
     }
 
-    public function getContainerBlock(string $containerKey, int $blockIndex): Block
+    public function getContainerBlock(string $containerKey, int $blockIndex): Widget
     {
         if (! isset($this->containerBlocks[$containerKey][$blockIndex])) {
             $this->ensureLoaded();
@@ -251,32 +251,32 @@ trait ManagesBlocks
 
     public function getContainerBlockOccurrence(string $containerKey, int $blockIndex): int
     {
-        return (int) ($this->containers[$containerKey]['blocks'][$blockIndex]['occurrence'] ?? 1);
+        return (int) ($this->containers[$containerKey]['widgets'][$blockIndex]['occurrence'] ?? 1);
     }
 
     protected function moveContainerBlock(string $originalContainer, int $originalIndex, string $containerKey, int $blockIndex): void
     {
         $block = $this->getContainerBlock($originalContainer, $originalIndex);
 
-        $containerBlock = $this->containers[$originalContainer]['blocks'][$originalIndex];
+        $containerBlock = $this->containers[$originalContainer]['widgets'][$originalIndex];
 
         if ($originalContainer !== $containerKey) {
             $containerBlock['occurrence'] = $this->getLastContainerBlockOccurrence(
                 containerKey: $containerKey,
-                blockKey: $containerBlock['block_key'],
-                blocks: $this->containers[$containerKey]['blocks'],
+                widgetKey: $containerBlock['widget_key'],
+                blocks: $this->containers[$containerKey]['widgets'],
             ) + 1;
         }
 
-        $blocks = $this->containers[$originalContainer]['blocks'];
+        $blocks = $this->containers[$originalContainer]['widgets'];
 
         unset($blocks[$originalIndex]);
 
-        $this->containers[$originalContainer]['blocks'] = array_values($blocks);
+        $this->containers[$originalContainer]['widgets'] = array_values($blocks);
 
-        $blocks = $this->containers[$containerKey]['blocks'];
+        $blocks = $this->containers[$containerKey]['widgets'];
         $blocks = array_merge(array_slice($blocks, 0, $blockIndex), [$containerBlock], array_slice($blocks, $blockIndex));
-        $this->containers[$containerKey]['blocks'] = $blocks;
+        $this->containers[$containerKey]['widgets'] = $blocks;
 
         if ($containerKey !== $originalContainer) {
             unset($this->containerBlocks[$originalContainer][$originalIndex]);
@@ -309,9 +309,9 @@ trait ManagesBlocks
 
     protected function insertContainerBlockAtPosition(string $containerKey, int $originalIndex, int $position): void
     {
-        if (isset($this->containers[$containerKey]['blocks'][$originalIndex])) {
-            $this->containers[$containerKey]['blocks'] = $this->insertArrayItemAtPosition(
-                $this->containers[$containerKey]['blocks'],
+        if (isset($this->containers[$containerKey]['widgets'][$originalIndex])) {
+            $this->containers[$containerKey]['widgets'] = $this->insertArrayItemAtPosition(
+                $this->containers[$containerKey]['widgets'],
                 $originalIndex,
                 $position,
             );
@@ -370,18 +370,18 @@ trait ManagesBlocks
 
     protected function normalizeContainerBlockOccurrences(string $containerKey): void
     {
-        if (! isset($this->containers[$containerKey]['blocks'])) {
+        if (! isset($this->containers[$containerKey]['widgets'])) {
             return;
         }
 
         $occurrences = [];
 
-        foreach ($this->containers[$containerKey]['blocks'] as $blockIndex => $containerBlock) {
-            $blockKey = $containerBlock['block_key'];
-            $occurrences[$blockKey] = ($occurrences[$blockKey] ?? 0) + 1;
-            $occurrence = $occurrences[$blockKey];
+        foreach ($this->containers[$containerKey]['widgets'] as $blockIndex => $containerBlock) {
+            $widgetKey = $containerBlock['widget_key'];
+            $occurrences[$widgetKey] = ($occurrences[$widgetKey] ?? 0) + 1;
+            $occurrence = $occurrences[$widgetKey];
 
-            $this->containers[$containerKey]['blocks'][$blockIndex]['occurrence'] = $occurrence;
+            $this->containers[$containerKey]['widgets'][$blockIndex]['occurrence'] = $occurrence;
 
             foreach (['assets', 'originalAssets'] as $property) {
                 foreach (array_keys($this->{$property}[$containerKey][$blockIndex] ?? []) as $assetIndex) {
@@ -394,10 +394,10 @@ trait ManagesBlocks
     /**
      * @return array<array-key, mixed>
      */
-    protected function getContainerBlockKeys(): array
+    protected function getContainerWidgetKeys(): array
     {
         return collect($this->containers)
-            ->pluck('blocks.*.block_key')
+            ->pluck('widgets.*.widget_key')
             ->flatten()
             ->unique()
             ->toArray();
@@ -406,10 +406,10 @@ trait ManagesBlocks
     /**
      * @param  array<array-key, mixed>  $blocks
      */
-    protected function getLastContainerBlockOccurrence(string $containerKey, string $blockKey, ?int $compareIndex = null, ?array $blocks = null): int
+    protected function getLastContainerBlockOccurrence(string $containerKey, string $widgetKey, ?int $compareIndex = null, ?array $blocks = null): int
     {
         if ($blocks === null || $blocks === []) {
-            $blocks = $this->containers[$containerKey]['blocks'];
+            $blocks = $this->containers[$containerKey]['widgets'];
         }
 
         $occurrence = 1;
@@ -419,7 +419,7 @@ trait ManagesBlocks
                 return $occurrence;
             }
 
-            if ($block['block_key'] === $blockKey) {
+            if ($block['widget_key'] === $widgetKey) {
                 $occurrence++;
             }
         }
@@ -427,17 +427,17 @@ trait ManagesBlocks
         return $occurrence;
     }
 
-    protected function loadBlock(string $containerKey, int $blockIndex, bool $withAssets = true): Block
+    protected function loadBlock(string $containerKey, int $blockIndex, bool $withAssets = true): Widget
     {
         $container = $this->containers[$containerKey] ?? null;
 
-        throw_if($container === null || ! isset($container['blocks'][$blockIndex]), Exception::class, 'Container block not found for container: ' . $containerKey . ' index: ' . $blockIndex);
+        throw_if($container === null || ! isset($container['widgets'][$blockIndex]), Exception::class, 'Container block not found for container: ' . $containerKey . ' index: ' . $blockIndex);
 
-        $containerBlock = $container['blocks'][$blockIndex];
-        $blockKey = $containerBlock['block_key'];
+        $containerBlock = $container['widgets'][$blockIndex];
+        $widgetKey = $containerBlock['widget_key'];
         $occurrence = $containerBlock['occurrence'] ?? 1;
 
-        $block = $this->getBlock($blockKey);
+        $block = $this->getBlock($widgetKey);
 
         if ($withAssets) {
             $block->setRelation('assets', $this->loadBlockAssets($block, $containerKey, $occurrence));
@@ -458,24 +458,24 @@ trait ManagesBlocks
 
         $blockOccurrences = [];
 
-        foreach ($container['blocks'] as $blockIndex => $containerBlock) {
-            $blockKey = $containerBlock['block_key'];
+        foreach ($container['widgets'] as $blockIndex => $containerBlock) {
+            $widgetKey = $containerBlock['widget_key'];
             $oldContainerKey = $containerBlock['old_container'] ?? null;
 
-            throw_unless(isset($allBlocks[$blockKey]), Exception::class, 'Block not found for key: ' . $blockKey);
+            throw_unless(isset($allBlocks[$widgetKey]), Exception::class, 'Widget not found for key: ' . $widgetKey);
 
-            /** @var Block $block */
-            $block = clone $allBlocks[$blockKey];
+            /** @var Widget $block */
+            $block = clone $allBlocks[$widgetKey];
 
-            if (! isset($blockOccurrences[$blockKey])) {
-                $blockOccurrences[$blockKey] = 1;
+            if (! isset($blockOccurrences[$widgetKey])) {
+                $blockOccurrences[$widgetKey] = 1;
             } else {
-                $blockOccurrences[$blockKey]++;
+                $blockOccurrences[$widgetKey]++;
             }
 
-            $blockOccurrence = $blockOccurrences[$blockKey];
+            $blockOccurrence = $blockOccurrences[$widgetKey];
 
-            $this->containers[$containerKey]['blocks'][$blockIndex]['occurrence'] = $blockOccurrence;
+            $this->containers[$containerKey]['widgets'][$blockIndex]['occurrence'] = $blockOccurrence;
 
             if ($allBlockAssets !== null) {
                 $assets = $allBlockAssets[$containerKey][$blockIndex] ?? new Collection;
@@ -501,7 +501,7 @@ trait ManagesBlocks
     /**
      * @throws Exception
      */
-    protected function getBlock(int|string $id, bool $withRelations = true): Block
+    protected function getBlock(int|string $id, bool $withRelations = true): Widget
     {
         $query = $this->getBlockQuery(withRelations: $withRelations);
 
@@ -511,7 +511,7 @@ trait ManagesBlocks
             $query->where('key', $id);
         }
 
-        /** @var Block|null $block */
+        /** @var Widget|null $block */
         $block = $query->first();
 
         throw_unless($block, Exception::class, sprintf("Unable to find '%s' block", (string) $id));
@@ -520,12 +520,12 @@ trait ManagesBlocks
     }
 
     /**
-     * @return EloquentBuilder<Block>
+     * @return EloquentBuilder<Widget>
      */
     protected function getBlockQuery(bool $withRelations = true): EloquentBuilder
     {
-        /** @var class-string<Block> $model */
-        $model = Block::class;
+        /** @var class-string<Widget> $model */
+        $model = Widget::class;
 
         return $model::query()
             ->when(
@@ -551,7 +551,7 @@ trait ManagesBlocks
     }
 
     /**
-     * @return EloquentBuilder<Block>
+     * @return EloquentBuilder<Widget>
      */
     protected function getBlockDisplayQuery(): EloquentBuilder
     {
@@ -595,14 +595,14 @@ trait ManagesBlocks
      */
     protected function preloadAllBlocks(bool $withAssets = true): array
     {
-        $blockKeys = $this->getContainerBlockKeys();
+        $widgetKeys = $this->getContainerWidgetKeys();
 
-        if ($blockKeys === []) {
+        if ($widgetKeys === []) {
             return [];
         }
 
         $allBlockAssets = $this->getBlockQuery()
-            ->whereIn('key', $blockKeys)
+            ->whereIn('key', $widgetKeys)
             ->when(
                 $withAssets,
                 fn (EloquentBuilder $query): EloquentBuilder => $query->with([
@@ -635,7 +635,7 @@ trait ManagesBlocks
 
                 if ($hasPageAssets) {
                     $blockAssets->setRelation('assets', $blockAssets->assets->filter(
-                        fn (BlockAsset $asset): bool => $asset->pageable_type !== null && $asset->pageable_id !== null,
+                        fn (WidgetAsset $asset): bool => $asset->pageable_type !== null && $asset->pageable_id !== null,
                     ));
                 }
             }

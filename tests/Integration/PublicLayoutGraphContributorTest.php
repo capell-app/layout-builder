@@ -10,7 +10,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
 use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Tests\Fixtures\View\Components\PackageAlert;
 
 beforeEach(function (): void {
@@ -39,7 +39,7 @@ beforeEach(function (): void {
 it('routes public graph rendering through layout builder package payload contributors', function (): void {
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->id]);
-    $block = Block::factory()->create(['key' => 'package-backed-block']);
+    $block = Widget::factory()->create(['key' => 'package-backed-block']);
 
     TranslationFactory::new()
         ->translatable($block)
@@ -50,9 +50,9 @@ it('routes public graph rendering through layout builder package payload contrib
         ]);
 
     $layout = Layout::factory()->site($site)->create([
-        'blocks' => [$block->key],
+        'widgets' => [$block->key],
         'containers' => [
-            'main' => ['blocks' => [['block_key' => $block->key, 'occurrence' => 1]]],
+            'main' => ['widgets' => [['widget_key' => $block->key, 'occurrence' => 1]]],
         ],
     ]);
 
@@ -65,7 +65,7 @@ it('routes public graph rendering through layout builder package payload contrib
             return 10;
         }
 
-        public function data(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): array
+        public function data(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): array
         {
             return [
                 'package_contributor' => [
@@ -76,7 +76,7 @@ it('routes public graph rendering through layout builder package payload contrib
             ];
         }
 
-        public function html(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): string
+        public function html(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): string
         {
             return '<section data-package-contributor="' . $block->key . '"></section>';
         }

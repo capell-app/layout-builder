@@ -12,7 +12,7 @@ use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 
 /**
- * Filament Schema for Modern Hero Banner Block
+ * Filament Schema for Modern Hero Banner Widget
  *
  * Provides admin panel form to customize hero banner content and styling
  * without requiring technical knowledge.

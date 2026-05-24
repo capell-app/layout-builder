@@ -7,7 +7,7 @@ namespace Capell\LayoutBuilder\Actions;
 use Capell\Core\Contracts\Pageable;
 use Capell\LayoutBuilder\Data\AdminBlockPreviewData;
 use Capell\LayoutBuilder\Enums\BlockComponentEnum;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -21,7 +21,7 @@ final class ResolveAdminBlockPreviewDataAction
      * @param  array<string, mixed>  $containerBlock
      */
     public function handle(
-        Block $block,
+        Widget $block,
         array $containerBlock,
         ?Pageable $page,
         int $assetCount,
@@ -46,7 +46,7 @@ final class ResolveAdminBlockPreviewDataAction
         );
     }
 
-    private function view(Block $block, bool $usesPageContent): string
+    private function view(Widget $block, bool $usesPageContent): string
     {
         $customView = Arr::get($block->admin ?? [], 'admin_preview_view')
             ?? Arr::get($block->type->admin ?? [], 'admin_preview_view');
@@ -70,7 +70,7 @@ final class ResolveAdminBlockPreviewDataAction
     /**
      * @param  array<string, mixed>  $containerBlock
      */
-    private function label(Block $block, array $containerBlock): string
+    private function label(Widget $block, array $containerBlock): string
     {
         $layoutName = Arr::get($containerBlock, 'meta.name');
 
@@ -84,7 +84,7 @@ final class ResolveAdminBlockPreviewDataAction
     /**
      * @param  array<string, mixed>  $containerBlock
      */
-    private function title(Block $block, array $containerBlock, ?Pageable $page, bool $usesPageContent): ?string
+    private function title(Widget $block, array $containerBlock, ?Pageable $page, bool $usesPageContent): ?string
     {
         if ($usesPageContent && $page instanceof Pageable) {
             return $page->translation?->title !== null && $page->translation->title !== ''
@@ -101,7 +101,7 @@ final class ResolveAdminBlockPreviewDataAction
         return $block->translation?->title;
     }
 
-    private function excerpt(Block $block, ?Pageable $page, bool $usesPageContent): ?string
+    private function excerpt(Widget $block, ?Pageable $page, bool $usesPageContent): ?string
     {
         $content = $usesPageContent && $page instanceof Pageable
             ? $page->translation?->content
@@ -121,7 +121,7 @@ final class ResolveAdminBlockPreviewDataAction
         return str(strip_tags($content))->squish()->limit(180)->toString();
     }
 
-    private function image(Block $block, ?Pageable $page, bool $usesPageContent): ?Media
+    private function image(Widget $block, ?Pageable $page, bool $usesPageContent): ?Media
     {
         if ($usesPageContent && $page instanceof Pageable && $page->image instanceof Media) {
             return $page->image;
@@ -151,7 +151,7 @@ final class ResolveAdminBlockPreviewDataAction
         return $model->getRelation($relation);
     }
 
-    private function typeLabel(Block $block): ?string
+    private function typeLabel(Widget $block): ?string
     {
         $type = Arr::get($block->admin ?? [], 'type')
             ?? Arr::get($block->type->admin ?? [], 'type');
@@ -159,7 +159,7 @@ final class ResolveAdminBlockPreviewDataAction
         return is_string($type) && $type !== '' ? $type : null;
     }
 
-    private function icon(Block $block): ?string
+    private function icon(Widget $block): ?string
     {
         $icon = Arr::get($block->admin ?? [], 'icon')
             ?? Arr::get($block->type->admin ?? [], 'icon');
@@ -167,7 +167,7 @@ final class ResolveAdminBlockPreviewDataAction
         return is_string($icon) && $icon !== '' ? $icon : null;
     }
 
-    private function isPageContentBlock(Block $block): bool
+    private function isPageContentBlock(Widget $block): bool
     {
         return $block->getMetaComponent() === BlockComponentEnum::PageContent->value;
     }

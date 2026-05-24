@@ -517,7 +517,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->assertCanUpdateLayout();
         $this->ensureLoaded();
 
-        if (! isset($this->containers[$containerKey]['blocks'][$blockIndex])) {
+        if (! isset($this->containers[$containerKey]['widgets'][$blockIndex])) {
             return;
         }
 

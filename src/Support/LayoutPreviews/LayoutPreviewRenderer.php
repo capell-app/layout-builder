@@ -111,7 +111,7 @@ class LayoutPreviewRenderer
      */
     private function containerHeight(array $container): int
     {
-        $blocks = is_array($container['blocks'] ?? null) ? $container['blocks'] : [];
+        $blocks = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
         $blockCount = max(1, count($blocks));
 
         return self::HEADER_HEIGHT + 28 + ($blockCount * self::WIDGET_HEIGHT) + (($blockCount - 1) * self::WIDGET_GAP);
@@ -133,7 +133,7 @@ class LayoutPreviewRenderer
         $textColor = $this->textColor($image, $containerColor);
         imagestring($image, 5, $left + 18, $top + 17, $this->fitText((string) ($container['key'] ?? 'container'), max(8, (int) floor($width / 11))), $textColor);
 
-        $blocks = is_array($container['blocks'] ?? null) ? $container['blocks'] : [];
+        $blocks = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
         $blockTop = $top + self::HEADER_HEIGHT + 12;
 
         if ($blocks === []) {
@@ -170,18 +170,18 @@ class LayoutPreviewRenderer
      */
     private function drawBlock(mixed $image, Layout $layout, array $block, int $left, int $top, int $width, array &$usedHues): void
     {
-        $blockKey = (string) ($block['key'] ?? 'block');
-        $blockColor = $this->color($layout, 'block:' . $blockKey, 0.54, $usedHues);
+        $widgetKey = (string) ($block['key'] ?? 'block');
+        $blockColor = $this->color($layout, 'block:' . $widgetKey, 0.54, $usedHues);
         $fillColor = imagecolorallocate($image, $blockColor[0], $blockColor[1], $blockColor[2]);
         imagefilledrectangle($image, $left, $top, $left + $width, $top + self::WIDGET_HEIGHT, $fillColor);
 
         $textColor = $this->textColor($image, $blockColor);
         $iconLabel = $this->iconLabel($block);
         imagestring($image, 5, $left + 16, $top + 16, $iconLabel, $textColor);
-        imagestring($image, 5, $left + 58, $top + 16, $this->fitText($blockKey, max(8, (int) floor(($width - 74) / 11))), $textColor);
+        imagestring($image, 5, $left + 58, $top + 16, $this->fitText($widgetKey, max(8, (int) floor(($width - 74) / 11))), $textColor);
 
         $name = (string) ($block['name'] ?? '');
-        if ($name !== '' && $name !== $blockKey) {
+        if ($name !== '' && $name !== $widgetKey) {
             imagestring($image, 3, $left + 58, $top + 44, $this->fitText($name, max(8, (int) floor(($width - 74) / 8))), $textColor);
         }
     }

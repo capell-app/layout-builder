@@ -18,7 +18,7 @@ class LayoutBuilderBlockMaker extends AbstractFileMaker
 {
     public function definition(): MakerDefinitionData
     {
-        return new MakerDefinitionData('layout-builder.block', 'LayoutBuilder Block', 'Create LayoutBuilder block files and registration snippets', 'LayoutBuilder', 'heroicon-o-squares-2x2', true, true);
+        return new MakerDefinitionData('layout-builder.block', 'LayoutBuilder Widget', 'Create LayoutBuilder block files and registration snippets', 'LayoutBuilder', 'heroicon-o-squares-2x2', true, true);
     }
 
     #[Override]
@@ -51,7 +51,7 @@ class LayoutBuilderBlockMaker extends AbstractFileMaker
         ]);
 
         if (($input->values['livewire'] ?? false) === true) {
-            $files->push($this->fileData(app_path('Livewire/Blocks/' . $studly . 'Block.php'), $this->renderStub(__DIR__ . '/../../../stubs/block.livewire.stub', ['class' => $studly . 'Block', 'view' => 'blocks.livewire.' . $kebab]), $input->force));
+            $files->push($this->fileData(app_path('Livewire/Blocks/' . $studly . 'Widget.php'), $this->renderStub(__DIR__ . '/../../../stubs/block.livewire.stub', ['class' => $studly . 'Widget', 'view' => 'blocks.livewire.' . $kebab]), $input->force));
             $files->push($this->fileData(resource_path('views/blocks/livewire/' . $kebab . '.blade.php'), $this->renderStub(__DIR__ . '/../../../stubs/block.livewire-view.stub', []), $input->force));
         }
 

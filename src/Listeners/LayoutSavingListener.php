@@ -12,15 +12,15 @@ class LayoutSavingListener
 {
     public function __invoke(Layout $layout): void
     {
-        if (! Schema::hasColumn('layouts', 'blocks')) {
+        if (! Schema::hasColumn('layouts', 'widgets')) {
             return;
         }
 
         $containers = $layout->getAttribute('containers');
         $containers = is_array($containers) ? $containers : [];
 
-        $layout->setAttribute('blocks', collect($containers)
-            ->flatMap(fn (array $container): array => LayoutBlockData::normalizeMany($container['blocks'] ?? []))
+        $layout->setAttribute('widgets', collect($containers)
+            ->flatMap(fn (array $container): array => LayoutBlockData::fromContainer($container))
             ->map(fn (array $block): ?string => LayoutBlockData::key($block))
             ->filter()
             ->unique()

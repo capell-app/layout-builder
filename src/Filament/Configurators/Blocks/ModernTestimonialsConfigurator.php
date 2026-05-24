@@ -10,7 +10,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 
 /**
- * Filament Schema for Modern Testimonials Block
+ * Filament Schema for Modern Testimonials Widget
  *
  * Provides admin panel controls for customizing testimonials grid
  * layout and display options.

@@ -10,7 +10,7 @@ use Capell\ContentBlocks\Support\NullBlockDefinition;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutDiagnosticData;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutBlockData;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -29,16 +29,16 @@ final class AnalyzeLayoutHealthAction
     public function handle(LayoutBuilderStateData $state, ?string $themeKey = null): array
     {
         $blockModels = $this->blocks($state);
-        $knownBlockKeys = $blockModels->keys()->all();
-        $diagnostics = AnalyzeLayoutDiagnosticsAction::run($state, $knownBlockKeys);
+        $knownWidgetKeys = $blockModels->keys()->all();
+        $diagnostics = AnalyzeLayoutDiagnosticsAction::run($state, $knownWidgetKeys);
         $anchors = [];
         $registry = class_exists(BlockRegistry::class) ? resolve(BlockRegistry::class) : null;
 
         foreach ($state->containers as $containerKey => $container) {
-            $containerBlocks = LayoutBlockData::normalizeMany($container['blocks'] ?? []);
+            $containerBlocks = LayoutBlockData::fromContainer($container);
 
             foreach ($containerBlocks as $blockIndex => $containerBlock) {
-                $blockKey = $containerBlock['block_key'] ?? null;
+                $widgetKey = $containerBlock['widget_key'] ?? null;
                 $meta = is_array($containerBlock['meta'] ?? null) ? $containerBlock['meta'] : [];
                 $settings = is_array($meta['block_settings'] ?? null) ? $meta['block_settings'] : [];
                 $anchorId = $this->anchorId($settings['anchor_id'] ?? null);
@@ -57,11 +57,11 @@ final class AnalyzeLayoutHealthAction
                     $anchors[$anchorId] = true;
                 }
 
-                if (! is_string($blockKey)) {
+                if (! is_string($widgetKey)) {
                     continue;
                 }
 
-                if (! in_array($blockKey, $knownBlockKeys, true)) {
+                if (! in_array($widgetKey, $knownWidgetKeys, true)) {
                     continue;
                 }
 
@@ -80,8 +80,8 @@ final class AnalyzeLayoutHealthAction
                     continue;
                 }
 
-                $block = $blockModels->get($blockKey);
-                if (! $block instanceof Block) {
+                $block = $blockModels->get($widgetKey);
+                if (! $block instanceof Widget) {
                     continue;
                 }
 
@@ -108,21 +108,21 @@ final class AnalyzeLayoutHealthAction
     }
 
     /**
-     * @return Collection<string, Block>
+     * @return Collection<string, Widget>
      */
     private function blocks(LayoutBuilderStateData $state): Collection
     {
-        $layoutBlockKeys = collect($state->containers)
-            ->flatMap(fn (array $container): array => LayoutBlockData::normalizeMany($container['blocks'] ?? []))
+        $layoutWidgetKeys = collect($state->containers)
+            ->flatMap(fn (array $container): array => LayoutBlockData::fromContainer($container))
             ->map(static fn (array $block): ?string => LayoutBlockData::key($block))
-            ->filter(static fn (mixed $blockKey): bool => is_string($blockKey) && $blockKey !== '')
+            ->filter(static fn (mixed $widgetKey): bool => is_string($widgetKey) && $widgetKey !== '')
             ->unique()
             ->values()
             ->all();
 
-        return $layoutBlockKeys === []
+        return $layoutWidgetKeys === []
             ? collect()
-            : Block::query()->with('type:id,key')->whereIn('key', $layoutBlockKeys)->get()->keyBy('key');
+            : Widget::query()->with('type:id,key')->whereIn('key', $layoutWidgetKeys)->get()->keyBy('key');
     }
 
     private function anchorId(mixed $value): ?string
@@ -139,10 +139,10 @@ final class AnalyzeLayoutHealthAction
     /**
      * @param  array<string, mixed>  $meta
      */
-    private function blockWithPublicOccurrenceMeta(Block $block, array $meta): Block
+    private function blockWithPublicOccurrenceMeta(Widget $block, array $meta): Widget
     {
         $safeMeta = array_intersect_key($meta, array_flip([
-            'block_key',
+            'widget_key',
             'block_variant',
         ]));
         $settings = is_array($meta['block_settings'] ?? null) ? $meta['block_settings'] : [];
@@ -171,10 +171,10 @@ final class AnalyzeLayoutHealthAction
         return $publicBlock;
     }
 
-    private function definitionKey(Block $block, BlockRegistry $registry): string
+    private function definitionKey(Widget $block, BlockRegistry $registry): string
     {
         $meta = is_array($block->meta) ? $block->meta : [];
-        $configuredKey = $meta['block_key'] ?? null;
+        $configuredKey = $meta['widget_key'] ?? null;
 
         if (is_string($configuredKey) && trim($configuredKey) !== '') {
             return trim($configuredKey);

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Filament\Components\Forms;
 
 use Capell\Admin\Filament\Concerns\HasCustomSelectOption;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\Schemas\BlockForm;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\Schemas\WidgetForm;
+use Capell\LayoutBuilder\Models\Widget;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
@@ -27,9 +27,9 @@ class BlockSelect extends Select
 
     public function withCreateForm(): self
     {
-        return $this->model(Block::class)
+        return $this->model(Widget::class)
             ->getOptionLabelFromRecordUsing(
-                fn (Block $record): string => static::getSelectOption($record),
+                fn (Widget $record): string => static::getSelectOption($record),
             )
             ->getOptionLabelUsing(function (Select $component, ?int $value): ?string {
                 if ($value === null) {
@@ -46,12 +46,12 @@ class BlockSelect extends Select
                     ->toArray(),
             )
             ->createOptionForm(
-                fn (Select $component, Schema $configurator): Schema => BlockForm::configure(
-                    $configurator->model(Block::class),
+                fn (Select $component, Schema $configurator): Schema => WidgetForm::configure(
+                    $configurator->model(Widget::class),
                 ),
             )
             ->createOptionUsing(static function (Select $component, array $data, Schema $configurator) {
-                $record = new Block;
+                $record = new Widget;
                 $record->fill($data);
                 $record->save();
 
@@ -88,7 +88,7 @@ class BlockSelect extends Select
     public function withEditForm(): self
     {
         return $this->editOptionForm(
-            fn (?int $state, Schema $configurator): ?Schema => $state !== null ? BlockForm::configure($configurator) : null,
+            fn (?int $state, Schema $configurator): ?Schema => $state !== null ? WidgetForm::configure($configurator) : null,
         )
             ->editOptionAction(
                 fn (Action $action): Action => $action

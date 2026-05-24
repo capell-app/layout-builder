@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Support;
 
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Support\Collection;
 
 class CapellLayoutManager
@@ -25,31 +25,31 @@ class CapellLayoutManager
     /**
      * Store blocks for a container
      */
-    public static function storeContainerBlock(string $containerKey, string $blockKey, Block $block, int $occurrence = 1): void
+    public static function storeContainerBlock(string $containerKey, string $widgetKey, Widget $block, int $occurrence = 1): void
     {
         if (! isset(static::$containerBlocks[$containerKey])) {
             static::$containerBlocks[$containerKey] = [];
         }
 
-        if (! isset(static::$containerBlocks[$containerKey][$blockKey])) {
-            static::$containerBlocks[$containerKey][$blockKey] = [];
+        if (! isset(static::$containerBlocks[$containerKey][$widgetKey])) {
+            static::$containerBlocks[$containerKey][$widgetKey] = [];
         }
 
-        static::$containerBlocks[$containerKey][$blockKey][$occurrence] = $block;
+        static::$containerBlocks[$containerKey][$widgetKey][$occurrence] = $block;
     }
 
     /**
      * Get a block for a container
      */
-    public static function getContainerBlock(string $containerKey, string $blockKey, int $occurrence = 1): ?Block
+    public static function getContainerBlock(string $containerKey, string $widgetKey, int $occurrence = 1): ?Widget
     {
-        return static::getStoredContainerBlock($containerKey, $blockKey, $occurrence)
-            ?? Block::query()->with('type')->firstWhere('key', $blockKey);
+        return static::getStoredContainerBlock($containerKey, $widgetKey, $occurrence)
+            ?? Widget::query()->with('type')->firstWhere('key', $widgetKey);
     }
 
-    public static function getStoredContainerBlock(string $containerKey, string $blockKey, int $occurrence = 1): ?Block
+    public static function getStoredContainerBlock(string $containerKey, string $widgetKey, int $occurrence = 1): ?Widget
     {
-        return static::$containerBlocks[$containerKey][$blockKey][$occurrence] ?? null;
+        return static::$containerBlocks[$containerKey][$widgetKey][$occurrence] ?? null;
     }
 
     /**

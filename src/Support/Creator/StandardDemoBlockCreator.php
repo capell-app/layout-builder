@@ -21,8 +21,8 @@ use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\ContentTypeEnum;
 use Capell\LayoutBuilder\Enums\FrontendComponentKeyEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\Navigation\Models\Navigation;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Model;
@@ -34,7 +34,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     /**
      * @param  Collection<array-key, mixed>  $languages
      */
-    public function createContentBlock(Collection $languages): Block
+    public function createContentBlock(Collection $languages): Widget
     {
         $siteId = Site::query()->default()->value('id');
 
@@ -92,13 +92,13 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     /**
      * @param  Collection<array-key, mixed>  $languages
      */
-    public function createSplitContentBlock(Collection $languages): Block
+    public function createSplitContentBlock(Collection $languages): Widget
     {
         $siteId = Site::query()->default()->value('id');
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'example-split-content'], [
             'name' => 'Example Split Content',
-            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::SectionBuilder->value, 'type' => LayoutTypeEnum::Block->value])->id,
+            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::SectionBuilder->value, 'type' => LayoutTypeEnum::Widget->value])->id,
             'meta' => [
                 'align' => 'center',
                 'size' => 'md',
@@ -148,7 +148,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     /**
      * @param  Collection<array-key, mixed>  $languages
      */
-    public function createBannerImageBlock(Collection $languages): Block
+    public function createBannerImageBlock(Collection $languages): Widget
     {
         $block = resolve(BlockCreator::class)->bannerImageBlock();
 
@@ -174,7 +174,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         return $block;
     }
 
-    public function createGalleryBlock(): Block
+    public function createGalleryBlock(): Widget
     {
         $block = resolve(BlockCreator::class)->galleryBlock();
 
@@ -189,7 +189,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         return $block;
     }
 
-    public function createPageCardsBlock(Pageable $page, string $container = 'main', int $occurrence = 1): Block
+    public function createPageCardsBlock(Pageable $page, string $container = 'main', int $occurrence = 1): Widget
     {
         $block = resolve(BlockCreator::class)->pagesCardBlock();
 
@@ -220,7 +220,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         }
 
         $relatedPages->each(
-            fn (Page $relatedPage): BlockAsset => $this->createPageBlockAsset($block, $page, $container, $occurrence, $relatedPage),
+            fn (Page $relatedPage): WidgetAsset => $this->createPageBlockAsset($block, $page, $container, $occurrence, $relatedPage),
         );
 
         return $block;
@@ -229,9 +229,9 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     /**
      * @param  Collection<array-key, mixed>  $languages
      */
-    public function createFaqBlock(Collection $languages): Block
+    public function createFaqBlock(Collection $languages): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block->value)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget->value)
             ->firstWhere('key', 'assets');
 
         if ($blockType === null) {
@@ -354,7 +354,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         return $block;
     }
 
-    public function createMediaCarouselBlock(): Block
+    public function createMediaCarouselBlock(): Widget
     {
         $block = resolve(BlockCreator::class)->mediaCarouselBlock();
 
@@ -374,7 +374,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     /**
      * @param  Collection<array-key, mixed>  $languages
      */
-    public function createStaticNavigationBlock(Collection $languages, Site $site): Block
+    public function createStaticNavigationBlock(Collection $languages, Site $site): Widget
     {
         $model = Navigation::class;
 
@@ -441,7 +441,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         return $block;
     }
 
-    public function createContentsBlock(Block $block, Pageable $page, string $container, int $occurrence = 1, ?Blueprint $type = null): void
+    public function createContentsBlock(Widget $block, Pageable $page, string $container, int $occurrence = 1, ?Blueprint $type = null): void
     {
         $pageBlockAssets = $block->assets()->where([
             'pageable_id' => $page->getKey(),
@@ -546,13 +546,13 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     /**
      * @param  Collection<array-key, mixed>  $languages
      */
-    public function createClientLogosBlock(Collection $languages): Block
+    public function createClientLogosBlock(Collection $languages): Widget
     {
-        $block = Block::query()->firstOrCreate([
+        $block = Widget::query()->firstOrCreate([
             'key' => 'client-logos',
         ], [
             'name' => 'Client Logos',
-            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Assets->value, 'type' => LayoutTypeEnum::Block->value])->id,
+            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Assets->value, 'type' => LayoutTypeEnum::Widget->value])->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
@@ -585,13 +585,13 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         return $block;
     }
 
-    public function createBusinessFeaturesBlock(Site $site): Block
+    public function createBusinessFeaturesBlock(Site $site): Widget
     {
-        $block = Block::query()->firstOrCreate([
+        $block = Widget::query()->firstOrCreate([
             'key' => 'business-features',
         ], [
             'name' => 'Business Features',
-            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Sections->value, 'type' => LayoutTypeEnum::Block->value])->id,
+            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Sections->value, 'type' => LayoutTypeEnum::Widget->value])->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
@@ -629,7 +629,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         return $block;
     }
 
-    public function createBannersBlock(): Block
+    public function createBannersBlock(): Widget
     {
         $creator = resolve(BlockCreator::class);
         $block = $creator->bannerBlock();
@@ -655,7 +655,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     /**
      * @param  Collection<array-key, mixed>  $languages
      */
-    public function createTestimonialsBlock(Collection $languages): Block
+    public function createTestimonialsBlock(Collection $languages): Widget
     {
         $blockCreator = resolve(BlockCreator::class);
         $block = $blockCreator->testimonialsBlock();
@@ -684,11 +684,11 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         return $block;
     }
 
-    public function createStatisticsBlock(): Block
+    public function createStatisticsBlock(): Widget
     {
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'statistics'], [
             'name' => 'Statistic Blocks',
-            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Assets->value, 'type' => LayoutTypeEnum::Block->value])->id,
+            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Assets->value, 'type' => LayoutTypeEnum::Widget->value])->id,
             'meta' => [
                 'component_item' => FrontendComponentKeyEnum::SectionBlock->value,
                 'view_file' => 'capell-foundation-theme::components.block.asset.blocks',
@@ -765,12 +765,12 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     /**
      * @param  Collection<array-key, mixed>  $languages
      */
-    public function createTeamPortfolioBlock(Collection $languages): Block
+    public function createTeamPortfolioBlock(Collection $languages): Widget
     {
         $type = $this->typeModel::query()
             ->where([
                 'key' => BlockTypeEnum::Sections->value,
-                'type' => LayoutTypeEnum::Block->value,
+                'type' => LayoutTypeEnum::Widget->value,
             ])
             ->first();
 

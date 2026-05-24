@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Language;
 use Capell\LayoutBuilder\Enums\BlockComponentEnum;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Creator\BlockCreator;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 
@@ -42,8 +42,8 @@ it('creates the legacy support blocks with expected metadata and translations', 
     ];
 
     expect($blocks)
-        ->each->toBeInstanceOf(Block::class)
-        ->and(Block::query()->whereIn('key', [
+        ->each->toBeInstanceOf(Widget::class)
+        ->and(Widget::query()->whereIn('key', [
             'breadcrumbs',
             'children',
             'assets',
@@ -68,10 +68,10 @@ it('creates the legacy support blocks with expected metadata and translations', 
             'ap-image-gallery',
         ])->count())->toBe(22);
 
-    expect(Block::query()->firstWhere('key', 'breadcrumbs')?->component)->toBe(BlockComponentEnum::PageBreadcrumbs->value)
-        ->and(Block::query()->firstWhere('key', 'page-content')?->meta['page_content'])->toBe(['title', 'content'])
-        ->and(Block::query()->firstWhere('key', 'media-carousel')?->meta['carousel_auto_play'])->toBeTrue()
-        ->and(Block::query()->firstWhere('key', 'ap-card-grid')?->meta['columns'])->toBe(3)
-        ->and(Block::query()->firstWhere('key', 'children')?->translations()->where('language_id', $language->getKey())->exists())->toBeTrue()
-        ->and(Block::query()->firstWhere('key', 'siblings')?->translations()->where('language_id', $language->getKey())->exists())->toBeTrue();
+    expect(Widget::query()->firstWhere('key', 'breadcrumbs')?->component)->toBe(BlockComponentEnum::PageBreadcrumbs->value)
+        ->and(Widget::query()->firstWhere('key', 'page-content')?->meta['page_content'])->toBe(['title', 'content'])
+        ->and(Widget::query()->firstWhere('key', 'media-carousel')?->meta['carousel_auto_play'])->toBeTrue()
+        ->and(Widget::query()->firstWhere('key', 'ap-card-grid')?->meta['columns'])->toBe(3)
+        ->and(Widget::query()->firstWhere('key', 'children')?->translations()->where('language_id', $language->getKey())->exists())->toBeTrue()
+        ->and(Widget::query()->firstWhere('key', 'siblings')?->translations()->where('language_id', $language->getKey())->exists())->toBeTrue();
 });

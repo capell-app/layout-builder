@@ -12,7 +12,7 @@ use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\BlueprintCreator;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Creator\BlockCreator;
 use Capell\LayoutBuilder\Support\Creator\StandardDemoBlockCreator;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
@@ -53,7 +53,7 @@ final class LayoutBuilderStandardDemoBlockCreatorHarness extends StandardDemoBlo
     public function __construct()
     {
         $this->contentModel = LayoutBuilderStandardDemoContentPage::class;
-        $this->blockModel = Block::class;
+        $this->blockModel = Widget::class;
         $this->typeModel = Blueprint::class;
         $this->pageModel = Page::class;
     }
@@ -97,7 +97,7 @@ final class LayoutBuilderStandardDemoBlockCreatorHarness extends StandardDemoBlo
     protected function createMedia(Model $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = 'image'): void {}
 
     #[Override]
-    protected function createBlockMedia(Block $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = 'image'): Media
+    protected function createBlockMedia(Widget $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = 'image'): Media
     {
         $content = LayoutBuilderStandardDemoContentPage::query()->create([
             'name' => $name ?? 'Demo Media',

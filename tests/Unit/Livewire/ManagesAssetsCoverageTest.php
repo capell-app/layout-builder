@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 final class LayoutBuilderAssetHarness extends LayoutBuilder
@@ -18,7 +18,7 @@ final class LayoutBuilderAssetHarness extends LayoutBuilder
     public function assertCanEditContent(): void {}
 
     /**
-     * @param  array<string, array<int, Block>>  $containerBlocks
+     * @param  array<string, array<int, Widget>>  $containerBlocks
      */
     public function setContainerBlocks(array $containerBlocks): void
     {
@@ -33,35 +33,35 @@ final class LayoutBuilderAssetHarness extends LayoutBuilder
     /**
      * @return array<array-key, mixed>
      */
-    public function exposeMapBlockAssets(Block $block, string $containerKey, ?string $oldContainerKey = null): array
+    public function exposeMapBlockAssets(Widget $block, string $containerKey, ?string $oldContainerKey = null): array
     {
         return $this->mapBlockAssets($block, $containerKey, $oldContainerKey);
     }
 
     /**
      * @param  array<array-key, mixed>  $blockAssets
-     * @param  EloquentCollection<int, BlockAsset>|null  $allBlockAssets
-     * @return EloquentCollection<int, BlockAsset>
+     * @param  EloquentCollection<int, WidgetAsset>|null  $allBlockAssets
+     * @return EloquentCollection<int, WidgetAsset>
      */
     public function exposeSetupBlockAssets(
         string $containerKey,
         int $blockIndex,
         array $blockAssets,
         ?EloquentCollection $allBlockAssets,
-        Block $block,
+        Widget $block,
     ): EloquentCollection {
         return $this->setupBlockAssets($containerKey, $blockIndex, $blockAssets, $allBlockAssets, $block);
     }
 
     /**
-     * @param  EloquentCollection<int, BlockAsset>  $assets
-     * @return EloquentCollection<int, BlockAsset>
+     * @param  EloquentCollection<int, WidgetAsset>  $assets
+     * @return EloquentCollection<int, WidgetAsset>
      */
     public function exposeFilterContainerBlockAssets(
         EloquentCollection $assets,
         string $containerKey,
         int $blockOccurrence,
-        ?Block $block = null,
+        ?Widget $block = null,
     ): EloquentCollection {
         return $this->filterContainerBlockAssets($assets, $containerKey, $blockOccurrence, $block);
     }
@@ -82,8 +82,8 @@ it('reorders selects and removes in-memory block assets predictably', function (
     $harness->layout = Layout::factory()->create();
     $harness->containers = [
         'main' => [
-            'blocks' => [
-                ['block_key' => 'hero', 'occurrence' => 1],
+            'widgets' => [
+                ['widget_key' => 'hero', 'occurrence' => 1],
             ],
         ],
     ];
@@ -131,12 +131,12 @@ it('maps filters and restores persisted block assets for page scoped state', fun
     $page = Page::factory()->withTranslations()->create();
     $otherPage = Page::factory()->withTranslations()->create();
     $layout = Layout::factory()->create();
-    $block = Block::factory()->create(['key' => 'hero']);
-    $globalAsset = BlockAsset::factory()
+    $block = Widget::factory()->create(['key' => 'hero']);
+    $globalAsset = WidgetAsset::factory()
         ->block($block)
         ->asset($page)
         ->create(['container' => null, 'occurrence' => 1, 'order' => 2, 'workspace_id' => 0]);
-    $pageAsset = BlockAsset::factory()
+    $pageAsset = WidgetAsset::factory()
         ->block($block)
         ->asset($page)
         ->create([
@@ -147,7 +147,7 @@ it('maps filters and restores persisted block assets for page scoped state', fun
             'pageable_id' => $page->getKey(),
             'pageable_type' => $page->getMorphClass(),
         ]);
-    $otherPageAsset = BlockAsset::factory()
+    $otherPageAsset = WidgetAsset::factory()
         ->block($block)
         ->asset($otherPage)
         ->create([
@@ -166,15 +166,15 @@ it('maps filters and restores persisted block assets for page scoped state', fun
     $harness->page = $page;
     $harness->containers = [
         'main' => [
-            'blocks' => [
-                ['block_key' => $block->key, 'occurrence' => 1],
+            'widgets' => [
+                ['widget_key' => $block->key, 'occurrence' => 1],
             ],
         ],
     ];
     $harness->assets = ['main' => [[]]];
     $harness->selectedRecords = ['main' => [[]]];
     $harness->setContainerBlocks(['main' => [$block]]);
-    $allBlockAssets = BlockAsset::query()
+    $allBlockAssets = WidgetAsset::query()
         ->whereKey([$globalAsset->getKey(), $pageAsset->getKey(), $otherPageAsset->getKey()])
         ->get();
 
@@ -259,12 +259,12 @@ it('captures original assets and deletes only removed persisted asset records', 
     $page = Page::factory()->withTranslations()->create();
     $removedPage = Page::factory()->withTranslations()->create();
     $layout = Layout::factory()->create();
-    $block = Block::factory()->create(['key' => 'hero']);
-    $keptAsset = BlockAsset::factory()
+    $block = Widget::factory()->create(['key' => 'hero']);
+    $keptAsset = WidgetAsset::factory()
         ->block($block)
         ->asset($page)
         ->create(['container' => null, 'occurrence' => 1, 'order' => 1, 'workspace_id' => 0]);
-    $removedAsset = BlockAsset::factory()
+    $removedAsset = WidgetAsset::factory()
         ->block($block)
         ->asset($removedPage)
         ->create(['container' => null, 'occurrence' => 1, 'order' => 2, 'workspace_id' => 0]);
@@ -275,8 +275,8 @@ it('captures original assets and deletes only removed persisted asset records', 
     $harness->layout = $layout;
     $harness->containers = [
         'main' => [
-            'blocks' => [
-                ['block_key' => $block->key, 'occurrence' => 1],
+            'widgets' => [
+                ['widget_key' => $block->key, 'occurrence' => 1],
             ],
         ],
     ];
@@ -320,6 +320,6 @@ it('captures original assets and deletes only removed persisted asset records', 
 
     $harness->exposeDeleteRemovedBlockAssets();
 
-    expect(BlockAsset::query()->whereKey($keptAsset->getKey())->exists())->toBeTrue()
-        ->and(BlockAsset::query()->whereKey($removedAsset->getKey())->exists())->toBeFalse();
+    expect(WidgetAsset::query()->whereKey($keptAsset->getKey())->exists())->toBeTrue()
+        ->and(WidgetAsset::query()->whereKey($removedAsset->getKey())->exists())->toBeFalse();
 });

@@ -7,7 +7,7 @@ namespace Capell\LayoutBuilder\Actions;
 use Capell\ContentBlocks\Data\PublicBlockPresentationData;
 use Capell\ContentBlocks\Support\BlockRegistry;
 use Capell\ContentBlocks\Support\NullBlockDefinition;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -15,7 +15,7 @@ final class ResolveBlockPresentationDataAction
 {
     use AsObject;
 
-    public function handle(Block $block, ?string $themeKey = null): PublicBlockPresentationData
+    public function handle(Widget $block, ?string $themeKey = null): PublicBlockPresentationData
     {
         $registry = resolve(BlockRegistry::class);
         $definitionKey = $this->definitionKey($block, $registry);
@@ -43,10 +43,10 @@ final class ResolveBlockPresentationDataAction
         );
     }
 
-    private function definitionKey(Block $block, BlockRegistry $registry): string
+    private function definitionKey(Widget $block, BlockRegistry $registry): string
     {
         $meta = is_array($block->meta) ? $block->meta : [];
-        $configuredKey = $meta['block_key'] ?? null;
+        $configuredKey = $meta['widget_key'] ?? null;
 
         if (is_string($configuredKey) && trim($configuredKey) !== '') {
             return trim($configuredKey);

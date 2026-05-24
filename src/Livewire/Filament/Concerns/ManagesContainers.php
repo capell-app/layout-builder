@@ -26,7 +26,7 @@ trait ManagesContainers
         $this->assertCanUpdateLayout();
 
         $container = [
-            'blocks' => [],
+            'widgets' => [],
         ];
 
         if ($position === null) {
@@ -140,7 +140,7 @@ trait ManagesContainers
 
         $this->selectedRecords[$newContainerKey] = [];
 
-        foreach (array_keys($this->containers[$newContainerKey]['blocks']) as $blockIndex) {
+        foreach (array_keys($this->containers[$newContainerKey]['widgets']) as $blockIndex) {
             foreach ($this->assets[$newContainerKey][$blockIndex] ?? [] as $assetIndex => $asset) {
                 if (isset($asset['container'])) {
                     $this->assets[$newContainerKey][$blockIndex][$assetIndex]['container'] = $newContainerKey;
@@ -284,11 +284,11 @@ trait ManagesContainers
             unset($this->{$property}[$oldKey]);
         }
 
-        foreach ($this->containers[$newKey]['blocks'] as $blockIndex => $block) {
+        foreach ($this->containers[$newKey]['widgets'] as $blockIndex => $block) {
             $block['old_container'] ??= $oldKey;
             $block['container_key'] = $newKey;
 
-            $this->containers[$newKey]['blocks'][$blockIndex] = $block;
+            $this->containers[$newKey]['widgets'][$blockIndex] = $block;
         }
 
         foreach ($this->assets[$newKey] ?? [] as $blockIndex => $blockAssets) {
@@ -344,7 +344,22 @@ trait ManagesContainers
 
         foreach ($containers as $key => $container) {
             $this->containers[$key] = [
-                'blocks' => $container['blocks'] ?? [],
+                'widgets' => array_map(
+                    static function (mixed $widget): mixed {
+                        if (! is_array($widget)) {
+                            return $widget;
+                        }
+
+                        if (! isset($widget['widget_key']) && isset($widget['block_key'])) {
+                            $widget['widget_key'] = $widget['block_key'];
+                        }
+
+                        unset($widget['block_key']);
+
+                        return $widget;
+                    },
+                    $container['widgets'] ?? $container['blocks'] ?? [],
+                ),
                 'meta' => $container['meta'] ?? [],
             ];
             $this->trackKnownContainerKey((string) $key);

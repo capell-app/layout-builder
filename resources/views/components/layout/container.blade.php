@@ -99,7 +99,7 @@
         'mb-20' => in_array('b-xl', $margin, true),
     ])
 >
-    @foreach (LayoutBlockData::normalizeMany($container['blocks'] ?? []) as $blockIndex => $blockData)
+    @foreach (LayoutBlockData::fromContainer($container) as $blockIndex => $blockData)
         @php
             $blockKey = LayoutBlockData::key($blockData);
             if ($blockKey === null) {

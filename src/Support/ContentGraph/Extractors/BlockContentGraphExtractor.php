@@ -13,7 +13,7 @@ use Capell\Core\Enums\ContentGraph\ContentGraphEdgeStrength;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Models\Media;
 use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
@@ -23,12 +23,12 @@ final class BlockContentGraphExtractor implements ContentGraphExtractor
 
     public static function sourceModel(): string
     {
-        return Block::class;
+        return Widget::class;
     }
 
     public function extract(Model $model): ContentGraphEdgeCollectionData
     {
-        if (! $model instanceof Block) {
+        if (! $model instanceof Widget) {
             return ContentGraphEdgeCollectionData::make();
         }
 

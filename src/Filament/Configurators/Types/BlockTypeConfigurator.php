@@ -16,8 +16,8 @@ use Capell\Core\Support\Media\ImageSourcePresets;
 use Capell\LayoutBuilder\Enums\BlockConfiguratorEnum;
 use Capell\LayoutBuilder\Enums\BlockTypeGroupEnum;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\ComponentSection;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\DisplaySection;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\DisplaySection;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs;
@@ -69,7 +69,7 @@ class BlockTypeConfigurator extends DefaultTypeConfigurator
                     ->label(__('capell-admin::form.admin_form_configurator'))
                     ->helperText(__('capell-admin::generic.admin_form_configurator_info'))
                     ->default(fn (): string => BlockConfiguratorEnum::Default->name)
-                    ->setupOptions(ConfiguratorTypeEnum::Block),
+                    ->setupOptions(ConfiguratorTypeEnum::Widget),
                 ConfiguratorSelect::make('layout_block_configurator')
                     ->label(__('capell-admin::form.layout_block_configurator'))
                     ->helperText(__('capell-admin::generic.layout_block_configurator_info'))

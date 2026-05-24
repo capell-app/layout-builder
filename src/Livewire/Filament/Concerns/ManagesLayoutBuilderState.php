@@ -16,7 +16,7 @@ use Capell\LayoutBuilder\Data\LayoutContentInventoryData;
 use Capell\LayoutBuilder\Data\LayoutDiagnosticData;
 use Capell\LayoutBuilder\Data\LayoutMutationResultData;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutClipboard;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
@@ -70,14 +70,14 @@ trait ManagesLayoutBuilderState
 
         foreach ($this->assets as $containerKey => $containerBlocks) {
             foreach ($containerBlocks as $blockIndex => $blockAssets) {
-                $blockKey = $this->containers[$containerKey]['blocks'][$blockIndex]['block_key'] ?? null;
+                $widgetKey = $this->containers[$containerKey]['widgets'][$blockIndex]['widget_key'] ?? null;
 
-                if ($blockKey === null) {
+                if ($widgetKey === null) {
                     continue;
                 }
 
-                /** @var Block $block */
-                $block = $blocks[$blockKey];
+                /** @var Widget $block */
+                $block = $blocks[$widgetKey];
 
                 $containerBlockAssets[$containerKey][$blockIndex] = $this->setupBlockAssets(
                     $containerKey,
@@ -146,21 +146,21 @@ trait ManagesLayoutBuilderState
 
     protected function persistBlockAssets(): void
     {
-        $processedBlockKeys = [];
+        $processedWidgetKeys = [];
 
         foreach ($this->containers as $containerKey => $container) {
-            foreach ($container['blocks'] as $blockIndex => $block) {
+            foreach ($container['widgets'] as $blockIndex => $block) {
                 if ($this->inPageContext() && isset($block['pageable_type'], $block['pageable_id'])) {
-                    $key = $block['block_key'] . '_' . $block['pageable_type'] . '_' . $block['pageable_id'] . '_' . $block['container'] . '_' . $block['occurrence'];
+                    $key = $block['widget_key'] . '_' . $block['pageable_type'] . '_' . $block['pageable_id'] . '_' . $block['container'] . '_' . $block['occurrence'];
                 } else {
-                    $key = $block['block_key'] . '_' . $block['occurrence'];
+                    $key = $block['widget_key'] . '_' . $block['occurrence'];
                 }
 
-                if (in_array($key, $processedBlockKeys, true)) {
+                if (in_array($key, $processedWidgetKeys, true)) {
                     continue;
                 }
 
-                $processedBlockKeys[] = $key;
+                $processedWidgetKeys[] = $key;
 
                 $this->updateAssets($containerKey, $blockIndex, $block['old_container'] ?? null);
             }
@@ -235,32 +235,32 @@ trait ManagesLayoutBuilderState
     protected function rebuildLoadedContainerBlocks(): void
     {
         $this->containerBlocks = [];
-        $blockKeys = collect($this->containers ?? [])
+        $widgetKeys = collect($this->containers ?? [])
             ->flatMap(fn (array $container): array => array_map(
-                static fn (array $block): mixed => $block['block_key'] ?? null,
-                $container['blocks'] ?? [],
+                static fn (array $block): mixed => $block['widget_key'] ?? null,
+                $container['widgets'] ?? [],
             ))
-            ->filter(static fn (mixed $blockKey): bool => is_string($blockKey) && $blockKey !== '')
+            ->filter(static fn (mixed $widgetKey): bool => is_string($widgetKey) && $widgetKey !== '')
             ->unique()
             ->values()
             ->all();
 
-        $blocksByKey = $blockKeys === []
+        $blocksByKey = $widgetKeys === []
             ? collect()
             : $this->getBlockDisplayQuery()
-                ->whereIn('key', $blockKeys)
+                ->whereIn('key', $widgetKeys)
                 ->get()
                 ->keyBy('key');
 
         foreach ($this->containers ?? [] as $containerKey => $container) {
-            foreach (($container['blocks'] ?? []) as $blockIndex => $block) {
-                $blockKey = $block['block_key'] ?? null;
+            foreach (($container['widgets'] ?? []) as $blockIndex => $block) {
+                $widgetKey = $block['widget_key'] ?? null;
 
-                if (! is_string($blockKey)) {
+                if (! is_string($widgetKey)) {
                     continue;
                 }
 
-                $loadedBlock = $blocksByKey->get($blockKey);
+                $loadedBlock = $blocksByKey->get($widgetKey);
 
                 if ($loadedBlock !== null) {
                     $this->containerBlocks[$containerKey][$blockIndex] = $loadedBlock;
@@ -364,7 +364,7 @@ trait ManagesLayoutBuilderState
                 foreach ($blockAssets as $assetIndex => $asset) {
                     $assets[$containerKey][$blockIndex][$assetIndex] = [
                         'id' => $asset['id'] ?? null,
-                        'block_id' => $asset['block_id'] ?? null,
+                        'widget_id' => $asset['widget_id'] ?? null,
                         'asset_id' => $asset['asset_id'] ?? null,
                         'asset_type' => $asset['asset_type'] ?? null,
                         'order' => $asset['order'] ?? null,

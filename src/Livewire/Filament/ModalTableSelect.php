@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Livewire\Filament;
 
 use Capell\Core\Models\Page;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -58,7 +58,7 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
     public ?array $data = [];
 
     /**
-     * @var Builder<Model>|Builder<Page>|Builder<Block>|Closure(): (Builder<Model>|Builder<Page>|Builder<Block>)
+     * @var Builder<Model>|Builder<Page>|Builder<Widget>|Closure(): (Builder<Model>|Builder<Page>|Builder<Widget>)
      */
     #[Locked]
     public Builder|Closure $tableQuery;

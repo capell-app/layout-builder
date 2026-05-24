@@ -13,9 +13,9 @@ enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
 
     case LayoutBlock = 'LayoutBlocks';
 
-    case Block = 'Blocks';
+    case Widget = 'Widgets';
 
-    case BlockAsset = 'BlockAssets';
+    case WidgetAsset = 'WidgetAssets';
 
     /**
      * @return array<string, list<class-string<ConfiguratorInterface>>>
@@ -49,11 +49,11 @@ enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
                 fn (LayoutBlockConfiguratorEnum $configurator): string => $configurator->value,
                 LayoutBlockConfiguratorEnum::cases(),
             ),
-            self::Block => array_map(
+            self::Widget => array_map(
                 fn (BlockConfiguratorEnum $configurator): string => $configurator->value,
                 BlockConfiguratorEnum::cases(),
             ),
-            self::BlockAsset => array_map(
+            self::WidgetAsset => array_map(
                 fn (BlockAssetConfiguratorEnum $configurator): string => $configurator->value,
                 BlockAssetConfiguratorEnum::cases(),
             ),

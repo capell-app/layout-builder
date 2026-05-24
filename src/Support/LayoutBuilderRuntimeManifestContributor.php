@@ -9,7 +9,7 @@ use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
 use Capell\Frontend\Data\FrontendRuntimeManifestData;
 use Capell\Frontend\Enums\RenderingStrategyEnum;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -22,16 +22,16 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
         }
 
         $layout = $context->layout();
-        $blockKeys = $this->layoutBlockKeys($layout);
+        $widgetKeys = $this->layoutWidgetKeys($layout);
 
-        if ($blockKeys === []) {
+        if ($widgetKeys === []) {
             return;
         }
 
         $manifest->usesAlpine = true;
         $manifest->modules['layout-builder'] = true;
 
-        if (! $this->layoutUsesLivewireBlocks($blockKeys)) {
+        if (! $this->layoutUsesLivewireBlocks($widgetKeys)) {
             return;
         }
 
@@ -42,7 +42,7 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
     /**
      * @return list<string>
      */
-    private function layoutBlockKeys(?Layout $layout): array
+    private function layoutWidgetKeys(?Layout $layout): array
     {
         if (! $layout instanceof Layout) {
             return [];
@@ -50,7 +50,7 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
 
         $attributes = $layout->getAttributes();
 
-        $blockKeys = collect(array_key_exists('blocks', $attributes) ? (array) $layout->getAttribute('blocks') : []);
+        $widgetKeys = collect(array_key_exists('widgets', $attributes) ? (array) $layout->getAttribute('widgets') : []);
         $containers = array_key_exists('containers', $attributes) ? $layout->getAttribute('containers') : null;
 
         if (is_array($containers)) {
@@ -59,34 +59,34 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
                     continue;
                 }
 
-                $blocks = $container['blocks'] ?? [];
+                $blocks = $container['widgets'] ?? [];
 
                 if (! is_array($blocks)) {
                     continue;
                 }
 
-                $blockKeys = $blockKeys->merge(collect($blocks)->map(
-                    fn (mixed $block): mixed => is_array($block) ? ($block['block_key'] ?? $block['key'] ?? null) : $block,
+                $widgetKeys = $widgetKeys->merge(collect($blocks)->map(
+                    fn (mixed $block): mixed => is_array($block) ? ($block['widget_key'] ?? $block['key'] ?? null) : $block,
                 ));
             }
         }
 
-        return $blockKeys
-            ->filter(fn (mixed $blockKey): bool => is_string($blockKey) || is_numeric($blockKey))
-            ->map(fn (mixed $blockKey): string => (string) $blockKey)
+        return $widgetKeys
+            ->filter(fn (mixed $widgetKey): bool => is_string($widgetKey) || is_numeric($widgetKey))
+            ->map(fn (mixed $widgetKey): string => (string) $widgetKey)
             ->unique()
             ->values()
             ->all();
     }
 
     /**
-     * @param  list<string>  $blockKeys
+     * @param  list<string>  $widgetKeys
      */
-    private function layoutUsesLivewireBlocks(array $blockKeys): bool
+    private function layoutUsesLivewireBlocks(array $widgetKeys): bool
     {
-        return Block::query()
+        return Widget::query()
             ->with('type')
-            ->whereIn('key', $blockKeys)
+            ->whereIn('key', $widgetKeys)
             ->whereHas('type', fn (Builder $query): Builder => $query->enabled()->accessible())
             ->enabled()
             ->publishedDate()

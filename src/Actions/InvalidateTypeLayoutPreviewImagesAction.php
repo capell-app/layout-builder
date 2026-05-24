@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions;
 
 use Capell\Core\Models\Blueprint;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -17,11 +17,11 @@ class InvalidateTypeLayoutPreviewImagesAction
 
     public function handle(Blueprint $type): int
     {
-        $blockKeys = Block::query()
+        $widgetKeys = Widget::query()
             ->where('blueprint_id', $type->getKey())
             ->pluck('key')
             ->all();
 
-        return InvalidateBlockLayoutPreviewImagesAction::run($blockKeys);
+        return InvalidateBlockLayoutPreviewImagesAction::run($widgetKeys);
     }
 }

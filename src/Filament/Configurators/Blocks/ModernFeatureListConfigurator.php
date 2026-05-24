@@ -10,7 +10,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 
 /**
- * Filament Schema for Modern Feature List Block
+ * Filament Schema for Modern Feature List Widget
  *
  * Provides admin panel controls for customizing feature list layout
  * and display options.

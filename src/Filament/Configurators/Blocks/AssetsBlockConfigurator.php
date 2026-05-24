@@ -7,16 +7,16 @@ namespace Capell\LayoutBuilder\Filament\Configurators\Blocks;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\ImageSourcePicker;
 use Capell\LayoutBuilder\Filament\Components\Forms\AssetsRepeater;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\ComponentSection;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\CreateDetailsSchema;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\DisplaySection;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\ResultsSchema;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\SettingsSchema;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\Tab\BlockAdminTab;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\Tab\BlockDisplayTab;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\Tab\BlockSettingsTab;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\TranslationsRepeater;
 use Capell\LayoutBuilder\Filament\Components\Forms\ColorSchemeComponent;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\CreateDetailsSchema;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\DisplaySection;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\ResultsSchema;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\SettingsSchema;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\BlockAdminTab;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\BlockDisplayTab;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\BlockSettingsTab;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\TranslationsRepeater;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
@@ -134,7 +134,9 @@ class AssetsBlockConfigurator extends DefaultBlockConfigurator
                 ->statePath('meta')
                 ->schema(ResultsSchema::make($configurator)),
             DisplaySection::make([
-                ColorSchemeComponent::make('color'),
+                ...$this->extendDisplayComponents($configurator, [
+                    ColorSchemeComponent::make('color'),
+                ]),
             ]),
             ComponentSection::make(),
         ]);

@@ -7,12 +7,12 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\BlockResource;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\Tables\BlockAssetsTable;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\Tables\BlocksTable;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Tables\LayoutsTable;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetAssetsTable;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetsTable;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\TextColumn;
@@ -26,37 +26,52 @@ function invokeLayoutBuilderTableMethod(string $className, string $methodName, m
     return $method->invoke(null, ...$arguments);
 }
 
+function createEnglishLayoutBuilderLanguage(): Language
+{
+    return Language::query()->create([
+        'name' => 'English',
+        'locale' => 'en',
+        'code' => 'en',
+        'flag' => 'gb-eng',
+        'status' => true,
+        'default' => true,
+        'order' => 1,
+    ]);
+}
+
 it('exposes block resource metadata search details and soft-deleted query scope', function (): void {
-    $language = Language::factory()->create(['code' => 'en']);
-    $block = Block::factory()->create(['name' => 'Hero Block', 'key' => 'hero-block']);
+    $language = createEnglishLayoutBuilderLanguage();
+    $block = Widget::factory()->create(['name' => 'Hero Widget', 'key' => 'hero-block']);
     $block->translations()->create([
         'language_id' => $language->getKey(),
         'title' => 'Promo Hero',
     ]);
     $block->load('translation');
 
-    expect(BlockResource::getModel())->toBe(Block::class)
-        ->and(BlockResource::getResourceType())->toBe(ConfiguratorTypeEnum::Block)
-        ->and(BlockResource::getNavigationLabel())->toBe(__('capell-layout-builder::navigation.blocks'))
-        ->and(BlockResource::getNavigationGroup())->toBe(__('capell-admin::navigation.group_layouts'))
-        ->and(BlockResource::getPluralModelLabel())->toBe(__('capell-layout-builder::navigation.blocks'))
-        ->and(BlockResource::shouldRegisterNavigation())->toBeTrue()
-        ->and(BlockResource::getGloballySearchableAttributes())->toContain('translations.title')
-        ->and(BlockResource::getGlobalSearchResultDetails($block))->toBe([
+    expect(WidgetResource::getModel())->toBe(Widget::class)
+        ->and(WidgetResource::getResourceType())->toBe(ConfiguratorTypeEnum::Widget)
+        ->and(WidgetResource::getNavigationLabel())->toBe(__('capell-layout-builder::navigation.blocks'))
+        ->and(WidgetResource::getNavigationGroup())->toBe(__('capell-admin::navigation.group_layouts'))
+        ->and(WidgetResource::getSlug())->toBe('widgets')
+        ->and(WidgetResource::getModelLabel())->toBe(__('capell-layout-builder::navigation.block'))
+        ->and(WidgetResource::getPluralModelLabel())->toBe(__('capell-layout-builder::navigation.blocks'))
+        ->and(WidgetResource::shouldRegisterNavigation())->toBeTrue()
+        ->and(WidgetResource::getGloballySearchableAttributes())->toContain('translations.title')
+        ->and(WidgetResource::getGlobalSearchResultDetails($block))->toBe([
             __('capell-admin::generic.title') => 'Promo Hero',
         ])
         ->and(LayoutResource::getModel())->toBe(Layout::class);
 
     $block->delete();
 
-    expect(BlockResource::getEloquentQuery()->whereKey($block->getKey())->exists())->toBeTrue()
-        ->and(BlockResource::getRelations())->toHaveCount(1)
-        ->and(BlockResource::getPages())->toHaveKeys(['index', 'edit', 'create']);
+    expect(WidgetResource::getEloquentQuery()->whereKey($block->getKey())->exists())->toBeTrue()
+        ->and(WidgetResource::getRelations())->toHaveCount(1)
+        ->and(WidgetResource::getPages())->toHaveKeys(['index', 'edit', 'create']);
 });
 
 it('builds block table columns filters and search query branches', function (): void {
-    $language = Language::factory()->create(['name' => 'English', 'code' => 'en']);
-    $block = Block::factory()->create([
+    $language = createEnglishLayoutBuilderLanguage();
+    $block = Widget::factory()->create([
         'component' => 'hero-card',
         'component_item' => 'hero-card-item',
         'view_file' => 'blocks.hero-card',
@@ -67,19 +82,19 @@ it('builds block table columns filters and search query branches', function (): 
         'content' => 'Needle content',
     ]);
 
-    $columns = invokeLayoutBuilderTableMethod(BlocksTable::class, 'getTableColumns');
-    $filters = invokeLayoutBuilderTableMethod(BlocksTable::class, 'getTableFilters');
+    $columns = invokeLayoutBuilderTableMethod(WidgetsTable::class, 'getTableColumns');
+    $filters = invokeLayoutBuilderTableMethod(WidgetsTable::class, 'getTableFilters');
 
     $contentSearchQuery = invokeLayoutBuilderTableMethod(
-        BlocksTable::class,
+        WidgetsTable::class,
         'applyContentSearch',
-        Block::query(),
+        Widget::query(),
         'Needle content',
     );
     $componentSearchQuery = invokeLayoutBuilderTableMethod(
-        BlocksTable::class,
+        WidgetsTable::class,
         'applyComponentSearch',
-        Block::query(),
+        Widget::query(),
         'hero-card',
     );
 
@@ -102,10 +117,10 @@ it('covers block asset table lookup and type helper branches', function (): void
         'blueprint_id' => $pageType->getKey(),
     ]);
 
-    $lookupKey = invokeLayoutBuilderTableMethod(BlockAssetsTable::class, 'buildLookupKey', 'page', 123);
-    $blankAssetTypes = invokeLayoutBuilderTableMethod(BlockAssetsTable::class, 'getAssetTypes', '');
-    $missingAssetTypes = invokeLayoutBuilderTableMethod(BlockAssetsTable::class, 'getAssetTypes', 'missing');
-    $pageAssetTypes = invokeLayoutBuilderTableMethod(BlockAssetsTable::class, 'getAssetTypes', 'page');
+    $lookupKey = invokeLayoutBuilderTableMethod(WidgetAssetsTable::class, 'buildLookupKey', 'page', 123);
+    $blankAssetTypes = invokeLayoutBuilderTableMethod(WidgetAssetsTable::class, 'getAssetTypes', '');
+    $missingAssetTypes = invokeLayoutBuilderTableMethod(WidgetAssetsTable::class, 'getAssetTypes', 'missing');
+    $pageAssetTypes = invokeLayoutBuilderTableMethod(WidgetAssetsTable::class, 'getAssetTypes', 'page');
 
     expect($lookupKey)->toBe('page:123')
         ->and($blankAssetTypes)->toBe([])
@@ -115,7 +130,7 @@ it('covers block asset table lookup and type helper branches', function (): void
 });
 
 it('adds layout-builder specific layout table filters columns and query relations', function (): void {
-    $block = Block::factory()->create(['key' => 'hero', 'name' => 'Hero']);
+    $block = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero']);
 
     $filters = invokeLayoutBuilderTableMethod(LayoutsTable::class, 'getTableFilters');
     $columns = invokeLayoutBuilderTableMethod(LayoutsTable::class, 'getTableColumns');
@@ -125,7 +140,7 @@ it('adds layout-builder specific layout table filters columns and query relation
         Layout::query(),
     );
 
-    $blockFilter = firstLayoutBuilderTableComponent($filters, 'block_key', SelectFilter::class);
+    $blockFilter = firstLayoutBuilderTableComponent($filters, 'widget_key', SelectFilter::class);
 
     expect($blockFilter)->not->toBeNull()
         ->and($columns)->not->toBeEmpty()

@@ -22,7 +22,7 @@ class MakeBlockAction
     {
         $studly = Str::studly($name);
 
-        throw_if($studly === '', RuntimeException::class, 'Block name is required.');
+        throw_if($studly === '', RuntimeException::class, 'Widget name is required.');
 
         $kebab = Str::kebab($studly);
         $headline = Str::headline($studly);
@@ -66,14 +66,14 @@ class MakeBlockAction
     {
         return <<<PHP
             use Capell\Core\Models\Blueprint;
-            use Capell\LayoutBuilder\Models\Block;
+            use Capell\LayoutBuilder\Models\Widget;
 
             \$type = Blueprint::firstOrCreate(
                 ['type' => 'block', 'key' => '{$kebab}'],
                 ['name' => '{$headline}', 'status' => true],
             );
 
-            Block::firstOrCreate(
+            Widget::firstOrCreate(
                 ['blueprint_id' => \$type->id, 'key' => '{$kebab}'],
                 [
                     'name' => '{$headline}',
@@ -97,13 +97,13 @@ class MakeBlockAction
             mkdir($viewDirectory, 0755, true);
         }
 
-        $classPath = $classDirectory . DIRECTORY_SEPARATOR . $studly . 'Block.php';
+        $classPath = $classDirectory . DIRECTORY_SEPARATOR . $studly . 'Widget.php';
         $viewPath = $viewDirectory . DIRECTORY_SEPARATOR . $kebab . '.blade.php';
 
         if ($force || ! file_exists($classPath)) {
             file_put_contents($classPath, str_replace(
                 ['{{ class }}', '{{ view }}'],
-                [$studly . 'Block', 'blocks.livewire.' . $kebab],
+                [$studly . 'Widget', 'blocks.livewire.' . $kebab],
                 (string) file_get_contents(__DIR__ . '/../../stubs/block.livewire.stub'),
             ));
         }

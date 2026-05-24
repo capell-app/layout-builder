@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 
 final class LayoutBuilderContainerBlockMutationHarness extends LayoutBuilder
 {
@@ -16,7 +16,7 @@ final class LayoutBuilderContainerBlockMutationHarness extends LayoutBuilder
     public function assertCanEditContent(): void {}
 
     /**
-     * @param  array<string, array<int, Block>>  $containerBlocks
+     * @param  array<string, array<int, Widget>>  $containerBlocks
      */
     public function setContainerBlocks(array $containerBlocks): void
     {
@@ -31,14 +31,14 @@ final class LayoutBuilderContainerBlockMutationHarness extends LayoutBuilder
     /**
      * @return array<array-key, mixed>
      */
-    public function exposeGetContainerBlockKeys(): array
+    public function exposeGetContainerWidgetKeys(): array
     {
-        return $this->getContainerBlockKeys();
+        return $this->getContainerWidgetKeys();
     }
 
-    public function exposeGetLastContainerBlockOccurrence(string $containerKey, string $blockKey, ?int $compareIndex = null): int
+    public function exposeGetLastContainerBlockOccurrence(string $containerKey, string $widgetKey, ?int $compareIndex = null): int
     {
-        return $this->getLastContainerBlockOccurrence($containerKey, $blockKey, $compareIndex);
+        return $this->getLastContainerBlockOccurrence($containerKey, $widgetKey, $compareIndex);
     }
 
     #[Override]
@@ -113,8 +113,8 @@ it('adds saves renames duplicates moves and removes containers while keeping sta
 it('mutates blocks across positions containers and occurrence metadata', function (): void {
     $layout = Layout::factory()->create();
     $page = Page::factory()->withTranslations()->create();
-    $heroBlock = Block::factory()->create(['key' => 'hero']);
-    $cardBlock = Block::factory()->create(['key' => 'card']);
+    $heroBlock = Widget::factory()->create(['key' => 'hero']);
+    $cardBlock = Widget::factory()->create(['key' => 'card']);
     $assetPayload = [
         [
             'asset_type' => $page->getMorphClass(),
@@ -128,10 +128,10 @@ it('mutates blocks across positions containers and occurrence metadata', functio
     $harness = makeLayoutBuilderMutationHarness($layout);
     $harness->containers = [
         'main' => [
-            'blocks' => [],
+            'widgets' => [],
         ],
         'aside' => [
-            'blocks' => [],
+            'widgets' => [],
         ],
     ];
     $harness->assets = [
@@ -153,8 +153,8 @@ it('mutates blocks across positions containers and occurrence metadata', functio
     $insertedIndex = $harness->addBlockToContainerAtPosition($cardBlock, 'main', 0);
 
     capell_expect($insertedIndex)->toBe(0)
-        ->and($harness->containers['main']['blocks'][0]['block_key'])->toBe('card')
-        ->and($harness->containers['main']['blocks'][1]['block_key'])->toBe('hero')
+        ->and($harness->containers['main']['widgets'][0]['widget_key'])->toBe('card')
+        ->and($harness->containers['main']['widgets'][1]['widget_key'])->toBe('hero')
         ->and($harness->canMoveBlockUp('main', 0))->toBeFalse()
         ->and($harness->canMoveBlockDown('main', 0))->toBeTrue()
         ->and($harness->canMoveBlockToContainer('main', 0, 'aside'))->toBeTrue()
@@ -166,28 +166,28 @@ it('mutates blocks across positions containers and occurrence metadata', functio
 
     $harness->duplicateBlock('main', 0);
 
-    capell_expect($harness->containers['main']['blocks'][2]['block_key'])->toBe('card')
-        ->and($harness->containers['main']['blocks'][2]['occurrence'])->toBe(3)
+    capell_expect($harness->containers['main']['widgets'][2]['widget_key'])->toBe('card')
+        ->and($harness->containers['main']['widgets'][2]['occurrence'])->toBe(3)
         ->and($harness->assets['main'][2])->toBe($assetPayload);
 
     $harness->editLayoutBlock('main', 2, ['html_class' => 'featured']);
 
-    capell_expect($harness->containers['main']['blocks'][2]['meta']['html_class'])->toBe('featured');
+    capell_expect($harness->containers['main']['widgets'][2]['meta']['html_class'])->toBe('featured');
 
     $harness->moveBlockToContainer('main', 0, 'aside');
 
-    capell_expect($harness->containers['aside']['blocks'][0]['block_key'])->toBe('card')
-        ->and($harness->containers['aside']['blocks'][0]['occurrence'])->toBe(1)
+    capell_expect($harness->containers['aside']['widgets'][0]['widget_key'])->toBe('card')
+        ->and($harness->containers['aside']['widgets'][0]['occurrence'])->toBe(1)
         ->and($harness->assets['aside'][0][0]['container'])->toBe('main');
 
     $harness->exposeNormalizeContainerBlockOccurrences('main');
 
-    capell_expect($harness->exposeGetContainerBlockKeys())->toBe(['hero', 'card'])
+    capell_expect($harness->exposeGetContainerWidgetKeys())->toBe(['hero', 'card'])
         ->and($harness->exposeGetLastContainerBlockOccurrence('main', 'card', 1))->toBe(1);
 
     $harness->removeBlock('main', 0);
 
-    capell_expect($harness->containers['main']['blocks'][0]['block_key'])->toBe('card')
+    capell_expect($harness->containers['main']['widgets'][0]['widget_key'])->toBe('card')
         ->and($harness->assets['main'])->toHaveCount(1)
         ->and($harness->selectedRecords['main'])->toHaveCount(1);
 });

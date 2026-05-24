@@ -9,8 +9,8 @@ use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
 use Capell\Admin\Filament\Concerns\HasConfigurator;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\SchemaExtenderEnum;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\ResultsOverrideSchema;
 use Capell\LayoutBuilder\Filament\Components\Forms\HtmlClassInput;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\ResultsOverrideSchema;
 use Filament\Schemas\Schema;
 
 class ResultsLayoutBlockConfigurator implements ConfiguratorInterface

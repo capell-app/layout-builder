@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\BlockResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Illuminate\Support\Arr;
 
 it('declares the admin resources and extension points owned by layout builder', function (): void {
@@ -35,7 +35,7 @@ it('advertises package-owned layout builder admin classes in its manifest', func
     expect($manifestStrings->filter(fn (string $value): bool => str_starts_with($value, 'Capell\\Admin\\LayoutBuilder\\')))->toBeEmpty()
         ->and($manifestStrings)->toContain(
             LayoutResource::class,
-            BlockResource::class,
+            WidgetResource::class,
             ConfiguratorTypeEnum::class,
         );
 });

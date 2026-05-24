@@ -261,7 +261,7 @@ class BlockDefinitionData extends Data
         return [
             new self(
                 key: 'default',
-                name: 'Default Block',
+                name: 'Default Widget',
                 typeCreatorMethod: 'defaultBlockType',
             ),
             new self(

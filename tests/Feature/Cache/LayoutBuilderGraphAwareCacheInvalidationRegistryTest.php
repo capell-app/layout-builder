@@ -9,10 +9,10 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Frontend\Data\CacheInvalidationRule;
 use Capell\Frontend\Support\Cache\CacheInvalidationRegistry;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 
 it('walks layout builder block graph dependents back to pages', function (): void {
-    $block = Block::factory()->create();
+    $block = Widget::factory()->create();
     $layout = Layout::factory()->create();
     $page = Page::factory()
         ->withTranslations()
@@ -32,7 +32,7 @@ it('walks layout builder block graph dependents back to pages', function (): voi
     ContentGraphEdge::query()->create([
         'source_type' => Layout::class,
         'source_id' => $layout->id,
-        'target_type' => Block::class,
+        'target_type' => Widget::class,
         'target_id' => $block->id,
         'kind' => 'uses_layout_block',
         'strength' => ContentGraphEdgeStrength::Strong,

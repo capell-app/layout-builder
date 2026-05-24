@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Enums;
 
-use Capell\LayoutBuilder\Filament\Resources\Blocks\BlockResource;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 
 enum ResourceEnum: string
 {
-    case Block = BlockResource::class;
+    case Widget = WidgetResource::class;
 }

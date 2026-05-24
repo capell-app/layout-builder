@@ -42,7 +42,7 @@ class RenderPublicFragmentAction
         $language = $this->model(Language::class, $data['language_id'] ?? null);
         $page = $this->page($data['page_type'] ?? null, $data['page_id'] ?? null);
         $containerKey = $this->stringValue($data['container_key'] ?? null);
-        $blockKey = $this->stringValue($data['block_key'] ?? null);
+        $widgetKey = $this->stringValue($data['widget_key'] ?? null);
         $occurrence = $this->positiveInteger($data['occurrence'] ?? null);
 
         if (! $site instanceof Site
@@ -50,7 +50,7 @@ class RenderPublicFragmentAction
             || ! $language instanceof Language
             || ! $page instanceof Page
             || $containerKey === null
-            || $blockKey === null
+            || $widgetKey === null
             || $occurrence === null) {
             return null;
         }
@@ -72,7 +72,7 @@ class RenderPublicFragmentAction
             ->first(fn (PublicLayoutContainerData $container): bool => $container->key === $containerKey);
 
         $block = collect($container?->blocks ?? [])
-            ->first(fn (PublicLayoutBlockData $block): bool => $block->key === $blockKey && $block->occurrence === $occurrence);
+            ->first(fn (PublicLayoutBlockData $block): bool => $block->key === $widgetKey && $block->occurrence === $occurrence);
 
         if (! $block instanceof PublicLayoutBlockData || ! is_string($block->html) || trim($block->html) === '') {
             return null;

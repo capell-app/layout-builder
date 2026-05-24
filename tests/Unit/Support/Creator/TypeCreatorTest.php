@@ -11,7 +11,7 @@ it('creates layout builder block types with clear names and descriptions', funct
     resolve(TypeCreator::class)->createBlockTypes();
 
     $types = Blueprint::query()
-        ->where('type', LayoutTypeEnum::Block->value)
+        ->where('type', LayoutTypeEnum::Widget->value)
         ->get()
         ->keyBy('key');
 

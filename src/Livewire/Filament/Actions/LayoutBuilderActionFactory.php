@@ -14,13 +14,13 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Exceptions\MissingBlockAssetException;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\Schemas\BlockAssetForm;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\Schemas\BlockForm;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\Tables\BlockSelectionTable;
 use Capell\LayoutBuilder\Filament\Resources\Pages\Tables\PageSelectionTable;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\Schemas\WidgetAssetForm;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\Schemas\WidgetForm;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetSelectionTable;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -286,7 +286,7 @@ final class LayoutBuilderActionFactory
                 return $schema->operation('editOption')->components($typeSchema);
             })
             ->fillForm(
-                fn (LayoutBuilder $livewire, array $arguments): array => $livewire->containers[$arguments['containerKey']]['blocks'][$arguments['blockIndex']]['meta'] ?? [],
+                fn (LayoutBuilder $livewire, array $arguments): array => $livewire->containers[$arguments['containerKey']]['widgets'][$arguments['blockIndex']]['meta'] ?? [],
             )
             ->action(function (Action $action, LayoutBuilder $livewire, array $arguments, array $data): void {
                 $livewire->editLayoutBlock($arguments['containerKey'], $arguments['blockIndex'], $data);
@@ -328,9 +328,9 @@ final class LayoutBuilderActionFactory
                         ->options($containerOptions);
                 }
 
-                $components[] = TableSelect::make('blocks')
+                $components[] = TableSelect::make('widgets')
                     ->label(__('capell-layout-builder::button.block'))
-                    ->tableConfiguration(BlockSelectionTable::class)
+                    ->tableConfiguration(WidgetSelectionTable::class)
                     ->multiple()
                     ->required();
 
@@ -348,7 +348,7 @@ final class LayoutBuilderActionFactory
 
                 $livewire->addBlocksToContainer(
                     containerKey: (string) $containerKey,
-                    blocks: $data['blocks'] ?? [],
+                    blocks: $data['widgets'] ?? [],
                     position: isset($arguments['position']) ? (int) $arguments['position'] : null,
                 );
             });
@@ -367,35 +367,35 @@ final class LayoutBuilderActionFactory
             ->size(Size::Small)
             ->modalWidth(Width::ScreenLarge)
             ->record(
-                fn (array $arguments): Block => $this->livewire->getContainerBlock(
+                fn (array $arguments): Widget => $this->livewire->getContainerBlock(
                     $arguments['containerKey'],
                     $arguments['blockIndex'],
                 ),
             )
-            ->modalHeading(fn (Block $record): string => $record->name)
+            ->modalHeading(fn (Widget $record): string => $record->name)
             ->modalDescription(
-                fn (Block $record): string => __(
+                fn (Widget $record): string => __(
                     'capell-layout-builder::heading.block_type',
                     ['type' => $record->type?->name],
                 ),
             )
             ->modalSubmitActionLabel(__('capell-layout-builder::button.save_changes'))
             ->successNotificationTitle(__('capell-layout-builder::message.block_updated'))
-            ->fillForm(fn (Block $record): array => $record->attributesToArray())
+            ->fillForm(fn (Widget $record): array => $record->attributesToArray())
             ->schema(
-                fn (Action $action, Schema $schema): Schema => BlockForm::configure(
+                fn (Action $action, Schema $schema): Schema => WidgetForm::configure(
                     $schema->operation('editOption')
-                        ->record(function () use ($action): Block {
+                        ->record(function () use ($action): Widget {
                             $block = $action->getRecord()->fresh();
 
-                            throw_unless($block instanceof Block, RuntimeException::class, 'Block edit action record must refresh to a block model.');
+                            throw_unless($block instanceof Widget, RuntimeException::class, 'Widget edit action record must refresh to a block model.');
 
                             return $block;
                         }),
                 ),
             )
-            ->action(function (Action $action, Block $record, Schema $schema, array $data): void {
-                $this->saveBlockForm(configurator: $schema, record: $record, data: $data);
+            ->action(function (Action $action, Widget $record, Schema $schema, array $data): void {
+                $this->saveWidgetForm(configurator: $schema, record: $record, data: $data);
 
                 $action->success();
             });
@@ -617,10 +617,10 @@ final class LayoutBuilderActionFactory
             ->schema(
                 fn (array $arguments, Schema $schema): Schema => $this->getBlockAssetSchema(
                     $schema->operation('createOption')
-                        ->record(fn (): BlockAsset => $this->makeBlockAssetRecordForCreate($arguments)),
+                        ->record(fn (): WidgetAsset => $this->makeBlockAssetRecordForCreate($arguments)),
                 ),
             )
-            ->model(fn (): string => BlockAsset::class)
+            ->model(fn (): string => WidgetAsset::class)
             ->fillForm(function (array $arguments): array {
                 $containerKey = $arguments['containerKey'];
                 $blockIndex = $arguments['blockIndex'];
@@ -631,7 +631,7 @@ final class LayoutBuilderActionFactory
                 $asset = CapellAdmin::getAsset($assetType);
 
                 return [
-                    'block_id' => $block->id,
+                    'widget_id' => $block->id,
                     'workspace_id' => $this->livewire->getCurrentBlockAssetWorkspaceId($block),
                     'asset_type' => $assetType,
                     'meta' => [],
@@ -664,26 +664,26 @@ final class LayoutBuilderActionFactory
             )
             ->modalWidth(Width::ScreenLarge)
             ->modalHeading(
-                fn (LayoutBuilder $livewire, array $arguments): string => $this->getEditBlockAssetModalHeading($livewire, $arguments),
+                fn (LayoutBuilder $livewire, array $arguments): string => $this->getEditWidgetAssetModalHeading($livewire, $arguments),
             )
             ->modalDescription(
-                fn (LayoutBuilder $livewire, array $arguments): ?string => $this->getEditBlockAssetModalDescription($livewire, $arguments),
+                fn (LayoutBuilder $livewire, array $arguments): ?string => $this->getEditWidgetAssetModalDescription($livewire, $arguments),
             )
             ->modalSubmitActionLabel(__('capell-layout-builder::button.save_changes'))
             ->successNotificationTitle(__('capell-layout-builder::message.asset_updated'))
             ->schema(
                 fn (LayoutBuilder $livewire, Schema $schema, array $arguments): Schema => $this->getBlockAssetSchema(
                     $schema->operation('editOption')
-                        ->record(fn (): BlockAsset => $this->resolveEditableBlockAsset($arguments)),
+                        ->record(fn (): WidgetAsset => $this->resolveEditableBlockAsset($arguments)),
                 ),
             )
-            ->fillForm(fn (BlockAsset $record, array $arguments): array => [
+            ->fillForm(fn (WidgetAsset $record, array $arguments): array => [
                 'meta' => $record->meta,
             ])
-            ->record(fn (array $arguments): BlockAsset => $this->resolveEditableBlockAsset($arguments))
-            ->disabled(fn (BlockAsset $record): bool => ! $record->exists)
+            ->record(fn (array $arguments): WidgetAsset => $this->resolveEditableBlockAsset($arguments))
+            ->disabled(fn (WidgetAsset $record): bool => ! $record->exists)
             ->action(
-                fn (BlockAsset $record, array $data, LayoutBuilder $livewire, array $arguments, Action $action, Schema $schema) => $this->applyBlockAssetUpdate(
+                fn (WidgetAsset $record, array $data, LayoutBuilder $livewire, array $arguments, Action $action, Schema $schema) => $this->applyBlockAssetUpdate(
                     record: $record,
                     data: $data,
                     livewire: $livewire,
@@ -902,17 +902,17 @@ final class LayoutBuilderActionFactory
 
         $order = $this->livewire->countBlockAssets($containerKey, $blockIndex) + 1;
 
-        /** @var BlockAsset $blockAsset */
+        /** @var WidgetAsset $blockAsset */
         $blockAsset = $configurator->getRecord();
 
         // Fake exists to ensure assets relations are saved correctly
         $blockAsset->exists = true;
         $blockAsset->wasRecentlyCreated = true; // prevent MissingAttributeException
 
-        $data['block_id'] = $block->id;
+        $data['widget_id'] = $block->id;
 
         // Ensure UpdatedModelAction is not triggered
-        BlockAsset::withoutEvents(function () use ($configurator): void {
+        WidgetAsset::withoutEvents(function () use ($configurator): void {
             $configurator->saveRelationships();
         });
 
@@ -932,7 +932,7 @@ final class LayoutBuilderActionFactory
             'asset_id' => $assetId,
             'asset_type' => $type,
             'meta' => $meta,
-            'block_id' => $block->id,
+            'widget_id' => $block->id,
             'order' => $order,
             'occurrence' => $occurrence,
         ];
@@ -989,7 +989,7 @@ final class LayoutBuilderActionFactory
     /**
      * @param  array<array-key, mixed>  $arguments
      */
-    private function makeBlockAssetRecordForCreate(array $arguments): BlockAsset
+    private function makeBlockAssetRecordForCreate(array $arguments): WidgetAsset
     {
         $containerKey = $arguments['containerKey'];
         $blockIndex = $arguments['blockIndex'];
@@ -997,11 +997,11 @@ final class LayoutBuilderActionFactory
 
         $block = $this->livewire->getContainerBlock($containerKey, $blockIndex);
 
-        /** @var class-string<BlockAsset> $model */
-        $model = BlockAsset::class;
+        /** @var class-string<WidgetAsset> $model */
+        $model = WidgetAsset::class;
 
         $record = $model::query()->make([
-            'block_id' => $block->id,
+            'widget_id' => $block->id,
             'workspace_id' => $this->livewire->getCurrentBlockAssetWorkspaceId($block),
             'asset_type' => $assetType,
             'meta' => [],
@@ -1017,7 +1017,7 @@ final class LayoutBuilderActionFactory
     /**
      * @param  array<array-key, mixed>  $arguments
      */
-    private function resolveEditableBlockAsset(array $arguments): BlockAsset
+    private function resolveEditableBlockAsset(array $arguments): WidgetAsset
     {
         $containerKey = $arguments['containerKey'];
         $blockIndex = $arguments['blockIndex'];
@@ -1032,7 +1032,7 @@ final class LayoutBuilderActionFactory
         $assetId = $asset['asset_id'];
 
         $blockAsset = isset($asset['id'])
-            ? $block->assets->first(fn (BlockAsset $blockAsset): bool => (int) $blockAsset->getKey() === (int) $asset['id'])
+            ? $block->assets->first(fn (WidgetAsset $blockAsset): bool => (int) $blockAsset->getKey() === (int) $asset['id'])
             : null;
 
         $blockAsset ??= $block->assets
@@ -1041,7 +1041,7 @@ final class LayoutBuilderActionFactory
             ->first();
 
         throw_unless($blockAsset, Exception::class, sprintf('Asset of type [%s] with ID [%s] not found.', $type, $assetId));
-        throw_unless((int) $blockAsset->getAttribute('block_id') === (int) $block->getKey(), Exception::class, sprintf('Asset of type [%s] with ID [%s] is not attached to this block.', $type, $assetId));
+        throw_unless((int) $blockAsset->getAttribute('widget_id') === (int) $block->getKey(), Exception::class, sprintf('Asset of type [%s] with ID [%s] is not attached to this block.', $type, $assetId));
 
         return $blockAsset;
     }
@@ -1049,7 +1049,7 @@ final class LayoutBuilderActionFactory
     /**
      * @param  array<array-key, mixed>  $arguments
      */
-    private function getEditBlockAssetModalHeading(LayoutBuilder $livewire, array $arguments): string
+    private function getEditWidgetAssetModalHeading(LayoutBuilder $livewire, array $arguments): string
     {
         $name = str($arguments['type'])->title();
 
@@ -1063,7 +1063,7 @@ final class LayoutBuilderActionFactory
     /**
      * @param  array<array-key, mixed>  $arguments
      */
-    private function getEditBlockAssetModalDescription(LayoutBuilder $livewire, array $arguments): ?string
+    private function getEditWidgetAssetModalDescription(LayoutBuilder $livewire, array $arguments): ?string
     {
         if (! $livewire->inPageContext()) {
             return null;
@@ -1082,7 +1082,7 @@ final class LayoutBuilderActionFactory
      * @param  array<array-key, mixed>  $arguments
      * @param  array<array-key, mixed>  $data
      */
-    private function applyBlockAssetUpdate(BlockAsset $record, array $data, LayoutBuilder $livewire, array $arguments, Action $action, Schema $configurator): void
+    private function applyBlockAssetUpdate(WidgetAsset $record, array $data, LayoutBuilder $livewire, array $arguments, Action $action, Schema $configurator): void
     {
         $this->livewire->assertCanEditContent();
 
@@ -1122,7 +1122,7 @@ final class LayoutBuilderActionFactory
 
     private function getBlockAssetSchema(Schema $configurator): Schema
     {
-        return BlockAssetForm::configure($configurator);
+        return WidgetAssetForm::configure($configurator);
     }
 
     /**
@@ -1203,7 +1203,7 @@ final class LayoutBuilderActionFactory
     /**
      * @param  array<array-key, mixed>  $data
      */
-    private function saveBlockForm(Schema $configurator, Block $record, array $data): void
+    private function saveWidgetForm(Schema $configurator, Widget $record, array $data): void
     {
         $this->livewire->assertCanUpdateLayout();
 

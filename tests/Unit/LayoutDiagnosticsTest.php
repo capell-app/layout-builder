@@ -5,17 +5,17 @@ declare(strict_types=1);
 use Capell\LayoutBuilder\Actions\AnalyzeLayoutDiagnosticsAction;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 
 it('reports unknown blocks and invalid responsive metadata', function (): void {
-    Block::factory()->create(['key' => 'known']);
+    Widget::factory()->create(['key' => 'known']);
 
     $state = new LayoutBuilderStateData(
         containers: [
             'main' => [
-                'blocks' => [
-                    ['block_key' => 'known'],
-                    ['block_key' => 'missing'],
+                'widgets' => [
+                    ['widget_key' => 'known'],
+                    ['widget_key' => 'missing'],
                 ],
                 'meta' => [
                     'responsive' => [

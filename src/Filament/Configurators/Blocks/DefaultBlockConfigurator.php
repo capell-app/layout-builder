@@ -10,18 +10,19 @@ use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\ImageSourcePicker;
 use Capell\Admin\Filament\Concerns\HasConfigurator;
 use Capell\Core\Models\Blueprint;
+use Capell\LayoutBuilder\Contracts\Extenders\BlockSchemaExtender;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\SchemaExtenderEnum;
 use Capell\LayoutBuilder\Filament\Components\Forms\ActionsRepeater;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\ComponentSection;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\CreateDetailsSchema;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\DisplaySection;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\SettingsSchema;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\Tab\BlockAdminTab;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\Tab\BlockDisplayTab;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\Tab\BlockSettingsTab;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\TranslationsRepeater;
 use Capell\LayoutBuilder\Filament\Components\Forms\ColorSchemeComponent;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\CreateDetailsSchema;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\DisplaySection;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\SettingsSchema;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\BlockAdminTab;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\BlockDisplayTab;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\BlockSettingsTab;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\TranslationsRepeater;
 use Filament\Forms\Components\Checkbox;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
@@ -33,14 +34,19 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
 {
     use HasConfigurator;
 
-    protected static ConfiguratorTypeEnumInterface $configuratorType = ConfiguratorTypeEnum::Block;
+    protected static ConfiguratorTypeEnumInterface $configuratorType = ConfiguratorTypeEnum::Widget;
+
+    public static function getKey(): string
+    {
+        return preg_replace('/BlockConfigurator$/', '', class_basename(static::class));
+    }
 
     /**
      * @return iterable<int, mixed>
      */
     public static function getExtenders(): iterable
     {
-        return app()->tagged(SchemaExtenderEnum::Block->value);
+        return app()->tagged(SchemaExtenderEnum::Widget->value);
     }
 
     /**
@@ -131,13 +137,30 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
     {
         return BlockDisplayTab::make([
             DisplaySection::make([
-                ColorSchemeComponent::make('color'),
-                Checkbox::make('reverse_order')
-                    ->label(__('capell-layout-builder::form.reverse_order'))
-                    ->whenTruthy('image'),
+                ...$this->extendDisplayComponents($configurator, [
+                    ColorSchemeComponent::make('color'),
+                    Checkbox::make('reverse_order')
+                        ->label(__('capell-layout-builder::form.reverse_order'))
+                        ->whenTruthy('image'),
+                ]),
             ]),
             ComponentSection::make(),
         ]);
+    }
+
+    /**
+     * @param  array<int, mixed>  $components
+     * @return array<int, mixed>
+     */
+    protected function extendDisplayComponents(Schema $configurator, array $components): array
+    {
+        foreach (static::getExtenders() as $extender) {
+            if ($extender instanceof BlockSchemaExtender) {
+                $components = $extender->extendDisplayComponents($configurator, $components);
+            }
+        }
+
+        return $components;
     }
 
     protected function detailsTab(): Tab

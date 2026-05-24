@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Filament\Components\Forms;
 
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Closure;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Field;
@@ -111,7 +111,7 @@ class BackgroundSchema
             return null;
         }
 
-        if (! $record instanceof BlockAsset) {
+        if (! $record instanceof WidgetAsset) {
             return null;
         }
 

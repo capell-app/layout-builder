@@ -145,10 +145,10 @@ final class SaveLayoutPresetAction
         return collect($containers)
             ->map(function (mixed $container) use ($includeStarterContent): array {
                 $container = is_array($container) ? $container : [];
-                $blocks = is_array($container['blocks'] ?? null) ? $container['blocks'] : [];
+                $blocks = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
 
                 $container = $this->scrubUnsafePresetData($container);
-                $container['blocks'] = array_map(
+                $container['widgets'] = array_map(
                     fn (array $block): array => $this->snapshotBlock($block, $includeStarterContent),
                     LayoutBlockData::normalizeMany($blocks),
                 );
@@ -164,7 +164,7 @@ final class SaveLayoutPresetAction
      */
     private function snapshotBlock(array $block, bool $includeStarterContent): array
     {
-        $snapshot = array_intersect_key($block, array_flip(['block_key', 'occurrence']));
+        $snapshot = array_intersect_key($block, array_flip(['widget_key', 'occurrence']));
         $snapshot['occurrence'] = LayoutBlockData::occurrence($block);
 
         $meta = is_array($block['meta'] ?? null) ? $block['meta'] : [];
@@ -189,7 +189,7 @@ final class SaveLayoutPresetAction
      */
     private function safeBlockMeta(array $meta, bool $includeStarterContent): array
     {
-        $safeMeta = array_intersect_key($meta, array_flip(['block_key', 'block_variant']));
+        $safeMeta = array_intersect_key($meta, array_flip(['widget_key', 'block_variant']));
         $settings = is_array($meta['block_settings'] ?? null) ? $meta['block_settings'] : [];
         $safeSettings = array_intersect_key($settings, array_flip([
             'spacing',

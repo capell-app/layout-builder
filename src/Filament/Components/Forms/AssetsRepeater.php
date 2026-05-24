@@ -13,6 +13,7 @@ use Capell\Core\Data\AssetData;
 use Capell\Core\Enums\BlueprintGroupEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
+use Capell\LayoutBuilder\Contracts\Extenders\BlockAssetSchemaExtender;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Hidden;
@@ -106,7 +107,7 @@ class AssetsRepeater extends Repeater
 
         $createOptionUsing = $select->getCreateOptionUsing();
 
-        return [
+        $components = [
             Hidden::make('asset_type'),
             $select
                 ->label(__('capell-layout-builder::form.select_add_asset_type'))
@@ -192,6 +193,14 @@ class AssetsRepeater extends Repeater
                         ->fillForm(fn (): array => in_array($asset->defaultDataAction, [null, '', '0'], true) ? [] : $asset->defaultDataAction::run());
                 }),
         ];
+
+        foreach (app()->tagged(BlockAssetSchemaExtender::TAG) as $extender) {
+            if ($extender instanceof BlockAssetSchemaExtender) {
+                $components = $extender->extendRepeaterComponents($components);
+            }
+        }
+
+        return $components;
     }
 
     protected static function modifyAddAction(Action $action, self $component): Action

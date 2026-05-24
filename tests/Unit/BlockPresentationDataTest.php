@@ -8,7 +8,7 @@ use Capell\ContentBlocks\Data\BlockVariantData;
 use Capell\ContentBlocks\Data\BlockVariantKey;
 use Capell\ContentBlocks\Support\BlockRegistry;
 use Capell\LayoutBuilder\Actions\ResolveBlockPresentationDataAction;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 
 it('projects only allowlisted block presentation keys from block meta', function (): void {
     resolve(BlockRegistry::class)->register(new BlockDefinitionData(
@@ -23,7 +23,7 @@ it('projects only allowlisted block presentation keys from block meta', function
         ],
     ));
 
-    $block = Block::factory()->create([
+    $block = Widget::factory()->create([
         'key' => 'hero',
         'meta' => [
             'block_variant' => 'split-media',
@@ -72,7 +72,7 @@ it('falls back to a safe variant when the variant is unknown or theme unsupporte
         compatibility: new BlockCompatibilityData(themeKeys: ['foundation']),
     ));
 
-    $block = Block::factory()->create([
+    $block = Widget::factory()->create([
         'key' => 'proof',
         'meta' => [
             'block_variant' => 'bento',

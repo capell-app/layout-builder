@@ -10,7 +10,7 @@ use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\BlueprintCreator;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Creator\ApDemoBlockCreator;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Illuminate\Database\Eloquent\Model;
@@ -49,7 +49,7 @@ final class LayoutBuilderDemoBlockCreatorHarness extends ApDemoBlockCreator
     public function __construct()
     {
         $this->contentModel = LayoutBuilderDemoContentPage::class;
-        $this->blockModel = Block::class;
+        $this->blockModel = Widget::class;
         $this->typeModel = Blueprint::class;
         $this->pageModel = Page::class;
     }
@@ -58,7 +58,7 @@ final class LayoutBuilderDemoBlockCreatorHarness extends ApDemoBlockCreator
     protected function createMedia(Model $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = 'image'): void {}
 
     #[Override]
-    protected function createBlockMedia(Block $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = 'image'): Media
+    protected function createBlockMedia(Widget $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = 'image'): Media
     {
         return Media::factory()->create([
             'model_type' => $model->getMorphClass(),
@@ -105,16 +105,16 @@ it('creates modern and application preview demo blocks with asset-backed content
     ];
 
     expect($blocks)
-        ->each->toBeInstanceOf(Block::class)
-        ->and(Block::query()->firstWhere('key', 'modern-feature-list')?->assets()->count())->toBe(6)
-        ->and(Block::query()->firstWhere('key', 'modern-team-members')?->assets()->count())->toBe(3)
-        ->and(Block::query()->firstWhere('key', 'modern-pricing-table')?->assets()->count())->toBe(3)
-        ->and(Block::query()->firstWhere('key', 'modern-faq')?->assets()->count())->toBe(5)
-        ->and(Block::query()->firstWhere('key', 'ap-card-grid')?->assets()->count())->toBe(3)
-        ->and(Block::query()->firstWhere('key', 'ap-feature-list')?->assets()->count())->toBe(4)
-        ->and(Block::query()->firstWhere('key', 'ap-cta-section')?->meta['primary_button_text'])->toBe('Get Started Free')
-        ->and(Block::query()->firstWhere('key', 'ap-image-gallery')?->meta['lightbox'])->toBeTrue()
-        ->and(Block::query()->firstWhere('key', 'ap-image-gallery')?->media()->count())->toBe(6);
+        ->each->toBeInstanceOf(Widget::class)
+        ->and(Widget::query()->firstWhere('key', 'modern-feature-list')?->assets()->count())->toBe(6)
+        ->and(Widget::query()->firstWhere('key', 'modern-team-members')?->assets()->count())->toBe(3)
+        ->and(Widget::query()->firstWhere('key', 'modern-pricing-table')?->assets()->count())->toBe(3)
+        ->and(Widget::query()->firstWhere('key', 'modern-faq')?->assets()->count())->toBe(5)
+        ->and(Widget::query()->firstWhere('key', 'ap-card-grid')?->assets()->count())->toBe(3)
+        ->and(Widget::query()->firstWhere('key', 'ap-feature-list')?->assets()->count())->toBe(4)
+        ->and(Widget::query()->firstWhere('key', 'ap-cta-section')?->meta['primary_button_text'])->toBe('Get Started Free')
+        ->and(Widget::query()->firstWhere('key', 'ap-image-gallery')?->meta['lightbox'])->toBeTrue()
+        ->and(Widget::query()->firstWhere('key', 'ap-image-gallery')?->media()->count())->toBe(6);
 });
 
 it('creates page card assets for related pages in the requested occurrence', function (): void {

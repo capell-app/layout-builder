@@ -9,7 +9,7 @@ use Capell\Admin\Filament\Components\Tables\Columns\ImageColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Actions\GetLayoutPreviewImageUrlAction;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\ViewEntry;
@@ -46,11 +46,11 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
             ->iconButton()
             ->color('info')
             ->schema(fn (Layout $record): array => [
-                ViewEntry::make('blocks')
+                ViewEntry::make('widgets')
                     ->view(
                         'capell-layout-builder::components.infolists.entries.layout-blocks',
                         [
-                            'blocks' => $record->getRelationValue('layoutBlocks'),
+                            'widgets' => $record->getRelationValue('layoutBlocks'),
                         ],
                     ),
             ]);
@@ -116,18 +116,18 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     protected static function getTableFilters(): array
     {
         return [
-            SelectFilter::make('block_key')
+            SelectFilter::make('widget_key')
                 ->label(__('capell-layout-builder::form.block'))
-                ->options(fn () => Block::query()
+                ->options(fn () => Widget::query()
                     ->pluck('name', 'key')
                     ->all())
                 ->indicateUsing(function (array $state): array {
                     $indicators = [];
 
                     if (isset($state['value']) && $state['value'] !== '') {
-                        $indicators['block_key'] = __(
+                        $indicators['widget_key'] = __(
                             'capell-layout-builder::filter.block',
-                            ['search' => Block::query()->where('key', $state['value'])->value('name')],
+                            ['search' => Widget::query()->where('key', $state['value'])->value('name')],
                         );
                     }
 
@@ -136,7 +136,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                 ->modifyQueryUsing(
                     fn (Builder $query, array $state) => $query->when(
                         isset($state['value']) && $state['value'] !== '',
-                        fn (Builder $query) => $query->whereJsonContains('blocks', $state['value']),
+                        fn (Builder $query) => $query->whereJsonContains('widgets', $state['value']),
                     ),
                 ),
             ...parent::getTableFilters(),

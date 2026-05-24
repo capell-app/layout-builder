@@ -12,7 +12,7 @@ it('builds every layout builder action with stable names', function (): void {
     $layoutBuilder->layout = Layout::factory()->create();
     $layoutBuilder->containers = [
         'main' => [
-            'blocks' => [],
+            'widgets' => [],
         ],
     ];
     $layoutBuilder->assets = ['main' => []];

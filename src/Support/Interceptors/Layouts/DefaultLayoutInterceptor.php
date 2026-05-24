@@ -23,7 +23,7 @@ final class DefaultLayoutInterceptor implements LayoutInterceptorInterface
 
         $layout->update([
             'containers' => [],
-            'blocks' => [],
+            'widgets' => [],
         ]);
     }
 }

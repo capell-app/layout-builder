@@ -4,39 +4,41 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Enums;
 
-use Capell\LayoutBuilder\Filament\Resources\Blocks\BlockResource;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
+use Capell\LayoutBuilder\Models\Widget;
 use Filament\Support\Contracts\HasLabel;
 
 enum LayoutTypeEnum: string implements HasLabel
 {
-    case Block = 'block';
+    case Widget = 'widget';
+
+    public const self Block = self::Widget;
 
     public function getResource(): string
     {
         return match ($this) {
-            self::Block => BlockResource::class,
+            self::Widget => WidgetResource::class,
         };
     }
 
     public function getModel(): string
     {
         return match ($this) {
-            self::Block => Block::class,
+            self::Widget => Widget::class,
         };
     }
 
     public function getTable(): string
     {
         return match ($this) {
-            self::Block => 'blocks',
+            self::Widget => 'widgets',
         };
     }
 
     public function getLabel(): string
     {
         return match ($this) {
-            self::Block => 'Block',
+            self::Widget => 'Widget',
         };
     }
 

@@ -16,8 +16,8 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\DemoKit\Support\Creator\DemoCreator;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\Navigation\Support\Creator\NavigationCreator;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -44,7 +44,7 @@ abstract class BaseDemoCreator
     protected string $contentModel;
 
     /**
-     * @var class-string<Block>
+     * @var class-string<Widget>
      */
     protected string $blockModel;
 
@@ -92,7 +92,7 @@ abstract class BaseDemoCreator
         return $page->translation->title ?? $page->name;
     }
 
-    protected function createPageBlockAsset(Block $block, Pageable $page, string $container, int $occurrence, Model $asset): BlockAsset
+    protected function createPageBlockAsset(Widget $block, Pageable $page, string $container, int $occurrence, Model $asset): WidgetAsset
     {
         $blockAsset = DB::transaction(
             fn (): Model => $block->assets()->createOrFirst([
@@ -106,7 +106,7 @@ abstract class BaseDemoCreator
             attempts: 5,
         );
 
-        throw_unless($blockAsset instanceof BlockAsset, RuntimeException::class, 'Layout block asset creation must return a block asset model.');
+        throw_unless($blockAsset instanceof WidgetAsset, RuntimeException::class, 'Layout block asset creation must return a block asset model.');
 
         return $blockAsset;
     }
@@ -478,7 +478,7 @@ abstract class BaseDemoCreator
         $demoCreator->createMedia($model, $name, $type, $collection);
     }
 
-    protected function createBlockMedia(Block $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
+    protected function createBlockMedia(Widget $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
     {
         // Normalize input name and derive extension if provided
         $inputName = in_array($name, [null, '', '0'], true) ? null : $name;
@@ -522,7 +522,7 @@ abstract class BaseDemoCreator
             $demoFile = sprintf('%s/%s.%s', $demoPath, $filenameBase, $ext);
         }
 
-        // Create content and link via BlockAsset
+        // Create content and link via WidgetAsset
         $content = $this->contentModel::query()->create([
             'name' => str($filenameBase)->title(),
         ]);

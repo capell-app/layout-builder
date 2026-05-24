@@ -28,8 +28,8 @@ use Capell\LayoutBuilder\Listeners\AfterRecordSaved;
 use Capell\LayoutBuilder\Listeners\LayoutLoaded;
 use Capell\LayoutBuilder\Listeners\LayoutSavingListener;
 use Capell\LayoutBuilder\Listeners\SiteTreeRebuilt;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\Interceptors\Layouts\DefaultLayoutInterceptor;
 use Capell\LayoutBuilder\Support\Interceptors\Layouts\HomeLayoutInterceptor;
 use Capell\LayoutBuilder\Support\Interceptors\Layouts\ResultsLayoutInterceptor;
@@ -72,41 +72,56 @@ final class LayoutBuilderCoreRegistrar
 
     private function registerModelExtensions(): void
     {
-        Layout::addFillable(['blocks']);
-        Layout::addCasts(['blocks' => 'array']);
+        Layout::addFillable(['widgets']);
+        Layout::addCasts(['widgets' => 'array']);
     }
 
     private function registerRelationships(): void
     {
         Layout::resolveRelationUsing(
-            'layoutBlocks',
+            'layoutWidgets',
             fn (Layout $model): BelongsToJson => $model->belongsToJson(
-                Block::class,
-                'blocks',
+                Widget::class,
+                'widgets',
                 'key',
             ),
         );
 
         Page::resolveRelationUsing(
-            'blockAssets',
-            fn (Page $model): MorphMany => $model->morphMany(BlockAsset::class, 'pageable'),
+            'widgetAssets',
+            fn (Page $model): MorphMany => $model->morphMany(WidgetAsset::class, 'pageable'),
         );
 
         Page::resolveRelationUsing(
-            'blocks',
+            'widgets',
             fn (Page $model): MorphToMany => $model->morphToMany(
-                Block::class,
+                Widget::class,
                 'asset',
-                'block_assets',
+                'widget_assets',
                 'asset_id',
-                'block_id',
+                'widget_id',
             )
                 ->wherePivot('asset_type', $model->getMorphClass()),
         );
 
         Blueprint::resolveRelationUsing(
+            'widgets',
+            fn (Blueprint $model): HasMany => $model->hasMany(Widget::class, 'blueprint_id'),
+        );
+
+        Layout::resolveRelationUsing(
+            'layoutBlocks',
+            fn (Layout $model): BelongsToJson => $model->layoutWidgets(),
+        );
+
+        Page::resolveRelationUsing(
+            'blockAssets',
+            fn (Page $model): MorphMany => $model->widgetAssets(),
+        );
+
+        Page::resolveRelationUsing(
             'blocks',
-            fn (Blueprint $model): HasMany => $model->hasMany(Block::class, 'blueprint_id'),
+            fn (Page $model): MorphToMany => $model->widgets(),
         );
     }
 
@@ -117,7 +132,7 @@ final class LayoutBuilderCoreRegistrar
         Blueprint::updated(function (Blueprint $type): void {
             $rawType = $type->getRawOriginal('type');
 
-            if ($rawType !== LayoutTypeEnum::Block->value) {
+            if ($rawType !== LayoutTypeEnum::Widget->value) {
                 return;
             }
 

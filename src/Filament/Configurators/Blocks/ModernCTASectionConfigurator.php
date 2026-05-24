@@ -12,7 +12,7 @@ use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 
 /**
- * Filament Schema for Modern CTA Section Block
+ * Filament Schema for Modern CTA Section Widget
  *
  * Provides admin panel controls for customizing call-to-action section
  * content, buttons, layout, and styling.

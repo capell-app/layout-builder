@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Exceptions;
 
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Exception;
 
 class MissingBlockAssetException extends Exception
@@ -17,7 +17,7 @@ class MissingBlockAssetException extends Exception
     /**
      * @param  array<string, mixed>  $context
      */
-    public function __construct(Block $block, string $assetType, mixed $assetIdentifier = null, array $context = [])
+    public function __construct(Widget $block, string $assetType, mixed $assetIdentifier = null, array $context = [])
     {
         $blockClass = $block::class;
         $message = sprintf(

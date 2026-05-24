@@ -19,7 +19,8 @@
     $containerArea = $this->layoutAreaForContainer($container);
     $containerAreaLabel = $this->layoutAreaLabel($containerArea);
 
-    $blockCount = count($container['blocks'] ?? []);
+    $containerWidgets = $container['widgets'] ?? $container['blocks'] ?? [];
+    $blockCount = count($containerWidgets);
 @endphp
 
 <div
@@ -408,7 +409,7 @@
                 dragClass: 'layout-sort-drag',
             }"
         >
-            @foreach ($container['blocks'] as $blockIndex => $containerBlock)
+            @foreach ($containerWidgets as $blockIndex => $containerBlock)
                 <div
                     class="layout-container-block-drop-zone group flex min-h-8 items-center px-3 transition"
                     x-show="shouldShowInsertTargets()"
@@ -472,7 +473,7 @@
                         <button
                             type="button"
                             class="fi-btn fi-size-sm fi-btn-color-gray fi-color-gray fi-btn-outlined focus-visible:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
-                            x-on:click="$wire.mountAction('addBlock', { containerKey: @js($containerKey), position: @js(count($container['blocks'] ?? [])) })"
+                            x-on:click="$wire.mountAction('addBlock', { containerKey: @js($containerKey), position: @js(count($containerWidgets)) })"
                         >
                             @svg('heroicon-m-plus', 'h-3.5 w-3.5')
                             <span>

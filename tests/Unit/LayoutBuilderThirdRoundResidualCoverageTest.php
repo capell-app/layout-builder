@@ -33,18 +33,18 @@ use Capell\LayoutBuilder\Filament\Components\Forms\BlockSelect;
 use Capell\LayoutBuilder\Filament\Components\Forms\TagSelect;
 use Capell\LayoutBuilder\Filament\Configurators\Layouts\DefaultLayoutContainerConfigurator;
 use Capell\LayoutBuilder\Filament\Configurators\Types\BlockTypeConfigurator;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\Pages\EditBlock;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\RelationManagers\LayoutsRelationManager;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\Tables\BlockAssetsTable;
 use Capell\LayoutBuilder\Filament\Resources\Pages\Tables\PageSelectionTable;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\EditWidget;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetAssetsTable;
 use Capell\LayoutBuilder\Filament\Widgets\LayoutHealthWidgetAbstract;
 use Capell\LayoutBuilder\Filament\Widgets\RecentActivityWidgetAbstract;
 use Capell\LayoutBuilder\Listeners\LayoutLoaded;
 use Capell\LayoutBuilder\Livewire\Filament\Actions\LayoutBuilderActionFactory;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\LayoutBuilder\Livewire\Filament\ModalTableSelect;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
 use Capell\LayoutBuilder\Support\Creator\BlockCreator;
 use Capell\LayoutBuilder\Support\Creator\ContentCreator;
@@ -88,7 +88,7 @@ final class LayoutBuilderResidualAssetHarness extends LayoutBuilder
     public function assertCanEditContent(): void {}
 
     /**
-     * @param  array<string, array<int, Block>>  $containerBlocks
+     * @param  array<string, array<int, Widget>>  $containerBlocks
      */
     public function setContainerBlocks(array $containerBlocks): void
     {
@@ -115,23 +115,23 @@ final class LayoutBuilderResidualAssetHarness extends LayoutBuilder
     }
 
     /**
-     * @return Collection<int, BlockAsset>
+     * @return Collection<int, WidgetAsset>
      */
-    public function exposeLoadBlockAssetsFor(Block $block, string $containerKey, int $blockIndex): Collection
+    public function exposeLoadBlockAssetsFor(Widget $block, string $containerKey, int $blockIndex): Collection
     {
         return $this->loadBlockAssetsFor($block, $containerKey, $blockIndex);
     }
 
     /**
-     * @return Collection<int, BlockAsset>
+     * @return Collection<int, WidgetAsset>
      */
-    public function exposeLoadBlockAssets(Block $block, string $containerKey, int $blockOccurrence): Collection
+    public function exposeLoadBlockAssets(Widget $block, string $containerKey, int $blockOccurrence): Collection
     {
         return $this->loadBlockAssets($block, $containerKey, $blockOccurrence);
     }
 
     /**
-     * @return Collection<int, BlockAsset>|null
+     * @return Collection<int, WidgetAsset>|null
      */
     public function exposePreloadAllBlockAssets(): ?Collection
     {
@@ -141,7 +141,7 @@ final class LayoutBuilderResidualAssetHarness extends LayoutBuilder
     /**
      * @return array<array-key, mixed>
      */
-    public function exposeActiveBlockAssetIds(Block $block): array
+    public function exposeActiveBlockAssetIds(Widget $block): array
     {
         return $this->activeBlockAssetIds($block);
     }
@@ -149,14 +149,14 @@ final class LayoutBuilderResidualAssetHarness extends LayoutBuilder
     /**
      * @param  array<array-key, mixed>  $asset
      */
-    public function exposeCreateBlockAsset(
-        Block $block,
+    public function exposeCreateWidgetAsset(
+        Widget $block,
         string $containerKey,
         int $occurrence,
         bool $hasPageAssets,
         int $order,
         array $asset,
-    ): BlockAsset {
+    ): WidgetAsset {
         return $this->createBlockAsset($block, $containerKey, $occurrence, $hasPageAssets, $order, $asset);
     }
 
@@ -211,15 +211,15 @@ final class LayoutBuilderResidualFrontendContextForLoadedLayout
     }
 }
 
-final class LayoutBuilderResidualEditBlockPage extends EditBlock
+final class LayoutBuilderResidualEditWidgetPage extends EditWidget
 {
-    public function __construct(public Block $testRecord)
+    public function __construct(public Widget $testRecord)
     {
         $this->record = $testRecord;
     }
 
     #[Override]
-    public function getRecord(): Block
+    public function getRecord(): Widget
     {
         return $this->testRecord;
     }
@@ -267,7 +267,7 @@ final class LayoutBuilderResidualEditBlockPage extends EditBlock
         return self::getRecordSwitcherSearchColumns();
     }
 
-    public function exposeSelectChangerItemLabel(Block $block): string
+    public function exposeSelectChangerItemLabel(Widget $block): string
     {
         return $this->selectChangerItemLabel($block);
     }
@@ -286,8 +286,8 @@ it('covers residual filament component and table configuration setup branches', 
         ->withEditForm();
     $assetsRepeater = AssetsRepeater::make('assets');
     $actionsRepeater = ActionsRepeater::make('actions');
-    $blockAssetColumns = invokeLayoutBuilderResidualMethod(BlockAssetsTable::class, 'getTableColumns');
-    $blockAssetFilters = invokeLayoutBuilderResidualMethod(BlockAssetsTable::class, 'getTableFilters');
+    $blockAssetColumns = invokeLayoutBuilderResidualMethod(WidgetAssetsTable::class, 'getTableColumns');
+    $blockAssetFilters = invokeLayoutBuilderResidualMethod(WidgetAssetsTable::class, 'getTableFilters');
 
     capell_expect($blockSelect)->toBeInstanceOf(BlockSelect::class)
         ->and($assetsRepeater)->toBeInstanceOf(Repeater::class)
@@ -299,7 +299,7 @@ it('covers residual filament component and table configuration setup branches', 
 it('covers modal table query label action and disabled submission branches', function (): void {
     $component = new LayoutBuilderResidualModalTableSelect;
     $component->tableArguments = ['siteId' => 5];
-    $component->tableQuery = Block::query();
+    $component->tableQuery = Widget::query();
     $component->isDisabled = true;
     $component->selectedTableRecords = [];
 
@@ -311,7 +311,7 @@ it('covers modal table query label action and disabled submission branches', fun
 
     $component->isDisabled = false;
     $component->selectedTableRecords = [1];
-    $component->tableQuery = fn (): Builder => Block::query();
+    $component->tableQuery = fn (): Builder => Widget::query();
 
     capell_expect($component->exposeTableQuery())->toBeInstanceOf(Builder::class)
         ->and($component->exposeCanSubmitSelectedRecords())->toBeTrue();
@@ -329,26 +329,26 @@ it('aggregates layout health widget data for grouped unused and least-used block
         'group' => 'commerce',
     ]);
 
-    $publishedBlock = Block::factory()->create([
+    $publishedBlock = Widget::factory()->create([
         'name' => 'Published Hero',
         'blueprint_id' => $publishedType->getKey(),
         'visible_from' => now()->subDay(),
         'visible_until' => null,
     ]);
-    $pendingBlock = Block::factory()->create([
+    $pendingBlock = Widget::factory()->create([
         'name' => 'Pending CTA',
         'blueprint_id' => $pendingType->getKey(),
         'visible_from' => now()->addDay(),
         'visible_until' => null,
     ]);
-    $expiredBlock = Block::factory()->create([
+    $expiredBlock = Widget::factory()->create([
         'name' => 'Expired Banner',
         'blueprint_id' => $publishedType->getKey(),
         'visible_from' => now()->subDays(3),
         'visible_until' => now()->subDay(),
     ]);
 
-    BlockAsset::factory()->block($publishedBlock)->asset(Page::factory()->create())->create();
+    WidgetAsset::factory()->block($publishedBlock)->asset(Page::factory()->create())->create();
 
     $widget = new LayoutHealthWidgetAbstract;
     $viewData = invokeLayoutBuilderResidualMethod($widget, 'getViewData');
@@ -400,8 +400,8 @@ it('invalidates generated previews for layouts containing changed block keys', f
     $layout = Layout::factory()->create([
         'containers' => [
             'main' => [
-                'blocks' => [
-                    ['block_key' => 'hero'],
+                'widgets' => [
+                    ['widget_key' => 'hero'],
                 ],
             ],
         ],
@@ -412,8 +412,8 @@ it('invalidates generated previews for layouts containing changed block keys', f
     ]);
     DB::table('layouts')
         ->where('id', $layout->getKey())
-        ->update(['blocks' => json_encode(['hero', 'cta'], JSON_THROW_ON_ERROR)]);
-    Layout::factory()->create(['blocks' => ['other']]);
+        ->update(['widgets' => json_encode(['hero', 'cta'], JSON_THROW_ON_ERROR)]);
+    Layout::factory()->create(['widgets' => ['other']]);
     Storage::disk('public')->put('generated-layout-previews/old.png', 'old');
 
     $invalidated = InvalidateBlockLayoutPreviewImagesAction::run(['', null, 'hero', 'hero']);
@@ -434,7 +434,7 @@ it('resolves admin block preview data for page content custom views and loaded i
     ])->save();
     $page->load('translation');
 
-    $pageContentBlock = Block::factory()->create([
+    $pageContentBlock = Widget::factory()->create([
         'component' => BlockComponentEnum::PageContent->value,
         'admin' => [
             'admin_preview_view' => 'capell-layout-builder::filament.layout-builder.previews.custom',
@@ -451,11 +451,11 @@ it('resolves admin block preview data for page content custom views and loaded i
         true,
     );
 
-    $block = Block::factory()->create(['admin' => ['admin_preview_view' => 'not-a-preview-view']]);
+    $block = Widget::factory()->create(['admin' => ['admin_preview_view' => 'not-a-preview-view']]);
     $block->translations()->create([
         'language_id' => $language->getKey(),
-        'title' => 'Block title',
-        'content' => '<p>Block excerpt</p>',
+        'title' => 'Widget title',
+        'content' => '<p>Widget excerpt</p>',
     ]);
     $block->load('translation');
 
@@ -468,17 +468,17 @@ it('resolves admin block preview data for page content custom views and loaded i
         ->and($pageContentPreview->typeLabel)->toBe('Page copy')
         ->and($pageContentPreview->icon)->toBe('heroicon-o-document-text')
         ->and($blockPreview->view)->toBe('capell-layout-builder::filament.layout-builder.previews.default')
-        ->and($blockPreview->title)->toBe('Block title')
-        ->and($blockPreview->excerpt)->toBe('Block excerpt');
+        ->and($blockPreview->title)->toBe('Widget title')
+        ->and($blockPreview->excerpt)->toBe('Widget excerpt');
 });
 
 it('copies and pastes layout fragments with unique container and block anchors', function (): void {
     $state = new LayoutBuilderStateData(
         containers: [
             'main' => [
-                'blocks' => [
+                'widgets' => [
                     [
-                        'block_key' => 'hero',
+                        'widget_key' => 'hero',
                         'meta' => [
                             'block_settings' => [
                                 'anchor_id' => 'Shared Anchor',
@@ -488,12 +488,12 @@ it('copies and pastes layout fragments with unique container and block anchors',
                 ],
             ],
             'main-copy' => [
-                'blocks' => [],
+                'widgets' => [],
             ],
             'aside' => [
-                'blocks' => [
+                'widgets' => [
                     [
-                        'block_key' => 'cta',
+                        'widget_key' => 'cta',
                         'meta' => [
                             'block_settings' => [
                                 'anchor_id' => 'shared-anchor',
@@ -521,14 +521,14 @@ it('copies and pastes layout fragments with unique container and block anchors',
     $containerResult = PasteLayoutFragmentAction::run($state, $containerFragment, 'aside');
 
     capell_expect($containerResult->state->containers)->toHaveKey('main-copy-2')
-        ->and($containerResult->state->containers['main-copy-2']['blocks'][0]['meta']['block_settings']['anchor_id'])
+        ->and($containerResult->state->containers['main-copy-2']['widgets'][0]['meta']['block_settings']['anchor_id'])
         ->toBe('shared-anchor-2');
 
     $blockFragment = CreateLayoutFragmentAction::run($state, 'main', 0);
     $blockResult = PasteLayoutFragmentAction::run($state, $blockFragment, 'aside', 0);
 
-    capell_expect($blockResult->state->containers['aside']['blocks'][0]['block_key'])->toBe('hero')
-        ->and($blockResult->state->containers['aside']['blocks'][0]['meta']['block_settings']['anchor_id'])
+    capell_expect($blockResult->state->containers['aside']['widgets'][0]['widget_key'])->toBe('hero')
+        ->and($blockResult->state->containers['aside']['widgets'][0]['meta']['block_settings']['anchor_id'])
         ->toBe('shared-anchor-2')
         ->and($blockResult->state->assets['aside'][0])->toBe([['asset_id' => 1, 'asset_type' => 'page']]);
 
@@ -541,13 +541,13 @@ it('copies and pastes layout fragments with unique container and block anchors',
 
 it('covers edit block page relation metadata and relation manager table setup', function (): void {
     $type = Blueprint::factory()->create(['name' => 'Hero Type', 'type' => 'block']);
-    $block = Block::factory()->create([
+    $block = Widget::factory()->create([
         'name' => 'Editable Hero',
         'blueprint_id' => $type->getKey(),
     ]);
     $block->setRelation('type', $type);
 
-    $page = new LayoutBuilderResidualEditBlockPage($block);
+    $page = new LayoutBuilderResidualEditWidgetPage($block);
     $relationManager = new LayoutsRelationManager;
     $relationTable = $relationManager->table(Table::make($relationManager));
 
@@ -557,7 +557,7 @@ it('covers edit block page relation metadata and relation manager table setup', 
         ->and($page->exposeRecordSwitcherColumns())->toBe(['name', 'admin'])
         ->and($page->exposeRecordSwitcherSearchColumns())->toBe(['name', '`key`', 'admin->notes'])
         ->and($page->exposeSelectChangerItemLabel($block))->toBe('Editable Hero')
-        ->and(LayoutsRelationManager::getTitle($block, EditBlock::class))->toBe(__('capell-admin::generic.layouts'))
+        ->and(LayoutsRelationManager::getTitle($block, EditWidget::class))->toBe(__('capell-admin::generic.layouts'))
         ->and($relationTable)->toBeInstanceOf(Table::class);
 });
 
@@ -571,7 +571,7 @@ it('orchestrates demo site layout population with creator collaborators', functi
     $layout = Layout::factory()->create([
         'key' => LayoutEnum::Home->value,
         'containers' => [
-            'main' => ['blocks' => []],
+            'main' => ['widgets' => []],
         ],
     ]);
     $page = Page::factory()
@@ -631,12 +631,12 @@ it('orchestrates demo site layout population with creator collaborators', functi
     $containers = $layout->refresh()->containers;
 
     capell_expect($page->refresh()->layout_id)->toBe($layout->getKey())
-        ->and($containers['main']['blocks'])->toHaveCount(4)
-        ->and($containers['faq-main']['blocks'][0]['block_key'])->toBe('faq')
-        ->and($containers['faq-col']['blocks'][0]['block_key'])->toBe('static-nav')
-        ->and($containers['secondary']['blocks'])->toHaveCount(16)
-        ->and($containers['ap-blocks']['blocks'])->toHaveCount(5)
-        ->and($containers['split-two']['blocks'][0]['block_key'])->toBe('split-content');
+        ->and($containers['main']['widgets'])->toHaveCount(4)
+        ->and($containers['faq-main']['widgets'][0]['widget_key'])->toBe('faq')
+        ->and($containers['faq-col']['widgets'][0]['widget_key'])->toBe('static-nav')
+        ->and($containers['secondary']['widgets'])->toHaveCount(16)
+        ->and($containers['ap-blocks']['widgets'])->toHaveCount(5)
+        ->and($containers['split-two']['widgets'][0]['widget_key'])->toBe('split-content');
 });
 
 it('creates demo site content recursively and stops when the site is already large', function (): void {
@@ -700,7 +700,7 @@ it('adds updates preloads and deletes page-scoped block assets through the edito
     $page = Page::factory()->site($site)->withTranslations()->create();
     $firstAssetPage = Page::factory()->site($site)->withTranslations()->create();
     $secondAssetPage = Page::factory()->site($site)->withTranslations()->create();
-    $block = Block::factory()->create([
+    $block = Widget::factory()->create([
         'key' => 'asset-block',
         'admin' => [
             'asset_types' => ['page'],
@@ -713,8 +713,8 @@ it('adds updates preloads and deletes page-scoped block assets through the edito
     $harness->page = $page;
     $harness->containers = [
         'main' => [
-            'blocks' => [
-                ['block_key' => $block->key, 'occurrence' => 1],
+            'widgets' => [
+                ['widget_key' => $block->key, 'occurrence' => 1],
             ],
         ],
     ];
@@ -725,7 +725,7 @@ it('adds updates preloads and deletes page-scoped block assets through the edito
 
     $harness->exposeAddAssets('main', 0, true, 'missing-type', [$firstAssetPage->getKey()]);
 
-    $createdAsset = $harness->exposeCreateBlockAsset(
+    $createdAsset = $harness->exposeCreateWidgetAsset(
         $block,
         'main',
         1,
@@ -771,7 +771,7 @@ it('adds updates preloads and deletes page-scoped block assets through the edito
     $block->load('assets');
     $harness->setContainerBlocks(['main' => [$block]]);
 
-    capell_expect(BlockAsset::query()->where('block_id', $block->getKey())->count())->toBe(2)
+    capell_expect(WidgetAsset::query()->where('widget_id', $block->getKey())->count())->toBe(2)
         ->and($createdAsset->refresh()->order)->toBe(2)
         ->and($createdAsset->meta)->toBe(['caption' => 'Updated'])
         ->and($harness->exposeLoadBlockAssets($block, 'main', 1))->toHaveCount(2)
@@ -799,7 +799,7 @@ it('adds updates preloads and deletes page-scoped block assets through the edito
 
     $harness->exposeDeleteRemovedBlockAssets();
 
-    capell_expect(BlockAsset::query()->whereKey($createdAsset->getKey())->exists())->toBeFalse();
+    capell_expect(WidgetAsset::query()->whereKey($createdAsset->getKey())->exists())->toBeFalse();
 });
 
 it('covers layout builder public editor helpers and action factory private branches', function (): void {
@@ -807,9 +807,9 @@ it('covers layout builder public editor helpers and action factory private branc
     $layout = Layout::factory()->create(['site_id' => $site->getKey()]);
     $page = Page::factory()->site($site)->withTranslations()->create(['layout_id' => $layout->getKey()]);
     $otherPage = Page::factory()->site($site)->withTranslations()->create(['layout_id' => $layout->getKey()]);
-    $block = Block::factory()->create(['key' => 'factory-block']);
+    $block = Widget::factory()->create(['key' => 'factory-block']);
     $assetPage = Page::factory()->site($site)->withTranslations()->create();
-    $blockAsset = BlockAsset::factory()
+    $blockAsset = WidgetAsset::factory()
         ->block($block)
         ->asset($assetPage)
         ->create([
@@ -826,8 +826,8 @@ it('covers layout builder public editor helpers and action factory private branc
     $harness->page = $page;
     $harness->containers = [
         'main' => [
-            'blocks' => [
-                ['block_key' => $block->key, 'occurrence' => 1],
+            'widgets' => [
+                ['widget_key' => $block->key, 'occurrence' => 1],
             ],
         ],
     ];
@@ -866,8 +866,8 @@ it('covers layout builder public editor helpers and action factory private branc
         'index' => 0,
         'type' => $blockAsset->asset_type,
     ]);
-    $pageHeading = invokeLayoutBuilderResidualMethod($factory, 'getEditBlockAssetModalHeading', $harness, ['type' => $blockAsset->asset_type]);
-    $pageDescription = invokeLayoutBuilderResidualMethod($factory, 'getEditBlockAssetModalDescription', $harness, [
+    $pageHeading = invokeLayoutBuilderResidualMethod($factory, 'getEditWidgetAssetModalHeading', $harness, ['type' => $blockAsset->asset_type]);
+    $pageDescription = invokeLayoutBuilderResidualMethod($factory, 'getEditWidgetAssetModalDescription', $harness, [
         'containerKey' => 'main',
         'blockIndex' => 0,
         'index' => 0,
@@ -882,7 +882,7 @@ it('covers layout builder public editor helpers and action factory private branc
         ->and($harness->getCurrentResource())->toBeString()
         ->and($harness->getPageResource())->toBeString()
         ->and($harness->placeholder(['label' => 'Loading'])->name())->toBe('capell-admin::components.placeholder')
-        ->and($record)->toBeInstanceOf(BlockAsset::class)
+        ->and($record)->toBeInstanceOf(WidgetAsset::class)
         ->and($record->block_id)->toBe($block->getKey())
         ->and($editableAsset->getKey())->toBe($blockAsset->getKey())
         ->and($pageHeading)->toContain(str($blockAsset->asset_type)->title()->toString())
@@ -894,7 +894,7 @@ it('covers layout builder public editor helpers and action factory private branc
     invokeLayoutBuilderResidualMethod($factory, 'changePageLayout', $layout->getKey());
 
     capell_expect($harness->otherPagesUsingLayoutCount())->toBeGreaterThanOrEqual(2)
-        ->and(invokeLayoutBuilderResidualMethod($factory, 'getEditBlockAssetModalDescription', $harness, [
+        ->and(invokeLayoutBuilderResidualMethod($factory, 'getEditWidgetAssetModalDescription', $harness, [
             'containerKey' => 'main',
             'blockIndex' => 0,
             'index' => 0,
@@ -902,7 +902,7 @@ it('covers layout builder public editor helpers and action factory private branc
 });
 
 it('renders deterministic layout preview images and signatures for varied containers', function (): void {
-    $block = Block::factory()->create([
+    $block = Widget::factory()->create([
         'key' => 'preview-hero',
         'name' => 'Preview Hero',
         'admin' => ['icon' => 'heroicon-o-star'],
@@ -913,23 +913,23 @@ it('renders deterministic layout preview images and signatures for varied contai
         'containers' => [
             'hero' => [
                 'meta' => ['colspan' => 12],
-                'blocks' => [
-                    ['block_key' => $block->key],
-                    ['block_key' => 'missing-block', 'meta' => ['name' => 'Missing']],
+                'widgets' => [
+                    ['widget_key' => $block->key],
+                    ['widget_key' => 'missing-block', 'meta' => ['name' => 'Missing']],
                 ],
             ],
             'aside' => [
                 'meta' => ['colspan' => 4],
-                'blocks' => [],
+                'widgets' => [],
             ],
             'content' => [
                 'meta' => ['colspan' => 8],
-                'blocks' => [
-                    ['block_key' => $block->key, 'occurrence' => 2],
+                'widgets' => [
+                    ['widget_key' => $block->key, 'occurrence' => 2],
                 ],
             ],
-            'overflow-one' => ['meta' => ['colspan' => 12], 'blocks' => array_fill(0, 12, ['block_key' => $block->key])],
-            'overflow-two' => ['meta' => ['colspan' => 12], 'blocks' => array_fill(0, 12, ['block_key' => $block->key])],
+            'overflow-one' => ['meta' => ['colspan' => 12], 'widgets' => array_fill(0, 12, ['widget_key' => $block->key])],
+            'overflow-two' => ['meta' => ['colspan' => 12], 'widgets' => array_fill(0, 12, ['widget_key' => $block->key])],
         ],
     ]);
 
@@ -939,7 +939,7 @@ it('renders deterministic layout preview images and signatures for varied contai
 
     capell_expect($signature->forLayout($layout))->toHaveLength(64)
         ->and($payload['containers'])->toHaveCount(5)
-        ->and($payload['containers'][0]['blocks'][0]['name'])->toBe('Preview Hero')
+        ->and($payload['containers'][0]['widgets'][0]['name'])->toBe('Preview Hero')
         ->and($png)->toStartWith("\x89PNG");
 });
 
@@ -966,14 +966,14 @@ it('covers simple residual form configurators widgets enums and block model bran
     $assetTypeSelect = AssetTypeSelect::make('asset_type');
 
     $type = Blueprint::factory()->create([
-        'type' => LayoutTypeEnum::Block->value,
+        'type' => LayoutTypeEnum::Widget->value,
         'component' => 'type-component',
         'component_item' => 'type-item',
         'view_file' => 'type.view',
         'is_livewire' => true,
         'meta' => ['livewire' => false],
     ]);
-    $block = Block::factory()->create([
+    $block = Widget::factory()->create([
         'blueprint_id' => $type->getKey(),
         'meta' => [
             'component' => 'meta-component',
@@ -994,14 +994,14 @@ it('covers simple residual form configurators widgets enums and block model bran
         ->and(ActionLinkEnum::VideoPopup->getLabel())->toBeString()
         ->and(ActionLinkEnum::VideoPopup->getIcon())->toBe('heroicon-o-play-circle')
         ->and(ContainerAlignmentEnum::Stretch->getLabel())->toBeString()
-        ->and(LayoutTypeEnum::Block->getLabel())->toBeString()
-        ->and(LayoutTypeEnum::Block->getResource())->toBeString()
-        ->and(LayoutTypeEnum::Block->getModel())->toBe(Block::class)
-        ->and(LayoutTypeEnum::Block->getTable())->toBe('blocks')
-        ->and(LayoutTypeEnum::Block->getCreatorClass())->toBeNull()
-        ->and(TypeEnum::Block->value)->toBeString()
-        ->and(TypeEnum::Block->getModel())->toBe(Block::class)
-        ->and(TypeEnum::Block->getLabel())->toBeString()
+        ->and(LayoutTypeEnum::Widget->getLabel())->toBeString()
+        ->and(LayoutTypeEnum::Widget->getResource())->toBeString()
+        ->and(LayoutTypeEnum::Widget->getModel())->toBe(Widget::class)
+        ->and(LayoutTypeEnum::Widget->getTable())->toBe('widgets')
+        ->and(LayoutTypeEnum::Widget->getCreatorClass())->toBeNull()
+        ->and(TypeEnum::Widget->value)->toBeString()
+        ->and(TypeEnum::Widget->getModel())->toBe(Widget::class)
+        ->and(TypeEnum::Widget->getLabel())->toBeString()
         ->and(ResponsiveVisibilityEnum::Mobile->getLabel())->toBeString()
         ->and(ResponsiveVisibilityEnum::Tablet->getLabel())->toBeString()
         ->and(ResponsiveVisibilityEnum::Desktop->getLabel())->toBeString()
@@ -1013,7 +1013,7 @@ it('covers simple residual form configurators widgets enums and block model bran
 });
 
 it('adds hero blocks to new and existing layout containers once', function (): void {
-    $block = Block::factory()->create(['key' => 'hero-block']);
+    $block = Widget::factory()->create(['key' => 'hero-block']);
     $layout = Layout::factory()->create(['containers' => []]);
 
     AddHeroBlockToLayoutAction::run($block, $layout);
@@ -1021,13 +1021,13 @@ it('adds hero blocks to new and existing layout containers once', function (): v
 
     capell_expect($layout->refresh()->containers)->toHaveKey('hero')
         ->and($layout->containers['hero']['meta']['container'])->toBe('full')
-        ->and($layout->containers['hero']['blocks'])->toHaveCount(1)
-        ->and($layout->containers['hero']['blocks'][0]['block_key'])->toBe('hero-block');
+        ->and($layout->containers['hero']['widgets'])->toHaveCount(1)
+        ->and($layout->containers['hero']['widgets'][0]['widget_key'])->toBe('hero-block');
 });
 
 it('covers cold type configurator and modal page table setup with livewire table owner', function (): void {
     $blockTypeConfigurator = resolve(BlockTypeConfigurator::class);
-    $schema = Schema::make();
+    $schema = Schema::make()->operation('create');
     $blockTypeSchema = $blockTypeConfigurator->make($schema);
     $component = new LayoutBuilderResidualModalTableSelect;
     $component->tableConfiguration = PageSelectionTable::class;
@@ -1051,14 +1051,14 @@ it('covers cold type configurator and modal page table setup with livewire table
 it('loads frontend layout blocks into the layout manager and formats missing asset context', function (): void {
     $language = Language::factory()->create(['code' => 'en']);
     $page = Page::factory()->withTranslations($language)->create();
-    $block = Block::factory()->create(['key' => 'loaded-hero']);
+    $block = Widget::factory()->create(['key' => 'loaded-hero']);
     $layout = Layout::factory()->create([
         'containers' => [
             'main' => [
-                'blocks' => [
-                    ['block_key' => 'loaded-hero'],
-                    ['block_key' => null],
-                    ['block_key' => 'missing-hero', 'occurrence' => 2],
+                'widgets' => [
+                    ['widget_key' => 'loaded-hero'],
+                    ['widget_key' => null],
+                    ['widget_key' => 'missing-hero', 'occurrence' => 2],
                 ],
             ],
         ],
@@ -1091,9 +1091,9 @@ it('loads frontend layout blocks into the layout manager and formats missing ass
         ->and($exception->getContext())->toBe(['container' => 'main']);
 });
 
-function layoutBuilderResidualBlock(string $key): Block
+function layoutBuilderResidualBlock(string $key): Widget
 {
-    return (new Block)->forceFill([
+    return (new Widget)->forceFill([
         'id' => crc32($key),
         'key' => $key,
         'name' => str($key)->headline()->toString(),

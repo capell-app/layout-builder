@@ -21,10 +21,10 @@ final class NormalizeLayoutBuilderStateAction
         $selectedRecords = $state->selectedRecords;
 
         foreach ($containers as $containerKey => $container) {
-            $containers[$containerKey]['blocks'] = array_values($container['blocks'] ?? []);
+            $containers[$containerKey]['widgets'] = array_values($container['widgets'] ?? []);
             $containers[$containerKey]['meta'] = $this->normalizeContainerMeta($container['meta'] ?? []);
 
-            $blockCount = count($containers[$containerKey]['blocks']);
+            $blockCount = count($containers[$containerKey]['widgets']);
             $assets[$containerKey] = $this->normalizeBlockSlots($assets[$containerKey] ?? [], $blockCount);
             $originalAssets[$containerKey] = $this->normalizeBlockSlots($originalAssets[$containerKey] ?? [], $blockCount);
             $selectedRecords[$containerKey] = $this->normalizeBlockSlots($selectedRecords[$containerKey] ?? [], $blockCount);

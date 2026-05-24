@@ -8,8 +8,8 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Translation;
 use Capell\LayoutBuilder\Data\AdminBlockPreviewData;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
@@ -22,7 +22,7 @@ beforeEach(function (): void {
 
 it('uses the content first editor mode by default from the package namespace', function (): void {
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['blocks' => []],
+        'main' => ['widgets' => []],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
@@ -52,10 +52,10 @@ it('resolves the saved admin block preview view without checking the filesystem'
 });
 
 it('can switch from content first to advanced layout and back from the package namespace', function (): void {
-    $block = Block::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
+    $block = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['blocks' => [
-            ['block_key' => $block->key, 'occurrence' => 1],
+        'main' => ['widgets' => [
+            ['widget_key' => $block->key, 'occurrence' => 1],
         ]],
     ]]);
 
@@ -75,7 +75,7 @@ it('lets content editors use content first without advanced layout access from t
     test()->actingAs(test()->createUserWithPermission('EditContent:Layout'));
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['blocks' => []],
+        'main' => ['widgets' => []],
     ]]);
 
     $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
@@ -96,17 +96,17 @@ it('lets content editors submit block asset edits without layout access from the
 
     test()->actingAs(test()->createUserWithPermission(['EditContent:Layout', 'View:Page']));
 
-    $block = Block::factory()->create(['key' => 'featured', 'name' => 'Featured']);
+    $block = Widget::factory()->create(['key' => 'featured', 'name' => 'Featured']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
-    $blockAsset = BlockAsset::factory()
+    $blockAsset = WidgetAsset::factory()
         ->block($block)
         ->asset($asset)
         ->occurrence(1)
         ->create(['order' => 1, 'meta' => ['variant' => 'default']]);
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['blocks' => [
-            ['block_key' => $block->key, 'occurrence' => 1],
+        'main' => ['widgets' => [
+            ['widget_key' => $block->key, 'occurrence' => 1],
         ]],
     ]]);
 
@@ -125,17 +125,17 @@ it('lets content editors submit block asset edits without layout access from the
 });
 
 it('renders content first rows as custom action triggers instead of per row action schemas from the package namespace', function (): void {
-    $block = Block::factory()->create(['key' => 'featured', 'name' => 'Featured']);
+    $block = Widget::factory()->create(['key' => 'featured', 'name' => 'Featured']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
-    BlockAsset::factory()
+    WidgetAsset::factory()
         ->block($block)
         ->asset($asset)
         ->occurrence(1)
         ->create(['order' => 1, 'meta' => ['variant' => 'default']]);
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['blocks' => [
-            ['block_key' => $block->key, 'occurrence' => 1],
+        'main' => ['widgets' => [
+            ['widget_key' => $block->key, 'occurrence' => 1],
         ]],
     ]]);
 
@@ -163,9 +163,9 @@ it('renders content first rows as custom action triggers instead of per row acti
 
 it('renders block copy source rows with an edit action from the package namespace', function (): void {
     $language = Language::factory()->create();
-    $block = Block::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
+    $block = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
-    BlockAsset::factory()
+    WidgetAsset::factory()
         ->block($block)
         ->asset($asset)
         ->occurrence(1)
@@ -176,12 +176,12 @@ it('renders block copy source rows with an edit action from the package namespac
         'translatable_id' => $block->getKey(),
         'language_id' => $language->getKey(),
         'title' => 'Every section can be rebuilt in the layout builder',
-        'content' => '<p>Block-owned support copy.</p>',
+        'content' => '<p>Widget-owned support copy.</p>',
     ]);
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['blocks' => [
-            ['block_key' => $block->key, 'occurrence' => 1],
+        'main' => ['widgets' => [
+            ['widget_key' => $block->key, 'occurrence' => 1],
         ]],
     ]]);
 
@@ -200,7 +200,7 @@ it('sends layout only editors straight to the advanced layout editor from the pa
     test()->actingAs(test()->createUserWithPermission('EditLayout:Layout'));
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['blocks' => []],
+        'main' => ['widgets' => []],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
@@ -212,7 +212,7 @@ it('sends layout only editors straight to the advanced layout editor from the pa
 it('moves responsive layout mutations through undo and redo stacks from the package namespace', function (): void {
     $layout = Layout::factory()->create(['containers' => [
         'main' => [
-            'blocks' => [],
+            'widgets' => [],
             'meta' => [
                 'responsive' => [
                     'tablet' => ['colspan' => 6],
@@ -245,7 +245,7 @@ it('moves responsive layout mutations through undo and redo stacks from the pack
 it('clears redo history when a new layout mutation follows undo from the package namespace', function (): void {
     $layout = Layout::factory()->create(['containers' => [
         'main' => [
-            'blocks' => [],
+            'widgets' => [],
             'meta' => [
                 'responsive' => [
                     'tablet' => ['colspan' => 6],
@@ -273,11 +273,11 @@ it('blocks content only editors from layout undo and redo from the package names
     test()->actingAs(test()->createUserWithPermission('EditContent:Layout'));
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['blocks' => []],
+        'main' => ['widgets' => []],
     ]]);
 
     $snapshot = [
-        'containers' => ['main' => ['blocks' => [], 'meta' => []]],
+        'containers' => ['main' => ['widgets' => [], 'meta' => []]],
         'assets' => ['main' => []],
         'originalAssets' => ['main' => []],
         'selectedRecords' => ['main' => []],
@@ -295,17 +295,17 @@ it('blocks content only editors from layout undo and redo from the package names
 });
 
 it('rejects stale content first asset saves from the package namespace', function (): void {
-    $block = Block::factory()->create(['key' => 'featured', 'name' => 'Featured']);
+    $block = Widget::factory()->create(['key' => 'featured', 'name' => 'Featured']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
-    $blockAsset = BlockAsset::factory()
+    $blockAsset = WidgetAsset::factory()
         ->block($block)
         ->asset($asset)
         ->occurrence(1)
         ->create(['order' => 1, 'meta' => ['variant' => 'default']]);
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['blocks' => [
-            ['block_key' => $block->key, 'occurrence' => 1],
+        'main' => ['widgets' => [
+            ['widget_key' => $block->key, 'occurrence' => 1],
         ]],
     ]]);
 

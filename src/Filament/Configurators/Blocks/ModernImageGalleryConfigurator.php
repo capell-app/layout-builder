@@ -10,7 +10,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 
 /**
- * Filament Schema for Modern Image Gallery Block
+ * Filament Schema for Modern Image Gallery Widget
  *
  * Provides admin panel controls for customizing image gallery layout,
  * columns, and display options.

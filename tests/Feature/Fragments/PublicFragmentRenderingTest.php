@@ -9,7 +9,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Actions\Fragments\RenderPublicFragmentAction;
 use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Livewire\OpaqueBlockReference;
 
 it('renders a valid encrypted public block fragment reference', function (): void {
@@ -43,7 +43,7 @@ it('does not render a replayed reference for another site and page', function ()
     $otherSite = Site::factory()->create(['language_id' => $otherLanguage->getKey()]);
     $otherLayout = Layout::factory()->site($otherSite)->create([
         'containers' => [
-            'main' => ['blocks' => []],
+            'main' => ['widgets' => []],
         ],
     ]);
     $otherPage = Page::factory()->site($otherSite)->layout($otherLayout)->withTranslations($otherLanguage)->create();
@@ -70,7 +70,7 @@ function publicFragmentFixture(string $html): array
 {
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->getKey()]);
-    $block = Block::factory()->create(['key' => 'public-fragment-block']);
+    $block = Widget::factory()->create(['key' => 'public-fragment-block']);
 
     TranslationFactory::new()
         ->translatable($block)
@@ -81,9 +81,9 @@ function publicFragmentFixture(string $html): array
         ]);
 
     $layout = Layout::factory()->site($site)->create([
-        'blocks' => [$block->key],
+        'widgets' => [$block->key],
         'containers' => [
-            'main' => ['blocks' => [['block_key' => $block->key, 'occurrence' => 1]]],
+            'main' => ['widgets' => [['widget_key' => $block->key, 'occurrence' => 1]]],
         ],
     ]);
 
@@ -98,12 +98,12 @@ function publicFragmentFixture(string $html): array
             return 100;
         }
 
-        public function data(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): array
+        public function data(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): array
         {
             return [];
         }
 
-        public function html(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): string
+        public function html(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): string
         {
             return $this->html;
         }
@@ -117,7 +117,7 @@ function publicFragmentFixture(string $html): array
         'layout_id' => $layout->getKey(),
         'language_id' => $language->getKey(),
         'container_key' => 'main',
-        'block_key' => $block->key,
+        'widget_key' => $block->key,
         'occurrence' => 1,
         'block_data' => [],
     ];

@@ -102,17 +102,17 @@ class CreateLayoutBuilderDemoSiteAction
         $secondPageCardsBlock = $this->demoCreator->createPageCardsBlock($page, occurrence: 2);
         $mediaCarouselBlock = $this->demoCreator->createMediaCarouselBlock();
 
-        $containers['main']['blocks'] = [
+        $containers['main']['widgets'] = [
             [
-                'block_key' => $pageCardsBlock->key,
+                'widget_key' => $pageCardsBlock->key,
                 'occurrence' => 1,
             ],
-            ['block_key' => $galleryBlock->key],
+            ['widget_key' => $galleryBlock->key],
             [
-                'block_key' => $secondPageCardsBlock->key,
+                'widget_key' => $secondPageCardsBlock->key,
                 'occurrence' => 2,
             ],
-            ['block_key' => $mediaCarouselBlock->key],
+            ['widget_key' => $mediaCarouselBlock->key],
         ];
     }
 
@@ -128,8 +128,8 @@ class CreateLayoutBuilderDemoSiteAction
             'meta' => [
                 'colspan' => 8,
             ],
-            'blocks' => [
-                ['block_key' => $faqBlock->key],
+            'widgets' => [
+                ['widget_key' => $faqBlock->key],
             ],
         ];
 
@@ -140,8 +140,8 @@ class CreateLayoutBuilderDemoSiteAction
                 'colspan' => 4,
                 'container' => ContainerWidthEnum::Full,
             ],
-            'blocks' => [
-                ['block_key' => $faqColumnBlock->key],
+            'widgets' => [
+                ['widget_key' => $faqColumnBlock->key],
             ],
         ];
     }
@@ -181,23 +181,23 @@ class CreateLayoutBuilderDemoSiteAction
             'meta' => [
                 'colspan' => 12,
             ],
-            'blocks' => [
-                ['block_key' => $featureListBlock->key],
-                ['block_key' => $teamPortfolioBlock->key],
-                ['block_key' => $modernTeamBlock->key],
-                ['block_key' => $bannerImageBlock->key],
-                ['block_key' => $contentBlock->key],
-                ['block_key' => $statisticsBlock->key],
-                ['block_key' => $pricingBlock->key],
-                ['block_key' => $businessFeaturesBlock->key],
-                ['block_key' => $bannersBlock->key],
-                ['block_key' => $clientLogosBlock->key],
-                ['block_key' => $testimonialsBlock->key],
-                ['block_key' => $faqBlock->key],
-                ['block_key' => $statsBlock->key],
-                ['block_key' => $alternatingBlock->key],
-                ['block_key' => $processBlock->key],
-                ['block_key' => $galleryBlock->key],
+            'widgets' => [
+                ['widget_key' => $featureListBlock->key],
+                ['widget_key' => $teamPortfolioBlock->key],
+                ['widget_key' => $modernTeamBlock->key],
+                ['widget_key' => $bannerImageBlock->key],
+                ['widget_key' => $contentBlock->key],
+                ['widget_key' => $statisticsBlock->key],
+                ['widget_key' => $pricingBlock->key],
+                ['widget_key' => $businessFeaturesBlock->key],
+                ['widget_key' => $bannersBlock->key],
+                ['widget_key' => $clientLogosBlock->key],
+                ['widget_key' => $testimonialsBlock->key],
+                ['widget_key' => $faqBlock->key],
+                ['widget_key' => $statsBlock->key],
+                ['widget_key' => $alternatingBlock->key],
+                ['widget_key' => $processBlock->key],
+                ['widget_key' => $galleryBlock->key],
             ],
         ];
 
@@ -205,12 +205,12 @@ class CreateLayoutBuilderDemoSiteAction
             'meta' => [
                 'colspan' => 12,
             ],
-            'blocks' => [
-                ['block_key' => $apHeroBannerBlock->key],
-                ['block_key' => $apCardGridBlock->key],
-                ['block_key' => $apFeatureListBlock->key],
-                ['block_key' => $apCtaSectionBlock->key],
-                ['block_key' => $apImageGalleryBlock->key],
+            'widgets' => [
+                ['widget_key' => $apHeroBannerBlock->key],
+                ['widget_key' => $apCardGridBlock->key],
+                ['widget_key' => $apFeatureListBlock->key],
+                ['widget_key' => $apCtaSectionBlock->key],
+                ['widget_key' => $apImageGalleryBlock->key],
             ],
         ];
     }
@@ -230,12 +230,12 @@ class CreateLayoutBuilderDemoSiteAction
             'meta' => [
                 'colspan' => 12,
             ],
-            'blocks' => [
-                ['block_key' => $heroBannerBlock->key],
-                ['block_key' => $cardGridBlock->key],
-                ['block_key' => $featureListBlock->key],
-                ['block_key' => $ctaSectionBlock->key],
-                ['block_key' => $imageGalleryBlock->key],
+            'widgets' => [
+                ['widget_key' => $heroBannerBlock->key],
+                ['widget_key' => $cardGridBlock->key],
+                ['widget_key' => $featureListBlock->key],
+                ['widget_key' => $ctaSectionBlock->key],
+                ['widget_key' => $imageGalleryBlock->key],
             ],
         ];
     }
@@ -256,8 +256,8 @@ class CreateLayoutBuilderDemoSiteAction
                 'html_class' => 'relative',
                 'background_color' => 'light-gray',
             ],
-            'blocks' => [
-                ['block_key' => $splitContentBlock->key],
+            'widgets' => [
+                ['widget_key' => $splitContentBlock->key],
             ],
         ];
     }

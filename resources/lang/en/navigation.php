@@ -3,5 +3,6 @@
 declare(strict_types=1);
 
 return [
-    'blocks' => 'Layout Blocks',
+    'block' => 'Widget',
+    'blocks' => 'Widgets',
 ];

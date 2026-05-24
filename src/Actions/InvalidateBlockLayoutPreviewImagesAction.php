@@ -10,29 +10,29 @@ use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static int run(array<int, string|null> $blockKeys)
+ * @method static int run(array<int, string|null> $widgetKeys)
  */
 class InvalidateBlockLayoutPreviewImagesAction
 {
     use AsObject;
 
     /**
-     * @param  array<int, string|null>  $blockKeys
+     * @param  array<int, string|null>  $widgetKeys
      */
-    public function handle(array $blockKeys): int
+    public function handle(array $widgetKeys): int
     {
-        $blockKeys = collect($blockKeys)
-            ->filter(fn (?string $blockKey): bool => is_string($blockKey) && $blockKey !== '')
+        $widgetKeys = collect($widgetKeys)
+            ->filter(fn (?string $widgetKey): bool => is_string($widgetKey) && $widgetKey !== '')
             ->unique()
             ->values();
 
-        if ($blockKeys->isEmpty()) {
+        if ($widgetKeys->isEmpty()) {
             return 0;
         }
 
         $invalidated = 0;
 
-        $this->layoutQuery($blockKeys)->each(function (Layout $layout) use (&$invalidated): void {
+        $this->layoutQuery($widgetKeys)->each(function (Layout $layout) use (&$invalidated): void {
             if (InvalidateLayoutPreviewImageAction::run($layout, force: true)) {
                 $invalidated++;
             }
@@ -42,15 +42,15 @@ class InvalidateBlockLayoutPreviewImagesAction
     }
 
     /**
-     * @param  Collection<int, non-empty-string>  $blockKeys
+     * @param  Collection<int, non-empty-string>  $widgetKeys
      * @return Builder<Layout>
      */
-    private function layoutQuery(Collection $blockKeys): Builder
+    private function layoutQuery(Collection $widgetKeys): Builder
     {
         return Layout::query()
-            ->where(function (Builder $query) use ($blockKeys): void {
-                foreach ($blockKeys as $blockKey) {
-                    $query->orWhereJsonContains('blocks', $blockKey);
+            ->where(function (Builder $query) use ($widgetKeys): void {
+                foreach ($widgetKeys as $widgetKey) {
+                    $query->orWhereJsonContains('widgets', $widgetKey);
                 }
             });
     }

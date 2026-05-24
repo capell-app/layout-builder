@@ -37,7 +37,7 @@ final class CreateLayoutFragmentAction
             );
         }
 
-        $block = $container['blocks'][$blockIndex] ?? null;
+        $block = $container['widgets'][$blockIndex] ?? null;
 
         return new LayoutFragmentData(
             sourceContainerKey: $containerKey,

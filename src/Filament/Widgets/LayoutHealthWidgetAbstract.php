@@ -13,7 +13,7 @@ use Capell\LayoutBuilder\Data\Dashboard\BlockGroupData;
 use Capell\LayoutBuilder\Data\Dashboard\LayoutHealthData;
 use Capell\LayoutBuilder\Data\Dashboard\LeastUsedBlockData;
 use Capell\LayoutBuilder\Data\Dashboard\UnusedBlockData;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Filament\Widgets\Widget as FilamentWidget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -44,8 +44,8 @@ final class LayoutHealthWidgetAbstract extends FilamentWidget implements CapellW
 
     private function getData(): LayoutHealthData
     {
-        /** @var class-string<Block> $blockModel */
-        $blockModel = Block::class;
+        /** @var class-string<Widget> $blockModel */
+        $blockModel = Widget::class;
 
         // Get total block counts
         $totalBlocks = $blockModel::query()->count();
@@ -83,7 +83,7 @@ final class LayoutHealthWidgetAbstract extends FilamentWidget implements CapellW
     }
 
     /**
-     * @param  class-string<Block>  $blockModel
+     * @param  class-string<Widget>  $blockModel
      * @return Collection<int, BlockGroupData>
      */
     private function getBlocksByGroup(string $blockModel): Collection
@@ -124,7 +124,7 @@ final class LayoutHealthWidgetAbstract extends FilamentWidget implements CapellW
     }
 
     /**
-     * @param  class-string<Block>  $blockModel
+     * @param  class-string<Widget>  $blockModel
      * @return Collection<int, LeastUsedBlockData>
      */
     private function getLeastUsedBlocks(string $blockModel): Collection
@@ -135,7 +135,7 @@ final class LayoutHealthWidgetAbstract extends FilamentWidget implements CapellW
             ->orderBy('assets_count', 'asc')
             ->limit(5)
             ->get()
-            ->map(fn (Block $block): LeastUsedBlockData => new LeastUsedBlockData(
+            ->map(fn (Widget $block): LeastUsedBlockData => new LeastUsedBlockData(
                 name: $block->name ?? $block->class,
                 layoutCount: $block->assets_count ?? 0,
                 group: $block->type->group ?? 'default',
@@ -145,7 +145,7 @@ final class LayoutHealthWidgetAbstract extends FilamentWidget implements CapellW
     }
 
     /**
-     * @param  class-string<Block>  $blockModel
+     * @param  class-string<Widget>  $blockModel
      * @return Collection<int, UnusedBlockData>
      */
     private function getUnusedBlocks(string $blockModel): Collection
@@ -154,7 +154,7 @@ final class LayoutHealthWidgetAbstract extends FilamentWidget implements CapellW
             ->with('type')
             ->doesntHave('assets')
             ->get()
-            ->map(fn (Block $block): UnusedBlockData => new UnusedBlockData(
+            ->map(fn (Widget $block): UnusedBlockData => new UnusedBlockData(
                 name: $block->name ?? $block->class,
                 group: $block->type->group ?? 'default',
             ));

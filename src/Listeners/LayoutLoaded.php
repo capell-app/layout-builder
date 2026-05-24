@@ -8,7 +8,7 @@ use Capell\Core\Contracts\EventSubscriber;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
 use Capell\LayoutBuilder\Support\LayoutBlockData;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
@@ -51,9 +51,9 @@ class LayoutLoaded implements EventSubscriber
         $containers = is_array($containers) ? $containers : [];
 
         foreach ($containers as $containerKey => $container) {
-            foreach (LayoutBlockData::normalizeMany($container['blocks'] ?? []) as $blockData) {
-                $blockKey = LayoutBlockData::key($blockData);
-                if ($blockKey === null) {
+            foreach (LayoutBlockData::fromContainer($container) as $blockData) {
+                $widgetKey = LayoutBlockData::key($blockData);
+                if ($widgetKey === null) {
                     continue;
                 }
 
@@ -61,18 +61,18 @@ class LayoutLoaded implements EventSubscriber
 
                 $block = $loader->getLayoutBlock(
                     $layout,
-                    $blockKey,
+                    $widgetKey,
                     $language,
                     $page,
                     $containerKey,
                     $occurrence,
                 );
 
-                if (! $block instanceof Block) {
+                if (! $block instanceof Widget) {
                     continue;
                 }
 
-                CapellLayoutManager::storeContainerBlock($containerKey, $blockKey, $block, $occurrence);
+                CapellLayoutManager::storeContainerBlock($containerKey, $widgetKey, $block, $occurrence);
             }
         }
     }

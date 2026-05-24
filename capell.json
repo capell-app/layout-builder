@@ -36,7 +36,7 @@
         {
             "type": "admin-resource",
             "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
-            "resourceClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Blocks\\BlockResource",
+            "resourceClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Widgets\\WidgetResource",
             "group": "Block"
         },
         {
@@ -46,8 +46,8 @@
             "groups": [
                 "LayoutContainers",
                 "LayoutBlocks",
-                "Blocks",
-                "BlockAssets"
+                "Widgets",
+                "WidgetAssets"
             ]
         },
         {
@@ -78,7 +78,12 @@
     "database": {
         "migrations": true,
         "settings": false,
-        "requiredTables": ["layouts", "blocks", "block_assets"]
+        "requiredTables": [
+            "layouts",
+            "widgets",
+            "widget_assets",
+            "widget_blocks"
+        ]
     },
     "commands": {
         "install": "capell:layout-builder-install",

@@ -11,7 +11,7 @@ use InvalidArgumentException;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static Layout run(Layout $layout, string $area, string $blockKey, ?string $containerKey = null, int $occurrence = 1, array<array-key, mixed> $containerMeta = [], ?string $containerName = null)
+ * @method static Layout run(Layout $layout, string $area, string $widgetKey, ?string $containerKey = null, int $occurrence = 1, array<array-key, mixed> $containerMeta = [], ?string $containerName = null)
  */
 final class AttachBlockToLayoutAreaAction
 {
@@ -25,14 +25,14 @@ final class AttachBlockToLayoutAreaAction
     public function handle(
         Layout $layout,
         string $area,
-        string $blockKey,
+        string $widgetKey,
         ?string $containerKey = null,
         int $occurrence = 1,
         array $containerMeta = [],
         ?string $containerName = null,
     ): Layout {
-        $normalizedBlockKey = trim($blockKey);
-        throw_if($normalizedBlockKey === '', InvalidArgumentException::class, 'Block key cannot be empty.');
+        $normalizedWidgetKey = trim($widgetKey);
+        throw_if($normalizedWidgetKey === '', InvalidArgumentException::class, 'Widget key cannot be empty.');
 
         $normalizedArea = $this->areas->normalizeAreaKey($area);
         $normalizedContainerKey = $containerKey !== null && trim($containerKey) !== ''
@@ -46,14 +46,14 @@ final class AttachBlockToLayoutAreaAction
         $container = $containers[$normalizedContainerKey] ?? [];
         $container = is_array($container) ? $container : [];
 
-        $blocks = LayoutBlockData::normalizeMany($container['blocks'] ?? []);
+        $blocks = LayoutBlockData::fromContainer($container);
         $hasBlock = collect($blocks)
-            ->contains(static fn (array $layoutBlock): bool => LayoutBlockData::key($layoutBlock) === $normalizedBlockKey
+            ->contains(static fn (array $layoutBlock): bool => LayoutBlockData::key($layoutBlock) === $normalizedWidgetKey
                 && LayoutBlockData::occurrence($layoutBlock) === $normalizedOccurrence);
 
         if (! $hasBlock) {
             $blocks[] = [
-                'block_key' => $normalizedBlockKey,
+                'widget_key' => $normalizedWidgetKey,
                 'occurrence' => $normalizedOccurrence,
             ];
         }
@@ -70,7 +70,7 @@ final class AttachBlockToLayoutAreaAction
                 ...$containerMeta,
                 'area' => $normalizedArea,
             ],
-            'blocks' => $blocks,
+            'widgets' => $blocks,
         ];
 
         $layout->update(['containers' => $containers]);

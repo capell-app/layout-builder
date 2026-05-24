@@ -60,7 +60,7 @@ final class BuildBlockVisualRegressionManifestAction
             'viewport' => $viewport,
             'scenario' => $scenario,
             'artifact' => implode('/', [
-                'blocks',
+                'widgets',
                 $this->artifactSegment($definition->key),
                 Str::slug($themeKey),
                 Str::slug($variant->key->value()) . '-' . Str::slug($scenario) . '-' . $viewport . '.png',

@@ -10,7 +10,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 
 /**
- * Filament Schema for Modern FAQ Section Block
+ * Filament Schema for Modern FAQ Section Widget
  *
  * Provides admin panel controls for customizing FAQ accordion
  * content and display options.

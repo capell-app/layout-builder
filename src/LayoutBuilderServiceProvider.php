@@ -9,6 +9,7 @@ use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
 use Capell\Frontend\Contracts\PublicLayoutGraphBuilder;
+use Capell\Frontend\Contracts\WidgetResourceUsageContributor;
 use Capell\Frontend\Support\Routing\ReservedFrontendPathRegistry;
 use Capell\LayoutBuilder\Console\Commands\BlockVisualRegressionCommand;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
@@ -26,6 +27,7 @@ use Capell\LayoutBuilder\Support\ContentGraph\Extractors\BlockContentGraphExtrac
 use Capell\LayoutBuilder\Support\ContentGraph\Extractors\LayoutBlockContentGraphExtractor;
 use Capell\LayoutBuilder\Support\DefaultPublicBlockPayloadResolver;
 use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
+use Capell\LayoutBuilder\Support\LayoutBlockWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Capell\LayoutBuilder\Support\LayoutBuilderCoreRegistrar;
 use Capell\LayoutBuilder\Support\LayoutBuilderPublicLayoutGraphBuilder;
@@ -61,6 +63,7 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->scoped(PublicLayoutGraphBuilder::class, LayoutBuilderPublicLayoutGraphBuilder::class);
         $this->app->tag([BlockPresentationPublicBlockPayloadContributor::class], PublicBlockPayloadContributor::TAG);
         $this->app->tag([LayoutBuilderRuntimeManifestContributor::class], FrontendRuntimeManifestContributor::TAG);
+        $this->app->tag([LayoutBlockWidgetResourceUsageContributor::class], WidgetResourceUsageContributor::TAG);
         $this->app->tag([
             BlockAssetContentGraphExtractor::class,
             BlockContentGraphExtractor::class,

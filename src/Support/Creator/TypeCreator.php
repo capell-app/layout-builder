@@ -34,7 +34,7 @@ class TypeCreator
                 $this->createDefaultContentType();
                 $this->createBuilderContentType();
                 break;
-            case LayoutTypeEnum::Block->value:
+            case LayoutTypeEnum::Widget->value:
                 $this->defaultBlockType();
                 break;
             default:
@@ -102,13 +102,13 @@ class TypeCreator
     public function defaultBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'type' => LayoutTypeEnum::Block->value,
+            'type' => LayoutTypeEnum::Widget->value,
             'key' => 'default',
         ], [
             'default' => true,
             'name' => __('capell-admin::generic.default'),
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'icon' => 'heroicon-o-puzzle-piece',
                 'notes' => __('capell-layout-builder::type.default_block_description'),
             ],
@@ -123,11 +123,11 @@ class TypeCreator
     {
         return $this->typeModel::query()->firstOrCreate([
             'key' => BlockTypeEnum::SectionBuilder->value,
-            'type' => LayoutTypeEnum::Block->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.contents_builder'),
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'icon' => 'heroicon-o-puzzle-piece',
                 'notes' => __('capell-layout-builder::type.section_builder_block_description'),
             ],
@@ -143,7 +143,7 @@ class TypeCreator
     {
         return $this->typeModel::query()->firstOrCreate([
             'key' => BlockTypeEnum::Media->value,
-            'type' => LayoutTypeEnum::Block->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.media'),
             'group' => BlockTypeGroupEnum::Asset,
@@ -164,12 +164,12 @@ class TypeCreator
     {
         return $this->typeModel::query()->firstOrCreate([
             'key' => BlockTypeEnum::Navigation->value,
-            'type' => LayoutTypeEnum::Block->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.navigation'),
             'group' => BlockTypeGroupEnum::Page,
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'configurator' => 'Navigation',
                 'icon' => 'heroicon-o-clipboard-document-list',
                 'notes' => __('capell-layout-builder::type.navigation_block_description'),
@@ -184,12 +184,12 @@ class TypeCreator
     {
         return $this->typeModel::query()->firstOrCreate([
             'key' => BlockTypeEnum::PageContents->value,
-            'type' => LayoutTypeEnum::Block->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.page_content'),
             'group' => BlockTypeGroupEnum::Page,
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'configurator' => 'PageContent',
                 'layout_block_configurator' => 'Page',
                 'icon' => 'heroicon-o-document-text',
@@ -206,12 +206,12 @@ class TypeCreator
     {
         return $this->typeModel::query()->firstOrCreate([
             'key' => BlockTypeEnum::Results->value,
-            'type' => LayoutTypeEnum::Block->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.results'),
             'group' => BlockTypeGroupEnum::Asset,
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'configurator' => 'Results',
                 'layout_block_configurator' => 'Results',
                 'icon' => 'heroicon-o-list-bullet',
@@ -227,12 +227,12 @@ class TypeCreator
     {
         return $this->typeModel::query()->firstOrCreate([
             'key' => BlockTypeEnum::Pages->value,
-            'type' => LayoutTypeEnum::Block->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.pages'),
             'group' => BlockTypeGroupEnum::Asset,
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'configurator' => 'Assets',
                 'icon' => 'heroicon-o-document-text',
                 'asset_types' => [AssetEnum::Page],
@@ -248,12 +248,12 @@ class TypeCreator
     {
         return $this->typeModel::query()->firstOrCreate([
             'key' => BlockTypeEnum::Assets->value,
-            'type' => LayoutTypeEnum::Block->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.assets'),
             'group' => BlockTypeGroupEnum::Asset,
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'configurator' => 'Assets',
                 'icon' => 'heroicon-o-rectangle-stack',
                 'asset_types' => [
@@ -272,12 +272,12 @@ class TypeCreator
     {
         return $this->typeModel::query()->firstOrCreate([
             'key' => BlockTypeEnum::System->value,
-            'type' => LayoutTypeEnum::Block->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.system'),
             'group' => BlockTypeGroupEnum::System,
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'configurator' => 'System',
                 'layout_block_configurator' => 'Default',
                 'icon' => 'heroicon-o-wrench',
@@ -293,12 +293,12 @@ class TypeCreator
     {
         return $this->typeModel::query()->firstOrCreate([
             'key' => BlockTypeEnum::Sections->value,
-            'type' => LayoutTypeEnum::Block->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.contents'),
             'group' => BlockTypeGroupEnum::Asset,
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'configurator' => 'Assets',
                 'icon' => 'heroicon-o-rectangle-stack',
                 'asset_types' => ['section'],
@@ -316,11 +316,11 @@ class TypeCreator
     {
         return $this->typeModel::query()->firstOrCreate([
             'key' => BlockTypeEnum::Hero->value,
-            'type' => LayoutTypeEnum::Block->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-layout-builder::type.hero_block_name'),
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'icon' => 'heroicon-o-rocket-launch',
                 'notes' => __('capell-layout-builder::type.hero_block_description'),
             ],
@@ -334,11 +334,11 @@ class TypeCreator
     {
         return $this->typeModel::query()->firstOrCreate([
             'key' => BlockTypeEnum::HeroBanner->value,
-            'type' => LayoutTypeEnum::Block->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-layout-builder::type.hero_banner_block_name'),
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'icon' => 'heroicon-o-flag',
                 'notes' => __('capell-layout-builder::type.hero_banner_block_description'),
             ],
@@ -352,11 +352,11 @@ class TypeCreator
     {
         return $this->typeModel::query()->firstOrCreate([
             'key' => BlockTypeEnum::CardGrid->value,
-            'type' => LayoutTypeEnum::Block->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-layout-builder::type.card_grid_block_name'),
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'icon' => 'heroicon-o-square-3-stack-3d',
                 'notes' => __('capell-layout-builder::type.card_grid_block_description'),
             ],
@@ -370,11 +370,11 @@ class TypeCreator
     {
         return $this->typeModel::query()->firstOrCreate([
             'key' => BlockTypeEnum::FeatureList->value,
-            'type' => LayoutTypeEnum::Block->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-layout-builder::type.feature_list_block_name'),
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'icon' => 'heroicon-o-list-bullet',
                 'notes' => __('capell-layout-builder::type.feature_list_block_description'),
             ],
@@ -388,11 +388,11 @@ class TypeCreator
     {
         return $this->typeModel::query()->firstOrCreate([
             'key' => BlockTypeEnum::CTASection->value,
-            'type' => LayoutTypeEnum::Block->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-layout-builder::type.call_to_action_block_name'),
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'icon' => 'heroicon-o-megaphone',
                 'notes' => __('capell-layout-builder::type.call_to_action_block_description'),
             ],
@@ -406,11 +406,11 @@ class TypeCreator
     {
         return $this->typeModel::query()->firstOrCreate([
             'key' => BlockTypeEnum::ImageGallery->value,
-            'type' => LayoutTypeEnum::Block->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-layout-builder::type.image_gallery_block_name'),
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'icon' => 'heroicon-o-photo',
                 'notes' => __('capell-layout-builder::type.image_gallery_block_description'),
             ],
