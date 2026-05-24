@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static int run(array $blockKeys)
+ * @method static int run(array<int, string|null> $blockKeys)
  */
 class InvalidateBlockLayoutPreviewImagesAction
 {

@@ -15,7 +15,7 @@ it('lists the built in layout presets in registration order', function (): void 
         ->each->toBeInstanceOf(LayoutPresetData::class)
         ->and($presets[0]->key)->toBe('sidebar-main-footer')
         ->and($presets[1]->key)->toBe('landing')
-        ->and(collect($presets)->pluck('key')->all())->toContain(
+        ->and(capell_test_collect($presets)->pluck('key')->all())->toContain(
             'capell-editorial-hero-slideshow',
             'capell-immersive-gallery-band',
             'capell-builder-workflow-row',

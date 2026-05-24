@@ -67,7 +67,7 @@ it('adds saves renames duplicates moves and removes containers while keeping sta
     $harness->addContainer('aside');
     $harness->addContainer('hero', 0);
 
-    expect(array_keys($harness->containers))->toBe(['hero', 'main', 'aside'])
+    capell_expect(array_keys($harness->containers))->toBe(['hero', 'main', 'aside'])
         ->and($harness->knownContainerKeys)->toBe(['main', 'aside', 'hero'])
         ->and($harness->canMoveContainerUp('hero'))->toBeFalse()
         ->and($harness->canMoveContainerDown('hero'))->toBeTrue();
@@ -79,25 +79,33 @@ it('adds saves renames duplicates moves and removes containers while keeping sta
         ],
     ], 'main');
 
-    expect(array_keys($harness->containers))->toBe(['hero', 'aside', 'primary'])
+    capell_expect(array_keys($harness->containers))->toBe(['hero', 'aside', 'primary'])
         ->and($harness->containers['primary']['meta']['area'])->toBe('main')
         ->and($harness->knownContainerKeys)->toContain('primary')
         ->and($harness->knownContainerKeys)->not->toContain('main');
 
     $harness->duplicateContainer('primary');
 
-    $duplicatedKey = array_values(array_diff(array_keys($harness->containers), ['hero', 'aside', 'primary']))[0];
+    $duplicatedKey = null;
+    foreach (array_keys($harness->containers) as $containerKey) {
+        if (! in_array($containerKey, ['hero', 'aside', 'primary'], true)) {
+            $duplicatedKey = $containerKey;
+            break;
+        }
+    }
 
-    expect($duplicatedKey)->toStartWith('container-')
+    throw_unless(is_string($duplicatedKey));
+
+    capell_expect($duplicatedKey)->toStartWith('container-')
         ->and($harness->selectedRecords[$duplicatedKey])->toBe([]);
 
     $harness->moveContainerUp($duplicatedKey);
 
-    expect(array_keys($harness->containers)[2])->toBe($duplicatedKey);
+    capell_expect(array_keys($harness->containers)[2])->toBe($duplicatedKey);
 
     $harness->removeContainer('aside');
 
-    expect($harness->containers)->not->toHaveKey('aside')
+    capell_expect($harness->containers)->not->toHaveKey('aside')
         ->and($harness->knownContainerKeys)->not->toContain('aside')
         ->and($harness->layoutModified)->toBeTrue();
 });
@@ -144,7 +152,7 @@ it('mutates blocks across positions containers and occurrence metadata', functio
 
     $insertedIndex = $harness->addBlockToContainerAtPosition($cardBlock, 'main', 0);
 
-    expect($insertedIndex)->toBe(0)
+    capell_expect($insertedIndex)->toBe(0)
         ->and($harness->containers['main']['blocks'][0]['block_key'])->toBe('card')
         ->and($harness->containers['main']['blocks'][1]['block_key'])->toBe('hero')
         ->and($harness->canMoveBlockUp('main', 0))->toBeFalse()
@@ -158,28 +166,28 @@ it('mutates blocks across positions containers and occurrence metadata', functio
 
     $harness->duplicateBlock('main', 0);
 
-    expect($harness->containers['main']['blocks'][2]['block_key'])->toBe('card')
+    capell_expect($harness->containers['main']['blocks'][2]['block_key'])->toBe('card')
         ->and($harness->containers['main']['blocks'][2]['occurrence'])->toBe(3)
         ->and($harness->assets['main'][2])->toBe($assetPayload);
 
     $harness->editLayoutBlock('main', 2, ['html_class' => 'featured']);
 
-    expect($harness->containers['main']['blocks'][2]['meta']['html_class'])->toBe('featured');
+    capell_expect($harness->containers['main']['blocks'][2]['meta']['html_class'])->toBe('featured');
 
     $harness->moveBlockToContainer('main', 0, 'aside');
 
-    expect($harness->containers['aside']['blocks'][0]['block_key'])->toBe('card')
+    capell_expect($harness->containers['aside']['blocks'][0]['block_key'])->toBe('card')
         ->and($harness->containers['aside']['blocks'][0]['occurrence'])->toBe(1)
         ->and($harness->assets['aside'][0][0]['container'])->toBe('main');
 
     $harness->exposeNormalizeContainerBlockOccurrences('main');
 
-    expect($harness->exposeGetContainerBlockKeys())->toBe(['hero', 'card'])
+    capell_expect($harness->exposeGetContainerBlockKeys())->toBe(['hero', 'card'])
         ->and($harness->exposeGetLastContainerBlockOccurrence('main', 'card', 1))->toBe(1);
 
     $harness->removeBlock('main', 0);
 
-    expect($harness->containers['main']['blocks'][0]['block_key'])->toBe('card')
+    capell_expect($harness->containers['main']['blocks'][0]['block_key'])->toBe('card')
         ->and($harness->assets['main'])->toHaveCount(1)
         ->and($harness->selectedRecords['main'])->toHaveCount(1);
 });

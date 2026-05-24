@@ -61,7 +61,7 @@ class CapellLayoutManager
             ? (static::$containerBlocks)
             : static::$containerBlocks[$containerKey] ?? [];
 
-        return collect($blocks);
+        return new Collection(is_array($blocks) ? $blocks : []);
     }
 
     /**

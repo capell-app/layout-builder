@@ -448,6 +448,8 @@ return [
     'visible_until_future' => 'Visible in :date',
     'visible_until_info' => 'Set when this page will be unavailable',
     'visit_sites' => 'Preview',
+    'video_popup' => 'Video popup',
+    'video_url' => 'Video URL',
     'warning' => 'Warning',
     'block' => 'Block',
     'block_asset_configurator_info' => 'Layout Block Asset Configurator Info',

@@ -27,9 +27,48 @@ The package requires `capell-app/admin`, `capell-app/content-blocks`, `capell-ap
 - Public layout components under `resources/views/components/layout`.
 - Main-content and named layout-area rendering through the resolved layout graph.
 - Public block payload resolution through `BuildPublicLayoutGraphAction`.
-- No standalone public route is registered by this package.
+- Lazy public block fragments through `GET /_capell/fragments/{reference}` when a block's presentation delivery mode is set to `lazy_fragment`.
+- Interaction triggers on block type defaults and layout block instances. Interactions can open registered widget targets through the frontend lazy widget endpoint or open encrypted Layout Builder block fragments through the fragment endpoint.
 
 Public Blade must stay query-free and authoring-free. Rendered HTML should not expose editor state, signed URLs, field paths, admin labels, internal model identifiers, or package diagnostics.
+
+Lazy fragments are encrypted-reference-only. The reference is decoded and revalidated against site, page, layout, language, container, block key, and occurrence before rendering. Invalid, replayed, or unsafe references return a generic 404. The fragment route is reserved so it cannot fall through to the CMS page resolver, and fragment responses use their own cache headers instead of the page HTML cache.
+
+Presentation controls are available on block type defaults and per-layout block instances. Basic controls cover preset, width, and alignment. Advanced delivery controls, including lazy fragments, loading strategy, device visibility, connection requirements, and custom width, require the `presentation.manage_advanced` permission.
+
+Interaction controls are available beside presentation controls. Layout Builder previews show interaction chips such as `Play video -> widget` so editors can see that a block has a public interactive target without exposing the encrypted public reference or internal widget metadata.
+
+## Presentation And Delivery
+
+Layout Builder uses the same presentation model as frontend widgets:
+
+| Surface               | Storage                          |
+| --------------------- | -------------------------------- |
+| Block type default    | type `meta.presentation`         |
+| Layout block instance | layout block `meta.presentation` |
+
+Settings resolve in the same order as widgets: instance override, type default, preset default, system default. The system default is server-rendered output, so saved layouts keep their existing behaviour unless an editor or block type explicitly changes delivery.
+
+Set delivery mode to `lazy_fragment` when the block should render as a public placeholder and fetch its block HTML through `/_capell/fragments/{reference}`. Keep above-the-fold blocks server-rendered unless there is a clear performance or UX reason to defer them.
+
+## Interactions
+
+Layout Builder supports interactions at two levels:
+
+| Surface               | Storage                          |
+| --------------------- | -------------------------------- |
+| Block type default    | type `meta.interactions`         |
+| Layout block instance | layout block `meta.interactions` |
+
+Instance interactions replace type defaults when present. The shared admin schema lets editors choose a target type and behaviour, then configure the target widget or fragment settings in the same flow.
+
+Fragment interactions are a first-class Layout Builder use case. When an interaction target is `fragment` and no `fragment_reference` is stored, public rendering generates an encrypted reference to the current block. That lets a block render a small trigger upfront and fetch its heavier block HTML later through `/_capell/fragments/{reference}`.
+
+Use fragment interactions for optional or expensive block content, video/detail panels, comparison sections, below-the-fold content, or page experiences where click/visibility should control when the block renders.
+
+Use widget interactions when the target is a reusable Capell widget, such as a video player, form, gallery, or calculator. The target widget renders through the frontend lazy widget endpoint, not through a Layout Builder fragment.
+
+Public previews and page output must not expose block keys, layout IDs, page IDs, model IDs, component names, package namespaces, field paths, or editor metadata. Preview chips are admin-only and show human labels such as `Play video -> widget`; public triggers use generic runtime data and encrypted target URLs.
 
 ## Screenshot Plan
 

@@ -24,7 +24,7 @@ use Override;
  * @property string $key
  * @property string $category
  * @property string $scope
- * @property array $snapshot
+ * @property array<array-key, mixed> $snapshot
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */

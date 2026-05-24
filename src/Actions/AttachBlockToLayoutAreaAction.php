@@ -11,7 +11,7 @@ use InvalidArgumentException;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static Layout run(Layout $layout, string $area, string $blockKey, ?string $containerKey = null, int $occurrence = 1, array $containerMeta = [], ?string $containerName = null)
+ * @method static Layout run(Layout $layout, string $area, string $blockKey, ?string $containerKey = null, int $occurrence = 1, array<array-key, mixed> $containerMeta = [], ?string $containerName = null)
  */
 final class AttachBlockToLayoutAreaAction
 {

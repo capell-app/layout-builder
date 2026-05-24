@@ -15,13 +15,14 @@ use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static Block run(string $key = 'hero', ?string $label = null, string $height = '', array $meta = [])
+ * @method static Block run(string $key = 'hero', ?string $label = null, string $height = '', array<array-key, mixed> $meta = [])
  */
 class CreateHeroBlockAction
 {
     use AsFake;
     use AsObject;
 
+    /** @param array<array-key, mixed> $meta */
     public function handle(string $key = 'hero', ?string $label = null, string $height = '', array $meta = []): Block
     {
         /** @var class-string<Block> $blockModel */

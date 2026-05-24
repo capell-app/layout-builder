@@ -8,6 +8,8 @@ use Capell\Admin\Filament\Components\Forms\AssetTypeSelect;
 use Capell\Admin\Filament\Components\Forms\ConfiguratorSelect;
 use Capell\Admin\Filament\Components\Forms\CustomSelectGroup;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
+use Capell\Admin\Filament\Components\Forms\Interactions\InteractionSettingsSchema;
+use Capell\Admin\Filament\Components\Forms\Presentation\PresentationSettingsSchema;
 use Capell\Admin\Filament\Components\Forms\RequiredFields;
 use Capell\Admin\Filament\Configurators\Types\DefaultTypeConfigurator;
 use Capell\Core\Support\Media\ImageSourcePresets;
@@ -94,6 +96,8 @@ class BlockTypeConfigurator extends DefaultTypeConfigurator
             ->schema([
                 DisplaySection::make(),
                 ComponentSection::make(),
+                ...InteractionSettingsSchema::make('interactions'),
+                ...PresentationSettingsSchema::make('presentation'),
             ]);
     }
 }

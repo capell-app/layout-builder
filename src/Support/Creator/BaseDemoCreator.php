@@ -14,13 +14,13 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Capell\DemoKit\Support\Creator\DemoCreator;
 use Capell\LayoutBuilder\Models\Block;
 use Capell\LayoutBuilder\Models\BlockAsset;
 use Capell\Navigation\Support\Creator\NavigationCreator;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -111,10 +111,10 @@ abstract class BaseDemoCreator
         return $blockAsset;
     }
 
-    protected function translationsFor(Model $model): HasMany|MorphMany
+    /** @return MorphMany<Translation, Model> */
+    protected function translationsFor(Model $model): MorphMany
     {
-        /** @phpstan-ignore-next-line method.notFound */
-        return $model->translations();
+        return $model->morphMany(Translation::class, 'translatable');
     }
 
     /**

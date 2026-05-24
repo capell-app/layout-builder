@@ -9,12 +9,14 @@ use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
 use Capell\Frontend\Contracts\PublicLayoutGraphBuilder;
+use Capell\Frontend\Support\Routing\ReservedFrontendPathRegistry;
 use Capell\LayoutBuilder\Console\Commands\BlockVisualRegressionCommand;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
 use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Contracts\LayoutSidebarBlockContributor;
 use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
 use Capell\LayoutBuilder\Contracts\PublicBlockPayloadResolver;
+use Capell\LayoutBuilder\Http\Controllers\PublicFragmentController;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Policies\LayoutPresetPolicy;
 use Capell\LayoutBuilder\Support\BlockPresentationPublicBlockPayloadContributor;
@@ -30,6 +32,7 @@ use Capell\LayoutBuilder\Support\LayoutBuilderPublicLayoutGraphBuilder;
 use Capell\LayoutBuilder\Support\LayoutBuilderRuntimeManifestContributor;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Spatie\LaravelPackageTools\Package;
 
 class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
@@ -82,10 +85,33 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
 
         $this->app->make(LayoutBuilderCoreRegistrar::class)->register();
         $this->app->make(LayoutBuilderAdminRegistrar::class)->register();
+        $this->registerPublicFragmentRoute();
+        $this->reservePublicFragmentPath();
     }
 
     protected function isPackageInstalled(): bool
     {
         return CapellCore::isPackageInstalled(static::$packageName);
+    }
+
+    private function registerPublicFragmentRoute(): void
+    {
+        Route::middleware('web')
+            ->name('capell-layout-builder.fragments.')
+            ->prefix('_capell/fragments')
+            ->group(function (): void {
+                Route::get('{reference}', PublicFragmentController::class)
+                    ->where('reference', '.*')
+                    ->name('show');
+            });
+    }
+
+    private function reservePublicFragmentPath(): void
+    {
+        if (! class_exists(ReservedFrontendPathRegistry::class) || ! $this->app->bound(ReservedFrontendPathRegistry::class)) {
+            return;
+        }
+
+        $this->app->make(ReservedFrontendPathRegistry::class)->reservePrefix('_capell/fragments');
     }
 }

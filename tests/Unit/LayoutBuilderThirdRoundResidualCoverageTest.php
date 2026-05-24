@@ -289,7 +289,7 @@ it('covers residual filament component and table configuration setup branches', 
     $blockAssetColumns = invokeLayoutBuilderResidualMethod(BlockAssetsTable::class, 'getTableColumns');
     $blockAssetFilters = invokeLayoutBuilderResidualMethod(BlockAssetsTable::class, 'getTableFilters');
 
-    expect($blockSelect)->toBeInstanceOf(BlockSelect::class)
+    capell_expect($blockSelect)->toBeInstanceOf(BlockSelect::class)
         ->and($assetsRepeater)->toBeInstanceOf(Repeater::class)
         ->and($actionsRepeater)->toBeInstanceOf(Repeater::class)
         ->and($blockAssetColumns)->not->toBeEmpty()
@@ -303,7 +303,7 @@ it('covers modal table query label action and disabled submission branches', fun
     $component->isDisabled = true;
     $component->selectedTableRecords = [];
 
-    expect($component->getTableArguments())->toBe(['siteId' => 5])
+    capell_expect($component->getTableArguments())->toBe(['siteId' => 5])
         ->and($component->getSelectRecordsLabel())->toBe(__('capell-layout-builder::button.select_records'))
         ->and($component->selectRecordsAction())->toBeInstanceOf(Action::class)
         ->and($component->exposeTableQuery())->toBeInstanceOf(Builder::class)
@@ -313,7 +313,7 @@ it('covers modal table query label action and disabled submission branches', fun
     $component->selectedTableRecords = [1];
     $component->tableQuery = fn (): Builder => Block::query();
 
-    expect($component->exposeTableQuery())->toBeInstanceOf(Builder::class)
+    capell_expect($component->exposeTableQuery())->toBeInstanceOf(Builder::class)
         ->and($component->exposeCanSubmitSelectedRecords())->toBeTrue();
 });
 
@@ -354,7 +354,7 @@ it('aggregates layout health widget data for grouped unused and least-used block
     $viewData = invokeLayoutBuilderResidualMethod($widget, 'getViewData');
     $data = $viewData['data'];
 
-    expect($data->totalBlocks)->toBeGreaterThanOrEqual(3)
+    capell_expect($data->totalBlocks)->toBeGreaterThanOrEqual(3)
         ->and($data->blocksByGroup->pluck('group')->all())->toContain('marketing', 'commerce')
         ->and($data->leastUsedBlocks->pluck('name')->all())->toContain($pendingBlock->name)
         ->and($data->unusedBlocks->pluck('name')->all())->toContain($pendingBlock->name, $expiredBlock->name)
@@ -374,7 +374,7 @@ it('generates layout preview images for matching signatures and records failures
 
     GenerateLayoutPreviewImageAction::run((int) $layout->getKey(), 'stale-signature');
 
-    expect($layout->refresh()->admin[LayoutPreviewMetaKey::STATUS] ?? null)->toBeNull();
+    capell_expect($layout->refresh()->admin[LayoutPreviewMetaKey::STATUS] ?? null)->toBeNull();
 
     GenerateLayoutPreviewImageAction::run((int) $layout->getKey(), 'matching-signature');
 
@@ -383,14 +383,14 @@ it('generates layout preview images for matching signatures and records failures
 
     Storage::disk('public')->assertExists($path);
 
-    expect($layout->admin[LayoutPreviewMetaKey::STATUS])->toBe(LayoutPreviewStatusEnum::Ready->value)
+    capell_expect($layout->admin[LayoutPreviewMetaKey::STATUS])->toBe(LayoutPreviewStatusEnum::Ready->value)
         ->and($layout->admin[LayoutPreviewMetaKey::ERROR])->toBeNull();
 
     app()->instance(LayoutPreviewRenderer::class, new LayoutBuilderResidualFailingPreviewRenderer);
 
     GenerateLayoutPreviewImageAction::run((int) $layout->getKey(), 'matching-signature');
 
-    expect($layout->refresh()->admin[LayoutPreviewMetaKey::STATUS])->toBe(LayoutPreviewStatusEnum::Failed->value)
+    capell_expect($layout->refresh()->admin[LayoutPreviewMetaKey::STATUS])->toBe(LayoutPreviewStatusEnum::Failed->value)
         ->and($layout->admin[LayoutPreviewMetaKey::IMAGE])->toBeNull()
         ->and($layout->admin[LayoutPreviewMetaKey::ERROR])->toContain('Renderer failed');
 });
@@ -418,7 +418,7 @@ it('invalidates generated previews for layouts containing changed block keys', f
 
     $invalidated = InvalidateBlockLayoutPreviewImagesAction::run(['', null, 'hero', 'hero']);
 
-    expect($invalidated)->toBe(1)
+    capell_expect($invalidated)->toBe(1)
         ->and($layout->refresh()->admin[LayoutPreviewMetaKey::STATUS])
         ->toBeIn([LayoutPreviewStatusEnum::Pending->value, LayoutPreviewStatusEnum::Ready->value])
         ->and($layout->admin[LayoutPreviewMetaKey::SIGNATURE] ?? null)->toBeString();
@@ -461,7 +461,7 @@ it('resolves admin block preview data for page content custom views and loaded i
 
     $blockPreview = ResolveAdminBlockPreviewDataAction::run($block, [], null, 0, false);
 
-    expect($pageContentPreview->view)->toBe('capell-layout-builder::filament.layout-builder.previews.custom')
+    capell_expect($pageContentPreview->view)->toBe('capell-layout-builder::filament.layout-builder.previews.custom')
         ->and($pageContentPreview->label)->toBe('Layout Label')
         ->and($pageContentPreview->title)->toBe('Fallback Page')
         ->and($pageContentPreview->excerpt)->toContain('Nested content')
@@ -520,14 +520,14 @@ it('copies and pastes layout fragments with unique container and block anchors',
     $containerFragment = CreateLayoutFragmentAction::run($state, 'main', null);
     $containerResult = PasteLayoutFragmentAction::run($state, $containerFragment, 'aside');
 
-    expect($containerResult->state->containers)->toHaveKey('main-copy-2')
+    capell_expect($containerResult->state->containers)->toHaveKey('main-copy-2')
         ->and($containerResult->state->containers['main-copy-2']['blocks'][0]['meta']['block_settings']['anchor_id'])
         ->toBe('shared-anchor-2');
 
     $blockFragment = CreateLayoutFragmentAction::run($state, 'main', 0);
     $blockResult = PasteLayoutFragmentAction::run($state, $blockFragment, 'aside', 0);
 
-    expect($blockResult->state->containers['aside']['blocks'][0]['block_key'])->toBe('hero')
+    capell_expect($blockResult->state->containers['aside']['blocks'][0]['block_key'])->toBe('hero')
         ->and($blockResult->state->containers['aside']['blocks'][0]['meta']['block_settings']['anchor_id'])
         ->toBe('shared-anchor-2')
         ->and($blockResult->state->assets['aside'][0])->toBe([['asset_id' => 1, 'asset_type' => 'page']]);
@@ -535,7 +535,7 @@ it('copies and pastes layout fragments with unique container and block anchors',
     $missingFragment = CreateLayoutFragmentAction::run($state, 'missing', null);
     $unchangedResult = PasteLayoutFragmentAction::run($state, $missingFragment, 'missing');
 
-    expect($missingFragment->container)->toBeNull()
+    capell_expect($missingFragment->container)->toBeNull()
         ->and($unchangedResult->state->containers)->toBe($state->containers);
 });
 
@@ -551,7 +551,7 @@ it('covers edit block page relation metadata and relation manager table setup', 
     $relationManager = new LayoutsRelationManager;
     $relationTable = $relationManager->table(Table::make($relationManager));
 
-    expect((string) $page->getTitle())->toContain('Editable Hero')
+    capell_expect((string) $page->getTitle())->toContain('Editable Hero')
         ->and($page->exposeSubheading())->toContain('Hero Type')
         ->and($page->exposeBaseHeaderActions())->not->toBeEmpty()
         ->and($page->exposeRecordSwitcherColumns())->toBe(['name', 'admin'])
@@ -630,7 +630,7 @@ it('orchestrates demo site layout population with creator collaborators', functi
 
     $containers = $layout->refresh()->containers;
 
-    expect($page->refresh()->layout_id)->toBe($layout->getKey())
+    capell_expect($page->refresh()->layout_id)->toBe($layout->getKey())
         ->and($containers['main']['blocks'])->toHaveCount(4)
         ->and($containers['faq-main']['blocks'][0]['block_key'])->toBe('faq')
         ->and($containers['faq-col']['blocks'][0]['block_key'])->toBe('static-nav')
@@ -690,7 +690,7 @@ it('creates demo site content recursively and stops when the site is already lar
         new Collection([$language]),
     );
 
-    expect($createdContent)->toHaveCount(2)
+    capell_expect($createdContent)->toHaveCount(2)
         ->and($createdContent[0]['translations']['en']['title'])->toBe('Parent')
         ->and($createdContent[1]['parent_id'])->not->toBeNull();
 });
@@ -738,7 +738,7 @@ it('adds updates preloads and deletes page-scoped block assets through the edito
         ],
     );
 
-    expect($harness->assets['main'][0])->toBe([])
+    capell_expect($harness->assets['main'][0])->toBe([])
         ->and($createdAsset->pageable_id)->toBe($page->getKey())
         ->and($createdAsset->container)->toBe('main')
         ->and($harness->exposeActiveBlockAssetIds($block))->toBe([]);
@@ -771,7 +771,7 @@ it('adds updates preloads and deletes page-scoped block assets through the edito
     $block->load('assets');
     $harness->setContainerBlocks(['main' => [$block]]);
 
-    expect(BlockAsset::query()->where('block_id', $block->getKey())->count())->toBe(2)
+    capell_expect(BlockAsset::query()->where('block_id', $block->getKey())->count())->toBe(2)
         ->and($createdAsset->refresh()->order)->toBe(2)
         ->and($createdAsset->meta)->toBe(['caption' => 'Updated'])
         ->and($harness->exposeLoadBlockAssets($block, 'main', 1))->toHaveCount(2)
@@ -799,7 +799,7 @@ it('adds updates preloads and deletes page-scoped block assets through the edito
 
     $harness->exposeDeleteRemovedBlockAssets();
 
-    expect(BlockAsset::query()->whereKey($createdAsset->getKey())->exists())->toBeFalse();
+    capell_expect(BlockAsset::query()->whereKey($createdAsset->getKey())->exists())->toBeFalse();
 });
 
 it('covers layout builder public editor helpers and action factory private branches', function (): void {
@@ -874,7 +874,7 @@ it('covers layout builder public editor helpers and action factory private branc
     ]);
     $changeLayoutSchema = invokeLayoutBuilderResidualMethod($factory, 'getChangeLayoutSchema');
 
-    expect($harness->layoutPagesCount())->toBeGreaterThanOrEqual(2)
+    capell_expect($harness->layoutPagesCount())->toBeGreaterThanOrEqual(2)
         ->and($harness->layoutIsUsedByPages())->toBeTrue()
         ->and($harness->otherPagesUsingLayoutCount())->toBe(1)
         ->and($harness->layoutIsSharedWithOtherPages())->toBeTrue()
@@ -893,7 +893,7 @@ it('covers layout builder public editor helpers and action factory private branc
     $harness->page = null;
     invokeLayoutBuilderResidualMethod($factory, 'changePageLayout', $layout->getKey());
 
-    expect($harness->otherPagesUsingLayoutCount())->toBeGreaterThanOrEqual(2)
+    capell_expect($harness->otherPagesUsingLayoutCount())->toBeGreaterThanOrEqual(2)
         ->and(invokeLayoutBuilderResidualMethod($factory, 'getEditBlockAssetModalDescription', $harness, [
             'containerKey' => 'main',
             'blockIndex' => 0,
@@ -937,7 +937,7 @@ it('renders deterministic layout preview images and signatures for varied contai
     $payload = $signature->payload($layout);
     $png = resolve(LayoutPreviewRenderer::class)->render($layout);
 
-    expect($signature->forLayout($layout))->toHaveLength(64)
+    capell_expect($signature->forLayout($layout))->toHaveLength(64)
         ->and($payload['containers'])->toHaveCount(5)
         ->and($payload['containers'][0]['blocks'][0]['name'])->toBe('Preview Hero')
         ->and($png)->toStartWith("\x89PNG");
@@ -985,12 +985,14 @@ it('covers simple residual form configurators widgets enums and block model bran
     ]);
     $block->setRelation('blueprint', $type);
 
-    expect($containerSchema)->toHaveCount(2)
+    capell_expect($containerSchema)->toHaveCount(2)
         ->and($recentActivityData->items)->toHaveCount(3)
         ->and($tagSelect)->toBeInstanceOf(TagSelect::class)
         ->and($assetTypeSelect)->toBeInstanceOf(AssetTypeSelect::class)
         ->and(ActionLinkEnum::Page->getLabel())->toBeString()
         ->and(ActionLinkEnum::Link->getLabel())->toBeString()
+        ->and(ActionLinkEnum::VideoPopup->getLabel())->toBeString()
+        ->and(ActionLinkEnum::VideoPopup->getIcon())->toBe('heroicon-o-play-circle')
         ->and(ContainerAlignmentEnum::Stretch->getLabel())->toBeString()
         ->and(LayoutTypeEnum::Block->getLabel())->toBeString()
         ->and(LayoutTypeEnum::Block->getResource())->toBeString()
@@ -1017,7 +1019,7 @@ it('adds hero blocks to new and existing layout containers once', function (): v
     AddHeroBlockToLayoutAction::run($block, $layout);
     AddHeroBlockToLayoutAction::run($block, $layout->refresh());
 
-    expect($layout->refresh()->containers)->toHaveKey('hero')
+    capell_expect($layout->refresh()->containers)->toHaveKey('hero')
         ->and($layout->containers['hero']['meta']['container'])->toBe('full')
         ->and($layout->containers['hero']['blocks'])->toHaveCount(1)
         ->and($layout->containers['hero']['blocks'][0]['block_key'])->toBe('hero-block');
@@ -1039,7 +1041,7 @@ it('covers cold type configurator and modal page table setup with livewire table
     $configuredTable = PageSelectionTable::configure(Table::make($component));
     $modalConfiguredTable = $component->table(Table::make($component));
 
-    expect($blockTypeSchema)->toHaveCount(4)
+    capell_expect($blockTypeSchema)->toHaveCount(4)
         ->and($configuredTable)->toBeInstanceOf(Table::class)
         ->and($modalConfiguredTable)->toBeInstanceOf(Table::class)
         ->and($component->form(Schema::make()))->toBeInstanceOf(Schema::class)
@@ -1083,7 +1085,7 @@ it('loads frontend layout blocks into the layout manager and formats missing ass
 
     $exception = new MissingBlockAssetException($block, 'page', ['id' => 10], ['container' => 'main']);
 
-    expect(CapellLayoutManager::getStoredContainerBlock('main', 'loaded-hero'))->toBe($block)
+    capell_expect(CapellLayoutManager::getStoredContainerBlock('main', 'loaded-hero'))->toBe($block)
         ->and($exception->getMessage())->toContain("Missing required 'page' asset")
         ->and($exception->getMessage())->toContain('Context:')
         ->and($exception->getContext())->toBe(['container' => 'main']);

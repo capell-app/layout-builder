@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Capell\Core\Data\RenderableDefinitionData;
 use Capell\Core\Support\Renderables\RenderableRegistry;
 use Capell\Frontend\Data\MainContentRenderHookData;
+use Capell\Frontend\Data\RenderHookContext;
 use Capell\Frontend\Enums\RenderHookLocation;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
 use Capell\LayoutBuilder\Models\Block;
@@ -27,14 +28,14 @@ afterEach(function (): void {
 });
 
 it('registers the shared main content render hook', function (): void {
-    /** @var RenderHookRegistry $registry */
+    /** @var RenderHookRegistry<RenderHookContext> $registry */
     $registry = resolve(RenderHookRegistry::class);
 
     expect($registry->get(RenderHookLocation::MainContent))->not->toBeEmpty();
 });
 
 it('returns no output when no layout containers are available', function (): void {
-    /** @var RenderHookRegistry $registry */
+    /** @var RenderHookRegistry<RenderHookContext> $registry */
     $registry = resolve(RenderHookRegistry::class);
 
     $output = $registry->renderAll(
@@ -51,7 +52,7 @@ it('returns no output when no layout containers are available', function (): voi
 });
 
 it('renders stored layout containers through the shared hook and updates render state', function (): void {
-    /** @var RenderHookRegistry $registry */
+    /** @var RenderHookRegistry<RenderHookContext> $registry */
     $registry = resolve(RenderHookRegistry::class);
 
     $pageContentBlock = new Block([

@@ -14,6 +14,7 @@ use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Renderables\RenderableRegistry;
+use Capell\Frontend\Data\RenderHookContext;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
 use Capell\LayoutBuilder\Actions\InvalidateTypeLayoutPreviewImagesAction;
 use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
@@ -42,7 +43,7 @@ use WeakMap;
 
 final class LayoutBuilderCoreRegistrar
 {
-    /** @var WeakMap<RenderHookRegistry, true>|null */
+    /** @var WeakMap<RenderHookRegistry<RenderHookContext>, true>|null */
     private static ?WeakMap $mainContentHookRegistries = null;
 
     public function register(): void
@@ -240,6 +241,7 @@ final class LayoutBuilderCoreRegistrar
         }
     }
 
+    /** @param RenderHookRegistry<RenderHookContext> $registry */
     private function registerRenderHooksForRegistry(RenderHookRegistry $registry): void
     {
         self::$mainContentHookRegistries ??= new WeakMap;

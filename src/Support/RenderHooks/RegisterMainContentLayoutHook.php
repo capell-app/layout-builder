@@ -16,6 +16,7 @@ final class RegisterMainContentLayoutHook
 
     private const string Target = 'capell::layout.main';
 
+    /** @param RenderHookRegistry<RenderHookContext> $registry */
     public function __construct(private readonly RenderHookRegistry $registry) {}
 
     public function register(): void

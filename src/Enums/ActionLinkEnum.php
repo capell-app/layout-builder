@@ -13,11 +13,14 @@ enum ActionLinkEnum: string implements HasIcon, HasLabel
 
     case Page = 'page';
 
+    case VideoPopup = 'video_popup';
+
     public function getLabel(): string
     {
         return match ($this) {
             self::Link => __('capell-admin::generic.link'),
             self::Page => __('capell-admin::generic.page'),
+            self::VideoPopup => __('capell-layout-builder::generic.video_popup'),
         };
     }
 
@@ -26,6 +29,7 @@ enum ActionLinkEnum: string implements HasIcon, HasLabel
         return match ($this) {
             self::Link => 'heroicon-o-link',
             self::Page => 'heroicon-o-document-text',
+            self::VideoPopup => 'heroicon-o-play-circle',
         };
     }
 }

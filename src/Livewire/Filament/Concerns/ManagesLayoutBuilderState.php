@@ -13,6 +13,7 @@ use Capell\LayoutBuilder\Actions\Mutations\PushLayoutMutationSnapshotAction;
 use Capell\LayoutBuilder\Actions\SummarizeLayoutChangesAction;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryData;
+use Capell\LayoutBuilder\Data\LayoutDiagnosticData;
 use Capell\LayoutBuilder\Data\LayoutMutationResultData;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
 use Capell\LayoutBuilder\Models\Block;
@@ -208,7 +209,7 @@ trait ManagesLayoutBuilderState
 
         $this->applyLayoutState($result->state, markModified: true);
         $this->layoutDiagnostics = array_map(
-            fn (mixed $diagnostic): array => $diagnostic->toArray(),
+            fn (LayoutDiagnosticData $diagnostic): array => $diagnostic->toArray(),
             $result->diagnostics,
         );
         $this->layoutChanges = array_map(
@@ -311,7 +312,7 @@ trait ManagesLayoutBuilderState
     protected function refreshLayoutDiagnostics(): void
     {
         $this->layoutDiagnostics = array_map(
-            fn (mixed $diagnostic): array => method_exists($diagnostic, 'toArray') ? $diagnostic->toArray() : (array) $diagnostic,
+            fn (mixed $diagnostic): array => $diagnostic->toArray(),
             AnalyzeLayoutHealthAction::run($this->layoutState(), $this->activeThemeKey()),
         );
     }

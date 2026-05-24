@@ -36,9 +36,8 @@ it('builds block configurator schemas for each supported form operation', functi
 ): void {
     $components = (new $configuratorClass)->make(Schema::make()->operation($operation));
 
-    expect($components)->not->toBeEmpty()
-        ->and($components)
-        ->each->toBeInstanceOf(Component::class);
+    capell_expect($components)->not->toBeEmpty();
+    capell_expect($components)->each->toBeInstanceOf(Component::class);
 })->with([
     'default create' => [DefaultBlockConfigurator::class, 'create'],
     'default create option' => [DefaultBlockConfigurator::class, 'createOption'],
@@ -71,7 +70,7 @@ it('exposes static modern block configurator schemas and defaults', function (
     $schema = $configuratorClass::getFormSchema();
     $defaults = $configuratorClass::getDefaults();
 
-    expect($schema)
+    capell_expect($schema)
         ->not->toBeEmpty()
         ->each->toBeInstanceOf(Component::class)
         ->and($defaults[$expectedDefaultKey])->toBe($expectedDefaultValue);

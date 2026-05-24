@@ -174,6 +174,9 @@ it('maps filters and restores persisted block assets for page scoped state', fun
     $harness->assets = ['main' => [[]]];
     $harness->selectedRecords = ['main' => [[]]];
     $harness->setContainerBlocks(['main' => [$block]]);
+    $allBlockAssets = BlockAsset::query()
+        ->whereKey([$globalAsset->getKey(), $pageAsset->getKey(), $otherPageAsset->getKey()])
+        ->get();
 
     $mappedAssets = $harness->exposeMapBlockAssets($block, 'main', 'old-main');
 
@@ -187,7 +190,7 @@ it('maps filters and restores persisted block assets for page scoped state', fun
         ]);
 
     $filteredAssets = $harness->exposeFilterContainerBlockAssets(
-        new EloquentCollection([$globalAsset, $pageAsset, $otherPageAsset]),
+        $allBlockAssets,
         'main',
         1,
         $block,
@@ -212,7 +215,7 @@ it('maps filters and restores persisted block assets for page scoped state', fun
                 'old_container' => 'main',
             ],
         ],
-        new EloquentCollection([$globalAsset, $pageAsset, $otherPageAsset]),
+        $allBlockAssets,
         $block,
     );
 

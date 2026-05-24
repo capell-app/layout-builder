@@ -6,6 +6,8 @@ namespace Capell\LayoutBuilder\Filament\Configurators\Layouts\Blocks;
 
 use Capell\Admin\Contracts\ConfiguratorInterface;
 use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
+use Capell\Admin\Filament\Components\Forms\Interactions\InteractionSettingsSchema;
+use Capell\Admin\Filament\Components\Forms\Presentation\PresentationSettingsSchema;
 use Capell\Admin\Filament\Concerns\HasConfigurator;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\SchemaExtenderEnum;
@@ -33,6 +35,8 @@ class DefaultLayoutBlockConfigurator implements ConfiguratorInterface
     {
         return [
             HtmlClassInput::make('html_class'),
+            ...InteractionSettingsSchema::make('interactions'),
+            ...PresentationSettingsSchema::make('presentation'),
         ];
     }
 }

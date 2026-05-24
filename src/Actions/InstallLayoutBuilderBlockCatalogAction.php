@@ -19,7 +19,7 @@ use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static void run(?Collection $languages = null, bool $extraBlocks = false)
+ * @method static void run(?Collection<int, Language> $languages = null, bool $extraBlocks = false)
  */
 class InstallLayoutBuilderBlockCatalogAction
 {
