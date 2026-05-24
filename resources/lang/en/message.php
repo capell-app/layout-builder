@@ -196,4 +196,6 @@ return [
     'block_reordered' => 'Block moved in :container.',
     'resize_container_width' => 'Resize :container container width',
     'block_updated' => 'Block updated successfully.',
+    'asset_draft_saved' => 'Asset draft saved in :workspace.',
+    'asset_not_saved' => 'This asset is read-only in the current workspace.',
 ];

@@ -65,7 +65,7 @@ return [
     'contact' => 'Contact',
     'container_name' => ':name Container',
     'container_spacing_help' => 'Set the spacing between the blocks',
-    'container_width_helper' => 'Set the width of the container for this block',
+    'container_width_helper' => 'Controls how wide this item renders. Use Full on a layout container for edge-to-edge backgrounds, then keep the widget or block contained so its content stays aligned.',
     'content' => 'Content',
     'content_first_editor' => 'Layout content editor',
     'content_placement' => ':container > :block > Item :position',

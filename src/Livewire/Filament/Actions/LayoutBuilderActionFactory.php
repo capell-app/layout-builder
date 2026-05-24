@@ -21,6 +21,11 @@ use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetSelectionTable;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
+use Capell\PublishingStudio\Actions\CreateRecordDraftWorkspaceAction;
+use Capell\PublishingStudio\Actions\SaveRecordDraftAction;
+use Capell\PublishingStudio\Models\Workspace;
+use Capell\PublishingStudio\WorkspaceContext;
+use Capell\PublishingStudio\WorkspaceRegistry;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -31,12 +36,29 @@ use Filament\Support\Enums\IconSize;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Foundation\Auth\User as AuthenticatedUser;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 use RuntimeException;
+use Throwable;
 
 final class LayoutBuilderActionFactory
 {
+    /**
+     * @var array<string, mixed>|null
+     */
+    private ?array $pendingLiveDraftableAssetSnapshot = null;
+
+    /**
+     * @var array<int, array<string, mixed>>|null
+     */
+    private ?array $pendingLiveDraftableRelationSnapshot = null;
+
+    private ?Workspace $pendingLiveDraftableWorkspace = null;
+
     public function __construct(private LayoutBuilder $livewire) {}
 
     public function saveLayoutAction(): Action
@@ -379,7 +401,13 @@ final class LayoutBuilderActionFactory
                     ['type' => $record->type?->name],
                 ),
             )
-            ->modalSubmitActionLabel(__('capell-layout-builder::button.save_changes'))
+            ->modalSubmitActionLabel(
+                fn (array $arguments): string => __(
+                    $this->isDraftableAssetType($arguments)
+                        ? 'capell-layout-builder::button.save_asset_draft'
+                        : 'capell-layout-builder::button.save_changes',
+                ),
+            )
             ->successNotificationTitle(__('capell-layout-builder::message.block_updated'))
             ->fillForm(fn (Widget $record): array => $record->attributesToArray())
             ->schema(
@@ -609,7 +637,9 @@ final class LayoutBuilderActionFactory
             )
             ->modalSubmitActionLabel(
                 fn (array $arguments, Action $action): string => __(
-                    'capell-layout-builder::button.create_block_asset',
+                    $this->isDraftableAssetType($arguments)
+                        ? 'capell-layout-builder::button.create_asset_draft'
+                        : 'capell-layout-builder::button.create_block_asset',
                     ['type' => $arguments['type']],
                 ),
             )
@@ -669,7 +699,13 @@ final class LayoutBuilderActionFactory
             ->modalDescription(
                 fn (LayoutBuilder $livewire, array $arguments): ?string => $this->getEditWidgetAssetModalDescription($livewire, $arguments),
             )
-            ->modalSubmitActionLabel(__('capell-layout-builder::button.save_changes'))
+            ->modalSubmitActionLabel(
+                fn (array $arguments): string => __(
+                    $this->isDraftableAssetType($arguments)
+                        ? 'capell-layout-builder::button.save_asset_draft'
+                        : 'capell-layout-builder::button.save_changes',
+                ),
+            )
             ->successNotificationTitle(__('capell-layout-builder::message.asset_updated'))
             ->schema(
                 fn (LayoutBuilder $livewire, Schema $schema, array $arguments): Schema => $this->getBlockAssetSchema(
@@ -910,11 +946,40 @@ final class LayoutBuilderActionFactory
         $blockAsset->wasRecentlyCreated = true; // prevent MissingAttributeException
 
         $data['widget_id'] = $block->id;
+        $draftableNewAssetWorkspace = $this->workspaceForNewDraftableAsset($blockAsset, $type);
+        $draftableNewAsset = $this->createDraftableAssetFromBuilderData($type, $data, $draftableNewAssetWorkspace);
+
+        if ($draftableNewAsset instanceof Model) {
+            $blockAsset->asset_id = $draftableNewAsset->getKey();
+            $blockAsset->setRelation('asset', $draftableNewAsset);
+        }
 
         // Ensure UpdatedModelAction is not triggered
-        WidgetAsset::withoutEvents(function () use ($configurator): void {
+        WidgetAsset::withoutEvents(function () use ($blockAsset, $configurator, $draftableNewAssetWorkspace): void {
+            if ($draftableNewAssetWorkspace instanceof Workspace) {
+                WorkspaceContext::runWith($draftableNewAssetWorkspace, function () use ($blockAsset, $configurator, $draftableNewAssetWorkspace): void {
+                    $configurator->saveRelationships();
+                    $this->moveCreatedDraftableAssetIntoWorkspace($blockAsset, $draftableNewAssetWorkspace);
+                });
+
+                return;
+            }
+
             $configurator->saveRelationships();
         });
+
+        if ($draftableNewAssetWorkspace instanceof Workspace && ! (WorkspaceContext::current() instanceof Workspace)) {
+            Notification::make('created-asset-draft')
+                ->title(__('capell-layout-builder::message.asset_draft_saved', ['workspace' => $draftableNewAssetWorkspace->name]))
+                ->success()
+                ->send();
+
+            $this->livewire->dispatch('workspace-changed', workspaceId: $draftableNewAssetWorkspace->id);
+
+            $action->success();
+
+            return;
+        }
 
         if (! isset($this->livewire->assets[$containerKey][$blockIndex])) {
             $this->livewire->assets[$containerKey][$blockIndex] = [];
@@ -962,6 +1027,100 @@ final class LayoutBuilderActionFactory
             containerKey: $containerKey,
             blockIndex: $blockIndex,
         );
+    }
+
+    private function moveCreatedDraftableAssetIntoWorkspace(WidgetAsset $blockAsset, Workspace $workspace): void
+    {
+        $asset = $blockAsset->getRelationValue('asset');
+
+        if (! $asset instanceof Model || ! $asset->exists) {
+            return;
+        }
+
+        if (! DB::getSchemaBuilder()->hasColumn($asset->getTable(), 'workspace_id')) {
+            return;
+        }
+
+        DB::table($asset->getTable())
+            ->where($asset->getKeyName(), $asset->getKey())
+            ->update(['workspace_id' => $workspace->id]);
+
+        $asset->setAttribute('workspace_id', $workspace->id);
+    }
+
+    private function workspaceForNewDraftableAsset(WidgetAsset $blockAsset, string $type): ?Workspace
+    {
+        if (! class_exists(CreateRecordDraftWorkspaceAction::class) || ! class_exists(WorkspaceRegistry::class)) {
+            return null;
+        }
+
+        $activeWorkspace = WorkspaceContext::current();
+
+        if ($activeWorkspace instanceof Workspace) {
+            return $activeWorkspace;
+        }
+
+        try {
+            $asset = CapellCore::getAsset($type);
+        } catch (Throwable) {
+            return null;
+        }
+
+        $modelClass = $asset->model ?? null;
+
+        if (! is_string($modelClass) || ! is_a($modelClass, Model::class, true) || ! WorkspaceRegistry::isRegistered($modelClass)) {
+            return null;
+        }
+
+        $user = auth()->user();
+
+        if (! $user instanceof AuthenticatedUser) {
+            return null;
+        }
+
+        $record = $blockAsset->getRelationValue('asset');
+
+        if (! $record instanceof Model) {
+            $record = new $modelClass;
+        }
+
+        return CreateRecordDraftWorkspaceAction::run($record, $user);
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $data
+     */
+    private function createDraftableAssetFromBuilderData(string $type, array $data, ?Workspace $workspace): ?Model
+    {
+        if (! $workspace instanceof Workspace || ! class_exists(WorkspaceRegistry::class)) {
+            return null;
+        }
+
+        try {
+            $asset = CapellCore::getAsset($type);
+        } catch (Throwable) {
+            return null;
+        }
+
+        $modelClass = $asset->model ?? null;
+
+        if (! is_string($modelClass) || ! is_a($modelClass, Model::class, true) || ! WorkspaceRegistry::isRegistered($modelClass)) {
+            return null;
+        }
+
+        $assetData = $data['asset'] ?? [];
+
+        if (! is_array($assetData)) {
+            $assetData = [];
+        }
+
+        /** @var Model $record */
+        $record = new $modelClass;
+        $record->setAttribute('workspace_id', $workspace->id);
+        $record->fill($assetData);
+        $record->save();
+
+        return $record;
     }
 
     private function duplicateLayout(): void
@@ -1101,13 +1260,23 @@ final class LayoutBuilderActionFactory
 
         $block = $this->livewire->getContainerBlock($arguments['containerKey'], $arguments['blockIndex']);
         $canUpdatePersistedRecord = $record->workspace_id === $this->livewire->getCurrentBlockAssetWorkspaceId($block);
+        $assetDrafted = $this->saveDraftableAssetFromBlockAsset($record, $data, $canUpdatePersistedRecord);
 
-        if ($canUpdatePersistedRecord) {
+        if ($canUpdatePersistedRecord && ! $assetDrafted) {
             $configurator->saveRelationships();
         }
 
-        if ($data !== [] && $canUpdatePersistedRecord) {
+        if ($data !== [] && $canUpdatePersistedRecord && ! $assetDrafted) {
             $record->update($data);
+        }
+
+        if (! $canUpdatePersistedRecord && ! $assetDrafted) {
+            Notification::make('content-asset-read-only')
+                ->title(__('capell-layout-builder::message.asset_not_saved'))
+                ->warning()
+                ->send();
+
+            $action->halt();
         }
 
         if (isset($data['meta'])) {
@@ -1115,14 +1284,249 @@ final class LayoutBuilderActionFactory
         }
 
         $livewire->reloadContainerBlockAsset($arguments['containerKey'], $arguments['blockIndex'], $arguments['index']);
+        $this->restorePendingLiveDraftableAssetSnapshot();
         $livewire->layoutUpdated();
 
         $action->success();
     }
 
+    /**
+     * @param  array<array-key, mixed>  $data
+     */
+    private function saveDraftableAssetFromBlockAsset(WidgetAsset $record, array $data, bool $canUpdatePersistedRecord): bool
+    {
+        if (! class_exists(SaveRecordDraftAction::class) || ! class_exists(WorkspaceRegistry::class)) {
+            return false;
+        }
+
+        $asset = $record->asset;
+
+        if (! $asset instanceof Model || ! WorkspaceRegistry::isRegistered($asset::class)) {
+            return false;
+        }
+
+        if (! array_key_exists('workspace_id', $asset->getAttributes())) {
+            return false;
+        }
+
+        $user = auth()->user();
+
+        if (! $user instanceof AuthenticatedUser) {
+            return false;
+        }
+
+        $assetData = $data['asset'] ?? $data;
+
+        if (! is_array($assetData)) {
+            $assetData = $data;
+        }
+
+        $workspace = WorkspaceContext::current();
+        $liveSnapshot = (int) $asset->getAttribute('workspace_id') === 0
+            ? $asset->getRawOriginal()
+            : null;
+        $liveRelationSnapshot = $liveSnapshot !== null
+            ? $this->liveDraftableAssetRelationSnapshot($asset)
+            : null;
+        $this->pendingLiveDraftableAssetSnapshot = $liveSnapshot === null
+            ? null
+            : ['__class' => $asset::class, '__key_name' => $asset->getKeyName(), ...$liveSnapshot];
+        $this->pendingLiveDraftableRelationSnapshot = $liveRelationSnapshot;
+
+        $result = SaveRecordDraftAction::run(
+            record: $asset,
+            data: $assetData,
+            user: $user,
+            workspace: $workspace instanceof Workspace ? $workspace : null,
+            saveRelationships: fn (Model $draft): null => $this->saveDraftableAssetRelationData($draft, $assetData),
+        );
+
+        if ($liveSnapshot !== null) {
+            $this->restoreLiveDraftableAssetSnapshot($asset, $liveSnapshot, $result->workspace);
+            $this->pendingLiveDraftableWorkspace = $result->workspace;
+        }
+
+        if ($liveRelationSnapshot !== null) {
+            $this->restoreLiveDraftableAssetRelationSnapshot($asset, $liveRelationSnapshot);
+        }
+
+        if ($canUpdatePersistedRecord && (int) $record->workspace_id > 0) {
+            $record->asset_id = $result->record->getKey();
+            $record->save();
+        }
+
+        if (! (WorkspaceContext::current() instanceof Workspace)) {
+            $this->livewire->dispatch('workspace-changed', workspaceId: $result->workspace->id);
+        }
+
+        Notification::make('saved-asset-draft')
+            ->title(__('capell-layout-builder::message.asset_draft_saved', ['workspace' => $result->workspace->name]))
+            ->success()
+            ->send();
+
+        return true;
+    }
+
+    /**
+     * @param  array<string, mixed>  $snapshot
+     */
+    private function restoreLiveDraftableAssetSnapshot(Model $asset, array $snapshot, Workspace $workspace): void
+    {
+        $keyName = $asset->getKeyName();
+        $payload = Arr::except($snapshot, [$keyName]);
+        $payload['shadowed_by_workspace_id'] = $workspace->id;
+
+        DB::table($asset->getTable())
+            ->where($keyName, $asset->getKey())
+            ->where('workspace_id', 0)
+            ->update($payload);
+    }
+
+    private function restorePendingLiveDraftableAssetSnapshot(): void
+    {
+        if ($this->pendingLiveDraftableAssetSnapshot === null || $this->pendingLiveDraftableWorkspace === null) {
+            return;
+        }
+
+        $assetClass = $this->pendingLiveDraftableAssetSnapshot['__class'] ?? null;
+        $keyName = $this->pendingLiveDraftableAssetSnapshot['__key_name'] ?? null;
+
+        if (! is_string($assetClass) || ! is_a($assetClass, Model::class, true) || ! is_string($keyName)) {
+            return;
+        }
+
+        $assetId = $this->pendingLiveDraftableAssetSnapshot[$keyName] ?? null;
+
+        if (! is_numeric($assetId)) {
+            return;
+        }
+
+        /** @var Model $asset */
+        $asset = new $assetClass;
+        $asset->setAttribute($keyName, (int) $assetId);
+
+        $this->restoreLiveDraftableAssetSnapshot(
+            asset: $asset,
+            snapshot: Arr::except($this->pendingLiveDraftableAssetSnapshot, ['__class', '__key_name']),
+            workspace: $this->pendingLiveDraftableWorkspace,
+        );
+
+        if ($this->pendingLiveDraftableRelationSnapshot !== null) {
+            $this->restoreLiveDraftableAssetRelationSnapshot($asset, $this->pendingLiveDraftableRelationSnapshot);
+        }
+
+        $this->pendingLiveDraftableAssetSnapshot = null;
+        $this->pendingLiveDraftableRelationSnapshot = null;
+        $this->pendingLiveDraftableWorkspace = null;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>|null
+     */
+    private function liveDraftableAssetRelationSnapshot(Model $asset): ?array
+    {
+        if (! method_exists($asset, 'translations')) {
+            return null;
+        }
+
+        return $asset->translations()
+            ->get()
+            ->map(static fn (Model $translation): array => $translation->getRawOriginal())
+            ->all();
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $snapshot
+     */
+    private function restoreLiveDraftableAssetRelationSnapshot(Model $asset, array $snapshot): void
+    {
+        if (! method_exists($asset, 'translations')) {
+            return;
+        }
+
+        $related = $asset->translations()->getRelated();
+        $keyName = $related->getKeyName();
+
+        foreach ($snapshot as $row) {
+            $key = $row[$keyName] ?? null;
+
+            if (! is_numeric($key)) {
+                continue;
+            }
+
+            DB::table($related->getTable())
+                ->where($keyName, $key)
+                ->update(Arr::except($row, [$keyName]));
+        }
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $assetData
+     */
+    private function saveDraftableAssetRelationData(Model $draft, array $assetData): null
+    {
+        $translations = $assetData['translations'] ?? null;
+
+        if (! is_array($translations) || ! method_exists($draft, 'translations')) {
+            return null;
+        }
+
+        $relation = $draft->translations();
+        $related = $relation->getRelated();
+        $fillable = $related->getFillable();
+
+        foreach ($translations as $translationData) {
+            if (! is_array($translationData)) {
+                continue;
+            }
+
+            $languageId = $translationData['language_id'] ?? null;
+
+            if (! is_numeric($languageId)) {
+                continue;
+            }
+
+            $payload = array_intersect_key($translationData, array_flip($fillable));
+            $payload['language_id'] = (int) $languageId;
+
+            $relation->updateOrCreate(
+                ['language_id' => (int) $languageId],
+                $payload,
+            );
+        }
+
+        return null;
+    }
+
     private function getBlockAssetSchema(Schema $configurator): Schema
     {
         return WidgetAssetForm::configure($configurator);
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $arguments
+     */
+    private function isDraftableAssetType(array $arguments): bool
+    {
+        if (! class_exists(WorkspaceRegistry::class)) {
+            return false;
+        }
+
+        $type = $arguments['type'] ?? null;
+
+        if (! is_string($type) || $type === '') {
+            return false;
+        }
+
+        try {
+            $asset = CapellCore::getAsset($type);
+        } catch (Throwable) {
+            return false;
+        }
+
+        $modelClass = $asset->model ?? null;
+
+        return is_string($modelClass) && is_a($modelClass, Model::class, true) && WorkspaceRegistry::isRegistered($modelClass);
     }
 
     /**

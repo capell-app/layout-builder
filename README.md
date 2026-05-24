@@ -143,6 +143,10 @@ AttachBlockToLayoutAreaAction::run(
 );
 ```
 
+For full-bleed sections, separate the two width settings deliberately. The layout container owns the section band and background, so set its container meta to `full`. The widget or block inside owns readable content, so keep its own `container` meta at the default contained width. This gives edge-to-edge backgrounds while text, media, and controls stay aligned with the site container.
+
+Avoid solving this in widget Blade with `w-screen`, negative margins, or translate hacks. Those make the widget fight the layout system and usually break once the same block is reused in another theme or container.
+
 ## Reusable Presets
 
 Saved agency presets are persisted in `layout_presets` and scoped to a required `site_id` with optional `theme_key`. Presets are layout-only by default: they deep-copy structure, selected block variants, and settings without duplicating client content. Applying a preset revalidates site scope and regenerates duplicate anchors.

@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+use Capell\Admin\Data\AdminAssetData;
+use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Filament\Contracts\FormConfigurator;
+use Capell\Core\Data\AssetData;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
@@ -11,6 +16,12 @@ use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema as SchemaFacade;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 
@@ -18,6 +29,10 @@ uses(CreatesAdminUser::class);
 
 beforeEach(function (): void {
     test()->actingAsAdmin();
+});
+
+afterEach(function (): void {
+    SchemaFacade::dropIfExists('layout_builder_non_publishable_assets');
 });
 
 it('uses the content first editor mode by default from the package namespace', function (): void {
@@ -122,6 +137,56 @@ it('lets content editors submit block asset edits without layout access from the
         ->assertHasNoActionErrors();
 
     expect($blockAsset->fresh()->meta['variant'] ?? null)->toBe('default');
+});
+
+it('keeps saving non publishable builder asset records through the existing path', function (): void {
+    SchemaFacade::create('layout_builder_non_publishable_assets', function (Blueprint $table): void {
+        $table->id();
+        $table->string('title');
+        $table->timestamps();
+    });
+
+    CapellCore::registerAsset(new AssetData(
+        name: LayoutBuilderNonPublishableAssetEnum::Nonpublishable->name,
+        model: LayoutBuilderNonPublishableAsset::class,
+        label: 'Non publishable asset',
+    ));
+
+    CapellAdmin::registerAsset(
+        LayoutBuilderNonPublishableAssetEnum::Nonpublishable,
+        new AdminAssetData(formClass: LayoutBuilderNonPublishableAssetForm::class),
+    );
+    Relation::morphMap(['nonpublishable' => LayoutBuilderNonPublishableAsset::class]);
+
+    $block = Widget::factory()->create(['key' => 'asset-list', 'name' => 'Asset list']);
+    $asset = LayoutBuilderNonPublishableAsset::query()->create(['title' => 'Original title']);
+    WidgetAsset::factory()
+        ->block($block)
+        ->occurrence(1)
+        ->create([
+            'asset_type' => 'nonpublishable',
+            'asset_id' => $asset->getKey(),
+            'order' => 1,
+        ]);
+
+    $layout = Layout::factory()->create(['containers' => [
+        'main' => ['widgets' => [
+            ['widget_key' => $block->key, 'occurrence' => 1],
+        ]],
+    ]]);
+
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->callAction('editBlockAsset', data: [
+            'asset' => ['title' => 'Updated title'],
+        ], arguments: [
+            'containerKey' => 'main',
+            'blockIndex' => 0,
+            'index' => 0,
+            'type' => 'nonpublishable',
+        ])
+        ->assertHasNoActionErrors();
+
+    expect($asset->fresh()->title)->toBe('Updated title');
 });
 
 it('renders content first rows as custom action triggers instead of per row action schemas from the package namespace', function (): void {
@@ -323,3 +388,25 @@ it('rejects stale content first asset saves from the package namespace', functio
 
     expect($blockAsset->fresh()->meta['variant'] ?? null)->toBe('default');
 });
+
+enum LayoutBuilderNonPublishableAssetEnum: string
+{
+    case Nonpublishable = 'nonpublishable';
+}
+
+class LayoutBuilderNonPublishableAsset extends Model
+{
+    protected $table = 'layout_builder_non_publishable_assets';
+
+    protected $guarded = [];
+}
+
+class LayoutBuilderNonPublishableAssetForm implements FormConfigurator
+{
+    public static function configure(Schema $configurator, mixed $context = null): Schema
+    {
+        return $configurator->schema([
+            TextInput::make('title'),
+        ]);
+    }
+}

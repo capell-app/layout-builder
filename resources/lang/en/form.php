@@ -88,7 +88,7 @@ return [
     'configurator' => 'Configurator',
     'contact_page' => 'Contact Page',
     'container' => 'Container',
-    'container_width' => 'Container Width',
+    'container_width' => 'Width Mode',
     'content' => 'Content',
     'content_divider' => 'Content Divider',
     'content_structure' => 'Content Structure',
