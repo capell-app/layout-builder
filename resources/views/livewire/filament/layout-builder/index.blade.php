@@ -33,7 +33,7 @@
     >
         <div>
             <div
-                class="mb-4 flex flex-wrap justify-between gap-4 pl-1 pr-4 sm:flex-nowrap lg:justify-end"
+                class="mb-4 flex flex-wrap justify-between gap-4 pr-4 pl-1 sm:flex-nowrap lg:justify-end"
             >
                 <div class="grow">
                     <div class="text-lg font-semibold">

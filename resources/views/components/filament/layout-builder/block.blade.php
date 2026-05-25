@@ -340,7 +340,7 @@
         </div>
 
         <div
-            class="layout-block-mobile-handle absolute bottom-2 left-0 top-2 z-30 md:hidden"
+            class="layout-block-mobile-handle absolute top-2 bottom-2 left-0 z-30 md:hidden"
             x-show="mode === 'edit'"
             x-cloak
             x-sort:handle

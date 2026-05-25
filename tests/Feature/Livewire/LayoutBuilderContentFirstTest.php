@@ -18,6 +18,8 @@ use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Schema\Blueprint;
@@ -186,7 +188,9 @@ it('keeps saving non publishable builder asset records through the existing path
         ])
         ->assertHasNoActionErrors();
 
-    expect($asset->fresh()->title)->toBe('Updated title');
+    $freshAsset = $asset->fresh();
+
+    expect($freshAsset instanceof LayoutBuilderNonPublishableAsset ? $freshAsset->title : null)->toBe('Updated title');
 });
 
 it('renders content first rows as custom action triggers instead of per row action schemas from the package namespace', function (): void {
@@ -394,8 +398,14 @@ enum LayoutBuilderNonPublishableAssetEnum: string
     case Nonpublishable = 'nonpublishable';
 }
 
+/**
+ * @property string|null $title
+ */
 class LayoutBuilderNonPublishableAsset extends Model
 {
+    /** @use HasFactory<Factory<self>> */
+    use HasFactory;
+
     protected $table = 'layout_builder_non_publishable_assets';
 
     protected $guarded = [];

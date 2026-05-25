@@ -17,7 +17,7 @@
 
 <div
     @if ($panelId) id="{{ $panelId }}" @endif
-    class="layout-builder-block-assets shadow-xs mx-4 mt-0.5 rounded ring-1 ring-gray-950/5 dark:ring-white/10"
+    class="layout-builder-block-assets mx-4 mt-0.5 rounded shadow-xs ring-1 ring-gray-950/5 dark:ring-white/10"
     x-show="! isCollapsed"
     x-cloak
 >

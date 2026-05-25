@@ -110,13 +110,13 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
         $this->addMediaCollection(MediaCollectionEnum::BackgroundImage->value)->singleFile();
     }
 
-    /** @return BelongsTo<CoreBlueprint, Model> */
+    /** @return BelongsTo<CoreBlueprint, $this> */
     public function blueprint(): BelongsTo
     {
         return $this->belongsTo(CoreBlueprint::class, 'blueprint_id');
     }
 
-    /** @return BelongsTo<CoreBlueprint, Model> */
+    /** @return BelongsTo<CoreBlueprint, $this> */
     public function type(): BelongsTo
     {
         return $this->blueprint();
@@ -201,12 +201,10 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
         return $this->morphOneMedia(MediaCollectionEnum::BackgroundImage->value);
     }
 
-    /**
-     * @return HasMany<WidgetAsset, $this>
-     */
+    /** @return HasMany<WidgetAsset, $this> */
     public function assets(): HasMany
     {
-        return $this->hasMany(BlockAsset::class, 'widget_id')
+        return $this->hasMany(WidgetAsset::class, 'widget_id')
             ->chaperone();
     }
 

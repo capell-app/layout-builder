@@ -68,11 +68,27 @@ class RenderPublicFragmentAction
         }
 
         $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, [$containerKey], includeHtml: true);
-        $container = collect($graph->containers)
-            ->first(fn (PublicLayoutContainerData $container): bool => $container->key === $containerKey);
+        $container = null;
 
-        $block = collect($container?->blocks ?? [])
-            ->first(fn (PublicLayoutBlockData $block): bool => $block->key === $widgetKey && $block->occurrence === $occurrence);
+        foreach ($graph->containers as $candidateContainer) {
+            if ($candidateContainer->key === $containerKey) {
+                $container = $candidateContainer;
+
+                break;
+            }
+        }
+
+        $block = null;
+
+        if ($container instanceof PublicLayoutContainerData) {
+            foreach ($container->blocks as $candidateBlock) {
+                if ($candidateBlock->key === $widgetKey && $candidateBlock->occurrence === $occurrence) {
+                    $block = $candidateBlock;
+
+                    break;
+                }
+            }
+        }
 
         if (! $block instanceof PublicLayoutBlockData || ! is_string($block->html) || trim($block->html) === '') {
             return null;

@@ -18,7 +18,7 @@
 
     @if ($assetsToggleAction || $blockActions)
         <div
-            class="layout-block-preview-actions absolute right-5 top-5 z-10 flex items-center justify-end gap-1"
+            class="layout-block-preview-actions absolute top-5 right-5 z-10 flex items-center justify-end gap-1"
         >
             @if ($assetsToggleAction)
                 {{ $assetsToggleAction }}
@@ -33,7 +33,7 @@
     <div class="relative min-h-40 p-5 pr-16 text-gray-950 dark:text-white">
         <div class="mb-3 flex items-start">
             <div
-                class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                class="text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400"
             >
                 {{ __('capell-layout-builder::generic.page_content_block') }}
             </div>
@@ -41,7 +41,7 @@
 
         <div class="flex flex-wrap items-start justify-between gap-3">
             <div
-                class="min-w-0 max-w-2xl flex-1 text-xl font-semibold leading-tight"
+                class="max-w-2xl min-w-0 flex-1 text-xl leading-tight font-semibold"
             >
                 {{ $previewData->title ?: $previewData->label }}
             </div>

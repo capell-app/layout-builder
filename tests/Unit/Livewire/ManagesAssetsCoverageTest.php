@@ -174,6 +174,7 @@ it('maps filters and restores persisted block assets for page scoped state', fun
     $harness->assets = ['main' => [[]]];
     $harness->selectedRecords = ['main' => [[]]];
     $harness->setContainerBlocks(['main' => [$block]]);
+
     $allBlockAssets = WidgetAsset::query()
         ->whereKey([$globalAsset->getKey(), $pageAsset->getKey(), $otherPageAsset->getKey()])
         ->get();

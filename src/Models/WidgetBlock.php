@@ -10,6 +10,8 @@ use Capell\Core\Models\Concerns\HasUserstamps;
 use Capell\Core\Models\Contracts\Statusable;
 use Capell\Core\Models\Contracts\Userstampable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -17,6 +19,9 @@ use Override;
 
 class WidgetBlock extends Model implements Statusable, Userstampable
 {
+    /** @use HasFactory<Factory<self>> */
+    use HasFactory;
+
     use HasMetaData;
 
     /** @use HasStatus<self> */

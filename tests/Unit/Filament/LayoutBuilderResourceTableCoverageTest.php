@@ -156,10 +156,12 @@ it('adds layout-builder specific layout table filters columns and query relation
 function firstLayoutBuilderTableComponent(array $components, string $name, ?string $expectedClass = null): ?object
 {
     foreach ($components as $component) {
-        if (! is_object($component) || ! method_exists($component, 'getName')) {
+        if (! is_object($component)) {
             continue;
         }
-
+        if (! method_exists($component, 'getName')) {
+            continue;
+        }
         if ($component->getName() !== $name) {
             continue;
         }

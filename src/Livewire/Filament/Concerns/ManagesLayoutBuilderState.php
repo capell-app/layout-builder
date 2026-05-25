@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Livewire\Filament\Concerns;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
+use Capell\FilamentPeek\Actions\StoreLayoutBuilderPreviewStateAction;
 use Capell\LayoutBuilder\Actions\AnalyzeLayoutHealthAction;
 use Capell\LayoutBuilder\Actions\BuildLayoutContentInventoryAction;
 use Capell\LayoutBuilder\Actions\Mutations\PushLayoutMutationSnapshotAction;
@@ -107,13 +108,13 @@ trait ManagesLayoutBuilderState
             return;
         }
 
-        $actionClass = 'Capell\\FilamentPeek\\Actions\\StoreLayoutBuilderPreviewStateAction';
+        $actionClass = StoreLayoutBuilderPreviewStateAction::class;
 
         if (! class_exists($actionClass)) {
             return;
         }
 
-        $action = app($actionClass);
+        $action = resolve($actionClass);
 
         if (! $modified) {
             if (method_exists($action, 'clear')) {

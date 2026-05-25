@@ -1115,7 +1115,6 @@ final class LayoutBuilderActionFactory
             $assetData = [];
         }
 
-        /** @var Model $record */
         $record = new $modelClass;
         $record->setAttribute('workspace_id', $workspace->id);
         $record->fill($assetData);
@@ -1385,7 +1384,7 @@ final class LayoutBuilderActionFactory
 
     private function restorePendingLiveDraftableAssetSnapshot(): void
     {
-        if ($this->pendingLiveDraftableAssetSnapshot === null || $this->pendingLiveDraftableWorkspace === null) {
+        if ($this->pendingLiveDraftableAssetSnapshot === null || ! $this->pendingLiveDraftableWorkspace instanceof Workspace) {
             return;
         }
 
@@ -1402,7 +1401,6 @@ final class LayoutBuilderActionFactory
             return;
         }
 
-        /** @var Model $asset */
         $asset = new $assetClass;
         $asset->setAttribute($keyName, (int) $assetId);
 

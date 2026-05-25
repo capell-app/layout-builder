@@ -35,6 +35,7 @@ use Capell\LayoutBuilder\Support\LayoutBuilderRuntimeManifestContributor;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
+use Override;
 use Spatie\LaravelPackageTools\Package;
 
 class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
@@ -92,6 +93,7 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->reservePublicFragmentPath();
     }
 
+    #[Override]
     protected function isPackageInstalled(): bool
     {
         return CapellCore::isPackageInstalled(static::$packageName);
