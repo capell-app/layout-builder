@@ -26,6 +26,7 @@ class HeroEditor extends Group
                 if ($record === null) {
                     return false;
                 }
+
                 $page = $record instanceof Pageable ? $record : $record->translatable;
 
                 if (! $page instanceof Pageable) {

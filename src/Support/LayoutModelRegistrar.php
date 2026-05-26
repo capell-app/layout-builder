@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Support;
 
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Models\WidgetBlock;
@@ -22,6 +23,9 @@ class LayoutModelRegistrar
 
     public static function register(): void
     {
+        Layout::addFillable(['widgets']);
+        Layout::addCasts(['widgets' => 'array']);
+
         CapellCore::registerModels(self::MODELS);
 
         Relation::morphMap(

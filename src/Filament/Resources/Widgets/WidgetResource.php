@@ -38,9 +38,9 @@ class WidgetResource extends Resource
 
     protected static string $tableConfigurator = WidgetsTable::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPuzzlePiece;
 
-    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::Cube;
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::PuzzlePiece;
 
     protected static ?int $navigationSort = 5;
 

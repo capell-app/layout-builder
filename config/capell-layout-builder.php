@@ -18,8 +18,8 @@ return [
 
     'resources' => [
         'block' => [
-            'icon' => 'heroicon-o-squares-2x2',
-            'active_icon' => 'heroicon-s-squares-2x2',
+            'icon' => 'heroicon-o-puzzle-piece',
+            'active_icon' => 'heroicon-s-puzzle-piece',
         ],
     ],
 

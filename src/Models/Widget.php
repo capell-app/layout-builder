@@ -42,6 +42,9 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
 use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
 
+/**
+ * @implements Blueprintable<$this>
+ */
 class Widget extends Model implements Blueprintable, HasMedia, Publishable, Statusable, Translatable, Userstampable
 {
     use Cloneable;

@@ -52,6 +52,8 @@ it('exposes block resource metadata search details and soft-deleted query scope'
         ->and(WidgetResource::getResourceType())->toBe(ConfiguratorTypeEnum::Widget)
         ->and(WidgetResource::getNavigationLabel())->toBe(__('capell-layout-builder::navigation.blocks'))
         ->and(WidgetResource::getNavigationGroup())->toBe(__('capell-admin::navigation.group_layouts'))
+        ->and(WidgetResource::getNavigationIcon())->toBe('heroicon-o-puzzle-piece')
+        ->and(WidgetResource::getActiveNavigationIcon())->toBe('heroicon-s-puzzle-piece')
         ->and(WidgetResource::getSlug())->toBe('widgets')
         ->and(WidgetResource::getModelLabel())->toBe(__('capell-layout-builder::navigation.block'))
         ->and(WidgetResource::getPluralModelLabel())->toBe(__('capell-layout-builder::navigation.blocks'))
@@ -159,9 +161,11 @@ function firstLayoutBuilderTableComponent(array $components, string $name, ?stri
         if (! is_object($component)) {
             continue;
         }
+
         if (! method_exists($component, 'getName')) {
             continue;
         }
+
         if ($component->getName() !== $name) {
             continue;
         }

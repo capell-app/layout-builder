@@ -18,7 +18,7 @@ class LayoutTab
     public static function make(): Tab
     {
         return Tab::make(__('capell-admin::tab.layout'))
-            ->icon(Heroicon::OutlinedPuzzlePiece)
+            ->icon(Heroicon::OutlinedViewColumns)
             ->visible(fn (Get $get, ?Pageable $record = null): bool => (bool) ($get('layout_id') ?? $record?->layout_id))
             ->schema([
                 Livewire::make(
