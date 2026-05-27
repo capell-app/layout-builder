@@ -91,6 +91,9 @@
         "demo": null,
         "doctor": null
     },
+    "actions": {
+        "install": "Capell\\LayoutBuilder\\Actions\\InstallLayoutBuilderPackageAction"
+    },
     "settings": [],
     "permissions": [
         "ViewAny:Layout",
