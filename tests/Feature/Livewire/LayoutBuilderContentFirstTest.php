@@ -10,6 +10,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
 use Capell\LayoutBuilder\Data\AdminBlockPreviewData;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
@@ -46,6 +47,27 @@ it('uses the content first editor mode by default from the package namespace', f
         ->assertSet('editorMode', 'content_first')
         ->assertSee(__('capell-layout-builder::generic.content_first_editor'))
         ->assertSee(__('capell-layout-builder::message.content_inventory_empty'));
+});
+
+it('resolves lazy mount scalar identifiers into builder models', function (): void {
+    $site = Site::factory()->create();
+    $layout = Layout::factory()->site($site)->create(['containers' => [
+        'main' => ['widgets' => []],
+    ]]);
+    $page = Page::factory()->for($site)->create([
+        'layout_id' => $layout->getKey(),
+    ]);
+
+    Livewire::test(LayoutBuilder::class, [
+        'siteId' => $site->getKey(),
+        'layoutId' => $layout->getKey(),
+        'pageId' => $page->getKey(),
+        'pageClass' => Page::class,
+    ])
+        ->assertSet('site.id', $site->getKey())
+        ->assertSet('layout.id', $layout->getKey())
+        ->assertSet('page.id', $page->getKey())
+        ->assertSet('editorMode', 'content_first');
 });
 
 it('resolves the saved admin block preview view without checking the filesystem', function (): void {

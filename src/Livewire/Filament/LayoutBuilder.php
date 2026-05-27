@@ -151,8 +151,13 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         return AdminSurfaceLookup::resource(ResourceEnum::Page);
     }
 
-    public function mount(): void
-    {
+    public function mount(
+        ?int $layoutId = null,
+        ?int $siteId = null,
+        ?int $pageId = null,
+        ?string $pageClass = null,
+    ): void {
+        $this->resolveMountModels($layoutId, $siteId, $pageId, $pageClass);
         $this->assertLayoutMatchesPageSite();
 
         $this->editorMode = $this->resolveInitialEditorMode();
@@ -681,6 +686,64 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         ));
 
         $this->trackNewContainerKeysSince($knownContainerKeys);
+    }
+
+    private function resolveMountModels(
+        ?int $layoutId,
+        ?int $siteId,
+        ?int $pageId,
+        ?string $pageClass,
+    ): void {
+        if (! isset($this->layout) && $layoutId !== null) {
+            $layout = Layout::query()
+                ->withCount('pages')
+                ->find($layoutId);
+
+            throw_if(
+                ! $layout instanceof Layout,
+                InvalidArgumentException::class,
+                'Layout Builder requires a valid layout.',
+            );
+
+            $this->layout = $layout;
+        }
+
+        throw_if(
+            ! isset($this->layout),
+            InvalidArgumentException::class,
+            'Layout Builder requires a layout.',
+        );
+
+        if ($this->site === null && $siteId !== null) {
+            $this->site = Site::query()->find($siteId);
+        }
+
+        if ($this->page === null && $pageId !== null && $pageClass !== null) {
+            throw_unless(
+                is_a($pageClass, Model::class, true) && is_a($pageClass, Pageable::class, true),
+                InvalidArgumentException::class,
+                'Layout Builder requires a valid page class.',
+            );
+
+            /** @var class-string<Model&Pageable> $pageClass */
+            $page = $pageClass::query()->find($pageId);
+
+            if ($page instanceof Pageable) {
+                $this->page = $page;
+            }
+        }
+
+        if ($this->site === null && $this->page instanceof Model && $this->page->hasAttribute('site_id')) {
+            $pageSiteId = $this->page->getAttribute('site_id');
+
+            if (is_numeric($pageSiteId)) {
+                $this->site = Site::query()->find((int) $pageSiteId);
+            }
+        }
+
+        if ($this->site === null && $this->layout->hasAttribute('site_id') && $this->layout->site_id !== null) {
+            $this->site = Site::query()->find((int) $this->layout->site_id);
+        }
     }
 
     /**
