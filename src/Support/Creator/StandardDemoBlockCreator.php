@@ -333,7 +333,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
 
             foreach ($languages as $language) {
                 $desc_content = DummyContentGeneratorAction::run($language->code);
-                $translatedQuestion = $questions[$language->code][$i] ?? $questions['en'][$i] ?? $question;
+                $translatedQuestion = $questions[$language->code][$i] ?? $question;
 
                 $this->translationsFor($content)->updateOrCreate(
                     ['language_id' => $language->id],

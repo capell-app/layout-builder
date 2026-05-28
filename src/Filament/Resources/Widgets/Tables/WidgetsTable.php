@@ -18,6 +18,7 @@ use Capell\Admin\Filament\Components\Tables\Filters\StatusFilter;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Models\Language;
+use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\ListWidgets;
 use Capell\LayoutBuilder\Models\Widget;
@@ -261,9 +262,15 @@ class WidgetsTable implements TableConfigurator
 
             SelectFilter::make('layout_id')
                 ->label(__('capell-admin::form.layout'))
-                ->relationship(
-                    name: 'layouts',
-                    titleAttribute: 'name',
+                ->options(fn (): array => Layout::query()
+                    ->ordered()
+                    ->pluck('name', 'id')
+                    ->all())
+                ->modifyQueryUsing(
+                    fn (Builder $query, array $state): Builder => $query->when(
+                        isset($state['value']) && $state['value'] !== '',
+                        fn (Builder $query): Builder => self::whereUsedByLayout($query, (int) $state['value']),
+                    ),
                 ),
 
             Filter::make('filter')
@@ -311,5 +318,20 @@ class WidgetsTable implements TableConfigurator
 
             TrashedFilter::make(),
         ];
+    }
+
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
+    private static function whereUsedByLayout(Builder $query, int $layoutId): Builder
+    {
+        $layout = Layout::query()->find($layoutId);
+
+        if (! $layout instanceof Layout || $layout->widgets === []) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->whereIn('key', $layout->widgets);
     }
 }

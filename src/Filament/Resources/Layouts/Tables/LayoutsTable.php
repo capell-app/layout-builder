@@ -165,6 +165,10 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
             ->values();
     }
 
+    /**
+     * @param  Builder<Layout>  $query
+     * @return Builder<Layout>
+     */
     private static function whereContainsWidgetKey(Builder $query, string $widgetKey): Builder
     {
         $escapedWidgetKey = addcslashes($widgetKey, '\%_');

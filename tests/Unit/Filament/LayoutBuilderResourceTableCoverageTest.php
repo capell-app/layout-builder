@@ -67,7 +67,7 @@ it('exposes block resource metadata search details and soft-deleted query scope'
     $block->delete();
 
     expect(WidgetResource::getEloquentQuery()->whereKey($block->getKey())->exists())->toBeTrue()
-        ->and(WidgetResource::getRelations())->toHaveCount(1)
+        ->and(WidgetResource::getRelations())->toBe([])
         ->and(WidgetResource::getPages())->toHaveKeys(['index', 'edit', 'create']);
 });
 

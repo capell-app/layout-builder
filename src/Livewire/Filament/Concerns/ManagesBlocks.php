@@ -530,17 +530,19 @@ trait ManagesBlocks
         return $model::query()
             ->when(
                 $withRelations,
-                fn (EloquentBuilder $query) => $query->withCount([
-                    'layouts',
-                    'blockPageAssets as page_assets_count' => fn (EloquentBuilder $query): EloquentBuilder => $query->distinct(['pageable_id', 'pageable_type'])
-                        ->when(
-                            $this->inPageContext(),
-                            fn (EloquentBuilder $query) => $query->where([
-                                'pageable_type' => $this->page->getMorphClass(),
-                                'pageable_id' => $this->page->getKey(),
-                            ]),
-                        ),
-                ])
+                fn (EloquentBuilder $query) => $query
+                    /** @phpstan-ignore-next-line Widget exposes this local scope through Eloquent. */
+                    ->withLayoutsCount()
+                    ->withCount([
+                        'blockPageAssets as page_assets_count' => fn (EloquentBuilder $query): EloquentBuilder => $query->distinct(['pageable_id', 'pageable_type'])
+                            ->when(
+                                $this->inPageContext(),
+                                fn (EloquentBuilder $query) => $query->where([
+                                    'pageable_type' => $this->page->getMorphClass(),
+                                    'pageable_id' => $this->page->getKey(),
+                                ]),
+                            ),
+                    ])
                     ->with([
                         'type',
                         'backgroundImage',
@@ -556,8 +558,9 @@ trait ManagesBlocks
     protected function getBlockDisplayQuery(): EloquentBuilder
     {
         return $this->getBlockQuery(withRelations: false)
+            /** @phpstan-ignore-next-line Widget exposes this local scope through Eloquent. */
+            ->withLayoutsCount()
             ->withCount([
-                'layouts',
                 'blockPageAssets as page_assets_count' => fn (EloquentBuilder $query): EloquentBuilder => $query->distinct(['pageable_id', 'pageable_type'])
                     ->when(
                         $this->inPageContext(),

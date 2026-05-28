@@ -50,7 +50,6 @@ it('routes public graph rendering through layout builder package payload contrib
         ]);
 
     $layout = Layout::factory()->site($site)->create([
-        'widgets' => [$block->key],
         'containers' => [
             'main' => ['widgets' => [['widget_key' => $block->key, 'occurrence' => 1]]],
         ],

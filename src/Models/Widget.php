@@ -39,9 +39,6 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
-/**
- * @implements Blueprintable<$this>
- */
 class Widget extends Model implements Blueprintable, HasMedia, Publishable, Statusable, Translatable, Userstampable
 {
     use Cloneable;
@@ -266,6 +263,10 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
      */
     protected function scopeWithLayoutsCount(Builder $query): void
     {
+        if ($query->getQuery()->columns === null) {
+            $query->select($this->qualifyColumn('*'));
+        }
+
         $query->addSelect(DB::raw(
             match (DB::getDriverName()) {
                 'sqlite' => <<<'SQL'

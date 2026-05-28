@@ -67,7 +67,6 @@ it('builds public layout data for selected containers only', function (): void {
 
     $layout = Layout::factory()->site($site)->create([
         'key' => 'article',
-        'widgets' => [$mainBlock->key, $sidebarBlock->key],
         'containers' => [
             'main' => [
                 'label' => 'Main',
@@ -121,7 +120,6 @@ it('uses the site theme key for public block compatibility even when the site re
 
     $block = Widget::factory()->create(['key' => 'theme-limited']);
     $layout = Layout::factory()->site($site)->create([
-        'widgets' => [$block->key],
         'containers' => [
             'main' => ['widgets' => [[
                 'widget_key' => $block->key,
@@ -158,7 +156,6 @@ it('uses the layout theme before the site theme for public block compatibility',
     $block = Widget::factory()->create(['key' => 'layout-theme-limited']);
     $layout = Layout::factory()->site($site)->create([
         'theme_id' => $layoutTheme->getKey(),
-        'widgets' => [$block->key],
         'containers' => [
             'main' => ['widgets' => [[
                 'widget_key' => $block->key,
@@ -193,7 +190,6 @@ it('reuses public payload resolver contributor caches across page blocks', funct
     $firstBlock = Widget::factory()->create(['key' => 'cached-theme']);
     $secondBlock = Widget::factory()->create(['key' => 'cached-theme']);
     $layout = Layout::factory()->site($site)->create([
-        'widgets' => [$firstBlock->key, $secondBlock->key],
         'containers' => [
             'main' => ['widgets' => [
                 ['widget_key' => $firstBlock->key, 'occurrence' => 1],
@@ -231,7 +227,6 @@ it('lets package tagged contributors extend block payload data and html', functi
         ]);
 
     $layout = Layout::factory()->site($site)->create([
-        'widgets' => [$block->key],
         'containers' => [
             'main' => ['widgets' => [['widget_key' => $block->key, 'occurrence' => 3]]],
         ],
@@ -309,7 +304,6 @@ it('adds sanitized block presentation data without exposing authoring metadata',
     ]);
 
     $layout = Layout::factory()->site($site)->create([
-        'widgets' => [$block->key],
         'containers' => [
             'main' => ['widgets' => [[
                 'widget_key' => $block->key,
@@ -405,7 +399,6 @@ it('sanitizes stored block meta before public contributors see it', function ():
         ],
     ]);
     $layout = Layout::factory()->site($site)->create([
-        'widgets' => [$block->key],
         'containers' => [
             'main' => ['widgets' => [[
                 'widget_key' => $block->key,
@@ -471,7 +464,6 @@ it('scopes default block assets to the matching occurrence when building public 
         ->create();
 
     $layout = Layout::factory()->site($site)->create([
-        'widgets' => [$block->key],
         'containers' => [
             'main' => ['widgets' => [
                 ['widget_key' => $block->key, 'occurrence' => 1],
@@ -529,7 +521,6 @@ it('reuses scoped preloaded block assets when building public layout data', func
         ->create();
 
     $layout = Layout::factory()->site($site)->create([
-        'widgets' => [$block->key],
         'containers' => [
             'main' => ['widgets' => [
                 ['widget_key' => $block->key, 'occurrence' => 1],

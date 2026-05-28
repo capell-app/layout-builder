@@ -55,7 +55,13 @@ it('adds livewire island flags for blade layouts with livewire blocks', function
         ],
     ]);
     $layout = Layout::factory()->make([
-        'widgets' => [$block->key],
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    ['widget_key' => $block->key],
+                ],
+            ],
+        ],
     ]);
 
     $context = Mockery::mock(FrontendContextReader::class);
@@ -110,7 +116,13 @@ it('ignores disabled livewire blocks when contributing blade runtime flags', fun
         'status' => false,
     ]);
     $layout = Layout::factory()->make([
-        'widgets' => [$block->key],
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    ['widget_key' => $block->key],
+                ],
+            ],
+        ],
     ]);
 
     $context = Mockery::mock(FrontendContextReader::class);
@@ -134,7 +146,13 @@ it('ignores future livewire blocks when contributing blade runtime flags', funct
         'visible_from' => now()->addDay(),
     ]);
     $layout = Layout::factory()->make([
-        'widgets' => [$block->key],
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    ['widget_key' => $block->key],
+                ],
+            ],
+        ],
     ]);
 
     $context = Mockery::mock(FrontendContextReader::class);
@@ -161,7 +179,13 @@ it('ignores livewire blocks with inaccessible block blueprints when contributing
         'is_livewire' => true,
     ]);
     $layout = Layout::factory()->make([
-        'widgets' => [$block->key],
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    ['widget_key' => $block->key],
+                ],
+            ],
+        ],
     ]);
 
     $context = Mockery::mock(FrontendContextReader::class);
@@ -189,7 +213,13 @@ it('does not change non blade-only runtime manifests', function (): void {
         ],
     ]);
     $layout = Layout::factory()->make([
-        'widgets' => [$block->key],
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    ['widget_key' => $block->key],
+                ],
+            ],
+        ],
     ]);
 
     $context = Mockery::mock(FrontendContextReader::class);
