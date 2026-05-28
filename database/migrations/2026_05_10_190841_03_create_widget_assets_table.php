@@ -18,10 +18,12 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('workspace_id')->default(0)->index();
             $table->foreignId('widget_id')->constrained('widgets')->cascadeOnDelete();
-            $table->nullableMorphs('pageable');
-            $table->string('container')->nullable();
+            $table->string('pageable_type', 100)->nullable();
+            $table->unsignedBigInteger('pageable_id')->nullable();
+            $table->string('container', 100)->nullable();
             $table->unsignedInteger('occurrence')->nullable()->default(1);
-            $table->uuidMorphs('asset');
+            $table->string('asset_type', 100);
+            $table->uuid('asset_id');
             $table->unsignedInteger('order')->default(0)->index();
             $table->json('meta')->nullable();
             $table->userstamps();

@@ -104,6 +104,8 @@ trait ManagesLayoutBuilderState
     {
         $this->layoutModified = $modified;
 
+        $this->visualPreviewStatus = $modified ? 'stale' : 'current';
+
         if (! $this->inPageContext()) {
             return;
         }

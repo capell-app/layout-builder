@@ -273,7 +273,7 @@ class AssetsRepeater extends Repeater
             ->successNotificationTitle(
                 fn (Action $action): string => __(
                     'capell-admin::notification.created_successfully',
-                    ['name' => $action->getModalHeading()],
+                    ['name' => (string) $action->getModalHeading()],
                 ),
             )
             ->after(function (Action $action): void {

@@ -472,4 +472,5 @@ return [
     'sidebar_area' => 'Sidebar',
     'untitled_content_area' => 'Content area',
     'untitled_content_block' => 'Untitled content block',
+    'untitled_page' => 'Untitled page',
 ];

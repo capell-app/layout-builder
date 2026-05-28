@@ -322,6 +322,7 @@ return [
     'role_restrictions' => 'Restrict to roles',
     'rounded_images' => 'Rounded Images',
     'search_content_inventory' => 'Search editable content',
+    'search_layout_tree' => 'Search layout',
     'search_blocks' => 'Search blocks',
     'secondary_button_text' => 'Secondary Button Text',
     'secondary_button_url' => 'Secondary Button URL',

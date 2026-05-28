@@ -11,14 +11,17 @@ use Capell\Core\Actions\GetResourceFromBlueprintAction;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
+use Capell\LayoutBuilder\Actions\BuildLayoutBuilderTreeAction;
 use Capell\LayoutBuilder\Actions\Mutations\CreateLayoutFragmentAction;
 use Capell\LayoutBuilder\Actions\Mutations\PasteLayoutFragmentAction;
 use Capell\LayoutBuilder\Actions\Mutations\PushLayoutMutationSnapshotAction;
 use Capell\LayoutBuilder\Actions\Mutations\RedoLayoutMutationSnapshotAction;
 use Capell\LayoutBuilder\Actions\Mutations\UndoLayoutMutationSnapshotAction;
 use Capell\LayoutBuilder\Actions\PersistLayoutBuilderStateAction;
+use Capell\LayoutBuilder\Actions\RenderAdminLayoutPreviewAction;
 use Capell\LayoutBuilder\Actions\SaveLayoutPresetAction;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
+use Capell\LayoutBuilder\Data\LayoutBuilderTreeData;
 use Capell\LayoutBuilder\Data\LayoutFragmentData;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Enums\LayoutBuilderEditorMode;
@@ -29,6 +32,7 @@ use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesBlocks;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesContainers;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesLayoutBuilderState;
 use Capell\LayoutBuilder\Models\LayoutPreset;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
 use Capell\LayoutBuilder\Support\LayoutClipboard;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -39,15 +43,18 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use LogicException;
+use Throwable;
 
 /**
  * @property-read ?Pageable $page
@@ -137,6 +144,23 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     public ?string $returnToContentItemKey = null;
 
+    public ?string $selectedContainerKey = null;
+
+    public ?int $selectedBlockIndex = null;
+
+    public ?string $selectedPreviewNodeHandle = null;
+
+    public string $visualPreviewHtml = '';
+
+    public string $visualPreviewSignature = '';
+
+    public string $visualPreviewStatus = 'stale';
+
+    /**
+     * @var array<string, array{type: string, containerKey: string, blockIndex?: int}>
+     */
+    public array $visualPreviewNodeMap = [];
+
     /**
      * @var array<array-key, mixed>
      */
@@ -164,6 +188,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->assertCanUseLayoutBuilder();
 
         $this->loadNew();
+        $this->initializeVisualEditor();
     }
 
     public function boot(): void
@@ -369,14 +394,140 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
      */
     public function placeholder(array $params = []): View
     {
-        return view('capell-admin::components.placeholder', $params);
+        return resolve(Factory::class)->make('capell-admin::components.placeholder', $params);
     }
 
     public function render(): View
     {
         $this->ensureLoaded();
 
-        return view($this->view);
+        return resolve(Factory::class)->make($this->view);
+    }
+
+    #[Computed]
+    public function layoutBuilderTree(): LayoutBuilderTreeData
+    {
+        $this->ensureLoaded();
+
+        return BuildLayoutBuilderTreeAction::run(
+            containers: $this->containers ?? [],
+            containerBlocks: $this->containerBlocks ?? [],
+            assets: $this->assets,
+            page: $this->page,
+            selectedContainerKey: $this->selectedContainerKey,
+            selectedBlockIndex: $this->selectedBlockIndex,
+        );
+    }
+
+    #[Computed]
+    public function selectedBlock(): ?Widget
+    {
+        if ($this->selectedContainerKey === null || $this->selectedBlockIndex === null) {
+            return null;
+        }
+
+        return $this->containerBlocks[$this->selectedContainerKey][$this->selectedBlockIndex] ?? null;
+    }
+
+    #[Computed]
+    public function selectedInspectorDescription(): string
+    {
+        if ($this->selectedContainerKey === null) {
+            return __('capell-layout-builder::message.inspector_empty_description');
+        }
+
+        if ($this->selectedBlockIndex === null) {
+            return __('capell-layout-builder::message.inspector_container_description', [
+                'container' => Str::headline($this->selectedContainerKey),
+            ]);
+        }
+
+        $block = $this->selectedBlock();
+
+        return __('capell-layout-builder::message.inspector_block_description', [
+            'block' => $block?->name ?? __('capell-admin::generic.unknown'),
+        ]);
+    }
+
+    public function selectContainer(string $containerKey): void
+    {
+        $this->ensureLoaded();
+
+        if (! array_key_exists($containerKey, $this->containers ?? [])) {
+            return;
+        }
+
+        $this->selectedContainerKey = $containerKey;
+        $this->selectedBlockIndex = null;
+        $this->selectedPreviewNodeHandle = $this->handleForContainer($containerKey);
+    }
+
+    public function selectBlock(string $containerKey, int $blockIndex): void
+    {
+        $this->ensureLoaded();
+
+        if (! isset($this->containers[$containerKey]['widgets'][$blockIndex])) {
+            return;
+        }
+
+        $this->selectedContainerKey = $containerKey;
+        $this->selectedBlockIndex = $blockIndex;
+        $this->selectedPreviewNodeHandle = $this->handleForBlock($containerKey, $blockIndex);
+    }
+
+    public function selectPreviewNode(string $handle): void
+    {
+        $node = $this->visualPreviewNodeMap[$handle] ?? null;
+
+        if (! is_array($node)) {
+            return;
+        }
+
+        if (($node['type'] ?? null) === 'block' && isset($node['containerKey'], $node['blockIndex'])) {
+            $this->selectBlock((string) $node['containerKey'], (int) $node['blockIndex']);
+
+            return;
+        }
+
+        if (($node['type'] ?? null) === 'container' && isset($node['containerKey'])) {
+            $this->selectContainer((string) $node['containerKey']);
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $pageFormState
+     */
+    #[On('refresh-layout-builder-visual-preview')]
+    public function refreshVisualPreview(array $pageFormState = []): void
+    {
+        $this->assertCanUseLayoutBuilder();
+        $this->ensureLoaded();
+
+        $this->visualPreviewStatus = 'refreshing';
+
+        try {
+            $preview = RenderAdminLayoutPreviewAction::run(
+                containers: $this->containers ?? [],
+                containerBlocks: $this->containerBlocks ?? [],
+                assets: $this->assets,
+                page: $this->page,
+                pageFormState: $pageFormState,
+            );
+        } catch (Throwable $throwable) {
+            report($throwable);
+            $this->visualPreviewStatus = 'error';
+
+            return;
+        }
+
+        $this->visualPreviewHtml = $preview->html;
+        $this->visualPreviewSignature = $preview->signature;
+        $this->visualPreviewNodeMap = $preview->nodeMap;
+        $this->selectedPreviewNodeHandle = $this->selectedPreviewNodeHandle !== null
+            && array_key_exists($this->selectedPreviewNodeHandle, $this->visualPreviewNodeMap)
+                ? $this->selectedPreviewNodeHandle
+                : $this->defaultPreviewNodeHandle();
+        $this->visualPreviewStatus = 'current';
     }
 
     public function showAdvancedLayout(?string $returnToContentItemKey = null): void
@@ -686,6 +837,40 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         ));
 
         $this->trackNewContainerKeysSince($knownContainerKeys);
+    }
+
+    protected function initializeVisualEditor(): void
+    {
+        $this->selectedContainerKey ??= is_array($this->containers) ? array_key_first($this->containers) : null;
+        $this->selectedBlockIndex = null;
+        $this->selectedPreviewNodeHandle = $this->selectedContainerKey === null
+            ? null
+            : $this->handleForContainer((string) $this->selectedContainerKey);
+
+        $this->refreshVisualPreview();
+    }
+
+    private function defaultPreviewNodeHandle(): ?string
+    {
+        if ($this->selectedContainerKey !== null && $this->selectedBlockIndex !== null) {
+            return $this->handleForBlock($this->selectedContainerKey, $this->selectedBlockIndex);
+        }
+
+        if ($this->selectedContainerKey !== null) {
+            return $this->handleForContainer($this->selectedContainerKey);
+        }
+
+        return null;
+    }
+
+    private function handleForContainer(string $containerKey): string
+    {
+        return hash('xxh128', 'container:' . $containerKey);
+    }
+
+    private function handleForBlock(string $containerKey, int $blockIndex): string
+    {
+        return hash('xxh128', 'block:' . $containerKey . ':' . $blockIndex);
     }
 
     private function resolveMountModels(

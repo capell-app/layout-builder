@@ -104,6 +104,12 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
     {
         $this->addMediaCollection(MediaCollectionEnum::Image->value)->singleFile();
         $this->addMediaCollection(MediaCollectionEnum::BackgroundImage->value)->singleFile();
+        $this->addMediaCollection('hero_video_desktop')->singleFile();
+        $this->addMediaCollection('hero_video_tablet')->singleFile();
+        $this->addMediaCollection('hero_video_mobile')->singleFile();
+        $this->addMediaCollection('hero_image_desktop')->singleFile();
+        $this->addMediaCollection('hero_image_tablet')->singleFile();
+        $this->addMediaCollection('hero_image_mobile')->singleFile();
     }
 
     /** @return BelongsTo<CoreBlueprint, $this> */

@@ -12,6 +12,7 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
+use Capell\LayoutBuilder\Actions\BuildLayoutBuilderTreeAction;
 use Capell\LayoutBuilder\Data\AdminBlockPreviewData;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\LayoutBuilder\Models\Widget;
@@ -38,15 +39,19 @@ afterEach(function (): void {
     SchemaFacade::dropIfExists('layout_builder_non_publishable_assets');
 });
 
-it('uses the content first editor mode by default from the package namespace', function (): void {
+it('renders the visual layout builder by default from the package namespace', function (): void {
     $layout = Layout::factory()->create(['containers' => [
         'main' => ['widgets' => []],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSet('editorMode', 'content_first')
-        ->assertSee(__('capell-layout-builder::generic.content_first_editor'))
-        ->assertSee(__('capell-layout-builder::message.content_inventory_empty'));
+        ->assertSee(__('capell-layout-builder::heading.layout_structure'))
+        ->assertSee(__('capell-layout-builder::heading.inspector'))
+        ->assertSee(__('capell-layout-builder::message.preview_status_current'))
+        ->assertSee(__('capell-layout-builder::message.container_empty'))
+        ->assertSeeHtml('data-capell-layout-builder-admin-preview="true"')
+        ->assertSeeHtml('capell-layout-builder:request-page-state');
 });
 
 it('resolves lazy mount scalar identifiers into builder models', function (): void {
@@ -90,7 +95,7 @@ it('resolves the saved admin block preview view without checking the filesystem'
         ->toBe('capell-layout-builder::filament.layout-builder.previews.custom');
 });
 
-it('can switch from content first to advanced layout and back from the package namespace', function (): void {
+it('keeps legacy editor mode transitions available inside the visual editor from the package namespace', function (): void {
     $block = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
     $layout = Layout::factory()->create(['containers' => [
         'main' => ['widgets' => [
@@ -101,7 +106,7 @@ it('can switch from content first to advanced layout and back from the package n
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->call('showAdvancedLayout', 'main:0:1:page:1:0')
         ->assertSet('editorMode', 'layout_first')
-        ->assertSee(__('capell-layout-builder::button.return_to_content'))
+        ->assertSee(__('capell-layout-builder::heading.layout_structure'))
         ->call('showContentEditor')
         ->assertSet('editorMode', 'content_first')
         ->assertSet('returnToContentItemKey', 'main:0:1:page:1:0');
@@ -119,8 +124,9 @@ it('lets content editors use content first without advanced layout access from t
 
     $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSet('editorMode', 'content_first')
-        ->assertSee(__('capell-layout-builder::generic.content_first_editor'))
-        ->assertDontSee(__('capell-layout-builder::button.advanced_layout'));
+        ->assertSee(__('capell-layout-builder::heading.layout_structure'))
+        ->assertDontSee(__('capell-layout-builder::button.add_container'))
+        ->assertDontSee(__('capell-layout-builder::button.add_block'));
 
     $component
         ->call('showAdvancedLayout')
@@ -215,7 +221,7 @@ it('keeps saving non publishable builder asset records through the existing path
     expect($freshAsset instanceof LayoutBuilderNonPublishableAsset ? $freshAsset->title : null)->toBe('Updated title');
 });
 
-it('renders content first rows as custom action triggers instead of per row action schemas from the package namespace', function (): void {
+it('renders widget rows in the structure tree and opens the inspector from the package namespace', function (): void {
     $block = Widget::factory()->create(['key' => 'featured', 'name' => 'Featured']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
     WidgetAsset::factory()
@@ -230,29 +236,42 @@ it('renders content first rows as custom action triggers instead of per row acti
         ]],
     ]]);
 
+    $tree = BuildLayoutBuilderTreeAction::run(
+        containers: $layout->containers,
+        containerBlocks: ['main' => [$block]],
+        assets: ['main' => [[]]],
+        page: null,
+        selectedContainerKey: 'main',
+        selectedBlockIndex: 0,
+    );
+
+    expect($tree->containers[0]->nodeId)
+        ->toBe(hash('xxh128', 'container:main'))
+        ->and($tree->containers[0]->blocks[0]->nodeId)
+        ->toBe(hash('xxh128', 'block:main:0'));
+
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
-        ->assertSee(__('capell-layout-builder::form.search_content_inventory'))
-        ->assertSee(__('capell-layout-builder::message.content_inventory_search_empty'))
-        ->assertSee(__('capell-layout-builder::message.content_inventory_search_hint'))
-        ->assertSeeHtml('data-layout-content-search-input')
-        ->assertSeeHtml('data-layout-content-search-empty')
-        ->assertSeeHtml('data-layout-content-search=')
-        ->assertSeeHtml('data-layout-content-source-field=')
-        ->assertSeeHtml('data-layout-content-action="editBlockAsset"')
+        ->assertSee(__('capell-layout-builder::form.search_layout_tree'))
+        ->assertSee('Featured')
+        ->assertSeeHtml('data-layout-builder-tree-search')
+        ->assertSeeHtml('data-clb-preview-node')
+        ->call('selectBlock', 'main', 0)
+        ->assertSet('selectedContainerKey', 'main')
+        ->assertSet('selectedBlockIndex', 0)
+        ->assertSee(__('capell-layout-builder::button.edit_block'))
         ->assertSeeHtml('mountAction')
-        ->assertSeeHtml('wire:key="layout-content-group-')
-        ->assertSeeHtml('wire:key="layout-content-item-');
+        ->assertDontSeeHtml('data-layout-content-action="editBlockAsset"');
 
-    $contentFirstView = file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/content-first.blade.php');
-    $assetRowView = file_get_contents(__DIR__ . '/../../../resources/views/components/filament/layout-builder/asset.blade.php');
+    $treeView = file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/visual-tree.blade.php');
+    $inspectorView = file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/visual-inspector.blade.php');
 
-    expect($contentFirstView)
+    expect($treeView)
         ->not->toContain('$this->editBlockAssetAction')
-        ->and($assetRowView)
-        ->not->toContain('$this->editBlockAssetAction');
+        ->and($inspectorView)
+        ->toContain('$this->editBlockAction');
 });
 
-it('renders block copy source rows with an edit action from the package namespace', function (): void {
+it('renders block copy in the visual preview from the package namespace', function (): void {
     $language = Language::factory()->create();
     $block = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
@@ -276,12 +295,13 @@ it('renders block copy source rows with an edit action from the package namespac
         ]],
     ]]);
 
-    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
-        ->assertSee(__('capell-layout-builder::generic.block_content_sources'))
-        ->assertSee(__('capell-layout-builder::generic.rendered_text'))
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSee('Every section can be rebuilt in the layout builder')
-        ->assertSee(__('capell-layout-builder::button.edit_block_copy'))
-        ->assertSeeHtml('data-layout-content-action="editBlock"');
+        ->assertSeeHtml('data-clb-preview-node-type="block"');
+
+    expect($component->get('visualPreviewHtml'))
+        ->toContain('Every section can be rebuilt in the layout builder')
+        ->toContain('Widget-owned support copy.');
 });
 
 it('sends layout only editors straight to the advanced layout editor from the package namespace', function (): void {
@@ -297,7 +317,7 @@ it('sends layout only editors straight to the advanced layout editor from the pa
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSet('editorMode', 'layout_first')
         ->assertSee(__('capell-layout-builder::heading.layout_record', ['name' => $layout->name]))
-        ->assertDontSee(__('capell-layout-builder::generic.content_first_editor'));
+        ->assertSee(__('capell-layout-builder::heading.layout_structure'));
 });
 
 it('moves responsive layout mutations through undo and redo stacks from the package namespace', function (): void {

@@ -60,6 +60,12 @@ class WidgetAsset extends Model implements HasMedia, Userstampable
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection(MediaCollectionEnum::Image->value)->singleFile();
+        $this->addMediaCollection('hero_video_desktop')->singleFile();
+        $this->addMediaCollection('hero_video_tablet')->singleFile();
+        $this->addMediaCollection('hero_video_mobile')->singleFile();
+        $this->addMediaCollection('hero_image_desktop')->singleFile();
+        $this->addMediaCollection('hero_image_tablet')->singleFile();
+        $this->addMediaCollection('hero_image_mobile')->singleFile();
     }
 
     /**
