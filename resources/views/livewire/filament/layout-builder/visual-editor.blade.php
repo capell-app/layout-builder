@@ -1,4 +1,5 @@
 @php
+    use Capell\Core\Facades\CapellCore;
     use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
     use Illuminate\Support\Js;
 
@@ -7,19 +8,60 @@
     $breakpointWidths = collect(LayoutBreakpoint::cases())
         ->mapWithKeys(fn (LayoutBreakpoint $breakpoint): array => [$breakpoint->value => $breakpoint->maxCanvasWidth()])
         ->all();
+    $previewBlockActions = [];
+
+    foreach ($tree->containers as $treeContainer) {
+        foreach ($treeContainer->blocks as $treeBlock) {
+            $block = $this->getContainerBlock($treeBlock->containerKey, $treeBlock->blockIndex);
+            $hasPageAssets = $this->hasPageAssets($treeBlock->containerKey, $treeBlock->blockIndex);
+            $assetTypes = collect($this->getBlockAssetTypes($block))
+                ->map(static fn (string $assetType): array => [
+                    'type' => $assetType,
+                    'label' => CapellCore::getAsset($assetType)->getLabel(),
+                    'selectLabel' => __('capell-layout-builder::button.select_asset_type', ['asset' => CapellCore::getAsset($assetType)->getLabel()]),
+                    'createLabel' => __('capell-layout-builder::button.add_new_asset_type', ['asset' => CapellCore::getAsset($assetType)->getLabel()]),
+                ])
+                ->values()
+                ->all();
+
+            $previewBlockActions[$treeBlock->nodeId] = [
+                'type' => 'block',
+                'containerKey' => $treeBlock->containerKey,
+                'blockIndex' => $treeBlock->blockIndex,
+                'label' => $treeBlock->label,
+                'assetTypes' => $assetTypes,
+                'canEditContent' => $this->canEditContent(),
+                'canEditLayout' => $this->canEditLayout(),
+                'hasLayoutSettings' => (bool) $this->getContainerBlockConfigurator($treeBlock->containerKey, $treeBlock->blockIndex),
+                'canTogglePageAssets' => $this->inPageContext() && $assetTypes !== [],
+                'toggleAssetsLabel' => __(
+                    $hasPageAssets
+                        ? 'capell-layout-builder::button.convert_block_assets'
+                        : 'capell-layout-builder::button.convert_page_assets',
+                ),
+            ];
+        }
+    }
 @endphp
 
-@once
-    <script>
+@script
+    <script data-navigate-once>
         window.capellLayoutBuilderVisualEditor = (config = {}) => ({
             treeOpen: false,
-            inspectorOpen: false,
+            compactPanels: false,
+            actionLoading: false,
             search: '',
             selectedNode: config.selectedNode || null,
             activeBreakpoint: config.activeBreakpoint || 'desktop',
             breakpointWidths: config.breakpointWidths || {},
+            previewBlockActions: config.previewBlockActions || {},
+            actionLabels: config.actionLabels || {},
             previewSignature: config.previewSignature || '',
             init() {
+                this.syncPanelLayout()
+                new ResizeObserver(() => this.syncPanelLayout()).observe(
+                    this.$el,
+                )
                 this.renderPreview()
             },
             shadowStyles() {
@@ -48,8 +90,24 @@
                     [data-clb-preview-node] { cursor: pointer; pointer-events: auto; }
                     [data-clb-preview-node]:hover { outline: 2px solid rgba(59, 130, 246, .55); outline-offset: 3px; }
                     [data-clb-preview-node].is-selected { outline: 3px solid #2563eb; outline-offset: 4px; box-shadow: 0 0 0 5px rgba(37, 99, 235, .12); }
+                    .clb-preview-actionbar { position: absolute; top: .5rem; right: .5rem; z-index: 20; display: inline-flex; align-items: center; gap: .25rem; border: 1px solid rgba(148, 163, 184, .38); border-radius: 999px; background: rgba(15, 23, 42, .9); padding: .25rem; opacity: 0; pointer-events: none; transform: translateY(-.125rem); transition: opacity .15s ease, transform .15s ease; box-shadow: 0 12px 30px rgba(15, 23, 42, .22); }
+                    [data-clb-preview-node-type="block"]:hover > .clb-preview-actionbar, [data-clb-preview-node-type="block"].is-selected > .clb-preview-actionbar, .clb-preview-actionbar:focus-within { opacity: 1; pointer-events: auto; transform: translateY(0); }
+                    .clb-preview-actionbar button { pointer-events: auto !important; }
+                    .clb-preview-action-button { display: inline-flex; width: 1.75rem; height: 1.75rem; align-items: center; justify-content: center; border: 0; border-radius: 999px; background: transparent; color: #fff; cursor: pointer; padding: 0; transition: background-color .15s ease, color .15s ease; }
+                    .clb-preview-action-button:hover, .clb-preview-action-button:focus-visible { background: rgba(255, 255, 255, .14); outline: none; }
+                    .clb-preview-action-button-danger:hover, .clb-preview-action-button-danger:focus-visible { background: rgba(239, 68, 68, .18); color: #fecaca; }
+                    .clb-preview-action-button svg { width: 1rem; height: 1rem; stroke-width: 2; }
+                    .clb-preview-more { position: relative; }
+                    .clb-preview-menu { position: absolute; top: calc(100% + .5rem); right: 0; display: none; min-width: 15rem; border: 1px solid rgba(148, 163, 184, .25); border-radius: .625rem; background: #fff; padding: .35rem; color: #111827; box-shadow: 0 20px 45px rgba(15, 23, 42, .24); }
+                    .clb-preview-menu.is-open { display: grid; gap: .125rem; }
+                    .clb-preview-menu button { display: flex; width: 100%; align-items: center; justify-content: flex-start; border: 0; border-radius: .4rem; background: transparent; color: #111827; cursor: pointer; font: inherit; font-size: .8125rem; font-weight: 650; padding: .5rem .625rem; text-align: left; }
+                    .clb-preview-menu button:hover, .clb-preview-menu button:focus-visible { background: #f3f4f6; outline: none; }
+                    .clb-preview-menu-heading { margin: .25rem .625rem .125rem; color: #64748b; font-size: .6875rem; font-weight: 800; text-transform: uppercase; }
                     @media (max-width: 720px) { .clb-preview-main { grid-template-columns: 1fr; } .clb-preview-container { grid-column: 1 / -1; } }
                 `
+            },
+            syncPanelLayout() {
+                this.compactPanels = this.$el.offsetWidth <= 1152
             },
             renderPreview() {
                 const host = this.$refs.previewHost
@@ -68,12 +126,159 @@
                             node.classList.add('is-selected')
                         }
 
+                        if (node.dataset.clbPreviewNodeType === 'block') {
+                            this.attachBlockActions(node)
+                        }
+
                         node.addEventListener('click', (event) => {
+                            const selectedTarget = event
+                                .composedPath()
+                                .find(
+                                    (target) =>
+                                        target instanceof HTMLElement &&
+                                        target.dataset.clbPreviewNode,
+                                )
+
+                            if (selectedTarget !== node) {
+                                return
+                            }
+
                             event.preventDefault()
                             event.stopPropagation()
-                            this.selectedNode = node.dataset.clbPreviewNode
-                            this.$wire.selectPreviewNode(this.selectedNode)
+                            this.openWidgetEditor(node.dataset.clbPreviewNode)
                         })
+                    },
+                )
+            },
+            icon(name) {
+                const icons = {
+                    edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m16.9 4.6 2.5 2.5"/><path d="M14 7.5 5.5 16 5 19l3-.5 8.5-8.5"/></svg>',
+                    copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="10" height="10" rx="2"/><path d="M5 15V7a2 2 0 0 1 2-2h8"/></svg>',
+                    trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h16"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/></svg>',
+                    more: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 6h.01"/><path d="M12 12h.01"/><path d="M12 18h.01"/></svg>',
+                }
+
+                return icons[name] || ''
+            },
+            attachBlockActions(node) {
+                const action =
+                    this.previewBlockActions[node.dataset.clbPreviewNode]
+
+                if (!action) return
+
+                const toolbar = document.createElement('div')
+                toolbar.className = 'clb-preview-actionbar'
+                toolbar.innerHTML = this.blockActionsHtml(action)
+                node.appendChild(toolbar)
+
+                toolbar
+                    .querySelectorAll('[data-clb-action]')
+                    .forEach((button) => {
+                        button.addEventListener('click', (event) => {
+                            event.preventDefault()
+                            event.stopPropagation()
+                            this.runPreviewAction(
+                                button.dataset.clbAction,
+                                action,
+                                {
+                                    type: button.dataset.clbAssetType,
+                                    types: action.assetTypes.map(
+                                        (assetType) => assetType.type,
+                                    ),
+                                },
+                            )
+                        })
+                    })
+
+                toolbar
+                    .querySelector('[data-clb-menu-toggle]')
+                    ?.addEventListener('click', (event) => {
+                        event.preventDefault()
+                        event.stopPropagation()
+                        toolbar
+                            .querySelector('.clb-preview-menu')
+                            ?.classList.toggle('is-open')
+                    })
+            },
+            blockActionsHtml(action) {
+                const labels = this.actionLabels
+                const moreItems = []
+
+                if (action.hasLayoutSettings) {
+                    moreItems.push(
+                        this.menuButton(
+                            'editLayoutBlock',
+                            labels.blockSettings,
+                        ),
+                    )
+                }
+
+                if (action.canTogglePageAssets) {
+                    moreItems.push(
+                        this.menuButton(
+                            'togglePageAssets',
+                            action.toggleAssetsLabel,
+                        ),
+                    )
+                }
+
+                if (action.assetTypes.length > 0) {
+                    moreItems.push(
+                        `<div class="clb-preview-menu-heading">${labels.assets}</div>`,
+                    )
+                    action.assetTypes.forEach((assetType) => {
+                        if (action.assetTypes.length > 1) {
+                            moreItems.push(
+                                `<div class="clb-preview-menu-heading">${this.escapeHtml(assetType.label)}</div>`,
+                            )
+                        }
+
+                        moreItems.push(
+                            this.menuButton(
+                                'selectAsset',
+                                assetType.selectLabel,
+                                assetType.type,
+                            ),
+                        )
+                        moreItems.push(
+                            this.menuButton(
+                                'addAsset',
+                                assetType.createLabel,
+                                assetType.type,
+                            ),
+                        )
+                    })
+                }
+
+                return `
+                    <button type="button" class="clb-preview-action-button" data-clb-action="editBlock" title="${this.escapeHtml(labels.edit)}" aria-label="${this.escapeHtml(labels.edit)}">${this.icon('edit')}</button>
+                    ${action.canEditLayout ? `<button type="button" class="clb-preview-action-button" data-clb-action="duplicateBlock" title="${this.escapeHtml(labels.duplicate)}" aria-label="${this.escapeHtml(labels.duplicate)}">${this.icon('copy')}</button>` : ''}
+                    ${action.canEditLayout ? `<button type="button" class="clb-preview-action-button clb-preview-action-button-danger" data-clb-action="removeBlock" title="${this.escapeHtml(labels.remove)}" aria-label="${this.escapeHtml(labels.remove)}">${this.icon('trash')}</button>` : ''}
+                    ${moreItems.length > 0 ? `<span class="clb-preview-more"><button type="button" class="clb-preview-action-button" data-clb-menu-toggle title="${this.escapeHtml(labels.controls)}" aria-label="${this.escapeHtml(labels.controls)}">${this.icon('more')}</button><div class="clb-preview-menu">${moreItems.join('')}</div></span>` : ''}
+                `
+            },
+            menuButton(action, label, assetType = '') {
+                return `<button type="button" data-clb-action="${this.escapeHtml(action)}" data-clb-asset-type="${this.escapeHtml(assetType)}">${this.escapeHtml(label)}</button>`
+            },
+            escapeHtml(value) {
+                return String(value || '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;')
+            },
+            markSelectedPreviewNode() {
+                const root = this.$refs.previewHost?.shadowRoot
+
+                if (!root) return
+
+                root.querySelectorAll('[data-clb-preview-node]').forEach(
+                    (node) => {
+                        node.classList.toggle(
+                            'is-selected',
+                            node.dataset.clbPreviewNode === this.selectedNode,
+                        )
                     },
                 )
             },
@@ -145,35 +350,86 @@
                 this.treeOpen = false
                 this.$nextTick(() => this.$refs.treeToggle?.focus())
             },
-            openInspector() {
-                this.inspectorOpen = true
-                this.$nextTick(() => this.$refs.inspectorDrawer?.focus())
+            openWidgetEditor(node) {
+                const action = this.previewBlockActions[node]
+
+                if (!action) {
+                    this.selectNode(node, () =>
+                        this.$wire.selectPreviewNode(node),
+                    )
+
+                    return
+                }
+
+                this.selectedNode = node
+                this.markSelectedPreviewNode()
+                this.runPreviewAction('editBlock', action)
             },
-            closeInspector() {
-                this.inspectorOpen = false
-                this.$nextTick(() => this.$refs.inspectorToggle?.focus())
+            selectNode(node, callback) {
+                this.selectedNode = node
+                this.markSelectedPreviewNode()
+
+                let result
+
+                try {
+                    result = callback()
+                } catch (error) {
+                    throw error
+                }
+
+                Promise.resolve(result).then(() =>
+                    this.markSelectedPreviewNode(),
+                )
             },
             selectFromTree(node, callback) {
-                this.selectedNode = node
-                callback()
-
-                if (window.matchMedia('(max-width: 1023px)').matches) {
-                    this.treeOpen = false
-                    this.inspectorOpen = true
+                this.selectNode(node, callback)
+            },
+            runPreviewAction(actionName, action, extra = {}) {
+                const args = {
+                    containerKey: action.containerKey,
+                    blockIndex: action.blockIndex,
                 }
+
+                if (extra.type) {
+                    args.type = extra.type
+                }
+
+                if (extra.types) {
+                    args.types = extra.types
+                }
+
+                this.actionLoading = true
+
+                return Promise.resolve(
+                    this.$wire.mountAction(actionName, args),
+                ).finally(() => {
+                    this.actionLoading = false
+                })
             },
         })
     </script>
-@endonce
+@endscript
 
 <section
     x-data="window.capellLayoutBuilderVisualEditor({
                 selectedNode: {{ Js::from($this->selectedPreviewNodeHandle) }},
                 activeBreakpoint: {{ Js::from($activePreviewBreakpoint->value) }},
                 breakpointWidths: {{ Js::from($breakpointWidths) }},
+                previewBlockActions: {{ Js::from($previewBlockActions) }},
+                actionLabels:
+                    {{
+                    Js::from([
+                        'assets' => __('capell-layout-builder::heading.assets'),
+                        'blockSettings' => __('capell-layout-builder::button.edit_layout_block'),
+                        'controls' => __('capell-layout-builder::button.controls'),
+                        'duplicate' => __('capell-layout-builder::button.duplicate_block'),
+                        'edit' => __('capell-layout-builder::button.edit_block'),
+                        'remove' => __('capell-layout-builder::button.remove_block'),
+                    ])
+                }},
                 previewSignature: {{ Js::from($this->visualPreviewSignature) }},
             })"
-    x-on:keydown.escape.window="treeOpen ? closeTree() : inspectorOpen ? closeInspector() : null"
+    x-on:keydown.escape.window="treeOpen ? closeTree() : null"
     class="layout-builder-visual-editor"
 >
     <div class="layout-builder-visual-toolbar">
@@ -189,42 +445,41 @@
                     {{ __('capell-layout-builder::button.structure') }}
                 </span>
             </button>
-
-            <button
-                x-ref="inspectorToggle"
-                type="button"
-                class="layout-builder-panel-toggle"
-                x-on:click="openInspector()"
-            >
-                @svg('heroicon-o-adjustments-horizontal', 'h-5 w-5')
-                <span>
-                    {{ __('capell-layout-builder::button.inspector') }}
-                </span>
-            </button>
         </div>
 
-        <div class="layout-builder-visual-status">
+        <div
+            class="layout-builder-breakpoint-controls"
+            aria-label="{{ __('capell-layout-builder::button.preview_breakpoint') }}"
+        >
+            @foreach (LayoutBreakpoint::cases() as $breakpoint)
+                <button
+                    type="button"
+                    class="layout-builder-breakpoint-button"
+                    x-on:click="setActiveBreakpointPreview(@js($breakpoint->value))"
+                    x-bind:aria-pressed="activeBreakpoint === @js($breakpoint->value)"
+                >
+                    @svg(match ($breakpoint) {
+                        LayoutBreakpoint::Desktop => 'heroicon-o-computer-desktop',
+                        LayoutBreakpoint::Tablet => 'heroicon-o-device-tablet',
+                        LayoutBreakpoint::Mobile => 'heroicon-o-device-phone-mobile',
+                    }, 'h-4 w-4')
+                    <span class="sr-only">
+                        {{ __('capell-layout-builder::button.' . $breakpoint->value) }}
+                    </span>
+                </button>
+            @endforeach
+        </div>
+
+        <div class="layout-builder-visual-actions">
             <div
-                class="layout-builder-breakpoint-controls"
-                aria-label="{{ __('capell-layout-builder::button.preview_breakpoint') }}"
+                x-show="actionLoading"
+                x-cloak
+                class="layout-builder-action-inline-loading"
             >
-                @foreach (LayoutBreakpoint::cases() as $breakpoint)
-                    <button
-                        type="button"
-                        class="layout-builder-breakpoint-button"
-                        x-on:click="setActiveBreakpointPreview(@js($breakpoint->value))"
-                        x-bind:aria-pressed="activeBreakpoint === @js($breakpoint->value)"
-                    >
-                        @svg(match ($breakpoint) {
-                            LayoutBreakpoint::Desktop => 'heroicon-o-computer-desktop',
-                            LayoutBreakpoint::Tablet => 'heroicon-o-device-tablet',
-                            LayoutBreakpoint::Mobile => 'heroicon-o-device-phone-mobile',
-                        }, 'h-4 w-4')
-                        <span class="sr-only">
-                            {{ __('capell-layout-builder::button.' . $breakpoint->value) }}
-                        </span>
-                    </button>
-                @endforeach
+                @svg('heroicon-o-arrow-path', 'h-4 w-4 animate-spin')
+                <span>
+                    {{ __('capell-layout-builder::message.editor_loading') }}
+                </span>
             </div>
 
             <span
@@ -282,19 +537,13 @@
                 }"
             ></div>
         </div>
-
-        <aside
-            class="layout-builder-visual-panel layout-builder-visual-panel-inspector"
-        >
-            @include('capell-layout-builder::livewire.filament.layout-builder.visual-inspector')
-        </aside>
     </div>
 
     <div
-        x-show="treeOpen || inspectorOpen"
+        x-show="treeOpen"
         x-cloak
         class="layout-builder-drawer-backdrop"
-        x-on:click="treeOpen ? closeTree() : closeInspector()"
+        x-on:click="closeTree()"
     ></div>
 
     <aside
@@ -306,16 +555,5 @@
         class="layout-builder-responsive-drawer layout-builder-responsive-drawer-left"
     >
         @include('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree])
-    </aside>
-
-    <aside
-        x-ref="inspectorDrawer"
-        x-show="inspectorOpen"
-        x-cloak
-        x-transition
-        tabindex="-1"
-        class="layout-builder-responsive-drawer layout-builder-responsive-drawer-right"
-    >
-        @include('capell-layout-builder::livewire.filament.layout-builder.visual-inspector')
     </aside>
 </section>

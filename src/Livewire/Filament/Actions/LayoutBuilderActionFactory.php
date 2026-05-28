@@ -978,6 +978,7 @@ final class LayoutBuilderActionFactory
             $this->livewire->dispatch('workspace-changed', workspaceId: $draftableNewAssetWorkspace->id);
 
             $action->success();
+            $this->notifyFrontendAuthoringSaved('pending_approval');
 
             return;
         }
@@ -1288,6 +1289,7 @@ final class LayoutBuilderActionFactory
         $livewire->layoutUpdated();
 
         $action->success();
+        $this->notifyFrontendAuthoringSaved();
     }
 
     /**
@@ -1627,5 +1629,27 @@ final class LayoutBuilderActionFactory
         $configurator->saveRelationships();
 
         $record->update($data);
+
+        $this->clearCachedPagesForWidget($record);
+        $this->notifyFrontendAuthoringSaved();
+    }
+
+    private function clearCachedPagesForWidget(Widget $record): void
+    {
+        $actionClass = 'Capell\\HtmlCache\\Actions\\ClearCachedUrlsForModelAction';
+
+        if (! class_exists($actionClass)) {
+            return;
+        }
+
+        $actionClass::run(
+            $record,
+            refresh: config('capell-admin.auto_refresh_cache') === true,
+        );
+    }
+
+    private function notifyFrontendAuthoringSaved(string $status = 'published'): void
+    {
+        $this->livewire->dispatch('capell-layout-builder-authoring-saved', status: $status, redirectUrl: null);
     }
 }

@@ -8,6 +8,8 @@
 
     $blockComponent = $component;
     $occurrence = $blockData['occurrence'] ?? 1;
+    $layoutKey = is_object($layout) && method_exists($layout, 'getKey') ? $layout->getKey() : 'global';
+    $blockDomId = 'layout-block-' . hash('xxh128', (string) $layoutKey . ':' . (string) $containerKey . ':' . (string) $blockIndex);
     $blockMeta = is_array($blockData['meta'] ?? null) ? $blockData['meta'] : [];
     $presentation = ResolvePresentationSettingsAction::run(
         instanceSettings: is_array($blockMeta['presentation'] ?? null) ? $blockMeta['presentation'] : [],
@@ -17,7 +19,8 @@
     $blockReferenceData = [
         'container_key' => $containerKey,
         'block_key' => $blockData['widget_key'] ?? $blockData['block_key'] ?? $block->key,
-        'layout_id' => is_object($layout) && method_exists($layout, 'getKey') ? $layout->getKey() : null,
+        'widget_key' => $blockData['widget_key'] ?? $blockData['block_key'] ?? $block->key,
+        'layout_id' => $layoutKey === 'global' ? null : $layoutKey,
         'language_id' => Frontend::language()?->getKey(),
         'occurrence' => $occurrence,
         'page_id' => Frontend::page()?->getKey(),
@@ -70,6 +73,7 @@
 
 @if ($isLazyFragment)
     <div
+        id="{{ $blockDomId }}"
         data-capell-fragment
         data-capell-fragment-url="{{ url('/_capell/fragments/' . rawurlencode($blockReference)) }}"
         class="capell-layout-builder-fragment"
@@ -79,7 +83,7 @@
         :settings="$presentation"
         :resource-public-ids="$resourcePublicIds"
     >
-        <div class="capell-layout-builder-layout-block">
+        <div id="{{ $blockDomId }}" class="capell-layout-builder-layout-block">
             <x-dynamic-component
                 :component="$blockComponent"
                 :$container
@@ -102,7 +106,9 @@
         :settings="$presentation"
         :resource-public-ids="$resourcePublicIds"
     >
-        @livewire($blockComponent, ['blockReference' => $blockReference], key($containerKey . '-' . $block->key . '-' . $occurrence))
+        <div id="{{ $blockDomId }}" class="capell-layout-builder-layout-block">
+            @livewire($blockComponent, ['blockReference' => $blockReference], key($containerKey . '-' . $block->key . '-' . $occurrence))
+        </div>
         <x-capell::interactions :triggers="$interactions" />
     </x-capell::widgets.runtime-wrapper>
 @endif

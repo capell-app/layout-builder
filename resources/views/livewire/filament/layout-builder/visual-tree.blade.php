@@ -39,7 +39,7 @@
                 <button
                     type="button"
                     @class([
-                        'layout-builder-tree-row',
+                        'layout-builder-tree-row layout-builder-tree-row-container',
                         'layout-builder-tree-row-selected' => $container->isSelected,
                     ])
                     x-on:click="selectFromTree(@js($container->nodeId), () => $wire.selectContainer(@js($container->key)))"

@@ -205,8 +205,6 @@ return [
     'preview_status_error' => 'Preview failed',
     'preview_status_refreshing' => 'Refreshing preview',
     'preview_status_stale' => 'Preview needs refresh',
-    'inspector_empty_description' => 'Select a container or widget to edit its settings.',
-    'inspector_container_description' => 'Editing :container container settings.',
-    'inspector_block_description' => 'Editing :block widget.',
+    'editor_loading' => 'Loading editor',
     'select_layout_item' => 'Select a container or widget from the structure panel or preview.',
 ];

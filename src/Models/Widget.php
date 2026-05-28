@@ -160,10 +160,13 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
 
     public function getMetaComponent(): ?string
     {
+        $blueprint = $this->loadedBlueprint();
+        $blueprintMeta = $blueprint instanceof CoreBlueprint ? ($blueprint->meta ?? []) : [];
+
         $value = $this->component
             ?? $this->meta['component']
-            ?? $this->loadedBlueprint()?->component
-            ?? $this->loadedBlueprint()?->meta['component']
+            ?? ($blueprint instanceof CoreBlueprint ? $blueprint->component : null)
+            ?? ($blueprintMeta['component'] ?? null)
             ?? null;
 
         return $value === null ? null : (string) $value;
@@ -171,10 +174,13 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
 
     public function getComponentItem(): ?string
     {
+        $blueprint = $this->loadedBlueprint();
+        $blueprintMeta = $blueprint instanceof CoreBlueprint ? ($blueprint->meta ?? []) : [];
+
         $value = $this->component_item
             ?? $this->meta['component_item']
-            ?? $this->loadedBlueprint()?->component_item
-            ?? $this->loadedBlueprint()?->meta['component_item']
+            ?? ($blueprint instanceof CoreBlueprint ? $blueprint->component_item : null)
+            ?? ($blueprintMeta['component_item'] ?? null)
             ?? null;
 
         return $value === null ? null : (string) $value;
@@ -182,10 +188,13 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
 
     public function getViewFile(): ?string
     {
+        $blueprint = $this->loadedBlueprint();
+        $blueprintMeta = $blueprint instanceof CoreBlueprint ? ($blueprint->meta ?? []) : [];
+
         $value = $this->view_file
             ?? $this->meta['view_file']
-            ?? $this->loadedBlueprint()?->view_file
-            ?? $this->loadedBlueprint()?->meta['view_file']
+            ?? ($blueprint instanceof CoreBlueprint ? $blueprint->view_file : null)
+            ?? ($blueprintMeta['view_file'] ?? null)
             ?? null;
 
         return $value === null ? null : (string) $value;

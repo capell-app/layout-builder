@@ -203,12 +203,18 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
     {
         $basePath = $this->packageBasePath();
         $publishDir = realpath($basePath . '/publishes');
+        $cssSourcePath = $basePath . '/resources/css/layout-builder/admin/capell-layout-filament.css';
 
         throw_if(in_array($publishDir, ['', '0', false], true), RuntimeException::class, 'Publish directory not found.');
 
         FilamentAsset::register(
             [
-                Css::make('capell-layout-builder-filament', $basePath . '/resources/css/layout-builder/admin/capell-layout-filament.css'),
+                Css::make('capell-layout-builder-filament', $cssSourcePath)
+                    ->html(fn (): string => sprintf(
+                        '<link href="%s?v=%s" rel="stylesheet" data-navigate-track />',
+                        asset('css/capell-layout-builder/capell-layout-builder-filament.css'),
+                        filemtime($cssSourcePath),
+                    )),
                 AlpineComponent::make('layout-builder', $publishDir . '/build/js/components/layout-builder/admin/layout-builder.js')
                     ->loadedOnRequest(),
             ],

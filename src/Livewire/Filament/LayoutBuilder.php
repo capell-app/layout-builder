@@ -47,7 +47,6 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
@@ -180,6 +179,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         ?int $siteId = null,
         ?int $pageId = null,
         ?string $pageClass = null,
+        ?string $initialContainerKey = null,
+        ?int $initialBlockIndex = null,
     ): void {
         $this->resolveMountModels($layoutId, $siteId, $pageId, $pageClass);
         $this->assertLayoutMatchesPageSite();
@@ -188,7 +189,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->assertCanUseLayoutBuilder();
 
         $this->loadNew();
-        $this->initializeVisualEditor();
+        $this->initializeVisualEditor($initialContainerKey, $initialBlockIndex);
     }
 
     public function boot(): void
@@ -250,6 +251,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->assertCanUpdateLayout();
 
         if (! $this->layoutModified) {
+            $this->dispatch('capell-layout-builder-authoring-saved', status: 'published', redirectUrl: null);
+
             return true;
         }
 
@@ -288,6 +291,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
                 ->success()
                 ->send();
         }
+
+        $this->dispatch('capell-layout-builder-authoring-saved', status: 'published', redirectUrl: null);
 
         return true;
     }
@@ -429,26 +434,6 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         return $this->containerBlocks[$this->selectedContainerKey][$this->selectedBlockIndex] ?? null;
     }
 
-    #[Computed]
-    public function selectedInspectorDescription(): string
-    {
-        if ($this->selectedContainerKey === null) {
-            return __('capell-layout-builder::message.inspector_empty_description');
-        }
-
-        if ($this->selectedBlockIndex === null) {
-            return __('capell-layout-builder::message.inspector_container_description', [
-                'container' => Str::headline($this->selectedContainerKey),
-            ]);
-        }
-
-        $block = $this->selectedBlock();
-
-        return __('capell-layout-builder::message.inspector_block_description', [
-            'block' => $block?->name ?? __('capell-admin::generic.unknown'),
-        ]);
-    }
-
     public function selectContainer(string $containerKey): void
     {
         $this->ensureLoaded();
@@ -477,20 +462,20 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     public function selectPreviewNode(string $handle): void
     {
-        $node = $this->visualPreviewNodeMap[$handle] ?? null;
+        $node = $this->visualPreviewNodeMap[$handle] ?? $this->resolvePreviewNodeHandle($handle);
 
         if (! is_array($node)) {
             return;
         }
 
         if (($node['type'] ?? null) === 'block' && isset($node['containerKey'], $node['blockIndex'])) {
-            $this->selectBlock((string) $node['containerKey'], (int) $node['blockIndex']);
+            $this->selectBlock($node['containerKey'], $node['blockIndex']);
 
             return;
         }
 
         if (($node['type'] ?? null) === 'container' && isset($node['containerKey'])) {
-            $this->selectContainer((string) $node['containerKey']);
+            $this->selectContainer($node['containerKey']);
         }
     }
 
@@ -839,13 +824,23 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->trackNewContainerKeysSince($knownContainerKeys);
     }
 
-    protected function initializeVisualEditor(): void
+    protected function initializeVisualEditor(?string $initialContainerKey = null, ?int $initialBlockIndex = null): void
     {
-        $this->selectedContainerKey ??= is_array($this->containers) ? array_key_first($this->containers) : null;
-        $this->selectedBlockIndex = null;
-        $this->selectedPreviewNodeHandle = $this->selectedContainerKey === null
-            ? null
-            : $this->handleForContainer((string) $this->selectedContainerKey);
+        if (
+            $initialContainerKey !== null
+            && $initialBlockIndex !== null
+            && isset($this->containers[$initialContainerKey]['widgets'][$initialBlockIndex])
+        ) {
+            $this->selectedContainerKey = $initialContainerKey;
+            $this->selectedBlockIndex = $initialBlockIndex;
+            $this->selectedPreviewNodeHandle = $this->handleForBlock($initialContainerKey, $initialBlockIndex);
+        } else {
+            $this->selectedContainerKey ??= is_array($this->containers) ? array_key_first($this->containers) : null;
+            $this->selectedBlockIndex = null;
+            $this->selectedPreviewNodeHandle = $this->selectedContainerKey === null
+                ? null
+                : $this->handleForContainer($this->selectedContainerKey);
+        }
 
         $this->refreshVisualPreview();
     }
@@ -871,6 +866,47 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     private function handleForBlock(string $containerKey, int $blockIndex): string
     {
         return hash('xxh128', 'block:' . $containerKey . ':' . $blockIndex);
+    }
+
+    /**
+     * @return array{type: string, containerKey: string, blockIndex?: int}|null
+     */
+    private function resolvePreviewNodeHandle(string $handle): ?array
+    {
+        foreach ($this->containers ?? [] as $containerKey => $container) {
+            $normalizedContainerKey = (string) $containerKey;
+
+            if ($this->handleForContainer($normalizedContainerKey) === $handle) {
+                return [
+                    'type' => 'container',
+                    'containerKey' => $normalizedContainerKey,
+                ];
+            }
+
+            $widgets = is_array($container) && is_array($container['widgets'] ?? null)
+                ? $container['widgets']
+                : [];
+
+            foreach (array_keys($widgets) as $blockIndex) {
+                if (! is_int($blockIndex) && ! ctype_digit((string) $blockIndex)) {
+                    continue;
+                }
+
+                $normalizedBlockIndex = (int) $blockIndex;
+
+                if ($this->handleForBlock($normalizedContainerKey, $normalizedBlockIndex) !== $handle) {
+                    continue;
+                }
+
+                return [
+                    'type' => 'block',
+                    'containerKey' => $normalizedContainerKey,
+                    'blockIndex' => $normalizedBlockIndex,
+                ];
+            }
+        }
+
+        return null;
     }
 
     private function resolveMountModels(

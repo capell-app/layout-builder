@@ -26,6 +26,8 @@ use Capell\LayoutBuilder\Support\ContentGraph\Extractors\BlockAssetContentGraphE
 use Capell\LayoutBuilder\Support\ContentGraph\Extractors\BlockContentGraphExtractor;
 use Capell\LayoutBuilder\Support\ContentGraph\Extractors\LayoutBlockContentGraphExtractor;
 use Capell\LayoutBuilder\Support\DefaultPublicBlockPayloadResolver;
+use Capell\LayoutBuilder\Support\FrontendAuthoring\LayoutBuilderEditableRegionContributor;
+use Capell\LayoutBuilder\Support\FrontendAuthoring\LayoutBuilderEditorSurface;
 use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
 use Capell\LayoutBuilder\Support\LayoutBlockWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
@@ -65,6 +67,7 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->tag([BlockPresentationPublicBlockPayloadContributor::class], PublicBlockPayloadContributor::TAG);
         $this->app->tag([LayoutBuilderRuntimeManifestContributor::class], FrontendRuntimeManifestContributor::TAG);
         $this->app->tag([LayoutBlockWidgetResourceUsageContributor::class], WidgetResourceUsageContributor::TAG);
+        $this->registerFrontendAuthoringIntegration();
         $this->app->tag([
             BlockAssetContentGraphExtractor::class,
             BlockContentGraphExtractor::class,
@@ -118,5 +121,32 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         }
 
         $this->app->make(ReservedFrontendPathRegistry::class)->reservePrefix('_capell/fragments');
+    }
+
+    private function registerFrontendAuthoringIntegration(): void
+    {
+        if (! interface_exists('Capell\\FrontendAuthoring\\Contracts\\EditableRegionEditorSurface')) {
+            return;
+        }
+
+        $this->app->tag([LayoutBuilderEditableRegionContributor::class], 'capell-frontend-authoring:editable-regions');
+
+        $registryClass = 'Capell\\FrontendAuthoring\\Support\\EditorSurfaceRegistry';
+
+        if (! class_exists($registryClass)) {
+            return;
+        }
+
+        $registerSurface = function (object $registry): void {
+            if (method_exists($registry, 'register')) {
+                $registry->register($this->app->make(LayoutBuilderEditorSurface::class));
+            }
+        };
+
+        $this->app->afterResolving($registryClass, $registerSurface);
+
+        if ($this->app->resolved($registryClass)) {
+            $registerSurface($this->app->make($registryClass));
+        }
     }
 }
