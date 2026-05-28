@@ -18,10 +18,6 @@ return new class extends Migration
             if (! Schema::hasColumn('layouts', 'containers')) {
                 $table->json('containers')->nullable();
             }
-
-            if (! Schema::hasColumn('layouts', 'widgets')) {
-                $table->json('widgets')->nullable();
-            }
         });
     }
 
@@ -36,9 +32,6 @@ return new class extends Migration
                 $table->dropColumn('containers');
             }
 
-            if (Schema::hasColumn('layouts', 'widgets')) {
-                $table->dropColumn('widgets');
-            }
         });
     }
 };

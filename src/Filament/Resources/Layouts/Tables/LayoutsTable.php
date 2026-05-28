@@ -19,6 +19,7 @@ use Filament\Tables\Columns\Layout\View;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Override;
 
 class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\LayoutsTable
@@ -50,7 +51,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                     ->view(
                         'capell-layout-builder::components.infolists.entries.layout-blocks',
                         [
-                            'widgets' => $record->getRelationValue('layoutBlocks'),
+                            'widgets' => self::widgetBlocksForLayout($record),
                         ],
                     ),
             ]);
@@ -71,8 +72,11 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
 
         if ($nameColumnIndex !== false && ! $usesCardLayout) {
             array_splice($columns, $nameColumnIndex + 1, 0, [
-                TextColumn::make('layoutBlocks.name')
+                TextColumn::make('layout_blocks')
                     ->label(__('capell-layout-builder::table.container_blocks'))
+                    ->getStateUsing(fn (Layout $record): array => self::widgetBlocksForLayout($record)
+                        ->pluck('name')
+                        ->all())
                     ->wrap()
                     ->color(FilamentColorEnum::LightGray->value)
                     ->bulleted()
@@ -136,10 +140,40 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                 ->modifyQueryUsing(
                     fn (Builder $query, array $state) => $query->when(
                         isset($state['value']) && $state['value'] !== '',
-                        fn (Builder $query) => $query->whereJsonContains('widgets', $state['value']),
+                        fn (Builder $query): Builder => self::whereContainsWidgetKey($query, (string) $state['value']),
                     ),
                 ),
             ...parent::getTableFilters(),
         ];
+    }
+
+    /**
+     * @return Collection<int, Widget>
+     */
+    private static function widgetBlocksForLayout(Layout $layout): Collection
+    {
+        $widgetKeys = $layout->widgets;
+
+        if ($widgetKeys === []) {
+            return collect();
+        }
+
+        return Widget::query()
+            ->whereIn('key', $widgetKeys)
+            ->get()
+            ->sortBy(fn (Widget $widget): int => array_search($widget->key, $widgetKeys, true) ?: 0)
+            ->values();
+    }
+
+    private static function whereContainsWidgetKey(Builder $query, string $widgetKey): Builder
+    {
+        $escapedWidgetKey = addcslashes($widgetKey, '\%_');
+
+        return $query->where(function (Builder $query) use ($escapedWidgetKey): void {
+            $query
+                ->where('containers', 'like', '%"widget_key":"' . $escapedWidgetKey . '"%')
+                ->orWhere('containers', 'like', '%"widgets":["' . $escapedWidgetKey . '"%')
+                ->orWhere('containers', 'like', '%,"' . $escapedWidgetKey . '"%');
+        });
     }
 }

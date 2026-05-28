@@ -23,7 +23,6 @@ final class HomeLayoutInterceptor implements LayoutInterceptorInterface
 
         $layout->update([
             'containers' => [],
-            'widgets' => [],
         ]);
     }
 }

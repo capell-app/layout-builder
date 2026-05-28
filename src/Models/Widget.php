@@ -21,7 +21,6 @@ use Capell\Core\Models\Contracts\Publishable;
 use Capell\Core\Models\Contracts\Statusable;
 use Capell\Core\Models\Contracts\Translatable;
 use Capell\Core\Models\Contracts\Userstampable;
-use Capell\Core\Models\Layout as CoreLayout;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Database\Factories\WidgetFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -39,8 +38,6 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
-use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
-use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
 
 /**
  * @implements Blueprintable<$this>
@@ -54,7 +51,6 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
     /** @use HasFactory<WidgetFactory> */
     use HasFactory;
 
-    use HasJsonRelationships;
     use HasMetaData;
     use HasPublishDates;
     use HasRelationships;
@@ -265,12 +261,6 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
         );
     }
 
-    /** @return HasManyJson<CoreLayout, $this> */
-    public function layouts(): HasManyJson
-    {
-        return $this->hasManyJson(CoreLayout::class, 'widgets', 'key');
-    }
-
     /**
      * @param  Builder<Model>  $query
      */
@@ -279,10 +269,13 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
         $query->addSelect(DB::raw(
             match (DB::getDriverName()) {
                 'sqlite' => <<<'SQL'
-                    (SELECT COUNT(*) FROM layouts WHERE EXISTS (SELECT 1 FROM json_each(layouts.widgets) WHERE value = widgets.key))
+                    (SELECT COUNT(*) FROM layouts WHERE EXISTS (
+                        SELECT 1 FROM json_tree(layouts.containers)
+                        WHERE json_tree.value = widgets.key
+                    ))
                 SQL,
                 default => <<<'SQL'
-                    (SELECT COUNT(*) FROM layouts WHERE JSON_CONTAINS(layouts.widgets, JSON_QUOTE(widgets.key)))
+                    (SELECT COUNT(*) FROM layouts WHERE JSON_SEARCH(layouts.containers, 'one', widgets.key) IS NOT NULL)
                 SQL,
             } . ' AS layouts_count',
         ));

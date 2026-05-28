@@ -29,10 +29,7 @@ final class LayoutBlockContentGraphExtractor implements ContentGraphExtractor
             return ContentGraphEdgeCollectionData::make();
         }
 
-        $widgetKeys = collect([
-            ...$this->legacyWidgetKeys($model),
-            ...$this->containerWidgetKeys($model),
-        ])
+        $widgetKeys = collect($this->containerWidgetKeys($model))
             ->filter(fn (mixed $widgetKey): bool => is_string($widgetKey) || is_numeric($widgetKey))
             ->map(fn (mixed $widgetKey): string => (string) $widgetKey)
             ->unique()
@@ -61,16 +58,6 @@ final class LayoutBlockContentGraphExtractor implements ContentGraphExtractor
             });
 
         return ContentGraphEdgeCollectionData::make($edges);
-    }
-
-    /**
-     * @return array<int, mixed>
-     */
-    private function legacyWidgetKeys(Layout $layout): array
-    {
-        return collect((array) $layout->getAttribute('widgets'))
-            ->flatten()
-            ->all();
     }
 
     /**

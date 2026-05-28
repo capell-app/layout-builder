@@ -2,9 +2,13 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Contracts\PackageLifecycleAction;
+use Capell\Core\Contracts\ProgressReporter;
+use Capell\Core\Data\PackageData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\CapellExtension;
 use Capell\Core\Support\Manifest\CapellManifestData;
+use Capell\LayoutBuilder\Actions\InstallLayoutBuilderPackageAction;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 
@@ -18,6 +22,8 @@ afterEach(function (): void {
 
 it('forces migrations when installing layout builder directly', function (): void {
     $migrateForceOptions = [];
+
+    CapellCore::registerPackage('capell-app/layout-builder');
 
     Artisan::command('capell:publish-migrations {--items=*}', fn (): int => Command::SUCCESS);
 
@@ -34,12 +40,23 @@ it('forces migrations when installing layout builder directly', function (): voi
 });
 
 it('installs layout builder from its package manifest', function (): void {
-    $installCalls = [];
+    $installRecorder = new class
+    {
+        /** @var list<string> */
+        public array $calls = [];
+    };
 
-    Artisan::command('capell:layout-builder-install', function () use (&$installCalls): int {
-        $installCalls[] = 'layout-builder';
+    test()->instance(InstallLayoutBuilderPackageAction::class, new readonly class($installRecorder) implements PackageLifecycleAction
+    {
+        public function __construct(private object $installRecorder) {}
 
-        return Command::SUCCESS;
+        /**
+         * @param  array<string, mixed>  $arguments
+         */
+        public function handle(PackageData $package, array $arguments = [], ?ProgressReporter $reporter = null): void
+        {
+            $this->installRecorder->calls[] = $package->name;
+        }
     });
 
     $manifestPath = dirname(__DIR__, 3) . '/capell.json';
@@ -75,7 +92,7 @@ it('installs layout builder from its package manifest', function (): void {
         ->where('composer_name', 'capell-app/layout-builder')
         ->first();
 
-    expect($installCalls)->toBe(['layout-builder'])
+    expect($installRecorder->calls)->toBe(['capell-app/layout-builder'])
         ->and($extension)->not->toBeNull()
         ->and($extension->status->value)->toBe('enabled')
         ->and($extension->installed_at)->not->toBeNull()

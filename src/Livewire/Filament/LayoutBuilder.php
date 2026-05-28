@@ -714,7 +714,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             'Layout Builder requires a layout.',
         );
 
-        if ($this->site === null && $siteId !== null) {
+        if (! $this->site instanceof Site && $siteId !== null) {
             $this->site = Site::query()->find($siteId);
         }
 
@@ -733,7 +733,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             }
         }
 
-        if ($this->site === null && $this->page instanceof Model && $this->page->hasAttribute('site_id')) {
+        if (! $this->site instanceof Site && $this->page instanceof Model && $this->page->hasAttribute('site_id')) {
             $pageSiteId = $this->page->getAttribute('site_id');
 
             if (is_numeric($pageSiteId)) {
@@ -741,7 +741,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             }
         }
 
-        if ($this->site === null && $this->layout->hasAttribute('site_id') && $this->layout->site_id !== null) {
+        if (! $this->site instanceof Site && $this->layout->hasAttribute('site_id') && $this->layout->site_id !== null) {
             $this->site = Site::query()->find((int) $this->layout->site_id);
         }
     }

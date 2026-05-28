@@ -35,7 +35,6 @@ use Capell\LayoutBuilder\Filament\Configurators\Layouts\DefaultLayoutContainerCo
 use Capell\LayoutBuilder\Filament\Configurators\Types\BlockTypeConfigurator;
 use Capell\LayoutBuilder\Filament\Resources\Pages\Tables\PageSelectionTable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\EditWidget;
-use Capell\LayoutBuilder\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetAssetsTable;
 use Capell\LayoutBuilder\Filament\Widgets\LayoutHealthWidgetAbstract;
 use Capell\LayoutBuilder\Filament\Widgets\RecentActivityWidgetAbstract;
@@ -60,7 +59,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 final class LayoutBuilderResidualModalTableSelect extends ModalTableSelect
@@ -410,10 +408,15 @@ it('invalidates generated previews for layouts containing changed block keys', f
             LayoutPreviewMetaKey::STATUS => LayoutPreviewStatusEnum::Ready->value,
         ],
     ]);
-    DB::table('layouts')
-        ->where('id', $layout->getKey())
-        ->update(['widgets' => json_encode(['hero', 'cta'], JSON_THROW_ON_ERROR)]);
-    Layout::factory()->create(['widgets' => ['other']]);
+    Layout::factory()->create([
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    ['widget_key' => 'other'],
+                ],
+            ],
+        ],
+    ]);
     Storage::disk('public')->put('generated-layout-previews/old.png', 'old');
 
     $invalidated = InvalidateBlockLayoutPreviewImagesAction::run(['', null, 'hero', 'hero']);
@@ -548,17 +551,12 @@ it('covers edit block page relation metadata and relation manager table setup', 
     $block->setRelation('type', $type);
 
     $page = new LayoutBuilderResidualEditWidgetPage($block);
-    $relationManager = new LayoutsRelationManager;
-    $relationTable = $relationManager->table(Table::make($relationManager));
-
     capell_expect((string) $page->getTitle())->toContain('Editable Hero')
         ->and($page->exposeSubheading())->toContain('Hero Type')
         ->and($page->exposeBaseHeaderActions())->not->toBeEmpty()
         ->and($page->exposeRecordSwitcherColumns())->toBe(['name', 'admin'])
         ->and($page->exposeRecordSwitcherSearchColumns())->toBe(['name', '`key`', 'admin->notes'])
-        ->and($page->exposeSelectChangerItemLabel($block))->toBe('Editable Hero')
-        ->and(LayoutsRelationManager::getTitle($block, EditWidget::class))->toBe(__('capell-admin::generic.layouts'))
-        ->and($relationTable)->toBeInstanceOf(Table::class);
+        ->and($page->exposeSelectChangerItemLabel($block))->toBe('Editable Hero');
 });
 
 it('orchestrates demo site layout population with creator collaborators', function (): void {
@@ -693,6 +691,46 @@ it('creates demo site content recursively and stops when the site is already lar
     capell_expect($createdContent)->toHaveCount(2)
         ->and($createdContent[0]['translations']['en']['title'])->toBe('Parent')
         ->and($createdContent[1]['parent_id'])->not->toBeNull();
+});
+
+it('creates demo site content from the primary language when english names are unavailable', function (): void {
+    $language = Language::factory()->french(isDefault: true)->create();
+    $site = Site::factory()
+        ->default()
+        ->language($language)
+        ->withTranslations($language)
+        ->create();
+    $site->setRelation('languages', new Collection([$language]));
+
+    $createdContent = [];
+
+    $contentCreator = Mockery::mock(ContentCreator::class);
+    $contentCreator->shouldReceive('createContent')
+        ->once()
+        ->andReturnUsing(function (array $data, Site $targetSite) use (&$createdContent): Page {
+            $page = Page::factory()->site($targetSite)->create([
+                'name' => $data['name'],
+                'parent_id' => $data['parent_id'] ?? null,
+            ]);
+            $createdContent[] = $data;
+
+            return $page;
+        });
+
+    $action = new CreateLayoutBuilderDemoSiteAction;
+
+    invokeLayoutBuilderResidualMethod(
+        $action,
+        'createSiteContents',
+        $contentCreator,
+        ['name' => ['fr' => 'Racine']],
+        $site,
+        new Collection([$language]),
+    );
+
+    capell_expect($createdContent)->toHaveCount(1)
+        ->and($createdContent[0]['name'])->toBe('Racine')
+        ->and($createdContent[0]['translations']['fr']['title'])->toBe('Racine');
 });
 
 it('adds updates preloads and deletes page-scoped block assets through the editor concern', function (): void {

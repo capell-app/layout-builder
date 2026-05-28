@@ -48,10 +48,8 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
             return [];
         }
 
-        $attributes = $layout->getAttributes();
-
-        $widgetKeys = collect(array_key_exists('widgets', $attributes) ? (array) $layout->getAttribute('widgets') : []);
-        $containers = array_key_exists('containers', $attributes) ? $layout->getAttribute('containers') : null;
+        $widgetKeys = collect();
+        $containers = $layout->containers;
 
         if (is_array($containers)) {
             foreach ($containers as $container) {

@@ -11,7 +11,6 @@ use Capell\Admin\Filament\Concerns\HasConfigurableFormActionPosition;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\LayoutBuilder\Enums\ResourceEnum;
 use Capell\LayoutBuilder\Filament\Actions\CreateWidgetAction;
-use Capell\LayoutBuilder\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager;
 use Capell\LayoutBuilder\Models\Widget;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -39,18 +38,6 @@ class EditWidget extends EditRecord
     public static function getResource(): string
     {
         return AdminSurfaceLookup::resource(ResourceEnum::Widget);
-    }
-
-    #[Override]
-    public function getRelationManagers(): array
-    {
-        $relationManagers = $this->getTypeRelationManagers();
-
-        if (! in_array(LayoutsRelationManager::class, $relationManagers, true)) {
-            $relationManagers[] = LayoutsRelationManager::class;
-        }
-
-        return $relationManagers;
     }
 
     #[Override]

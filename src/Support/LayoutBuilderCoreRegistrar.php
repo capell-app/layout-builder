@@ -26,7 +26,6 @@ use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\LivewireComponentsEnum;
 use Capell\LayoutBuilder\Listeners\AfterRecordSaved;
 use Capell\LayoutBuilder\Listeners\LayoutLoaded;
-use Capell\LayoutBuilder\Listeners\LayoutSavingListener;
 use Capell\LayoutBuilder\Listeners\SiteTreeRebuilt;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
@@ -38,7 +37,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Facades\App;
-use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
 use WeakMap;
 
 final class LayoutBuilderCoreRegistrar
@@ -52,7 +50,6 @@ final class LayoutBuilderCoreRegistrar
 
         $this->registerManagers();
         $this->registerRelationships();
-        $this->registerModelExtensions();
         $this->registerModelEvents();
         $this->registerModelInterceptors();
         $this->registerPageTypes();
@@ -70,23 +67,8 @@ final class LayoutBuilderCoreRegistrar
         App::tag([], PublicBlockPayloadContributor::TAG);
     }
 
-    private function registerModelExtensions(): void
-    {
-        Layout::addFillable(['widgets']);
-        Layout::addCasts(['widgets' => 'array']);
-    }
-
     private function registerRelationships(): void
     {
-        Layout::resolveRelationUsing(
-            'layoutWidgets',
-            fn (Layout $model): BelongsToJson => $model->belongsToJson(
-                Widget::class,
-                'widgets',
-                'key',
-            ),
-        );
-
         Page::resolveRelationUsing(
             'widgetAssets',
             fn (Page $model): MorphMany => $model->morphMany(WidgetAsset::class, 'pageable'),
@@ -109,11 +91,6 @@ final class LayoutBuilderCoreRegistrar
             fn (Blueprint $model): HasMany => $model->hasMany(Widget::class, 'blueprint_id'),
         );
 
-        Layout::resolveRelationUsing(
-            'layoutBlocks',
-            fn (Layout $model): BelongsToJson => $model->layoutWidgets(),
-        );
-
         Page::resolveRelationUsing(
             'blockAssets',
             fn (Page $model): MorphMany => $model->widgetAssets(),
@@ -127,8 +104,6 @@ final class LayoutBuilderCoreRegistrar
 
     private function registerModelEvents(): void
     {
-        Layout::saving(resolve(LayoutSavingListener::class));
-
         Blueprint::updated(function (Blueprint $type): void {
             $rawType = $type->getRawOriginal('type');
 

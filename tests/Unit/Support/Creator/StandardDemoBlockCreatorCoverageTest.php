@@ -189,6 +189,17 @@ it('builds standard content, faq, gallery, carousel, and navigation demo blocks'
         ->and($pageCardsBlock->assets()->where('occurrence', 3)->count())->toBe(3);
 });
 
+it('creates faq blocks for languages without explicit demo questions', function (): void {
+    $language = Language::factory()->create(['code' => 'nl']);
+
+    [, , , $creator] = prepareStandardDemoCreatorHarness($language);
+
+    $faqBlock = $creator->createFaqBlock(new Collection([$language]));
+
+    expect($faqBlock->assets()->count())->toBe(6)
+        ->and(LayoutBuilderStandardDemoContentPage::query()->where('name', 'How was this website created?')->exists())->toBeTrue();
+});
+
 it('exercises base demo creator content collections and recursive navigation labels', function (): void {
     $language = Language::factory()->create(['code' => 'en']);
 

@@ -11,7 +11,6 @@ use Capell\ContentBlocks\Support\BlockRegistry;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Actions\AnalyzeLayoutHealthAction;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
-use Capell\LayoutBuilder\Listeners\LayoutSavingListener;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewSignature;
 
@@ -127,24 +126,6 @@ it('supports legacy shorthand block keys in layout health analysis', function ()
     $diagnostics = AnalyzeLayoutHealthAction::run($state);
 
     expect(collect($diagnostics)->pluck('code')->all())->not->toContain('unknown_block');
-});
-
-it('persists legacy shorthand block keys when syncing layout blocks', function (): void {
-    $layout = Layout::factory()->make([
-        'containers' => [
-            'main' => [
-                'widgets' => [
-                    'breadcrumbs',
-                    ['widget_key' => 'page-content'],
-                    ['widget_key' => 'breadcrumbs'],
-                ],
-            ],
-        ],
-    ]);
-
-    (new LayoutSavingListener)($layout);
-
-    expect($layout->getAttribute('widgets'))->toBe(['breadcrumbs', 'page-content']);
 });
 
 it('includes legacy shorthand block keys in preview signatures', function (): void {

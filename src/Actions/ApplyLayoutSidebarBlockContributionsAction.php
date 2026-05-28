@@ -51,11 +51,6 @@ class ApplyLayoutSidebarBlockContributionsAction
 
         $layout->update([
             'containers' => $containers,
-            'widgets' => $this->widgetKeys(
-                collect($containers)
-                    ->flatMap(fn (mixed $container): array => is_array($container) && is_array($container['widgets'] ?? null) ? $container['widgets'] : [])
-                    ->all(),
-            ),
         ]);
     }
 

@@ -12,7 +12,6 @@ use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\CreateWidget;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\EditWidget;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\ListWidgets;
-use Capell\LayoutBuilder\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Schemas\WidgetForm;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetsTable;
 use Capell\LayoutBuilder\Models\Widget;
@@ -143,14 +142,6 @@ class WidgetResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
-    }
-
-    #[Override]
-    public static function getRelations(): array
-    {
-        return [
-            LayoutsRelationManager::class,
-        ];
     }
 
     #[Override]

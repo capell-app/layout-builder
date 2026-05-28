@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions;
 
 use Capell\Core\Models\Layout;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -32,26 +30,16 @@ class InvalidateBlockLayoutPreviewImagesAction
 
         $invalidated = 0;
 
-        $this->layoutQuery($widgetKeys)->each(function (Layout $layout) use (&$invalidated): void {
+        Layout::query()->cursor()->each(function (Layout $layout) use ($widgetKeys, &$invalidated): void {
+            if ($widgetKeys->intersect($layout->widgets)->isEmpty()) {
+                return;
+            }
+
             if (InvalidateLayoutPreviewImageAction::run($layout, force: true)) {
                 $invalidated++;
             }
         });
 
         return $invalidated;
-    }
-
-    /**
-     * @param  Collection<int, non-empty-string>  $widgetKeys
-     * @return Builder<Layout>
-     */
-    private function layoutQuery(Collection $widgetKeys): Builder
-    {
-        return Layout::query()
-            ->where(function (Builder $query) use ($widgetKeys): void {
-                foreach ($widgetKeys as $widgetKey) {
-                    $query->orWhereJsonContains('widgets', $widgetKey);
-                }
-            });
     }
 }

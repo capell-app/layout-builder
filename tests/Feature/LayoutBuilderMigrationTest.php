@@ -22,7 +22,8 @@ it('creates or recognises the existing layout builder tables', function (): void
         ->and(Schema::hasTable('widget_assets'))->toBeTrue()
         ->and(Schema::hasTable('widget_blocks'))->toBeTrue()
         ->and(Schema::hasTable('layout_presets'))->toBeTrue()
-        ->and(Schema::hasColumns('layouts', ['containers', 'widgets']))->toBeTrue();
+        ->and(Schema::hasColumn('layouts', 'containers'))->toBeTrue()
+        ->and(Schema::hasColumn('layouts', 'widgets'))->toBeFalse();
 });
 
 it('keeps layout builder migrations idempotent for existing core installs', function (): void {
@@ -38,5 +39,6 @@ it('keeps layout builder migrations idempotent for existing core installs', func
         ->and(Schema::hasTable('widget_assets'))->toBeTrue()
         ->and(Schema::hasTable('widget_blocks'))->toBeTrue()
         ->and(Schema::hasTable('layout_presets'))->toBeTrue()
-        ->and(Schema::hasColumns('layouts', ['containers', 'widgets']))->toBeTrue();
+        ->and(Schema::hasColumn('layouts', 'containers'))->toBeTrue()
+        ->and(Schema::hasColumn('layouts', 'widgets'))->toBeFalse();
 });
