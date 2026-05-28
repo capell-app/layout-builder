@@ -162,8 +162,8 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
     {
         $value = $this->component
             ?? $this->meta['component']
-            ?? $this->blueprint->component
-            ?? $this->blueprint?->meta['component']
+            ?? $this->loadedBlueprint()?->component
+            ?? $this->loadedBlueprint()?->meta['component']
             ?? null;
 
         return $value === null ? null : (string) $value;
@@ -173,8 +173,8 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
     {
         $value = $this->component_item
             ?? $this->meta['component_item']
-            ?? $this->blueprint->component_item
-            ?? $this->blueprint?->meta['component_item']
+            ?? $this->loadedBlueprint()?->component_item
+            ?? $this->loadedBlueprint()?->meta['component_item']
             ?? null;
 
         return $value === null ? null : (string) $value;
@@ -184,8 +184,8 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
     {
         $value = $this->view_file
             ?? $this->meta['view_file']
-            ?? $this->blueprint->view_file
-            ?? $this->blueprint?->meta['view_file']
+            ?? $this->loadedBlueprint()?->view_file
+            ?? $this->loadedBlueprint()?->meta['view_file']
             ?? null;
 
         return $value === null ? null : (string) $value;
@@ -360,6 +360,15 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
             'visible_until' => 'datetime',
             'status' => 'boolean',
         ];
+    }
+
+    private function loadedBlueprint(): ?CoreBlueprint
+    {
+        $blueprint = $this->relationLoaded('blueprint')
+            ? $this->getRelation('blueprint')
+            : ($this->relationLoaded('type') ? $this->getRelation('type') : null);
+
+        return $blueprint instanceof CoreBlueprint ? $blueprint : null;
     }
 
     private function nullableComponentString(mixed $value): ?string

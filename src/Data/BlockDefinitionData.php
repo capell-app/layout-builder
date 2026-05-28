@@ -360,6 +360,48 @@ class BlockDefinitionData extends Data
                     'padding' => ['xl'],
                 ],
             ),
+            new self(
+                key: 'kitchen-sink-rich-text',
+                name: 'Kitchen Sink Rich Text',
+                typeCreatorMethod: 'defaultBlockType',
+                meta: ['component' => BlockComponentEnum::KitchenSinkRichText, 'padding' => ['lg']],
+            ),
+            new self(
+                key: 'kitchen-sink-structured-text',
+                name: 'Kitchen Sink Structured Text',
+                typeCreatorMethod: 'defaultBlockType',
+                meta: ['component' => BlockComponentEnum::KitchenSinkStructuredText, 'padding' => ['lg']],
+            ),
+            new self(
+                key: 'kitchen-sink-data-display',
+                name: 'Kitchen Sink Data Display',
+                typeCreatorMethod: 'defaultBlockType',
+                meta: ['component' => BlockComponentEnum::KitchenSinkDataDisplay, 'padding' => ['lg']],
+            ),
+            new self(
+                key: 'kitchen-sink-forms',
+                name: 'Kitchen Sink Forms',
+                typeCreatorMethod: 'defaultBlockType',
+                meta: ['component' => BlockComponentEnum::KitchenSinkForms, 'padding' => ['lg']],
+            ),
+            new self(
+                key: 'kitchen-sink-interactions',
+                name: 'Kitchen Sink Interactions',
+                typeCreatorMethod: 'defaultBlockType',
+                meta: ['component' => BlockComponentEnum::KitchenSinkInteractions, 'padding' => ['lg']],
+            ),
+            new self(
+                key: 'kitchen-sink-embeds',
+                name: 'Kitchen Sink Embeds',
+                typeCreatorMethod: 'defaultBlockType',
+                meta: ['component' => BlockComponentEnum::KitchenSinkEmbeds, 'padding' => ['lg']],
+            ),
+            new self(
+                key: 'kitchen-sink-utility-states',
+                name: 'Kitchen Sink Utility States',
+                typeCreatorMethod: 'defaultBlockType',
+                meta: ['component' => BlockComponentEnum::KitchenSinkUtilityStates, 'padding' => ['lg']],
+            ),
         ];
     }
 

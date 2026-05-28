@@ -190,6 +190,13 @@ final class LayoutBuilderCoreRegistrar
                 BlockComponentEnum::ApStatsSection => 'capell::block.modern.stats-section',
                 BlockComponentEnum::ApAlternatingContent => 'capell::block.modern.alternating-content',
                 BlockComponentEnum::ApProcessSteps => 'capell::block.modern.process-steps',
+                BlockComponentEnum::KitchenSinkRichText,
+                BlockComponentEnum::KitchenSinkStructuredText,
+                BlockComponentEnum::KitchenSinkDataDisplay,
+                BlockComponentEnum::KitchenSinkForms,
+                BlockComponentEnum::KitchenSinkInteractions,
+                BlockComponentEnum::KitchenSinkEmbeds,
+                BlockComponentEnum::KitchenSinkUtilityStates => 'capell::block.kitchen-sink.reference',
             };
 
             $registry->register(new RenderableDefinitionData(

@@ -40,4 +40,11 @@ enum BlockComponentEnum: string
     case ApStatsSection = 'capell.block.modern.stats-section';
     case ApAlternatingContent = 'capell.block.modern.alternating-content';
     case ApProcessSteps = 'capell.block.modern.process-steps';
+    case KitchenSinkRichText = 'capell.block.kitchen-sink.rich-text';
+    case KitchenSinkStructuredText = 'capell.block.kitchen-sink.structured-text';
+    case KitchenSinkDataDisplay = 'capell.block.kitchen-sink.data-display';
+    case KitchenSinkForms = 'capell.block.kitchen-sink.forms';
+    case KitchenSinkInteractions = 'capell.block.kitchen-sink.interactions';
+    case KitchenSinkEmbeds = 'capell.block.kitchen-sink.embeds';
+    case KitchenSinkUtilityStates = 'capell.block.kitchen-sink.utility-states';
 }
