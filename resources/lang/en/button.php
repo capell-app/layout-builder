@@ -6,6 +6,7 @@ return [
     'add_action' => 'Add Action',
     'add_asset' => 'Add Asset',
     'add_container' => 'Add Container',
+    'add_container_here' => 'Add container here',
     'add_content_block' => 'Add content block',
     'advanced_layout' => 'Layout builder',
     'add_custom' => 'Add custom',
