@@ -5,53 +5,41 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions;
 
 use Capell\Core\Models\Layout;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static int run(array $blockKeys)
+ * @method static int run(array<int, string|null> $widgetKeys)
  */
 class InvalidateBlockLayoutPreviewImagesAction
 {
     use AsObject;
 
     /**
-     * @param  array<int, string|null>  $blockKeys
+     * @param  array<int, string|null>  $widgetKeys
      */
-    public function handle(array $blockKeys): int
+    public function handle(array $widgetKeys): int
     {
-        $blockKeys = collect($blockKeys)
-            ->filter(fn (?string $blockKey): bool => is_string($blockKey) && $blockKey !== '')
+        $widgetKeys = collect($widgetKeys)
+            ->filter(fn (?string $widgetKey): bool => is_string($widgetKey) && $widgetKey !== '')
             ->unique()
             ->values();
 
-        if ($blockKeys->isEmpty()) {
+        if ($widgetKeys->isEmpty()) {
             return 0;
         }
 
         $invalidated = 0;
 
-        $this->layoutQuery($blockKeys)->each(function (Layout $layout) use (&$invalidated): void {
+        Layout::query()->cursor()->each(function (Layout $layout) use ($widgetKeys, &$invalidated): void {
+            if ($widgetKeys->intersect($layout->widgets)->isEmpty()) {
+                return;
+            }
+
             if (InvalidateLayoutPreviewImageAction::run($layout, force: true)) {
                 $invalidated++;
             }
         });
 
         return $invalidated;
-    }
-
-    /**
-     * @param  Collection<int, string>  $blockKeys
-     * @return Builder<Layout>
-     */
-    private function layoutQuery(Collection $blockKeys): Builder
-    {
-        return Layout::query()
-            ->where(function (Builder $query) use ($blockKeys): void {
-                foreach ($blockKeys as $blockKey) {
-                    $query->orWhereJsonContains('blocks', $blockKey);
-                }
-            });
     }
 }

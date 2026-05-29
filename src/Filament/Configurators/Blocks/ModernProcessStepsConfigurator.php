@@ -10,54 +10,60 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 
 /**
- * Filament Schema for Modern Process Steps Block
+ * Filament Schema for Modern Process Steps Widget
  *
  * Provides admin panel controls for customizing process steps display
  * with title, layout, and customization options.
  */
 class ModernProcessStepsConfigurator
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getFormSchema(): array
     {
         return [
-            Section::make('Content')
-                ->description('Process section title and subtitle')
+            Section::make(__('capell-layout-builder::blocks.common.section_content'))
+                ->description(__('capell-layout-builder::blocks.modern.process_steps.section_content_description'))
                 ->schema([
                     TextInput::make('data.title')
-                        ->label('Section Title')
-                        ->placeholder('Our Process')
+                        ->label(__('capell-layout-builder::blocks.common.section_title_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.process_steps.title_placeholder'))
                         ->columnSpanFull(),
 
                     TextInput::make('data.subtitle')
-                        ->label('Subtitle / Description')
-                        ->placeholder('Four simple steps to get started')
+                        ->label(__('capell-layout-builder::blocks.common.subtitle_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.process_steps.subtitle_placeholder'))
                         ->columnSpanFull(),
                 ])->columns(1),
 
-            Section::make('Layout')
-                ->description('Customize steps display layout')
+            Section::make(__('capell-layout-builder::blocks.common.section_layout'))
+                ->description(__('capell-layout-builder::blocks.modern.process_steps.section_layout_description'))
                 ->schema([
                     Select::make('data.layout')
-                        ->label('Layout Type')
+                        ->label(__('capell-layout-builder::blocks.modern.process_steps.layout_label'))
                         ->options([
-                            'horizontal' => 'Horizontal (Timeline)',
-                            'vertical' => 'Vertical (Stacked)',
+                            'horizontal' => __('capell-layout-builder::blocks.modern.process_steps.layout_horizontal'),
+                            'vertical' => __('capell-layout-builder::blocks.modern.process_steps.layout_vertical'),
                         ])
                         ->default('horizontal')
-                        ->helperText('How process steps are arranged'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.process_steps.layout_helper')),
                 ])->columns(1),
 
-            Section::make('Display')
-                ->description('Visibility and admin hints')
+            Section::make(__('capell-layout-builder::blocks.common.section_display'))
+                ->description(__('capell-layout-builder::blocks.common.section_display_description'))
                 ->schema([
                     Toggle::make('data.customizable')
-                        ->label('Show Admin Hints')
+                        ->label(__('capell-layout-builder::blocks.common.admin_hints_label'))
                         ->default(true)
-                        ->helperText('Display "✨ Customize..." message'),
+                        ->helperText(__('capell-layout-builder::blocks.common.customize_message_helper')),
                 ])->columns(1),
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getDefaults(): array
     {
         return [

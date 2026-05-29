@@ -14,13 +14,13 @@ it('owns layout configurator group metadata in the layout builder package', func
 
     expect($reflection->getFileName())->toContain('packages/layout-builder/src')
         ->and(ConfiguratorTypeEnum::LayoutContainer)->toBeInstanceOf(ConfiguratorTypeEnumInterface::class)
-        ->and(ConfiguratorTypeEnum::fromName('Block'))->toBe(ConfiguratorTypeEnum::Block)
-        ->and(ConfiguratorTypeEnum::BlockAsset->getName())->toBe('BlockAsset')
+        ->and(ConfiguratorTypeEnum::fromName('Widget'))->toBe(ConfiguratorTypeEnum::Widget)
+        ->and(ConfiguratorTypeEnum::WidgetAsset->getName())->toBe('WidgetAsset')
         ->and(array_keys(ConfiguratorTypeEnum::getAllConfigurators()))->toBe([
             'LayoutContainers',
             'LayoutBlocks',
-            'Blocks',
-            'BlockAssets',
+            'Widgets',
+            'WidgetAssets',
         ]);
 });
 
@@ -29,16 +29,27 @@ it('uses package-owned configurator enum lists instead of core layout builder en
     $source = file_get_contents((string) $reflection->getFileName());
 
     expect($source)->not->toContain('Capell\\Core\\LayoutBuilder\\Enums')
-        ->and(ConfiguratorTypeEnum::LayoutContainer->getConfigurators())->toBe(LayoutContainerConfiguratorEnum::cases())
-        ->and(ConfiguratorTypeEnum::LayoutBlock->getConfigurators())->toBe(LayoutBlockConfiguratorEnum::cases())
-        ->and(ConfiguratorTypeEnum::Block->getConfigurators())->toBe(BlockConfiguratorEnum::cases())
-        ->and(ConfiguratorTypeEnum::BlockAsset->getConfigurators())->toBe(BlockAssetConfiguratorEnum::cases());
+        ->and(ConfiguratorTypeEnum::LayoutContainer->getConfigurators())->toBe(array_map(
+            fn (LayoutContainerConfiguratorEnum $configurator): string => $configurator->value,
+            LayoutContainerConfiguratorEnum::cases(),
+        ))
+        ->and(ConfiguratorTypeEnum::LayoutBlock->getConfigurators())->toBe(array_map(
+            fn (LayoutBlockConfiguratorEnum $configurator): string => $configurator->value,
+            LayoutBlockConfiguratorEnum::cases(),
+        ))
+        ->and(ConfiguratorTypeEnum::Widget->getConfigurators())->toBe(array_map(
+            fn (BlockConfiguratorEnum $configurator): string => $configurator->value,
+            BlockConfiguratorEnum::cases(),
+        ))
+        ->and(ConfiguratorTypeEnum::WidgetAsset->getConfigurators())->toBe(array_map(
+            fn (BlockAssetConfiguratorEnum $configurator): string => $configurator->value,
+            BlockAssetConfiguratorEnum::cases(),
+        ));
 });
 
 it('advertises package namespace configurator classes', function (): void {
     $configuratorClasses = collect(ConfiguratorTypeEnum::getAllConfigurators())
         ->flatten()
-        ->map(fn (BackedEnum $configurator): string => $configurator->value)
         ->values();
 
     expect($configuratorClasses)

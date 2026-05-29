@@ -15,7 +15,7 @@ use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
 
 it('represents layout builder state and mutation output with typed data', function (): void {
     $state = new LayoutBuilderStateData(
-        containers: ['main' => ['blocks' => [], 'meta' => ['colspan' => 12]]],
+        containers: ['main' => ['widgets' => [], 'meta' => ['colspan' => 12]]],
         assets: ['main' => []],
         originalAssets: ['main' => []],
         selectedRecords: ['main' => []],
@@ -76,7 +76,7 @@ it('represents layout builder state and mutation output with typed data', functi
         ->and($stateFromLivewire->originalAssets)->toBe([])
         ->and($stateFromLivewire->selectedRecords)->toBe(['main' => []])
         ->and($state->toLivewirePayload())->toBe([
-            'containers' => ['main' => ['blocks' => [], 'meta' => ['colspan' => 12]]],
+            'containers' => ['main' => ['widgets' => [], 'meta' => ['colspan' => 12]]],
             'assets' => ['main' => []],
             'originalAssets' => ['main' => []],
             'selectedRecords' => ['main' => []],
@@ -87,10 +87,10 @@ it('normalizes sparse block state and clamps responsive metadata', function (): 
     $state = new LayoutBuilderStateData(
         containers: [
             'main' => [
-                'blocks' => [
-                    ['block_key' => 'hero'],
-                    ['block_key' => 'cards'],
-                    ['block_key' => 'cta'],
+                'widgets' => [
+                    ['widget_key' => 'hero'],
+                    ['widget_key' => 'cards'],
+                    ['widget_key' => 'cta'],
                 ],
                 'meta' => [
                     'colspan' => 14,
@@ -123,13 +123,13 @@ it('normalizes sparse block state and clamps responsive metadata', function (): 
 
 it('moves layout mutation history through typed actions', function (): void {
     $first = new LayoutBuilderStateData(
-        containers: ['main' => ['blocks' => [['block_key' => 'hero']], 'meta' => []]],
+        containers: ['main' => ['widgets' => [['widget_key' => 'hero']], 'meta' => []]],
         assets: ['main' => [[]]],
         originalAssets: ['main' => [[]]],
         selectedRecords: ['main' => [[]]],
     );
     $second = new LayoutBuilderStateData(
-        containers: ['main' => ['blocks' => [['block_key' => 'cards']], 'meta' => []]],
+        containers: ['main' => ['widgets' => [['widget_key' => 'cards']], 'meta' => []]],
         assets: ['main' => [[]]],
         originalAssets: ['main' => [[]]],
         selectedRecords: ['main' => [[]]],
@@ -147,15 +147,15 @@ it('moves layout mutation history through typed actions', function (): void {
     expect($history->undoSnapshots)->toHaveCount(1)
         ->and($history->redoSnapshots)->toBe([])
         ->and($undo->changed())->toBeTrue()
-        ->and($undo->state->containers['main']['blocks'][0]['block_key'])->toBe('hero')
+        ->and($undo->state->containers['main']['widgets'][0]['widget_key'])->toBe('hero')
         ->and($undo->history->redoSnapshots)->toHaveCount(1)
         ->and($redo->changed())->toBeTrue()
-        ->and($redo->state->containers['main']['blocks'][0]['block_key'])->toBe('cards');
+        ->and($redo->state->containers['main']['widgets'][0]['widget_key'])->toBe('cards');
 });
 
 it('caps layout mutation history snapshots and clears redo on new mutations', function (): void {
     $state = new LayoutBuilderStateData(
-        containers: ['main' => ['blocks' => [], 'meta' => []]],
+        containers: ['main' => ['widgets' => [], 'meta' => []]],
         assets: ['main' => []],
         originalAssets: ['main' => []],
         selectedRecords: ['main' => []],
@@ -166,7 +166,7 @@ it('caps layout mutation history snapshots and clears redo on new mutations', fu
     for ($snapshotIndex = 0; $snapshotIndex < PushLayoutMutationSnapshotAction::MAX_HISTORY_DEPTH + 5; $snapshotIndex++) {
         $undoSnapshots = PushLayoutMutationSnapshotAction::run(
             new LayoutBuilderStateData(
-                containers: ['main' => ['blocks' => [], 'meta' => ['snapshot' => $snapshotIndex]]],
+                containers: ['main' => ['widgets' => [], 'meta' => ['snapshot' => $snapshotIndex]]],
                 assets: ['main' => []],
                 originalAssets: ['main' => []],
                 selectedRecords: ['main' => []],

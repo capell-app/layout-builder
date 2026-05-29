@@ -14,7 +14,7 @@ use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\LayoutBuilder\Actions\InstallLayoutBuilderBlockCatalogAction;
 use Capell\LayoutBuilder\Enums\BlockComponentEnum;
 use Capell\LayoutBuilder\Enums\FrontendComponentKeyEnum;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\Navigation\Models\Navigation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -24,21 +24,24 @@ class BlockCreator
     private const string NavigationPackage = 'capell-app/navigation';
 
     /**
-     * @var class-string<Block>
+     * @var class-string<Widget>
      */
     private readonly string $blockModel;
 
     public function __construct()
     {
-        $this->blockModel = Block::class;
+        $this->blockModel = Widget::class;
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
     public function createBlocks(Collection $languages, bool $extraBlocks = false): void
     {
         InstallLayoutBuilderBlockCatalogAction::run($languages, $extraBlocks);
     }
 
-    public function breadcrumbBlock(?Blueprint $type = null): Block
+    public function breadcrumbBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->systemBlockType();
 
@@ -59,7 +62,10 @@ class BlockCreator
         return $block;
     }
 
-    public function childrenBlock(?Blueprint $type = null, ?Collection $languages = null): Block
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
+    public function childrenBlock(?Blueprint $type = null, ?Collection $languages = null): Widget
     {
         /** @var class-string<Language> $model */
         $model = Language::class;
@@ -104,7 +110,7 @@ class BlockCreator
         return $block;
     }
 
-    public function assetsBlock(?Blueprint $type = null): Block
+    public function assetsBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->contentsBlockType();
 
@@ -127,7 +133,10 @@ class BlockCreator
         ]);
     }
 
-    public function galleryBlock(?Blueprint $type = null, ?Collection $languages = null): Block
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
+    public function galleryBlock(?Blueprint $type = null, ?Collection $languages = null): Widget
     {
         /** @var class-string<Language> $model */
         $model = Language::class;
@@ -159,7 +168,10 @@ class BlockCreator
         return $block;
     }
 
-    public function latestPagesBlock(?Blueprint $type = null, ?Collection $languages = null): Block
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
+    public function latestPagesBlock(?Blueprint $type = null, ?Collection $languages = null): Widget
     {
         /** @var class-string<Language> $model */
         $model = Language::class;
@@ -206,7 +218,7 @@ class BlockCreator
         return $block;
     }
 
-    public function mediaCarouselBlock(?Blueprint $type = null): Block
+    public function mediaCarouselBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->mediaBlockType();
 
@@ -244,7 +256,7 @@ class BlockCreator
         ]);
     }
 
-    public function pageContentBlock(?Blueprint $type = null): Block
+    public function pageContentBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->pageContentBlockType();
 
@@ -267,7 +279,7 @@ class BlockCreator
         return $block;
     }
 
-    public function pagesCardBlock(?Blueprint $type = null): Block
+    public function pagesCardBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->pagesBlockType();
 
@@ -288,7 +300,7 @@ class BlockCreator
         ]);
     }
 
-    public function pageSlotBlock(?Blueprint $type = null): Block
+    public function pageSlotBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->systemBlockType();
 
@@ -310,7 +322,10 @@ class BlockCreator
         return $block;
     }
 
-    public function siblingsBlock(?Blueprint $type = null, ?Collection $languages = null): Block
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
+    public function siblingsBlock(?Blueprint $type = null, ?Collection $languages = null): Widget
     {
         /** @var class-string<Language> $model */
         $model = Language::class;
@@ -354,17 +369,17 @@ class BlockCreator
         return $block;
     }
 
-    public function defaultBlock(?Blueprint $type = null): Block
+    public function defaultBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->defaultBlockType();
 
         return $this->blockModel::query()->firstOrCreate(['key' => 'default'], [
-            'name' => 'Default Block',
+            'name' => 'Default Widget',
             'blueprint_id' => $type->id,
         ]);
     }
 
-    public function accordionBlock(?Blueprint $type = null): Block
+    public function accordionBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->contentsBlockType();
 
@@ -386,7 +401,7 @@ class BlockCreator
         ]);
     }
 
-    public function bannerBlock(?Blueprint $type = null): Block
+    public function bannerBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->contentsBlockType();
 
@@ -401,7 +416,7 @@ class BlockCreator
         ]);
     }
 
-    public function blockBlock(?Blueprint $type = null): Block
+    public function blockBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->assetsBlockType();
 
@@ -423,7 +438,7 @@ class BlockCreator
         ]);
     }
 
-    public function featuresBlock(?Blueprint $type = null): Block
+    public function featuresBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->contentsBlockType();
 
@@ -438,7 +453,7 @@ class BlockCreator
         ]);
     }
 
-    public function testimonialsBlock(?Blueprint $type = null): Block
+    public function testimonialsBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->contentsBlockType();
 
@@ -472,15 +487,19 @@ class BlockCreator
         ]);
     }
 
+    /**
+     * @param  array<array-key, mixed>  $blockMeta
+     * @param  array<array-key, mixed>  $navigationItems
+     */
     public function navigationBlock(
         ?Blueprint $type = null,
         ?Site $site = null,
-        string $blockKey = 'block-navigation',
+        string $widgetKey = 'block-navigation',
         array $blockMeta = [],
         string $navigationKey = 'navigation',
         string $navigationName = 'Navigation',
         array $navigationItems = [],
-    ): Block {
+    ): Widget {
         $type ??= resolve(TypeCreator::class)->navigationBlockType();
         $typeModel = Blueprint::class;
         $navigationModel = Navigation::class;
@@ -505,7 +524,7 @@ class BlockCreator
             $navigation->forceFill(['items' => $navigationItems])->save();
         }
 
-        return $this->blockModel::query()->firstOrCreate(['key' => $blockKey], [
+        return $this->blockModel::query()->firstOrCreate(['key' => $widgetKey], [
             'name' => __('Navigation'),
             'blueprint_id' => $type->id,
             'meta' => [
@@ -516,21 +535,25 @@ class BlockCreator
         ]);
     }
 
+    /**
+     * @param  array<array-key, mixed>  $blockMeta
+     * @param  array<array-key, mixed>  $navigationItems
+     */
     public function navigationTabsBlock(
         ?Blueprint $type = null,
         ?Site $site = null,
-        string $blockKey = 'block-navigation-tabs',
+        string $widgetKey = 'block-navigation-tabs',
         array $blockMeta = [
             'component' => BlockComponentEnum::NavigationTabs,
         ],
         string $navigationKey = 'navigation-tabs',
         string $navigationName = 'Tabs',
         array $navigationItems = [],
-    ): Block {
+    ): Widget {
         $block = $this->navigationBlock(
             type: $type,
             site: $site,
-            blockKey: $blockKey,
+            widgetKey: $widgetKey,
             blockMeta: $blockMeta,
             navigationKey: $navigationKey,
             navigationName: $navigationName,
@@ -549,7 +572,7 @@ class BlockCreator
         return $block;
     }
 
-    public function bannerImageBlock(?Blueprint $type = null): Block
+    public function bannerImageBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->defaultBlockType();
 
@@ -564,7 +587,7 @@ class BlockCreator
         ]);
     }
 
-    public function apHeroBannerBlock(?Blueprint $type = null): Block
+    public function apHeroBannerBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->defaultBlockType();
 
@@ -580,7 +603,7 @@ class BlockCreator
         ]);
     }
 
-    public function apCardGridBlock(?Blueprint $type = null): Block
+    public function apCardGridBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->defaultBlockType();
 
@@ -595,7 +618,7 @@ class BlockCreator
         ]);
     }
 
-    public function apFeatureListBlock(?Blueprint $type = null): Block
+    public function apFeatureListBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->defaultBlockType();
 
@@ -610,7 +633,7 @@ class BlockCreator
         ]);
     }
 
-    public function apCtaSectionBlock(?Blueprint $type = null): Block
+    public function apCtaSectionBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->defaultBlockType();
 
@@ -626,7 +649,7 @@ class BlockCreator
         ]);
     }
 
-    public function apImageGalleryBlock(?Blueprint $type = null): Block
+    public function apImageGalleryBlock(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->defaultBlockType();
 

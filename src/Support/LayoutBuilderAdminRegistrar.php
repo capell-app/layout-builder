@@ -17,10 +17,10 @@ use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Filament\Configurators\Types\BlockTypeConfigurator;
 use Capell\LayoutBuilder\Filament\Extenders\Page\HeroPageSchemaExtender;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\BlockResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender;
 use Capell\LayoutBuilder\Filament\Resources\Pages\Schemas\Extenders\PageSchemaExtender;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Css;
@@ -37,7 +37,7 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
 
     private const string LEGACY_LAYOUT_RESOURCE = 'Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Layouts\\LayoutResource';
 
-    private const string LEGACY_WIDGET_RESOURCE = 'Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Blocks\\BlockResource';
+    private const string LEGACY_WIDGET_RESOURCE = 'Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Blocks\\WidgetResource';
 
     private const string WIDGET_TYPE_CONFIGURATOR = BlockTypeConfigurator::class;
 
@@ -96,8 +96,8 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
     private function registerResources(): void
     {
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
-            class: BlockResource::class,
-            group: 'Block',
+            class: WidgetResource::class,
+            group: 'Widget',
         ));
 
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
@@ -110,15 +110,12 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
     {
         foreach (ConfiguratorTypeEnum::getAllConfigurators() as $type => $configurators) {
             foreach ($configurators as $configurator) {
-                if (! $configurator instanceof BackedEnum) {
+                $configuratorClass = $configurator instanceof BackedEnum ? $configurator->value : $configurator;
+
+                if (! is_string($configuratorClass)) {
                     continue;
                 }
 
-                if (! is_string($configurator->value)) {
-                    continue;
-                }
-
-                $configuratorClass = $configurator->value;
                 if (! class_exists($configuratorClass)) {
                     continue;
                 }
@@ -206,12 +203,18 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
     {
         $basePath = $this->packageBasePath();
         $publishDir = realpath($basePath . '/publishes');
+        $cssSourcePath = $basePath . '/resources/css/layout-builder/admin/capell-layout-filament.css';
 
         throw_if(in_array($publishDir, ['', '0', false], true), RuntimeException::class, 'Publish directory not found.');
 
         FilamentAsset::register(
             [
-                Css::make('capell-layout-builder-filament', $basePath . '/resources/css/layout-builder/admin/capell-layout-filament.css'),
+                Css::make('capell-layout-builder-filament', $cssSourcePath)
+                    ->html(fn (): string => sprintf(
+                        '<link href="%s?v=%s" rel="stylesheet" data-navigate-track />',
+                        asset('css/capell-layout-builder/capell-layout-builder-filament.css'),
+                        filemtime($cssSourcePath),
+                    )),
                 AlpineComponent::make('layout-builder', $publishDir . '/build/js/components/layout-builder/admin/layout-builder.js')
                     ->loadedOnRequest(),
             ],
@@ -226,14 +229,14 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
 
     private function hasRegisteredAdminSurface(): bool
     {
-        if (! class_exists(LayoutResource::class) || ! class_exists(BlockResource::class)) {
+        if (! class_exists(LayoutResource::class) || ! class_exists(WidgetResource::class)) {
             return false;
         }
 
         $resources = CapellAdmin::getAdminSurfaceRegistry()->resources();
 
         return $this->containsResource($resources, LayoutResource::class, self::LEGACY_LAYOUT_RESOURCE)
-            && $this->containsResource($resources, BlockResource::class, self::LEGACY_WIDGET_RESOURCE);
+            && $this->containsResource($resources, WidgetResource::class, self::LEGACY_WIDGET_RESOURCE);
     }
 
     /**

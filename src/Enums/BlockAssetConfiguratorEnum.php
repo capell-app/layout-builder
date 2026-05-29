@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Enums;
 
-use Capell\LayoutBuilder\Filament\Configurators\Blocks\PageBlockAssetForm;
-use Capell\LayoutBuilder\Filament\Configurators\Blocks\RegisteredAssetBlockAssetForm;
+use Capell\LayoutBuilder\Filament\Configurators\Blocks\PageWidgetAssetForm;
+use Capell\LayoutBuilder\Filament\Configurators\Blocks\RegisteredAssetWidgetAssetForm;
 use InvalidArgumentException;
 
 enum BlockAssetConfiguratorEnum: string
 {
-    case Page = PageBlockAssetForm::class;
+    case Page = PageWidgetAssetForm::class;
 
-    case RegisteredAsset = RegisteredAssetBlockAssetForm::class;
+    case RegisteredAsset = RegisteredAssetWidgetAssetForm::class;
 
     public static function fromName(string $name): self
     {

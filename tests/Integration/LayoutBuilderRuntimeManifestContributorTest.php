@@ -10,11 +10,11 @@ use Capell\Frontend\Actions\ResolveFrontendRuntimeAction;
 use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Enums\RenderingStrategyEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 
 it('adds layout builder runtime manifest flags for blade layouts with blade blocks', function (): void {
     $page = Page::factory()->make(['meta' => null]);
-    $block = Block::factory()->create([
+    $block = Widget::factory()->create([
         'key' => 'blade-block',
         'meta' => [
             'component' => 'capell.block.default',
@@ -23,8 +23,8 @@ it('adds layout builder runtime manifest flags for blade layouts with blade bloc
     $layout = Layout::factory()->make([
         'containers' => [
             'main' => [
-                'blocks' => [
-                    ['block_key' => $block->key],
+                'widgets' => [
+                    ['widget_key' => $block->key],
                 ],
             ],
         ],
@@ -47,7 +47,7 @@ it('adds layout builder runtime manifest flags for blade layouts with blade bloc
 
 it('adds livewire island flags for blade layouts with livewire blocks', function (): void {
     $page = Page::factory()->make(['meta' => null]);
-    $block = Block::factory()->create([
+    $block = Widget::factory()->create([
         'key' => 'livewire-block',
         'meta' => [
             'component' => 'capell.block.default',
@@ -55,7 +55,13 @@ it('adds livewire island flags for blade layouts with livewire blocks', function
         ],
     ]);
     $layout = Layout::factory()->make([
-        'blocks' => [$block->key],
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    ['widget_key' => $block->key],
+                ],
+            ],
+        ],
     ]);
 
     $context = Mockery::mock(FrontendContextReader::class);
@@ -75,14 +81,14 @@ it('adds livewire island flags for blade layouts with livewire blocks', function
 
 it('extracts livewire block keys from container key fallbacks', function (): void {
     $page = Page::factory()->make(['meta' => null]);
-    $block = Block::factory()->create([
+    $block = Widget::factory()->create([
         'key' => 'container-key-livewire-block',
         'is_livewire' => true,
     ]);
     $layout = Layout::factory()->make([
         'containers' => [
             'main' => [
-                'blocks' => [
+                'widgets' => [
                     ['key' => $block->key],
                 ],
             ],
@@ -104,13 +110,19 @@ it('extracts livewire block keys from container key fallbacks', function (): voi
 
 it('ignores disabled livewire blocks when contributing blade runtime flags', function (): void {
     $page = Page::factory()->make(['meta' => null]);
-    $block = Block::factory()->create([
+    $block = Widget::factory()->create([
         'key' => 'disabled-livewire-block',
         'is_livewire' => true,
         'status' => false,
     ]);
     $layout = Layout::factory()->make([
-        'blocks' => [$block->key],
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    ['widget_key' => $block->key],
+                ],
+            ],
+        ],
     ]);
 
     $context = Mockery::mock(FrontendContextReader::class);
@@ -128,13 +140,19 @@ it('ignores disabled livewire blocks when contributing blade runtime flags', fun
 
 it('ignores future livewire blocks when contributing blade runtime flags', function (): void {
     $page = Page::factory()->make(['meta' => null]);
-    $block = Block::factory()->create([
+    $block = Widget::factory()->create([
         'key' => 'future-livewire-block',
         'is_livewire' => true,
         'visible_from' => now()->addDay(),
     ]);
     $layout = Layout::factory()->make([
-        'blocks' => [$block->key],
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    ['widget_key' => $block->key],
+                ],
+            ],
+        ],
     ]);
 
     $context = Mockery::mock(FrontendContextReader::class);
@@ -153,15 +171,21 @@ it('ignores future livewire blocks when contributing blade runtime flags', funct
 it('ignores livewire blocks with inaccessible block blueprints when contributing blade runtime flags', function (): void {
     $page = Page::factory()->make(['meta' => null]);
     $blueprint = Blueprint::factory()
-        ->type(LayoutTypeEnum::Block->value)
+        ->type(LayoutTypeEnum::Widget->value)
         ->create(['meta' => ['accessible' => false]]);
-    $block = Block::factory()->create([
+    $block = Widget::factory()->create([
         'blueprint_id' => $blueprint->getKey(),
         'key' => 'inaccessible-livewire-block',
         'is_livewire' => true,
     ]);
     $layout = Layout::factory()->make([
-        'blocks' => [$block->key],
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    ['widget_key' => $block->key],
+                ],
+            ],
+        ],
     ]);
 
     $context = Mockery::mock(FrontendContextReader::class);
@@ -181,7 +205,7 @@ it('does not change non blade-only runtime manifests', function (): void {
     $page = Page::factory()->make([
         'meta' => ['rendering_strategy' => RenderingStrategyEnum::FullLivewire->value],
     ]);
-    $block = Block::factory()->create([
+    $block = Widget::factory()->create([
         'key' => 'livewire-block',
         'meta' => [
             'component' => 'capell.block.default',
@@ -189,7 +213,13 @@ it('does not change non blade-only runtime manifests', function (): void {
         ],
     ]);
     $layout = Layout::factory()->make([
-        'blocks' => [$block->key],
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    ['widget_key' => $block->key],
+                ],
+            ],
+        ],
     ]);
 
     $context = Mockery::mock(FrontendContextReader::class);

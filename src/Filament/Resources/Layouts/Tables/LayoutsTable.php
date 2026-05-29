@@ -9,7 +9,7 @@ use Capell\Admin\Filament\Components\Tables\Columns\ImageColumn;
 use Capell\Admin\Filament\Components\Tables\Columns\NameColumn;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Actions\GetLayoutPreviewImageUrlAction;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\ViewEntry;
@@ -19,6 +19,7 @@ use Filament\Tables\Columns\Layout\View;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Override;
 
 class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\LayoutsTable
@@ -26,7 +27,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     #[Override]
     protected static function getTableQueryModifier(Builder $query): Builder
     {
-        return parent::getTableQueryModifier($query)->with('layoutBlocks');
+        return parent::getTableQueryModifier($query);
     }
 
     #[Override]
@@ -46,11 +47,11 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
             ->iconButton()
             ->color('info')
             ->schema(fn (Layout $record): array => [
-                ViewEntry::make('blocks')
+                ViewEntry::make('widgets')
                     ->view(
                         'capell-layout-builder::components.infolists.entries.layout-blocks',
                         [
-                            'blocks' => $record->getRelationValue('layoutBlocks'),
+                            'widgets' => self::widgetBlocksForLayout($record),
                         ],
                     ),
             ]);
@@ -63,7 +64,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
 
         $nameColumnIndex = array_search(
             NameColumn::class,
-            array_map(fn (Column|Component $column): string|false => $column::class, $columns),
+            array_map(fn (Column|Component $column): string => $column::class, $columns),
             true,
         );
 
@@ -71,8 +72,11 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
 
         if ($nameColumnIndex !== false && ! $usesCardLayout) {
             array_splice($columns, $nameColumnIndex + 1, 0, [
-                TextColumn::make('layoutBlocks.name')
+                TextColumn::make('layout_blocks')
                     ->label(__('capell-layout-builder::table.container_blocks'))
+                    ->getStateUsing(fn (Layout $record): array => self::widgetBlocksForLayout($record)
+                        ->pluck('name')
+                        ->all())
                     ->wrap()
                     ->color(FilamentColorEnum::LightGray->value)
                     ->bulleted()
@@ -96,7 +100,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
 
         $imageColumnIndex = array_search(
             ImageColumn::class,
-            array_map(fn (Column|Component $column): string|false => $column::class, $columns),
+            array_map(fn (Column|Component $column): string => $column::class, $columns),
             true,
         );
 
@@ -116,18 +120,18 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     protected static function getTableFilters(): array
     {
         return [
-            SelectFilter::make('block_key')
+            SelectFilter::make('widget_key')
                 ->label(__('capell-layout-builder::form.block'))
-                ->options(fn () => Block::query()
+                ->options(fn () => Widget::query()
                     ->pluck('name', 'key')
                     ->all())
                 ->indicateUsing(function (array $state): array {
                     $indicators = [];
 
                     if (isset($state['value']) && $state['value'] !== '') {
-                        $indicators['block_key'] = __(
+                        $indicators['widget_key'] = __(
                             'capell-layout-builder::filter.block',
-                            ['search' => Block::query()->where('key', $state['value'])->value('name')],
+                            ['search' => Widget::query()->where('key', $state['value'])->value('name')],
                         );
                     }
 
@@ -136,10 +140,44 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                 ->modifyQueryUsing(
                     fn (Builder $query, array $state) => $query->when(
                         isset($state['value']) && $state['value'] !== '',
-                        fn (Builder $query) => $query->whereJsonContains('blocks', $state['value']),
+                        fn (Builder $query): Builder => self::whereContainsWidgetKey($query, (string) $state['value']),
                     ),
                 ),
             ...parent::getTableFilters(),
         ];
+    }
+
+    /**
+     * @return Collection<int, Widget>
+     */
+    private static function widgetBlocksForLayout(Layout $layout): Collection
+    {
+        $widgetKeys = $layout->widgets;
+
+        if ($widgetKeys === []) {
+            return collect();
+        }
+
+        return Widget::query()
+            ->whereIn('key', $widgetKeys)
+            ->get()
+            ->sortBy(fn (Widget $widget): int => array_search($widget->key, $widgetKeys, true) ?: 0)
+            ->values();
+    }
+
+    /**
+     * @param  Builder<Layout>  $query
+     * @return Builder<Layout>
+     */
+    private static function whereContainsWidgetKey(Builder $query, string $widgetKey): Builder
+    {
+        $escapedWidgetKey = addcslashes($widgetKey, '\%_');
+
+        return $query->where(function (Builder $query) use ($escapedWidgetKey): void {
+            $query
+                ->where('containers', 'like', '%"widget_key":"' . $escapedWidgetKey . '"%')
+                ->orWhere('containers', 'like', '%"widgets":["' . $escapedWidgetKey . '"%')
+                ->orWhere('containers', 'like', '%,"' . $escapedWidgetKey . '"%');
+        });
     }
 }

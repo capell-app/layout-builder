@@ -23,7 +23,6 @@ final class ResultsLayoutInterceptor implements LayoutInterceptorInterface
 
         $layout->update([
             'containers' => [],
-            'blocks' => [],
         ]);
     }
 }

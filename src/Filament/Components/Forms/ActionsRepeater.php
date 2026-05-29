@@ -70,6 +70,7 @@ class ActionsRepeater extends Repeater
                         return is_string($name) ? $name : null;
                     })(),
                     ActionLinkEnum::Link => $state['url'],
+                    ActionLinkEnum::VideoPopup => $state['video_url'] ?? null,
                 };
 
                 if (filled($itemLabel)) {
@@ -91,10 +92,17 @@ class ActionsRepeater extends Repeater
                     ->afterStateUpdated(function (?ActionLinkEnum $state, Set $set): void {
                         if ($state === ActionLinkEnum::Page) {
                             $set('url', null);
+                            $set('video_url', null);
                         }
 
                         if ($state === ActionLinkEnum::Link) {
                             $set('pageable_id', null);
+                            $set('video_url', null);
+                        }
+
+                        if ($state === ActionLinkEnum::VideoPopup) {
+                            $set('pageable_id', null);
+                            $set('url', null);
                         }
                     }),
                 Grid::make(['md' => 2, 'lg' => 3])
@@ -116,6 +124,15 @@ class ActionsRepeater extends Repeater
                     ->visible(fn (Get $get): bool => $get('type') === ActionLinkEnum::Link)
                     ->validationAttribute(__('capell-admin::form.url'))
                     ->required()
+                    ->lazy(),
+
+                TextInput::make('video_url')
+                    ->label(__('capell-layout-builder::generic.video_url'))
+                    ->columnSpanFull()
+                    ->visible(fn (Get $get): bool => $get('type') === ActionLinkEnum::VideoPopup)
+                    ->validationAttribute(__('capell-layout-builder::generic.video_url'))
+                    ->required()
+                    ->url()
                     ->lazy(),
 
                 Grid::make()

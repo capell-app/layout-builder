@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\BlockResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Illuminate\Support\Arr;
 
 it('declares the admin resources and extension points owned by layout builder', function (): void {
@@ -14,7 +14,7 @@ it('declares the admin resources and extension points owned by layout builder', 
         true,
     );
 
-    $contributionTypes = collect($manifest['contributes'] ?? [])->pluck('type')->all();
+    $contributionTypes = capell_test_collect($manifest['contributes'] ?? [])->pluck('type')->all();
     $deferredTypes = $manifest['contributionTraceability']['deferredContributions'] ?? [];
 
     expect($contributionTypes)->toContain('admin-resource', 'configurator', 'schema-extender', 'asset')
@@ -28,14 +28,14 @@ it('advertises package-owned layout builder admin classes in its manifest', func
         true,
     );
 
-    $manifestStrings = collect($manifest['contributes'] ?? [])
+    $manifestStrings = capell_test_collect($manifest['contributes'] ?? [])
         ->flatMap(fn (array $contribution): array => Arr::flatten($contribution))
         ->filter(fn (mixed $value): bool => is_string($value));
 
     expect($manifestStrings->filter(fn (string $value): bool => str_starts_with($value, 'Capell\\Admin\\LayoutBuilder\\')))->toBeEmpty()
         ->and($manifestStrings)->toContain(
             LayoutResource::class,
-            BlockResource::class,
+            WidgetResource::class,
             ConfiguratorTypeEnum::class,
         );
 });

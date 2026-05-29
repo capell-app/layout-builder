@@ -4,16 +4,21 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Support\Creator;
 
+use Capell\ContentSections\Models\Section;
+use Capell\Core\Data\PageTypeData;
 use Capell\Core\Enums\AssetComponentEnum as CapellAssetComponentEnum;
 use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Enums\ContentStructure;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
+use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Enums\BlockComponentEnum;
 use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\BlockTypeGroupEnum;
 use Capell\LayoutBuilder\Enums\ContentTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Exception;
+use Illuminate\Database\Eloquent\Model;
 
 class TypeCreator
 {
@@ -29,7 +34,7 @@ class TypeCreator
                 $this->createDefaultContentType();
                 $this->createBuilderContentType();
                 break;
-            case LayoutTypeEnum::Block->value:
+            case LayoutTypeEnum::Widget->value:
                 $this->defaultBlockType();
                 break;
             default:
@@ -39,12 +44,14 @@ class TypeCreator
 
     public function createDefaultContentType(): void
     {
+        $this->ensureSectionPageTypeRegistered();
+
         $this->typeModel::query()->firstOrCreate([
             'default' => true,
             'type' => 'section',
         ], [
             'name' => __('capell-admin::generic.default'),
-            'key' => ContentTypeEnum::Default,
+            'key' => ContentTypeEnum::Default->value,
             'admin' => [
                 'type_configurator' => 'content-type',
                 'notes' => __('capell-layout-builder::type.default_content_description'),
@@ -54,8 +61,10 @@ class TypeCreator
 
     public function createBuilderContentType(): void
     {
+        $this->ensureSectionPageTypeRegistered();
+
         $this->typeModel::query()->firstOrCreate([
-            'key' => ContentTypeEnum::Builder,
+            'key' => ContentTypeEnum::Builder->value,
             'type' => 'section',
         ], [
             'name' => __('capell-admin::generic.contents_builder'),
@@ -93,13 +102,13 @@ class TypeCreator
     public function defaultBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'type' => LayoutTypeEnum::Block,
+            'type' => LayoutTypeEnum::Widget->value,
             'key' => 'default',
-            'default' => true,
         ], [
+            'default' => true,
             'name' => __('capell-admin::generic.default'),
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'icon' => 'heroicon-o-puzzle-piece',
                 'notes' => __('capell-layout-builder::type.default_block_description'),
             ],
@@ -113,12 +122,12 @@ class TypeCreator
     public function contentBuilderBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => BlockTypeEnum::SectionBuilder,
-            'type' => LayoutTypeEnum::Block,
+            'key' => BlockTypeEnum::SectionBuilder->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.contents_builder'),
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'icon' => 'heroicon-o-puzzle-piece',
                 'notes' => __('capell-layout-builder::type.section_builder_block_description'),
             ],
@@ -133,8 +142,8 @@ class TypeCreator
     public function mediaBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => BlockTypeEnum::Media,
-            'type' => LayoutTypeEnum::Block,
+            'key' => BlockTypeEnum::Media->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.media'),
             'group' => BlockTypeGroupEnum::Asset,
@@ -154,13 +163,13 @@ class TypeCreator
     public function navigationBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => BlockTypeEnum::Navigation,
-            'type' => LayoutTypeEnum::Block,
+            'key' => BlockTypeEnum::Navigation->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.navigation'),
             'group' => BlockTypeGroupEnum::Page,
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'configurator' => 'Navigation',
                 'icon' => 'heroicon-o-clipboard-document-list',
                 'notes' => __('capell-layout-builder::type.navigation_block_description'),
@@ -174,13 +183,13 @@ class TypeCreator
     public function pageContentBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => BlockTypeEnum::PageContents,
-            'type' => LayoutTypeEnum::Block,
+            'key' => BlockTypeEnum::PageContents->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.page_content'),
             'group' => BlockTypeGroupEnum::Page,
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'configurator' => 'PageContent',
                 'layout_block_configurator' => 'Page',
                 'icon' => 'heroicon-o-document-text',
@@ -196,13 +205,13 @@ class TypeCreator
     public function resultsBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => BlockTypeEnum::Results,
-            'type' => LayoutTypeEnum::Block,
+            'key' => BlockTypeEnum::Results->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.results'),
             'group' => BlockTypeGroupEnum::Asset,
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'configurator' => 'Results',
                 'layout_block_configurator' => 'Results',
                 'icon' => 'heroicon-o-list-bullet',
@@ -217,13 +226,13 @@ class TypeCreator
     public function pagesBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => BlockTypeEnum::Pages,
-            'type' => LayoutTypeEnum::Block,
+            'key' => BlockTypeEnum::Pages->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.pages'),
             'group' => BlockTypeGroupEnum::Asset,
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'configurator' => 'Assets',
                 'icon' => 'heroicon-o-document-text',
                 'asset_types' => [AssetEnum::Page],
@@ -238,13 +247,13 @@ class TypeCreator
     public function assetsBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => BlockTypeEnum::Assets,
-            'type' => LayoutTypeEnum::Block,
+            'key' => BlockTypeEnum::Assets->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.assets'),
             'group' => BlockTypeGroupEnum::Asset,
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'configurator' => 'Assets',
                 'icon' => 'heroicon-o-rectangle-stack',
                 'asset_types' => [
@@ -262,13 +271,13 @@ class TypeCreator
     public function systemBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => BlockTypeEnum::System,
-            'type' => LayoutTypeEnum::Block,
+            'key' => BlockTypeEnum::System->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.system'),
             'group' => BlockTypeGroupEnum::System,
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'configurator' => 'System',
                 'layout_block_configurator' => 'Default',
                 'icon' => 'heroicon-o-wrench',
@@ -283,13 +292,13 @@ class TypeCreator
     public function contentsBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => BlockTypeEnum::Sections,
-            'type' => LayoutTypeEnum::Block,
+            'key' => BlockTypeEnum::Sections->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-admin::generic.contents'),
             'group' => BlockTypeGroupEnum::Asset,
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'configurator' => 'Assets',
                 'icon' => 'heroicon-o-rectangle-stack',
                 'asset_types' => ['section'],
@@ -306,12 +315,12 @@ class TypeCreator
     public function heroBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => BlockTypeEnum::Hero,
-            'type' => LayoutTypeEnum::Block,
+            'key' => BlockTypeEnum::Hero->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-layout-builder::type.hero_block_name'),
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'icon' => 'heroicon-o-rocket-launch',
                 'notes' => __('capell-layout-builder::type.hero_block_description'),
             ],
@@ -324,12 +333,12 @@ class TypeCreator
     public function heroBannerBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => BlockTypeEnum::HeroBanner,
-            'type' => LayoutTypeEnum::Block,
+            'key' => BlockTypeEnum::HeroBanner->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-layout-builder::type.hero_banner_block_name'),
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'icon' => 'heroicon-o-flag',
                 'notes' => __('capell-layout-builder::type.hero_banner_block_description'),
             ],
@@ -342,12 +351,12 @@ class TypeCreator
     public function cardGridBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => BlockTypeEnum::CardGrid,
-            'type' => LayoutTypeEnum::Block,
+            'key' => BlockTypeEnum::CardGrid->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-layout-builder::type.card_grid_block_name'),
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'icon' => 'heroicon-o-square-3-stack-3d',
                 'notes' => __('capell-layout-builder::type.card_grid_block_description'),
             ],
@@ -360,12 +369,12 @@ class TypeCreator
     public function featureListBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => BlockTypeEnum::FeatureList,
-            'type' => LayoutTypeEnum::Block,
+            'key' => BlockTypeEnum::FeatureList->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-layout-builder::type.feature_list_block_name'),
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'icon' => 'heroicon-o-list-bullet',
                 'notes' => __('capell-layout-builder::type.feature_list_block_description'),
             ],
@@ -378,12 +387,12 @@ class TypeCreator
     public function ctaSectionBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => BlockTypeEnum::CTASection,
-            'type' => LayoutTypeEnum::Block,
+            'key' => BlockTypeEnum::CTASection->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-layout-builder::type.call_to_action_block_name'),
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'icon' => 'heroicon-o-megaphone',
                 'notes' => __('capell-layout-builder::type.call_to_action_block_description'),
             ],
@@ -396,12 +405,12 @@ class TypeCreator
     public function imageGalleryBlockType(): Blueprint
     {
         return $this->typeModel::query()->firstOrCreate([
-            'key' => BlockTypeEnum::ImageGallery,
-            'type' => LayoutTypeEnum::Block,
+            'key' => BlockTypeEnum::ImageGallery->value,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-layout-builder::type.image_gallery_block_name'),
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'icon' => 'heroicon-o-photo',
                 'notes' => __('capell-layout-builder::type.image_gallery_block_description'),
             ],
@@ -409,5 +418,32 @@ class TypeCreator
                 'component' => BlockComponentEnum::Default,
             ],
         ]);
+    }
+
+    private function ensureSectionPageTypeRegistered(): void
+    {
+        if (CapellCore::hasPageType('section')) {
+            return;
+        }
+
+        CapellCore::registerPageType(new PageTypeData(
+            name: 'section',
+            model: $this->sectionModelClass(),
+            label: 'Section',
+        ));
+    }
+
+    /**
+     * @return class-string<Model>
+     */
+    private function sectionModelClass(): string
+    {
+        $contentSectionsModel = Section::class;
+
+        if (class_exists($contentSectionsModel)) {
+            return $contentSectionsModel;
+        }
+
+        return Page::class;
     }
 }

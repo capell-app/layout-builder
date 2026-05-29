@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\BlockResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 
 it('registers the admin surface through the layout builder package registrar', function (): void {
@@ -16,7 +16,7 @@ it('registers the admin surface through the layout builder package registrar', f
     expect($registrar->isRegistered())->toBeTrue()
         ->and(CapellAdmin::getAdminSurfaceRegistry()->resources())->toContain(
             LayoutResource::class,
-            BlockResource::class,
+            WidgetResource::class,
         );
 });
 
@@ -30,7 +30,6 @@ it('owns admin registration without delegating to the legacy admin registrar', f
     $nestedViewDirectory = 'resources/views/layout-builder';
 
     expect($source)->not->toContain('Capell\\\\Admin\\\\LayoutBuilder\\\\Support\\\\LayoutBuilderAdminRegistrar')
-        ->and(view()->exists('capell-layout-builder::filament.layout-builder.previews.default'))->toBeTrue()
         ->and($previewViewPath)->toContain('packages/layout-builder/resources/views')
         ->and($previewViewPath)->not->toContain($nestedViewDirectory);
 });

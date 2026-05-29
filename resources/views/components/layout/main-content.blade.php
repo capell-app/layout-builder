@@ -2,7 +2,7 @@
     use Capell\Frontend\Data\MainContentRenderHookData;
     use Capell\LayoutBuilder\Actions\BlockIsSlotAction;
     use Capell\LayoutBuilder\Actions\ResolveLayoutAreaContainersAction;
-    use Capell\LayoutBuilder\Models\Block;
+    use Capell\LayoutBuilder\Models\Widget;
     use Capell\LayoutBuilder\Support\CapellLayoutManager;
     use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
     use Capell\LayoutBuilder\Support\LayoutBlockData;
@@ -14,10 +14,10 @@
 @if ($context->layout?->containers)
     @foreach (ResolveLayoutAreaContainersAction::run($context->layout->containers, LayoutAreaRegistry::MAIN) as $containerKey => $container)
         @php
-            $layoutBlocks = collect($container['blocks'] ?? [])
+            $layoutBlocks = collect($container['widgets'] ?? $container['blocks'] ?? [])
                 ->map(static fn (mixed $blockData): array => LayoutBlockData::normalize($blockData))
                 ->filter(static fn (array $blockData): bool => LayoutBlockData::key($blockData) !== null)
-                ->map(static fn (array $blockData): ?Block => CapellLayoutManager::getStoredContainerBlock(
+                ->map(static fn (array $blockData): ?Widget => CapellLayoutManager::getStoredContainerBlock(
                     (string) $containerKey,
                     (string) LayoutBlockData::key($blockData),
                     LayoutBlockData::occurrence($blockData),
@@ -28,12 +28,12 @@
                 continue;
             }
 
-            $context->pageContentBlockRendered = $context->pageContentBlockRendered || collect($container['blocks'] ?? [])
+            $context->pageContentBlockRendered = $context->pageContentBlockRendered || collect($container['widgets'] ?? $container['blocks'] ?? [])
                 ->map(static fn (mixed $blockData): array => LayoutBlockData::normalize($blockData))
                 ->contains(static fn (array $blockData): bool => LayoutBlockData::key($blockData) === 'page-content');
 
             $hasSlotBlock = ! $context->slotRendered && $layoutBlocks->contains(
-                static fn (Block $layoutBlock): bool => BlockIsSlotAction::run($layoutBlock),
+                static fn (Widget $layoutBlock): bool => BlockIsSlotAction::run($layoutBlock),
             );
 
             $colspan = (int) ($container['meta']['colspan'] ?? 12);

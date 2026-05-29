@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Enums;
 
+use Capell\Admin\Contracts\ConfiguratorInterface;
 use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
 
 enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
@@ -12,12 +13,12 @@ enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
 
     case LayoutBlock = 'LayoutBlocks';
 
-    case Block = 'Blocks';
+    case Widget = 'Widgets';
 
-    case BlockAsset = 'BlockAssets';
+    case WidgetAsset = 'WidgetAssets';
 
     /**
-     * @return array<string, array<int, object>>
+     * @return array<string, list<class-string<ConfiguratorInterface>>>
      */
     public static function getAllConfigurators(): array
     {
@@ -37,16 +38,25 @@ enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
         return null;
     }
 
-    /**
-     * @return array<int, object>
-     */
     public function getConfigurators(): array
     {
         return match ($this) {
-            self::LayoutContainer => LayoutContainerConfiguratorEnum::cases(),
-            self::LayoutBlock => LayoutBlockConfiguratorEnum::cases(),
-            self::Block => BlockConfiguratorEnum::cases(),
-            self::BlockAsset => BlockAssetConfiguratorEnum::cases(),
+            self::LayoutContainer => array_map(
+                fn (LayoutContainerConfiguratorEnum $configurator): string => $configurator->value,
+                LayoutContainerConfiguratorEnum::cases(),
+            ),
+            self::LayoutBlock => array_map(
+                fn (LayoutBlockConfiguratorEnum $configurator): string => $configurator->value,
+                LayoutBlockConfiguratorEnum::cases(),
+            ),
+            self::Widget => array_map(
+                fn (BlockConfiguratorEnum $configurator): string => $configurator->value,
+                BlockConfiguratorEnum::cases(),
+            ),
+            self::WidgetAsset => array_map(
+                fn (BlockAssetConfiguratorEnum $configurator): string => $configurator->value,
+                BlockAssetConfiguratorEnum::cases(),
+            ),
         };
     }
 

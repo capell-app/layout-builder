@@ -71,7 +71,9 @@ it('enforces the preset create policy in the layout builder component', function
 
     $component = new LayoutBuilder;
     $assertCanCreatePreset = Closure::bind(
-        fn (Site $site): mixed => $this->assertCanCreateLayoutPreset($site),
+        function (Site $site): void {
+            $this->assertCanCreateLayoutPreset($site);
+        },
         $component,
         LayoutBuilder::class,
     );
@@ -87,7 +89,9 @@ it('enforces the preset apply policy in the layout builder component', function 
 
     $component = new LayoutBuilder;
     $assertCanApplyPreset = Closure::bind(
-        fn (LayoutPreset $preset, Site $site): mixed => $this->assertCanApplyLayoutPreset($preset, $site),
+        function (LayoutPreset $preset, Site $site): void {
+            $this->assertCanApplyLayoutPreset($preset, $site);
+        },
         $component,
         LayoutBuilder::class,
     );

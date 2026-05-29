@@ -83,12 +83,12 @@ final class PasteLayoutFragmentAction
         }
 
         $containers = $state->containers;
-        $blocks = $containers[$targetContainerKey]['blocks'] ?? [];
+        $blocks = $containers[$targetContainerKey]['widgets'] ?? [];
         $targetIndex = min(count($blocks), max(0, $targetIndex ?? count($blocks)));
         $usedAnchors = $this->usedAnchors($containers);
         $block = $this->withUniqueBlockAnchor($fragment->block, $usedAnchors);
 
-        $containers[$targetContainerKey]['blocks'] = $this->insertSlot($blocks, $targetIndex, $block);
+        $containers[$targetContainerKey]['widgets'] = $this->insertSlot($blocks, $targetIndex, $block);
 
         $assets = $state->assets;
         $assets[$targetContainerKey] = $this->insertSlot($assets[$targetContainerKey] ?? [], $targetIndex, $fragment->assets);
@@ -115,7 +115,7 @@ final class PasteLayoutFragmentAction
     }
 
     /**
-     * @param  array<string, mixed>  $containers
+     * @param  array<array-key, mixed>  $containers
      */
     private function availableContainerKey(array $containers, string $baseKey): string
     {
@@ -144,7 +144,7 @@ final class PasteLayoutFragmentAction
     }
 
     /**
-     * @param  array<string, mixed>  $containers
+     * @param  array<array-key, mixed>  $containers
      * @return array<string, bool>
      */
     private function usedAnchors(array $containers): array
@@ -156,7 +156,7 @@ final class PasteLayoutFragmentAction
                 continue;
             }
 
-            $blocks = is_array($container['blocks'] ?? null) ? $container['blocks'] : [];
+            $blocks = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
 
             foreach ($blocks as $block) {
                 if (! is_array($block)) {
@@ -181,17 +181,18 @@ final class PasteLayoutFragmentAction
 
     /**
      * @param  array<string, bool>  $usedAnchors
-     * @return array<string, mixed>
+     * @param  array<array-key, mixed>  $container
+     * @return array<array-key, mixed>
      */
     private function withUniqueAnchors(array $container, array &$usedAnchors): array
     {
-        $blocks = is_array($container['blocks'] ?? null) ? $container['blocks'] : [];
+        $blocks = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
 
         foreach ($blocks as &$block) {
             $block = $this->withUniqueBlockAnchor($block, $usedAnchors);
         }
 
-        $container['blocks'] = $blocks;
+        $container['widgets'] = $blocks;
 
         return $container;
     }

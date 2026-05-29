@@ -8,15 +8,15 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 
 abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
 {
-    public function createApHeroBannerBlock(): Block
+    public function createApHeroBannerBlock(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::HeroBanner)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
                 ->firstWhere('key', BlockTypeEnum::Default);
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-hero-banner'], [
@@ -31,7 +31,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
             ],
         ]);
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
@@ -44,11 +44,11 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
         return $block;
     }
 
-    public function createApCardGridBlock(): Block
+    public function createApCardGridBlock(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::CardGrid)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
                 ->firstWhere('key', BlockTypeEnum::Default);
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-card-grid'], [
@@ -60,7 +60,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
             ],
         ]);
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 ['title' => 'AP Card Grid'],
@@ -86,7 +86,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
                 ],
             ]);
 
-            foreach (Site::getDefault()?->languages ?? [] as $language) {
+            foreach (Site::getDefault()->languages ?? [] as $language) {
                 $this->translationsFor($section)->firstOrCreate(
                     ['language_id' => $language->id],
                     ['title' => $card['title'], 'content' => sprintf('<p>%s</p>', $card['description'])],
@@ -102,11 +102,11 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
         return $block;
     }
 
-    public function createApFeatureListBlock(): Block
+    public function createApFeatureListBlock(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::FeatureList)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
                 ->firstWhere('key', BlockTypeEnum::Default);
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-feature-list'], [
@@ -118,7 +118,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
             ],
         ]);
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 ['title' => 'AP Feature List'],
@@ -141,7 +141,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
                 'meta' => ['icon' => $feature['icon']],
             ]);
 
-            foreach (Site::getDefault()?->languages ?? [] as $language) {
+            foreach (Site::getDefault()->languages ?? [] as $language) {
                 $this->translationsFor($section)->firstOrCreate(
                     ['language_id' => $language->id],
                     ['title' => $feature['title'], 'content' => sprintf('<p>%s</p>', $feature['description'])],
@@ -157,11 +157,11 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
         return $block;
     }
 
-    public function createFeatureListBlock(): Block
+    public function createFeatureListBlock(): Widget
     {
         $block = resolve(BlockCreator::class)->featuresBlock();
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->firstOrCreate(
                 ['language_id' => $language->id],
                 ['title' => 'Features'],
@@ -173,10 +173,10 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
         }
 
         $features = [
-            ['icon' => 'heroicon-o-light-bulb', 'title' => 'Innovative Solutions', 'description' => 'We leverage cutting-edge technology to create innovative solutions that drive success.'],
+            ['icon' => 'heroicon-o-light-bulb', 'title' => 'Reusable CMS Patterns', 'description' => 'We use Laravel packages, Filament resources, and reusable blocks to keep CMS implementations maintainable.'],
             ['icon' => 'heroicon-o-academic-cap', 'title' => 'Deep Expertise', 'description' => 'Our team brings deep industry knowledge and experience to every project.'],
             ['icon' => 'heroicon-o-user-group', 'title' => 'Client-Centric Approach', 'description' => "We prioritize our clients' needs and work collaboratively to achieve their goals."],
-            ['icon' => 'heroicon-o-chart-bar', 'title' => 'Measurable Results', 'description' => 'We focus on delivering measurable results that drive growth and success.'],
+            ['icon' => 'heroicon-o-chart-bar', 'title' => 'Operational Checks', 'description' => 'We ship with checks for content, assets, cache, and frontend output so teams can verify each release.'],
             ['icon' => 'heroicon-o-sparkles', 'title' => 'Sustainable Practices', 'description' => 'We are committed to sustainable practices that benefit our clients and the environment.'],
             ['icon' => 'heroicon-o-globe-alt', 'title' => 'Global Reach', 'description' => 'Our global presence allows us to serve clients across diverse markets and industries.'],
         ];
@@ -186,7 +186,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
                 'meta' => ['icon' => $feature['icon']],
             ]);
 
-            foreach (Site::getDefault()?->languages ?? [] as $language) {
+            foreach (Site::getDefault()->languages ?? [] as $language) {
                 $this->translationsFor($section)->firstOrCreate(
                     ['language_id' => $language->id],
                     ['title' => $feature['title'], 'content' => sprintf('<p>%s</p>', $feature['description'])],
@@ -202,11 +202,11 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
         return $block;
     }
 
-    public function createApCtaSectionBlock(): Block
+    public function createApCtaSectionBlock(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::CTASection)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
                 ->firstWhere('key', BlockTypeEnum::Default);
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-cta-section'], [
@@ -221,7 +221,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
             ],
         ]);
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 [
@@ -234,11 +234,11 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
         return $block;
     }
 
-    public function createApImageGalleryBlock(): Block
+    public function createApImageGalleryBlock(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
             ->firstWhere('key', BlockTypeEnum::ImageGallery)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Block)
+            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
                 ->firstWhere('key', BlockTypeEnum::Default);
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-image-gallery'], [
@@ -252,7 +252,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
             ],
         ]);
 
-        foreach (Site::getDefault()?->languages ?? [] as $language) {
+        foreach (Site::getDefault()->languages ?? [] as $language) {
             $block->translations()->updateOrCreate(
                 ['language_id' => $language->id],
                 ['title' => 'Our Work'],

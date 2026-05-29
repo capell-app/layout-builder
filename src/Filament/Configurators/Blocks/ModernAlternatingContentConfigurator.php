@@ -9,36 +9,42 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 
 /**
- * Filament Schema for Modern Alternating Content Block
+ * Filament Schema for Modern Alternating Content Widget
  *
  * Provides admin panel controls for customizing two-column alternating
  * content layout with images and text.
  */
 class ModernAlternatingContentConfigurator
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getFormSchema(): array
     {
         return [
-            Section::make('Content')
-                ->description('Section title and layout')
+            Section::make(__('capell-layout-builder::blocks.common.section_content'))
+                ->description(__('capell-layout-builder::blocks.modern.alternating_content.section_content_description'))
                 ->schema([
                     TextInput::make('data.title')
-                        ->label('Section Title')
-                        ->placeholder('How It Works')
+                        ->label(__('capell-layout-builder::blocks.common.section_title_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.alternating_content.title_placeholder'))
                         ->columnSpanFull(),
                 ])->columns(1),
 
-            Section::make('Display')
-                ->description('Visibility and admin hints')
+            Section::make(__('capell-layout-builder::blocks.common.section_display'))
+                ->description(__('capell-layout-builder::blocks.common.section_display_description'))
                 ->schema([
                     Toggle::make('data.customizable')
-                        ->label('Show Admin Hints')
+                        ->label(__('capell-layout-builder::blocks.common.admin_hints_label'))
                         ->default(true)
-                        ->helperText('Display "✨ Customize..." message'),
+                        ->helperText(__('capell-layout-builder::blocks.common.customize_message_helper')),
                 ])->columns(1),
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getDefaults(): array
     {
         return [

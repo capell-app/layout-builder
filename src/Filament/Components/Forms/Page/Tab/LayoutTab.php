@@ -18,7 +18,7 @@ class LayoutTab
     public static function make(): Tab
     {
         return Tab::make(__('capell-admin::tab.layout'))
-            ->icon(Heroicon::OutlinedPuzzlePiece)
+            ->icon(Heroicon::OutlinedViewColumns)
             ->visible(fn (Get $get, ?Pageable $record = null): bool => (bool) ($get('layout_id') ?? $record?->layout_id))
             ->schema([
                 Livewire::make(
@@ -28,25 +28,28 @@ class LayoutTab
                             return [];
                         }
 
-                        $layout = $record->layout;
+                        $layoutId = $record->layout_id;
 
-                        if ($get('layout_id') !== null && $layout->id !== $get('layout_id')) {
+                        if ($get('layout_id') !== null && (int) $layoutId !== (int) $get('layout_id')) {
                             /** @var class-string<Layout> $model */
                             $model = Layout::class;
 
-                            $layout = $model::query()
+                            $layoutId = $model::query()
                                 ->where(
                                     fn (Builder $query): Builder => $query
                                         ->whereNull('site_id')
                                         ->orWhere('site_id', $record->site_id),
                                 )
-                                ->find($get('layout_id')) ?? $layout;
+                                ->whereKey($get('layout_id'))
+                                ->value('id') ?? $layoutId;
                         }
 
                         return [
-                            'site' => $record->site,
-                            'layout' => $layout,
-                            'page' => $record,
+                            'record' => null,
+                            'siteId' => $record->site_id,
+                            'layoutId' => $layoutId,
+                            'pageId' => $record->getKey(),
+                            'pageClass' => $record::class,
                         ];
                     },
                 )

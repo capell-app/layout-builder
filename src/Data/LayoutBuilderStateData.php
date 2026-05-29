@@ -8,6 +8,12 @@ use Spatie\LaravelData\Data;
 
 final class LayoutBuilderStateData extends Data
 {
+    /**
+     * @param  array<array-key, mixed>  $assets
+     * @param  array<array-key, mixed>  $containers
+     * @param  array<array-key, mixed>  $originalAssets
+     * @param  array<array-key, mixed>  $selectedRecords
+     */
     public function __construct(
         public array $containers,
         public array $assets,
@@ -15,6 +21,12 @@ final class LayoutBuilderStateData extends Data
         public array $selectedRecords,
     ) {}
 
+    /**
+     * @param  array<array-key, mixed>  $assets
+     * @param  array<array-key, mixed>  $containers
+     * @param  array<array-key, mixed>  $originalAssets
+     * @param  array<array-key, mixed>  $selectedRecords
+     */
     public static function fromLivewire(
         ?array $containers,
         array $assets,
@@ -30,7 +42,7 @@ final class LayoutBuilderStateData extends Data
     }
 
     /**
-     * @param  array<string, mixed>  $snapshot
+     * @param  array<array-key, mixed>  $snapshot
      */
     public static function fromSnapshot(array $snapshot): self
     {
@@ -42,6 +54,9 @@ final class LayoutBuilderStateData extends Data
         );
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function toLivewirePayload(): array
     {
         return [

@@ -11,8 +11,8 @@ use Capell\LayoutBuilder\Data\LayoutContentGroupData;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryContextData;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryData;
 use Capell\LayoutBuilder\Data\LayoutContentItemData;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -24,7 +24,7 @@ final class BuildLayoutContentInventoryAction
 
     /**
      * @param  array<string, array<string, mixed>>  $containers
-     * @param  array<string, array<int, Block>>  $containerBlocks
+     * @param  array<string, array<int, Widget>>  $containerBlocks
      * @param  array<string, array<int, array<int, array<string, mixed>>>>  $assets
      * @param  iterable<int, LayoutContentGroupContributor>|null  $contributors
      */
@@ -56,10 +56,10 @@ final class BuildLayoutContentInventoryAction
 
             $containerLabel = $this->containerLabel($containerKey, $container);
 
-            foreach (($container['blocks'] ?? []) as $blockIndex => $containerBlock) {
+            foreach (($container['widgets'] ?? []) as $blockIndex => $containerBlock) {
                 $block = $containerBlocks[$containerKey][$blockIndex] ?? null;
 
-                if (! $block instanceof Block) {
+                if (! $block instanceof Widget) {
                     continue;
                 }
 
@@ -111,7 +111,7 @@ final class BuildLayoutContentInventoryAction
                 foreach ($blockAssets as $assetIndex => $assetState) {
                     $blockAsset = $this->resolveBlockAsset($block, $assetState, $assetIndex);
 
-                    if (! $blockAsset instanceof BlockAsset) {
+                    if (! $blockAsset instanceof WidgetAsset) {
                         continue;
                     }
 
@@ -205,10 +205,15 @@ final class BuildLayoutContentInventoryAction
             }
         }
 
-        return collect($counts)
-            ->filter(fn (int $count): bool => $count > 1)
-            ->map(fn (): bool => true)
-            ->all();
+        $reusedKeys = [];
+
+        foreach ($counts as $key => $count) {
+            if ($count > 1) {
+                $reusedKeys[$key] = true;
+            }
+        }
+
+        return $reusedKeys;
     }
 
     /**
@@ -235,7 +240,7 @@ final class BuildLayoutContentInventoryAction
     /**
      * @param  array<string, mixed>  $containerBlock
      */
-    private function blockLabel(Block $block, array $containerBlock): string
+    private function blockLabel(Widget $block, array $containerBlock): string
     {
         $configuredName = Arr::get($containerBlock, 'meta.name');
 
@@ -249,11 +254,11 @@ final class BuildLayoutContentInventoryAction
     /**
      * @param  array<string, mixed>  $assetState
      */
-    private function resolveBlockAsset(Block $block, array $assetState, int $assetIndex): ?BlockAsset
+    private function resolveBlockAsset(Widget $block, array $assetState, int $assetIndex): ?WidgetAsset
     {
         $blockAsset = $block->assets->get($assetIndex);
 
-        if ($blockAsset instanceof BlockAsset) {
+        if ($blockAsset instanceof WidgetAsset) {
             return $blockAsset;
         }
 
@@ -261,11 +266,11 @@ final class BuildLayoutContentInventoryAction
         $assetType = $assetState['asset_type'] ?? null;
 
         return $block->assets
-            ->first(fn (BlockAsset $candidate): bool => $candidate->asset_type === $assetType
+            ->first(fn (WidgetAsset $candidate): bool => $candidate->asset_type === $assetType
                 && $candidate->asset_id === $assetId);
     }
 
-    private function assetLabel(BlockAsset $blockAsset): string
+    private function assetLabel(WidgetAsset $blockAsset): string
     {
         $asset = $blockAsset->asset;
 
@@ -286,7 +291,7 @@ final class BuildLayoutContentInventoryAction
         return __('capell-layout-builder::generic.untitled_content_block');
     }
 
-    private function assetSummary(BlockAsset $blockAsset): ?string
+    private function assetSummary(WidgetAsset $blockAsset): ?string
     {
         $asset = $blockAsset->asset;
 
@@ -392,7 +397,7 @@ final class BuildLayoutContentInventoryAction
     /**
      * @return array{source: string|null, text: string|null}
      */
-    private function blockCopy(Block $block): array
+    private function blockCopy(Widget $block): array
     {
         $translation = $block->getRelationValue('translation');
 
@@ -488,7 +493,7 @@ final class BuildLayoutContentInventoryAction
     /**
      * @param  array<string, mixed>  $containerBlock
      */
-    private function blockCopyItemKey(string $containerKey, int $blockIndex, array $containerBlock, Block $block): string
+    private function blockCopyItemKey(string $containerKey, int $blockIndex, array $containerBlock, Widget $block): string
     {
         return implode(':', [
             $containerKey,

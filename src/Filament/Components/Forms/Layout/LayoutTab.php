@@ -18,13 +18,14 @@ class LayoutTab extends Tab
 
         $this->label(__('capell-layout-builder::tab.layout'))
             ->visibleOn(['edit', 'editOption'])
-            ->icon(Heroicon::OutlinedPuzzlePiece)
+            ->icon(Heroicon::OutlinedViewColumns)
             ->schema(fn (?Layout $record): array => $record instanceof Layout ? [
                 Livewire::make(
                     LivewireComponentsEnum::LayoutBuilder->value,
                     fn (Layout $record): array => [
-                        'site' => $record->site,
-                        'layout' => $record,
+                        'record' => null,
+                        'siteId' => $record->site_id,
+                        'layoutId' => $record->getKey(),
                     ],
                 )->lazy(),
             ] : []);

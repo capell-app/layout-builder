@@ -52,6 +52,9 @@ final class SaveLayoutPresetAction
         'signedUrl',
     ];
 
+    /**
+     * @param  array<array-key, mixed>|null  $containers
+     */
     public function handle(
         Layout $layout,
         Site $site,
@@ -123,8 +126,8 @@ final class SaveLayoutPresetAction
     }
 
     /**
-     * @param  array<string, mixed>  $containers
-     * @return array<string, mixed>
+     * @param  array<array-key, mixed>  $containers
+     * @return array<array-key, mixed>
      */
     public function sanitizePresetContainers(array $containers): array
     {
@@ -132,7 +135,8 @@ final class SaveLayoutPresetAction
     }
 
     /**
-     * @return array<string, mixed>
+     * @param  array<array-key, mixed>|null  $containers
+     * @return array<array-key, mixed>
      */
     private function snapshotContainers(Layout $layout, bool $includeStarterContent, ?array $containers = null): array
     {
@@ -141,10 +145,10 @@ final class SaveLayoutPresetAction
         return collect($containers)
             ->map(function (mixed $container) use ($includeStarterContent): array {
                 $container = is_array($container) ? $container : [];
-                $blocks = is_array($container['blocks'] ?? null) ? $container['blocks'] : [];
+                $blocks = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
 
                 $container = $this->scrubUnsafePresetData($container);
-                $container['blocks'] = array_map(
+                $container['widgets'] = array_map(
                     fn (array $block): array => $this->snapshotBlock($block, $includeStarterContent),
                     LayoutBlockData::normalizeMany($blocks),
                 );
@@ -155,12 +159,12 @@ final class SaveLayoutPresetAction
     }
 
     /**
-     * @param  array<string, mixed>  $block
-     * @return array<string, mixed>
+     * @param  array<array-key, mixed>  $block
+     * @return array<array-key, mixed>
      */
     private function snapshotBlock(array $block, bool $includeStarterContent): array
     {
-        $snapshot = array_intersect_key($block, array_flip(['block_key', 'occurrence']));
+        $snapshot = array_intersect_key($block, array_flip(['widget_key', 'occurrence']));
         $snapshot['occurrence'] = LayoutBlockData::occurrence($block);
 
         $meta = is_array($block['meta'] ?? null) ? $block['meta'] : [];
@@ -180,12 +184,12 @@ final class SaveLayoutPresetAction
     }
 
     /**
-     * @param  array<string, mixed>  $meta
-     * @return array<string, mixed>
+     * @param  array<array-key, mixed>  $meta
+     * @return array<array-key, mixed>
      */
     private function safeBlockMeta(array $meta, bool $includeStarterContent): array
     {
-        $safeMeta = array_intersect_key($meta, array_flip(['block_key', 'block_variant']));
+        $safeMeta = array_intersect_key($meta, array_flip(['widget_key', 'block_variant']));
         $settings = is_array($meta['block_settings'] ?? null) ? $meta['block_settings'] : [];
         $safeSettings = array_intersect_key($settings, array_flip([
             'spacing',

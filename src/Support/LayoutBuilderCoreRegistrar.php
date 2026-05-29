@@ -14,6 +14,7 @@ use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Renderables\RenderableRegistry;
+use Capell\Frontend\Data\RenderHookContext;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
 use Capell\LayoutBuilder\Actions\InvalidateTypeLayoutPreviewImagesAction;
 use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
@@ -25,10 +26,9 @@ use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\LivewireComponentsEnum;
 use Capell\LayoutBuilder\Listeners\AfterRecordSaved;
 use Capell\LayoutBuilder\Listeners\LayoutLoaded;
-use Capell\LayoutBuilder\Listeners\LayoutSavingListener;
 use Capell\LayoutBuilder\Listeners\SiteTreeRebuilt;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\Interceptors\Layouts\DefaultLayoutInterceptor;
 use Capell\LayoutBuilder\Support\Interceptors\Layouts\HomeLayoutInterceptor;
 use Capell\LayoutBuilder\Support\Interceptors\Layouts\ResultsLayoutInterceptor;
@@ -37,12 +37,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Facades\App;
-use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
+use WeakMap;
 
 final class LayoutBuilderCoreRegistrar
 {
-    /** @var array<int, true> */
-    private static array $mainContentHookRegistries = [];
+    /** @var WeakMap<RenderHookRegistry<RenderHookContext>, true>|null */
+    private static ?WeakMap $mainContentHookRegistries = null;
 
     public function register(): void
     {
@@ -50,7 +50,6 @@ final class LayoutBuilderCoreRegistrar
 
         $this->registerManagers();
         $this->registerRelationships();
-        $this->registerModelExtensions();
         $this->registerModelEvents();
         $this->registerModelInterceptors();
         $this->registerPageTypes();
@@ -68,54 +67,47 @@ final class LayoutBuilderCoreRegistrar
         App::tag([], PublicBlockPayloadContributor::TAG);
     }
 
-    private function registerModelExtensions(): void
-    {
-        Layout::addFillable(['blocks']);
-        Layout::addCasts(['blocks' => 'array']);
-    }
-
     private function registerRelationships(): void
     {
-        Layout::resolveRelationUsing(
-            'layoutBlocks',
-            fn (Layout $model): BelongsToJson => $model->belongsToJson(
-                Block::class,
-                'blocks',
-                'key',
-            ),
+        Page::resolveRelationUsing(
+            'widgetAssets',
+            fn (Page $model): MorphMany => $model->morphMany(WidgetAsset::class, 'pageable'),
         );
 
         Page::resolveRelationUsing(
-            'blockAssets',
-            fn (Page $model): MorphMany => $model->morphMany(BlockAsset::class, 'pageable'),
-        );
-
-        Page::resolveRelationUsing(
-            'blocks',
+            'widgets',
             fn (Page $model): MorphToMany => $model->morphToMany(
-                Block::class,
+                Widget::class,
                 'asset',
-                'block_assets',
+                'widget_assets',
                 'asset_id',
-                'block_id',
+                'widget_id',
             )
                 ->wherePivot('asset_type', $model->getMorphClass()),
         );
 
         Blueprint::resolveRelationUsing(
+            'widgets',
+            fn (Blueprint $model): HasMany => $model->hasMany(Widget::class, 'blueprint_id'),
+        );
+
+        Page::resolveRelationUsing(
+            'blockAssets',
+            fn (Page $model): MorphMany => $model->widgetAssets(),
+        );
+
+        Page::resolveRelationUsing(
             'blocks',
-            fn (Blueprint $model): HasMany => $model->hasMany(Block::class, 'blueprint_id'),
+            fn (Page $model): MorphToMany => $model->widgets(),
         );
     }
 
     private function registerModelEvents(): void
     {
-        Layout::saving(resolve(LayoutSavingListener::class));
-
         Blueprint::updated(function (Blueprint $type): void {
             $rawType = $type->getRawOriginal('type');
 
-            if ($rawType !== LayoutTypeEnum::Block->value) {
+            if ($rawType !== LayoutTypeEnum::Widget->value) {
                 return;
             }
 
@@ -198,6 +190,13 @@ final class LayoutBuilderCoreRegistrar
                 BlockComponentEnum::ApStatsSection => 'capell::block.modern.stats-section',
                 BlockComponentEnum::ApAlternatingContent => 'capell::block.modern.alternating-content',
                 BlockComponentEnum::ApProcessSteps => 'capell::block.modern.process-steps',
+                BlockComponentEnum::KitchenSinkRichText,
+                BlockComponentEnum::KitchenSinkStructuredText,
+                BlockComponentEnum::KitchenSinkDataDisplay,
+                BlockComponentEnum::KitchenSinkForms,
+                BlockComponentEnum::KitchenSinkInteractions,
+                BlockComponentEnum::KitchenSinkEmbeds,
+                BlockComponentEnum::KitchenSinkUtilityStates => 'capell::block.kitchen-sink.reference',
             };
 
             $registry->register(new RenderableDefinitionData(
@@ -239,17 +238,18 @@ final class LayoutBuilderCoreRegistrar
         }
     }
 
+    /** @param RenderHookRegistry<RenderHookContext> $registry */
     private function registerRenderHooksForRegistry(RenderHookRegistry $registry): void
     {
-        $registryId = spl_object_id($registry);
+        self::$mainContentHookRegistries ??= new WeakMap;
 
-        if (isset(self::$mainContentHookRegistries[$registryId])) {
+        if (isset(self::$mainContentHookRegistries[$registry])) {
             return;
         }
 
         (new RegisterMainContentLayoutHook($registry))->register();
 
-        self::$mainContentHookRegistries[$registryId] = true;
+        self::$mainContentHookRegistries[$registry] = true;
     }
 
     private function registerListeners(): void

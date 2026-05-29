@@ -7,37 +7,51 @@ namespace Capell\LayoutBuilder\Filament\Configurators\Blocks;
 use Capell\Admin\Contracts\ConfiguratorInterface;
 use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
-use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
+use Capell\Admin\Filament\Components\Forms\ImageSourcePicker;
 use Capell\Admin\Filament\Concerns\HasConfigurator;
+use Capell\Core\Models\Blueprint;
+use Capell\LayoutBuilder\Contracts\Extenders\BlockSchemaExtender;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\SchemaExtenderEnum;
 use Capell\LayoutBuilder\Filament\Components\Forms\ActionsRepeater;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\ComponentSection;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\CreateDetailsSchema;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\DisplaySection;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\SettingsSchema;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\Tab\BlockAdminTab;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\Tab\BlockDisplayTab;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\Tab\BlockSettingsTab;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\TranslationsRepeater;
 use Capell\LayoutBuilder\Filament\Components\Forms\ColorSchemeComponent;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\CreateDetailsSchema;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\DisplaySection;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\SettingsSchema;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\BlockAdminTab;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\BlockDisplayTab;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\BlockSettingsTab;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\TranslationsRepeater;
 use Filament\Forms\Components\Checkbox;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Model;
 
 class DefaultBlockConfigurator implements ConfiguratorInterface
 {
     use HasConfigurator;
 
-    protected static ConfiguratorTypeEnumInterface $configuratorType = ConfiguratorTypeEnum::Block;
+    protected static ConfiguratorTypeEnumInterface $configuratorType = ConfiguratorTypeEnum::Widget;
 
-    public static function getExtenders(): iterable
+    public static function getKey(): string
     {
-        return app()->tagged(SchemaExtenderEnum::Block->value);
+        return preg_replace('/BlockConfigurator$/', '', class_basename(static::class));
     }
 
+    /**
+     * @return iterable<int, mixed>
+     */
+    public static function getExtenders(): iterable
+    {
+        return app()->tagged(SchemaExtenderEnum::Widget->value);
+    }
+
+    /**
+     * @return array<array-key, mixed>
+     */
     public function make(Schema $configurator): array
     {
         return match ($configurator->getOperation()) {
@@ -47,6 +61,9 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
         };
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getFormSchema(Schema $configurator): array
     {
         return [
@@ -63,12 +80,17 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
                         ->columns(['@md' => 2])
                         ->schema([
                             ...SettingsSchema::make($configurator),
-                            MediaLibraryFileUpload::make('image'),
+                            ImageSourcePicker::make('image')
+                                ->sourceStatePath('meta.image_source')
+                                ->imageSourcePolicy(blueprintSources: $this->blueprintImageSourcePolicy($configurator, 'image')),
                         ]),
                 ]),
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getEditOptionSchema(Schema $configurator): array
     {
         return [
@@ -77,6 +99,9 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getCreateOptionSchema(Schema $configurator): array
     {
         return [
@@ -86,6 +111,9 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getExtraSchema(Schema $configurator, bool $withSettingsTab = false): array
     {
         return [
@@ -109,13 +137,30 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
     {
         return BlockDisplayTab::make([
             DisplaySection::make([
-                ColorSchemeComponent::make('color'),
-                Checkbox::make('reverse_order')
-                    ->label(__('capell-layout-builder::form.reverse_order'))
-                    ->whenTruthy('image'),
+                ...$this->extendDisplayComponents($configurator, [
+                    ColorSchemeComponent::make('color'),
+                    Checkbox::make('reverse_order')
+                        ->label(__('capell-layout-builder::form.reverse_order'))
+                        ->whenTruthy('image'),
+                ]),
             ]),
             ComponentSection::make(),
         ]);
+    }
+
+    /**
+     * @param  array<int, mixed>  $components
+     * @return array<int, mixed>
+     */
+    protected function extendDisplayComponents(Schema $configurator, array $components): array
+    {
+        foreach (static::getExtenders() as $extender) {
+            if ($extender instanceof BlockSchemaExtender) {
+                $components = $extender->extendDisplayComponents($configurator, $components);
+            }
+        }
+
+        return $components;
     }
 
     protected function detailsTab(): Tab
@@ -131,6 +176,28 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
 
     protected function settingsTab(Schema $configurator): Tab
     {
-        return BlockSettingsTab::make($configurator);
+        return BlockSettingsTab::make($configurator, [
+            ImageSourcePicker::make('image')
+                ->sourceStatePath('meta.image_source')
+                ->imageSourcePolicy(blueprintSources: $this->blueprintImageSourcePolicy($configurator, 'image')),
+        ]);
+    }
+
+    /**
+     * @return array<array-key, mixed>
+     */
+    protected function blueprintImageSourcePolicy(Schema $schema, string $field): string|array|null
+    {
+        $record = $schema->getRecord();
+        $blueprint = null;
+
+        if ($record instanceof Model && $record->relationLoaded('blueprint')) {
+            $relation = $record->getRelation('blueprint');
+            $blueprint = $relation instanceof Blueprint ? $relation : null;
+        }
+
+        $policy = data_get($blueprint?->admin, 'image_source_policy.' . $field);
+
+        return is_string($policy) || is_array($policy) ? $policy : null;
     }
 }

@@ -12,7 +12,7 @@ use Capell\LayoutBuilder\Contracts\PublicBlockPayloadResolver;
 use Capell\LayoutBuilder\Data\PublicLayoutBlockData;
 use Capell\LayoutBuilder\Data\PublicLayoutContainerData;
 use Capell\LayoutBuilder\Data\PublicLayoutGraphData;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
 use Capell\LayoutBuilder\Support\LayoutBlockData;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
@@ -76,7 +76,7 @@ class BuildPublicLayoutGraphAction
         bool $includeHtml,
         ?array $selectedContainers,
     ): PublicLayoutContainerData {
-        $blocks = LayoutBlockData::normalizeMany($container['blocks'] ?? []);
+        $blocks = LayoutBlockData::fromContainer($container);
 
         return new PublicLayoutContainerData(
             key: $containerKey,
@@ -114,23 +114,23 @@ class BuildPublicLayoutGraphAction
         bool $includeHtml,
         ?array $selectedContainers,
     ): ?PublicLayoutBlockData {
-        $blockKey = LayoutBlockData::key($blockData);
-        if ($blockKey === null) {
+        $widgetKey = LayoutBlockData::key($blockData);
+        if ($widgetKey === null) {
             return null;
         }
 
         $occurrence = LayoutBlockData::occurrence($blockData);
-        $block = CapellLayoutManager::getStoredContainerBlock($containerKey, $blockKey, $occurrence)
-            ?? $loader->getLayoutBlock($layout, $blockKey, $language, $page, $containerKey, $occurrence, $selectedContainers);
+        $block = CapellLayoutManager::getStoredContainerBlock($containerKey, $widgetKey, $occurrence)
+            ?? $loader->getLayoutBlock($layout, $widgetKey, $language, $page, $containerKey, $occurrence, $selectedContainers);
 
-        if (! $block instanceof Block) {
+        if (! $block instanceof Widget) {
             return null;
         }
 
         $publicBlock = $this->blockWithPublicOccurrenceMeta($block, $blockData);
 
         return new PublicLayoutBlockData(
-            key: $blockKey,
+            key: $widgetKey,
             occurrence: $occurrence,
             type: $block->type?->key,
             data: $resolver->data($publicBlock, $page, $language, $containerKey, $occurrence),
@@ -141,7 +141,7 @@ class BuildPublicLayoutGraphAction
     /**
      * @param  array<string, mixed>  $blockData
      */
-    private function blockWithPublicOccurrenceMeta(Block $block, array $blockData): Block
+    private function blockWithPublicOccurrenceMeta(Widget $block, array $blockData): Widget
     {
         $occurrenceMeta = is_array($blockData['meta'] ?? null) ? $blockData['meta'] : [];
         $safeOccurrenceMeta = $this->safePublicBlockMeta($occurrenceMeta);
@@ -161,7 +161,7 @@ class BuildPublicLayoutGraphAction
     {
         $safeMeta = [];
 
-        foreach (['block_key', 'block_variant'] as $key) {
+        foreach (['widget_key', 'block_variant'] as $key) {
             $value = $meta[$key] ?? null;
 
             if ($this->isSafeIdentifier($value)) {

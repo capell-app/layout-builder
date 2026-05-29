@@ -11,6 +11,9 @@ use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/**
+ * @method static array<int, LayoutDiagnosticData> run(BlockDefinitionData $definition, PublicBlockPresentationData $presentation, array<string, mixed> $payload, ?string $containerKey = null, ?int $blockIndex = null)
+ */
 final class BlockContractValidatorAction
 {
     use AsObject;

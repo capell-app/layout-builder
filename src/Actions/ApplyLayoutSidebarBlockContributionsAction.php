@@ -7,7 +7,7 @@ namespace Capell\LayoutBuilder\Actions;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Contracts\LayoutSidebarBlockContributor;
 use Capell\LayoutBuilder\Data\LayoutSidebarBlockData;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -29,33 +29,28 @@ class ApplyLayoutSidebarBlockContributionsAction
             $containers['sidebar'] = $this->defaultSidebarContainer();
         }
 
-        $sidebarBlocks = $containers['sidebar']['blocks'] ?? [];
+        $sidebarBlocks = $containers['sidebar']['widgets'] ?? [];
         $sidebarBlocks = is_array($sidebarBlocks) ? $sidebarBlocks : [];
 
-        $sidebarBlockKeys = $this->blockKeys($sidebarBlocks);
+        $sidebarWidgetKeys = $this->widgetKeys($sidebarBlocks);
 
         foreach ($this->contributedBlocks($layout) as $sidebarBlock) {
-            if (in_array($sidebarBlock->blockKey, $sidebarBlockKeys, true)) {
+            if (in_array($sidebarBlock->widgetKey, $sidebarWidgetKeys, true)) {
                 continue;
             }
 
-            if (! Block::query()->where('key', $sidebarBlock->blockKey)->exists()) {
+            if (! Widget::query()->where('key', $sidebarBlock->widgetKey)->exists()) {
                 continue;
             }
 
             $sidebarBlocks[] = $sidebarBlock->toLayoutBlock();
-            $sidebarBlockKeys[] = $sidebarBlock->blockKey;
+            $sidebarWidgetKeys[] = $sidebarBlock->widgetKey;
         }
 
-        $containers['sidebar']['blocks'] = $sidebarBlocks;
+        $containers['sidebar']['widgets'] = $sidebarBlocks;
 
         $layout->update([
             'containers' => $containers,
-            'blocks' => $this->blockKeys(
-                collect($containers)
-                    ->flatMap(fn (mixed $container): array => is_array($container) && is_array($container['blocks'] ?? null) ? $container['blocks'] : [])
-                    ->all(),
-            ),
         ]);
     }
 
@@ -72,7 +67,7 @@ class ApplyLayoutSidebarBlockContributionsAction
                 'padding' => ['md'],
                 'html_class' => 'sidebar-sticky space-y-8',
             ],
-            'blocks' => [],
+            'widgets' => [],
         ];
     }
 
@@ -105,11 +100,11 @@ class ApplyLayoutSidebarBlockContributionsAction
      * @param  array<int, mixed>  $blocks
      * @return array<int, string>
      */
-    private function blockKeys(array $blocks): array
+    private function widgetKeys(array $blocks): array
     {
         return collect($blocks)
-            ->map(fn (mixed $block): ?string => is_array($block) ? ($block['block_key'] ?? null) : null)
-            ->filter(fn (?string $blockKey): bool => is_string($blockKey) && $blockKey !== '')
+            ->map(fn (mixed $block): ?string => is_array($block) ? ($block['widget_key'] ?? null) : null)
+            ->filter(fn (?string $widgetKey): bool => is_string($widgetKey) && $widgetKey !== '')
             ->unique()
             ->values()
             ->all();

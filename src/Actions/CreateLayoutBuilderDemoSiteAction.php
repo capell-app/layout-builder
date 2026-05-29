@@ -69,6 +69,9 @@ class CreateLayoutBuilderDemoSiteAction
         return true;
     }
 
+    /**
+     * @param  EloquentCollection<int, Language>  $languages
+     */
     private function setupHomepage(Pageable $page, EloquentCollection $languages): void
     {
         $layout = $this->getHomeLayout();
@@ -89,6 +92,9 @@ class CreateLayoutBuilderDemoSiteAction
         $layout->update(['containers' => $containers]);
     }
 
+    /**
+     * @param  array<array-key, mixed>  $containers
+     */
     private function populateMainContainer(array &$containers, Pageable $page): void
     {
         $pageCardsBlock = $this->demoCreator->createPageCardsBlock($page);
@@ -96,20 +102,24 @@ class CreateLayoutBuilderDemoSiteAction
         $secondPageCardsBlock = $this->demoCreator->createPageCardsBlock($page, occurrence: 2);
         $mediaCarouselBlock = $this->demoCreator->createMediaCarouselBlock();
 
-        $containers['main']['blocks'] = [
+        $containers['main']['widgets'] = [
             [
-                'block_key' => $pageCardsBlock->key,
+                'widget_key' => $pageCardsBlock->key,
                 'occurrence' => 1,
             ],
-            ['block_key' => $galleryBlock->key],
+            ['widget_key' => $galleryBlock->key],
             [
-                'block_key' => $secondPageCardsBlock->key,
+                'widget_key' => $secondPageCardsBlock->key,
                 'occurrence' => 2,
             ],
-            ['block_key' => $mediaCarouselBlock->key],
+            ['widget_key' => $mediaCarouselBlock->key],
         ];
     }
 
+    /**
+     * @param  array<array-key, mixed>  $containers
+     * @param  EloquentCollection<int, Language>  $languages
+     */
     private function populateFaqContainers(array &$containers, EloquentCollection $languages, Pageable $page): void
     {
         $faqBlock = $this->demoCreator->createFaqBlock($languages);
@@ -118,8 +128,8 @@ class CreateLayoutBuilderDemoSiteAction
             'meta' => [
                 'colspan' => 8,
             ],
-            'blocks' => [
-                ['block_key' => $faqBlock->key],
+            'widgets' => [
+                ['widget_key' => $faqBlock->key],
             ],
         ];
 
@@ -130,12 +140,16 @@ class CreateLayoutBuilderDemoSiteAction
                 'colspan' => 4,
                 'container' => ContainerWidthEnum::Full,
             ],
-            'blocks' => [
-                ['block_key' => $faqColumnBlock->key],
+            'widgets' => [
+                ['widget_key' => $faqColumnBlock->key],
             ],
         ];
     }
 
+    /**
+     * @param  array<array-key, mixed>  $containers
+     * @param  EloquentCollection<int, Language>  $languages
+     */
     private function populateSecondaryContainer(array &$containers, EloquentCollection $languages, Pageable $page): void
     {
         $featureListBlock = $this->demoCreator->createModernFeatureListBlock();
@@ -167,23 +181,23 @@ class CreateLayoutBuilderDemoSiteAction
             'meta' => [
                 'colspan' => 12,
             ],
-            'blocks' => [
-                ['block_key' => $featureListBlock->key],
-                ['block_key' => $teamPortfolioBlock->key],
-                ['block_key' => $modernTeamBlock->key],
-                ['block_key' => $bannerImageBlock->key],
-                ['block_key' => $contentBlock->key],
-                ['block_key' => $statisticsBlock->key],
-                ['block_key' => $pricingBlock->key],
-                ['block_key' => $businessFeaturesBlock->key],
-                ['block_key' => $bannersBlock->key],
-                ['block_key' => $clientLogosBlock->key],
-                ['block_key' => $testimonialsBlock->key],
-                ['block_key' => $faqBlock->key],
-                ['block_key' => $statsBlock->key],
-                ['block_key' => $alternatingBlock->key],
-                ['block_key' => $processBlock->key],
-                ['block_key' => $galleryBlock->key],
+            'widgets' => [
+                ['widget_key' => $featureListBlock->key],
+                ['widget_key' => $teamPortfolioBlock->key],
+                ['widget_key' => $modernTeamBlock->key],
+                ['widget_key' => $bannerImageBlock->key],
+                ['widget_key' => $contentBlock->key],
+                ['widget_key' => $statisticsBlock->key],
+                ['widget_key' => $pricingBlock->key],
+                ['widget_key' => $businessFeaturesBlock->key],
+                ['widget_key' => $bannersBlock->key],
+                ['widget_key' => $clientLogosBlock->key],
+                ['widget_key' => $testimonialsBlock->key],
+                ['widget_key' => $faqBlock->key],
+                ['widget_key' => $statsBlock->key],
+                ['widget_key' => $alternatingBlock->key],
+                ['widget_key' => $processBlock->key],
+                ['widget_key' => $galleryBlock->key],
             ],
         ];
 
@@ -191,16 +205,19 @@ class CreateLayoutBuilderDemoSiteAction
             'meta' => [
                 'colspan' => 12,
             ],
-            'blocks' => [
-                ['block_key' => $apHeroBannerBlock->key],
-                ['block_key' => $apCardGridBlock->key],
-                ['block_key' => $apFeatureListBlock->key],
-                ['block_key' => $apCtaSectionBlock->key],
-                ['block_key' => $apImageGalleryBlock->key],
+            'widgets' => [
+                ['widget_key' => $apHeroBannerBlock->key],
+                ['widget_key' => $apCardGridBlock->key],
+                ['widget_key' => $apFeatureListBlock->key],
+                ['widget_key' => $apCtaSectionBlock->key],
+                ['widget_key' => $apImageGalleryBlock->key],
             ],
         ];
     }
 
+    /**
+     * @param  array<array-key, mixed>  $containers
+     */
     private function populateAPBlocksContainer(array &$containers): void
     {
         $heroBannerBlock = $this->demoCreator->createApHeroBannerBlock();
@@ -213,16 +230,20 @@ class CreateLayoutBuilderDemoSiteAction
             'meta' => [
                 'colspan' => 12,
             ],
-            'blocks' => [
-                ['block_key' => $heroBannerBlock->key],
-                ['block_key' => $cardGridBlock->key],
-                ['block_key' => $featureListBlock->key],
-                ['block_key' => $ctaSectionBlock->key],
-                ['block_key' => $imageGalleryBlock->key],
+            'widgets' => [
+                ['widget_key' => $heroBannerBlock->key],
+                ['widget_key' => $cardGridBlock->key],
+                ['widget_key' => $featureListBlock->key],
+                ['widget_key' => $ctaSectionBlock->key],
+                ['widget_key' => $imageGalleryBlock->key],
             ],
         ];
     }
 
+    /**
+     * @param  array<array-key, mixed>  $containers
+     * @param  EloquentCollection<int, Language>  $languages
+     */
     private function populateSplitTwoContainer(array &$containers, EloquentCollection $languages): void
     {
         $splitContentBlock = $this->demoCreator->createSplitContentBlock($languages);
@@ -235,8 +256,8 @@ class CreateLayoutBuilderDemoSiteAction
                 'html_class' => 'relative',
                 'background_color' => 'light-gray',
             ],
-            'blocks' => [
-                ['block_key' => $splitContentBlock->key],
+            'widgets' => [
+                ['widget_key' => $splitContentBlock->key],
             ],
         ];
     }
@@ -246,6 +267,10 @@ class CreateLayoutBuilderDemoSiteAction
         $this->demoCreator->addSplitTwoBackgroundMedia($layout);
     }
 
+    /**
+     * @param  array{name: array<string, string>, children?: array<int, array<string, mixed>>}  $contentNode
+     * @param  EloquentCollection<int, Language>|null  $languages
+     */
     private function createSiteContents(
         ContentCreator $contentCreator,
         array $contentNode,
@@ -258,9 +283,10 @@ class CreateLayoutBuilderDemoSiteAction
         }
 
         $languages ??= $site->languages;
+        $contentNames = is_array($contentNode['name'] ?? null) ? $contentNode['name'] : [];
 
         $contentData = [
-            'name' => $contentNode['name']['en'],
+            'name' => $this->preferredTranslatedValue($contentNames, $languages),
         ];
 
         if ($parent instanceof Model) {
@@ -269,7 +295,7 @@ class CreateLayoutBuilderDemoSiteAction
 
         foreach ($languages as $language) {
             $code = $language->getAttribute('code');
-            $name = is_string($code) ? $contentNode['name'][$code] : null;
+            $name = is_string($code) ? ($contentNames[$code] ?? null) : null;
 
             if ($name === null) {
                 continue;
@@ -292,6 +318,38 @@ class CreateLayoutBuilderDemoSiteAction
         }
     }
 
+    /**
+     * @param  array<array-key, mixed>  $values
+     * @param  EloquentCollection<int, Language>  $languages
+     */
+    private function preferredTranslatedValue(array $values, EloquentCollection $languages): string
+    {
+        foreach ($languages as $language) {
+            $value = $values[$language->code] ?? null;
+
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        $englishValue = $values['en'] ?? null;
+
+        if (is_string($englishValue) && $englishValue !== '') {
+            return $englishValue;
+        }
+
+        foreach ($values as $value) {
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        throw new Exception('Demo content data must include at least one translated name.');
+    }
+
+    /**
+     * @param  EloquentCollection<int, Language>  $languages
+     */
     private function setupSiteNavigations(Site $site, EloquentCollection $languages, Page $homePage): void
     {
         $navigationDemoCreatorClass = NavigationDemoCreator::class;

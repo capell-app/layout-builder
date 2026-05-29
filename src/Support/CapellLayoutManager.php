@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Support;
 
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Support\Collection;
 
 class CapellLayoutManager
 {
+    /**
+     * @var array<array-key, mixed>
+     */
     protected static array $containerBlocks = [];
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getMigrations(): array
     {
         return CapellLayoutBuilderManager::getMigrations();
@@ -19,40 +25,43 @@ class CapellLayoutManager
     /**
      * Store blocks for a container
      */
-    public static function storeContainerBlock(string $containerKey, string $blockKey, Block $block, int $occurrence = 1): void
+    public static function storeContainerBlock(string $containerKey, string $widgetKey, Widget $block, int $occurrence = 1): void
     {
         if (! isset(static::$containerBlocks[$containerKey])) {
             static::$containerBlocks[$containerKey] = [];
         }
 
-        if (! isset(static::$containerBlocks[$containerKey][$blockKey])) {
-            static::$containerBlocks[$containerKey][$blockKey] = [];
+        if (! isset(static::$containerBlocks[$containerKey][$widgetKey])) {
+            static::$containerBlocks[$containerKey][$widgetKey] = [];
         }
 
-        static::$containerBlocks[$containerKey][$blockKey][$occurrence] = $block;
+        static::$containerBlocks[$containerKey][$widgetKey][$occurrence] = $block;
     }
 
     /**
      * Get a block for a container
      */
-    public static function getContainerBlock(string $containerKey, string $blockKey, int $occurrence = 1): ?Block
+    public static function getContainerBlock(string $containerKey, string $widgetKey, int $occurrence = 1): ?Widget
     {
-        return static::getStoredContainerBlock($containerKey, $blockKey, $occurrence)
-            ?? Block::query()->with('type')->firstWhere('key', $blockKey);
+        return static::getStoredContainerBlock($containerKey, $widgetKey, $occurrence)
+            ?? Widget::query()->with('type')->firstWhere('key', $widgetKey);
     }
 
-    public static function getStoredContainerBlock(string $containerKey, string $blockKey, int $occurrence = 1): ?Block
+    public static function getStoredContainerBlock(string $containerKey, string $widgetKey, int $occurrence = 1): ?Widget
     {
-        return static::$containerBlocks[$containerKey][$blockKey][$occurrence] ?? null;
+        return static::$containerBlocks[$containerKey][$widgetKey][$occurrence] ?? null;
     }
 
+    /**
+     * @return Collection<array-key, mixed>
+     */
     public static function getContainerBlocks(?string $containerKey = null): Collection
     {
         $blocks = in_array($containerKey, [null, '', '0'], true)
             ? (static::$containerBlocks)
             : static::$containerBlocks[$containerKey] ?? [];
 
-        return collect($blocks);
+        return new Collection(is_array($blocks) ? $blocks : []);
     }
 
     /**

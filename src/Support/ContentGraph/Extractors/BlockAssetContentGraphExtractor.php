@@ -13,8 +13,8 @@ use Capell\Core\Enums\ContentGraph\ContentGraphEdgeStrength;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
@@ -24,12 +24,12 @@ final class BlockAssetContentGraphExtractor implements ContentGraphExtractor
 
     public static function sourceModel(): string
     {
-        return BlockAsset::class;
+        return WidgetAsset::class;
     }
 
     public function extract(Model $model): ContentGraphEdgeCollectionData
     {
-        if (! $model instanceof BlockAsset) {
+        if (! $model instanceof WidgetAsset) {
             return ContentGraphEdgeCollectionData::make();
         }
 
@@ -39,7 +39,7 @@ final class BlockAssetContentGraphExtractor implements ContentGraphExtractor
         if ($model->block_id !== null) {
             $edges[] = $this->edge(
                 source: $source,
-                target: ContentGraphNodeData::fromModelIdentity(Block::class, $model->block_id),
+                target: ContentGraphNodeData::fromModelIdentity(Widget::class, $model->block_id),
                 kind: self::USES_LAYOUT_BLOCK,
                 strength: ContentGraphEdgeStrength::Strong,
             );
@@ -70,7 +70,7 @@ final class BlockAssetContentGraphExtractor implements ContentGraphExtractor
     /**
      * @return array<int, int>
      */
-    private function linkedPageTargets(BlockAsset $model): array
+    private function linkedPageTargets(WidgetAsset $model): array
     {
         $pageIds = [];
 

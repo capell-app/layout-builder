@@ -9,12 +9,17 @@ use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
 use Capell\Frontend\Contracts\PublicLayoutGraphBuilder;
+use Capell\Frontend\Contracts\WidgetResourceUsageContributor;
+use Capell\Frontend\Support\Routing\ReservedFrontendPathRegistry;
+use Capell\FrontendAuthoring\Contracts\EditableRegionEditorSurface;
+use Capell\FrontendAuthoring\Support\EditorSurfaceRegistry;
 use Capell\LayoutBuilder\Console\Commands\BlockVisualRegressionCommand;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
 use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Contracts\LayoutSidebarBlockContributor;
 use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
 use Capell\LayoutBuilder\Contracts\PublicBlockPayloadResolver;
+use Capell\LayoutBuilder\Http\Controllers\PublicFragmentController;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Policies\LayoutPresetPolicy;
 use Capell\LayoutBuilder\Support\BlockPresentationPublicBlockPayloadContributor;
@@ -23,13 +28,18 @@ use Capell\LayoutBuilder\Support\ContentGraph\Extractors\BlockAssetContentGraphE
 use Capell\LayoutBuilder\Support\ContentGraph\Extractors\BlockContentGraphExtractor;
 use Capell\LayoutBuilder\Support\ContentGraph\Extractors\LayoutBlockContentGraphExtractor;
 use Capell\LayoutBuilder\Support\DefaultPublicBlockPayloadResolver;
+use Capell\LayoutBuilder\Support\FrontendAuthoring\LayoutBuilderEditableRegionContributor;
+use Capell\LayoutBuilder\Support\FrontendAuthoring\LayoutBuilderEditorSurface;
 use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
+use Capell\LayoutBuilder\Support\LayoutBlockWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Capell\LayoutBuilder\Support\LayoutBuilderCoreRegistrar;
 use Capell\LayoutBuilder\Support\LayoutBuilderPublicLayoutGraphBuilder;
 use Capell\LayoutBuilder\Support\LayoutBuilderRuntimeManifestContributor;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
+use Override;
 use Spatie\LaravelPackageTools\Package;
 
 class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
@@ -58,6 +68,8 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->scoped(PublicLayoutGraphBuilder::class, LayoutBuilderPublicLayoutGraphBuilder::class);
         $this->app->tag([BlockPresentationPublicBlockPayloadContributor::class], PublicBlockPayloadContributor::TAG);
         $this->app->tag([LayoutBuilderRuntimeManifestContributor::class], FrontendRuntimeManifestContributor::TAG);
+        $this->app->tag([LayoutBlockWidgetResourceUsageContributor::class], WidgetResourceUsageContributor::TAG);
+        $this->registerFrontendAuthoringIntegration();
         $this->app->tag([
             BlockAssetContentGraphExtractor::class,
             BlockContentGraphExtractor::class,
@@ -82,10 +94,61 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
 
         $this->app->make(LayoutBuilderCoreRegistrar::class)->register();
         $this->app->make(LayoutBuilderAdminRegistrar::class)->register();
+        $this->registerPublicFragmentRoute();
+        $this->reservePublicFragmentPath();
     }
 
-    private function isPackageInstalled(): bool
+    #[Override]
+    protected function isPackageInstalled(): bool
     {
         return CapellCore::isPackageInstalled(static::$packageName);
+    }
+
+    private function registerPublicFragmentRoute(): void
+    {
+        Route::middleware('web')
+            ->name('capell-layout-builder.fragments.')
+            ->prefix('_capell/fragments')
+            ->group(function (): void {
+                Route::get('{reference}', PublicFragmentController::class)
+                    ->where('reference', '.*')
+                    ->name('show');
+            });
+    }
+
+    private function reservePublicFragmentPath(): void
+    {
+        if (! class_exists(ReservedFrontendPathRegistry::class) || ! $this->app->bound(ReservedFrontendPathRegistry::class)) {
+            return;
+        }
+
+        $this->app->make(ReservedFrontendPathRegistry::class)->reservePrefix('_capell/fragments');
+    }
+
+    private function registerFrontendAuthoringIntegration(): void
+    {
+        if (! interface_exists(EditableRegionEditorSurface::class)) {
+            return;
+        }
+
+        $this->app->tag([LayoutBuilderEditableRegionContributor::class], 'capell-frontend-authoring:editable-regions');
+
+        $registryClass = EditorSurfaceRegistry::class;
+
+        if (! class_exists($registryClass)) {
+            return;
+        }
+
+        $registerSurface = function (object $registry): void {
+            if (method_exists($registry, 'register')) {
+                $registry->register($this->app->make(LayoutBuilderEditorSurface::class));
+            }
+        };
+
+        $this->app->afterResolving($registryClass, $registerSurface);
+
+        if ($this->app->resolved($registryClass)) {
+            $registerSurface($this->app->make($registryClass));
+        }
     }
 }

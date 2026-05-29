@@ -20,7 +20,7 @@ final class ReorderLayoutBlockAction
         int $originalIndex,
         int $targetIndex,
     ): LayoutMutationResultData {
-        if (! isset($state->containers[$originalContainer]['blocks'][$originalIndex])) {
+        if (! isset($state->containers[$originalContainer]['widgets'][$originalIndex])) {
             return new LayoutMutationResultData($state);
         }
 
@@ -33,13 +33,13 @@ final class ReorderLayoutBlockAction
         $originalAssets = $state->originalAssets;
         $selectedRecords = $state->selectedRecords;
 
-        $block = $containers[$originalContainer]['blocks'][$originalIndex];
+        $block = $containers[$originalContainer]['widgets'][$originalIndex];
         $blockAssets = $assets[$originalContainer][$originalIndex] ?? [];
         $blockOriginalAssets = $originalAssets[$originalContainer][$originalIndex] ?? [];
         $blockSelectedRecords = $selectedRecords[$originalContainer][$originalIndex] ?? [];
 
-        $containers[$originalContainer]['blocks'] = $this->removeSlot(
-            items: $containers[$originalContainer]['blocks'],
+        $containers[$originalContainer]['widgets'] = $this->removeSlot(
+            items: $containers[$originalContainer]['widgets'],
             index: $originalIndex,
         );
         $assets[$originalContainer] = $this->removeSlot($assets[$originalContainer] ?? [], $originalIndex);
@@ -47,12 +47,12 @@ final class ReorderLayoutBlockAction
         $selectedRecords[$originalContainer] = $this->removeSlot($selectedRecords[$originalContainer] ?? [], $originalIndex);
 
         $targetIndex = min(
-            count($containers[$targetContainer]['blocks'] ?? []),
+            count($containers[$targetContainer]['widgets'] ?? []),
             max(0, $targetIndex),
         );
 
-        $containers[$targetContainer]['blocks'] = $this->insertSlot(
-            items: $containers[$targetContainer]['blocks'] ?? [],
+        $containers[$targetContainer]['widgets'] = $this->insertSlot(
+            items: $containers[$targetContainer]['widgets'] ?? [],
             index: $targetIndex,
             item: $block,
         );
@@ -60,10 +60,10 @@ final class ReorderLayoutBlockAction
         $originalAssets[$targetContainer] = $this->insertSlot($originalAssets[$targetContainer] ?? [], $targetIndex, $blockOriginalAssets);
         $selectedRecords[$targetContainer] = $this->insertSlot($selectedRecords[$targetContainer] ?? [], $targetIndex, $blockSelectedRecords);
 
-        $containers[$targetContainer]['blocks'] = $this->normalizeOccurrences($containers[$targetContainer]['blocks']);
+        $containers[$targetContainer]['widgets'] = $this->normalizeOccurrences($containers[$targetContainer]['widgets']);
 
         if ($originalContainer !== $targetContainer) {
-            $containers[$originalContainer]['blocks'] = $this->normalizeOccurrences($containers[$originalContainer]['blocks']);
+            $containers[$originalContainer]['widgets'] = $this->normalizeOccurrences($containers[$originalContainer]['widgets']);
         }
 
         $assets = $this->syncAssetOccurrences($containers, $assets);
@@ -117,9 +117,9 @@ final class ReorderLayoutBlockAction
         $occurrences = [];
 
         foreach ($blocks as $blockIndex => $block) {
-            $blockKey = (string) ($block['block_key'] ?? '');
-            $occurrences[$blockKey] = ($occurrences[$blockKey] ?? 0) + 1;
-            $blocks[$blockIndex]['occurrence'] = $occurrences[$blockKey];
+            $widgetKey = (string) ($block['widget_key'] ?? '');
+            $occurrences[$widgetKey] = ($occurrences[$widgetKey] ?? 0) + 1;
+            $blocks[$blockIndex]['occurrence'] = $occurrences[$widgetKey];
         }
 
         return $blocks;
@@ -133,7 +133,7 @@ final class ReorderLayoutBlockAction
     private function syncAssetOccurrences(array $containers, array $assets): array
     {
         foreach ($containers as $containerKey => $container) {
-            foreach (($container['blocks'] ?? []) as $blockIndex => $block) {
+            foreach (($container['widgets'] ?? []) as $blockIndex => $block) {
                 foreach (array_keys($assets[$containerKey][$blockIndex] ?? []) as $assetIndex) {
                     $assets[$containerKey][$blockIndex][$assetIndex]['occurrence'] = $block['occurrence'] ?? 1;
                 }

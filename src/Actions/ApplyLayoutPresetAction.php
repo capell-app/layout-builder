@@ -47,7 +47,7 @@ final class ApplyLayoutPresetAction
                 continue;
             }
 
-            $blocks = is_array($container['blocks'] ?? null) ? $container['blocks'] : [];
+            $blocks = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
 
             foreach ($blocks as &$block) {
                 if (! is_array($block)) {
@@ -76,7 +76,7 @@ final class ApplyLayoutPresetAction
                 $usedAnchors[$uniqueAnchor] = true;
             }
 
-            $container['blocks'] = $blocks;
+            $container['widgets'] = $blocks;
         }
 
         return $containers;

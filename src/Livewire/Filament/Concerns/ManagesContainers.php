@@ -16,6 +16,7 @@ use Closure;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 
 trait ManagesContainers
@@ -25,7 +26,7 @@ trait ManagesContainers
         $this->assertCanUpdateLayout();
 
         $container = [
-            'blocks' => [],
+            'widgets' => [],
         ];
 
         if ($position === null) {
@@ -139,7 +140,7 @@ trait ManagesContainers
 
         $this->selectedRecords[$newContainerKey] = [];
 
-        foreach (array_keys($this->containers[$newContainerKey]['blocks']) as $blockIndex) {
+        foreach (array_keys($this->containers[$newContainerKey]['widgets']) as $blockIndex) {
             foreach ($this->assets[$newContainerKey][$blockIndex] ?? [] as $assetIndex => $asset) {
                 if (isset($asset['container'])) {
                     $this->assets[$newContainerKey][$blockIndex][$assetIndex]['container'] = $newContainerKey;
@@ -153,6 +154,9 @@ trait ManagesContainers
         $this->layoutUpdated();
     }
 
+    /**
+     * @param  array<array-key, mixed>  $data
+     */
     public function saveContainer(array $data, ?string $key = null, ?int $position = null): void
     {
         $this->assertCanUpdateLayout();
@@ -210,6 +214,10 @@ trait ManagesContainers
         return $position !== null && $position < count($this->containers) - 1;
     }
 
+    /**
+     * @param  array<array-key, mixed>  $arguments
+     * @return array<array-key, mixed>
+     */
     public function getContainerSchema(Schema $configurator, array $arguments): array
     {
         $containerKey = $arguments['containerKey'] ?? null;
@@ -254,6 +262,9 @@ trait ManagesContainers
         ];
     }
 
+    /**
+     * @return Collection<array-key, mixed>
+     */
     public function getContainerOptions(): SupportCollection
     {
         return collect($this->containers)
@@ -273,11 +284,11 @@ trait ManagesContainers
             unset($this->{$property}[$oldKey]);
         }
 
-        foreach ($this->containers[$newKey]['blocks'] as $blockIndex => $block) {
+        foreach ($this->containers[$newKey]['widgets'] as $blockIndex => $block) {
             $block['old_container'] ??= $oldKey;
             $block['container_key'] = $newKey;
 
-            $this->containers[$newKey]['blocks'][$blockIndex] = $block;
+            $this->containers[$newKey]['widgets'][$blockIndex] = $block;
         }
 
         foreach ($this->assets[$newKey] ?? [] as $blockIndex => $blockAssets) {
@@ -333,7 +344,22 @@ trait ManagesContainers
 
         foreach ($containers as $key => $container) {
             $this->containers[$key] = [
-                'blocks' => $container['blocks'] ?? [],
+                'widgets' => array_map(
+                    static function (mixed $widget): mixed {
+                        if (! is_array($widget)) {
+                            return $widget;
+                        }
+
+                        if (! isset($widget['widget_key']) && isset($widget['block_key'])) {
+                            $widget['widget_key'] = $widget['block_key'];
+                        }
+
+                        unset($widget['block_key']);
+
+                        return $widget;
+                    },
+                    $container['widgets'] ?? $container['blocks'] ?? [],
+                ),
                 'meta' => $container['meta'] ?? [],
             ];
             $this->trackKnownContainerKey((string) $key);
@@ -374,21 +400,7 @@ trait ManagesContainers
             return LayoutBreakpoint::fromNullable($breakpoint);
         }
 
-        if (! property_exists($this, 'activeBreakpoint')) {
-            return null;
-        }
-
-        $breakpoint = $this->activeBreakpoint;
-
-        if ($breakpoint instanceof LayoutBreakpoint) {
-            return $breakpoint;
-        }
-
-        if (is_string($breakpoint)) {
-            return LayoutBreakpoint::fromNullable($breakpoint);
-        }
-
-        return null;
+        return $this->activeBreakpoint;
     }
 
     private function trackKnownContainerKey(string $containerKey): void

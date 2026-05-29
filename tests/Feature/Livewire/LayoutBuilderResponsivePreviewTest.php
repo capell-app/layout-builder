@@ -16,7 +16,7 @@ beforeEach(function (): void {
 
 it('persists responsive container overrides separately from base colspan from the package namespace', function (): void {
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['blocks' => [], 'meta' => ['colspan' => 12]],
+        'main' => ['widgets' => [], 'meta' => ['colspan' => 12]],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
@@ -31,7 +31,7 @@ it('persists responsive container overrides separately from base colspan from th
 
 it('can resize the active responsive preview without waiting for breakpoint rerender from the package namespace', function (): void {
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['blocks' => [], 'meta' => ['colspan' => 12]],
+        'main' => ['widgets' => [], 'meta' => ['colspan' => 12]],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
@@ -44,13 +44,16 @@ it('renders responsive preview switching as an alpine interaction from the packa
     config()->set('capell-layout-builder.editor_mode.default', 'layout_first');
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['blocks' => [], 'meta' => ['colspan' => 12]],
+        'main' => ['widgets' => [], 'meta' => ['colspan' => 12]],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSeeHtml('setActiveBreakpointPreview')
         ->assertSeeHtml('activeBreakpointMaxCanvasWidth')
         ->assertSeeHtml('activeBreakpointMinCanvasWidth')
+        ->assertSeeHtml('syncPanelLayout')
+        ->assertSeeHtml('actionLoading')
+        ->assertSeeHtml('selectNode')
         ->assertSeeHtml('data-match-frontend-container-layout="true"')
         ->assertSeeHtml('shouldStackContainersForActiveBreakpoint')
         ->assertSeeHtml('layout-builder-canvas-scroll')
@@ -62,7 +65,7 @@ it('can opt out of frontend container stacking in the admin preview from the pac
     config()->set('capell-layout-builder.preview.match_frontend_container_layout', false);
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['blocks' => [], 'meta' => ['colspan' => 12]],
+        'main' => ['widgets' => [], 'meta' => ['colspan' => 12]],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
@@ -72,7 +75,7 @@ it('can opt out of frontend container stacking in the admin preview from the pac
 it('resets a responsive override to the base colspan fallback from the package namespace', function (): void {
     $layout = Layout::factory()->create(['containers' => [
         'main' => [
-            'blocks' => [],
+            'widgets' => [],
             'meta' => [
                 'colspan' => 12,
                 'responsive' => ['mobile' => ['colspan' => 6]],

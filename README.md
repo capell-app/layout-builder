@@ -4,6 +4,18 @@
 
 Core still owns sites, pages, languages, URLs, themes, and base content models. Admin still owns the Filament panel shell. Layout Builder plugs into both through package registrars and exposes its public API from the `Capell\LayoutBuilder` namespace.
 
+## Why It Helps Your Capell Workflow
+
+- Provides the visual composition layer for Capell: layouts, containers, blocks, assets, public render graphs, and editor mutations.
+- Helps editors assemble pages without storing theme-specific presentation markup in database content fields.
+- Gives developers Actions and registries for public-safe layout payloads, reusable presets, layout areas, and content-first editing.
+
+## Best Used With
+
+- [Block Library](../block-library/README.md)
+- [Content Sections](../content-sections/README.md)
+- [Foundation Theme](../foundation-theme/README.md)
+
 ## Install
 
 ```bash
@@ -131,6 +143,10 @@ AttachBlockToLayoutAreaAction::run(
 );
 ```
 
+For full-bleed sections, separate the two width settings deliberately. The layout container owns the section band and background, so set its container meta to `full`. The widget or block inside owns readable content, so keep its own `container` meta at the default contained width. This gives edge-to-edge backgrounds while text, media, and controls stay aligned with the site container.
+
+Avoid solving this in widget Blade with `w-screen`, negative margins, or translate hacks. Those make the widget fight the layout system and usually break once the same block is reused in another theme or container.
+
 ## Reusable Presets
 
 Saved agency presets are persisted in `layout_presets` and scoped to a required `site_id` with optional `theme_key`. Presets are layout-only by default: they deep-copy structure, selected block variants, and settings without duplicating client content. Applying a preset revalidates site scope and regenerates duplicate anchors.
@@ -145,6 +161,7 @@ The command does not authenticate, generate signed routes, query tenant content,
 
 ## Docs
 
+- [docs index](docs/README.md)
 - [overview.md](docs/overview.md)
 - [screenshots.json](docs/screenshots.json)
 

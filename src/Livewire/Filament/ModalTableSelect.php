@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Livewire\Filament;
 
+use Capell\Core\Models\Page;
+use Capell\LayoutBuilder\Models\Widget;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -17,8 +19,10 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithoutUrlPagination;
@@ -43,11 +47,20 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
     #[Locked]
     public string $tableConfiguration;
 
+    /**
+     * @var array<array-key, mixed>
+     */
     #[Locked]
     public array $tableArguments = [];
 
+    /**
+     * @var array<array-key, mixed>
+     */
     public ?array $data = [];
 
+    /**
+     * @var Builder<Model>|Builder<Page>|Builder<Widget>|Closure(): (Builder<Model>|Builder<Page>|Builder<Widget>)
+     */
     #[Locked]
     public Builder|Closure $tableQuery;
 
@@ -141,11 +154,13 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
 
     public function render(): View
     {
-        return view($this->view);
+        return resolve(Factory::class)->make($this->view);
     }
 
     /**
      * Provide a default query resolution using the configurable $tableQuery.
+     *
+     * @return Builder<Model>|Builder<Page>
      */
     protected function getTableQuery(): Builder
     {

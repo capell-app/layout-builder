@@ -10,64 +10,70 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 
 /**
- * Filament Schema for Modern Image Gallery Block
+ * Filament Schema for Modern Image Gallery Widget
  *
  * Provides admin panel controls for customizing image gallery layout,
  * columns, and display options.
  */
 class ModernImageGalleryConfigurator
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getFormSchema(): array
     {
         return [
-            Section::make('Content')
-                ->description('Gallery section title and subtitle')
+            Section::make(__('capell-layout-builder::blocks.common.section_content'))
+                ->description(__('capell-layout-builder::blocks.modern.image_gallery.section_content_description'))
                 ->schema([
                     TextInput::make('data.title')
-                        ->label('Section Title')
-                        ->placeholder('Our Work')
+                        ->label(__('capell-layout-builder::blocks.common.section_title_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.image_gallery.title_placeholder'))
                         ->columnSpanFull(),
 
                     TextInput::make('data.subtitle')
-                        ->label('Subtitle / Description')
-                        ->placeholder('Showcasing our latest projects')
+                        ->label(__('capell-layout-builder::blocks.common.subtitle_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.image_gallery.subtitle_placeholder'))
                         ->columnSpanFull(),
                 ])->columns(1),
 
-            Section::make('Layout')
-                ->description('Customize grid layout and display')
+            Section::make(__('capell-layout-builder::blocks.common.section_layout'))
+                ->description(__('capell-layout-builder::blocks.modern.image_gallery.section_layout_description'))
                 ->schema([
                     Select::make('data.columns')
-                        ->label('Grid Columns')
+                        ->label(__('capell-layout-builder::blocks.common.grid_columns_label'))
                         ->options([
-                            '2' => '2 Columns',
-                            '3' => '3 Columns',
-                            '4' => '4 Columns',
+                            '2' => __('capell-layout-builder::blocks.common.columns_2'),
+                            '3' => __('capell-layout-builder::blocks.common.columns_3'),
+                            '4' => __('capell-layout-builder::blocks.common.columns_4'),
                         ])
                         ->default('3')
-                        ->helperText('Number of images per row (desktop)'),
+                        ->helperText(__('capell-layout-builder::blocks.common.grid_columns_helper')),
 
                     Select::make('data.layout')
-                        ->label('Layout Type')
+                        ->label(__('capell-layout-builder::blocks.modern.image_gallery.layout_label'))
                         ->options([
-                            'grid' => 'Grid Layout',
-                            'masonry' => 'Masonry Layout',
+                            'grid' => __('capell-layout-builder::blocks.modern.image_gallery.layout_grid'),
+                            'masonry' => __('capell-layout-builder::blocks.modern.image_gallery.layout_masonry'),
                         ])
                         ->default('grid')
-                        ->helperText('How images are arranged'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.image_gallery.layout_helper')),
                 ])->columns(2),
 
-            Section::make('Display')
-                ->description('Visibility and admin hints')
+            Section::make(__('capell-layout-builder::blocks.common.section_display'))
+                ->description(__('capell-layout-builder::blocks.common.section_display_description'))
                 ->schema([
                     Toggle::make('data.customizable')
-                        ->label('Show Admin Hints')
+                        ->label(__('capell-layout-builder::blocks.common.admin_hints_label'))
                         ->default(true)
-                        ->helperText('Display "✨ Customize..." message'),
+                        ->helperText(__('capell-layout-builder::blocks.common.customize_message_helper')),
                 ])->columns(1),
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getDefaults(): array
     {
         return [

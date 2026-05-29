@@ -16,7 +16,7 @@ final class LayoutBlockData
         }
 
         if (is_string($block) && $block !== '') {
-            return ['block_key' => $block];
+            return ['widget_key' => $block];
         }
 
         return [];
@@ -39,13 +39,22 @@ final class LayoutBlockData
     }
 
     /**
+     * @param  array<string, mixed>  $container
+     * @return array<int, array<string, mixed>>
+     */
+    public static function fromContainer(array $container): array
+    {
+        return self::normalizeMany($container['widgets'] ?? $container['blocks'] ?? []);
+    }
+
+    /**
      * @param  array<string, mixed>  $block
      */
     public static function key(array $block): ?string
     {
-        $blockKey = $block['block_key'] ?? null;
+        $widgetKey = $block['widget_key'] ?? $block['block_key'] ?? null;
 
-        return is_string($blockKey) && $blockKey !== '' ? $blockKey : null;
+        return is_string($widgetKey) && $widgetKey !== '' ? $widgetKey : null;
     }
 
     /**

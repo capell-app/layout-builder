@@ -26,7 +26,7 @@ it('builds deterministic block visual regression fixture entries', function (): 
 
     expect($firstRun)->toBe($secondRun)
         ->and($firstRun)->toHaveCount(18)
-        ->and($firstRun[0]['artifact'])->toBe('blocks/marketing-hero/foundation/split-media-default-mobile.png')
+        ->and($firstRun[0]['artifact'])->toBe('widgets/marketing-hero/foundation/split-media-default-mobile.png')
         ->and(collect($firstRun)->pluck('scenario')->unique()->values()->all())->toBe([
             'default',
             'long-content',

@@ -5,7 +5,9 @@ declare(strict_types=1);
 return [
     'add_group' => 'Add Group',
     'add_block_to_container' => 'Add Block(s) to Container',
+    'assets' => 'Assets',
     'broken_links' => 'Broken Links',
+    'container_settings' => 'Container settings',
     'container_block_settings' => 'Container Block Settings',
     'create_type_type' => 'Create Type Type',
     'customise_dashboard' => 'Customize dashboard',
@@ -22,6 +24,7 @@ return [
     'faq' => 'FAQ',
     'gallery' => 'Gallery',
     'latest_pages' => 'Latest Pages',
+    'layout_structure' => 'Layout structure',
     'recently_updated_pages' => 'Recently updated pages',
     'layout_record' => 'Layout: :name',
     'login_audits' => 'Login Audits',

@@ -32,10 +32,12 @@ class LayoutPreviewRenderer
         $payload = $signature->payload($layout);
 
         $image = imagecreatetruecolor(self::CANVAS_SIZE, self::CANVAS_SIZE);
+        throw_if(! $image instanceof GdImage, RuntimeException::class, 'Unable to create layout preview canvas.');
+
         imagealphablending($image, true);
         imagesavealpha($image, true);
 
-        $background = imagecolorallocate($image, 248, 250, 252);
+        $background = $this->allocateColor($image, 248, 250, 252);
         imagefilledrectangle($image, 0, 0, self::CANVAS_SIZE, self::CANVAS_SIZE, $background);
 
         $this->drawTitle($image, $layout->name);
@@ -53,20 +55,16 @@ class LayoutPreviewRenderer
         return $png;
     }
 
-    /**
-     * @param  resource|GdImage  $image
-     */
-    private function drawTitle(mixed $image, string $title): void
+    private function drawTitle(GdImage $image, string $title): void
     {
-        $textColor = imagecolorallocate($image, 15, 23, 42);
+        $textColor = $this->allocateColor($image, 15, 23, 42);
         imagestring($image, 5, self::PADDING, 26, $this->fitText($title, 68), $textColor);
     }
 
     /**
-     * @param  resource|GdImage  $image
      * @param  array<int, array<string, mixed>>  $containers
      */
-    private function drawContainers(mixed $image, Layout $layout, array $containers): void
+    private function drawContainers(GdImage $image, Layout $layout, array $containers): void
     {
         $columnWidth = (self::CANVAS_SIZE - (self::PADDING * 2) - (self::GAP * 11)) / 12;
         $cursorX = self::PADDING;
@@ -111,29 +109,28 @@ class LayoutPreviewRenderer
      */
     private function containerHeight(array $container): int
     {
-        $blocks = is_array($container['blocks'] ?? null) ? $container['blocks'] : [];
+        $blocks = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
         $blockCount = max(1, count($blocks));
 
         return self::HEADER_HEIGHT + 28 + ($blockCount * self::WIDGET_HEIGHT) + (($blockCount - 1) * self::WIDGET_GAP);
     }
 
     /**
-     * @param  resource|GdImage  $image
      * @param  array<string, mixed>  $container
      * @param  array<int, int>  $usedHues
      */
-    private function drawContainer(mixed $image, Layout $layout, array $container, int $left, int $top, int $width, int $height, array &$usedHues): void
+    private function drawContainer(GdImage $image, Layout $layout, array $container, int $left, int $top, int $width, int $height, array &$usedHues): void
     {
         $containerColor = $this->color($layout, 'container:' . ($container['key'] ?? 'container'), 0.22, $usedHues);
-        $borderColor = imagecolorallocate($image, 203, 213, 225);
-        $fillColor = imagecolorallocate($image, $containerColor[0], $containerColor[1], $containerColor[2]);
+        $borderColor = $this->allocateColor($image, 203, 213, 225);
+        $fillColor = $this->allocateColor($image, $containerColor[0], $containerColor[1], $containerColor[2]);
         imagefilledrectangle($image, $left, $top, $left + $width, $top + $height, $fillColor);
         imagerectangle($image, $left, $top, $left + $width, $top + $height, $borderColor);
 
         $textColor = $this->textColor($image, $containerColor);
         imagestring($image, 5, $left + 18, $top + 17, $this->fitText((string) ($container['key'] ?? 'container'), max(8, (int) floor($width / 11))), $textColor);
 
-        $blocks = is_array($container['blocks'] ?? null) ? $container['blocks'] : [];
+        $blocks = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
         $blockTop = $top + self::HEADER_HEIGHT + 12;
 
         if ($blocks === []) {
@@ -152,47 +149,40 @@ class LayoutPreviewRenderer
         }
     }
 
-    /**
-     * @param  resource|GdImage  $image
-     */
-    private function drawEmptyBlock(mixed $image, int $left, int $top, int $width): void
+    private function drawEmptyBlock(GdImage $image, int $left, int $top, int $width): void
     {
-        $fillColor = imagecolorallocate($image, 255, 255, 255);
-        $textColor = imagecolorallocate($image, 100, 116, 139);
+        $fillColor = $this->allocateColor($image, 255, 255, 255);
+        $textColor = $this->allocateColor($image, 100, 116, 139);
         imagefilledrectangle($image, $left, $top, $left + $width, $top + self::WIDGET_HEIGHT, $fillColor);
         imagestring($image, 4, $left + 18, $top + 30, 'empty', $textColor);
     }
 
     /**
-     * @param  resource|GdImage  $image
      * @param  array<string, mixed>  $block
      * @param  array<int, int>  $usedHues
      */
-    private function drawBlock(mixed $image, Layout $layout, array $block, int $left, int $top, int $width, array &$usedHues): void
+    private function drawBlock(GdImage $image, Layout $layout, array $block, int $left, int $top, int $width, array &$usedHues): void
     {
-        $blockKey = (string) ($block['key'] ?? 'block');
-        $blockColor = $this->color($layout, 'block:' . $blockKey, 0.54, $usedHues);
-        $fillColor = imagecolorallocate($image, $blockColor[0], $blockColor[1], $blockColor[2]);
+        $widgetKey = (string) ($block['key'] ?? 'block');
+        $blockColor = $this->color($layout, 'block:' . $widgetKey, 0.54, $usedHues);
+        $fillColor = $this->allocateColor($image, $blockColor[0], $blockColor[1], $blockColor[2]);
         imagefilledrectangle($image, $left, $top, $left + $width, $top + self::WIDGET_HEIGHT, $fillColor);
 
         $textColor = $this->textColor($image, $blockColor);
         $iconLabel = $this->iconLabel($block);
         imagestring($image, 5, $left + 16, $top + 16, $iconLabel, $textColor);
-        imagestring($image, 5, $left + 58, $top + 16, $this->fitText($blockKey, max(8, (int) floor(($width - 74) / 11))), $textColor);
+        imagestring($image, 5, $left + 58, $top + 16, $this->fitText($widgetKey, max(8, (int) floor(($width - 74) / 11))), $textColor);
 
         $name = (string) ($block['name'] ?? '');
-        if ($name !== '' && $name !== $blockKey) {
+        if ($name !== '' && $name !== $widgetKey) {
             imagestring($image, 3, $left + 58, $top + 44, $this->fitText($name, max(8, (int) floor(($width - 74) / 8))), $textColor);
         }
     }
 
-    /**
-     * @param  resource|GdImage  $image
-     */
-    private function drawOverflowFooter(mixed $image, int $hiddenContainers): void
+    private function drawOverflowFooter(GdImage $image, int $hiddenContainers): void
     {
-        $fillColor = imagecolorallocate($image, 226, 232, 240);
-        $textColor = imagecolorallocate($image, 51, 65, 85);
+        $fillColor = $this->allocateColor($image, 226, 232, 240);
+        $textColor = $this->allocateColor($image, 51, 65, 85);
         imagefilledrectangle($image, self::PADDING, self::CANVAS_SIZE - 72, self::CANVAS_SIZE - self::PADDING, self::CANVAS_SIZE - 28, $fillColor);
         imagestring($image, 5, self::PADDING + 18, self::CANVAS_SIZE - 58, '+' . $hiddenContainers . ' more', $textColor);
     }
@@ -290,16 +280,28 @@ class LayoutPreviewRenderer
     }
 
     /**
-     * @param  resource|GdImage  $image
      * @param  array{0: int, 1: int, 2: int}  $color
      */
-    private function textColor(mixed $image, array $color): int
+    private function textColor(GdImage $image, array $color): int
     {
         $luminance = (($color[0] * 299) + ($color[1] * 587) + ($color[2] * 114)) / 1000;
 
         return $luminance > 145
-            ? imagecolorallocate($image, 15, 23, 42)
-            : imagecolorallocate($image, 255, 255, 255);
+            ? $this->allocateColor($image, 15, 23, 42)
+            : $this->allocateColor($image, 255, 255, 255);
+    }
+
+    private function allocateColor(GdImage $image, int $red, int $green, int $blue): int
+    {
+        $normalizedRed = max(0, min(255, $red));
+        $normalizedGreen = max(0, min(255, $green));
+        $normalizedBlue = max(0, min(255, $blue));
+
+        $color = imagecolorallocate($image, $normalizedRed, $normalizedGreen, $normalizedBlue);
+
+        throw_if($color === false, RuntimeException::class, 'Unable to allocate layout preview color.');
+
+        return $color;
     }
 
     /**

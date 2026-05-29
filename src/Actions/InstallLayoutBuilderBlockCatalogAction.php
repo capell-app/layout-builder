@@ -10,7 +10,7 @@ use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Support\Creator\BlueprintCreator as CoreTypeCreator;
 use Capell\LayoutBuilder\Data\BlockDefinitionData;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Capell\Navigation\Models\Navigation;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +19,7 @@ use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static void run(?Collection $languages = null, bool $extraBlocks = false)
+ * @method static void run(?Collection<int, Language> $languages = null, bool $extraBlocks = false)
  */
 class InstallLayoutBuilderBlockCatalogAction
 {
@@ -28,6 +28,9 @@ class InstallLayoutBuilderBlockCatalogAction
 
     private const string NavigationPackage = 'capell-app/navigation';
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     */
     public function handle(?Collection $languages = null, bool $extraBlocks = false): void
     {
         /** @var Collection<int, Language> $catalogLanguages */
@@ -65,10 +68,11 @@ class InstallLayoutBuilderBlockCatalogAction
             'pagesBlockType' => $typeCreator->pagesBlockType(),
             'resultsBlockType' => $typeCreator->resultsBlockType(),
             'systemBlockType' => $typeCreator->systemBlockType(),
+            default => $typeCreator->defaultBlockType(),
         };
     }
 
-    private function installBlock(BlockDefinitionData $definition, Blueprint $type): Block
+    private function installBlock(BlockDefinitionData $definition, Blueprint $type): Widget
     {
         $meta = $this->normalizeArray($definition->meta);
 
@@ -83,7 +87,7 @@ class InstallLayoutBuilderBlockCatalogAction
             }
         }
 
-        $block = Block::query()->firstOrCreate([
+        $block = Widget::query()->firstOrCreate([
             'key' => $definition->key,
         ], [
             'name' => $definition->name,
@@ -141,7 +145,7 @@ class InstallLayoutBuilderBlockCatalogAction
     /**
      * @param  Collection<int, Language>  $languages
      */
-    private function installTranslations(Block $block, BlockDefinitionData $definition, Collection $languages): void
+    private function installTranslations(Widget $block, BlockDefinitionData $definition, Collection $languages): void
     {
         if ($definition->translations === []) {
             return;
@@ -160,7 +164,7 @@ class InstallLayoutBuilderBlockCatalogAction
      * @param  array<string, mixed>  $expectedMeta
      * @return array<string, mixed>
      */
-    private function missingMeta(Block $block, array $expectedMeta): array
+    private function missingMeta(Widget $block, array $expectedMeta): array
     {
         $existingMeta = $block->meta ?? [];
         $missingMeta = [];

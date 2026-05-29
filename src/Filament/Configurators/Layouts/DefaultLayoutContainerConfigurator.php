@@ -33,11 +33,17 @@ class DefaultLayoutContainerConfigurator implements ConfiguratorInterface
 
     protected static ConfiguratorTypeEnumInterface $configuratorType = ConfiguratorTypeEnum::LayoutContainer;
 
+    /**
+     * @return iterable<int, mixed>
+     */
     public static function getExtenders(): iterable
     {
         return app()->tagged(SchemaExtenderEnum::LayoutContainer->value);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function make(Schema $configurator): array
     {
         return [

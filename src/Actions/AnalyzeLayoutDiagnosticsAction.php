@@ -8,7 +8,7 @@ use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutDiagnosticData;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutBlockData;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -20,23 +20,24 @@ final class AnalyzeLayoutDiagnosticsAction
      * @return array<int, LayoutDiagnosticData>
      */
     /**
-     * @param  array<int, string>|null  $knownBlockKeys
+     * @param  array<int, string>|null  $knownWidgetKeys
+     * @return array<array-key, mixed>
      */
-    public function handle(LayoutBuilderStateData $state, ?array $knownBlockKeys = null): array
+    public function handle(LayoutBuilderStateData $state, ?array $knownWidgetKeys = null): array
     {
-        $knownBlockKeys ??= $this->knownBlockKeys($state);
+        $knownWidgetKeys ??= $this->knownWidgetKeys($state);
 
         $diagnostics = [];
 
         foreach ($state->containers as $containerKey => $container) {
-            foreach (LayoutBlockData::normalizeMany($container['blocks'] ?? []) as $blockIndex => $block) {
-                $blockKey = LayoutBlockData::key($block);
+            foreach (LayoutBlockData::fromContainer($container) as $blockIndex => $block) {
+                $widgetKey = LayoutBlockData::key($block);
 
-                if (! is_string($blockKey) || ! in_array($blockKey, $knownBlockKeys, true)) {
+                if (! is_string($widgetKey) || ! in_array($widgetKey, $knownWidgetKeys, true)) {
                     $diagnostics[] = new LayoutDiagnosticData(
                         severity: LayoutDiagnosticSeverity::Blocking,
                         code: 'unknown_block',
-                        message: __('capell-admin::message.unknown_block', ['block' => (string) $blockKey]),
+                        message: __('capell-admin::message.unknown_block', ['block' => (string) $widgetKey]),
                         containerKey: (string) $containerKey,
                         blockIndex: $blockIndex,
                     );
@@ -67,20 +68,20 @@ final class AnalyzeLayoutDiagnosticsAction
     /**
      * @return array<int, string>
      */
-    private function knownBlockKeys(LayoutBuilderStateData $state): array
+    private function knownWidgetKeys(LayoutBuilderStateData $state): array
     {
-        $layoutBlockKeys = collect($state->containers)
-            ->flatMap(fn (array $container): array => LayoutBlockData::normalizeMany($container['blocks'] ?? []))
+        $layoutWidgetKeys = collect($state->containers)
+            ->flatMap(fn (array $container): array => LayoutBlockData::fromContainer($container))
             ->map(static fn (array $block): ?string => LayoutBlockData::key($block))
-            ->filter(static fn (mixed $blockKey): bool => is_string($blockKey) && $blockKey !== '')
+            ->filter(static fn (mixed $widgetKey): bool => is_string($widgetKey) && $widgetKey !== '')
             ->unique()
             ->values()
             ->all();
 
-        return $layoutBlockKeys === []
+        return $layoutWidgetKeys === []
             ? []
-            : Block::query()
-                ->whereIn('key', $layoutBlockKeys)
+            : Widget::query()
+                ->whereIn('key', $layoutWidgetKeys)
                 ->pluck('key')
                 ->all();
     }

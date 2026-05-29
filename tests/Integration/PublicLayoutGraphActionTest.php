@@ -20,8 +20,8 @@ use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
 use Capell\LayoutBuilder\Data\PublicLayoutBlockData;
 use Capell\LayoutBuilder\Data\PublicLayoutContainerData;
 use Capell\LayoutBuilder\Data\PublicLayoutGraphData;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Capell\LayoutBuilder\Tests\Fixtures\View\Components\PackageAlert;
 use Illuminate\Database\Events\QueryExecuted;
@@ -54,31 +54,30 @@ it('builds public layout data for selected containers only', function (): void {
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->id]);
 
-    $mainBlock = Block::factory()->create(['key' => 'main-block']);
-    $sidebarBlock = Block::factory()->create(['key' => 'sidebar-block']);
+    $mainBlock = Widget::factory()->create(['key' => 'main-block']);
+    $sidebarBlock = Widget::factory()->create(['key' => 'sidebar-block']);
 
     TranslationFactory::new()
         ->translatable($mainBlock)
         ->language($language)
         ->create([
-            'title' => 'Main Block',
+            'title' => 'Main Widget',
             'content' => '<p>Main content</p>',
         ]);
 
     $layout = Layout::factory()->site($site)->create([
         'key' => 'article',
-        'blocks' => [$mainBlock->key, $sidebarBlock->key],
         'containers' => [
             'main' => [
                 'label' => 'Main',
-                'blocks' => [
+                'widgets' => [
                     $mainBlock->key,
                 ],
             ],
             'sidebar' => [
                 'label' => 'Sidebar',
-                'blocks' => [
-                    ['block_key' => $sidebarBlock->key, 'occurrence' => 1],
+                'widgets' => [
+                    ['widget_key' => $sidebarBlock->key, 'occurrence' => 1],
                 ],
             ],
         ],
@@ -96,7 +95,7 @@ it('builds public layout data for selected containers only', function (): void {
         ->and($graph->containers[0]->blocks)->toHaveCount(1)
         ->and($graph->containers[0]->blocks[0])->toBeInstanceOf(PublicLayoutBlockData::class)
         ->and($graph->containers[0]->blocks[0]->key)->toBe('main-block')
-        ->and($graph->containers[0]->blocks[0]->data['title'])->toBe('Main Block')
+        ->and($graph->containers[0]->blocks[0]->data['title'])->toBe('Main Widget')
         ->and($graph->containers[0]->blocks[0]->data['content'])->toBe('<p>Main content</p>');
 });
 
@@ -119,12 +118,11 @@ it('uses the site theme key for public block compatibility even when the site re
     $site = Site::factory()->create(['language_id' => $language->id, 'theme_id' => $theme->getKey()]);
     $site->unsetRelation('theme');
 
-    $block = Block::factory()->create(['key' => 'theme-limited']);
+    $block = Widget::factory()->create(['key' => 'theme-limited']);
     $layout = Layout::factory()->site($site)->create([
-        'blocks' => [$block->key],
         'containers' => [
-            'main' => ['blocks' => [[
-                'block_key' => $block->key,
+            'main' => ['widgets' => [[
+                'widget_key' => $block->key,
                 'occurrence' => 1,
                 'meta' => ['block_variant' => 'split-media'],
             ]]],
@@ -155,13 +153,12 @@ it('uses the layout theme before the site theme for public block compatibility',
     $siteTheme = Theme::factory()->create(['key' => 'site-theme']);
     $layoutTheme = Theme::factory()->create(['key' => 'layout-theme']);
     $site = Site::factory()->create(['language_id' => $language->id, 'theme_id' => $siteTheme->getKey()]);
-    $block = Block::factory()->create(['key' => 'layout-theme-limited']);
+    $block = Widget::factory()->create(['key' => 'layout-theme-limited']);
     $layout = Layout::factory()->site($site)->create([
         'theme_id' => $layoutTheme->getKey(),
-        'blocks' => [$block->key],
         'containers' => [
-            'main' => ['blocks' => [[
-                'block_key' => $block->key,
+            'main' => ['widgets' => [[
+                'widget_key' => $block->key,
                 'occurrence' => 1,
                 'meta' => ['block_variant' => 'split-media'],
             ]]],
@@ -190,14 +187,13 @@ it('reuses public payload resolver contributor caches across page blocks', funct
     $language = Language::factory()->create();
     $theme = Theme::factory()->create(['key' => 'site-theme']);
     $site = Site::factory()->create(['language_id' => $language->id, 'theme_id' => $theme->getKey()]);
-    $firstBlock = Block::factory()->create(['key' => 'cached-theme']);
-    $secondBlock = Block::factory()->create(['key' => 'cached-theme']);
+    $firstBlock = Widget::factory()->create(['key' => 'cached-theme']);
+    $secondBlock = Widget::factory()->create(['key' => 'cached-theme']);
     $layout = Layout::factory()->site($site)->create([
-        'blocks' => [$firstBlock->key, $secondBlock->key],
         'containers' => [
-            'main' => ['blocks' => [
-                ['block_key' => $firstBlock->key, 'occurrence' => 1],
-                ['block_key' => $secondBlock->key, 'occurrence' => 1],
+            'main' => ['widgets' => [
+                ['widget_key' => $firstBlock->key, 'occurrence' => 1],
+                ['widget_key' => $secondBlock->key, 'occurrence' => 1],
             ]],
         ],
     ]);
@@ -220,7 +216,7 @@ it('reuses public payload resolver contributor caches across page blocks', funct
 it('lets package tagged contributors extend block payload data and html', function (): void {
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->id]);
-    $block = Block::factory()->create(['key' => 'featured']);
+    $block = Widget::factory()->create(['key' => 'featured']);
 
     TranslationFactory::new()
         ->translatable($block)
@@ -231,9 +227,8 @@ it('lets package tagged contributors extend block payload data and html', functi
         ]);
 
     $layout = Layout::factory()->site($site)->create([
-        'blocks' => [$block->key],
         'containers' => [
-            'main' => ['blocks' => [['block_key' => $block->key, 'occurrence' => 3]]],
+            'main' => ['widgets' => [['widget_key' => $block->key, 'occurrence' => 3]]],
         ],
     ]);
 
@@ -249,7 +244,7 @@ it('lets package tagged contributors extend block payload data and html', functi
         /**
          * @return array<string, mixed>
          */
-        public function data(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): array
+        public function data(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): array
         {
             return [
                 'source' => 'package',
@@ -259,7 +254,7 @@ it('lets package tagged contributors extend block payload data and html', functi
             ];
         }
 
-        public function html(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): string
+        public function html(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): string
         {
             return '<section>' . $block->key . ':' . $containerKey . ':' . $occurrence . '</section>';
         }
@@ -297,7 +292,7 @@ it('adds sanitized block presentation data without exposing authoring metadata',
 
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->id]);
-    $block = Block::factory()->create([
+    $block = Widget::factory()->create([
         'key' => 'hero',
         'meta' => [
             'block_variant' => 'default',
@@ -309,10 +304,9 @@ it('adds sanitized block presentation data without exposing authoring metadata',
     ]);
 
     $layout = Layout::factory()->site($site)->create([
-        'blocks' => [$block->key],
         'containers' => [
-            'main' => ['blocks' => [[
-                'block_key' => $block->key,
+            'main' => ['widgets' => [[
+                'widget_key' => $block->key,
                 'occurrence' => 1,
                 'meta' => [
                     'block_variant' => 'split-media',
@@ -337,14 +331,14 @@ it('adds sanitized block presentation data without exposing authoring metadata',
         /**
          * @return array<string, mixed>
          */
-        public function data(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): array
+        public function data(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): array
         {
             return [
                 'seenSettings' => $block->meta['block_settings'] ?? [],
             ];
         }
 
-        public function html(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): ?string
+        public function html(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): ?string
         {
             return null;
         }
@@ -388,11 +382,11 @@ it('sanitizes stored block meta before public contributors see it', function ():
 
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->id]);
-    $block = Block::factory()->create([
+    $block = Widget::factory()->create([
         'key' => 'stored-meta',
         'meta' => [
             'block_variant' => 'signed_url',
-            'block_key' => 'admin_schema',
+            'widget_key' => 'admin_schema',
             'block_settings' => [
                 'spacing' => 'spacious',
                 'anchor_id' => 'signed editor url',
@@ -405,10 +399,9 @@ it('sanitizes stored block meta before public contributors see it', function ():
         ],
     ]);
     $layout = Layout::factory()->site($site)->create([
-        'blocks' => [$block->key],
         'containers' => [
-            'main' => ['blocks' => [[
-                'block_key' => $block->key,
+            'main' => ['widgets' => [[
+                'widget_key' => $block->key,
                 'occurrence' => 1,
             ]]],
         ],
@@ -424,14 +417,14 @@ it('sanitizes stored block meta before public contributors see it', function ():
         /**
          * @return array<string, mixed>
          */
-        public function data(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): array
+        public function data(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): array
         {
             return [
                 'seenMeta' => $block->meta,
             ];
         }
 
-        public function html(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): ?string
+        public function html(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): ?string
         {
             return null;
         }
@@ -455,27 +448,26 @@ it('sanitizes stored block meta before public contributors see it', function ():
 it('scopes default block assets to the matching occurrence when building public layout data', function (): void {
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->id]);
-    $block = Block::factory()->create(['key' => 'featured']);
+    $block = Widget::factory()->create(['key' => 'featured']);
     $firstAsset = Page::factory()->site($site)->withTranslations($language)->create(['name' => 'First asset']);
     $secondAsset = Page::factory()->site($site)->withTranslations($language)->create(['name' => 'Second asset']);
 
-    BlockAsset::factory()
+    WidgetAsset::factory()
         ->block($block)
         ->asset($firstAsset)
         ->occurrence(1)
         ->create();
-    BlockAsset::factory()
+    WidgetAsset::factory()
         ->block($block)
         ->asset($secondAsset)
         ->occurrence(2)
         ->create();
 
     $layout = Layout::factory()->site($site)->create([
-        'blocks' => [$block->key],
         'containers' => [
-            'main' => ['blocks' => [
-                ['block_key' => $block->key, 'occurrence' => 1],
-                ['block_key' => $block->key, 'occurrence' => 2],
+            'main' => ['widgets' => [
+                ['widget_key' => $block->key, 'occurrence' => 1],
+                ['widget_key' => $block->key, 'occurrence' => 2],
             ]],
         ],
     ]);
@@ -492,17 +484,17 @@ it('scopes default block assets to the matching occurrence when building public 
         /**
          * @return array<string, mixed>
          */
-        public function data(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): array
+        public function data(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): array
         {
             return [
                 'asset_ids' => $block->assets
-                    ->map(fn (BlockAsset $blockAsset): mixed => $blockAsset->asset?->getKey())
+                    ->map(fn (WidgetAsset $blockAsset): mixed => $blockAsset->asset?->getKey())
                     ->values()
                     ->all(),
             ];
         }
 
-        public function html(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): ?string
+        public function html(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): ?string
         {
             return null;
         }
@@ -519,20 +511,19 @@ it('scopes default block assets to the matching occurrence when building public 
 it('reuses scoped preloaded block assets when building public layout data', function (): void {
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->id]);
-    $block = Block::factory()->create(['key' => 'featured']);
+    $block = Widget::factory()->create(['key' => 'featured']);
     $asset = Page::factory()->site($site)->withTranslations($language)->create(['name' => 'Preloaded asset']);
 
-    BlockAsset::factory()
+    WidgetAsset::factory()
         ->block($block)
         ->asset($asset)
         ->occurrence(1)
         ->create();
 
     $layout = Layout::factory()->site($site)->create([
-        'blocks' => [$block->key],
         'containers' => [
-            'main' => ['blocks' => [
-                ['block_key' => $block->key, 'occurrence' => 1],
+            'main' => ['widgets' => [
+                ['widget_key' => $block->key, 'occurrence' => 1],
             ]],
         ],
     ]);
@@ -560,7 +551,7 @@ it('preloads layout media for public container backgrounds', function (): void {
     $site = Site::factory()->create(['language_id' => $language->id]);
     $layout = Layout::factory()->site($site)->create([
         'containers' => [
-            'main' => ['blocks' => []],
+            'main' => ['widgets' => []],
         ],
     ]);
     $media = MediaFactory::new()->model($layout)->create([

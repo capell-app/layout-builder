@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Filament\Configurators\Blocks;
 
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\ComponentSection;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\CreateDetailsSchema;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\DisplaySection;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\SettingsSchema;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\Tab\BlockAdminTab;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\Tab\BlockDisplayTab;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\TranslationsRepeater;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\CreateDetailsSchema;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\DisplaySection;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\SettingsSchema;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\BlockAdminTab;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\BlockDisplayTab;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\TranslationsRepeater;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
@@ -31,6 +31,9 @@ class SystemBlockConfigurator extends DefaultBlockConfigurator
         };
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getFilesSchema(): array
     {
         return [
@@ -39,6 +42,9 @@ class SystemBlockConfigurator extends DefaultBlockConfigurator
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getOptionSchema(Schema $configurator): array
     {
         return [

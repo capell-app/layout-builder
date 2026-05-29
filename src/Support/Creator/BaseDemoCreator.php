@@ -14,13 +14,13 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
 use Capell\DemoKit\Support\Creator\DemoCreator;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\Navigation\Support\Creator\NavigationCreator;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +28,7 @@ use Illuminate\Support\Str;
 use RuntimeException;
 use Spatie\Image\Image;
 use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media as SpatieMedia;
 
 abstract class BaseDemoCreator
 {
@@ -43,7 +44,7 @@ abstract class BaseDemoCreator
     protected string $contentModel;
 
     /**
-     * @var class-string<Block>
+     * @var class-string<Widget>
      */
     protected string $blockModel;
 
@@ -57,6 +58,10 @@ abstract class BaseDemoCreator
      */
     protected string $pageModel;
 
+    /**
+     * @param  Collection<array-key, mixed>  $siteTree
+     * @return array<array-key, mixed>
+     */
     protected function navigationPageItems(Collection $siteTree, Language $language): array
     {
         $items = [];
@@ -80,17 +85,17 @@ abstract class BaseDemoCreator
     {
         $navigationCreator = NavigationCreator::class;
 
-        if (CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($navigationCreator) && method_exists($navigationCreator, 'getPageNavigationLabel')) {
+        if (CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($navigationCreator)) {
             return $navigationCreator::getPageNavigationLabel($page, $language);
         }
 
-        return $page->translation?->title ?? $page->name;
+        return $page->translation->title ?? $page->name;
     }
 
-    protected function createPageBlockAsset(Block $block, Pageable $page, string $container, int $occurrence, Model $asset): BlockAsset
+    protected function createPageBlockAsset(Widget $block, Pageable $page, string $container, int $occurrence, Model $asset): WidgetAsset
     {
-        return DB::transaction(
-            fn (): BlockAsset => $block->assets()->createOrFirst([
+        $blockAsset = DB::transaction(
+            fn (): Model => $block->assets()->createOrFirst([
                 'pageable_id' => $page->getKey(),
                 'pageable_type' => $page->getMorphClass(),
                 'container' => $container,
@@ -100,21 +105,28 @@ abstract class BaseDemoCreator
             ]),
             attempts: 5,
         );
+
+        throw_unless($blockAsset instanceof WidgetAsset, RuntimeException::class, 'Layout block asset creation must return a block asset model.');
+
+        return $blockAsset;
     }
 
-    protected function translationsFor(Model $model): HasMany|MorphMany
+    /** @return MorphMany<Translation, Model> */
+    protected function translationsFor(Model $model): MorphMany
     {
-        /** @phpstan-ignore-next-line method.notFound */
-        return $model->translations();
+        return $model->morphMany(Translation::class, 'translatable');
     }
 
+    /**
+     * @return Collection<array-key, mixed>
+     */
     protected function createFeatures(Site $site): Collection
     {
         $features = [
             [
                 'icon' => 'heroicon-o-light-bulb',
-                'title' => 'Innovative Solutions',
-                'content' => '<p>We leverage cutting-edge technology to create innovative solutions that drive success.</p>',
+                'title' => 'Reusable CMS Patterns',
+                'content' => '<p>We use Laravel packages, Filament resources, and reusable blocks to keep CMS implementations maintainable.</p>',
             ],
             [
                 'icon' => 'heroicon-o-academic-cap',
@@ -128,8 +140,8 @@ abstract class BaseDemoCreator
             ],
             [
                 'icon' => 'heroicon-o-chart-bar',
-                'title' => 'Measurable Results',
-                'content' => '<p>We focus on delivering measurable results that drive growth and success.</p>',
+                'title' => 'Operational Checks',
+                'content' => '<p>We ship with checks for content, assets, cache, and frontend output so teams can verify each release.</p>',
             ],
             [
                 'icon' => 'heroicon-o-sparkles',
@@ -149,12 +161,18 @@ abstract class BaseDemoCreator
         ];
 
         $layout = Layout::query()->default()->first();
+        $defaultPageType = Blueprint::query()
+            ->where('type', 'page')
+            ->default()
+            ->first();
 
         throw_unless($layout instanceof Layout, Exception::class, 'Default layout not found');
+        throw_unless($defaultPageType instanceof Blueprint, Exception::class, 'Default page type not found');
 
         $parentPage = Page::query()->firstOrNew([
             'site_id' => $site->id,
             'layout_id' => $layout->id,
+            'blueprint_id' => $defaultPageType->id,
             'name' => 'Features',
         ]);
 
@@ -178,6 +196,8 @@ abstract class BaseDemoCreator
 
             $page->fill([
                 'parent_id' => $parentPage->id,
+                'layout_id' => $layout->id,
+                'blueprint_id' => $defaultPageType->id,
                 'meta' => [
                     'icon' => $feature['icon'],
                 ],
@@ -221,6 +241,10 @@ abstract class BaseDemoCreator
         return $contentFeatures;
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     * @return Collection<array-key, mixed>
+     */
     protected function createTestimonials(Collection $languages): Collection
     {
         $testimonialContent = $this->contentModel::query()->firstOrCreate([
@@ -237,7 +261,7 @@ abstract class BaseDemoCreator
             [
                 'name' => 'John Doe',
                 'position' => 'CEO of Example Corp',
-                'content' => 'Capell has transformed our business with their innovative solutions and exceptional service.',
+                'content' => 'Capell gave our editors a clearer workflow and gave engineering a smaller surface area to maintain.',
             ],
             [
                 'name' => 'Jane Smith',
@@ -294,13 +318,17 @@ abstract class BaseDemoCreator
         return $testimonialsCollection;
     }
 
+    /**
+     * @param  Collection<array-key, mixed>  $languages
+     * @return Collection<array-key, mixed>
+     */
     protected function createTeamMembers(Collection $languages): Collection
     {
         $teamMembers = [
             [
                 'name' => 'Alice Johnson',
                 'position' => 'CEO',
-                'bio' => '<p>Alice is the visionary behind our success, leading the team with passion and expertise.</p>',
+                'bio' => '<p>Alice coordinates product priorities, release scope, and editorial feedback across the demo team.</p>',
             ],
             [
                 'name' => 'Charlie Brown',
@@ -315,7 +343,7 @@ abstract class BaseDemoCreator
             [
                 'name' => 'George White',
                 'position' => 'Lead Designer',
-                'bio' => '<p>George brings creativity and innovation to our design projects, making them visually stunning.</p>',
+                'bio' => '<p>George turns design requirements into reusable section patterns and practical editorial controls.</p>',
             ],
             [
                 'name' => 'Hannah Blue',
@@ -335,12 +363,12 @@ abstract class BaseDemoCreator
             [
                 'name' => 'Kevin Yellow',
                 'position' => 'Data Analyst',
-                'bio' => '<p>Kevin turns data into insights, helping us make informed decisions for our clients.</p>',
+                'bio' => '<p>Kevin reviews usage data and release checks so the demo keeps reflecting real CMS workflows.</p>',
             ],
             [
                 'name' => 'Laura Purple',
                 'position' => 'Customer Success Manager',
-                'bio' => '<p>Laura ensures our clients are happy and successful, building lasting relationships.</p>',
+                'bio' => '<p>Laura gathers editor feedback and keeps onboarding notes clear for new project teams.</p>',
             ],
             [
                 'name' => 'Mike Orange',
@@ -375,7 +403,7 @@ abstract class BaseDemoCreator
             [
                 'name' => 'Zane Purple',
                 'position' => 'Research Scientist',
-                'bio' => '<p>Zane conducts research to develop innovative solutions that push the boundaries of technology.</p>',
+                'bio' => '<p>Zane tests integration ideas and documents the ones that belong in the package roadmap.</p>',
             ],
         ];
 
@@ -420,8 +448,12 @@ abstract class BaseDemoCreator
         return $teamMembersCollection;
     }
 
-    protected function createMedia(HasMedia $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): void
+    protected function createMedia(Model $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): void
     {
+        if (! $model instanceof HasMedia) {
+            return;
+        }
+
         $collectionName = $collection instanceof BackedEnum ? $collection->value : $collection;
 
         // Build an optional filter to match existing media by inferred filename when a name is provided
@@ -446,7 +478,7 @@ abstract class BaseDemoCreator
         $demoCreator->createMedia($model, $name, $type, $collection);
     }
 
-    protected function createBlockMedia(Block $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
+    protected function createBlockMedia(Widget $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
     {
         // Normalize input name and derive extension if provided
         $inputName = in_array($name, [null, '', '0'], true) ? null : $name;
@@ -490,7 +522,7 @@ abstract class BaseDemoCreator
             $demoFile = sprintf('%s/%s.%s', $demoPath, $filenameBase, $ext);
         }
 
-        // Create content and link via BlockAsset
+        // Create content and link via WidgetAsset
         $content = $this->contentModel::query()->create([
             'name' => str($filenameBase)->title(),
         ]);
@@ -516,7 +548,7 @@ abstract class BaseDemoCreator
 
         // For videos, also attach a jpg poster image
         if (! $isVideo) {
-            return $media;
+            return $this->ensureCapellMedia($media);
         }
 
         $posterPath = $this->getDemoResourcePath('img');
@@ -525,13 +557,22 @@ abstract class BaseDemoCreator
 
         $posterImage = Image::load($posterFile);
 
-        return $content->addMedia($posterFile)
+        $posterMedia = $content->addMedia($posterFile)
             ->preservingOriginal()
             ->withCustomProperties([
                 'width' => $posterImage->getWidth(),
                 'height' => $posterImage->getHeight(),
             ])
             ->toMediaCollection(MediaCollectionEnum::Image->value);
+
+        return $this->ensureCapellMedia($posterMedia);
+    }
+
+    protected function ensureCapellMedia(SpatieMedia $media): Media
+    {
+        throw_unless($media instanceof Media, RuntimeException::class, 'Demo media creation must return a Capell media model.');
+
+        return $media;
     }
 
     protected function getRandomDemoImage(string $demo_path, string $extension = 'jpg'): string
@@ -549,7 +590,7 @@ abstract class BaseDemoCreator
     {
         $demoCreator = self::DEMO_CREATOR;
 
-        if (CapellCore::isPackageInstalled(self::DemoKitPackage) && class_exists($demoCreator) && method_exists($demoCreator, 'getDemoResourcePath')) {
+        if (CapellCore::isPackageInstalled(self::DemoKitPackage) && class_exists($demoCreator)) {
             return $demoCreator::getDemoResourcePath($type);
         }
 

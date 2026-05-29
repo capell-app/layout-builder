@@ -65,7 +65,7 @@ return [
     'contact' => 'Contact',
     'container_name' => ':name Container',
     'container_spacing_help' => 'Set the spacing between the blocks',
-    'container_width_helper' => 'Set the width of the container for this block',
+    'container_width_helper' => 'Controls how wide this item renders. Use Full on a layout container for edge-to-edge backgrounds, then keep the widget or block contained so its content stays aligned.',
     'content' => 'Content',
     'content_first_editor' => 'Layout content editor',
     'content_placement' => ':container > :block > Item :position',
@@ -448,6 +448,8 @@ return [
     'visible_until_future' => 'Visible in :date',
     'visible_until_info' => 'Set when this page will be unavailable',
     'visit_sites' => 'Preview',
+    'video_popup' => 'Video popup',
+    'video_url' => 'Video URL',
     'warning' => 'Warning',
     'block' => 'Block',
     'block_asset_configurator_info' => 'Layout Block Asset Configurator Info',
@@ -470,4 +472,5 @@ return [
     'sidebar_area' => 'Sidebar',
     'untitled_content_area' => 'Content area',
     'untitled_content_block' => 'Untitled content block',
+    'untitled_page' => 'Untitled page',
 ];

@@ -10,22 +10,23 @@ use Capell\LayoutBuilder\Enums\BlockComponentEnum;
 use Capell\LayoutBuilder\Enums\BlockTypeEnum;
 use Capell\LayoutBuilder\Enums\BlockTypeGroupEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static Block run(string $key = 'hero', ?string $label = null, string $height = '', array $meta = [])
+ * @method static Widget run(string $key = 'hero', ?string $label = null, string $height = '', array<array-key, mixed> $meta = [])
  */
 class CreateHeroBlockAction
 {
     use AsFake;
     use AsObject;
 
-    public function handle(string $key = 'hero', ?string $label = null, string $height = '', array $meta = []): Block
+    /** @param array<array-key, mixed> $meta */
+    public function handle(string $key = 'hero', ?string $label = null, string $height = '', array $meta = []): Widget
     {
-        /** @var class-string<Block> $blockModel */
-        $blockModel = Block::class;
+        /** @var class-string<Widget> $blockModel */
+        $blockModel = Widget::class;
 
         return $blockModel::query()->updateOrCreate([
             'key' => $key,
@@ -63,12 +64,12 @@ class CreateHeroBlockAction
 
         return $typeModel::query()->firstOrCreate([
             'key' => BlockTypeEnum::Hero,
-            'type' => LayoutTypeEnum::Block,
+            'type' => LayoutTypeEnum::Widget,
         ], [
             'name' => __('capell-layout-builder::generic.hero'),
             'group' => BlockTypeGroupEnum::Asset,
             'admin' => [
-                'type_configurator' => 'Block',
+                'type_configurator' => 'Widget',
                 'configurator' => 'Assets',
                 'icon' => 'heroicon-o-gift',
                 'asset_types' => [

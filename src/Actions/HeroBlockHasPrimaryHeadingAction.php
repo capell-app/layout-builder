@@ -6,11 +6,11 @@ namespace Capell\LayoutBuilder\Actions;
 
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Translation;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static bool run(Block $block, Pageable $page)
+ * @method static bool run(Widget $block, Pageable $page)
  */
 class HeroBlockHasPrimaryHeadingAction
 {
@@ -18,7 +18,7 @@ class HeroBlockHasPrimaryHeadingAction
 
     private const string FRONTEND_CONTEXT_SERVICE = 'capell.frontend.context';
 
-    public function handle(Block $block, Pageable $page): bool
+    public function handle(Widget $block, Pageable $page): bool
     {
         $hasPrimaryHeading = false;
 

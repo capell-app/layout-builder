@@ -6,7 +6,7 @@ namespace Capell\LayoutBuilder\Contracts;
 
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 
 interface PublicBlockPayloadContributor
 {
@@ -17,7 +17,7 @@ interface PublicBlockPayloadContributor
     /**
      * @return array<string, mixed>
      */
-    public function data(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): array;
+    public function data(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): array;
 
-    public function html(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): ?string;
+    public function html(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): ?string;
 }

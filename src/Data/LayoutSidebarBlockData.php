@@ -13,7 +13,7 @@ class LayoutSidebarBlockData extends Data
      * @param  array<string, mixed>  $meta
      */
     public function __construct(
-        public readonly string $blockKey,
+        public readonly string $widgetKey,
         public readonly array $layoutKeys = [],
         public readonly array $meta = [],
     ) {}
@@ -24,12 +24,12 @@ class LayoutSidebarBlockData extends Data
     }
 
     /**
-     * @return array{block_key: string, meta?: array<string, mixed>}
+     * @return array{widget_key: string, meta?: array<string, mixed>}
      */
     public function toLayoutBlock(): array
     {
         $block = [
-            'block_key' => $this->blockKey,
+            'widget_key' => $this->widgetKey,
         ];
 
         if ($this->meta !== []) {

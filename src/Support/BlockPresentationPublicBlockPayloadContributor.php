@@ -10,7 +10,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Theme;
 use Capell\LayoutBuilder\Actions\ResolveBlockPresentationDataAction;
 use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 
 final class BlockPresentationPublicBlockPayloadContributor implements PublicBlockPayloadContributor
 {
@@ -27,7 +27,7 @@ final class BlockPresentationPublicBlockPayloadContributor implements PublicBloc
     /**
      * @return array<string, mixed>
      */
-    public function data(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): array
+    public function data(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): array
     {
         $themeKey = $this->themeKey($page);
 
@@ -39,7 +39,7 @@ final class BlockPresentationPublicBlockPayloadContributor implements PublicBloc
         ];
     }
 
-    public function html(Block $block, Page $page, Language $language, string $containerKey, int $occurrence): ?string
+    public function html(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): ?string
     {
         return null;
     }

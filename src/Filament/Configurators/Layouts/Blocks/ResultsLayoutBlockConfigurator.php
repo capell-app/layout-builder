@@ -9,8 +9,8 @@ use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
 use Capell\Admin\Filament\Concerns\HasConfigurator;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\SchemaExtenderEnum;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\ResultsOverrideSchema;
 use Capell\LayoutBuilder\Filament\Components\Forms\HtmlClassInput;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\ResultsOverrideSchema;
 use Filament\Schemas\Schema;
 
 class ResultsLayoutBlockConfigurator implements ConfiguratorInterface
@@ -19,11 +19,17 @@ class ResultsLayoutBlockConfigurator implements ConfiguratorInterface
 
     protected static ConfiguratorTypeEnumInterface $configuratorType = ConfiguratorTypeEnum::LayoutBlock;
 
+    /**
+     * @return iterable<int, mixed>
+     */
     public static function getExtenders(): iterable
     {
         return app()->tagged(SchemaExtenderEnum::LayoutBlock->value);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function make(Schema $configurator): array
     {
         return [

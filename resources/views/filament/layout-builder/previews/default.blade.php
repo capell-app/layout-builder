@@ -21,7 +21,7 @@
 
     @if ($assetsToggleAction || $blockActions)
         <div
-            class="layout-block-preview-actions absolute right-4 top-4 z-10 flex items-center justify-end gap-1"
+            class="layout-block-preview-actions absolute top-4 right-4 z-10 flex items-center justify-end gap-1"
         >
             @if ($assetsToggleAction)
                 {{ $assetsToggleAction }}
@@ -51,7 +51,7 @@
             @endif
 
             <div
-                class="min-w-0 flex-1 text-base font-semibold leading-6 text-gray-950 dark:text-white"
+                class="min-w-0 flex-1 text-base leading-6 font-semibold text-gray-950 dark:text-white"
             >
                 {{ $previewData->title ?: $previewData->label }}
             </div>

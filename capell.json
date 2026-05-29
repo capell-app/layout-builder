@@ -16,7 +16,7 @@
     "surfaces": ["admin", "frontend", "console"],
     "dependencies": {
         "requires": ["capell-app/core", "capell-app/frontend"],
-        "optional": [],
+        "supports": [],
         "conflicts": []
     },
     "providers": {
@@ -36,7 +36,7 @@
         {
             "type": "admin-resource",
             "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
-            "resourceClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Blocks\\BlockResource",
+            "resourceClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Widgets\\WidgetResource",
             "group": "Block"
         },
         {
@@ -46,8 +46,8 @@
             "groups": [
                 "LayoutContainers",
                 "LayoutBlocks",
-                "Blocks",
-                "BlockAssets"
+                "Widgets",
+                "WidgetAssets"
             ]
         },
         {
@@ -78,13 +78,21 @@
     "database": {
         "migrations": true,
         "settings": false,
-        "requiredTables": ["layouts", "blocks", "block_assets"]
+        "requiredTables": [
+            "layouts",
+            "widgets",
+            "widget_assets",
+            "widget_blocks"
+        ]
     },
     "commands": {
         "install": "capell:layout-builder-install",
         "setup": null,
         "demo": null,
         "doctor": null
+    },
+    "actions": {
+        "install": "Capell\\LayoutBuilder\\Actions\\InstallLayoutBuilderPackageAction"
     },
     "settings": [],
     "permissions": [
@@ -119,7 +127,15 @@
             "queueInvalidation": true
         }
     },
-    "healthChecks": [],
+    "healthChecks": [
+        {
+            "key": "layout-builder.package-health",
+            "label": "Layout Builder package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\LayoutBuilder\\Health\\LayoutBuilderHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
     "commercial": {
         "proposedLicense": "free",
         "requestedCertification": "first-party",
@@ -128,7 +144,13 @@
     },
     "marketplace": {
         "summary": "Visual layout composition, content-first editing, and public layout rendering for Capell.",
-        "screenshots": [],
+        "screenshots": [
+            {
+                "path": "docs/assets/marketplace/extension-card.jpg",
+                "alt": "Layout Builder extension preview image",
+                "caption": "Layout Builder extension preview"
+            }
+        ],
         "categories": ["admin", "foundation", "frontend"]
     },
     "contributionTraceability": {

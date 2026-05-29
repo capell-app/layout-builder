@@ -151,12 +151,12 @@
                         <span class="sr-only">
                             {{ __('capell-layout-builder::form.search_content_inventory') }}
                         </span>
-                        @svg('heroicon-o-magnifying-glass', 'pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500')
+                        @svg('heroicon-o-magnifying-glass', 'pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500')
                         <input
                             type="search"
                             x-model.debounce.150ms="search"
                             data-layout-content-search-input
-                            class="focus:border-primary-500 focus:ring-primary-500 h-9 w-full rounded-md border border-gray-300 bg-white py-1.5 pl-9 pr-9 text-sm text-gray-950 shadow-sm outline-none transition placeholder:text-gray-400 focus:ring-1 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:placeholder:text-gray-500"
+                            class="focus:border-primary-500 focus:ring-primary-500 h-9 w-full rounded-md border border-gray-300 bg-white py-1.5 pr-9 pl-9 text-sm text-gray-950 shadow-sm transition outline-none placeholder:text-gray-400 focus:ring-1 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:placeholder:text-gray-500"
                             placeholder="{{ __('capell-layout-builder::form.search_content_inventory') }}"
                             autocomplete="off"
                         />
@@ -165,7 +165,7 @@
                             x-show="hasActiveSearch()"
                             x-cloak
                             x-on:click="search = ''"
-                            class="hover:text-primary-600 focus:text-primary-600 dark:hover:text-primary-400 dark:focus:text-primary-400 absolute right-2 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded text-gray-400 transition dark:text-gray-500"
+                            class="hover:text-primary-600 focus:text-primary-600 dark:hover:text-primary-400 dark:focus:text-primary-400 absolute top-1/2 right-2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded text-gray-400 transition dark:text-gray-500"
                             aria-label="{{ __('capell-layout-builder::button.clear_content_inventory_search') }}"
                         >
                             @svg('heroicon-o-x-mark', 'h-4 w-4')

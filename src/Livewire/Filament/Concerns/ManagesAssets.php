@@ -8,21 +8,23 @@ use BackedEnum;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as SupportCollection;
-use Illuminate\Support\Enumerable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use RuntimeException;
 use Throwable;
 
 trait ManagesAssets
@@ -107,7 +109,7 @@ trait ManagesAssets
             );
     }
 
-    public function blockHasPageAssets(Block $block): bool
+    public function blockHasPageAssets(Widget $block): bool
     {
         if (! $this->inPageContext()) {
             return $block->assets()->whereNotNull('pageable_type')->whereNotNull('pageable_id')->exists();
@@ -126,7 +128,7 @@ trait ManagesAssets
             ->exists();
     }
 
-    public function blockHasGlobalAssets(Block $block): bool
+    public function blockHasGlobalAssets(Widget $block): bool
     {
         if (property_exists($block, 'global_assets_count')) {
             return $block->global_assets_count > 0;
@@ -152,14 +154,17 @@ trait ManagesAssets
         $this->selectedRecords[$containerKey][$blockIndex] = [];
     }
 
-    public function getBlockAssetTypes(Block $block): array
+    /**
+     * @return array<array-key, mixed>
+     */
+    public function getBlockAssetTypes(Widget $block): array
     {
         return $this->getAllowedAssetTypes($block);
     }
 
-    public function getCurrentBlockAssetWorkspaceId(?Block $block = null): int
+    public function getCurrentBlockAssetWorkspaceId(?Widget $block = null): int
     {
-        if ($block instanceof Block && array_key_exists('workspace_id', $block->getAttributes())) {
+        if ($block instanceof Widget && array_key_exists('workspace_id', $block->getAttributes())) {
             return (int) $block->getAttribute('workspace_id');
         }
 
@@ -195,6 +200,9 @@ trait ManagesAssets
         );
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function getBlockAssets(string $containerKey, int $blockIndex): array
     {
         return $this->assets[$containerKey][$blockIndex];
@@ -205,11 +213,17 @@ trait ManagesAssets
         return count($this->getBlockAssets($containerKey, $blockIndex));
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function getBlockAsset(string $containerKey, int $blockIndex, int $index): ?array
     {
         return $this->assets[$containerKey][$blockIndex][$index] ?? null;
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function getBlockAssetsByType(string $containerKey, int $blockIndex, string $type): array
     {
         if (! isset($this->assets[$containerKey][$blockIndex])) {
@@ -222,6 +236,9 @@ trait ManagesAssets
         );
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function getSelectedAssets(string $containerKey, int $blockIndex): array
     {
         return $this->selectedRecords[$containerKey][$blockIndex] ?? [];
@@ -248,6 +265,9 @@ trait ManagesAssets
         $this->layoutUpdated();
     }
 
+    /**
+     * @param  array<array-key, mixed>  $data
+     */
     public function updateBlockAssetContentState(string $containerKey, int $blockIndex, int $index, array $data): void
     {
         $this->assertCanEditContent();
@@ -257,6 +277,9 @@ trait ManagesAssets
         $this->assets[$containerKey][$blockIndex][$index] = array_replace_recursive($blockAsset, $data);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function getAssetRelations(): array
     {
         $relations = [];
@@ -335,13 +358,16 @@ trait ManagesAssets
         }
     }
 
-    protected function mapBlockAssets(Block $block, string $containerKey, ?string $oldContainerKey = null): array
+    /**
+     * @return array<array-key, mixed>
+     */
+    protected function mapBlockAssets(Widget $block, string $containerKey, ?string $oldContainerKey = null): array
     {
         return $block->assets->map(
-            static function (BlockAsset $blockAsset) use ($containerKey, $oldContainerKey): array {
+            static function (WidgetAsset $blockAsset) use ($containerKey, $oldContainerKey): array {
                 $asset = [
                     'id' => $blockAsset->id,
-                    'block_id' => $blockAsset->block_id,
+                    'widget_id' => $blockAsset->block_id,
                     'workspace_id' => $blockAsset->workspace_id,
                     'asset_id' => $blockAsset->asset_id,
                     'asset_type' => $blockAsset->asset_type,
@@ -365,7 +391,12 @@ trait ManagesAssets
         )->all();
     }
 
-    protected function setupBlockAssets(string $containerKey, int $blockIndex, array $blockAssets, ?Collection $allBlockAssets, Block $block): Collection
+    /**
+     * @param  array<array-key, mixed>  $blockAssets
+     * @param  Collection<int, WidgetAsset>|null  $allBlockAssets
+     * @return Collection<int, WidgetAsset>
+     */
+    protected function setupBlockAssets(string $containerKey, int $blockIndex, array $blockAssets, ?Collection $allBlockAssets, Widget $block): Collection
     {
         $assets = new Collection;
 
@@ -373,7 +404,7 @@ trait ManagesAssets
             return $assets;
         }
 
-        /** @var Collection<int, BlockAsset> $allBlockAssets */
+        /** @var SupportCollection<int, WidgetAsset> $allBlockAssets */
         $occurrence = $this->getContainerBlockOccurrence($containerKey, $blockIndex);
 
         foreach ($blockAssets as $blockAssetData) {
@@ -382,13 +413,13 @@ trait ManagesAssets
 
             $oldContainerKey = $blockAssetData['old_container'] ?? $containerKey;
 
-            /** @var ?BlockAsset $matchingAsset */
+            /** @var ?WidgetAsset $matchingAsset */
             $matchingAsset = isset($blockAssetData['id'])
-                ? $allBlockAssets->first(fn (BlockAsset $asset): bool => $asset->getKey() === (int) $blockAssetData['id']
+                ? $allBlockAssets->first(fn (WidgetAsset $asset): bool => $asset->getKey() === (int) $blockAssetData['id']
                     && $this->blockAssetMatchesState($asset, $blockAssetData, $containerKey, $oldContainerKey, $occurrence, $block))
                 : null;
 
-            $matchingAsset ??= $allBlockAssets->first(function (BlockAsset $asset) use ($type, $assetId, $oldContainerKey, $occurrence, $block): bool {
+            $matchingAsset ??= $allBlockAssets->first(function (WidgetAsset $asset) use ($type, $assetId, $oldContainerKey, $occurrence, $block): bool {
                 if ((int) $asset->block_id !== (int) $block->getKey()) {
                     return false;
                 }
@@ -445,7 +476,7 @@ trait ManagesAssets
         foreach ($this->containers as $containerKey => $container) {
             $this->selectedRecords[$containerKey] = [];
 
-            foreach ($container['blocks'] as $blockIndex => $block) {
+            foreach ($container['widgets'] as $blockIndex => $block) {
                 $this->selectedRecords[$containerKey][$blockIndex] = [];
             }
         }
@@ -462,7 +493,7 @@ trait ManagesAssets
                 foreach ($blockAssets as $blockAssetIndex => $blockAsset) {
                     $blockAsset['original_container_key'] = $containerKey;
                     $blockAsset['original_block_id'] = $containerBlock->id;
-                    $blockAsset['original_block_key'] = $containerBlock->key;
+                    $blockAsset['original_widget_key'] = $containerBlock->key;
 
                     $originalAssets[$containerKey][$blockIndex][$blockAssetIndex] = $blockAsset;
                 }
@@ -472,14 +503,20 @@ trait ManagesAssets
         $this->originalAssets = $originalAssets;
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getAllSelectableAssetsKeys(string $containerKey, int $blockIndex): array
     {
-        return collect($this->assets[$containerKey][$blockIndex])
-            ->map(fn (array $blockAsset): string => sprintf('%s.%s', $blockAsset['asset_type'], $blockAsset['asset_id']))
-            ->values()
-            ->all();
+        return array_values(array_map(
+            fn (array $blockAsset): string => sprintf('%s.%s', $blockAsset['asset_type'], $blockAsset['asset_id']),
+            $this->assets[$containerKey][$blockIndex],
+        ));
     }
 
+    /**
+     * @param  array<array-key, mixed>  $assetsMeta
+     */
     protected function addAssets(string $containerKey, int $blockIndex, ?bool $hasPageAssets, string $type, mixed $assets, array $assetsMeta = []): void
     {
         $this->assertCanUpdateLayout();
@@ -509,7 +546,7 @@ trait ManagesAssets
                 'asset_id' => $assetId,
                 'asset_type' => $type,
                 'meta' => $meta,
-                'block_id' => $block->id,
+                'widget_id' => $block->id,
                 'order' => $order,
                 'occurrence' => $occurrence,
             ];
@@ -545,7 +582,10 @@ trait ManagesAssets
         $this->containerBlocks[$containerKey][$blockIndex] = $block;
     }
 
-    protected function getValidatedAssetIds(Block $block, string $type, mixed $assetIds): array
+    /**
+     * @return array<array-key, mixed>
+     */
+    protected function getValidatedAssetIds(Widget $block, string $type, mixed $assetIds): array
     {
         $normalizedType = $this->normalizeAssetType($type);
 
@@ -590,7 +630,10 @@ trait ManagesAssets
             ->all();
     }
 
-    protected function getAllowedAssetTypes(Block $block): array
+    /**
+     * @return array<array-key, mixed>
+     */
+    protected function getAllowedAssetTypes(Widget $block): array
     {
         $assetTypes = isset($block->admin['asset_types']) && $block->admin['asset_types'] !== []
             ? $block->admin['asset_types']
@@ -604,11 +647,17 @@ trait ManagesAssets
                 ->all();
         }
 
-        return collect($assetTypes)
-            ->map(fn (mixed $assetType): string => $this->normalizeAssetType($assetType))
-            ->filter(fn (string $assetType): bool => $this->hasRegisteredAssetType($assetType))
-            ->values()
-            ->all();
+        $registeredAssetTypes = [];
+
+        foreach ($assetTypes as $assetType) {
+            $normalizedAssetType = $this->normalizeAssetType($assetType);
+
+            if ($this->hasRegisteredAssetType($normalizedAssetType)) {
+                $registeredAssetTypes[] = $normalizedAssetType;
+            }
+        }
+
+        return $registeredAssetTypes;
     }
 
     protected function normalizeAssetType(mixed $assetType): string
@@ -625,6 +674,9 @@ trait ManagesAssets
         return CapellCore::hasAsset(Str::ucfirst($assetType));
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     */
     protected function constrainAssetQueryToCurrentContext(EloquentBuilder $query, Model $assetModel): void
     {
         $table = $assetModel->getTable();
@@ -688,7 +740,7 @@ trait ManagesAssets
     /**
      * @return array<int>
      */
-    protected function getReadableBlockAssetWorkspaceIds(?Block $block = null): array
+    protected function getReadableBlockAssetWorkspaceIds(?Widget $block = null): array
     {
         $workspaceId = $this->getCurrentBlockAssetWorkspaceId($block);
 
@@ -704,8 +756,8 @@ trait ManagesAssets
      */
     protected function getCurrentContainerBlockAssetWorkspaceIds(): array
     {
-        $workspaceIds = Block::query()
-            ->whereIn('key', $this->getContainerBlockKeys())
+        $workspaceIds = Widget::query()
+            ->whereIn('key', $this->getContainerWidgetKeys())
             ->pluck('workspace_id')
             ->map(fn (mixed $workspaceId): int => (int) $workspaceId)
             ->push($this->getCurrentWorkspaceId() ?? 0)
@@ -722,8 +774,8 @@ trait ManagesAssets
      */
     protected function getCurrentContainerBlockIds(): array
     {
-        return Block::query()
-            ->whereIn('key', $this->getContainerBlockKeys())
+        return Widget::query()
+            ->whereIn('key', $this->getContainerWidgetKeys())
             ->pluck('id')
             ->map(fn (mixed $blockId): int => (int) $blockId)
             ->all();
@@ -743,13 +795,13 @@ trait ManagesAssets
 
         $hasPageAssets = $assets !== [] ? $this->hasPageAssets($containerKey, $blockIndex) : $this->inPageContext();
 
-        $assetIds = collect($assets)
-            ->pluck('id')
-            ->filter(fn (mixed $assetId): bool => is_int($assetId) || is_string($assetId))
-            ->map(fn (int|string $assetId): int => (int) $assetId)
-            ->filter(fn (int $assetId): bool => $assetId > 0)
-            ->unique()
-            ->values();
+        $assetIds = new SupportCollection(array_values(array_unique(array_filter(
+            array_map(
+                fn (array $asset): int => isset($asset['id']) && (is_int($asset['id']) || is_string($asset['id'])) ? (int) $asset['id'] : 0,
+                $assets,
+            ),
+            fn (int $assetId): bool => $assetId > 0,
+        ))));
 
         $existingAssets = $block->assets()
             ->where('workspace_id', $this->getCurrentBlockAssetWorkspaceId($block))
@@ -779,29 +831,35 @@ trait ManagesAssets
             ->get();
 
         $existingAssetsByKey = $existingAssets
-            ->mapWithKeys(fn (BlockAsset $blockAsset): array => [$blockAsset->asset_key => $blockAsset]);
+            ->mapWithKeys(fn (WidgetAsset $blockAsset): array => [$blockAsset->asset_key => $blockAsset]);
 
         $existingAssetsById = $existingAssets
-            ->keyBy(fn (BlockAsset $blockAsset): int => $blockAsset->getKey());
+            ->keyBy(fn (WidgetAsset $blockAsset): int => $blockAsset->getKey());
 
         if ($existingAssets->isNotEmpty()) {
             $activeBlockAssetIds = $this->activeBlockAssetIds($block);
 
-            $currentAssets = collect($assets)
-                ->filter(fn (array $blockAsset): bool => $existingAssetsByKey->has(sprintf('%s.%s', $blockAsset['asset_type'], $blockAsset['asset_id'])))
-                ->mapWithKeys(fn (array $blockAsset): array => [sprintf('%s.%s', $blockAsset['asset_type'], $blockAsset['asset_id']) => $blockAsset]);
+            $currentAssetKeys = [];
 
-            $assetsToRemove = $currentAssets->isNotEmpty()
-                ? $existingAssetsByKey->diffKeys($currentAssets)
+            foreach ($assets as $blockAsset) {
+                $key = sprintf('%s.%s', $blockAsset['asset_type'], $blockAsset['asset_id']);
+
+                if ($existingAssetsByKey->has($key)) {
+                    $currentAssetKeys[$key] = true;
+                }
+            }
+
+            $assetsToRemove = $currentAssetKeys !== []
+                ? $existingAssetsByKey->diffKeys($currentAssetKeys)
                 : $existingAssetsByKey;
 
             $assetsToRemove = $assetsToRemove->reject(
-                fn (BlockAsset $blockAsset): bool => in_array((int) $blockAsset->getKey(), $activeBlockAssetIds, true),
+                fn (WidgetAsset $blockAsset): bool => in_array((int) $blockAsset->getKey(), $activeBlockAssetIds, true),
             );
 
             if ($assetsToRemove->isNotEmpty()) {
-                $assetsToRemove->each(function (BlockAsset $blockAsset) use ($containerKey, $blockIndex, $block): void {
-                    $searchIndex = $block->assets->search(fn (BlockAsset $asset): bool => $asset->id === $blockAsset->id);
+                $assetsToRemove->each(function (WidgetAsset $blockAsset) use ($containerKey, $blockIndex, $block): void {
+                    $searchIndex = $block->assets->search(fn (Model $asset): bool => $asset instanceof WidgetAsset && $asset->id === $blockAsset->id);
                     if (is_int($searchIndex)) {
                         $block->assets->forget([$searchIndex]);
                     }
@@ -817,56 +875,54 @@ trait ManagesAssets
             return;
         }
 
-        collect($assets)->each(
-            function (array $blockAsset) use ($existingAssetsById, $existingAssetsByKey, $block, $containerKey, $occurrence, $hasPageAssets): void {
-                $key = sprintf('%s.%s', $blockAsset['asset_type'], $blockAsset['asset_id']);
+        foreach ($assets as $blockAsset) {
+            $key = sprintf('%s.%s', $blockAsset['asset_type'], $blockAsset['asset_id']);
 
-                $order = $blockAsset['order'];
+            $order = $blockAsset['order'];
 
-                $existingAsset = isset($blockAsset['id'])
-                    ? $existingAssetsById->get((int) $blockAsset['id'])
-                    : null;
+            $existingAsset = isset($blockAsset['id'])
+                ? $existingAssetsById->get((int) $blockAsset['id'])
+                : null;
 
-                if (! $existingAsset instanceof BlockAsset) {
-                    $existingAsset = $existingAssetsByKey->get($key);
+            if (! $existingAsset instanceof WidgetAsset) {
+                $existingAsset = $existingAssetsByKey->get($key);
+            }
+
+            if ($existingAsset instanceof WidgetAsset) {
+                $existingAsset->order = $order;
+                $existingAsset->meta = $blockAsset['meta'] ?? [];
+                $existingAsset->occurrence = $occurrence;
+
+                if ($hasPageAssets) {
+                    $existingAsset->container = $containerKey;
+                    $existingAsset->pageable_id = $this->page->getKey();
+                    $existingAsset->pageable_type = $this->page->getMorphClass();
+                } else {
+                    $existingAsset->container = null;
+                    $existingAsset->pageable_id = null;
+                    $existingAsset->pageable_type = null;
                 }
 
-                if ($existingAsset instanceof BlockAsset) {
-                    $existingAsset->order = $order;
-                    $existingAsset->meta = $blockAsset['meta'] ?? [];
-                    $existingAsset->occurrence = $occurrence;
+                $existingAsset->save();
 
-                    if ($hasPageAssets) {
-                        $existingAsset->container = $containerKey;
-                        $existingAsset->pageable_id = $this->page->getKey();
-                        $existingAsset->pageable_type = $this->page->getMorphClass();
-                    } else {
-                        $existingAsset->container = null;
-                        $existingAsset->pageable_id = null;
-                        $existingAsset->pageable_type = null;
-                    }
+                continue;
+            }
 
-                    $existingAsset->save();
-
-                    return;
-                }
-
-                $this->createBlockAsset(
-                    block: $block,
-                    containerKey: $containerKey,
-                    occurrence: $occurrence,
-                    hasPageAssets: $hasPageAssets,
-                    order: $order,
-                    asset: $blockAsset,
-                );
-            },
-        );
+            $this->createBlockAsset(
+                block: $block,
+                containerKey: $containerKey,
+                occurrence: $occurrence,
+                hasPageAssets: $hasPageAssets,
+                order: $order,
+                asset: $blockAsset,
+            );
+        }
     }
 
     /**
      * @return array<int>
      */
-    protected function activeBlockAssetIds(Block $block): array
+    protected function activeBlockAssetIds(Widget $block): array
     {
         $assetIds = [];
 
@@ -886,7 +942,7 @@ trait ManagesAssets
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return array<int, array<array-key, mixed>>
      */
     protected function currentBlockAssetData(): array
     {
@@ -905,8 +961,11 @@ trait ManagesAssets
         return $blockAssets;
     }
 
+    /**
+     * @param  array<array-key, mixed>  $meta
+     */
     protected function addBlockAsset(
-        Block $block,
+        Widget $block,
         string $containerKey,
         string $type,
         bool $hasPageAssets,
@@ -914,7 +973,7 @@ trait ManagesAssets
         array $meta,
         int $occurrence,
         int $order,
-    ): BlockAsset {
+    ): WidgetAsset {
         $pageId = $hasPageAssets ? $this->page->getKey() : null;
 
         $blockAsset = $block->assets
@@ -925,20 +984,19 @@ trait ManagesAssets
             ])
             ->when(
                 $pageId,
-                fn (SupportCollection $collection) => $collection->where([
-                    'container' => $containerKey,
-                    'pageable_id' => $pageId,
-                    'pageable_type' => $this->page->getMorphClass(),
-                ]),
+                fn (SupportCollection $collection): SupportCollection => $collection
+                    ->where('container', $containerKey)
+                    ->where('pageable_id', $pageId)
+                    ->where('pageable_type', $this->page->getMorphClass()),
             )
             ->first();
 
-        if (! $blockAsset instanceof BlockAsset) {
-            /** @var BlockAsset $blockAsset */
+        if (! $blockAsset instanceof WidgetAsset) {
+            /** @var WidgetAsset $blockAsset */
             $blockAsset = $block->assets()->newModelInstance([
                 'meta' => $meta,
                 'order' => $order,
-                'block_id' => $block->id,
+                'widget_id' => $block->id,
                 'workspace_id' => $this->getCurrentBlockAssetWorkspaceId($block),
                 'asset_type' => mb_strtolower($type),
                 'asset_id' => $assetId,
@@ -955,16 +1013,19 @@ trait ManagesAssets
         return $blockAsset;
     }
 
+    /**
+     * @param  array<array-key, mixed>  $asset
+     */
     protected function createBlockAsset(
-        Block $block,
+        Widget $block,
         string $containerKey,
         int $occurrence,
         bool $hasPageAssets,
         int $order,
         array $asset,
-    ): BlockAsset {
+    ): WidgetAsset {
         $attributes = [
-            'block_id' => $block->id,
+            'widget_id' => $block->id,
             'workspace_id' => $this->getCurrentBlockAssetWorkspaceId($block),
             'asset_type' => $asset['asset_type'],
             'asset_id' => $asset['asset_id'],
@@ -981,12 +1042,12 @@ trait ManagesAssets
             $attributes['container'] = null;
         }
 
-        /** @var BlockAsset|null $existing */
-        $existing = BlockAsset::query()
+        /** @var WidgetAsset|null $existing */
+        $existing = WidgetAsset::query()
             ->where($attributes)
             ->first();
 
-        if ($existing instanceof BlockAsset) {
+        if ($existing instanceof WidgetAsset) {
             $existing->order = $order;
             $existing->meta = $asset['meta'] ?? [];
             $existing->save();
@@ -994,7 +1055,7 @@ trait ManagesAssets
             return $existing;
         }
 
-        /** @var BlockAsset $blockAsset */
+        /** @var WidgetAsset $blockAsset */
         $blockAsset = $block->assets()->make(array_merge([
             'meta' => $asset['meta'] ?? [],
             'order' => $order,
@@ -1020,6 +1081,9 @@ trait ManagesAssets
         }
     }
 
+    /**
+     * @param  array<array-key, mixed>  $data
+     */
     protected function updateBlockAsset(string $containerKey, int $blockIndex, int $index, array $data): void
     {
         $this->assertCanUpdateLayout();
@@ -1029,17 +1093,26 @@ trait ManagesAssets
         $this->assets[$containerKey][$blockIndex][$index] = array_merge_recursive($blockAsset, $data);
     }
 
-    protected function loadBlockAssets(Block $block, string $containerKey, int $blockOccurrence): Collection
+    /**
+     * @return Collection<int, WidgetAsset>
+     */
+    protected function loadBlockAssets(Widget $block, string $containerKey, int $blockOccurrence): Collection
     {
-        /** @var class-string<BlockAsset> $model */
-        $model = BlockAsset::class;
+        /** @var class-string<WidgetAsset> $model */
+        $model = WidgetAsset::class;
 
         $assets = $model::query()
             ->with([
-                'asset' => fn (MorphTo $query): MorphTo => $query->morphWith($this->getAssetRelations()),
+                'asset' => function (Relation $query): Relation {
+                    if ($query instanceof MorphTo) {
+                        $query->morphWith($this->getAssetRelations());
+                    }
+
+                    return $query;
+                },
                 'media',
             ])
-            ->where('block_id', $block->id)
+            ->where('widget_id', $block->id)
             ->whereIn('workspace_id', $this->getReadableBlockAssetWorkspaceIds($block))
             ->where('occurrence', $blockOccurrence)
             ->where(
@@ -1064,11 +1137,14 @@ trait ManagesAssets
         return $this->filterContainerBlockAssets($assets, $containerKey, $blockOccurrence, $block);
     }
 
-    protected function loadBlockAssetsFor(Block $block, string $containerKey, int $blockIndex): Collection
+    /**
+     * @return Collection<int, WidgetAsset>
+     */
+    protected function loadBlockAssetsFor(Widget $block, string $containerKey, int $blockIndex): Collection
     {
         $occurrence = $this->getContainerBlockOccurrence($containerKey, $blockIndex);
 
-        $blockAssets = collect($this->assets[$containerKey][$blockIndex] ?? []);
+        $blockAssets = new SupportCollection($this->assets[$containerKey][$blockIndex] ?? []);
 
         if ($blockAssets->isEmpty()) {
             return new Collection;
@@ -1086,12 +1162,17 @@ trait ManagesAssets
         $assets = $this->buildPreloadedBlockAssets($existingIds, $newAssets);
 
         return $this->filterContainerBlockAssets($assets, $containerKey, $occurrence, $block)
-            ->each(fn (BlockAsset $asset): BlockAsset => $asset->setRelation('block', $block));
+            ->each(function (WidgetAsset $asset) use ($block): void {
+                $asset->setRelation('block', $block);
+            });
     }
 
+    /**
+     * @return Collection<int, WidgetAsset>|null
+     */
     protected function preloadAllBlockAssets(): ?Collection
     {
-        $blockAssets = collect($this->currentBlockAssetData());
+        $blockAssets = new SupportCollection($this->currentBlockAssetData());
 
         if ($blockAssets->isEmpty()) {
             return null;
@@ -1109,16 +1190,21 @@ trait ManagesAssets
         return $this->buildPreloadedBlockAssets($existingIds, $newAssets);
     }
 
+    /**
+     * @param  array<array-key, mixed>  $existingIds
+     * @param  array<array-key, mixed>  $newAssets
+     * @return Collection<int, WidgetAsset>
+     */
     protected function buildPreloadedBlockAssets(array $existingIds, array $newAssets): Collection
     {
-        /** @var class-string<BlockAsset> $model */
-        $model = BlockAsset::class;
+        /** @var class-string<WidgetAsset> $model */
+        $model = WidgetAsset::class;
 
         $existingAssets = $existingIds === []
             ? (new $model)->newCollection()
             : $model::query()
                 ->whereKey($existingIds)
-                ->whereIn('block_id', $this->getCurrentContainerBlockIds())
+                ->whereIn('widget_id', $this->getCurrentContainerBlockIds())
                 ->whereIn('workspace_id', $this->getCurrentContainerBlockAssetWorkspaceIds())
                 ->when(
                     $this->page,
@@ -1149,23 +1235,39 @@ trait ManagesAssets
         $newAssetsCollection = collect($newAssets)
             ->values()
             ->filter(fn (array $data): bool => in_array((int) ($data['workspace_id'] ?? $this->getCurrentBlockAssetWorkspaceId()), $this->getCurrentContainerBlockAssetWorkspaceIds(), true))
-            ->map(fn (array $data) => $model::query()->newModelInstance()->forceFill($data));
+            ->map(function (array $data) use ($model): WidgetAsset {
+                $blockAsset = $model::query()->newModelInstance();
+                $blockAsset->forceFill($data);
+
+                return $blockAsset;
+            });
 
         $allAssets = (new $model)->newCollection(array_merge($existingAssets->all(), $newAssetsCollection->all()));
 
         $eloquentCollection = new Collection($allAssets->all());
 
-        return $eloquentCollection->load(['asset' => fn (MorphTo $query): MorphTo => $query->morphWith($this->getAssetRelations())])
-            ->filter(fn (BlockAsset $blockAsset): bool => $this->canUseAssetRecord($blockAsset->asset))
-            ->map(fn (BlockAsset $blockAsset): BlockAsset => $blockAsset);
+        return $eloquentCollection->load([
+            'asset' => function (Relation $query): Relation {
+                if ($query instanceof MorphTo) {
+                    $query->morphWith($this->getAssetRelations());
+                }
+
+                return $query;
+            },
+        ])
+            ->filter(fn (WidgetAsset $blockAsset): bool => $this->canUseAssetRecord($blockAsset->asset));
     }
 
-    protected function filterContainerBlockAssets(Collection $assets, string $containerKey, int $blockOccurrence, ?Block $block = null): SupportCollection|Enumerable
+    /**
+     * @param  Collection<int, WidgetAsset>  $assets
+     * @return Collection<int, WidgetAsset>
+     */
+    protected function filterContainerBlockAssets(Collection $assets, string $containerKey, int $blockOccurrence, ?Widget $block = null): Collection
     {
         $currentWorkspaceId = $this->getCurrentBlockAssetWorkspaceId($block);
         $readableWorkspaceIds = $this->getReadableBlockAssetWorkspaceIds($block);
 
-        $filteredAssets = $assets->filter(function (BlockAsset $blockAsset) use ($containerKey, $blockOccurrence, $readableWorkspaceIds): bool {
+        $filteredAssets = $assets->filter(function (WidgetAsset $blockAsset) use ($containerKey, $blockOccurrence, $readableWorkspaceIds): bool {
             if (! in_array($blockAsset->workspace_id, $readableWorkspaceIds, true)) {
                 return false;
             }
@@ -1194,26 +1296,43 @@ trait ManagesAssets
                 && $blockAsset->pageable_id === $this->page->getKey();
         })->values();
 
-        return $filteredAssets
-            ->groupBy(fn (BlockAsset $blockAsset): string => implode(':', [
+        $selectedAssets = $filteredAssets
+            ->groupBy(fn (WidgetAsset $blockAsset): string => implode(':', [
                 $blockAsset->asset_type,
                 $blockAsset->asset_id,
                 $blockAsset->occurrence,
             ]))
-            ->map(fn (SupportCollection $matchingAssets): BlockAsset => $matchingAssets
-                ->first(fn (BlockAsset $blockAsset): bool => $blockAsset->workspace_id === $currentWorkspaceId)
-                ?? $matchingAssets->first())
-            ->sortBy(fn (BlockAsset $blockAsset): int => $blockAsset->order)
+            ->map(function (SupportCollection $matchingAssets) use ($currentWorkspaceId): WidgetAsset {
+                $workspaceAsset = $matchingAssets->first(
+                    fn (WidgetAsset $blockAsset): bool => $blockAsset->workspace_id === $currentWorkspaceId,
+                );
+
+                if ($workspaceAsset instanceof WidgetAsset) {
+                    return $workspaceAsset;
+                }
+
+                $firstAsset = $matchingAssets->first();
+
+                throw_unless($firstAsset instanceof WidgetAsset, RuntimeException::class, 'Expected a block asset while filtering container assets.');
+
+                return $firstAsset;
+            })
+            ->sortBy(fn (WidgetAsset $blockAsset): int => $blockAsset->order)
             ->values();
+
+        return new Collection($selectedAssets->all());
     }
 
-    protected function blockAssetMatchesState(BlockAsset $asset, array $blockAssetData, string $containerKey, string $oldContainerKey, int $occurrence, Block $block): bool
+    /**
+     * @param  array<array-key, mixed>  $blockAssetData
+     */
+    protected function blockAssetMatchesState(WidgetAsset $asset, array $blockAssetData, string $containerKey, string $oldContainerKey, int $occurrence, Widget $block): bool
     {
         if ((int) $asset->block_id !== (int) $block->getKey()) {
             return false;
         }
 
-        if (isset($blockAssetData['block_id']) && (int) $blockAssetData['block_id'] !== (int) $asset->block_id) {
+        if (isset($blockAssetData['widget_id']) && (int) $blockAssetData['widget_id'] !== (int) $asset->block_id) {
             return false;
         }
 
@@ -1221,7 +1340,7 @@ trait ManagesAssets
             return false;
         }
 
-        if (isset($blockAssetData['asset_id']) && $blockAssetData['asset_id'] !== $asset->asset_id) {
+        if (isset($blockAssetData['asset_id']) && (string) $blockAssetData['asset_id'] !== (string) $asset->asset_id) {
             return false;
         }
 
@@ -1248,15 +1367,15 @@ trait ManagesAssets
             foreach ($originalBlockAssets as $blockIndex => $originalAssets) {
                 $currentAssets = $this->assets[$containerKey][$blockIndex] ?? [];
 
-                $originalKeys = collect($originalAssets)
-                    ->map(static fn (array $asset): string => $asset['asset_type'] . ':' . $asset['asset_id'] . ':' . $asset['occurrence'] . ':' . $asset['original_container_key'])
-                    ->values()
-                    ->all();
+                $originalKeys = array_values(array_map(
+                    static fn (array $asset): string => $asset['asset_type'] . ':' . $asset['asset_id'] . ':' . $asset['occurrence'] . ':' . $asset['original_container_key'],
+                    $originalAssets,
+                ));
 
-                $currentKeys = collect($currentAssets)
-                    ->map(static fn (array $asset): string => $asset['asset_type'] . ':' . $asset['asset_id'] . ':' . $asset['occurrence'] . ':' . $containerKey)
-                    ->values()
-                    ->all();
+                $currentKeys = array_values(array_map(
+                    static fn (array $asset): string => $asset['asset_type'] . ':' . $asset['asset_id'] . ':' . $asset['occurrence'] . ':' . $containerKey,
+                    $currentAssets,
+                ));
 
                 $removedKeys = array_diff($originalKeys, $currentKeys);
 
@@ -1266,10 +1385,13 @@ trait ManagesAssets
 
                 $hasPageAssets = false;
                 if ($this->inPageContext()) {
-                    $hasPageAssets = collect($originalAssets)->contains(
-                        fn (array $asset): bool => $asset['pageable_id'] === $this->page->getKey()
-                            && $asset['pageable_type'] === $this->page->getMorphClass(),
-                    );
+                    foreach ($originalAssets as $asset) {
+                        if ($asset['pageable_id'] === $this->page->getKey() && $asset['pageable_type'] === $this->page->getMorphClass()) {
+                            $hasPageAssets = true;
+
+                            break;
+                        }
+                    }
                 }
 
                 foreach ($originalAssets as $asset) {
@@ -1278,7 +1400,7 @@ trait ManagesAssets
                         continue;
                     }
 
-                    BlockAsset::query()
+                    WidgetAsset::query()
                         ->when(
                             isset($asset['id']),
                             fn (EloquentBuilder $query): EloquentBuilder => $query->whereKey((int) $asset['id']),
@@ -1286,7 +1408,7 @@ trait ManagesAssets
                                 'asset_id' => $asset['asset_id'],
                                 'asset_type' => $asset['asset_type'],
                                 'occurrence' => $asset['occurrence'],
-                                'block_id' => $asset['original_block_id'],
+                                'widget_id' => $asset['original_block_id'],
                                 'workspace_id' => (int) ($asset['workspace_id'] ?? $this->getCurrentBlockAssetWorkspaceId()),
                             ]),
                         )

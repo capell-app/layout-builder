@@ -10,13 +10,13 @@ use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Concerns\HasConfigurator;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\SchemaExtenderEnum;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\ComponentSection;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\CreateDetailsSchema;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\DisplaySection;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\SettingsSchema;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\Tab\BlockAdminTab;
-use Capell\LayoutBuilder\Filament\Components\Forms\Block\Tab\BlockDisplayTab;
 use Capell\LayoutBuilder\Filament\Components\Forms\HeadingSizeSelect;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\ComponentSection;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\CreateDetailsSchema;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\DisplaySection;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\SettingsSchema;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\BlockAdminTab;
+use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\BlockDisplayTab;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
@@ -27,13 +27,19 @@ class PageContentBlockConfigurator implements ConfiguratorInterface
 {
     use HasConfigurator;
 
-    protected static ConfiguratorTypeEnumInterface $configuratorType = ConfiguratorTypeEnum::Block;
+    protected static ConfiguratorTypeEnumInterface $configuratorType = ConfiguratorTypeEnum::Widget;
 
+    /**
+     * @return iterable<int, mixed>
+     */
     public static function getExtenders(): iterable
     {
-        return app()->tagged(SchemaExtenderEnum::Block->value);
+        return app()->tagged(SchemaExtenderEnum::Widget->value);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function make(Schema $configurator): array
     {
         return match ($configurator->getOperation()) {
@@ -74,6 +80,9 @@ class PageContentBlockConfigurator implements ConfiguratorInterface
             ]);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getFormSchema(Schema $configurator): array
     {
         return [
@@ -89,6 +98,9 @@ class PageContentBlockConfigurator implements ConfiguratorInterface
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected function getOptionSchema(Schema $configurator): array
     {
         return [

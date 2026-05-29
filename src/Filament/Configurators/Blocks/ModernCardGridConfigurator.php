@@ -12,137 +12,143 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 
 /**
- * Filament Schema for Modern Card Grid Block
+ * Filament Schema for Modern Card Grid Widget
  *
  * Enables admins to create responsive card grids with customizable cards,
  * columns, variants, and layout options.
  */
 class ModernCardGridConfigurator
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getFormSchema(): array
     {
         return [
-            Section::make('Header')
-                ->description('Section title and description displayed above cards')
+            Section::make(__('capell-layout-builder::blocks.common.section_header'))
+                ->description(__('capell-layout-builder::blocks.modern.card_grid.section_header_description'))
                 ->schema([
                     TextInput::make('data.title')
-                        ->label('Section Title')
-                        ->placeholder('Featured Blocks')
+                        ->label(__('capell-layout-builder::blocks.common.section_title_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.card_grid.title_placeholder'))
                         ->maxLength(100),
 
                     Textarea::make('data.description')
-                        ->label('Section Description')
-                        ->placeholder('Choose from our collection of modern, customizable components')
+                        ->label(__('capell-layout-builder::blocks.modern.card_grid.description_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.card_grid.description_placeholder'))
                         ->rows(2),
                 ])->columns(2),
 
-            Section::make('Cards')
-                ->description('Add and customize individual cards')
+            Section::make(__('capell-layout-builder::blocks.common.section_cards'))
+                ->description(__('capell-layout-builder::blocks.common.section_cards_description'))
                 ->schema([
                     Repeater::make('data.cards')
-                        ->label('Cards')
+                        ->label(__('capell-layout-builder::blocks.modern.card_grid.cards_label'))
                         ->schema([
                             TextInput::make('icon')
-                                ->label('Icon (emoji)')
+                                ->label(__('capell-layout-builder::blocks.modern.card_grid.card_icon_label'))
                                 ->placeholder('🎨')
                                 ->maxLength(2)
-                                ->helperText('Single emoji or icon'),
+                                ->helperText(__('capell-layout-builder::blocks.modern.card_grid.card_icon_helper')),
 
                             TextInput::make('title')
-                                ->label('Card Title')
-                                ->placeholder('Design System')
+                                ->label(__('capell-layout-builder::blocks.modern.card_grid.card_title_label'))
+                                ->placeholder(__('capell-layout-builder::blocks.modern.card_grid.card_title_placeholder'))
                                 ->required()
                                 ->maxLength(50),
 
                             Textarea::make('description')
-                                ->label('Card Description')
-                                ->placeholder('Modern tokens and components')
+                                ->label(__('capell-layout-builder::blocks.modern.card_grid.card_description_label'))
+                                ->placeholder(__('capell-layout-builder::blocks.modern.card_grid.card_description_placeholder'))
                                 ->rows(2)
                                 ->maxLength(200),
 
                             TextInput::make('image')
-                                ->label('Card Image URL')
-                                ->placeholder('https://example.com/image.jpg')
+                                ->label(__('capell-layout-builder::blocks.modern.card_grid.card_image_label'))
+                                ->placeholder(__('capell-layout-builder::blocks.modern.card_grid.card_image_placeholder'))
                                 ->url()
-                                ->helperText('Optional image displayed at top of card'),
+                                ->helperText(__('capell-layout-builder::blocks.modern.card_grid.card_image_helper')),
 
                             TextInput::make('badge')
-                                ->label('Badge Label')
-                                ->placeholder('Popular')
+                                ->label(__('capell-layout-builder::blocks.modern.card_grid.card_badge_label'))
+                                ->placeholder(__('capell-layout-builder::blocks.modern.card_grid.card_badge_placeholder'))
                                 ->maxLength(30)
-                                ->helperText('Optional badge displayed in top-right corner'),
+                                ->helperText(__('capell-layout-builder::blocks.modern.card_grid.card_badge_helper')),
 
                             TextInput::make('link.label')
-                                ->label('Link Text')
-                                ->placeholder('Learn More')
+                                ->label(__('capell-layout-builder::blocks.modern.card_grid.card_link_label'))
+                                ->placeholder(__('capell-layout-builder::blocks.modern.card_grid.card_link_placeholder'))
                                 ->maxLength(30),
 
                             TextInput::make('link.url')
-                                ->label('Link URL')
-                                ->placeholder('/docs')
+                                ->label(__('capell-layout-builder::blocks.modern.card_grid.card_link_url_label'))
+                                ->placeholder(__('capell-layout-builder::blocks.modern.card_grid.card_link_url_placeholder'))
                                 ->url(),
                         ])
                         ->columns(2)
                         ->defaultItems(3)
                         ->minItems(1)
                         ->maxItems(12)
-                        ->addActionLabel('Add Card'),
+                        ->addActionLabel(__('capell-layout-builder::blocks.modern.card_grid.add_card')),
                 ])->columns(1),
 
-            Section::make('Layout')
-                ->description('Grid columns and visual variant')
+            Section::make(__('capell-layout-builder::blocks.common.section_layout'))
+                ->description(__('capell-layout-builder::blocks.modern.card_grid.section_layout_description'))
                 ->schema([
                     Select::make('data.columns')
-                        ->label('Number of Columns')
+                        ->label(__('capell-layout-builder::blocks.modern.card_grid.columns_label'))
                         ->options([
-                            2 => '2 Columns',
-                            3 => '3 Columns',
-                            4 => '4 Columns',
+                            2 => __('capell-layout-builder::blocks.common.columns_2'),
+                            3 => __('capell-layout-builder::blocks.common.columns_3'),
+                            4 => __('capell-layout-builder::blocks.common.columns_4'),
                         ])
                         ->default(3)
-                        ->helperText('Adapts responsively on mobile (1 column)'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.card_grid.columns_helper')),
 
                     Select::make('data.variant')
-                        ->label('Card Variant')
+                        ->label(__('capell-layout-builder::blocks.modern.card_grid.variant_label'))
                         ->options([
-                            'default' => 'Default (Subtle)',
-                            'elevated' => 'Elevated (With Shadow)',
-                            'glass' => 'Glassmorphism (Frosted)',
+                            'default' => __('capell-layout-builder::blocks.modern.card_grid.variant_default'),
+                            'elevated' => __('capell-layout-builder::blocks.modern.card_grid.variant_elevated'),
+                            'glass' => __('capell-layout-builder::blocks.modern.card_grid.variant_glass'),
                         ])
                         ->default('default')
-                        ->helperText('Visual style of individual cards'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.card_grid.variant_helper')),
 
                     Select::make('data.accentColor')
-                        ->label('Link Accent Color')
+                        ->label(__('capell-layout-builder::blocks.common.accent_color_label'))
                         ->options([
-                            'primary' => 'Violet',
-                            'secondary' => 'Indigo',
-                            'tertiary' => 'Gold',
+                            'primary' => __('capell-layout-builder::blocks.common.accent_violet'),
+                            'secondary' => __('capell-layout-builder::blocks.common.accent_indigo'),
+                            'tertiary' => __('capell-layout-builder::blocks.common.accent_gold'),
                         ])
                         ->default('primary')
-                        ->helperText('Color of "Learn More" links'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.card_grid.accent_helper')),
 
                     Select::make('data.hoverEffect')
-                        ->label('Hover Effect')
+                        ->label(__('capell-layout-builder::blocks.modern.card_grid.hover_label'))
                         ->options([
-                            'scale' => 'Scale (Zoom 5%)',
-                            'shadow' => 'Shadow (Enhanced shadow)',
-                            'lift' => 'Lift (Raise with shadow)',
+                            'scale' => __('capell-layout-builder::blocks.modern.card_grid.hover_scale'),
+                            'shadow' => __('capell-layout-builder::blocks.modern.card_grid.hover_shadow'),
+                            'lift' => __('capell-layout-builder::blocks.modern.card_grid.hover_lift'),
                         ])
                         ->default('scale')
-                        ->helperText('Animation effect when hovering over cards'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.card_grid.hover_helper')),
                 ])->columns(2),
 
-            Section::make('Display')
-                ->description('Visibility and admin hints')
+            Section::make(__('capell-layout-builder::blocks.common.section_display'))
+                ->description(__('capell-layout-builder::blocks.common.section_display_description'))
                 ->schema([
                     Toggle::make('data.customizable')
-                        ->label('Show Admin Hints')
+                        ->label(__('capell-layout-builder::blocks.common.admin_hints_label'))
                         ->default(true),
                 ])->columns(1),
         ];
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getDefaults(): array
     {
         return [

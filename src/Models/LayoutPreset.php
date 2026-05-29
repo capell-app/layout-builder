@@ -10,6 +10,7 @@ use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Database\Factories\LayoutPresetFactory;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,13 +24,15 @@ use Override;
  * @property string $key
  * @property string $category
  * @property string $scope
- * @property array<string, mixed> $snapshot
+ * @property array<array-key, mixed> $snapshot
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
 final class LayoutPreset extends Model implements Userstampable
 {
+    /** @use HasFactory<Factory<static>> */
     use HasFactory;
+
     use HasUserstamps;
 
     protected $table = 'layout_presets';
@@ -49,11 +52,17 @@ final class LayoutPreset extends Model implements Userstampable
 
     protected static string $factory = LayoutPresetFactory::class;
 
+    /**
+     * @return BelongsTo<Site, $this>
+     */
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     */
     protected function scopeForSite(Builder $query, Site|int $site): void
     {
         $query->where('site_id', $site instanceof Site ? $site->getKey() : $site);

@@ -5,9 +5,9 @@ declare(strict_types=1);
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Translation;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\Pages\CreateBlock;
-use Capell\LayoutBuilder\Filament\Resources\Blocks\Pages\ListBlocks;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\CreateWidget;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\ListWidgets;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
@@ -27,13 +27,13 @@ test('can delete and recreate a block with the same key and translation data', f
     $type = Blueprint::factory()->create([
         'name' => 'Related Pages',
         'key' => 'related-pages-block-type',
-        'type' => 'block',
+        'type' => 'widget',
         'group' => 'asset',
         'meta' => [
             'component' => 'capell-blog::block.page.related',
         ],
         'admin' => [
-            'type_configurator' => 'Block',
+            'type_configurator' => 'Widget',
             'configurator' => 'Results',
             'layout_block_configurator' => 'Results',
             'icon' => 'heroicon-o-list-bullet',
@@ -42,7 +42,7 @@ test('can delete and recreate a block with the same key and translation data', f
         'default' => true,
     ]);
 
-    $block = Block::factory()->create([
+    $block = Widget::factory()->create([
         'name' => 'Related Pages',
         'key' => 'related-pages',
         'blueprint_id' => $type->id,
@@ -57,7 +57,7 @@ test('can delete and recreate a block with the same key and translation data', f
             'content' => '<p>Original related page block.</p>',
         ]);
 
-    Livewire::test(ListBlocks::class)
+    Livewire::test(ListWidgets::class)
         ->assertSuccessful()
         ->assertCountTableRecords(1)
         ->callTableAction('delete', $block)
@@ -66,7 +66,7 @@ test('can delete and recreate a block with the same key and translation data', f
 
     assertSoftDeleted($block, ['id' => $block->id]);
 
-    Livewire::test(CreateBlock::class)
+    Livewire::test(CreateWidget::class)
         ->assertSuccessful()
         ->set('data.translations', [])
         ->fillForm([
@@ -85,7 +85,7 @@ test('can delete and recreate a block with the same key and translation data', f
         ->call('create')
         ->assertHasNoFormErrors();
 
-    $recreatedBlock = Block::query()
+    $recreatedBlock = Widget::query()
         ->where('key', 'related-pages')
         ->whereNull('deleted_at')
         ->first();
@@ -95,7 +95,7 @@ test('can delete and recreate a block with the same key and translation data', f
         ->and($recreatedBlock->id)->not->toBe($block->id)
         ->and($recreatedBlock->blueprint_id)->toBe($type->id)
         ->and($recreatedBlock->type->admin)->toMatchArray([
-            'type_configurator' => 'Block',
+            'type_configurator' => 'Widget',
             'configurator' => 'Results',
             'layout_block_configurator' => 'Results',
         ]);

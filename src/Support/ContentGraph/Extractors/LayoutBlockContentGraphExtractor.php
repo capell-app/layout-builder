@@ -11,7 +11,7 @@ use Capell\Core\Data\ContentGraph\ContentGraphNodeData;
 use Capell\Core\Enums\ContentGraph\ContentGraphEdgeStrength;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Model;
 
 final class LayoutBlockContentGraphExtractor implements ContentGraphExtractor
@@ -29,16 +29,13 @@ final class LayoutBlockContentGraphExtractor implements ContentGraphExtractor
             return ContentGraphEdgeCollectionData::make();
         }
 
-        $blockKeys = collect([
-            ...$this->legacyBlockKeys($model),
-            ...$this->containerBlockKeys($model),
-        ])
-            ->filter(fn (mixed $blockKey): bool => is_string($blockKey) || is_numeric($blockKey))
-            ->map(fn (mixed $blockKey): string => (string) $blockKey)
+        $widgetKeys = collect($this->containerWidgetKeys($model))
+            ->filter(fn (mixed $widgetKey): bool => is_string($widgetKey) || is_numeric($widgetKey))
+            ->map(fn (mixed $widgetKey): string => (string) $widgetKey)
             ->unique()
             ->values();
 
-        if ($blockKeys->isEmpty()) {
+        if ($widgetKeys->isEmpty()) {
             return ContentGraphEdgeCollectionData::make();
         }
 
@@ -46,13 +43,13 @@ final class LayoutBlockContentGraphExtractor implements ContentGraphExtractor
         $siteId = is_numeric($model->site_id) ? $model->site_id : null;
         $edges = [];
 
-        Block::query()
-            ->whereIn('key', $blockKeys)
+        Widget::query()
+            ->whereIn('key', $widgetKeys)
             ->get()
-            ->each(function (Block $block) use (&$edges, $source, $siteId): void {
+            ->each(function (Widget $block) use (&$edges, $source, $siteId): void {
                 $edges[] = new ContentGraphEdgeData(
                     source: $source,
-                    target: ContentGraphNodeData::fromModelIdentity(Block::class, (int) $block->getKey()),
+                    target: ContentGraphNodeData::fromModelIdentity(Widget::class, (int) $block->getKey()),
                     kind: self::USES_LAYOUT_BLOCK,
                     strength: ContentGraphEdgeStrength::Strong,
                     sourcePackage: LayoutBuilderServiceProvider::$packageName,
@@ -66,17 +63,7 @@ final class LayoutBlockContentGraphExtractor implements ContentGraphExtractor
     /**
      * @return array<int, mixed>
      */
-    private function legacyBlockKeys(Layout $layout): array
-    {
-        return collect((array) $layout->getAttribute('blocks'))
-            ->flatten()
-            ->all();
-    }
-
-    /**
-     * @return array<int, mixed>
-     */
-    private function containerBlockKeys(Layout $layout): array
+    private function containerWidgetKeys(Layout $layout): array
     {
         return collect((array) $layout->containers)
             ->flatMap(function (mixed $container): array {
@@ -84,14 +71,14 @@ final class LayoutBlockContentGraphExtractor implements ContentGraphExtractor
                     return [];
                 }
 
-                $blocks = $container['blocks'] ?? null;
+                $blocks = $container['widgets'] ?? null;
 
                 if (! is_array($blocks)) {
                     return [];
                 }
 
                 return collect($blocks)
-                    ->map(fn (mixed $block): mixed => is_array($block) ? ($block['block_key'] ?? $block['key'] ?? null) : $block)
+                    ->map(fn (mixed $block): mixed => is_array($block) ? ($block['widget_key'] ?? $block['key'] ?? null) : $block)
                     ->all();
             })
             ->all();

@@ -19,7 +19,8 @@
     $containerArea = $this->layoutAreaForContainer($container);
     $containerAreaLabel = $this->layoutAreaLabel($containerArea);
 
-    $blockCount = count($container['blocks'] ?? []);
+    $containerWidgets = $container['widgets'] ?? $container['blocks'] ?? [];
+    $blockCount = count($containerWidgets);
 @endphp
 
 <div
@@ -181,7 +182,7 @@
     }"
 >
     <section
-        class="hover:border-primary-400/60 hover:bg-primary-50/25 focus-within:border-primary-500/70 focus-within:bg-primary-50/30 dark:hover:border-primary-400/50 dark:hover:bg-primary-500/5 dark:focus-within:border-primary-400/70 dark:focus-within:bg-primary-500/10 relative mt-4 rounded-xl border border-dashed border-gray-400 bg-gray-400/5 px-3 pb-3 pt-0 transition-colors lg:px-4 dark:border-gray-700 dark:bg-white/[0.04]"
+        class="hover:border-primary-400/60 hover:bg-primary-50/25 focus-within:border-primary-500/70 focus-within:bg-primary-50/30 dark:hover:border-primary-400/50 dark:hover:bg-primary-500/5 dark:focus-within:border-primary-400/70 dark:focus-within:bg-primary-500/10 relative mt-4 rounded-xl border border-dashed border-gray-400 bg-gray-400/5 px-3 pt-0 pb-3 transition-colors lg:px-4 dark:border-gray-700 dark:bg-white/[0.04]"
         x-bind:class="
             isSelectedContainer(id)
                 ? 'border-primary-500 bg-primary-50/35 shadow-sm ring-2 ring-primary-500/15 dark:border-primary-400/80 dark:bg-primary-500/10 dark:ring-primary-400/20'
@@ -199,11 +200,11 @@
                 >
                     <button
                         type="button"
-                        class="layout-container-title-button hover:text-primary-600 dark:hover:text-primary-400 flex min-w-0 items-center py-1 pl-3 pr-1 text-left transition"
+                        class="layout-container-title-button hover:text-primary-600 dark:hover:text-primary-400 flex min-w-0 items-center py-1 pr-1 pl-3 text-left transition"
                         x-on:click="selectContainer(id)"
                     >
                         <span
-                            class="layout-container-title whitespace-nowrap text-xs font-medium text-gray-600 dark:text-gray-200"
+                            class="layout-container-title text-xs font-medium whitespace-nowrap text-gray-600 dark:text-gray-200"
                         >
                             {{ __('capell-admin::generic.container_name', ['name' => $containerTitle]) }}
                         </span>
@@ -224,7 +225,7 @@
                             -
                         </span>
                         <span
-                            class="text-primary-600 dark:text-primary-400 whitespace-nowrap text-xs"
+                            class="text-primary-600 dark:text-primary-400 text-xs whitespace-nowrap"
                             x-show="activeResponsiveOverrideLabel()"
                             x-text="activeResponsiveOverrideLabel()"
                             x-cloak
@@ -340,7 +341,7 @@
 
         <button
             type="button"
-            class="layout-container-resize-handle absolute right-0 top-1/2 z-10 hidden -translate-y-1/2 translate-x-1/2 cursor-col-resize items-center justify-center md:flex"
+            class="layout-container-resize-handle absolute top-1/2 right-0 z-10 hidden translate-x-1/2 -translate-y-1/2 cursor-col-resize items-center justify-center md:flex"
             role="slider"
             aria-orientation="horizontal"
             aria-label="{{ __('capell-layout-builder::message.resize_container_width', ['container' => $containerTitle]) }}"
@@ -408,7 +409,7 @@
                 dragClass: 'layout-sort-drag',
             }"
         >
-            @foreach ($container['blocks'] as $blockIndex => $containerBlock)
+            @foreach ($containerWidgets as $blockIndex => $containerBlock)
                 <div
                     class="layout-container-block-drop-zone group flex min-h-8 items-center px-3 transition"
                     x-show="shouldShowInsertTargets()"
@@ -424,7 +425,7 @@
                         <span class="layout-container-block-insert-action">
                             <button
                                 type="button"
-                                class="fi-btn fi-size-sm fi-btn-color-gray fi-color-gray fi-btn-outlined focus-visible:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+                                class="fi-btn fi-size-sm fi-btn-color-gray fi-color-gray fi-btn-outlined focus-visible:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus-visible:ring-2 focus-visible:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
                                 x-on:click="$wire.mountAction('addBlock', { containerKey: @js($containerKey), position: @js($blockIndex) })"
                             >
                                 @svg('heroicon-m-plus', 'h-3.5 w-3.5')
@@ -471,8 +472,8 @@
                     <span class="layout-container-block-insert-action">
                         <button
                             type="button"
-                            class="fi-btn fi-size-sm fi-btn-color-gray fi-color-gray fi-btn-outlined focus-visible:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
-                            x-on:click="$wire.mountAction('addBlock', { containerKey: @js($containerKey), position: @js(count($container['blocks'] ?? [])) })"
+                            class="fi-btn fi-size-sm fi-btn-color-gray fi-color-gray fi-btn-outlined focus-visible:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus-visible:ring-2 focus-visible:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+                            x-on:click="$wire.mountAction('addBlock', { containerKey: @js($containerKey), position: @js(count($containerWidgets)) })"
                         >
                             @svg('heroicon-m-plus', 'h-3.5 w-3.5')
                             <span>

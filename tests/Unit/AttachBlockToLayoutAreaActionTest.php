@@ -11,7 +11,7 @@ it('creates an area container and attaches the block', function (): void {
     AttachBlockToLayoutAreaAction::run(
         layout: $layout,
         area: 'Header',
-        blockKey: 'demo-header-links',
+        widgetKey: 'demo-header-links',
         containerKey: 'Demo Header',
         containerMeta: ['container' => 'full'],
         containerName: 'Demo header links',
@@ -25,8 +25,8 @@ it('creates an area container and attaches the block', function (): void {
             'area' => 'header',
             'container' => 'full',
         ])
-        ->and($layout->containers['demo-header']['blocks'])->toBe([
-            ['block_key' => 'demo-header-links', 'occurrence' => 1],
+        ->and($layout->containers['demo-header']['widgets'])->toBe([
+            ['widget_key' => 'demo-header-links', 'occurrence' => 1],
         ]);
 });
 
@@ -39,8 +39,8 @@ it('preserves existing container metadata and avoids duplicate occurrences', fun
                     'area' => 'header',
                     'html_class' => 'items-center',
                 ],
-                'blocks' => [
-                    ['block_key' => 'demo-header-links', 'occurrence' => 1],
+                'widgets' => [
+                    ['widget_key' => 'demo-header-links', 'occurrence' => 1],
                 ],
             ],
         ],
@@ -49,7 +49,7 @@ it('preserves existing container metadata and avoids duplicate occurrences', fun
     AttachBlockToLayoutAreaAction::run(
         layout: $layout,
         area: 'header',
-        blockKey: 'demo-header-links',
+        widgetKey: 'demo-header-links',
         containerKey: 'header-links',
         containerMeta: ['container' => 'full'],
     );
@@ -62,8 +62,8 @@ it('preserves existing container metadata and avoids duplicate occurrences', fun
             'container' => 'full',
             'html_class' => 'items-center',
         ])
-        ->and($layout->containers['header-links']['blocks'])->toBe([
-            ['block_key' => 'demo-header-links', 'occurrence' => 1],
+        ->and($layout->containers['header-links']['widgets'])->toBe([
+            ['widget_key' => 'demo-header-links', 'occurrence' => 1],
         ]);
 });
 
@@ -72,8 +72,8 @@ it('allows multiple occurrences of the same block in an area container', functio
         'containers' => [
             'header' => [
                 'meta' => ['area' => 'header'],
-                'blocks' => [
-                    ['block_key' => 'demo-header-links', 'occurrence' => 1],
+                'widgets' => [
+                    ['widget_key' => 'demo-header-links', 'occurrence' => 1],
                 ],
             ],
         ],
@@ -82,14 +82,14 @@ it('allows multiple occurrences of the same block in an area container', functio
     AttachBlockToLayoutAreaAction::run(
         layout: $layout,
         area: 'header',
-        blockKey: 'demo-header-links',
+        widgetKey: 'demo-header-links',
         occurrence: 2,
     );
 
     $layout->refresh();
 
-    expect($layout->containers['header']['blocks'])->toBe([
-        ['block_key' => 'demo-header-links', 'occurrence' => 1],
-        ['block_key' => 'demo-header-links', 'occurrence' => 2],
+    expect($layout->containers['header']['widgets'])->toBe([
+        ['widget_key' => 'demo-header-links', 'occurrence' => 1],
+        ['widget_key' => 'demo-header-links', 'occurrence' => 2],
     ]);
 });

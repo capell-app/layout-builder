@@ -5,9 +5,10 @@ declare(strict_types=1);
 use Capell\Core\Data\RenderableDefinitionData;
 use Capell\Core\Support\Renderables\RenderableRegistry;
 use Capell\Frontend\Data\MainContentRenderHookData;
+use Capell\Frontend\Data\RenderHookContext;
 use Capell\Frontend\Enums\RenderHookLocation;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
 use Capell\LayoutBuilder\Tests\Fixtures\View\Components\PackageAlert;
 use Illuminate\Support\Facades\Blade;
@@ -27,14 +28,14 @@ afterEach(function (): void {
 });
 
 it('registers the shared main content render hook', function (): void {
-    /** @var RenderHookRegistry $registry */
+    /** @var RenderHookRegistry<RenderHookContext> $registry */
     $registry = resolve(RenderHookRegistry::class);
 
     expect($registry->get(RenderHookLocation::MainContent))->not->toBeEmpty();
 });
 
 it('returns no output when no layout containers are available', function (): void {
-    /** @var RenderHookRegistry $registry */
+    /** @var RenderHookRegistry<RenderHookContext> $registry */
     $registry = resolve(RenderHookRegistry::class);
 
     $output = $registry->renderAll(
@@ -51,14 +52,14 @@ it('returns no output when no layout containers are available', function (): voi
 });
 
 it('renders stored layout containers through the shared hook and updates render state', function (): void {
-    /** @var RenderHookRegistry $registry */
+    /** @var RenderHookRegistry<RenderHookContext> $registry */
     $registry = resolve(RenderHookRegistry::class);
 
-    $pageContentBlock = new Block([
+    $pageContentBlock = new Widget([
         'key' => 'page-content',
         'meta' => [],
     ]);
-    $slotBlock = new Block([
+    $slotBlock = new Widget([
         'key' => 'slot',
         'meta' => ['type' => 'slot'],
     ]);
@@ -70,14 +71,14 @@ it('renders stored layout containers through the shared hook and updates render 
         layout: (object) [
             'containers' => [
                 'main' => [
-                    'blocks' => [
-                        ['block_key' => 'page-content', 'occurrence' => 1],
+                    'widgets' => [
+                        ['widget_key' => 'page-content', 'occurrence' => 1],
                     ],
                     'meta' => ['colspan' => 8, 'container' => 'full'],
                 ],
                 'sidebar' => [
-                    'blocks' => [
-                        ['block_key' => 'slot', 'occurrence' => 1],
+                    'widgets' => [
+                        ['widget_key' => 'slot', 'occurrence' => 1],
                     ],
                     'meta' => ['colspan' => 4, 'container' => 'full'],
                 ],

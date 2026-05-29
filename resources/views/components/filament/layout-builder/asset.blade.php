@@ -197,7 +197,7 @@
 
                         @if ($mediaCount)
                             <span
-                                class="pointer-events-none absolute -right-2 -top-2"
+                                class="pointer-events-none absolute -top-2 -right-2"
                             >
                                 <x-filament::badge size="sm">
                                     {{ $mediaCount }}
@@ -217,7 +217,7 @@
                             :x-tooltip.raw="__('capell-admin::generic.actions')"
                         />
                         <span
-                            class="pointer-events-none absolute -right-2 -top-2"
+                            class="pointer-events-none absolute -top-2 -right-2"
                         >
                             <x-filament::badge size="xs">
                                 {{ $actionsCount }}
@@ -235,7 +235,7 @@
                             :x-tooltip.raw="__('capell-admin::generic.related')"
                         />
                         <span
-                            class="pointer-events-none absolute -right-2 -top-2"
+                            class="pointer-events-none absolute -top-2 -right-2"
                         >
                             <x-filament::badge size="xs">
                                 {{ $relatedCount }}

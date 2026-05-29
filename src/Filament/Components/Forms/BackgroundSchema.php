@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Filament\Components\Forms;
 
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Closure;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Field;
@@ -17,6 +17,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class BackgroundSchema
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function make(string $backgroundName = 'background_image', ?Closure $backgroundCollectionUsing = null): array
     {
         return [
@@ -35,9 +38,13 @@ class BackgroundSchema
                 ->columnSpan(['md' => 2])
                 ->when(
                     $backgroundCollectionUsing instanceof Closure,
-                    fn (SpatieMediaLibraryFileUpload $component): SpatieMediaLibraryFileUpload => $component->collection(
-                        fn (SpatieMediaLibraryFileUpload $component): string => $component->evaluate($backgroundCollectionUsing),
-                    ),
+                    function (Field $component) use ($backgroundCollectionUsing): SpatieMediaLibraryFileUpload {
+                        throw_unless($component instanceof SpatieMediaLibraryFileUpload);
+
+                        return $component->collection(
+                            fn (SpatieMediaLibraryFileUpload $component): string => $component->evaluate($backgroundCollectionUsing),
+                        );
+                    },
                 ),
 
             Grid::make(['sm' => 2, 'md' => 3])
@@ -104,7 +111,7 @@ class BackgroundSchema
             return null;
         }
 
-        if (! $record instanceof BlockAsset) {
+        if (! $record instanceof WidgetAsset) {
             return null;
         }
 

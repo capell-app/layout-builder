@@ -12,38 +12,38 @@ use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Data\LayoutContentGroupData;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryContextData;
 use Capell\LayoutBuilder\Data\LayoutContentItemData;
-use Capell\LayoutBuilder\Models\Block;
-use Capell\LayoutBuilder\Models\BlockAsset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 it('builds editor safe content groups in visual layout order from the package namespace', function (): void {
     $layout = Layout::factory()->create([
         'containers' => [
-            'main' => ['blocks' => []],
-            'footer' => ['blocks' => []],
+            'main' => ['widgets' => []],
+            'footer' => ['widgets' => []],
         ],
     ]);
 
-    $mainBlock = Block::factory()->create(['key' => 'featured-products', 'name' => 'Featured products']);
-    $footerBlock = Block::factory()->create(['key' => 'footer-links', 'name' => 'Footer links']);
+    $mainBlock = Widget::factory()->create(['key' => 'featured-products', 'name' => 'Featured products']);
+    $footerBlock = Widget::factory()->create(['key' => 'footer-links', 'name' => 'Footer links']);
     $sharedPage = Page::factory()->withTranslations()->create(['name' => 'Reusable product']);
     $footerPage = Page::factory()->withTranslations()->create(['name' => 'Terms page']);
 
-    $mainAsset = BlockAsset::factory()
+    $mainAsset = WidgetAsset::factory()
         ->block($mainBlock)
         ->asset($sharedPage)
         ->container('main')
         ->occurrence(1)
         ->create(['order' => 1]);
 
-    $reusedMainAsset = BlockAsset::factory()
+    $reusedMainAsset = WidgetAsset::factory()
         ->block($mainBlock)
         ->asset($sharedPage)
         ->container('main')
         ->occurrence(1)
         ->create(['order' => 2]);
 
-    $footerAsset = BlockAsset::factory()
+    $footerAsset = WidgetAsset::factory()
         ->block($footerBlock)
         ->asset($footerPage)
         ->container('footer')
@@ -57,8 +57,8 @@ it('builds editor safe content groups in visual layout order from the package na
         layout: $layout,
         page: null,
         containers: [
-            'main' => ['blocks' => [['block_key' => $mainBlock->key, 'occurrence' => 1]], 'meta' => []],
-            'footer' => ['blocks' => [['block_key' => $footerBlock->key, 'occurrence' => 1]], 'meta' => []],
+            'main' => ['widgets' => [['widget_key' => $mainBlock->key, 'occurrence' => 1]], 'meta' => []],
+            'footer' => ['widgets' => [['widget_key' => $footerBlock->key, 'occurrence' => 1]], 'meta' => []],
         ],
         containerBlocks: [
             'main' => [0 => $mainBlock],
@@ -101,9 +101,9 @@ it('builds editor safe content groups in visual layout order from the package na
 it('adds block copy as its own editable ownership group', function (): void {
     $layout = Layout::factory()->create();
     $language = Language::factory()->create();
-    $block = Block::factory()->create(['key' => 'hero', 'name' => 'Hero block']);
+    $block = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero block']);
     $page = Page::factory()->withTranslations()->create(['name' => 'Home page']);
-    $blockAsset = BlockAsset::factory()->block($block)->asset($page)->create();
+    $blockAsset = WidgetAsset::factory()->block($block)->asset($page)->create();
 
     $blockTranslation = Translation::query()->create([
         'translatable_type' => $block->getMorphClass(),
@@ -119,7 +119,7 @@ it('adds block copy as its own editable ownership group', function (): void {
     $inventory = BuildLayoutContentInventoryAction::run(
         layout: $layout,
         page: null,
-        containers: ['main' => ['blocks' => [['block_key' => $block->key, 'occurrence' => 1]], 'meta' => []]],
+        containers: ['main' => ['widgets' => [['widget_key' => $block->key, 'occurrence' => 1]], 'meta' => []]],
         containerBlocks: ['main' => [0 => $block]],
         assets: ['main' => [0 => [layoutBuilderInventoryAssetState($blockAsset)]]],
         signature: 'known-signature',
@@ -142,9 +142,9 @@ it('adds block copy as its own editable ownership group', function (): void {
 
 it('lets higher priority package contributors decorate groups and items last', function (): void {
     $layout = Layout::factory()->create();
-    $block = Block::factory()->create(['key' => 'hero', 'name' => 'Hero block']);
+    $block = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero block']);
     $page = Page::factory()->withTranslations()->create(['name' => 'Home page']);
-    $blockAsset = BlockAsset::factory()->block($block)->asset($page)->create();
+    $blockAsset = WidgetAsset::factory()->block($block)->asset($page)->create();
     $block->setRelation('assets', new EloquentCollection([$blockAsset->load('asset.translation')]));
 
     $lowPriorityContributor = new class implements LayoutContentGroupContributor
@@ -175,7 +175,7 @@ it('lets higher priority package contributors decorate groups and items last', f
 
         public function cacheDependencies(): array
         {
-            return ['blocks'];
+            return ['widgets'];
         }
     };
 
@@ -214,7 +214,7 @@ it('lets higher priority package contributors decorate groups and items last', f
     $inventory = BuildLayoutContentInventoryAction::run(
         layout: $layout,
         page: null,
-        containers: ['hero' => ['blocks' => [['block_key' => $block->key, 'occurrence' => 1]], 'meta' => []]],
+        containers: ['hero' => ['widgets' => [['widget_key' => $block->key, 'occurrence' => 1]], 'meta' => []]],
         containerBlocks: ['hero' => [0 => $block]],
         assets: ['hero' => [0 => [layoutBuilderInventoryAssetState($blockAsset)]]],
         signature: 'known-signature',
@@ -228,7 +228,7 @@ it('lets higher priority package contributors decorate groups and items last', f
 /**
  * @return array<string, mixed>
  */
-function layoutBuilderInventoryAssetState(BlockAsset $blockAsset): array
+function layoutBuilderInventoryAssetState(WidgetAsset $blockAsset): array
 {
     return [
         'id' => $blockAsset->getKey(),

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Actions;
 
-use Capell\LayoutBuilder\Models\Block;
+use Capell\LayoutBuilder\Models\Widget;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class BlockIsSlotAction
 {
     use AsObject;
 
-    public function handle(Block $block): bool
+    public function handle(Widget $block): bool
     {
         if (($block->meta['type'] ?? null) === 'slot') {
             return true;

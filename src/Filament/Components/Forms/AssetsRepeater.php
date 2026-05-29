@@ -13,6 +13,7 @@ use Capell\Core\Data\AssetData;
 use Capell\Core\Enums\BlueprintGroupEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
+use Capell\LayoutBuilder\Contracts\Extenders\BlockAssetSchemaExtender;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Hidden;
@@ -51,7 +52,7 @@ class AssetsRepeater extends Repeater
                             $component->getRawItemState($arguments['item'])['asset_id'],
                         ),
                     )
-                    ->tooltip(function (array $arguments, Repeater $component): ?string {
+                    ->tooltip(function (array $arguments, Repeater $component): string {
                         $itemData = $component->getRawItemState($arguments['item']);
 
                         return __(
@@ -60,7 +61,7 @@ class AssetsRepeater extends Repeater
                         );
                     })
                     ->icon(Heroicon::PencilSquare)
-                    ->url(function (array $arguments, Repeater $component): ?string {
+                    ->url(function (array $arguments, Repeater $component): string {
                         $itemData = $component->getRawItemState($arguments['item']);
 
                         return GetAssetResourceUrlAction::run($itemData['asset_type'], $itemData['asset_id']);
@@ -97,13 +98,16 @@ class AssetsRepeater extends Repeater
             });
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     protected static function getFormSchema(): array
     {
         $select = SelectWithBelongsToRelation::make('asset_id');
 
         $createOptionUsing = $select->getCreateOptionUsing();
 
-        return [
+        $components = [
             Hidden::make('asset_type'),
             $select
                 ->label(__('capell-layout-builder::form.select_add_asset_type'))
@@ -189,6 +193,14 @@ class AssetsRepeater extends Repeater
                         ->fillForm(fn (): array => in_array($asset->defaultDataAction, [null, '', '0'], true) ? [] : $asset->defaultDataAction::run());
                 }),
         ];
+
+        foreach (app()->tagged(BlockAssetSchemaExtender::TAG) as $extender) {
+            if ($extender instanceof BlockAssetSchemaExtender) {
+                $components = $extender->extendRepeaterComponents($components);
+            }
+        }
+
+        return $components;
     }
 
     protected static function modifyAddAction(Action $action, self $component): Action
@@ -213,6 +225,10 @@ class AssetsRepeater extends Repeater
             ->view('capell-admin::components.actions.dropdown-group');
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function modifyAssetQuery(Builder $query, Get $get): Builder
     {
         if ($get('asset_type') !== 'page') {
@@ -229,11 +245,19 @@ class AssetsRepeater extends Repeater
             ->whereHas('type', self::applySelectablePageTypeQuery(...));
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function applySelectablePageTypeQuery(Builder $query): Builder
     {
         return $query->where(self::applyNonSystemBlueprintGroupQuery(...));
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     */
     protected static function applyNonSystemBlueprintGroupQuery(Builder $query): Builder
     {
         return $query
@@ -249,7 +273,7 @@ class AssetsRepeater extends Repeater
             ->successNotificationTitle(
                 fn (Action $action): string => __(
                     'capell-admin::notification.created_successfully',
-                    ['name' => $action->getModalHeading()],
+                    ['name' => (string) $action->getModalHeading()],
                 ),
             )
             ->after(function (Action $action): void {

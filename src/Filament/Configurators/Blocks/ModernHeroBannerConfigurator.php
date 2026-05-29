@@ -12,137 +12,141 @@ use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 
 /**
- * Filament Schema for Modern Hero Banner Block
+ * Filament Schema for Modern Hero Banner Widget
  *
  * Provides admin panel form to customize hero banner content and styling
  * without requiring technical knowledge.
  */
 class ModernHeroBannerConfigurator
 {
+    /**
+     * @return array<array-key, mixed>
+     */
     public static function getFormSchema(): array
     {
         return [
-            Section::make('Content')
-                ->description('Hero heading, subheading, and call-to-action buttons')
+            Section::make(__('capell-layout-builder::blocks.common.section_content'))
+                ->description(__('capell-layout-builder::blocks.modern.hero_banner.section_content_description'))
                 ->schema([
                     TextInput::make('data.title')
-                        ->label('Hero Title')
-                        ->placeholder('Welcome to Capell')
+                        ->label(__('capell-layout-builder::blocks.modern.hero_banner.title_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.hero_banner.title_placeholder'))
                         ->required()
                         ->maxLength(100)
-                        ->helperText('Main heading displayed on hero banner'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.hero_banner.title_helper')),
 
                     Textarea::make('data.subtitle')
-                        ->label('Subtitle / Description')
-                        ->placeholder('Create beautiful layouts without code')
+                        ->label(__('capell-layout-builder::blocks.modern.hero_banner.subtitle_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.hero_banner.subtitle_placeholder'))
                         ->rows(2)
-                        ->helperText('Secondary text that appears below the title'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.hero_banner.subtitle_helper')),
 
                     Group::make()
                         ->schema([
                             TextInput::make('data.primaryCta.label')
-                                ->label('Button Label')
-                                ->placeholder('Get Started')
+                                ->label(__('capell-layout-builder::blocks.common.button_label'))
+                                ->placeholder(__('capell-layout-builder::blocks.modern.hero_banner.primary_button_label_placeholder'))
                                 ->required()
                                 ->maxLength(50),
 
                             TextInput::make('data.primaryCta.url')
-                                ->label('Button URL')
-                                ->placeholder('/pages/create')
+                                ->label(__('capell-layout-builder::blocks.common.button_url'))
+                                ->placeholder(__('capell-layout-builder::blocks.modern.hero_banner.primary_button_url_placeholder'))
                                 ->required()
                                 ->url(),
 
                             TextInput::make('data.primaryCta.icon')
-                                ->label('Button Icon (emoji)')
-                                ->placeholder('🚀')
+                                ->label(__('capell-layout-builder::blocks.common.button_icon'))
+                                ->placeholder(__('capell-layout-builder::blocks.modern.hero_banner.primary_button_icon_placeholder'))
                                 ->maxLength(2)
-                                ->helperText('Optional emoji or icon to display in button'),
+                                ->helperText(__('capell-layout-builder::blocks.common.button_icon_helper')),
                         ])->columns(3),
 
                     Group::make()
                         ->schema([
                             TextInput::make('data.secondaryCta.label')
-                                ->label('Button Label')
-                                ->placeholder('Learn More'),
+                                ->label(__('capell-layout-builder::blocks.common.button_label'))
+                                ->placeholder(__('capell-layout-builder::blocks.modern.hero_banner.secondary_button_label_placeholder')),
 
                             TextInput::make('data.secondaryCta.url')
-                                ->label('Button URL')
-                                ->placeholder('/docs')
+                                ->label(__('capell-layout-builder::blocks.common.button_url'))
+                                ->placeholder(__('capell-layout-builder::blocks.modern.hero_banner.secondary_button_url_placeholder'))
                                 ->url(),
                         ])->columns(2),
                 ])->columns(2),
 
-            Section::make('Styling')
-                ->description('Customize colors, layout, and visual appearance')
+            Section::make(__('capell-layout-builder::blocks.common.section_styling'))
+                ->description(__('capell-layout-builder::blocks.common.section_styling_description'))
                 ->schema([
                     Select::make('data.height')
-                        ->label('Height Preset')
+                        ->label(__('capell-layout-builder::blocks.modern.hero_banner.height_label'))
                         ->options([
-                            'sm' => 'Small (300px)',
-                            'md' => 'Medium (400px)',
-                            'lg' => 'Large (500px)',
-                            'xl' => 'Extra Large (600px)',
+                            'sm' => __('capell-layout-builder::blocks.modern.hero_banner.height_sm'),
+                            'md' => __('capell-layout-builder::blocks.modern.hero_banner.height_md'),
+                            'lg' => __('capell-layout-builder::blocks.modern.hero_banner.height_lg'),
+                            'xl' => __('capell-layout-builder::blocks.modern.hero_banner.height_xl'),
                         ])
                         ->default('lg')
-                        ->helperText('Hero section height on desktop'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.hero_banner.height_helper')),
 
                     Select::make('data.textAlign')
-                        ->label('Text Alignment')
+                        ->label(__('capell-layout-builder::blocks.modern.hero_banner.text_align_label'))
                         ->options([
-                            'left' => 'Left',
-                            'center' => 'Center',
-                            'right' => 'Right',
+                            'left' => __('capell-layout-builder::blocks.modern.hero_banner.align_left'),
+                            'center' => __('capell-layout-builder::blocks.modern.hero_banner.align_center'),
+                            'right' => __('capell-layout-builder::blocks.modern.hero_banner.align_right'),
                         ])
                         ->default('center'),
 
                     Select::make('data.accentColor')
-                        ->label('Accent Color')
+                        ->label(__('capell-layout-builder::blocks.common.accent_color_label'))
                         ->options([
-                            'primary' => 'Violet (Primary)',
-                            'secondary' => 'Indigo (Secondary)',
-                            'tertiary' => 'Gold (Tertiary)',
+                            'primary' => __('capell-layout-builder::blocks.modern.hero_banner.accent_primary'),
+                            'secondary' => __('capell-layout-builder::blocks.modern.hero_banner.accent_secondary'),
+                            'tertiary' => __('capell-layout-builder::blocks.modern.hero_banner.accent_tertiary'),
                         ])
                         ->default('tertiary')
-                        ->helperText('Color used for buttons and highlights'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.hero_banner.accent_helper')),
 
                     TextInput::make('data.backgroundImage')
-                        ->label('Background Image URL')
-                        ->placeholder('https://example.com/image.jpg')
+                        ->label(__('capell-layout-builder::blocks.modern.hero_banner.background_image_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.hero_banner.background_image_placeholder'))
                         ->url()
-                        ->helperText('Optional image to overlay with gradient'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.hero_banner.background_image_helper')),
 
                     TextInput::make('data.videoUrl')
-                        ->label('Video Background URL')
-                        ->placeholder('https://example.com/video.mp4')
+                        ->label(__('capell-layout-builder::blocks.modern.hero_banner.video_url_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.modern.hero_banner.video_url_placeholder'))
                         ->url()
-                        ->helperText('MP4 video to play in background (overrides image)'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.hero_banner.video_url_helper')),
 
                     Toggle::make('data.parallax')
-                        ->label('Enable Parallax Scroll')
+                        ->label(__('capell-layout-builder::blocks.modern.hero_banner.parallax_label'))
                         ->default(false)
-                        ->helperText('Creates depth effect as user scrolls'),
+                        ->helperText(__('capell-layout-builder::blocks.modern.hero_banner.parallax_helper')),
                 ])->columns(2),
 
-            Section::make('Advanced')
-                ->description('Gradient customization and display options')
+            Section::make(__('capell-layout-builder::blocks.common.section_advanced'))
+                ->description(__('capell-layout-builder::blocks.common.section_advanced_description'))
                 ->schema([
                     TextInput::make('data.backgroundGradient')
-                        ->label('Background Gradient CSS')
-                        ->placeholder('linear-gradient(135deg, #7c3aed 0%, #3131c0 100%)')
-                        ->helperText('Custom CSS gradient. Overrides accent color.')
-                        ->hint('Example: linear-gradient(135deg, #7c3aed 0%, #3131c0 100%)')
-                        ->helperText('Leave empty to use accent color gradient'),
+                        ->label(__('capell-layout-builder::blocks.common.background_gradient_label'))
+                        ->placeholder(__('capell-layout-builder::blocks.common.background_gradient_placeholder'))
+                        ->helperText(__('capell-layout-builder::blocks.modern.hero_banner.background_gradient_helper'))
+                        ->hint(__('capell-layout-builder::blocks.modern.hero_banner.background_gradient_hint')),
 
                     Toggle::make('data.customizable')
-                        ->label('Show Admin Hints')
+                        ->label(__('capell-layout-builder::blocks.common.admin_hints_label'))
                         ->default(true)
-                        ->helperText('Display "✨ Customize..." message to indicate editable areas'),
+                        ->helperText(__('capell-layout-builder::blocks.common.admin_hints_helper')),
                 ])->columns(1),
         ];
     }
 
     /**
      * Get component data with defaults
+     *
+     * @return array<array-key, mixed>
      */
     public static function getDefaults(): array
     {

@@ -12,7 +12,7 @@
     use Illuminate\View\ComponentAttributeBag;
 
     /**
-     * @var \Capell\LayoutBuilder\Models\Block $block
+     * @var \Capell\LayoutBuilder\Models\Widget $block
     */
 
     /**
@@ -34,6 +34,16 @@
     $previewView = $this->resolveAdminBlockPreviewView($previewData);
 
     $previewLabel = $previewData->title ?: $previewData->label;
+    $interactionBadges = collect($containerBlock['meta']['interactions'] ?? [])
+        ->filter(fn (mixed $interaction): bool => is_array($interaction) && filled($interaction['label'] ?? null))
+        ->map(function (array $interaction): string {
+            $label = $interaction['label'];
+            $target = $interaction['target_type'] ?? $interaction['target']['target_type'] ?? 'widget';
+
+            return $label . ' -> ' . str_replace('_', ' ', (string) $target);
+        })
+        ->values()
+        ->all();
 
     $editBlockAction = ($this->editBlockAction)(['containerKey' => $containerKey, 'blockIndex' => $blockIndex]);
 
@@ -310,11 +320,27 @@
                     'block' => $block,
                     'blockIndex' => $blockIndex,
                 ])
+
+                @if ($interactionBadges !== [])
+                    <div class="flex flex-wrap gap-1.5 px-4 pb-3">
+                        @foreach ($interactionBadges as $interactionBadge)
+                            <span
+                                class="bg-primary-50 text-primary-700 ring-primary-600/15 dark:bg-primary-500/10 dark:text-primary-300 dark:ring-primary-400/20 inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ring-1"
+                            >
+                                <x-filament::icon
+                                    icon="heroicon-o-bolt"
+                                    class="h-3.5 w-3.5"
+                                />
+                                {{ $interactionBadge }}
+                            </span>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
 
         <div
-            class="layout-block-mobile-handle absolute bottom-2 left-0 top-2 z-30 md:hidden"
+            class="layout-block-mobile-handle absolute top-2 bottom-2 left-0 z-30 md:hidden"
             x-show="mode === 'edit'"
             x-cloak
             x-sort:handle
