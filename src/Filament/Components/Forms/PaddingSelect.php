@@ -14,6 +14,11 @@ class PaddingSelect extends Select
 
         $this->label(__('capell-layout-builder::form.padding'))
             ->multiple()
+            ->afterStateHydrated(function (Select $component, mixed $state): void {
+                if (is_string($state)) {
+                    $component->state([$state]);
+                }
+            })
             ->options([
                 'none' => __('capell-admin::generic.none'),
                 'sm' => __('capell-admin::generic.small'),
@@ -25,6 +30,9 @@ class PaddingSelect extends Select
                 'lg' => __('capell-admin::generic.large'),
                 't-lg' => __('capell-admin::generic.large_top'),
                 'b-lg' => __('capell-admin::generic.large_bottom'),
+                'xl' => __('capell-admin::generic.extra_large'),
+                't-xl' => __('capell-admin::generic.extra_large_top'),
+                'b-xl' => __('capell-admin::generic.extra_large_bottom'),
             ]);
     }
 }

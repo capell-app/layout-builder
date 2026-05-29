@@ -14,6 +14,11 @@ class MarginSelect extends Select
 
         $this->label(__('capell-layout-builder::form.margin'))
             ->multiple()
+            ->afterStateHydrated(function (Select $component, mixed $state): void {
+                if (is_string($state)) {
+                    $component->state([$state]);
+                }
+            })
             ->options([
                 'none' => __('capell-admin::generic.none'),
                 'sm' => __('capell-admin::generic.small'),

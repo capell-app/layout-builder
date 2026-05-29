@@ -13,6 +13,7 @@ use Capell\LayoutBuilder\Filament\Configurators\Blocks\FeatureListBlockConfigura
 use Capell\LayoutBuilder\Filament\Configurators\Blocks\HeroBannerBlockConfigurator;
 use Capell\LayoutBuilder\Filament\Configurators\Blocks\HeroBlockConfigurator;
 use Capell\LayoutBuilder\Filament\Configurators\Blocks\ImageGalleryBlockConfigurator;
+use Capell\LayoutBuilder\Filament\Configurators\Blocks\KitchenSinkReferenceBlockConfigurator;
 use Capell\LayoutBuilder\Filament\Configurators\Blocks\NavigationBlockConfigurator;
 use Capell\LayoutBuilder\Filament\Configurators\Blocks\PageContentBlockConfigurator;
 use Capell\LayoutBuilder\Filament\Configurators\Blocks\ResultsBlockConfigurator;
@@ -45,4 +46,6 @@ enum BlockConfiguratorEnum: string
     case CTASection = CTASectionBlockConfigurator::class;
 
     case ImageGallery = ImageGalleryBlockConfigurator::class;
+
+    case KitchenSinkReference = KitchenSinkReferenceBlockConfigurator::class;
 }

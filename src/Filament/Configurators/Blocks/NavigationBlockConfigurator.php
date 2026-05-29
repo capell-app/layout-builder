@@ -14,7 +14,7 @@ use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\BlockAdminTab;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\BlockDisplayTab;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\TranslationsRepeater;
 use Capell\Navigation\Filament\Components\Forms\NavigationSelect;
-use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
@@ -56,7 +56,7 @@ class NavigationBlockConfigurator extends DefaultBlockConfigurator
         return Group::make()
             ->statePath('meta')
             ->schema([
-                (CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($navigationSelect) ? $navigationSelect::make('navigation') : Select::make('navigation'))
+                (CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($navigationSelect) ? $navigationSelect::make('navigation') : TextInput::make('navigation'))
                     ->required(),
             ]);
     }
