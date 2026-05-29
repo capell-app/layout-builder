@@ -888,7 +888,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
                 : [];
 
             foreach (array_keys($widgets) as $blockIndex) {
-                if (! is_int($blockIndex) && ! ctype_digit((string) $blockIndex)) {
+                if (! is_int($blockIndex) && ! ctype_digit($blockIndex)) {
                     continue;
                 }
 

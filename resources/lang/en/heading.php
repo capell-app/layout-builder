@@ -23,7 +23,6 @@ return [
     'edit_block_record' => 'Edit Block: :name',
     'faq' => 'FAQ',
     'gallery' => 'Gallery',
-    'inspector' => 'Inspector',
     'latest_pages' => 'Latest Pages',
     'layout_structure' => 'Layout structure',
     'recently_updated_pages' => 'Recently updated pages',

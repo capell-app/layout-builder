@@ -11,6 +11,8 @@ use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
 use Capell\Frontend\Contracts\PublicLayoutGraphBuilder;
 use Capell\Frontend\Contracts\WidgetResourceUsageContributor;
 use Capell\Frontend\Support\Routing\ReservedFrontendPathRegistry;
+use Capell\FrontendAuthoring\Contracts\EditableRegionEditorSurface;
+use Capell\FrontendAuthoring\Support\EditorSurfaceRegistry;
 use Capell\LayoutBuilder\Console\Commands\BlockVisualRegressionCommand;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
 use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
@@ -125,13 +127,13 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
 
     private function registerFrontendAuthoringIntegration(): void
     {
-        if (! interface_exists('Capell\\FrontendAuthoring\\Contracts\\EditableRegionEditorSurface')) {
+        if (! interface_exists(EditableRegionEditorSurface::class)) {
             return;
         }
 
         $this->app->tag([LayoutBuilderEditableRegionContributor::class], 'capell-frontend-authoring:editable-regions');
 
-        $registryClass = 'Capell\\FrontendAuthoring\\Support\\EditorSurfaceRegistry';
+        $registryClass = EditorSurfaceRegistry::class;
 
         if (! class_exists($registryClass)) {
             return;

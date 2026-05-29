@@ -65,7 +65,7 @@ class ContentCreator
                 continue;
             }
 
-            $translationData = $data['translations'][$code];
+            $translationData = $this->translationDataFor($data['translations'] ?? [], $code);
 
             Translation::query()->firstOrCreate([
                 'translatable_type' => $content->getMorphClass(),
@@ -79,5 +79,18 @@ class ContentCreator
         }
 
         return $content;
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $translations
+     * @return array<string, mixed>
+     */
+    private function translationDataFor(array $translations, string $code): array
+    {
+        $translationData = $translations[$code] ?? $translations['en'] ?? reset($translations);
+
+        throw_unless(is_array($translationData), RuntimeException::class, 'Content demo data must include at least one translation.');
+
+        return $translationData;
     }
 }

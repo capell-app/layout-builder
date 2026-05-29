@@ -176,7 +176,11 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
 
     protected function settingsTab(Schema $configurator): Tab
     {
-        return BlockSettingsTab::make($configurator);
+        return BlockSettingsTab::make($configurator, [
+            ImageSourcePicker::make('image')
+                ->sourceStatePath('meta.image_source')
+                ->imageSourcePolicy(blueprintSources: $this->blueprintImageSourcePolicy($configurator, 'image')),
+        ]);
     }
 
     /**

@@ -12,6 +12,7 @@ use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
+use Capell\HtmlCache\Actions\ClearCachedUrlsForModelAction;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Exceptions\MissingBlockAssetException;
 use Capell\LayoutBuilder\Filament\Resources\Pages\Tables\PageSelectionTable;
@@ -1636,7 +1637,7 @@ final class LayoutBuilderActionFactory
 
     private function clearCachedPagesForWidget(Widget $record): void
     {
-        $actionClass = 'Capell\\HtmlCache\\Actions\\ClearCachedUrlsForModelAction';
+        $actionClass = ClearCachedUrlsForModelAction::class;
 
         if (! class_exists($actionClass)) {
             return;

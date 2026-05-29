@@ -62,7 +62,7 @@ it('renders the visual layout builder by default from the package namespace', fu
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSet('editorMode', 'content_first')
         ->assertSee(__('capell-layout-builder::heading.layout_structure'))
-        ->assertDontSee(__('capell-layout-builder::heading.inspector'))
+        ->assertDontSee('Inspector')
         ->assertSee(__('capell-layout-builder::message.preview_status_current'))
         ->assertSee(__('capell-layout-builder::message.container_empty'))
         ->assertSeeHtml('data-capell-layout-builder-admin-preview="true"')
@@ -179,6 +179,8 @@ it('clears cached pages affected by frontend authoring block edits', function ()
         ]);
     }
 
+    $imageUrl = 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=720&q=75';
+
     Livewire::test(LayoutBuilder::class, [
         'siteId' => $site->getKey(),
         'layoutId' => $layout->getKey(),
@@ -187,15 +189,31 @@ it('clears cached pages affected by frontend authoring block edits', function ()
         'initialContainerKey' => 'main',
         'initialBlockIndex' => 0,
     ])
-        ->callAction('editBlock', data: [
+        ->mountAction('editBlock', arguments: [
+            'containerKey' => 'main',
+            'blockIndex' => 0,
+        ])
+        ->assertSchemaComponentExists('meta.image_source.type')
+        ->assertSchemaComponentExists('meta.image_source.url')
+        ->setActionData([
             ...$block->attributesToArray(),
             'name' => 'Updated hero banner',
-        ], arguments: [
+            'meta' => [
+                ...(array) $block->meta,
+                'image_source' => [
+                    'type' => 'url',
+                    'url' => $imageUrl,
+                ],
+            ],
+        ])
+        ->callMountedAction([
             'containerKey' => 'main',
             'blockIndex' => 0,
         ])
         ->assertHasNoActionErrors()
         ->assertDispatched('capell-layout-builder-authoring-saved');
+
+    expect($block->fresh()->meta['image_source']['url'] ?? null)->toBe($imageUrl);
 
     foreach ($urls as $url) {
         $cachePath = $pathResolver->pathForUrl(parse_url($url, PHP_URL_PATH) ?: '/', $siteDomain);
@@ -274,12 +292,14 @@ it('renders the signed frontend authoring layout builder editor surface', functi
     $registry = new EditorSurfaceRegistry;
     $registry->register(new FieldEditorSurface);
     $registry->register(new LayoutBuilderEditorSurface);
+
     app()->instance(EditorSurfaceRegistry::class, $registry);
     if (! Route::has('capell-frontend.authoring.edit')) {
         Route::get('authoring/regions/{payload}', EditRegionController::class)
             ->middleware(['web', 'auth', 'signed'])
             ->name('capell-frontend.authoring.edit');
     }
+
     Gate::before(fn (Authenticatable $user, string $ability): ?bool => $ability === 'frontend-authoring.edit' ? true : null);
 
     $language = Language::factory()->create();
@@ -537,7 +557,14 @@ it('renders widget rows in the structure tree and wires preview widget actions f
         ->not->toContain('$this->editBlockAssetAction')
         ->and($editorView)
         ->not->toContain('visual-inspector')
-        ->toContain('mountAction(actionName, args)');
+        ->toContain('mountAction(actionName, args)')
+        ->toContain("node.setAttribute('role', 'button')")
+        ->toContain("node.setAttribute('aria-label', label)")
+        ->toContain("['Enter', ' '].includes(event.key)")
+        ->toContain('aria-haspopup="menu"')
+        ->toContain('aria-expanded="false"')
+        ->toContain('role="menu"')
+        ->toContain('role="menuitem"');
 });
 
 it('renders block copy in the visual preview from the package namespace', function (): void {

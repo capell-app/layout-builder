@@ -41,6 +41,7 @@ final class LayoutBuilderEditableRegionContributor
 
         $containers = $layout->getAttribute('containers');
         $containers = is_array($containers) ? $containers : [];
+
         $widgetKeys = collect($containers)
             ->flatMap(fn (mixed $container): array => LayoutBlockData::fromContainer(is_array($container) ? $container : []))
             ->map(static fn (array $blockData): ?string => LayoutBlockData::key($blockData))
@@ -74,7 +75,7 @@ final class LayoutBuilderEditableRegionContributor
 
     public static function blockSelector(int|string $layoutId, string $containerKey, int $blockIndex): string
     {
-        return '#layout-block-' . hash('xxh128', (string) $layoutId . ':' . $containerKey . ':' . $blockIndex);
+        return '#layout-block-' . hash('xxh128', $layoutId . ':' . $containerKey . ':' . $blockIndex);
     }
 
     private function pageLayoutRegion(PageUrl $pageUrl, Model $page, Layout $layout): EditableRegionPayloadData

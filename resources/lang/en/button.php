@@ -166,5 +166,4 @@ return [
     'block' => 'Block',
     'block_actions' => 'Actions for :block',
     'block_asset_actions' => 'Add or select assets for :block',
-    'inspector' => 'Inspector',
 ];

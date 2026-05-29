@@ -58,11 +58,30 @@
             actionLabels: config.actionLabels || {},
             previewSignature: config.previewSignature || '',
             init() {
-                this.syncPanelLayout()
-                new ResizeObserver(() => this.syncPanelLayout()).observe(
-                    this.$el,
+                this.closePreviewMenusFromDocument = (event) => {
+                    const host = this.$refs.previewHost
+
+                    if (host && event.composedPath().includes(host)) return
+
+                    this.closePreviewMenus()
+                }
+                document.addEventListener(
+                    'click',
+                    this.closePreviewMenusFromDocument,
                 )
+                this.syncPanelLayout()
+                this.previewResizeObserver = new ResizeObserver(() =>
+                    this.syncPanelLayout(),
+                )
+                this.previewResizeObserver.observe(this.$el)
                 this.renderPreview()
+            },
+            destroy() {
+                this.previewResizeObserver?.disconnect()
+                document.removeEventListener(
+                    'click',
+                    this.closePreviewMenusFromDocument,
+                )
             },
             shadowStyles() {
                 return `
@@ -88,7 +107,7 @@
                     .layout-block-preview-actions, .layout-block-assets-toggle { display: none !important; }
                     .clb-preview-empty { border: 1px dashed #cbd5e1; border-radius: .625rem; padding: 1rem; color: #64748b; text-align: center; }
                     [data-clb-preview-node] { cursor: pointer; pointer-events: auto; }
-                    [data-clb-preview-node]:hover { outline: 2px solid rgba(59, 130, 246, .55); outline-offset: 3px; }
+                    [data-clb-preview-node]:hover, [data-clb-preview-node]:focus-visible { outline: 2px solid rgba(59, 130, 246, .55); outline-offset: 3px; }
                     [data-clb-preview-node].is-selected { outline: 3px solid #2563eb; outline-offset: 4px; box-shadow: 0 0 0 5px rgba(37, 99, 235, .12); }
                     .clb-preview-actionbar { position: absolute; top: .5rem; right: .5rem; z-index: 20; display: inline-flex; align-items: center; gap: .25rem; border: 1px solid rgba(148, 163, 184, .38); border-radius: 999px; background: rgba(15, 23, 42, .9); padding: .25rem; opacity: 0; pointer-events: none; transform: translateY(-.125rem); transition: opacity .15s ease, transform .15s ease; box-shadow: 0 12px 30px rgba(15, 23, 42, .22); }
                     [data-clb-preview-node-type="block"]:hover > .clb-preview-actionbar, [data-clb-preview-node-type="block"].is-selected > .clb-preview-actionbar, .clb-preview-actionbar:focus-within { opacity: 1; pointer-events: auto; transform: translateY(0); }
@@ -120,6 +139,7 @@
                 const html = template ? template.innerHTML : ''
 
                 root.innerHTML = `<style>${this.shadowStyles()}</style>${html}`
+                this.bindPreviewRootEvents(root)
                 root.querySelectorAll('[data-clb-preview-node]').forEach(
                     (node) => {
                         if (node.dataset.clbPreviewNode === this.selectedNode) {
@@ -127,6 +147,7 @@
                         }
 
                         if (node.dataset.clbPreviewNodeType === 'block') {
+                            this.preparePreviewBlockNode(node)
                             this.attachBlockActions(node)
                         }
 
@@ -150,6 +171,34 @@
                     },
                 )
             },
+            bindPreviewRootEvents(root) {
+                if (root.clbPreviewEventsBound) return
+
+                root.addEventListener('click', (event) => {
+                    const clickedMenu = event
+                        .composedPath()
+                        .some(
+                            (target) =>
+                                target instanceof HTMLElement &&
+                                target.closest('.clb-preview-more'),
+                        )
+
+                    if (!clickedMenu) {
+                        this.closePreviewMenus(root)
+                    }
+                })
+
+                root.addEventListener('keydown', (event) => {
+                    if (event.key !== 'Escape') return
+
+                    if (this.closePreviewMenus(root)) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                })
+
+                root.clbPreviewEventsBound = true
+            },
             icon(name) {
                 const icons = {
                     edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m16.9 4.6 2.5 2.5"/><path d="M14 7.5 5.5 16 5 19l3-.5 8.5-8.5"/></svg>',
@@ -159,6 +208,25 @@
                 }
 
                 return icons[name] || ''
+            },
+            preparePreviewBlockNode(node) {
+                const action =
+                    this.previewBlockActions[node.dataset.clbPreviewNode]
+                const label = action?.label
+                    ? `${this.actionLabels.edit}: ${action.label}`
+                    : this.actionLabels.edit
+
+                node.tabIndex = 0
+                node.setAttribute('role', 'button')
+                node.setAttribute('aria-label', label)
+                node.addEventListener('keydown', (event) => {
+                    if (!['Enter', ' '].includes(event.key)) return
+                    if (event.target !== node) return
+
+                    event.preventDefault()
+                    event.stopPropagation()
+                    this.openWidgetEditor(node.dataset.clbPreviewNode)
+                })
             },
             attachBlockActions(node) {
                 const action =
@@ -171,12 +239,25 @@
                 toolbar.innerHTML = this.blockActionsHtml(action)
                 node.appendChild(toolbar)
 
+                const menu = toolbar.querySelector('.clb-preview-menu')
+                const menuToggle = toolbar.querySelector(
+                    '[data-clb-menu-toggle]',
+                )
+
+                if (menu && menuToggle) {
+                    const menuId = `clb-preview-menu-${node.dataset.clbPreviewNode}`
+
+                    menu.id = menuId
+                    menuToggle.setAttribute('aria-controls', menuId)
+                }
+
                 toolbar
                     .querySelectorAll('[data-clb-action]')
                     .forEach((button) => {
                         button.addEventListener('click', (event) => {
                             event.preventDefault()
                             event.stopPropagation()
+                            this.closePreviewMenus()
                             this.runPreviewAction(
                                 button.dataset.clbAction,
                                 action,
@@ -195,10 +276,41 @@
                     ?.addEventListener('click', (event) => {
                         event.preventDefault()
                         event.stopPropagation()
-                        toolbar
-                            .querySelector('.clb-preview-menu')
-                            ?.classList.toggle('is-open')
+                        this.togglePreviewMenu(toolbar)
                     })
+            },
+            togglePreviewMenu(toolbar) {
+                const menu = toolbar.querySelector('.clb-preview-menu')
+                const menuToggle = toolbar.querySelector(
+                    '[data-clb-menu-toggle]',
+                )
+
+                if (!menu || !menuToggle) return
+
+                const shouldOpen = !menu.classList.contains('is-open')
+                this.closePreviewMenus()
+
+                if (!shouldOpen) return
+
+                menu.classList.add('is-open')
+                menuToggle.setAttribute('aria-expanded', 'true')
+            },
+            closePreviewMenus(root = this.$refs.previewHost?.shadowRoot) {
+                if (!root) return false
+
+                let closed = false
+
+                root.querySelectorAll('.clb-preview-menu.is-open').forEach(
+                    (menu) => {
+                        menu.classList.remove('is-open')
+                        closed = true
+                    },
+                )
+                root.querySelectorAll('[data-clb-menu-toggle]').forEach(
+                    (button) => button.setAttribute('aria-expanded', 'false'),
+                )
+
+                return closed
             },
             blockActionsHtml(action) {
                 const labels = this.actionLabels
@@ -254,11 +366,11 @@
                     <button type="button" class="clb-preview-action-button" data-clb-action="editBlock" title="${this.escapeHtml(labels.edit)}" aria-label="${this.escapeHtml(labels.edit)}">${this.icon('edit')}</button>
                     ${action.canEditLayout ? `<button type="button" class="clb-preview-action-button" data-clb-action="duplicateBlock" title="${this.escapeHtml(labels.duplicate)}" aria-label="${this.escapeHtml(labels.duplicate)}">${this.icon('copy')}</button>` : ''}
                     ${action.canEditLayout ? `<button type="button" class="clb-preview-action-button clb-preview-action-button-danger" data-clb-action="removeBlock" title="${this.escapeHtml(labels.remove)}" aria-label="${this.escapeHtml(labels.remove)}">${this.icon('trash')}</button>` : ''}
-                    ${moreItems.length > 0 ? `<span class="clb-preview-more"><button type="button" class="clb-preview-action-button" data-clb-menu-toggle title="${this.escapeHtml(labels.controls)}" aria-label="${this.escapeHtml(labels.controls)}">${this.icon('more')}</button><div class="clb-preview-menu">${moreItems.join('')}</div></span>` : ''}
+                    ${moreItems.length > 0 ? `<span class="clb-preview-more"><button type="button" class="clb-preview-action-button" data-clb-menu-toggle title="${this.escapeHtml(labels.controls)}" aria-label="${this.escapeHtml(labels.controls)}" aria-haspopup="menu" aria-expanded="false">${this.icon('more')}</button><div class="clb-preview-menu" role="menu">${moreItems.join('')}</div></span>` : ''}
                 `
             },
             menuButton(action, label, assetType = '') {
-                return `<button type="button" data-clb-action="${this.escapeHtml(action)}" data-clb-asset-type="${this.escapeHtml(assetType)}">${this.escapeHtml(label)}</button>`
+                return `<button type="button" role="menuitem" data-clb-action="${this.escapeHtml(action)}" data-clb-asset-type="${this.escapeHtml(assetType)}">${this.escapeHtml(label)}</button>`
             },
             escapeHtml(value) {
                 return String(value || '')

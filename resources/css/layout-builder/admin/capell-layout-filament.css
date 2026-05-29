@@ -1092,10 +1092,6 @@
     border-right-width: 1px;
 }
 
-.layout-builder-visual-panel-inspector {
-    border-left-width: 1px;
-}
-
 .dark .layout-builder-visual-panel {
     border-color: rgba(255, 255, 255, 0.1);
     background: rgb(17, 24, 39);
@@ -1396,7 +1392,7 @@
     }
 }
 
-@container (max-width: 72rem) {
+@container (max-width: 48rem) {
     .layout-builder-panel-toggle {
         display: inline-flex;
     }
