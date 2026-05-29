@@ -19,6 +19,8 @@ return [
     'hero_block_name' => 'Hero',
     'image_gallery_block_description' => 'An image-led block for galleries, portfolios, product shots, or editorial media.',
     'image_gallery_block_name' => 'Image gallery',
+    'kitchen_sink_reference_block_description' => 'A focused reference block for the Demo Kit kitchen sink page, with editable reference families and sections.',
+    'kitchen_sink_reference_block_name' => 'Kitchen sink reference',
     'media_block_description' => 'A block for image, video, and media-backed sections.',
     'navigation_block_description' => 'A reusable menu block for page links, tabs, breadcrumbs, or local navigation.',
     'page_content_block_description' => 'A block that renders the current page title, body, and selected page fields.',

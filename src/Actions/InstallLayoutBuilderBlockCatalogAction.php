@@ -68,6 +68,7 @@ class InstallLayoutBuilderBlockCatalogAction
             'pagesBlockType' => $typeCreator->pagesBlockType(),
             'resultsBlockType' => $typeCreator->resultsBlockType(),
             'systemBlockType' => $typeCreator->systemBlockType(),
+            'kitchenSinkReferenceBlockType' => $typeCreator->kitchenSinkReferenceBlockType(),
             default => $typeCreator->defaultBlockType(),
         };
     }

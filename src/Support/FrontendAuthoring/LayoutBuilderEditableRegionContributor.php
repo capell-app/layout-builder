@@ -11,6 +11,7 @@ use Capell\FrontendAuthoring\Data\EditableRegionPayloadData;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutBlockData;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
 final class LayoutBuilderEditableRegionContributor
 {
@@ -49,6 +50,10 @@ final class LayoutBuilderEditableRegionContributor
             ->unique()
             ->values()
             ->all();
+
+        if ($widgetKeys === [] || ! Schema::hasTable('widgets')) {
+            return $regions;
+        }
 
         $widgets = Widget::query()
             ->whereIn('key', $widgetKeys)

@@ -247,7 +247,7 @@ class BlockCreator
                 'container' => ContainerWidthEnum::Full,
                 'background_color' => 'light-gray',
                 'spacing' => 'md',
-                'margin' => 0,
+                'margin' => ['none'],
                 'padding' => ['md'],
             ],
             'admin' => [

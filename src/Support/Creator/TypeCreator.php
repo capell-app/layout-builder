@@ -97,6 +97,7 @@ class TypeCreator
         $this->featureListBlockType();
         $this->ctaSectionBlockType();
         $this->imageGalleryBlockType();
+        $this->kitchenSinkReferenceBlockType();
     }
 
     public function defaultBlockType(): Blueprint
@@ -416,6 +417,26 @@ class TypeCreator
             ],
             'meta' => [
                 'component' => BlockComponentEnum::Default,
+            ],
+        ]);
+    }
+
+    public function kitchenSinkReferenceBlockType(): Blueprint
+    {
+        return $this->typeModel::query()->firstOrCreate([
+            'key' => BlockTypeEnum::KitchenSinkReference->value,
+            'type' => LayoutTypeEnum::Widget->value,
+        ], [
+            'name' => __('capell-layout-builder::type.kitchen_sink_reference_block_name'),
+            'admin' => [
+                'type_configurator' => 'Widget',
+                'configurator' => 'KitchenSinkReference',
+                'icon' => 'heroicon-o-beaker',
+                'notes' => __('capell-layout-builder::type.kitchen_sink_reference_block_description'),
+            ],
+            'meta' => [
+                'component' => BlockComponentEnum::Default,
+                'padding' => ['lg'],
             ],
         ]);
     }

@@ -83,6 +83,28 @@ class EditWidget extends EditRecord
         return ['name', '`key`', 'admin->notes'];
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    #[Override]
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $meta = is_array($data['meta'] ?? null) ? $data['meta'] : [];
+
+        foreach (['margin', 'padding'] as $key) {
+            if (is_string($meta[$key] ?? null)) {
+                $meta[$key] = [$meta[$key]];
+            }
+        }
+
+        if ($meta !== []) {
+            $data['meta'] = $meta;
+        }
+
+        return $data;
+    }
+
     protected function afterSave(): void
     {
         if ($this->record->isDirty('updated_at')) {
@@ -94,6 +116,23 @@ class EditWidget extends EditRecord
         }
 
         $this->recordSwitcherAfterSave();
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    #[Override]
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $existingMeta = is_array($this->record->meta) ? $this->record->meta : [];
+        $submittedMeta = is_array($data['meta'] ?? null) ? $data['meta'] : [];
+
+        if ($existingMeta !== [] || $submittedMeta !== []) {
+            $data['meta'] = array_replace_recursive($existingMeta, $submittedMeta);
+        }
+
+        return $data;
     }
 
     #[Override]

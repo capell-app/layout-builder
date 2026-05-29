@@ -37,4 +37,6 @@ enum BlockTypeEnum: string
     case CTASection = 'cta-section';
 
     case ImageGallery = 'image-gallery';
+
+    case KitchenSinkReference = 'kitchen-sink-reference';
 }
