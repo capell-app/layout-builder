@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder;
 
+use Capell\Core\Data\PageTypeData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
@@ -19,6 +20,7 @@ use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Contracts\LayoutSidebarBlockContributor;
 use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
 use Capell\LayoutBuilder\Contracts\PublicBlockPayloadResolver;
+use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Http\Controllers\PublicFragmentController;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Policies\LayoutPresetPolicy;
@@ -36,6 +38,7 @@ use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Capell\LayoutBuilder\Support\LayoutBuilderCoreRegistrar;
 use Capell\LayoutBuilder\Support\LayoutBuilderPublicLayoutGraphBuilder;
 use Capell\LayoutBuilder\Support\LayoutBuilderRuntimeManifestContributor;
+use Capell\LayoutBuilder\Support\LayoutModelRegistrar;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -75,6 +78,8 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             BlockContentGraphExtractor::class,
             LayoutBlockContentGraphExtractor::class,
         ], ContentGraphRegistry::TAG);
+        LayoutModelRegistrar::register();
+        $this->registerPageTypes();
 
         if ($this->app->runningInConsole()) {
             $this->commands([
@@ -149,6 +154,19 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
 
         if ($this->app->resolved($registryClass)) {
             $registerSurface($this->app->make($registryClass));
+        }
+    }
+
+    private function registerPageTypes(): void
+    {
+        foreach (LayoutTypeEnum::cases() as $type) {
+            CapellCore::registerPageType(
+                new PageTypeData(
+                    name: $type->value,
+                    model: $type->getModel(),
+                    label: $type->getLabel(),
+                ),
+            );
         }
     }
 }
