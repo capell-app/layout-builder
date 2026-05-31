@@ -12,6 +12,7 @@ use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Filament\Configurators\Blocks\DefaultBlockConfigurator;
 use Filament\Actions\Exceptions\ActionNotResolvableException;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 
 class WidgetForm implements FormConfigurator
@@ -51,7 +52,9 @@ class WidgetForm implements FormConfigurator
     private static function safeRawState(Schema $configurator): ?array
     {
         try {
-            return $configurator->getRawState();
+            $rawState = $configurator->getRawState();
+
+            return $rawState instanceof Arrayable ? $rawState->toArray() : $rawState;
         } catch (ActionNotResolvableException) {
             return null;
         }

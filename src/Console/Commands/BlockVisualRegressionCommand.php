@@ -22,7 +22,9 @@ final class BlockVisualRegressionCommand extends Command
 
     public function handle(): int
     {
-        $mode = (string) $this->argument('mode');
+        $modeArgument = $this->argument('mode');
+        $mode = is_string($modeArgument) ? $modeArgument : '';
+
         if (! in_array($mode, ['capture', 'assert'], true)) {
             $this->error('Mode must be capture or assert.');
 

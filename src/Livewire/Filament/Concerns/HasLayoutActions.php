@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Livewire\Filament\Concerns;
 
-use Capell\LayoutBuilder\Livewire\Filament\Actions\LayoutBuilderActionFactory;
+use Capell\LayoutBuilder\Livewire\Filament\Support\LayoutBuilderActionFactory;
 use Filament\Actions\Action;
 use Filament\Schemas\Schema;
 

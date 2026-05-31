@@ -13,6 +13,7 @@ use Capell\LayoutBuilder\Filament\Configurators\Blocks\PageWidgetAssetForm;
 use Capell\LayoutBuilder\Filament\Configurators\Blocks\RegisteredAssetWidgetAssetForm;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\Support\Arrayable;
 use RuntimeException;
 
 class WidgetAssetForm implements FormConfigurator
@@ -20,7 +21,8 @@ class WidgetAssetForm implements FormConfigurator
     public static function configure(Schema $configurator, ?ConfiguratorContextData $context = null): Schema
     {
         $record = $configurator->getRecord();
-        $state = $configurator->getRawState();
+        $rawState = $configurator->getRawState();
+        $state = $rawState instanceof Arrayable ? $rawState->toArray() : $rawState;
         $assetType = $state['asset_type'] ?? ($record instanceof WidgetAsset ? $record->asset_type : null);
 
         throw_unless($assetType, RuntimeException::class, 'Asset type is required to load the asset schema');

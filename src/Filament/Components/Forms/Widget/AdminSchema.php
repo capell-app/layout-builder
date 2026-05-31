@@ -38,7 +38,13 @@ class AdminSchema
                 ->gridContainer()
                 ->columns(['lg' => null, '@lg' => 2])
                 ->columnSpanFull()
-                ->visible(fn (?Widget $record): bool => isset($record->type?->admin['asset_types']) && $record->type->admin['asset_types'] !== [])
+                ->visible(function (?Widget $record): bool {
+                    if (! $record instanceof Widget || $record->type === null) {
+                        return false;
+                    }
+
+                    return ($record->type->admin['asset_types'] ?? []) !== [];
+                })
                 ->schema([
                     ConfiguratorSelect::make('block_asset_configurator')
                         ->label(__('capell-layout-builder::form.block_asset_configurator'))

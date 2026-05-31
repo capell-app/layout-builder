@@ -16,6 +16,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
@@ -29,7 +30,8 @@ class ActionsRepeater extends Repeater
             ->statePath('actions')
             ->columnSpanFull()
             ->collapsed(function (?Schema $item): bool {
-                $state = $item->getRawState();
+                $rawState = $item?->getRawState();
+                $state = $rawState instanceof Arrayable ? $rawState->toArray() : (is_array($rawState) ? $rawState : []);
 
                 return (isset($state['pageable_id']) && filled($state['pageable_id'])) || (isset($state['url']) && filled($state['url']));
             })

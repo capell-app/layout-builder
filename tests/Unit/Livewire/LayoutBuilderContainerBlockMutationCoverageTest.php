@@ -59,6 +59,31 @@ function makeLayoutBuilderMutationHarness(Layout $layout): LayoutBuilderContaine
     return $harness;
 }
 
+/**
+ * @return array<string, array<string, mixed>>
+ */
+function layoutBuilderMutationContainers(LayoutBuilderContainerBlockMutationHarness $harness): array
+{
+    /** @var array<string, array<string, mixed>> $containers */
+    $containers = capell_test_array($harness->containers);
+
+    return $containers;
+}
+
+/**
+ * @param  array<string, mixed>  $container
+ * @return array<int, array<string, mixed>>
+ */
+function layoutBuilderMutationWidgets(array $container): array
+{
+    throw_unless(is_array($container['widgets'] ?? null), RuntimeException::class, 'Expected container widgets array.');
+
+    /** @var array<int, array<string, mixed>> $widgets */
+    $widgets = $container['widgets'];
+
+    return $widgets;
+}
+
 it('adds saves renames duplicates moves and removes containers while keeping state aligned', function (): void {
     $layout = Layout::factory()->create();
     $harness = makeLayoutBuilderMutationHarness($layout);
@@ -67,7 +92,9 @@ it('adds saves renames duplicates moves and removes containers while keeping sta
     $harness->addContainer('aside');
     $harness->addContainer('hero', 0);
 
-    capell_expect(array_keys($harness->containers))->toBe(['hero', 'main', 'aside'])
+    $containers = layoutBuilderMutationContainers($harness);
+
+    capell_expect(array_keys($containers))->toBe(['hero', 'main', 'aside'])
         ->and($harness->knownContainerKeys)->toBe(['main', 'aside', 'hero'])
         ->and($harness->canMoveContainerUp('hero'))->toBeFalse()
         ->and($harness->canMoveContainerDown('hero'))->toBeTrue();
@@ -79,15 +106,20 @@ it('adds saves renames duplicates moves and removes containers while keeping sta
         ],
     ], 'main');
 
-    capell_expect(array_keys($harness->containers))->toBe(['hero', 'aside', 'primary'])
-        ->and($harness->containers['primary']['meta']['area'])->toBe('main')
+    $containers = layoutBuilderMutationContainers($harness);
+    $primaryContainer = capell_test_array($containers['primary'] ?? null);
+    $primaryContainerMeta = capell_test_array($primaryContainer['meta'] ?? null);
+
+    capell_expect(array_keys($containers))->toBe(['hero', 'aside', 'primary'])
+        ->and($primaryContainerMeta['area'] ?? null)->toBe('main')
         ->and($harness->knownContainerKeys)->toContain('primary')
         ->and($harness->knownContainerKeys)->not->toContain('main');
 
     $harness->duplicateContainer('primary');
 
     $duplicatedKey = null;
-    foreach (array_keys($harness->containers) as $containerKey) {
+    $containers = layoutBuilderMutationContainers($harness);
+    foreach (array_keys($containers) as $containerKey) {
         if (! in_array($containerKey, ['hero', 'aside', 'primary'], true)) {
             $duplicatedKey = $containerKey;
             break;
@@ -101,11 +133,15 @@ it('adds saves renames duplicates moves and removes containers while keeping sta
 
     $harness->moveContainerUp($duplicatedKey);
 
-    capell_expect(array_keys($harness->containers)[2])->toBe($duplicatedKey);
+    $containers = layoutBuilderMutationContainers($harness);
+
+    capell_expect(array_keys($containers)[2] ?? null)->toBe($duplicatedKey);
 
     $harness->removeContainer('aside');
 
-    capell_expect($harness->containers)->not->toHaveKey('aside')
+    $containers = layoutBuilderMutationContainers($harness);
+
+    capell_expect($containers)->not->toHaveKey('aside')
         ->and($harness->knownContainerKeys)->not->toContain('aside')
         ->and($harness->layoutModified)->toBeTrue();
 });
@@ -152,9 +188,13 @@ it('mutates blocks across positions containers and occurrence metadata', functio
 
     $insertedIndex = $harness->addBlockToContainerAtPosition($cardBlock, 'main', 0);
 
+    $containers = layoutBuilderMutationContainers($harness);
+    $mainContainer = capell_test_array($containers['main'] ?? null);
+    $mainWidgets = layoutBuilderMutationWidgets($mainContainer);
+
     capell_expect($insertedIndex)->toBe(0)
-        ->and($harness->containers['main']['widgets'][0]['widget_key'])->toBe('card')
-        ->and($harness->containers['main']['widgets'][1]['widget_key'])->toBe('hero')
+        ->and($mainWidgets[0]['widget_key'] ?? null)->toBe('card')
+        ->and($mainWidgets[1]['widget_key'] ?? null)->toBe('hero')
         ->and($harness->canMoveBlockUp('main', 0))->toBeFalse()
         ->and($harness->canMoveBlockDown('main', 0))->toBeTrue()
         ->and($harness->canMoveBlockToContainer('main', 0, 'aside'))->toBeTrue()
@@ -166,18 +206,31 @@ it('mutates blocks across positions containers and occurrence metadata', functio
 
     $harness->duplicateBlock('main', 0);
 
-    capell_expect($harness->containers['main']['widgets'][2]['widget_key'])->toBe('card')
-        ->and($harness->containers['main']['widgets'][2]['occurrence'])->toBe(3)
+    $containers = layoutBuilderMutationContainers($harness);
+    $mainContainer = capell_test_array($containers['main'] ?? null);
+    $mainWidgets = layoutBuilderMutationWidgets($mainContainer);
+
+    capell_expect($mainWidgets[2]['widget_key'] ?? null)->toBe('card')
+        ->and($mainWidgets[2]['occurrence'] ?? null)->toBe(3)
         ->and($harness->assets['main'][2])->toBe($assetPayload);
 
     $harness->editLayoutBlock('main', 2, ['html_class' => 'featured']);
 
-    capell_expect($harness->containers['main']['widgets'][2]['meta']['html_class'])->toBe('featured');
+    $containers = layoutBuilderMutationContainers($harness);
+    $mainContainer = capell_test_array($containers['main'] ?? null);
+    $mainWidgets = layoutBuilderMutationWidgets($mainContainer);
+    $thirdWidgetMeta = capell_test_array($mainWidgets[2]['meta'] ?? null);
+
+    capell_expect($thirdWidgetMeta['html_class'] ?? null)->toBe('featured');
 
     $harness->moveBlockToContainer('main', 0, 'aside');
 
-    capell_expect($harness->containers['aside']['widgets'][0]['widget_key'])->toBe('card')
-        ->and($harness->containers['aside']['widgets'][0]['occurrence'])->toBe(1)
+    $containers = layoutBuilderMutationContainers($harness);
+    $asideContainer = capell_test_array($containers['aside'] ?? null);
+    $asideWidgets = layoutBuilderMutationWidgets($asideContainer);
+
+    capell_expect($asideWidgets[0]['widget_key'] ?? null)->toBe('card')
+        ->and($asideWidgets[0]['occurrence'] ?? null)->toBe(1)
         ->and($harness->assets['aside'][0][0]['container'])->toBe('main');
 
     $harness->exposeNormalizeContainerBlockOccurrences('main');
@@ -187,7 +240,11 @@ it('mutates blocks across positions containers and occurrence metadata', functio
 
     $harness->removeBlock('main', 0);
 
-    capell_expect($harness->containers['main']['widgets'][0]['widget_key'])->toBe('card')
+    $containers = layoutBuilderMutationContainers($harness);
+    $mainContainer = capell_test_array($containers['main'] ?? null);
+    $mainWidgets = layoutBuilderMutationWidgets($mainContainer);
+
+    capell_expect($mainWidgets[0]['widget_key'] ?? null)->toBe('card')
         ->and($harness->assets['main'])->toHaveCount(1)
         ->and($harness->selectedRecords['main'])->toHaveCount(1);
 });

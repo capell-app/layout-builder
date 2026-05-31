@@ -14,7 +14,6 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\BlueprintCreator;
-use Capell\DemoKit\Actions\DummyContentGeneratorAction;
 use Capell\LayoutBuilder\Enums\ActionLinkEnum;
 use Capell\LayoutBuilder\Enums\BlockComponentEnum;
 use Capell\LayoutBuilder\Enums\BlockTypeEnum;
@@ -28,6 +27,7 @@ use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 abstract class StandardDemoBlockCreator extends BaseDemoCreator
 {
@@ -78,7 +78,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                         [
                             'type' => 'content',
                             'data' => [
-                                'content' => DummyContentGeneratorAction::run($language->code),
+                                'content' => $this->dummyContent($language->code),
                             ],
                         ],
                     ],
@@ -98,7 +98,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'example-split-content'], [
             'name' => 'Example Split Content',
-            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::SectionBuilder->value, 'type' => LayoutTypeEnum::Widget->value])->id,
+            'blueprint_id' => $this->requiredWidgetType(BlockTypeEnum::SectionBuilder)->id,
             'meta' => [
                 'align' => 'center',
                 'size' => 'md',
@@ -134,7 +134,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                         [
                             'type' => 'content',
                             'data' => [
-                                'content' => str(DummyContentGeneratorAction::run($language->code))->limit(200)->toString(),
+                                'content' => str($this->dummyContent($language->code))->limit(200)->toString(),
                             ],
                         ],
                     ],
@@ -166,7 +166,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                 ['language_id' => $language->id],
                 [
                     'title' => 'Example Banner',
-                    'content' => DummyContentGeneratorAction::run($language->code),
+                    'content' => $this->dummyContent($language->code),
                 ],
             );
         }
@@ -270,6 +270,8 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             ->where('key', ContentTypeEnum::Builder->value)
             ->first();
 
+        throw_unless($contentType instanceof Blueprint, RuntimeException::class, 'A builder content type is required to create FAQ content.');
+
         $parentContent = $this->contentModel::query()->firstOrCreate([
             'name' => 'FAQs',
             'blueprint_id' => $contentType->id,
@@ -332,7 +334,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             ]);
 
             foreach ($languages as $language) {
-                $desc_content = DummyContentGeneratorAction::run($language->code);
+                $desc_content = $this->dummyContent($language->code);
                 $translatedQuestion = $questions[$language->code][$i] ?? $question;
 
                 $this->translationsFor($content)->updateOrCreate(
@@ -463,6 +465,12 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                 ->first();
         }
 
+        throw_unless($type instanceof Blueprint, RuntimeException::class, 'A section content type is required to create features.');
+
+        $site = $page->site;
+
+        throw_unless($site instanceof Site, RuntimeException::class, 'A page site is required to create feature actions.');
+
         $features = [
             [
                 'title' => 'Empower Your Vision',
@@ -492,7 +500,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                         [
                             'type' => ActionLinkEnum::Page->value,
                             'pageable_type' => resolve(Page::class)->getMorphClass(),
-                            'pageable_id' => Page::query()->where('site_id', $page->site->id)
+                            'pageable_id' => Page::query()->where('site_id', $site->id)
                                 ->whereHas(
                                     'type',
                                     /** @param Blueprint $query */
@@ -500,12 +508,12 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                                 )
                                 ->inRandomOrder()
                                 ->value('id'),
-                            'site_id' => $page->site->id,
+                            'site_id' => $site->id,
                         ],
                         [
                             'type' => ActionLinkEnum::Page->value,
                             'pageable_type' => resolve(Page::class)->getMorphClass(),
-                            'pageable_id' => Page::query()->where('site_id', $page->site->id)
+                            'pageable_id' => Page::query()->where('site_id', $site->id)
                                 ->whereHas(
                                     'type',
                                     /** @param Blueprint $query */
@@ -513,7 +521,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                                 )
                                 ->inRandomOrder()
                                 ->value('id'),
-                            'site_id' => $page->site->id,
+                            'site_id' => $site->id,
                             'color' => 'secondary',
                         ],
                         [
@@ -528,7 +536,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
                 ],
             ]);
 
-            foreach ($page->site->languages as $language) {
+            foreach ($site->languages as $language) {
                 $this->translationsFor($content)->updateOrCreate(
                     ['language_id' => $language->id],
                     [
@@ -553,7 +561,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             'key' => 'client-logos',
         ], [
             'name' => 'Client Logos',
-            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Assets->value, 'type' => LayoutTypeEnum::Widget->value])->id,
+            'blueprint_id' => $this->requiredWidgetType(BlockTypeEnum::Assets)->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
@@ -592,7 +600,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             'key' => 'business-features',
         ], [
             'name' => 'Business Features',
-            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Sections->value, 'type' => LayoutTypeEnum::Widget->value])->id,
+            'blueprint_id' => $this->requiredWidgetType(BlockTypeEnum::Sections)->id,
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
@@ -635,7 +643,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         $creator = resolve(BlockCreator::class);
         $block = $creator->bannerBlock();
 
-        $site = Site::getDefault();
+        $site = $this->defaultSite();
 
         $features = $this->createFeatures($site);
 
@@ -689,7 +697,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
     {
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'statistics'], [
             'name' => 'Statistic Blocks',
-            'blueprint_id' => $this->typeModel::query()->firstWhere(['key' => BlockTypeEnum::Assets->value, 'type' => LayoutTypeEnum::Widget->value])->id,
+            'blueprint_id' => $this->requiredWidgetType(BlockTypeEnum::Assets)->id,
             'meta' => [
                 'component_item' => FrontendComponentKeyEnum::SectionBlock->value,
                 'view_file' => 'capell-foundation-theme::components.block.asset.blocks',
@@ -734,7 +742,7 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
             ],
         ];
 
-        $site = Site::getDefault();
+        $site = $this->defaultSite();
 
         foreach ($statistics as $statistic) {
             $content = $this->contentModel::query()->firstOrCreate([
@@ -820,5 +828,18 @@ abstract class StandardDemoBlockCreator extends BaseDemoCreator
         });
 
         return $block;
+    }
+
+    private function dummyContent(string $languageCode): string
+    {
+        $samples = [
+            'en' => 'Capell demo content is written to exercise real publishing surfaces: reusable sections, structured summaries, layout blocks, and editorial workflows.',
+            'fr' => 'Le contenu de demonstration Capell presente des surfaces de publication reelles: sections reutilisables, resumes structures, elements de mise en page et flux editoriaux.',
+            'de' => 'Capell-Demoinhalte zeigen reale Veroffentlichungsbereiche: wiederverwendbare Abschnitte, strukturierte Zusammenfassungen, Layout-Blocke und redaktionelle Ablaufe.',
+            'it' => 'I contenuti demo di Capell mostrano superfici editoriali reali: sezioni riutilizzabili, riepiloghi strutturati, blocchi di layout e flussi editoriali.',
+            'es' => 'El contenido demo de Capell muestra superficies de publicacion reales: secciones reutilizables, resumenes estructurados, bloques de diseno y flujos editoriales.',
+        ];
+
+        return '<p>' . ($samples[$languageCode] ?? $samples['en']) . '</p>';
     }
 }

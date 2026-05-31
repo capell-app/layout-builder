@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Support;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
 use Capell\LayoutBuilder\Actions\ResolveBlockPresentationDataAction;
 use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
@@ -78,11 +79,11 @@ final class BlockPresentationPublicBlockPayloadContributor implements PublicBloc
 
     private function themeKeyFromSite(mixed $site): ?string
     {
-        if (! is_object($site) || ! method_exists($site, 'getAttribute')) {
+        if (! $site instanceof Site) {
             return null;
         }
 
-        $theme = method_exists($site, 'relationLoaded') && $site->relationLoaded('theme')
+        $theme = $site->relationLoaded('theme')
             ? $site->getRelation('theme')
             : null;
         $themeKey = $theme instanceof Theme ? $theme->getAttribute('key') : null;

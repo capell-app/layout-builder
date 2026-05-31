@@ -68,10 +68,20 @@ it('creates the legacy support blocks with expected metadata and translations', 
             'ap-image-gallery',
         ])->count())->toBe(22);
 
-    expect(Widget::query()->firstWhere('key', 'breadcrumbs')?->component)->toBe(BlockComponentEnum::PageBreadcrumbs->value)
-        ->and(Widget::query()->firstWhere('key', 'page-content')?->meta['page_content'])->toBe(['title', 'content'])
-        ->and(Widget::query()->firstWhere('key', 'media-carousel')?->meta['carousel_auto_play'])->toBeTrue()
-        ->and(Widget::query()->firstWhere('key', 'ap-card-grid')?->meta['columns'])->toBe(3)
-        ->and(Widget::query()->firstWhere('key', 'children')?->translations()->where('language_id', $language->getKey())->exists())->toBeTrue()
-        ->and(Widget::query()->firstWhere('key', 'siblings')?->translations()->where('language_id', $language->getKey())->exists())->toBeTrue();
+    $breadcrumbsBlock = capell_test_instance(Widget::query()->firstWhere('key', 'breadcrumbs'), Widget::class);
+    $pageContentBlock = capell_test_instance(Widget::query()->firstWhere('key', 'page-content'), Widget::class);
+    $pageContentBlockMeta = capell_test_array($pageContentBlock->meta);
+    $mediaCarouselBlock = capell_test_instance(Widget::query()->firstWhere('key', 'media-carousel'), Widget::class);
+    $mediaCarouselBlockMeta = capell_test_array($mediaCarouselBlock->meta);
+    $apCardGridBlock = capell_test_instance(Widget::query()->firstWhere('key', 'ap-card-grid'), Widget::class);
+    $apCardGridBlockMeta = capell_test_array($apCardGridBlock->meta);
+    $childrenBlock = capell_test_instance(Widget::query()->firstWhere('key', 'children'), Widget::class);
+    $siblingsBlock = capell_test_instance(Widget::query()->firstWhere('key', 'siblings'), Widget::class);
+
+    expect($breadcrumbsBlock->component)->toBe(BlockComponentEnum::PageBreadcrumbs->value)
+        ->and($pageContentBlockMeta['page_content'] ?? null)->toBe(['title', 'content'])
+        ->and($mediaCarouselBlockMeta['carousel_auto_play'] ?? null)->toBeTrue()
+        ->and($apCardGridBlockMeta['columns'] ?? null)->toBe(3)
+        ->and($childrenBlock->translations()->where('language_id', $language->getKey())->exists())->toBeTrue()
+        ->and($siblingsBlock->translations()->where('language_id', $language->getKey())->exists())->toBeTrue();
 });

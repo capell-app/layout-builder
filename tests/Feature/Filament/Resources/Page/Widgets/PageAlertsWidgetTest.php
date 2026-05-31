@@ -7,7 +7,10 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Translation;
 use Capell\LayoutBuilder\Models\Widget;
+use Capell\Tests\Fixtures\Models\User;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
+use Filament\Actions\Action;
+use Illuminate\Support\Arr;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 
@@ -23,14 +26,15 @@ it('hides the missing hero widget alert action when the user cannot update the l
     assert($component instanceof PageAlertsWidget);
 
     $alert = $component->alerts()->get('missingHeroWidget');
+    $action = pageAlertsWidgetAction($alert?->action);
 
-    expect($alert?->action?->isVisible())->toBeFalse();
+    expect($action?->isVisible())->toBeFalse();
 });
 
 it('shows the missing hero widget alert action when the user can update the layout', function (): void {
     Permission::findOrCreate('Update:Layout', 'web');
     test()->actingAsUser();
-    auth()->user()->givePermissionTo('Update:Layout');
+    capell_test_instance(auth()->user(), User::class)->givePermissionTo('Update:Layout');
 
     $component = Livewire::test(PageAlertsWidget::class, [
         'record' => pageWithHeroContentAndLayoutWithoutHeroWidget(),
@@ -39,9 +43,17 @@ it('shows the missing hero widget alert action when the user can update the layo
     assert($component instanceof PageAlertsWidget);
 
     $alert = $component->alerts()->get('missingHeroWidget');
+    $action = pageAlertsWidgetAction($alert?->action);
 
-    expect($alert?->action?->isVisible())->toBeTrue();
+    expect($action?->isVisible())->toBeTrue();
 });
+
+function pageAlertsWidgetAction(mixed $action): ?Action
+{
+    $firstAction = Arr::first(Arr::wrap($action));
+
+    return $firstAction instanceof Action ? $firstAction : null;
+}
 
 function pageWithHeroContentAndLayoutWithoutHeroWidget(): Page
 {

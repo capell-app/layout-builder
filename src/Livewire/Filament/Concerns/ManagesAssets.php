@@ -104,8 +104,8 @@ trait ManagesAssets
         return collect($assets)
             ->contains(
                 fn (array $asset): bool => isset($asset['pageable_type'], $asset['pageable_id'])
-                    && $asset['pageable_type'] === $this->page->getMorphClass()
-                    && $asset['pageable_id'] === $this->page->getKey(),
+                    && $asset['pageable_type'] === $this->pageContext()->getMorphClass()
+                    && $asset['pageable_id'] === $this->pageContext()->getKey(),
             );
     }
 
@@ -122,8 +122,8 @@ trait ManagesAssets
         return $block
             ->assets()
             ->where([
-                'pageable_type' => $this->page->getMorphClass(),
-                'pageable_id' => $this->page->getKey(),
+                'pageable_type' => $this->pageContext()->getMorphClass(),
+                'pageable_id' => $this->pageContext()->getKey(),
             ])
             ->exists();
     }
@@ -195,8 +195,8 @@ trait ManagesAssets
         }
 
         return collect($assets)->contains(
-            fn (array $blockAsset): bool => $blockAsset['pageable_id'] === $this->page->getKey()
-                && $blockAsset['pageable_type'] === $this->page->getMorphClass(),
+            fn (array $blockAsset): bool => $blockAsset['pageable_id'] === $this->pageContext()->getKey()
+                && $blockAsset['pageable_type'] === $this->pageContext()->getMorphClass(),
         );
     }
 
@@ -349,8 +349,8 @@ trait ManagesAssets
 
         foreach ($this->assets[$containerKey][$blockIndex] as $assetIndex => $asset) {
             if ($hasPageAssets) {
-                $this->assets[$containerKey][$blockIndex][$assetIndex]['pageable_id'] = $this->page->getKey();
-                $this->assets[$containerKey][$blockIndex][$assetIndex]['pageable_type'] = $this->page->getMorphClass();
+                $this->assets[$containerKey][$blockIndex][$assetIndex]['pageable_id'] = $this->pageContext()->getKey();
+                $this->assets[$containerKey][$blockIndex][$assetIndex]['pageable_type'] = $this->pageContext()->getMorphClass();
             } else {
                 $this->assets[$containerKey][$blockIndex][$assetIndex]['pageable_id'] = null;
                 $this->assets[$containerKey][$blockIndex][$assetIndex]['pageable_type'] = null;
@@ -445,8 +445,8 @@ trait ManagesAssets
                     return $asset->pageable_type === null || $asset->pageable_id === null;
                 }
 
-                $matchesPage = $asset->pageable_type === $this->page->getMorphClass()
-                    && $asset->pageable_id === $this->page->getKey();
+                $matchesPage = $asset->pageable_type === $this->pageContext()->getMorphClass()
+                    && $asset->pageable_id === $this->pageContext()->getKey();
 
                 $matchesContainer = $asset->container === null || $asset->container === $oldContainerKey;
 
@@ -473,10 +473,10 @@ trait ManagesAssets
     {
         $this->selectedRecords = [];
 
-        foreach ($this->containers as $containerKey => $container) {
+        foreach (array_keys($this->containers ?? []) as $containerKey) {
             $this->selectedRecords[$containerKey] = [];
 
-            foreach ($container['widgets'] as $blockIndex => $block) {
+            foreach ($this->containerWidgets((string) $containerKey) as $blockIndex => $block) {
                 $this->selectedRecords[$containerKey][$blockIndex] = [];
             }
         }
@@ -537,6 +537,8 @@ trait ManagesAssets
 
         $order = $this->countBlockAssets($containerKey, $blockIndex);
 
+        $hasPageAssets = $hasPageAssets === true;
+
         foreach ($validatedAssetIds as $assetId) {
             $order++;
 
@@ -551,9 +553,9 @@ trait ManagesAssets
                 'occurrence' => $occurrence,
             ];
 
-            if ($hasPageAssets === true) {
-                $asset['pageable_id'] = $this->page->getKey();
-                $asset['pageable_type'] = $this->page->getMorphClass();
+            if ($hasPageAssets) {
+                $asset['pageable_id'] = $this->pageContext()->getKey();
+                $asset['pageable_type'] = $this->pageContext()->getMorphClass();
                 $asset['container'] = $containerKey;
             }
 
@@ -694,7 +696,7 @@ trait ManagesAssets
             $this->page instanceof Model
             && $this->page instanceof $assetModelClass
         ) {
-            $query->whereKeyNot($this->page->getKey());
+            $query->whereKeyNot($this->pageContext()->getKey());
         }
 
         $workspaceId = $this->getCurrentWorkspaceId();
@@ -814,8 +816,8 @@ trait ManagesAssets
                                 $blockHasPageAssets ? fn (EloquentBuilder $query) => $query
                                     ->where([
                                         'container' => $oldContainerKey,
-                                        'pageable_type' => $this->page->getMorphClass(),
-                                        'pageable_id' => $this->page->getKey(),
+                                        'pageable_type' => $this->pageContext()->getMorphClass(),
+                                        'pageable_id' => $this->pageContext()->getKey(),
                                     ]) : null,
                                 fn (EloquentBuilder $query) => $query->whereNull(['container', 'pageable_id', 'pageable_type']),
                             ),
@@ -889,14 +891,14 @@ trait ManagesAssets
             }
 
             if ($existingAsset instanceof WidgetAsset) {
-                $existingAsset->order = $order;
+                $existingAsset->order = max(0, (int) $order);
                 $existingAsset->meta = $blockAsset['meta'] ?? [];
-                $existingAsset->occurrence = $occurrence;
+                $existingAsset->occurrence = max(0, $occurrence);
 
                 if ($hasPageAssets) {
                     $existingAsset->container = $containerKey;
-                    $existingAsset->pageable_id = $this->page->getKey();
-                    $existingAsset->pageable_type = $this->page->getMorphClass();
+                    $existingAsset->pageable_id = $this->pageContext()->getKey();
+                    $existingAsset->pageable_type = $this->pageContext()->getMorphClass();
                 } else {
                     $existingAsset->container = null;
                     $existingAsset->pageable_id = null;
@@ -974,7 +976,7 @@ trait ManagesAssets
         int $occurrence,
         int $order,
     ): WidgetAsset {
-        $pageId = $hasPageAssets ? $this->page->getKey() : null;
+        $pageId = $hasPageAssets ? $this->pageContext()->getKey() : null;
 
         $blockAsset = $block->assets
             ->where([
@@ -987,7 +989,7 @@ trait ManagesAssets
                 fn (SupportCollection $collection): SupportCollection => $collection
                     ->where('container', $containerKey)
                     ->where('pageable_id', $pageId)
-                    ->where('pageable_type', $this->page->getMorphClass()),
+                    ->where('pageable_type', $this->pageContext()->getMorphClass()),
             )
             ->first();
 
@@ -1005,7 +1007,7 @@ trait ManagesAssets
 
             if ($pageId !== null) {
                 $blockAsset->pageable_id = $pageId;
-                $blockAsset->pageable_type = $this->page->getMorphClass();
+                $blockAsset->pageable_type = $this->pageContext()->getMorphClass();
                 $blockAsset->container = $containerKey;
             }
         }
@@ -1033,8 +1035,8 @@ trait ManagesAssets
         ];
 
         if ($hasPageAssets) {
-            $attributes['pageable_id'] = $this->page->getKey();
-            $attributes['pageable_type'] = $this->page->getMorphClass();
+            $attributes['pageable_id'] = $this->pageContext()->getKey();
+            $attributes['pageable_type'] = $this->pageContext()->getMorphClass();
             $attributes['container'] = $containerKey;
         } else {
             $attributes['pageable_id'] = null;
@@ -1048,7 +1050,7 @@ trait ManagesAssets
             ->first();
 
         if ($existing instanceof WidgetAsset) {
-            $existing->order = $order;
+            $existing->order = max(0, $order);
             $existing->meta = $asset['meta'] ?? [];
             $existing->save();
 
@@ -1123,8 +1125,8 @@ trait ManagesAssets
                 $this->page,
                 fn (EloquentBuilder $query): EloquentBuilder => $query->where(
                     fn (EloquentBuilder $query): EloquentBuilder => $query->where([
-                        'pageable_type' => $this->page->getMorphClass(),
-                        'pageable_id' => $this->page->getKey(),
+                        'pageable_type' => $this->pageContext()->getMorphClass(),
+                        'pageable_id' => $this->pageContext()->getKey(),
                     ])
                         ->orWhereNull(['pageable_type', 'pageable_id']),
                 ),
@@ -1210,8 +1212,8 @@ trait ManagesAssets
                     $this->page,
                     fn (EloquentBuilder $query) => $query->where(
                         fn (EloquentBuilder $query) => $query->where([
-                            'pageable_type' => $this->page->getMorphClass(),
-                            'pageable_id' => $this->page->getKey(),
+                            'pageable_type' => $this->pageContext()->getMorphClass(),
+                            'pageable_id' => $this->pageContext()->getKey(),
                         ])
                             ->orWhereNull(['pageable_type', 'pageable_id']),
                     ),
@@ -1255,7 +1257,7 @@ trait ManagesAssets
                 return $query;
             },
         ])
-            ->filter(fn (WidgetAsset $blockAsset): bool => $this->canUseAssetRecord($blockAsset->asset));
+            ->filter(fn (WidgetAsset $blockAsset): bool => $blockAsset->asset instanceof Model && $this->canUseAssetRecord($blockAsset->asset));
     }
 
     /**
@@ -1292,8 +1294,8 @@ trait ManagesAssets
                 return false;
             }
 
-            return $blockAsset->pageable_type === $this->page->getMorphClass()
-                && $blockAsset->pageable_id === $this->page->getKey();
+            return $blockAsset->pageable_type === $this->pageContext()->getMorphClass()
+                && $blockAsset->pageable_id === $this->pageContext()->getKey();
         })->values();
 
         $selectedAssets = $filteredAssets
@@ -1357,13 +1359,13 @@ trait ManagesAssets
         }
 
         return ($asset->pageable_type === null && $asset->pageable_id === null)
-            || ($asset->pageable_type === $this->page->getMorphClass()
-                && $asset->pageable_id === $this->page->getKey());
+            || ($asset->pageable_type === $this->pageContext()->getMorphClass()
+                && $asset->pageable_id === $this->pageContext()->getKey());
     }
 
     protected function deleteRemovedBlockAssets(): void
     {
-        foreach ($this->originalAssets as $containerKey => $originalBlockAssets) {
+        foreach ($this->originalAssets ?? [] as $containerKey => $originalBlockAssets) {
             foreach ($originalBlockAssets as $blockIndex => $originalAssets) {
                 $currentAssets = $this->assets[$containerKey][$blockIndex] ?? [];
 
@@ -1386,7 +1388,7 @@ trait ManagesAssets
                 $hasPageAssets = false;
                 if ($this->inPageContext()) {
                     foreach ($originalAssets as $asset) {
-                        if ($asset['pageable_id'] === $this->page->getKey() && $asset['pageable_type'] === $this->page->getMorphClass()) {
+                        if ($asset['pageable_id'] === $this->pageContext()->getKey() && $asset['pageable_type'] === $this->pageContext()->getMorphClass()) {
                             $hasPageAssets = true;
 
                             break;
@@ -1416,8 +1418,8 @@ trait ManagesAssets
                             $hasPageAssets,
                             fn (EloquentBuilder $query) => $query->where([
                                 'container' => $asset['original_container_key'],
-                                'pageable_type' => $this->page->getMorphClass(),
-                                'pageable_id' => $this->page->getKey(),
+                                'pageable_type' => $this->pageContext()->getMorphClass(),
+                                'pageable_id' => $this->pageContext()->getKey(),
                             ]),
                         )
                         ->delete();

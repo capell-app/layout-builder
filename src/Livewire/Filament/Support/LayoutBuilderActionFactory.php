@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\LayoutBuilder\Livewire\Filament\Actions;
+namespace Capell\LayoutBuilder\Livewire\Filament\Support;
 
 use BackedEnum;
 use Capell\Admin\Actions\ReplicateLayoutAction;
@@ -15,6 +15,7 @@ use Capell\Core\Models\Site;
 use Capell\HtmlCache\Actions\ClearCachedUrlsForModelAction;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Exceptions\MissingBlockAssetException;
+use Capell\LayoutBuilder\Filament\Configurators\Blocks\DefaultBlockConfigurator;
 use Capell\LayoutBuilder\Filament\Resources\Pages\Tables\PageSelectionTable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Schemas\WidgetAssetForm;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Schemas\WidgetForm;
@@ -36,6 +37,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Enums\IconSize;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -48,6 +50,18 @@ use Throwable;
 
 final class LayoutBuilderActionFactory
 {
+    private const string CLEAR_CACHED_URLS_FOR_MODEL_ACTION = ClearCachedUrlsForModelAction::class;
+
+    private const string CREATE_RECORD_DRAFT_WORKSPACE_ACTION = CreateRecordDraftWorkspaceAction::class;
+
+    private const string SAVE_RECORD_DRAFT_ACTION = SaveRecordDraftAction::class;
+
+    private const string WORKSPACE_CLASS = Workspace::class;
+
+    private const string WORKSPACE_CONTEXT_CLASS = WorkspaceContext::class;
+
+    private const string WORKSPACE_REGISTRY_CLASS = WorkspaceRegistry::class;
+
     /**
      * @var array<string, mixed>|null
      */
@@ -58,7 +72,7 @@ final class LayoutBuilderActionFactory
      */
     private ?array $pendingLiveDraftableRelationSnapshot = null;
 
-    private ?Workspace $pendingLiveDraftableWorkspace = null;
+    private ?Model $pendingLiveDraftableWorkspace = null;
 
     public function __construct(private LayoutBuilder $livewire) {}
 
@@ -162,7 +176,7 @@ final class LayoutBuilderActionFactory
             ->extraAttributes(['class' => 'layout-builder-add-container-button'])
             ->record(fn (): Layout => $this->livewire->layout)
             ->modalWidth(Width::ThreeExtraLarge)
-            ->modalSubmitActionLabel(fn (Action $action): string => $action->getTooltip())
+            ->modalSubmitActionLabel(fn (Action $action): string => $this->labelText($action->getTooltip()))
             ->schema(
                 static fn (LayoutBuilder $livewire, Schema $schema, array $arguments): Schema => $schema->operation('createOption')
                     ->schema($livewire->getContainerSchema($schema, $arguments)),
@@ -193,7 +207,7 @@ final class LayoutBuilderActionFactory
                     ['key' => (string) str($arguments['containerKey'])->title()],
                 ),
             )
-            ->modalSubmitActionLabel(fn (Action $action): string => $action->getLabel())
+            ->modalSubmitActionLabel(fn (Action $action): string => $this->labelText($action->getLabel()))
             ->schema(
                 static fn (LayoutBuilder $livewire, Schema $schema, array $arguments): Schema => $schema->operation('editOption')
                     ->schema($livewire->getContainerSchema($schema, $arguments)),
@@ -287,7 +301,7 @@ final class LayoutBuilderActionFactory
                 ),
             )
             ->modalHeading(__('capell-layout-builder::heading.container_block_settings'))
-            ->modalSubmitActionLabel(fn (Action $action): string => $action->getLabel())
+            ->modalSubmitActionLabel(fn (Action $action): string => $this->labelText($action->getLabel()))
             ->modalDescription(
                 fn (array $arguments, LayoutBuilder $livewire): string => __(
                     'capell-admin::generic.edit_container_block',
@@ -301,7 +315,7 @@ final class LayoutBuilderActionFactory
             ->schema(function (array $arguments, LayoutBuilder $livewire, Schema $schema): Schema {
                 $adminSchema = AdminSurfaceLookup::configurator(
                     ConfiguratorTypeEnum::LayoutBlock->value,
-                    $livewire->getContainerBlockConfigurator($arguments['containerKey'], $arguments['blockIndex']),
+                    $livewire->getContainerBlockConfigurator($arguments['containerKey'], $arguments['blockIndex']) ?? DefaultBlockConfigurator::getKey(),
                 );
 
                 $typeSchema = resolve($adminSchema)->make($schema);
@@ -346,7 +360,7 @@ final class LayoutBuilderActionFactory
                     $components[] = Select::make('container')
                         ->label(__('capell-admin::form.container'))
                         ->hiddenLabel()
-                        ->prefix(fn (Select $component): string => $component->getLabel() . ': ')
+                        ->prefix(fn (Select $component): string => $this->labelText($component->getLabel()) . ': ')
                         ->required()
                         ->options($containerOptions);
                 }
@@ -415,7 +429,11 @@ final class LayoutBuilderActionFactory
                 fn (Action $action, Schema $schema): Schema => WidgetForm::configure(
                     $schema->operation('editOption')
                         ->record(function () use ($action): Widget {
-                            $block = $action->getRecord()->fresh();
+                            $record = $action->getRecord();
+
+                            throw_unless($record instanceof Widget, RuntimeException::class, 'Widget edit action record must be a block model.');
+
+                            $block = $record->fresh();
 
                             throw_unless($block instanceof Widget, RuntimeException::class, 'Widget edit action record must refresh to a block model.');
 
@@ -685,7 +703,7 @@ final class LayoutBuilderActionFactory
             ->color('primary')
             ->size(Size::ExtraSmall)
             ->visible(fn (LayoutBuilder $livewire): bool => $livewire->canEditContent())
-            ->icon(fn (array $arguments): string|BackedEnum => CapellCore::getAsset($arguments['type'])->getIcon())
+            ->icon(fn (array $arguments): string|BackedEnum => CapellCore::getAsset($arguments['type'])->getIcon() ?? 'heroicon-o-pencil-square')
             ->iconSize(IconSize::Small)
             ->tooltip(
                 fn (array $arguments): string => __(
@@ -914,6 +932,11 @@ final class LayoutBuilderActionFactory
             });
     }
 
+    private function labelText(Htmlable|string|null $label): string
+    {
+        return $label instanceof Htmlable ? $label->toHtml() : (string) $label;
+    }
+
     /**
      * @param  array<array-key, mixed>  $arguments
      * @param  array<array-key, mixed>  $data
@@ -958,8 +981,9 @@ final class LayoutBuilderActionFactory
 
         // Ensure UpdatedModelAction is not triggered
         WidgetAsset::withoutEvents(function () use ($blockAsset, $configurator, $draftableNewAssetWorkspace): void {
-            if ($draftableNewAssetWorkspace instanceof Workspace) {
-                WorkspaceContext::runWith($draftableNewAssetWorkspace, function () use ($blockAsset, $configurator, $draftableNewAssetWorkspace): void {
+            if ($this->isWorkspace($draftableNewAssetWorkspace)) {
+                $workspaceContextClass = self::WORKSPACE_CONTEXT_CLASS;
+                $workspaceContextClass::runWith($draftableNewAssetWorkspace, function () use ($blockAsset, $configurator, $draftableNewAssetWorkspace): void {
                     $configurator->saveRelationships();
                     $this->moveCreatedDraftableAssetIntoWorkspace($blockAsset, $draftableNewAssetWorkspace);
                 });
@@ -970,9 +994,9 @@ final class LayoutBuilderActionFactory
             $configurator->saveRelationships();
         });
 
-        if ($draftableNewAssetWorkspace instanceof Workspace && ! (WorkspaceContext::current() instanceof Workspace)) {
+        if ($this->isWorkspace($draftableNewAssetWorkspace) && ! $this->isWorkspace($this->currentWorkspace())) {
             Notification::make('created-asset-draft')
-                ->title(__('capell-layout-builder::message.asset_draft_saved', ['workspace' => $draftableNewAssetWorkspace->name]))
+                ->title(__('capell-layout-builder::message.asset_draft_saved', ['workspace' => (string) $draftableNewAssetWorkspace->getAttribute('name')]))
                 ->success()
                 ->send();
 
@@ -1006,8 +1030,8 @@ final class LayoutBuilderActionFactory
         ];
 
         if ($hasPageAssets) {
-            $asset['pageable_id'] = $this->livewire->page->getKey();
-            $asset['pageable_type'] = $this->livewire->page->getMorphClass();
+            $asset['pageable_id'] = $this->livewire->pageContext()->getKey();
+            $asset['pageable_type'] = $this->livewire->pageContext()->getMorphClass();
             $asset['container'] = $containerKey;
         }
 
@@ -1032,7 +1056,7 @@ final class LayoutBuilderActionFactory
         );
     }
 
-    private function moveCreatedDraftableAssetIntoWorkspace(WidgetAsset $blockAsset, Workspace $workspace): void
+    private function moveCreatedDraftableAssetIntoWorkspace(WidgetAsset $blockAsset, Model $workspace): void
     {
         $asset = $blockAsset->getRelationValue('asset');
 
@@ -1051,15 +1075,18 @@ final class LayoutBuilderActionFactory
         $asset->setAttribute('workspace_id', $workspace->id);
     }
 
-    private function workspaceForNewDraftableAsset(WidgetAsset $blockAsset, string $type): ?Workspace
+    private function workspaceForNewDraftableAsset(WidgetAsset $blockAsset, string $type): ?Model
     {
-        if (! class_exists(CreateRecordDraftWorkspaceAction::class) || ! class_exists(WorkspaceRegistry::class)) {
+        $createWorkspaceAction = self::CREATE_RECORD_DRAFT_WORKSPACE_ACTION;
+        $workspaceRegistry = self::WORKSPACE_REGISTRY_CLASS;
+
+        if (! class_exists($createWorkspaceAction) || ! class_exists($workspaceRegistry)) {
             return null;
         }
 
-        $activeWorkspace = WorkspaceContext::current();
+        $activeWorkspace = $this->currentWorkspace();
 
-        if ($activeWorkspace instanceof Workspace) {
+        if ($this->isWorkspace($activeWorkspace)) {
             return $activeWorkspace;
         }
 
@@ -1071,7 +1098,7 @@ final class LayoutBuilderActionFactory
 
         $modelClass = $asset->model ?? null;
 
-        if (! is_string($modelClass) || ! is_a($modelClass, Model::class, true) || ! WorkspaceRegistry::isRegistered($modelClass)) {
+        if (! is_string($modelClass) || ! is_a($modelClass, Model::class, true) || ! $workspaceRegistry::isRegistered($modelClass)) {
             return null;
         }
 
@@ -1087,15 +1114,19 @@ final class LayoutBuilderActionFactory
             $record = new $modelClass;
         }
 
-        return CreateRecordDraftWorkspaceAction::run($record, $user);
+        $workspace = $createWorkspaceAction::run($record, $user);
+
+        return $this->isWorkspace($workspace) ? $workspace : null;
     }
 
     /**
      * @param  array<array-key, mixed>  $data
      */
-    private function createDraftableAssetFromBuilderData(string $type, array $data, ?Workspace $workspace): ?Model
+    private function createDraftableAssetFromBuilderData(string $type, array $data, ?Model $workspace): ?Model
     {
-        if (! $workspace instanceof Workspace || ! class_exists(WorkspaceRegistry::class)) {
+        $workspaceRegistry = self::WORKSPACE_REGISTRY_CLASS;
+
+        if (! $this->isWorkspace($workspace) || ! class_exists($workspaceRegistry)) {
             return null;
         }
 
@@ -1107,7 +1138,7 @@ final class LayoutBuilderActionFactory
 
         $modelClass = $asset->model ?? null;
 
-        if (! is_string($modelClass) || ! is_a($modelClass, Model::class, true) || ! WorkspaceRegistry::isRegistered($modelClass)) {
+        if (! is_string($modelClass) || ! is_a($modelClass, Model::class, true) || ! $workspaceRegistry::isRegistered($modelClass)) {
             return null;
         }
 
@@ -1236,7 +1267,7 @@ final class LayoutBuilderActionFactory
             return null;
         }
 
-        return __('capell-layout-builder::heading.page_block_asset', ['name' => $livewire->page->name]);
+        return __('capell-layout-builder::heading.page_block_asset', ['name' => $livewire->pageContext()->name]);
     }
 
     /**
@@ -1298,13 +1329,16 @@ final class LayoutBuilderActionFactory
      */
     private function saveDraftableAssetFromBlockAsset(WidgetAsset $record, array $data, bool $canUpdatePersistedRecord): bool
     {
-        if (! class_exists(SaveRecordDraftAction::class) || ! class_exists(WorkspaceRegistry::class)) {
+        $saveRecordDraftAction = self::SAVE_RECORD_DRAFT_ACTION;
+        $workspaceRegistry = self::WORKSPACE_REGISTRY_CLASS;
+
+        if (! class_exists($saveRecordDraftAction) || ! class_exists($workspaceRegistry)) {
             return false;
         }
 
         $asset = $record->asset;
 
-        if (! $asset instanceof Model || ! WorkspaceRegistry::isRegistered($asset::class)) {
+        if (! $asset instanceof Model || ! $workspaceRegistry::isRegistered($asset::class)) {
             return false;
         }
 
@@ -1324,7 +1358,7 @@ final class LayoutBuilderActionFactory
             $assetData = $data;
         }
 
-        $workspace = WorkspaceContext::current();
+        $workspace = $this->currentWorkspace();
         $liveSnapshot = (int) $asset->getAttribute('workspace_id') === 0
             ? $asset->getRawOriginal()
             : null;
@@ -1336,17 +1370,24 @@ final class LayoutBuilderActionFactory
             : ['__class' => $asset::class, '__key_name' => $asset->getKeyName(), ...$liveSnapshot];
         $this->pendingLiveDraftableRelationSnapshot = $liveRelationSnapshot;
 
-        $result = SaveRecordDraftAction::run(
+        $result = $saveRecordDraftAction::run(
             record: $asset,
             data: $assetData,
             user: $user,
-            workspace: $workspace instanceof Workspace ? $workspace : null,
+            workspace: $this->isWorkspace($workspace) ? $workspace : null,
             saveRelationships: fn (Model $draft): null => $this->saveDraftableAssetRelationData($draft, $assetData),
         );
 
+        $resultWorkspace = $result->workspace ?? null;
+        $resultRecord = $result->record ?? null;
+
+        if (! $this->isWorkspace($resultWorkspace) || ! $resultRecord instanceof Model) {
+            return false;
+        }
+
         if ($liveSnapshot !== null) {
-            $this->restoreLiveDraftableAssetSnapshot($asset, $liveSnapshot, $result->workspace);
-            $this->pendingLiveDraftableWorkspace = $result->workspace;
+            $this->restoreLiveDraftableAssetSnapshot($asset, $liveSnapshot, $resultWorkspace);
+            $this->pendingLiveDraftableWorkspace = $resultWorkspace;
         }
 
         if ($liveRelationSnapshot !== null) {
@@ -1354,16 +1395,16 @@ final class LayoutBuilderActionFactory
         }
 
         if ($canUpdatePersistedRecord && (int) $record->workspace_id > 0) {
-            $record->asset_id = $result->record->getKey();
+            $record->asset_id = $resultRecord->getKey();
             $record->save();
         }
 
-        if (! (WorkspaceContext::current() instanceof Workspace)) {
-            $this->livewire->dispatch('workspace-changed', workspaceId: $result->workspace->id);
+        if (! $this->isWorkspace($this->currentWorkspace())) {
+            $this->livewire->dispatch('workspace-changed', workspaceId: $resultWorkspace->id);
         }
 
         Notification::make('saved-asset-draft')
-            ->title(__('capell-layout-builder::message.asset_draft_saved', ['workspace' => $result->workspace->name]))
+            ->title(__('capell-layout-builder::message.asset_draft_saved', ['workspace' => (string) $resultWorkspace->getAttribute('name')]))
             ->success()
             ->send();
 
@@ -1373,7 +1414,7 @@ final class LayoutBuilderActionFactory
     /**
      * @param  array<string, mixed>  $snapshot
      */
-    private function restoreLiveDraftableAssetSnapshot(Model $asset, array $snapshot, Workspace $workspace): void
+    private function restoreLiveDraftableAssetSnapshot(Model $asset, array $snapshot, Model $workspace): void
     {
         $keyName = $asset->getKeyName();
         $payload = Arr::except($snapshot, [$keyName]);
@@ -1387,7 +1428,7 @@ final class LayoutBuilderActionFactory
 
     private function restorePendingLiveDraftableAssetSnapshot(): void
     {
-        if ($this->pendingLiveDraftableAssetSnapshot === null || ! $this->pendingLiveDraftableWorkspace instanceof Workspace) {
+        if ($this->pendingLiveDraftableAssetSnapshot === null || ! $this->isWorkspace($this->pendingLiveDraftableWorkspace)) {
             return;
         }
 
@@ -1510,7 +1551,9 @@ final class LayoutBuilderActionFactory
      */
     private function isDraftableAssetType(array $arguments): bool
     {
-        if (! class_exists(WorkspaceRegistry::class)) {
+        $workspaceRegistry = self::WORKSPACE_REGISTRY_CLASS;
+
+        if (! class_exists($workspaceRegistry)) {
             return false;
         }
 
@@ -1528,7 +1571,7 @@ final class LayoutBuilderActionFactory
 
         $modelClass = $asset->model ?? null;
 
-        return is_string($modelClass) && is_a($modelClass, Model::class, true) && WorkspaceRegistry::isRegistered($modelClass);
+        return is_string($modelClass) && is_a($modelClass, Model::class, true) && $workspaceRegistry::isRegistered($modelClass);
     }
 
     /**
@@ -1637,7 +1680,7 @@ final class LayoutBuilderActionFactory
 
     private function clearCachedPagesForWidget(Widget $record): void
     {
-        $actionClass = ClearCachedUrlsForModelAction::class;
+        $actionClass = self::CLEAR_CACHED_URLS_FOR_MODEL_ACTION;
 
         if (! class_exists($actionClass)) {
             return;
@@ -1647,6 +1690,26 @@ final class LayoutBuilderActionFactory
             $record,
             refresh: config('capell-admin.auto_refresh_cache') === true,
         );
+    }
+
+    private function currentWorkspace(): ?Model
+    {
+        $workspaceContextClass = self::WORKSPACE_CONTEXT_CLASS;
+
+        if (! class_exists($workspaceContextClass)) {
+            return null;
+        }
+
+        $workspace = $workspaceContextClass::current();
+
+        return $workspace instanceof Model ? $workspace : null;
+    }
+
+    private function isWorkspace(mixed $workspace): bool
+    {
+        return $workspace instanceof Model
+            && class_exists(self::WORKSPACE_CLASS)
+            && $workspace instanceof Workspace;
     }
 
     private function notifyFrontendAuthoringSaved(string $status = 'published'): void

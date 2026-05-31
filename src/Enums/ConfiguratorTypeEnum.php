@@ -22,9 +22,13 @@ enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
      */
     public static function getAllConfigurators(): array
     {
-        return collect(self::cases())
-            ->mapWithKeys(fn (self $enum): array => [$enum->value => $enum->getConfigurators()])
-            ->all();
+        $configurators = [];
+
+        foreach (self::cases() as $enum) {
+            $configurators[$enum->value] = array_values($enum->getConfigurators());
+        }
+
+        return $configurators;
     }
 
     public static function fromName(string $name): ?static
@@ -40,7 +44,8 @@ enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
 
     public function getConfigurators(): array
     {
-        return match ($this) {
+        /** @var list<class-string<ConfiguratorInterface>> $configurators */
+        $configurators = match ($this) {
             self::LayoutContainer => array_map(
                 fn (LayoutContainerConfiguratorEnum $configurator): string => $configurator->value,
                 LayoutContainerConfiguratorEnum::cases(),
@@ -58,6 +63,8 @@ enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
                 BlockAssetConfiguratorEnum::cases(),
             ),
         };
+
+        return $configurators;
     }
 
     public function getName(): string

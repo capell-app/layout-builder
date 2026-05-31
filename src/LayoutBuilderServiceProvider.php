@@ -47,6 +47,10 @@ use Spatie\LaravelPackageTools\Package;
 
 class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
 {
+    private const string EDITABLE_REGION_EDITOR_SURFACE = EditableRegionEditorSurface::class;
+
+    private const string EDITOR_SURFACE_REGISTRY = EditorSurfaceRegistry::class;
+
     public static string $name = 'capell-layout-builder';
 
     public static string $packageName = 'capell-app/layout-builder';
@@ -113,7 +117,7 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     {
         Route::middleware('web')
             ->name('capell-layout-builder.fragments.')
-            ->prefix('_capell/fragments')
+            ->prefix('_fragments')
             ->group(function (): void {
                 Route::get('{reference}', PublicFragmentController::class)
                     ->where('reference', '.*')
@@ -127,18 +131,18 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             return;
         }
 
-        $this->app->make(ReservedFrontendPathRegistry::class)->reservePrefix('_capell/fragments');
+        $this->app->make(ReservedFrontendPathRegistry::class)->reservePrefix('_fragments');
     }
 
     private function registerFrontendAuthoringIntegration(): void
     {
-        if (! interface_exists(EditableRegionEditorSurface::class)) {
+        if (! interface_exists(self::EDITABLE_REGION_EDITOR_SURFACE)) {
             return;
         }
 
         $this->app->tag([LayoutBuilderEditableRegionContributor::class], 'capell-frontend-authoring:editable-regions');
 
-        $registryClass = EditorSurfaceRegistry::class;
+        $registryClass = self::EDITOR_SURFACE_REGISTRY;
 
         if (! class_exists($registryClass)) {
             return;

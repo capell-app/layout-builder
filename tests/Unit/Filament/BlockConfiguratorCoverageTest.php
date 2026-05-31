@@ -30,11 +30,20 @@ use Capell\LayoutBuilder\Filament\Configurators\Blocks\SystemBlockConfigurator;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Schema;
 
+/**
+ * @param  class-string  $configuratorClass
+ */
 it('builds block configurator schemas for each supported form operation', function (
     string $configuratorClass,
     string $operation,
 ): void {
-    $components = (new $configuratorClass)->make(Schema::make()->operation($operation));
+    $configurator = new $configuratorClass;
+
+    if (! method_exists($configurator, 'make')) {
+        throw new RuntimeException(sprintf('Expected %s to define a make method.', $configuratorClass));
+    }
+
+    $components = $configurator->make(Schema::make()->operation($operation));
 
     capell_expect($components)->not->toBeEmpty();
     capell_expect($components)->each->toBeInstanceOf(Component::class);

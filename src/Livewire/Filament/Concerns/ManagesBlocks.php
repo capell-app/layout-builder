@@ -104,7 +104,7 @@ trait ManagesBlocks
             return;
         }
 
-        $targetIndex = count($this->containers[$targetContainerKey]['widgets']);
+        $targetIndex = count($this->containerWidgets($targetContainerKey));
 
         $this->reorderBlocks($targetContainerKey, $containerKey . '.' . $blockIndex, $targetIndex);
     }
@@ -148,9 +148,11 @@ trait ManagesBlocks
     {
         $block = $this->getContainerBlock($containerKey, $blockIndex);
 
+        $containerBlock = $this->containerWidgets($containerKey)[$blockIndex] ?? [];
+
         return ResolveAdminBlockPreviewDataAction::run(
             block: $block,
-            containerBlock: $this->containers[$containerKey]['widgets'][$blockIndex],
+            containerBlock: $containerBlock,
             page: $this->page,
             assetCount: $this->countBlockAssets($containerKey, $blockIndex),
             hasPageAssets: $this->hasPageAssets($containerKey, $blockIndex),
@@ -216,7 +218,13 @@ trait ManagesBlocks
      */
     public function editLayoutBlock(string $containerKey, int $blockIndex, array $data): void
     {
+        $this->assertCanUpdateLayout();
+
         $this->ensureLoaded();
+
+        if (! isset($this->containers[$containerKey]['widgets'][$blockIndex])) {
+            return;
+        }
 
         $this->containers[$containerKey]['widgets'][$blockIndex]['meta'] = array_merge(
             $this->containers[$containerKey]['widgets'][$blockIndex]['meta'] ?? [],
@@ -251,24 +259,26 @@ trait ManagesBlocks
 
     public function getContainerBlockOccurrence(string $containerKey, int $blockIndex): int
     {
-        return (int) ($this->containers[$containerKey]['widgets'][$blockIndex]['occurrence'] ?? 1);
+        return (int) ($this->containerWidgets($containerKey)[$blockIndex]['occurrence'] ?? 1);
     }
 
     protected function moveContainerBlock(string $originalContainer, int $originalIndex, string $containerKey, int $blockIndex): void
     {
         $block = $this->getContainerBlock($originalContainer, $originalIndex);
 
-        $containerBlock = $this->containers[$originalContainer]['widgets'][$originalIndex];
+        $containerBlock = $this->containerWidgets($originalContainer)[$originalIndex] ?? [];
+
+        throw_unless(is_string($containerBlock['widget_key'] ?? null), Exception::class, 'Container block widget key is missing.');
 
         if ($originalContainer !== $containerKey) {
             $containerBlock['occurrence'] = $this->getLastContainerBlockOccurrence(
                 containerKey: $containerKey,
                 widgetKey: $containerBlock['widget_key'],
-                blocks: $this->containers[$containerKey]['widgets'],
+                blocks: $this->containerWidgets($containerKey),
             ) + 1;
         }
 
-        $blocks = $this->containers[$originalContainer]['widgets'];
+        $blocks = $this->containerWidgets($originalContainer);
 
         unset($blocks[$originalIndex]);
 
@@ -409,7 +419,7 @@ trait ManagesBlocks
     protected function getLastContainerBlockOccurrence(string $containerKey, string $widgetKey, ?int $compareIndex = null, ?array $blocks = null): int
     {
         if ($blocks === null || $blocks === []) {
-            $blocks = $this->containers[$containerKey]['widgets'];
+            $blocks = $this->containerWidgets($containerKey);
         }
 
         $occurrence = 1;
@@ -419,7 +429,7 @@ trait ManagesBlocks
                 return $occurrence;
             }
 
-            if ($block['widget_key'] === $widgetKey) {
+            if (is_array($block) && ($block['widget_key'] ?? null) === $widgetKey) {
                 $occurrence++;
             }
         }
@@ -454,11 +464,11 @@ trait ManagesBlocks
      */
     protected function setupContainerBlocks(string $containerKey, array $allBlocks, ?array $allBlockAssets = null): void
     {
-        $container = $this->containers[$containerKey];
+        $this->containers[$containerKey] ?? [];
 
         $blockOccurrences = [];
 
-        foreach ($container['widgets'] as $blockIndex => $containerBlock) {
+        foreach ($this->containerWidgets($containerKey) as $blockIndex => $containerBlock) {
             $widgetKey = $containerBlock['widget_key'];
             $oldContainerKey = $containerBlock['old_container'] ?? null;
 
@@ -538,8 +548,8 @@ trait ManagesBlocks
                             ->when(
                                 $this->inPageContext(),
                                 fn (EloquentBuilder $query) => $query->where([
-                                    'pageable_type' => $this->page->getMorphClass(),
-                                    'pageable_id' => $this->page->getKey(),
+                                    'pageable_type' => $this->pageContext()->getMorphClass(),
+                                    'pageable_id' => $this->pageContext()->getKey(),
                                 ]),
                             ),
                     ])
@@ -565,8 +575,8 @@ trait ManagesBlocks
                     ->when(
                         $this->inPageContext(),
                         fn (EloquentBuilder $query) => $query->where([
-                            'pageable_type' => $this->page->getMorphClass(),
-                            'pageable_id' => $this->page->getKey(),
+                            'pageable_type' => $this->pageContext()->getMorphClass(),
+                            'pageable_id' => $this->pageContext()->getKey(),
                         ]),
                     ),
             ])
@@ -575,8 +585,8 @@ trait ManagesBlocks
                     $this->page,
                     fn (EloquentBuilder $query): EloquentBuilder => $query->where(
                         fn (EloquentBuilder $query): EloquentBuilder => $query->where([
-                            'pageable_id' => $this->page->getKey(),
-                            'pageable_type' => $this->page->getMorphClass(),
+                            'pageable_id' => $this->pageContext()->getKey(),
+                            'pageable_type' => $this->pageContext()->getMorphClass(),
                         ])
                             ->orWhereNull(['pageable_type', 'pageable_id']),
                     ),
@@ -613,8 +623,8 @@ trait ManagesBlocks
                         $this->page,
                         fn (EloquentBuilder $query): EloquentBuilder => $query->where(
                             fn (EloquentBuilder $query): EloquentBuilder => $query->where([
-                                'pageable_id' => $this->page->getKey(),
-                                'pageable_type' => $this->page->getMorphClass(),
+                                'pageable_id' => $this->pageContext()->getKey(),
+                                'pageable_type' => $this->pageContext()->getMorphClass(),
                             ])
                                 ->orWhereNull(['pageable_type', 'pageable_id']),
                         ),

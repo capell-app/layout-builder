@@ -21,6 +21,7 @@ use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutClipboard;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
+use LogicException;
 
 trait ManagesLayoutBuilderState
 {
@@ -52,6 +53,9 @@ trait ManagesLayoutBuilderState
         return hash('sha256', json_encode($payload, JSON_THROW_ON_ERROR));
     }
 
+    /**
+     * @phpstan-assert array<array-key, mixed> $this->containers
+     */
     public function ensureLoaded(): void
     {
         if (! isset($this->containerBlocks)) {
@@ -90,14 +94,24 @@ trait ManagesLayoutBuilderState
             }
         }
 
-        foreach (array_keys($this->containers) as $containerKey) {
+        foreach (array_keys($this->containers ?? []) as $containerKey) {
             $this->setupContainerBlocks($containerKey, $blocks, $containerBlockAssets);
         }
     }
 
+    /**
+     * @phpstan-assert-if-true Pageable $this->page
+     */
     public function inPageContext(): bool
     {
         return $this->page instanceof Pageable;
+    }
+
+    public function pageContext(): Pageable
+    {
+        throw_unless($this->page instanceof Pageable, LogicException::class, 'Layout builder page context is not available.');
+
+        return $this->page;
     }
 
     public function layoutUpdated(bool $modified = true): void
@@ -148,15 +162,15 @@ trait ManagesLayoutBuilderState
             return null;
         }
 
-        return $this->page->site;
+        return $this->pageContext()->site;
     }
 
     protected function persistBlockAssets(): void
     {
         $processedWidgetKeys = [];
 
-        foreach ($this->containers as $containerKey => $container) {
-            foreach ($container['widgets'] as $blockIndex => $block) {
+        foreach (array_keys($this->containers ?? []) as $containerKey) {
+            foreach ($this->containerWidgets((string) $containerKey) as $blockIndex => $block) {
                 if ($this->inPageContext() && isset($block['pageable_type'], $block['pageable_id'])) {
                     $key = $block['widget_key'] . '_' . $block['pageable_type'] . '_' . $block['pageable_id'] . '_' . $block['container'] . '_' . $block['occurrence'];
                 } else {
@@ -189,7 +203,7 @@ trait ManagesLayoutBuilderState
 
         $blocks = $this->preloadAllBlocks();
 
-        foreach (array_keys($this->containers) as $containerKey) {
+        foreach (array_keys($this->containers ?? []) as $containerKey) {
             $this->setupContainerBlocks($containerKey, $blocks);
         }
 
@@ -311,7 +325,7 @@ trait ManagesLayoutBuilderState
     protected function refreshLayoutChanges(): void
     {
         $this->layoutChanges = array_map(
-            fn (mixed $change): array => method_exists($change, 'toArray') ? $change->toArray() : (array) $change,
+            fn (mixed $change): array => is_object($change) && method_exists($change, 'toArray') ? $change->toArray() : (array) $change,
             SummarizeLayoutChangesAction::run($this->savedBaselineState(), $this->layoutState()),
         );
     }

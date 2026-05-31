@@ -108,20 +108,31 @@ class WidgetAssetsTable implements TableConfigurator
                         ->label(__('capell-admin::form.page'))
                         ->multiple()
                         ->options(
-                            fn (HasTable $livewire): array => $livewire->getTable()->getQuery()
-                                ->select(['pageable_type', 'pageable_id'])
-                                ->withOnly('pageable')
-                                ->whereNotNull(['pageable_type', 'pageable_id'])
-                                ->groupBy(['pageable_type', 'pageable_id'])
-                                ->get()
-                                ->mapWithKeys(function (Model $blockAsset): array {
-                                    throw_unless($blockAsset instanceof WidgetAsset);
+                            function (HasTable $livewire): array {
+                                $query = $livewire->getTable()->getQuery();
 
-                                    return [
-                                        self::buildLookupKey($blockAsset->pageable_type, $blockAsset->pageable_id) => $blockAsset->pageable instanceof Model ? $blockAsset->pageable->getAttribute('name') : null,
-                                    ];
-                                })
-                                ->all(),
+                                if ($query === null) {
+                                    return [];
+                                }
+
+                                return $query->select(['pageable_type', 'pageable_id'])
+                                    ->withOnly('pageable')
+                                    ->whereNotNull(['pageable_type', 'pageable_id'])
+                                    ->groupBy(['pageable_type', 'pageable_id'])
+                                    ->get()
+                                    ->mapWithKeys(function (Model $blockAsset): array {
+                                        throw_unless($blockAsset instanceof WidgetAsset);
+
+                                        if (! is_string($blockAsset->pageable_type) || ! is_int($blockAsset->pageable_id)) {
+                                            return [];
+                                        }
+
+                                        return [
+                                            self::buildLookupKey($blockAsset->pageable_type, $blockAsset->pageable_id) => $blockAsset->pageable instanceof Model ? $blockAsset->pageable->getAttribute('name') : null,
+                                        ];
+                                    })
+                                    ->all();
+                            },
                         ),
                     AssetTypeSelect::make('type'),
                     Select::make('blueprint_id')
@@ -229,8 +240,6 @@ class WidgetAssetsTable implements TableConfigurator
                     $createdAsset = $ownerRecord->assets()->create([
                         'asset_id' => $assetId,
                         'asset_type' => $assetType,
-                        'related_type' => $ownerRecord->getMorphClass(),
-                        'related_id' => $ownerRecord->getKey(),
                     ]);
                 }
 

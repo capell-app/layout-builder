@@ -17,6 +17,7 @@ use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use LogicException;
 use Override;
 
 class ListWidgets extends ListRecords
@@ -42,6 +43,8 @@ class ListWidgets extends ListRecords
     public function getFilteredTableQuery(): Builder
     {
         $query = parent::getFilteredTableQuery();
+
+        throw_unless($query instanceof Builder, LogicException::class, 'List widgets page requires a table query.');
 
         if (isset($this->getTableFilterState('filter')['language_id'])) {
             $language_id = $this->getTableFilterState('filter')['language_id'];

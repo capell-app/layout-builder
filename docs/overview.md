@@ -27,7 +27,7 @@ The package requires `capell-app/admin`, `capell-app/content-blocks`, `capell-ap
 - Public layout components under `resources/views/components/layout`.
 - Main-content and named layout-area rendering through the resolved layout graph.
 - Public block payload resolution through `BuildPublicLayoutGraphAction`.
-- Lazy public block fragments through `GET /_capell/fragments/{reference}` when a block's presentation delivery mode is set to `lazy_fragment`.
+- Lazy public block fragments through `GET /_fragments/{reference}` when a block's presentation delivery mode is set to `lazy_fragment`.
 - Interaction triggers on block type defaults and layout block instances. Interactions can open registered widget targets through the frontend lazy widget endpoint or open encrypted Layout Builder block fragments through the fragment endpoint.
 
 Public Blade must stay query-free and authoring-free. Rendered HTML should not expose editor state, signed URLs, field paths, admin labels, internal model identifiers, or package diagnostics.
@@ -49,7 +49,7 @@ Layout Builder uses the same presentation model as frontend widgets:
 
 Settings resolve in the same order as widgets: instance override, type default, preset default, system default. The system default is server-rendered output, so saved layouts keep their existing behaviour unless an editor or block type explicitly changes delivery.
 
-Set delivery mode to `lazy_fragment` when the block should render as a public placeholder and fetch its block HTML through `/_capell/fragments/{reference}`. Keep above-the-fold blocks server-rendered unless there is a clear performance or UX reason to defer them.
+Set delivery mode to `lazy_fragment` when the block should render as a public placeholder and fetch its block HTML through `/_fragments/{reference}`. Keep above-the-fold blocks server-rendered unless there is a clear performance or UX reason to defer them.
 
 ## Interactions
 
@@ -62,7 +62,7 @@ Layout Builder supports interactions at two levels:
 
 Instance interactions replace type defaults when present. The shared admin schema lets editors choose a target type and behaviour, then configure the target widget or fragment settings in the same flow.
 
-Fragment interactions are a first-class Layout Builder use case. When an interaction target is `fragment` and no `fragment_reference` is stored, public rendering generates an encrypted reference to the current block. That lets a block render a small trigger upfront and fetch its heavier block HTML later through `/_capell/fragments/{reference}`.
+Fragment interactions are a first-class Layout Builder use case. When an interaction target is `fragment` and no `fragment_reference` is stored, public rendering generates an encrypted reference to the current block. That lets a block render a small trigger upfront and fetch its heavier block HTML later through `/_fragments/{reference}`.
 
 Use fragment interactions for optional or expensive block content, video/detail panels, comparison sections, below-the-fold content, or page experiences where click/visibility should control when the block renders.
 

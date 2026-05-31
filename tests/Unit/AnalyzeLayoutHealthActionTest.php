@@ -11,6 +11,7 @@ use Capell\ContentBlocks\Support\BlockRegistry;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Actions\AnalyzeLayoutHealthAction;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
+use Capell\LayoutBuilder\Data\LayoutDiagnosticData;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewSignature;
 
@@ -105,8 +106,12 @@ it('includes block contract and theme compatibility warnings in layout health', 
         ->toContain('unsupported_block_variant')
         ->toContain('missing_required_block_field');
 
-    expect(collect($diagnostics)->firstWhere('code', 'unsupported_block_variant')->message)
-        ->toContain('Default');
+    $unsupportedBlockVariantDiagnostic = capell_test_instance(
+        collect($diagnostics)->firstWhere('code', 'unsupported_block_variant'),
+        LayoutDiagnosticData::class,
+    );
+
+    expect($unsupportedBlockVariantDiagnostic->message)->toContain('Default');
 });
 
 it('supports legacy shorthand block keys in layout health analysis', function (): void {

@@ -9,11 +9,14 @@ use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\PublishingStudio\WorkspaceRegistry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 use Override;
 
 class RegisteredAssetWidgetAssetForm extends AbstractBlockAssetConfigurator
 {
+    private const string WORKSPACE_REGISTRY_CLASS = WorkspaceRegistry::class;
+
     /**
      * @return array<array-key, mixed>
      */
@@ -37,7 +40,9 @@ class RegisteredAssetWidgetAssetForm extends AbstractBlockAssetConfigurator
     protected function getAssetSchema(Schema $configurator): array
     {
         $record = $configurator->getRecord();
-        $assetType = $configurator->getRawState()['asset_type'] ?? $record?->getAttribute('asset_type');
+        $rawState = $configurator->getRawState();
+        $state = $rawState instanceof Arrayable ? $rawState->toArray() : $rawState;
+        $assetType = $state['asset_type'] ?? ($record instanceof Model ? $record->getAttribute('asset_type') : null);
         $asset = CapellAdmin::getAsset((string) $assetType);
 
         $assetConfigurator = clone $configurator;
@@ -52,7 +57,9 @@ class RegisteredAssetWidgetAssetForm extends AbstractBlockAssetConfigurator
 
     private function usesDraftStatePath(Schema $configurator): bool
     {
-        if (! class_exists(WorkspaceRegistry::class)) {
+        $workspaceRegistry = self::WORKSPACE_REGISTRY_CLASS;
+
+        if (! class_exists($workspaceRegistry)) {
             return false;
         }
 
@@ -65,7 +72,7 @@ class RegisteredAssetWidgetAssetForm extends AbstractBlockAssetConfigurator
         $record->loadMissing('asset');
         $asset = $record->asset;
 
-        return $asset instanceof Model && WorkspaceRegistry::isRegistered($asset::class);
+        return $asset instanceof Model && $workspaceRegistry::isRegistered($asset::class);
     }
 
     private function draftableAssetRecord(Schema $configurator): ?Model

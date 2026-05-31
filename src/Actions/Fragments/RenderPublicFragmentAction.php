@@ -113,7 +113,9 @@ class RenderPublicFragmentAction
             return null;
         }
 
-        return $model::query()->find((int) $id);
+        $record = $model::query()->find((int) $id);
+
+        return $record instanceof $model ? $record : null;
     }
 
     private function page(mixed $pageType, mixed $id): ?Pageable

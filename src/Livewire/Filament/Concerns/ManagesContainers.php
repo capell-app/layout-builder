@@ -38,6 +38,8 @@ trait ManagesContainers
             return;
         }
 
+        $this->containers ??= [];
+
         $position = min(count($this->containers), max(0, $position));
 
         $this->containers = array_slice($this->containers, 0, $position, true) +
@@ -211,7 +213,7 @@ trait ManagesContainers
     {
         $position = $this->containerPosition($containerKey);
 
-        return $position !== null && $position < count($this->containers) - 1;
+        return $position !== null && $position < count($this->containers ?? []) - 1;
     }
 
     /**
@@ -284,7 +286,7 @@ trait ManagesContainers
             unset($this->{$property}[$oldKey]);
         }
 
-        foreach ($this->containers[$newKey]['widgets'] as $blockIndex => $block) {
+        foreach ($this->containerWidgets($newKey) as $blockIndex => $block) {
             $block['old_container'] ??= $oldKey;
             $block['container_key'] = $newKey;
 
@@ -318,7 +320,7 @@ trait ManagesContainers
 
     protected function uniqueContainerKey(): string
     {
-        $index = count($this->containers) + 1;
+        $index = count($this->containers ?? []) + 1;
 
         do {
             $key = 'container-' . $index;
@@ -366,6 +368,16 @@ trait ManagesContainers
         }
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
+    protected function containerWidgets(string $containerKey): array
+    {
+        $widgets = $this->containers[$containerKey]['widgets'] ?? [];
+
+        return is_array($widgets) ? $widgets : [];
+    }
+
     private function moveContainer(string $containerKey, int $direction): void
     {
         $this->assertCanUpdateLayout();
@@ -389,9 +401,9 @@ trait ManagesContainers
 
     private function containerPosition(string $containerKey): ?int
     {
-        $position = array_search($containerKey, array_keys($this->containers), true);
+        $position = array_search($containerKey, array_keys($this->containers ?? []), true);
 
-        return $position === false ? null : $position;
+        return is_int($position) ? $position : null;
     }
 
     private function currentLayoutBreakpoint(?string $breakpoint = null): ?LayoutBreakpoint
