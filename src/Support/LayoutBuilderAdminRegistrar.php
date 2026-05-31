@@ -178,16 +178,6 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
                 classViewPath: $this->packageBasePath() . '/resources/views/livewire',
             );
 
-            if (! $this->app->bound('livewire.factory')) {
-                return;
-            }
-
-            resolve('livewire.factory')->resolveMissingComponent(
-                static fn (string $name): ?string => match ($name) {
-                    'capell-layout-builder::filament.layout-builder' => LayoutBuilder::class,
-                    default => null,
-                },
-            );
         };
 
         if ($this->app->isBooted()) {
