@@ -51,7 +51,7 @@ it('registers the layout builder admin stylesheet through Filament assets', func
     /** @var Css $style */
     expect($style->getPath())->toEndWith('resources/css/layout-builder/admin/capell-layout-filament.css')
         ->and($style->getRelativePublicPath())->toBe('css/capell-layout-builder/capell-layout-builder-filament.css')
-        ->and((string) $style->getHtml())->toBe("<link
+        ->and($style->getHtml()->toHtml())->toBe("<link
             href=\"{$style->getHref()}\"
             rel=\"stylesheet\"
             data-navigate-track
