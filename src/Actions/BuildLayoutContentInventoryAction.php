@@ -320,11 +320,11 @@ final class BuildLayoutContentInventoryAction
         $type = (string) ($assetState['asset_type'] ?? '');
 
         if ($type === '') {
-            return __('capell-layout-builder::generic.content');
+            return $this->translation('capell-layout-builder::generic.content');
         }
 
         if ($type === 'section') {
-            return __('capell-layout-builder::generic.reusable_section');
+            return $this->translation('capell-layout-builder::generic.reusable_section');
         }
 
         return Str::of($type)->replace(['_', '-'], ' ')->headline()->toString();
@@ -339,19 +339,19 @@ final class BuildLayoutContentInventoryAction
         return match ((string) ($assetState['asset_type'] ?? '')) {
             'page' => [
                 'key' => 'page-content',
-                'label' => __('capell-layout-builder::generic.page_content_sources'),
+                'label' => $this->translation('capell-layout-builder::generic.page_content_sources'),
             ],
             'section' => [
                 'key' => 'section-assets',
-                'label' => __('capell-layout-builder::generic.section_content_sources'),
+                'label' => $this->translation('capell-layout-builder::generic.section_content_sources'),
             ],
             'media' => [
                 'key' => 'media-assets',
-                'label' => __('capell-layout-builder::generic.media_content_sources'),
+                'label' => $this->translation('capell-layout-builder::generic.media_content_sources'),
             ],
             default => [
                 'key' => 'other-assets',
-                'label' => __('capell-layout-builder::generic.other_content_sources'),
+                'label' => $this->translation('capell-layout-builder::generic.other_content_sources'),
             ],
         };
     }
@@ -359,11 +359,11 @@ final class BuildLayoutContentInventoryAction
     private function ownershipGroupSummary(string $groupKey): ?string
     {
         return match ($groupKey) {
-            'block-content' => __('capell-layout-builder::message.block_content_sources_summary'),
-            'page-content' => __('capell-layout-builder::message.page_content_sources_summary'),
-            'section-assets' => __('capell-layout-builder::message.section_content_sources_summary'),
-            'media-assets' => __('capell-layout-builder::message.media_content_sources_summary'),
-            'other-assets' => __('capell-layout-builder::message.other_content_sources_summary'),
+            'block-content' => $this->translation('capell-layout-builder::message.block_content_sources_summary'),
+            'page-content' => $this->translation('capell-layout-builder::message.page_content_sources_summary'),
+            'section-assets' => $this->translation('capell-layout-builder::message.section_content_sources_summary'),
+            'media-assets' => $this->translation('capell-layout-builder::message.media_content_sources_summary'),
+            'other-assets' => $this->translation('capell-layout-builder::message.other_content_sources_summary'),
             default => null,
         };
     }
@@ -376,22 +376,29 @@ final class BuildLayoutContentInventoryAction
     {
         return match ((string) ($assetState['asset_type'] ?? '')) {
             'page' => [
-                'label' => __('capell-layout-builder::generic.page_translation_source'),
-                'detail' => __('capell-layout-builder::generic.content_tab_title_content_fields'),
+                'label' => $this->translation('capell-layout-builder::generic.page_translation_source'),
+                'detail' => $this->translation('capell-layout-builder::generic.content_tab_title_content_fields'),
             ],
             'section' => [
-                'label' => __('capell-layout-builder::generic.section_translation_source'),
-                'detail' => __('capell-layout-builder::generic.content_tab_title_content_fields'),
+                'label' => $this->translation('capell-layout-builder::generic.section_translation_source'),
+                'detail' => $this->translation('capell-layout-builder::generic.content_tab_title_content_fields'),
             ],
             'media' => [
-                'label' => __('capell-layout-builder::generic.media_library_source'),
-                'detail' => __('capell-layout-builder::generic.media_library_fields'),
+                'label' => $this->translation('capell-layout-builder::generic.media_library_source'),
+                'detail' => $this->translation('capell-layout-builder::generic.media_library_fields'),
             ],
             default => [
-                'label' => __('capell-layout-builder::generic.registered_asset_source'),
+                'label' => $this->translation('capell-layout-builder::generic.registered_asset_source'),
                 'detail' => null,
             ],
         };
+    }
+
+    private function translation(string $key): string
+    {
+        $value = __($key);
+
+        return is_string($value) ? $value : $key;
     }
 
     /**

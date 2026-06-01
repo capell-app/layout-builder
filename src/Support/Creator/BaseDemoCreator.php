@@ -15,11 +15,12 @@ use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
-use Capell\DemoKit\Support\Creator\DemoCreator;
+use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\Navigation\Support\Creator\NavigationCreator;
 use Exception;
+use FilesystemIterator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
@@ -29,13 +30,10 @@ use RuntimeException;
 use Spatie\Image\Image;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media as SpatieMedia;
+use SplFileInfo;
 
 abstract class BaseDemoCreator
 {
-    protected const string DEMO_CREATOR = DemoCreator::class;
-
-    protected const string DemoKitPackage = 'capell-app/demo-kit';
-
     protected const string NavigationPackage = 'capell-app/navigation';
 
     /**
@@ -109,6 +107,41 @@ abstract class BaseDemoCreator
         throw_unless($blockAsset instanceof WidgetAsset, RuntimeException::class, 'Layout block asset creation must return a block asset model.');
 
         return $blockAsset;
+    }
+
+    protected function requiredWidgetType(BackedEnum|string $key, BackedEnum|string|null $fallback = null): Blueprint
+    {
+        $key = $key instanceof BackedEnum ? $key->value : $key;
+        $fallback = $fallback instanceof BackedEnum ? $fallback->value : $fallback;
+
+        $query = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget->value);
+
+        $type = (clone $query)->firstWhere('key', $key);
+
+        if (! $type instanceof Blueprint && $fallback !== null) {
+            $type = (clone $query)->firstWhere('key', $fallback);
+        }
+
+        throw_unless($type instanceof Blueprint, RuntimeException::class, sprintf('Missing layout widget type [%s].', $key));
+
+        return $type;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function widgetMeta(Widget $widget): array
+    {
+        return is_array($widget->meta) ? $widget->meta : [];
+    }
+
+    protected function defaultSite(): Site
+    {
+        $site = Site::getDefault();
+
+        throw_unless($site instanceof Site, RuntimeException::class, 'A default site is required to create demo blocks.');
+
+        return $site;
     }
 
     /** @return MorphMany<Translation, Model> */
@@ -454,7 +487,7 @@ abstract class BaseDemoCreator
             return;
         }
 
-        $collectionName = $collection instanceof BackedEnum ? $collection->value : $collection;
+        $collectionName = $this->collectionName($collection);
 
         // Build an optional filter to match existing media by inferred filename when a name is provided
         $filters = [];
@@ -469,13 +502,9 @@ abstract class BaseDemoCreator
             return;
         }
 
-        $demoCreator = $this->resolveDemoCreator();
-
-        if ($demoCreator === null || ! method_exists($demoCreator, 'createMedia')) {
-            return;
+        if ($model instanceof Widget) {
+            $this->createBlockMedia($model, $name, $type, $collection);
         }
-
-        $demoCreator->createMedia($model, $name, $type, $collection);
     }
 
     protected function createBlockMedia(Widget $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
@@ -526,7 +555,8 @@ abstract class BaseDemoCreator
         $content = $this->contentModel::query()->create([
             'name' => str($filenameBase)->title(),
         ]);
-        assert($content instanceof HasMedia);
+
+        throw_unless($content instanceof HasMedia, RuntimeException::class, 'Demo media content must implement media collections.');
 
         $model->assets()->create([
             'asset_id' => $content->getKey(),
@@ -544,7 +574,7 @@ abstract class BaseDemoCreator
             ->withCustomProperties([
                 ...($image instanceof Image ? ['width' => $image->getWidth(), 'height' => $image->getHeight()] : []),
             ])
-            ->toMediaCollection($collection instanceof BackedEnum ? $collection->value : $collection);
+            ->toMediaCollection($this->collectionName($collection));
 
         // For videos, also attach a jpg poster image
         if (! $isVideo) {
@@ -577,32 +607,45 @@ abstract class BaseDemoCreator
 
     protected function getRandomDemoImage(string $demo_path, string $extension = 'jpg'): string
     {
-        $demoCreator = $this->resolveDemoCreator();
+        $ext = strtolower($extension);
+        $filenames = [];
 
-        if ($demoCreator !== null && method_exists($demoCreator, 'getRandomDemoImage')) {
-            return (string) $demoCreator->getRandomDemoImage($demo_path, $extension);
+        foreach (new FilesystemIterator($demo_path, FilesystemIterator::SKIP_DOTS) as $fileInfo) {
+            if (! $fileInfo instanceof SplFileInfo) {
+                continue;
+            }
+
+            if (! $fileInfo->isFile()) {
+                continue;
+            }
+
+            if (strtolower(pathinfo($fileInfo->getFilename(), PATHINFO_EXTENSION)) !== $ext) {
+                continue;
+            }
+
+            $filenames[] = pathinfo($fileInfo->getFilename(), PATHINFO_FILENAME);
         }
 
-        throw new RuntimeException('The demo kit package is required to create demo layout builder media.');
+        throw_if($filenames === [], RuntimeException::class, 'No demo layout builder media files found for .' . $extension . ' in: ' . $demo_path);
+
+        return $filenames[random_int(0, count($filenames) - 1)];
     }
 
     protected function getDemoResourcePath(string $type): string
     {
-        $demoCreator = self::DEMO_CREATOR;
+        $configuredPath = config('capell-layout-builder.resources.demo_path');
 
-        if (CapellCore::isPackageInstalled(self::DemoKitPackage) && class_exists($demoCreator)) {
-            return $demoCreator::getDemoResourcePath($type);
-        }
+        throw_if(! is_string($configuredPath) || $configuredPath === '', RuntimeException::class, 'Configure capell-layout-builder.resources.demo_path before creating demo layout builder media.');
 
-        throw new RuntimeException('The demo kit package is required to create demo layout builder media.');
+        $path = rtrim($configuredPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . trim($type, DIRECTORY_SEPARATOR);
+
+        throw_unless(is_dir($path), RuntimeException::class, 'Configured demo layout builder media path does not exist: ' . $path);
+
+        return $path;
     }
 
-    protected function resolveDemoCreator(): ?object
+    private function collectionName(BackedEnum|string $collection): string
     {
-        if (! CapellCore::isPackageInstalled(self::DemoKitPackage) || ! class_exists(self::DEMO_CREATOR)) {
-            return null;
-        }
-
-        return resolve(self::DEMO_CREATOR);
+        return is_string($collection) ? $collection : (string) $collection->value;
     }
 }

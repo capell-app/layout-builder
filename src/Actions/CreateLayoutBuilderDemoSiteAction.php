@@ -123,6 +123,9 @@ class CreateLayoutBuilderDemoSiteAction
     private function populateFaqContainers(array &$containers, EloquentCollection $languages, Pageable $page): void
     {
         $faqBlock = $this->demoCreator->createFaqBlock($languages);
+        $site = $page->site;
+
+        throw_unless($site instanceof Site, Exception::class, 'Demo page requires a site.');
 
         $containers['faq-main'] = [
             'meta' => [
@@ -133,7 +136,7 @@ class CreateLayoutBuilderDemoSiteAction
             ],
         ];
 
-        $faqColumnBlock = $this->demoCreator->createStaticNavigationBlock($languages, $page->site);
+        $faqColumnBlock = $this->demoCreator->createStaticNavigationBlock($languages, $site);
 
         $containers['faq-col'] = [
             'meta' => [
@@ -152,6 +155,10 @@ class CreateLayoutBuilderDemoSiteAction
      */
     private function populateSecondaryContainer(array &$containers, EloquentCollection $languages, Pageable $page): void
     {
+        $site = $page->site;
+
+        throw_unless($site instanceof Site, Exception::class, 'Demo page requires a site.');
+
         $featureListBlock = $this->demoCreator->createModernFeatureListBlock();
         $teamPortfolioBlock = $this->demoCreator->createTeamPortfolioBlock($languages);
         $modernTeamBlock = $this->demoCreator->createModernTeamMembersBlock();
@@ -159,7 +166,7 @@ class CreateLayoutBuilderDemoSiteAction
         $contentBlock = $this->demoCreator->createContentBlock($languages);
         $statisticsBlock = $this->demoCreator->createStatisticsBlock();
         $pricingBlock = $this->demoCreator->createModernPricingTableBlock();
-        $businessFeaturesBlock = $this->demoCreator->createBusinessFeaturesBlock($page->site);
+        $businessFeaturesBlock = $this->demoCreator->createBusinessFeaturesBlock($site);
         $bannersBlock = $this->demoCreator->createBannersBlock();
         $clientLogosBlock = $this->demoCreator->createClientLogosBlock($languages);
         $testimonialsBlock = $this->demoCreator->createModernTestimonialsBlock();
@@ -268,7 +275,7 @@ class CreateLayoutBuilderDemoSiteAction
     }
 
     /**
-     * @param  array{name: array<string, string>, children?: array<int, array<string, mixed>>}  $contentNode
+     * @param  array<string, mixed>  $contentNode
      * @param  EloquentCollection<int, Language>|null  $languages
      */
     private function createSiteContents(

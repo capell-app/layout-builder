@@ -9,6 +9,7 @@ use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\ImageSourcePicker;
 use Capell\Admin\Filament\Concerns\HasConfigurator;
+use Capell\Core\Enums\ImageSourceType;
 use Capell\Core\Models\Blueprint;
 use Capell\LayoutBuilder\Contracts\Extenders\BlockSchemaExtender;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
@@ -38,7 +39,7 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
 
     public static function getKey(): string
     {
-        return preg_replace('/BlockConfigurator$/', '', class_basename(static::class));
+        return preg_replace('/BlockConfigurator$/', '', class_basename(static::class)) ?? class_basename(static::class);
     }
 
     /**
@@ -184,7 +185,7 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return list<ImageSourceType|string>|string|null
      */
     protected function blueprintImageSourcePolicy(Schema $schema, string $field): string|array|null
     {
@@ -198,6 +199,17 @@ class DefaultBlockConfigurator implements ConfiguratorInterface
 
         $policy = data_get($blueprint?->admin, 'image_source_policy.' . $field);
 
-        return is_string($policy) || is_array($policy) ? $policy : null;
+        if (is_string($policy)) {
+            return $policy;
+        }
+
+        if (! is_array($policy)) {
+            return null;
+        }
+
+        return array_values(array_filter(
+            $policy,
+            static fn (mixed $source): bool => is_string($source) || $source instanceof ImageSourceType,
+        ));
     }
 }

@@ -13,7 +13,7 @@ use Capell\LayoutBuilder\Models\Widget;
 class DefaultPublicBlockPayloadResolver implements PublicBlockPayloadResolver
 {
     /**
-     * @var array<int, object>|null
+     * @var array<int, PublicBlockPayloadContributor>|null
      */
     private ?array $contributors = null;
 
@@ -40,7 +40,7 @@ class DefaultPublicBlockPayloadResolver implements PublicBlockPayloadResolver
     public function html(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): ?string
     {
         $html = collect($this->contributors())
-            ->map(fn (object $contributor): ?string => $contributor->html($block, $page, $language, $containerKey, $occurrence))
+            ->map(fn (PublicBlockPayloadContributor $contributor): ?string => $contributor->html($block, $page, $language, $containerKey, $occurrence))
             ->filter(fn (?string $html): bool => is_string($html) && trim($html) !== '')
             ->implode("\n");
 
@@ -48,7 +48,7 @@ class DefaultPublicBlockPayloadResolver implements PublicBlockPayloadResolver
     }
 
     /**
-     * @return array<int, object>
+     * @return array<int, PublicBlockPayloadContributor>
      */
     private function contributors(): array
     {
@@ -57,11 +57,8 @@ class DefaultPublicBlockPayloadResolver implements PublicBlockPayloadResolver
         }
 
         $this->contributors = collect(app()->tagged(PublicBlockPayloadContributor::TAG))
-            ->filter(fn (mixed $contributor): bool => is_object($contributor)
-                && method_exists($contributor, 'priority')
-                && method_exists($contributor, 'data')
-                && method_exists($contributor, 'html'))
-            ->sortBy(fn (object $contributor): int => $contributor->priority())
+            ->filter(fn (mixed $contributor): bool => $contributor instanceof PublicBlockPayloadContributor)
+            ->sortBy(fn (PublicBlockPayloadContributor $contributor): int => $contributor->priority())
             ->values()
             ->all();
 

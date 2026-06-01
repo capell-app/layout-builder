@@ -7,20 +7,22 @@ namespace Capell\LayoutBuilder\Actions;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Contracts\CanEntangleWithSingularRelationships;
 use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Schemas\Schema;
 use Filament\Support\Contracts\TranslatableContentDriver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Livewire\Component as LivewireComponent;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static array<array-key, mixed> run(Component|CanEntangleWithSingularRelationships $component, LivewireComponent $livewire): void
+ * @method static void run(Component&CanEntangleWithSingularRelationships $component, LivewireComponent&HasSchemas $livewire)
  */
 class SaveFormComponentRelationshipAction
 {
     use AsObject;
 
-    public function handle(Component|CanEntangleWithSingularRelationships $component, LivewireComponent&HasSchemas $livewire): void
+    public function handle(Component&CanEntangleWithSingularRelationships $component, LivewireComponent&HasSchemas $livewire): void
     {
         $record = $component->getCachedExistingRecord();
 
@@ -30,7 +32,13 @@ class SaveFormComponentRelationshipAction
             return;
         }
 
-        $data = $component->getChildSchema()->getState(shouldCallHooksBefore: false);
+        $childSchema = $component->getChildSchema();
+
+        if (! $childSchema instanceof Schema) {
+            return;
+        }
+
+        $data = $childSchema->getState(shouldCallHooksBefore: false);
 
         $translatableContentDriver = $livewire->makeFilamentTranslatableContentDriver();
 
@@ -48,6 +56,10 @@ class SaveFormComponentRelationshipAction
 
         $relationship = $component->getRelationship();
         $relatedModel = $component->getRelatedModel();
+
+        if (! $relationship instanceof Relation || $relatedModel === null) {
+            return;
+        }
 
         $data = $component->mutateRelationshipDataBeforeCreate($data);
 

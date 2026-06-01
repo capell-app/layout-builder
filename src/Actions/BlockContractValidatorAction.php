@@ -125,17 +125,15 @@ final class BlockContractValidatorAction
      */
     private function hasRule(BlockDefinitionData $definition, array $needles): bool
     {
-        $rules = [
+        $rules = array_map(strtolower(...), [
             ...$definition->contentContract->accessibilityRules,
             ...$definition->accessibilityContract->mediaRules,
             ...$definition->accessibilityContract->semanticRules,
             ...$definition->accessibilityContract->keyboardRules,
-        ];
+        ]);
+        $needles = array_map(strtolower(...), $needles);
 
-        return collect($rules)
-            ->map(static fn (string $rule): string => strtolower($rule))
-            ->intersect($needles)
-            ->isNotEmpty();
+        return array_intersect($rules, $needles) !== [];
     }
 
     private function hasAccessibleName(mixed $cta): bool

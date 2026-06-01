@@ -94,7 +94,7 @@ class BlockCreator
 
         $block->forceFill([
             'meta' => [
-                ...$block->meta,
+                ...(is_array($block->meta) ? $block->meta : []),
                 'component' => BlockComponentEnum::PageChildren->value,
             ],
         ])->save();
@@ -201,7 +201,7 @@ class BlockCreator
 
         $block->forceFill([
             'meta' => [
-                ...$block->meta,
+                ...(is_array($block->meta) ? $block->meta : []),
                 'component' => BlockComponentEnum::PageLatest->value,
             ],
         ])->save();
@@ -353,7 +353,7 @@ class BlockCreator
 
         $block->forceFill([
             'meta' => [
-                ...$block->meta,
+                ...(is_array($block->meta) ? $block->meta : []),
                 'component' => BlockComponentEnum::PageSiblings->value,
             ],
         ])->save();

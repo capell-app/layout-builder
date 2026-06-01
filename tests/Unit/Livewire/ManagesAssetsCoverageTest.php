@@ -105,9 +105,12 @@ it('reorders selects and removes in-memory block assets predictably', function (
 
     $harness->moveAssetDown('main', 0, 0);
 
-    expect($harness->getBlockAsset('main', 0, 0)['asset_id'])->toBe(20)
-        ->and($harness->getBlockAsset('main', 0, 1)['asset_id'])->toBe(10)
-        ->and($harness->getBlockAsset('main', 0, 0)['order'])->toBe(1)
+    $firstAssetAfterMove = capell_test_array($harness->getBlockAsset('main', 0, 0));
+    $secondAssetAfterMove = capell_test_array($harness->getBlockAsset('main', 0, 1));
+
+    expect($firstAssetAfterMove['asset_id'] ?? null)->toBe(20)
+        ->and($secondAssetAfterMove['asset_id'] ?? null)->toBe(10)
+        ->and($firstAssetAfterMove['order'] ?? null)->toBe(1)
         ->and($harness->layoutModified)->toBeTrue();
 
     $harness->selectAllAssets('main', 0);
@@ -117,9 +120,11 @@ it('reorders selects and removes in-memory block assets predictably', function (
     $harness->selectedRecords['main'][0] = ['page.20', 'section.external-id'];
     $harness->removeSelectedAssets('main', 0);
 
+    $remainingAsset = capell_test_array($harness->getBlockAsset('main', 0, 0));
+
     expect($harness->getBlockAssets('main', 0))
         ->toHaveCount(1)
-        ->and($harness->getBlockAsset('main', 0, 0)['asset_id'])->toBe(10)
+        ->and($remainingAsset['asset_id'] ?? null)->toBe(10)
         ->and($harness->getSelectedAssets('main', 0))->toBe([]);
 
     $harness->deSelectAllAssets('main', 0);
@@ -220,9 +225,11 @@ it('maps filters and restores persisted block assets for page scoped state', fun
         $block,
     );
 
+    $restoredAsset = capell_test_instance($restoredAssets->first(), WidgetAsset::class);
+
     expect($restoredAssets)->toHaveCount(1)
-        ->and($restoredAssets->first()->getKey())->toBe($pageAsset->getKey())
-        ->and($restoredAssets->first()->order)->toBe(9);
+        ->and($restoredAsset->getKey())->toBe($pageAsset->getKey())
+        ->and($restoredAsset->order)->toBe(9);
 
     $harness->assets = [
         'main' => [

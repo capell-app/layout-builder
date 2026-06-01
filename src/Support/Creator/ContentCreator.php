@@ -28,7 +28,12 @@ class ContentCreator
     {
         throw_unless(CapellCore::hasAsset('Section'), RuntimeException::class, 'Content Sections must be installed to create section demo content.');
 
-        $this->contentModel = CapellCore::getAsset('Section')->model;
+        $contentModel = CapellCore::getAsset('Section')->model;
+
+        throw_unless(is_subclass_of($contentModel, Model::class), RuntimeException::class, 'Section asset model must be an Eloquent model.');
+
+        /** @var class-string<Model> $contentModel */
+        $this->contentModel = $contentModel;
 
         $this->typeModel = Blueprint::class;
     }
@@ -39,13 +44,12 @@ class ContentCreator
      */
     public function createContent(array $data, ?Site $site, Collection $languages): Model
     {
-        $type = $this->typeModel::query()->where('type', 'section')->default()->first();
+        $typeQuery = $this->typeModel::query()->where('type', 'section');
+        $type = isset($data['type']) && $data['type'] !== ''
+            ? (clone $typeQuery)->where('key', $data['type'])->first()
+            : (clone $typeQuery)->default()->first();
 
-        if (isset($data['type']) && $data['type'] !== '') {
-            $type->where('key', $data['type'])->first();
-        } else {
-            $type->default()->first();
-        }
+        throw_unless($type instanceof Blueprint, RuntimeException::class, 'A content blueprint is required to create demo content.');
 
         $parentId = $data['parent_id'] ?? null;
 

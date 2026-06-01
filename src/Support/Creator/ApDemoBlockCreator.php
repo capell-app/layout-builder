@@ -7,17 +7,13 @@ namespace Capell\LayoutBuilder\Support\Creator;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Enums\BlockTypeEnum;
-use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 
 abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
 {
     public function createApHeroBannerBlock(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::HeroBanner)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-                ->firstWhere('key', BlockTypeEnum::Default);
+        $blockType = $this->requiredWidgetType(BlockTypeEnum::HeroBanner, BlockTypeEnum::Default);
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-hero-banner'], [
             'name' => 'AP Hero Banner',
@@ -46,10 +42,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
 
     public function createApCardGridBlock(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::CardGrid)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-                ->firstWhere('key', BlockTypeEnum::Default);
+        $blockType = $this->requiredWidgetType(BlockTypeEnum::CardGrid, BlockTypeEnum::Default);
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-card-grid'], [
             'name' => 'AP Card Grid',
@@ -104,10 +97,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
 
     public function createApFeatureListBlock(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::FeatureList)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-                ->firstWhere('key', BlockTypeEnum::Default);
+        $blockType = $this->requiredWidgetType(BlockTypeEnum::FeatureList, BlockTypeEnum::Default);
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-feature-list'], [
             'name' => 'AP Feature List',
@@ -204,10 +194,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
 
     public function createApCtaSectionBlock(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::CTASection)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-                ->firstWhere('key', BlockTypeEnum::Default);
+        $blockType = $this->requiredWidgetType(BlockTypeEnum::CTASection, BlockTypeEnum::Default);
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-cta-section'], [
             'name' => 'AP CTA Section',
@@ -236,10 +223,7 @@ abstract class ApDemoBlockCreator extends ModernDemoBlockCreator
 
     public function createApImageGalleryBlock(): Widget
     {
-        $blockType = $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-            ->firstWhere('key', BlockTypeEnum::ImageGallery)
-            ?? $this->typeModel::query()->where('type', LayoutTypeEnum::Widget)
-                ->firstWhere('key', BlockTypeEnum::Default);
+        $blockType = $this->requiredWidgetType(BlockTypeEnum::ImageGallery, BlockTypeEnum::Default);
 
         $block = $this->blockModel::query()->firstOrCreate(['key' => 'ap-image-gallery'], [
             'name' => 'AP Image Gallery',

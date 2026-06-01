@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 class AssetsRepeater extends Repeater
 {
@@ -88,7 +89,11 @@ class AssetsRepeater extends Repeater
 
                 $component->rawState($items);
 
-                $component->getChildSchema($newUuid ?? array_key_last($items))->fill($arguments);
+                $childSchema = $component->getChildSchema($newUuid ?? array_key_last($items));
+
+                if ($childSchema instanceof Schema) {
+                    $childSchema->fill($arguments);
+                }
 
                 $component->collapsed(false, shouldMakeComponentCollapsible: false);
 
@@ -142,10 +147,14 @@ class AssetsRepeater extends Repeater
                 ->selectablePlaceholder(false)
                 ->getOptionLabelFromRecordUsing(function (Select $component, Model $record): HtmlString {
                     if (! $record instanceof Pageable) {
-                        return new HtmlString($record->getAttribute($component->getRelationshipTitleAttribute()));
+                        $titleAttribute = $component->getRelationshipTitleAttribute();
+                        $label = is_string($titleAttribute) ? $record->getAttribute($titleAttribute) : $record->getKey();
+
+                        return new HtmlString((string) $label);
                     }
 
-                    $label = $record->site->name . ' &raquo; ';
+                    $siteName = $record->site?->name;
+                    $label = is_string($siteName) && $siteName !== '' ? $siteName . ' &raquo; ' : '';
 
                     if ($record instanceof Page) {
                         $ancestors = $record->ancestors()->get();
@@ -166,7 +175,7 @@ class AssetsRepeater extends Repeater
                     $assetAdmin = CapellAdmin::getAsset($get('asset_type'));
 
                     return $assetAdmin->formClass::configure(
-                        $configurator->operation('createOption')->model($asset->model),
+                        $configurator->operation('createOption')->model(self::assetModelClass($asset)),
                     );
                 })
                 ->createOptionUsing(function (Select $component, Schema $configurator, Get $get, array $data) use ($createOptionUsing): int|string {
@@ -265,6 +274,24 @@ class AssetsRepeater extends Repeater
             ->orWhereNull('group');
     }
 
+    /**
+     * @return class-string<Model>
+     */
+    private static function assetModelClass(AssetData $asset): string
+    {
+        throw_unless(is_subclass_of($asset->model, Model::class), RuntimeException::class, 'Asset model must be an Eloquent model class.');
+
+        /** @var class-string<Model> $modelClass */
+        $modelClass = $asset->model;
+
+        return $modelClass;
+    }
+
+    private static function htmlableText(Htmlable|string|null $value): string
+    {
+        return $value instanceof Htmlable ? $value->toHtml() : (string) $value;
+    }
+
     private static function modifyCreateAction(Action $action): Action
     {
         return $action->slideOver()
@@ -273,7 +300,7 @@ class AssetsRepeater extends Repeater
             ->successNotificationTitle(
                 fn (Action $action): string => __(
                     'capell-admin::notification.created_successfully',
-                    ['name' => (string) $action->getModalHeading()],
+                    ['name' => self::htmlableText($action->getModalHeading())],
                 ),
             )
             ->after(function (Action $action): void {

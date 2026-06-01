@@ -366,17 +366,36 @@
             x-on:keydown.home.stop.prevent="setColspan(1)"
             x-on:keydown.end.stop.prevent="setColspan(12)"
         >
-            <span class="pointer-events-none" aria-hidden="true">
+            <span
+                class="pointer-events-none"
+                aria-hidden="true"
+            >
                 <svg
                     class="h-3.5 w-3.5"
                     fill="currentColor"
                     viewBox="0 0 16 16"
                     xmlns="http://www.w3.org/2000/svg"
                 >
-                    <circle cx="5" cy="5" r="1.5" />
-                    <circle cx="11" cy="5" r="1.5" />
-                    <circle cx="5" cy="11" r="1.5" />
-                    <circle cx="11" cy="11" r="1.5" />
+                    <circle
+                        cx="5"
+                        cy="5"
+                        r="1.5"
+                    />
+                    <circle
+                        cx="11"
+                        cy="5"
+                        r="1.5"
+                    />
+                    <circle
+                        cx="5"
+                        cy="11"
+                        r="1.5"
+                    />
+                    <circle
+                        cx="11"
+                        cy="11"
+                        r="1.5"
+                    />
                 </svg>
             </span>
             <span

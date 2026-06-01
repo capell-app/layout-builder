@@ -160,7 +160,7 @@ class ModalTableSelect extends Component implements HasActions, HasForms, HasTab
     /**
      * Provide a default query resolution using the configurable $tableQuery.
      *
-     * @return Builder<Model>|Builder<Page>
+     * @return Builder<Model>|Builder<Page>|Builder<Widget>
      */
     protected function getTableQuery(): Builder
     {

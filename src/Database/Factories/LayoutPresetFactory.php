@@ -20,7 +20,8 @@ final class LayoutPresetFactory extends Factory
      */
     public function definition(): array
     {
-        $name = fake()->words(3, true);
+        $words = fake()->words(3, true);
+        $name = is_string($words) ? $words : implode(' ', $words);
 
         return [
             'site_id' => Site::factory(),

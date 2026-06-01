@@ -13,10 +13,16 @@ use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetAssetsTable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetsTable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
+use Filament\Actions\CreateAction;
+use Filament\Forms\Components\Select;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 function invokeLayoutBuilderTableMethod(string $className, string $methodName, mixed ...$arguments): mixed
@@ -131,6 +137,85 @@ it('covers block asset table lookup and type helper branches', function (): void
         ->and($pageType->exists)->toBeTrue();
 });
 
+it('filters indicates and creates widget assets through the widget assets table workflow', function (): void {
+    $pageType = Blueprint::factory()->create([
+        'name' => 'Landing Page',
+        'type' => 'page',
+        'key' => 'landing-page',
+    ]);
+    $page = Page::factory()->create([
+        'name' => 'Campaign Landing Page',
+        'blueprint_id' => $pageType->getKey(),
+    ]);
+    $secondPage = Page::factory()->create(['name' => 'Secondary Landing Page']);
+    $block = Widget::factory()->create(['name' => 'Campaign Hero']);
+    $existingAsset = WidgetAsset::factory()
+        ->block($block)
+        ->asset($page)
+        ->page($page, 'main', 1)
+        ->create();
+
+    $table = WidgetAssetsTable::configure(layoutBuilderWidgetAssetsTable(WidgetAsset::query()));
+
+    expect($table->getRecordUrl($existingAsset->fresh()))->toBeString();
+
+    $filter = firstLayoutBuilderTableComponent($table->getFilters(), 'filter');
+    expect($filter)->not->toBeNull();
+
+    $filter = layoutBuilderTableObject($filter);
+    $components = $filter->getSchemaComponents();
+    $pagesSelect = firstLayoutBuilderTableComponent($components, 'pages', Select::class);
+
+    expect($pagesSelect)->toBeInstanceOf(Select::class);
+
+    $livewire = layoutBuilderWidgetAssetsTableLivewire(WidgetAsset::query());
+    $pageOptions = layoutBuilderEvaluateComponentProperty(
+        $pagesSelect,
+        'options',
+        ['livewire' => $livewire],
+        [HasTable::class => $livewire],
+    );
+
+    $filteredQuery = $filter->apply(WidgetAsset::query(), [
+        'asset_type' => $page->getMorphClass(),
+        'blueprint_id' => $pageType->getKey(),
+        'pages' => [
+            '',
+            $page->getMorphClass() . ':',
+            $page->getMorphClass() . ':' . $page->getKey(),
+        ],
+    ]);
+    $indicators = layoutBuilderEvaluateComponentProperty($filter, 'indicateUsing', [
+        'data' => [
+            'asset_type' => $page->getMorphClass(),
+            'blueprint_id' => $pageType->getKey(),
+            'pageable_type' => $page->getMorphClass(),
+            'pageable_id' => $page->getKey(),
+        ],
+    ]);
+
+    $createAction = collect($table->getHeaderActions())
+        ->first(fn (mixed $action): bool => $action instanceof CreateAction);
+    expect($createAction)->toBeInstanceOf(CreateAction::class);
+
+    $relationManager = new RelationManager;
+    $relationManager->ownerRecord = $block;
+
+    $createdAsset = $createAction->process(null, [
+        'data' => [
+            'asset_id' => [$page->getKey(), $secondPage->getKey()],
+            'asset_type' => $page->getMorphClass(),
+        ],
+        'livewire' => $relationManager,
+    ]);
+
+    expect($pageOptions)->toHaveKey($page->getMorphClass() . ':' . $page->getKey())
+        ->and($filteredQuery->toSql())->toContain('asset_type', 'blueprint_id', 'pageable_type', 'pageable_id')
+        ->and($indicators)->toHaveKeys(['asset_type', 'blueprint_id', 'page'])
+        ->and($createdAsset)->toBeInstanceOf(WidgetAsset::class)
+        ->and(WidgetAsset::query()->where('widget_id', $block->getKey())->count())->toBe(3);
+});
+
 it('adds layout-builder specific layout table filters columns and query relations', function (): void {
     $block = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero']);
 
@@ -193,4 +278,53 @@ function layoutBuilderTableContainsColumn(array $columns, array $names): bool
     }
 
     return false;
+}
+
+function layoutBuilderWidgetAssetsTable(Builder $query): Table
+{
+    return Table::make(layoutBuilderWidgetAssetsTableLivewire($query))->query($query);
+}
+
+function layoutBuilderWidgetAssetsTableLivewire(Builder $query): HasTable
+{
+    $livewire = Mockery::mock(HasTable::class);
+    $table = Table::make($livewire)->query($query);
+
+    $livewire->shouldReceive('makeFilamentTranslatableContentDriver')->andReturn(null)->byDefault();
+    $livewire->shouldReceive('getTable')->andReturn($table)->byDefault();
+
+    return $livewire;
+}
+
+function layoutBuilderTableObject(mixed $value): object
+{
+    throw_unless(is_object($value), RuntimeException::class, 'Expected a table component object.');
+
+    return $value;
+}
+
+/**
+ * @param  array<string, mixed>  $namedInjections
+ * @param  array<class-string, mixed>  $typedInjections
+ */
+function layoutBuilderEvaluateComponentProperty(
+    object $component,
+    string $property,
+    array $namedInjections = [],
+    array $typedInjections = [],
+): mixed {
+    $reflection = new ReflectionClass($component);
+
+    while ($reflection !== false) {
+        if ($reflection->hasProperty($property)) {
+            $propertyReflection = $reflection->getProperty($property);
+            $value = $propertyReflection->getValue($component);
+
+            return $component->evaluate($value, $namedInjections, $typedInjections);
+        }
+
+        $reflection = $reflection->getParentClass();
+    }
+
+    throw new RuntimeException(sprintf('Component property [%s] was not found.', $property));
 }

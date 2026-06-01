@@ -89,12 +89,13 @@ test('can delete and recreate a block with the same key and translation data', f
         ->where('key', 'related-pages')
         ->whereNull('deleted_at')
         ->first();
+    $recreatedBlock = capell_test_instance($recreatedBlock, Widget::class);
 
-    expect($recreatedBlock)
-        ->not->toBeNull()
-        ->and($recreatedBlock->id)->not->toBe($block->id)
+    $recreatedBlockType = capell_test_instance($recreatedBlock->type, Blueprint::class);
+
+    expect($recreatedBlock->id)->not->toBe($block->id)
         ->and($recreatedBlock->blueprint_id)->toBe($type->id)
-        ->and($recreatedBlock->type->admin)->toMatchArray([
+        ->and($recreatedBlockType->admin)->toMatchArray([
             'type_configurator' => 'Widget',
             'configurator' => 'Results',
             'layout_block_configurator' => 'Results',

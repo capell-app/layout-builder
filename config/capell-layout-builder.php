@@ -17,6 +17,8 @@ return [
     ],
 
     'resources' => [
+        'demo_path' => env('CAPELL_LAYOUT_BUILDER_DEMO_PATH'),
+
         'block' => [
             'icon' => 'heroicon-o-puzzle-piece',
             'active_icon' => 'heroicon-s-puzzle-piece',

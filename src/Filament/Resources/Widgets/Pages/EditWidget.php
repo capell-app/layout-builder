@@ -43,9 +43,11 @@ class EditWidget extends EditRecord
     #[Override]
     public function getTitle(): string|Htmlable
     {
+        $recordTitle = $this->getRecordTitle();
+
         return new HtmlString(
             __('capell-layout-builder::heading.edit_block_record', [
-                'name' => Str::limit($this->getRecordTitle(), 40),
+                'name' => Str::limit($recordTitle instanceof Htmlable ? $recordTitle->toHtml() : $recordTitle, 40),
             ]),
         );
     }
@@ -197,7 +199,9 @@ class EditWidget extends EditRecord
     {
         $model = $this->getModel();
 
-        $updated_at = $model::query()->find($this->record->id, [$attribute])->value($attribute);
+        $updated_at = $model::query()
+            ->whereKey($this->record->id)
+            ->value($attribute);
 
         return $updated_at === null || $this->record->updated_at > $updated_at;
     }

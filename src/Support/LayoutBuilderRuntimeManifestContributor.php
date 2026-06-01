@@ -69,12 +69,12 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
             }
         }
 
-        return $widgetKeys
+        return array_values($widgetKeys
             ->filter(fn (mixed $widgetKey): bool => is_string($widgetKey) || is_numeric($widgetKey))
             ->map(fn (mixed $widgetKey): string => (string) $widgetKey)
             ->unique()
             ->values()
-            ->all();
+            ->all());
     }
 
     /**

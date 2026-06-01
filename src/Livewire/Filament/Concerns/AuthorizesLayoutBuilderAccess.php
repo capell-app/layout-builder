@@ -99,6 +99,16 @@ trait AuthorizesLayoutBuilderAccess
 
     protected function assertLayoutMatchesPageSite(): void
     {
+        if ($this->site instanceof Site) {
+            throw_if($this->layout->hasAttribute('site_id')
+            && $this->layout->site_id !== null
+            && (int) $this->layout->site_id !== (int) $this->site->getKey(), AuthorizationException::class);
+            throw_if($this->page instanceof Model
+            && $this->page->hasAttribute('site_id')
+            && $this->page->site_id !== null
+            && (int) $this->page->site_id !== (int) $this->site->getKey(), AuthorizationException::class);
+        }
+
         if (! $this->page instanceof Model) {
             return;
         }

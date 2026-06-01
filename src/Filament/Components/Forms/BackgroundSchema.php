@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Filament\Components\Forms;
 
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Closure;
 use Filament\Forms\Components\Checkbox;
@@ -115,7 +116,13 @@ class BackgroundSchema
             return null;
         }
 
-        $backgroundColor = $record->block->getMeta($component->getName());
+        $block = $record->block;
+
+        if (! $block instanceof Widget) {
+            return null;
+        }
+
+        $backgroundColor = $block->getMeta($component->getName());
 
         if (blank($backgroundColor)) {
             return null;

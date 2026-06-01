@@ -114,7 +114,13 @@ it('does not force layout builder admin metadata into public responses', functio
 
     resolve(FrontendResponseRendererRegistry::class)->register($renderer);
 
-    $html = resolve(PageController::class)()->getContent();
+    $response = resolve(PageController::class)();
+
+    throw_unless($response instanceof SymfonyResponse, RuntimeException::class, 'Expected page controller to return a Symfony response.');
+
+    $html = $response->getContent();
+
+    throw_unless(is_string($html), RuntimeException::class, 'Expected page controller response content to be readable.');
 
     expect($html)->not->toContain('layoutDiagnostics')
         ->and($html)->not->toContain('LayoutFragmentData')

@@ -40,7 +40,7 @@
 @if ($colspan !== 12)
     @if (! $previousColspan || $previousColspan === 12)
         <div @class([
-            'capell-layout-builder-layout-container',
+            'layout-container-shell',
             $containerWidth->getContainerClass(),
         ])>
             <div class="flex w-full min-w-0 flex-col gap-x-12 lg:grid lg:grid-cols-12 xl:gap-x-16">

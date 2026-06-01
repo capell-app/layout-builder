@@ -16,7 +16,9 @@ use Capell\LayoutBuilder\Actions\GenerateLayoutPreviewImageAction;
 use Capell\LayoutBuilder\Actions\InvalidateBlockLayoutPreviewImagesAction;
 use Capell\LayoutBuilder\Actions\Mutations\CreateLayoutFragmentAction;
 use Capell\LayoutBuilder\Actions\Mutations\PasteLayoutFragmentAction;
+use Capell\LayoutBuilder\Actions\RenderAdminLayoutPreviewAction;
 use Capell\LayoutBuilder\Actions\ResolveAdminBlockPreviewDataAction;
+use Capell\LayoutBuilder\Data\AdminLayoutPreviewData;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Enums\ActionLinkEnum;
 use Capell\LayoutBuilder\Enums\BlockComponentEnum;
@@ -39,9 +41,10 @@ use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetAssetsTable;
 use Capell\LayoutBuilder\Filament\Widgets\LayoutHealthWidgetAbstract;
 use Capell\LayoutBuilder\Filament\Widgets\RecentActivityWidgetAbstract;
 use Capell\LayoutBuilder\Listeners\LayoutLoaded;
-use Capell\LayoutBuilder\Livewire\Filament\Actions\LayoutBuilderActionFactory;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\LayoutBuilder\Livewire\Filament\ModalTableSelect;
+use Capell\LayoutBuilder\Livewire\Filament\Support\LayoutBuilderActionFactory;
+use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
@@ -56,15 +59,17 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
 final class LayoutBuilderResidualModalTableSelect extends ModalTableSelect
 {
     /**
-     * @return Builder<Model>
+     * @return Builder<Model>|Builder<Page>|Builder<Widget>
      */
     public function exposeTableQuery(): Builder
     {
@@ -165,6 +170,15 @@ final class LayoutBuilderResidualAssetHarness extends LayoutBuilder
 
     #[Override]
     protected function assertCanEditLayout(): void {}
+
+    #[Override]
+    protected function assertCanUseLayoutBuilder(): void {}
+
+    #[Override]
+    protected function assertCanCreateLayoutPreset(Site $site): void {}
+
+    #[Override]
+    protected function assertCanApplyLayoutPreset(LayoutPreset $preset, Site $site): void {}
 }
 
 final class LayoutBuilderResidualSuccessfulPreviewRenderer extends LayoutPreviewRenderer
@@ -238,7 +252,9 @@ final class LayoutBuilderResidualEditWidgetPage extends EditWidget
 
     public function exposeSubheading(): string
     {
-        return (string) $this->getSubheading();
+        $subheading = $this->getSubheading();
+
+        return $subheading instanceof Htmlable ? $subheading->toHtml() : (string) $subheading;
     }
 
     /**
@@ -276,6 +292,20 @@ function invokeLayoutBuilderResidualMethod(string|object $classOrObject, string 
     $method = new ReflectionMethod($classOrObject, $methodName);
 
     return $method->invoke(is_string($classOrObject) ? null : $classOrObject, ...$arguments);
+}
+
+/**
+ * @param  array<string, mixed>  $data
+ * @param  array<string, mixed>  $arguments
+ */
+function callLayoutBuilderResidualAction(Action $action, LayoutBuilderResidualAssetHarness $harness, array $data = [], array $arguments = []): mixed
+{
+    return $action
+        ->livewire($harness)
+        ->schemaContainer(Schema::make($harness))
+        ->arguments($arguments)
+        ->data($data)
+        ->call();
 }
 
 it('covers residual filament component and table configuration setup branches', function (): void {
@@ -551,7 +581,10 @@ it('covers edit block page relation metadata and relation manager table setup', 
     $block->setRelation('type', $type);
 
     $page = new LayoutBuilderResidualEditWidgetPage($block);
-    capell_expect((string) $page->getTitle())->toContain('Editable Hero')
+    $title = $page->getTitle();
+    $titleText = $title instanceof Htmlable ? $title->toHtml() : $title;
+
+    capell_expect($titleText)->toContain('Editable Hero')
         ->and($page->exposeSubheading())->toContain('Hero Type')
         ->and($page->exposeBaseHeaderActions())->not->toBeEmpty()
         ->and($page->exposeRecordSwitcherColumns())->toBe(['name', 'admin'])
@@ -840,6 +873,237 @@ it('adds updates preloads and deletes page-scoped block assets through the edito
     capell_expect(WidgetAsset::query()->whereKey($createdAsset->getKey())->exists())->toBeFalse();
 });
 
+it('adds validated page assets through the editor selection workflow', function (): void {
+    Gate::before(static fn (mixed $user = null): bool => true);
+
+    $site = Site::factory()->default()->create();
+    $otherSite = Site::factory()->create();
+    $page = Page::factory()->site($site)->withTranslations()->create();
+    $allowedAssetPage = Page::factory()->site($site)->withTranslations()->create(['name' => 'Allowed asset']);
+    $otherSiteAssetPage = Page::factory()->site($otherSite)->withTranslations()->create();
+    $block = Widget::factory()->create([
+        'key' => 'validated-asset-block',
+        'admin' => [
+            'asset_types' => ['page'],
+        ],
+    ]);
+    $block->setRelation('assets', new Collection);
+
+    $harness = new LayoutBuilderResidualAssetHarness;
+    $harness->site = $site;
+    $harness->layout = Layout::factory()->create(['site_id' => $site->getKey()]);
+    $harness->page = $page;
+    $harness->containers = [
+        'main' => [
+            'widgets' => [
+                ['widget_key' => $block->key, 'occurrence' => 1],
+            ],
+        ],
+    ];
+    $harness->assets = ['main' => [[]]];
+    $harness->selectedRecords = ['main' => [[]]];
+    $harness->originalAssets = ['main' => [[]]];
+    $harness->setContainerBlocks(['main' => [$block]]);
+
+    $harness->exposeAddAssets(
+        containerKey: 'main',
+        blockIndex: 0,
+        hasPageAssets: true,
+        type: 'page',
+        assets: [$page->getKey(), $allowedAssetPage->getKey(), $otherSiteAssetPage->getKey(), ''],
+        assetsMeta: [
+            $allowedAssetPage->getKey() => ['caption' => 'Selected from modal'],
+        ],
+    );
+
+    capell_expect($harness->assets['main'][0])->toHaveCount(1)
+        ->and($harness->assets['main'][0][0])->toMatchArray([
+            'asset_id' => $allowedAssetPage->getKey(),
+            'asset_type' => 'page',
+            'meta' => ['caption' => 'Selected from modal'],
+            'widget_id' => $block->getKey(),
+            'order' => 1,
+            'occurrence' => 1,
+            'pageable_id' => $page->getKey(),
+            'pageable_type' => $page->getMorphClass(),
+            'container' => 'main',
+        ])
+        ->and($block->assets)->toHaveCount(1)
+        ->and($block->assets->first())->toBeInstanceOf(WidgetAsset::class)
+        ->and($block->assets->first()->exists)->toBeFalse();
+
+    $harness->exposeUpdateAssets('main', 0);
+
+    capell_expect(WidgetAsset::query()->where('widget_id', $block->getKey())->count())->toBe(1)
+        ->and((int) WidgetAsset::query()->first()?->asset_id)->toBe($allowedAssetPage->getKey());
+});
+
+it('synchronizes global block assets by updating kept records and deleting removed records', function (): void {
+    $block = Widget::factory()->create([
+        'key' => 'global-assets-block',
+        'admin' => ['asset_types' => ['page']],
+    ]);
+    $keptPage = Page::factory()->withTranslations()->create(['name' => 'Kept global asset']);
+    $removedPage = Page::factory()->withTranslations()->create(['name' => 'Removed global asset']);
+    $createdPage = Page::factory()->withTranslations()->create(['name' => 'Created global asset']);
+
+    $keptAsset = WidgetAsset::factory()
+        ->block($block)
+        ->asset($keptPage)
+        ->create([
+            'workspace_id' => 0,
+            'container' => null,
+            'pageable_id' => null,
+            'pageable_type' => null,
+            'occurrence' => 1,
+            'order' => 5,
+            'meta' => ['caption' => 'Before sync'],
+        ]);
+    $removedAsset = WidgetAsset::factory()
+        ->block($block)
+        ->asset($removedPage)
+        ->create([
+            'workspace_id' => 0,
+            'container' => null,
+            'pageable_id' => null,
+            'pageable_type' => null,
+            'occurrence' => 1,
+            'order' => 6,
+            'meta' => ['caption' => 'Remove me'],
+        ]);
+    $block->load('assets');
+
+    $harness = new LayoutBuilderResidualAssetHarness;
+    $harness->layout = Layout::factory()->create();
+    $harness->page = null;
+    $harness->containers = [
+        'main' => [
+            'widgets' => [
+                ['widget_key' => $block->key, 'occurrence' => 1],
+            ],
+        ],
+    ];
+    $harness->assets = [
+        'main' => [
+            [
+                [
+                    'id' => $keptAsset->getKey(),
+                    'asset_id' => $keptPage->getKey(),
+                    'asset_type' => $keptAsset->asset_type,
+                    'meta' => ['caption' => 'After sync'],
+                    'order' => 2,
+                    'occurrence' => 1,
+                ],
+            ],
+        ],
+    ];
+    $harness->selectedRecords = ['main' => [[]]];
+    $harness->originalAssets = [
+        'main' => [
+            [
+                ['id' => $keptAsset->getKey()],
+                ['id' => $removedAsset->getKey()],
+            ],
+        ],
+    ];
+    $harness->setContainerBlocks(['main' => [$block]]);
+
+    $harness->exposeUpdateAssets('main', 0);
+
+    $createdAsset = $harness->exposeCreateWidgetAsset(
+        block: $block,
+        containerKey: 'main',
+        occurrence: 1,
+        hasPageAssets: false,
+        order: 3,
+        asset: [
+            'asset_type' => $keptAsset->asset_type,
+            'asset_id' => $createdPage->getKey(),
+            'meta' => ['caption' => 'Created globally'],
+        ],
+    );
+
+    $keptAsset->refresh();
+
+    capell_expect($keptAsset->meta)->toBe(['caption' => 'After sync'])
+        ->and($keptAsset->order)->toBe(2)
+        ->and($keptAsset->container)->toBeNull()
+        ->and($keptAsset->pageable_id)->toBeNull()
+        ->and(WidgetAsset::query()->whereKey($removedAsset->getKey())->exists())->toBeFalse()
+        ->and($createdAsset->exists)->toBeTrue()
+        ->and($createdAsset->container)->toBeNull()
+        ->and($createdAsset->pageable_type)->toBeNull()
+        ->and($createdAsset->pageable_id)->toBeNull();
+});
+
+it('builds the layout editor action surface from one factory', function (): void {
+    $harness = new LayoutBuilderResidualAssetHarness;
+    $factory = new LayoutBuilderActionFactory($harness);
+
+    $actions = [
+        $factory->saveLayoutAction(),
+        $factory->duplicateLayoutAction(),
+        $factory->cloneLayoutForPageAction(),
+        $factory->undoLayoutMutationAction(),
+        $factory->redoLayoutMutationAction(),
+        $factory->addContainerAction(),
+        $factory->editContainerAction(),
+        $factory->removeContainerAction(),
+        $factory->moveContainerUpAction(),
+        $factory->moveContainerDownAction(),
+        $factory->duplicateContainerAction(),
+        $factory->editLayoutBlockAction(),
+        $factory->addBlockAction(),
+        $factory->editBlockAction(),
+        $factory->duplicateBlockAction(),
+        $factory->moveBlockUpAction(),
+        $factory->moveBlockDownAction(),
+        $factory->moveBlockToContainerAction(),
+        $factory->removeBlockAction(),
+        $factory->selectAssetAction(),
+        $factory->addAssetAction(),
+        $factory->editBlockAssetAction(),
+        $factory->moveAssetUpAction(),
+        $factory->moveAssetDownAction(),
+        $factory->removeAssetsAction(),
+        $factory->changeLayoutAction(),
+        $factory->togglePageAssetsAction(),
+    ];
+
+    capell_expect($actions)
+        ->each->toBeInstanceOf(Action::class)
+        ->and(array_map(static fn (Action $action): string => $action->getName(), $actions))
+        ->toBe([
+            'saveLayout',
+            'duplicateLayout',
+            'cloneLayoutForPage',
+            'undoLayoutMutation',
+            'redoLayoutMutation',
+            'addContainer',
+            'editContainer',
+            'removeContainer',
+            'moveContainerUp',
+            'moveContainerDown',
+            'duplicateContainer',
+            'editLayoutBlock',
+            'addBlock',
+            'editBlock',
+            'duplicateBlock',
+            'moveBlockUp',
+            'moveBlockDown',
+            'moveBlockToContainer',
+            'removeBlock',
+            'selectAsset',
+            'addAsset',
+            'editBlockAsset',
+            'moveAssetUp',
+            'moveAssetDown',
+            'removeAssets',
+            'changeLayout',
+            'togglePageAssets',
+        ]);
+});
+
 it('covers layout builder public editor helpers and action factory private branches', function (): void {
     $site = Site::factory()->default()->create();
     $layout = Layout::factory()->create(['site_id' => $site->getKey()]);
@@ -937,6 +1201,207 @@ it('covers layout builder public editor helpers and action factory private branc
             'blockIndex' => 0,
             'index' => 0,
         ]))->toBeNull();
+});
+
+it('drives layout editor action closures through a page editing workflow', function (): void {
+    Gate::before(static fn (mixed $user = null): bool => true);
+
+    app()->instance(RenderAdminLayoutPreviewAction::class, new class
+    {
+        /**
+         * @param  array<array-key, mixed>  $containers
+         * @param  array<array-key, mixed>  $containerBlocks
+         * @param  array<array-key, mixed>  $assets
+         * @param  array<array-key, mixed>  $pageFormState
+         */
+        public function handle(array $containers, array $containerBlocks, array $assets, mixed $page, array $pageFormState = []): AdminLayoutPreviewData
+        {
+            expect($containers)->toHaveKey('main')
+                ->and($pageFormState['title'] ?? null)->toBe('Preview title');
+
+            return new AdminLayoutPreviewData(
+                html: '<section data-preview="layout">Preview title</section>',
+                signature: 'workflow-preview-signature',
+                nodeMap: [
+                    hash('xxh128', 'container:main') => ['type' => 'container', 'containerKey' => 'main'],
+                    hash('xxh128', 'block:main:0') => ['type' => 'block', 'containerKey' => 'main', 'blockIndex' => 0],
+                ],
+            );
+        }
+    });
+
+    $site = Site::factory()->default()->create();
+    $layout = Layout::factory()->create([
+        'site_id' => $site->getKey(),
+        'containers' => [
+            'main' => [
+                'meta' => [
+                    'area' => 'main',
+                    'responsive' => [
+                        'tablet' => ['colspan' => 8],
+                    ],
+                ],
+                'widgets' => [
+                    ['widget_key' => 'workflow-hero', 'occurrence' => 1],
+                ],
+            ],
+        ],
+    ]);
+    $page = Page::factory()->site($site)->withTranslations()->create(['layout_id' => $layout->getKey()]);
+    $firstAssetPage = Page::factory()->site($site)->withTranslations()->create(['name' => 'Workflow asset one']);
+    $secondAssetPage = Page::factory()->site($site)->withTranslations()->create(['name' => 'Workflow asset two']);
+    $heroBlock = Widget::factory()->create([
+        'key' => 'workflow-hero',
+        'admin' => ['asset_types' => ['page']],
+    ]);
+    $cardsBlock = Widget::factory()->create([
+        'key' => 'workflow-cards',
+        'admin' => ['asset_types' => ['page']],
+    ]);
+    $persistedAsset = WidgetAsset::factory()
+        ->block($heroBlock)
+        ->asset($firstAssetPage)
+        ->create([
+            'asset_type' => 'page',
+            'asset_id' => $firstAssetPage->getKey(),
+            'container' => 'main',
+            'occurrence' => 1,
+            'order' => 1,
+            'pageable_id' => $page->getKey(),
+            'pageable_type' => $page->getMorphClass(),
+        ]);
+    $heroBlock->load('assets');
+    $cardsBlock->setRelation('assets', new Collection);
+
+    $harness = new LayoutBuilderResidualAssetHarness;
+    $harness->site = $site;
+    $harness->layout = $layout;
+    $harness->page = $page;
+    $harness->containers = $layout->containers;
+    $harness->assets = [
+        'main' => [
+            [
+                [
+                    'id' => $persistedAsset->getKey(),
+                    'widget_id' => $heroBlock->getKey(),
+                    'workspace_id' => 0,
+                    'asset_id' => $firstAssetPage->getKey(),
+                    'asset_type' => 'page',
+                    'meta' => ['caption' => 'Original'],
+                    'order' => 1,
+                    'occurrence' => 1,
+                    'pageable_id' => $page->getKey(),
+                    'pageable_type' => $page->getMorphClass(),
+                    'container' => 'main',
+                ],
+            ],
+        ],
+    ];
+    $harness->selectedRecords = ['main' => [[]]];
+    $harness->originalAssets = $harness->assets;
+    $harness->knownContainerKeys = ['main'];
+    $harness->setContainerBlocks(['main' => [$heroBlock]]);
+    invokeLayoutBuilderResidualMethod($harness, 'captureSavedBaselineState');
+
+    $factory = new LayoutBuilderActionFactory($harness);
+
+    callLayoutBuilderResidualAction($factory->saveLayoutAction(), $harness);
+    callLayoutBuilderResidualAction($factory->addContainerAction(), $harness, [
+        'key' => 'secondary',
+        'meta' => ['area' => 'main'],
+    ], ['position' => 1]);
+    callLayoutBuilderResidualAction($factory->editContainerAction(), $harness, [
+        'key' => 'sidebar',
+        'meta' => ['area' => 'aside'],
+    ], ['containerKey' => 'secondary']);
+    callLayoutBuilderResidualAction($factory->addBlockAction(), $harness, [
+        'widgets' => [$cardsBlock->getKey()],
+    ], ['containerKey' => 'sidebar', 'position' => 0]);
+    callLayoutBuilderResidualAction($factory->editLayoutBlockAction(), $harness, [
+        'block_settings' => ['anchor_id' => 'Workflow Hero'],
+    ], ['containerKey' => 'main', 'blockIndex' => 0]);
+
+    $harness->addAssetsToBlock(
+        ['containerKey' => 'main', 'blockIndex' => 0, 'hasPageAssets' => true],
+        'page',
+        [$secondAssetPage->getKey()],
+    );
+    callLayoutBuilderResidualAction($factory->moveAssetDownAction(), $harness, [], [
+        'containerKey' => 'main',
+        'blockIndex' => 0,
+        'assetIndex' => 0,
+    ]);
+    callLayoutBuilderResidualAction($factory->moveAssetUpAction(), $harness, [], [
+        'containerKey' => 'main',
+        'blockIndex' => 0,
+        'assetIndex' => 1,
+    ]);
+    callLayoutBuilderResidualAction($factory->togglePageAssetsAction(), $harness, [], [
+        'containerKey' => 'main',
+        'blockIndex' => 0,
+    ]);
+    $harness->selectedRecords['main'][0] = ['page.' . $secondAssetPage->getKey()];
+    callLayoutBuilderResidualAction($factory->removeAssetsAction(), $harness, [], [
+        'containerKey' => 'main',
+        'blockIndex' => 0,
+    ]);
+
+    callLayoutBuilderResidualAction($factory->duplicateBlockAction(), $harness, [], [
+        'containerKey' => 'main',
+        'blockIndex' => 0,
+    ]);
+    callLayoutBuilderResidualAction($factory->moveBlockDownAction(), $harness, [], [
+        'containerKey' => 'main',
+        'blockIndex' => 0,
+    ]);
+    callLayoutBuilderResidualAction($factory->moveBlockUpAction(), $harness, [], [
+        'containerKey' => 'main',
+        'blockIndex' => 1,
+    ]);
+    callLayoutBuilderResidualAction($factory->moveBlockToContainerAction(), $harness, [
+        'target_container' => 'sidebar',
+    ], ['containerKey' => 'main', 'blockIndex' => 1]);
+
+    $harness->selectContainer('missing');
+    $harness->selectContainer('main');
+    $harness->selectBlock('main', 0);
+    $harness->selectPreviewNode(hash('xxh128', 'container:main'));
+    $harness->selectPreviewNode(hash('xxh128', 'block:main:0'));
+    $harness->refreshVisualPreview(['title' => 'Preview title']);
+    $harness->showAdvancedLayout('content:hero');
+    $harness->showContentEditor();
+    $harness->setActiveBreakpoint('tablet');
+    $harness->resetResponsiveContainerOverride('main');
+    $harness->copyLayoutBlock('main', 0);
+    $harness->pasteLayoutFragment('sidebar', 0);
+    $harness->copyLayoutContainer('main');
+    $harness->pasteLayoutFragment('sidebar');
+    $harness->saveLayoutPreset('main', 'Workflow Preset');
+    $harness->insertLayoutPreset('Workflow Preset', 'sidebar');
+
+    callLayoutBuilderResidualAction($factory->removeBlockAction(), $harness, [], [
+        'containerKey' => 'sidebar',
+        'blockIndex' => 0,
+    ]);
+    callLayoutBuilderResidualAction($factory->moveContainerUpAction(), $harness, [], ['containerKey' => 'sidebar']);
+    callLayoutBuilderResidualAction($factory->moveContainerDownAction(), $harness, [], ['containerKey' => 'sidebar']);
+    callLayoutBuilderResidualAction($factory->duplicateContainerAction(), $harness, [], ['containerKey' => 'sidebar']);
+    callLayoutBuilderResidualAction($factory->changeLayoutAction(), $harness, ['layout_id' => $layout->getKey()]);
+
+    expect($harness->saveLayout(withNotifications: true))->toBeTrue()
+        ->and($harness->visualPreviewHtml)->toContain('Preview title')
+        ->and($harness->visualPreviewSignature)->toBe('workflow-preview-signature')
+        ->and($harness->visualPreviewStatus)->toBe('current')
+        ->and($harness->selectedContainerKey)->toBe('main')
+        ->and($harness->selectedBlockIndex)->toBe(0)
+        ->and($harness->editorMode)->toBe('content_first')
+        ->and($harness->returnToContentItemKey)->toBe('content:hero')
+        ->and($harness->layoutAreaOptions())->toHaveKey('main')
+        ->and($harness->layoutAreaForContainer($harness->containers['main']))->toBe('main')
+        ->and($harness->layoutAreaLabel('main'))->toBeString()
+        ->and($harness->knownContainerKeys)->toContain('main', 'sidebar')
+        ->and($harness->layoutModified)->toBeFalse()
+        ->and($harness->layout->refresh()->containers)->toHaveKey('main');
 });
 
 it('renders deterministic layout preview images and signatures for varied containers', function (): void {

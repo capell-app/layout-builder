@@ -178,16 +178,6 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
                 classViewPath: $this->packageBasePath() . '/resources/views/livewire',
             );
 
-            if (! $this->app->bound('livewire.factory')) {
-                return;
-            }
-
-            resolve('livewire.factory')->resolveMissingComponent(
-                static fn (string $name): ?string => match ($name) {
-                    'capell-layout-builder::filament.layout-builder' => LayoutBuilder::class,
-                    default => null,
-                },
-            );
         };
 
         if ($this->app->isBooted()) {
@@ -209,12 +199,7 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
 
         FilamentAsset::register(
             [
-                Css::make('capell-layout-builder-filament', $cssSourcePath)
-                    ->html(fn (): string => sprintf(
-                        '<link href="%s?v=%s" rel="stylesheet" data-navigate-track />',
-                        asset('css/capell-layout-builder/capell-layout-builder-filament.css'),
-                        filemtime($cssSourcePath),
-                    )),
+                Css::make('capell-layout-builder-filament', $cssSourcePath),
                 AlpineComponent::make('layout-builder', $publishDir . '/build/js/components/layout-builder/admin/layout-builder.js')
                     ->loadedOnRequest(),
             ],

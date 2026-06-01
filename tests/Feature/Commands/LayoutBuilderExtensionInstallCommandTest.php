@@ -20,6 +20,12 @@ afterEach(function (): void {
     CapellCore::clearPackages();
 });
 
+final class LayoutBuilderInstallRecorder
+{
+    /** @var list<string> */
+    public array $calls = [];
+}
+
 it('forces migrations when installing layout builder directly', function (): void {
     $migrateForceOptions = [];
 
@@ -40,15 +46,11 @@ it('forces migrations when installing layout builder directly', function (): voi
 });
 
 it('installs layout builder from its package manifest', function (): void {
-    $installRecorder = new class
-    {
-        /** @var list<string> */
-        public array $calls = [];
-    };
+    $installRecorder = new LayoutBuilderInstallRecorder;
 
     test()->instance(InstallLayoutBuilderPackageAction::class, new readonly class($installRecorder) implements PackageLifecycleAction
     {
-        public function __construct(private object $installRecorder) {}
+        public function __construct(private LayoutBuilderInstallRecorder $installRecorder) {}
 
         /**
          * @param  array<string, mixed>  $arguments
@@ -91,9 +93,9 @@ it('installs layout builder from its package manifest', function (): void {
     $extension = CapellExtension::query()
         ->where('composer_name', 'capell-app/layout-builder')
         ->first();
+    $extension = capell_test_instance($extension, CapellExtension::class);
 
     expect($installRecorder->calls)->toBe(['capell-app/layout-builder'])
-        ->and($extension)->not->toBeNull()
         ->and($extension->status->value)->toBe('enabled')
         ->and($extension->installed_at)->not->toBeNull()
         ->and(CapellCore::isPackageInstalled('capell-app/layout-builder'))->toBeTrue();

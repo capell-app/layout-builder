@@ -12,6 +12,7 @@ use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
 
 class BlockSelect extends Select
@@ -36,14 +37,24 @@ class BlockSelect extends Select
                     return null;
                 }
 
-                $name = $component->getModel()::query()->whereKey($value)->value('name');
+                $model = $component->getModel();
+
+                if ($model === null) {
+                    return null;
+                }
+
+                $name = $model::query()->whereKey($value)->value('name');
 
                 return is_string($name) ? $name : null;
             })
             ->getOptionLabelsUsing(
-                fn (Select $component, array $values): array => $component->getModel()::whereIn('id', $values)
-                    ->pluck('name', 'id')
-                    ->toArray(),
+                function (Select $component, array $values): array {
+                    $model = $component->getModel();
+
+                    return $model === null
+                        ? []
+                        : $model::query()->whereIn('id', $values)->pluck('name', 'id')->toArray();
+                },
             )
             ->createOptionForm(
                 fn (Select $component, Schema $configurator): Schema => WidgetForm::configure(
@@ -76,7 +87,7 @@ class BlockSelect extends Select
                     ->successNotificationTitle(
                         fn (Action $action): string => __(
                             'capell-admin::notification.created_successfully',
-                            ['name' => (string) $action->getModalHeading()],
+                            ['name' => $this->htmlableText($action->getModalHeading())],
                         ),
                     )
                     ->after(function (Action $action): void {
@@ -106,7 +117,7 @@ class BlockSelect extends Select
                     ->successNotificationTitle(
                         fn (Action $action): string => __(
                             'capell-admin::notification.updated_successfully',
-                            ['name' => (string) $action->getModalHeading()],
+                            ['name' => $this->htmlableText($action->getModalHeading())],
                         ),
                     )
                     ->after(function (Action $action): void {
@@ -118,5 +129,10 @@ class BlockSelect extends Select
 
                 return $record?->attributesToArray() ?? [];
             });
+    }
+
+    private function htmlableText(Htmlable|string|null $value): string
+    {
+        return $value instanceof Htmlable ? $value->toHtml() : (string) $value;
     }
 }

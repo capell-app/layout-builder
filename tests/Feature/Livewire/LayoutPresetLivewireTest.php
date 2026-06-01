@@ -33,11 +33,18 @@ it('saves the selected container as a layout preset from the builder', function 
         ->call('saveLayoutPreset', 'main', 'Reusable hero');
 
     $preset = LayoutPreset::query()->where('name', 'Reusable hero')->first();
+    $preset = capell_test_instance($preset, LayoutPreset::class);
 
-    expect($preset)->not->toBeNull()
-        ->and($preset->site_id)->toBe($site->getKey())
-        ->and($preset->snapshot['containers'])->toHaveKey('main')
-        ->and($preset->snapshot['containers']['main']['widgets'][0]['widget_key'])->toBe('hero');
+    $snapshot = capell_test_array($preset->snapshot);
+    $containers = capell_test_array($snapshot['containers'] ?? null);
+    $mainContainer = capell_test_array($containers['main'] ?? null);
+    $mainWidgets = $mainContainer['widgets'] ?? [];
+
+    throw_unless(is_array($mainWidgets), RuntimeException::class, 'Expected preset widgets.');
+
+    expect($preset->site_id)->toBe($site->getKey())
+        ->and($containers)->toHaveKey('main')
+        ->and($mainWidgets[0]['widget_key'] ?? null)->toBe('hero');
 });
 
 it('inserts a layout preset into the builder state', function (): void {

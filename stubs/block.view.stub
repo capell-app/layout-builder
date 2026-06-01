@@ -1,0 +1,3 @@
+<div class="capell-layout-block capell-layout-block-{{ name }}">
+    {{ $block->name ?? '{{ class }}' }}
+</div>

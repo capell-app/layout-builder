@@ -30,7 +30,11 @@ final class LayoutMutationHistory
         }
 
         $this->redo[] = $this->current;
-        $this->current = array_pop($this->undo);
+        $previous = array_pop($this->undo);
+
+        if ($previous instanceof LayoutBuilderStateData) {
+            $this->current = $previous;
+        }
 
         return $this->current;
     }
@@ -42,7 +46,11 @@ final class LayoutMutationHistory
         }
 
         $this->undo[] = $this->current;
-        $this->current = array_pop($this->redo);
+        $next = array_pop($this->redo);
+
+        if ($next instanceof LayoutBuilderStateData) {
+            $this->current = $next;
+        }
 
         return $this->current;
     }

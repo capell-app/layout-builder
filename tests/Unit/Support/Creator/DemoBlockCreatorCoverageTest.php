@@ -104,6 +104,11 @@ it('creates modern and application preview demo blocks with asset-backed content
         $creator->createApImageGalleryBlock(),
     ];
 
+    $apCtaSectionBlock = capell_test_instance(Widget::query()->firstWhere('key', 'ap-cta-section'), Widget::class);
+    $apCtaSectionBlockMeta = capell_test_array($apCtaSectionBlock->meta);
+    $apImageGalleryBlock = capell_test_instance(Widget::query()->firstWhere('key', 'ap-image-gallery'), Widget::class);
+    $apImageGalleryBlockMeta = capell_test_array($apImageGalleryBlock->meta);
+
     expect($blocks)
         ->each->toBeInstanceOf(Widget::class)
         ->and(Widget::query()->firstWhere('key', 'modern-feature-list')?->assets()->count())->toBe(6)
@@ -112,9 +117,9 @@ it('creates modern and application preview demo blocks with asset-backed content
         ->and(Widget::query()->firstWhere('key', 'modern-faq')?->assets()->count())->toBe(5)
         ->and(Widget::query()->firstWhere('key', 'ap-card-grid')?->assets()->count())->toBe(3)
         ->and(Widget::query()->firstWhere('key', 'ap-feature-list')?->assets()->count())->toBe(4)
-        ->and(Widget::query()->firstWhere('key', 'ap-cta-section')?->meta['primary_button_text'])->toBe('Get Started Free')
-        ->and(Widget::query()->firstWhere('key', 'ap-image-gallery')?->meta['lightbox'])->toBeTrue()
-        ->and(Widget::query()->firstWhere('key', 'ap-image-gallery')?->media()->count())->toBe(6);
+        ->and($apCtaSectionBlockMeta['primary_button_text'] ?? null)->toBe('Get Started Free')
+        ->and($apImageGalleryBlockMeta['lightbox'] ?? null)->toBeTrue()
+        ->and($apImageGalleryBlock->media()->count())->toBe(6);
 });
 
 it('creates page card assets for related pages in the requested occurrence', function (): void {

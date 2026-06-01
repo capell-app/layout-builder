@@ -281,3 +281,28 @@ it('skips duplicate page card and content block assets for existing scoped recor
             'occurrence' => 1,
         ])->count())->toBe(4);
 });
+
+it('creates standard demo collection blocks with translations and reusable assets', function (): void {
+    $language = Language::factory()->create(['code' => 'en']);
+
+    [, , , $creator] = prepareStandardDemoCreatorHarness($language);
+
+    $languages = new Collection([$language]);
+
+    $clientLogosBlock = $creator->createClientLogosBlock($languages);
+    $businessFeaturesBlock = $creator->createBusinessFeaturesBlock(Site::getDefault());
+    $bannersBlock = $creator->createBannersBlock();
+    $testimonialsBlock = $creator->createTestimonialsBlock($languages);
+    $statisticsBlock = $creator->createStatisticsBlock();
+    $teamPortfolioBlock = $creator->createTeamPortfolioBlock($languages);
+
+    expect($clientLogosBlock->key)->toBe('client-logos')
+        ->and($clientLogosBlock->assets()->count())->toBe(12)
+        ->and($clientLogosBlock->translations()->where('language_id', $language->getKey())->exists())->toBeTrue()
+        ->and($businessFeaturesBlock->key)->toBe('business-features')
+        ->and($businessFeaturesBlock->assets()->count())->toBe(7)
+        ->and($bannersBlock->assets()->count())->toBe(7)
+        ->and($testimonialsBlock->assets()->count())->toBe(3)
+        ->and($statisticsBlock->assets()->count())->toBe(4)
+        ->and($teamPortfolioBlock->assets()->count())->toBe(16);
+});

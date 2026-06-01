@@ -154,6 +154,6 @@
         "categories": ["admin", "foundation", "frontend"]
     },
     "contributionTraceability": {
-        "deferredContributions": ["migration", "model", "route"]
+        "deferredContributions": ["migration", "model", "page-type", "route"]
     }
 }

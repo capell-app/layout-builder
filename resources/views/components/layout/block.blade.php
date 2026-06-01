@@ -74,16 +74,19 @@
 @if ($isLazyFragment)
     <div
         id="{{ $blockDomId }}"
-        data-capell-fragment
-        data-capell-fragment-url="{{ url('/_capell/fragments/' . rawurlencode($blockReference)) }}"
-        class="capell-layout-builder-fragment"
+        data-deferred-fragment
+        data-deferred-fragment-url="{{ url('/_fragments/' . rawurlencode($blockReference)) }}"
+        class="deferred-fragment"
     ></div>
 @elseif ($type === 'blade')
     <x-capell::widgets.runtime-wrapper
         :settings="$presentation"
         :resource-public-ids="$resourcePublicIds"
     >
-        <div id="{{ $blockDomId }}" class="capell-layout-builder-layout-block">
+        <div
+            id="{{ $blockDomId }}"
+            class="layout-block"
+        >
             <x-dynamic-component
                 :component="$blockComponent"
                 :$container
@@ -106,7 +109,10 @@
         :settings="$presentation"
         :resource-public-ids="$resourcePublicIds"
     >
-        <div id="{{ $blockDomId }}" class="capell-layout-builder-layout-block">
+        <div
+            id="{{ $blockDomId }}"
+            class="layout-block"
+        >
             @livewire($blockComponent, ['blockReference' => $blockReference], key($containerKey . '-' . $block->key . '-' . $occurrence))
         </div>
         <x-capell::interactions :triggers="$interactions" />

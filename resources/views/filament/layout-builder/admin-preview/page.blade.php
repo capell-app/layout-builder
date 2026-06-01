@@ -5,7 +5,10 @@
     $pageTitle = $page?->translation?->title ?: $page?->name;
 @endphp
 
-<div class="clb-preview-page" data-capell-layout-builder-admin-preview="true">
+<div
+    class="clb-preview-page"
+    data-capell-layout-builder-admin-preview="true"
+>
     <header class="clb-preview-header">
         <div>
             <div class="clb-preview-kicker">

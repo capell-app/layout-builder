@@ -115,8 +115,8 @@ class WidgetsTable implements TableConfigurator
                 ->formatStateUsing(
                     fn (ListWidgets $livewire, TextColumn $column, Widget $record): string => Str::limit(
                         $record->translation->title ?? '',
-                        $column->getCharacterLimit(),
-                        $column->getCharacterLimitEnd(),
+                        $column->getCharacterLimit() ?? 200,
+                        $column->getCharacterLimitEnd() ?? '...',
                     ),
                 )
                 ->description(function (ListWidgets $livewire, TextColumn $column, Widget $record): ?HtmlString {
@@ -127,8 +127,8 @@ class WidgetsTable implements TableConfigurator
                     return new HtmlString(
                         Str::limit(
                             $record->translation->content,
-                            $column->getCharacterLimit(),
-                            $column->getCharacterLimitEnd(),
+                            $column->getCharacterLimit() ?? 200,
+                            $column->getCharacterLimitEnd() ?? '...',
                         ),
                     );
                 }),
@@ -295,7 +295,7 @@ class WidgetsTable implements TableConfigurator
 
                         $indicators['language_id'] = __(
                             'capell-admin::filter.language',
-                            ['search' => $model::query()->find($data['language_id'], 'name')?->name],
+                            ['search' => $model::query()->find((int) $data['language_id'], ['name'])?->name],
                         );
                     }
 

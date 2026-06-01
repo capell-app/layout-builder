@@ -90,6 +90,25 @@ it('resolves lazy mount scalar identifiers into builder models', function (): vo
         ->assertSet('editorMode', 'content_first');
 });
 
+it('rejects lazy mounted layout builders with a mismatched explicit site', function (): void {
+    $site = Site::factory()->create();
+    $otherSite = Site::factory()->create();
+    $layout = Layout::factory()->site($site)->create(['containers' => [
+        'main' => ['widgets' => []],
+    ]]);
+    $page = Page::factory()->for($site)->create([
+        'layout_id' => $layout->getKey(),
+    ]);
+
+    Livewire::test(LayoutBuilder::class, [
+        'siteId' => $otherSite->getKey(),
+        'layoutId' => $layout->getKey(),
+        'pageId' => $page->getKey(),
+        'pageClass' => Page::class,
+    ])
+        ->assertForbidden();
+});
+
 it('selects the requested block when mounted from frontend authoring', function (): void {
     $site = Site::factory()->create();
     $firstBlock = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
@@ -341,7 +360,8 @@ it('renders the signed frontend authoring layout builder editor surface', functi
 
     $this->get($signedUrl)
         ->assertOk()
-        ->assertSee('<html lang="en" class="fi">', false)
+        ->assertSee('lang="en"', false)
+        ->assertSee('class="fi"', false)
         ->assertSee('capell-layout-builder-authoring')
         ->assertSee('css/capell-layout-builder/capell-layout-builder-filament.css')
         ->assertSee("[x-cloak='']", false)
@@ -406,6 +426,25 @@ it('lets content editors use content first without advanced layout access from t
 
     $component
         ->call('showAdvancedLayout')
+        ->assertForbidden();
+});
+
+it('blocks content only editors from direct layout block meta mutation', function (): void {
+    Permission::findOrCreate('EditContent:Layout');
+    Permission::findOrCreate('EditLayout:Layout');
+    Permission::findOrCreate('Update:Layout');
+
+    test()->actingAs(test()->createUserWithPermission('EditContent:Layout'));
+
+    $block = Widget::factory()->create(['key' => 'hero']);
+    $layout = Layout::factory()->create(['containers' => [
+        'main' => ['widgets' => [
+            ['widget_key' => $block->key, 'occurrence' => 1],
+        ]],
+    ]]);
+
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->call('editLayoutBlock', 'main', 0, ['html_class' => 'content-only-change'])
         ->assertForbidden();
 });
 

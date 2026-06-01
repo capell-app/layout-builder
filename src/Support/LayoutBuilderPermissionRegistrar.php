@@ -53,12 +53,12 @@ final class LayoutBuilderPermissionRegistrar
             return [];
         }
 
-        return Permission::query()
+        return array_values(Permission::query()
             ->where('guard_name', $guardName)
             ->whereIn('name', $permissions)
             ->pluck('name')
             ->sort()
             ->values()
-            ->all();
+            ->all());
     }
 }

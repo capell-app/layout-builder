@@ -22,6 +22,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class TypeCreator
 {
+    private const string CONTENT_SECTIONS_MODEL = Section::class;
+
     /**
      * @var class-string<Blueprint>
      */
@@ -459,7 +461,7 @@ class TypeCreator
      */
     private function sectionModelClass(): string
     {
-        $contentSectionsModel = Section::class;
+        $contentSectionsModel = self::CONTENT_SECTIONS_MODEL;
 
         if (class_exists($contentSectionsModel)) {
             return $contentSectionsModel;

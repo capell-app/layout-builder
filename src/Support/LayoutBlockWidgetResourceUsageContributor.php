@@ -6,6 +6,7 @@ namespace Capell\LayoutBuilder\Support;
 
 use Capell\Core\Actions\Presentation\ResolvePresentationSettingsAction;
 use Capell\Core\Contracts\Pageable;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Frontend\Contracts\WidgetResourceUsageContributor;
@@ -72,9 +73,12 @@ class LayoutBlockWidgetResourceUsageContributor implements WidgetResourceUsageCo
 
                 $blockMeta = is_array($blockData['meta'] ?? null) ? $blockData['meta'] : [];
 
+                $type = $block->type;
+                $typeMeta = $type instanceof Blueprint && is_array($type->meta) ? $type->meta : [];
+
                 $presentation = ResolvePresentationSettingsAction::run(
                     instanceSettings: is_array($blockMeta['presentation'] ?? null) ? $blockMeta['presentation'] : [],
-                    typeDefaults: is_array($block->type?->meta['presentation'] ?? null) ? $block->type->meta['presentation'] : [],
+                    typeDefaults: is_array($typeMeta['presentation'] ?? null) ? $typeMeta['presentation'] : [],
                 );
 
                 foreach ($resourceGroups as $resourceGroup) {
@@ -102,8 +106,11 @@ class LayoutBlockWidgetResourceUsageContributor implements WidgetResourceUsageCo
         $instanceGroups = is_array($blockMeta['resource_groups'] ?? null)
             ? $blockMeta['resource_groups']
             : [];
-        $typeGroups = is_array($block->type?->meta['resource_groups'] ?? null)
-            ? $block->type->meta['resource_groups']
+        $type = $block->type;
+        $typeMeta = $type instanceof Blueprint && is_array($type->meta) ? $type->meta : [];
+
+        $typeGroups = is_array($typeMeta['resource_groups'] ?? null)
+            ? $typeMeta['resource_groups']
             : [];
 
         return collect([...$typeGroups, ...$instanceGroups])

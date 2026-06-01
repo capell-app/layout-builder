@@ -45,7 +45,7 @@ final class RecentActivityWidgetAbstract extends Widget implements CapellWidgetC
             ->limit(10)
             ->get();
 
-        $items = $pages->map(fn (object $page): ActivityItemData => new ActivityItemData(
+        $items = $pages->map(fn (Page $page): ActivityItemData => new ActivityItemData(
             title: $page->title ?? $page->name,
             type: 'page',
             status: $this->resolveStatus($page),
@@ -57,7 +57,7 @@ final class RecentActivityWidgetAbstract extends Widget implements CapellWidgetC
         );
     }
 
-    private function resolveStatus(object $page): string
+    private function resolveStatus(Page $page): string
     {
         if ($page->visible_from === null) {
             return 'draft';

@@ -10,6 +10,7 @@ use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Model;
 use RuntimeException;
+use Spatie\MediaLibrary\HasMedia;
 
 class DemoCreator extends ApDemoBlockCreator
 {
@@ -17,7 +18,16 @@ class DemoCreator extends ApDemoBlockCreator
         protected readonly ?Model $user = null,
     ) {
         throw_unless(CapellCore::hasAsset('Section'), RuntimeException::class, 'Content Sections must be installed to create section demo content.');
-        $this->contentModel = CapellCore::getAsset('Section')->model;
+        $contentModel = CapellCore::getAsset('Section')->model;
+
+        throw_unless(
+            is_subclass_of($contentModel, Model::class) && is_subclass_of($contentModel, HasMedia::class),
+            RuntimeException::class,
+            'Section asset model must be an Eloquent media model.',
+        );
+
+        /** @var class-string<Model&HasMedia> $contentModel */
+        $this->contentModel = $contentModel;
         $this->blockModel = Widget::class;
         $this->typeModel = Blueprint::class;
         $this->pageModel = Page::class;

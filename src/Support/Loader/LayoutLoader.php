@@ -15,6 +15,7 @@ use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\LayoutBlockData;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
@@ -138,6 +139,10 @@ class LayoutLoader
             $component = $block->getComponent();
             $componentType = $block->getMetaComponentType();
             $livewire = $componentType === 'livewire';
+
+            if (! is_string($component)) {
+                continue;
+            }
 
             try {
                 $componentClass = GetComponentClassAction::run($component, $livewire);
@@ -283,6 +288,10 @@ class LayoutLoader
                 $component = $firstBlock->getComponent();
                 $livewire = $firstBlock->getMetaComponentType() === 'livewire';
 
+                if (! is_string($component)) {
+                    return;
+                }
+
                 try {
                     $componentClass = GetComponentClassAction::run($component, $livewire);
                 } catch (Throwable) {
@@ -309,6 +318,10 @@ class LayoutLoader
 
     private function trackRetrievedModel(object $model): void
     {
+        if (! $model instanceof Model) {
+            return;
+        }
+
         if (! app()->bound(self::RETRIEVED_MODEL_STORE_SERVICE)) {
             return;
         }

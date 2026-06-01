@@ -22,15 +22,16 @@ it('installs the full block catalog with normalized enum metadata and translatio
         ->and(collect($extraDefinitions)->firstWhere('key', 'block-navigation')?->hasNavigation())->toBeTrue()
         ->and(Widget::query()->count())->toBe(count($defaultDefinitions) + count($extraDefinitions));
 
-    $announcementBlock = Widget::query()->firstWhere('key', 'announcement-bar');
-    $testimonialBlock = Widget::query()->firstWhere('key', 'asset-testimonials');
-    $navigationTabsBlock = Widget::query()->firstWhere('key', 'block-navigation-tabs');
+    $announcementBlock = capell_test_instance(Widget::query()->firstWhere('key', 'announcement-bar'), Widget::class);
+    $testimonialBlock = capell_test_instance(Widget::query()->firstWhere('key', 'asset-testimonials'), Widget::class);
+    $testimonialBlockMeta = capell_test_array($testimonialBlock->meta);
+    $navigationTabsBlock = capell_test_instance(Widget::query()->firstWhere('key', 'block-navigation-tabs'), Widget::class);
 
-    expect($announcementBlock?->component)->toBe(BlockComponentEnum::AnnouncementBar->value)
-        ->and($announcementBlock?->translations()->where('language_id', $language->getKey())->exists())->toBeTrue()
-        ->and($testimonialBlock?->meta['background_color'])->toBe('gray')
-        ->and($testimonialBlock?->component)->toBe(BlockComponentEnum::AssetTestimonials->value)
-        ->and($navigationTabsBlock?->component)->toBe(BlockComponentEnum::NavigationTabs->value);
+    expect($announcementBlock->component)->toBe(BlockComponentEnum::AnnouncementBar->value)
+        ->and($announcementBlock->translations()->where('language_id', $language->getKey())->exists())->toBeTrue()
+        ->and($testimonialBlockMeta['background_color'] ?? null)->toBe('gray')
+        ->and($testimonialBlock->component)->toBe(BlockComponentEnum::AssetTestimonials->value)
+        ->and($navigationTabsBlock->component)->toBe(BlockComponentEnum::NavigationTabs->value);
 });
 
 it('preserves existing component metadata while backfilling missing safe defaults', function (): void {
@@ -49,9 +50,10 @@ it('preserves existing component metadata while backfilling missing safe default
 
     InstallLayoutBuilderBlockCatalogAction::run(collect([$language]), extraBlocks: false);
 
-    $block = Widget::query()->firstWhere('key', 'announcement-bar');
+    $block = capell_test_instance(Widget::query()->firstWhere('key', 'announcement-bar'), Widget::class);
+    $blockMeta = capell_test_array($block->meta);
 
-    expect($block?->component)->toBe('custom-component')
-        ->and($block?->meta['container'])->toBe('full')
-        ->and($block?->meta['padding'])->toBe(['sm']);
+    expect($block->component)->toBe('custom-component')
+        ->and($blockMeta['container'] ?? null)->toBe('full')
+        ->and($blockMeta['padding'] ?? null)->toBe(['sm']);
 });

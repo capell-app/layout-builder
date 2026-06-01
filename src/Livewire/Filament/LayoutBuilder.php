@@ -224,7 +224,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
         return $this->layout
             ->pages()
-            ->whereKeyNot($this->page->getKey())
+            ->whereKeyNot($this->pageContext()->getKey())
             ->count();
     }
 
@@ -372,14 +372,20 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     public function getPageResource(): string
     {
         if ($this->page !== null) {
-            $resource = GetResourceFromBlueprintAction::run(ResourceEnum::Page, $this->page->type);
+            $resource = GetResourceFromBlueprintAction::run(ResourceEnum::Page, $this->pageContext()->type);
 
-            if ($resource !== null) {
+            if (is_string($resource) && is_subclass_of($resource, Resource::class)) {
                 return $resource;
             }
         }
 
-        return AdminSurfaceLookup::resource(ResourceEnum::Page);
+        $resource = AdminSurfaceLookup::resource(ResourceEnum::Page);
+
+        if (! is_subclass_of($resource, Resource::class)) {
+            throw new LogicException(sprintf('Page resource [%s] must extend [%s].', $resource, Resource::class));
+        }
+
+        return $resource;
     }
 
     /**
@@ -695,7 +701,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->ensureLoaded();
         $this->assertValidContainerKey($containerKey);
 
-        if (! isset($this->containers[$containerKey])) {
+        $container = $this->containers[$containerKey] ?? null;
+
+        if (! is_array($container)) {
             Notification::make('layout-preset-container-missing')
                 ->body(__('capell-layout-builder::message.no_container_selected'))
                 ->warning()
@@ -732,7 +740,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
                 site: $this->site,
                 name: $name,
                 category: $containerKey,
-                containers: [$containerKey => $this->containers[$containerKey]],
+                containers: [$containerKey => $container],
             );
         } catch (InvalidArgumentException) {
             Notification::make('layout-preset-save-failed')
@@ -835,7 +843,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             $this->selectedBlockIndex = $initialBlockIndex;
             $this->selectedPreviewNodeHandle = $this->handleForBlock($initialContainerKey, $initialBlockIndex);
         } else {
-            $this->selectedContainerKey ??= is_array($this->containers) ? array_key_first($this->containers) : null;
+            $firstContainerKey = array_key_first($this->containers ?? []);
+            $this->selectedContainerKey ??= is_string($firstContainerKey) ? $firstContainerKey : null;
             $this->selectedBlockIndex = null;
             $this->selectedPreviewNodeHandle = $this->selectedContainerKey === null
                 ? null
@@ -954,8 +963,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             }
         }
 
-        if (! $this->site instanceof Site && $this->page instanceof Model && $this->page->hasAttribute('site_id')) {
-            $pageSiteId = $this->page->getAttribute('site_id');
+        if (! $this->site instanceof Site && $this->page instanceof Model && $this->pageContext()->hasAttribute('site_id')) {
+            $pageSiteId = $this->pageContext()->getAttribute('site_id');
 
             if (is_numeric($pageSiteId)) {
                 $this->site = Site::query()->find((int) $pageSiteId);

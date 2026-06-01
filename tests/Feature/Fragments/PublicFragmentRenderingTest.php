@@ -21,7 +21,7 @@ it('renders a valid encrypted public block fragment reference', function (): voi
 it('exposes the public fragment route with fragment specific cache headers', function (): void {
     [$reference] = publicFragmentFixture('<section>Route fragment</section>');
 
-    $this->get('/_capell/fragments/' . rawurlencode($reference))
+    $this->get('/_fragments/' . rawurlencode($reference))
         ->assertOk()
         ->assertHeader('Cache-Control', 'max-age=300, public, stale-while-revalidate=60')
         ->assertHeader('X-Robots-Tag', 'noindex')
@@ -29,7 +29,7 @@ it('exposes the public fragment route with fragment specific cache headers', fun
 });
 
 it('returns a generic 404 for invalid encrypted public block references', function (): void {
-    $this->get('/_capell/fragments/not-a-valid-token')
+    $this->get('/_fragments/not-a-valid-token')
         ->assertNotFound()
         ->assertDontSee('decrypt', false)
         ->assertDontSee('token', false);
