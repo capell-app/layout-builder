@@ -65,8 +65,23 @@ it('renders the visual layout builder by default from the package namespace', fu
         ->assertDontSee('Inspector')
         ->assertSee(__('capell-layout-builder::message.preview_status_current'))
         ->assertSee(__('capell-layout-builder::message.container_empty'))
+        ->assertSeeHtml('layout-builder-visual-editor-empty')
+        ->assertSeeHtml('layout-builder-visual-grid-empty')
+        ->assertSeeHtml('layout-builder-shadow-preview-empty')
         ->assertSeeHtml('data-capell-layout-builder-admin-preview="true"')
         ->assertSeeHtml('capell-layout-builder:request-page-state');
+});
+
+it('renders a full width empty page preview when a layout has no containers', function (): void {
+    $layout = Layout::factory()->create(['containers' => []]);
+
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->assertSee(__('capell-layout-builder::message.layout_empty'))
+        ->assertSeeHtml('clb-preview-empty-page')
+        ->assertSeeHtml('layout-builder-shadow-preview-empty');
+
+    expect(file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/visual-editor.blade.php'))
+        ->toContain('.clb-preview-empty-page { grid-column: 1 / -1; }');
 });
 
 it('resolves lazy mount scalar identifiers into builder models', function (): void {

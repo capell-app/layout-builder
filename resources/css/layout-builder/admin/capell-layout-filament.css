@@ -1096,6 +1096,10 @@
     background: rgb(243, 244, 246);
 }
 
+.layout-builder-visual-grid-empty {
+    min-height: min(32rem, calc(100vh - 22rem));
+}
+
 .dark .layout-builder-visual-grid {
     background: rgb(3, 7, 18);
 }
@@ -1162,6 +1166,10 @@
         0 1px 2px rgba(15, 23, 42, 0.08),
         0 12px 35px rgba(15, 23, 42, 0.08);
     margin-inline: auto;
+}
+
+.layout-builder-shadow-preview-empty {
+    min-height: 14rem;
 }
 
 .layout-builder-tree {

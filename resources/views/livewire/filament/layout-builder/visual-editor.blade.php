@@ -115,7 +115,8 @@
                     .clb-preview-widget p { margin: .375rem 0 0; color: #475569; font-size: .875rem; line-height: 1.5; }
                     .layout-builder-block-preview { padding: 1rem; }
                     .layout-block-preview-actions, .layout-block-assets-toggle { display: none !important; }
-                    .clb-preview-empty { border: 1px dashed #cbd5e1; border-radius: .625rem; padding: 1rem; color: #64748b; text-align: center; }
+                    .clb-preview-empty { width: 100%; border: 1px dashed #cbd5e1; border-radius: .625rem; padding: 1rem; color: #64748b; text-align: center; }
+                    .clb-preview-empty-page { grid-column: 1 / -1; }
                     [data-clb-preview-node] { cursor: pointer; pointer-events: auto; }
                     [data-clb-preview-node]:hover, [data-clb-preview-node]:focus-visible { outline: 2px solid rgba(59, 130, 246, .55); outline-offset: 3px; }
                     [data-clb-preview-node].is-selected { outline: 3px solid #2563eb; outline-offset: 4px; box-shadow: 0 0 0 5px rgba(37, 99, 235, .12); }
@@ -757,7 +758,10 @@
                 previewSignature: {{ Js::from($this->visualPreviewSignature) }},
             })"
     x-on:keydown.escape.window="treeOpen ? closeTree() : null"
-    class="layout-builder-visual-editor"
+    @class([
+        'layout-builder-visual-editor',
+        'layout-builder-visual-editor-empty' => $tree->blockCount === 0,
+    ])
 >
     <div class="layout-builder-visual-toolbar">
         <div class="layout-builder-visual-toolbar-start">
@@ -805,7 +809,12 @@
         </div>
     </div>
 
-    <div class="layout-builder-visual-grid">
+    <div
+        @class([
+            'layout-builder-visual-grid',
+            'layout-builder-visual-grid-empty' => $tree->blockCount === 0,
+        ])
+    >
         <aside
             class="layout-builder-visual-panel layout-builder-visual-panel-tree"
         >
@@ -848,7 +857,10 @@
                 wire:key="layout-builder-shadow-preview-{{ $this->visualPreviewSignature }}"
                 x-ref="previewHost"
                 x-init="$nextTick(() => renderPreview())"
-                class="layout-builder-shadow-preview"
+                @class([
+                    'layout-builder-shadow-preview',
+                    'layout-builder-shadow-preview-empty' => $tree->blockCount === 0,
+                ])
                 x-bind:style="{
                     maxWidth: activeBreakpointMaxCanvasWidth(),
                     minWidth: activeBreakpointMinCanvasWidth(),

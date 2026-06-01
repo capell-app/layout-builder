@@ -17,12 +17,38 @@ final class DefaultLayoutInterceptor implements LayoutInterceptorInterface
 
     public function afterCreated(Layout $layout, array $data): void
     {
+        $this->ensureStarterContainers($layout);
+    }
+
+    public function afterCreatedOrUpdated(Layout $layout, array $data): void
+    {
+        $this->ensureStarterContainers($layout);
+    }
+
+    private function ensureStarterContainers(Layout $layout): void
+    {
         if (! resolve(RuntimeSchemaState::class)->hasColumn('layouts', 'containers')) {
             return;
         }
 
+        if (is_array($layout->containers) && $layout->containers !== []) {
+            return;
+        }
+
         $layout->update([
-            'containers' => [],
+            'containers' => [
+                'main' => [
+                    'widgets' => [
+                        [
+                            'widget_key' => 'page-content',
+                            'occurrence' => 1,
+                        ],
+                    ],
+                    'meta' => [
+                        'colspan' => 12,
+                    ],
+                ],
+            ],
         ]);
     }
 }
