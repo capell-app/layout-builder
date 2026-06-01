@@ -83,7 +83,10 @@
         :settings="$presentation"
         :resource-public-ids="$resourcePublicIds"
     >
-        <div id="{{ $blockDomId }}" class="layout-block">
+        <div
+            id="{{ $blockDomId }}"
+            class="layout-block"
+        >
             <x-dynamic-component
                 :component="$blockComponent"
                 :$container
@@ -106,7 +109,10 @@
         :settings="$presentation"
         :resource-public-ids="$resourcePublicIds"
     >
-        <div id="{{ $blockDomId }}" class="layout-block">
+        <div
+            id="{{ $blockDomId }}"
+            class="layout-block"
+        >
             @livewire($blockComponent, ['blockReference' => $blockReference], key($containerKey . '-' . $block->key . '-' . $occurrence))
         </div>
         <x-capell::interactions :triggers="$interactions" />

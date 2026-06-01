@@ -174,7 +174,10 @@
                 </div>
             </div>
 
-            <div x-ref="contentItems" class="space-y-5">
+            <div
+                x-ref="contentItems"
+                class="space-y-5"
+            >
                 @foreach ($inventory->groups as $group)
                     @php
                         $groupDomKey = hash('xxh128', $inventory->signature . '|group|' . $group->key);

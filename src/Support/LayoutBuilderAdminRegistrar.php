@@ -199,12 +199,7 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
 
         FilamentAsset::register(
             [
-                Css::make('capell-layout-builder-filament', $cssSourcePath)
-                    ->html(fn (): string => sprintf(
-                        '<link href="%s?v=%s" rel="stylesheet" data-navigate-track />',
-                        asset('css/capell-layout-builder/capell-layout-builder-filament.css'),
-                        filemtime($cssSourcePath),
-                    )),
+                Css::make('capell-layout-builder-filament', $cssSourcePath),
                 AlpineComponent::make('layout-builder', $publishDir . '/build/js/components/layout-builder/admin/layout-builder.js')
                     ->loadedOnRequest(),
             ],

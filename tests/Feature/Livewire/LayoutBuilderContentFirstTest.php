@@ -360,7 +360,8 @@ it('renders the signed frontend authoring layout builder editor surface', functi
 
     $this->get($signedUrl)
         ->assertOk()
-        ->assertSee('<html lang="en" class="fi">', false)
+        ->assertSee('lang="en"', false)
+        ->assertSee('class="fi"', false)
         ->assertSee('capell-layout-builder-authoring')
         ->assertSee('css/capell-layout-builder/capell-layout-builder-filament.css')
         ->assertSee("[x-cloak='']", false)

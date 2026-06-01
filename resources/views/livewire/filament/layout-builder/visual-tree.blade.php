@@ -2,7 +2,10 @@
     'tree',
 ])
 
-<div class="layout-builder-tree" role="tree">
+<div
+    class="layout-builder-tree"
+    role="tree"
+>
     <div class="layout-builder-tree-header">
         <div>
             <h2>

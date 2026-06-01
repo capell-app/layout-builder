@@ -1,24 +1,20 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="fi">
+<html
+    lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+    class="fi"
+>
     <head>
         <meta charset="utf-8" />
-        <meta name="csrf-token" content="{{ csrf_token() }}" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+            name="csrf-token"
+            content="{{ csrf_token() }}"
+        />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        />
         <title>{{ $title }}</title>
         @include('capell-layout-builder::frontend-authoring.filament-shell-assets')
-        @php
-            $layoutBuilderStylesheet = 'css/capell-layout-builder/capell-layout-builder-filament.css';
-            $layoutBuilderStylesheetPath = public_path($layoutBuilderStylesheet);
-            $layoutBuilderStylesheetVersion = is_file($layoutBuilderStylesheetPath)
-                ? filemtime($layoutBuilderStylesheetPath)
-                : null;
-        @endphp
-
-        <link
-            href="{{ asset($layoutBuilderStylesheet) }}@if ($layoutBuilderStylesheetVersion !== null)?v={{ $layoutBuilderStylesheetVersion }}@endif"
-            rel="stylesheet"
-            data-navigate-track
-        />
         @livewireStyles
         <style>
             html {
