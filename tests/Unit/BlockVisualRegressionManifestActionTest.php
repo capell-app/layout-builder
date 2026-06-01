@@ -60,3 +60,35 @@ it('limits visual regression entries for ci runs', function (): void {
 
     expect(BuildBlockVisualRegressionManifestAction::run(limit: 2))->toHaveCount(2);
 });
+
+it('emits visual regression manifest entries from the console command', function (): void {
+    resolve(BlockRegistry::class)->register(new BlockDefinitionData(
+        key: 'marketing.command',
+        label: 'Command',
+        description: 'Command block.',
+        category: 'marketing',
+        view: 'vendor-package::blocks.command',
+        variants: [
+            new BlockVariantData(BlockVariantKey::from('default'), 'vendor-package::blocks.variants.default'),
+        ],
+    ));
+
+    test()->artisan('capell:layout-builder-block-visual-regression', [
+        'mode' => 'capture',
+        '--block' => 'marketing.command',
+        '--variant' => 'default',
+        '--theme' => 'foundation',
+        '--changed' => true,
+        '--concurrency' => 0,
+        '--ci-limit' => 1,
+    ])
+        ->assertSuccessful();
+});
+
+it('rejects unsupported visual regression command modes', function (): void {
+    test()->artisan('capell:layout-builder-block-visual-regression', [
+        'mode' => 'diff',
+    ])
+        ->assertFailed()
+        ->expectsOutputToContain('Mode must be capture or assert.');
+});
